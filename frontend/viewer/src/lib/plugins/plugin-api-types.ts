@@ -48,6 +48,7 @@ export interface HostInitMessage {
   project: {projectName: string; projectCode: string};
   theme: 'light' | 'dark';
   permissions: PluginPermission[];
+  context?: {entryId?: string};
 }
 
 export interface PluginApiError {
@@ -89,6 +90,12 @@ export interface PluginEntryFilter {
   semanticDomainCode?: string;
   /** Part of speech id (GUID) */
   partOfSpeechId?: string;
+  /** Writing system code; matches entries with no sense glossed in that writing system. */
+  missingGlossWs?: string;
+  /** Writing system code; matches entries where no sense has an example sentence with text in that writing system. */
+  missingExampleWs?: string;
+  /** Matches entries having a sense without a part of speech (or no senses). */
+  missingPartOfSpeech?: boolean;
 }
 
 /** A write a plugin has requested; the user must approve it before it is applied. */

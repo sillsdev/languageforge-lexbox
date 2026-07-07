@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Word Harvest Bingo</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --stamp: #dc2626;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 16px;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --stamp: #f87171;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+  }
+
+  .center-state { text-align: center; padding: 60px 20px; color: var(--text-muted); margin: auto; }
+  .spinner {
+    width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    padding: 14px 18px; border-radius: var(--radius); max-width: 520px; margin: 40px auto;
+  }
+
+  /* Setup */
+  .setup-wrap { max-width: 560px; margin: auto; padding: 32px 20px; width: 100%; }
+  .setup-wrap h1 { font-size: 1.8rem; margin: 0 0 4px; }
+  .setup-wrap .lead { color: var(--text-muted); margin: 0 0 24px; line-height: 1.5; }
+  .field { margin-bottom: 22px; }
+  .field > label { display: block; font-weight: 600; margin-bottom: 8px; }
+  .field .hint { color: var(--text-muted); font-size: 0.85rem; margin-top: 6px; line-height: 1.45; }
+  .seg { display: flex; gap: 8px; }
+  .seg button {
+    flex: 1; padding: 12px; border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer;
+  }
+  .seg button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .target-row { display: flex; align-items: center; gap: 12px; }
+  .target-row input {
+    width: 90px; padding: 11px; font-size: 1.1rem; text-align: center;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text);
+  }
+  .target-row .unit { color: var(--text-muted); font-size: 0.9rem; }
+  .primary-btn {
+    background: var(--accent); color: #fff; border: none; padding: 14px 22px; border-radius: 999px;
+    font-size: 1.05rem; font-weight: 700; cursor: pointer; width: 100%;
+  }
+  .primary-btn:hover { filter: brightness(1.08); }
+  .primary-btn:disabled { opacity: 0.5; cursor: default; }
+
+  /* Game */
+  #game { flex: 1; display: none; flex-direction: column; min-height: 100vh; padding: clamp(8px, 1.6vw, 20px); }
+  .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: clamp(8px, 1.4vw, 16px); flex-wrap: wrap; }
+  .topbar h1 { font-size: clamp(1.2rem, 2.6vw, 2rem); margin: 0; font-weight: 800; letter-spacing: -0.5px; }
+  .topbar .spacer { flex: 1; }
+  .live {
+    display: inline-flex; align-items: center; gap: 7px; font-size: clamp(0.72rem, 1.3vw, 0.95rem);
+    color: var(--text-muted); background: var(--surface-alt); padding: 6px 12px; border-radius: 999px;
+  }
+  .live .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--good); animation: pulse 2s ease-in-out infinite; }
+  .live.paused .dot { background: var(--text-muted); animation: none; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.7); } }
+  .icon-btn {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 8px 14px;
+    border-radius: 999px; font-size: clamp(0.75rem, 1.3vw, 0.95rem); font-weight: 600; cursor: pointer;
+  }
+  .icon-btn:hover { border-color: var(--accent); }
+
+  .board { flex: 1; display: grid; gap: clamp(6px, 1vw, 14px); align-content: stretch; }
+  .square {
+    position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: clamp(8px, 1.2vw, 18px); display: flex; flex-direction: column;
+    justify-content: space-between; overflow: hidden; min-height: 0;
+  }
+  .square .code { font-size: clamp(0.62rem, 1vw, 0.9rem); font-weight: 700; color: var(--accent); }
+  .square .name {
+    font-size: clamp(0.85rem, 1.9vw, 1.7rem); font-weight: 700; line-height: 1.12; margin: 4px 0;
+    overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  }
+  .square .count { font-size: clamp(0.9rem, 2.2vw, 2.1rem); font-weight: 800; line-height: 1; }
+  .square .count .of { font-size: 0.55em; color: var(--text-muted); font-weight: 600; }
+  .square .track { height: clamp(6px, 0.8vw, 10px); background: var(--surface-alt); border-radius: 999px; overflow: hidden; margin-top: 6px; }
+  .square .fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--good)); border-radius: 999px; transition: width 0.5s ease; }
+  .square.stretch .code::after { content: " • stretch"; color: var(--text-muted); font-weight: 500; }
+  .square.err { border-color: #f5b5b5; }
+  .square.stamped .fill { background: var(--good); }
+  .square.stamped .count { color: var(--good); }
+  .stamp { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; pointer-events: none; }
+  .square.stamped .stamp { display: flex; }
+  .stamp span {
+    color: var(--stamp); border: 4px solid var(--stamp); border-radius: 12px; padding: 4px 14px;
+    font-weight: 900; letter-spacing: 2px; font-size: clamp(0.9rem, 2.4vw, 2.3rem); text-transform: uppercase;
+    transform: rotate(-14deg); opacity: 0.82; background: color-mix(in srgb, var(--stamp) 12%, transparent);
+  }
+  .square.just-stamped .stamp { animation: slam 0.5s cubic-bezier(0.2, 1.4, 0.4, 1); }
+  @keyframes slam {
+    0% { transform: scale(2.6) rotate(-14deg); opacity: 0; }
+    60% { transform: scale(0.85) rotate(-14deg); opacity: 1; }
+    100% { transform: scale(1) rotate(-14deg); opacity: 1; }
+  }
+
+  .footer {
+    display: flex; gap: clamp(12px, 3vw, 40px); justify-content: center; align-items: baseline;
+    margin-top: clamp(8px, 1.4vw, 16px); color: var(--text-muted); flex-wrap: wrap;
+  }
+  .footer .stat { text-align: center; }
+  .footer .stat .n { font-size: clamp(1rem, 2.4vw, 1.8rem); font-weight: 800; color: var(--text); }
+  .footer .stat .l { font-size: clamp(0.65rem, 1.1vw, 0.85rem); }
+
+  /* Celebration */
+  #celebrate {
+    position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center;
+    flex-direction: column; background: rgba(0, 0, 0, 0.55);
+  }
+  #confetti { position: fixed; inset: 0; pointer-events: none; }
+  .banner { position: relative; z-index: 1; text-align: center; animation: pop 0.5s cubic-bezier(0.2, 1.5, 0.4, 1); }
+  .banner .word {
+    font-size: clamp(3rem, 14vw, 11rem); font-weight: 900; letter-spacing: 4px; color: #fff;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); line-height: 1;
+  }
+  .banner .sub { color: #fff; font-size: clamp(1rem, 3vw, 2rem); margin: 12px 0 26px; font-weight: 600; }
+  @keyframes pop { 0% { transform: scale(0.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div id="loading" class="center-state">
+  <div class="spinner"></div>
+  <div>Loading semantic domains&hellip;</div>
+</div>
+
+<div id="error" class="error-box" style="display:none;"></div>
+
+<div id="setup" class="setup-wrap" style="display:none;">
+  <h1>Word Harvest Bingo</h1>
+  <p class="lead">A big-screen companion for Rapid Word Collection. Put it on the projector; squares stamp themselves as teams collect words into the semantic domains on other machines.</p>
+
+  <div class="field">
+    <label>Card size</label>
+    <div class="seg" id="size-seg">
+      <button data-size="3">3 &times; 3</button>
+      <button data-size="4">4 &times; 4</button>
+      <button data-size="5" class="active">5 &times; 5</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="target-input">Words per square</label>
+    <div class="target-row">
+      <input id="target-input" type="number" min="1" max="999" value="10">
+      <span class="unit">new words collected during the game to stamp a square</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <p class="hint">The card is drawn from this project&rsquo;s top two levels of semantic domains, favouring ones that already have words (so squares are reachable) plus a few empty <strong>stretch</strong> squares as a challenge. Only words collected <strong>after</strong> you start count toward a square.</p>
+  </div>
+
+  <button class="primary-btn" id="new-game-btn">New game</button>
+</div>
+
+<div id="game">
+  <div class="topbar">
+    <h1>Word Harvest Bingo</h1>
+    <div class="spacer"></div>
+    <span class="live" id="live"><span class="dot"></span><span id="live-text">live</span></span>
+    <button class="icon-btn" id="fs-btn">Fullscreen</button>
+    <button class="icon-btn" id="restart-btn">New game</button>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="footer">
+    <div class="stat"><div class="n" id="stat-words">0</div><div class="l">words collected this game</div></div>
+    <div class="stat"><div class="n" id="stat-stamped">0</div><div class="l">squares stamped</div></div>
+    <div class="stat"><div class="n" id="stat-time">0:00</div><div class="l">elapsed</div></div>
+  </div>
+</div>
+
+<div id="celebrate">
+  <canvas id="confetti"></canvas>
+  <div class="banner">
+    <div class="word" id="banner-word">BINGO!</div>
+    <div class="sub" id="banner-sub"></div>
+    <button class="primary-btn" id="keep-playing" style="width:auto;padding:14px 40px;">Keep playing</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'word-harvest-bingo-v1';
+  var PREFS_KEY = 'word-harvest-bingo-prefs-v1';
+  var POLL_MS = 10000;
+  var PROBE_CAP = 150;      // cap one-time count probing so a huge domain tree can't stall setup
+  var STRETCH_RATIO = 0.25; // share of squares drawn from empty (currently zero-entry) domains
+
+  var state = {
+    game: null,            // {size, target, createdAt, squares:[{code, name, baseline, current, stamped, stretch, err}]}
+    analysisWs: [],
+    allDomains: [],        // flat {code, name}
+    celebrated: {},        // line key -> true, so a completed line only celebrates once
+    prefs: {size: 5, target: 10},
+    pollTimer: null,
+    clockTimer: null,
+    audioCtx: null,
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(v) { var d = document.createElement('div'); d.textContent = v == null ? '' : String(v); return d.innerHTML; }
+
+  function applyTheme(theme) {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (dark ? 'dark' : 'light'));
+  }
+
+  function showError(msg) {
+    $('loading').style.display = 'none';
+    $('setup').style.display = 'none';
+    $('game').style.display = 'none';
+    var box = $('error');
+    box.style.display = 'block';
+    box.textContent = msg;
+  }
+
+  function domainName(domain) {
+    return window.fwlite.firstValue(domain.name, state.analysisWs) || domain.code || '—';
+  }
+
+  /** getSemanticDomains returns a flat list, but flatten defensively in case a tree with children arrives. */
+  function flattenDomains(list) {
+    var out = [];
+    (list || []).forEach(function walk(d) {
+      if (!d) return;
+      if (d.code) out.push({code: d.code, name: d.name || {}});
+      var kids = d.children || d.subdomains || d.subDomains;
+      if (Array.isArray(kids)) kids.forEach(walk);
+    });
+    var seen = {};
+    return out.filter(function (d) { if (seen[d.code]) return false; seen[d.code] = true; return true; });
+  }
+
+  function shuffle(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  function countDomain(code) {
+    return window.fwlite.countEntries({filter: {semanticDomainCode: code}}).then(
+      function (n) { return typeof n === 'number' ? n : 0; },
+      function () { return null; } // null = the count call failed for this domain
+    );
+  }
+
+  /** Builds the square list: shuffle candidates, probe counts, favour used domains + a few empty stretch squares. */
+  function buildCard(size, target) {
+    var needed = size * size;
+    var topTwo = state.allDomains.filter(function (d) { return d.code.split('.').length <= 2; });
+    var pool = topTwo.length >= needed ? topTwo : state.allDomains.slice();
+    if (pool.length < needed) {
+      // Reject rather than throw: callers chain .catch, and a synchronous throw would bypass it.
+      return Promise.reject(new Error('This project only has ' + pool.length + ' semantic domains — not enough for a ' +
+        size + '×' + size + ' card. Try a smaller card.'));
+    }
+    var candidates = shuffle(pool.slice()).slice(0, PROBE_CAP);
+    return Promise.all(candidates.map(function (d) { return countDomain(d.code); })).then(function (counts) {
+      var used = [], empty = [];
+      candidates.forEach(function (d, i) {
+        var c = counts[i];
+        (c > 0 ? used : empty).push({domain: d, baseline: c == null ? 0 : c});
+      });
+      shuffle(used); shuffle(empty);
+      var stretchWant = Math.min(empty.length, Math.round(needed * STRETCH_RATIO));
+      var picked = empty.slice(0, stretchWant).map(function (e) { e.stretch = true; return e; });
+      for (var i = 0; picked.length < needed && i < used.length; i++) picked.push(used[i]);
+      for (var j = stretchWant; picked.length < needed && j < empty.length; j++) picked.push(empty[j]);
+      shuffle(picked);
+      return picked.map(function (p) {
+        return {
+          code: p.domain.code,
+          name: domainName(p.domain),
+          baseline: p.baseline,
+          current: p.baseline,
+          stamped: false,
+          stretch: !!p.stretch,
+          err: false,
+        };
+      });
+    });
+  }
+
+  function saveGame() { return window.fwlite.storage.set(STORAGE_KEY, state.game); }
+  function savePrefs() { return window.fwlite.storage.set(PREFS_KEY, state.prefs); }
+
+  function progressOf(sq) { return Math.max(0, sq.current - sq.baseline); }
+
+  function totalWords() {
+    return state.game.squares.reduce(function (sum, sq) { return sum + progressOf(sq); }, 0);
+  }
+
+  function renderBoard() {
+    var size = state.game.size;
+    var board = $('board');
+    board.style.gridTemplateColumns = 'repeat(' + size + ', 1fr)';
+    board.style.gridTemplateRows = 'repeat(' + size + ', 1fr)';
+    board.innerHTML = '';
+    state.game.squares.forEach(function (sq, i) {
+      var el = document.createElement('div');
+      el.className = 'square' + (sq.stretch ? ' stretch' : '') + (sq.stamped ? ' stamped' : '');
+      el.id = 'sq-' + i;
+      el.innerHTML =
+        '<div class="code">' + esc(sq.code) + '</div>' +
+        '<div class="name">' + esc(sq.name) + '</div>' +
+        '<div><div class="count"><span class="now">' + progressOf(sq) + '</span>' +
+          '<span class="of"> / ' + state.game.target + '</span></div>' +
+        '<div class="track"><div class="fill"></div></div></div>' +
+        '<div class="stamp"><span>Found!</span></div>';
+      board.appendChild(el);
+      updateSquareView(i);
+    });
+  }
+
+  function updateSquareView(i) {
+    var sq = state.game.squares[i];
+    var el = $('sq-' + i);
+    if (!el) return;
+    var prog = progressOf(sq);
+    var pct = Math.min(100, Math.round((prog / state.game.target) * 100));
+    el.querySelector('.now').textContent = prog;
+    el.querySelector('.fill').style.width = pct + '%';
+    el.classList.toggle('err', sq.err);
+  }
+
+  function lines() {
+    var n = state.game.size, sq = state.game.squares, out = [];
+    for (var r = 0; r < n; r++) { var row = []; for (var c = 0; c < n; c++) row.push(r * n + c); out.push({key: 'r' + r, idx: row}); }
+    for (var c2 = 0; c2 < n; c2++) { var col = []; for (var r2 = 0; r2 < n; r2++) col.push(r2 * n + c2); out.push({key: 'c' + c2, idx: col}); }
+    var d1 = [], d2 = [];
+    for (var k = 0; k < n; k++) { d1.push(k * n + k); d2.push(k * n + (n - 1 - k)); }
+    out.push({key: 'd1', idx: d1});
+    out.push({key: 'd2', idx: d2});
+    return out;
+  }
+
+  function completeLines() {
+    var sq = state.game.squares;
+    return lines().filter(function (line) {
+      return line.idx.every(function (i) { return sq[i].stamped; });
+    });
+  }
+
+  /** One poll: refresh every square (≤25) in parallel, stamp newly-crossed squares, then check for bingo. */
+  function poll(firstRun) {
+    if (!state.game) return;
+    var target = state.game.target;
+    Promise.all(state.game.squares.map(function (sq) { return countDomain(sq.code); })).then(function (counts) {
+      var newlyStamped = [];
+      counts.forEach(function (c, i) {
+        var sq = state.game.squares[i];
+        if (c == null) { sq.err = true; updateSquareView(i); return; }
+        sq.err = false;
+        sq.current = c;
+        var wasStamped = sq.stamped;
+        sq.stamped = progressOf(sq) >= target;
+        updateSquareView(i);
+        var el = $('sq-' + i);
+        if (sq.stamped && !wasStamped) {
+          el.classList.add('stamped');
+          if (!firstRun) {
+            void el.offsetWidth;
+            el.classList.add('just-stamped');
+            newlyStamped.push(sq);
+          }
+        } else if (!sq.stamped && wasStamped) {
+          el.classList.remove('stamped');
+        }
+      });
+      if (newlyStamped.length && !firstRun) {
+        window.fwlite.notify('Stamped: ' + newlyStamped.map(function (s) { return s.name; }).join(', ')).catch(function () {});
+      }
+      updateFooter();
+      saveGame();
+      checkBingo(firstRun);
+    });
+  }
+
+  function checkBingo(firstRun) {
+    var complete = completeLines();
+    var fresh = complete.filter(function (line) { return !state.celebrated[line.key]; });
+    complete.forEach(function (line) { state.celebrated[line.key] = true; });
+    if (firstRun) return; // resuming a game: adopt existing lines silently, no confetti
+
+    var allStamped = state.game.squares.every(function (sq) { return sq.stamped; });
+    if (allStamped && !state.celebrated._blackout) {
+      state.celebrated._blackout = true;
+      celebrate('BLACKOUT!', 'Every square stamped — the harvest is complete!');
+    } else if (fresh.length) {
+      celebrate('BINGO!', fresh.length > 1 ? fresh.length + ' lines at once!' : 'A line is complete!');
+    }
+  }
+
+  function updateFooter() {
+    $('stat-words').textContent = totalWords().toLocaleString();
+    $('stat-stamped').textContent = state.game.squares.filter(function (s) { return s.stamped; }).length +
+      ' / ' + state.game.squares.length;
+  }
+
+  function tickClock() {
+    if (!state.game) return;
+    var secs = Math.max(0, Math.floor((Date.now() - state.game.createdAt) / 1000));
+    var m = Math.floor(secs / 60), s = secs % 60;
+    $('stat-time').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function startPolling() {
+    stopPolling();
+    poll(true);
+    state.pollTimer = setInterval(function () { if (!document.hidden) poll(false); }, POLL_MS);
+    setLive(true);
+  }
+  function stopPolling() { if (state.pollTimer) { clearInterval(state.pollTimer); state.pollTimer = null; } }
+
+  function setLive(on) {
+    $('live').classList.toggle('paused', !on);
+    $('live-text').textContent = on ? 'live' : 'paused';
+  }
+
+  // ----- celebration: confetti + banner + synth fanfare -----
+  function celebrate(word, sub) {
+    $('banner-word').textContent = word;
+    $('banner-sub').textContent = sub;
+    $('celebrate').style.display = 'flex';
+    runConfetti();
+    fanfare();
+  }
+
+  var confettiRAF = null;
+  function runConfetti() {
+    var canvas = $('confetti');
+    var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    var colors = ['#4f46e5', '#059669', '#f59e0b', '#dc2626', '#818cf8', '#34d399'];
+    var parts = [];
+    for (var i = 0; i < 160; i++) {
+      parts.push({
+        x: Math.random() * canvas.width,
+        y: -20 - Math.random() * canvas.height,
+        r: 5 + Math.random() * 7,
+        vx: -2 + Math.random() * 4,
+        vy: 2 + Math.random() * 5,
+        rot: Math.random() * 6.28,
+        vr: -0.2 + Math.random() * 0.4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      });
+    }
+    var start = Date.now();
+    if (confettiRAF) cancelAnimationFrame(confettiRAF);
+    (function frame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      parts.forEach(function (p) {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.rot += p.vr;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.6);
+        ctx.restore();
+      });
+      if (Date.now() - start < 4000) confettiRAF = requestAnimationFrame(frame);
+      else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    })();
+  }
+
+  function fanfare() {
+    var ctx = state.audioCtx;
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    var notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
+    notes.forEach(function (freq, i) {
+      var t = ctx.currentTime + i * 0.13;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.34);
+    });
+  }
+
+  function ensureAudio() {
+    if (state.audioCtx) return;
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) state.audioCtx = new AC();
+    } catch (e) { /* audio unavailable; celebrations stay silent */ }
+  }
+
+  // ----- screens -----
+  function showSetup() {
+    stopPolling();
+    $('loading').style.display = 'none';
+    $('game').style.display = 'none';
+    $('setup').style.display = 'block';
+    $('size-seg').querySelectorAll('button').forEach(function (b) {
+      b.classList.toggle('active', Number(b.dataset.size) === state.prefs.size);
+    });
+    $('target-input').value = state.prefs.target;
+  }
+
+  function showGame() {
+    $('loading').style.display = 'none';
+    $('setup').style.display = 'none';
+    $('game').style.display = 'flex';
+    renderBoard();
+    updateFooter();
+    tickClock();
+    startPolling();
+  }
+
+  function startNewGame() {
+    var size = state.prefs.size;
+    var target = Math.max(1, Math.min(999, parseInt($('target-input').value, 10) || 10));
+    state.prefs.target = target;
+    savePrefs();
+    ensureAudio();
+    var btn = $('new-game-btn');
+    btn.disabled = true;
+    btn.textContent = 'Building card…';
+    buildCard(size, target).then(function (squares) {
+      state.game = {size: size, target: target, createdAt: Date.now(), squares: squares};
+      state.celebrated = {};
+      return saveGame();
+    }).then(function () {
+      btn.disabled = false;
+      btn.textContent = 'New game';
+      showGame();
+    }).catch(function (err) {
+      btn.disabled = false;
+      btn.textContent = 'New game';
+      var hint = $('setup').querySelector('.hint');
+      hint.style.color = 'var(--stamp)';
+      hint.textContent = err && err.message ? err.message : 'Could not build a card.';
+    });
+  }
+
+  function validGame(g) {
+    return g && typeof g === 'object' && g.size && g.target && Array.isArray(g.squares) &&
+      g.squares.length === g.size * g.size;
+  }
+
+  function wire() {
+    $('size-seg').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-size]');
+      if (!b) return;
+      state.prefs.size = Number(b.dataset.size);
+      savePrefs();
+      $('size-seg').querySelectorAll('button').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+    });
+    $('new-game-btn').addEventListener('click', startNewGame);
+    $('restart-btn').addEventListener('click', showSetup);
+    $('keep-playing').addEventListener('click', function () { $('celebrate').style.display = 'none'; });
+    $('fs-btn').addEventListener('click', function () {
+      ensureAudio();
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (!state.game) return;
+      if (document.hidden) setLive(false);
+      else { setLive(true); poll(false); }
+    });
+    window.addEventListener('resize', function () {
+      if ($('celebrate').style.display === 'flex') { $('confetti').width = window.innerWidth; $('confetti').height = window.innerHeight; }
+    });
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+    wire();
+    state.clockTimer = setInterval(tickClock, 1000);
+
+    Promise.all([
+      window.fwlite.getWritingSystems(),
+      window.fwlite.getSemanticDomains(),
+      window.fwlite.storage.get(STORAGE_KEY),
+      window.fwlite.storage.get(PREFS_KEY),
+    ]).then(function (r) {
+      state.analysisWs = ((r[0] && r[0].analysis) || []).map(function (ws) { return ws.wsId; });
+      state.allDomains = flattenDomains(r[1]);
+      if (r[3] && typeof r[3] === 'object') {
+        if (r[3].size) state.prefs.size = r[3].size;
+        if (r[3].target) state.prefs.target = r[3].target;
+      }
+
+      if (state.allDomains.length === 0) {
+        showError('This project has no semantic domains defined, so there is nothing to build a bingo card from.');
+        return;
+      }
+      if (validGame(r[2])) {
+        state.game = r[2];
+        state.game.squares.forEach(function (sq) { if (typeof sq.err !== 'boolean') sq.err = false; });
+        showGame();
+      } else {
+        showSetup();
+      }
+    }).catch(function (err) {
+      showError('Could not start Word Harvest Bingo: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

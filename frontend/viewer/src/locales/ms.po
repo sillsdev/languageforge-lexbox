@@ -38,6 +38,10 @@ msgstr ""
 msgid "{0}"
 msgstr "{0}"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "{0} (copy)"
+msgstr ""
+
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
@@ -111,6 +115,7 @@ msgstr "**Terminologi lebih mudah** (cth. *Perkataan* bukan *bentuk leksem*, *Ma
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Versi baharu FieldWorks Lite tersedia."
 
+#. Dialog subtitle in the plugin editor (add/edit a plugin). "Get AI prompt" names a button elsewhere in the Plugins page.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "A plugin is a single HTML file. Ask an AI to write one for you (see “Get AI prompt”), start from an example, or write it yourself."
 msgstr ""
@@ -190,6 +195,7 @@ msgstr "Tambah perkataan baharu"
 msgid "Add part of"
 msgstr "Tambah sebahagian daripada"
 
+#. Submit button in the "New plugin" dialog, saves a newly-created plugin.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Add plugin"
 msgstr ""
@@ -303,6 +309,7 @@ msgstr ""
 msgid "Are you sure you want to delete {0}?"
 msgstr "Adakah anda pasti mahu memadam {0}?"
 
+#. Empty-state hint on the Plugins page when no plugins are installed yet. "Get AI prompt" and "New plugin" are the two buttons above this text.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Ask an AI to build one for you — click “Get AI prompt”, describe your idea, and paste the result into “New plugin”. Or start from a built-in example."
 msgstr ""
@@ -342,6 +349,7 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Segerakkan automatik"
 
+#. Button to leave a running plugin and return to the Plugins list page.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Back to plugins"
@@ -378,6 +386,7 @@ msgstr "Terokai"
 msgid "Browse view failed"
 msgstr ""
 
+#. List item in the plugin permission/consent screen, shown before first running a plugin that requests internet access.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Can access the internet (and could send dictionary data there)"
 msgstr ""
@@ -544,10 +553,12 @@ msgstr "Disalin ke papan keratan"
 msgid "Copy prompt"
 msgstr ""
 
+#. Step 3 of a numbered list in the "Create a plugin with AI" dialog. "New plugin" names the button used to add the result.
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Copy the HTML file the AI produces, then add it here via “New plugin”."
 msgstr ""
 
+#. Step 1 of a numbered list in the "Create a plugin with AI" dialog, referring to the AI prompt text shown below it.
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Copy the prompt below. It already contains everything the AI needs to know about plugins and this project."
 msgstr ""
@@ -573,6 +584,7 @@ msgstr ""
 msgid "Create a new FieldWorks Lite project"
 msgstr ""
 
+#. Dialog title. Walks the user through generating a plugin (a custom HTML mini-app) using an external AI assistant.
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Create a plugin with AI"
 msgstr ""
@@ -798,6 +810,11 @@ msgstr "Memuat turun {0}..."
 msgid "Downloading..."
 msgstr "Memuat turun..."
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Duplicate"
+msgstr ""
+
+#. Placeholder text in the plugin name input field, an example plugin name.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "e.g. Dictionary stats"
 msgstr ""
@@ -909,6 +926,7 @@ msgstr "Ralat mendapatkan status penyegerakan"
 msgid "Error getting sync status."
 msgstr "Ralat mendapatkan status penyegerakan."
 
+#. List item in the plugin permission/consent screen, reassuring the user before they run a plugin for the first time.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Every change to your dictionary needs your approval"
 msgstr ""
@@ -930,6 +948,15 @@ msgstr "Ayat contoh"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Exit fullscreen"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export"
 msgstr ""
 
 #. Error message when copy fails
@@ -1128,6 +1155,11 @@ msgstr "Untuk sebarang pertanyaan lain, jangan ragu untuk menghantar kami e-mel.
 msgid "From active filter"
 msgstr "Dari penapis aktif"
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Fullscreen"
+msgstr ""
+
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Gathering project information…"
 msgstr ""
@@ -1150,6 +1182,7 @@ msgstr "Dapatkan sokongan"
 msgid "Gloss"
 msgstr "Glos"
 
+#. Button in the plugin permission/consent screen that declines to run the plugin and returns to the Plugins list.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Go back"
 msgstr ""
@@ -1216,6 +1249,10 @@ msgstr "Saya faham bahawa ini tidak boleh dibuat asal"
 msgid "Import"
 msgstr "Masukkan"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Import from file"
+msgstr ""
+
 #. Future relative date format. {0} = formatted duration string (e.g., "3 hours", "2 days"). Paired with "{0} ago" for past dates.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
@@ -1241,6 +1278,7 @@ msgstr "Pasang Kemas Kini"
 msgid "Installing Update..."
 msgstr "Memasang Kemas Kini..."
 
+#. Badge label shown on a plugin that requests internet access. Short noun, not a verb/instruction.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "Internet"
@@ -1436,6 +1474,10 @@ msgstr "Hilang: {0}"
 msgid "Mode"
 msgstr "Mod"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "More"
+msgstr ""
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1546,6 +1588,7 @@ msgstr "Tiada audio"
 msgid "No authors"
 msgstr ""
 
+#. Dialog subtitle in "Create a plugin with AI". "Plugin" here means a small custom HTML mini-app for the dictionary.
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "No coding needed — an AI assistant can write the plugin for you."
 msgstr ""
@@ -1579,6 +1622,7 @@ msgstr "Tiada fail untuk dimuat naik"
 msgid "No history found"
 msgstr "Tiada sejarah ditemui"
 
+#. Badge shown when a plugin does NOT request internet access (contrast with the "Requests internet access" / "Internet" badges).
 #: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "No internet access"
@@ -1594,6 +1638,7 @@ msgstr "Tiada item ditemui"
 msgid "No new data"
 msgstr "Tiada data baru"
 
+#. Empty-state heading on the Plugins page when the project has no plugins installed.
 #: src/lib/plugins/PluginsView.svelte
 msgid "No plugins yet"
 msgstr ""
@@ -1617,6 +1662,7 @@ msgstr "Tiada subjek, tidak dapat membuat {0} baru"
 msgid "No vernacular writing systems configured."
 msgstr ""
 
+#. Shown in the plugin write-confirmation dialog when the proposed change has no human-readable summary lines to display.
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "No visible changes"
 msgstr ""
@@ -1706,6 +1752,10 @@ msgstr "Buka"
 msgid "Open Data Directory"
 msgstr "Buka Direktori Data"
 
+#: src/project/browse/EntryMenu.svelte
+msgid "Open in {0}"
+msgstr ""
+
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
 msgid "Open in browser"
@@ -1767,10 +1817,12 @@ msgstr "Sebahagian daripada"
 msgid "Part of speech"
 msgstr "Jenis Perkataan"
 
+#. Step 2 of a numbered list in the "Create a plugin with AI" dialog. "Claude" is a product name — do not translate; "ChatGPT" is also a product name.
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Paste it into an AI assistant (e.g. Claude or ChatGPT) and replace the last paragraph with a description of the plugin you want."
 msgstr ""
 
+#. Placeholder text in the plugin HTML textarea of the plugin editor dialog.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Paste the plugin HTML here"
 msgstr ""
@@ -1799,11 +1851,13 @@ msgstr "Disemat"
 msgid "Platform"
 msgstr "Platform"
 
+#. Generic fallback label for a plugin (a small custom HTML mini-app) when its name is unavailable, and as the noun in delete-confirmation prompts.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "Plugin"
 msgstr ""
 
+#. Field label above the textarea where the plugin's HTML source code is pasted, in the plugin editor dialog.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Plugin HTML"
 msgstr ""
@@ -1816,19 +1870,23 @@ msgstr ""
 msgid "Plugin wants to change an entry"
 msgstr ""
 
+#. Sidebar navigation item leading to the list of installed plugins (small custom HTML mini-apps) for the current project.
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Plugins"
 msgstr ""
 
+#. Warning banner in the plugin editor dialog, shown when adding or editing a plugin.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Plugins are code and run for everyone on this project. Only add plugins you or your team created, or that come from someone you trust."
 msgstr ""
 
+#. Body text in the permission/consent screen shown the first time a plugin runs on this device, or after its content changed.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
 msgstr ""
 
+#. Warning banner at the top of the Plugins list page.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
 msgstr ""
@@ -1908,6 +1966,7 @@ msgstr "Segarkan Semula Projek"
 msgid "Release notes"
 msgstr "Nota keluaran"
 
+#. Icon button in the plugin run view's toolbar; re-executes the currently running plugin from scratch.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Reload plugin"
 msgstr ""
@@ -1937,6 +1996,7 @@ msgstr "Ganti audio"
 msgid "Report a technical problem"
 msgstr "Laporkan masalah teknikal"
 
+#. Badge shown on a plugin in the editor dialog that requests internet access (contrast with "No internet access").
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Requests internet access"
 msgstr ""
@@ -1956,18 +2016,22 @@ msgstr "Semak"
 msgid "rose"
 msgstr "merah jambu"
 
+#. Button on a plugin card in the Plugins list; opens and executes that plugin.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Run"
 msgstr ""
 
+#. Button in the permission/consent screen that grants approval and executes the plugin for the first time.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Run plugin"
 msgstr ""
 
+#. Heading of the permission/consent screen shown before a plugin runs for the first time (or after it changed).
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Run this plugin?"
 msgstr ""
 
+#. List item in the plugin permission/consent screen, describing the iframe sandbox the plugin executes in.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Runs in a sandbox, separate from the app"
 msgstr ""
@@ -1986,6 +2050,7 @@ msgstr "Simpan Sebagai"
 msgid "Save audio"
 msgstr "Simpan audio"
 
+#. Submit button in the plugin editor dialog when editing an existing plugin (contrast with "Add plugin" for a new one).
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Save changes"
 msgstr ""
@@ -2127,6 +2192,7 @@ msgstr "Saiz:"
 msgid "Skip"
 msgstr "Langkau"
 
+#. Subtitle under the "Plugins" page heading, explaining what plugins are.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
 msgstr ""
@@ -2144,6 +2210,7 @@ msgstr "Medan tertentu"
 msgid "Start a new thread"
 msgstr ""
 
+#. Label preceding a row of buttons, each naming a built-in example plugin, in the "New plugin" dialog.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Start from an example:"
 msgstr ""
@@ -2291,6 +2358,7 @@ msgstr "Bilangan komit FieldWorks Classic tidak semestinya sepadan dengan bilang
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Bilangan komit FieldWorks Lite tidak semestinya sepadan dengan bilangan perubahan yang ditunjukkan dalam mesej hasil segerak."
 
+#. Dialog description; {0} is the plugin's display name. Followed by a list of the specific changes it wants to make.
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr ""
@@ -2321,6 +2389,7 @@ msgstr "Item {0} telah dipadam"
 msgid "This date # and this emoji # are snippets"
 msgstr "Tarikh ini # dan emoji ini # adalah coretan"
 
+#. Shown in the plugin run view if the plugin was deleted (e.g. by another user) after this page was opened or linked to.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "This plugin no longer exists."
 msgstr ""
@@ -2330,6 +2399,7 @@ msgstr ""
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Projek ini kini dibuka dalam FieldWorks. Untuk terus bekerja dalam FieldWorks Lite, tutup projek dalam FieldWorks dan klik Buka Semula."
 
+#. Warning detail in the delete-plugin confirmation dialog; plugins are shared project-wide, not per-user.
 #: src/lib/plugins/PluginsView.svelte
 msgid "This removes the plugin for everyone on this project."
 msgstr ""

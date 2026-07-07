@@ -10,7 +10,7 @@
   import {t} from 'svelte-i18n-lingui';
   import type {IPlugin} from '$lib/dotnet-types';
   import {parsePluginPermissions} from './plugin-srcdoc';
-  import {examplePlugins} from './examples';
+  import {examplePlugins, type ExamplePlugin} from './examples';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
 
   interface Props {
@@ -26,6 +26,8 @@
   let name = $state('');
   let html = $state('');
   let saving = $state(false);
+  let loadingExample = $state<string>();
+  let fileInput = $state<HTMLInputElement>();
 
   $effect(() => {
     if (open) {
@@ -38,9 +40,26 @@
   const sizeKb = $derived(Math.round(html.length / 102.4) / 10);
   const canSave = $derived(!!name.trim() && !!html.trim() && !saving);
 
-  function useExample(example: {name: string; html: string}) {
-    if (!name.trim()) name = example.name;
-    html = example.html;
+  function useHtml(exampleName: string, exampleHtml: string) {
+    if (!name.trim()) name = exampleName;
+    html = exampleHtml;
+  }
+
+  async function useExample(example: ExamplePlugin) {
+    loadingExample = example.key;
+    try {
+      useHtml(example.name, await example.loadHtml());
+    } finally {
+      loadingExample = undefined;
+    }
+  }
+
+  async function importFile(event: Event) {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    useHtml(file.name.replace(/\.html?$/i, ''), await file.text());
   }
 
   async function save() {
@@ -81,8 +100,18 @@
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-sm text-muted-foreground">{$t`Start from an example:`}</span>
           {#each examplePlugins as example (example.key)}
-            <Button variant="outline" size="xs" onclick={() => useExample(example)}>{example.name}</Button>
+            <Button
+              variant="outline"
+              size="xs"
+              disabled={!!loadingExample}
+              loading={loadingExample === example.key}
+              onclick={() => void useExample(example)}>{example.name}</Button>
           {/each}
+          <div class="grow"></div>
+          <Button variant="outline" size="xs" icon="i-mdi-upload" onclick={() => fileInput?.click()}>
+            {$t`Import from file`}
+          </Button>
+          <input bind:this={fileInput} type="file" accept=".html,.htm" class="hidden" onchange={importFile} />
         </div>
       {/if}
 

@@ -56,6 +56,7 @@ All methods return Promises.
 fwlite.ready: Promise<{apiVersion: 1, project: {projectName, projectCode}, theme: 'light'|'dark', permissions: string[]}>
 fwlite.project // {projectName, projectCode} — available after ready
 fwlite.theme   // 'light' | 'dark' — the app's current theme; also respect prefers-color-scheme
+fwlite.context // {entryId?: string} — launch context; entryId is set only when opened from an entry
 
 fwlite.getWritingSystems(): Promise<{vernacular: WritingSystem[], analysis: WritingSystem[]}>
 // WritingSystem: {wsId: string, name: string, abbreviation: string, font: string, isAudio: boolean, exemplars: string[]}
@@ -66,9 +67,17 @@ fwlite.getEntries(query?): Promise<Entry[]>
 //   search?: string,                 // full-text search
 //   limit?: number,                  // default 100, max 1000
 //   offset?: number,                 // for paging
-//   filter?: {semanticDomainCode?: string, partOfSpeechId?: string},
+//   filter?: {
+//     semanticDomainCode?: string,   // entries with a sense in this semantic domain
+//     partOfSpeechId?: string,       // entries with a sense of this part of speech
+//     missingGlossWs?: string,       // entries with no sense glossed in this writing system
+//     missingExampleWs?: string,     // entries where no sense has an example sentence in this writing system
+//     missingPartOfSpeech?: boolean, // entries having a sense with no part of speech
+//   },                               // all filter conditions compose with AND
 //   sort?: {writingSystem?: string, ascending?: boolean},  // sorts by headword
 // }
+// Filtering runs on the real backend; against the in-browser demo project filters may return
+// unfiltered results, so also verify entries client-side if correctness matters.
 fwlite.countEntries(query?): Promise<number>   // query: {search?, filter?}
 fwlite.getEntry(id): Promise<Entry | null>
 fwlite.getPartsOfSpeech(): Promise<{id: string, name: MultiString}[]>
@@ -99,6 +108,12 @@ fwlite.storage.remove(key): Promise<void>
 fwlite.asText(richStringOrString): string      // flattens rich text ({spans:[{text}]}) to plain text
 fwlite.firstValue(multiString, ['seh','en']): string  // first non-empty value, preferring given writing systems
 \`\`\`
+
+### Launch context
+
+When the user launches your plugin from a specific entry, \`fwlite.context.entryId\` is set to that
+entry's id — start by loading it with \`fwlite.getEntry(fwlite.context.entryId)\`. Otherwise \`context\`
+is \`{}\` (no \`entryId\`), so treat the entry-focused flow as optional and fall back to a normal view.
 
 ### Data model
 
@@ -143,7 +158,7 @@ ${posList}
 ## Design guidance
 
 - **Responsive**: must work from a 360px phone to a desktop; no horizontal page scrolling. Test your layout mentally at both sizes.
-- **Theme**: support light and dark mode. Read \`fwlite.theme\` after ready and respect \`prefers-color-scheme\`; drive colors through CSS custom properties.
+- **Theme & palette**: define a small set of CSS custom properties on \`:root\` (\`--bg\`, \`--surface\`, \`--border\`, \`--text\`, \`--text-muted\`, \`--accent\`, \`--radius\`) and drive every color through them. Provide dark values under \`html[data-theme="dark"]\`, then set \`document.documentElement.dataset.theme = fwlite.theme\` after ready (respecting \`prefers-color-scheme\` as a fallback). Never hard-code raw colors on elements.
 - Use the system font stack; the vernacular writing systems may specify a \`font\` name you can add to a font-family list.
 - Always render **loading**, **empty** ("no entries yet") and **error** states for async data.
 - Escape dictionary data before inserting it into the DOM (\`textContent\`, not \`innerHTML\`) — it can contain any characters.
@@ -158,7 +173,12 @@ ${posList}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My plugin</title>
-<style>/* your styles */</style>
+<style>
+  :root { --bg: #f5f6f8; --surface: #fff; --border: #e2e4e9; --text: #1c1e21; --text-muted: #6b7280; --accent: #4f46e5; --radius: 12px; }
+  html[data-theme="dark"] { --bg: #16171b; --surface: #1f2126; --border: #33353c; --text: #edeef1; --text-muted: #9aa0ab; --accent: #818cf8; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+  /* your styles — always reference the variables above */
+</style>
 </head>
 <body>
 <main id="app">Loading…</main>

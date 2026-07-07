@@ -31,7 +31,8 @@ flowchart LR
 - **`plugin-api-adapter.ts`** is the *entire* API surface plugins can reach (v1). It exposes a
   deliberately small, stable subset of MiniLcm: reads plus `createEntry`/`updateEntry`, where every
   write requires per-operation user approval with a field-level preview. Filters are structured
-  (semantic domain code, part of speech id) — the gridify syntax is not exposed.
+  (semantic domain code, part of speech id, and missing gloss/example/part-of-speech) — the gridify
+  syntax is not exposed. The in-memory demo API ignores `gridifyFilter`, so these filters no-op there.
 - **`plugin-local-data.ts`** provides per-plugin key-value storage (plugins have no storage of
   their own) and tracks run consent per content hash — an edited or newly synced plugin asks again.
 - **`plugin-prompt.ts`** generates the project-aware AI prompt (writing systems, parts of speech,

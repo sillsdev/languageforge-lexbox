@@ -21,6 +21,12 @@
   }
 
   const {pluginId}: Props = $props();
+
+  const launchEntryIdParam = new URLSearchParams(window.location.search).get('entryId') ?? undefined;
+  const launchEntryId = launchEntryIdParam && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(launchEntryIdParam)
+    ? launchEntryIdParam
+    : undefined;
+
   const pluginService = usePluginService();
   const projectContext = useProjectContext();
   const {base} = useRouter();
@@ -78,6 +84,7 @@
       projectName: projectContext.projectName,
       projectCode: projectContext.projectCode,
       permissions,
+      entryId: launchEntryId,
     });
   });
 
@@ -91,12 +98,19 @@
   const srcdoc = $derived(plugin && approved ? buildPluginSrcdoc(plugin.html, permissions) : undefined);
   let reloadToken = $state(0);
 
+  let isFullscreen = $state(false);
+  function toggleFullscreen() {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void iframeElement?.requestFullscreen();
+  }
+
   function goBack() {
     navigate(`${$base.uri}/plugins`);
   }
 </script>
 
 <svelte:window onmessage={(event) => host?.handleWindowMessage(event)} />
+<svelte:document onfullscreenchange={() => isFullscreen = !!document.fullscreenElement} />
 
 <div class="h-full flex flex-col">
   <div class="flex items-center gap-2 border-b px-2 py-1.5">
@@ -112,6 +126,14 @@
     <div class="grow"></div>
     {#if approved}
       <Button variant="ghost" size="icon" icon="i-mdi-refresh" title={$t`Reload plugin`} onclick={() => reloadToken++} />
+      <Button
+        variant="ghost"
+        size="icon"
+        icon={isFullscreen ? 'i-mdi-fullscreen-exit' : 'i-mdi-fullscreen'}
+        title={isFullscreen ? $t`Exit fullscreen` : $t`Fullscreen`}
+        aria-label={isFullscreen ? $t`Exit fullscreen` : $t`Fullscreen`}
+        onclick={toggleFullscreen}
+      />
     {/if}
   </div>
 

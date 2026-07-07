@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentence Sprint</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --warn: #b45309;
+    --warn-soft: #fef3e0;
+    --streak: #d97706;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --warn: #fbbf24;
+    --warn-soft: #3a2f12;
+    --streak: #fbbf24;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; text-align: center; }
+  .subtitle { color: var(--text-muted); text-align: center; margin: 0 0 18px; font-size: 0.9rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+
+  label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
+  select, input, textarea {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 72px; }
+  select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .field { margin-bottom: 14px; }
+
+  .primary-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .primary-btn:hover { filter: brightness(1.08); }
+  .primary-btn:disabled { opacity: 0.55; cursor: default; }
+  .ghost-btn {
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ghost-btn:hover { color: var(--text); }
+  .ghost-btn:disabled { opacity: 0.55; cursor: default; }
+
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .stat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .stat-chip .num { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+  .stat-chip.streak .num { color: var(--streak); }
+  .stat-chip.session.combo { animation: comboPulse 0.6s ease; }
+  @keyframes comboPulse {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.12); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+    100% { transform: scale(1); }
+  }
+
+  .target-card { margin-bottom: 16px; transition: opacity 0.22s ease, transform 0.22s ease; }
+  .target-card.leaving { opacity: 0; transform: translateX(-24px); }
+  .target-card.entering { opacity: 0; transform: translateX(24px); transition: none; }
+  .headword { font-size: 1.8rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+  .sense-line { margin-top: 8px; font-size: 1.02rem; }
+  .sense-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .pos { color: var(--text-muted); font-style: italic; font-size: 0.88rem; margin-left: 6px; }
+  .domain-chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .domain-chip {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 10px;
+  }
+  .remaining { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-bottom: 14px; }
+
+  .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+  .inline-note { font-size: 0.82rem; padding: 8px 12px; border-radius: 8px; margin-top: 12px; }
+  .inline-note.warn { background: var(--warn-soft); color: var(--warn); }
+  .inline-note.good { background: var(--good-soft); color: var(--good); }
+  .hint-row { text-align: center; color: var(--text-muted); font-size: 0.76rem; margin-top: 14px; }
+
+  .center-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+
+  .done-card { text-align: center; padding: 34px 24px; }
+  .done-card .big { font-size: 2.2rem; margin-bottom: 8px; }
+  .done-card h2 { margin: 0 0 6px; }
+  .done-stats { display: flex; justify-content: center; gap: 26px; margin: 20px 0; }
+  .done-stat .num { font-size: 1.5rem; font-weight: 700; color: var(--good); }
+  .done-stat .lbl { font-size: 0.78rem; color: var(--text-muted); }
+
+  #setup-view, #sprint-view, #done-view { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Sentence Sprint</h1>
+  <p class="subtitle">Fill the gaps: add example sentences to senses that have none.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div>Loading&hellip;</div>
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="setup-view">
+    <div class="card">
+      <div class="field">
+        <label for="vern-select">Sentence language (vernacular)</label>
+        <select id="vern-select"></select>
+      </div>
+      <div class="field">
+        <label for="anal-select">Translation language (analysis)</label>
+        <select id="anal-select"></select>
+      </div>
+      <div class="field">
+        <label for="domain-select">Semantic domain (optional)</label>
+        <select id="domain-select"></select>
+      </div>
+      <button class="primary-btn" id="start-btn">Start sprint</button>
+    </div>
+  </div>
+
+  <div id="sprint-view">
+    <div class="stats-bar">
+      <div class="stat-chip streak" title="Consecutive days with at least one example added">
+        <span class="num" id="stat-streak">0</span> day streak
+      </div>
+      <div class="stat-chip session" id="session-chip">
+        <span class="num" id="stat-session">0</span> this session
+      </div>
+      <div class="stat-chip"><span class="num" id="stat-best">0</span> best session</div>
+      <div class="stat-chip"><span class="num" id="stat-lifetime">0</span> lifetime</div>
+    </div>
+    <div class="remaining" id="remaining"></div>
+
+    <div class="card target-card" id="target-card">
+      <div class="headword" id="headword"></div>
+      <div class="sense-line">
+        <span class="sense-tag" id="sense-tag"></span>
+        <span id="gloss"></span>
+        <span class="pos" id="pos"></span>
+      </div>
+      <div class="domain-chips" id="domain-chips"></div>
+    </div>
+
+    <form class="card" id="sprint-form">
+      <div class="field">
+        <label for="sentence-input">Example sentence</label>
+        <textarea id="sentence-input" rows="3" placeholder="Write a sentence using this word&hellip;"></textarea>
+      </div>
+      <div class="field">
+        <label for="translation-input">Translation (optional)</label>
+        <input type="text" id="translation-input" placeholder="Meaning of the sentence">
+      </div>
+      <div class="btn-row">
+        <button class="primary-btn" id="submit-btn" type="submit">Add example</button>
+        <button class="ghost-btn" id="skip-btn" type="button">Skip</button>
+      </div>
+      <div id="form-note"></div>
+    </form>
+    <div class="hint-row">Enter submits &middot; Shift+Enter for a new line in the sentence</div>
+  </div>
+
+  <div id="done-view">
+    <div class="card done-card">
+      <div class="big">&#127881;</div>
+      <h2>All caught up!</h2>
+      <p class="subtitle" style="margin-bottom:0;" id="done-message"></p>
+      <div class="done-stats">
+        <div class="done-stat"><div class="num" id="done-session">0</div><div class="lbl">added this session</div></div>
+        <div class="done-stat"><div class="num" id="done-streak">0</div><div class="lbl">day streak</div></div>
+      </div>
+      <button class="primary-btn" id="rescan-btn">Check again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STATS_KEY = 'sentence-sprint-stats-v1';
+  var SETTINGS_KEY = 'sentence-sprint-settings-v1';
+  var PAGE_SIZE = 80;
+  var REFILL_THRESHOLD = 5;
+
+  var state = {
+    vernWs: [],            // WritingSystem objects
+    analWs: [],
+    domains: [],
+    sentenceWs: '',
+    translationWs: '',
+    domainCode: '',        // '' = all domains
+    queue: [],             // {entryId, senseId} + display fields
+    seen: {},              // 'entryId:senseId' -> true
+    offset: 0,
+    exhausted: false,
+    fetching: null,        // in-flight refill promise
+    remaining: null,
+    session: 0,
+    busy: false,
+    stats: {days: {}, bestSession: 0, lifetime: 0},
+  };
+
+  function uuid() {
+    if (crypto.randomUUID) return crypto.randomUUID();
+    var bytes = crypto.getRandomValues(new Uint8Array(16));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    var hex = Array.from(bytes, function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+    return hex.slice(0, 8) + '-' + hex.slice(8, 12) + '-' + hex.slice(12, 16) + '-' + hex.slice(16, 20) + '-' + hex.slice(20);
+  }
+
+  function el(id) { return document.getElementById(id); }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    el('loading').style.display = 'none';
+    var box = el('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function errText(err) { return err && err.message ? err.message : String(err); }
+
+  function todayKey() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function computeStreak(days) {
+    var d = new Date();
+    function key(date) {
+      return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    }
+    // A run that ended yesterday still counts as the current streak (today isn't over).
+    if (!days[key(d)]) d.setDate(d.getDate() - 1);
+    var streak = 0;
+    while (days[key(d)] > 0) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    }
+    return streak;
+  }
+
+  function analysisWsIds() { return state.analWs.map(function (ws) { return ws.wsId; }); }
+
+  function senseHasExampleIn(sense, wsId) {
+    return (sense.exampleSentences || []).some(function (example) {
+      var rich = example.sentence && example.sentence[wsId];
+      return !!(rich && window.fwlite.asText(rich).trim());
+    });
+  }
+
+  function senseInDomain(sense, code) {
+    return (sense.semanticDomains || []).some(function (domain) { return domain.code === code; });
+  }
+
+  function headwordOf(entry) {
+    var citation = entry.citationForm || {};
+    var hasCitation = Object.keys(citation).some(function (ws) { return !!citation[ws]; });
+    return window.fwlite.firstValue(hasCitation ? citation : entry.lexemeForm,
+      state.vernWs.map(function (ws) { return ws.wsId; })) || '—';
+  }
+
+  function buildQueueItems(entry) {
+    var items = [];
+    (entry.senses || []).forEach(function (sense, index) {
+      if (senseHasExampleIn(sense, state.sentenceWs)) return;
+      if (state.domainCode && !senseInDomain(sense, state.domainCode)) return;
+      var key = entry.id + ':' + sense.id;
+      if (state.seen[key]) return;
+      state.seen[key] = true;
+      items.push({
+        entryId: entry.id,
+        senseId: sense.id,
+        headword: headwordOf(entry),
+        gloss: window.fwlite.firstValue(sense.gloss || {}, analysisWsIds()) || '—',
+        pos: sense.partOfSpeech ? (window.fwlite.firstValue(sense.partOfSpeech.name, analysisWsIds()) || '') : '',
+        senseNumber: index + 1,
+        senseTotal: (entry.senses || []).length,
+        domains: (sense.semanticDomains || []).map(function (domain) {
+          return domain.code + ' ' + (window.fwlite.firstValue(domain.name, analysisWsIds()) || '');
+        }),
+      });
+    });
+    return items;
+  }
+
+  function entryFilter() {
+    var filter = {missingExampleWs: state.sentenceWs};
+    if (state.domainCode) filter.semanticDomainCode = state.domainCode;
+    return filter;
+  }
+
+  function refillQueue() {
+    if (state.fetching) return state.fetching;
+    if (state.exhausted || state.queue.length >= REFILL_THRESHOLD) return Promise.resolve();
+    state.fetching = window.fwlite.getEntries({limit: PAGE_SIZE, offset: state.offset, filter: entryFilter()})
+      .then(function (entries) {
+        state.offset += entries.length;
+        if (entries.length < PAGE_SIZE) state.exhausted = true;
+        entries.forEach(function (entry) {
+          state.queue = state.queue.concat(buildQueueItems(entry));
+        });
+        state.fetching = null;
+        // The server-side filter may be ignored (demo project), so pages can be all misses.
+        if (state.queue.length < REFILL_THRESHOLD && !state.exhausted) return refillQueue();
+      })
+      .catch(function (err) {
+        state.fetching = null;
+        throw err;
+      });
+    return state.fetching;
+  }
+
+  function refreshRemaining() {
+    window.fwlite.countEntries({filter: entryFilter()}).then(function (count) {
+      state.remaining = count;
+      renderRemaining();
+    }).catch(function () { /* count is decorative */ });
+  }
+
+  function renderRemaining() {
+    el('remaining').textContent = state.remaining == null ? ''
+      : '~' + state.remaining + ' entr' + (state.remaining === 1 ? 'y' : 'ies') + ' remaining';
+  }
+
+  function renderStats() {
+    el('stat-streak').textContent = String(computeStreak(state.stats.days));
+    el('stat-session').textContent = String(state.session);
+    el('stat-best').textContent = String(state.stats.bestSession);
+    el('stat-lifetime').textContent = String(state.stats.lifetime);
+  }
+
+  function setFormNote(message, kind) {
+    var note = el('form-note');
+    note.innerHTML = '';
+    if (!message) return;
+    var div = document.createElement('div');
+    div.className = 'inline-note ' + (kind || '');
+    div.textContent = message;
+    note.appendChild(div);
+  }
+
+  function currentItem() { return state.queue[0] || null; }
+
+  function renderTarget() {
+    var item = currentItem();
+    if (!item) return;
+    el('headword').textContent = item.headword;
+    el('gloss').textContent = item.gloss;
+    el('pos').textContent = item.pos;
+    el('sense-tag').textContent = item.senseTotal > 1
+      ? 'Sense ' + item.senseNumber + ' of ' + item.senseTotal
+      : 'Sense';
+    var chips = el('domain-chips');
+    chips.innerHTML = '';
+    item.domains.forEach(function (label) {
+      var chip = document.createElement('span');
+      chip.className = 'domain-chip';
+      chip.textContent = label;
+      chips.appendChild(chip);
+    });
+    el('sentence-input').value = '';
+    el('translation-input').value = '';
+    el('sentence-input').focus();
+  }
+
+  function showDone() {
+    el('sprint-view').style.display = 'none';
+    el('done-view').style.display = 'block';
+    el('done-session').textContent = String(state.session);
+    el('done-streak').textContent = String(computeStreak(state.stats.days));
+    el('done-message').textContent = state.session > 0
+      ? 'Every sense in scope now has an example sentence. Well done.'
+      : 'No senses are missing an example sentence in this scope.';
+  }
+
+  function advance() {
+    state.queue.shift();
+    if (state.remaining != null && state.remaining > 0) {
+      state.remaining--;
+      renderRemaining();
+    }
+    var card = el('target-card');
+    card.classList.add('leaving');
+    setTimeout(function () {
+      card.classList.remove('leaving');
+      refillQueue().catch(function (err) {
+        setFormNote('Could not load more entries: ' + errText(err), 'warn');
+      }).then(function () {
+        if (!currentItem()) {
+          showDone();
+          return;
+        }
+        card.classList.add('entering');
+        renderTarget();
+        requestAnimationFrame(function () { card.classList.remove('entering'); });
+      });
+    }, 220);
+  }
+
+  function richText(text, wsId) {
+    return {spans: [{text: text, ws: wsId}]};
+  }
+
+  function recordSuccess() {
+    var key = todayKey();
+    state.stats.days[key] = (state.stats.days[key] || 0) + 1;
+    state.stats.lifetime++;
+    state.session++;
+    if (state.session > state.stats.bestSession) state.stats.bestSession = state.session;
+    window.fwlite.storage.set(STATS_KEY, state.stats);
+    renderStats();
+    if (state.session > 0 && state.session % 5 === 0) {
+      var chip = el('session-chip');
+      chip.classList.remove('combo');
+      void chip.offsetWidth;
+      chip.classList.add('combo');
+    }
+  }
+
+  function setBusy(busy) {
+    state.busy = busy;
+    el('submit-btn').disabled = busy;
+    el('skip-btn').disabled = busy;
+  }
+
+  function handleSubmit() {
+    var item = currentItem();
+    if (!item || state.busy) return;
+    var sentence = el('sentence-input').value.trim();
+    var translation = el('translation-input').value.trim();
+    if (!sentence) {
+      setFormNote('Write a sentence first.', 'warn');
+      el('sentence-input').focus();
+      return;
+    }
+    setBusy(true);
+    setFormNote('');
+
+    window.fwlite.getEntry(item.entryId).then(function (before) {
+      if (!before) {
+        setBusy(false);
+        setFormNote('This entry no longer exists — skipping.', 'warn');
+        advance();
+        return;
+      }
+      var after = JSON.parse(JSON.stringify(before));
+      var sense = (after.senses || []).find(function (s) { return s.id === item.senseId; });
+      if (!sense) {
+        setBusy(false);
+        setFormNote('This sense no longer exists — skipping.', 'warn');
+        advance();
+        return;
+      }
+      if (senseHasExampleIn(sense, state.sentenceWs)) {
+        setBusy(false);
+        setFormNote('This sense already gained an example — moving on.', 'good');
+        advance();
+        return;
+      }
+      var example = {
+        id: uuid(),
+        senseId: sense.id,
+        sentence: {},
+        translations: [],
+      };
+      example.sentence[state.sentenceWs] = richText(sentence, state.sentenceWs);
+      if (translation) {
+        var text = {};
+        text[state.translationWs] = richText(translation, state.translationWs);
+        example.translations.push({id: uuid(), text: text});
+      }
+      sense.exampleSentences = sense.exampleSentences || [];
+      sense.exampleSentences.push(example);
+
+      return window.fwlite.updateEntry(before, after).then(function () {
+        setBusy(false);
+        recordSuccess();
+        setFormNote('Example added.', 'good');
+        advance();
+      });
+    }).catch(function (err) {
+      setBusy(false);
+      if (err && err.code === 'permission-denied') {
+        setFormNote('Change was not approved — skipped.', 'warn');
+        advance();
+      } else {
+        setFormNote('Could not save: ' + errText(err), 'warn');
+      }
+    });
+  }
+
+  function populateSetup() {
+    function fill(select, systems) {
+      select.innerHTML = '';
+      systems.forEach(function (ws) {
+        var option = document.createElement('option');
+        option.value = ws.wsId;
+        option.textContent = ws.name + ' (' + ws.wsId + ')';
+        select.appendChild(option);
+      });
+    }
+    fill(el('vern-select'), state.vernWs);
+    fill(el('anal-select'), state.analWs);
+
+    var domainSelect = el('domain-select');
+    domainSelect.innerHTML = '';
+    var all = document.createElement('option');
+    all.value = '';
+    all.textContent = 'All domains';
+    domainSelect.appendChild(all);
+    state.domains.slice().sort(function (a, b) {
+      return a.code.localeCompare(b.code, undefined, {numeric: true});
+    }).forEach(function (domain) {
+      var option = document.createElement('option');
+      option.value = domain.code;
+      option.textContent = domain.code + ' ' + (window.fwlite.firstValue(domain.name, analysisWsIds()) || '');
+      domainSelect.appendChild(option);
+    });
+  }
+
+  function applySavedSettings(saved) {
+    if (!saved || typeof saved !== 'object') return;
+    if (saved.sentenceWs && state.vernWs.some(function (ws) { return ws.wsId === saved.sentenceWs; })) {
+      el('vern-select').value = saved.sentenceWs;
+    }
+    if (saved.translationWs && state.analWs.some(function (ws) { return ws.wsId === saved.translationWs; })) {
+      el('anal-select').value = saved.translationWs;
+    }
+    if (saved.domainCode && state.domains.some(function (d) { return d.code === saved.domainCode; })) {
+      el('domain-select').value = saved.domainCode;
+    }
+  }
+
+  function startSprint() {
+    state.sentenceWs = el('vern-select').value;
+    state.translationWs = el('anal-select').value;
+    state.domainCode = el('domain-select').value;
+    window.fwlite.storage.set(SETTINGS_KEY, {
+      sentenceWs: state.sentenceWs,
+      translationWs: state.translationWs,
+      domainCode: state.domainCode,
+    });
+
+    var vern = state.vernWs.find(function (ws) { return ws.wsId === state.sentenceWs; });
+    var fontStack = (vern && vern.font ? '"' + vern.font + '", ' : '') + 'inherit';
+    el('headword').style.fontFamily = fontStack;
+    el('sentence-input').style.fontFamily = fontStack;
+
+    state.queue = [];
+    state.seen = {};
+    state.offset = 0;
+    state.exhausted = false;
+    state.remaining = null;
+    state.session = 0;
+
+    el('setup-view').style.display = 'none';
+    el('done-view').style.display = 'none';
+    el('loading').style.display = 'block';
+
+    refreshRemaining();
+    refillQueue().then(function () {
+      el('loading').style.display = 'none';
+      renderStats();
+      if (!currentItem()) {
+        showDone();
+        return;
+      }
+      el('sprint-view').style.display = 'block';
+      renderTarget();
+    }).catch(function (err) {
+      el('loading').style.display = 'none';
+      showError('Could not load entries: ' + errText(err));
+    });
+  }
+
+  function wireEvents() {
+    el('start-btn').addEventListener('click', startSprint);
+    el('rescan-btn').addEventListener('click', startSprint);
+    el('sprint-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      handleSubmit();
+    });
+    el('skip-btn').addEventListener('click', function () {
+      if (state.busy || !currentItem()) return;
+      setFormNote('');
+      advance();
+    });
+    el('sentence-input').addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        handleSubmit();
+      }
+    });
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+    wireEvents();
+
+    Promise.all([
+      window.fwlite.getWritingSystems(),
+      window.fwlite.getSemanticDomains(),
+      window.fwlite.storage.get(STATS_KEY),
+      window.fwlite.storage.get(SETTINGS_KEY),
+    ]).then(function (results) {
+      state.vernWs = results[0].vernacular || [];
+      state.analWs = results[0].analysis || [];
+      state.domains = results[1] || [];
+      if (results[2] && typeof results[2] === 'object') {
+        state.stats = {
+          days: results[2].days || {},
+          bestSession: results[2].bestSession || 0,
+          lifetime: results[2].lifetime || 0,
+        };
+      }
+
+      el('loading').style.display = 'none';
+      if (state.vernWs.length === 0 || state.analWs.length === 0) {
+        showError('This project needs at least one vernacular and one analysis writing system.');
+        return;
+      }
+      populateSetup();
+      applySavedSettings(results[3]);
+      el('setup-view').style.display = 'block';
+    }).catch(function (err) {
+      showError('Could not load project data: ' + errText(err));
+    });
+  }
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

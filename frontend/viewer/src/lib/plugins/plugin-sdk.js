@@ -10,6 +10,7 @@
   var pending = new Map();
   var nextId = 1;
   var context = null;
+  var launchContext = {};
   var initResolve;
   var ready = new Promise(function (resolve) { initResolve = resolve; });
 
@@ -19,6 +20,7 @@
     if (!data || data.source !== 'fwlite-plugin-host') return;
     if (data.kind === 'init') {
       if (context) return;
+      launchContext = data.context || {};
       context = {
         apiVersion: data.apiVersion,
         project: data.project,
@@ -59,6 +61,8 @@
     get project() { return context && context.project; },
     get theme() { return context && context.theme; },
     get permissions() { return (context && context.permissions) || []; },
+    /** Launch context; `context.entryId` is set when the user opened this plugin from an entry, else absent. */
+    get context() { return launchContext; },
 
     getWritingSystems: function () { return call('getWritingSystems', []); },
     getEntries: function (query) { return call('getEntries', [query || {}]); },

@@ -33,6 +33,11 @@ msgstr "(unknown)"
 msgid "{0}"
 msgstr "{0}"
 
+#. Default name suggested for a duplicated plugin. {0} is the original plugin's name; "(copy)" is appended as a suffix.
+#: src/lib/plugins/PluginsView.svelte
+msgid "{0} (copy)"
+msgstr "{0} (copy)"
+
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks Lite)"
@@ -801,6 +806,11 @@ msgstr "Downloading {0}..."
 msgid "Downloading..."
 msgstr "Downloading..."
 
+#. Dropdown menu item on a plugin card; creates a copy of that plugin (see "{0} (copy)" for its default name).
+#: src/lib/plugins/PluginsView.svelte
+msgid "Duplicate"
+msgstr "Duplicate"
+
 #. Placeholder text in the plugin name input field, an example plugin name.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "e.g. Dictionary stats"
@@ -936,6 +946,17 @@ msgstr "Example sentence"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
 msgstr "Example sentences"
+
+#. Icon button toggling fullscreen for the running plugin's content (an iframe), not the whole app window.
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Exit fullscreen"
+msgstr "Exit fullscreen"
+
+#. Dropdown menu item on a plugin card; downloads the plugin as an .html file.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export"
+msgstr "Export"
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1133,6 +1154,12 @@ msgstr "For any other inquiries, feel free to send us an email."
 msgid "From active filter"
 msgstr "From active filter"
 
+#. Icon button toggling fullscreen for the running plugin's content (an iframe), not the whole app window.
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Fullscreen"
+msgstr "Fullscreen"
+
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Gathering project information…"
 msgstr "Gathering project information…"
@@ -1221,6 +1248,11 @@ msgstr "I understand that this can't be undone"
 #: src/home/HomeView.svelte
 msgid "Import"
 msgstr "Import"
+
+#. Button in the plugin editor dialog; loads a plugin's HTML content from a file picked from disk.
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Import from file"
+msgstr "Import from file"
 
 #. Future relative date format. {0} = formatted duration string (e.g., "3 hours", "2 days"). Paired with "{0} ago" for past dates.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -1442,6 +1474,11 @@ msgstr "Missing: {0}"
 #: src/lib/components/ThemePicker.svelte
 msgid "Mode"
 msgstr "Mode"
+
+#. Aria-label/tooltip for the "..." dropdown trigger button on a plugin card, which opens the Export/Duplicate/Delete menu.
+#: src/lib/plugins/PluginsView.svelte
+msgid "More"
+msgstr "More"
 
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1716,6 +1753,11 @@ msgstr "Open"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Open Data Directory"
+
+#. Item in an entry's action menu; {0} is the name of a user-created plugin. Opens that plugin, passing it the current entry.
+#: src/project/browse/EntryMenu.svelte
+msgid "Open in {0}"
+msgstr "Open in {0}"
 
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte

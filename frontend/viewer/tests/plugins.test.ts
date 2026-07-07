@@ -1,4 +1,5 @@
 import {expect, test, type Page} from '@playwright/test';
+import {examplePlugins} from '../src/lib/plugins/examples';
 import {waitForProjectViewReady} from './test-utils';
 
 async function gotoPlugins(page: Page) {
@@ -92,4 +93,35 @@ test('plugin writes require user approval and apply after it', async ({page}) =>
   await expect(page.getByText('Plugin wants to add an entry')).toBeVisible();
   await page.getByRole('button', {name: 'Add entry'}).click();
   await expect(frame.locator('#status')).toContainText('created:');
+});
+
+test('every bundled example plugin runs against the demo project without erroring', async ({page}) => {
+  expect(examplePlugins.length).toBeGreaterThanOrEqual(8);
+  await gotoPlugins(page);
+
+  for (const example of examplePlugins.map(e => e.name)) {
+    const pluginName = `E2E ${example}`;
+
+    await page.getByRole('button', {name: 'New plugin'}).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel('Name').fill(pluginName);
+    await dialog.getByRole('button', {name: example, exact: true}).click();
+    const addButton = dialog.getByRole('button', {name: 'Add plugin'});
+    await expect(addButton).toBeEnabled();
+    await addButton.click();
+
+    const card = page.locator('[data-slot="card"]', {hasText: pluginName});
+    await expect(card).toBeVisible();
+    await card.getByRole('button', {name: 'Run'}).click();
+    await page.getByRole('button', {name: 'Run plugin'}).click();
+
+    const frame = page.frameLocator(`iframe[title="${pluginName}"]`);
+    // Loading clearing proves the plugin finished talking to the project over the bridge.
+    await expect(frame.locator('#loading')).toBeHidden({timeout: 20000});
+    await expect(frame.locator('#error')).toBeHidden();
+    await expect(frame.getByRole('heading', {name: example}).first()).toBeVisible();
+
+    await page.getByRole('button', {name: 'Back to plugins'}).click();
+    await expect(page.getByRole('heading', {name: 'Plugins'})).toBeVisible();
+  }
 });

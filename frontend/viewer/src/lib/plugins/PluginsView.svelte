@@ -2,8 +2,9 @@
   import * as Card from '$lib/components/ui/card';
   import {Alert, AlertDescription} from '$lib/components/ui/alert';
   import {Badge} from '$lib/components/ui/badge';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
+  import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import {t} from 'svelte-i18n-lingui';
   import {navigate, useRouter} from 'svelte-routing';
   import {type IPlugin, UserProjectRole} from '$lib/dotnet-types';
@@ -44,6 +45,24 @@
   async function onSubmit(plugin: IPlugin) {
     if (editingPlugin) await pluginService.update(plugin);
     else await pluginService.add(plugin);
+  }
+
+  function exportPlugin(plugin: IPlugin) {
+    const url = URL.createObjectURL(new Blob([plugin.html], {type: 'text/html'}));
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = pluginFileName(plugin.name);
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function pluginFileName(name: string): string {
+    const safe = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    return `${safe || 'plugin'}.html`;
+  }
+
+  async function duplicate(plugin: IPlugin) {
+    await pluginService.add({id: crypto.randomUUID(), name: $t`${plugin.name} (copy)`, html: plugin.html});
   }
 
   async function onDelete(plugin: IPlugin) {
@@ -132,15 +151,29 @@
               <div class="grow"></div>
               {#if canManage}
                 <Button variant="ghost" size="icon" icon="i-mdi-pencil" title={$t`Edit`} onclick={() => openEdit(plugin)} />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  icon="i-mdi-trash-can-outline"
-                  title={$t`Delete`}
-                  class="hover:bg-destructive/20! hover:text-destructive"
-                  onclick={() => void onDelete(plugin)}
-                />
               {/if}
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger class={buttonVariants({variant: 'ghost', size: 'icon'})} title={$t`More`}>
+                  <Icon icon="i-mdi-dots-vertical" />
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content align="end">
+                  <DropdownMenu.Item onSelect={() => exportPlugin(plugin)}>
+                    <Icon icon="i-mdi-download" />
+                    {$t`Export`}
+                  </DropdownMenu.Item>
+                  {#if canManage}
+                    <DropdownMenu.Item onSelect={() => void duplicate(plugin)}>
+                      <Icon icon="i-mdi-content-copy" />
+                      {$t`Duplicate`}
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item variant="destructive" onSelect={() => void onDelete(plugin)}>
+                      <Icon icon="i-mdi-trash-can-outline" />
+                      {$t`Delete`}
+                    </DropdownMenu.Item>
+                  {/if}
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
             </Card.Footer>
           </Card.Root>
         {/each}

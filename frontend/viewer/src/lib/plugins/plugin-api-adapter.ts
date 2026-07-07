@@ -127,7 +127,7 @@ function toQueryOptions(query: PluginEntryQuery): IQueryOptions {
  * Plugins only get structured filters; the gridify string syntax stays an internal detail.
  * Inputs are strictly validated since they end up inside a query expression.
  */
-function toGridifyFilter(filter: PluginEntryFilter | undefined): {gridifyFilter: string} | undefined {
+export function toGridifyFilter(filter: PluginEntryFilter | undefined): {gridifyFilter: string} | undefined {
   if (!filter) return undefined;
   const parts: string[] = [];
   if (filter.semanticDomainCode !== undefined) {
@@ -139,8 +139,25 @@ function toGridifyFilter(filter: PluginEntryFilter | undefined): {gridifyFilter:
   if (filter.partOfSpeechId !== undefined) {
     parts.push(`Senses.PartOfSpeechId=${asId(filter.partOfSpeechId)}`);
   }
+  // The missing-* expressions mirror the "provide-missing" task queries in tasks-service.ts.
+  if (filter.missingGlossWs !== undefined) {
+    parts.push(`(Senses=null|Senses.Gloss[${asWsId(filter.missingGlossWs)}]=)`);
+  }
+  if (filter.missingExampleWs !== undefined) {
+    parts.push(`(Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${asWsId(filter.missingExampleWs)}]=)`);
+  }
+  if (filter.missingPartOfSpeech) {
+    parts.push('Senses.PartOfSpeechId=');
+  }
   if (parts.length === 0) return undefined;
   return {gridifyFilter: parts.join(',')};
+}
+
+function asWsId(value: string): string {
+  if (!/^[a-zA-Z][a-zA-Z0-9-]*$/.test(value)) {
+    throw new PluginApiException('invalid-args', `Not a valid writing system code: ${value}`);
+  }
+  return value;
 }
 
 /** Fills in ids and required collections so a plugin can supply just the interesting fields. */

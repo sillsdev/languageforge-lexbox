@@ -605,19 +605,32 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve();
   }
 
-  private _plugins: IPlugin[] = [{
-    id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
-    name: examplePlugins[0]?.name ?? 'Dictionary stats',
-    html: examplePlugins[0]?.html ?? '<html><body><h1>Example plugin</h1></body></html>',
-  }];
+  private _plugins: IPlugin[] = [];
+  private _seedPlugins?: Promise<void>;
 
-  getPlugins(): Promise<IPlugin[]> {
-    return Promise.resolve(this._plugins.map(plugin => ({...plugin})));
+  private seedPlugins(): Promise<void> {
+    return this._seedPlugins ??= (async () => {
+      const seeds: {id: string; key: string}[] = [
+        {id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', key: 'dictionary-stats'},
+        {id: 'b3d4e5f6-a7b8-4c9d-8e1f-2a3b4c5d6e7f', key: 'lexicon-galaxy'},
+      ];
+      for (const seed of seeds) {
+        const example = examplePlugins.find(p => p.key === seed.key);
+        if (!example) continue;
+        this._plugins.push({id: seed.id, name: example.name, html: await example.loadHtml()});
+      }
+    })();
   }
 
-  getPlugin(id: string): Promise<IPlugin | null> {
+  async getPlugins(): Promise<IPlugin[]> {
+    await this.seedPlugins();
+    return this._plugins.map(plugin => ({...plugin}));
+  }
+
+  async getPlugin(id: string): Promise<IPlugin | null> {
+    await this.seedPlugins();
     const found = this._plugins.find(plugin => plugin.id === id) ?? null;
-    return Promise.resolve(found ? {...found} : null);
+    return found ? {...found} : null;
   }
 
   createPlugin(plugin: IPlugin): Promise<IPlugin> {

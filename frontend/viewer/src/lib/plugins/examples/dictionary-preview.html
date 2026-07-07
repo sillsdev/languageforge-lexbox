@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dictionary Preview</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 12px;
+    /* The paper stays light in both themes — a printed page is a printed page. */
+    --paper: #fbfaf6;
+    --ink: #211d18;
+    --ink-muted: #6a6156;
+    --rule: #d9d2c4;
+    --serif: Charter, "Bitstream Charter", "Sitka Text", Georgia, "Times New Roman", serif;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 16px 48px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.92rem; }
+
+  /* Controls chrome — app-like sans palette */
+  .controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    margin-bottom: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-end;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+  .field select, .field input {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    min-width: 150px;
+  }
+  .field input { min-width: 180px; }
+  .grow { flex: 1; }
+  .count-note { font-size: 0.82rem; color: var(--text-muted); align-self: center; }
+  .cap-note {
+    display: inline-block;
+    font-size: 0.78rem;
+    color: #b45309;
+    background: var(--surface-alt);
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .print-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .print-btn:hover { filter: brightness(1.08); }
+
+  /* The typeset page — serif, book-like */
+  .page {
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    padding: 40px 44px 48px;
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.32;
+  }
+  .guide-band {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 6px;
+    margin-bottom: 4px;
+    font-variant: small-caps;
+    letter-spacing: 0.02em;
+  }
+  .guide-word { font-weight: 700; font-size: 1.15rem; }
+  .guide-title { font-size: 0.8rem; color: var(--ink-muted); font-variant: normal; letter-spacing: 0; }
+  .guide-hint {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    margin: 0 0 18px;
+  }
+
+  .columns {
+    columns: 2;
+    column-gap: 30px;
+    column-rule: 1px solid var(--rule);
+  }
+  @media (max-width: 620px) { .columns { columns: 1; } }
+
+  .dict-entry {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    margin: 0 0 7px;
+    padding-left: 14px;
+    text-indent: -14px; /* hanging indent */
+  }
+  .headword { font-weight: 700; }
+  .homograph { font-size: 0.7em; vertical-align: super; font-weight: 700; margin-left: 1px; }
+  .pos { font-style: italic; color: var(--ink-muted); margin: 0 4px; }
+  .sense-num { font-weight: 700; margin: 0 3px 0 5px; }
+  .gloss { }
+  .definition { color: var(--ink); }
+  .example {
+    font-style: italic;
+    display: inline;
+  }
+  .example-trans { font-style: normal; color: var(--ink-muted); }
+  .no-sense { color: var(--ink-muted); font-style: italic; }
+
+  /* Shared async states */
+  .center-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+  }
+  #page-wrap { display: none; }
+
+  /* Print: only the typeset page, real paper margins */
+  @page { margin: 18mm 16mm; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .wrap { max-width: none; }
+    h1, .subtitle, .controls, .guide-hint { display: none !important; }
+    .page {
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      background: #fff;
+    }
+    .dict-entry { break-inside: avoid; }
+    .columns { column-gap: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Dictionary Preview</h1>
+  <p class="subtitle" id="subtitle">Rendering your entries as a printable dictionary page&hellip;</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading entries&hellip;</div>
+  </div>
+
+  <div id="empty" class="center-state" style="display:none;">
+    This project has no entries to typeset yet.
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="page-wrap">
+    <div class="controls">
+      <div class="field">
+        <label for="headword-ws">Headword language</label>
+        <select id="headword-ws"></select>
+      </div>
+      <div class="field">
+        <label for="gloss-ws">Meaning language</label>
+        <select id="gloss-ws"></select>
+      </div>
+      <div class="field grow">
+        <label for="search">Filter (headword starts with&hellip;)</label>
+        <input id="search" type="text" placeholder="e.g. a  or  cha" autocomplete="off">
+      </div>
+      <span class="count-note" id="count-note"></span>
+      <button class="print-btn" id="print-btn">Print / Save PDF</button>
+    </div>
+
+    <div class="page" id="page">
+      <div class="guide-band">
+        <span class="guide-word" id="guide-first">&mdash;</span>
+        <span class="guide-title" id="guide-title"></span>
+        <span class="guide-word" id="guide-last">&mdash;</span>
+      </div>
+      <p class="guide-hint">Guide words show the first and last headword in this view. True per-page guide words depend on where your printer breaks pages.</p>
+      <div class="columns" id="columns"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE_SIZE = 1000;   // API max per call
+  var ENTRY_CAP = 5000;
+
+  var state = {
+    entries: [],          // all fetched entries
+    sorted: [],           // eligible + sorted for current headword ws
+    headwordWs: '',
+    glossWs: '',
+    vernacular: [],       // [{wsId, name}]
+    analysis: [],
+    posLookup: {},        // id -> pos object
+    collator: null,
+    projectName: '',
+    capped: false,
+  };
+
+  function el(id) { return document.getElementById(id); }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    el('loading').style.display = 'none';
+    var box = el('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function hasText(multiString) {
+    return multiString && Object.keys(multiString).some(function (ws) { return !!multiString[ws]; });
+  }
+
+  // Prefer citationForm, fall back to lexemeForm.
+  function headwordField(entry) {
+    return hasText(entry.citationForm) ? entry.citationForm : (entry.lexemeForm || {});
+  }
+
+  // Value for a chosen ws, falling back to the first non-empty of the preferred list.
+  function pick(multiString, chosenWs, preferredList) {
+    if (!multiString) return '';
+    if (chosenWs && multiString[chosenWs]) return window.fwlite.asText(multiString[chosenWs]);
+    return window.fwlite.firstValue(multiString, preferredList) || '';
+  }
+
+  function headwordText(entry) {
+    return pick(headwordField(entry), state.headwordWs, wsIds(state.vernacular));
+  }
+
+  function wsIds(list) { return list.map(function (ws) { return ws.wsId; }); }
+
+  function posAbbrev(sense) {
+    var pos = (sense.partOfSpeech) || state.posLookup[sense.partOfSpeechId];
+    if (!pos) return '';
+    // Real dictionaries print an abbreviation; the model may not carry one, so fall back to the name.
+    if (pos.abbreviation && hasText(pos.abbreviation)) {
+      return window.fwlite.firstValue(pos.abbreviation, wsIds(state.analysis));
+    }
+    return pick(pos.name, state.glossWs, wsIds(state.analysis));
+  }
+
+  /** Pages through getEntries until countEntries or ENTRY_CAP is reached. */
+  function fetchAll(total) {
+    var target = Math.min(total, ENTRY_CAP);
+    var out = [];
+    function loadNext() {
+      if (out.length >= target) return Promise.resolve(out);
+      var limit = Math.min(PAGE_SIZE, target - out.length);
+      return window.fwlite.getEntries({limit: limit, offset: out.length}).then(function (page) {
+        out = out.concat(page);
+        el('loading-text').textContent = 'Loaded ' + out.length.toLocaleString() + ' of ' + target.toLocaleString() + ' entries…';
+        if (!page.length || out.length >= target) return out;
+        return loadNext();
+      });
+    }
+    return loadNext();
+  }
+
+  function rebuildSort() {
+    var locale = state.headwordWs || undefined;
+    try {
+      state.collator = new Intl.Collator(locale, {sensitivity: 'base', numeric: true});
+    } catch (e) {
+      state.collator = new Intl.Collator(undefined, {sensitivity: 'base', numeric: true});
+    }
+    state.sorted = state.entries
+      .filter(function (entry) { return hasText(headwordField(entry)); })
+      .sort(function (a, b) { return state.collator.compare(headwordText(a), headwordText(b)); });
+  }
+
+  // Build one entry's DOM. All dictionary data goes in via textContent — never innerHTML.
+  function renderEntry(entry, homographNum) {
+    var div = document.createElement('div');
+    div.className = 'dict-entry';
+
+    var hw = document.createElement('span');
+    hw.className = 'headword';
+    hw.textContent = headwordText(entry) || '—';
+    div.appendChild(hw);
+
+    if (homographNum) {
+      var sup = document.createElement('sup');
+      sup.className = 'homograph';
+      sup.textContent = String(homographNum);
+      div.appendChild(sup);
+    }
+
+    var senses = entry.senses || [];
+    if (!senses.length) {
+      var none = document.createElement('span');
+      none.className = 'no-sense';
+      none.textContent = ' (no senses)';
+      div.appendChild(none);
+      return div;
+    }
+
+    senses.forEach(function (sense, i) {
+      var abbr = posAbbrev(sense);
+      if (abbr) {
+        var pos = document.createElement('span');
+        pos.className = 'pos';
+        pos.textContent = abbr;
+        div.appendChild(pos);
+      }
+      if (senses.length > 1) {
+        var num = document.createElement('span');
+        num.className = 'sense-num';
+        num.textContent = (i + 1) + '.';
+        div.appendChild(num);
+      } else {
+        div.appendChild(document.createTextNode(' '));
+      }
+
+      var meaning = pick(sense.gloss, state.glossWs, wsIds(state.analysis));
+      if (!meaning && hasText(sense.definition)) {
+        meaning = pick(sense.definition, state.glossWs, wsIds(state.analysis));
+      }
+      var m = document.createElement('span');
+      m.className = 'gloss';
+      m.textContent = meaning || '—';
+      div.appendChild(m);
+
+      (sense.exampleSentences || []).forEach(function (ex) {
+        var sentence = window.fwlite.firstValue(ex.sentence, wsIds(state.vernacular));
+        if (!sentence) return;
+        div.appendChild(document.createTextNode(' '));
+        var exSpan = document.createElement('span');
+        exSpan.className = 'example';
+        exSpan.textContent = sentence;
+        div.appendChild(exSpan);
+        var trans = (ex.translations || [])
+          .map(function (t) { return window.fwlite.firstValue(t.text, wsIds(state.analysis)); })
+          .filter(Boolean)
+          .join('; ');
+        if (trans) {
+          var tSpan = document.createElement('span');
+          tSpan.className = 'example-trans';
+          tSpan.textContent = ' ‘' + trans + '’';
+          div.appendChild(tSpan);
+        }
+      });
+
+      if (i < senses.length - 1) div.appendChild(document.createTextNode(' '));
+    });
+
+    return div;
+  }
+
+  function currentFilter() {
+    return el('search').value.trim().toLocaleLowerCase();
+  }
+
+  function render() {
+    var filter = currentFilter();
+    var list = state.sorted;
+    if (filter) {
+      list = list.filter(function (entry) {
+        return headwordText(entry).toLocaleLowerCase().indexOf(filter) === 0;
+      });
+    }
+
+    // Homograph numbering: same headword appearing more than once gets superscripts.
+    var counts = {};
+    list.forEach(function (entry) {
+      var key = headwordText(entry).toLocaleLowerCase();
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    var running = {};
+
+    var columns = el('columns');
+    columns.innerHTML = '';
+    var frag = document.createDocumentFragment();
+    list.forEach(function (entry) {
+      var key = headwordText(entry).toLocaleLowerCase();
+      var num = 0;
+      if (counts[key] > 1) { running[key] = (running[key] || 0) + 1; num = running[key]; }
+      frag.appendChild(renderEntry(entry, num));
+    });
+    columns.appendChild(frag);
+
+    el('guide-first').textContent = list.length ? headwordText(list[0]) || '—' : '—';
+    el('guide-last').textContent = list.length ? headwordText(list[list.length - 1]) || '—' : '—';
+    el('guide-title').textContent = state.projectName;
+
+    var note = list.length.toLocaleString() + ' of ' + state.sorted.length.toLocaleString() +
+      ' entr' + (state.sorted.length === 1 ? 'y' : 'ies');
+    el('count-note').innerHTML = '';
+    el('count-note').appendChild(document.createTextNode(note + ' '));
+    if (state.capped) {
+      var cap = document.createElement('span');
+      cap.className = 'cap-note';
+      cap.textContent = 'first ' + ENTRY_CAP.toLocaleString() + ' only';
+      el('count-note').appendChild(cap);
+    }
+  }
+
+  function fillWsSelect(select, list, chosen) {
+    select.innerHTML = '';
+    list.forEach(function (ws) {
+      var opt = document.createElement('option');
+      opt.value = ws.wsId;
+      opt.textContent = ws.name || ws.wsId;
+      if (ws.wsId === chosen) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.disabled = list.length <= 1;
+  }
+
+  function wireEvents() {
+    el('headword-ws').addEventListener('change', function () {
+      state.headwordWs = this.value;
+      rebuildSort();
+      render();
+    });
+    el('gloss-ws').addEventListener('change', function () {
+      state.glossWs = this.value;
+      render();
+    });
+    var timer = null;
+    el('search').addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(render, 120);
+    });
+    el('print-btn').addEventListener('click', function () {
+      try {
+        window.print();
+      } catch (e) {
+        window.fwlite.notify('Could not open the print dialog — press Ctrl+P (⌘P on Mac) to print or save as PDF.');
+      }
+    });
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+    state.projectName = context.project.projectName;
+
+    Promise.all([
+      window.fwlite.getWritingSystems(),
+      window.fwlite.getPartsOfSpeech(),
+      window.fwlite.countEntries({}),
+    ]).then(function (results) {
+      var ws = results[0];
+      var partsOfSpeech = results[1];
+      var total = results[2];
+
+      state.vernacular = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      state.analysis = (ws.analysis || []).filter(function (w) { return !w.isAudio; });
+      state.headwordWs = state.vernacular.length ? state.vernacular[0].wsId : '';
+      state.glossWs = state.analysis.length ? state.analysis[0].wsId : '';
+      partsOfSpeech.forEach(function (pos) { state.posLookup[pos.id] = pos; });
+
+      if (total === 0) {
+        el('loading').style.display = 'none';
+        el('empty').style.display = 'block';
+        return;
+      }
+      state.capped = total > ENTRY_CAP;
+
+      return fetchAll(total).then(function (entries) {
+        state.entries = entries;
+        rebuildSort();
+
+        fillWsSelect(el('headword-ws'), state.vernacular, state.headwordWs);
+        fillWsSelect(el('gloss-ws'), state.analysis, state.glossWs);
+        wireEvents();
+        render();
+
+        el('subtitle').textContent = 'A printable dictionary page for ' + state.projectName +
+          '. Adjust the languages, then Print or save as PDF from your browser.';
+        el('loading').style.display = 'none';
+        el('page-wrap').style.display = 'block';
+      });
+    }).catch(function (err) {
+      showError('Could not build the dictionary preview: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

@@ -13,6 +13,7 @@ export interface PluginHostConfig {
   projectName: string;
   projectCode: string;
   permissions: PluginPermission[];
+  entryId?: string;
 }
 
 /**
@@ -49,6 +50,7 @@ export class PluginHost {
         project: {projectName: this.config.projectName, projectCode: this.config.projectCode},
         theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
         permissions: this.config.permissions,
+        ...(this.config.entryId ? {context: {entryId: this.config.entryId}} : {}),
       });
       return;
     }
