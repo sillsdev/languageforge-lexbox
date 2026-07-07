@@ -32,7 +32,9 @@ describe('view config covers every model field', () => {
     it(`every ${entity} model field is a view field or explicitly excluded`, () => {
       const configured = new Set<string>(entityFieldIds(entity) as string[]);
       const excluded = new Set(NOT_VIEW_FIELDS[entity]);
-      const unhandled = modelFields(file).filter((f) => !configured.has(f) && !excluded.has(f));
+      const fields = modelFields(file);
+      expect(fields.length).toBeGreaterThan(0); // guard against a parse that silently found nothing
+      const unhandled = fields.filter((f) => !configured.has(f) && !excluded.has(f));
       expect(unhandled).toEqual([]);
     });
   }
