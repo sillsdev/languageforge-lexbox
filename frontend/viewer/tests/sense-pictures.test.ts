@@ -76,6 +76,27 @@ test.describe('Sense pictures', () => {
     await expect(image).toHaveAttribute('src', /^blob:/);
   });
 
+  test('re-uploading an existing file adds a second picture that reuses it', async ({page}) => {
+    const browsePage = new BrowsePage(page);
+    await browsePage.goto();
+    await browsePage.selectEntryByFilter('ambuka');
+
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await expect(picturesField).toBeVisible({timeout: 5000});
+    const fileInput = picturesField.locator('input[type="file"]');
+
+    // First upload creates a picture.
+    await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: ONE_PX_PNG});
+    await expect(picturesField.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
+
+    // Uploading the same filename again -> server reports AlreadyExists with the existing
+    // mediaUri; that's not an error here, so a second Picture pointing at the same file is added.
+    await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: ONE_PX_PNG});
+
+    // Two pictures now exist (the carousel shows a navigation dot per picture).
+    await expect(picturesField.getByRole('button', {name: /^Go to picture/})).toHaveCount(2, {timeout: 5000});
+  });
+
   /** Uploads one picture to "ambuka" (which starts empty) and returns the pictures-field locator. */
   async function addOnePicture(page: Page) {
     const browsePage = new BrowsePage(page);

@@ -65,15 +65,16 @@
     switch (response.result) {
       case UploadFileResult.SavedLocally:
       case UploadFileResult.SavedToLexbox:
+      case UploadFileResult.AlreadyExists:
+        // AlreadyExists is not an error here: one image file (mediaUri) can back many Picture
+        // objects across different senses/entries. The server returns the existing file's
+        // mediaUri, which we reuse to create a new Picture pointing at that same image.
         break;
       case UploadFileResult.TooBig:
         AppNotification.display(tooBigMessage(file), {type: 'error', timeout: 'long'});
         return null;
       case UploadFileResult.NotSupported:
         AppNotification.display($t`Uploading pictures is not supported here`, {type: 'error'});
-        return null;
-      case UploadFileResult.AlreadyExists:
-        AppNotification.display($t`That picture has already been uploaded`, {type: 'error'});
         return null;
       case UploadFileResult.Error:
         AppNotification.display(response.errorMessage ?? $t`Unable to upload the picture`, {type: 'error'});

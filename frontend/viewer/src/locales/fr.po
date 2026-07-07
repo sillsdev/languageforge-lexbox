@@ -1995,10 +1995,6 @@ msgstr "Tâches"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Parlez-nous d'un bug ou d'un problème que vous avez rencontré."
 
-#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
-msgid "That picture has already been uploaded"
-msgstr ""
-
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."

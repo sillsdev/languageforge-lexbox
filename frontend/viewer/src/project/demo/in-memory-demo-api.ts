@@ -580,6 +580,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   // Files uploaded during the demo session (e.g. via the "+ Picture" button), keyed by the
   // mediaUri handed back from saveFile. Lets the demo round-trip an upload without a backend.
   #uploadedFiles = new Map<string, Blob>();
+  // Maps an already-uploaded filename to its mediaUri, mirroring how the real server dedups by
+  // filename (LcmMediaService keys by the file name within the project's resource cache).
+  #uploadedFilenames = new Map<string, string>();
 
   getFileStream(mediaUri: string): Promise<IReadFileResponseJs> {
     const uploaded = this.#uploadedFiles.get(mediaUri);
@@ -615,8 +618,15 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     if (blob.size > DEMO_FILE_SIZE_LIMIT) {
       return Promise.resolve({result: UploadFileResult.TooBig});
     }
+    // Same filename as an earlier upload: report AlreadyExists and hand back the existing
+    // mediaUri (as the real server does) so the caller can point a new Picture at that file.
+    const existing = this.#uploadedFilenames.get(metadata.filename);
+    if (existing) {
+      return Promise.resolve({result: UploadFileResult.AlreadyExists, mediaUri: existing});
+    }
     const mediaUri = `demo-upload/${randomId()}`;
     this.#uploadedFiles.set(mediaUri, blob);
+    this.#uploadedFilenames.set(metadata.filename, mediaUri);
     return Promise.resolve({result: UploadFileResult.SavedLocally, mediaUri});
   }
 }
