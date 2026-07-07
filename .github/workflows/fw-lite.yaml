@@ -66,6 +66,13 @@ jobs:
       - name: Check for stale generated TypeScript types
         run: task fw-lite:has-stale-generated-types -- --no-build
 
+      - name: Set a non-UTC timezone so timezone bugs are observable
+        # Hosted runners default to UTC, which hides date bugs: the error equals the local UTC
+        # offset, which is zero on UTC (see #2092). Eastern is non-UTC, observes DST, and has a
+        # negative offset, so date round-trips run the way real users actually hit them.
+        shell: pwsh
+        run: Set-TimeZone -Id "Eastern Standard Time"
+
       - name: Dotnet test
         # Benchmarks run in a separate Release-mode job — see `benchmark` below.
         run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build -p:BuildAndroid=false --filter "Category!=Benchmark"
