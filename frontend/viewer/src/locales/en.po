@@ -161,6 +161,13 @@ msgstr "Add component"
 msgid "Add Example"
 msgstr "Add Example"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "Add sense"
+#. Short button label on a possible-duplicate result in the New Word dialog; fuller form: "Add meaning to this word"
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Add meaning"
+msgstr "Add meaning"
+
 #. Button label
 #. Relevant view: Lite
 #. Classic view equivalent: "Add Sense"
@@ -188,6 +195,13 @@ msgstr "Add new word"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Add part of"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Add meaning"
+#. Short button label on a possible-duplicate result in the New Entry dialog; fuller form: "Add sense to this entry"
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Add sense"
+msgstr "Add sense"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -440,6 +454,7 @@ msgstr "clear"
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Close"
@@ -1825,9 +1840,17 @@ msgstr "rose"
 msgid "Same headword"
 msgstr "Same headword"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Same word"
+#. Badge on a possible-duplicate result: only its lexeme form matches the typed text, while its citation form (shown as the headword) differs — deliberately NOT claiming "Same headword"
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Same lexeme form"
+msgstr "Same lexeme form"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Same headword"
 #. Badge on a possible-duplicate result: it is spelled exactly like the word being typed in the New Word dialog
+#: src/lib/entry-editor/DuplicateCheck.svelte
 #: src/lib/entry-editor/DuplicateCheck.svelte
 msgid "Same word"
 msgstr "Same word"

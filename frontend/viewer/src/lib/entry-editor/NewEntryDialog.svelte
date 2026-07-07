@@ -7,7 +7,7 @@
 <script lang="ts">
   import type {IEntry, ISense} from '$lib/dotnet-types';
   import {createEntryOptions} from '$lib/create-entry-options';
-  import {untrack} from 'svelte';
+  import {tick, untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {Button} from '$lib/components/ui/button';
@@ -23,7 +23,8 @@
   import {pt} from '$lib/views/view-text';
   import * as Editor from '$lib/components/editor';
   import Icon from '$lib/components/ui/icon/icon.svelte';
-  import DuplicateCheck from './DuplicateCheck.svelte';
+  import DuplicateCheck, {type DuplicateSummary} from './DuplicateCheck.svelte';
+  import DuplicateSummaryPill from './DuplicateSummaryPill.svelte';
   import EntryEditorPrimitive from './object-editors/EntryEditorPrimitive.svelte';
   import ObjectHeader from './object-editors/ObjectHeader.svelte';
   import SenseEditorPrimitive from './object-editors/SenseEditorPrimitive.svelte';
@@ -132,6 +133,8 @@
       addSense();
 
       errors = [];
+      pillDismissed = false;
+      duplicateWidgetVisible = true;
       open = true;
     });
   }
@@ -171,6 +174,29 @@
       void createEntry(event);
     }
   }
+
+  let duplicateWidgetEl = $state<HTMLElement>();
+  let duplicateCheck = $state<DuplicateCheck>();
+  let duplicateSummary = $state<DuplicateSummary>();
+
+  // Expand first: the widget sits near the end of the scrollable content, so without the
+  // expanded list below it there isn't enough scroll room to bring its top up the dialog.
+  async function jumpToDuplicates(): Promise<void> {
+    duplicateCheck?.expand();
+    await tick();
+    duplicateWidgetEl?.scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
+  let duplicateWidgetVisible = $state(true);
+  let pillDismissed = $state(false);
+  $effect(() => {
+    const el = duplicateWidgetEl;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([intersection]) => duplicateWidgetVisible = intersection.isIntersecting,
+      {root: el.closest('[data-slot="dialog-content"]')});
+    observer.observe(el);
+    return () => observer.disconnect();
+  });
 </script>
 
 {#if open}
@@ -186,11 +212,16 @@
 {/snippet}
 
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)] max-md:px-2">
+  <!-- Fixed frame (not min/max): the duplicate check adds and reshapes content while the
+    dialog is open, and a content-sized dialog jumps around with every keystroke -->
+  <Dialog.DialogContent onkeydown={handleKeydown}
+    class="sm:min-h-[min(calc(100%-16px),30rem)] sm:w-[min(calc(100%-32px),50rem)] max-md:px-2">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, viewService.currentView)}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    <div>
+    <!-- min-w-0: as a grid item this div defaults to min-width:auto, letting long duplicate
+      headword lists widen the dialog instead of truncating -->
+    <div class="min-w-0">
       <OverrideFields shownFields={[
         'lexemeForm', 'citationForm',
         'gloss', 'definition', 'partOfSpeechId',
@@ -219,9 +250,19 @@
           </Editor.Grid>
         </Editor.Root>
       </OverrideFields>
-      <div class="mt-3">
-        <DuplicateCheck {entry} {sense} bind:busy={duplicateActionBusy} onNavigateToEntry={() => open = false} />
+      <div class="mt-3 scroll-mt-2" bind:this={duplicateWidgetEl}>
+        <DuplicateCheck {entry} {sense} bind:this={duplicateCheck} bind:busy={duplicateActionBusy} bind:summary={duplicateSummary}
+          onNavigateToEntry={() => open = false} />
       </div>
+      {#if duplicateSummary && !duplicateWidgetVisible && !pillDismissed}
+        <div class="sticky bottom-0 z-20 h-0 pointer-events-none">
+          <div class="absolute bottom-3 inset-x-0 flex justify-center">
+            <DuplicateSummaryPill summary={duplicateSummary}
+              onJump={() => jumpToDuplicates()}
+              onDismiss={() => pillDismissed = true} />
+          </div>
+        </div>
+      {/if}
     </div>
     {#if errors.length}
       <div class="text-end space-y-2">

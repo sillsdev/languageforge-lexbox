@@ -4,7 +4,8 @@ import {BrowsePage} from './browse-page';
 /**
  * Tests for the possible-duplicates check in the new entry dialog:
  * typing an existing word/gloss surfaces similar entries, a brand-new word
- * gets the "no similar entries" indicator, and a duplicate can be opened.
+ * gets the "no similar entries" indicator, and a match row expands in place
+ * to offer "Go to entry" / "Add sense".
  */
 
 // demo data (see demo-entry-data.ts): entry 'baba' exists, glossed 'father'
@@ -29,8 +30,14 @@ function glossInput(dialog: Locator): Locator {
 const duplicatesSummary = /already exist/i;
 const newWordIndicator = /no similar entries found|looks like a new word/i;
 
+/** The duplicate strip's header — .first() because the jump pill repeats the message when the strip is out of view. */
+function stripSummary(dialog: Locator): Locator {
+  return dialog.getByText(duplicatesSummary).first();
+}
+
+/** The visible match rows — each expands in place (aria-expanded) to reveal its actions; the collapsed strip keeps them in the DOM hidden. */
 function duplicateRows(dialog: Locator): Locator {
-  return dialog.getByRole('button', {name: /^go to (entry|word)/i});
+  return dialog.locator('li > button[aria-expanded]:visible');
 }
 
 test.describe('New entry possible duplicates', () => {
@@ -42,12 +49,13 @@ test.describe('New entry possible duplicates', () => {
     await lexemeInput(dialog).fill(existingLexeme);
 
     // exact headword match => attention strip + auto-expanded list
-    await expect(dialog.getByText(duplicatesSummary)).toBeVisible();
+    await expect(stripSummary(dialog)).toBeVisible();
     // 'baba' is a substring of 'ubaba', so both rows match — .first() is the exact match because same-word sorts first
     const duplicateRow = duplicateRows(dialog).filter({hasText: existingLexeme}).first();
-    await expect(duplicateRow).toBeVisible();
-
     await duplicateRow.click();
+    await expect(duplicateRow).toHaveAttribute('aria-expanded', 'true');
+
+    await dialog.getByRole('button', {name: /go to (entry|word)/i}).click();
     await expect(dialog).toBeHidden();
     await expect(page).toHaveURL(/entryId=/);
     const openedLexeme = await browsePage.entryView.getLexemeInput();
@@ -61,7 +69,7 @@ test.describe('New entry possible duplicates', () => {
     const dialog = await openNewEntryDialog(page);
     await lexemeInput(dialog).fill('zyzzyvazz');
     await expect(dialog.getByText(newWordIndicator)).toBeVisible();
-    await expect(dialog.getByText(duplicatesSummary)).toBeHidden();
+    await expect(stripSummary(dialog)).toBeHidden();
   });
 
   test('typed meaning can be added to an existing entry instead', async ({page}) => {
@@ -73,9 +81,10 @@ test.describe('New entry possible duplicates', () => {
     const newGloss = `rescued-${Date.now().toString().slice(-6)}`;
     await glossInput(dialog).fill(newGloss);
 
-    // exact match auto-expands the list
-    const row = dialog.locator('li').filter({hasText: existingLexeme}).first();
-    await row.getByRole('button', {name: /add (sense|meaning)/i}).click();
+    // exact match auto-expands the list; expand the row to reach its actions
+    const duplicateRow = duplicateRows(dialog).filter({hasText: existingLexeme}).first();
+    await duplicateRow.click();
+    await dialog.getByRole('button', {name: /add (sense|meaning)/i}).click();
 
     await expect(dialog).toBeHidden();
     await expect(page).toHaveURL(/entryId=/);
@@ -94,7 +103,7 @@ test.describe('New entry possible duplicates', () => {
     // substring of 'balalika' only — no exact match, so the strip stays collapsed
     await lexemeInput(dialog).fill('balal');
 
-    const summary = dialog.getByText(duplicatesSummary);
+    const summary = stripSummary(dialog);
     await expect(summary).toBeVisible();
     await expect(duplicateRows(dialog)).toHaveCount(0);
     await summary.click();
@@ -108,13 +117,14 @@ test.describe('New entry possible duplicates', () => {
     const dialog = await openNewEntryDialog(page);
     await lexemeInput(dialog).fill('ba');
 
-    const summary = dialog.getByText(duplicatesSummary);
+    const summary = stripSummary(dialog);
     await expect(summary).toBeVisible();
-    await expect(dialog.getByText('10+')).toBeVisible();
+    // dozens of demo lexemes contain 'ba', so the fetch cap is hit and the count renders as 'N+'
+    await expect(dialog.getByText(/^\d+\+$/).first()).toBeVisible();
 
     const rows = duplicateRows(dialog);
     if (await rows.count() === 0) await summary.click(); // expands automatically only on an exact match
-    // 3 = the component's initial display count; '10+' assumes the demo data has >10 entries containing 'ba'
+    // 3 = the component's initial display count
     await expect(rows).toHaveCount(3);
     await dialog.getByRole('button', {name: /show \d+ more/i}).click();
     expect(await rows.count()).toBeGreaterThan(3);
@@ -128,10 +138,29 @@ test.describe('New entry possible duplicates', () => {
     await lexemeInput(dialog).fill('zyzzyvazz');
     await glossInput(dialog).fill(existingGloss);
 
-    const summary = dialog.getByText(duplicatesSummary);
+    const summary = stripSummary(dialog);
     await expect(summary).toBeVisible();
     // gloss-only matches don't auto-expand; expand to see the badge
     await summary.click();
     await expect(dialog.getByText(/similar (gloss|meaning)/i).first()).toBeVisible();
+  });
+
+  test('an out-of-view duplicate strip surfaces a jump pill', async ({page}) => {
+    // small viewport so the duplicate strip (below the editor grid) starts outside the dialog's scroll view
+    await page.setViewportSize({width: 1024, height: 560});
+    const browsePage = new BrowsePage(page);
+    await browsePage.goto();
+
+    const dialog = await openNewEntryDialog(page);
+    await lexemeInput(dialog).fill(existingLexeme);
+
+    // the pill's accessible name is exactly the summary message; the strip trigger's name has more text
+    const pill = dialog.getByRole('button', {name: /^this (entry|word) may already exist$/i});
+    await expect(pill).toBeVisible();
+    await pill.click();
+
+    // jumping scrolls the strip into view, which dismisses the pill and shows the match rows
+    await expect(duplicateRows(dialog).first()).toBeInViewport();
+    await expect(pill).toBeHidden();
   });
 });

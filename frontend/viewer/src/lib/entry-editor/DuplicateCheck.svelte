@@ -1,3 +1,15 @@
+<script lang="ts" module>
+  export interface DuplicateSummary {
+    count: number;
+    capped: boolean;
+    hasExactWordMatch: boolean;
+    /** Matched headwords, strongest first, comma-joined for one-line display */
+    previewHeadwords: string;
+    /** One-line banner text, shared by this widget's header and the host's jump pill */
+    message: string;
+  }
+</script>
+
 <script lang="ts">
   import type {IEntry, ISense} from '$lib/dotnet-types';
   import {SortField} from '$lib/dotnet-types';
@@ -20,7 +32,7 @@
   import {pt} from '$lib/views/view-text';
   import {entryBrowseParams} from '$lib/utils/search-params';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
-  import {classifyDuplicates, duplicateQueries, mergeSearchResults, type DuplicateMatch, type DuplicateMatchKind} from './duplicate-check';
+  import {classifyDuplicates, duplicateQueries, duplicateTintClass, mergeSearchResults, trapEnter, type DuplicateMatch, type DuplicateQueries} from './duplicate-check';
 
   interface Props {
     entry: IEntry;
@@ -29,9 +41,11 @@
     onNavigateToEntry?: (entry: IEntry) => void;
     /** True while an add-sense save is in flight — the host dialog should block submitting until it settles. */
     busy?: boolean;
+    /** Set while there are matches, so the host can render an out-of-view indicator. */
+    summary?: DuplicateSummary;
   }
 
-  let {entry, sense, onNavigateToEntry, busy = $bindable(false)}: Props = $props();
+  let {entry, sense, onNavigateToEntry, busy = $bindable(false), summary = $bindable()}: Props = $props();
 
   const lexboxApi = useLexboxApi();
   const writingSystemService = useWritingSystemService();
@@ -40,7 +54,10 @@
   const saveHandler = useSaveHandler();
   const {base} = useRouter();
 
-  const FETCH_COUNT = 10;
+  // Over-fetch: the full-text search also returns cross-field hits (e.g. a typed lexeme that
+  // coincidentally equals some entry's gloss) which classifyDuplicates drops, so fetch extra
+  // to keep enough real matches after filtering.
+  const FETCH_COUNT = 20;
   const INITIAL_DISPLAY_COUNT = 3;
 
   const vernacularWsIds = $derived(writingSystemService.vernacularNoAudio.map(ws => ws.wsId));
@@ -51,7 +68,7 @@
   const duplicatesResource = resource(
     // string key, so edits to unrelated fields don't retrigger the search
     () => JSON.stringify([queries.vernacular, queries.analysis]),
-    async (_key, _prev, {signal}): Promise<{matches: DuplicateMatch[], capped: boolean} | undefined> => {
+    async (_key, _prev, {signal}): Promise<{candidates: IEntry[], queries: DuplicateQueries, capped: boolean} | undefined> => {
       // rank each search by the writing system the text was typed in, so that WS's headword matches sort first
       const searches = [
         ...queries.vernacular.map(query => ({text: query.text, writingSystem: query.wsId})),
@@ -66,21 +83,51 @@
       // searchEntries can't take the abort signal over JSInterop and `resource` keeps whatever
       // resolves last, so discard results that a newer keystroke has already superseded
       if (signal.aborted) throw new DOMException('superseded duplicate search', 'AbortError');
-      const candidates = mergeSearchResults(results);
       return {
-        matches: classifyDuplicates(candidates, queries, vernacularWsIds, analysisWsIds, morphTypesService.current),
+        candidates: mergeSearchResults(results),
+        // the queries these candidates answer — the live `queries` may already be newer
+        queries,
         capped: results.some(result => result.length >= FETCH_COUNT),
       };
     },
     {debounce: DEFAULT_DEBOUNCE_TIME},
   );
 
-  const matches = $derived(duplicatesResource.current?.matches);
+  // Classification lives outside the resource so it tracks the lazy morph-types resource:
+  // reading it here starts its load at mount, and once loaded matches re-classify without re-searching.
+  const matches = $derived.by(() => {
+    const morphTypes = morphTypesService.current;
+    const result = duplicatesResource.current;
+    if (!result) return undefined;
+    return classifyDuplicates(result.candidates, result.queries, vernacularWsIds, analysisWsIds, morphTypes);
+  });
   const hasExactWordMatch = $derived(!!matches?.some(match => match.kind === 'same-word'));
+  // Matched headwords (strongest first) shown in the collapsed header, truncated by the
+  // trigger's ellipsis, so users can dismiss a wall of loose matches at a glance.
+  const previewHeadwords = $derived([...new Set(
+    (matches ?? []).map(match => writingSystemService.headword(match.entry)).filter(Boolean),
+  )].join(', '));
+  const summaryMessage = $derived.by(() => {
+    if (hasExactWordMatch) return pt($t`This entry may already exist`, $t`This word may already exist`, viewService.currentView);
+    if (matches?.length === 1) return pt($t`A similar entry already exists`, $t`A similar word already exists`, viewService.currentView);
+    return pt($t`Similar entries already exist`, $t`Similar words already exist`, viewService.currentView);
+  });
+  $effect(() => {
+    summary = matches?.length
+      ? {count: matches.length, capped: !!duplicatesResource.current?.capped, hasExactWordMatch, previewHeadwords, message: summaryMessage}
+      : undefined;
+  });
 
   let expanded = $state(false);
   let userToggled = $state(false);
+
+  /** Opens the match list, counting as a user toggle (the host's jump-pill calls this). */
+  export function expand(): void {
+    expanded = true;
+    userToggled = true;
+  }
   let displayCount = $state(INITIAL_DISPLAY_COUNT);
+  let expandedEntryId = $state<string>();
   const displayedMatches = $derived(matches?.slice(0, displayCount) ?? []);
 
   // Unfold automatically when the word itself already exists — that's the "stop and look" case.
@@ -93,19 +140,22 @@
       expanded = false;
       userToggled = false;
       displayCount = INITIAL_DISPLAY_COUNT;
+      expandedEntryId = undefined;
     }
   });
 
-  function kindLabel(kind: DuplicateMatchKind): string | undefined {
-    switch (kind) {
+  function kindLabel(match: DuplicateMatch): string {
+    switch (match.kind) {
       case 'same-word':
-        return pt($t`Same headword`, $t`Same word`, viewService.currentView);
+        // a lexeme-only match on an entry whose citation form differs must not claim "Same
+        // headword" — the row displays that (different) citation form as the headword
+        return match.field === 'lexeme'
+          ? pt($t`Same lexeme form`, $t`Same word`, viewService.currentView)
+          : pt($t`Same headword`, $t`Same word`, viewService.currentView);
       case 'similar-word':
         return pt($t`Similar headword`, $t`Similar word`, viewService.currentView);
       case 'same-meaning':
         return pt($t`Similar gloss`, $t`Similar meaning`, viewService.currentView);
-      case 'related':
-        return undefined;
     }
   }
 
@@ -136,13 +186,9 @@
     openEntry(target);
   }
 
-  // The host dialog submits on Enter; interacting with the duplicate list must never also create the entry
-  function trapEnter(event: KeyboardEvent): void {
-    if (event.key === 'Enter') event.stopPropagation();
-  }
 </script>
 
-<div class="min-h-9 flex flex-col justify-center" aria-live="polite">
+<div class="min-h-9 flex flex-col justify-center w-full" aria-live="polite">
   {#if !matches?.length}
     {#if (duplicatesResource.loading && hasQueries) || matches}
       <div class="flex items-center gap-2 px-1 text-sm text-muted-foreground" transition:slide={{duration: 150}}>
@@ -159,17 +205,18 @@
     <Collapsible.Root
       bind:open={expanded}
       onOpenChange={() => userToggled = true}
-      class="rounded-md border border-amber-600/40 bg-amber-500/10 dark:border-amber-400/40"
+      class="rounded-md border {duplicateTintClass(hasExactWordMatch)}"
       >
       <Collapsible.Trigger class="w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer" onkeydown={trapEnter}>
-        <Icon icon="i-mdi-alert-circle-outline" class="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
-        <span class="grow text-start font-medium">
-          {#if hasExactWordMatch}
-            {pt($t`This entry may already exist`, $t`This word may already exist`, viewService.currentView)}
-          {:else if matches.length === 1}
-            {pt($t`A similar entry already exists`, $t`A similar word already exists`, viewService.currentView)}
-          {:else}
-            {pt($t`Similar entries already exist`, $t`Similar words already exist`, viewService.currentView)}
+        {#if hasExactWordMatch}
+          <Icon icon="i-mdi-alert-circle-outline" class="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+        {:else}
+          <Icon icon="i-mdi-information-outline" class="size-5 shrink-0 text-muted-foreground" />
+        {/if}
+        <span class="grow min-w-0 truncate text-start font-medium">
+          {summaryMessage}
+          {#if !expanded && previewHeadwords}
+            <span class="text-muted-foreground font-normal">— {previewHeadwords}</span>
           {/if}
         </span>
         {#if duplicatesResource.loading}
@@ -179,42 +226,54 @@
         <Icon icon={expanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'} class="size-5 shrink-0" />
       </Collapsible.Trigger>
       <Collapsible.Content>
-        <ul class="px-1.5 pb-1.5 space-y-1 max-h-56 overflow-y-auto overscroll-contain">
+        <ul class="px-1.5 pb-1.5 space-y-1.5 max-h-56 overflow-y-auto">
           {#each displayedMatches as match (match.entry.id)}
-            {@const badge = kindLabel(match.kind)}
-            {@const goToLabel = pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
-            {@const headword = writingSystemService.headword(match.entry)}
-            <li class="flex items-stretch gap-1">
+            {@const badge = kindLabel(match)}
+            {@const isExpanded = expandedEntryId === match.entry.id}
+            <li class="rounded bg-background/80">
               <button
                 type="button"
-                class="grow min-w-0 flex items-center gap-2 rounded bg-background/80 hover:bg-accent px-2.5 py-2 text-start"
-                title={goToLabel}
-                aria-label={headword ? `${goToLabel}: ${headword}` : goToLabel}
-                disabled={busy}
+                class="w-full flex items-center gap-2 {isExpanded ? 'rounded-t' : 'rounded'} hover:bg-accent px-2.5 py-2 text-start"
+                aria-expanded={isExpanded}
                 onkeydown={trapEnter}
-                onclick={() => openEntry(match.entry)}>
-                <div class="grow min-w-0 line-clamp-2 text-sm">
-                  <DictionaryEntry entry={match.entry} hideExamples />
+                onclick={() => expandedEntryId = isExpanded ? undefined : match.entry.id}>
+                <div class="grow min-w-0 text-sm {isExpanded ? '' : 'line-clamp-1'}">
+                  <DictionaryEntry entry={match.entry} inline={!isExpanded} hideExamples={!isExpanded} />
                 </div>
                 {#if badge}
-                  <Badge variant="outline" class="shrink-0 border-amber-600/50 dark:border-amber-400/50 whitespace-nowrap">
+                  <Badge variant="outline" class="shrink-0 self-start whitespace-nowrap {match.kind === 'same-word' ? 'border-amber-600/50 dark:border-amber-400/50' : ''}">
                     {badge}
                   </Badge>
                 {/if}
-                <Icon icon="i-mdi-chevron-right" class="size-4 shrink-0 text-muted-foreground" />
+                <Icon icon={isExpanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'} class="size-4 shrink-0 self-start mt-0.5 text-muted-foreground" />
               </button>
-              {#if canAddSense}
-                {@const addSenseLabel = pt($t`Add sense to this entry`, $t`Add meaning to this word`, viewService.currentView)}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  icon="i-mdi-playlist-plus"
-                  class="self-center shrink-0"
-                  title={addSenseLabel}
-                  aria-label={addSenseLabel}
-                  disabled={busy}
-                  onkeydown={trapEnter}
-                  onclick={() => addSenseToEntry(match.entry)} />
+              {#if isExpanded}
+                <div class="flex flex-wrap justify-end gap-1.5 px-2.5 pt-1 pb-2" transition:slide={{duration: 150}}>
+                  {#if canAddSense && (match.kind === 'same-word' || match.kind === 'similar-word')}
+                    {@const addSenseLabel = pt($t`Add sense`, $t`Add meaning`, viewService.currentView)}
+                    {@const addSenseHint = pt($t`Add sense to this entry`, $t`Add meaning to this word`, viewService.currentView)}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      icon="i-mdi-playlist-plus"
+                      title={addSenseHint}
+                      aria-label={addSenseHint}
+                      disabled={busy}
+                      onkeydown={trapEnter}
+                      onclick={() => addSenseToEntry(match.entry)}>
+                      {addSenseLabel}
+                    </Button>
+                  {/if}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    icon="i-mdi-arrow-right"
+                    disabled={busy}
+                    onkeydown={trapEnter}
+                    onclick={() => openEntry(match.entry)}>
+                    {pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
+                  </Button>
+                </div>
               {/if}
             </li>
           {/each}
