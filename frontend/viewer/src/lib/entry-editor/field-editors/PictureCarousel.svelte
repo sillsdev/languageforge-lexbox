@@ -23,11 +23,12 @@
 
   type Props = {
     pictures: IPicture[];
+    /** Index of the picture currently shown; bindable so the parent can act on the current picture. */
+    selectedIndex?: number;
   };
-  const {pictures}: Props = $props();
+  let {pictures, selectedIndex = $bindable(0)}: Props = $props();
 
   let emblaApi = $state<EmblaApi>();
-  let selectedIndex = $state(0);
 
   const hasMultiple = $derived(pictures.length > 1);
 

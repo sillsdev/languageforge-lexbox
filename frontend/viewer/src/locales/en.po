@@ -567,6 +567,10 @@ msgstr "Delete {0}"
 msgid "Delete Entry"
 msgstr "Delete Entry"
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Delete Picture"
+msgstr "Delete Picture"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Delete Entry"
 #. Menu option: opens confirmation dialog to permanently remove word
@@ -1569,6 +1573,7 @@ msgstr "Pick a Part of Speech"
 #. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
 msgstr "Picture"
 
@@ -1690,6 +1695,10 @@ msgstr "Reopen"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
 msgstr "Replace audio"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Replace Picture"
+msgstr "Replace Picture"
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte

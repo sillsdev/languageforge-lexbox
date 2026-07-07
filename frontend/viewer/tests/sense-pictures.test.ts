@@ -1,4 +1,4 @@
-import {expect, test} from '@playwright/test';
+import {expect, test, type Page} from '@playwright/test';
 import {BrowsePage} from './browse-page';
 
 // A tiny valid 1x1 PNG, used to exercise the upload flow without a real image file.
@@ -74,5 +74,59 @@ test.describe('Sense pictures', () => {
     const image = picturesField.locator('img').first();
     await expect(image).toBeVisible({timeout: 5000});
     await expect(image).toHaveAttribute('src', /^blob:/);
+  });
+
+  /** Uploads one picture to "ambuka" (which starts empty) and returns the pictures-field locator. */
+  async function addOnePicture(page: Page) {
+    const browsePage = new BrowsePage(page);
+    await browsePage.goto();
+    await browsePage.selectEntryByFilter('ambuka');
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await expect(picturesField).toBeVisible({timeout: 5000});
+    await picturesField.locator('input[type="file"]').setInputFiles({
+      name: 'photo.png', mimeType: 'image/png', buffer: ONE_PX_PNG,
+    });
+    await expect(picturesField.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
+    return picturesField;
+  }
+
+  test('"+ Picture" stays available alongside Replace/Delete once a picture exists', async ({page}) => {
+    const picturesField = await addOnePicture(page);
+
+    // The add button is still present even though a picture now exists...
+    await expect(picturesField.getByRole('button', {name: 'Picture', exact: true})).toBeVisible();
+    // ...plus the two picture-specific actions.
+    await expect(picturesField.getByRole('button', {name: 'Replace Picture'})).toBeVisible();
+    await expect(picturesField.getByRole('button', {name: 'Delete Picture'})).toBeVisible();
+  });
+
+  test('Delete Picture removes the current picture (after confirmation)', async ({page}) => {
+    const picturesField = await addOnePicture(page);
+
+    await picturesField.getByRole('button', {name: 'Delete Picture'}).click();
+    // Confirm in the delete dialog (its confirm button is also labelled "Delete Picture").
+    await page.getByRole('alertdialog').getByRole('button', {name: 'Delete Picture', exact: true}).click();
+
+    // Picture (and the Replace/Delete actions) are gone; the add button remains.
+    await expect(picturesField.locator('img')).toHaveCount(0, {timeout: 5000});
+    await expect(picturesField.getByRole('button', {name: 'Delete Picture'})).toHaveCount(0);
+    await expect(picturesField.getByRole('button', {name: 'Replace Picture'})).toHaveCount(0);
+    await expect(picturesField.getByRole('button', {name: 'Picture', exact: true})).toBeVisible();
+  });
+
+  test('Replace Picture swaps the current picture in place', async ({page}) => {
+    const picturesField = await addOnePicture(page);
+    const image = picturesField.locator('img').first();
+    const originalSrc = await image.getAttribute('src');
+
+    await picturesField.getByRole('button', {name: 'Replace Picture'}).click();
+    await picturesField.locator('input[type="file"]').setInputFiles({
+      name: 'replacement.png', mimeType: 'image/png', buffer: ONE_PX_PNG,
+    });
+
+    // Still exactly one picture (replaced, not added), re-loaded into a fresh blob url.
+    await expect(picturesField.locator('img')).toHaveCount(1);
+    await expect(image).toHaveAttribute('src', /^blob:/);
+    await expect(image).not.toHaveAttribute('src', originalSrc ?? '', {timeout: 5000});
   });
 });

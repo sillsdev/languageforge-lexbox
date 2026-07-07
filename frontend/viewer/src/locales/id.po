@@ -572,6 +572,10 @@ msgstr "Hapus {0}"
 msgid "Delete Entry"
 msgstr "Hapus Entri"
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Delete Picture"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Delete Entry"
 #. Menu option: opens confirmation dialog to permanently remove word
@@ -1574,6 +1578,7 @@ msgstr "Pilih Bagian dari Pidato"
 #. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
 msgstr ""
 
@@ -1695,6 +1700,10 @@ msgstr "Buka kembali"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
 msgstr "Mengganti audio"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Replace Picture"
+msgstr ""
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
