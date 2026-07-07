@@ -27,7 +27,10 @@
   class={cn(
     'font-mono text-xs',
     !plain && 'rounded border border-border bg-muted/50 px-1',
-    color ?? 'text-muted-foreground',
+    // Not text-muted-foreground: on the muted chip fill (and muted preview surfaces) that lands at ~4.4:1,
+    // under the 4.5:1 WCAG AA floor for this 12px text. foreground/60 keeps the same light-grey look while
+    // clearing AA on every surface in both themes (verified: worst case ~5.1:1 on the light muted fill).
+    color ?? 'text-foreground/60',
     className,
   )}
   {...restProps}>{abbreviation}</svelte:element
