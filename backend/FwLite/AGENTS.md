@@ -247,6 +247,10 @@ if (entity?.DeletedAt is not null) return;
 
 ---
 
+## 🚨 linq2db and timestamps
+
+linq2db wraps every SQLite timestamp comparison in `strftime('...%f', ...)` — millisecond precision, not configurable. Never filter or compare commit timestamps through `ToLinqToDB()`; use EF for those predicates (full-precision TEXT comparison, like Harmony's own `CrdtRepository`). `OrderBy` on a timestamp column is safe. See `SnapshotAtCommitService.DeleteCommitsAfter`.
+
 ## 🚨 Harmony Projected Tables (`LcmCrdtDbContext`)
 
 `LcmCrdtDbContext` DbSets (`Entries`, `Senses`, etc.) are Harmony's **projected snapshot tables**. They contain only the latest, **un-deleted** state.

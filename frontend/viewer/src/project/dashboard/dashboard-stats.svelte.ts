@@ -82,6 +82,22 @@ export class DashboardStats {
     this.#writingSystemService = writingSystemService;
   }
 
+  #patchVernacularRow(
+    wsId: string,
+    patch: Partial<Pick<VernacularWritingSystemStats, 'lexemeForm' | 'citationForm' | 'exampleSentence'>>,
+  ): void {
+    const row = this.vernacular?.find(r => r.wsId === wsId);
+    if (row) Object.assign(row, patch);
+  }
+
+  #patchAnalysisRow(
+    wsId: string,
+    patch: Partial<Pick<AnalysisWritingSystemStats, 'gloss' | 'definition'>>,
+  ): void {
+    const row = this.analysis?.find(r => r.wsId === wsId);
+    if (row) Object.assign(row, patch);
+  }
+
   async load(api: IMiniLcmJsInvokable): Promise<void> {
     const version = ++this.#loadVersion;
     const fresh = () => version === this.#loadVersion;
@@ -97,8 +113,8 @@ export class DashboardStats {
     }
 
     const primary = Promise.all([
-      filledField('Senses=null', f => this.entriesWithSenses = f),
-      filledField('Senses.ExampleSentences=null', f => this.entriesWithExamples = f),
+      filledField('Senses=null', f => { this.entriesWithSenses = f; }),
+      filledField('Senses.ExampleSentences=null', f => { this.entriesWithExamples = f; }),
     ]);
 
     let vernacular = this.#writingSystemService.vernacular;
@@ -122,13 +138,16 @@ export class DashboardStats {
 
     await Promise.all([
       ...vernacularRows.flatMap(row => [
-        filledField(`LexemeForm[${row.wsId}]=`, f => row.lexemeForm = f),
-        filledField(`CitationForm[${row.wsId}]=`, f => row.citationForm = f),
-        filledField(`Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${row.wsId}]=`, f => row.exampleSentence = f),
+        filledField(`LexemeForm[${row.wsId}]=`, f => this.#patchVernacularRow(row.wsId, {lexemeForm: f})),
+        filledField(`CitationForm[${row.wsId}]=`, f => this.#patchVernacularRow(row.wsId, {citationForm: f})),
+        filledField(
+          `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${row.wsId}]=`,
+          f => this.#patchVernacularRow(row.wsId, {exampleSentence: f}),
+        ),
       ]),
       ...analysisRows.flatMap(row => [
-        filledField(`Senses=null|Senses.Gloss[${row.wsId}]=`, f => row.gloss = f),
-        filledField(`Senses=null|Senses.Definition[${row.wsId}]=`, f => row.definition = f),
+        filledField(`Senses=null|Senses.Gloss[${row.wsId}]=`, f => this.#patchAnalysisRow(row.wsId, {gloss: f})),
+        filledField(`Senses=null|Senses.Definition[${row.wsId}]=`, f => this.#patchAnalysisRow(row.wsId, {definition: f})),
       ]),
     ]);
   }

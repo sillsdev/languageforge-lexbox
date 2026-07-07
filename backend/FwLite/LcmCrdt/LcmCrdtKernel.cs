@@ -130,11 +130,14 @@ public static class LcmCrdtKernel
             .UseLinqToDbCrdt(provider)
             .UseLinqToDB(optionsBuilder =>
             {
-                var mappingSchema = new MappingSchema();
-                new FluentMappingBuilder(mappingSchema).HasAttribute<Commit>(new ColumnAttribute("DateTime",
-                        nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
-                    .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
-                        nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
+                // Extend the mapping schema UseLinqToDbCrdt (above) registered: it configures Harmony's
+                // Commit.HybridDateTime.DateTime UTC conversion there, and a fresh schema would shadow it,
+                // making linq2db read commit timestamps in local time (issue #2092). A null schema means
+                // that invariant broke, so fail loudly rather than silently regressing.
+                var mappingSchema = optionsBuilder.DbContextOptions.GetLinqToDBOptions()?.ConnectionOptions.MappingSchema
+                    ?? throw new InvalidOperationException(
+                        "linq2db mapping schema was not registered by UseLinqToDbCrdt; Harmony's Commit UTC conversion would be missing (issue #2092).");
+                new FluentMappingBuilder(mappingSchema)
                     //tells linq2db to rewrite Sense.SemanticDomainRows / Entry.PublishInRows into
                     //Json.Query(<underlying column>). The rewrite lives on the *Rows shadow accessors
                     //rather than the real IList<T> columns; see Entry.PublishInRows for why.
@@ -156,7 +159,6 @@ public static class LcmCrdtKernel
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
-                optionsBuilder.AddMappingSchema(mappingSchema);
                 optionsBuilder.AddCustomOptions(options => options.UseSQLite());
 
                 // Register read-relevant interceptors for LinqToDB

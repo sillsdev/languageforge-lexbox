@@ -140,7 +140,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         var queryable =
             from commit in commits.Skip(skip).Take(take)
             select new ProjectActivity(commit.Id,
-                NormalizeTimestamp(commit.HybridDateTime.DateTime),
+                commit.HybridDateTime.DateTime,
                 commit.ChangeEntities.ToList(),
                 commit.Metadata);
         await foreach (var projectActivity in queryable.ToLinqToDB().AsAsyncEnumerable())
@@ -277,7 +277,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
 #pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
             select new HistoryLineItem(commit,
                 entityId,
-                NormalizeTimestamp(commit.HybridDateTime.DateTime),
+                commit.HybridDateTime.DateTime,
                 snapshot.Id,
                 change.Index,
                 change,
@@ -359,13 +359,6 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             yield return cfc.ComplexFormEntryId;
             yield return cfc.ComponentEntryId;
         }
-    }
-
-    internal static DateTimeOffset NormalizeTimestamp(DateTimeOffset timestamp)
-    {
-        // Linq2DB materializes datetime columns as local time; reinterpret the captured ticks as UTC to avoid DST offsets.
-        // see: https://github.com/sillsdev/languageforge-lexbox/issues/2092
-        return new DateTimeOffset(timestamp.Ticks, TimeSpan.Zero);
     }
 
     public static string ChangesNameHelper(List<ChangeEntity<IChange>> changeEntities)
