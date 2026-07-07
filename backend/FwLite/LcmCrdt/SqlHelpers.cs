@@ -23,13 +23,21 @@ public static class SqlHelpers
     [ExpressionMethod(nameof(SearchValueExpression))]
     public static bool SearchValue(this MultiString ms, string search)
     {
-        return ms.Values.Any(pair => pair.Value.ContainsDiacriticMatch(search));
+        return ms.Values.Any(pair => !pair.Key.IsAudio && pair.Value.ContainsDiacriticMatch(search));
     }
 
     private static Expression<Func<MultiString, string, bool>> SearchValueExpression()
     {
-        return (ms, search) => Json.QueryValues(ms).Any(s => ContainsIgnoreCaseAccents(s, search));
+        return (ms, search) => Json.QueryEntries(ms).Any(kv => !IsAudioWs(kv.Key) && ContainsIgnoreCaseAccents(kv.Value, search));
     }
+
+    /// <summary>
+    /// An audio writing system's IETF tag uses the Zxxx ("unwritten") script with an "audio"
+    /// private-use variant (see <see cref="WritingSystemId.IsAudio"/>). Its stored value is a
+    /// media-file reference, so it must be excluded from text searches.
+    /// </summary>
+    [Sql.Expression("({0} LIKE '%-zxxx-%' AND {0} LIKE '%-audio%')", ServerSideOnly = true, IsPredicate = true)]
+    public static bool IsAudioWs(string wsCode) => new WritingSystemId(wsCode).IsAudio;
 
     [Sql.Expression(CustomSqliteFunctionInterceptor.ContainsFunction + "({0}, {1})")]
     public static bool ContainsIgnoreCaseAccents(string s, string search) => s.ContainsDiacriticMatch(search);
