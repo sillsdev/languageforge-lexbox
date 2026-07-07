@@ -28,6 +28,7 @@ export * from './generated-types/MiniLcm/Models/ProjectDataFormat';
 export * from './generated-types/MiniLcm/Models/WritingSystemType';
 export * from './generated-types/MiniLcm/Models/MorphTypeKind';
 export * from './generated-types/MiniLcm/Models/ICustomView';
+export * from './generated-types/MiniLcm/Models/IPlugin';
 export * from './generated-types/MiniLcm/Models/IViewField';
 export * from './generated-types/MiniLcm/Models/IViewWritingSystem';
 export * from './generated-types/MiniLcm/Models/ViewBase';

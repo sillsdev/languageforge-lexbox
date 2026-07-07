@@ -174,6 +174,21 @@ public interface IMiniLcmWriteApi
     }
     #endregion
 
+    #region Plugin
+    Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
+    }
+    Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
+    }
+    Task DeletePlugin(Guid id)
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
+    }
+    #endregion
+
     #region Comments
     Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
     {

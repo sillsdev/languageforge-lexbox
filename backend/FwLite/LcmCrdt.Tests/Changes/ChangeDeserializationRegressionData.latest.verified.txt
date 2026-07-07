@@ -1346,5 +1346,21 @@
   {
     "$type": "delete:UserComment",
     "EntityId": "4be242d0-b1a6-986f-cc0d-b35860e69e60"
+  },
+  {
+    "$type": "CreatePluginChange",
+    "Name": "Lodge",
+    "Html": "Bedfordshire",
+    "EntityId": "f2dd8f6b-ec81-d71e-5849-e1756fbac139"
+  },
+  {
+    "$type": "EditPluginChange",
+    "Name": "Ergonomic Frozen Cheese",
+    "Html": "Flats",
+    "EntityId": "3c4f92b1-e0c2-edf0-b407-d0cea075af0a"
+  },
+  {
+    "$type": "delete:Plugin",
+    "EntityId": "26accf27-93f5-f767-621a-563c58379c6a"
   }
 ]

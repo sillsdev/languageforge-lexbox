@@ -22,6 +22,8 @@
   import DialogsProvider from '$lib/DialogsProvider.svelte';
   import {navigate, Route, useRouter} from 'svelte-routing';
   import ActivityView from '$lib/activity/ActivityView.svelte';
+  import PluginsView from '$lib/plugins/PluginsView.svelte';
+  import PluginRunView from '$lib/plugins/PluginRunView.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
@@ -76,6 +78,14 @@
       </Route>
       <Route path="/activity">
         <ActivityView />
+      </Route>
+      <Route path="/plugins">
+        <PluginsView />
+      </Route>
+      <Route path="/plugins/:id" let:params>
+        {#key params.id}
+          <PluginRunView pluginId={params.id} />
+        {/key}
       </Route>
       <Route path="/">
         {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}

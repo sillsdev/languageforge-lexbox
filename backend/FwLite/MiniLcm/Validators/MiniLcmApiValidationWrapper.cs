@@ -75,6 +75,18 @@ public partial class MiniLcmApiValidationWrapper(
         return null;
     }
 
+    public async Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        await validators.ValidateAndThrow(plugin);
+        return await _api.CreatePlugin(plugin);
+    }
+
+    public async Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        await validators.ValidateAndThrow(plugin);
+        return await _api.UpdatePlugin(plugin);
+    }
+
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {
         await validators.ValidateAndThrow(writingSystem);

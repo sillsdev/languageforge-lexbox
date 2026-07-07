@@ -26,6 +26,7 @@ msgid "– ({0} changes)"
 msgstr "– ({0} changements)"
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "(unknown)"
 msgstr ""
 
@@ -58,6 +59,10 @@ msgstr "il y a {0}"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "{0} KB"
 msgstr ""
 
 #. File size display with unit
@@ -106,6 +111,10 @@ msgstr "**terminologie plus simple** (par exemple *Mot* au lieu de *forme de lex
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Une nouvelle version de FieldWorks Lite est disponible."
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "A plugin is a single HTML file. Ask an AI to write one for you (see “Get AI prompt”), start from an example, or write it yourself."
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
 #: src/project/browse/BrowseView.svelte
@@ -149,6 +158,10 @@ msgstr "Ajouter une forme complexe"
 msgid "Add component"
 msgstr "Ajouter un composant"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Add entry"
+msgstr ""
+
 #. Button to add example sentence
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
@@ -176,6 +189,10 @@ msgstr "Ajouter un nouveau mot"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Ajouter une partie de"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Add plugin"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -277,10 +294,18 @@ msgstr "N'importe quel domaine sémantique"
 msgid "Any Ws"
 msgstr "Tous les Systèmes d'Ecriture"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply change"
+msgstr ""
+
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "Êtes-vous sûr de vouloir supprimer {0}?"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Ask an AI to build one for you — click “Get AI prompt”, describe your idea, and paste the result into “New plugin”. Or start from a built-in example."
+msgstr ""
 
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
@@ -317,6 +342,11 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Synchronisation automatique"
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Back to plugins"
+msgstr ""
+
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -348,6 +378,10 @@ msgstr "Parcourir"
 msgid "Browse view failed"
 msgstr ""
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Can access the internet (and could send dictionary data there)"
+msgstr ""
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -360,6 +394,7 @@ msgstr ""
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Annuler"
@@ -410,6 +445,7 @@ msgstr "effacer"
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/plugins/PluginAiPromptDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Fermer"
@@ -495,10 +531,26 @@ msgstr "Composants"
 msgid "Contains"
 msgstr "Contient"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Copied"
+msgstr ""
+
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
 msgstr "Copié dans le presse-papiers"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Copy prompt"
+msgstr ""
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Copy the HTML file the AI produces, then add it here via “New plugin”."
+msgstr ""
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Copy the prompt below. It already contains everything the AI needs to know about plugins and this project."
+msgstr ""
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -519,6 +571,10 @@ msgstr ""
 #. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
+msgstr ""
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Create a plugin with AI"
 msgstr ""
 
 #. Dialog title when creating a new custom view.
@@ -612,6 +668,7 @@ msgstr "Définition"
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -679,6 +736,10 @@ msgstr "Afficher comme"
 msgid "Do you want to:"
 msgstr "Voulez-vous :"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Don't allow"
+msgstr ""
+
 #. Button to cancel deletion
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
@@ -737,12 +798,17 @@ msgstr "Téléchargement en cours {0}..."
 msgid "Downloading..."
 msgstr "Téléchargement en cours..."
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "e.g. Dictionary stats"
+msgstr ""
+
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
 msgstr ""
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Edit"
 msgstr ""
 
@@ -754,6 +820,10 @@ msgstr ""
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Modifier la vue personnalisée"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Edit plugin"
+msgstr ""
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -838,6 +908,10 @@ msgstr "Erreur dans l'obtention de l'état de la synchronisation"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "Erreur dans l'obtention de l'état de la synchronisation."
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Every change to your dictionary needs your approval"
+msgstr ""
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1054,6 +1128,14 @@ msgstr "Pour toute autre question, n'hésitez pas à nous envoyer un courriel."
 msgid "From active filter"
 msgstr "Depuis le filtre actif"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Gathering project information…"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Get AI prompt"
+msgstr ""
+
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
@@ -1067,6 +1149,10 @@ msgstr "Obtenir de l'aide"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Glose"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Go back"
+msgstr ""
 
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
@@ -1154,6 +1240,11 @@ msgstr "Installer la mise à jour"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
 msgstr "Installation de la mise à jour..."
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Internet"
+msgstr ""
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1357,6 +1448,7 @@ msgstr "Ma vue personnalisée..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Nom"
@@ -1395,6 +1487,12 @@ msgstr "Nouvelles données"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "Nouvelle entrée"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "New plugin"
+msgstr ""
 
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
@@ -1448,6 +1546,10 @@ msgstr "Aucun contenu audio"
 msgid "No authors"
 msgstr ""
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "No coding needed — an AI assistant can write the plugin for you."
+msgstr ""
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "No comment threads yet."
 msgstr ""
@@ -1477,6 +1579,11 @@ msgstr "Aucun fichier à télécharger"
 msgid "No history found"
 msgstr "Aucun antécédent n'a été trouvé"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "No internet access"
+msgstr ""
+
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "No items found"
@@ -1486,6 +1593,10 @@ msgstr "Aucun élément trouvé"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "Aucune nouvelle donnée"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "No plugins yet"
+msgstr ""
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1504,6 +1615,10 @@ msgstr "Aucun sujet, impossible de créer un nouveau {0}"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "No visible changes"
 msgstr ""
 
 #. Relevant view: Lite
@@ -1652,6 +1767,14 @@ msgstr "Une partie de"
 msgid "Part of speech"
 msgstr "Partie du discours"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Paste it into an AI assistant (e.g. Claude or ChatGPT) and replace the last paragraph with a description of the plugin you want."
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Paste the plugin HTML here"
+msgstr ""
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1675,6 +1798,40 @@ msgstr "Épinglé"
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
 msgstr "Plateforme"
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Plugin"
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Plugin HTML"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to add an entry"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to change an entry"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Plugins"
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Plugins are code and run for everyone on this project. Only add plugins you or your team created, or that come from someone you trust."
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
+msgstr ""
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -1701,6 +1858,10 @@ msgstr "Projet {0} introuvable sur {1}"
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Le projet {0} sur {1} n'est pas encore configuré pour FieldWorks Lite"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Prompt copied to clipboard"
+msgstr ""
 
 #. Filter option
 #. Publication type/dictionary for entries
@@ -1747,6 +1908,10 @@ msgstr "Actualiser la liste de projets"
 msgid "Release notes"
 msgstr "Notes de version"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Reload plugin"
+msgstr ""
+
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
@@ -1772,6 +1937,10 @@ msgstr "Remplacer l'audio"
 msgid "Report a technical problem"
 msgstr "Signaler un problème technique"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Requests internet access"
+msgstr ""
+
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
 msgid "Restore"
@@ -1787,6 +1956,22 @@ msgstr "Évaluer"
 msgid "rose"
 msgstr "rose"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Run"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Run plugin"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Run this plugin?"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Runs in a sandbox, separate from the app"
+msgstr ""
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Save"
 msgstr ""
@@ -1800,6 +1985,10 @@ msgstr "Enregistrer sous"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
 msgstr "Sauvegarder l'audio"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Save changes"
+msgstr ""
 
 #. Submit button in the edit custom view dialog.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -1938,6 +2127,10 @@ msgstr "Taille :"
 msgid "Skip"
 msgstr "Ignorer"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
+msgstr ""
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr ""
@@ -1949,6 +2142,10 @@ msgstr "Champ spécifique"
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Start a new thread"
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Start from an example:"
 msgstr ""
 
 #. Filter operator
@@ -2094,6 +2291,10 @@ msgstr "Le nombre de commits FieldWorks Classic ne correspond pas nécessairemen
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Le nombre de commits FieldWorks Lite ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "The plugin “{0}” is asking to make this change to your dictionary:"
+msgstr ""
+
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
@@ -2120,10 +2321,18 @@ msgstr "Cet {0} a été supprimé"
 msgid "This date # and this emoji # are snippets"
 msgstr "Cette date # et cet emoji # sont des extraits."
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "This plugin no longer exists."
+msgstr ""
+
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Ce projet est maintenant ouvert dans FieldWorks. Pour continuer à travailler dans FieldWorks Lite, fermez le projet dans FieldWorks et cliquez sur Rouvrir."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "This removes the plugin for everyone on this project."
+msgstr ""
 
 #. Status message
 #: src/project/tasks/TaskView.svelte

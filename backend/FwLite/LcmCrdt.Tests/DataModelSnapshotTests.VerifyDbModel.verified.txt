@@ -303,6 +303,26 @@
       Relational:TableName: PartOfSpeech
       Relational:ViewName: 
       Relational:ViewSchema: 
+  EntityType: Plugin
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      DeletedAt (DateTimeOffset?)
+      Html (string) Required
+      Name (string) Required
+      SnapshotId (no field, Guid?) Shadow FK Index
+    Keys: 
+      Id PK
+    Foreign keys: 
+      Plugin {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      SnapshotId Unique
+    Annotations: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: Plugin
+      Relational:ViewName: 
+      Relational:ViewSchema: 
   EntityType: Publication
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd

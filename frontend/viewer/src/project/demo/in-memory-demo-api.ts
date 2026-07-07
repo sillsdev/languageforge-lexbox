@@ -23,9 +23,11 @@ import {
   type IWritingSystems,
   type WritingSystemType,
   type ICustomView,
+  type IPlugin,
   ViewBase,
   MorphTypeKind,
 } from '$lib/dotnet-types';
+import {examplePlugins} from '$lib/plugins/examples';
 import {entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
@@ -202,6 +204,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       write: true,
       audio: true,
       customViews: true,
+      plugins: true,
     } satisfies IMiniLcmFeatures);
   }
 
@@ -599,6 +602,40 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   deleteCustomView(_id: string): Promise<void> {
     this._customViews = this._customViews.filter(v => v.id !== _id);
+    return Promise.resolve();
+  }
+
+  private _plugins: IPlugin[] = [{
+    id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    name: examplePlugins[0]?.name ?? 'Dictionary stats',
+    html: examplePlugins[0]?.html ?? '<html><body><h1>Example plugin</h1></body></html>',
+  }];
+
+  getPlugins(): Promise<IPlugin[]> {
+    return Promise.resolve(this._plugins.map(plugin => ({...plugin})));
+  }
+
+  getPlugin(id: string): Promise<IPlugin | null> {
+    const found = this._plugins.find(plugin => plugin.id === id) ?? null;
+    return Promise.resolve(found ? {...found} : null);
+  }
+
+  createPlugin(plugin: IPlugin): Promise<IPlugin> {
+    const created = {...plugin, id: plugin.id || crypto.randomUUID()};
+    this._plugins = [...this._plugins, created];
+    return Promise.resolve({...created});
+  }
+
+  updatePlugin(plugin: IPlugin): Promise<IPlugin> {
+    const index = this._plugins.findIndex(existing => existing.id === plugin.id);
+    if (index === -1) throw new Error(`Plugin ${plugin.id} not found`);
+    const updated = {...plugin};
+    this._plugins = this._plugins.map((existing, i) => i === index ? updated : existing);
+    return Promise.resolve({...updated});
+  }
+
+  deletePlugin(id: string): Promise<void> {
+    this._plugins = this._plugins.filter(plugin => plugin.id !== id);
     return Promise.resolve();
   }
 

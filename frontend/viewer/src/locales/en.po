@@ -21,6 +21,7 @@ msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "(unknown)"
 msgstr "(unknown)"
 
@@ -54,6 +55,10 @@ msgstr "{0} ago"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
 msgstr "{0} authors"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "{0} KB"
+msgstr "{0} KB"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -101,6 +106,11 @@ msgstr "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning*
 msgid "A new version of FieldWorks Lite is available."
 msgstr "A new version of FieldWorks Lite is available."
 
+#. Dialog subtitle in the plugin editor (add/edit a plugin). "Get AI prompt" names a button elsewhere in the Plugins page.
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "A plugin is a single HTML file. Ask an AI to write one for you (see “Get AI prompt”), start from an example, or write it yourself."
+msgstr "A plugin is a single HTML file. Ask an AI to write one for you (see “Get AI prompt”), start from an example, or write it yourself."
+
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
 #: src/project/browse/BrowseView.svelte
@@ -144,6 +154,10 @@ msgstr "Add complex form"
 msgid "Add component"
 msgstr "Add component"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Add entry"
+msgstr "Add entry"
+
 #. Button to add example sentence
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
@@ -171,6 +185,11 @@ msgstr "Add new word"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Add part of"
+
+#. Submit button in the "New plugin" dialog, saves a newly-created plugin.
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Add plugin"
+msgstr "Add plugin"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -272,10 +291,19 @@ msgstr "Any semantic domain"
 msgid "Any Ws"
 msgstr "Any Ws"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply change"
+msgstr "Apply change"
+
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
+
+#. Empty-state hint on the Plugins page when no plugins are installed yet. "Get AI prompt" and "New plugin" are the two buttons above this text.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Ask an AI to build one for you — click “Get AI prompt”, describe your idea, and paste the result into “New plugin”. Or start from a built-in example."
+msgstr "Ask an AI to build one for you — click “Get AI prompt”, describe your idea, and paste the result into “New plugin”. Or start from a built-in example."
 
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
@@ -312,6 +340,12 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Auto syncing"
 
+#. Button to leave a running plugin and return to the Plugins list page.
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Back to plugins"
+msgstr "Back to plugins"
+
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -343,6 +377,11 @@ msgstr "Browse"
 msgid "Browse view failed"
 msgstr "Browse view failed"
 
+#. List item in the plugin permission/consent screen, shown before first running a plugin that requests internet access.
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Can access the internet (and could send dictionary data there)"
+msgstr "Can access the internet (and could send dictionary data there)"
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -355,6 +394,7 @@ msgstr "Browse view failed"
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Cancel"
@@ -405,6 +445,7 @@ msgstr "clear"
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/plugins/PluginAiPromptDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Close"
@@ -490,10 +531,28 @@ msgstr "Components"
 msgid "Contains"
 msgstr "Contains"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Copied"
+msgstr "Copied"
+
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Copy prompt"
+msgstr "Copy prompt"
+
+#. Step 3 of a numbered list in the "Create a plugin with AI" dialog. "New plugin" names the button used to add the result.
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Copy the HTML file the AI produces, then add it here via “New plugin”."
+msgstr "Copy the HTML file the AI produces, then add it here via “New plugin”."
+
+#. Step 1 of a numbered list in the "Create a plugin with AI" dialog, referring to the AI prompt text shown below it.
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Copy the prompt below. It already contains everything the AI needs to know about plugins and this project."
+msgstr "Copy the prompt below. It already contains everything the AI needs to know about plugins and this project."
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -515,6 +574,11 @@ msgstr "Create"
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
 msgstr "Create a new FieldWorks Lite project"
+
+#. Dialog title. Walks the user through generating a plugin (a custom HTML mini-app) using an external AI assistant.
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Create a plugin with AI"
+msgstr "Create a plugin with AI"
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -607,6 +671,7 @@ msgstr "Definition"
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Delete"
 msgstr "Delete"
 
@@ -674,6 +739,10 @@ msgstr "Display as"
 msgid "Do you want to:"
 msgstr "Do you want to:"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Don't allow"
+msgstr "Don't allow"
+
 #. Button to cancel deletion
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
@@ -732,12 +801,18 @@ msgstr "Downloading {0}..."
 msgid "Downloading..."
 msgstr "Downloading..."
 
+#. Placeholder text in the plugin name input field, an example plugin name.
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "e.g. Dictionary stats"
+msgstr "e.g. Dictionary stats"
+
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
 msgstr "e.g. th, sw"
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Edit"
 msgstr "Edit"
 
@@ -749,6 +824,10 @@ msgstr "Edit comment"
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Edit Custom View"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Edit plugin"
+msgstr "Edit plugin"
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -833,6 +912,11 @@ msgstr "Error getting sync status"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "Error getting sync status."
+
+#. List item in the plugin permission/consent screen, reassuring the user before they run a plugin for the first time.
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Every change to your dictionary needs your approval"
+msgstr "Every change to your dictionary needs your approval"
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1049,6 +1133,14 @@ msgstr "For any other inquiries, feel free to send us an email."
 msgid "From active filter"
 msgstr "From active filter"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Gathering project information…"
+msgstr "Gathering project information…"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Get AI prompt"
+msgstr "Get AI prompt"
+
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
@@ -1062,6 +1154,11 @@ msgstr "Get support"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Gloss"
+
+#. Button in the plugin permission/consent screen that declines to run the plugin and returns to the Plugins list.
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Go back"
+msgstr "Go back"
 
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
@@ -1149,6 +1246,12 @@ msgstr "Install Update"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
 msgstr "Installing Update..."
+
+#. Badge label shown on a plugin that requests internet access. Short noun, not a verb/instruction.
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Internet"
+msgstr "Internet"
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1352,6 +1455,7 @@ msgstr "My custom view..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Name"
@@ -1390,6 +1494,12 @@ msgstr "New data"
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "New Entry"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "New plugin"
+msgstr "New plugin"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
@@ -1443,6 +1553,11 @@ msgstr "No audio"
 msgid "No authors"
 msgstr "No authors"
 
+#. Dialog subtitle in "Create a plugin with AI". "Plugin" here means a small custom HTML mini-app for the dictionary.
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "No coding needed — an AI assistant can write the plugin for you."
+msgstr "No coding needed — an AI assistant can write the plugin for you."
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "No comment threads yet."
 msgstr "No comment threads yet."
@@ -1472,6 +1587,12 @@ msgstr "No file to upload"
 msgid "No history found"
 msgstr "No history found"
 
+#. Badge shown when a plugin does NOT request internet access (contrast with the "Requests internet access" / "Internet" badges).
+#: src/lib/plugins/PluginEditorDialog.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "No internet access"
+msgstr "No internet access"
+
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "No items found"
@@ -1481,6 +1602,11 @@ msgstr "No items found"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "No new data"
+
+#. Empty-state heading on the Plugins page when the project has no plugins installed.
+#: src/lib/plugins/PluginsView.svelte
+msgid "No plugins yet"
+msgstr "No plugins yet"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1500,6 +1626,11 @@ msgstr "No subject, unable to create a new {0}"
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "No vernacular writing systems configured."
+
+#. Shown in the plugin write-confirmation dialog when the proposed change has no human-readable summary lines to display.
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "No visible changes"
+msgstr "No visible changes"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1647,6 +1778,16 @@ msgstr "Part of"
 msgid "Part of speech"
 msgstr "Part of speech"
 
+#. Step 2 of a numbered list in the "Create a plugin with AI" dialog. "Claude" is a product name — do not translate; "ChatGPT" is also a product name.
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Paste it into an AI assistant (e.g. Claude or ChatGPT) and replace the last paragraph with a description of the plugin you want."
+msgstr "Paste it into an AI assistant (e.g. Claude or ChatGPT) and replace the last paragraph with a description of the plugin you want."
+
+#. Placeholder text in the plugin HTML textarea of the plugin editor dialog.
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Paste the plugin HTML here"
+msgstr "Paste the plugin HTML here"
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1670,6 +1811,46 @@ msgstr "Pinned"
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
 msgstr "Platform"
+
+#. Generic fallback label for a plugin (a small custom HTML mini-app) when its name is unavailable, and as the noun in delete-confirmation prompts.
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Plugin"
+msgstr "Plugin"
+
+#. Field label above the textarea where the plugin's HTML source code is pasted, in the plugin editor dialog.
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Plugin HTML"
+msgstr "Plugin HTML"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to add an entry"
+msgstr "Plugin wants to add an entry"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to change an entry"
+msgstr "Plugin wants to change an entry"
+
+#. Sidebar navigation item leading to the list of installed plugins (small custom HTML mini-apps) for the current project.
+#: src/lib/plugins/PluginsView.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Plugins"
+msgstr "Plugins"
+
+#. Warning banner in the plugin editor dialog, shown when adding or editing a plugin.
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Plugins are code and run for everyone on this project. Only add plugins you or your team created, or that come from someone you trust."
+msgstr "Plugins are code and run for everyone on this project. Only add plugins you or your team created, or that come from someone you trust."
+
+#. Body text in the permission/consent screen shown the first time a plugin runs on this device, or after its content changed.
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
+msgstr "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
+
+#. Warning banner at the top of the Plugins list page.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
+msgstr "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -1696,6 +1877,10 @@ msgstr "Project {0} not found on {1}"
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Prompt copied to clipboard"
+msgstr "Prompt copied to clipboard"
 
 #. Filter option
 #. Publication type/dictionary for entries
@@ -1742,6 +1927,11 @@ msgstr "Refresh Projects"
 msgid "Release notes"
 msgstr "Release notes"
 
+#. Icon button in the plugin run view's toolbar; re-executes the currently running plugin from scratch.
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Reload plugin"
+msgstr "Reload plugin"
+
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
@@ -1767,6 +1957,11 @@ msgstr "Replace audio"
 msgid "Report a technical problem"
 msgstr "Report a technical problem"
 
+#. Badge shown on a plugin in the editor dialog that requests internet access (contrast with "No internet access").
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Requests internet access"
+msgstr "Requests internet access"
+
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
 msgid "Restore"
@@ -1782,6 +1977,26 @@ msgstr "Review"
 msgid "rose"
 msgstr "rose"
 
+#. Button on a plugin card in the Plugins list; opens and executes that plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Run"
+msgstr "Run"
+
+#. Button in the permission/consent screen that grants approval and executes the plugin for the first time.
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Run plugin"
+msgstr "Run plugin"
+
+#. Heading of the permission/consent screen shown before a plugin runs for the first time (or after it changed).
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Run this plugin?"
+msgstr "Run this plugin?"
+
+#. List item in the plugin permission/consent screen, describing the iframe sandbox the plugin executes in.
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Runs in a sandbox, separate from the app"
+msgstr "Runs in a sandbox, separate from the app"
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Save"
 msgstr "Save"
@@ -1795,6 +2010,11 @@ msgstr "Save As"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Save audio"
 msgstr "Save audio"
+
+#. Submit button in the plugin editor dialog when editing an existing plugin (contrast with "Add plugin" for a new one).
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Save changes"
+msgstr "Save changes"
 
 #. Submit button in the edit custom view dialog.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -1933,6 +2153,11 @@ msgstr "Size:"
 msgid "Skip"
 msgstr "Skip"
 
+#. Subtitle under the "Plugins" page heading, explaining what plugins are.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
+msgstr "Small custom apps that work with this project's dictionary — shared with the whole team."
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr "Something went wrong"
@@ -1945,6 +2170,11 @@ msgstr "Specific field"
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Start a new thread"
 msgstr "Start a new thread"
+
+#. Label preceding a row of buttons, each naming a built-in example plugin, in the "New plugin" dialog.
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Start from an example:"
+msgstr "Start from an example:"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2089,6 +2319,11 @@ msgstr "The number of FieldWorks Classic commits will not necessarily match the 
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 
+#. Dialog description; {0} is the plugin's display name. Followed by a list of the specific changes it wants to make.
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "The plugin “{0}” is asking to make this change to your dictionary:"
+msgstr "The plugin “{0}” is asking to make this change to your dictionary:"
+
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
@@ -2115,10 +2350,20 @@ msgstr "This {0} was deleted"
 msgid "This date # and this emoji # are snippets"
 msgstr "This date # and this emoji # are snippets"
 
+#. Shown in the plugin run view if the plugin was deleted (e.g. by another user) after this page was opened or linked to.
+#: src/lib/plugins/PluginRunView.svelte
+msgid "This plugin no longer exists."
+msgstr "This plugin no longer exists."
+
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
+
+#. Warning detail in the delete-plugin confirmation dialog; plugins are shared project-wide, not per-user.
+#: src/lib/plugins/PluginsView.svelte
+msgid "This removes the plugin for everyone on this project."
+msgstr "This removes the plugin for everyone on this project."
 
 #. Status message
 #: src/project/tasks/TaskView.svelte

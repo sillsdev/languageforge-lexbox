@@ -318,6 +318,23 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             });
         yield return new ChangeWithDependencies(editCustomViewChange, [createCustomViewChange]);
 
+        var plugin = new Plugin
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test Plugin",
+            Html = "<html><body><h1>Hello</h1></body></html>",
+        };
+        var createPluginChange = new CreatePluginChange(plugin.Id, plugin);
+        yield return new ChangeWithDependencies(createPluginChange);
+        var editPluginChange = new EditPluginChange(
+            plugin.Id,
+            plugin with
+            {
+                Name = "Updated Plugin",
+                Html = "<html><body><h1>Updated</h1></body></html>",
+            });
+        yield return new ChangeWithDependencies(editPluginChange, [createPluginChange]);
+
         var commentThread = new CommentThread
         {
             Id = Guid.NewGuid(),

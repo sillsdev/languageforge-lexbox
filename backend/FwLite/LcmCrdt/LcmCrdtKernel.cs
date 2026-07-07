@@ -289,6 +289,7 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(writingSystemArrayConverter);
             })
+            .Add<Plugin>()
             .Add<CommentThread>(builder =>
             {
                 builder.HasIndex(t => new { t.SubjectType, t.SubjectId });
@@ -380,6 +381,9 @@ public static class LcmCrdtKernel
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()
+            .Add<CreatePluginChange>()
+            .Add<EditPluginChange>()
+            .Add<DeleteChange<Plugin>>()
             .Add<CreateCommentThreadChange>()
             .Add<CreateUserCommentChange>()
             .Add<EditUserCommentChange>()

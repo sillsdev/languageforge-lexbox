@@ -41,6 +41,10 @@
       TypeDiscriminator: CustomView
     },
     {
+      DerivedType: Plugin,
+      TypeDiscriminator: Plugin
+    },
+    {
       DerivedType: CommentThread,
       TypeDiscriminator: CommentThread
     },

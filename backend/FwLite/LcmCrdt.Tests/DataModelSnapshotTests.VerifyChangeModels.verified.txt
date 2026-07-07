@@ -221,6 +221,18 @@
       TypeDiscriminator: delete:CustomView
     },
     {
+      DerivedType: CreatePluginChange,
+      TypeDiscriminator: CreatePluginChange
+    },
+    {
+      DerivedType: EditPluginChange,
+      TypeDiscriminator: EditPluginChange
+    },
+    {
+      DerivedType: DeleteChange<Plugin>,
+      TypeDiscriminator: delete:Plugin
+    },
+    {
       DerivedType: CreateCommentThreadChange,
       TypeDiscriminator: CreateCommentThreadChange
     },

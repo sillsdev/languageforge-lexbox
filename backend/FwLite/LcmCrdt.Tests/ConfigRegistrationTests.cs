@@ -15,6 +15,7 @@ public class ConfigRegistrationTests
         typeof(JsonPatchChange<RemoteResource>), //not supported
         typeof(JsonPatchChange<ExampleSentence>), //replaced by JsonPatchExampleSentenceChange
         typeof(JsonPatchChange<CustomView>), //not supported. Use EditCustomViewChange
+        typeof(JsonPatchChange<Plugin>), //not supported. Use EditPluginChange
         typeof(JsonPatchChange<CommentThread>), //not supported. Use SetCommentThreadStatusChange
         typeof(JsonPatchChange<UserComment>), //not supported. Use EditUserCommentChange
         typeof(DeleteChange<MorphType>), //MorphTypes cannot be deleted

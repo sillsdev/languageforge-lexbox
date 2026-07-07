@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashcards</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --bad: #dc2626;
+    --bad-soft: #fdeaea;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 16px;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --bad: #f87171;
+    --bad-soft: #3a1f1f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
+  }
+  .wrap { width: 100%; max-width: 480px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; text-align: center; }
+  .subtitle { color: var(--text-muted); text-align: center; margin: 0 0 20px; font-size: 0.9rem; }
+
+  .progress-bar {
+    background: var(--surface-alt);
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .progress-bar-fill { height: 100%; background: var(--accent); transition: width 0.25s ease; }
+
+  .card-scene { perspective: 1200px; margin-bottom: 20px; }
+  .card {
+    position: relative;
+    min-height: 240px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+    outline: none;
+  }
+  .card.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 20px;
+    text-align: center;
+  }
+  .card-face.back { transform: rotateY(180deg); justify-content: space-between; }
+  .headword { font-size: 1.9rem; font-weight: 700; }
+  .headword-sub { color: var(--text-muted); font-size: 0.85rem; margin-top: 10px; }
+  .flip-hint { position: absolute; bottom: 14px; color: var(--text-muted); font-size: 0.78rem; }
+
+  .back-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px; width: 100%; }
+  .gloss-line { font-size: 1.15rem; font-weight: 600; }
+  .gloss-ws { color: var(--text-muted); font-size: 0.75rem; font-weight: 500; margin-right: 6px; }
+  .open-link {
+    align-self: center;
+    color: var(--accent);
+    font-size: 0.82rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--surface-alt);
+  }
+  .open-link:hover { text-decoration: underline; }
+
+  .grade-row { display: flex; gap: 12px; }
+  .grade-btn {
+    flex: 1;
+    padding: 13px 10px;
+    border-radius: 12px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease, filter 0.15s ease;
+  }
+  .grade-btn:active { transform: scale(0.97); }
+  .grade-btn.again { background: var(--bad-soft); color: var(--bad); }
+  .grade-btn.good { background: var(--good-soft); color: var(--good); }
+  .grade-btn:disabled { opacity: 0.4; cursor: default; }
+  .grade-btn kbd {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.72rem;
+    opacity: 0.7;
+    font-family: inherit;
+  }
+
+  .hint-row { text-align: center; color: var(--text-muted); font-size: 0.78rem; margin-top: 14px; }
+
+  .center-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    padding: 14px 18px;
+    border-radius: var(--radius);
+  }
+
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 24px;
+    text-align: center;
+  }
+  .summary-card h2 { margin: 0 0 6px; }
+  .summary-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin: 18px 0;
+  }
+  .summary-stat .num { font-size: 1.6rem; font-weight: 700; }
+  .summary-stat .num.good { color: var(--good); }
+  .summary-stat .num.again { color: var(--bad); }
+  .summary-stat .lbl { font-size: 0.78rem; color: var(--text-muted); }
+  .primary-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .primary-btn:hover { filter: brightness(1.08); }
+  #app { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Flashcards</h1>
+  <p class="subtitle" id="subtitle">Loading your vocabulary deck&hellip;</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div>Fetching entries&hellip;</div>
+  </div>
+
+  <div id="empty" class="center-state" style="display:none;">
+    This project has no entries with both a headword and a gloss yet.
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="app">
+    <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+
+    <div id="study-view">
+      <div class="card-scene">
+        <div class="card" id="card" tabindex="0" role="button" aria-label="Flashcard, click or press space to flip">
+          <div class="card-face front">
+            <div class="headword" id="headword-text"></div>
+            <div class="headword-sub" id="level-hint"></div>
+            <div class="flip-hint">Click or press Space to flip</div>
+          </div>
+          <div class="card-face back">
+            <div class="back-body" id="back-body"></div>
+            <a href="#" class="open-link" id="open-link">Open in dictionary</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="grade-row">
+        <button class="grade-btn again" id="btn-again" disabled>Again <kbd>&larr;</kbd></button>
+        <button class="grade-btn good" id="btn-good" disabled>Got it <kbd>&rarr;</kbd></button>
+      </div>
+      <div class="hint-row">Card <span id="card-index"></span> of <span id="card-total"></span> &middot; flip with Space, grade with arrow keys</div>
+    </div>
+
+    <div id="summary-view" style="display:none;">
+      <div class="summary-card">
+        <h2>Session complete</h2>
+        <p class="subtitle" style="margin-bottom:0;">Nice work!</p>
+        <div class="summary-stats">
+          <div class="summary-stat"><div class="num good" id="sum-good">0</div><div class="lbl">Got it</div></div>
+          <div class="summary-stat"><div class="num again" id="sum-again">0</div><div class="lbl">Again</div></div>
+        </div>
+        <p class="subtitle" id="overall-progress"></p>
+        <button class="primary-btn" id="btn-restart">Study again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'flashcards-progress-v1';
+  var POOL_SIZE = 200;
+  var SESSION_SIZE = 20;
+  var MAX_LEVEL = 5;
+
+  var state = {
+    progress: {},        // entryId -> {level, seen}
+    deck: [],            // full pool of eligible entries
+    session: [],         // this session's entries (up to SESSION_SIZE)
+    index: 0,
+    flipped: false,
+    goodCount: 0,
+    againCount: 0,
+    vernacularWs: [],
+    analysisWs: [],
+  };
+
+  function esc(value) {
+    var div = document.createElement('div');
+    div.textContent = value == null ? '' : String(value);
+    return div.innerHTML;
+  }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    document.getElementById('loading').style.display = 'none';
+    var box = document.getElementById('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function headwordOf(entry) {
+    var citation = entry.citationForm || {};
+    var hasCitation = Object.keys(citation).some(function (ws) { return !!citation[ws]; });
+    return hasCitation ? citation : entry.lexemeForm;
+  }
+
+  function firstGloss(entry) {
+    for (var i = 0; i < (entry.senses || []).length; i++) {
+      var gloss = entry.senses[i].gloss;
+      if (gloss && Object.keys(gloss).some(function (ws) { return !!gloss[ws]; })) return gloss;
+    }
+    return null;
+  }
+
+  function isEligible(entry) {
+    var headword = headwordOf(entry);
+    var hasHeadword = headword && Object.keys(headword).some(function (ws) { return !!headword[ws]; });
+    return !!hasHeadword && !!firstGloss(entry);
+  }
+
+  function loadProgress() {
+    return window.fwlite.storage.get(STORAGE_KEY).then(function (value) {
+      state.progress = value && typeof value === 'object' ? value : {};
+    });
+  }
+
+  function saveProgress() {
+    return window.fwlite.storage.set(STORAGE_KEY, state.progress);
+  }
+
+  function levelOf(entryId) {
+    var record = state.progress[entryId];
+    return record ? record.level : 0;
+  }
+
+  /** Builds a session prioritizing cards at lower Leitner levels, capped at SESSION_SIZE. */
+  function buildSession() {
+    var sorted = state.deck.slice().sort(function (a, b) {
+      return levelOf(a.id) - levelOf(b.id);
+    });
+    return sorted.slice(0, SESSION_SIZE);
+  }
+
+  function updateProgressBar() {
+    var pct = state.session.length ? Math.round((state.index / state.session.length) * 100) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  function renderCard() {
+    var entry = state.session[state.index];
+    var headword = window.fwlite.firstValue(headwordOf(entry), state.vernacularWs) || '—';
+    document.getElementById('headword-text').textContent = headword;
+
+    var level = levelOf(entry.id);
+    document.getElementById('level-hint').textContent = 'Box ' + level + ' of ' + MAX_LEVEL;
+
+    var backBody = document.getElementById('back-body');
+    backBody.innerHTML = '';
+    (entry.senses || []).forEach(function (sense) {
+      if (!sense.gloss) return;
+      Object.keys(sense.gloss).forEach(function (ws) {
+        var text = window.fwlite.asText(sense.gloss[ws]);
+        if (!text) return;
+        var line = document.createElement('div');
+        line.className = 'gloss-line';
+        var wsTag = document.createElement('span');
+        wsTag.className = 'gloss-ws';
+        wsTag.textContent = ws;
+        line.appendChild(wsTag);
+        line.appendChild(document.createTextNode(text));
+        backBody.appendChild(line);
+      });
+    });
+    if (!backBody.children.length) {
+      backBody.innerHTML = '<div class="gloss-line" style="color:var(--text-muted)">No gloss available</div>';
+    }
+
+    document.getElementById('open-link').onclick = function (event) {
+      event.preventDefault();
+      window.fwlite.openEntry(entry.id);
+    };
+
+    document.getElementById('card-index').textContent = String(state.index + 1);
+    document.getElementById('card-total').textContent = String(state.session.length);
+    updateProgressBar();
+    setFlipped(false);
+  }
+
+  function setFlipped(flipped) {
+    state.flipped = flipped;
+    var card = document.getElementById('card');
+    card.classList.toggle('flipped', flipped);
+    document.getElementById('btn-again').disabled = !flipped;
+    document.getElementById('btn-good').disabled = !flipped;
+  }
+
+  function grade(good) {
+    if (!state.flipped) return;
+    var entry = state.session[state.index];
+    var record = state.progress[entry.id] || {level: 0, seen: 0};
+    record.seen = (record.seen || 0) + 1;
+    record.level = good ? Math.min(MAX_LEVEL, record.level + 1) : 0;
+    state.progress[entry.id] = record;
+    if (good) state.goodCount++; else state.againCount++;
+    saveProgress();
+
+    state.index++;
+    if (state.index >= state.session.length) {
+      showSummary();
+    } else {
+      renderCard();
+    }
+  }
+
+  function showSummary() {
+    document.getElementById('study-view').style.display = 'none';
+    document.getElementById('summary-view').style.display = 'block';
+    document.getElementById('sum-good').textContent = String(state.goodCount);
+    document.getElementById('sum-again').textContent = String(state.againCount);
+
+    var mastered = state.deck.filter(function (entry) { return levelOf(entry.id) >= MAX_LEVEL; }).length;
+    document.getElementById('overall-progress').textContent =
+      mastered + ' of ' + state.deck.length + ' cards mastered overall';
+  }
+
+  function startSession() {
+    state.session = buildSession();
+    state.index = 0;
+    state.goodCount = 0;
+    state.againCount = 0;
+    document.getElementById('study-view').style.display = 'block';
+    document.getElementById('summary-view').style.display = 'none';
+    renderCard();
+  }
+
+  function wireEvents() {
+    var card = document.getElementById('card');
+    card.addEventListener('click', function () { setFlipped(!state.flipped); });
+    card.addEventListener('keydown', function (event) {
+      if (event.code === 'Space') {
+        event.preventDefault();
+        setFlipped(!state.flipped);
+      }
+    });
+    document.getElementById('btn-again').addEventListener('click', function () { grade(false); });
+    document.getElementById('btn-good').addEventListener('click', function () { grade(true); });
+    document.getElementById('btn-restart').addEventListener('click', startSession);
+
+    document.addEventListener('keydown', function (event) {
+      if (document.getElementById('study-view').style.display === 'none') return;
+      if (event.key === 'ArrowRight') { event.preventDefault(); grade(true); }
+      else if (event.key === 'ArrowLeft') { event.preventDefault(); grade(false); }
+    });
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+    wireEvents();
+
+    Promise.all([
+      window.fwlite.getWritingSystems(),
+      loadProgress(),
+      window.fwlite.getEntries({limit: POOL_SIZE}),
+    ]).then(function (results) {
+      var writingSystems = results[0];
+      var entries = results[2];
+      state.vernacularWs = (writingSystems.vernacular || []).map(function (ws) { return ws.wsId; });
+      state.analysisWs = (writingSystems.analysis || []).map(function (ws) { return ws.wsId; });
+
+      state.deck = entries.filter(isEligible);
+
+      document.getElementById('loading').style.display = 'none';
+
+      if (state.deck.length === 0) {
+        document.getElementById('empty').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('subtitle').textContent =
+        state.deck.length + ' card' + (state.deck.length === 1 ? '' : 's') + ' in ' + context.project.projectName;
+      document.getElementById('app').style.display = 'block';
+      startSession();
+    }).catch(function (err) {
+      showError('Could not load flashcards: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

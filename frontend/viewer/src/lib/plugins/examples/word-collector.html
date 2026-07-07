@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Word Collector</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --warn: #b45309;
+    --warn-soft: #fef3e0;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --warn: #fbbf24;
+    --warn-soft: #3a2f12;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 20px; font-size: 0.9rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+
+  .domain-picker { margin-bottom: 18px; }
+  label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
+  select, input {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+    font-family: inherit;
+  }
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  @media (min-width: 720px) {
+    .layout { grid-template-columns: 320px 1fr; align-items: start; }
+  }
+
+  .form-grid { display: grid; gap: 14px; margin-top: 14px; }
+  .field-row { display: grid; gap: 14px; }
+  @media (min-width: 480px) {
+    .field-row.two-col { grid-template-columns: 1fr 1fr; }
+  }
+
+  .primary-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    justify-self: start;
+  }
+  .primary-btn:hover { filter: brightness(1.08); }
+  .primary-btn:disabled { opacity: 0.55; cursor: default; }
+
+  .inline-note {
+    font-size: 0.82rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 4px;
+  }
+  .inline-note.warn { background: var(--warn-soft); color: var(--warn); }
+  .inline-note.good { background: var(--good-soft); color: var(--good); }
+
+  .entries-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .entries-header h2 { font-size: 1rem; margin: 0; }
+  .entries-count { color: var(--text-muted); font-size: 0.82rem; }
+
+  .entry-list { display: flex; flex-direction: column; gap: 8px; max-height: 480px; overflow-y: auto; }
+  .entry-item {
+    background: var(--surface-alt);
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .entry-item .word { font-weight: 700; }
+  .entry-item .gloss { color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; }
+  .entry-item.new-item { animation: pop 0.4s ease; }
+  @keyframes pop {
+    from { background: var(--accent-soft); }
+    to { background: var(--surface-alt); }
+  }
+
+  .center-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 30px; height: 30px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+  #app { display: none; }
+  .placeholder-note { color: var(--text-muted); font-size: 0.88rem; padding: 8px 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Word Collector</h1>
+  <p class="subtitle">Quickly add new words to a semantic domain while you brainstorm.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div>Loading semantic domains&hellip;</div>
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="app">
+    <div class="card domain-picker">
+      <label for="domain-select">Semantic domain</label>
+      <select id="domain-select"></select>
+    </div>
+
+    <div id="no-domains" class="center-state" style="display:none;">
+      This project has no semantic domains configured yet.
+    </div>
+
+    <div id="workspace" class="layout" style="display:none;">
+      <div class="card">
+        <h2 style="font-size:1rem; margin:0 0 12px;">Add a word</h2>
+        <form class="form-grid" id="entry-form">
+          <div class="field-row two-col" id="vernacular-fields"></div>
+          <div>
+            <label for="gloss-input">Gloss</label>
+            <input type="text" id="gloss-input" placeholder="Meaning in analysis language">
+          </div>
+          <button class="primary-btn" id="add-btn" type="submit">Add word</button>
+          <div id="form-note"></div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="entries-header">
+          <h2>Words in this domain</h2>
+          <span class="entries-count" id="entries-count"></span>
+        </div>
+        <div id="entries-loading" class="center-state" style="padding:20px;">
+          <div class="spinner" style="width:24px;height:24px;"></div>
+        </div>
+        <div id="entries-empty" class="placeholder-note" style="display:none;">
+          No words collected in this domain yet. Add the first one!
+        </div>
+        <div class="entry-list" id="entry-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var state = {
+    domains: [],
+    selectedDomain: null,
+    vernacularWs: [],
+    analysisWs: [],
+  };
+
+  function esc(value) {
+    var div = document.createElement('div');
+    div.textContent = value == null ? '' : String(value);
+    return div.innerHTML;
+  }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    document.getElementById('loading').style.display = 'none';
+    var box = document.getElementById('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function domainLabel(domain, analysisWs) {
+    var name = window.fwlite.firstValue(domain.name, analysisWs) || '(unnamed)';
+    return domain.code + ' ' + name;
+  }
+
+  function populateDomainSelect() {
+    var select = document.getElementById('domain-select');
+    var sorted = state.domains.slice().sort(function (a, b) {
+      return a.code.localeCompare(b.code, undefined, {numeric: true});
+    });
+    select.innerHTML = sorted.map(function (domain) {
+      return '<option value="' + esc(domain.id) + '">' + esc(domainLabel(domain, state.analysisWs)) + '</option>';
+    }).join('');
+  }
+
+  function buildVernacularFields() {
+    var container = document.getElementById('vernacular-fields');
+    container.innerHTML = '';
+    state.vernacularWs.forEach(function (ws, index) {
+      var field = document.createElement('div');
+      var label = document.createElement('label');
+      label.setAttribute('for', 'vern-input-' + index);
+      label.textContent = index === 0 ? 'Word (' + ws + ')' : 'Word (' + ws + ', optional)';
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.id = 'vern-input-' + index;
+      input.dataset.ws = ws;
+      input.placeholder = 'Vernacular text';
+      field.appendChild(label);
+      field.appendChild(input);
+      container.appendChild(field);
+    });
+  }
+
+  function clearForm() {
+    document.querySelectorAll('#vernacular-fields input').forEach(function (input) { input.value = ''; });
+    document.getElementById('gloss-input').value = '';
+  }
+
+  function setFormNote(message, kind) {
+    var note = document.getElementById('form-note');
+    note.innerHTML = '';
+    if (!message) return;
+    var div = document.createElement('div');
+    div.className = 'inline-note ' + (kind || '');
+    div.textContent = message;
+    note.appendChild(div);
+  }
+
+  function renderEntryList(entries) {
+    document.getElementById('entries-loading').style.display = 'none';
+    var list = document.getElementById('entry-list');
+    var empty = document.getElementById('entries-empty');
+    document.getElementById('entries-count').textContent =
+      entries.length + ' word' + (entries.length === 1 ? '' : 's');
+
+    if (entries.length === 0) {
+      empty.style.display = 'block';
+      list.innerHTML = '';
+      return;
+    }
+    empty.style.display = 'none';
+    list.innerHTML = entries.map(function (entry) { return entryItemHtml(entry, false); }).join('');
+  }
+
+  function entryItemHtml(entry, isNew) {
+    var headword = window.fwlite.firstValue(
+      Object.keys(entry.citationForm || {}).length ? entry.citationForm : entry.lexemeForm,
+      state.vernacularWs) || '—';
+    var gloss = '';
+    for (var i = 0; i < (entry.senses || []).length; i++) {
+      gloss = window.fwlite.firstValue(entry.senses[i].gloss, state.analysisWs);
+      if (gloss) break;
+    }
+    return '<div class="entry-item' + (isNew ? ' new-item' : '') + '">' +
+      '<div class="word">' + esc(headword) + '</div>' +
+      (gloss ? '<div class="gloss">' + esc(gloss) + '</div>' : '') +
+      '</div>';
+  }
+
+  function loadEntriesForDomain(domain) {
+    document.getElementById('entries-loading').style.display = 'block';
+    document.getElementById('entry-list').innerHTML = '';
+    document.getElementById('entries-empty').style.display = 'none';
+    return window.fwlite.getEntries({filter: {semanticDomainCode: domain.code}, limit: 200})
+      .then(renderEntryList)
+      .catch(function (err) {
+        document.getElementById('entries-loading').style.display = 'none';
+        setFormNote('Could not load existing words: ' + (err && err.message ? err.message : String(err)), 'warn');
+      });
+  }
+
+  function selectDomain(domainId) {
+    var domain = state.domains.find(function (d) { return d.id === domainId; });
+    if (!domain) return;
+    state.selectedDomain = domain;
+    setFormNote('');
+    loadEntriesForDomain(domain);
+  }
+
+  function buildEntryPayload(domain, wordValues, gloss) {
+    var lexemeForm = {};
+    wordValues.forEach(function (pair) {
+      if (pair.value) lexemeForm[pair.ws] = pair.value;
+    });
+    var glossValue = {};
+    if (state.analysisWs[0]) glossValue[state.analysisWs[0]] = gloss;
+
+    return {
+      lexemeForm: lexemeForm,
+      citationForm: {},
+      senses: [
+        {
+          gloss: glossValue,
+          semanticDomains: [domain],
+        },
+      ],
+    };
+  }
+
+  function handleAddWord() {
+    if (!state.selectedDomain) return;
+    var wordValues = state.vernacularWs.map(function (ws, index) {
+      var input = document.getElementById('vern-input-' + index);
+      return {ws: ws, value: input ? input.value.trim() : ''};
+    });
+    var gloss = document.getElementById('gloss-input').value.trim();
+
+    if (!wordValues.some(function (pair) { return pair.value; })) {
+      setFormNote('Enter at least one vernacular word.', 'warn');
+      return;
+    }
+    if (!gloss) {
+      setFormNote('Enter a gloss.', 'warn');
+      return;
+    }
+
+    var addBtn = document.getElementById('add-btn');
+    addBtn.disabled = true;
+    setFormNote('');
+
+    var entry = buildEntryPayload(state.selectedDomain, wordValues, gloss);
+    window.fwlite.createEntry(entry).then(function (created) {
+      addBtn.disabled = false;
+      clearForm();
+      focusFirstVernacularField();
+      setFormNote('Added to the dictionary.', 'good');
+      window.fwlite.notify('Added "' + (window.fwlite.firstValue(created.lexemeForm, state.vernacularWs) || gloss) + '" to ' + domainLabel(state.selectedDomain, state.analysisWs));
+
+      var list = document.getElementById('entry-list');
+      document.getElementById('entries-empty').style.display = 'none';
+      list.insertAdjacentHTML('afterbegin', entryItemHtml(created, true));
+      var count = list.children.length;
+      document.getElementById('entries-count').textContent = count + ' word' + (count === 1 ? '' : 's');
+    }).catch(function (err) {
+      addBtn.disabled = false;
+      if (err && err.code === 'permission-denied') {
+        setFormNote('Change was not approved.', 'warn');
+      } else {
+        setFormNote('Could not add word: ' + (err && err.message ? err.message : String(err)), 'warn');
+      }
+      focusFirstVernacularField();
+    });
+  }
+
+  function focusFirstVernacularField() {
+    var first = document.getElementById('vern-input-0');
+    if (first) first.focus();
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+
+    Promise.all([
+      window.fwlite.getSemanticDomains(),
+      window.fwlite.getWritingSystems(),
+    ]).then(function (results) {
+      state.domains = results[0];
+      var writingSystems = results[1];
+      state.vernacularWs = (writingSystems.vernacular || []).map(function (ws) { return ws.wsId; });
+      state.analysisWs = (writingSystems.analysis || []).map(function (ws) { return ws.wsId; });
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+
+      if (state.domains.length === 0) {
+        document.getElementById('no-domains').style.display = 'block';
+        return;
+      }
+
+      populateDomainSelect();
+      buildVernacularFields();
+      document.getElementById('workspace').style.display = 'grid';
+
+      document.getElementById('domain-select').addEventListener('change', function (event) {
+        selectDomain(event.target.value);
+      });
+      document.getElementById('entry-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        handleAddWord();
+      });
+
+      selectDomain(document.getElementById('domain-select').value);
+    }).catch(function (err) {
+      showError('Could not load semantic domains: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

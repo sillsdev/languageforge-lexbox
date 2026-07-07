@@ -4089,5 +4089,17 @@
     },
     "Id": "4f5808a8-bbf1-e23d-e5fe-5a997f13bf3a",
     "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Plugin",
+      "Id": "1673f062-9249-8b83-8641-3b6ce90186b9",
+      "DeletedAt": null,
+      "Name": "collaborative",
+      "Html": "wireless"
+    },
+    "Id": "1673f062-9249-8b83-8641-3b6ce90186b9",
+    "DeletedAt": null
   }
 ]
