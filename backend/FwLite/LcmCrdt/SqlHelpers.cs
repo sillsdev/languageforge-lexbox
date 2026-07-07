@@ -34,9 +34,11 @@ public static class SqlHelpers
     /// <summary>
     /// An audio writing system's IETF tag uses the Zxxx ("unwritten") script with an "audio"
     /// private-use variant (see <see cref="WritingSystemId.IsAudio"/>). Its stored value is a
-    /// media-file reference, so it must be excluded from text searches.
+    /// media-file reference, so it must be excluded from text searches. The LIKE patterns match
+    /// "audio" as a whole hyphen-delimited subtag (not a substring like "audiophile"), so this
+    /// stays in step with the exact-segment match <see cref="WritingSystemId.IsAudio"/> performs.
     /// </summary>
-    [Sql.Expression("({0} LIKE '%-zxxx-%' AND {0} LIKE '%-audio%')", ServerSideOnly = true, IsPredicate = true)]
+    [Sql.Expression("({0} LIKE '%-zxxx-%' AND ({0} LIKE '%-audio' OR {0} LIKE '%-audio-%'))", ServerSideOnly = true, IsPredicate = true)]
     public static bool IsAudioWs(string wsCode) => new WritingSystemId(wsCode).IsAudio;
 
     [Sql.Expression(CustomSqliteFunctionInterceptor.ContainsFunction + "({0}, {1})")]
