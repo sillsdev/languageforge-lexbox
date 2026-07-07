@@ -8,7 +8,8 @@ namespace FwLiteWeb.Services;
 
 public class WebTroubleshootingService(
     IOptions<LcmCrdtConfig> crdtConfig,
-    IOptions<FwLiteWebConfig> webConfig) : ITroubleshootingService
+    IOptions<FwLiteWebConfig> webConfig,
+    CrdtProjectsService projectsService) : ITroubleshootingService
 {
     [JSInvokable]
     public Task<bool> GetCanShare() => Task.FromResult(false);
@@ -53,4 +54,8 @@ public class WebTroubleshootingService(
 
     public Task ShareLogFile() => throw new NotSupportedException();
     public Task ShareCrdtProject(string projectCode) => throw new NotSupportedException();
+
+    [JSInvokable]
+    public Task RegenerateHarmonySnapshots(string projectCode) =>
+        projectsService.RegenerateHarmonySnapshotsAsync(projectCode);
 }
