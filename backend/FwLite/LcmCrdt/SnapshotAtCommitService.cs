@@ -91,16 +91,23 @@ public class SnapshotAtCommitService(
 
     private async Task<int> DeleteCommitsAfter(ICrdtDbContext context, Commit targetCommit, bool preserveAllFieldWorksCommits)
     {
-        var commitsToDelete = context.Commits.WhereAfter(targetCommit);
+        // WhereAfter must run through EF (like Harmony's own CrdtRepository): linq2db wraps SQLite timestamp
+        // comparisons in strftime, which is millisecond-grained, so it cannot order commits exactly.
+        // Only the AuthorName lookup needs linq2db (Json.Value has no EF translation), and it filters on
+        // commit ids, not timestamps.
+        var idsAfter = await context.Commits.WhereAfter(targetCommit).Select(c => c.Id).ToArrayAsync();
         if (preserveAllFieldWorksCommits)
         {
-            commitsToDelete = commitsToDelete.ToLinqToDB().Where(c =>
-            // JSON Sqlite gotcha: null != "FieldWorks" == false (apparently)
-            (Json.Value(c.Metadata, m => m.AuthorName) ?? "") != "FieldWorks");
+            var fieldWorksIds = await context.Commits.ToLinqToDB()
+                .Where(c => idsAfter.Contains(c.Id) &&
+                    // JSON Sqlite gotcha: null != "FieldWorks" == false (apparently)
+                    (Json.Value(c.Metadata, m => m.AuthorName) ?? "") == "FieldWorks")
+                .Select(c => c.Id)
+                .ToArrayAsyncLinqToDB();
+            idsAfter = idsAfter.Except(fieldWorksIds).ToArray();
         }
-        var count = await commitsToDelete.CountAsyncLinqToDB();
-        context.Set<Commit>().RemoveRange(commitsToDelete);
+        context.Set<Commit>().RemoveRange(context.Set<Commit>().Where(c => idsAfter.Contains(c.Id)));
         await context.SaveChangesAsync();
-        return count;
+        return idsAfter.Length;
     }
 }

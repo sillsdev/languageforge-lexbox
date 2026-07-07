@@ -625,5 +625,49 @@
       ],
       "EntityId": "f27a032b-e0f6-f389-b466-959bdb17086d"
     }
+  },
+  {
+    "Input": {
+      "$type": "CreateCommentThreadChange",
+      "SubjectId": "31bb6dfb-9987-6fd7-9ee3-92d6bce75611",
+      "SubjectType": "ExampleSentence",
+      "Status": "Closed",
+      "CreatedAt": "2026-07-01T17:07:13.0291493+07:00",
+      "UpdatedAt": "2026-07-02T07:20:03.8842896+07:00",
+      "EntityId": "ed481334-f9d2-ec59-fa0d-70d7dc2e2aa2"
+    },
+    "Output": {
+      "$type": "CreateCommentThreadChange",
+      "SubjectId": "31bb6dfb-9987-6fd7-9ee3-92d6bce75611",
+      "SubjectType": "ExampleSentence",
+      "Status": "Closed",
+      "AuthorId": null,
+      "AuthorName": null,
+      "CreatedAt": "2026-07-01T17:07:13.0291493+07:00",
+      "UpdatedAt": "2026-07-02T07:20:03.8842896+07:00",
+      "EntityId": "ed481334-f9d2-ec59-fa0d-70d7dc2e2aa2"
+    }
+  },
+  {
+    "Input": {
+      "$type": "CreateCommentThreadChange",
+      "SubjectId": "31bb6dfb-9987-6fd7-9ee3-92d6bce75611",
+      "SubjectType": "ExampleSentence",
+      "Status": "Closed",
+      "CreatedAt": "2026-07-01T17:07:13.0291493+07:00",
+      "UpdatedAt": "2026-07-02T07:20:03.8842896+07:00",
+      "EntityId": "ed481334-f9d2-ec59-fa0d-70d7dc2e2aa2"
+    },
+    "Output": {
+      "$type": "CreateCommentThreadChange",
+      "SubjectId": "31bb6dfb-9987-6fd7-9ee3-92d6bce75611",
+      "SubjectType": "ExampleSentence",
+      "Status": "Closed",
+      "AuthorId": null,
+      "AuthorName": null,
+      "CreatedAt": "2026-07-01T17:07:13.0291493+07:00",
+      "UpdatedAt": "2026-07-02T07:20:03.8842896+07:00",
+      "EntityId": "ed481334-f9d2-ec59-fa0d-70d7dc2e2aa2"
+    }
   }
 ]
