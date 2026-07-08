@@ -1,5 +1,6 @@
 <script lang="ts">
-  import emblaCarouselSvelte from 'embla-carousel-svelte';
+  import * as Carousel from '$lib/components/ui/carousel';
+  import type {CarouselAPI} from '$lib/components/ui/carousel/context';
   import type {IPicture} from '$lib/dotnet-types';
   import PictureImage from './PictureImage.svelte';
   import {Button} from '$lib/components/ui/button';
@@ -8,18 +9,6 @@
 
   /** Each picture is shown for 10 seconds before the carousel advances. */
   const AUTOPLAY_DELAY_MS = 10_000;
-
-  // Minimal structural type for the bits of the Embla api we use. Declared locally rather
-  // than imported from `embla-carousel` (a transitive dep that pnpm does not hoist), so the
-  // only carousel import is the directly-declared `embla-carousel-svelte` action.
-  type EmblaApi = {
-    scrollNext: () => void;
-    scrollPrev: () => void;
-    scrollTo: (index: number) => void;
-    selectedScrollSnap: () => number;
-    on: (event: string, callback: () => void) => void;
-    off: (event: string, callback: () => void) => void;
-  };
 
   type Props = {
     pictures: IPicture[];
@@ -30,56 +19,52 @@
   };
   let {pictures, selectedIndex = $bindable(0), paused = false}: Props = $props();
 
-  let emblaApi = $state<EmblaApi>();
+  // The Embla api, captured from <Carousel.Root setApi>. We drive our own controls (dots +
+  // prev/next) through it rather than using <Carousel.Previous/Next>, which are positioned
+  // outside the frame with English-only labels and offer no dot indicator.
+  let api = $state<CarouselAPI>();
 
   const hasMultiple = $derived(pictures.length > 1);
 
-  // embla-carousel-svelte dispatches an `emblaInit` CustomEvent (typed by the package as the
-  // `onemblaInit` attribute) carrying the api in `detail` once the carousel has initialised.
-  function onEmblaInit(event: Event) {
-    emblaApi = (event as CustomEvent<EmblaApi>).detail;
-  }
-
-  // Keep the active-dot indicator in sync with the carousel.
+  // Keep the active-dot indicator (and the parent's `selectedIndex`) in sync with the carousel.
   $effect(() => {
-    const api = emblaApi;
     if (!api) return;
+    const embla = api;
     function onSelect() {
-      selectedIndex = api!.selectedScrollSnap();
+      selectedIndex = embla.selectedScrollSnap();
     }
     onSelect();
-    api.on('select', onSelect);
-    api.on('reInit', onSelect);
+    embla.on('select', onSelect);
+    embla.on('reInit', onSelect);
     return () => {
-      api.off('select', onSelect);
-      api.off('reInit', onSelect);
+      embla.off('select', onSelect);
+      embla.off('reInit', onSelect);
     };
   });
 
   // Auto-advance every 10 seconds when there is more than one picture (unless paused).
   $effect(() => {
-    const api = emblaApi;
     if (!api || !hasMultiple || paused) return;
-    const interval = setInterval(() => api.scrollNext(), AUTOPLAY_DELAY_MS);
+    const embla = api;
+    const interval = setInterval(() => embla.scrollNext(), AUTOPLAY_DELAY_MS);
     return () => clearInterval(interval);
   });
 </script>
 
 <!-- With multiple pictures we bound the carousel to a fixed width and center each picture in
-     it, so the centered controls below sit under the picture. (Sizing the carousel to the
-     picture itself isn't possible here: embla lays slides out in a flex row, so a shrink-to-fit
-     width would span the sum of all slides.) A single picture keeps its natural, left-justified
-     size since it has no controls to align. -->
+     it, so the centered controls below sit under the picture. (Embla lays slides out in a flex
+     row, so a shrink-to-fit width would span the sum of all slides.) A single picture keeps its
+     natural, left-justified size since it has no controls to align. -->
 <div class={cn('flex flex-col gap-2', hasMultiple && 'max-w-md')}>
-  <div class="overflow-hidden" use:emblaCarouselSvelte={{options: {loop: true}, plugins: []}} onemblaInit={onEmblaInit}>
-    <div class="flex">
+  <Carousel.Root setApi={(a) => (api = a)} opts={{loop: true}}>
+    <Carousel.Content>
       {#each pictures as picture (picture.id)}
-        <div class={cn('min-w-0 flex-[0_0_100%] px-2', hasMultiple && 'flex justify-center')}>
+        <Carousel.Item class={cn(hasMultiple && 'flex justify-center')}>
           <PictureImage {picture} />
-        </div>
+        </Carousel.Item>
       {/each}
-    </div>
-  </div>
+    </Carousel.Content>
+  </Carousel.Root>
 
   {#if hasMultiple}
     <div class="flex items-center justify-center gap-2">
@@ -88,7 +73,7 @@
         size="icon-xs"
         icon="i-mdi-chevron-left"
         aria-label={$t`Previous picture`}
-        onclick={() => emblaApi?.scrollPrev()}
+        onclick={() => api?.scrollPrev()}
       />
       <div class="flex items-center gap-1.5">
         {#each pictures as picture, i (picture.id)}
@@ -96,7 +81,7 @@
             type="button"
             aria-label={$t`Go to picture ${i + 1}`}
             class={cn('size-2 rounded-full transition-colors', i === selectedIndex ? 'bg-primary' : 'bg-muted-foreground/40')}
-            onclick={() => emblaApi?.scrollTo(i)}
+            onclick={() => api?.scrollTo(i)}
           ></button>
         {/each}
       </div>
@@ -105,7 +90,7 @@
         size="icon-xs"
         icon="i-mdi-chevron-right"
         aria-label={$t`Next picture`}
-        onclick={() => emblaApi?.scrollNext()}
+        onclick={() => api?.scrollNext()}
       />
     </div>
   {/if}
