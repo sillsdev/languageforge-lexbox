@@ -224,7 +224,11 @@
     if (preview.current?.kind === 'success') {
       return preview.current.blob;
     }
-    if (!file.local || !mediaFilesService) return undefined;
+    if (!file.local) return undefined;
+    if (!mediaFilesService) {
+      AppNotification.error($t`Unable to export file`, $t`Unable to open file`);
+      return undefined;
+    }
 
     const result = await loadFileBlob(
       mediaFilesService,
