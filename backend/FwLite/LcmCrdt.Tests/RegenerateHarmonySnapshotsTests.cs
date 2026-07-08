@@ -91,8 +91,18 @@ public class RegenerateHarmonySnapshotsTests
             .CreateDbContextAsync();
         (await dbContext.Set<EntrySearchRecord>().AnyAsync(r => r.Id == entryId)).Should().BeTrue();
 
-        await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM EntrySearchRecord");
-        (await dbContext.Set<EntrySearchRecord>().AnyAsync(r => r.Id == entryId)).Should().BeFalse();
+        var newEntryId = Guid.NewGuid();
+        dbContext.Set<EntrySearchRecord>().Add(new EntrySearchRecord
+        {
+            Id = newEntryId,
+            Headword = "search-regen-test-word",
+            CitationForm = "search-regen-test-citation-form",
+            LexemeForm = "search-regen-test-lexeme-form",
+            Gloss = "search-regen-test-gloss",
+            Definition = "search-regen-test-definition"
+        });
+        await dbContext.SaveChangesAsync();
+        (await dbContext.Set<EntrySearchRecord>().AnyAsync(r => r.Id == newEntryId)).Should().BeTrue();
 
         await using var regenScope = host.Services.CreateAsyncScope();
         await regenScope.ServiceProvider.GetRequiredService<CrdtProjectsService>()
@@ -103,6 +113,7 @@ public class RegenerateHarmonySnapshotsTests
         afterRecord.Headword.Should().Be("search-regen-test-word");
         (await dbContext.Set<EntrySearchRecord>().CountAsync())
             .Should().Be(await dbContext.Set<Entry>().CountAsync());
+        (await dbContext.Set<EntrySearchRecord>().AnyAsync(r => r.Id == newEntryId)).Should().BeFalse();
 
         await dbContext.Database.EnsureDeletedAsync();
     }
