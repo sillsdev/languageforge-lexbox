@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {buildPluginSrcdoc, parsePluginPermissions} from './plugin-srcdoc';
+import {buildPluginSrcdoc, parsePluginContexts, parsePluginPermissions} from './plugin-srcdoc';
 
 function parse(html: string): Document {
   return new DOMParser().parseFromString(html, 'text/html');
@@ -65,5 +65,18 @@ describe('parsePluginPermissions', () => {
     expect(parsePluginPermissions('<html><head><meta name="fwlite-plugin-permissions" content="teleport internet"></head></html>'))
       .toEqual(['internet']);
     expect(parsePluginPermissions('<html><head></head></html>')).toEqual([]);
+  });
+});
+
+describe('parsePluginContexts', () => {
+  it('reads declared contexts from the meta tag', () => {
+    expect(parsePluginContexts('<html><head><meta name="fwlite-plugin-contexts" content="entry"></head></html>'))
+      .toEqual(['entry']);
+  });
+
+  it('ignores unknown contexts and missing meta tags', () => {
+    expect(parsePluginContexts('<html><head><meta name="fwlite-plugin-contexts" content="entry galaxy"></head></html>'))
+      .toEqual(['entry']);
+    expect(parsePluginContexts('<html><head></head></html>')).toEqual([]);
   });
 });

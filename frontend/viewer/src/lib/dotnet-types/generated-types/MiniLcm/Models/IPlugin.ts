@@ -10,6 +10,7 @@ export interface IPlugin extends IObjectWithId
 	id: string;
 	deletedAt?: string;
 	name: string;
+	description?: string;
 	html: string;
 }
 /* eslint-enable */

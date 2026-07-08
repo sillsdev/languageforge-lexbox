@@ -11,6 +11,7 @@ public class CreatePluginChange : CreateChange<Plugin>, ISelfNamedType<CreatePlu
     public CreatePluginChange(Guid entityId, Plugin plugin) : base(entityId)
     {
         Name = plugin.Name;
+        Description = plugin.Description;
         Html = plugin.Html;
     }
 
@@ -20,6 +21,7 @@ public class CreatePluginChange : CreateChange<Plugin>, ISelfNamedType<CreatePlu
     }
 
     public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public string Html { get; set; } = string.Empty;
 
     public override ValueTask<Plugin> NewEntity(Commit commit, IChangeContext context)
@@ -28,6 +30,7 @@ public class CreatePluginChange : CreateChange<Plugin>, ISelfNamedType<CreatePlu
         {
             Id = EntityId,
             Name = Name,
+            Description = Description,
             Html = Html
         });
     }

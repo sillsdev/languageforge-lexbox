@@ -10,6 +10,7 @@ public record Plugin : IObjectWithId<Plugin>
     public DateTimeOffset? DeletedAt { get; set; }
 
     public required string Name { get; set; }
+    public string? Description { get; set; }
     public required string Html { get; set; }
 
     public Guid[] GetReferences()

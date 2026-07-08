@@ -84,6 +84,21 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
     }
 
     [Fact]
+    public async Task Plugin_PersistsAndClearsOptionalDescription()
+    {
+        await SetCurrentUser(ManagerUserId, UserProjectRole.Manager);
+        var created = await Api.CreatePlugin(NewPlugin("Described") with { Description = "First summary" });
+        (await Api.GetPlugin(created.Id))!.Description.Should().Be("First summary");
+
+        await Api.UpdatePlugin(created with { Description = "Updated summary" });
+        (await Api.GetPlugin(created.Id))!.Description.Should().Be("Updated summary");
+
+        // An edit that omits the description clears it (the full plugin is written each time).
+        await Api.UpdatePlugin(created with { Description = null });
+        (await Api.GetPlugin(created.Id))!.Description.Should().BeNull();
+    }
+
+    [Fact]
     public async Task UpdatePlugin_RejectsEditor()
     {
         var created = await CreatePluginAsManager();

@@ -5,6 +5,7 @@ import {
   isPluginMessage,
   type HostInitMessage,
   type HostResponseMessage,
+  type OpenEntryMode,
   type PluginPermission,
 } from './plugin-api-types';
 import type {PluginApiAdapter} from './plugin-api-adapter';
@@ -13,6 +14,7 @@ export interface PluginHostConfig {
   projectName: string;
   projectCode: string;
   permissions: PluginPermission[];
+  openEntryModes: OpenEntryMode[];
   entryId?: string;
 }
 
@@ -50,6 +52,7 @@ export class PluginHost {
         project: {projectName: this.config.projectName, projectCode: this.config.projectCode},
         theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
         permissions: this.config.permissions,
+        capabilities: {openEntryModes: this.config.openEntryModes},
         ...(this.config.entryId ? {context: {entryId: this.config.entryId}} : {}),
       });
       return;

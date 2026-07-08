@@ -195,7 +195,6 @@
     <h1>Word Harvest Bingo</h1>
     <div class="spacer"></div>
     <span class="live" id="live"><span class="dot"></span><span id="live-text">live</span></span>
-    <button class="icon-btn" id="fs-btn">Fullscreen</button>
     <button class="icon-btn" id="restart-btn">New game</button>
   </div>
   <div class="board" id="board"></div>
@@ -597,11 +596,6 @@
     $('new-game-btn').addEventListener('click', startNewGame);
     $('restart-btn').addEventListener('click', showSetup);
     $('keep-playing').addEventListener('click', function () { $('celebrate').style.display = 'none'; });
-    $('fs-btn').addEventListener('click', function () {
-      ensureAudio();
-      if (document.fullscreenElement) document.exitFullscreen();
-      else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-    });
     document.addEventListener('visibilitychange', function () {
       if (!state.game) return;
       if (document.hidden) setLive(false);

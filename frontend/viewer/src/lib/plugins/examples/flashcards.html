@@ -278,12 +278,6 @@
     box.textContent = message;
   }
 
-  function headwordOf(entry) {
-    var citation = entry.citationForm || {};
-    var hasCitation = Object.keys(citation).some(function (ws) { return !!citation[ws]; });
-    return hasCitation ? citation : entry.lexemeForm;
-  }
-
   function firstGloss(entry) {
     for (var i = 0; i < (entry.senses || []).length; i++) {
       var gloss = entry.senses[i].gloss;
@@ -293,9 +287,7 @@
   }
 
   function isEligible(entry) {
-    var headword = headwordOf(entry);
-    var hasHeadword = headword && Object.keys(headword).some(function (ws) { return !!headword[ws]; });
-    return !!hasHeadword && !!firstGloss(entry);
+    return !!window.fwlite.headword(entry) && !!firstGloss(entry);
   }
 
   function loadProgress() {
@@ -328,7 +320,7 @@
 
   function renderCard() {
     var entry = state.session[state.index];
-    var headword = window.fwlite.firstValue(headwordOf(entry), state.vernacularWs) || '—';
+    var headword = window.fwlite.headword(entry) || '—';
     document.getElementById('headword-text').textContent = headword;
 
     var level = levelOf(entry.id);

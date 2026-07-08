@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fwlite-plugin-contexts" content="entry">
+<title>Pronunciation Recorder</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f3ee;
+    --surface: #ffffff;
+    --surface-alt: #f0ebe2;
+    --border: #e6ded1;
+    --text: #241f19;
+    --text-muted: #7c7266;
+    --accent: #b8541a;
+    --accent-soft: #fbe7d8;
+    --good: #2f8f4e;
+    --good-soft: #e3f4e8;
+    --danger: #cf3b3b;
+    --danger-soft: #fbe1e1;
+    --shadow: 0 1px 2px rgba(40, 25, 10, 0.06), 0 3px 14px rgba(40, 25, 10, 0.07);
+    --radius: 18px;
+  }
+  html[data-theme="dark"] {
+    --bg: #16130f;
+    --surface: #201c16;
+    --surface-alt: #2a251d;
+    --border: #3a342a;
+    --text: #f1ece3;
+    --text-muted: #a89e8f;
+    --accent: #ef8a4b;
+    --accent-soft: #3a2416;
+    --good: #5cc47a;
+    --good-soft: #16301f;
+    --danger: #f07070;
+    --danger-soft: #3a1c1c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 3px 16px rgba(0, 0, 0, 0.45);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 14px 44px;
+  }
+  .wrap { width: 100%; max-width: 940px; margin: 0 auto; }
+  .vern { font-family: var(--vern-font, inherit); }
+
+  header h1 { font-size: 1.35rem; margin: 0 0 2px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.88rem; }
+
+  /* Layout: studio + rail */
+  .layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 760px) {
+    .layout { grid-template-columns: 1fr 320px; align-items: start; }
+  }
+
+  /* Studio */
+  .studio {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 20px 26px;
+    min-height: 340px;
+  }
+  .entry-head { text-align: center; margin-bottom: 18px; }
+  .headword { font-size: 1.9rem; font-weight: 700; line-height: 1.15; word-break: break-word; }
+  .gloss { font-size: 1rem; color: var(--text-muted); margin-top: 4px; word-break: break-word; }
+  .rec-status {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--surface-alt);
+    color: var(--text-muted);
+  }
+  .rec-status.has { background: var(--good-soft); color: var(--good); }
+  .rec-status.none { background: var(--accent-soft); color: var(--accent); }
+
+  .mic-stage { display: flex; flex-direction: column; align-items: center; }
+  .mic-wrap { position: relative; width: 132px; height: 132px; display: flex; align-items: center; justify-content: center; }
+  .level-ring {
+    position: absolute;
+    width: 116px; height: 116px;
+    border-radius: 50%;
+    background: var(--danger);
+    opacity: 0;
+    transform: scale(1);
+    pointer-events: none;
+  }
+  .mic-btn {
+    position: relative;
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 2.3rem;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow);
+    transition: filter 0.15s ease, transform 0.1s ease, background 0.2s ease;
+  }
+  .mic-btn:hover { filter: brightness(1.08); }
+  .mic-btn:active { transform: scale(0.95); }
+  .mic-btn:disabled { cursor: default; opacity: 0.7; filter: none; }
+  .mic-btn.recording { background: var(--danger); }
+  .mic-btn .spin { width: 34px; height: 34px; border: 3px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+  .timer { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 12px; }
+  .timer.rec { color: var(--danger); }
+  .meter { width: 100%; max-width: 300px; height: 48px; margin-top: 10px; }
+  .stage-hint { font-size: 0.85rem; color: var(--text-muted); margin-top: 10px; text-align: center; min-height: 1.1em; }
+  .inline-error {
+    margin-top: 12px;
+    font-size: 0.83rem;
+    color: var(--danger);
+    background: var(--danger-soft);
+    border: 1px solid var(--danger);
+    border-radius: 12px;
+    padding: 8px 12px;
+    text-align: center;
+    max-width: 340px;
+  }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+  .btn {
+    font: inherit; font-size: 0.9rem; font-weight: 600;
+    padding: 10px 18px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface-alt); color: var(--text);
+    transition: border-color 0.15s ease, filter 0.15s ease, background 0.15s ease;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn:disabled { cursor: default; opacity: 0.55; }
+  .btn.primary { background: var(--good); color: #fff; border-color: transparent; }
+  .btn.primary:hover { filter: brightness(1.08); border-color: transparent; }
+  .btn.link { background: transparent; border-color: transparent; color: var(--text-muted); padding: 10px 8px; }
+  .btn.link:hover { color: var(--accent); border-color: transparent; }
+  .btn .spin { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.5); border-top-color: currentColor; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+  /* Rail */
+  .rail {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 14px;
+  }
+  .coverage-line { font-size: 0.92rem; font-weight: 600; margin-bottom: 8px; }
+  .progress { height: 8px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; }
+  .progress-fill { height: 100%; width: 0; background: var(--good); border-radius: 999px; transition: width 0.4s ease; }
+  .session { font-size: 0.78rem; color: var(--text-muted); margin-top: 8px; }
+  .ws-pick { margin-top: 10px; font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  select, .search {
+    font: inherit;
+    color: var(--text);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  select { font-size: 0.82rem; padding: 5px 8px; cursor: pointer; }
+  .search { width: 100%; font-size: 0.88rem; padding: 9px 12px; border-radius: 999px; margin: 14px 0 10px; }
+  .rail-list-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin: 4px 2px 8px; }
+  .rail-list { display: flex; flex-direction: column; gap: 6px; max-height: 420px; overflow-y: auto; }
+  @media (min-width: 760px) { .rail-list { max-height: 52vh; } }
+  .rail-row {
+    display: flex; align-items: center; gap: 10px;
+    text-align: left;
+    width: 100%;
+    font: inherit;
+    background: var(--surface-alt);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 9px 11px;
+    cursor: pointer;
+    color: var(--text);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .rail-row:hover { border-color: var(--accent); }
+  .rail-row.current { border-color: var(--accent); background: var(--accent-soft); }
+  .rail-dot { flex: 0 0 auto; width: 20px; text-align: center; font-size: 0.9rem; }
+  .rail-dot.has { color: var(--good); }
+  .rail-dot.none { color: var(--accent); }
+  .rail-body { flex: 1 1 auto; min-width: 0; }
+  .rail-head { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rail-gloss { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rail-empty { padding: 22px 10px; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+
+  /* Shared states */
+  .center-state { text-align: center; padding: 48px 18px; color: var(--text-muted); }
+  .center-state .big-emoji { font-size: 2.6rem; margin-bottom: 12px; }
+  .center-state strong { color: var(--text); }
+  .spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid var(--danger);
+    background: var(--danger-soft);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    color: var(--text);
+  }
+  .hint { font-size: 0.83rem; color: var(--text-muted); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Pronunciation Recorder</h1>
+    <p class="subtitle" id="subtitle">Recording pronunciations&hellip;</p>
+  </header>
+
+  <!-- Loading -->
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="scan-text">Loading entries&hellip;</div>
+  </div>
+
+  <!-- No audio writing system -->
+  <div id="no-audio-ws" class="center-state" hidden>
+    <div class="big-emoji">&#127908;</div>
+    <p><strong>This project has no audio writing system.</strong></p>
+    <p class="hint">Pronunciations are stored in an audio writing system (one marked audio-only).
+    Add one in the app's writing-system settings, then come back to record pronunciations.</p>
+  </div>
+
+  <!-- Fatal error -->
+  <div id="error" class="error-box" hidden></div>
+
+  <!-- App -->
+  <div id="app" class="layout" hidden>
+    <section class="studio">
+      <!-- All done -->
+      <div id="all-done" class="center-state" hidden>
+        <div class="big-emoji">&#127881;</div>
+        <p><strong>Every entry has a recording.</strong></p>
+        <p class="hint">Nothing left in this writing system. Use search on the right to re-record any entry.</p>
+      </div>
+
+      <!-- Recording card -->
+      <div id="studio-card" hidden>
+        <div class="entry-head">
+          <div class="headword vern" id="sd-head"></div>
+          <div class="gloss" id="sd-gloss"></div>
+          <div class="rec-status" id="sd-status" hidden></div>
+        </div>
+        <div class="mic-stage">
+          <div class="mic-wrap">
+            <div class="level-ring" id="level-ring"></div>
+            <button class="mic-btn" id="mic-btn" type="button"></button>
+          </div>
+          <div class="timer" id="timer" hidden>0:00</div>
+          <canvas id="meter-canvas" class="meter" width="300" height="48" hidden></canvas>
+          <div class="stage-hint" id="stage-hint"></div>
+          <div class="inline-error" id="inline-error" hidden></div>
+        </div>
+        <div class="controls" id="controls"></div>
+      </div>
+    </section>
+
+    <aside class="rail">
+      <div class="coverage-line" id="coverage-line"></div>
+      <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="session" id="session"></div>
+      <div class="ws-pick" id="ws-pick" hidden>
+        <label for="ws-select">Recording:</label>
+        <select id="ws-select"></select>
+      </div>
+      <input type="search" class="search" id="search" placeholder="Search any entry&hellip;" autocomplete="off">
+      <div class="rail-list-label" id="rail-list-label"></div>
+      <div class="rail-list" id="rail-list"></div>
+      <div class="rail-empty" id="rail-empty" hidden></div>
+    </aside>
+  </div>
+</div>
+
+<audio id="player" preload="none"></audio>
+
+<script>
+(function () {
+  'use strict';
+
+  var fw = window.fwlite;
+  var STORAGE_KEY = 'pronunciation-recorder-v1';
+  var PAGE = 1000;
+  var CAP = 5000;
+
+  var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+
+  var state = {
+    entries: [],
+    capped: false,
+    audioWsList: [],   // [{wsId, name, abbreviation, font}]
+    selectedWs: null,
+    vernFont: '',
+    worklist: [],      // entries with no recording in selectedWs
+    currentEntry: null,
+    sessionCount: 0,
+    recState: 'idle',  // 'idle' | 'recording' | 'preview' | 'saving'
+    inlineError: '',
+  };
+
+  var rec = {
+    stream: null,
+    recorder: null,
+    chunks: [],
+    mime: '',
+    ext: '.webm',
+    blob: null,
+    previewUrl: null,
+    startTime: 0,
+    elapsedMs: 0,
+    timerId: null,
+    audioCtx: null,
+    analyser: null,
+    source: null,
+    timeData: null,
+    rafId: null,
+    accent: '#b8541a',
+    surface: '#ffffff',
+  };
+
+  // single playback controller
+  var audioEl = document.getElementById('player');
+  var play = { url: null, token: 0, kind: null };
+
+  function el(id) { return document.getElementById(id); }
+  function show(id, on) { el(id).hidden = !on; }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    show('loading', false);
+    show('app', false);
+    var box = el('error');
+    box.hidden = false;
+    box.textContent = message;
+  }
+
+  function refFor(entry, wsId) {
+    var cf = entry.citationForm && entry.citationForm[wsId];
+    if (cf) return cf;
+    var lf = entry.lexemeForm && entry.lexemeForm[wsId];
+    if (lf) return lf;
+    return null;
+  }
+
+  function firstGloss(entry) {
+    var senses = entry.senses || [];
+    var i, ws, t;
+    for (i = 0; i < senses.length; i++) {
+      var g = senses[i].gloss;
+      if (g) for (ws in g) { if (g[ws]) { t = fw.asText(g[ws]); if (t) return t; } }
+    }
+    for (i = 0; i < senses.length; i++) {
+      var d = senses[i].definition;
+      if (d) for (ws in d) { if (d[ws]) { t = fw.asText(d[ws]); if (t) return t; } }
+    }
+    return '';
+  }
+
+  function safeFilename(name) {
+    var base = name || '';
+    try { base = base.normalize('NFC'); } catch (e) {}
+    try { base = base.replace(/[^\p{L}\p{N}]+/gu, '_'); }
+    catch (e) { base = base.replace(/[^A-Za-z0-9]+/g, '_'); }
+    base = base.replace(/^_+|_+$/g, '').slice(0, 60);
+    return base || 'pronunciation';
+  }
+
+  function pickMime() {
+    var candidates = [
+      'audio/webm;codecs=opus', 'audio/webm',
+      'audio/ogg;codecs=opus', 'audio/ogg',
+      'audio/mp4', 'audio/aac',
+    ];
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
+      for (var i = 0; i < candidates.length; i++) {
+        if (MediaRecorder.isTypeSupported(candidates[i])) return candidates[i];
+      }
+    }
+    return '';
+  }
+  function extFor(mime) {
+    if (/webm/.test(mime)) return '.webm';
+    if (/ogg/.test(mime)) return '.ogg';
+    if (/mp4|m4a|aac/.test(mime)) return '.m4a';
+    if (/wav/.test(mime)) return '.wav';
+    return '.webm';
+  }
+  function fmtTime(ms) {
+    var s = Math.floor(ms / 1000);
+    return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+  }
+
+  // ---- persistence ----
+  function loadPrefs() {
+    return fw.storage.get(STORAGE_KEY).then(function (v) {
+      if (v && typeof v === 'object' && v.selectedWs) state.selectedWs = v.selectedWs;
+    });
+  }
+  function savePrefs() {
+    return fw.storage.set(STORAGE_KEY, { selectedWs: state.selectedWs }).catch(function () {});
+  }
+
+  // ---- data loading ----
+  function loadAllEntries() {
+    var all = [];
+    state.capped = false;
+    function next(offset) {
+      return fw.getEntries({ limit: PAGE, offset: offset }).then(function (batch) {
+        all = all.concat(batch || []);
+        el('scan-text').textContent = 'Loading entries… ' + all.length + ' loaded';
+        if (!batch || batch.length < PAGE) return all;
+        if (all.length >= CAP) { state.capped = true; return all; }
+        return next(offset + PAGE);
+      });
+    }
+    return next(0);
+  }
+
+  function rebuildWorklist() {
+    var ws = state.selectedWs;
+    state.worklist = state.entries.filter(function (e) { return !refFor(e, ws); });
+  }
+
+  // ---- playback (existing recording or preview) ----
+  function stopPlayback() {
+    play.token++;
+    audioEl.pause();
+    if (play.url) { URL.revokeObjectURL(play.url); play.url = null; }
+    play.kind = null;
+  }
+  function playPreview() {
+    if (!rec.previewUrl) return;
+    stopPlayback();
+    play.kind = 'preview';
+    audioEl.src = rec.previewUrl;
+    audioEl.play().catch(function () {});
+  }
+  function playExisting(ref) {
+    stopPlayback();
+    var token = play.token;
+    play.kind = 'existing';
+    setMicIcon('loading');
+    return fw.getMedia(ref).then(function (media) {
+      if (token !== play.token) return false;
+      if (!media) { play.kind = null; return false; }
+      play.url = URL.createObjectURL(new Blob([media.data], { type: media.mimeType || '' }));
+      audioEl.src = play.url;
+      return audioEl.play().then(function () { return true; }, function () { return true; });
+    });
+  }
+  audioEl.addEventListener('ended', function () { play.kind = null; if (state.recState !== 'recording' && state.recState !== 'saving') setMicForState(); });
+  audioEl.addEventListener('pause', function () { if (state.recState === 'preview' || state.recState === 'idle') setMicForState(); });
+  audioEl.addEventListener('playing', function () { if (state.recState === 'preview' || state.recState === 'idle') setMicForState(); });
+
+  // ---- recording ----
+  function readColors() {
+    var cs = getComputedStyle(document.documentElement);
+    rec.accent = (cs.getPropertyValue('--danger') || '#cf3b3b').trim();
+    rec.surface = (cs.getPropertyValue('--surface') || '#ffffff').trim();
+  }
+
+  function startRecording() {
+    if (!canRecord) return;
+    stopPlayback();
+    state.inlineError = '';
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      rec.stream = stream;
+      rec.mime = pickMime();
+      rec.ext = extFor(rec.mime);
+      rec.chunks = [];
+      try {
+        rec.recorder = rec.mime ? new MediaRecorder(stream, { mimeType: rec.mime }) : new MediaRecorder(stream);
+      } catch (e) {
+        rec.recorder = new MediaRecorder(stream);
+      }
+      if (!rec.mime && rec.recorder.mimeType) { rec.mime = rec.recorder.mimeType; rec.ext = extFor(rec.mime); }
+      rec.recorder.ondataavailable = function (ev) { if (ev.data && ev.data.size) rec.chunks.push(ev.data); };
+      rec.recorder.onstop = onRecorderStop;
+      rec.recorder.start();
+      rec.startTime = Date.now();
+      startTimer();
+      setupMeter(stream);
+      state.recState = 'recording';
+      renderStudio();
+    }).catch(function (err) {
+      var name = err && err.name;
+      if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') {
+        state.inlineError = 'Microphone access was blocked. Allow the microphone in your browser, then press record again.';
+      } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'OverconstrainedError') {
+        state.inlineError = 'No microphone was found. Connect a microphone and try again.';
+      } else {
+        state.inlineError = "Couldn't start recording" + (err && err.message ? ': ' + err.message : '.');
+      }
+      state.recState = 'idle';
+      renderStudio();
+    });
+  }
+
+  function stopRecording() {
+    if (rec.recorder && rec.recorder.state !== 'inactive') {
+      rec.elapsedMs = Date.now() - rec.startTime;
+      try { rec.recorder.stop(); } catch (e) {}
+    }
+    stopTimer();
+    teardownMeter();
+    releaseStream();
+  }
+
+  function onRecorderStop() {
+    rec.blob = new Blob(rec.chunks, { type: rec.mime || 'audio/webm' });
+    if (rec.previewUrl) { URL.revokeObjectURL(rec.previewUrl); }
+    rec.previewUrl = (rec.blob && rec.blob.size) ? URL.createObjectURL(rec.blob) : null;
+    if (!rec.previewUrl) {
+      state.inlineError = 'The recording was empty. Please try again.';
+      state.recState = 'idle';
+    } else {
+      state.recState = 'preview';
+    }
+    renderStudio();
+  }
+
+  function cancelRecording() {
+    if (rec.recorder && rec.recorder.state !== 'inactive') {
+      rec.recorder.onstop = null;
+      try { rec.recorder.stop(); } catch (e) {}
+    }
+    stopTimer();
+    teardownMeter();
+    releaseStream();
+    discardTake();
+    state.recState = 'idle';
+    renderStudio();
+  }
+
+  function releaseStream() {
+    if (rec.stream) {
+      rec.stream.getTracks().forEach(function (t) { try { t.stop(); } catch (e) {} });
+      rec.stream = null;
+    }
+  }
+  function discardTake() {
+    rec.blob = null;
+    rec.chunks = [];
+    if (rec.previewUrl) { URL.revokeObjectURL(rec.previewUrl); rec.previewUrl = null; }
+  }
+
+  function startTimer() {
+    el('timer').classList.add('rec');
+    el('timer').textContent = '0:00';
+    rec.timerId = setInterval(function () {
+      el('timer').textContent = fmtTime(Date.now() - rec.startTime);
+    }, 200);
+  }
+  function stopTimer() {
+    if (rec.timerId) { clearInterval(rec.timerId); rec.timerId = null; }
+    el('timer').classList.remove('rec');
+  }
+
+  // ---- Web Audio level ring + waveform ----
+  function setupMeter(stream) {
+    readColors();
+    try {
+      if (!rec.audioCtx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) rec.audioCtx = new AC();
+      }
+      if (!rec.audioCtx) return;
+      if (rec.audioCtx.state === 'suspended') rec.audioCtx.resume().catch(function () {});
+      rec.analyser = rec.audioCtx.createAnalyser();
+      rec.analyser.fftSize = 1024;
+      rec.timeData = new Uint8Array(rec.analyser.fftSize);
+      rec.source = rec.audioCtx.createMediaStreamSource(stream);
+      rec.source.connect(rec.analyser);
+      var canvas = el('meter-canvas');
+      canvas.hidden = false;
+      var w = canvas.clientWidth || 300;
+      var dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(48 * dpr);
+      drawMeter();
+    } catch (e) { /* meter is optional; ignore */ }
+  }
+
+  function drawMeter() {
+    if (!rec.analyser) return;
+    rec.rafId = requestAnimationFrame(drawMeter);
+    rec.analyser.getByteTimeDomainData(rec.timeData);
+    var buf = rec.timeData, i, sum = 0;
+    for (i = 0; i < buf.length; i++) { var v = (buf[i] - 128) / 128; sum += v * v; }
+    var rms = Math.sqrt(sum / buf.length);
+    var ring = el('level-ring');
+    ring.style.opacity = String(Math.min(0.55, 0.1 + rms * 3));
+    ring.style.transform = 'scale(' + (1 + Math.min(0.55, rms * 2.6)) + ')';
+
+    var canvas = el('meter-canvas');
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineWidth = Math.max(1, (window.devicePixelRatio || 1));
+    ctx.strokeStyle = rec.accent;
+    ctx.beginPath();
+    var slice = W / buf.length;
+    for (i = 0; i < buf.length; i++) {
+      var y = (buf[i] / 255) * H;
+      var x = i * slice;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  function teardownMeter() {
+    if (rec.rafId) { cancelAnimationFrame(rec.rafId); rec.rafId = null; }
+    if (rec.source) { try { rec.source.disconnect(); } catch (e) {} rec.source = null; }
+    rec.analyser = null;
+    var ring = el('level-ring');
+    ring.style.opacity = '0';
+    ring.style.transform = 'scale(1)';
+    el('meter-canvas').hidden = true;
+  }
+
+  // ---- saving ----
+  function saveRecording() {
+    if (!rec.blob || !state.currentEntry) return;
+    var entry = state.currentEntry;
+    var before = entry;
+    state.recState = 'saving';
+    state.inlineError = '';
+    renderStudio();
+
+    var filename = safeFilename(fw.headword(entry)) + rec.ext;
+    fw.saveFile(rec.blob, { filename: filename, mimeType: rec.mime || 'audio/webm' }).then(function (res) {
+      if (!res || !res.mediaUri) {
+        var msg = (res && res.errorMessage) ? res.errorMessage : 'The recording could not be saved.';
+        saveFailed(msg);
+        return null;
+      }
+      var after = JSON.parse(JSON.stringify(before));
+      if (!after.lexemeForm) after.lexemeForm = {};
+      after.lexemeForm[state.selectedWs] = res.mediaUri;
+      return fw.updateEntry(before, after).then(function (updated) {
+        onSaved(updated || after);
+      });
+    }).catch(function (err) {
+      if (err && err.code === 'permission-denied') {
+        // user declined the change dialog — a normal outcome
+        state.recState = 'preview';
+        state.inlineError = 'Not saved — the change was declined. You can save again or re-record.';
+        renderStudio();
+        fw.notify('Recording not saved').catch(function () {});
+      } else {
+        saveFailed(err && err.message ? err.message : 'Something went wrong while saving.');
+      }
+    });
+  }
+
+  function saveFailed(message) {
+    state.recState = 'preview';
+    state.inlineError = 'Save failed: ' + message;
+    renderStudio();
+  }
+
+  function onSaved(updated) {
+    // Replace the entry in our local set so coverage/worklist reflect it.
+    var idx = -1;
+    for (var i = 0; i < state.entries.length; i++) {
+      if (state.entries[i].id === updated.id) { idx = i; break; }
+    }
+    if (idx === -1) state.entries.push(updated); else state.entries[idx] = updated;
+
+    state.sessionCount++;
+    discardTake();
+    rebuildWorklist();
+    fw.notify('Recording saved').catch(function () {});
+    renderRail();
+    renderCoverage();
+    focusNext();
+  }
+
+  // ---- focus / navigation ----
+  function localCopyOf(entry) {
+    for (var i = 0; i < state.entries.length; i++) {
+      if (state.entries[i].id === entry.id) return state.entries[i];
+    }
+    return entry;
+  }
+
+  function focusEntry(entry) {
+    stopPlayback();
+    if (rec.recorder && rec.recorder.state === 'recording') cancelRecording();
+    discardTake();
+    state.currentEntry = localCopyOf(entry);
+    state.recState = 'idle';
+    state.inlineError = '';
+    show('all-done', false);
+    renderStudio();
+    renderRail();
+  }
+
+  function focusNext() {
+    if (state.worklist.length > 0) {
+      focusEntry(state.worklist[0]);
+    } else {
+      state.currentEntry = null;
+      state.recState = 'idle';
+      show('studio-card', false);
+      show('all-done', true);
+      renderRail();
+    }
+  }
+
+  // ---- rendering: studio ----
+  function setMicIcon(kind) {
+    var b = el('mic-btn');
+    b.classList.remove('recording');
+    b.disabled = false;
+    if (kind === 'loading') {
+      b.innerHTML = ''; var s = document.createElement('span'); s.className = 'spin'; b.appendChild(s); b.disabled = true;
+    } else if (kind === 'stop') {
+      b.textContent = '■'; b.classList.add('recording'); b.setAttribute('aria-label', 'Stop recording');
+    } else if (kind === 'playing') {
+      b.textContent = '⏸'; b.setAttribute('aria-label', 'Pause');
+    } else if (kind === 'play') {
+      b.textContent = '▶'; b.setAttribute('aria-label', 'Play');
+    } else if (kind === 'saving') {
+      b.innerHTML = ''; var sp = document.createElement('span'); sp.className = 'spin'; b.appendChild(sp); b.disabled = true;
+    } else {
+      b.textContent = '🎙'; b.setAttribute('aria-label', 'Record');
+    }
+  }
+
+  // sets mic icon based on current recState + playback
+  function setMicForState() {
+    if (state.recState === 'recording') setMicIcon('stop');
+    else if (state.recState === 'saving') setMicIcon('saving');
+    else if (state.recState === 'preview') setMicIcon(audioEl.paused ? 'play' : 'playing');
+    else setMicIcon('mic');
+  }
+
+  function button(label, opts) {
+    opts = opts || {};
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn' + (opts.cls ? ' ' + opts.cls : '');
+    b.textContent = label;
+    if (opts.disabled) b.disabled = true;
+    if (opts.onclick) b.addEventListener('click', opts.onclick);
+    return b;
+  }
+
+  function renderStudio() {
+    if (!state.currentEntry) { focusNext(); return; }
+    show('all-done', false);
+    show('studio-card', true);
+
+    var entry = state.currentEntry;
+    el('sd-head').textContent = fw.headword(entry) || '—';
+    var gloss = firstGloss(entry);
+    el('sd-gloss').textContent = gloss || 'No meaning recorded';
+
+    var existing = refFor(entry, state.selectedWs);
+    var statusEl = el('sd-status');
+    if (state.recState === 'recording' || state.recState === 'preview' || state.recState === 'saving') {
+      statusEl.hidden = true;
+    } else {
+      statusEl.hidden = false;
+      statusEl.className = 'rec-status ' + (existing ? 'has' : 'none');
+      statusEl.textContent = existing ? 'Has a recording' : 'No recording yet';
+    }
+
+    // timer visibility
+    var timer = el('timer');
+    if (state.recState === 'recording') { timer.hidden = false; }
+    else if (state.recState === 'preview' && rec.elapsedMs) { timer.hidden = false; timer.classList.remove('rec'); timer.textContent = fmtTime(rec.elapsedMs); }
+    else { timer.hidden = true; }
+
+    // stage hint
+    var hint = el('stage-hint');
+    if (state.recState === 'recording') hint.textContent = 'Recording… press the button to stop.';
+    else if (state.recState === 'preview') hint.textContent = 'Listen back, then save — or re-record.';
+    else if (state.recState === 'saving') hint.textContent = 'Saving…';
+    else if (!canRecord) hint.textContent = 'Recording is not available in this environment.';
+    else hint.textContent = existing ? 'Press to record a new take (replaces the current one).' : 'Press the microphone to record.';
+
+    // inline error
+    var errBox = el('inline-error');
+    if (state.inlineError) { errBox.hidden = false; errBox.textContent = state.inlineError; }
+    else { errBox.hidden = true; errBox.textContent = ''; }
+
+    setMicForState();
+    if (!canRecord && state.recState === 'idle') el('mic-btn').disabled = true;
+
+    // controls
+    var c = el('controls');
+    c.innerHTML = '';
+    var canEdit = !fw.capabilities || !fw.capabilities.openEntryModes || fw.capabilities.openEntryModes.indexOf('edit') !== -1;
+
+    if (state.recState === 'recording') {
+      c.appendChild(button('Cancel', { cls: 'link', onclick: cancelRecording }));
+    } else if (state.recState === 'preview') {
+      c.appendChild(button('Re-record', { onclick: startRecording, disabled: !canRecord }));
+      c.appendChild(button('Save recording', { cls: 'primary', onclick: saveRecording }));
+      if (state.worklist.length) c.appendChild(button('Skip', { cls: 'link', onclick: skipCurrent }));
+    } else if (state.recState === 'saving') {
+      c.appendChild(button('Saving…', { cls: 'primary', disabled: true }));
+    } else {
+      // idle
+      if (existing) {
+        c.appendChild(button('▶ Play current', { onclick: function () {
+          if (play.kind === 'existing' && !audioEl.paused) { stopPlayback(); setMicForState(); return; }
+          playExisting(existing).then(function (ok) {
+            setMicForState();
+            if (!ok) { state.inlineError = "Couldn't load the recording (offline?)."; renderStudio(); }
+          }).catch(function () { setMicForState(); });
+        } }));
+      }
+      c.appendChild(button('Open in app', { cls: 'link', onclick: function () {
+        fw.openEntry(entry.id, { mode: canEdit ? 'edit' : 'view' }).catch(function () {});
+      } }));
+      if (state.worklist.length) {
+        var others = state.worklist.filter(function (e) { return e.id !== entry.id; });
+        if (others.length) c.appendChild(button('Skip', { cls: 'link', onclick: skipCurrent }));
+      }
+    }
+  }
+
+  function skipCurrent() {
+    stopPlayback();
+    discardTake();
+    var cur = state.currentEntry;
+    var pool = state.worklist.filter(function (e) { return !cur || e.id !== cur.id; });
+    if (pool.length) focusEntry(pool[0]);
+    else focusNext();
+  }
+
+  // ---- rendering: rail ----
+  function renderCoverage() {
+    var total = state.entries.length;
+    var have = total - state.worklist.length;
+    var pct = total ? Math.round((have / total) * 100) : 0;
+    el('coverage-line').textContent = have + ' of ' + total + ' entr' + (total === 1 ? 'y' : 'ies') + ' recorded';
+    el('progress-fill').style.width = pct + '%';
+    var sess = state.sessionCount ? 'Recorded this session: ' + state.sessionCount : 'Pick an entry and record its pronunciation.';
+    if (state.capped) sess += ' · showing first ' + CAP;
+    el('session').textContent = sess;
+  }
+
+  function makeRailRow(entry) {
+    var row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'rail-row';
+    if (state.currentEntry && entry.id === state.currentEntry.id) row.classList.add('current');
+    var has = !!refFor(entry, state.selectedWs);
+    var dot = document.createElement('span');
+    dot.className = 'rail-dot ' + (has ? 'has' : 'none');
+    dot.textContent = has ? '✓' : '●';
+    var body = document.createElement('span');
+    body.className = 'rail-body';
+    var head = document.createElement('span');
+    head.className = 'rail-head vern';
+    head.textContent = fw.headword(entry) || '—';
+    var gl = document.createElement('span');
+    gl.className = 'rail-gloss';
+    gl.textContent = firstGloss(entry) || 'No meaning recorded';
+    body.appendChild(head); body.appendChild(gl);
+    row.appendChild(dot); row.appendChild(body);
+    row.addEventListener('click', function () { focusEntry(entry); });
+    return row;
+  }
+
+  function renderRail() {
+    var q = el('search').value.trim().toLowerCase();
+    var list = el('rail-list');
+    list.innerHTML = '';
+    var label = el('rail-list-label');
+    var empty = el('rail-empty');
+
+    var items, isSearch = !!q;
+    if (isSearch) {
+      items = state.entries.filter(function (e) {
+        var h = (fw.headword(e) || '').toLowerCase();
+        var g = firstGloss(e).toLowerCase();
+        return h.indexOf(q) !== -1 || g.indexOf(q) !== -1;
+      });
+      label.textContent = items.length + ' match' + (items.length === 1 ? '' : 'es');
+    } else {
+      items = state.worklist;
+      label.textContent = 'To record (' + items.length + ')';
+    }
+
+    if (items.length === 0) {
+      empty.hidden = false;
+      empty.textContent = isSearch
+        ? 'No entries match your search.'
+        : 'Every entry has a recording. Search to re-record any entry.';
+      return;
+    }
+    empty.hidden = true;
+
+    var frag = document.createDocumentFragment();
+    var cap = 400;
+    items.slice(0, cap).forEach(function (e) { frag.appendChild(makeRailRow(e)); });
+    list.appendChild(frag);
+    if (items.length > cap) {
+      var more = document.createElement('div');
+      more.className = 'rail-empty';
+      more.textContent = 'Showing first ' + cap + ' — refine your search to see more.';
+      list.appendChild(more);
+    }
+  }
+
+  // ---- ws selection ----
+  function onSelectWs(wsId) {
+    state.selectedWs = wsId;
+    savePrefs();
+    stopPlayback();
+    discardTake();
+    rebuildWorklist();
+    renderCoverage();
+    state.currentEntry = null;
+    focusNext();
+    renderRail();
+  }
+
+  // ---- cleanup ----
+  function cleanupAll() {
+    stopPlayback();
+    stopTimer();
+    teardownMeter();
+    if (rec.recorder && rec.recorder.state !== 'inactive') { rec.recorder.onstop = null; try { rec.recorder.stop(); } catch (e) {} }
+    releaseStream();
+    if (rec.previewUrl) { URL.revokeObjectURL(rec.previewUrl); rec.previewUrl = null; }
+    if (rec.audioCtx) { try { rec.audioCtx.close(); } catch (e) {} rec.audioCtx = null; }
+  }
+  window.addEventListener('pagehide', cleanupAll);
+  window.addEventListener('beforeunload', cleanupAll);
+
+  // ---- events ----
+  function wireEvents() {
+    el('mic-btn').addEventListener('click', function () {
+      if (state.recState === 'recording') stopRecording();
+      else if (state.recState === 'preview') {
+        if (!audioEl.paused && play.kind === 'preview') { stopPlayback(); setMicForState(); }
+        else { playPreview(); setMicForState(); }
+      } else if (state.recState === 'idle') {
+        startRecording();
+      }
+    });
+    var searchTimer = null;
+    el('search').addEventListener('input', function () {
+      if (searchTimer) clearTimeout(searchTimer);
+      searchTimer = setTimeout(renderRail, 120);
+    });
+  }
+
+  // ---- init ----
+  function init(context) {
+    applyTheme(context.theme);
+    wireEvents();
+
+    Promise.all([fw.getWritingSystems(), loadPrefs()]).then(function (results) {
+      var wsData = results[0];
+      var all = (wsData.vernacular || []).concat(wsData.analysis || []);
+      var seen = {};
+      state.audioWsList = [];
+      all.forEach(function (w) {
+        if (!w.isAudio || seen[w.wsId]) return;
+        seen[w.wsId] = true;
+        state.audioWsList.push({ wsId: w.wsId, name: w.name || w.wsId, abbreviation: w.abbreviation || '', font: w.font || '' });
+      });
+
+      var vern = (wsData.vernacular || []).filter(function (w) { return !w.isAudio && w.font; });
+      state.vernFont = vern.map(function (w) { return '"' + w.font + '"'; }).join(', ');
+      if (state.vernFont) document.documentElement.style.setProperty('--vern-font', state.vernFont + ', system-ui, sans-serif');
+
+      if (state.audioWsList.length === 0) {
+        show('loading', false);
+        show('no-audio-ws', true);
+        return;
+      }
+
+      if (!state.selectedWs || !state.audioWsList.some(function (w) { return w.wsId === state.selectedWs; })) {
+        state.selectedWs = state.audioWsList[0].wsId;
+      }
+
+      return loadAllEntries().then(function (entries) {
+        state.entries = entries;
+        rebuildWorklist();
+
+        show('loading', false);
+        el('subtitle').textContent = context.project.projectName +
+          ' · ' + state.entries.length + ' entr' + (state.entries.length === 1 ? 'y' : 'ies') +
+          (canRecord ? '' : ' · recording unavailable here');
+        show('app', true);
+
+        if (state.audioWsList.length > 1) {
+          show('ws-pick', true);
+          var sel = el('ws-select');
+          state.audioWsList.forEach(function (w) {
+            var opt = document.createElement('option');
+            opt.value = w.wsId;
+            opt.textContent = w.name;
+            if (w.wsId === state.selectedWs) opt.selected = true;
+            sel.appendChild(opt);
+          });
+          sel.addEventListener('change', function () { onSelectWs(sel.value); });
+        }
+
+        renderCoverage();
+        renderRail();
+
+        var ctxId = context.entryId || (fw.context && fw.context.entryId);
+        if (ctxId) {
+          return fw.getEntry(ctxId).then(function (entry) {
+            if (entry) focusEntry(entry);
+            else focusNext();
+          }, function () { focusNext(); });
+        }
+        focusNext();
+      });
+    }).catch(function (err) {
+      showError('Could not start the recorder: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  fw.ready.then(function (ctx) {
+    // ctx exposes theme/project; fw.context carries the launch entryId
+    var context = {
+      theme: ctx && ctx.theme,
+      project: (ctx && ctx.project) || fw.project || { projectName: '' },
+      entryId: fw.context && fw.context.entryId,
+    };
+    init(context);
+  });
+})();
+</script>
+</body>
+</html>

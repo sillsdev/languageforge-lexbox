@@ -13,6 +13,22 @@ export const HOST_MESSAGE_SOURCE = 'fwlite-plugin-host';
 export type PluginPermission = 'internet';
 export const KNOWN_PLUGIN_PERMISSIONS: PluginPermission[] = ['internet'];
 
+/**
+ * Contexts a plugin declares it can be launched from, via
+ * `<meta name="fwlite-plugin-contexts" content="entry">`. A plugin that doesn't declare `entry`
+ * is not offered in an entry's context menu.
+ */
+export type PluginContext = 'entry';
+export const KNOWN_PLUGIN_CONTEXTS: PluginContext[] = ['entry'];
+
+/**
+ * How `openEntry` surfaces an entry. `view`/`edit` open a dialog over the still-mounted plugin;
+ * `window` opens a separate window (unavailable on some platforms, e.g. Android/iOS, where the
+ * host falls back to `view`); `navigate` leaves the plugin for the entry (loses plugin state).
+ */
+export type OpenEntryMode = 'view' | 'edit' | 'window' | 'navigate';
+export const KNOWN_OPEN_ENTRY_MODES: OpenEntryMode[] = ['view', 'edit', 'window', 'navigate'];
+
 export interface PluginRequestMessage {
   source: typeof PLUGIN_MESSAGE_SOURCE;
   v: number;
@@ -48,6 +64,8 @@ export interface HostInitMessage {
   project: {projectName: string; projectCode: string};
   theme: 'light' | 'dark';
   permissions: PluginPermission[];
+  /** What this host build supports, so plugins can feature-detect and degrade gracefully. */
+  capabilities: {openEntryModes: OpenEntryMode[]};
   context?: {entryId?: string};
 }
 
@@ -101,4 +119,5 @@ export interface PluginEntryFilter {
 /** A write a plugin has requested; the user must approve it before it is applied. */
 export type PluginWriteOperation =
   | {kind: 'createEntry'; entry: IEntry; summary: string[]}
-  | {kind: 'updateEntry'; before: IEntry; after: IEntry; summary: string[]};
+  | {kind: 'updateEntry'; before: IEntry; after: IEntry; summary: string[]}
+  | {kind: 'batch'; count: number; summary: string[]};

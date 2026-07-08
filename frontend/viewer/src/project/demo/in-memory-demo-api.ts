@@ -617,7 +617,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       for (const seed of seeds) {
         const example = examplePlugins.find(p => p.key === seed.key);
         if (!example) continue;
-        this._plugins.push({id: seed.id, name: example.name, html: await example.loadHtml()});
+        this._plugins.push({id: seed.id, name: example.name, description: example.description, html: await example.loadHtml()});
       }
     })();
   }

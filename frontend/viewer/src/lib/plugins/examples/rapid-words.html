@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rapid Word Collection</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --warn: #b45309;
+    --warn-soft: #fef3e0;
+    --danger: #b91c1c;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --warn: #fbbf24;
+    --warn-soft: #3a2f12;
+    --danger: #f87171;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 18px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 1.3rem; margin: 0 0 2px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; font-size: 0.88rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+
+  /* Progress rail */
+  .rail-top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .rail-stats { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.82rem; color: var(--text-muted); }
+  .rail-stats b { color: var(--text); font-weight: 700; }
+  .bar {
+    height: 8px;
+    border-radius: 6px;
+    background: var(--surface-alt);
+    overflow: hidden;
+  }
+  .bar > span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--accent);
+    transition: width 0.25s ease;
+  }
+
+  .jump { position: relative; margin-top: 12px; }
+  .jump input { margin: 0; }
+  .jump-results {
+    position: absolute;
+    z-index: 5;
+    left: 0; right: 0;
+    top: calc(100% + 4px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    max-height: 260px;
+    overflow-y: auto;
+    display: none;
+  }
+  .jump-results.open { display: block; }
+  .jump-item {
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .jump-item:last-child { border-bottom: none; }
+  .jump-item:hover, .jump-item.active { background: var(--accent-soft); }
+  .jump-item .jc { color: var(--accent); font-weight: 700; margin-right: 6px; }
+  .jump-empty { padding: 10px 12px; color: var(--text-muted); font-size: 0.85rem; }
+
+  label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+  input {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+    font-family: inherit;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  /* Domain header */
+  .dom-pos { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
+  .dom-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; }
+  .dom-code {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+  .dom-name { font-size: 1.5rem; font-weight: 700; line-height: 1.15; }
+
+  /* Collected chips */
+  .collected-head { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 11px;
+    font-size: 0.85rem;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .chip.more { color: var(--text-muted); border-style: dashed; }
+  .chip.new {
+    background: var(--accent-soft);
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+    color: var(--text);
+    animation: pop 0.35s ease;
+  }
+  @keyframes pop {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* Rapid entry rows */
+  .rows { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 14px; }
+  .rwc-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-end;
+    padding: 8px;
+    border-radius: 10px;
+    background: var(--surface-alt);
+  }
+  .rwc-row.filled { outline: 1px solid var(--accent-soft); }
+  .cell { flex: 1 1 150px; min-width: 120px; }
+  .cell .tag { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 3px; display: block; }
+  .cell input { background: var(--surface); }
+  .row-remove {
+    flex: 0 0 auto;
+    align-self: center;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .row-remove:hover { color: var(--danger); background: var(--surface); }
+
+  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button.btn {
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+  }
+  button.btn:hover { border-color: var(--accent); }
+  button.btn:disabled { opacity: 0.55; cursor: default; }
+  button.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button.btn.primary:hover { filter: brightness(1.08); }
+  button.btn.ghost { background: transparent; }
+  .spacer { flex: 1 1 auto; }
+
+  .status {
+    font-size: 0.85rem;
+    padding: 9px 12px;
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+  .status.warn { background: var(--warn-soft); color: var(--warn); }
+  .status.good { background: var(--good-soft); color: var(--good); }
+
+  .center-state { text-align: center; padding: 44px 20px; color: var(--text-muted); }
+  .center-state h2 { color: var(--text); font-size: 1.15rem; margin: 0 0 8px; }
+  .spinner {
+    width: 30px; height: 30px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid color-mix(in srgb, var(--danger) 55%, var(--border));
+    background: color-mix(in srgb, var(--danger) 14%, var(--surface));
+    padding: 14px 18px;
+    border-radius: var(--radius);
+  }
+  .hidden { display: none !important; }
+  .big-num { font-size: 2.2rem; font-weight: 800; color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Rapid Word Collection</h1>
+  <p class="subtitle">Walk the semantic-domain framework and list every word that belongs to each &mdash; fast.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div>Loading domains &amp; entries&hellip;</div>
+  </div>
+
+  <div id="error" class="error-box hidden"></div>
+
+  <div id="no-domains" class="center-state hidden">
+    <h2>No semantic-domain framework</h2>
+    <div>This project has no semantic domains configured, so there is no framework to walk.
+    Rapid Word Collection needs the domain list to guide collection.</div>
+  </div>
+
+  <div id="no-ws" class="center-state hidden">
+    <h2>Writing systems needed</h2>
+    <div id="no-ws-msg"></div>
+  </div>
+
+  <div id="done" class="center-state hidden">
+    <div class="big-num" id="done-count">0</div>
+    <h2>You've reached the end of the framework</h2>
+    <div id="done-msg"></div>
+    <div class="btn-row" style="justify-content:center; margin-top:18px;">
+      <button class="btn primary" id="done-restart" type="button">Back to the start</button>
+    </div>
+  </div>
+
+  <div id="walk" class="hidden">
+    <div class="card">
+      <div class="rail-top">
+        <div class="rail-stats">
+          <span>Domain <b id="stat-pos">0</b> of <b id="stat-total">0</b></span>
+          <span>Domains with words: <b id="stat-covered">0</b></span>
+          <span>Added this session: <b id="stat-session">0</b></span>
+        </div>
+      </div>
+      <div class="bar"><span id="progress-fill"></span></div>
+      <div class="jump">
+        <input type="text" id="jump-input" placeholder="Jump to a domain by code or name&hellip;" autocomplete="off">
+        <div class="jump-results" id="jump-results"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="dom-pos" id="dom-pos"></div>
+      <div class="dom-head">
+        <span class="dom-code" id="dom-code"></span>
+        <span class="dom-name" id="dom-name"></span>
+      </div>
+    </div>
+
+    <div class="card" id="collected-card">
+      <div class="collected-head" id="collected-head"></div>
+      <div class="chips" id="collected-chips"></div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:0.9rem; font-weight:700; margin-bottom:10px;">Add words for this domain</div>
+      <div class="rows" id="rows"></div>
+      <div class="btn-row">
+        <button class="btn ghost" id="add-row" type="button">+ Add row</button>
+        <span class="spacer"></span>
+        <button class="btn" id="prev-btn" type="button">&larr; Previous</button>
+        <button class="btn" id="skip-btn" type="button">Skip domain</button>
+        <button class="btn primary" id="save-btn" type="button">Save &amp; next</button>
+      </div>
+      <div id="status"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var fwlite = window.fwlite;
+
+  var state = {
+    domains: [],          // sorted by code, objects from getSemanticDomains()
+    vernWs: [],           // [{wsId, name, font}] non-audio
+    analysisWs: [],       // [{wsId, name}] non-audio
+    analysisIds: [],      // wsId list for firstValue preference
+    collected: {},        // code -> [{headword, gloss, session}]
+    index: 0,             // current domain position
+    sessionCount: 0,
+    drafts: {},           // code -> [{vern:{wsId:val}, gloss}]
+  };
+
+  var STORAGE_KEY = 'rwc.state.v1';
+  var saveTimer = null;
+
+  // ---- small DOM helpers ----
+  function $(id) { return document.getElementById(id); }
+  function show(id) { $(id).classList.remove('hidden'); }
+  function hide(id) { $(id).classList.add('hidden'); }
+  function msg(err) { return err && err.message ? err.message : String(err); }
+
+  function el(tag, opts, children) {
+    var node = document.createElement(tag);
+    opts = opts || {};
+    if (opts.className) node.className = opts.className;
+    if (opts.text != null) node.textContent = opts.text;
+    if (opts.type) node.type = opts.type;
+    if (opts.placeholder) node.placeholder = opts.placeholder;
+    if (opts.title) node.title = opts.title;
+    if (opts.style) node.setAttribute('style', opts.style);
+    if (opts.data) { for (var k in opts.data) node.dataset[k] = opts.data[k]; }
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+
+  function applyTheme() {
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (prefersDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    hide('loading'); hide('walk');
+    var box = $('error');
+    box.classList.remove('hidden');
+    box.textContent = message;
+  }
+
+  function vernFontFamily(font) {
+    var fallback = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    return font ? ('"' + font + '", ' + fallback) : fallback;
+  }
+
+  function domainName(domain) {
+    return fwlite.firstValue(domain.name, state.analysisIds) || '(unnamed)';
+  }
+  function domainLabel(domain) {
+    return domain.code + ' ' + domainName(domain);
+  }
+
+  // ---- persistence ----
+  function scheduleSave() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(persist, 400);
+  }
+  function persist() {
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    var payload = {
+      index: state.index,
+      sessionCount: state.sessionCount,
+      drafts: state.drafts,
+    };
+    return fwlite.storage.set(STORAGE_KEY, payload).catch(function () { /* non-fatal */ });
+  }
+
+  // ---- entries -> collected map ----
+  function loadAllEntries() {
+    var all = [];
+    var LIMIT = 1000, CAP = 5000;
+    function page(offset) {
+      if (offset >= CAP) return Promise.resolve(all);
+      return fwlite.getEntries({limit: LIMIT, offset: offset}).then(function (batch) {
+        if (!batch || !batch.length) return all;
+        all = all.concat(batch);
+        if (batch.length < LIMIT) return all;
+        return page(offset + LIMIT);
+      });
+    }
+    return page(0);
+  }
+
+  function buildCollected(entries) {
+    var map = {};
+    entries.forEach(function (entry) {
+      var headword = fwlite.headword(entry) || '';
+      (entry.senses || []).forEach(function (sense) {
+        var gloss = fwlite.firstValue(sense.gloss, state.analysisIds) || '';
+        (sense.semanticDomains || []).forEach(function (domain) {
+          if (!domain || !domain.code) return;
+          (map[domain.code] || (map[domain.code] = [])).push({headword: headword, gloss: gloss, session: false});
+        });
+      });
+    });
+    return map;
+  }
+
+  function currentDomain() { return state.domains[state.index]; }
+
+  // ---- rows ----
+  function readRows() {
+    var out = [];
+    $('rows').querySelectorAll('.rwc-row').forEach(function (row) {
+      var vern = {};
+      row.querySelectorAll('input[data-ws]').forEach(function (inp) {
+        var v = inp.value.trim();
+        if (v) vern[inp.dataset.ws] = v;
+      });
+      var glossInp = row.querySelector('input[data-gloss]');
+      var gloss = glossInp ? glossInp.value.trim() : '';
+      out.push({vern: vern, gloss: gloss});
+    });
+    return out;
+  }
+
+  function hasContent(r) { return Object.keys(r.vern).length > 0 || !!r.gloss; }
+  function isSaveable(r) { return Object.keys(r.vern).length > 0; }
+
+  function captureDrafts() {
+    var domain = currentDomain();
+    if (!domain) return;
+    var rows = readRows().filter(hasContent);
+    if (rows.length) state.drafts[domain.code] = rows;
+    else delete state.drafts[domain.code];
+  }
+
+  function markFilled(row) {
+    var filled = false;
+    row.querySelectorAll('input').forEach(function (inp) { if (inp.value.trim()) filled = true; });
+    row.classList.toggle('filled', filled);
+  }
+
+  function createRow(draft) {
+    draft = draft || {vern: {}, gloss: ''};
+    var cells = [];
+    state.vernWs.forEach(function (ws, i) {
+      var input = el('input', {
+        type: 'text',
+        placeholder: i === 0 ? 'word' : 'variant',
+        data: {ws: ws.wsId},
+      });
+      input.style.fontFamily = vernFontFamily(ws.font);
+      if (draft.vern && draft.vern[ws.wsId]) input.value = draft.vern[ws.wsId];
+      var tag = el('span', {className: 'tag', text: ws.abbreviation || ws.wsId});
+      cells.push(el('div', {className: 'cell'}, [tag, input]));
+    });
+    // gloss cell
+    var glossWs = state.analysisWs[0];
+    var glossInput = el('input', {type: 'text', placeholder: 'gloss', data: {gloss: '1'}});
+    if (draft.gloss) glossInput.value = draft.gloss;
+    var glossTag = el('span', {className: 'tag', text: 'gloss (' + (glossWs.abbreviation || glossWs.wsId) + ')'});
+    cells.push(el('div', {className: 'cell'}, [glossTag, glossInput]));
+
+    var remove = el('button', {className: 'row-remove', type: 'button', text: '×', title: 'Remove row'});
+    cells.push(remove);
+
+    var row = el('div', {className: 'rwc-row'}, cells);
+
+    remove.addEventListener('click', function () {
+      var rowsEl = $('rows');
+      if (rowsEl.querySelectorAll('.rwc-row').length > 1) {
+        row.remove();
+      } else {
+        row.querySelectorAll('input').forEach(function (inp) { inp.value = ''; });
+      }
+      markFilled(row);
+      ensureTrailingRow();
+      scheduleSave();
+      captureDrafts();
+    });
+
+    row.addEventListener('input', function (e) {
+      markFilled(row);
+      ensureTrailingRow();
+      captureDrafts();
+      scheduleSave();
+    });
+
+    row.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        focusNextInput(e.target);
+      }
+    });
+
+    markFilled(row);
+    return row;
+  }
+
+  function ensureTrailingRow() {
+    var rowsEl = $('rows');
+    var rows = rowsEl.querySelectorAll('.rwc-row');
+    if (!rows.length) { rowsEl.appendChild(createRow()); return; }
+    var last = rows[rows.length - 1];
+    var lastHasContent = false;
+    last.querySelectorAll('input').forEach(function (inp) { if (inp.value.trim()) lastHasContent = true; });
+    if (lastHasContent) rowsEl.appendChild(createRow());
+  }
+
+  function focusNextInput(current) {
+    var inputs = Array.prototype.slice.call($('rows').querySelectorAll('input'));
+    var idx = inputs.indexOf(current);
+    if (idx === -1) return;
+    if (idx < inputs.length - 1) {
+      inputs[idx + 1].focus();
+      return;
+    }
+    // last input: make sure a fresh row exists, then jump to its first field
+    ensureTrailingRow();
+    var after = Array.prototype.slice.call($('rows').querySelectorAll('input'));
+    if (after.length > inputs.length) after[inputs.length].focus();
+  }
+
+  function renderRows() {
+    var rowsEl = $('rows');
+    rowsEl.textContent = '';
+    var drafts = state.drafts[currentDomain().code] || [];
+    if (drafts.length) drafts.forEach(function (d) { rowsEl.appendChild(createRow(d)); });
+    else rowsEl.appendChild(createRow());
+    ensureTrailingRow();
+  }
+
+  // ---- collected chips ----
+  function renderCollected() {
+    var domain = currentDomain();
+    var words = state.collected[domain.code] || [];
+    var head = $('collected-head');
+    var chips = $('collected-chips');
+    chips.textContent = '';
+    if (!words.length) {
+      head.textContent = 'No words collected in this domain yet — be the first.';
+      return;
+    }
+    // Show words added in this session first, tinted, so the user sees their contributions.
+    var sessionWords = words.filter(function (w) { return w.session; });
+    var existingWords = words.filter(function (w) { return !w.session; });
+    var ordered = sessionWords.concat(existingWords);
+
+    head.textContent = sessionWords.length
+      ? 'Collected here (' + words.length + ') — ' + sessionWords.length + ' added this session:'
+      : 'Already collected here (' + words.length + ') — avoid repeats:';
+
+    var CAP = 80;
+    ordered.slice(0, CAP).forEach(function (w) {
+      var label = w.headword || w.gloss || '—';
+      var chip = el('span', {className: w.session ? 'chip new' : 'chip', text: label});
+      if (w.gloss && w.gloss !== label) chip.title = w.gloss;
+      chips.appendChild(chip);
+    });
+    if (ordered.length > CAP) {
+      chips.appendChild(el('span', {className: 'chip more', text: '+' + (ordered.length - CAP) + ' more'}));
+    }
+  }
+
+  // ---- progress ----
+  function renderProgress() {
+    var total = state.domains.length;
+    $('stat-pos').textContent = (state.index + 1).toLocaleString();
+    $('stat-total').textContent = total.toLocaleString();
+    $('stat-session').textContent = state.sessionCount.toLocaleString();
+    var covered = 0;
+    for (var i = 0; i < state.domains.length; i++) {
+      if ((state.collected[state.domains[i].code] || []).length) covered++;
+    }
+    $('stat-covered').textContent = covered.toLocaleString();
+    var pct = total ? ((state.index) / total) * 100 : 0;
+    $('progress-fill').style.width = pct + '%';
+  }
+
+  function renderDomainHeader() {
+    var domain = currentDomain();
+    $('dom-pos').textContent = 'Domain ' + (state.index + 1).toLocaleString() + ' of ' + state.domains.length.toLocaleString();
+    $('dom-code').textContent = domain.code;
+    $('dom-name').textContent = domainName(domain);
+  }
+
+  // ---- status ----
+  function setStatus(message, kind) {
+    var box = $('status');
+    box.textContent = '';
+    if (!message) return;
+    box.appendChild(el('div', {className: 'status ' + (kind || ''), text: message}));
+  }
+
+  // ---- navigation ----
+  function renderDomain() {
+    setStatus('');
+    renderProgress();
+    renderDomainHeader();
+    renderCollected();
+    renderRows();
+  }
+
+  function goTo(index, opts) {
+    opts = opts || {};
+    if (!opts.skipCapture) captureDrafts();
+    if (index >= state.domains.length) { showDone(); persist(); return; }
+    if (index < 0) index = 0;
+    state.index = index;
+    persist();
+    $('done').classList.add('hidden');
+    show('walk');
+    renderDomain();
+    scrollTop();
+  }
+
+  function scrollTop() { window.scrollTo(0, 0); }
+
+  function showDone() {
+    hide('walk');
+    $('done-count').textContent = state.sessionCount.toLocaleString();
+    $('done-msg').textContent = state.sessionCount
+      ? 'words added this session across ' + state.domains.length.toLocaleString() + ' domains. Great work!'
+      : 'You reached the end of the framework. Jump back to any domain to keep collecting.';
+    show('done');
+    scrollTop();
+  }
+
+  // ---- saving a burst ----
+  function buildEntry(domain, row) {
+    var gloss = {};
+    if (row.gloss && state.analysisWs[0]) gloss[state.analysisWs[0].wsId] = row.gloss;
+    return {
+      lexemeForm: row.vern,
+      senses: [{gloss: gloss, semanticDomains: [domain]}],
+    };
+  }
+
+  function saveAndNext() {
+    var domain = currentDomain();
+    captureDrafts();
+    var rows = readRows().filter(isSaveable);
+    if (!rows.length) {
+      setStatus('No words to save here. Use “Skip domain” to move on.', 'warn');
+      return;
+    }
+    var ops = rows.map(function (r) { return {type: 'createEntry', entry: buildEntry(domain, r)}; });
+
+    var saveBtn = $('save-btn');
+    saveBtn.disabled = true;
+    setStatus('');
+
+    fwlite.applyChanges(ops).then(function (created) {
+      saveBtn.disabled = false;
+      var results = created && created.length ? created : [];
+      var n = results.length || ops.length;
+      state.sessionCount += n;
+      // reflect the new words in the collected map for this domain
+      var list = state.collected[domain.code] || (state.collected[domain.code] = []);
+      (results.length ? results : rows).forEach(function (item, i) {
+        var headword = results.length ? fwlite.headword(item) : (Object.values(rows[i].vern)[0] || '');
+        var gloss = rows[i] ? rows[i].gloss : '';
+        list.push({headword: headword, gloss: gloss, session: true});
+      });
+      delete state.drafts[domain.code];
+      fwlite.notify('+' + n + ' word' + (n === 1 ? '' : 's') + ' added to ' + domainLabel(domain));
+      persist();
+      goTo(state.index + 1, {skipCapture: true});
+    }).catch(function (err) {
+      saveBtn.disabled = false;
+      if (err && err.code === 'permission-denied') {
+        setStatus('Not saved — the change wasn’t approved. Your words are kept; press “Save & next” to try again.', 'warn');
+      } else {
+        setStatus('Couldn’t save: ' + msg(err) + ' Your words are kept — try again.', 'warn');
+      }
+    });
+  }
+
+  // ---- jump-to-domain search ----
+  function renderJumpResults(query) {
+    var box = $('jump-results');
+    box.textContent = '';
+    var q = query.trim().toLowerCase();
+    if (!q) { box.classList.remove('open'); return; }
+    var matches = [];
+    for (var i = 0; i < state.domains.length && matches.length < 40; i++) {
+      var d = state.domains[i];
+      var name = domainName(d).toLowerCase();
+      if (d.code.toLowerCase().indexOf(q) !== -1 || name.indexOf(q) !== -1) {
+        matches.push({domain: d, index: i});
+      }
+    }
+    if (!matches.length) {
+      box.appendChild(el('div', {className: 'jump-empty', text: 'No matching domains.'}));
+      box.classList.add('open');
+      return;
+    }
+    matches.forEach(function (m) {
+      var item = el('div', {className: 'jump-item'}, [
+        el('span', {className: 'jc', text: m.domain.code}),
+        el('span', {text: domainName(m.domain)}),
+      ]);
+      item.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+        $('jump-input').value = '';
+        box.classList.remove('open');
+        goTo(m.index);
+      });
+      box.appendChild(item);
+    });
+    box.classList.add('open');
+  }
+
+  // ---- init ----
+  function init() {
+    applyTheme();
+
+    Promise.all([
+      fwlite.getSemanticDomains(),
+      fwlite.getWritingSystems(),
+      fwlite.storage.get(STORAGE_KEY),
+    ]).then(function (results) {
+      var domains = results[0] || [];
+      var ws = results[1] || {vernacular: [], analysis: []};
+      var saved = results[2];
+
+      state.vernWs = (ws.vernacular || []).filter(function (w) { return !w.isAudio; })
+        .map(function (w) { return {wsId: w.wsId, name: w.name, abbreviation: w.abbreviation, font: w.font}; });
+      state.analysisWs = (ws.analysis || []).filter(function (w) { return !w.isAudio; })
+        .map(function (w) { return {wsId: w.wsId, name: w.name, abbreviation: w.abbreviation}; });
+      state.analysisIds = state.analysisWs.map(function (w) { return w.wsId; });
+
+      state.domains = domains.slice().sort(function (a, b) {
+        return String(a.code).localeCompare(String(b.code), undefined, {numeric: true});
+      });
+
+      hide('loading');
+
+      if (!state.domains.length) { show('no-domains'); return; }
+      if (!state.vernWs.length || !state.analysisWs.length) {
+        var parts = [];
+        if (!state.vernWs.length) parts.push('a vernacular (text) writing system to hold the word');
+        if (!state.analysisWs.length) parts.push('an analysis writing system to hold the gloss');
+        $('no-ws-msg').textContent = 'Rapid Word Collection needs ' + parts.join(' and ') +
+          '. Add the missing writing system in project settings, then reopen this plugin.';
+        show('no-ws');
+        return;
+      }
+
+      if (saved && typeof saved === 'object') {
+        if (typeof saved.index === 'number') state.index = saved.index;
+        if (typeof saved.sessionCount === 'number') state.sessionCount = saved.sessionCount;
+        if (saved.drafts && typeof saved.drafts === 'object') state.drafts = saved.drafts;
+      }
+      if (state.index < 0) state.index = 0;
+      if (state.index >= state.domains.length) state.index = state.domains.length; // triggers done
+
+      wireControls();
+
+      return loadAllEntries().then(function (entries) {
+        state.collected = buildCollected(entries);
+        if (state.index >= state.domains.length) { showDone(); return; }
+        show('walk');
+        renderDomain();
+      });
+    }).catch(function (err) {
+      showError('Could not load the project: ' + msg(err));
+    });
+  }
+
+  function wireControls() {
+    $('save-btn').addEventListener('click', saveAndNext);
+    $('skip-btn').addEventListener('click', function () { goTo(state.index + 1); });
+    $('prev-btn').addEventListener('click', function () { goTo(state.index - 1); });
+    $('add-row').addEventListener('click', function () {
+      $('rows').appendChild(createRow());
+    });
+    $('done-restart').addEventListener('click', function () { goTo(0, {skipCapture: true}); });
+
+    var jump = $('jump-input');
+    jump.addEventListener('input', function () { renderJumpResults(jump.value); });
+    jump.addEventListener('focus', function () { if (jump.value.trim()) renderJumpResults(jump.value); });
+    jump.addEventListener('blur', function () {
+      setTimeout(function () { $('jump-results').classList.remove('open'); }, 150);
+    });
+    jump.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { jump.value = ''; $('jump-results').classList.remove('open'); }
+    });
+  }
+
+  fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

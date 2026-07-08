@@ -370,9 +370,7 @@
   }
 
   function headwordOf(entry) {
-    var cf = entry.citationForm && entry.citationForm[state.ws];
-    var lf = entry.lexemeForm && entry.lexemeForm[state.ws];
-    return cf || lf || window.fwlite.firstValue(entry.citationForm || entry.lexemeForm || {}, state.vernacular.map(function (w) { return w.wsId; })) || '(no headword)';
+    return window.fwlite.headword(entry) || '(no headword)';
   }
 
   // --- Character diff highlight -----------------------------------------------

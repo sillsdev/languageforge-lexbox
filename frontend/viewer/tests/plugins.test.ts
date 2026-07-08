@@ -95,17 +95,45 @@ test('plugin writes require user approval and apply after it', async ({page}) =>
   await expect(frame.locator('#status')).toContainText('created:');
 });
 
-test('every bundled example plugin runs against the demo project without erroring', async ({page}) => {
-  expect(examplePlugins.length).toBeGreaterThanOrEqual(8);
-  await gotoPlugins(page);
+test('the curated example gallery is offered in full', () => {
+  expect(examplePlugins.length).toBeGreaterThanOrEqual(20);
+});
 
-  for (const example of examplePlugins.map(e => e.name)) {
-    const pluginName = `E2E ${example}`;
+test('the example gallery filters across categories by function', async ({page}) => {
+  await gotoPlugins(page);
+  await page.getByRole('button', {name: 'New plugin'}).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', {name: 'Start from an example'}).click();
+
+  // Default browse is grouped into sections.
+  await expect(dialog.getByRole('heading', {name: 'Play & learn'})).toBeVisible();
+
+  // A function chip collapses to a flat, cross-cutting result set. In this view each card is
+  // prefixed with its primary-function label, so match the name as a substring rather than anchored.
+  await dialog.getByRole('button', {name: 'Play & learn', pressed: false}).click();
+  await expect(dialog.getByRole('button', {name: 'Crossword'})).toBeVisible();
+  // Sentence Sprint's primary function is Enrich, but it also serves Play, so it surfaces here too.
+  await expect(dialog.getByRole('button', {name: 'Sentence Sprint'})).toBeVisible();
+  // A pure Explore example is excluded.
+  await expect(dialog.getByRole('button', {name: 'Browse Grid'})).toBeHidden();
+
+  await dialog.getByRole('button', {name: 'Clear'}).click();
+  await expect(dialog.getByRole('button', {name: /^Browse Grid/})).toBeVisible();
+});
+
+// One isolated test per example so failures are attributable and the suite parallelises, rather than
+// one test serially exercising all of them (which blows a single test timeout).
+for (const example of examplePlugins) {
+  test(`example plugin “${example.name}” runs against the demo project without erroring`, async ({page}) => {
+    const pluginName = `E2E ${example.name}`;
+    await gotoPlugins(page);
 
     await page.getByRole('button', {name: 'New plugin'}).click();
     const dialog = page.getByRole('dialog');
     await dialog.getByLabel('Name').fill(pluginName);
-    await dialog.getByRole('button', {name: example, exact: true}).click();
+    await dialog.getByRole('button', {name: 'Start from an example'}).click();
+    // The card's accessible name is "<name> <description> <badges…>", so anchor on the leading name.
+    await dialog.getByRole('button', {name: new RegExp(`^${example.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)}).click();
     const addButton = dialog.getByRole('button', {name: 'Add plugin'});
     await expect(addButton).toBeEnabled();
     await addButton.click();
@@ -119,9 +147,6 @@ test('every bundled example plugin runs against the demo project without errorin
     // Loading clearing proves the plugin finished talking to the project over the bridge.
     await expect(frame.locator('#loading')).toBeHidden({timeout: 20000});
     await expect(frame.locator('#error')).toBeHidden();
-    await expect(frame.getByRole('heading', {name: example}).first()).toBeVisible();
-
-    await page.getByRole('button', {name: 'Back to plugins'}).click();
-    await expect(page.getByRole('heading', {name: 'Plugins'})).toBeVisible();
-  }
-});
+    await expect(frame.getByRole('heading', {name: example.name}).first()).toBeVisible();
+  });
+}

@@ -267,11 +267,6 @@
     return loadNext();
   }
 
-  function nameFor(multiString, vernacularWs, analysisWs) {
-    var preferred = [].concat(vernacularWs || [], analysisWs || []);
-    return window.fwlite.firstValue(multiString, preferred) || '—';
-  }
-
   function computeStats(entries, partsOfSpeech, semanticDomains, vernacularWs, analysisWs) {
     var totalEntries = entries.length;
     var totalSenses = 0;
@@ -281,9 +276,8 @@
     var domainCounts = {}; // id -> count
 
     entries.forEach(function (entry) {
-      var headword = (entry.citationForm && Object.keys(entry.citationForm).length ? entry.citationForm : entry.lexemeForm);
-      var headwordText = nameFor(headword, vernacularWs, analysisWs);
-      if (headwordText && headwordText !== '—' && headwordText.length > longestWord.length) {
+      var headwordText = window.fwlite.headword(entry) || '';
+      if (headwordText && headwordText.length > longestWord.length) {
         longestWord = {text: headwordText, length: headwordText.length};
       }
 

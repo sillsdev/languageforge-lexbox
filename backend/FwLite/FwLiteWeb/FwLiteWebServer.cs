@@ -19,6 +19,11 @@ namespace FwLiteWeb;
 
 public static class FwLiteWebServer
 {
+    // A plugin is a single self-contained HTML document that travels whole over SignalR (the Blazor
+    // circuit for the local viewer, the MiniLcm hubs for remote clients). The default cap is 32KB,
+    // which large plugins blow past; 3MB leaves generous headroom for their inlined assets.
+    private const long MaxSignalRMessageSize = 3 * 1024 * 1024;
+
     public static WebApplication SetupAppServer(WebApplicationOptions options, Action<WebApplicationBuilder>? configure = null)
     {
         var builder = WebApplication.CreateBuilder(options);
@@ -49,7 +54,9 @@ public static class FwLiteWebServer
             //todo os should be web, when the server is running remotely to the client, but linux runs the server locally so we will default using the OS to determine the platform (the default value)
         });
         builder.Logging.AddDebug();
-        builder.Services.AddRazorComponents().AddInteractiveServerComponents(circuitOptions => circuitOptions.DetailedErrors = true);
+        builder.Services.AddRazorComponents()
+            .AddInteractiveServerComponents(circuitOptions => circuitOptions.DetailedErrors = true)
+            .AddHubOptions(hubOptions => hubOptions.MaximumReceiveMessageSize = MaxSignalRMessageSize);
         if (builder.Configuration.GetValue("FwLiteWeb:EnableFileLogging", true) &&
             builder.Configuration.GetValue<string>("FwLiteWeb:LogFileName") is { Length: > 0 } logFileName)
         {
@@ -67,6 +74,7 @@ public static class FwLiteWebServer
         builder.Services.AddSwaggerGen();
         builder.Services.AddSignalR(options =>
         {
+            options.MaximumReceiveMessageSize = MaxSignalRMessageSize;
             options.AddFilter(new LockedProjectFilter());
             options.EnableDetailedErrors = true;
         }).AddJsonProtocol();

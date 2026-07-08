@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fwlite-plugin-contexts" content="entry">
+<title>Comments Inbox</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+    --vern-font: inherit;
+    --toolbar-h: 52px;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px 16px 44px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  .head { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 1.4rem; margin: 0; }
+  .subtitle { color: var(--text-muted); margin: 2px 0 0; font-size: 0.9rem; width: 100%; }
+  .total-badge {
+    margin-left: auto; flex-shrink: 0; background: var(--accent); color: #fff;
+    font-size: 0.82rem; font-weight: 700; border-radius: 999px; padding: 4px 12px; white-space: nowrap;
+  }
+  .total-badge.zero { background: var(--good); }
+  .total-badge[hidden] { display: none; }
+
+  .ctx-banner {
+    margin: 14px 0 4px; padding: 12px 14px; border-radius: var(--radius);
+    background: var(--accent-soft); border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .ctx-banner .lbl { font-size: 0.82rem; color: var(--text-muted); }
+  .ctx-banner .hw { font-weight: 700; font-family: var(--vern-font); overflow-wrap: anywhere; }
+  .ctx-banner .link {
+    margin-left: auto; background: transparent; border: 0; color: var(--accent);
+    font: inherit; font-size: 0.84rem; font-weight: 600; cursor: pointer; padding: 4px 6px;
+  }
+  .ctx-banner .link:hover { text-decoration: underline; }
+  .ctx-banner .link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  .toolbar {
+    position: sticky; top: 0; z-index: 6; display: flex; gap: 10px; align-items: center;
+    flex-wrap: wrap; padding: 12px 0 8px; margin-top: 8px;
+    background: linear-gradient(var(--bg), var(--bg) 74%, transparent);
+  }
+  .seg { display: inline-flex; background: var(--surface-alt); border-radius: 999px; padding: 3px; gap: 2px; }
+  .seg button {
+    border: 0; background: transparent; color: var(--text-muted); font: inherit;
+    font-size: 0.82rem; font-weight: 600; padding: 5px 13px; border-radius: 999px; cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .spacer { flex: 1; }
+  .refresh {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    border-radius: 999px; font: inherit; font-size: 0.82rem; font-weight: 600;
+    padding: 6px 14px; cursor: pointer;
+  }
+  .refresh:hover { border-color: var(--accent); }
+  .refresh:disabled { opacity: 0.55; cursor: default; }
+  .refresh:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .day {
+    position: sticky; top: var(--toolbar-h); z-index: 4; margin: 16px 2px 8px; padding: 3px 0;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-muted); background: var(--bg);
+  }
+  ul.feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .card.unread { border-left: 3px solid var(--accent); }
+  .card-head {
+    display: block; width: 100%; text-align: left; background: transparent; border: 0;
+    font: inherit; color: inherit; cursor: pointer; padding: 13px 15px;
+  }
+  .card-head:hover { background: var(--surface-alt); }
+  .card-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .meta { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; flex-wrap: wrap; }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: grid;
+    place-items: center; font-size: 0.72rem; font-weight: 700; color: #fff;
+  }
+  .author { font-weight: 600; font-size: 0.9rem; }
+  .time { color: var(--text-muted); font-size: 0.82rem; }
+  .chip {
+    font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--text-muted); background: var(--surface-alt); border-radius: 999px; padding: 2px 9px;
+  }
+  .status {
+    font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    border-radius: 999px; padding: 2px 9px;
+  }
+  .status.open { color: var(--good); background: var(--good-soft); }
+  .status.closed { color: var(--text-muted); background: var(--surface-alt); }
+  .unread-count {
+    margin-left: auto; flex-shrink: 0; background: var(--accent); color: #fff;
+    font-size: 0.72rem; font-weight: 700; border-radius: 999px; padding: 2px 9px; min-width: 20px; text-align: center;
+  }
+  .subject { font-size: 0.86rem; color: var(--text-muted); margin-bottom: 6px; min-height: 1.15em; overflow-wrap: anywhere; }
+  .subject .hw { color: var(--accent); font-weight: 700; font-family: var(--vern-font); }
+  .subject .sub-ctx { color: var(--text-muted); }
+  .preview {
+    font-size: 0.94rem; line-height: 1.5; color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .disclose { font-size: 0.78rem; color: var(--accent); font-weight: 600; margin-top: 8px; }
+
+  .shimmer {
+    display: inline-block; width: 96px; height: 0.72em; border-radius: 4px; vertical-align: middle;
+    background: linear-gradient(90deg, var(--surface-alt), var(--border), var(--surface-alt));
+    background-size: 200% 100%; animation: sh 1.2s infinite;
+  }
+  @keyframes sh { to { background-position: -200% 0; } }
+
+  .thread-body { border-top: 1px solid var(--border); padding: 4px 15px 15px; }
+  .conv { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .msg { display: flex; gap: 10px; padding-top: 12px; }
+  .msg.unread { position: relative; }
+  .msg.unread::before {
+    content: ""; position: absolute; left: -15px; top: 16px; width: 5px; height: 5px;
+    border-radius: 50%; background: var(--accent);
+  }
+  .msg .avatar { width: 26px; height: 26px; }
+  .msg .m-body { flex: 1; min-width: 0; }
+  .msg .m-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 3px; }
+  .msg .m-author { font-weight: 600; font-size: 0.86rem; }
+  .msg .m-time { color: var(--text-muted); font-size: 0.78rem; }
+  .msg .m-new { color: var(--accent); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .msg .m-text { font-size: 0.92rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+  .reply-note {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-top: 14px; padding: 11px 13px; border-radius: 10px;
+    background: var(--surface-alt); font-size: 0.83rem; color: var(--text-muted);
+  }
+  .reply-note .rn-text { flex: 1; min-width: 140px; }
+  .open-btn {
+    background: var(--accent); color: #fff; border: 0; border-radius: 9px; font: inherit;
+    font-size: 0.84rem; font-weight: 600; padding: 8px 15px; cursor: pointer; white-space: nowrap;
+  }
+  .open-btn:hover { filter: brightness(1.08); }
+  .open-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .center { text-align: center; padding: 54px 20px; color: var(--text-muted); }
+  .center .big { font-size: 2.4rem; margin-bottom: 8px; }
+  .center .lead { font-size: 1.05rem; color: var(--text); margin-bottom: 4px; font-weight: 600; }
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text); padding: 14px 18px; border-radius: var(--radius);
+  }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { .spinner, .shimmer { animation: none; } }
+  @media (max-width: 400px) { .chip { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>Comments Inbox</h1>
+      <p class="subtitle" id="subtitle">Team feedback across the dictionary.</p>
+    </div>
+    <span class="total-badge" id="total-badge" hidden></span>
+  </div>
+
+  <div class="ctx-banner" id="ctx-banner" hidden>
+    <span class="lbl">Comments on</span>
+    <span class="hw" id="ctx-hw"></span>
+    <button type="button" class="link" id="view-all">View full inbox</button>
+  </div>
+
+  <div class="toolbar" id="toolbar" hidden>
+    <div class="seg" role="group" aria-label="Filter by read state">
+      <button type="button" id="read-all" aria-pressed="true">All</button>
+      <button type="button" id="read-unread" aria-pressed="false">Unread</button>
+    </div>
+    <div class="seg" role="group" aria-label="Filter by status">
+      <button type="button" id="st-all" aria-pressed="true">Any</button>
+      <button type="button" id="st-open" aria-pressed="false">Open</button>
+      <button type="button" id="st-closed" aria-pressed="false">Resolved</button>
+    </div>
+    <span class="spacer"></span>
+    <button type="button" class="refresh" id="refresh">Refresh</button>
+  </div>
+
+  <div id="live" class="sr" aria-live="polite"></div>
+  <div id="content">
+    <div class="center"><div class="spinner"></div><div>Loading your inbox&hellip;</div></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var F = window.fwlite;
+  var PAGE = 1000;
+  var CAP = 5000;
+  var PREFS_KEY = 'comments-inbox-filters';
+  var AVATAR_COLORS = ['#4f46e5', '#0891b2', '#059669', '#d97706', '#db2777', '#7c3aed', '#0284c7', '#65a30d'];
+
+  var state = {
+    mode: 'project',          // 'project' | 'entry'
+    contextEntryId: null,
+    entry: null,              // entry in entry-context mode
+    threads: [],              // built thread models
+    totalUnread: 0,
+    entryById: {},
+    senseToEntry: {},
+    exampleToEntry: {},
+    indexLoaded: false,
+    analysisIds: [],
+    filters: { read: 'all', status: 'all' },
+    expanded: {},             // threadId -> bool
+    loading: false,
+    runId: 0,                 // guards stale async patches after a reload
+  };
+
+  // ---- small DOM helper (data always via text nodes, never innerHTML) ----
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+    if (text != null) e.appendChild(document.createTextNode(text));
+    return e;
+  }
+  function $(id) { return document.getElementById(id); }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  function errMsg(err) { return err && err.message ? err.message : String(err); }
+  function isNotSupported(err) { return err && err.code === 'not-supported'; }
+  function announce(msg) { $('live').textContent = msg; }
+
+  function applyTheme() {
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', (F && F.theme) || (prefersDark ? 'dark' : 'light'));
+  }
+
+  function initials(name) {
+    if (!name) return '?';
+    var parts = String(name).trim().split(/\s+/);
+    var s = (parts[0] ? parts[0][0] : '') + (parts.length > 1 ? parts[parts.length - 1][0] : '');
+    return s.toUpperCase() || '?';
+  }
+  function avatarColor(name) {
+    var h = 0, str = name || '?';
+    for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  }
+  function relTime(iso) {
+    var t = new Date(iso).getTime();
+    if (isNaN(t)) return '';
+    var s = Math.floor((Date.now() - t) / 1000);
+    if (s < 45) return 'just now';
+    var m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
+    var h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
+    var d = Math.floor(h / 24); if (d < 7) return d + 'd ago';
+    return new Date(t).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function dayLabel(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var that = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var diff = Math.round((today - that) / 86400000);
+    if (diff <= 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function asText(v) {
+    try { return (F.asText(v == null ? '' : v) || '').trim(); } catch (e) { return typeof v === 'string' ? v : ''; }
+  }
+  function firstAnalysis(multi) {
+    if (!multi) return '';
+    for (var i = 0; i < state.analysisIds.length; i++) {
+      var t = asText(multi[state.analysisIds[i]]);
+      if (t) return t;
+    }
+    for (var k in multi) { var v = asText(multi[k]); if (v) return v; }
+    return '';
+  }
+
+  // ---- entry lookup (for resolving Sense / ExampleSentence subjects to a parent entry) ----
+  function indexEntries(entries) {
+    entries.forEach(function (entry) {
+      if (!entry || !entry.id) return;
+      state.entryById[entry.id] = entry;
+      (entry.senses || []).forEach(function (sense) {
+        if (sense && sense.id) state.senseToEntry[sense.id] = entry.id;
+        (sense && sense.exampleSentences || []).forEach(function (ex) {
+          if (ex && ex.id) state.exampleToEntry[ex.id] = entry.id;
+        });
+      });
+    });
+  }
+  // Loads the whole entry set once so Sense/Example subjects can be mapped to their parent
+  // entry (there is no "entry for sense id" API). Cached; resolves gracefully if entries fail.
+  var entryLookupPromise = null;
+  function loadEntryLookup() {
+    if (entryLookupPromise) return entryLookupPromise;
+    var out = [];
+    function next() {
+      if (out.length >= CAP) return done();
+      return F.getEntries({ limit: Math.min(PAGE, CAP - out.length), offset: out.length }).then(function (page) {
+        page = Array.isArray(page) ? page : [];
+        out = out.concat(page);
+        if (!page.length || out.length >= CAP) return done();
+        return next();
+      });
+    }
+    function done() { indexEntries(out); state.indexLoaded = true; return out.length; }
+    entryLookupPromise = next().catch(function () { indexEntries(out); state.indexLoaded = true; return out.length; });
+    return entryLookupPromise;
+  }
+
+  // ---- comment / thread modelling ----
+  function normComment(c) {
+    return {
+      id: c && c.id,
+      text: asText(c && c.text),
+      author: (c && c.authorName) || '',
+      time: (c && (c.updatedAt || c.createdAt)) || '',
+      created: (c && (c.createdAt || c.updatedAt)) || '',
+    };
+  }
+  function sortByCreated(list) {
+    return list.slice().sort(function (a, b) {
+      return new Date(a.created).getTime() - new Date(b.created).getTime();
+    });
+  }
+
+  function entrySubject(entry, id, chip, ctx) {
+    return {
+      kind: 'entry', entryId: id,
+      headword: (F.headword(entry) || '').trim() || '(untitled entry)',
+      chip: chip, ctx: ctx || '',
+    };
+  }
+  function pendingSubject(subjectType) {
+    return { kind: 'pending', chip: subjectType || 'Comment' };
+  }
+  // Resolve a thread's subject to an entry (Sense/Example -> parent). Always resolves (never rejects).
+  function resolveSubject(subjectType, subjectId) {
+    if (subjectType === 'Entry') {
+      var e = state.entryById[subjectId];
+      if (e) return Promise.resolve(entrySubject(e, subjectId, 'Entry'));
+      return F.getEntry(subjectId).then(function (e2) {
+        return e2 ? entrySubject(e2, subjectId, 'Entry') : { kind: 'gone', chip: 'Entry' };
+      }).catch(function () { return { kind: 'gone', chip: 'Entry' }; });
+    }
+    if (subjectType === 'Sense') {
+      var seid = state.senseToEntry[subjectId];
+      var se = seid && state.entryById[seid];
+      if (se) return Promise.resolve(entrySubject(se, seid, 'Sense', senseContext(se, subjectId)));
+      return Promise.resolve({ kind: 'unknown', chip: 'Sense' });
+    }
+    if (subjectType === 'ExampleSentence') {
+      var xeid = state.exampleToEntry[subjectId];
+      var xe = xeid && state.entryById[xeid];
+      if (xe) return Promise.resolve(entrySubject(xe, xeid, 'Example', exampleContext(xe, subjectId)));
+      return Promise.resolve({ kind: 'unknown', chip: 'Example' });
+    }
+    return Promise.resolve({ kind: 'unknown', chip: subjectType || 'Comment' });
+  }
+  function senseContext(entry, senseId) {
+    var s = (entry.senses || []).filter(function (x) { return x.id === senseId; })[0];
+    if (!s) return '';
+    return firstAnalysis(s.gloss) || firstAnalysis(s.definition) || '';
+  }
+  function exampleContext(entry, exampleId) {
+    var senses = entry.senses || [];
+    for (var i = 0; i < senses.length; i++) {
+      var exs = senses[i].exampleSentences || [];
+      for (var j = 0; j < exs.length; j++) {
+        if (exs[j].id === exampleId) {
+          var t = asText(exs[j].sentence && firstOf(exs[j].sentence));
+          return t;
+        }
+      }
+    }
+    return '';
+  }
+  function firstOf(multi) {
+    if (!multi) return '';
+    for (var k in multi) { if (multi[k]) return multi[k]; }
+    return '';
+  }
+
+  // Get the full comment list for a thread, tolerating missing includeComments.
+  function commentsForThread(thread) {
+    if (thread && thread.comments && thread.comments.length) return Promise.resolve(thread.comments);
+    return F.getUserComments(thread.id).then(function (list) {
+      return Array.isArray(list) ? list : [];
+    }).catch(function () { return []; });
+  }
+
+  // Build the thread card model WITHOUT its subject; subject is resolved separately so cards can
+  // render immediately (with a shimmer) instead of waiting on subject/entry lookups.
+  function buildModel(thread, unreadIds) {
+    return commentsForThread(thread).then(function (list) {
+      var comments = sortByCreated((list || []).map(normComment));
+      var unread = comments.filter(function (c) { return unreadIds.has(c.id); });
+      var latest = comments.length ? comments[comments.length - 1] : null;
+      return {
+        id: thread.id,
+        subjectType: thread.subjectType,
+        subjectId: thread.subjectId,
+        status: thread.status,
+        comments: comments,
+        unreadIds: unreadIds,
+        unreadCount: unread.length,
+        latest: latest,
+        latestTime: latest ? latest.time : (thread.updatedAt || thread.createdAt || ''),
+        subject: pendingSubject(thread.subjectType),
+      };
+    });
+  }
+
+  function sortThreads(models) {
+    return models.sort(function (a, b) {
+      return new Date(b.latestTime).getTime() - new Date(a.latestTime).getTime();
+    });
+  }
+
+  // ---- project inbox: backbone is all unread comments, grouped by thread ----
+  function loadProjectInbox() {
+    state.mode = 'project';
+    showLoading('Loading your inbox…');
+    var run = ++state.runId;
+    return F.getUnreadComments({})
+      .then(function (unread) {
+        unread = Array.isArray(unread) ? unread : [];
+        state.totalUnread = unread.length;
+        var byThread = {};
+        unread.forEach(function (c) {
+          if (!c || !c.commentThreadId) return;
+          (byThread[c.commentThreadId] || (byThread[c.commentThreadId] = new Set())).add(c.id);
+        });
+        var tids = Object.keys(byThread);
+        if (!tids.length) { state.threads = []; renderList(); return; }
+        return Promise.all(tids.map(function (tid) {
+          return F.getCommentThread(tid).then(function (thread) {
+            if (!thread) return null;
+            return buildModel(thread, byThread[tid]);
+          }).catch(function () { return null; });
+        })).then(function (models) {
+          state.threads = sortThreads(models.filter(Boolean));
+          renderList();
+          resolveSubjectsProgressive(run);
+        });
+      })
+      .catch(handleTopError);
+  }
+
+  // Fill in subjects after the cards are on screen, patching each card as its subject resolves.
+  function resolveSubjectsProgressive(run) {
+    var pending = state.threads.filter(function (t) { return t.subject.kind === 'pending'; });
+    if (!pending.length) return;
+    var needIndex = pending.some(function (t) {
+      return t.subjectType === 'Sense' || t.subjectType === 'ExampleSentence';
+    });
+    // Entry subjects resolve directly (a quick getEntry each) so those cards fill in fast.
+    pending.forEach(function (t) { if (t.subjectType === 'Entry') resolveAndPatch(t, run); });
+    var indexReady = needIndex ? loadEntryLookup() : Promise.resolve();
+    indexReady.then(function () {
+      if (run !== state.runId) return;
+      state.threads.forEach(function (t) { if (t.subject.kind === 'pending') resolveAndPatch(t, run); });
+    });
+  }
+  function resolveAndPatch(t, run) {
+    return resolveSubject(t.subjectType, t.subjectId).then(function (subject) {
+      if (run !== state.runId) return;
+      t.subject = subject;
+      patchThread(t);
+    });
+  }
+  function patchThread(t) {
+    var lis = $('content').getElementsByTagName('li');
+    for (var i = 0; i < lis.length; i++) {
+      if (lis[i].getAttribute('data-thread') === t.id) {
+        lis[i].parentNode.replaceChild(renderCard(t), lis[i]);
+        return;
+      }
+    }
+  }
+
+  // ---- entry-context inbox: threads for the entry and its senses/examples ----
+  function loadEntryContext() {
+    state.mode = 'entry';
+    showLoading('Loading comments for this entry…');
+    return F.getEntry(state.contextEntryId).then(function (entry) {
+      if (!entry) { handleTopError(new Error('This entry could not be found.')); return; }
+      state.entry = entry;
+      indexEntries([entry]);
+      $('ctx-hw').textContent = (F.headword(entry) || '').trim() || '(untitled entry)';
+      $('ctx-banner').hidden = false;
+
+      var subjects = [{ type: 'Entry', id: entry.id }];
+      (entry.senses || []).forEach(function (s) {
+        if (s && s.id) subjects.push({ type: 'Sense', id: s.id });
+        (s && s.exampleSentences || []).forEach(function (ex) {
+          if (ex && ex.id) subjects.push({ type: 'ExampleSentence', id: ex.id });
+        });
+      });
+
+      // The Entry subject drives support detection; per-subject failures are non-fatal.
+      return collectSubject(subjects[0], true).then(function (first) {
+        return Promise.all(subjects.slice(1).map(function (s) { return collectSubject(s, false); }))
+          .then(function (rest) {
+            var models = first.concat.apply(first, rest);
+            state.totalUnread = models.reduce(function (n, m) { return n + m.unreadCount; }, 0);
+            state.threads = sortThreads(models);
+            // Subjects all resolve from the one loaded entry (in memory), so fill them before render.
+            return resolveAll(state.threads).then(renderList);
+          });
+      });
+    }).catch(handleTopError);
+  }
+
+  function resolveAll(models) {
+    return Promise.all(models.map(function (t) {
+      return resolveSubject(t.subjectType, t.subjectId).then(function (s) { t.subject = s; });
+    }));
+  }
+
+  function collectSubject(subject, fatal) {
+    var threadsP = F.getCommentThreads({ subjectType: subject.type, subjectId: subject.id, includeComments: true });
+    if (!fatal) threadsP = threadsP.catch(function () { return []; });
+    return threadsP.then(function (threads) {
+      threads = Array.isArray(threads) ? threads : [];
+      if (!threads.length) return [];
+      return F.getUnreadCommentsForSubject({ subjectType: subject.type, subjectId: subject.id })
+        .catch(function () { return []; })
+        .then(function (unread) {
+          var unreadIds = new Set((Array.isArray(unread) ? unread : []).map(function (c) { return c && c.id; }));
+          return Promise.all(threads.map(function (t) { return buildModel(t, unreadIds); }));
+        });
+    });
+  }
+
+  // ---- rendering ----
+  function showLoading(msg) {
+    var c = $('content');
+    clear(c);
+    var box = el('div', { class: 'center' });
+    box.appendChild(el('div', { class: 'spinner' }));
+    box.appendChild(el('div', {}, msg));
+    c.appendChild(box);
+  }
+
+  function visibleThreads() {
+    return state.threads.filter(function (t) {
+      if (state.filters.read === 'unread' && t.unreadCount === 0) return false;
+      if (state.filters.status === 'open' && t.status !== 'Open') return false;
+      if (state.filters.status === 'closed' && t.status !== 'Closed') return false;
+      return true;
+    });
+  }
+
+  function updateChrome() {
+    $('toolbar').hidden = false;
+    var badge = $('total-badge');
+    if (state.totalUnread > 0) {
+      badge.hidden = false; badge.classList.remove('zero');
+      badge.textContent = state.totalUnread + ' unread';
+    } else if (state.threads.length) {
+      badge.hidden = false; badge.classList.add('zero');
+      badge.textContent = 'All read';
+    } else {
+      badge.hidden = true;
+    }
+  }
+
+  function renderList() {
+    updateChrome();
+    var c = $('content');
+    clear(c);
+
+    if (!state.threads.length) { c.appendChild(emptyState()); measureToolbar(); return; }
+    var rows = visibleThreads();
+    if (!rows.length) { c.appendChild(filteredEmptyState()); measureToolbar(); return; }
+
+    // Group by day of latest activity; rows are already newest-first, so groups and cards stay ordered.
+    var groups = [], map = {};
+    rows.forEach(function (t) {
+      var d = dayLabel(t.latestTime) || '—';
+      if (!map[d]) { map[d] = []; groups.push(d); }
+      map[d].push(t);
+    });
+    groups.forEach(function (d) {
+      c.appendChild(el('h2', { class: 'day' }, d));
+      var ul = el('ul', { class: 'feed' });
+      map[d].forEach(function (t) { ul.appendChild(renderCard(t)); });
+      c.appendChild(ul);
+    });
+    announce(rows.length + ' conversation' + (rows.length === 1 ? '' : 's') + ' shown.');
+    measureToolbar();
+  }
+
+  function renderCard(t) {
+    var li = el('li', { 'data-thread': t.id });
+    var card = el('div', { class: 'card' + (t.unreadCount ? ' unread' : '') });
+
+    var expanded = !!state.expanded[t.id];
+    var head = el('button', { type: 'button', class: 'card-head', 'aria-expanded': String(expanded) });
+
+    var meta = el('div', { class: 'meta' });
+    var author = (t.latest && t.latest.author) || 'Someone';
+    var av = el('span', { class: 'avatar', 'aria-hidden': 'true' }, initials(author));
+    av.style.background = avatarColor(author);
+    meta.appendChild(av);
+    meta.appendChild(el('span', { class: 'author' }, author));
+    if (t.latest && t.latest.time) {
+      var time = el('time', { class: 'time' }, relTime(t.latest.time));
+      time.setAttribute('datetime', t.latest.time);
+      try { time.title = new Date(t.latest.time).toLocaleString(); } catch (e) {}
+      meta.appendChild(time);
+    }
+    if (t.status === 'Closed') meta.appendChild(el('span', { class: 'status closed' }, 'Resolved'));
+    else if (t.status === 'Open') meta.appendChild(el('span', { class: 'status open' }, 'Open'));
+    if (t.unreadCount) {
+      var uc = el('span', { class: 'unread-count' }, String(t.unreadCount));
+      uc.setAttribute('aria-label', t.unreadCount + ' unread');
+      meta.appendChild(uc);
+    }
+    head.appendChild(meta);
+
+    head.appendChild(renderSubjectLine(t.subject));
+
+    if (t.latest) head.appendChild(el('div', { class: 'preview' }, t.latest.text || '(no text)'));
+    head.appendChild(el('div', { class: 'disclose' },
+      (expanded ? '▾ Hide conversation' : '▸ Show conversation') +
+      (t.comments.length > 1 ? ' (' + t.comments.length + ')' : '')));
+
+    head.addEventListener('click', function () { toggle(t.id); });
+    card.appendChild(head);
+
+    if (expanded) card.appendChild(renderThreadBody(t));
+    li.appendChild(card);
+    return li;
+  }
+
+  function renderSubjectLine(subject) {
+    var line = el('div', { class: 'subject' });
+    line.appendChild(document.createTextNode('on '));
+    if (subject.kind === 'pending') {
+      line.appendChild(el('span', { class: 'shimmer', 'aria-hidden': 'true' }));
+      line.appendChild(el('span', { class: 'sr' }, 'loading subject'));
+    } else if (subject.kind === 'entry') {
+      line.appendChild(el('span', { class: 'hw' }, subject.headword));
+      var chipTxt = subject.chip === 'Sense' ? 'a sense' : subject.chip === 'Example' ? 'an example' : 'this entry';
+      line.appendChild(document.createTextNode(' – ' + chipTxt));
+      if (subject.ctx) line.appendChild(el('span', { class: 'sub-ctx' }, ' “' + subject.ctx + '”'));
+    } else if (subject.kind === 'gone') {
+      line.appendChild(el('span', { class: 'sub-ctx' }, 'a deleted entry'));
+    } else {
+      var what = subject.chip === 'Sense' ? 'a sense' : subject.chip === 'Example' ? 'an example' : 'an item';
+      line.appendChild(el('span', { class: 'sub-ctx' }, what + ' (open in app to locate)'));
+    }
+    return line;
+  }
+
+  function renderThreadBody(t) {
+    var body = el('div', { class: 'thread-body' });
+    var conv = el('ul', { class: 'conv' });
+    t.comments.forEach(function (c) {
+      var isUnread = t.unreadIds.has(c.id);
+      var msg = el('li', { class: 'msg' + (isUnread ? ' unread' : '') });
+      var av = el('span', { class: 'avatar', 'aria-hidden': 'true' }, initials(c.author));
+      av.style.background = avatarColor(c.author || 'Someone');
+      msg.appendChild(av);
+      var mb = el('div', { class: 'm-body' });
+      var top = el('div', { class: 'm-top' });
+      top.appendChild(el('span', { class: 'm-author' }, c.author || 'Someone'));
+      if (c.time) {
+        var tm = el('time', { class: 'm-time' }, relTime(c.time));
+        tm.setAttribute('datetime', c.time);
+        top.appendChild(tm);
+      }
+      if (isUnread) top.appendChild(el('span', { class: 'm-new' }, 'New'));
+      mb.appendChild(top);
+      mb.appendChild(el('div', { class: 'm-text' }, c.text || '(no text)'));
+      msg.appendChild(mb);
+      conv.appendChild(msg);
+    });
+    body.appendChild(conv);
+    body.appendChild(renderReplyNote(t));
+    return body;
+  }
+
+  function renderReplyNote(t) {
+    var note = el('div', { class: 'reply-note' });
+    var canOpen = t.subject && t.subject.kind === 'entry' && t.subject.entryId;
+    note.appendChild(el('span', { class: 'rn-text' },
+      canOpen ? 'Comments are read-only here — open the entry in the app to read fully or reply.'
+              : 'Comments are read-only here. Open this item in the app to read fully or reply.'));
+    if (canOpen) {
+      var btn = el('button', { type: 'button', class: 'open-btn' }, 'Open in app');
+      btn.addEventListener('click', function () {
+        F.openEntry(t.subject.entryId, { mode: 'view' }).catch(function (err) {
+          try { F.notify('Could not open the entry: ' + errMsg(err)); } catch (e) {}
+        });
+      });
+      note.appendChild(btn);
+    }
+    return note;
+  }
+
+  function toggle(threadId) {
+    state.expanded[threadId] = !state.expanded[threadId];
+    renderList();
+  }
+
+  function emptyState() {
+    var div = el('div', { class: 'center' });
+    if (state.mode === 'entry') {
+      div.appendChild(el('div', { class: 'big' }, '💬'));
+      div.appendChild(el('div', { class: 'lead' }, 'No comments on this entry'));
+      div.appendChild(el('div', {}, 'Comments left on this entry, its senses or examples will show up here.'));
+    } else {
+      div.appendChild(el('div', { class: 'big' }, '🎉'));
+      div.appendChild(el('div', { class: 'lead' }, 'Inbox zero!'));
+      div.appendChild(el('div', {}, 'No unread comments across the project. New team feedback will appear here.'));
+    }
+    return div;
+  }
+
+  function filteredEmptyState() {
+    var div = el('div', { class: 'center' });
+    div.appendChild(el('div', { class: 'lead' }, 'Nothing matches these filters'));
+    div.appendChild(el('div', {}, 'Try switching the read-state or status filter above.'));
+    return div;
+  }
+
+  function handleTopError(err) {
+    $('toolbar').hidden = true;
+    $('total-badge').hidden = true;
+    var c = $('content');
+    clear(c);
+    var box = el('div', { class: 'error-box' });
+    if (isNotSupported(err)) {
+      box.textContent = 'Comments aren’t available for this project type. This inbox works with projects that support team comments.';
+    } else {
+      box.textContent = 'Couldn’t load comments: ' + errMsg(err) + ' — use the reload button in the toolbar to try again.';
+    }
+    c.appendChild(box);
+  }
+
+  // ---- filters + prefs ----
+  function reflectFilters() {
+    $('read-all').setAttribute('aria-pressed', String(state.filters.read === 'all'));
+    $('read-unread').setAttribute('aria-pressed', String(state.filters.read === 'unread'));
+    $('st-all').setAttribute('aria-pressed', String(state.filters.status === 'all'));
+    $('st-open').setAttribute('aria-pressed', String(state.filters.status === 'open'));
+    $('st-closed').setAttribute('aria-pressed', String(state.filters.status === 'closed'));
+  }
+  function savePrefs() { F.storage.set(PREFS_KEY, state.filters).catch(function () {}); }
+  function setRead(v) { state.filters.read = v; reflectFilters(); savePrefs(); renderList(); }
+  function setStatus(v) { state.filters.status = v; reflectFilters(); savePrefs(); renderList(); }
+
+  function reload() {
+    if (state.loading) return;
+    state.loading = true;
+    $('refresh').disabled = true;
+    var run = state.mode === 'entry' ? loadEntryContext() : loadProjectInbox();
+    Promise.resolve(run).then(function () {}, function () {}).then(function () {
+      state.loading = false; $('refresh').disabled = false;
+    });
+  }
+
+  // Keep day headers docked just below the sticky toolbar, whatever height it wraps to.
+  function measureToolbar() {
+    var tb = $('toolbar');
+    var h = (tb && !tb.hidden) ? tb.offsetHeight : 0;
+    document.documentElement.style.setProperty('--toolbar-h', h + 'px');
+  }
+
+  function wire() {
+    $('read-all').addEventListener('click', function () { setRead('all'); });
+    $('read-unread').addEventListener('click', function () { setRead('unread'); });
+    $('st-all').addEventListener('click', function () { setStatus('all'); });
+    $('st-open').addEventListener('click', function () { setStatus('open'); });
+    $('st-closed').addEventListener('click', function () { setStatus('closed'); });
+    $('refresh').addEventListener('click', reload);
+    window.addEventListener('resize', measureToolbar);
+    $('view-all').addEventListener('click', function () {
+      if (state.loading) return;
+      $('ctx-banner').hidden = true;
+      state.contextEntryId = null;
+      state.mode = 'project';
+      state.expanded = {};
+      $('subtitle').textContent = 'Unread team feedback across the dictionary.';
+      reload();
+    });
+  }
+
+  // ---- init ----
+  function init() {
+    applyTheme();
+    wire();
+
+    var setup = Promise.all([
+      F.getWritingSystems().catch(function () { return { vernacular: [], analysis: [] }; }),
+      F.storage.get(PREFS_KEY).catch(function () { return null; }),
+    ]).then(function (res) {
+      var ws = res[0] || {}, prefs = res[1];
+      var vern = (ws.vernacular || []).filter(function (w) { return !w.isAudio && w.font; })[0];
+      if (vern && vern.font) document.documentElement.style.setProperty('--vern-font', '"' + vern.font + '", inherit');
+      state.analysisIds = (ws.analysis || []).filter(function (w) { return !w.isAudio; }).map(function (w) { return w.wsId; });
+      if (prefs && typeof prefs === 'object') {
+        if (prefs.read === 'all' || prefs.read === 'unread') state.filters.read = prefs.read;
+        if (prefs.status === 'all' || prefs.status === 'open' || prefs.status === 'closed') state.filters.status = prefs.status;
+      }
+      reflectFilters();
+    });
+
+    var ctxId = F.context && F.context.entryId;
+    setup.then(function () {
+      if (ctxId) { state.contextEntryId = ctxId; $('subtitle').textContent = 'Comments on this entry.'; return loadEntryContext(); }
+      $('subtitle').textContent = 'Unread team feedback across the dictionary.';
+      return loadProjectInbox();
+    });
+  }
+
+  F.ready.then(init);
+})();
+</script>
+</body>
+</html>

@@ -38,6 +38,7 @@ msgstr ""
 msgid "{0}"
 msgstr "{0}"
 
+#. Default name suggested for a duplicated plugin. {0} is the original plugin's name; "(copy)" is appended as a suffix.
 #: src/lib/plugins/PluginsView.svelte
 msgid "{0} (copy)"
 msgstr ""
@@ -118,6 +119,10 @@ msgstr "Versi baharu FieldWorks Lite tersedia."
 #. Dialog subtitle in the plugin editor (add/edit a plugin). "Get AI prompt" names a button elsewhere in the Plugins page.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "A plugin is a single HTML file. Ask an AI to write one for you (see “Get AI prompt”), start from an example, or write it yourself."
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "A short summary shown on the plugin’s card."
 msgstr ""
 
 #. Relevant view: Lite
@@ -304,6 +309,10 @@ msgstr "Mana-mana Ws"
 msgid "Apply change"
 msgstr ""
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply changes"
+msgstr ""
+
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
@@ -349,6 +358,10 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Segerakkan automatik"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Back"
+msgstr ""
+
 #. Button to leave a running plugin and return to the Plugins list page.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
@@ -384,6 +397,10 @@ msgstr "Terokai"
 
 #: src/project/browse/BrowseView.svelte
 msgid "Browse view failed"
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Camera"
 msgstr ""
 
 #. List item in the plugin permission/consent screen, shown before first running a plugin that requests internet access.
@@ -448,12 +465,18 @@ msgstr "Projek FieldWorks Klasik"
 msgid "clear"
 msgstr "padam"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Clear"
+msgstr ""
+
 #. Button to close popup
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
@@ -567,6 +590,10 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
 msgstr "Salin versi"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Couldn’t load that example. Please try again."
+msgstr ""
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
@@ -710,6 +737,10 @@ msgstr "Padam Perkataan"
 msgid "Deleted"
 msgstr "Dipadamkan"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Description"
+msgstr ""
+
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
@@ -810,8 +841,13 @@ msgstr "Memuat turun {0}..."
 msgid "Downloading..."
 msgstr "Memuat turun..."
 
+#. Dropdown menu item on a plugin card; creates a copy of that plugin (see "{0} (copy)" for its default name).
 #: src/lib/plugins/PluginsView.svelte
 msgid "Duplicate"
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "e.g. Dashboard of dictionary statistics"
 msgstr ""
 
 #. Placeholder text in the plugin name input field, an example plugin name.
@@ -825,6 +861,7 @@ msgid "e.g. th, sw"
 msgstr ""
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "Edit"
 msgstr ""
@@ -890,6 +927,11 @@ msgstr "Entri"
 msgid "Entry"
 msgstr "Entri"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Entry menu"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word only"
 #. Label for picker when creating relationships: select only the entry itself (not a specific sense/meaning)
@@ -950,11 +992,13 @@ msgstr "Ayat contoh"
 msgid "Example sentences"
 msgstr ""
 
+#. Icon button toggling fullscreen for the running plugin's content (an iframe), not the whole app window.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Exit fullscreen"
 msgstr ""
 
+#. Dropdown menu item on a plugin card; downloads the plugin as an .html file.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Export"
 msgstr ""
@@ -1096,6 +1140,10 @@ msgstr "Tapis # perkataan"
 msgid "Filter By"
 msgstr "Tapis Mengikut"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Filter by function"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Filter words"
 #. Toggle button to show/hide search filter panel
@@ -1155,6 +1203,7 @@ msgstr "Untuk sebarang pertanyaan lain, jangan ragu untuk menghantar kami e-mel.
 msgid "From active filter"
 msgstr "Dari penapis aktif"
 
+#. Icon button toggling fullscreen for the running plugin's content (an iframe), not the whole app window.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Fullscreen"
@@ -1249,6 +1298,7 @@ msgstr "Saya faham bahawa ini tidak boleh dibuat asal"
 msgid "Import"
 msgstr "Masukkan"
 
+#. Button in the plugin editor dialog; loads a plugin's HTML content from a file picked from disk.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Import from file"
 msgstr ""
@@ -1279,6 +1329,7 @@ msgid "Installing Update..."
 msgstr "Memasang Kemas Kini..."
 
 #. Badge label shown on a plugin that requests internet access. Short noun, not a verb/instruction.
+#: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "Internet"
@@ -1432,6 +1483,10 @@ msgstr "Pengurus"
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Kemas kini manual diperlukan. Sila ikut arahan yang diberikan."
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "May use the internet"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
@@ -1441,6 +1496,10 @@ msgstr "Kemas kini manual diperlukan. Sila ikut arahan yang diberikan."
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Meaning"
 msgstr "Makna"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Microphone"
+msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1474,6 +1533,7 @@ msgstr "Hilang: {0}"
 msgid "Mode"
 msgstr "Mod"
 
+#. Aria-label/tooltip for the "..." dropdown trigger button on a plugin card, which opens the Export/Duplicate/Delete menu.
 #: src/lib/plugins/PluginsView.svelte
 msgid "More"
 msgstr ""
@@ -1613,6 +1673,10 @@ msgstr "Tiada Kamus ditemui"
 msgid "No entries found"
 msgstr "Tiada entri ditemui"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "No examples match your filters."
+msgstr ""
+
 #. Error message in the audio upload dialog when the user tries to save/upload without having selected a file.
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "No file to upload"
@@ -1623,7 +1687,6 @@ msgid "No history found"
 msgstr "Tiada sejarah ditemui"
 
 #. Badge shown when a plugin does NOT request internet access (contrast with the "Requests internet access" / "Internet" badges).
-#: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "No internet access"
 msgstr ""
@@ -1741,6 +1804,10 @@ msgstr ""
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Satu komit FieldWorks Classic mungkin terdiri daripada perubahan pada berbilang entri atau medan. Sebaliknya, satu komit mungkin hanya menjejaskan data yang tidak diselaraskan ke FieldWorks Lite."
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Only for this project"
+msgstr ""
+
 #. Button to open downloaded project
 #: src/home/Server.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
@@ -1752,6 +1819,7 @@ msgstr "Buka"
 msgid "Open Data Directory"
 msgstr "Buka Direktori Data"
 
+#. Item in an entry's action menu; {0} is the name of a user-created plugin. Opens that plugin, passing it the current entry.
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in {0}"
 msgstr ""
@@ -1838,6 +1906,10 @@ msgstr "Tertunda"
 msgid "Pick a Part of Speech"
 msgstr "Pilih Bahagian Pertuturan"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Pick a starting point — you can edit everything afterwards."
+msgstr ""
+
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
 #. Allows quick reference while editing without scrolling
@@ -1868,6 +1940,10 @@ msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Plugin wants to change an entry"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to make {0} changes"
 msgstr ""
 
 #. Sidebar navigation item leading to the list of installed plugins (small custom HTML mini-apps) for the current project.
@@ -1942,6 +2018,10 @@ msgstr "Terbitkan Kemasukan dalam"
 msgid "Publish Word in"
 msgstr "Terbitkan Perkataan dalam"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Read-only (suggest no changes)"
+msgstr ""
+
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
@@ -2001,10 +2081,18 @@ msgstr "Laporkan masalah teknikal"
 msgid "Requests internet access"
 msgstr ""
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Respect sacred/cultural content"
+msgstr ""
+
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
 msgid "Restore"
 msgstr "Pulihkan"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Results"
+msgstr ""
 
 #. Button option
 #: src/project/tasks/DoneView.svelte
@@ -2069,6 +2157,11 @@ msgstr "Cari # atau #"
 #: src/project/ProjectDropdown.svelte
 msgid "Search Dictionaries"
 msgstr "Cari Kamus"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Search examples"
+msgstr ""
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2173,6 +2266,14 @@ msgstr "Tunjukkan"
 msgid "Show {0} more..."
 msgstr "Tunjukkan {0} lagi..."
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Showing {0} examples"
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Showing all {0} examples in {1} categories"
+msgstr ""
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Sign in to add comments."
 msgstr ""
@@ -2210,9 +2311,9 @@ msgstr "Medan tertentu"
 msgid "Start a new thread"
 msgstr ""
 
-#. Label preceding a row of buttons, each naming a built-in example plugin, in the "New plugin" dialog.
 #: src/lib/plugins/PluginEditorDialog.svelte
-msgid "Start from an example:"
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Start from an example"
 msgstr ""
 
 #. Filter operator
@@ -2238,6 +2339,10 @@ msgstr "Subjek tidak mempunyai objek sesuai jenis: {0}"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Hantar"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Support mobile screens"
+msgstr ""
 
 #. Button or tab label
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -2378,6 +2483,10 @@ msgstr "Masa apabila anda memuat naik atau memuat turun perubahan ini"
 #: src/lib/activity/ActivityView.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Perubahan ini belum dimuat naik. Pastikan anda dalam talian dan log masuk untuk berkongsi perubahan anda."
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "These options tailor the prompt for the AI — they guide how it writes the plugin, they don't restrict what the finished plugin can do."
+msgstr ""
 
 #. Alert text shown in EntryView when the currently displayed entry/word has been deleted
 #: src/project/browse/EntryView.svelte
@@ -2606,6 +2715,10 @@ msgstr ""
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Lihat"
+
+#: src/lib/entry-editor/EditEntryDialog.svelte
+msgid "View {0}"
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte

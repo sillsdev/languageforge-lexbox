@@ -363,13 +363,6 @@
     return (sense.semanticDomains || []).some(function (domain) { return domain.code === code; });
   }
 
-  function headwordOf(entry) {
-    var citation = entry.citationForm || {};
-    var hasCitation = Object.keys(citation).some(function (ws) { return !!citation[ws]; });
-    return window.fwlite.firstValue(hasCitation ? citation : entry.lexemeForm,
-      state.vernWs.map(function (ws) { return ws.wsId; })) || '—';
-  }
-
   function buildQueueItems(entry) {
     var items = [];
     (entry.senses || []).forEach(function (sense, index) {
@@ -381,7 +374,7 @@
       items.push({
         entryId: entry.id,
         senseId: sense.id,
-        headword: headwordOf(entry),
+        headword: window.fwlite.headword(entry),
         gloss: window.fwlite.firstValue(sense.gloss || {}, analysisWsIds()) || '—',
         pos: sense.partOfSpeech ? (window.fwlite.firstValue(sense.partOfSpeech.name, analysisWsIds()) || '') : '',
         senseNumber: index + 1,

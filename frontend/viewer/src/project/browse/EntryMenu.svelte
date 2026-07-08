@@ -47,7 +47,8 @@
 
   const {base} = useRouter();
   const pluginService = usePluginService();
-  const plugins = $derived(features.plugins ? pluginService.current : []);
+  // Only plugins that declare `fwlite-plugin-contexts: entry` belong in an entry's menu.
+  const plugins = $derived(features.plugins ? pluginService.pluginsForContext('entry') : []);
   // Prime the lazy plugin resource so the submenu isn't empty the first time the menu opens.
   $effect(() => {
     if (features.plugins) void pluginService.current;

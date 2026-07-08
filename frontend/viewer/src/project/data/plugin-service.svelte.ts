@@ -1,6 +1,8 @@
 import {type IPlugin} from '$lib/dotnet-types';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import type {DetachedResourceReturn} from '$project/detached-resource';
+import {parsePluginContexts} from '$lib/plugins/plugin-srcdoc';
+import type {PluginContext} from '$lib/plugins/plugin-api-types';
 
 const symbol = Symbol.for('fw-lite-plugin-service');
 
@@ -22,6 +24,17 @@ export class PluginService {
     this.#pluginsResource.current
       .toSorted((a, b) => a.name.localeCompare(b.name))
   );
+
+  // A plugin's declared contexts only change when its HTML does, but parsing that (whole) HTML is
+  // costly — so parse each plugin once here rather than per consumer (e.g. once per entry-menu open).
+  #contexts: Map<string, PluginContext[]> = $derived.by(() =>
+    new Map(this.#pluginsResource.current.map(plugin => [plugin.id, parsePluginContexts(plugin.html)]))
+  );
+
+  /** Plugins that declared they belong in the given context, e.g. an entry's menu. */
+  pluginsForContext(context: PluginContext): IPlugin[] {
+    return this.current.filter(plugin => this.#contexts.get(plugin.id)?.includes(context) ?? false);
+  }
 
   get loading(): boolean {
     return this.#pluginsResource.loading;

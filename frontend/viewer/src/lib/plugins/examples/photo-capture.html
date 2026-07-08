@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fwlite-plugin-contexts" content="entry">
+<title>Photo Capture</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --danger: #b45309;
+    --danger-strong: #b91c1c;
+    --ok: #15803d;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --shadow-lift: 0 6px 20px rgba(16, 24, 40, 0.14);
+    --radius: 14px;
+    --skeleton-a: #e9eaee;
+    --skeleton-b: #f4f5f7;
+    --vern-font: inherit;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --danger: #fbbf74;
+    --danger-strong: #fca5a5;
+    --ok: #4ade80;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --shadow-lift: 0 8px 26px rgba(0, 0, 0, 0.55);
+    --skeleton-a: #2a2c32;
+    --skeleton-b: #33353c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 18px 16px 40px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 3px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; font-size: 0.92rem; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 820px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  /* Target entry header */
+  .target { padding: 14px 16px; margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: flex-end; }
+  .target .hw-block { flex: 1 1 200px; min-width: 0; }
+  .target .label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+  .target .hw { font-family: var(--vern-font); font-weight: 700; font-size: 1.45rem; line-height: 1.15; margin-top: 2px; overflow-wrap: anywhere; }
+  .target .no-target { color: var(--text-muted); font-size: 0.95rem; margin-top: 4px; }
+  .sense-field { display: flex; flex-direction: column; gap: 4px; }
+  .sense-field label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+  select, .text-input {
+    font: inherit; font-size: 0.92rem; padding: 8px 10px;
+    border-radius: 9px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); max-width: 100%;
+  }
+  select { min-width: 150px; }
+  .sense-single { font-size: 0.95rem; color: var(--text); margin-top: 4px; overflow-wrap: anywhere; }
+  .sense-single .n { color: var(--text-muted); }
+
+  /* Capture stage */
+  .stage-wrap { padding: 16px; }
+  .stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--surface-alt);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+  }
+  .stage video, .stage img {
+    width: 100%; height: 100%; max-width: 100%;
+    object-fit: contain; display: block; background: #000;
+  }
+  .stage .placeholder {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    color: var(--text-muted); padding: 24px; text-align: center;
+  }
+  .stage .placeholder svg { width: 56px; height: 56px; opacity: 0.55; }
+  .stage .placeholder .hint { font-size: 0.86rem; max-width: 320px; }
+  .flash {
+    position: absolute; inset: 0; background: #fff; opacity: 0;
+    pointer-events: none;
+  }
+  .flash.fire { animation: flash 0.42s ease-out; }
+  @keyframes flash { 0% { opacity: 0; } 12% { opacity: 0.92; } 100% { opacity: 0; } }
+  .stage-badge {
+    position: absolute; top: 10px; left: 10px;
+    background: rgba(0,0,0,0.6); color: #fff;
+    font-size: 0.74rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .stage-badge .rec-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+
+  .cam-note {
+    margin: 12px 0 0;
+    font-size: 0.82rem;
+    color: var(--danger);
+    background: var(--surface-alt);
+    padding: 8px 12px; border-radius: 9px;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .cam-note svg { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 1px; }
+
+  .caption-field { margin-top: 14px; display: flex; flex-direction: column; gap: 5px; }
+  .caption-field label { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
+  .caption-field input { width: 100%; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .btn {
+    font: inherit; font-size: 0.92rem; font-weight: 600;
+    padding: 10px 18px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn:hover:not([disabled]) { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover:not([disabled]) { filter: brightness(1.08); background: var(--accent); }
+  .btn.shutter { background: var(--accent); border-color: var(--accent); color: #fff; font-size: 1rem; padding: 11px 22px; }
+  .btn.shutter:hover:not([disabled]) { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; }
+  .btn svg { width: 16px; height: 16px; }
+  .btn[disabled] { opacity: 0.55; cursor: default; }
+  .btn .spin {
+    width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.5);
+    border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+
+  .save-error {
+    margin-top: 12px;
+    border: 1px solid color-mix(in srgb, var(--danger-strong) 45%, var(--border));
+    background: color-mix(in srgb, var(--danger-strong) 12%, var(--surface));
+    color: var(--text); padding: 10px 14px; border-radius: 9px; font-size: 0.86rem;
+  }
+  .save-error strong { display: block; margin-bottom: 2px; }
+
+  /* Session gallery */
+  .session { margin-top: 18px; }
+  .session h2 { font-size: 0.95rem; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .session .count-pill {
+    font-size: 0.74rem; font-weight: 700; background: var(--accent-soft); color: var(--accent);
+    padding: 2px 9px; border-radius: 999px;
+  }
+  html[data-theme="dark"] .session .count-pill { color: var(--text); }
+  .thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+  .thumb { position: relative; aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; background: var(--surface-alt); border: 1px solid var(--border); }
+  .thumb img { width: 100%; height: 100%; max-width: 100%; object-fit: cover; display: block; }
+  .thumb .tcap { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 6px; font-size: 0.68rem; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,0.72)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Rail */
+  .rail { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 0; }
+  @media (max-width: 820px) { .rail { position: static; } }
+  .rail-section { padding: 14px; }
+  .rail-section h2 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); margin: 0 0 10px; }
+  .progress-num { font-size: 1.05rem; }
+  .progress-num strong { font-size: 1.4rem; font-weight: 800; }
+  .bar { height: 8px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; margin-top: 10px; }
+  .bar > span { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.4s ease; }
+  .search-box { width: 100%; }
+  .results { margin-top: 8px; max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+  .worklist { max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+  .wl-item {
+    text-align: left; font: inherit; cursor: pointer;
+    border: 1px solid transparent; background: transparent; color: var(--text);
+    border-radius: 9px; padding: 8px 10px; display: flex; flex-direction: column; gap: 1px; width: 100%;
+  }
+  .wl-item:hover, .wl-item:focus-visible { background: var(--surface-alt); outline: none; border-color: var(--border); }
+  .wl-item.active { background: var(--accent-soft); border-color: var(--accent); }
+  html[data-theme="dark"] .wl-item.active { background: var(--accent-soft); }
+  .wl-item .wl-hw { font-family: var(--vern-font); font-weight: 600; font-size: 0.92rem; overflow-wrap: anywhere; }
+  .wl-item .wl-gloss { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rail-empty { font-size: 0.85rem; color: var(--text-muted); }
+  .rail-done { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; color: var(--ok); padding: 6px 0; }
+  .rail-done svg { width: 30px; height: 30px; }
+  .rail-done .lbl { color: var(--text); font-size: 0.88rem; }
+
+  /* Shared async states */
+  .center-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .center-state .big { font-size: 1.1rem; color: var(--text); margin-bottom: 6px; }
+  .center-state .emoji { font-size: 2.4rem; margin-bottom: 10px; }
+  .spinner {
+    width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text); padding: 14px 18px; border-radius: var(--radius);
+  }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Photo Capture</h1>
+  <p class="subtitle" id="subtitle">Illustrate your entries with photos &mdash; snap a picture and attach it to a sense.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading entries&hellip;</div>
+  </div>
+
+  <div id="no-entries" class="center-state" style="display:none;">
+    <div class="emoji">&#128218;</div>
+    <div class="big">This project has no entries yet</div>
+    <div>Add some entries first, then come back to illustrate them.</div>
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="main" class="layout" style="display:none;">
+    <div class="col-main">
+      <div class="panel target" id="target">
+        <div class="hw-block">
+          <div class="label">Illustrating</div>
+          <div class="hw" id="target-hw"></div>
+          <div class="no-target" id="target-empty">Pick an entry from the list on the right, or search for one.</div>
+        </div>
+        <div class="sense-field" id="sense-field" style="display:none;">
+          <label for="sense-select">Which sense?</label>
+          <select id="sense-select"></select>
+        </div>
+        <div class="sense-field" id="sense-single-wrap" style="display:none;">
+          <div class="label">Sense</div>
+          <div class="sense-single" id="sense-single"></div>
+        </div>
+      </div>
+
+      <div class="panel stage-wrap" id="stage-wrap">
+        <div class="stage" id="stage">
+          <div class="placeholder" id="stage-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <div class="hint" id="stage-hint">Take a photo with your camera, or choose an image file.</div>
+          </div>
+          <video id="video" playsinline autoplay muted style="display:none;"></video>
+          <img id="preview" alt="Captured photo preview" style="display:none;">
+          <div class="stage-badge" id="stage-badge" style="display:none;"></div>
+          <div class="flash" id="flash"></div>
+        </div>
+
+        <div class="cam-note" id="cam-note" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
+          <span id="cam-note-text"></span>
+        </div>
+
+        <div class="caption-field" id="caption-field" style="display:none;">
+          <label for="caption">Caption (optional)</label>
+          <input class="text-input" id="caption" type="text" autocomplete="off" placeholder="Describe the picture">
+        </div>
+
+        <div class="actions" id="actions"></div>
+
+        <div class="save-error" id="save-error" style="display:none;"></div>
+
+        <div class="session" id="session" style="display:none;">
+          <h2>Added this session <span class="count-pill" id="session-count">0</span></h2>
+          <div class="thumbs" id="thumbs"></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="rail">
+      <div class="panel rail-section">
+        <h2>Progress</h2>
+        <div class="progress-num"><strong id="prog-done">0</strong> of <span id="prog-total">0</span> entries illustrated</div>
+        <div class="bar"><span id="prog-bar" style="width:0%"></span></div>
+      </div>
+
+      <div class="panel rail-section">
+        <h2>Find an entry</h2>
+        <input class="text-input search-box" id="search" type="text" autocomplete="off" placeholder="Search headword or meaning">
+        <div class="results" id="results"></div>
+      </div>
+
+      <div class="panel rail-section">
+        <h2 id="worklist-title">Needs a photo</h2>
+        <div class="worklist" id="worklist"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<canvas id="canvas" class="visually-hidden" aria-hidden="true"></canvas>
+
+<script>
+(function () {
+  'use strict';
+
+  var fw = window.fwlite;
+  var PAGE_SIZE = 1000;
+  var ENTRY_CAP = 5000;
+  var MAX_DIM = 1600;
+  var JPEG_QUALITY = 0.9;
+
+  var state = {
+    entries: [],                 // all loaded entries (kept fresh after each save)
+    byId: {},                    // id -> entry
+    totalEntries: 0,
+    capped: false,
+    illustratedCount: 0,         // distinct entries with >= 1 picture
+    worklist: [],                // ids of entries with no pictures on any sense
+    analysisWs: [],              // non-audio analysis wsIds
+    captionWs: null,             // default analysis ws used to store the caption
+    current: null,               // selected entry
+    senseIndex: 0,
+    phase: 'idle',               // idle | streaming | captured | saving
+    cameraBlocked: false,        // camera denied or no device -> file input only
+    capturedBlob: null,
+    session: [],                 // [{headword, caption, url}] added this session
+  };
+
+  var stream = null;             // active MediaStream
+  var previewUrl = null;         // object URL for the on-stage preview image
+  var sessionUrls = [];          // object URLs shown in the session gallery
+
+  function el(id) { return document.getElementById(id); }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    stopCamera();
+    el('loading').style.display = 'none';
+    el('main').style.display = 'none';
+    el('no-entries').style.display = 'none';
+    var box = el('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function wsIds(list) { return (list || []).map(function (ws) { return ws.wsId; }); }
+
+  function deepCopy(obj) {
+    if (typeof structuredClone === 'function') { try { return structuredClone(obj); } catch (e) { /* fall through */ } }
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  // --- Entry / sense helpers ---
+
+  function glossForSense(sense) {
+    if (!sense) return '';
+    return fw.firstValue(sense.gloss, state.analysisWs) || '';
+  }
+
+  function bestGlossForEntry(entry) {
+    var senses = entry.senses || [];
+    for (var i = 0; i < senses.length; i++) {
+      var g = glossForSense(senses[i]);
+      if (g) return g;
+    }
+    return '';
+  }
+
+  function entryHasPicture(entry) {
+    return (entry.senses || []).some(function (s) {
+      return (s.pictures || []).some(function (p) { return p && p.mediaUri; });
+    });
+  }
+
+  function searchTextFor(entry) {
+    var parts = [fw.headword(entry) || ''];
+    (entry.senses || []).forEach(function (s) {
+      var g = glossForSense(s);
+      if (g) parts.push(g);
+    });
+    return parts.join(' ').toLocaleLowerCase();
+  }
+
+  // --- Data loading ---
+
+  function fetchAll(total) {
+    var target = Math.min(total, ENTRY_CAP);
+    var out = [];
+    function loadNext() {
+      if (out.length >= target) return Promise.resolve(out);
+      var limit = Math.min(PAGE_SIZE, target - out.length);
+      return fw.getEntries({limit: limit, offset: out.length}).then(function (page) {
+        out = out.concat(page);
+        el('loading-text').textContent = 'Loaded ' + out.length.toLocaleString() + ' of ' + target.toLocaleString() + ' entries…';
+        if (!page.length || out.length >= target) return out;
+        return loadNext();
+      });
+    }
+    return loadNext();
+  }
+
+  function indexEntries() {
+    state.byId = {};
+    state.illustratedCount = 0;
+    state.worklist = [];
+    state.entries.forEach(function (entry) {
+      state.byId[entry.id] = entry;
+      if (entryHasPicture(entry)) state.illustratedCount++;
+      else state.worklist.push(entry.id);
+    });
+  }
+
+  // --- Rendering: progress + worklist + search ---
+
+  function renderProgress() {
+    var done = state.illustratedCount;
+    var total = state.entries.length;
+    el('prog-done').textContent = done.toLocaleString();
+    el('prog-total').textContent = total.toLocaleString() + (state.capped ? '+' : '');
+    var pct = total ? Math.round((done / total) * 100) : 0;
+    el('prog-bar').style.width = pct + '%';
+  }
+
+  function renderWorklist() {
+    var box = el('worklist');
+    box.innerHTML = '';
+    el('worklist-title').textContent = 'Needs a photo (' + state.worklist.length.toLocaleString() + ')';
+
+    if (!state.worklist.length) {
+      var done = document.createElement('div');
+      done.className = 'rail-done';
+      done.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>';
+      var lbl = document.createElement('div');
+      lbl.className = 'lbl';
+      lbl.textContent = 'Every entry has a photo!';
+      done.appendChild(lbl);
+      var hint = document.createElement('div');
+      hint.className = 'rail-empty';
+      hint.textContent = 'Search above to add more to any entry.';
+      done.appendChild(hint);
+      box.appendChild(done);
+      return;
+    }
+
+    var LIMIT = 250;
+    var frag = document.createDocumentFragment();
+    state.worklist.slice(0, LIMIT).forEach(function (id) {
+      frag.appendChild(makeListItem(state.byId[id]));
+    });
+    box.appendChild(frag);
+    if (state.worklist.length > LIMIT) {
+      var more = document.createElement('div');
+      more.className = 'rail-empty';
+      more.style.padding = '8px 10px';
+      more.textContent = '…and ' + (state.worklist.length - LIMIT).toLocaleString() + ' more. Use search to jump ahead.';
+      box.appendChild(more);
+    }
+  }
+
+  function makeListItem(entry) {
+    var item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'wl-item';
+    if (state.current && state.current.id === entry.id) item.classList.add('active');
+    var hw = document.createElement('div');
+    hw.className = 'wl-hw';
+    hw.textContent = fw.headword(entry) || '(no headword)';
+    item.appendChild(hw);
+    var gloss = bestGlossForEntry(entry);
+    if (gloss) {
+      var g = document.createElement('div');
+      g.className = 'wl-gloss';
+      g.textContent = gloss;
+      item.appendChild(g);
+    }
+    item.addEventListener('click', function () { selectEntry(entry.id); });
+    return item;
+  }
+
+  function renderSearchResults(query) {
+    var box = el('results');
+    box.innerHTML = '';
+    var q = query.trim().toLocaleLowerCase();
+    if (!q) return;
+    var matches = [];
+    for (var i = 0; i < state.entries.length && matches.length < 25; i++) {
+      if (searchTextFor(state.entries[i]).indexOf(q) >= 0) matches.push(state.entries[i]);
+    }
+    if (!matches.length) {
+      var none = document.createElement('div');
+      none.className = 'rail-empty';
+      none.style.padding = '6px 10px';
+      none.textContent = 'No matching entries.';
+      box.appendChild(none);
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    matches.forEach(function (entry) { frag.appendChild(makeListItem(entry)); });
+    box.appendChild(frag);
+  }
+
+  function refreshActiveHighlight() {
+    renderWorklist();
+    renderSearchResults(el('search').value || '');
+  }
+
+  // --- Entry selection ---
+
+  function selectEntry(id) {
+    var entry = state.byId[id];
+    if (!entry) return;
+    resetCapture();
+    state.current = entry;
+    state.senseIndex = 0;
+    el('target-empty').style.display = 'none';
+    var hw = el('target-hw');
+    hw.textContent = fw.headword(entry) || '(no headword)';
+    hw.style.display = '';
+    renderSensePicker(entry);
+    renderStage();
+    refreshActiveHighlight();
+  }
+
+  function renderSensePicker(entry) {
+    var senses = entry.senses || [];
+    var field = el('sense-field');
+    var single = el('sense-single-wrap');
+    if (senses.length <= 1) {
+      field.style.display = 'none';
+      single.style.display = '';
+      var text = el('sense-single');
+      if (senses.length === 1) {
+        var g = glossForSense(senses[0]);
+        text.textContent = g || 'Sense 1 (no gloss)';
+      } else {
+        text.innerHTML = '';
+        var n = document.createElement('span');
+        n.className = 'n';
+        n.textContent = 'This entry has no senses — a sense will be created for the picture.';
+        text.appendChild(n);
+      }
+      state.senseIndex = 0;
+      return;
+    }
+    single.style.display = 'none';
+    field.style.display = '';
+    var sel = el('sense-select');
+    sel.innerHTML = '';
+    senses.forEach(function (sense, i) {
+      var opt = document.createElement('option');
+      opt.value = String(i);
+      var g = glossForSense(sense);
+      var pics = (sense.pictures || []).filter(function (p) { return p && p.mediaUri; }).length;
+      opt.textContent = (i + 1) + '. ' + (g || '(no gloss)') + (pics ? ' • ' + pics + ' photo' + (pics === 1 ? '' : 's') : '');
+      sel.appendChild(opt);
+    });
+    sel.value = '0';
+    state.senseIndex = 0;
+  }
+
+  // --- Capture stage ---
+
+  var ICON_CAMERA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+  var ICON_UPLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>';
+  var ICON_SHUTTER = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5"/></svg>';
+  var ICON_RETAKE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
+  var ICON_SAVE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>';
+  var ICON_SKIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l10 8-10 8z"/><path d="M19 5v14"/></svg>';
+
+  function setStageVisuals() {
+    var video = el('video');
+    var preview = el('preview');
+    var placeholder = el('stage-placeholder');
+    var badge = el('stage-badge');
+    video.style.display = state.phase === 'streaming' ? '' : 'none';
+    preview.style.display = (state.phase === 'captured' || state.phase === 'saving') ? '' : 'none';
+    placeholder.style.display = state.phase === 'idle' ? '' : 'none';
+    if (state.phase === 'streaming') {
+      badge.style.display = '';
+      badge.innerHTML = '<span class="rec-dot"></span>Live camera';
+    } else if (state.phase === 'captured' || state.phase === 'saving') {
+      badge.style.display = '';
+      badge.textContent = 'Preview';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function makeBtn(cls, iconHtml, label, onClick) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn ' + cls;
+    if (iconHtml) {
+      var span = document.createElement('span');
+      span.innerHTML = iconHtml;
+      b.appendChild(span.firstChild);
+    }
+    b.appendChild(document.createTextNode(label));
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function renderStage() {
+    setStageVisuals();
+    var actions = el('actions');
+    actions.innerHTML = '';
+    el('save-error').style.display = 'none';
+
+    var captionField = el('caption-field');
+    captionField.style.display = (state.phase === 'captured') ? '' : 'none';
+
+    if (!state.current) return;
+
+    if (state.phase === 'idle') {
+      el('stage-hint').textContent = state.cameraBlocked
+        ? 'Camera unavailable — choose an image file instead.'
+        : 'Take a photo with your camera, or choose an image file.';
+      if (!state.cameraBlocked) {
+        actions.appendChild(makeBtn('shutter', ICON_CAMERA, 'Take photo', startCamera));
+      }
+      actions.appendChild(makeBtn(state.cameraBlocked ? 'shutter' : '', ICON_UPLOAD, 'Choose image', chooseImage));
+      actions.appendChild(makeBtn('ghost', ICON_SKIP, 'Skip', skipEntry));
+    } else if (state.phase === 'streaming') {
+      actions.appendChild(makeBtn('shutter', ICON_SHUTTER, 'Capture', capturePhoto));
+      actions.appendChild(makeBtn('ghost', null, 'Cancel', function () { stopCamera(); state.phase = 'idle'; renderStage(); }));
+    } else if (state.phase === 'captured') {
+      var save = makeBtn('primary', ICON_SAVE, 'Save photo', savePhoto);
+      actions.appendChild(save);
+      if (!state.cameraBlocked) actions.appendChild(makeBtn('', ICON_RETAKE, 'Retake', startCamera));
+      actions.appendChild(makeBtn('', ICON_UPLOAD, 'Choose different', chooseImage));
+      actions.appendChild(makeBtn('ghost', null, 'Discard', function () { resetCapture(); renderStage(); }));
+    } else if (state.phase === 'saving') {
+      var saving = document.createElement('button');
+      saving.type = 'button';
+      saving.className = 'btn primary';
+      saving.disabled = true;
+      var sp = document.createElement('span');
+      sp.className = 'spin';
+      saving.appendChild(sp);
+      saving.appendChild(document.createTextNode('Saving…'));
+      actions.appendChild(saving);
+    }
+  }
+
+  function startCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      onCameraFail('no-device');
+      return;
+    }
+    // Reset any prior capture but keep the current entry selection.
+    clearPreviewUrl();
+    state.capturedBlob = null;
+    navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}, audio: false})
+      .then(function (s) {
+        stream = s;
+        state.cameraBlocked = false;
+        var video = el('video');
+        video.srcObject = s;
+        var play = video.play();
+        if (play && play.catch) play.catch(function () {});
+        state.phase = 'streaming';
+        renderStage();
+      })
+      .catch(function (err) {
+        var kind = err && (err.name === 'NotAllowedError' || err.name === 'SecurityError') ? 'denied' : 'no-device';
+        onCameraFail(kind);
+      });
+  }
+
+  function onCameraFail(kind) {
+    stopCamera();
+    state.cameraBlocked = true;
+    state.phase = 'idle';
+    var note = el('cam-note');
+    note.style.display = '';
+    el('cam-note-text').textContent = kind === 'denied'
+      ? 'Camera access was blocked. You can still choose an image file below.'
+      : 'No camera was found. You can still choose an image file below.';
+    renderStage();
+  }
+
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach(function (t) { try { t.stop(); } catch (e) { /* ignore */ } });
+      stream = null;
+    }
+    var video = el('video');
+    if (video) { try { video.pause(); } catch (e) { /* ignore */ } video.srcObject = null; }
+  }
+
+  // Draw a source (video/image/bitmap) to the canvas, downscaled to MAX_DIM, and return a JPEG blob.
+  function renderToBlob(source, srcW, srcH) {
+    var scale = Math.min(1, MAX_DIM / Math.max(srcW, srcH));
+    var w = Math.max(1, Math.round(srcW * scale));
+    var h = Math.max(1, Math.round(srcH * scale));
+    var canvas = el('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(source, 0, 0, w, h);
+    return new Promise(function (resolve, reject) {
+      if (canvas.toBlob) {
+        canvas.toBlob(function (blob) {
+          if (blob) resolve(blob); else reject(new Error('Could not encode the image.'));
+        }, 'image/jpeg', JPEG_QUALITY);
+      } else {
+        try {
+          var dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+          var bin = atob(dataUrl.split(',')[1]);
+          var arr = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+          resolve(new Blob([arr], {type: 'image/jpeg'}));
+        } catch (e) { reject(e); }
+      }
+    });
+  }
+
+  function setCapturedBlob(blob) {
+    clearPreviewUrl();
+    state.capturedBlob = blob;
+    previewUrl = URL.createObjectURL(blob);
+    el('preview').src = previewUrl;
+    state.phase = 'captured';
+    renderStage();
+  }
+
+  function capturePhoto() {
+    var video = el('video');
+    var w = video.videoWidth, h = video.videoHeight;
+    if (!w || !h) { fw.notify('The camera is not ready yet — try again in a moment.'); return; }
+    var flash = el('flash');
+    flash.classList.remove('fire');
+    void flash.offsetWidth;
+    flash.classList.add('fire');
+    renderToBlob(video, w, h).then(function (blob) {
+      stopCamera();
+      setCapturedBlob(blob);
+    }).catch(function (err) {
+      stopCamera();
+      state.phase = 'idle';
+      renderStage();
+      fw.notify('Could not capture the photo: ' + (err && err.message ? err.message : 'unknown error'));
+    });
+  }
+
+  var fileInput = null;
+  function chooseImage() {
+    if (!fileInput) {
+      fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+      fileInput.addEventListener('change', function () {
+        var file = this.files && this.files[0];
+        this.value = '';
+        if (file) loadImageFile(file);
+      });
+      document.body.appendChild(fileInput);
+    }
+    fileInput.click();
+  }
+
+  function loadImageFile(file) {
+    stopCamera();
+    var handleBitmap = function (bitmap) {
+      renderToBlob(bitmap, bitmap.width, bitmap.height).then(function (blob) {
+        if (bitmap.close) bitmap.close();
+        setCapturedBlob(blob);
+      }).catch(function () {
+        if (bitmap.close) bitmap.close();
+        fw.notify('Could not read that image file.');
+      });
+    };
+    if (typeof createImageBitmap === 'function') {
+      createImageBitmap(file, {imageOrientation: 'from-image'})
+        .then(handleBitmap)
+        .catch(function () { loadImageViaElement(file); });
+    } else {
+      loadImageViaElement(file);
+    }
+  }
+
+  function loadImageViaElement(file) {
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      renderToBlob(img, img.naturalWidth, img.naturalHeight).then(function (blob) {
+        URL.revokeObjectURL(url);
+        setCapturedBlob(blob);
+      }).catch(function () {
+        URL.revokeObjectURL(url);
+        fw.notify('Could not read that image file.');
+      });
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); fw.notify('Could not read that image file.'); };
+    img.src = url;
+  }
+
+  // --- Saving ---
+
+  function buildCaption(text) {
+    var t = (text || '').trim();
+    if (!t || !state.captionWs) return {};
+    var caption = {};
+    caption[state.captionWs] = {spans: [{text: t, ws: state.captionWs}]};
+    return caption;
+  }
+
+  function savePhoto() {
+    if (!state.current || !state.capturedBlob) return;
+    var entry = state.current;
+    var senseIndex = state.senseIndex;
+    var captionText = el('caption').value;
+    var blob = state.capturedBlob;
+
+    state.phase = 'saving';
+    renderStage();
+    el('save-error').style.display = 'none';
+
+    var hw = fw.headword(entry) || 'entry';
+    var filename = 'photo-' + Date.now() + '.jpg';
+
+    fw.saveFile(blob, {filename: filename, mimeType: 'image/jpeg'}).then(function (res) {
+      if (!res || !res.mediaUri) {
+        var msg = (res && res.errorMessage) ? res.errorMessage
+          : (res && res.result ? 'The file could not be saved (' + res.result + ').' : 'The file could not be saved.');
+        throw {handled: true, message: msg};
+      }
+      var before = entry;
+      var after = deepCopy(entry);
+      if (!after.senses) after.senses = [];
+      if (!after.senses[senseIndex]) after.senses[senseIndex] = {gloss: {}, pictures: []};
+      var sense = after.senses[senseIndex];
+      if (!sense.pictures) sense.pictures = [];
+      sense.pictures.push({
+        id: (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('pic-' + Date.now() + '-' + Math.random().toString(16).slice(2)),
+        mediaUri: res.mediaUri,
+        caption: buildCaption(captionText),
+      });
+      return fw.updateEntry(before, after).then(function (updated) {
+        onSaved(updated || after, res.mediaUri, (captionText || '').trim(), blob);
+      });
+    }).catch(function (err) {
+      if (err && err.code === 'permission-denied') {
+        // User declined the change dialog — keep the capture so they can retry.
+        state.phase = 'captured';
+        renderStage();
+        fw.notify('Not saved — the change was declined.');
+        return;
+      }
+      state.phase = 'captured';
+      renderStage();
+      var box = el('save-error');
+      box.style.display = 'block';
+      box.innerHTML = '';
+      var strong = document.createElement('strong');
+      strong.textContent = 'Could not save the photo';
+      box.appendChild(strong);
+      var detail = document.createElement('span');
+      detail.textContent = (err && err.message) ? err.message : String(err);
+      box.appendChild(detail);
+    });
+  }
+
+  function onSaved(updatedEntry, mediaUri, captionText, blob) {
+    // Keep local data fresh so the progress/worklist and any further edits use the latest entry.
+    var prevHadPicture = entryHasPicture(state.byId[updatedEntry.id] || updatedEntry);
+    state.byId[updatedEntry.id] = updatedEntry;
+    var idx = state.entries.findIndex(function (e) { return e.id === updatedEntry.id; });
+    if (idx >= 0) state.entries[idx] = updatedEntry;
+
+    if (!prevHadPicture && entryHasPicture(updatedEntry)) {
+      state.illustratedCount++;
+      state.worklist = state.worklist.filter(function (id) { return id !== updatedEntry.id; });
+    }
+
+    addToSessionGallery(fw.headword(updatedEntry) || 'entry', mediaUri, captionText, blob);
+    fw.notify('Photo added to ' + (fw.headword(updatedEntry) || 'the entry') + '.');
+
+    renderProgress();
+    resetCapture();
+
+    // Advance to the next entry that still needs a photo, if any.
+    var next = state.worklist.length ? state.worklist[0] : null;
+    if (next) {
+      selectEntry(next);
+    } else {
+      state.current = null;
+      el('target-hw').style.display = 'none';
+      el('target-empty').style.display = '';
+      el('target-empty').textContent = 'All entries are illustrated. Search to add more photos to any entry.';
+      el('sense-field').style.display = 'none';
+      el('sense-single-wrap').style.display = 'none';
+      renderStage();
+      refreshActiveHighlight();
+    }
+  }
+
+  function addToSessionGallery(headword, mediaUri, captionText, fallbackBlob) {
+    el('session').style.display = '';
+    var thumbs = el('thumbs');
+    var fig = document.createElement('div');
+    fig.className = 'thumb';
+    var img = document.createElement('img');
+    img.alt = headword;
+    fig.appendChild(img);
+    if (captionText) {
+      var cap = document.createElement('div');
+      cap.className = 'tcap';
+      cap.textContent = captionText;
+      fig.appendChild(cap);
+    }
+    thumbs.insertBefore(fig, thumbs.firstChild);
+    state.session.push(headword);
+    el('session-count').textContent = String(state.session.length);
+
+    // Confirm the picture is retrievable through the app's media store; fall back to the local blob offline.
+    fw.getMedia(mediaUri).then(function (media) {
+      if (media && media.data) {
+        var url = URL.createObjectURL(new Blob([media.data], {type: media.mimeType || 'image/jpeg'}));
+        sessionUrls.push(url);
+        img.src = url;
+      } else {
+        useFallback();
+      }
+    }).catch(useFallback);
+
+    function useFallback() {
+      var url = URL.createObjectURL(fallbackBlob);
+      sessionUrls.push(url);
+      img.src = url;
+    }
+  }
+
+  // --- Reset / cleanup ---
+
+  function clearPreviewUrl() {
+    if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = null; }
+    el('preview').removeAttribute('src');
+  }
+
+  function resetCapture() {
+    stopCamera();
+    clearPreviewUrl();
+    state.capturedBlob = null;
+    state.phase = 'idle';
+    el('caption').value = '';
+    el('save-error').style.display = 'none';
+  }
+
+  function skipEntry() {
+    if (!state.current) return;
+    var pos = state.worklist.indexOf(state.current.id);
+    var next = null;
+    if (pos >= 0 && pos + 1 < state.worklist.length) next = state.worklist[pos + 1];
+    else if (state.worklist.length) next = state.worklist.find(function (id) { return id !== state.current.id; }) || null;
+    if (next) selectEntry(next);
+    else fw.notify('No more entries in the worklist.');
+  }
+
+  function cleanup() {
+    stopCamera();
+    clearPreviewUrl();
+    sessionUrls.forEach(function (url) { URL.revokeObjectURL(url); });
+    sessionUrls = [];
+  }
+
+  // --- Events ---
+
+  function wireEvents() {
+    el('sense-select').addEventListener('change', function () {
+      state.senseIndex = parseInt(this.value, 10) || 0;
+    });
+    var timer = null;
+    el('search').addEventListener('input', function () {
+      var v = this.value;
+      clearTimeout(timer);
+      timer = setTimeout(function () { renderSearchResults(v); }, 120);
+    });
+    window.addEventListener('pagehide', cleanup);
+    window.addEventListener('beforeunload', cleanup);
+  }
+
+  // --- Init ---
+
+  function init(context) {
+    applyTheme(context.theme);
+    el('subtitle').textContent = 'Illustrate entries in ' + context.project.projectName + ' — snap a photo and attach it to a sense.';
+
+    Promise.all([
+      fw.getWritingSystems(),
+      fw.countEntries({}),
+    ]).then(function (results) {
+      var ws = results[0];
+      var total = results[1];
+
+      var analysis = (ws.analysis || []).filter(function (w) { return !w.isAudio; });
+      state.analysisWs = wsIds(analysis);
+      state.captionWs = state.analysisWs[0] || null;
+
+      var vernFont = (ws.vernacular || []).map(function (w) { return w.font; }).filter(Boolean)[0];
+      if (vernFont) {
+        document.documentElement.style.setProperty('--vern-font', '"' + vernFont.replace(/"/g, '') + '", inherit');
+      }
+
+      state.totalEntries = total;
+      if (total === 0) {
+        el('loading').style.display = 'none';
+        el('no-entries').style.display = 'block';
+        return;
+      }
+      state.capped = total > ENTRY_CAP;
+
+      return fetchAll(total).then(function (entries) {
+        state.entries = entries;
+        indexEntries();
+
+        el('loading').style.display = 'none';
+        el('main').style.display = 'grid';
+
+        renderProgress();
+        renderWorklist();
+        wireEvents();
+
+        // Focus a specific entry when launched from an entry's context menu.
+        var focusId = context.entryId && state.byId[context.entryId] ? context.entryId : null;
+        if (!focusId && context.entryId) {
+          // Launched from an entry not in the loaded page (e.g. beyond the cap) — fetch it directly.
+          return fw.getEntry(context.entryId).then(function (entry) {
+            if (entry) {
+              state.byId[entry.id] = entry;
+              if (!state.entries.some(function (e) { return e.id === entry.id; })) state.entries.push(entry);
+              selectEntry(entry.id);
+            } else if (state.worklist.length) {
+              selectEntry(state.worklist[0]);
+            }
+          }).catch(function () {
+            if (state.worklist.length) selectEntry(state.worklist[0]);
+          });
+        }
+        if (focusId) selectEntry(focusId);
+        else if (state.worklist.length) selectEntry(state.worklist[0]);
+      });
+    }).catch(function (err) {
+      showError('Could not start Photo Capture: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  fw.ready.then(init);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bulk Editor</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --warn: #b45309;
+    --warn-soft: #fef3e0;
+    --del: #b91c1c;
+    --del-soft: #fde8e8;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+    --vern-font: inherit;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --warn: #fbbf24;
+    --warn-soft: #3a2f12;
+    --del: #f87171;
+    --del-soft: #3a1414;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.9rem; }
+
+  .steps { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .step {
+    flex: 1; min-width: 120px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 10px;
+    background: var(--surface-alt); color: var(--text-muted);
+    font-size: 0.85rem; font-weight: 600;
+  }
+  .step.active { background: var(--accent-soft); color: var(--accent); }
+  .step.done { color: var(--good); }
+  .step .num {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 0.78rem;
+    background: var(--surface); border: 1px solid currentColor;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
+  select, input[type="text"] {
+    width: 100%; font-size: 0.95rem; padding: 9px 12px;
+    border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface-alt); color: var(--text); font-family: inherit;
+  }
+  select:focus, input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+
+  .op-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .op-grid { grid-template-columns: 1fr; } }
+  .op-card {
+    border: 1px solid var(--border); background: var(--surface-alt);
+    border-radius: 12px; padding: 14px; cursor: pointer;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .op-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .op-card input { width: auto; margin-top: 3px; }
+  .op-card .op-title { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+  .op-card .op-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+  .btn {
+    border: none; padding: 10px 18px; border-radius: 10px;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-primary:disabled { opacity: 0.5; cursor: default; }
+  .btn-ghost { background: var(--surface-alt); color: var(--text); }
+  .btn-ghost:hover { background: var(--border); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+
+  .affected-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
+  .affected-header h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 2px 12px; font-weight: 700; font-size: 0.82rem; }
+  .list { display: flex; flex-direction: column; gap: 8px; max-height: 460px; overflow-y: auto; }
+  .aff-item { display: flex; gap: 10px; align-items: flex-start; background: var(--surface-alt); border-radius: 10px; padding: 10px 12px; }
+  .aff-item input[type="checkbox"] { width: auto; margin-top: 3px; }
+  .aff-body { flex: 1; min-width: 0; }
+  .aff-hw { font-weight: 700; font-family: var(--vern-font); word-break: break-word; }
+  .aff-gloss { font-size: 0.85rem; color: var(--text-muted); margin: 2px 0 6px; word-break: break-word; }
+  .chips { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.9rem; }
+  .chip { border-radius: 999px; padding: 2px 10px; font-size: 0.82rem; font-weight: 600; }
+  .chip.before { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); }
+  .chip.after { background: var(--accent-soft); color: var(--accent); }
+  .chip.add { background: var(--good-soft); color: var(--good); }
+  .chips .to { color: var(--text-muted); font-weight: 700; }
+
+  .queue-status { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .queue-status .big { font-size: 1.3rem; font-weight: 700; }
+  .progress-track { background: var(--surface-alt); border-radius: 999px; height: 10px; overflow: hidden; margin: 12px 0; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.2s ease; }
+  .current-box { background: var(--surface-alt); border-radius: 10px; padding: 14px; }
+  .current-box .hw { font-weight: 700; font-family: var(--vern-font); margin-bottom: 4px; }
+  .current-box .gloss { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+  .waiting { color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; }
+
+  .tallies { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .tally { text-align: center; padding: 14px; border-radius: 10px; background: var(--surface-alt); }
+  .tally .n { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+  .tally .l { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+  .tally.good .n { color: var(--good); }
+  .tally.warn .n { color: var(--warn); }
+  .tally.bad .n { color: var(--del); }
+  .link-list { display: flex; flex-direction: column; gap: 6px; }
+  .link-list a { color: var(--accent); cursor: pointer; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+  .link-list a:hover { text-decoration: underline; }
+  .link-list .why { color: var(--text-muted); font-size: 0.8rem; }
+
+  .note { font-size: 0.85rem; padding: 9px 12px; border-radius: 8px; margin-top: 10px; }
+  .note.warn { background: var(--warn-soft); color: var(--warn); }
+  .note.good { background: var(--good-soft); color: var(--good); }
+  .note.plain { background: var(--surface-alt); color: var(--text-muted); }
+  .resume-banner { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--accent-soft); color: var(--accent); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; }
+  .resume-banner .btn-row { margin-top: 0; }
+
+  .center-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface)); padding: 14px 18px; border-radius: var(--radius); margin-bottom: 16px; }
+  #app { display: none; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bulk Editor</h1>
+  <p class="subtitle">Assign a part of speech or a semantic domain to many senses at once. Preview every change, then approve them one at a time &mdash; nothing is saved until you say so.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading project&hellip;</div>
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="app">
+    <div class="steps">
+      <div class="step" data-step="1"><span class="num">1</span> Choose</div>
+      <div class="step" data-step="2"><span class="num">2</span> Preview</div>
+      <div class="step" data-step="3"><span class="num">3</span> Apply</div>
+    </div>
+
+    <div id="resume-banner" class="resume-banner" hidden>
+      <span id="resume-text"></span>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="resume-btn">Resume</button>
+        <button class="btn btn-ghost" id="discard-btn">Start over</button>
+      </div>
+    </div>
+
+    <!-- STEP 1: CHOOSE -->
+    <section id="section-1" hidden>
+      <div class="card">
+        <label>What do you want to do?</label>
+        <div class="op-grid">
+          <label class="op-card" data-op="pos">
+            <input type="radio" name="op" value="pos">
+            <span>
+              <span class="op-title">Set part of speech</span>
+              <span class="op-desc">Give the chosen senses a grammatical category (e.g. Noun).</span>
+            </span>
+          </label>
+          <label class="op-card" data-op="domain">
+            <input type="radio" name="op" value="domain">
+            <span>
+              <span class="op-title">Add a semantic domain</span>
+              <span class="op-desc">Tag the chosen senses with a domain (e.g. 5.2 Food).</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="field" id="target-pos-field" hidden>
+          <label for="target-pos">Part of speech to set</label>
+          <select id="target-pos"></select>
+          <div id="no-pos" class="note warn" hidden>This project has no parts of speech defined yet.</div>
+        </div>
+        <div class="field" id="target-domain-field" hidden>
+          <label for="target-domain">Semantic domain to add</label>
+          <select id="target-domain"></select>
+          <div id="no-domain" class="note warn" hidden>This project has no semantic domains defined yet.</div>
+        </div>
+
+        <div class="field">
+          <label for="criteria">Which senses?</label>
+          <select id="criteria">
+            <option value="missing">Senses missing a part of speech</option>
+            <option value="sourcePos">Senses of a specific part of speech</option>
+            <option value="inDomain">Senses in a specific semantic domain</option>
+            <option value="all">All senses</option>
+          </select>
+        </div>
+        <div class="field" id="source-pos-field" hidden>
+          <label for="source-pos">Part of speech to look for</label>
+          <select id="source-pos"></select>
+        </div>
+        <div class="field" id="criteria-domain-field" hidden>
+          <label for="criteria-domain">Semantic domain to look in</label>
+          <select id="criteria-domain"></select>
+        </div>
+        <div class="field">
+          <label for="search-box">Narrow by text search <span style="text-transform:none">(optional)</span></label>
+          <input type="text" id="search-box" placeholder="e.g. part of a headword or gloss">
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="scan-btn">Preview affected senses</button>
+        </div>
+        <div id="choose-note"></div>
+      </div>
+    </section>
+
+    <!-- STEP 2: PREVIEW -->
+    <section id="section-2" hidden>
+      <div id="scan-loading" class="center-state">
+        <div class="spinner"></div>
+        <div id="scan-text">Scanning entries&hellip;</div>
+      </div>
+      <div id="preview-body" hidden>
+        <div class="card">
+          <div class="affected-header">
+            <h2>Senses to change</h2>
+            <span class="count-pill" id="affected-count">0</span>
+          </div>
+          <div id="scan-cap" class="note warn" hidden></div>
+          <div id="no-affected" class="center-state" hidden>No senses need this change. Adjust your choices and try again.</div>
+          <div class="btn-row" id="select-row" hidden>
+            <button class="btn btn-ghost" id="select-all">Select all</button>
+            <button class="btn btn-ghost" id="select-none">Select none</button>
+            <span class="subtitle" id="ticked-count" style="margin:0;"></span>
+          </div>
+          <div class="list" id="affected-list"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="back-to-choose">Back</button>
+          <button class="btn btn-primary" id="start-apply">Apply changes</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3: APPLY -->
+    <section id="section-3" hidden>
+      <div id="apply-running" hidden>
+        <div class="card">
+          <div class="queue-status">
+            <span class="big" id="queue-progress">Sense 0 of 0</span>
+            <span class="subtitle" id="queue-tally" style="margin:0;"></span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="queue-fill" style="width:0%"></div></div>
+          <div class="current-box" id="current-box">
+            <div class="hw" id="current-hw"></div>
+            <div class="gloss" id="current-gloss"></div>
+            <div id="current-chips"></div>
+            <div class="waiting" id="current-waiting">Waiting for your approval in the app&hellip;</div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" id="pause-btn">Pause</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="apply-finish" hidden>
+        <div class="card">
+          <h2 style="margin:0 0 14px; font-size:1.1rem;">All done</h2>
+          <div class="tallies">
+            <div class="tally good"><div class="n" id="t-applied">0</div><div class="l">Applied</div></div>
+            <div class="tally warn"><div class="n" id="t-skipped">0</div><div class="l">Skipped</div></div>
+            <div class="tally bad"><div class="n" id="t-failed">0</div><div class="l">Failed</div></div>
+          </div>
+          <div id="skipped-section" hidden>
+            <label>Skipped &mdash; open to review</label>
+            <div class="link-list" id="skipped-list"></div>
+          </div>
+          <div id="failed-section" hidden style="margin-top:12px;">
+            <label>Failed</label>
+            <div class="link-list" id="failed-list"></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="finish-restart">Start a new bulk edit</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE = 1000, CAP = 5000, STORAGE_KEY = 'bulk-editor-session';
+
+  var state = {
+    vernacular: [],       // [{wsId, name, font}]
+    analysisWs: [],       // [wsId]
+    pos: [],              // [{id, name}]
+    domains: [],          // [{id, name, code}]
+    // choices
+    op: null,             // 'pos' | 'domain'
+    targetPosId: null,
+    targetDomainId: null,
+    criteria: 'missing',  // 'missing' | 'sourcePos' | 'inDomain' | 'all'
+    sourcePosId: null,
+    criteriaDomainId: null,
+    search: '',
+    // work
+    affected: [],         // [{entryId, senseId, headword, gloss, before, after, isAdd, include}]
+    capped: false,
+    queue: [],            // [{entryId, senseId, headword, gloss}]
+    total: 0,
+    results: {applied: 0, skipped: [], failed: []},
+    paused: false,
+    running: false,
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function applyTheme(theme) {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (dark ? 'dark' : 'light'));
+  }
+  function showError(msg) { $('loading').style.display = 'none'; var b = $('error'); b.style.display = 'block'; b.textContent = msg; }
+  function errMsg(err) { return err && err.message ? err.message : String(err); }
+
+  // --- Name resolution ---------------------------------------------------------
+  function nameOf(multiString) {
+    if (!multiString) return '';
+    return window.fwlite.firstValue(multiString, state.analysisWs) || '';
+  }
+  function posById(id) { for (var i = 0; i < state.pos.length; i++) if (state.pos[i].id === id) return state.pos[i]; return null; }
+  function domainById(id) { for (var i = 0; i < state.domains.length; i++) if (state.domains[i].id === id) return state.domains[i]; return null; }
+  function posLabel(id) { var p = posById(id); return p ? (nameOf(p.name) || '(part of speech)') : '(part of speech)'; }
+  function domainLabel(d) { if (!d) return ''; return (d.code ? d.code + ' ' : '') + (nameOf(d.name) || ''); }
+
+  function headwordOf(entry) {
+    return window.fwlite.headword(entry) || '(no headword)';
+  }
+  function glossOf(sense) {
+    return window.fwlite.firstValue(sense.gloss || {}, state.analysisWs) ||
+      (sense.definition ? window.fwlite.asText(window.fwlite.firstValue(sense.definition, state.analysisWs) || '') : '') ||
+      '(no gloss)';
+  }
+
+  // --- Criteria & change checks ------------------------------------------------
+  function senseMatchesCriteria(sense) {
+    switch (state.criteria) {
+      case 'missing':
+        return !(sense.partOfSpeech && sense.partOfSpeech.id);
+      case 'sourcePos':
+        return !!(sense.partOfSpeech && sense.partOfSpeech.id === state.sourcePosId);
+      case 'inDomain':
+        return (sense.semanticDomains || []).some(function (d) { return d && d.id === state.criteriaDomainId; });
+      case 'all':
+        return true;
+      default:
+        return false;
+    }
+  }
+  // Returns true only when the change would genuinely alter this sense.
+  function senseNeedsChange(sense) {
+    if (state.op === 'pos') {
+      return !(sense.partOfSpeech && sense.partOfSpeech.id === state.targetPosId);
+    }
+    return !(sense.semanticDomains || []).some(function (d) { return d && d.id === state.targetDomainId; });
+  }
+  function inScope(sense) { return senseMatchesCriteria(sense) && senseNeedsChange(sense); }
+
+  function describeChange(sense) {
+    if (state.op === 'pos') {
+      var before = (sense.partOfSpeech && sense.partOfSpeech.id)
+        ? (nameOf(sense.partOfSpeech.name) || posLabel(sense.partOfSpeech.id))
+        : '(no part of speech)';
+      return {before: before, after: posLabel(state.targetPosId), isAdd: false};
+    }
+    return {before: '', after: domainLabel(domainById(state.targetDomainId)), isAdd: true};
+  }
+
+  // Mutates the deep-copied sense to carry out the chosen change.
+  function applyChangeToSense(sense) {
+    if (state.op === 'pos') {
+      var pos = posById(state.targetPosId);
+      if (!pos) return false;
+      sense.partOfSpeech = {id: pos.id, name: pos.name};
+      sense.partOfSpeechId = pos.id;
+      return true;
+    }
+    var dom = domainById(state.targetDomainId);
+    if (!dom) return false;
+    if (!Array.isArray(sense.semanticDomains)) sense.semanticDomains = [];
+    if (sense.semanticDomains.some(function (d) { return d && d.id === dom.id; })) return false;
+    sense.semanticDomains.push({id: dom.id, name: dom.name, code: dom.code});
+    return true;
+  }
+
+  function backendFilter() {
+    var filter = {};
+    if (state.criteria === 'missing') filter.missingPartOfSpeech = true;
+    else if (state.criteria === 'sourcePos' && state.sourcePosId) filter.partOfSpeechId = state.sourcePosId;
+    else if (state.criteria === 'inDomain' && state.criteriaDomainId) {
+      var d = domainById(state.criteriaDomainId);
+      if (d && d.code) filter.semanticDomainCode = d.code;
+    }
+    return filter;
+  }
+
+  // --- Chip rendering ----------------------------------------------------------
+  function renderChips(host, change) {
+    host.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'chips';
+    if (change.isAdd) {
+      var add = document.createElement('span');
+      add.className = 'chip add';
+      add.textContent = '+ ' + change.after;
+      box.appendChild(add);
+    } else {
+      var b = document.createElement('span');
+      b.className = 'chip before';
+      b.textContent = change.before;
+      var arrow = document.createElement('span');
+      arrow.className = 'to';
+      arrow.textContent = '→';
+      var a = document.createElement('span');
+      a.className = 'chip after';
+      a.textContent = change.after;
+      box.appendChild(b); box.appendChild(arrow); box.appendChild(a);
+    }
+    host.appendChild(box);
+  }
+
+  // --- Navigation --------------------------------------------------------------
+  function showStep(n) {
+    [1, 2, 3].forEach(function (s) { $('section-' + s).hidden = s !== n; });
+    document.querySelectorAll('.step').forEach(function (el) {
+      var s = Number(el.dataset.step);
+      el.classList.toggle('active', s === n);
+      el.classList.toggle('done', s < n);
+    });
+  }
+  function setNote(id, msg, kind) {
+    var host = $(id); host.innerHTML = '';
+    if (!msg) return;
+    var d = document.createElement('div');
+    d.className = 'note ' + (kind || '');
+    d.textContent = msg;
+    host.appendChild(d);
+  }
+
+  // --- Storage -----------------------------------------------------------------
+  function persist() {
+    window.fwlite.storage.set(STORAGE_KEY, {
+      op: state.op, targetPosId: state.targetPosId, targetDomainId: state.targetDomainId,
+      criteria: state.criteria, sourcePosId: state.sourcePosId, criteriaDomainId: state.criteriaDomainId,
+      search: state.search,
+      queue: state.queue, total: state.total, results: state.results,
+    }).catch(function () {});
+  }
+  function clearStorage() { window.fwlite.storage.remove(STORAGE_KEY).catch(function () {}); }
+
+  // --- Step 1: choices UI ------------------------------------------------------
+  function fillSelect(sel, items, valueOf, labelOf) {
+    sel.innerHTML = '';
+    items.forEach(function (it) {
+      var opt = document.createElement('option');
+      opt.value = valueOf(it);
+      opt.textContent = labelOf(it);
+      sel.appendChild(opt);
+    });
+  }
+
+  function syncOpUI() {
+    document.querySelectorAll('.op-card').forEach(function (el) {
+      el.classList.toggle('selected', el.dataset.op === state.op);
+    });
+    $('target-pos-field').hidden = state.op !== 'pos';
+    $('target-domain-field').hidden = state.op !== 'domain';
+  }
+  function syncCriteriaUI() {
+    $('source-pos-field').hidden = state.criteria !== 'sourcePos';
+    $('criteria-domain-field').hidden = state.criteria !== 'inDomain';
+  }
+
+  function validateChoices() {
+    if (!state.op) return 'Choose what you want to do first.';
+    if (state.op === 'pos') {
+      if (state.pos.length === 0) return 'This project has no parts of speech to assign.';
+      if (!state.targetPosId) return 'Choose a part of speech to set.';
+    }
+    if (state.op === 'domain') {
+      if (state.domains.length === 0) return 'This project has no semantic domains to add.';
+      if (!state.targetDomainId) return 'Choose a semantic domain to add.';
+    }
+    if (state.criteria === 'sourcePos' && !state.sourcePosId) return 'Choose a part of speech to look for.';
+    if (state.criteria === 'inDomain' && !state.criteriaDomainId) return 'Choose a semantic domain to look in.';
+    return '';
+  }
+
+  // --- Step 2: scan ------------------------------------------------------------
+  function scan() {
+    var problem = validateChoices();
+    if (problem) { setNote('choose-note', problem, 'warn'); return; }
+    setNote('choose-note', '');
+
+    showStep(2);
+    $('scan-loading').hidden = false;
+    $('preview-body').hidden = true;
+    state.affected = [];
+
+    var offset = 0, scanned = 0, capped = false;
+    var filter = backendFilter();
+    var query = {limit: PAGE, filter: filter};
+    if (state.search) query.search = state.search;
+
+    function loadPage() {
+      query.offset = offset;
+      return window.fwlite.getEntries(query).then(function (page) {
+        page.forEach(function (entry) {
+          (entry.senses || []).forEach(function (sense) {
+            if (!inScope(sense)) return;   // client-side re-check; demo ignores filters
+            var change = describeChange(sense);
+            state.affected.push({
+              entryId: entry.id, senseId: sense.id,
+              headword: headwordOf(entry), gloss: glossOf(sense),
+              before: change.before, after: change.after, isAdd: change.isAdd,
+              include: true,
+            });
+          });
+        });
+        scanned += page.length;
+        offset += page.length;
+        $('scan-text').textContent = 'Scanned ' + scanned.toLocaleString() + ' entries, found ' + state.affected.length.toLocaleString() + ' senses to change…';
+        if (page.length < PAGE) return;
+        if (scanned >= CAP) { capped = true; return; }
+        return loadPage();
+      });
+    }
+    loadPage().then(function () {
+      state.capped = capped;
+      $('scan-loading').hidden = true;
+      $('preview-body').hidden = false;
+      renderAffected();
+    }).catch(function (err) {
+      showStep(1);
+      setNote('choose-note', 'Could not scan entries: ' + errMsg(err), 'warn');
+    });
+  }
+
+  function renderAffected() {
+    $('affected-count').textContent = state.affected.length.toLocaleString();
+    $('scan-cap').hidden = !state.capped;
+    if (state.capped) $('scan-cap').textContent = 'Stopped after the first ' + CAP.toLocaleString() + ' entries. Run again after applying to catch the rest.';
+
+    var empty = state.affected.length === 0;
+    $('no-affected').hidden = !empty;
+    $('select-row').hidden = empty;
+    $('start-apply').disabled = empty;
+
+    var list = $('affected-list');
+    list.innerHTML = '';
+    state.affected.forEach(function (item) {
+      var row = document.createElement('div');
+      row.className = 'aff-item';
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = item.include;
+      cb.addEventListener('change', function () { item.include = cb.checked; updateTicked(); });
+      var body = document.createElement('div');
+      body.className = 'aff-body';
+      var hw = document.createElement('div');
+      hw.className = 'aff-hw';
+      hw.textContent = item.headword;
+      var gl = document.createElement('div');
+      gl.className = 'aff-gloss';
+      gl.textContent = item.gloss;
+      var chips = document.createElement('div');
+      renderChips(chips, {before: item.before, after: item.after, isAdd: item.isAdd});
+      body.appendChild(hw); body.appendChild(gl); body.appendChild(chips);
+      row.appendChild(cb); row.appendChild(body);
+      list.appendChild(row);
+    });
+    updateTicked();
+  }
+  function tickedCount() { return state.affected.filter(function (a) { return a.include; }).length; }
+  function updateTicked() {
+    var n = tickedCount();
+    $('ticked-count').textContent = n.toLocaleString() + ' selected';
+    $('start-apply').disabled = n === 0;
+  }
+
+  // --- Step 3: apply queue -----------------------------------------------------
+  function startApply(fromResume) {
+    if (!fromResume) {
+      state.queue = state.affected.filter(function (a) { return a.include; }).map(function (a) {
+        return {entryId: a.entryId, senseId: a.senseId, headword: a.headword, gloss: a.gloss};
+      });
+      state.total = state.queue.length;
+      state.results = {applied: 0, skipped: [], failed: []};
+      persist();
+    }
+    state.paused = false;
+    showStep(3);
+    $('apply-finish').hidden = true;
+    $('apply-running').hidden = false;
+    $('pause-btn').textContent = 'Pause';
+    renderQueue(null);
+    pump();
+  }
+
+  function pump() {
+    if (state.paused || state.running) return;
+    if (state.queue.length === 0) { finish(); return; }
+    state.running = true;
+    var item = state.queue[0];
+
+    // Re-fetch the entry right before writing; data may have changed since the scan.
+    window.fwlite.getEntry(item.entryId).then(function (entry) {
+      if (!entry) return recordSkip(item, 'Entry no longer exists');
+      var sense = (entry.senses || []).filter(function (s) { return s.id === item.senseId; })[0];
+      if (!sense) return recordSkip(item, 'Sense no longer exists');
+      if (!senseMatchesCriteria(sense)) return recordSkip(item, 'No longer matches the filter');
+      if (!senseNeedsChange(sense)) {
+        return recordSkip(item, state.op === 'pos' ? 'Already has this part of speech' : 'Already has this domain');
+      }
+
+      var after = JSON.parse(JSON.stringify(entry));
+      var afterSense = after.senses.filter(function (s) { return s.id === item.senseId; })[0];
+      if (!afterSense || !applyChangeToSense(afterSense)) return recordSkip(item, 'Nothing to change');
+
+      var change = describeChange(sense);
+      renderQueue({headword: headwordOf(entry), gloss: glossOf(sense), change: change});
+
+      return window.fwlite.updateEntry(entry, after).then(function () {
+        state.results.applied++;
+      }, function (err) {
+        if (err && err.code === 'permission-denied') recordSkip(item, 'You did not approve this change');
+        else state.results.failed.push({id: item.entryId, headword: item.headword, msg: errMsg(err)});
+      });
+    }).catch(function (err) {
+      state.results.failed.push({id: item.entryId, headword: item.headword || '(entry)', msg: errMsg(err)});
+    }).then(advance);
+  }
+
+  function recordSkip(item, reason) { state.results.skipped.push({id: item.entryId, headword: item.headword, reason: reason}); }
+
+  function advance() {
+    state.queue.shift();
+    state.running = false;
+    persist();
+    renderQueue(null);
+    if (!state.paused) pump();
+  }
+
+  function renderQueue(current) {
+    var handled = state.total - state.queue.length;
+    var shown = Math.min(state.total, handled + (state.queue.length ? 1 : 0));
+    $('queue-progress').textContent = 'Sense ' + shown + ' of ' + state.total;
+    $('queue-tally').textContent = state.results.applied + ' applied · ' + state.results.skipped.length + ' skipped · ' + state.results.failed.length + ' failed';
+    $('queue-fill').style.width = (state.total ? Math.round((handled / state.total) * 100) : 0) + '%';
+    if (current) {
+      $('current-hw').textContent = current.headword;
+      $('current-gloss').textContent = current.gloss;
+      renderChips($('current-chips'), current.change);
+    }
+    if (state.paused && state.queue.length) { $('current-waiting').textContent = 'Paused. Resume to continue.'; }
+    else if (current) { $('current-waiting').textContent = 'Waiting for your approval in the app…'; }
+  }
+
+  function togglePause() {
+    state.paused = !state.paused;
+    $('pause-btn').textContent = state.paused ? 'Resume' : 'Pause';
+    if (!state.paused) pump();
+    else renderQueue(null);
+  }
+
+  function finish() {
+    clearStorage();
+    $('apply-running').hidden = true;
+    $('apply-finish').hidden = false;
+    $('t-applied').textContent = state.results.applied;
+    $('t-skipped').textContent = state.results.skipped.length;
+    $('t-failed').textContent = state.results.failed.length;
+    renderLinkList('skipped-section', 'skipped-list', state.results.skipped, function (s) { return s.reason; });
+    renderLinkList('failed-section', 'failed-list', state.results.failed, function (f) { return f.msg; });
+  }
+
+  function renderLinkList(sectionId, listId, items, whyOf) {
+    $(sectionId).hidden = items.length === 0;
+    var host = $(listId);
+    host.innerHTML = '';
+    items.forEach(function (item) {
+      var wrap = document.createElement('div');
+      var a = document.createElement('a');
+      a.textContent = item.headword || '(entry)';
+      a.addEventListener('click', function () { window.fwlite.openEntry(item.id); });
+      var why = document.createElement('span');
+      why.className = 'why';
+      why.textContent = '  — ' + whyOf(item);
+      wrap.appendChild(a);
+      wrap.appendChild(why);
+      host.appendChild(wrap);
+    });
+  }
+
+  // --- Resume support ----------------------------------------------------------
+  function offerResume(saved) {
+    restoreChoices(saved);
+    state.queue = saved.queue || [];
+    state.total = saved.total || state.queue.length;
+    state.results = saved.results || {applied: 0, skipped: [], failed: []};
+    var banner = $('resume-banner');
+    banner.hidden = false;
+    var what = saved.op === 'pos' ? 'part-of-speech' : 'semantic-domain';
+    $('resume-text').textContent = 'A ' + what + ' bulk edit is in progress: ' + state.queue.length + ' of ' + state.total + ' senses still to review.';
+    $('resume-btn').onclick = function () { banner.hidden = true; startApply(true); };
+    $('discard-btn').onclick = function () { banner.hidden = true; clearStorage(); resetToChoices(); };
+  }
+
+  function restoreChoices(saved) {
+    state.op = saved.op || null;
+    state.targetPosId = saved.targetPosId || null;
+    state.targetDomainId = saved.targetDomainId || null;
+    state.criteria = saved.criteria || 'missing';
+    state.sourcePosId = saved.sourcePosId || null;
+    state.criteriaDomainId = saved.criteriaDomainId || null;
+    state.search = saved.search || '';
+    reflectChoicesInUI();
+  }
+  function reflectChoicesInUI() {
+    document.querySelectorAll('input[name="op"]').forEach(function (r) { r.checked = r.value === state.op; });
+    syncOpUI();
+    if (state.targetPosId) $('target-pos').value = state.targetPosId;
+    if (state.targetDomainId) $('target-domain').value = state.targetDomainId;
+    $('criteria').value = state.criteria;
+    syncCriteriaUI();
+    if (state.sourcePosId) $('source-pos').value = state.sourcePosId;
+    if (state.criteriaDomainId) $('criteria-domain').value = state.criteriaDomainId;
+    $('search-box').value = state.search;
+  }
+
+  function resetToChoices() {
+    state.affected = [];
+    state.queue = [];
+    state.results = {applied: 0, skipped: [], failed: []};
+    reflectChoicesInUI();
+    setNote('choose-note', '');
+    showStep(1);
+  }
+
+  // --- Init --------------------------------------------------------------------
+  function init(context) {
+    applyTheme(context.theme);
+    Promise.all([
+      window.fwlite.getWritingSystems(),
+      window.fwlite.getPartsOfSpeech(),
+      window.fwlite.getSemanticDomains(),
+      window.fwlite.storage.get(STORAGE_KEY),
+    ]).then(function (res) {
+      var wsData = res[0], saved = res[3];
+      state.vernacular = (wsData.vernacular || []).filter(function (w) { return !w.isAudio; })
+        .map(function (w) { return {wsId: w.wsId, name: w.name, font: w.font}; });
+      state.analysisWs = (wsData.analysis || []).map(function (w) { return w.wsId; });
+      state.pos = (res[1] || []).map(function (p) { return {id: p.id, name: p.name}; });
+      state.domains = (res[2] || []).map(function (d) { return {id: d.id, name: d.name, code: d.code}; });
+
+      var vf = state.vernacular[0] && state.vernacular[0].font;
+      document.documentElement.style.setProperty('--vern-font', (vf ? '"' + vf + '", ' : '') + 'inherit');
+
+      $('loading').style.display = 'none';
+      $('app').style.display = 'block';
+
+      buildStep1UI();
+      showStep(1);
+
+      if (saved && saved.queue && saved.queue.length) offerResume(saved);
+    }).catch(function (err) {
+      showError('Could not start: ' + errMsg(err));
+    });
+  }
+
+  function buildStep1UI() {
+    // POS selects (target + source)
+    if (state.pos.length === 0) {
+      $('no-pos').hidden = false;
+    }
+    var posValueOf = function (p) { return p.id; };
+    var posLabelOf = function (p) { return nameOf(p.name) || '(unnamed)'; };
+    fillSelect($('target-pos'), state.pos, posValueOf, posLabelOf);
+    fillSelect($('source-pos'), state.pos, posValueOf, posLabelOf);
+
+    // Domain selects (target + criteria)
+    if (state.domains.length === 0) {
+      $('no-domain').hidden = false;
+    }
+    var sorted = state.domains.slice().sort(function (a, b) { return (a.code || '').localeCompare(b.code || ''); });
+    var domValueOf = function (d) { return d.id; };
+    var domLabelOf = function (d) { return domainLabel(d) || '(unnamed)'; };
+    fillSelect($('target-domain'), sorted, domValueOf, domLabelOf);
+    fillSelect($('criteria-domain'), sorted, domValueOf, domLabelOf);
+
+    // Defaults
+    state.targetPosId = state.pos[0] ? state.pos[0].id : null;
+    state.sourcePosId = state.pos[0] ? state.pos[0].id : null;
+    state.targetDomainId = sorted[0] ? sorted[0].id : null;
+    state.criteriaDomainId = sorted[0] ? sorted[0].id : null;
+
+    // Default operation: pos if available, else domain.
+    state.op = state.pos.length ? 'pos' : (state.domains.length ? 'domain' : 'pos');
+    reflectChoicesInUI();
+
+    // Wire events
+    document.querySelectorAll('input[name="op"]').forEach(function (r) {
+      r.addEventListener('change', function () { if (r.checked) { state.op = r.value; syncOpUI(); setNote('choose-note', ''); } });
+    });
+    document.querySelectorAll('.op-card').forEach(function (card) {
+      card.addEventListener('click', function () {
+        var radio = card.querySelector('input');
+        if (radio && !radio.checked) { radio.checked = true; state.op = radio.value; syncOpUI(); setNote('choose-note', ''); }
+      });
+    });
+    $('target-pos').addEventListener('change', function () { state.targetPosId = $('target-pos').value; });
+    $('target-domain').addEventListener('change', function () { state.targetDomainId = $('target-domain').value; });
+    $('source-pos').addEventListener('change', function () { state.sourcePosId = $('source-pos').value; });
+    $('criteria-domain').addEventListener('change', function () { state.criteriaDomainId = $('criteria-domain').value; });
+    $('criteria').addEventListener('change', function () { state.criteria = $('criteria').value; syncCriteriaUI(); });
+    $('search-box').addEventListener('input', function () { state.search = $('search-box').value.trim(); });
+
+    $('scan-btn').addEventListener('click', scan);
+    $('back-to-choose').addEventListener('click', function () { showStep(1); });
+    $('start-apply').addEventListener('click', function () { startApply(false); });
+    $('pause-btn').addEventListener('click', togglePause);
+    $('select-all').addEventListener('click', function () { state.affected.forEach(function (a) { a.include = true; }); renderAffected(); });
+    $('select-none').addEventListener('click', function () { state.affected.forEach(function (a) { a.include = false; }); renderAffected(); });
+    $('finish-restart').addEventListener('click', resetToChoices);
+  }
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

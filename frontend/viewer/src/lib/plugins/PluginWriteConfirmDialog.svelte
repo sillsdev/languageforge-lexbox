@@ -20,6 +20,8 @@
         <Icon icon="i-mdi-puzzle" class="text-primary" />
         {#if operation?.kind === 'createEntry'}
           {$t`Plugin wants to add an entry`}
+        {:else if operation?.kind === 'batch'}
+          {$t`Plugin wants to make ${operation.count} changes`}
         {:else}
           {$t`Plugin wants to change an entry`}
         {/if}
@@ -42,6 +44,8 @@
       <AlertDialog.Action onclick={() => onResult(true)}>
         {#if operation?.kind === 'createEntry'}
           {$t`Add entry`}
+        {:else if operation?.kind === 'batch'}
+          {$t`Apply changes`}
         {:else}
           {$t`Apply change`}
         {/if}

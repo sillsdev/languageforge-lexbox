@@ -202,7 +202,7 @@
   var cam = { x: 0, y: 0, zoom: 1 };
   var dirty = true;
   var stars = [], clusters = [], edges = [];
-  var vernWs = [], analWs = [];
+  var analWs = [];
   var hovered = null, selected = null, matched = null;
   var tween = null;
 
@@ -294,7 +294,7 @@
         var a = rnd() * Math.PI * 2;
         var r = Math.sqrt(rnd()) * spread;
         var senseCount = (e.senses || []).length;
-        var hw = firstVal(e.citationForm, vernWs) || firstVal(e.lexemeForm, vernWs) || '(unnamed)';
+        var hw = window.fwlite.headword(e) || '(unnamed)';
         var pid = posOf(e);
         if (pid) seenPos[pid] = true;
         stars.push({
@@ -605,7 +605,6 @@
       window.fwlite.getSemanticDomains()
     ]).then(function (r) {
       var count = r[0], ws = r[1];
-      vernWs = (ws.vernacular || []).map(function (w) { return w.wsId; });
       analWs = (ws.analysis || []).map(function (w) { return w.wsId; });
       if (!count) { document.getElementById('loading').style.display = 'none'; document.getElementById('empty').style.display = 'flex'; return; }
 

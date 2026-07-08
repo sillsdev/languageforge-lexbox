@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reversal Index</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 12px;
+    --rule: #e6e2d8;
+    --serif: Charter, "Bitstream Charter", "Sitka Text", Georgia, "Times New Roman", serif;
+    --vern-font: var(--serif);
+    --jump-h: 52px;
+    /* The book paper stays light in both themes — a printed page is a printed page. */
+    --paper: #fbfaf6;
+    --ink: #211d18;
+    --ink-muted: #6a6156;
+    --paper-rule: #d9d2c4;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --rule: #3a3b42;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 16px 56px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.92rem; }
+
+  /* Controls */
+  .controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-end;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+  .field select, .field input {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    min-width: 160px;
+  }
+  .field.grow { flex: 1; }
+  .field.grow input { min-width: 180px; width: 100%; }
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.86rem;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+    padding-bottom: 6px;
+  }
+  .toggle input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+  .count-note { font-size: 0.82rem; color: var(--text-muted); align-self: center; }
+  .cap-note {
+    display: inline-block;
+    font-size: 0.78rem;
+    color: var(--text);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-left: 6px;
+  }
+
+  /* Jump-to-letter bar — sticks to the top while scrolling */
+  .jump-bar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px 10px;
+    margin-bottom: 18px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+  }
+  .jump-bar button {
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    min-width: 26px;
+    height: 26px;
+    padding: 0 6px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    line-height: 1;
+  }
+  .jump-bar button:hover { background: var(--accent-soft); }
+
+  /* The index */
+  .index {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 8px 26px 30px;
+  }
+  .section { scroll-margin-top: calc(var(--jump-h) + 10px); }
+  .section-header {
+    position: sticky;
+    top: var(--jump-h);
+    z-index: 3;
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--surface);
+    padding: 14px 0 6px;
+    margin: 0;
+    border-bottom: 2px solid var(--rule);
+  }
+  .section-body {
+    columns: 2;
+    column-gap: 38px;
+    padding-top: 10px;
+  }
+  @media (max-width: 620px) {
+    .index { padding: 6px 18px 26px; }
+    .section-body { columns: 1; }
+  }
+
+  .rev-word {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    margin: 0 0 12px;
+    font-family: var(--serif);
+    line-height: 1.4;
+  }
+  .rev-term {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .rev-refs {
+    margin-top: 1px;
+    padding-left: 16px;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+  .ref {
+    font: inherit;
+    font-family: var(--vern-font);
+    font-size: 0.96rem;
+    color: var(--accent);
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .ref:hover { border-bottom-color: var(--accent); }
+  .ref-pos { font-style: italic; color: var(--text-muted); font-size: 0.82rem; margin-left: 3px; }
+  .ref-sep { color: var(--text-muted); }
+
+  /* View toggle — Browse (interactive) vs Book (typeset/printable) */
+  .view-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .view-toggle button {
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 7px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+  }
+  .view-toggle button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .print-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .print-btn:hover { filter: brightness(1.08); }
+
+  /* Book view — typeset, book-like pages */
+  .page {
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--paper-rule);
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    padding: 40px 44px 48px;
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.34;
+  }
+  .guide-band {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+    font-variant: small-caps;
+    letter-spacing: 0.02em;
+  }
+  .guide-word { font-weight: 700; font-size: 1.15rem; }
+  .guide-title { font-size: 0.8rem; color: var(--ink-muted); font-variant: normal; letter-spacing: 0; }
+  .sheet { margin-bottom: 26px; }
+  .sheet:last-child { margin-bottom: 0; }
+
+  /* column-fill:auto + a fixed height fill the left column top-to-bottom, then the right —
+     so the index reads in order. Plain multicol would balance the two columns and split it. */
+  .sheet-body {
+    columns: 2;
+    column-gap: 30px;
+    column-rule: 1px solid var(--paper-rule);
+    column-fill: auto;
+    height: 850px;
+    overflow: hidden;
+  }
+  @media (max-width: 620px) { .sheet-body { columns: 1; } }
+
+  .book-divider {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    break-after: avoid;
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-variant: small-caps;
+    color: var(--ink);
+    border-bottom: 1px solid var(--paper-rule);
+    margin: 10px 0 5px;
+    padding-bottom: 2px;
+  }
+  .book-divider:first-child { margin-top: 0; }
+  .rev-book-entry {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    margin: 0 0 6px;
+    padding-left: 16px;
+    text-indent: -16px; /* hanging indent */
+  }
+  .rev-book-term { font-weight: 700; }
+  .rev-book-hw { font-family: var(--vern-font); }
+  .rev-book-pos { font-style: italic; color: var(--ink-muted); font-size: 0.85em; margin-left: 2px; }
+  .rev-book-sep { color: var(--ink-muted); }
+  #book-view { display: none; }
+
+  /* Shared async states */
+  .center-state { text-align: center; padding: 64px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+  }
+  .inline-empty { padding: 48px 10px; text-align: center; color: var(--text-muted); font-size: 0.95rem; }
+  #index-wrap { display: none; }
+
+  /* Print: only the typeset book pages, with real paper margins */
+  @page { margin: 18mm 16mm; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .wrap { max-width: none; }
+    h1, .subtitle, .controls { display: none !important; }
+    #browse-view { display: none !important; }
+    #book-view { display: block !important; }
+    .page {
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      background: #fff;
+    }
+    .sheet-body { column-gap: 24px; }
+    .sheet { margin-bottom: 0; break-after: page; break-inside: avoid; }
+    .sheet:last-child { break-after: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reversal Index</h1>
+  <p class="subtitle" id="subtitle">Turning the dictionary around: meanings first, headwords after&hellip;</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading entries&hellip;</div>
+  </div>
+
+  <div id="empty" class="center-state" style="display:none;">
+    This project has no entries to index yet.
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="index-wrap">
+    <div class="controls">
+      <div class="view-toggle" role="group" aria-label="View">
+        <button type="button" id="browse-btn" aria-pressed="true">Browse</button>
+        <button type="button" id="book-btn" aria-pressed="false">Book</button>
+      </div>
+      <div class="field">
+        <label for="ws-select">Index language</label>
+        <select id="ws-select"></select>
+      </div>
+      <label class="toggle" for="defs-toggle">
+        <input type="checkbox" id="defs-toggle">
+        Include words from definitions
+      </label>
+      <div class="field grow" id="search-field">
+        <label for="search">Search the index</label>
+        <input id="search" type="text" placeholder="Type a meaning&hellip;" autocomplete="off">
+      </div>
+      <span class="count-note" id="count-note"></span>
+      <button class="print-btn" id="print-btn" style="display:none;">Print / Save PDF</button>
+    </div>
+
+    <div id="browse-view">
+      <nav class="jump-bar" id="jump-bar" aria-label="Jump to letter"></nav>
+      <div class="index" id="index"></div>
+    </div>
+
+    <div id="book-view">
+      <div id="sheets"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE_SIZE = 1000;   // API max per call
+  var ENTRY_CAP = 5000;
+
+  // English function words dropped from the per-word index (the whole gloss phrase is always
+  // indexed, so "to run" still appears under T — this only trims noise words when splitting).
+  var STOPWORDS = {
+    a: 1, an: 1, the: 1, to: 1, of: 1, in: 1, on: 1, at: 1, by: 1, for: 1, and: 1,
+    or: 1, is: 1, are: 1, be: 1, as: 1, it: 1, its: 1, that: 1, this: 1, with: 1
+  };
+
+  var state = {
+    entries: [],
+    analysis: [],        // [{wsId, name, font}]
+    vernacular: [],
+    analysisWs: '',
+    vernWs: '',
+    includeDefs: false,
+    view: 'browse',      // 'browse' | 'book'
+    projectName: '',
+    posLookup: {},       // id -> pos object
+    sections: [],        // [{letter, words:[record]}]
+    total: 0,            // records in the current index
+    capped: false,
+    vernCollator: null,
+  };
+
+  function el(id) { return document.getElementById(id); }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    el('loading').style.display = 'none';
+    var box = el('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function hasText(multiString) {
+    return multiString && Object.keys(multiString).some(function (ws) { return !!multiString[ws]; });
+  }
+
+  function wsIds(list) { return list.map(function (ws) { return ws.wsId; }); }
+
+  function makeCollator(locale) {
+    try {
+      return new Intl.Collator(locale || undefined, {sensitivity: 'base', numeric: true});
+    } catch (e) {
+      return new Intl.Collator(undefined, {sensitivity: 'base', numeric: true});
+    }
+  }
+
+  // The vernacular headword exactly as the app displays it (citation/lexeme form with affix markers).
+  function headwordText(entry) {
+    return window.fwlite.headword(entry) || '';
+  }
+
+  function posAbbrev(sense) {
+    var pos = sense.partOfSpeech || state.posLookup[sense.partOfSpeechId];
+    if (!pos) return '';
+    if (pos.abbreviation && hasText(pos.abbreviation)) {
+      return window.fwlite.firstValue(pos.abbreviation, wsIds(state.analysis));
+    }
+    if (pos.name && hasText(pos.name)) {
+      if (state.analysisWs && pos.name[state.analysisWs]) return window.fwlite.asText(pos.name[state.analysisWs]);
+      return window.fwlite.firstValue(pos.name, wsIds(state.analysis));
+    }
+    return '';
+  }
+
+  /** Pages through getEntries until countEntries or ENTRY_CAP is reached. */
+  function fetchAll(total) {
+    var target = Math.min(total, ENTRY_CAP);
+    var out = [];
+    function loadNext() {
+      if (out.length >= target) return Promise.resolve(out);
+      var limit = Math.min(PAGE_SIZE, target - out.length);
+      return window.fwlite.getEntries({limit: limit, offset: out.length}).then(function (page) {
+        out = out.concat(page);
+        el('loading-text').textContent = 'Loaded ' + out.length.toLocaleString() + ' of ' + target.toLocaleString() + ' entries…';
+        if (!page.length || out.length >= target) return out;
+        return loadNext();
+      });
+    }
+    return loadNext();
+  }
+
+  // Split a meaning into candidate words on anything that isn't a letter or combining mark.
+  function splitWords(text) {
+    try {
+      return text.split(/[^\p{L}\p{M}]+/u).filter(Boolean);
+    } catch (e) {
+      // Older engines without Unicode property escapes.
+      return text.split(/[^A-Za-z0-9]+/).filter(Boolean);
+    }
+  }
+
+  function firstChar(str) {
+    var arr = Array.from(str);
+    return arr.length ? arr[0] : '';
+  }
+
+  function sectionLetter(surface) {
+    var ch = firstChar(surface).toLocaleUpperCase(state.analysisWs || undefined);
+    var isLetter;
+    try { isLetter = /\p{L}/u.test(ch); } catch (e) { isLetter = /[A-Za-z]/.test(ch); }
+    return isLetter ? ch : '#';
+  }
+
+  // Build the reversal index from entries already in memory.
+  function buildIndex() {
+    var records = {};   // key -> record
+    var lc = function (s) { return s.toLocaleLowerCase(state.analysisWs || undefined); };
+
+    function add(surface, entry, hw, pos) {
+      var key = lc(surface);
+      if (!key) return;
+      var rec = records[key];
+      if (!rec) {
+        rec = records[key] = {key: key, surfaces: {}, refs: {}, refOrder: []};
+      }
+      rec.surfaces[surface] = (rec.surfaces[surface] || 0) + 1;
+      var ref = rec.refs[entry.id];
+      if (!ref) {
+        ref = rec.refs[entry.id] = {id: entry.id, headword: hw, pos: {}};
+        rec.refOrder.push(ref);
+      }
+      if (pos) ref.pos[pos] = 1;
+    }
+
+    function indexMeaning(text, entry, hw, pos) {
+      var phrase = (text || '').trim().replace(/\s+/g, ' ');
+      if (!phrase) return;
+      add(phrase, entry, hw, pos);               // the whole gloss phrase, as one index entry
+      var words = splitWords(phrase);
+      if (words.length > 1) {                    // …plus each meaningful word on its own
+        words.forEach(function (w) {
+          if (!STOPWORDS[w.toLowerCase()]) add(w, entry, hw, pos);
+        });
+      }
+    }
+
+    state.entries.forEach(function (entry) {
+      var hw = headwordText(entry);
+      if (!hw) return;
+      (entry.senses || []).forEach(function (sense) {
+        var pos = posAbbrev(sense);
+        if (sense.gloss && sense.gloss[state.analysisWs]) {
+          indexMeaning(window.fwlite.asText(sense.gloss[state.analysisWs]), entry, hw, pos);
+        }
+        if (state.includeDefs && sense.definition && sense.definition[state.analysisWs]) {
+          indexMeaning(window.fwlite.asText(sense.definition[state.analysisWs]), entry, hw, pos);
+        }
+      });
+    });
+
+    // Finalise: pick the most common surface form and sort references by headword.
+    var list = Object.keys(records).map(function (key) {
+      var rec = records[key];
+      var best = '', bestN = -1;
+      Object.keys(rec.surfaces).forEach(function (s) {
+        if (rec.surfaces[s] > bestN) { bestN = rec.surfaces[s]; best = s; }
+      });
+      rec.display = best;
+      rec.refOrder.sort(function (a, b) { return state.vernCollator.compare(a.headword, b.headword); });
+      return rec;
+    });
+
+    var termCollator = makeCollator(state.analysisWs);
+    list.sort(function (a, b) { return termCollator.compare(a.display, b.display); });
+
+    // Group into alphabetical sections, keeping non-letters ("#") last.
+    var byLetter = {};
+    var order = [];
+    list.forEach(function (rec) {
+      var letter = sectionLetter(rec.display);
+      if (!byLetter[letter]) { byLetter[letter] = []; order.push(letter); }
+      byLetter[letter].push(rec);
+    });
+    order.sort(function (a, b) {
+      if (a === '#') return 1;
+      if (b === '#') return -1;
+      return termCollator.compare(a, b);
+    });
+
+    state.sections = order.map(function (letter) { return {letter: letter, words: byLetter[letter]}; });
+    state.total = list.length;
+  }
+
+  function renderRefs(container, rec) {
+    rec.refOrder.forEach(function (ref, i) {
+      if (i > 0) {
+        var sep = document.createElement('span');
+        sep.className = 'ref-sep';
+        sep.textContent = ', ';
+        container.appendChild(sep);
+      }
+      var link = document.createElement('button');
+      link.type = 'button';
+      link.className = 'ref';
+      link.textContent = ref.headword || '—';
+      link.addEventListener('click', function () {
+        Promise.resolve(window.fwlite.openEntry(ref.id)).catch(function () {
+          window.fwlite.notify('Could not open that entry.');
+        });
+      });
+      container.appendChild(link);
+
+      var posList = Object.keys(ref.pos);
+      if (posList.length) {
+        var pos = document.createElement('span');
+        pos.className = 'ref-pos';
+        pos.textContent = posList.join(', ');
+        container.appendChild(pos);
+      }
+    });
+  }
+
+  function currentFilter() {
+    return el('search').value.trim().toLocaleLowerCase(state.analysisWs || undefined);
+  }
+
+  function render() {
+    var filter = currentFilter();
+    var indexEl = el('index');
+    indexEl.innerHTML = '';
+
+    var sections = state.sections;
+    var shown = 0;
+    if (filter) {
+      sections = sections.map(function (sec) {
+        var words = sec.words.filter(function (rec) {
+          return rec.key.indexOf(filter) !== -1 || rec.display.toLocaleLowerCase(state.analysisWs || undefined).indexOf(filter) !== -1;
+        });
+        return {letter: sec.letter, words: words};
+      }).filter(function (sec) { return sec.words.length; });
+    }
+    sections.forEach(function (sec) { shown += sec.words.length; });
+
+    renderJumpBar(sections);
+
+    if (!state.total) {
+      var none = document.createElement('div');
+      none.className = 'inline-empty';
+      none.textContent = state.includeDefs
+        ? 'No glosses or definitions in this writing system yet.'
+        : 'No glosses in this writing system yet. Try another language, or include definitions.';
+      indexEl.appendChild(none);
+      updateCount(0);
+      return;
+    }
+    if (!shown) {
+      var noMatch = document.createElement('div');
+      noMatch.className = 'inline-empty';
+      noMatch.textContent = 'No reversal words match your search.';
+      indexEl.appendChild(noMatch);
+      updateCount(0);
+      return;
+    }
+
+    var frag = document.createDocumentFragment();
+    sections.forEach(function (sec) {
+      var section = document.createElement('section');
+      section.className = 'section';
+      section.id = 'sec-' + sec.letter;
+
+      var header = document.createElement('h2');
+      header.className = 'section-header';
+      header.textContent = sec.letter;
+      section.appendChild(header);
+
+      var body = document.createElement('div');
+      body.className = 'section-body';
+      sec.words.forEach(function (rec) {
+        var word = document.createElement('div');
+        word.className = 'rev-word';
+
+        var term = document.createElement('div');
+        term.className = 'rev-term';
+        term.textContent = rec.display;
+        word.appendChild(term);
+
+        var refs = document.createElement('div');
+        refs.className = 'rev-refs';
+        renderRefs(refs, rec);
+        word.appendChild(refs);
+
+        body.appendChild(word);
+      });
+      section.appendChild(body);
+      frag.appendChild(section);
+    });
+    indexEl.appendChild(frag);
+    updateCount(shown);
+  }
+
+  function renderJumpBar(sections) {
+    var bar = el('jump-bar');
+    bar.innerHTML = '';
+    sections.forEach(function (sec) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = sec.letter;
+      btn.addEventListener('click', function () {
+        var target = document.getElementById('sec-' + sec.letter);
+        if (target) target.scrollIntoView({behavior: 'smooth', block: 'start'});
+      });
+      bar.appendChild(btn);
+    });
+    bar.style.display = sections.length ? 'flex' : 'none';
+    // Keep sticky section headers clearing the (possibly wrapped) jump bar.
+    var h = bar.offsetHeight;
+    if (h) document.documentElement.style.setProperty('--jump-h', h + 'px');
+  }
+
+  function updateCount(shown, pages) {
+    var note = el('count-note');
+    note.innerHTML = '';
+    var total = state.total;
+    var text = total === 0
+      ? 'No reversal words'
+      : (shown === total
+          ? total.toLocaleString() + ' reversal ' + (total === 1 ? 'word' : 'words')
+          : shown.toLocaleString() + ' of ' + total.toLocaleString() + ' reversal words');
+    if (pages) text += ' · ' + pages.toLocaleString() + ' page' + (pages === 1 ? '' : 's');
+    note.appendChild(document.createTextNode(text));
+    if (state.capped) {
+      var cap = document.createElement('span');
+      cap.className = 'cap-note';
+      cap.textContent = 'first ' + ENTRY_CAP.toLocaleString() + ' entries';
+      note.appendChild(cap);
+    }
+  }
+
+  function renderCurrentView() {
+    if (state.view === 'book') renderBook();
+    else render();
+  }
+
+  function rebuild() {
+    buildIndex();
+    renderCurrentView();
+  }
+
+  // ----- Book view: typeset, paginated, printable -----
+
+  function makeSheet() {
+    var sheet = document.createElement('div');
+    sheet.className = 'page sheet';
+    var band = document.createElement('div');
+    band.className = 'guide-band';
+    var first = document.createElement('span');
+    first.className = 'guide-word';
+    var title = document.createElement('span');
+    title.className = 'guide-title';
+    title.textContent = state.projectName;
+    var last = document.createElement('span');
+    last.className = 'guide-word';
+    band.appendChild(first);
+    band.appendChild(title);
+    band.appendChild(last);
+    var body = document.createElement('div');
+    body.className = 'sheet-body';
+    sheet.appendChild(band);
+    sheet.appendChild(body);
+    return { sheet: sheet, body: body, first: first, last: last, firstRec: null, lastRec: null, count: 0 };
+  }
+
+  // Guide words are the first and last head-term actually placed on this sheet.
+  function finalizeSheet(s) {
+    if (!s.count) {
+      if (s.sheet.parentNode) s.sheet.parentNode.removeChild(s.sheet);
+      return false;
+    }
+    s.first.textContent = s.firstRec ? s.firstRec.display : '';
+    s.last.textContent = s.lastRec ? s.lastRec.display : '';
+    return true;
+  }
+
+  function overflowed(body) {
+    return body.scrollWidth > body.clientWidth + 1 || body.scrollHeight > body.clientHeight + 1;
+  }
+
+  function makeBookDivider(letter) {
+    var div = document.createElement('div');
+    div.className = 'book-divider';
+    div.textContent = letter;
+    return div;
+  }
+
+  function makeBookEntry(rec) {
+    var div = document.createElement('div');
+    div.className = 'rev-book-entry';
+    var term = document.createElement('span');
+    term.className = 'rev-book-term';
+    term.textContent = rec.display;
+    div.appendChild(term);
+    div.appendChild(document.createTextNode('  '));
+    rec.refOrder.forEach(function (ref, i) {
+      if (i > 0) {
+        var sep = document.createElement('span');
+        sep.className = 'rev-book-sep';
+        sep.textContent = ', ';
+        div.appendChild(sep);
+      }
+      var hw = document.createElement('span');
+      hw.className = 'rev-book-hw';
+      hw.textContent = ref.headword || '—';
+      div.appendChild(hw);
+      var posList = Object.keys(ref.pos);
+      if (posList.length) {
+        var pos = document.createElement('span');
+        pos.className = 'rev-book-pos';
+        pos.textContent = posList.join(', ');
+        div.appendChild(pos);
+      }
+    });
+    return div;
+  }
+
+  function renderBook() {
+    var sheets = el('sheets');
+    sheets.innerHTML = '';
+
+    if (!state.total) {
+      var none = document.createElement('div');
+      none.className = 'inline-empty';
+      none.textContent = state.includeDefs
+        ? 'No glosses or definitions in this writing system yet.'
+        : 'No glosses in this writing system yet. Try another language, or include definitions.';
+      sheets.appendChild(none);
+      updateCount(0);
+      return;
+    }
+
+    // A flat stream of letter dividers and reversal records, laid out in reading order.
+    var items = [];
+    state.sections.forEach(function (sec) {
+      items.push({divider: sec.letter});
+      sec.words.forEach(function (rec) { items.push({rec: rec}); });
+    });
+
+    // Measure-and-spill: append each node to the current sheet; when it overflows the two
+    // fixed-height columns, pull it back off and restart it on a fresh sheet. A divider that
+    // would be orphaned at the foot of a sheet moves along with the entry it heads.
+    var cur = makeSheet();
+    sheets.appendChild(cur.sheet);
+    var lastDividerNode = null;   // divider on the current sheet with no record placed after it yet
+    items.forEach(function (item) {
+      var node = item.divider ? makeBookDivider(item.divider) : makeBookEntry(item.rec);
+      cur.body.appendChild(node);
+      var hasContent = cur.count || cur.body.childNodes.length > 1;
+      if (hasContent && overflowed(cur.body)) {
+        cur.body.removeChild(node);
+        var carryDivider = null;
+        if (item.rec && lastDividerNode && cur.body.lastChild === lastDividerNode) {
+          cur.body.removeChild(lastDividerNode);
+          carryDivider = lastDividerNode;
+        }
+        finalizeSheet(cur);
+        cur = makeSheet();
+        sheets.appendChild(cur.sheet);
+        lastDividerNode = null;
+        if (carryDivider) { cur.body.appendChild(carryDivider); lastDividerNode = carryDivider; }
+        cur.body.appendChild(node);
+      }
+      if (item.divider) {
+        lastDividerNode = node;
+      } else {
+        if (!cur.count) cur.firstRec = item.rec;
+        cur.lastRec = item.rec;
+        cur.count++;
+        lastDividerNode = null;
+      }
+    });
+    finalizeSheet(cur);
+
+    updateCount(state.total, sheets.querySelectorAll('.sheet').length);
+  }
+
+  function fillWsSelect() {
+    var select = el('ws-select');
+    select.innerHTML = '';
+    state.analysis.forEach(function (ws) {
+      var opt = document.createElement('option');
+      opt.value = ws.wsId;
+      opt.textContent = ws.name || ws.wsId;
+      if (ws.wsId === state.analysisWs) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.disabled = state.analysis.length <= 1;
+  }
+
+  function applyVernFont() {
+    var ws = state.vernacular.length ? state.vernacular[0] : null;
+    var font = ws && ws.font ? '"' + ws.font + '", ' : '';
+    document.documentElement.style.setProperty('--vern-font', font + 'var(--serif)');
+  }
+
+  function persist() {
+    window.fwlite.storage.set('prefs', {analysisWs: state.analysisWs, includeDefs: state.includeDefs, view: state.view})
+      .catch(function () { /* storage is best-effort; the index still works without it */ });
+  }
+
+  // Toggle which view (and its view-specific controls) is visible.
+  function applyViewChrome() {
+    var book = state.view === 'book';
+    el('browse-view').style.display = book ? 'none' : 'block';
+    el('book-view').style.display = book ? 'block' : 'none';
+    el('search-field').style.display = book ? 'none' : '';
+    el('print-btn').style.display = book ? '' : 'none';
+    el('browse-btn').setAttribute('aria-pressed', String(!book));
+    el('book-btn').setAttribute('aria-pressed', String(book));
+  }
+
+  function setView(view) {
+    if (view === state.view) return;
+    state.view = view;
+    applyViewChrome();
+    persist();
+    // The now-active view must be (re)rendered from the current index — the book measures
+    // overflow, which only works once its container is displayed.
+    renderCurrentView();
+  }
+
+  function wireEvents() {
+    el('browse-btn').addEventListener('click', function () { setView('browse'); });
+    el('book-btn').addEventListener('click', function () { setView('book'); });
+    el('ws-select').addEventListener('change', function () {
+      state.analysisWs = this.value;
+      persist();
+      rebuild();
+    });
+    el('defs-toggle').addEventListener('change', function () {
+      state.includeDefs = this.checked;
+      persist();
+      rebuild();
+    });
+    var timer = null;
+    el('search').addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(render, 120);
+    });
+    el('print-btn').addEventListener('click', function () {
+      try {
+        window.print();
+      } catch (e) {
+        window.fwlite.notify('Could not open the print dialog — press Ctrl+P (⌘P on Mac) to print or save as PDF.');
+      }
+    });
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+    state.projectName = context.project.projectName;
+
+    Promise.all([
+      window.fwlite.getWritingSystems(),
+      window.fwlite.getPartsOfSpeech(),
+      window.fwlite.countEntries({}),
+      window.fwlite.storage.get('prefs').catch(function () { return null; }),
+    ]).then(function (results) {
+      var ws = results[0];
+      var partsOfSpeech = results[1];
+      var total = results[2];
+      var prefs = results[3] || {};
+
+      state.vernacular = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      state.analysis = (ws.analysis || []).filter(function (w) { return !w.isAudio; });
+      state.vernWs = state.vernacular.length ? state.vernacular[0].wsId : '';
+      partsOfSpeech.forEach(function (pos) { state.posLookup[pos.id] = pos; });
+      state.vernCollator = makeCollator(state.vernWs);
+      applyVernFont();
+
+      var savedWs = state.analysis.some(function (w) { return w.wsId === prefs.analysisWs; }) ? prefs.analysisWs : null;
+      state.analysisWs = savedWs || (state.analysis.length ? state.analysis[0].wsId : '');
+      state.includeDefs = !!prefs.includeDefs;
+      state.view = prefs.view === 'book' ? 'book' : 'browse';
+
+      if (total === 0 || !state.analysis.length) {
+        el('loading').style.display = 'none';
+        el('empty').style.display = 'block';
+        if (!state.analysis.length) el('empty').textContent = 'This project has no analysis writing systems to index.';
+        return;
+      }
+      state.capped = total > ENTRY_CAP;
+
+      el('loading-text').textContent = 'Loading entries…';
+      return fetchAll(total).then(function (entries) {
+        state.entries = entries;
+        el('loading-text').textContent = 'Building index…';
+
+        fillWsSelect();
+        el('defs-toggle').checked = state.includeDefs;
+        wireEvents();
+
+        el('subtitle').textContent = 'An alphabetical index of meanings in ' + context.project.projectName +
+          ', each pointing back to the words that mean it. Tap a headword to open it, or switch to Book to print.';
+        el('loading').style.display = 'none';
+        // Reveal and lay out the active view before building — the book measures overflow.
+        el('index-wrap').style.display = 'block';
+        applyViewChrome();
+        rebuild();
+      });
+    }).catch(function (err) {
+      showError('Could not build the reversal index: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

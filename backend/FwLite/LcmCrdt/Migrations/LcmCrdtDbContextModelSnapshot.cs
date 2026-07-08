@@ -448,6 +448,9 @@ namespace LcmCrdt.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Html")
                         .IsRequired()
                         .HasColumnType("TEXT");

@@ -9,11 +9,13 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import {entryBrowseParams} from '$lib/utils/search-params';
+  import {useMultiWindowService} from '$lib/services/multi-window-service';
+  import EditEntryDialog from '$lib/entry-editor/EditEntryDialog.svelte';
   import {PluginApiAdapter} from './plugin-api-adapter';
   import {PluginHost} from './plugin-host';
-  import {buildPluginSrcdoc, parsePluginPermissions, PLUGIN_IFRAME_SANDBOX} from './plugin-srcdoc';
+  import {buildPluginSrcdoc, parsePluginPermissions, PLUGIN_IFRAME_ALLOW, PLUGIN_IFRAME_SANDBOX} from './plugin-srcdoc';
   import {computePluginHash, PluginConsentStore, PluginStorage} from './plugin-local-data';
-  import type {PluginWriteOperation} from './plugin-api-types';
+  import type {OpenEntryMode, PluginWriteOperation} from './plugin-api-types';
   import PluginWriteConfirmDialog from './PluginWriteConfirmDialog.svelte';
 
   interface Props {
@@ -69,6 +71,30 @@
     pending.resolve(isApproved);
   }
 
+  // 'view'/'edit' open a dialog over the still-mounted plugin; 'window' is offered only where the
+  // platform supports separate windows (not Android/iOS), and degrades to the 'view' dialog there.
+  const multiWindowService = useMultiWindowService();
+  const openEntryModes: OpenEntryMode[] = ['view', 'edit', 'navigate', ...(multiWindowService ? ['window' as const] : [])];
+
+  let entryDialogOpen = $state(false);
+  let entryDialogId = $state<string>();
+  let entryDialogMode = $state<'view' | 'edit'>('view');
+  function openEntryDialog(entryId: string, mode: 'view' | 'edit') {
+    entryDialogId = entryId;
+    entryDialogMode = mode;
+    entryDialogOpen = true;
+  }
+  function openEntry(entryId: string, mode: OpenEntryMode) {
+    if (mode === 'navigate') {
+      navigate(`${$base.uri}/browse?${entryBrowseParams(entryId)}`);
+    } else if (mode === 'window' && multiWindowService) {
+      void multiWindowService.openEntryInNewWindow(entryId);
+    } else {
+      // 'view', 'edit', or 'window' where new windows aren't supported.
+      openEntryDialog(entryId, mode === 'edit' ? 'edit' : 'view');
+    }
+  }
+
   const host = $derived.by(() => {
     if (!plugin) return undefined;
     const adapter = new PluginApiAdapter(
@@ -76,14 +102,16 @@
       new PluginStorage(projectContext.projectCode, plugin.id),
       {
         confirmWrite,
-        openEntry: (entryId) => navigate(`${$base.uri}/browse?${entryBrowseParams(entryId)}`),
+        openEntry,
         notify: (message) => AppNotification.display(message, {timeout: 'long'}),
       },
+      projectContext.historyService,
     );
     return new PluginHost(adapter, {
       projectName: projectContext.projectName,
       projectCode: projectContext.projectCode,
       permissions,
+      openEntryModes,
       entryId: launchEntryId,
     });
   });
@@ -98,10 +126,13 @@
   const srcdoc = $derived(plugin && approved ? buildPluginSrcdoc(plugin.html, permissions) : undefined);
   let reloadToken = $state(0);
 
+  // Fullscreen the whole view (toolbar included) rather than the bare iframe, so the Exit-fullscreen
+  // button stays reachable — otherwise the user has to know Esc/F11.
+  let containerElement = $state<HTMLElement>();
   let isFullscreen = $state(false);
   function toggleFullscreen() {
     if (document.fullscreenElement) void document.exitFullscreen();
-    else void iframeElement?.requestFullscreen();
+    else void containerElement?.requestFullscreen();
   }
 
   function goBack() {
@@ -112,7 +143,7 @@
 <svelte:window onmessage={(event) => host?.handleWindowMessage(event)} />
 <svelte:document onfullscreenchange={() => isFullscreen = !!document.fullscreenElement} />
 
-<div class="h-full flex flex-col">
+<div class="h-full flex flex-col bg-background" bind:this={containerElement}>
   <div class="flex items-center gap-2 border-b px-2 py-1.5">
     <Button variant="ghost" size="icon" icon="i-mdi-arrow-left" title={$t`Back to plugins`} onclick={goBack} />
     <Icon icon="i-mdi-puzzle" class="text-primary" />
@@ -197,6 +228,7 @@
           title={plugin.name}
           {srcdoc}
           sandbox={PLUGIN_IFRAME_SANDBOX}
+          allow={PLUGIN_IFRAME_ALLOW}
           class="absolute inset-0 w-full h-full border-0 bg-background"
         ></iframe>
       {/key}
@@ -209,3 +241,6 @@
   operation={pendingWrite?.operation}
   onResult={resolvePendingWrite}
 />
+
+<!-- Sibling overlay: opens over the plugin without unmounting its iframe, so plugin state survives. -->
+<EditEntryDialog bind:open={entryDialogOpen} entryId={entryDialogId} mode={entryDialogMode} />

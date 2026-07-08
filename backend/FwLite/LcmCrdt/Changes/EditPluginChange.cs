@@ -12,6 +12,7 @@ public class EditPluginChange : EditChange<Plugin>, ISelfNamedType<EditPluginCha
     public EditPluginChange(Guid entityId, Plugin plugin) : base(entityId)
     {
         Name = plugin.Name;
+        Description = plugin.Description;
         Html = plugin.Html;
     }
 
@@ -21,11 +22,13 @@ public class EditPluginChange : EditChange<Plugin>, ISelfNamedType<EditPluginCha
     }
 
     public required string Name { get; set; }
+    public string? Description { get; set; }
     public required string Html { get; set; }
 
     public override ValueTask ApplyChange(Plugin entity, IChangeContext context)
     {
         entity.Name = Name;
+        entity.Description = Description;
         entity.Html = Html;
         return ValueTask.CompletedTask;
     }

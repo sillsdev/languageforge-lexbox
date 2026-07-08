@@ -115,25 +115,27 @@
     align-items: baseline;
     border-bottom: 2px solid var(--ink);
     padding-bottom: 6px;
-    margin-bottom: 4px;
+    margin-bottom: 14px;
     font-variant: small-caps;
     letter-spacing: 0.02em;
   }
   .guide-word { font-weight: 700; font-size: 1.15rem; }
   .guide-title { font-size: 0.8rem; color: var(--ink-muted); font-variant: normal; letter-spacing: 0; }
-  .guide-hint {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 0.72rem;
-    color: var(--ink-muted);
-    margin: 0 0 18px;
-  }
+  .sheet { margin-bottom: 26px; }
+  .sheet:last-child { margin-bottom: 0; }
 
-  .columns {
+  /* column-fill:auto + a fixed height make each sheet fill its left column top-to-bottom,
+     then the right — so it reads in order. Plain multicol (no fixed height) balances the
+     whole document into two full-height columns, splitting the alphabet down the middle. */
+  .sheet-body {
     columns: 2;
     column-gap: 30px;
     column-rule: 1px solid var(--rule);
+    column-fill: auto;
+    height: 850px;
+    overflow: hidden;
   }
-  @media (max-width: 620px) { .columns { columns: 1; } }
+  @media (max-width: 620px) { .sheet-body { columns: 1; } }
 
   .dict-entry {
     break-inside: avoid;
@@ -180,7 +182,7 @@
   @media print {
     body { background: #fff; padding: 0; }
     .wrap { max-width: none; }
-    h1, .subtitle, .controls, .guide-hint { display: none !important; }
+    h1, .subtitle, .controls { display: none !important; }
     .page {
       border: none;
       box-shadow: none;
@@ -189,14 +191,16 @@
       background: #fff;
     }
     .dict-entry { break-inside: avoid; }
-    .columns { column-gap: 24px; }
+    .sheet-body { column-gap: 24px; }
+    .sheet { margin-bottom: 0; break-after: page; break-inside: avoid; }
+    .sheet:last-child { break-after: auto; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Dictionary Preview</h1>
-  <p class="subtitle" id="subtitle">Rendering your entries as a printable dictionary page&hellip;</p>
+  <p class="subtitle" id="subtitle">Rendering your entries as printable dictionary pages&hellip;</p>
 
   <div id="loading" class="center-state">
     <div class="spinner"></div>
@@ -227,15 +231,7 @@
       <button class="print-btn" id="print-btn">Print / Save PDF</button>
     </div>
 
-    <div class="page" id="page">
-      <div class="guide-band">
-        <span class="guide-word" id="guide-first">&mdash;</span>
-        <span class="guide-title" id="guide-title"></span>
-        <span class="guide-word" id="guide-last">&mdash;</span>
-      </div>
-      <p class="guide-hint">Guide words show the first and last headword in this view. True per-page guide words depend on where your printer breaks pages.</p>
-      <div class="columns" id="columns"></div>
-    </div>
+    <div id="sheets"></div>
   </div>
 </div>
 
@@ -290,7 +286,7 @@
   }
 
   function headwordText(entry) {
-    return pick(headwordField(entry), state.headwordWs, wsIds(state.vernacular));
+    return window.fwlite.headword(entry);
   }
 
   function wsIds(list) { return list.map(function (ws) { return ws.wsId; }); }
@@ -416,6 +412,56 @@
     return el('search').value.trim().toLocaleLowerCase();
   }
 
+  function updateCountNote(shown) {
+    var note = shown.toLocaleString() + ' of ' + state.sorted.length.toLocaleString() +
+      ' entr' + (state.sorted.length === 1 ? 'y' : 'ies');
+    var cn = el('count-note');
+    cn.innerHTML = '';
+    cn.appendChild(document.createTextNode(note + ' '));
+    if (state.capped) {
+      var cap = document.createElement('span');
+      cap.className = 'cap-note';
+      cap.textContent = 'first ' + ENTRY_CAP.toLocaleString() + ' only';
+      cn.appendChild(cap);
+    }
+  }
+
+  function makeSheet() {
+    var sheet = document.createElement('div');
+    sheet.className = 'page sheet';
+    var band = document.createElement('div');
+    band.className = 'guide-band';
+    var first = document.createElement('span');
+    first.className = 'guide-word';
+    var title = document.createElement('span');
+    title.className = 'guide-title';
+    title.textContent = state.projectName;
+    var last = document.createElement('span');
+    last.className = 'guide-word';
+    band.appendChild(first);
+    band.appendChild(title);
+    band.appendChild(last);
+    var body = document.createElement('div');
+    body.className = 'sheet-body';
+    sheet.appendChild(band);
+    sheet.appendChild(body);
+    return { sheet: sheet, body: body, first: first, last: last, firstEntry: null, lastEntry: null, count: 0 };
+  }
+
+  // Guide words are the first and last headword actually placed on this sheet.
+  function finalizeSheet(s) {
+    if (!s.count) {
+      if (s.sheet.parentNode) s.sheet.parentNode.removeChild(s.sheet);
+      return;
+    }
+    s.first.textContent = headwordText(s.firstEntry) || '—';
+    s.last.textContent = headwordText(s.lastEntry) || '—';
+  }
+
+  function overflowed(body) {
+    return body.scrollWidth > body.clientWidth + 1 || body.scrollHeight > body.clientHeight + 1;
+  }
+
   function render() {
     var filter = currentFilter();
     var list = state.sorted;
@@ -433,31 +479,44 @@
     });
     var running = {};
 
-    var columns = el('columns');
-    columns.innerHTML = '';
-    var frag = document.createDocumentFragment();
+    var sheets = el('sheets');
+    sheets.innerHTML = '';
+
+    if (!list.length) {
+      var msg = document.createElement('div');
+      msg.className = 'center-state';
+      msg.textContent = filter
+        ? 'No headwords start with “' + el('search').value.trim() + '”.'
+        : 'Nothing to show.';
+      sheets.appendChild(msg);
+      updateCountNote(0);
+      return;
+    }
+
+    // Measure-and-spill: append each entry to the current sheet; if it overflows the two
+    // fixed-height columns, pull it back off and restart it on a fresh sheet.
+    var cur = makeSheet();
+    sheets.appendChild(cur.sheet);
     list.forEach(function (entry) {
       var key = headwordText(entry).toLocaleLowerCase();
       var num = 0;
       if (counts[key] > 1) { running[key] = (running[key] || 0) + 1; num = running[key]; }
-      frag.appendChild(renderEntry(entry, num));
+      var node = renderEntry(entry, num);
+      cur.body.appendChild(node);
+      if (cur.count && overflowed(cur.body)) {
+        cur.body.removeChild(node);
+        finalizeSheet(cur);
+        cur = makeSheet();
+        sheets.appendChild(cur.sheet);
+        cur.body.appendChild(node);
+      }
+      if (!cur.count) cur.firstEntry = entry;
+      cur.lastEntry = entry;
+      cur.count++;
     });
-    columns.appendChild(frag);
+    finalizeSheet(cur);
 
-    el('guide-first').textContent = list.length ? headwordText(list[0]) || '—' : '—';
-    el('guide-last').textContent = list.length ? headwordText(list[list.length - 1]) || '—' : '—';
-    el('guide-title').textContent = state.projectName;
-
-    var note = list.length.toLocaleString() + ' of ' + state.sorted.length.toLocaleString() +
-      ' entr' + (state.sorted.length === 1 ? 'y' : 'ies');
-    el('count-note').innerHTML = '';
-    el('count-note').appendChild(document.createTextNode(note + ' '));
-    if (state.capped) {
-      var cap = document.createElement('span');
-      cap.className = 'cap-note';
-      cap.textContent = 'first ' + ENTRY_CAP.toLocaleString() + ' only';
-      el('count-note').appendChild(cap);
-    }
+    updateCountNote(list.length);
   }
 
   function fillWsSelect(select, list, chosen) {
@@ -529,12 +588,14 @@
         fillWsSelect(el('headword-ws'), state.vernacular, state.headwordWs);
         fillWsSelect(el('gloss-ws'), state.analysis, state.glossWs);
         wireEvents();
+
+        // Sheets must be laid out before render() can measure overflow, so reveal first.
+        el('page-wrap').style.display = 'block';
         render();
 
-        el('subtitle').textContent = 'A printable dictionary page for ' + state.projectName +
-          '. Adjust the languages, then Print or save as PDF from your browser.';
+        el('subtitle').textContent = 'A printable dictionary for ' + state.projectName +
+          ', laid out in book pages. Adjust the languages, then Print or save as PDF from your browser.';
         el('loading').style.display = 'none';
-        el('page-wrap').style.display = 'block';
       });
     }).catch(function (err) {
       showError('Could not build the dictionary preview: ' + (err && err.message ? err.message : String(err)));

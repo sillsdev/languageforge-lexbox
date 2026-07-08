@@ -11,7 +11,7 @@
   import {usePluginService} from '$project/data/plugin-service.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import {parsePluginPermissions} from './plugin-srcdoc';
+  import {parsePluginContexts, parsePluginPermissions} from './plugin-srcdoc';
   import PluginEditorDialog from './PluginEditorDialog.svelte';
   import PluginAiPromptDialog from './PluginAiPromptDialog.svelte';
 
@@ -136,8 +136,17 @@
                 <Icon icon="i-mdi-puzzle" class="text-primary shrink-0" />
                 <span class="truncate">{plugin.name}</span>
               </Card.Title>
-              <Card.Description class="flex items-center gap-2">
+              {#if plugin.description?.trim()}
+                <p class="text-sm text-muted-foreground line-clamp-2">{plugin.description}</p>
+              {/if}
+              <Card.Description class="flex flex-wrap items-center gap-2">
                 <span>{sizeKb(plugin)}</span>
+                {#if parsePluginContexts(plugin.html).includes('entry')}
+                  <Badge variant="secondary">
+                    <Icon icon="i-mdi-menu" />
+                    {$t`Entry menu`}
+                  </Badge>
+                {/if}
                 {#if parsePluginPermissions(plugin.html).includes('internet')}
                   <Badge variant="destructive">
                     <Icon icon="i-mdi-web" />

@@ -1,8 +1,17 @@
 import {describe, expect, it} from 'vitest';
-import {toGridifyFilter} from './plugin-api-adapter';
+import {computeHeadword, toGridifyFilter} from './plugin-api-adapter';
 import {PluginApiException} from './plugin-api-types';
+import {type IEntry, type IWritingSystem, MorphTypeKind} from '$lib/dotnet-types';
 
 const POS_ID = '86ff66f6-0774-407a-a0dc-3eeaf873daf7';
+
+function ws(wsId: string, isAudio = false): IWritingSystem {
+  return {wsId, isAudio} as unknown as IWritingSystem;
+}
+
+function entry(fields: Partial<IEntry>): IEntry {
+  return {lexemeForm: {}, citationForm: {}, morphType: MorphTypeKind.Stem, ...fields} as IEntry;
+}
 
 describe('toGridifyFilter', () => {
   it('returns undefined for no filter or an empty filter', () => {
@@ -47,5 +56,38 @@ describe('toGridifyFilter', () => {
   it('rejects invalid semantic domain codes and part of speech ids', () => {
     expect(() => toGridifyFilter({semanticDomainCode: 'abc'})).toThrow(PluginApiException);
     expect(() => toGridifyFilter({partOfSpeechId: 'not-a-guid'})).toThrow(PluginApiException);
+  });
+});
+
+describe('computeHeadword', () => {
+  const vernacular = [ws('seh'), ws('seh-fonipa')];
+  const suffixTokens = {[MorphTypeKind.Suffix]: {prefix: '-', postfix: undefined}};
+
+  it('prefers the (undecorated) citation form of the default writing system', () => {
+    const result = computeHeadword(
+      entry({citationForm: {seh: 'nyumba'}, lexemeForm: {seh: 'yumba'}, morphType: MorphTypeKind.Suffix}),
+      vernacular, suffixTokens);
+    expect(result).toBe('nyumba');
+  });
+
+  it('decorates the lexeme form with morph-type affix tokens when there is no citation form', () => {
+    const result = computeHeadword(
+      entry({lexemeForm: {seh: 's'}, morphType: MorphTypeKind.Suffix}), vernacular, suffixTokens);
+    expect(result).toBe('-s');
+  });
+
+  it('does not decorate a plain stem', () => {
+    expect(computeHeadword(entry({lexemeForm: {seh: 'yumba'}}), vernacular, suffixTokens)).toBe('yumba');
+  });
+
+  it('skips audio writing systems so a media reference never becomes the headword', () => {
+    const result = computeHeadword(
+      entry({lexemeForm: {'seh-audio': 'audio-ref.wav', seh: 'yumba'}}),
+      [ws('seh-audio', true), ws('seh')], suffixTokens);
+    expect(result).toBe('yumba');
+  });
+
+  it('returns an empty string when nothing is set', () => {
+    expect(computeHeadword(entry({}), vernacular, suffixTokens)).toBe('');
   });
 });
