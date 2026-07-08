@@ -160,13 +160,15 @@ export class FwLiteApi {
    * pending indefinitely if the user abandons the browser tab.
    */
   async login(authority: string): Promise<LoginResult> {
-    const path = `auth/login-system/${sanitizeUrlComponent(authority)}`;
+    const path = `auth/login-web-view/${sanitizeUrlComponent(authority)}`;
     return (await this.fetchPath(path)) as LoginResult;
   }
 
   async logout(authority: string): Promise<void> {
     const path = `auth/logout/${sanitizeUrlComponent(authority)}`;
-    // The logout endpoint redirects to the FW Lite web app root, so there's no JSON body to parse.
+    // The logout endpoint redirects to the FW Lite web app root, so there's no JSON body to parse;
+    // this relies on papi.fetch following that redirect by default (hence bypassing fetchPath, which
+    // would try to parse the redirected HTML root page as JSON).
     const results = await papi.fetch(this.getUrl(path));
     if (!results.ok) throw new Error(`Failed to fetch: ${results.statusText}`);
   }

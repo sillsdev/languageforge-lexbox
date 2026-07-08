@@ -26,7 +26,16 @@ globalThis.webViewComponent = function LexiconSelect({ projectId }: WebViewProps
     } catch (e) {
       // Sign-in resolves only when the user finishes in the browser, which can outlive the PAPI
       // request timeout (default 30s); refresh so a sign-in that landed anyway still shows up.
-      setAuthServers(await commands.sendCommand('lexicon.authServers'));
+      // Guard the refresh so its own failure can't mask the original login error we re-throw below.
+      await commands
+        .sendCommand('lexicon.authServers')
+        .then(setAuthServers)
+        .catch((refreshError) =>
+          logger.error(
+            'Error refreshing Lexbox auth servers after login failure:',
+            JSON.stringify(refreshError),
+          ),
+        );
       throw e;
     }
   }, []);
