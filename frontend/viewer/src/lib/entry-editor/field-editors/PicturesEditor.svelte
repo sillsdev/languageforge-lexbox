@@ -33,7 +33,7 @@
   let pauseAutoplay = $state(false);
 
   // Formats the browser accepts and that the server supports for pictures.
-  const ACCEPTED_TYPES = 'image/jpeg,image/png';
+  const ACCEPTED_TYPES = 'image/jpeg,image/png,image/tiff,image/bmp';
 
   let fileInputElement = $state<HTMLInputElement>();
   // Which operation is in flight (drives per-button spinners + disabling the whole group).
@@ -125,10 +125,10 @@
   }
 
   // The server rejects files above its size limit. JPEGs can usually be shrunk by lowering
-  // the export quality, whereas PNGs (lossless) need a smaller resolution instead.
+  // the export quality, whereas lossless formats (PNG, BMP, TIFF) need a smaller resolution.
   function tooBigMessage(file: File): string {
-    const isPng = file.type === 'image/png' || /\.png$/i.test(file.name);
-    return isPng
+    const isLossless = /^image\/(png|bmp|tiff)$/.test(file.type) || /\.(png|bmp|tiff?)$/i.test(file.name);
+    return isLossless
       ? $t`This picture is too large to upload. Try reducing the image resolution and uploading again.`
       : $t`This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again.`;
   }
