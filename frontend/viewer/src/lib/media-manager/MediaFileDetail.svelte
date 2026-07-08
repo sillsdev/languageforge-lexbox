@@ -80,17 +80,21 @@
 
   const metadata = resource(
     () => [file.id, file.remote, file.localPath, file.metadata, mediaFilesService] as const,
-    async ([fileId, remote, localPath, metadata, service]): Promise<ILcmFileMetadata | undefined> => {
+    async ([fileId, remote, localPath, metadata, service], _, {signal}): Promise<ILcmFileMetadata | undefined> => {
       if (metadata) {
         return metadata;
       }
       if (remote && service) {
         try {
-          return await service.getFileMetadata(fileId);
-        } catch {
+          const remoteMetadata = await service.getFileMetadata(fileId);
+          throwIfAborted(signal);
+          return remoteMetadata;
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') throw error;
           // fall through to local fallback when available
         }
       }
+      throwIfAborted(signal);
       if (localPath) {
         const filename = displayNameFromPath(localPath, fileId);
         return {
@@ -102,19 +106,27 @@
     },
   );
 
+  function throwIfAborted(signal?: AbortSignal) {
+    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+  }
+
   async function loadFileBlob(
     service: IMediaFilesServiceJsInvokable,
     fileId: string,
     mimeTypeHint?: string,
     filenameHint?: string,
+    signal?: AbortSignal,
   ): Promise<{kind: 'success'; blob: Blob; mimeType: string} | {kind: 'error'; response: IReadFileResponseJs}> {
     const response = await service.getFileStream(fileId);
+    throwIfAborted(signal);
     if (!response.stream) {
       return {kind: 'error', response};
     }
 
     const stream = await response.stream.stream();
+    throwIfAborted(signal);
     const blob = await new Response(stream).blob();
+    throwIfAborted(signal);
     return {
       kind: 'success',
       blob,
@@ -139,16 +151,21 @@
 
   const preview = resource(
     () => [file.id, file.local, mediaFilesService, metadata.current] as const,
-    async ([fileId, local, service, meta]) => {
+    async ([fileId, local, service, meta], _, {signal}) => {
       if (!service || !local || !meta) return undefined;
       if (meta.mimeType.startsWith('audio/')) return undefined;
 
-      const result = await loadFileBlob(service, fileId, meta.mimeType, meta.filename);
+      const result = await loadFileBlob(service, fileId, meta.mimeType, meta.filename, signal);
+      throwIfAborted(signal);
       if (result.kind === 'error') {
         return {kind: 'error' as const, response: result.response};
       }
 
       const url = URL.createObjectURL(result.blob);
+      if (signal.aborted) {
+        URL.revokeObjectURL(url);
+        throw new DOMException('Aborted', 'AbortError');
+      }
       return {
         kind: 'success' as const,
         url,
@@ -157,6 +174,12 @@
       };
     },
   );
+
+  $effect(() => {
+    file.id;
+    metadata.mutate(undefined);
+    preview.mutate(undefined);
+  });
 
   $effect(() => {
     const url = preview.current?.kind === 'success' ? preview.current.url : undefined;
@@ -177,7 +200,11 @@
     return 'other';
   });
 
-  const title = $derived(metadata.current?.filename ?? displayNameFromPath(file.localPath, file.id));
+  const title = $derived(
+    metadata.current?.filename
+      ?? file.metadata?.filename
+      ?? displayNameFromPath(file.localPath, file.id),
+  );
 
   const canSaveAs = $derived(file.local);
 
@@ -338,7 +365,7 @@
         </div>
       {:else if isAudioPreview}
         <AudioInput audioId={file.id} readonly loader={mediaFileAudioLoader} />
-      {:else if preview.loading}
+      {:else if metadata.loading || preview.loading}
         <div class="flex items-center gap-2 text-sm text-muted-foreground">
           <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
           {$t`Loading preview...`}
