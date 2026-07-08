@@ -78,7 +78,7 @@ export interface IMiniLcmJsInvokable
 	deleteExampleSentence(entryId: string, senseId: string, exampleSentenceId: string) : Promise<void>;
 	createPicture(entryId: string, senseId: string, picture: IPicture) : Promise<IPicture>;
 	updatePicture(entryId: string, senseId: string, before: IPicture, after: IPicture) : Promise<IPicture>;
-	movePicture(entryId: string, senseId: string, pictureId: string, previousPictureId: string, nextPictureId: string) : Promise<void>;
+	movePicture(entryId: string, senseId: string, pictureId: string, previousPictureId?: string, nextPictureId?: string) : Promise<void>;
 	deletePicture(entryId: string, senseId: string, pictureId: string) : Promise<void>;
 	getFileStream(mediaUri: string) : Promise<IReadFileResponseJs>;
 	saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata) : Promise<IUploadFileResponse>;
