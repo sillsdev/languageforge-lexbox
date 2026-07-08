@@ -27,7 +27,7 @@ internal record MediaUploadFileResponse(Guid Guid, FileMetadata? Metadata);
 internal class FileMetadata
 {
     public string? Sha256Hash { get; set; }
-    public int? SizeInBytes { get; set; }
+    public long? SizeInBytes { get; set; }
     public string? FileFormat { get; set; }
     public string? MimeType { get; set; }
     public string? Author { get; set; }
