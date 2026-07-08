@@ -79,8 +79,11 @@
   }
 
   const metadata = resource(
-    () => [file.id, file.remote, file.localPath, mediaFilesService] as const,
-    async ([fileId, remote, localPath, service]): Promise<ILcmFileMetadata | undefined> => {
+    () => [file.id, file.remote, file.localPath, file.metadata, mediaFilesService] as const,
+    async ([fileId, remote, localPath, metadata, service]): Promise<ILcmFileMetadata | undefined> => {
+      if (metadata) {
+        return metadata;
+      }
       if (remote && service) {
         try {
           return await service.getFileMetadata(fileId);
@@ -119,18 +122,13 @@
     };
   }
 
-  const isAudioPreview = $derived(
-    file.local && (metadata.current?.mimeType.startsWith('audio/') ?? false),
-  );
+  const isAudioPreview = $derived(file.local && (metadata.current?.mimeType.startsWith('audio/') ?? false));
 
   async function mediaFileAudioLoader(fileId: string) {
     if (!mediaFilesService) throw new Error('No media files service');
     const response = await mediaFilesService.getFileStream(fileId);
     if (!response.stream) {
-      AppNotification.error(
-        $t`Unable to load audio`,
-        readFileErrorMessage(response.result, response.errorMessage),
-      );
+      AppNotification.error($t`Unable to load audio`, readFileErrorMessage(response.result, response.errorMessage));
       return AUDIO_LOADER_HANDLED;
     }
     return {
@@ -179,10 +177,7 @@
     return 'other';
   });
 
-  const title = $derived(
-    metadata.current?.filename
-      ?? displayNameFromPath(file.localPath, file.id),
-  );
+  const title = $derived(metadata.current?.filename ?? displayNameFromPath(file.localPath, file.id));
 
   const canSaveAs = $derived(file.local);
 
@@ -231,9 +226,11 @@
       if (!blob) return;
 
       const filename = title;
-      const savePicker = (window as Window & {
-        showSaveFilePicker?: (options?: {suggestedName?: string}) => Promise<FileSystemFileHandle>;
-      }).showSaveFilePicker;
+      const savePicker = (
+        window as Window & {
+          showSaveFilePicker?: (options?: {suggestedName?: string}) => Promise<FileSystemFileHandle>;
+        }
+      ).showSaveFilePicker;
       if (savePicker) {
         try {
           const handle = await savePicker({suggestedName: filename});
@@ -340,11 +337,7 @@
           </Button>
         </div>
       {:else if isAudioPreview}
-        <AudioInput
-          audioId={file.id}
-          readonly
-          loader={mediaFileAudioLoader}
-        />
+        <AudioInput audioId={file.id} readonly loader={mediaFileAudioLoader} />
       {:else if preview.loading}
         <div class="flex items-center gap-2 text-sm text-muted-foreground">
           <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
