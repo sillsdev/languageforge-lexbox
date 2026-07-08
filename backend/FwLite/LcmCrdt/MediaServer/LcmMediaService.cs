@@ -96,7 +96,7 @@ public class LcmMediaService(
         var mediaClient = await MediaServerClient();
         for (var attempt = 1; ; attempt++)
         {
-            var response = await mediaClient.DownloadFile(fileId);
+            using var response = await mediaClient.DownloadFile(fileId);
             if (response.IsSuccessStatusCode)
             {
                 return (await response.Content.ReadAsStreamAsync(), response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", ""));
@@ -104,8 +104,6 @@ public class LcmMediaService(
 
             var statusCode = response.StatusCode;
             var reasonPhrase = response.ReasonPhrase;
-            response.Dispose();
-
             if (attempt >= MaxDownloadAttempts || !TransientDownloadStatusCodes.Contains(statusCode))
             {
                 throw new Exception($"Failed to download file {fileId}: {statusCode} {reasonPhrase}");
