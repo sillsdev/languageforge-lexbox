@@ -249,18 +249,25 @@ export async function deactivate(): Promise<boolean> {
  * dev-appdata directory in development, so `npm start` doesn't read/write production user data.
  *
  * Uses process.env/globalThis instead of require('os'/'path') because Platform.Bible blocks
- * non-papi requires.
+ * non-papi requires, so paths are assembled by hand with the platform-appropriate separator
+ * (backslash on Windows, forward slash on Linux/Mac, which .NET requires there).
  */
-function getFwLiteDataDir(): string {
+function getFwLiteDataDir(platform: string): string {
+  const isWindows = platform === 'win32';
+  const sep = isWindows ? '\\' : '/';
   let appDataDir: string;
   if (globalThis.isPackaged) {
-    const home = process.env.USERPROFILE;
-    if (!home) throw new Error('Cannot determine FW Lite data directory: USERPROFILE is not set');
-    appDataDir = `${home}\\.platform.bible`;
+    // Mirrors paranext-core's os.homedir()
+    const home = isWindows ? process.env.USERPROFILE : process.env.HOME;
+    if (!home) {
+      const homeVar = isWindows ? 'USERPROFILE' : 'HOME';
+      throw new Error(`Cannot determine FW Lite data directory: ${homeVar} is not set`);
+    }
+    appDataDir = `${home}${sep}.platform.bible`;
   } else {
-    appDataDir = `${globalThis.resourcesPath}\\dev-appdata`;
+    appDataDir = `${globalThis.resourcesPath}${sep}dev-appdata`;
   }
-  return `${appDataDir}\\extensions\\lexicon\\fw-lite`;
+  return `${appDataDir}${sep}extensions${sep}lexicon${sep}fw-lite`;
 }
 
 /** Returns the extension-relative path to the FW Lite binary for the given platform. */
@@ -283,11 +290,14 @@ function launchFwLite(context: ExecutionActivationContext): string {
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('Requires createProcess elevated privileges to launch FW Lite');
   }
-  const binaryPath = getFwLiteBinaryPath(context.elevatedPrivileges.createProcess.osData.platform);
+  const { platform } = context.elevatedPrivileges.createProcess.osData;
+  const binaryPath = getFwLiteBinaryPath(platform);
   // TODO: Instead of hardcoding the URL and port we should run it and find them in the output.
   const baseUrl = 'http://localhost:29348';
 
-  const dataDir = getFwLiteDataDir();
+  const dataDir = getFwLiteDataDir(platform);
+  const sep = platform === 'win32' ? '\\' : '/';
+  const authCacheFile = `${dataDir}${sep}msal.json`;
   fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
@@ -299,7 +309,7 @@ function launchFwLite(context: ExecutionActivationContext): string {
       '--FwLiteWeb:EnableFileLogging=false', // already piped to P.B (and triggers npm watch)
       '--FwLiteWeb:OpenBrowser=false',
       `--LcmCrdt:ProjectPath=${dataDir}`,
-      `--Auth:CacheFileName=${dataDir}\\msal.json`,
+      `--Auth:CacheFileName=${authCacheFile}`,
     ],
     { stdio: ['pipe', 'pipe', 'pipe'] },
   );
