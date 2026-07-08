@@ -292,7 +292,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             new SetRemoteResourceMetadataChange<LcmFileMetadata>(createRemoteResourcePendingUploadChange.EntityId, new LcmFileMetadata("test.txt", "text/plain")),
             [createRemoteResourcePendingUploadChange]);
 
-        var createRemoteResourceChange = new CreateRemoteResourceChange<LcmFileMetadata>(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id2");
+        var createRemoteResourceChange = new CreateRemoteResourceChange<LcmFileMetadata>(Guid.NewGuid(), "test-remote-id2");
         yield return new ChangeWithDependencies(createRemoteResourceChange);
         yield return new ChangeWithDependencies(new DeleteRemoteResourceChange<LcmFileMetadata>(createRemoteResourceChange.EntityId), [createRemoteResourceChange]);
 
