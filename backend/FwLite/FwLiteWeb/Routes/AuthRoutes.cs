@@ -25,6 +25,19 @@ public static class AuthRoutes
 
                 return Results.Redirect(await authService.SignInWebApp(options.Value.GetServerByAuthority(authority), returnUrl));
             });
+        //separate from /login/{authority} because that endpoint redirects the caller's browser to an auth
+        //url and requires a Referer header, neither of which applies here: this opens the system's default
+        //browser itself and blocks until the user finishes (or MSAL gives up), then reports the outcome.
+        group.MapGet("/login-system/{authority}",
+            async (AuthService authService, string authority, IOptions<AuthConfig> options) =>
+            {
+                if (!options.Value.SystemWebViewLogin)
+                {
+                    throw new NotSupportedException("System web view login is not enabled for this server");
+                }
+
+                return await authService.SignInWebView(options.Value.GetServerByAuthority(authority));
+            });
         group.MapGet("/oauth-callback",
             async (OAuthService oAuthService, HttpContext context) =>
             {

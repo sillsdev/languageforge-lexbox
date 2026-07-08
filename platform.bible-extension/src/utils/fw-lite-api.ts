@@ -9,6 +9,25 @@ import type {
 } from 'lexicon';
 import { GridifyConditionalOperator } from '../types/enums';
 
+/** A Lexbox server FW Lite can sign in to, as configured on the FW Lite backend. */
+export interface LexboxServer {
+  authority: string;
+  displayName: string;
+  /** Host (and port, if non-default) of {@link authority}; the identifier the auth endpoints key on. */
+  id: string;
+}
+
+/** Sign-in status of a single {@link LexboxServer}, as returned by `GET /api/auth/servers`. */
+export interface AuthServerStatus {
+  displayName: string;
+  loggedIn: boolean;
+  loggedInAs: string | null;
+  server: LexboxServer;
+}
+
+/** Outcome of a system-browser login attempt; mirrors FwLiteShared's `LoginResult` enum. */
+export type LoginResult = 'Success' | 'Offline' | 'Cancelled';
+
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
 function sanitizeUrlComponent(urlComponent?: string): string {
   if (!urlComponent) throw new Error(`Empty URL component`);
@@ -127,6 +146,29 @@ export class FwLiteApi {
     const { code, type } = this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry`;
     return (await this.fetchPath(path, 'POST', entry)) as IEntry;
+  }
+
+  /** Lists configured Lexbox servers along with the current sign-in status of each. */
+  async getAuthServers(): Promise<AuthServerStatus[]> {
+    return (await this.fetchPath('auth/servers')) as AuthServerStatus[];
+  }
+
+  /**
+   * Triggers a system-browser sign-in for the given server (see `AuthConfig.SystemWebViewLogin` on
+   * the FW Lite backend). The request doesn't resolve until the user finishes in their browser,
+   * cancels, or the backend gives up — there is currently no server-side timeout, so this can stay
+   * pending indefinitely if the user abandons the browser tab.
+   */
+  async login(authority: string): Promise<LoginResult> {
+    const path = `auth/login-system/${sanitizeUrlComponent(authority)}`;
+    return (await this.fetchPath(path)) as LoginResult;
+  }
+
+  async logout(authority: string): Promise<void> {
+    const path = `auth/logout/${sanitizeUrlComponent(authority)}`;
+    // The logout endpoint redirects to the FW Lite web app root, so there's no JSON body to parse.
+    const results = await papi.fetch(this.getUrl(path));
+    if (!results.ok) throw new Error(`Failed to fetch: ${results.statusText}`);
   }
 
   /* eslint-enable no-type-assertion/no-type-assertion */

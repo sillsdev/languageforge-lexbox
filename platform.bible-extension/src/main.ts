@@ -83,6 +83,16 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Register commands */
 
+  /** Fetches the configured Lexbox servers and their current sign-in status. */
+  const getAuthServers = async () => {
+    try {
+      return await fwLiteApi.getAuthServers();
+    } catch (e) {
+      logger.error('Error fetching Lexbox auth servers:', JSON.stringify(e));
+      return undefined;
+    }
+  };
+
   const addEntryCommandPromise = papi.commands.registerCommand(
     'lexicon.addEntry',
     async (webViewId: string, word: string) => {
@@ -98,6 +108,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
       return { success };
     },
+  );
+
+  const authServersCommandPromise = papi.commands.registerCommand(
+    'lexicon.authServers',
+    getAuthServers,
   );
 
   const browseLexiconCommandPromise = papi.commands.registerCommand(
@@ -171,6 +186,32 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  const loginCommandPromise = papi.commands.registerCommand(
+    'lexicon.login',
+    async (authority: string) => {
+      try {
+        // Blocks until the user finishes (or gives up) in their system browser; see the doc
+        // comment on FwLiteApi.login for why there's no timeout here.
+        await fwLiteApi.login(authority);
+      } catch (e) {
+        logger.error('Error signing in to Lexbox:', JSON.stringify(e));
+      }
+      return getAuthServers();
+    },
+  );
+
+  const logoutCommandPromise = papi.commands.registerCommand(
+    'lexicon.logout',
+    async (authority: string) => {
+      try {
+        await fwLiteApi.logout(authority);
+      } catch (e) {
+        logger.error('Error signing out of Lexbox:', JSON.stringify(e));
+      }
+      return getAuthServers();
+    },
+  );
+
   const selectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.selectLexicon',
     async (projectId: string, lexiconCode: string) => {
@@ -223,11 +264,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await validateLexiconCode,
     // Commands
     await addEntryCommandPromise,
+    await authServersCommandPromise,
     await browseLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
     await lexiconsCommandPromise,
+    await loginCommandPromise,
+    await logoutCommandPromise,
     await selectLexiconCommandPromise,
     // Services
     await entryService,
@@ -263,6 +307,10 @@ function launchFwLite(context: ExecutionActivationContext): string {
       '--FwLiteWeb:CorsAllowAny=true',
       '--FwLiteWeb:EnableFileLogging=false', // already piped to P.B (and triggers npm watch)
       '--FwLiteWeb:OpenBrowser=false',
+      // Sign-in opens the user's default browser instead of an embedded web view: an embedded
+      // login inside the extension's webview would likely be blocked by the webview sandbox
+      // and/or Lexbox's frame-ancestors CSP.
+      '--Auth:SystemWebViewLogin=true',
     ],
     { stdio: ['pipe', 'pipe', 'pipe'] },
   );
