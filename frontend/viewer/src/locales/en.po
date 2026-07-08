@@ -21,6 +21,7 @@ msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "(unknown)"
 msgstr "(unknown)"
 
@@ -1270,6 +1271,7 @@ msgstr "Loaded {0} file(s)"
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded file"
 msgstr "Loaded file"
+
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
@@ -1657,6 +1659,7 @@ msgstr "Offline, unable to download"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
 msgstr "Offline, unable to open file"
+
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Oldest first"
