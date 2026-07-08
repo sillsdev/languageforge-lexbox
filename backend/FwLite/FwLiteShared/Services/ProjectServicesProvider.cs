@@ -154,6 +154,7 @@ public class ProjectScope
             projectServicesProvider._projectScopes.TryRemove(this, out _);
             HistoryService?.Dispose();
             SyncService?.Dispose();
+            MediaFilesService?.Dispose();
 
             MiniLcm.Value.Dispose();
             MiniLcm.Dispose();
