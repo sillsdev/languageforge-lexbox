@@ -1000,8 +1000,8 @@ public class FwDataMiniLcmApi(
     {
         if (string.IsNullOrEmpty(query)) return null;
         return entry => entry.SearchHeadWord(query) || // CitationForm.SearchValue would be redundant
-                        entry.LexemeFormOA?.Form.SearchValue(query) is true ||
-                        entry.AllSenses.Any(s => s.Gloss.SearchValue(query));
+                        entry.LexemeFormOA?.Form.SearchValue(entry.Cache, query) is true ||
+                        entry.AllSenses.Any(s => s.Gloss.SearchValue(entry.Cache, query));
     }
 
     public Task<Entry?> GetEntry(Guid id)
