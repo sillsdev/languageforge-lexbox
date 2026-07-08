@@ -3915,5 +3915,125 @@
       "RemoteId": "end-to-end",
       "Metadata": null
     }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "CommentThread",
+        "Id": "8f911a35-f5c5-f686-4ae7-51edce857df1",
+        "DeletedAt": null,
+        "SubjectId": "53b9eb28-12b0-2840-eaf2-7fc58c40a185",
+        "SubjectType": "Sense",
+        "Status": "Open",
+        "CreatedAt": "2026-07-02T09:46:27.5880032+07:00",
+        "UpdatedAt": "2026-07-02T04:31:08.1939565+07:00",
+        "Comments": [
+          {
+            "Id": "3f947d22-70e0-d30d-62c5-2b50f0ad7030",
+            "DeletedAt": null,
+            "CommentThreadId": "b0f6e6fe-e118-26b7-b286-9db69a140309",
+            "PreviousCommentId": "dfcc8e8c-2ec6-c2d4-a794-53a5a5915b50",
+            "Text": "microchip",
+            "AuthorId": "bus",
+            "AuthorName": "Saint Helena Pound",
+            "CreatedAt": "2026-07-01T18:18:32.8141612+07:00",
+            "UpdatedAt": "2026-07-02T11:46:28.7172532+07:00"
+          }
+        ]
+      },
+      "Id": "8f911a35-f5c5-f686-4ae7-51edce857df1",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "CommentThread",
+        "Id": "8f911a35-f5c5-f686-4ae7-51edce857df1",
+        "DeletedAt": null,
+        "SubjectId": "53b9eb28-12b0-2840-eaf2-7fc58c40a185",
+        "SubjectType": "Sense",
+        "Status": "Open",
+        "AuthorId": null,
+        "AuthorName": null,
+        "CreatedAt": "2026-07-02T09:46:27.5880032+07:00",
+        "UpdatedAt": "2026-07-02T04:31:08.1939565+07:00",
+        "Comments": [
+          {
+            "Id": "3f947d22-70e0-d30d-62c5-2b50f0ad7030",
+            "DeletedAt": null,
+            "CommentThreadId": "b0f6e6fe-e118-26b7-b286-9db69a140309",
+            "PreviousCommentId": "dfcc8e8c-2ec6-c2d4-a794-53a5a5915b50",
+            "Text": "microchip",
+            "AuthorId": "bus",
+            "AuthorName": "Saint Helena Pound",
+            "CreatedAt": "2026-07-01T18:18:32.8141612+07:00",
+            "UpdatedAt": "2026-07-02T11:46:28.7172532+07:00"
+          }
+        ]
+      },
+      "Id": "8f911a35-f5c5-f686-4ae7-51edce857df1",
+      "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "CommentThread",
+        "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+        "DeletedAt": null,
+        "SubjectId": "8f24e142-5373-8369-f828-417b81833e27",
+        "SubjectType": "Entry",
+        "Status": "Open",
+        "CreatedAt": "2026-07-03T04:57:05.9016384+07:00",
+        "UpdatedAt": "2026-07-03T16:30:59.5749065+07:00",
+        "Comments": [
+          {
+            "Id": "39408d18-4d46-a112-78eb-24c7c00d8d12",
+            "DeletedAt": null,
+            "CommentThreadId": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+            "PreviousCommentId": "b8099120-2b7c-5e86-da14-f5ab0e1b4bcd",
+            "Text": "Lek",
+            "AuthorId": "Cross-platform",
+            "AuthorName": "Functionality",
+            "CreatedAt": "2026-07-02T23:31:01.4636808+07:00",
+            "UpdatedAt": "2026-07-03T03:11:05.4871024+07:00"
+          }
+        ]
+      },
+      "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+      "DeletedAt": null
+    },
+    "Output": {
+      "$type": "MiniLcmCrdtAdapter",
+      "Obj": {
+        "$type": "CommentThread",
+        "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+        "DeletedAt": null,
+        "SubjectId": "8f24e142-5373-8369-f828-417b81833e27",
+        "SubjectType": "Entry",
+        "Status": "Open",
+        "AuthorId": null,
+        "AuthorName": null,
+        "CreatedAt": "2026-07-03T04:57:05.9016384+07:00",
+        "UpdatedAt": "2026-07-03T16:30:59.5749065+07:00",
+        "Comments": [
+          {
+            "Id": "39408d18-4d46-a112-78eb-24c7c00d8d12",
+            "DeletedAt": null,
+            "CommentThreadId": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+            "PreviousCommentId": "b8099120-2b7c-5e86-da14-f5ab0e1b4bcd",
+            "Text": "Lek",
+            "AuthorId": "Cross-platform",
+            "AuthorName": "Functionality",
+            "CreatedAt": "2026-07-02T23:31:01.4636808+07:00",
+            "UpdatedAt": "2026-07-03T03:11:05.4871024+07:00"
+          }
+        ]
+      },
+      "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+      "DeletedAt": null
+    }
   }
 ]

@@ -33,6 +33,16 @@ COPY --from=publish /app/publish .
 RUN chmod +x chorusmerge && chmod +x Mercurial/hg && chmod +x Mercurial/chg 2>/dev/null || true
 # Fix up mercurial.ini path to fixutf8
 RUN sed -i -e 's/fixutf8 = \/FwHeadless/fixutf8 = \/app/' Mercurial/mercurial.ini
+COPY Testing/test-template-repo.zip /tmp/test-template-repo.zip
+# Smoke-test FixFwData at image build time: FwHeadless runs under dotnet (AspNetCore shared
+# framework) but FixFwData is a standalone apphost (Core only). Web publish does not copy the
+# extra assemblies FixFwData needs (e.g. Logging.Abstractions); the csproj PublishFixFwData
+# target must publish it into the same output. Running it here catches a broken publish early.
+RUN test -f FixFwData \
+    && chmod +x FixFwData \
+    && python3 -c "import zipfile; open('/tmp/smoke.fwdata','wb').write(zipfile.ZipFile('/tmp/test-template-repo.zip').read('kevin-test-01.fwdata'))" \
+    && ./FixFwData /tmp/smoke.fwdata; ec=$?; rm -f /tmp/test-template-repo.zip /tmp/smoke.fwdata; \
+    if [ $ec -gt 1 ]; then echo "FixFwData smoke test failed with exit $ec"; exit 1; fi
 USER www-data:www-data
 ENV XDG_DATA_HOME=/var/www/.local/share
 ENTRYPOINT ["tini", "--"]

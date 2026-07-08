@@ -1,7 +1,23 @@
-[
+﻿[
   {
     DerivedType: AddSemanticDomainChange,
     TypeDiscriminator: AddSemanticDomainChange
+  },
+  {
+    DerivedType: CreateCommentThreadChange,
+    TypeDiscriminator: CreateCommentThreadChange
+  },
+  {
+    DerivedType: CreateUserCommentChange,
+    TypeDiscriminator: CreateUserCommentChange
+  },
+  {
+    DerivedType: EditUserCommentChange,
+    TypeDiscriminator: EditUserCommentChange
+  },
+  {
+    DerivedType: SetCommentThreadStatusChange,
+    TypeDiscriminator: SetCommentThreadStatusChange
   },
   {
     DerivedType: CreateComplexFormType,
@@ -180,6 +196,10 @@
     TypeDiscriminator: UpdateSensePictureChange
   },
   {
+    DerivedType: DeleteChange<CommentThread>,
+    TypeDiscriminator: delete:CommentThread
+  },
+  {
     DerivedType: DeleteChange<ComplexFormComponent>,
     TypeDiscriminator: delete:ComplexFormComponent
   },
@@ -214,6 +234,10 @@
   {
     DerivedType: DeleteChange<Sense>,
     TypeDiscriminator: delete:Sense
+  },
+  {
+    DerivedType: DeleteChange<UserComment>,
+    TypeDiscriminator: delete:UserComment
   },
   {
     DerivedType: DeleteChange<WritingSystem>,

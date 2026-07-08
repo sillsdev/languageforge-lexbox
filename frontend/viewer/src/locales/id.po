@@ -25,6 +25,10 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "- ({0} perubahan)"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "(unknown)"
+msgstr ""
+
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -192,6 +196,10 @@ msgstr ""
 msgid "Add Word"
 msgstr "Tambahkan Kata"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Add your first entry to start building your dictionary."
+msgstr ""
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -228,6 +236,10 @@ msgstr "Analisis"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Analysis writing systems"
 msgstr ""
 
 #. Relevant view: Classic
@@ -349,6 +361,7 @@ msgstr ""
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -379,6 +392,7 @@ msgstr "Pilih tema"
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
 msgstr "Formulir kutipan"
 
@@ -398,6 +412,8 @@ msgstr "jelas"
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Tutup"
@@ -408,6 +424,10 @@ msgstr "Tutup"
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Closed"
+msgstr ""
+
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 msgid "Code"
@@ -417,6 +437,15 @@ msgstr ""
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "Warna"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/project/browse/EntryView.svelte
+msgid "Comments"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Comments for {0}"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -562,8 +591,13 @@ msgstr "Gelap"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard"
 msgstr "Dasbor"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Dashboard failed to load"
+msgstr ""
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -574,6 +608,7 @@ msgstr "Direktori Data"
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
 msgstr "Definisi"
 
@@ -711,6 +746,14 @@ msgstr "Mengunduh..."
 msgid "e.g. th, sw"
 msgstr ""
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit comment"
+msgstr ""
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
@@ -720,6 +763,10 @@ msgstr "Edit Tampilan Khusus"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Editor"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Empty comment"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -734,6 +781,14 @@ msgstr "Diakhiri dengan"
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Entries missing..."
 msgstr "Entri yang hilang..."
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with examples"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with senses"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
@@ -802,6 +857,10 @@ msgstr "Contoh"
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Example sentence"
 msgstr "Contoh kalimat"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Example sentences"
+msgstr ""
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -906,7 +965,7 @@ msgstr "Versi FieldWorks Lite"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1038,6 +1097,7 @@ msgstr "Dapatkan dukungan"
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Arti Singkat"
 
@@ -1167,6 +1227,7 @@ msgstr "Logo Lexbox"
 #. Lite view equivalent: "Word"
 #. Field label: the main headword/base form
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Lexeme form"
 msgstr "Bentuk leksem"
 
@@ -1216,6 +1277,10 @@ msgid "Loaded file"
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Loading comments..."
 msgstr ""
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
@@ -1440,6 +1505,10 @@ msgstr ""
 msgid "Next"
 msgstr "Berikutnya"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Next milestone: {0}. {1} to go."
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1447,6 +1516,10 @@ msgstr ""
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "No analysis writing systems configured."
 msgstr ""
 
 #. Placeholder when no audio file
@@ -1457,6 +1530,10 @@ msgstr "Tidak ada audio"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "No comment threads yet."
 msgstr ""
 
 #. Empty state message in the manage custom views dialog when none exist.
@@ -1512,6 +1589,10 @@ msgstr "Tidak ada server yang dikonfigurasi"
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
 msgstr "Tidak ada subjek, tidak dapat membuat {0}baru"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "No vernacular writing systems configured."
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1591,6 +1672,7 @@ msgstr "Satu komit FieldWorks Classic dapat terdiri dari perubahan pada beberapa
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "Open"
 msgstr "Buka"
 
@@ -1813,6 +1895,10 @@ msgstr "Ulasan"
 msgid "rose"
 msgstr "naik"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Save"
+msgstr ""
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Save as"
 msgstr ""
@@ -1945,6 +2031,10 @@ msgstr "Tampilkan"
 msgid "Show {0} more..."
 msgstr "Tampilkan {0} selengkapnya..."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Sign in to add comments."
+msgstr ""
+
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
@@ -1972,6 +2062,10 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "Bidang tertentu"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Start a new thread"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2092,6 +2186,10 @@ msgstr "Tugas"
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Beritahu kami tentang bug atau masalah yang Anda temui."
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Tell us how you work and what would help most. Your ideas guide what we build."
+msgstr ""
+
 #. View description
 #: src/project/browse/ViewPicker.svelte
 msgid "The *FieldWorks Classic* view, on the other hand, is designed for users who are familiar with *[FieldWorks Language Explorer](https://software.sil.org/fieldworks/)*."
@@ -2157,6 +2255,10 @@ msgstr "Tugas ini selesai"
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Ini akan menyinkronkan salinan FieldWorks Lite dan FieldWorks Classic dari proyek Anda di Lexbox."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Thread"
+msgstr ""
+
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -2166,6 +2268,12 @@ msgstr "Beralih filter"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Beralih disematkan"
+
+#: src/project/dashboard/DashboardView.svelte
+#: src/project/dashboard/DashboardView.svelte
+#: src/project/dashboard/DashboardView.svelte
+msgid "Total entries"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -2232,10 +2340,7 @@ msgid "Unable to open in FieldWorks"
 msgstr "Tidak dapat dibuka di FieldWorks"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityItem.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -2362,6 +2467,10 @@ msgstr ""
 msgid "Vernacular writing system is required"
 msgstr ""
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Vernacular writing systems"
+msgstr ""
+
 #. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
@@ -2371,6 +2480,10 @@ msgstr "Melihat"
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "violet"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "What would you like to see here?"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -2422,6 +2535,14 @@ msgstr "Kata atau Tampilan sesuai kebutuhan"
 msgid "Word or meaning:"
 msgstr "Kata atau makna:"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write a reply..."
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write the first comment..."
+msgstr ""
+
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"
@@ -2468,3 +2589,11 @@ msgstr "Anda tidak memiliki izin untuk mengunduh proyek {0} dari {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah mengunduh proyek {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "You've passed every milestone. What an achievement!"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Your dictionary starts here"
+msgstr ""

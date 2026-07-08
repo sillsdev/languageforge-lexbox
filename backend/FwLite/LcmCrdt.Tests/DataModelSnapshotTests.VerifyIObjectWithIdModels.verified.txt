@@ -1,5 +1,9 @@
 ﻿[
   {
+    DerivedType: CommentThread,
+    TypeDiscriminator: CommentThread
+  },
+  {
     DerivedType: ComplexFormComponent,
     TypeDiscriminator: ComplexFormComponent
   },
@@ -38,6 +42,10 @@
   {
     DerivedType: Sense,
     TypeDiscriminator: Sense
+  },
+  {
+    DerivedType: UserComment,
+    TypeDiscriminator: UserComment
   },
   {
     DerivedType: WritingSystem,

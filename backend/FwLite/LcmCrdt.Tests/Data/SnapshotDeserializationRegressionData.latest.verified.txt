@@ -3949,5 +3949,159 @@
     },
     "Id": "edd0c7a1-e37c-c67b-7522-eed5ec86fde8",
     "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "CommentThread",
+      "Id": "8f911a35-f5c5-f686-4ae7-51edce857df1",
+      "DeletedAt": null,
+      "SubjectId": "53b9eb28-12b0-2840-eaf2-7fc58c40a185",
+      "SubjectType": "Sense",
+      "Status": "Open",
+      "AuthorId": null,
+      "AuthorName": null,
+      "CreatedAt": "2026-07-02T09:46:27.5880032+07:00",
+      "UpdatedAt": "2026-07-02T04:31:08.1939565+07:00",
+      "Comments": [
+        {
+          "Id": "3f947d22-70e0-d30d-62c5-2b50f0ad7030",
+          "DeletedAt": null,
+          "CommentThreadId": "b0f6e6fe-e118-26b7-b286-9db69a140309",
+          "PreviousCommentId": "dfcc8e8c-2ec6-c2d4-a794-53a5a5915b50",
+          "Text": "microchip",
+          "AuthorId": "bus",
+          "AuthorName": "Saint Helena Pound",
+          "CreatedAt": "2026-07-01T18:18:32.8141612+07:00",
+          "UpdatedAt": "2026-07-02T11:46:28.7172532+07:00"
+        }
+      ]
+    },
+    "Id": "8f911a35-f5c5-f686-4ae7-51edce857df1",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "CommentThread",
+      "Id": "e1e30272-9a49-2644-eef3-f36caa061eae",
+      "DeletedAt": null,
+      "SubjectId": "bbd65c4d-2448-6222-a207-d301428d881d",
+      "SubjectType": "ExampleSentence",
+      "Status": "Closed",
+      "AuthorId": "back-end",
+      "AuthorName": "Fantastic Rubber Tuna",
+      "CreatedAt": "2026-07-05T12:17:02.0060498+07:00",
+      "UpdatedAt": "2026-07-06T04:04:55.5381107+07:00",
+      "Comments": [
+        {
+          "Id": "33961abf-15c1-71b8-ff24-be0bd5987b6f",
+          "DeletedAt": null,
+          "CommentThreadId": "e1e30272-9a49-2644-eef3-f36caa061eae",
+          "PreviousCommentId": "6f6d1c85-1d21-3659-a8be-234ba476d167",
+          "Text": "Awesome Soft Hat",
+          "AuthorId": "Strategist",
+          "AuthorName": "redundant",
+          "CreatedAt": "2026-07-05T17:15:38.2078204+07:00",
+          "UpdatedAt": "2026-07-06T00:23:27.650184+07:00"
+        }
+      ]
+    },
+    "Id": "e1e30272-9a49-2644-eef3-f36caa061eae",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "UserComment",
+      "Id": "85ef40c2-e168-7cdd-e302-d3edc18c38a5",
+      "DeletedAt": null,
+      "CommentThreadId": "bcea6bb9-1378-e3cd-b9d0-7c87b2ae9968",
+      "PreviousCommentId": "b87d624d-9827-4172-0beb-7d1f2d8e028c",
+      "Text": "target",
+      "AuthorId": "strategy",
+      "AuthorName": "Internal",
+      "CreatedAt": "2026-07-02T14:57:23.0439447+07:00",
+      "UpdatedAt": "2026-07-02T12:32:51.0578643+07:00"
+    },
+    "Id": "85ef40c2-e168-7cdd-e302-d3edc18c38a5",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "CommentThread",
+      "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+      "DeletedAt": null,
+      "SubjectId": "8f24e142-5373-8369-f828-417b81833e27",
+      "SubjectType": "Entry",
+      "Status": "Open",
+      "AuthorId": null,
+      "AuthorName": null,
+      "CreatedAt": "2026-07-03T04:57:05.9016384+07:00",
+      "UpdatedAt": "2026-07-03T16:30:59.5749065+07:00",
+      "Comments": [
+        {
+          "Id": "39408d18-4d46-a112-78eb-24c7c00d8d12",
+          "DeletedAt": null,
+          "CommentThreadId": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+          "PreviousCommentId": "b8099120-2b7c-5e86-da14-f5ab0e1b4bcd",
+          "Text": "Lek",
+          "AuthorId": "Cross-platform",
+          "AuthorName": "Functionality",
+          "CreatedAt": "2026-07-02T23:31:01.4636808+07:00",
+          "UpdatedAt": "2026-07-03T03:11:05.4871024+07:00"
+        }
+      ]
+    },
+    "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "CommentThread",
+      "Id": "2afa7c96-656a-536d-705f-b7a60a64bed2",
+      "DeletedAt": null,
+      "SubjectId": "2fac2398-0791-6c39-9d6e-fae54133d59f",
+      "SubjectType": "ExampleSentence",
+      "Status": "Open",
+      "AuthorId": "Frozen",
+      "AuthorName": "Handcrafted Soft Chips",
+      "CreatedAt": "2026-07-06T10:31:41.0420447+07:00",
+      "UpdatedAt": "2026-07-05T13:20:51.1147632+07:00",
+      "Comments": [
+        {
+          "Id": "c830a70c-ae94-2b3f-6994-cc17334649df",
+          "DeletedAt": null,
+          "CommentThreadId": "2afa7c96-656a-536d-705f-b7a60a64bed2",
+          "PreviousCommentId": "040ce2bb-b5e4-e532-8f65-5f25062e79fb",
+          "Text": "withdrawal",
+          "AuthorId": "Human",
+          "AuthorName": "Island",
+          "CreatedAt": "2026-07-06T02:54:36.0758935+07:00",
+          "UpdatedAt": "2026-07-05T23:32:25.6629513+07:00"
+        }
+      ]
+    },
+    "Id": "2afa7c96-656a-536d-705f-b7a60a64bed2",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "UserComment",
+      "Id": "4f5808a8-bbf1-e23d-e5fe-5a997f13bf3a",
+      "DeletedAt": null,
+      "CommentThreadId": "fdff5d2b-4405-84fa-40b9-bfa2c1302828",
+      "PreviousCommentId": "1e01381d-2b48-63f5-bc31-99710cea2695",
+      "Text": "Phased",
+      "AuthorId": "driver",
+      "AuthorName": "Home Loan Account",
+      "CreatedAt": "2026-07-02T22:19:48.4007941+07:00",
+      "UpdatedAt": "2026-07-03T13:54:23.9312531+07:00"
+    },
+    "Id": "4f5808a8-bbf1-e23d-e5fe-5a997f13bf3a",
+    "DeletedAt": null
   }
 ]
