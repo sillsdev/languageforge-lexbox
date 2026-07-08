@@ -61,76 +61,20 @@ public class LcmMediaService(
 
     public async Task<ReadFileResponse> GetFileStream(Guid fileId)
     {
+        var resource = await resourceService.GetLocalResource(fileId);
         var localResource = await resourceService.GetLocalResource(fileId);
         if (localResource is null)
         {
-            var connectionStatus = await httpClientProvider.ConnectionStatus();
-            if (connectionStatus != ConnectionStatus.Online)
+            localResource = await DownloadTasks.GetOrAdd(fileId, async _ =>
             {
-                return new ReadFileResponse(ReadFileResult.Offline);
-            }
-
-            try
-            {
-                localResource = await GetOrStartDownload(fileId);
-            }
-            catch (Exception e)
-            {
-                // The download can fail for reasons outside our control — the file may be missing
-                // on the server, or the media server/gateway may time out (504). Callers such as
-                // PictureImage expect failures via the result enum, not exceptions, so surface a
-                // graceful Error result (shown in the UI) instead of throwing an unhandled exception.
-                logger.LogError(e, "Failed to download media file {FileId}", fileId);
-                return new ReadFileResponse(ReadFileResult.Error, e.Message);
-            }
+                // Check again if we have it locally in case another thread completed before the GetOrAdd factory ran
+                return await resourceService.GetLocalResource(fileId) ?? await resourceService.DownloadResource(fileId, this);
+            });
         }
         //todo, consider trying to download the file again, maybe the cache was cleared
         if (!File.Exists(localResource.LocalPath))
             throw new FileNotFoundException("Unable to find the file with Id" + fileId, localResource.LocalPath);
         return new(File.OpenRead(localResource.LocalPath), Path.GetFileName(localResource.LocalPath));
-    }
-
-    private Task<LocalResource> GetOrStartDownload(Guid fileId)
-    {
-        // Use the *value* overload of GetOrAdd, not the factory overload: the factory can run more
-        // than once under contention (only one result is kept), which would start the download
-        // twice. Passing a not-yet-started TaskCompletionSource.Task lets exactly one caller — the
-        // one whose task actually got stored — kick off the download.
-        var tcs = new TaskCompletionSource<LocalResource>(TaskCreationOptions.RunContinuationsAsynchronously);
-        var task = DownloadTasks.GetOrAdd(fileId, tcs.Task);
-        if (task != tcs.Task)
-        {
-            // Another caller already owns the in-flight download; await theirs (our tcs is unused).
-            return task;
-        }
-        _ = RunDownloadAsync(fileId, tcs);
-        return task;
-    }
-
-    private async Task RunDownloadAsync(Guid fileId, TaskCompletionSource<LocalResource> tcs)
-    {
-        try
-        {
-            // Re-check before downloading: a previous download may have committed the LocalResource
-            // after our caller's GetLocalResource miss (this closes the race between
-            // GetLocalResource and DownloadResource). The task entry is removed only after this
-            // completes — i.e. after the download has committed — so any later caller that starts a
-            // fresh task will find the committed resource here and skip the download, rather than
-            // inserting a duplicate primary key.
-            var resource = await resourceService.GetLocalResource(fileId)
-                           ?? await resourceService.DownloadResource(fileId, this);
-            tcs.SetResult(resource);
-        }
-        catch (Exception e)
-        {
-            tcs.SetException(e);
-        }
-        finally
-        {
-            // Cached now, so future misses can start fresh; also prevents a failed download from
-            // being cached as a permanently-faulted task.
-            DownloadTasks.TryRemove(fileId, out _);
-        }
     }
 
     // Media files are proxied (lexbox -> FwHeadless). A cold request — e.g. the first one after the
