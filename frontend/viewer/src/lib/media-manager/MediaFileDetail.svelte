@@ -10,7 +10,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import AudioInput, {AUDIO_LOADER_HANDLED} from '$lib/components/field-editors/audio-input.svelte';
   import {cn} from '$lib/utils';
-  import {resource} from 'runed';
+  import {resource, watch} from 'runed';
   import {t} from 'svelte-i18n-lingui';
 
   type LocationStatus = 'local' | 'remote' | 'both';
@@ -175,8 +175,7 @@
     },
   );
 
-  $effect(() => {
-    file.id;
+  watch(() => file.id, () => {
     metadata.mutate(undefined);
     preview.mutate(undefined);
   });
