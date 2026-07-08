@@ -28,6 +28,7 @@ public class RegenerateHarmonySnapshotsTests
 
         var entry = await AutoFaker.EntryReadyForCreation(api);
         await api.CreateEntry(entry);
+        await api.CreateEntry(await AutoFaker.EntryReadyForCreation(api));
 
         var beforeSnapshot = await dataModel.GetLatestSnapshotByObjectId(entry.Id);
         var beforeEntry = (Entry)beforeSnapshot.Entity.DbObject;
@@ -62,6 +63,9 @@ public class RegenerateHarmonySnapshotsTests
             .WithoutStrictOrderingFor(x => x.SemanticDomains)
             .WithoutStrictOrderingFor(x => x.ComplexFormTypes)
             .WithoutStrictOrderingFor(x => x.MorphTypes));
+        
+        (await dbContext.Set<EntrySearchRecord>().CountAsync())
+            .Should().Be(await dbContext.Set<Entry>().CountAsync());
 
         await dbContext.Database.EnsureDeletedAsync();
     }

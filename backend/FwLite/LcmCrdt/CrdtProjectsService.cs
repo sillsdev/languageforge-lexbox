@@ -136,7 +136,6 @@ public partial class CrdtProjectsService(
             var dbContextFactory = services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>();
             await using var dbContext = await dbContextFactory.CreateDbContextAsync();
             await dataModel.RegenerateSnapshots();
-            await EntrySearchService.RegenerateEntrySearchTable(dbContext);
         });
 
         logger.LogInformation(
