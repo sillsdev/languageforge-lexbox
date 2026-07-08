@@ -1,9 +1,11 @@
 import {expect, test, type Page} from '@playwright/test';
 import {BrowsePage} from './browse-page';
 
-// A tiny valid 1x1 PNG, used to exercise the upload flow without a real image file.
-const ONE_PX_PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/pLvAAAAAElFTkSuQmCC',
+// A valid 96x96 PNG, used to exercise the upload flow without a real image file. It has real
+// dimensions (not 1x1) so the rendered image — and the trash button anchored to its corner —
+// occupy a realistic, clickable area.
+const TEST_PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAIAAABt+uBvAAAAjklEQVR42u3QMQ0AAAgDsKlDGJoQiANOriZV0FQPhygQJEiQIEGCBAlCkCBBggQJEiQIQYIECRIkSJAgBAkSJEiQIEGCBCFIkCBBggQJEoQgQYIECRIkSBCCBAkSJEiQIEGCECRIkCBBggQJQpAgQYIECRIkCEGCBAkSJEiQIEEIEiRIkCBBggQhSJCgPwuoEXMcuO2DAAAAAABJRU5ErkJggg==',
   'base64',
 );
 
@@ -67,7 +69,7 @@ test.describe('Sense pictures', () => {
     await picturesField.locator('input[type="file"]').setInputFiles({
       name: 'photo.png',
       mimeType: 'image/png',
-      buffer: ONE_PX_PNG,
+      buffer: TEST_PNG,
     });
 
     // The uploaded picture is created and re-loaded via getFileStream into a blob url.
@@ -86,12 +88,12 @@ test.describe('Sense pictures', () => {
     const fileInput = picturesField.locator('input[type="file"]');
 
     // First upload creates a picture.
-    await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: ONE_PX_PNG});
+    await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: TEST_PNG});
     await expect(picturesField.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
 
     // Uploading the same filename again -> server reports AlreadyExists with the existing
     // mediaUri; that's not an error here, so a second Picture pointing at the same file is added.
-    await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: ONE_PX_PNG});
+    await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: TEST_PNG});
 
     // Two pictures now exist (the carousel shows a navigation dot per picture).
     await expect(picturesField.getByRole('button', {name: /^Go to picture/})).toHaveCount(2, {timeout: 5000});
@@ -105,7 +107,7 @@ test.describe('Sense pictures', () => {
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField).toBeVisible({timeout: 5000});
     await picturesField.locator('input[type="file"]').setInputFiles({
-      name: 'photo.png', mimeType: 'image/png', buffer: ONE_PX_PNG,
+      name: 'photo.png', mimeType: 'image/png', buffer: TEST_PNG,
     });
     await expect(picturesField.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
     return picturesField;
@@ -142,7 +144,7 @@ test.describe('Sense pictures', () => {
 
     await picturesField.getByRole('button', {name: 'Replace Picture'}).click();
     await picturesField.locator('input[type="file"]').setInputFiles({
-      name: 'replacement.png', mimeType: 'image/png', buffer: ONE_PX_PNG,
+      name: 'replacement.png', mimeType: 'image/png', buffer: TEST_PNG,
     });
 
     // Still exactly one picture (replaced, not added), re-loaded into a fresh blob url.

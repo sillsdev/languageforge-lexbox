@@ -24,25 +24,22 @@
   // so guard against undefined rather than trusting the type at runtime.
   const pictures = $derived(value ?? []);
 
-  // The carousel reports which picture is currently shown; Replace/Delete act on it.
-  let selectedIndex = $state(0);
-  const currentPicture = $derived(pictures[selectedIndex]);
-
-  // Pause the carousel's auto-advance while the user is hovering/focusing the Replace or Delete
-  // buttons, so the "current" picture can't change out from under them before they click.
-  let pauseAutoplay = $state(false);
-
   // Formats the browser accepts and that the server supports for pictures.
   const ACCEPTED_TYPES = 'image/jpeg,image/png,image/tiff,image/bmp';
 
   let fileInputElement = $state<HTMLInputElement>();
-  // Which operation is in flight (drives per-button spinners + disabling the whole group).
+  // Which operation is in flight (drives the add-button spinner + disabling the edit affordances).
   let busyAction = $state<'add' | 'replace' | 'delete' | null>(null);
-  // Whether the file picker that's about to open is for adding or replacing.
-  let pendingFileAction: 'add' | 'replace' = 'add';
+  // The picture to replace once a file is chosen; undefined means the picker is adding a new one.
+  let pendingReplace = $state<IPicture | undefined>(undefined);
 
-  function pickFile(action: 'add' | 'replace') {
-    pendingFileAction = action;
+  function pickAddFile() {
+    pendingReplace = undefined;
+    fileInputElement?.click();
+  }
+
+  function requestReplace(picture: IPicture) {
+    pendingReplace = $state.snapshot(picture);
     fileInputElement?.click();
   }
 
@@ -51,8 +48,10 @@
     const file = target.files?.[0];
     // Reset the input so selecting the same file again re-triggers `change`.
     target.value = '';
+    const replaceTarget = pendingReplace;
+    pendingReplace = undefined;
     if (!file) return;
-    if (pendingFileAction === 'replace') void replacePicture(file);
+    if (replaceTarget) void replacePicture(replaceTarget, file);
     else void addPicture(file);
   }
 
@@ -97,9 +96,7 @@
     }
   }
 
-  async function replacePicture(file: File): Promise<void> {
-    const before = currentPicture ? $state.snapshot(currentPicture) : undefined;
-    if (!before) return;
+  async function replacePicture(before: IPicture, file: File): Promise<void> {
     busyAction = 'replace';
     try {
       const mediaUri = await uploadFile(file);
@@ -112,9 +109,8 @@
     }
   }
 
-  async function deletePicture(): Promise<void> {
-    const target = currentPicture ? $state.snapshot(currentPicture) : undefined;
-    if (!target) return;
+  async function deletePicture(picture: IPicture): Promise<void> {
+    const target = $state.snapshot(picture);
     if (!(await dialogsService.promptDelete($t`Picture`))) return;
     busyAction = 'delete';
     try {
@@ -136,7 +132,15 @@
 
 <div class="flex flex-col gap-2">
   {#if pictures.length > 0}
-    <PictureCarousel {pictures} bind:selectedIndex paused={pauseAutoplay} />
+    <!-- Replace/Delete live on the picture itself (tap the image to replace, trash-can in the
+         corner to delete), so they work on touch screens without hover. -->
+    <PictureCarousel
+      {pictures}
+      {readonly}
+      busy={busyAction !== null}
+      onReplacePicture={requestReplace}
+      onDeletePicture={deletePicture}
+    />
   {:else if readonly}
     <div class="text-muted-foreground p-1">
       {$t`No pictures`}
@@ -144,46 +148,13 @@
   {/if}
 
   {#if !readonly}
-    <!-- Buttons right-aligned to match the "+ Component" button style. -->
+    <!-- Right-aligned to match the "+ Component" button style. -->
     <div class="flex flex-wrap justify-end gap-2">
-      <Button icon="i-mdi-plus" size="xs" loading={busyAction === 'add'} disabled={busyAction !== null} onclick={() => pickFile('add')}>
+      <Button icon="i-mdi-plus" size="xs" loading={busyAction === 'add'} disabled={busyAction !== null} onclick={pickAddFile}>
         {$t`Picture`}
       </Button>
-      {#if pictures.length > 0}
-        <!-- Hovering or focusing these actions pauses auto-advance (mouseenter/leave fire on this
-             box; focusin/focusout bubble from the buttons) so the current picture stays put. -->
-        <div
-          class="flex gap-2"
-          role="group"
-          onmouseenter={() => (pauseAutoplay = true)}
-          onmouseleave={() => (pauseAutoplay = false)}
-          onfocusin={() => (pauseAutoplay = true)}
-          onfocusout={() => (pauseAutoplay = false)}
-        >
-          <Button
-            icon="i-mdi-image-refresh"
-            size="xs"
-            variant="secondary"
-            loading={busyAction === 'replace'}
-            disabled={busyAction !== null}
-            onclick={() => pickFile('replace')}
-          >
-            {$t`Replace Picture`}
-          </Button>
-          <Button
-            icon="i-mdi-delete"
-            size="xs"
-            variant="destructive"
-            loading={busyAction === 'delete'}
-            disabled={busyAction !== null}
-            onclick={() => deletePicture()}
-          >
-            {$t`Delete Picture`}
-          </Button>
-        </div>
-      {/if}
     </div>
-    <!-- Hidden input drives the OS file picker (shared by add + replace); only JPG/PNG offered. -->
+    <!-- Hidden input drives the OS file picker (shared by add + replace); only JPG/PNG/TIFF/BMP offered. -->
     <input
       bind:this={fileInputElement}
       type="file"

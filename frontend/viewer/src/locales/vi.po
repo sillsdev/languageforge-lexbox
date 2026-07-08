@@ -572,7 +572,7 @@ msgstr "Xóa {0}"
 msgid "Delete Entry"
 msgstr "Xóa mục"
 
-#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Delete Picture"
 msgstr ""
 
@@ -1701,7 +1701,7 @@ msgstr "Mở lại"
 msgid "Replace audio"
 msgstr "Thay thế âm thanh"
 
-#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Replace Picture"
 msgstr ""
 

@@ -7,8 +7,18 @@
 
   type Props = {
     picture: IPicture;
+    /** When provided, clicking the image triggers a replace. */
+    onReplace?: () => void;
+    /** When provided, a trash button is shown in the image's top-right corner. */
+    onDelete?: () => void;
+    /** Disables the edit affordances while an operation is in flight. */
+    busy?: boolean;
   };
-  const {picture}: Props = $props();
+  const {picture, onReplace, onDelete, busy = false}: Props = $props();
+
+  // The image doubles as edit UI (tap to replace, trash to delete) only when handlers are wired.
+  // Kept media-agnostic and hover-independent so it works on touch screens.
+  const editable = $derived(!!onReplace || !!onDelete);
 
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);
@@ -63,21 +73,47 @@
   });
 </script>
 
-<figure class="flex flex-col items-start gap-1">
+{#snippet imageContent()}
   {#if state.status === 'loaded'}
     <img src={state.url} alt={caption || $t`Picture`} class="max-h-64 max-w-full rounded-md object-contain" />
   {:else if state.status === 'loading'}
-    <div class="bg-muted text-muted-foreground flex h-32 w-full items-center justify-center rounded-md">
+    <div class="bg-muted text-muted-foreground flex h-32 w-64 items-center justify-center rounded-md">
       <span class="i-mdi-loading size-6 animate-spin"></span>
     </div>
   {:else}
-    <div
-      class="bg-muted text-muted-foreground flex h-32 w-full flex-col items-center justify-center gap-1 rounded-md"
-    >
+    <div class="bg-muted text-muted-foreground flex h-32 w-64 flex-col items-center justify-center gap-1 rounded-md">
       <span class="i-mdi-image-broken-variant size-6"></span>
       <span class="text-sm">{state.message}</span>
     </div>
   {/if}
+{/snippet}
+
+<figure class="flex flex-col items-start gap-1">
+  <!-- `w-fit` shrinks the box to the image so the trash button sits on the image's corner. -->
+  <div class="relative w-fit">
+    {#if editable}
+      <button
+        type="button"
+        class="block cursor-pointer appearance-none rounded-md border-0 bg-transparent p-0 focus-visible:outline-2 disabled:cursor-default"
+        aria-label={$t`Replace Picture`}
+        disabled={busy}
+        onclick={() => onReplace?.()}
+      >
+        {@render imageContent()}
+      </button>
+      <button
+        type="button"
+        class="text-destructive bg-background/70 hover:bg-background absolute right-1 top-1 z-10 rounded-full p-1 shadow-sm transition-colors disabled:opacity-50"
+        aria-label={$t`Delete Picture`}
+        disabled={busy}
+        onclick={() => onDelete?.()}
+      >
+        <span class="i-mdi-delete size-5"></span>
+      </button>
+    {:else}
+      {@render imageContent()}
+    {/if}
+  </div>
   {#if caption}
     <figcaption class="text-muted-foreground text-center text-sm">{caption}</figcaption>
   {/if}

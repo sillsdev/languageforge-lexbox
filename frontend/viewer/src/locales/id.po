@@ -572,7 +572,7 @@ msgstr "Hapus {0}"
 msgid "Delete Entry"
 msgstr "Hapus Entri"
 
-#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Delete Picture"
 msgstr ""
 
@@ -1701,7 +1701,7 @@ msgstr "Buka kembali"
 msgid "Replace audio"
 msgstr "Mengganti audio"
 
-#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Replace Picture"
 msgstr ""
 

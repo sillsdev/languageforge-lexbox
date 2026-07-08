@@ -572,7 +572,7 @@ msgstr "삭제 {0}"
 msgid "Delete Entry"
 msgstr "항목 삭제"
 
-#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Delete Picture"
 msgstr ""
 
@@ -1701,7 +1701,7 @@ msgstr "다시 열기"
 msgid "Replace audio"
 msgstr "오디오 교체"
 
-#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Replace Picture"
 msgstr ""
 

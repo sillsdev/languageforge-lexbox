@@ -12,12 +12,24 @@
 
   type Props = {
     pictures: IPicture[];
-    /** Index of the picture currently shown; bindable so the parent can act on the current picture. */
+    /** Index of the picture currently shown; bindable so parents can observe the active picture. */
     selectedIndex?: number;
-    /** When true, auto-advance is suspended (e.g. while the user is about to act on the current picture). */
-    paused?: boolean;
+    readonly?: boolean;
+    /** Disables the per-picture edit affordances while an operation is in flight. */
+    busy?: boolean;
+    /** Called with the picture the user tapped, to replace it. */
+    onReplacePicture?: (picture: IPicture) => void;
+    /** Called with the picture whose trash button was clicked, to delete it. */
+    onDeletePicture?: (picture: IPicture) => void;
   };
-  let {pictures, selectedIndex = $bindable(0), paused = false}: Props = $props();
+  let {
+    pictures,
+    selectedIndex = $bindable(0),
+    readonly = false,
+    busy = false,
+    onReplacePicture,
+    onDeletePicture,
+  }: Props = $props();
 
   // The Embla api, captured from <Carousel.Root setApi>. We drive our own controls (dots +
   // prev/next) through it rather than using <Carousel.Previous/Next>, which are positioned
@@ -42,9 +54,10 @@
     };
   });
 
-  // Auto-advance every 10 seconds when there is more than one picture (unless paused).
+  // Auto-advance every 10 seconds when there is more than one picture. Delete/replace act on
+  // the specific picture the user targets, so autoplay can't cause them to hit the wrong one.
   $effect(() => {
-    if (!api || !hasMultiple || paused) return;
+    if (!api || !hasMultiple) return;
     const embla = api;
     const interval = setInterval(() => embla.scrollNext(), AUTOPLAY_DELAY_MS);
     return () => clearInterval(interval);
@@ -60,7 +73,12 @@
     <Carousel.Content>
       {#each pictures as picture (picture.id)}
         <Carousel.Item class={cn(hasMultiple && 'flex justify-center')}>
-          <PictureImage {picture} />
+          <PictureImage
+            {picture}
+            {busy}
+            onReplace={readonly ? undefined : () => onReplacePicture?.(picture)}
+            onDelete={readonly ? undefined : () => onDeletePicture?.(picture)}
+          />
         </Carousel.Item>
       {/each}
     </Carousel.Content>

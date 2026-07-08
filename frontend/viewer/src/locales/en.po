@@ -567,7 +567,7 @@ msgstr "Delete {0}"
 msgid "Delete Entry"
 msgstr "Delete Entry"
 
-#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Delete Picture"
 msgstr "Delete Picture"
 
@@ -1696,7 +1696,7 @@ msgstr "Reopen"
 msgid "Replace audio"
 msgstr "Replace audio"
 
-#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Replace Picture"
 msgstr "Replace Picture"
 
