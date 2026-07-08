@@ -241,6 +241,28 @@ export async function deactivate(): Promise<boolean> {
   return await shutDownFwLite();
 }
 
+/**
+ * Returns a stable per-user directory for FW Lite data (projects, auth cache), in its own
+ * subdirectory so it doesn't collide with Platform.Bible's own `papi.storage` data for this
+ * extension (`.../extensions/lexicon/user-data/`). Mirrors Platform.Bible's own `app://` scheme
+ * (paranext-core's `getAppDir()`): the real per-user location when packaged, the repo-local
+ * dev-appdata directory in development, so `npm start` doesn't read/write production user data.
+ *
+ * Uses process.env/globalThis instead of require('os'/'path') because Platform.Bible blocks
+ * non-papi requires.
+ */
+function getFwLiteDataDir(): string {
+  let appDataDir: string;
+  if (globalThis.isPackaged) {
+    const home = process.env.USERPROFILE;
+    if (!home) throw new Error('Cannot determine FW Lite data directory: USERPROFILE is not set');
+    appDataDir = `${home}\\.platform.bible`;
+  } else {
+    appDataDir = `${globalThis.resourcesPath}\\dev-appdata`;
+  }
+  return `${appDataDir}\\extensions\\lexicon\\fw-lite`;
+}
+
 /** Launches the FieldWorks Lite process and returns its URL domain. */
 function launchFwLite(context: ExecutionActivationContext): string {
   const binaryPath = 'fw-lite/FwLiteWeb.exe';
@@ -253,6 +275,7 @@ function launchFwLite(context: ExecutionActivationContext): string {
   // TODO: Instead of hardcoding the URL and port we should run it and find them in the output.
   const baseUrl = 'http://localhost:29348';
 
+  const dataDir = getFwLiteDataDir();
   fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
@@ -263,6 +286,8 @@ function launchFwLite(context: ExecutionActivationContext): string {
       '--FwLiteWeb:CorsAllowAny=true',
       '--FwLiteWeb:EnableFileLogging=false', // already piped to P.B (and triggers npm watch)
       '--FwLiteWeb:OpenBrowser=false',
+      `--LcmCrdt:ProjectPath=${dataDir}`,
+      `--Auth:CacheFileName=${dataDir}\\msal.json`,
     ],
     { stdio: ['pipe', 'pipe', 'pipe'] },
   );
