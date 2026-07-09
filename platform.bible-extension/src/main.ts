@@ -5,7 +5,7 @@ import type { BrowseWebViewOptions } from 'lexicon';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
-import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
+import { FwLiteApi, getBrowseUrl, type LoginResult } from './utils/fw-lite-api';
 import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
 
@@ -189,14 +189,17 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const loginCommandPromise = papi.commands.registerCommand(
     'lexicon.login',
     async (authority: string) => {
+      let result: LoginResult | undefined;
       try {
         // Blocks until the user finishes (or gives up) in their system browser; see the doc
         // comment on FwLiteApi.login for why there's no timeout here.
-        await fwLiteApi.login(authority);
+        result = await fwLiteApi.login(authority);
       } catch (e) {
         logger.error('Error signing in to Lexbox:', JSON.stringify(e));
       }
-      return getAuthServers();
+      // Return the sign-in outcome alongside the refreshed servers so the caller can tell success
+      // from failure (Offline / Cancelled / a swallowed hard error), not just see a fresh list.
+      return { result, servers: await getAuthServers() };
     },
   );
 

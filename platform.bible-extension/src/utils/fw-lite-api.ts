@@ -7,26 +7,29 @@ import type {
   LexiconRef,
   PartialEntry,
 } from 'lexicon';
+import type {
+  ILexboxServer,
+  IServerStatus,
+  LoginResult as GeneratedLoginResult,
+} from '@dotnet-types';
 import { GridifyConditionalOperator } from '../types/enums';
 
+// The auth types below alias the FW Lite backend's generated types (imported type-only via the
+// tsconfig `@dotnet-types` path) under extension-local names, so they can't drift from the C#
+// models the REST API actually returns.
+
 /** A Lexbox server FW Lite can sign in to, as configured on the FW Lite backend. */
-export interface LexboxServer {
-  authority: string;
-  displayName: string;
-  /** Host (and port, if non-default) of {@link authority}; the identifier the auth endpoints key on. */
-  id: string;
-}
+export type LexboxServer = ILexboxServer;
 
 /** Sign-in status of a single {@link LexboxServer}, as returned by `GET /api/auth/servers`. */
-export interface AuthServerStatus {
-  displayName: string;
-  loggedIn: boolean;
-  loggedInAs: string | null;
-  server: LexboxServer;
-}
+export type AuthServerStatus = IServerStatus;
 
-/** Outcome of a system-browser login attempt; mirrors FwLiteShared's `LoginResult` enum. */
-export type LoginResult = 'Success' | 'Offline' | 'Cancelled';
+/**
+ * Outcome of a system-browser login attempt. Derived from FwLiteShared's generated `LoginResult`
+ * enum as a string union (rather than the enum itself) so outcomes compare against string literals
+ * without pulling the enum's runtime code into a bundle — `@dotnet-types` is type-only here.
+ */
+export type LoginResult = `${GeneratedLoginResult}`;
 
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
 function sanitizeUrlComponent(urlComponent?: string): string {
