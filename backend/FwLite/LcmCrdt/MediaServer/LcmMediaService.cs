@@ -73,12 +73,12 @@ public class LcmMediaService(
             {
                 localResource = await downloadTask;
             }
-            catch
+            finally
             {
-                // If the download fails, we need to remove the task from the ConcurrentDictionary so that
-                // a new download can be attempted later by a different thread
+                // Once the download completes, we need to remove the task from the ConcurrentDictionary
+                // so that a new download can be attempted later by a different thread. That way if the local
+                // file is ever deleted (say, by being replaced with a different picture) a new download can start.
                 DownloadTasks.TryRemove(new KeyValuePair<Guid, Task<LocalResource>>(fileId, downloadTask));
-                throw;
             }
         }
         //todo, consider trying to download the file again, maybe the cache was cleared
