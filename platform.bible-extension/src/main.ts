@@ -134,7 +134,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
       if (!lexiconCode) return { success };
 
-      const url = fwLiteApi.getBrowseUrl(lexiconCode);
+      const url = await fwLiteApi.getBrowseUrl(lexiconCode);
       const options: BrowseWebViewOptions = { url };
       success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };
@@ -153,7 +153,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       if (!lexiconCode) return { success };
 
       logger.info(`Displaying entry '${entryId}' in lexicon '${lexiconCode}'`);
-      const url = fwLiteApi.getBrowseUrl(lexiconCode, entryId);
+      const url = await fwLiteApi.getBrowseUrl(lexiconCode, entryId);
       const options: BrowseWebViewOptions = { url };
       success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };

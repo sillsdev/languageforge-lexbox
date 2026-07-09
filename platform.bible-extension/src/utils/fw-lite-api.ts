@@ -65,7 +65,7 @@ export class FwLiteApi {
   }
 
   async deleteEntry(id: string, lexiconCode?: string): Promise<void> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry/${id}`;
     await this.fetchPath(path, 'DELETE');
   }
@@ -85,7 +85,7 @@ export class FwLiteApi {
     semanticDomain?: string,
     lexiconCode?: string,
   ): Promise<IEntry[]> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     let path = `mini-lcm/${type}/${code}/entries`;
     if (search) path += `/${search}`;
     if (semanticDomain) {
@@ -96,13 +96,13 @@ export class FwLiteApi {
   }
 
   async getEntry(id: string, lexiconCode?: string): Promise<IEntry> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry/${id}`;
     return (await this.fetchPath(path)) as IEntry;
   }
 
   async getSense(id: string, lexiconCode?: string): Promise<ISense> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/sense/${id}`;
     return (await this.fetchPath(path)) as ISense;
   }
@@ -132,13 +132,13 @@ export class FwLiteApi {
   }
 
   async getWritingSystems(lexiconCode?: string): Promise<IWritingSystems> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/writingSystems`;
     return (await this.fetchPath(path)) as IWritingSystems;
   }
 
   async postNewEntry(entry: PartialEntry, lexiconCode?: string): Promise<IEntry> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry`;
     return (await this.fetchPath(path, 'POST', entry)) as IEntry;
   }
@@ -166,8 +166,8 @@ export class FwLiteApi {
 
   /* eslint-enable no-type-assertion/no-type-assertion */
 
-  getBrowseUrl(lexiconCode: string, entryId?: string): string {
-    const type = FwLiteApi.projectTypeByCode.get(lexiconCode) ?? 'FwData';
+  async getBrowseUrl(lexiconCode: string, entryId?: string): Promise<string> {
+    const type = await this.resolveProjectType(lexiconCode);
     const segment = type === 'Harmony' ? 'project' : 'fwdata';
     let url = `${this.baseUrl}/paratext/${segment}/${sanitizeUrlComponent(lexiconCode)}`;
     if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}&entryOpen=true`;
@@ -186,11 +186,31 @@ export class FwLiteApi {
     FwLiteApi.projectTypeByCode.set(code, 'Harmony');
   }
 
-  private checkLexiconCode(lexiconCode?: string): LexiconRef {
+  private async checkLexiconCode(lexiconCode?: string): Promise<LexiconRef> {
     const rawCode = lexiconCode || this.lexiconCode;
     const code = sanitizeUrlComponent(rawCode);
-    const type = FwLiteApi.projectTypeByCode.get(rawCode ?? '') ?? 'FwData';
+    const type = await this.resolveProjectType(rawCode ?? '');
     return { code, type };
+  }
+
+  /**
+   * Looks up a project's API type. The cache is in-memory only and empty after an extension
+   * restart, so on a miss we repopulate it from the backend; otherwise a previously created
+   * Harmony/CRDT project would be misrouted to the FwData endpoints and every operation on it would
+   * fail. Falls back to 'FwData' if the type still can't be determined.
+   */
+  private async resolveProjectType(code: string): Promise<'FwData' | 'Harmony'> {
+    const cached = FwLiteApi.projectTypeByCode.get(code);
+    if (cached) return cached;
+    try {
+      await this.getProjects();
+    } catch (e) {
+      logger.warn(
+        'Could not load project types; defaulting to FwData:',
+        e instanceof Error ? e.message : String(e),
+      );
+    }
+    return FwLiteApi.projectTypeByCode.get(code) ?? 'FwData';
   }
 
   private getUrl(path: string): string {
