@@ -80,6 +80,9 @@
       <Button icon="i-mdi-delete" variant="destructive" disabled={busy} onclick={() => onDelete()}>
         {$t`Delete Picture`}
       </Button>
+      <Button onclick={() => (open = false)}>
+        {$t`Submit`}
+      </Button>
     </Dialog.DialogFooter>
 
     <input bind:this={fileInputElement} type="file" accept={ACCEPTED_PICTURE_TYPES} onchange={onFileSelected} class="hidden" />

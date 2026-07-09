@@ -139,6 +139,11 @@ test.describe('Sense pictures', () => {
     await expect(dialog.getByText('Caption')).toBeVisible();
     await expect(dialog.getByRole('button', {name: 'Replace Picture'})).toBeVisible();
     await expect(dialog.getByRole('button', {name: 'Delete Picture'})).toBeVisible();
+
+    // Submit dismisses the dialog (leaving the picture in place).
+    await dialog.getByRole('button', {name: 'Submit'}).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(picturesField.getByRole('button', {name: 'Edit Picture'})).toBeVisible();
   });
 
   test('Delete Picture (in the dialog) removes the picture after confirmation', async ({page}) => {

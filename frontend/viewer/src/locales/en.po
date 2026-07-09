@@ -1886,6 +1886,7 @@ msgstr "Subject does not have suitable object of type: {0}"
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Submit"
 msgstr "Submit"
 
