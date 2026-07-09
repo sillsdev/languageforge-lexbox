@@ -20,23 +20,34 @@ export default function AuthStatus({
 }: AuthStatusProps): ReactElement | undefined {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
-  // Tracks which server's login/logout call is in flight so only that row's button disables.
-  const [pendingAuthority, setPendingAuthority] = useState<string | undefined>();
+  // Tracks which servers have a login/logout call in flight so each row's button disables
+  // independently — a slow sign-in on one server must not re-enable another's button (or clear its
+  // pending state), since multiple can be pending at once.
+  const [pendingAuthorities, setPendingAuthorities] = useState<Set<string>>(() => new Set());
+
+  function setPending(authority: string, pending: boolean): void {
+    setPendingAuthorities((prev) => {
+      const next = new Set(prev);
+      if (pending) next.add(authority);
+      else next.delete(authority);
+      return next;
+    });
+  }
 
   function handleLogin(authority: string): void {
-    setPendingAuthority(authority);
+    setPending(authority, true);
     // eslint-disable-next-line promise/catch-or-return
     login(authority)
       .catch((e) => logger.error(localizedStrings['%lexicon_auth_loginError%'], JSON.stringify(e)))
-      .finally(() => setPendingAuthority(undefined));
+      .finally(() => setPending(authority, false));
   }
 
   function handleLogout(authority: string): void {
-    setPendingAuthority(authority);
+    setPending(authority, true);
     // eslint-disable-next-line promise/catch-or-return
     logout(authority)
       .catch((e) => logger.error(localizedStrings['%lexicon_auth_logoutError%'], JSON.stringify(e)))
-      .finally(() => setPendingAuthority(undefined));
+      .finally(() => setPending(authority, false));
   }
 
   if (!servers?.length) return undefined;
@@ -45,7 +56,7 @@ export default function AuthStatus({
     <div className="tw:flex tw:flex-col tw:gap-2 tw:p-4 tw:border-b">
       <h3 className="tw:font-semibold">{localizedStrings['%lexicon_auth_sectionTitle%']}</h3>
       {servers.map((status) => {
-        const isPending = pendingAuthority === status.server.id;
+        const isPending = pendingAuthorities.has(status.server.id);
         return (
           <div
             className="tw:flex tw:items-center tw:justify-between tw:gap-2"
