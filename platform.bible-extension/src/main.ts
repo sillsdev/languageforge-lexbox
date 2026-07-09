@@ -270,7 +270,10 @@ function getFwLiteDataDir(platform: string): string {
   return `${appDataDir}${sep}extensions${sep}lexicon${sep}fw-lite`;
 }
 
-/** Returns the extension-relative path to the FW Lite binary for the given platform. */
+/**
+ * Returns the extension-relative path to the FW Lite binary. Forward slashes on all platforms:
+ * createProcess (Node) resolves it, so unlike getFwLiteDataDir it needs no Windows separator.
+ */
 function getFwLiteBinaryPath(platform: string): string {
   switch (platform) {
     case 'win32':
