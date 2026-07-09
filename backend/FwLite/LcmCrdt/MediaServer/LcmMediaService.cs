@@ -65,11 +65,22 @@ public class LcmMediaService(
         var localResource = await resourceService.GetLocalResource(fileId);
         if (localResource is null)
         {
-            localResource = await DownloadTasks.GetOrAdd(fileId, async _ =>
+            var downloadTask = DownloadTasks.GetOrAdd(fileId, async _ =>
             {
                 // Check again if we have it locally in case another thread completed before the GetOrAdd factory ran
                 return await resourceService.GetLocalResource(fileId) ?? await resourceService.DownloadResource(fileId, this);
             });
+            try
+            {
+                localResource = await downloadTask;
+            }
+            catch
+            {
+                // If the download fails, we need to remove the task from the ConcurrentDictionary so that
+                // a new download can be attempted later by a different thread
+                DownloadTasks.TryRemove(new KeyValuePair<Guid, Task<LocalResource>>(fileId, downloadTask));
+                throw;
+            }
         }
         //todo, consider trying to download the file again, maybe the cache was cleared
         if (!File.Exists(localResource.LocalPath))
