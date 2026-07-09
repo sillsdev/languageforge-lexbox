@@ -95,8 +95,8 @@ test.describe('Sense pictures', () => {
     // mediaUri; that's not an error here, so a second Picture pointing at the same file is added.
     await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: TEST_PNG});
 
-    // Two pictures now exist (the carousel shows a navigation dot per picture).
-    await expect(picturesField.getByRole('button', {name: /^Go to picture/})).toHaveCount(2, {timeout: 5000});
+    // Two pictures now exist (each renders its own image in the flex layout).
+    await expect(picturesField.locator('img')).toHaveCount(2, {timeout: 5000});
   });
 
   /** Uploads one picture to "ambuka" (which starts empty) and returns the pictures-field locator. */

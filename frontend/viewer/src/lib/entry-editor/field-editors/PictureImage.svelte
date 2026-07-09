@@ -24,7 +24,9 @@
   const api = $derived(projectContext?.maybeApi);
   const writingSystemService = useWritingSystemService();
 
-  const caption = $derived(writingSystemService.first(picture.caption, writingSystemService.analysis) ?? '');
+  // Show a single writing system: the first non-empty caption searching vernacular writing
+  // systems first, then analysis — which is exactly the default order of allWritingSystems().
+  const caption = $derived(writingSystemService.first(picture.caption) ?? '');
 
   type LoadState =
     | {status: 'loading'}
@@ -75,13 +77,14 @@
 
 {#snippet imageContent()}
   {#if state.status === 'loaded'}
-    <img src={state.url} alt={caption || $t`Picture`} class="max-h-64 max-w-full rounded-md object-contain" />
+    <!-- Fixed height, flexible width: the image keeps its aspect ratio and its width varies. -->
+    <img src={state.url} alt={caption || $t`Picture`} class="h-40 w-auto rounded-md object-contain" />
   {:else if state.status === 'loading'}
-    <div class="bg-muted text-muted-foreground flex h-32 w-64 items-center justify-center rounded-md">
+    <div class="bg-muted text-muted-foreground flex h-40 w-40 items-center justify-center rounded-md">
       <span class="i-mdi-loading size-6 animate-spin"></span>
     </div>
   {:else}
-    <div class="bg-muted text-muted-foreground flex h-32 w-64 flex-col items-center justify-center gap-1 rounded-md">
+    <div class="bg-muted text-muted-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md">
       <span class="i-mdi-image-broken-variant size-6"></span>
       <span class="text-sm">{state.message}</span>
     </div>
@@ -115,6 +118,10 @@
     {/if}
   </div>
   {#if caption}
-    <figcaption class="text-muted-foreground text-center text-sm">{caption}</figcaption>
+    <!-- `w-0 min-w-full` pins the caption to the image's width (the box above), so its `max-width`
+         is the picture width; line-clamp-2 caps it at two lines with an ellipsis. -->
+    <figcaption class="text-muted-foreground line-clamp-2 w-0 min-w-full break-words text-sm">
+      {caption}
+    </figcaption>
   {/if}
 </figure>

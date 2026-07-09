@@ -2,7 +2,7 @@
   import type {IPicture} from '$lib/dotnet-types';
   import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
   import {Button} from '$lib/components/ui/button';
-  import PictureCarousel from './PictureCarousel.svelte';
+  import PictureImage from './PictureImage.svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useLexboxApi} from '$lib/services/service-provider';
   import {useDialogsService} from '$lib/services/dialogs-service';
@@ -132,15 +132,20 @@
 
 <div class="flex flex-col gap-2">
   {#if pictures.length > 0}
-    <!-- Replace/Delete live on the picture itself (tap the image to replace, trash-can in the
-         corner to delete), so they work on touch screens without hover. -->
-    <PictureCarousel
-      {pictures}
-      {readonly}
-      busy={busyAction !== null}
-      onReplacePicture={requestReplace}
-      onDeletePicture={deletePicture}
-    />
+    <!-- Pictures flow left-to-right and wrap; on a narrow (mobile) screen they stack vertically
+         with no CSS change. Each picture + its caption is one flex item. Replace/Delete live on
+         the picture itself (tap the image to replace, trash-can in the corner to delete), so
+         they work on touch screens without hover. -->
+    <div class="flex flex-wrap gap-4">
+      {#each pictures as picture (picture.id)}
+        <PictureImage
+          {picture}
+          busy={busyAction !== null}
+          onReplace={readonly ? undefined : () => requestReplace(picture)}
+          onDelete={readonly ? undefined : () => void deletePicture(picture)}
+        />
+      {/each}
+    </div>
   {:else if readonly}
     <div class="text-muted-foreground p-1">
       {$t`No pictures`}
