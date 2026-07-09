@@ -77,7 +77,8 @@ globalThis.webViewComponent = function LexiconSelect({
 
   const selectLexicon = useCallback(
     async (code: string): Promise<void> => {
-      await commands.sendCommand('lexicon.selectLexicon', projectId ?? '', code);
+      const result = await commands.sendCommand('lexicon.selectLexicon', projectId ?? '', code);
+      if (!result?.success) throw new Error(result?.error || 'Failed to select lexicon');
     },
     [projectId],
   );
