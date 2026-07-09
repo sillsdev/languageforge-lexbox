@@ -42,10 +42,11 @@ export class ProjectManager {
 
     logger.info(`Lexicon not yet selected for project '${nameOrId}'`);
     const vernacularLanguage = await this.getLanguageTag();
+    const options: LexiconWebViewOptions = { vernacularLanguage };
     await this.openWebView(
       WebViewType.SelectLexicon,
       { floatSize: { height: 500, width: 400 }, type: 'float' },
-      { vernacularLanguage },
+      options,
     );
   }
 

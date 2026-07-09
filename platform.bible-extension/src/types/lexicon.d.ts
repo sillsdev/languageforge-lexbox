@@ -33,6 +33,8 @@ declare module 'lexicon' {
 
   export interface SuccessHolder {
     success: boolean;
+    /** When `success` is false, a human-readable reason (e.g. a backend validation message). */
+    error?: string;
   }
 
   export interface IEntryQuery {
