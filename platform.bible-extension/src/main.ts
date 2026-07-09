@@ -263,8 +263,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         await fwLiteApi.createProject(name, code, vernacularWs, analysisWs);
         return { success: true };
       } catch (e) {
-        logger.error('Error creating lexicon:', JSON.stringify(e));
-        return { success: false };
+        const error = e instanceof Error ? e.message : String(e);
+        logger.error('Error creating lexicon:', error);
+        return { success: false, error };
       }
     },
   );

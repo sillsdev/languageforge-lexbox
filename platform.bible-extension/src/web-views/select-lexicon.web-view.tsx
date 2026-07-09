@@ -96,7 +96,7 @@ globalThis.webViewComponent = function LexiconSelect({
         vernacularWs,
         analysisWs,
       );
-      if (!result?.success) throw new Error('Failed to create lexicon');
+      if (!result?.success) throw new Error(result?.error || 'Failed to create lexicon');
     },
     [],
   );
