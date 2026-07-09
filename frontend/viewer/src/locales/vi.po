@@ -345,6 +345,10 @@ msgstr ""
 msgid "Cancel"
 msgstr "Hủy"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Caption"
+msgstr ""
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
@@ -572,7 +576,7 @@ msgstr "Xóa {0}"
 msgid "Delete Entry"
 msgstr "Xóa mục"
 
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Delete Picture"
 msgstr ""
 
@@ -689,6 +693,11 @@ msgstr "Đang tải xuống..."
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Chỉnh sửa chế độ xem tùy chỉnh"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Edit Picture"
+msgstr ""
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -993,12 +1002,6 @@ msgstr "Ghi chú"
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Đi tới {0}"
-
-#. Aria-label on a carousel dot button below the picture; navigates to a specific picture
-#. {0} = 1-based picture number (e.g., "Go to picture 2")
-#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
-msgid "Go to picture {0}"
-msgstr ""
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1335,11 +1338,6 @@ msgstr ""
 msgid "Next"
 msgstr "Tiếp theo"
 
-#. Aria-label on the right-arrow button in the picture carousel; advances to the next image
-#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
-msgid "Next picture"
-msgstr ""
-
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1611,11 +1609,6 @@ msgstr "Xem trước"
 msgid "Preview not available"
 msgstr "Xem trước không khả dụng"
 
-#. Aria-label on the left-arrow button in the picture carousel; goes back to the previous image
-#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
-msgid "Previous picture"
-msgstr ""
-
 #. Label in project card
 #: src/home/HomeView.svelte
 msgid "Project"
@@ -1701,7 +1694,7 @@ msgstr "Mở lại"
 msgid "Replace audio"
 msgstr "Thay thế âm thanh"
 
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Replace Picture"
 msgstr ""
 

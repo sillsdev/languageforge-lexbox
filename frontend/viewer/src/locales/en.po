@@ -340,6 +340,10 @@ msgstr "Browse view failed"
 msgid "Cancel"
 msgstr "Cancel"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Caption"
+msgstr "Caption"
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
@@ -567,7 +571,7 @@ msgstr "Delete {0}"
 msgid "Delete Entry"
 msgstr "Delete Entry"
 
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Delete Picture"
 msgstr "Delete Picture"
 
@@ -684,6 +688,11 @@ msgstr "Downloading..."
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Edit Custom View"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Edit Picture"
+msgstr "Edit Picture"
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -988,12 +997,6 @@ msgstr "Gloss"
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Go to {0}"
-
-#. Aria-label on a carousel dot button below the picture; navigates to a specific picture
-#. {0} = 1-based picture number (e.g., "Go to picture 2")
-#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
-msgid "Go to picture {0}"
-msgstr "Go to picture {0}"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1330,11 +1333,6 @@ msgstr "Newest first"
 msgid "Next"
 msgstr "Next"
 
-#. Aria-label on the right-arrow button in the picture carousel; advances to the next image
-#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
-msgid "Next picture"
-msgstr "Next picture"
-
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1606,11 +1604,6 @@ msgstr "Preview"
 msgid "Preview not available"
 msgstr "Preview not available"
 
-#. Aria-label on the left-arrow button in the picture carousel; goes back to the previous image
-#: src/lib/entry-editor/field-editors/PictureCarousel.svelte
-msgid "Previous picture"
-msgstr "Previous picture"
-
 #. Label in project card
 #: src/home/HomeView.svelte
 msgid "Project"
@@ -1696,7 +1689,7 @@ msgstr "Reopen"
 msgid "Replace audio"
 msgstr "Replace audio"
 
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Replace Picture"
 msgstr "Replace Picture"
 

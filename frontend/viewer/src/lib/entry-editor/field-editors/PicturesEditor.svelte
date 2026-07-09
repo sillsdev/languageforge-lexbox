@@ -1,8 +1,10 @@
 <script lang="ts">
-  import type {IPicture} from '$lib/dotnet-types';
+  import type {IPicture, IRichMultiString} from '$lib/dotnet-types';
   import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
   import {Button} from '$lib/components/ui/button';
   import PictureImage from './PictureImage.svelte';
+  import EditPictureDialog from './EditPictureDialog.svelte';
+  import {ACCEPTED_PICTURE_TYPES, isLosslessImage} from './picture-formats';
   import {t} from 'svelte-i18n-lingui';
   import {useLexboxApi} from '$lib/services/service-provider';
   import {useDialogsService} from '$lib/services/dialogs-service';
@@ -24,23 +26,20 @@
   // so guard against undefined rather than trusting the type at runtime.
   const pictures = $derived(value ?? []);
 
-  // Formats the browser accepts and that the server supports for pictures.
-  const ACCEPTED_TYPES = 'image/jpeg,image/png,image/tiff,image/bmp';
-
   let fileInputElement = $state<HTMLInputElement>();
-  // Which operation is in flight (drives the add-button spinner + disabling the edit affordances).
-  let busyAction = $state<'add' | 'replace' | 'delete' | null>(null);
-  // The picture to replace once a file is chosen; undefined means the picker is adding a new one.
-  let pendingReplace = $state<IPicture | undefined>(undefined);
+  // Which operation is in flight: 'add' drives the add-button spinner; 'edit' covers the
+  // replace/delete/caption operations invoked from the edit dialog.
+  let busyAction = $state<'add' | 'edit' | null>(null);
 
-  function pickAddFile() {
-    pendingReplace = undefined;
-    fileInputElement?.click();
-  }
+  // The picture currently open in the edit dialog, tracked by id so it stays in sync with the
+  // reloaded entry after each change (e.g. its image updates in the dialog after a replace).
+  let editingPictureId = $state<string>();
+  const editingPicture = $derived(editingPictureId ? pictures.find((p) => p.id === editingPictureId) : undefined);
+  let editDialogOpen = $state(false);
 
-  function requestReplace(picture: IPicture) {
-    pendingReplace = $state.snapshot(picture);
-    fileInputElement?.click();
+  function openEditor(picture: IPicture) {
+    editingPictureId = picture.id;
+    editDialogOpen = true;
   }
 
   function onFileSelected(event: Event) {
@@ -48,11 +47,7 @@
     const file = target.files?.[0];
     // Reset the input so selecting the same file again re-triggers `change`.
     target.value = '';
-    const replaceTarget = pendingReplace;
-    pendingReplace = undefined;
-    if (!file) return;
-    if (replaceTarget) void replacePicture(replaceTarget, file);
-    else void addPicture(file);
+    if (file) void addPicture(file);
   }
 
   // Uploads the chosen file and returns its mediaUri, or null if the upload was rejected
@@ -67,7 +62,7 @@
       case UploadFileResult.AlreadyExists:
         // AlreadyExists is not an error here: one image file (mediaUri) can back many Picture
         // objects across different senses/entries. The server returns the existing file's
-        // mediaUri, which we reuse to create a new Picture pointing at that same image.
+        // mediaUri, which we reuse to point a Picture at that same image.
         break;
       case UploadFileResult.TooBig:
         AppNotification.display(tooBigMessage(file), {type: 'error', timeout: 'long'});
@@ -96,35 +91,49 @@
     }
   }
 
-  async function replacePicture(before: IPicture, file: File): Promise<void> {
-    busyAction = 'replace';
+  // --- Edit dialog operations (act on the picture currently open in the dialog) ---
+
+  async function replaceEditingPicture(file: File): Promise<void> {
+    const before = editingPicture ? $state.snapshot(editingPicture) : undefined;
+    if (!before) return;
+    busyAction = 'edit';
     try {
       const mediaUri = await uploadFile(file);
       if (!mediaUri) return;
       // Keep the same picture (id, order, caption); only swap the image it points at.
-      const after: IPicture = {...before, mediaUri};
-      await api.updatePicture(entryId, senseId, before, after);
+      await api.updatePicture(entryId, senseId, before, {...before, mediaUri});
     } finally {
       busyAction = null;
     }
   }
 
-  async function deletePicture(picture: IPicture): Promise<void> {
-    const target = $state.snapshot(picture);
+  async function changeCaption(caption: IRichMultiString): Promise<void> {
+    const before = editingPicture ? $state.snapshot(editingPicture) : undefined;
+    if (!before) return;
+    busyAction = 'edit';
+    try {
+      await api.updatePicture(entryId, senseId, before, {...before, caption});
+    } finally {
+      busyAction = null;
+    }
+  }
+
+  async function deleteEditingPicture(): Promise<void> {
+    const target = editingPicture ? $state.snapshot(editingPicture) : undefined;
+    if (!target) return;
     if (!(await dialogsService.promptDelete($t`Picture`))) return;
-    busyAction = 'delete';
+    busyAction = 'edit';
     try {
       await api.deletePicture(entryId, senseId, target.id);
+      editDialogOpen = false;
     } finally {
       busyAction = null;
     }
   }
 
-  // The server rejects files above its size limit. JPEGs can usually be shrunk by lowering
-  // the export quality, whereas lossless formats (PNG, BMP, TIFF) need a smaller resolution.
+  // The server rejects files above its size limit; the advice differs by format.
   function tooBigMessage(file: File): string {
-    const isLossless = /^image\/(png|bmp|tiff)$/.test(file.type) || /\.(png|bmp|tiff?)$/i.test(file.name);
-    return isLossless
+    return isLosslessImage(file)
       ? $t`This picture is too large to upload. Try reducing the image resolution and uploading again.`
       : $t`This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again.`;
   }
@@ -133,16 +142,14 @@
 <div class="flex flex-col gap-2">
   {#if pictures.length > 0}
     <!-- Pictures flow left-to-right and wrap; on a narrow (mobile) screen they stack vertically
-         with no CSS change. Each picture + its caption is one flex item. Replace/Delete live on
-         the picture itself (tap the image to replace, trash-can in the corner to delete), so
-         they work on touch screens without hover. -->
+         with no CSS change. Each picture + its caption is one flex item. Clicking a picture (a
+         pencil hints at this) opens the edit dialog. -->
     <div class="flex flex-wrap gap-4">
       {#each pictures as picture (picture.id)}
         <PictureImage
           {picture}
           busy={busyAction !== null}
-          onReplace={readonly ? undefined : () => requestReplace(picture)}
-          onDelete={readonly ? undefined : () => void deletePicture(picture)}
+          onEdit={readonly ? undefined : () => openEditor(picture)}
         />
       {/each}
     </div>
@@ -155,17 +162,28 @@
   {#if !readonly}
     <!-- Right-aligned to match the "+ Component" button style. -->
     <div class="flex flex-wrap justify-end gap-2">
-      <Button icon="i-mdi-plus" size="xs" loading={busyAction === 'add'} disabled={busyAction !== null} onclick={pickAddFile}>
+      <Button icon="i-mdi-plus" size="xs" loading={busyAction === 'add'} disabled={busyAction !== null} onclick={() => fileInputElement?.click()}>
         {$t`Picture`}
       </Button>
     </div>
-    <!-- Hidden input drives the OS file picker (shared by add + replace); only JPG/PNG/TIFF/BMP offered. -->
+    <!-- Hidden input drives the OS file picker for adding a picture; only JPG/PNG/TIFF/BMP offered. -->
     <input
       bind:this={fileInputElement}
       type="file"
-      accept={ACCEPTED_TYPES}
+      accept={ACCEPTED_PICTURE_TYPES}
       onchange={onFileSelected}
       class="hidden"
     />
   {/if}
 </div>
+
+{#if editingPicture}
+  <EditPictureDialog
+    bind:open={editDialogOpen}
+    picture={editingPicture}
+    busy={busyAction === 'edit'}
+    onReplace={(file) => void replaceEditingPicture(file)}
+    onDelete={() => void deleteEditingPicture()}
+    onCaptionChange={(caption) => void changeCaption(caption)}
+  />
+{/if}

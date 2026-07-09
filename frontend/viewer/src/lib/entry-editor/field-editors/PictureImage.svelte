@@ -7,18 +7,18 @@
 
   type Props = {
     picture: IPicture;
-    /** When provided, clicking the image triggers a replace. */
-    onReplace?: () => void;
-    /** When provided, a trash button is shown in the image's top-right corner. */
-    onDelete?: () => void;
-    /** Disables the edit affordances while an operation is in flight. */
+    /** When provided, the whole picture is clickable (with a pencil hint) to open the edit dialog. */
+    onEdit?: () => void;
+    /** Disables the edit affordance while an operation is in flight. */
     busy?: boolean;
+    /** Whether to render the caption beneath the picture (hidden inside the edit dialog). */
+    showCaption?: boolean;
   };
-  const {picture, onReplace, onDelete, busy = false}: Props = $props();
+  const {picture, onEdit, busy = false, showCaption = true}: Props = $props();
 
-  // The image doubles as edit UI (tap to replace, trash to delete) only when handlers are wired.
-  // Kept media-agnostic and hover-independent so it works on touch screens.
-  const editable = $derived(!!onReplace || !!onDelete);
+  // When an edit handler is wired the picture becomes a button that opens the edit dialog. The
+  // whole picture is clickable; the pencil is only a hover-independent hint (works on touch).
+  const editable = $derived(!!onEdit);
 
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);
@@ -98,26 +98,21 @@
       <button
         type="button"
         class="block cursor-pointer appearance-none rounded-md border-0 bg-transparent p-0 focus-visible:outline-2 disabled:cursor-default"
-        aria-label={$t`Replace Picture`}
+        aria-label={$t`Edit Picture`}
         disabled={busy}
-        onclick={() => onReplace?.()}
+        onclick={() => onEdit?.()}
       >
         {@render imageContent()}
-      </button>
-      <button
-        type="button"
-        class="text-destructive bg-background/70 hover:bg-background absolute right-1 top-1 z-10 rounded-full p-1 shadow-sm transition-colors disabled:opacity-50"
-        aria-label={$t`Delete Picture`}
-        disabled={busy}
-        onclick={() => onDelete?.()}
-      >
-        <span class="i-mdi-delete size-5"></span>
+        <!-- Pencil hint that the picture is clickable; the click is handled by the button itself. -->
+        <span class="text-foreground bg-background/70 pointer-events-none absolute right-1 top-1 z-10 rounded-full p-1 shadow-sm">
+          <span class="i-mdi-pencil block size-5"></span>
+        </span>
       </button>
     {:else}
       {@render imageContent()}
     {/if}
   </div>
-  {#if caption}
+  {#if showCaption && caption}
     <!-- `w-0 min-w-full` pins the caption to the image's width (the box above), so its `max-width`
          is the picture width; line-clamp-2 caps it at two lines with an ellipsis. -->
     <figcaption class="text-muted-foreground line-clamp-2 w-0 min-w-full break-words text-sm">

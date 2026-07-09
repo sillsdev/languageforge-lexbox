@@ -113,43 +113,73 @@ test.describe('Sense pictures', () => {
     return picturesField;
   }
 
-  test('"+ Picture" stays available alongside Replace/Delete once a picture exists', async ({page}) => {
+  /** Adds a picture, clicks it to open the edit dialog, and returns [picturesField, dialog]. */
+  async function openEditor(page: Page) {
+    const picturesField = await addOnePicture(page);
+    await picturesField.getByRole('button', {name: 'Edit Picture'}).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible({timeout: 5000});
+    return {picturesField, dialog};
+  }
+
+  test('"+ Picture" stays available; clicking a picture opens the edit dialog', async ({page}) => {
     const picturesField = await addOnePicture(page);
 
     // The add button is still present even though a picture now exists...
     await expect(picturesField.getByRole('button', {name: 'Picture', exact: true})).toBeVisible();
-    // ...plus the two picture-specific actions.
-    await expect(picturesField.getByRole('button', {name: 'Replace Picture'})).toBeVisible();
-    await expect(picturesField.getByRole('button', {name: 'Delete Picture'})).toBeVisible();
+    // ...and the picture itself is a button that opens the editor (no field-level action buttons).
+    const editButton = picturesField.getByRole('button', {name: 'Edit Picture'});
+    await expect(editButton).toBeVisible();
+    await expect(picturesField.getByRole('button', {name: 'Replace Picture'})).toHaveCount(0);
+    await expect(picturesField.getByRole('button', {name: 'Delete Picture'})).toHaveCount(0);
+
+    // Opening it reveals the caption editor and the Replace/Delete actions inside the dialog.
+    await editButton.click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByText('Caption')).toBeVisible();
+    await expect(dialog.getByRole('button', {name: 'Replace Picture'})).toBeVisible();
+    await expect(dialog.getByRole('button', {name: 'Delete Picture'})).toBeVisible();
   });
 
-  test('Delete Picture removes the current picture (after confirmation)', async ({page}) => {
-    const picturesField = await addOnePicture(page);
+  test('Delete Picture (in the dialog) removes the picture after confirmation', async ({page}) => {
+    const {picturesField, dialog} = await openEditor(page);
 
-    await picturesField.getByRole('button', {name: 'Delete Picture'}).click();
-    // Confirm in the delete dialog (its confirm button is also labelled "Delete Picture").
+    await dialog.getByRole('button', {name: 'Delete Picture'}).click();
+    // Confirm in the delete alert dialog (its confirm button is also labelled "Delete Picture").
     await page.getByRole('alertdialog').getByRole('button', {name: 'Delete Picture', exact: true}).click();
 
-    // Picture (and the Replace/Delete actions) are gone; the add button remains.
+    // Picture is gone and the edit dialog closes; the add button remains.
     await expect(picturesField.locator('img')).toHaveCount(0, {timeout: 5000});
-    await expect(picturesField.getByRole('button', {name: 'Delete Picture'})).toHaveCount(0);
-    await expect(picturesField.getByRole('button', {name: 'Replace Picture'})).toHaveCount(0);
+    await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(picturesField.getByRole('button', {name: 'Picture', exact: true})).toBeVisible();
   });
 
-  test('Replace Picture swaps the current picture in place', async ({page}) => {
-    const picturesField = await addOnePicture(page);
-    const image = picturesField.locator('img').first();
-    const originalSrc = await image.getAttribute('src');
+  test('Replace Picture (in the dialog) swaps the current picture in place', async ({page}) => {
+    const {picturesField, dialog} = await openEditor(page);
+    const fieldImage = picturesField.locator('img').first();
+    const originalSrc = await fieldImage.getAttribute('src');
 
-    await picturesField.getByRole('button', {name: 'Replace Picture'}).click();
-    await picturesField.locator('input[type="file"]').setInputFiles({
+    await dialog.getByRole('button', {name: 'Replace Picture'}).click();
+    await dialog.locator('input[type="file"]').setInputFiles({
       name: 'replacement.png', mimeType: 'image/png', buffer: TEST_PNG,
     });
 
     // Still exactly one picture (replaced, not added), re-loaded into a fresh blob url.
     await expect(picturesField.locator('img')).toHaveCount(1);
-    await expect(image).toHaveAttribute('src', /^blob:/);
-    await expect(image).not.toHaveAttribute('src', originalSrc ?? '', {timeout: 5000});
+    await expect(fieldImage).toHaveAttribute('src', /^blob:/);
+    await expect(fieldImage).not.toHaveAttribute('src', originalSrc ?? '', {timeout: 5000});
+  });
+
+  test('editing the caption in the dialog shows it under the picture', async ({page}) => {
+    const {picturesField, dialog} = await openEditor(page);
+
+    // Type into the first writing system's caption editor and commit the change (blur).
+    const captionEditor = dialog.locator('[contenteditable="true"]').first();
+    await captionEditor.click();
+    await captionEditor.pressSequentially('Riverbank');
+    await captionEditor.evaluate((el) => (el as HTMLElement).blur());
+
+    // The caption is saved and rendered beneath the picture in the field.
+    await expect(picturesField.getByText('Riverbank')).toBeVisible({timeout: 5000});
   });
 });
