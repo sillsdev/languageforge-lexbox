@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {IPicture, IRichMultiString} from '$lib/dotnet-types';
+  import type {IPicture} from '$lib/dotnet-types';
   import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
   import {Button} from '$lib/components/ui/button';
   import PictureImage from './PictureImage.svelte';
@@ -93,26 +93,24 @@
 
   // --- Edit dialog operations (act on the picture currently open in the dialog) ---
 
-  async function replaceEditingPicture(file: File): Promise<void> {
-    const before = editingPicture ? $state.snapshot(editingPicture) : undefined;
-    if (!before) return;
+  // Uploads a replacement file and returns its mediaUri, WITHOUT touching the model — the dialog
+  // previews it and only commits on Submit (via submitEdits).
+  async function uploadReplacement(file: File): Promise<string | null> {
     busyAction = 'edit';
     try {
-      const mediaUri = await uploadFile(file);
-      if (!mediaUri) return;
-      // Keep the same picture (id, order, caption); only swap the image it points at.
-      await api.updatePicture(entryId, senseId, before, {...before, mediaUri});
+      return await uploadFile(file);
     } finally {
       busyAction = null;
     }
   }
 
-  async function changeCaption(caption: IRichMultiString): Promise<void> {
+  // Applies the dialog's buffered edits (new caption and/or replaced image) in one update.
+  async function submitEdits(after: IPicture): Promise<void> {
     const before = editingPicture ? $state.snapshot(editingPicture) : undefined;
     if (!before) return;
     busyAction = 'edit';
     try {
-      await api.updatePicture(entryId, senseId, before, {...before, caption});
+      await api.updatePicture(entryId, senseId, before, after);
     } finally {
       busyAction = null;
     }
@@ -181,9 +179,8 @@
   <EditPictureDialog
     bind:open={editDialogOpen}
     picture={editingPicture}
-    busy={busyAction === 'edit'}
-    onReplace={(file) => void replaceEditingPicture(file)}
+    onUploadReplacement={(file) => uploadReplacement(file)}
+    onSubmit={(after) => void submitEdits(after)}
     onDelete={() => void deleteEditingPicture()}
-    onCaptionChange={(caption) => void changeCaption(caption)}
   />
 {/if}

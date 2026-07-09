@@ -139,6 +139,8 @@ test.describe('Sense pictures', () => {
     await expect(dialog.getByText('Caption')).toBeVisible();
     await expect(dialog.getByRole('button', {name: 'Replace Picture'})).toBeVisible();
     await expect(dialog.getByRole('button', {name: 'Delete Picture'})).toBeVisible();
+    await expect(dialog.getByRole('button', {name: 'Cancel'})).toBeVisible();
+    await expect(dialog.getByRole('button', {name: 'Submit'})).toBeVisible();
 
     // Submit dismisses the dialog (leaving the picture in place).
     await dialog.getByRole('button', {name: 'Submit'}).click();
@@ -159,7 +161,7 @@ test.describe('Sense pictures', () => {
     await expect(picturesField.getByRole('button', {name: 'Picture', exact: true})).toBeVisible();
   });
 
-  test('Replace Picture (in the dialog) swaps the current picture in place', async ({page}) => {
+  test('Replace, buffered until Submit, swaps the picture in place', async ({page}) => {
     const {picturesField, dialog} = await openEditor(page);
     const fieldImage = picturesField.locator('img').first();
     const originalSrc = await fieldImage.getAttribute('src');
@@ -169,22 +171,46 @@ test.describe('Sense pictures', () => {
       name: 'replacement.png', mimeType: 'image/png', buffer: TEST_PNG,
     });
 
-    // Still exactly one picture (replaced, not added), re-loaded into a fresh blob url.
+    // The dialog previews the replacement, but the field picture is unchanged until Submit.
+    await expect(dialog.locator('img')).toHaveAttribute('src', /^blob:/);
+    await expect(fieldImage).toHaveAttribute('src', originalSrc ?? '');
+
+    await dialog.getByRole('button', {name: 'Submit'}).click();
+
+    // Now committed: still one picture (replaced, not added), re-loaded into a fresh blob url.
     await expect(picturesField.locator('img')).toHaveCount(1);
     await expect(fieldImage).toHaveAttribute('src', /^blob:/);
     await expect(fieldImage).not.toHaveAttribute('src', originalSrc ?? '', {timeout: 5000});
   });
 
-  test('editing the caption in the dialog shows it under the picture', async ({page}) => {
+  test('editing the caption and pressing Submit shows it under the picture', async ({page}) => {
     const {picturesField, dialog} = await openEditor(page);
 
-    // Type into the first writing system's caption editor and commit the change (blur).
+    // Type into the first writing system's caption editor and commit the field value (blur).
     const captionEditor = dialog.locator('[contenteditable="true"]').first();
     await captionEditor.click();
     await captionEditor.pressSequentially('Riverbank');
     await captionEditor.evaluate((el) => (el as HTMLElement).blur());
 
-    // The caption is saved and rendered beneath the picture in the field.
+    // Buffered: nothing shows under the field picture until Submit.
+    await expect(picturesField.getByText('Riverbank')).toHaveCount(0);
+
+    await dialog.getByRole('button', {name: 'Submit'}).click();
     await expect(picturesField.getByText('Riverbank')).toBeVisible({timeout: 5000});
+  });
+
+  test('Cancel discards caption edits', async ({page}) => {
+    const {picturesField, dialog} = await openEditor(page);
+
+    const captionEditor = dialog.locator('[contenteditable="true"]').first();
+    await captionEditor.click();
+    await captionEditor.pressSequentially('Discarded');
+    await captionEditor.evaluate((el) => (el as HTMLElement).blur());
+
+    await dialog.getByRole('button', {name: 'Cancel'}).click();
+    await expect(dialog).toHaveCount(0);
+
+    // The edit never reached the model, so it isn't shown under the picture.
+    await expect(picturesField.getByText('Discarded')).toHaveCount(0);
   });
 });

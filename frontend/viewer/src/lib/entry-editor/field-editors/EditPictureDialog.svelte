@@ -14,35 +14,56 @@
   type Props = {
     open: boolean;
     picture: IPicture;
-    /** Disables Replace/Delete while an operation is in flight. */
-    busy?: boolean;
-    onReplace: (file: File) => void;
+    /** Uploads a replacement file and returns its mediaUri (or null if rejected). Does NOT touch
+        the model — the new image is only previewed until Submit. */
+    onUploadReplacement: (file: File) => Promise<string | null>;
+    /** Applies the buffered edits (caption + replaced image) to the model. */
+    onSubmit: (after: IPicture) => void;
+    /** Deletes the picture immediately (has its own confirmation); independent of Submit. */
     onDelete: () => void;
-    onCaptionChange: (caption: IRichMultiString) => void;
   };
-  let {open = $bindable(false), picture, busy = false, onReplace, onDelete, onCaptionChange}: Props = $props();
+  let {open = $bindable(false), picture, onUploadReplacement, onSubmit, onDelete}: Props = $props();
 
   useBackHandler({addToStack: () => open, onBack: () => (open = false), key: 'edit-picture-dialog'});
   const writingSystemService = useWritingSystemService();
 
-  // A local, editable copy of the caption. Editing round-trips through the API, which reloads the
-  // entry; keeping the input's value local means that reload can't reset it mid-edit. Re-seeded
-  // each time the dialog opens so it reflects the picture being edited.
+  // Buffered, local edits. Nothing here reaches the model until Submit; Cancel just closes and the
+  // next open re-seeds these from the picture, discarding whatever was typed/replaced.
   let caption = $state<IRichMultiString>({});
+  let mediaUri = $state('');
   watch(
     () => open,
     () => {
-      if (open) caption = structuredClone($state.snapshot(picture.caption ?? {}));
+      if (!open) return;
+      caption = structuredClone($state.snapshot(picture.caption ?? {}));
+      mediaUri = picture.mediaUri;
     },
   );
 
+  // Preview reflects the buffered image (updates when a replacement is chosen, before Submit).
+  const preview = $derived<IPicture>({...picture, caption, mediaUri});
+
+  let uploading = $state(false);
+
   let fileInputElement = $state<HTMLInputElement>();
-  function onFileSelected(event: Event) {
+  async function onFileSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
     // Reset so picking the same file again re-triggers `change`.
     target.value = '';
-    if (file) onReplace(file);
+    if (!file) return;
+    uploading = true;
+    try {
+      const uri = await onUploadReplacement(file);
+      if (uri) mediaUri = uri;
+    } finally {
+      uploading = false;
+    }
+  }
+
+  function submit() {
+    onSubmit({...$state.snapshot(picture), caption: $state.snapshot(caption), mediaUri});
+    open = false;
   }
 </script>
 
@@ -52,9 +73,9 @@
       <Dialog.DialogTitle>{$t`Edit Picture`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
 
-    <!-- Picture at the top, centered in the dialog. -->
+    <!-- Picture at the top, centered in the dialog (shows the buffered replacement if any). -->
     <div class="flex justify-center">
-      <PictureImage {picture} showCaption={false} />
+      <PictureImage picture={preview} showCaption={false} />
     </div>
 
     <!-- Caption editor. Wrapped in the editor grid so RichMultiWsInput's subgrid rows lay out. -->
@@ -63,24 +84,23 @@
         <Editor.Field.Root>
           <Editor.Field.Title name={$t`Caption`} />
           <Editor.Field.Body subGrid>
-            <RichMultiWsInput
-              bind:value={caption}
-              writingSystems={writingSystemService.allWritingSystems()}
-              onchange={() => onCaptionChange($state.snapshot(caption))}
-            />
+            <RichMultiWsInput bind:value={caption} writingSystems={writingSystemService.allWritingSystems()} />
           </Editor.Field.Body>
         </Editor.Field.Root>
       </Editor.Grid>
     </Editor.Root>
 
     <Dialog.DialogFooter>
-      <Button icon="i-mdi-image-refresh" variant="secondary" disabled={busy} onclick={() => fileInputElement?.click()}>
+      <Button icon="i-mdi-image-refresh" variant="secondary" loading={uploading} disabled={uploading} onclick={() => fileInputElement?.click()}>
         {$t`Replace Picture`}
       </Button>
-      <Button icon="i-mdi-delete" variant="destructive" disabled={busy} onclick={() => onDelete()}>
+      <Button icon="i-mdi-delete" variant="destructive" disabled={uploading} onclick={() => onDelete()}>
         {$t`Delete Picture`}
       </Button>
-      <Button onclick={() => (open = false)}>
+      <Button variant="secondary" onclick={() => (open = false)}>
+        {$t`Cancel`}
+      </Button>
+      <Button disabled={uploading} onclick={() => submit()}>
         {$t`Submit`}
       </Button>
     </Dialog.DialogFooter>
