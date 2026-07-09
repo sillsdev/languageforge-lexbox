@@ -61,7 +61,6 @@ public class LcmMediaService(
 
     public async Task<ReadFileResponse> GetFileStream(Guid fileId)
     {
-        var resource = await resourceService.GetLocalResource(fileId);
         var localResource = await resourceService.GetLocalResource(fileId);
         if (localResource is null)
         {
