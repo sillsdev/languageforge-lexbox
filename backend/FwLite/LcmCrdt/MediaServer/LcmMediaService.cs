@@ -73,6 +73,17 @@ public class LcmMediaService(
             {
                 localResource = await downloadTask;
             }
+            catch
+            {
+                // Did the download fail because we're offline? Return an explicit "we're offline" result
+                // so that the frontend can display some appropriate UI. If we're online and yet the download
+                // failed, then that's a real error that should be rethrown.
+                if (await httpClientProvider.ConnectionStatus() == ConnectionStatus.Offline)
+                {
+                    return new ReadFileResponse(ReadFileResult.Offline);
+                }
+                throw;
+            }
             finally
             {
                 // Once the download completes, we need to remove the task from the ConcurrentDictionary
