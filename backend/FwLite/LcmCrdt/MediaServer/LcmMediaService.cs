@@ -101,28 +101,6 @@ public class LcmMediaService(
         HttpStatusCode.GatewayTimeout,      // 504
     ];
 
-    private async Task<(Stream? stream, string? filename)> RequestMediaFile(Guid fileId)
-    {
-        var mediaClient = await MediaServerClient();
-        for (var attempt = 1; ; attempt++)
-        {
-            using var response = await mediaClient.DownloadFile(fileId);
-            if (response.IsSuccessStatusCode)
-            {
-                return (await response.Content.ReadAsStreamAsync(), response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", ""));
-            }
-
-            var statusCode = response.StatusCode;
-            var reasonPhrase = response.ReasonPhrase;
-            if (attempt >= MaxDownloadAttempts || !TransientDownloadStatusCodes.Contains(statusCode))
-            {
-                throw new Exception($"Failed to download file {fileId}: {statusCode} {reasonPhrase}");
-            }
-
-            await Task.Delay(TimeSpan.FromMilliseconds(200));
-        }
-    }
-
     private async Task<IMediaServerClient> MediaServerClient()
     {
         var httpClient = await httpClientProvider.GetHttpClient();
@@ -134,16 +112,32 @@ public class LcmMediaService(
     {
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
-        var (stream, filename) = await RequestMediaFile(new Guid(remoteId));
-        if (stream is null) throw new FileNotFoundException(remoteId);
-        await using (stream)
+        var mediaClient = await MediaServerClient();
+        var fileId = new Guid(remoteId);
+        for (var attempt = 1; ; attempt++)
         {
-            filename = Path.GetFileName(filename);
-            var localPath = Path.Combine(projectResourceCachePath, filename ?? remoteId);
-            localPath = EnsureUnique(localPath);
-            await using var localFile = File.Create(localPath);
-            await stream.CopyToAsync(localFile);
-            return new DownloadResult(localPath);
+            using var response = await mediaClient.DownloadFile(fileId);
+            if (response.IsSuccessStatusCode)
+            {
+                await using var stream = await response.Content.ReadAsStreamAsync();
+                if (stream is null) throw new FileNotFoundException(remoteId);
+                var filename = response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", "");
+                filename = Path.GetFileName(filename);
+                var localPath = Path.Combine(projectResourceCachePath, filename ?? remoteId);
+                localPath = EnsureUnique(localPath);
+                await using var localFile = File.Create(localPath);
+                await stream.CopyToAsync(localFile);
+                return new DownloadResult(localPath);
+            }
+
+            var statusCode = response.StatusCode;
+            var reasonPhrase = response.ReasonPhrase;
+            if (attempt >= MaxDownloadAttempts || !TransientDownloadStatusCodes.Contains(statusCode))
+            {
+                throw new Exception($"Failed to download file {fileId}: {statusCode} {reasonPhrase}");
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(200));
         }
     }
 
