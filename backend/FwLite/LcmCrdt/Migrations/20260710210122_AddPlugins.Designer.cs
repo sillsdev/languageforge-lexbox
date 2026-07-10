@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LcmCrdt.Migrations
 {
     [DbContext(typeof(LcmCrdtDbContext))]
-    [Migration("20260708143535_AddPluginDescription")]
-    partial class AddPluginDescription
+    [Migration("20260710210122_AddPlugins")]
+    partial class AddPlugins
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -448,19 +448,34 @@ namespace LcmCrdt.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Contexts")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Html")
+                    b.Property<long>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FileUri")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Requires")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
 
                     b.Property<Guid?>("SnapshotId")
                         .HasColumnType("TEXT");

@@ -10,7 +10,8 @@
   import {t} from 'svelte-i18n-lingui';
   import {tick} from 'svelte';
   import type {IPlugin} from '$lib/dotnet-types';
-  import {parsePluginPermissions} from './plugin-srcdoc';
+  import {usePluginService} from '$project/data/plugin-service.svelte';
+  import {parsePluginManifest} from './plugin-manifest';
   import {
     exampleFunctionLabel,
     exampleFunctions,
@@ -27,10 +28,11 @@
     open: boolean;
     /** The plugin to edit; leave undefined to create a new one. */
     plugin?: IPlugin;
-    onSubmit: (plugin: IPlugin) => Promise<void>;
   }
 
-  let {open = $bindable(), plugin, onSubmit}: Props = $props();
+  let {open = $bindable(), plugin}: Props = $props();
+
+  const pluginService = usePluginService();
 
   type View = 'form' | 'gallery';
   let view = $state<View>('form');
@@ -42,9 +44,13 @@
   let name = $state('');
   let description = $state('');
   let html = $state('');
+  // The HTML as loaded from the plugin's file when editing; lets the service skip re-uploading
+  // unchanged content and carry device-local grants over to the edited version.
+  let loadedHtml = $state<string>();
+  let htmlLoading = $state(false);
   let saving = $state(false);
   let loadingExample = $state<string>();
-  let loadError = $state(false);
+  let loadError = $state<string>();
   let search = $state('');
   let selectedFunctions = $state<ExampleFunction[]>([]);
   let fileInput = $state<HTMLInputElement>();
@@ -57,19 +63,38 @@
     if (open) {
       name = plugin?.name ?? '';
       description = plugin?.description ?? '';
-      html = plugin?.html ?? '';
+      html = '';
+      loadedHtml = undefined;
       nameAutoFilled = false;
       descriptionAutoFilled = false;
       view = 'form';
       search = '';
       selectedFunctions = [];
-      loadError = false;
+      loadError = undefined;
+      if (plugin) void loadPluginHtml(plugin);
     }
   });
 
-  const permissions = $derived(html.trim() ? parsePluginPermissions(html) : []);
+  async function loadPluginHtml(target: IPlugin) {
+    htmlLoading = true;
+    try {
+      const loaded = await pluginService.getHtml(target);
+      if (loaded.result === 'ok') {
+        html = loaded.html;
+        loadedHtml = loaded.html;
+      } else if (loaded.result === 'offline') {
+        loadError = $t`You're offline and this plugin's file isn't on this device yet. Connect and try again.`;
+      } else {
+        loadError = $t`Couldn't load the plugin file. ${loaded.message ?? ''}`;
+      }
+    } finally {
+      htmlLoading = false;
+    }
+  }
+
+  const permissions = $derived(html.trim() ? parsePluginManifest(html).permissions : []);
   const sizeKb = $derived(Math.round(html.length / 102.4) / 10);
-  const canSave = $derived(!!name.trim() && !!html.trim() && !saving);
+  const canSave = $derived(!!name.trim() && !!html.trim() && !saving && !htmlLoading && !(plugin && loadedHtml === undefined));
 
   const primaryGroups = examplePluginsByPrimaryFunction();
 
@@ -125,7 +150,7 @@
 
   async function useExample(example: ExamplePlugin) {
     loadingExample = example.key;
-    loadError = false;
+    loadError = undefined;
     try {
       const exampleHtml = await example.loadHtml();
       applyExampleValues(example.name, example.description, exampleHtml);
@@ -133,7 +158,7 @@
       await tick();
       document.getElementById('plugin-name')?.focus();
     } catch {
-      loadError = true;
+      loadError = $t`Couldn't load that example. Please try again.`;
     } finally {
       loadingExample = undefined;
     }
@@ -148,7 +173,7 @@
   }
 
   async function openGallery() {
-    loadError = false;
+    loadError = undefined;
     view = 'gallery';
     await tick();
     document.getElementById('plugin-example-search')?.focus();
@@ -156,14 +181,14 @@
 
   async function save() {
     saving = true;
+    loadError = undefined;
     try {
-      await onSubmit({
-        id: plugin?.id ?? crypto.randomUUID(),
-        name: name.trim(),
-        description: description.trim() || undefined,
-        html,
-      });
+      const draft = {name: name.trim(), description: description.trim() || undefined, html};
+      if (plugin) await pluginService.update(plugin, draft, loadedHtml!);
+      else await pluginService.create(draft);
       open = false;
+    } catch (error) {
+      loadError = $t`Couldn't save the plugin. ${error instanceof Error ? error.message : ''}`;
     } finally {
       saving = false;
     }
@@ -305,7 +330,7 @@
         {#if loadError}
           <Alert variant="destructive">
             <Icon icon="i-mdi-alert-circle-outline" />
-            <AlertDescription>{$t`Couldn’t load that example. Please try again.`}</AlertDescription>
+            <AlertDescription>{loadError}</AlertDescription>
           </Alert>
         {/if}
 
@@ -352,13 +377,20 @@
               {/if}
             </div>
           </div>
-          <Textarea
-            id="plugin-html"
-            bind:value={html}
-            placeholder={$t`Paste the plugin HTML here`}
-            spellcheck="false"
-            class="font-mono text-xs min-h-64 max-h-[50vh]"
-          />
+          {#if htmlLoading}
+            <div class="flex items-center justify-center gap-2 min-h-64 rounded-md border text-muted-foreground">
+              <Icon icon="i-mdi-loading" class="animate-spin" />
+              {$t`Loading plugin file…`}
+            </div>
+          {:else}
+            <Textarea
+              id="plugin-html"
+              bind:value={html}
+              placeholder={$t`Paste the plugin HTML here`}
+              spellcheck="false"
+              class="font-mono text-xs min-h-64 max-h-[50vh]"
+            />
+          {/if}
         </div>
       </div>
 

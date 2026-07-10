@@ -1,4 +1,5 @@
 using FluentValidation;
+using MiniLcm.Media;
 using MiniLcm.Tests;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
@@ -27,7 +28,11 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
         {
             Id = Guid.NewGuid(),
             Name = name,
-            Html = "<html><body><h1>Test plugin</h1></body></html>",
+            FileUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+            FileSize = 1234,
+            Permissions = ["edit"],
+            Contexts = ["entry"],
+            Requires = ["history"],
         };
     }
 
@@ -49,6 +54,23 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
     }
 
     [Fact]
+    public async Task CreatePlugin_RoundTripsFileReferenceAndManifest()
+    {
+        await SetCurrentUser(ManagerUserId, UserProjectRole.Manager);
+        var plugin = NewPlugin("Manifest Plugin");
+
+        await Api.CreatePlugin(plugin);
+
+        var fetched = await Api.GetPlugin(plugin.Id);
+        fetched.Should().NotBeNull();
+        fetched.FileUri.Should().Be(plugin.FileUri);
+        fetched.FileSize.Should().Be(plugin.FileSize);
+        fetched.Permissions.Should().Equal("edit");
+        fetched.Contexts.Should().Equal("entry");
+        fetched.Requires.Should().Equal("history");
+    }
+
+    [Fact]
     public async Task CreatePlugin_RejectsEditor()
     {
         await SetCurrentUser(EditorUserId, UserProjectRole.Editor);
@@ -64,10 +86,10 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
     }
 
     [Fact]
-    public async Task CreatePlugin_RejectsEmptyHtml()
+    public async Task CreatePlugin_RejectsMissingFile()
     {
         await SetCurrentUser(ManagerUserId, UserProjectRole.Manager);
-        var plugin = NewPlugin("My Plugin") with { Html = "" };
+        var plugin = NewPlugin("My Plugin") with { FileUri = MediaUri.NotFound };
         await Assert.ThrowsAsync<ValidationException>(() => Api.CreatePlugin(plugin));
     }
 
@@ -75,12 +97,14 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
     public async Task UpdatePlugin_AllowsManager()
     {
         var created = await CreatePluginAsManager("My Plugin");
-        await Api.UpdatePlugin(created with { Name = "My Updated Plugin", Html = "<html><body>v2</body></html>" });
+        var newFileUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org");
+        await Api.UpdatePlugin(created with { Name = "My Updated Plugin", FileUri = newFileUri, FileSize = 99 });
 
         var fetched = await Api.GetPlugin(created.Id);
         fetched.Should().NotBeNull();
         fetched.Name.Should().Be("My Updated Plugin");
-        fetched.Html.Should().Be("<html><body>v2</body></html>");
+        fetched.FileUri.Should().Be(newFileUri);
+        fetched.FileSize.Should().Be(99);
     }
 
     [Fact]

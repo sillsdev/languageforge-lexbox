@@ -28,6 +28,7 @@ import {
   MorphTypeKind,
 } from '$lib/dotnet-types';
 import {examplePlugins} from '$lib/plugins/examples';
+import {parsePluginManifest} from '$lib/plugins/plugin-manifest';
 import {entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
@@ -606,7 +607,15 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }
 
   private _plugins: IPlugin[] = [];
+  // Plugin HTML lives in "media files" (fileUri -> bytes), mirroring how real projects store it.
+  private _files = new Map<string, Uint8Array>();
   private _seedPlugins?: Promise<void>;
+
+  private storeFile(bytes: Uint8Array): string {
+    const fileUri = `sil-media://demo/${crypto.randomUUID()}`;
+    this._files.set(fileUri, bytes);
+    return fileUri;
+  }
 
   private seedPlugins(): Promise<void> {
     return this._seedPlugins ??= (async () => {
@@ -617,7 +626,19 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       for (const seed of seeds) {
         const example = examplePlugins.find(p => p.key === seed.key);
         if (!example) continue;
-        this._plugins.push({id: seed.id, name: example.name, description: example.description, html: await example.loadHtml()});
+        const html = await example.loadHtml();
+        const bytes = new TextEncoder().encode(html);
+        const manifest = parsePluginManifest(html);
+        this._plugins.push({
+          id: seed.id,
+          name: example.name,
+          description: example.description,
+          fileUri: this.storeFile(bytes),
+          fileSize: bytes.byteLength,
+          permissions: manifest.permissions,
+          contexts: manifest.contexts,
+          requires: manifest.requires,
+        });
       }
     })();
   }
@@ -709,11 +730,23 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     throw new Error('Method not implemented.');
   }
 
-  getFileStream(_mediaUri: string): Promise<IReadFileResponseJs> {
-    return Promise.resolve({result: ReadFileResult.NotSupported});
+  async getFileStream(mediaUri: string): Promise<IReadFileResponseJs> {
+    await this.seedPlugins();
+    const bytes = this._files.get(mediaUri);
+    if (!bytes) return {result: ReadFileResult.NotFound};
+    return {
+      result: ReadFileResult.Success,
+      stream: {
+        stream: () => Promise.resolve(new Response(bytes.slice() as BodyInit).body!),
+        arrayBuffer: () => Promise.resolve(bytes.slice().buffer as ArrayBuffer),
+      },
+    };
   }
 
-  saveFile(_streamReference: Blob | ArrayBuffer | Uint8Array, _metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
-    return Promise.resolve({result: UploadFileResult.NotSupported});
+  async saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, _metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
+    const bytes = streamReference instanceof Blob
+      ? new Uint8Array(await streamReference.arrayBuffer())
+      : streamReference instanceof ArrayBuffer ? new Uint8Array(streamReference) : streamReference;
+    return {result: UploadFileResult.SavedLocally, mediaUri: this.storeFile(bytes)};
   }
 }

@@ -8,6 +8,7 @@ import {PluginApiException} from './plugin-api-types';
 
 const STORAGE_PREFIX = 'fwlite-plugin-data';
 const CONSENT_PREFIX = 'fwlite-plugin-consent';
+const WRITE_TRUST_PREFIX = 'fwlite-plugin-write-trust';
 
 /** Per-plugin storage budget; plugins get an explicit storage-full error beyond this. */
 const MAX_PLUGIN_STORAGE_BYTES = 256 * 1024;
@@ -21,8 +22,9 @@ export class PluginStorage {
 
   #read(): Record<string, unknown> {
     const json = localStorage.getItem(this.#key);
-    if (!json) return {};
-    return JSON.parse(json) as Record<string, unknown>;
+    // Null prototype so plugin-chosen keys like '__proto__' stay plain data.
+    if (!json) return Object.create(null) as Record<string, unknown>;
+    return Object.assign(Object.create(null), JSON.parse(json)) as Record<string, unknown>;
   }
 
   get(key: string): unknown {
@@ -50,20 +52,32 @@ export class PluginStorage {
   }
 }
 
-export async function computePluginHash(html: string): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(html));
+export async function sha256Hex(text: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
   return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /**
- * Tracks which plugin content the current user has approved to run. Keyed by content hash so
- * an edited/synced plugin (even with the same id) requires fresh consent.
+ * Hash of everything trust decisions are about: the code AND the displayed identity. Including
+ * the name/description means a synced rename can't silently keep riding an existing approval —
+ * the name is what users recognize in the consent and write dialogs.
  */
-export class PluginConsentStore {
+export function computePluginHash(plugin: {name: string; description?: string; html: string}): Promise<string> {
+  return sha256Hex(JSON.stringify([plugin.name, plugin.description ?? '', plugin.html]));
+}
+
+/**
+ * A device-local map of pluginId → approved content hash, backing one yes/no decision per plugin.
+ * Trust is deliberately personal and unsynced (a teammate's click must not authorize code on this
+ * device) and hash-pinned (changed content asks again). Local edits through the editor re-pin the
+ * hash silently — the user editing their own plugin IS the consent — so only changes that arrive
+ * from elsewhere downgrade back to asking.
+ */
+class HashPinnedGrantStore {
   #key: string;
 
-  constructor(projectCode: string) {
-    this.#key = `${CONSENT_PREFIX}:${projectCode}`;
+  constructor(prefix: string, projectCode: string) {
+    this.#key = `${prefix}:${projectCode}`;
   }
 
   #read(): Record<string, string> {
@@ -72,13 +86,41 @@ export class PluginConsentStore {
     return JSON.parse(json) as Record<string, string>;
   }
 
-  isApproved(pluginId: string, contentHash: string): boolean {
+  isGranted(pluginId: string, contentHash: string): boolean {
     return this.#read()[pluginId] === contentHash;
   }
 
-  approve(pluginId: string, contentHash: string): void {
+  /** True if this plugin holds a grant for ANY content version (used for re-pinning decisions). */
+  grantedHash(pluginId: string): string | undefined {
+    return this.#read()[pluginId];
+  }
+
+  grant(pluginId: string, contentHash: string): void {
     const data = this.#read();
     data[pluginId] = contentHash;
     localStorage.setItem(this.#key, JSON.stringify(data));
+  }
+
+  revoke(pluginId: string): void {
+    const data = this.#read();
+    delete data[pluginId];
+    localStorage.setItem(this.#key, JSON.stringify(data));
+  }
+}
+
+/** Tracks which plugin content the current user has approved to RUN on this device. */
+export class PluginConsentStore extends HashPinnedGrantStore {
+  constructor(projectCode: string) {
+    super(CONSENT_PREFIX, projectCode);
+  }
+}
+
+/**
+ * Tracks plugins the user chose "Always allow" for: their writes apply without a per-operation
+ * dialog (an ambient notification still surfaces each one). Revocable from the plugin card.
+ */
+export class PluginWriteTrustStore extends HashPinnedGrantStore {
+  constructor(projectCode: string) {
+    super(WRITE_TRUST_PREFIX, projectCode);
   }
 }

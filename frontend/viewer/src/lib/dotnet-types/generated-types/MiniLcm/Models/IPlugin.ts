@@ -11,6 +11,10 @@ export interface IPlugin extends IObjectWithId
 	deletedAt?: string;
 	name: string;
 	description?: string;
-	html: string;
+	fileUri: string;
+	fileSize: number;
+	permissions: string[];
+	contexts: string[];
+	requires: string[];
 }
 /* eslint-enable */

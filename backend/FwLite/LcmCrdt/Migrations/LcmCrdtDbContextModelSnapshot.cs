@@ -445,19 +445,34 @@ namespace LcmCrdt.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Contexts")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Html")
+                    b.Property<long>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FileUri")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Requires")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
 
                     b.Property<Guid?>("SnapshotId")
                         .HasColumnType("TEXT");

@@ -26,7 +26,7 @@
         project: data.project,
         theme: data.theme,
         permissions: data.permissions,
-        capabilities: data.capabilities || {openEntryModes: []},
+        capabilities: data.capabilities || {openEntryModes: [], comments: false, history: false},
       };
       initResolve(context);
       return;
@@ -61,9 +61,13 @@
     ready: ready,
     get project() { return context && context.project; },
     get theme() { return context && context.theme; },
+    /** The permissions this plugin declared (e.g. 'edit', 'internet'), as granted by the host. */
     get permissions() { return (context && context.permissions) || []; },
-    /** What this host supports, so you can feature-detect. e.g. capabilities.openEntryModes. */
-    get capabilities() { return (context && context.capabilities) || {openEntryModes: []}; },
+    /**
+     * What this host supports, so you can feature-detect: {openEntryModes, comments, history}.
+     * Hosts without comments/history reject those calls with code 'not-supported'.
+     */
+    get capabilities() { return (context && context.capabilities) || {openEntryModes: [], comments: false, history: false}; },
     /** Launch context; `context.entryId` is set when the user opened this plugin from an entry, else absent. */
     get context() { return launchContext; },
 
@@ -89,12 +93,19 @@
      * Stores a file (e.g. audio you recorded with MediaRecorder, or a captured image) and resolves
      * to {result, mediaUri, errorMessage}. Then attach it by writing `mediaUri` into an entry field
      * (an audio writing system, or a sense picture) via updateEntry — that edit is user-approved.
-     * The browser prompts the user the first time you call getUserMedia for mic/camera.
+     * Requires the 'edit' permission. The browser prompts the user the first time you call
+     * getUserMedia for mic/camera.
      *   const blob = /* from MediaRecorder * /;
      *   const {mediaUri} = await fwlite.saveFile(await blob.arrayBuffer(), {filename: 'word.webm', mimeType: blob.type});
      */
     saveFile: function (data, metadata) { return call('saveFile', [data, metadata]); },
 
+    /**
+     * Writing requires <meta name="fwlite-plugin-permissions" content="edit"> in your <head>;
+     * without it these calls reject with code 'permission-denied' before the user is even asked.
+     * updateEntry(before, after): 'before' must match the entry's CURRENT state — if someone
+     * edited it since you fetched it, the call rejects with code 'conflict'; re-fetch and retry.
+     */
     createEntry: function (entry) { return call('createEntry', [entry]); },
     updateEntry: function (before, after) { return call('updateEntry', [before, after]); },
 
@@ -115,6 +126,8 @@
 
     /**
      * Comments (read-only). subjectType is 'Entry' | 'Sense' | 'ExampleSentence'.
+     * Not every host supports comments — check fwlite.capabilities.comments, and declare
+     * <meta name="fwlite-plugin-requires" content="comments"> if your plugin can't work without them.
      * getUnreadComments()/countUnreadComments() with no threadId cover the whole project (read
      * status is per-device). A thread groups comments about one subject; getUserComments lists them.
      */
@@ -127,8 +140,9 @@
 
     /**
      * Activity / history (read-only). getActivity is the project-wide change feed (newest first);
-     * getEntityHistory(entityId) is one entry's timeline. Not available for every project type —
-     * calls reject with code 'not-supported' when there's no history.
+     * getEntityHistory(entityId) is one entry's timeline. Not every host supports history — check
+     * fwlite.capabilities.history (calls reject with code 'not-supported' where missing), and
+     * declare <meta name="fwlite-plugin-requires" content="history"> if you can't work without it.
      */
     getActivity: function (query) { return call('getActivity', [query || {}]); },
     getEntityHistory: function (entityId) { return call('getEntityHistory', [entityId]); },

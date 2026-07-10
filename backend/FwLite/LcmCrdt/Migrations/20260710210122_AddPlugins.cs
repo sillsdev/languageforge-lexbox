@@ -18,7 +18,12 @@ namespace LcmCrdt.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Html = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    FileUri = table.Column<string>(type: "TEXT", nullable: false),
+                    FileSize = table.Column<long>(type: "INTEGER", nullable: false),
+                    Permissions = table.Column<string>(type: "jsonb", nullable: false),
+                    Contexts = table.Column<string>(type: "jsonb", nullable: false),
+                    Requires = table.Column<string>(type: "jsonb", nullable: false),
                     SnapshotId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>

@@ -3,9 +3,9 @@ import {
   PLUGIN_API_VERSION,
   PluginApiException,
   isPluginMessage,
+  type HostCapabilities,
   type HostInitMessage,
   type HostResponseMessage,
-  type OpenEntryMode,
   type PluginPermission,
 } from './plugin-api-types';
 import type {PluginApiAdapter} from './plugin-api-adapter';
@@ -14,9 +14,12 @@ export interface PluginHostConfig {
   projectName: string;
   projectCode: string;
   permissions: PluginPermission[];
-  openEntryModes: OpenEntryMode[];
+  capabilities: HostCapabilities;
   entryId?: string;
 }
+
+/** A plugin this saturated is broken or hostile; refusing keeps the app responsive. */
+const MAX_IN_FLIGHT_REQUESTS = 100;
 
 /**
  * The app side of the plugin postMessage bridge: answers exactly one iframe, verified by
@@ -24,6 +27,7 @@ export interface PluginHostConfig {
  */
 export class PluginHost {
   #iframe: HTMLIFrameElement | undefined;
+  #inFlight = 0;
 
   constructor(
     private adapter: PluginApiAdapter,
@@ -52,35 +56,46 @@ export class PluginHost {
         project: {projectName: this.config.projectName, projectCode: this.config.projectCode},
         theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
         permissions: this.config.permissions,
-        capabilities: {openEntryModes: this.config.openEntryModes},
+        capabilities: this.config.capabilities,
         ...(this.config.entryId ? {context: {entryId: this.config.entryId}} : {}),
       });
       return;
     }
     if (message.kind === 'request') {
+      if (this.#inFlight >= MAX_IN_FLIGHT_REQUESTS) {
+        this.#postError(message.id, new PluginApiException('internal', 'Too many concurrent requests'));
+        return;
+      }
       void this.#handleRequest(message.id, message.method, message.args ?? []);
     }
   };
 
   async #handleRequest(id: number, method: string, args: unknown[]): Promise<void> {
+    this.#inFlight++;
     // RPC boundary: failures belong to the calling plugin, not the app's global error handler.
     try {
       const result = await this.adapter.handle(method, args);
       this.#post({source: HOST_MESSAGE_SOURCE, v: 1, kind: 'response', id, ok: true, result});
     } catch (error) {
-      const isApiError = error instanceof PluginApiException;
-      this.#post({
-        source: HOST_MESSAGE_SOURCE,
-        v: 1,
-        kind: 'response',
-        id,
-        ok: false,
-        error: {
-          code: isApiError ? error.code : 'internal',
-          message: error instanceof Error ? error.message : String(error),
-        },
-      });
+      this.#postError(id, error);
+    } finally {
+      this.#inFlight--;
     }
+  }
+
+  #postError(id: number, error: unknown): void {
+    const isApiError = error instanceof PluginApiException;
+    this.#post({
+      source: HOST_MESSAGE_SOURCE,
+      v: 1,
+      kind: 'response',
+      id,
+      ok: false,
+      error: {
+        code: isApiError ? error.code : 'internal',
+        message: error instanceof Error ? error.message : String(error),
+      },
+    });
   }
 
   #post(message: HostInitMessage | HostResponseMessage): void {

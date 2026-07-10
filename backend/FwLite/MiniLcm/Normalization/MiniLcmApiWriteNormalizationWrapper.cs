@@ -534,7 +534,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #region Plugin
 
-    // Plugin data is an HTML document plus a name, not user-entered linguistic text, so no normalization is applied.
+    // Plugin metadata (name, description, manifest tokens) is not user-entered linguistic text, so no normalization is applied.
     public async Task<Plugin> CreatePlugin(Plugin plugin)
     {
         return await _api.CreatePlugin(plugin);

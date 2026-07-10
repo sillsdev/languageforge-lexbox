@@ -75,12 +75,12 @@ export async function buildPluginPrompt(
     .join(', ');
 
   const networkRequirement = internet
-    ? `4. **Internet is allowed.** This plugin may fetch external resources/APIs. Add \`<meta name="fwlite-plugin-permissions" content="internet">\` in \`<head>\` so the app lifts the network block (it shows the user an "internet" badge). Still don't send dictionary data anywhere the task doesn't require.`
+    ? `4. **Internet is allowed.** This plugin may fetch external resources/APIs. Add \`internet\` to the permissions meta in \`<head>\` — e.g. \`<meta name="fwlite-plugin-permissions" content="internet edit">\` — so the app lifts the network block (it shows the user an "internet" badge). Still don't send dictionary data anywhere the task doesn't require.`
     : `4. **No network access.** A Content-Security-Policy blocks all fetches and external resources — keep everything inline and offline. (If a task genuinely needed the internet it would be enabled explicitly; assume it is not.)`;
 
   const writesRequirement = readOnly
-    ? `6. **Read-only plugin.** Do not modify the dictionary: never call \`createEntry\`, \`updateEntry\`, \`applyChanges\`, or \`saveFile\`. Read, display, and analyze only.`
-    : `6. **Writes are user-approved**: every \`createEntry\`/\`updateEntry\`/\`applyChanges\` call pops up a confirmation dialog in the app showing exactly what will change. If the user declines, the promise rejects with \`error.code === 'permission-denied'\` — handle that as a normal outcome (show "not saved"), never as a crash.`;
+    ? `6. **Read-only plugin.** Do not modify the dictionary: never call \`createEntry\`, \`updateEntry\`, \`applyChanges\`, or \`saveFile\`, and do NOT declare the \`edit\` permission. Read, display, and analyze only.`
+    : `6. **Writes need the \`edit\` permission and are user-approved.** Add \`<meta name="fwlite-plugin-permissions" content="edit">\` in \`<head>\` (without it, write calls are rejected outright). Every \`createEntry\`/\`updateEntry\`/\`applyChanges\` call pops up a confirmation dialog in the app showing exactly what will change. If the user declines, the promise rejects with \`error.code === 'permission-denied'\` — handle that as a normal outcome (show "not saved"), never as a crash.`;
 
   const writingSection = readOnly ? '' : `### Writing (each call = one user confirmation dialog)
 
@@ -93,6 +93,8 @@ fwlite.createEntry(entry): Promise<Entry>
 fwlite.updateEntry(before, after): Promise<Entry>
 // 'before' = the entry exactly as you fetched it; 'after' = a modified deep copy.
 // Only the differences are applied, so concurrent edits to other fields survive.
+// 'before' must still match the entry's current state: if someone edited the entry since you
+// fetched it, the call rejects with error.code === 'conflict' — re-fetch, re-apply your edit, retry.
 
 fwlite.applyChanges(operations): Promise<Entry[]>
 // Several changes behind ONE confirmation dialog (instead of one dialog per write). Use this when
@@ -109,8 +111,8 @@ You may record audio (or capture from the camera) and save it — e.g. to fill i
 
 \`\`\`ts
 fwlite.saveFile(bytes, {filename, mimeType}): Promise<{result: string, mediaUri?: string, errorMessage?: string}>
-// bytes: ArrayBuffer | Uint8Array | Blob. Then write mediaUri into an audio writing-system field (or a
-// sense picture) via updateEntry — that edit is user-approved as usual.
+// bytes: ArrayBuffer | Uint8Array | Blob. Requires the 'edit' permission. Then write mediaUri into an
+// audio writing-system field (or a sense picture) via updateEntry — that edit is user-approved as usual.
 \`\`\`
 
 `;
@@ -141,6 +143,11 @@ This plugin should work in **any** project, so **don't hard-code** writing-syste
 Some vernacular content may be sacred, sensitive, or culturally significant to the language community. Treat all language data with respect: don't trivialize, gamify, or expose it carelessly, and present it plainly when in doubt. When something feels sensitive, err toward restraint.
 
 ` : '';
+
+  const skeletonMetaTokens = [...(readOnly ? [] : ['edit']), ...(internet ? ['internet'] : [])];
+  const skeletonPermissionsMeta = skeletonMetaTokens.length
+    ? `<meta name="fwlite-plugin-permissions" content="${skeletonMetaTokens.join(' ')}">\n`
+    : '';
 
   return `# Write a plugin for FieldWorks Lite (FW Lite)
 
@@ -176,7 +183,7 @@ All methods return Promises.
 ### Reading
 
 \`\`\`ts
-fwlite.ready: Promise<{apiVersion: 1, project: {projectName, projectCode}, theme: 'light'|'dark', permissions: string[], capabilities: {openEntryModes: string[]}}>
+fwlite.ready: Promise<{apiVersion: 1, project: {projectName, projectCode}, theme: 'light'|'dark', permissions: string[], capabilities: {openEntryModes: string[], comments: boolean, history: boolean}}>
 fwlite.project      // {projectName, projectCode} — available after ready
 fwlite.theme        // 'light' | 'dark' — the app's current theme; also respect prefers-color-scheme
 fwlite.capabilities // {openEntryModes} — what this app build supports; feature-detect before using optional modes
@@ -245,6 +252,8 @@ fwlite.countUnreadComments({threadId?}): Promise<number>
 // Read/unread state is per-device (local), not shared across the team.
 \`\`\`
 
+Not every host supports comments (check \`fwlite.capabilities.comments\`; calls reject with \`'not-supported'\` where missing). If your plugin is useless without them, declare \`<meta name="fwlite-plugin-requires" content="comments">\` so the app can warn the user up front.
+
 ### Activity & history (read-only)
 
 \`\`\`ts
@@ -255,8 +264,9 @@ fwlite.getObjectAtCommit({commitId, entityId}): Promise<object>    // entity sta
 fwlite.listActivityAuthors(): Promise<{authorId?, authorName?, commitCount}[]>
 fwlite.listActivityChangeTypes(): Promise<{key, label, commitCount}[]>
 // Activity: {commitId, timestamp, changeName, changeTypes, metadata: {authorName?, authorId?}}
-// Not available for every project type — these reject with code 'not-supported' when there's no history.
 \`\`\`
+
+Not every host supports history (check \`fwlite.capabilities.history\`; calls reject with \`'not-supported'\` where missing). If your plugin is useless without it, declare \`<meta name="fwlite-plugin-requires" content="history">\` so the app can warn the user up front.
 
 There is no built-in "reviewed" flag on changes. If you're building a review tool, track review state yourself in \`fwlite.storage\` keyed by \`commitId\` — the app doesn't persist it for you (this is fine for a single reviewer on one device).
 
@@ -326,7 +336,7 @@ type Sense = {
 };
 \`\`\`
 
-Errors reject with an \`Error\` that has a \`code\`: \`unknown-method\`, \`invalid-args\`, \`permission-denied\`, \`not-supported\`, \`storage-full\`, or \`internal\`.
+Errors reject with an \`Error\` that has a \`code\`: \`unknown-method\`, \`invalid-args\`, \`permission-denied\`, \`not-supported\`, \`conflict\`, \`storage-full\`, or \`internal\`.
 
 ## Writing systems & headwords
 
@@ -363,7 +373,9 @@ ${responsiveGuidance}
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My plugin</title>
+<!-- Declare only what you use: permissions ("edit" to write, "internet" for network),
+     contexts ("entry" for the entry menu), requires ("comments"/"history" if essential). -->
+${skeletonPermissionsMeta}<title>My plugin</title>
 <style>
   :root { --bg: #f5f6f8; --surface: #fff; --border: #e2e4e9; --text: #1c1e21; --text-muted: #6b7280; --accent: #4f46e5; --radius: 12px; }
   html[data-theme="dark"] { --bg: #16171b; --surface: #1f2126; --border: #33353c; --text: #edeef1; --text-muted: #9aa0ab; --accent: #818cf8; }

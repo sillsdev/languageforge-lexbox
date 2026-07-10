@@ -19,11 +19,6 @@ namespace FwLiteWeb;
 
 public static class FwLiteWebServer
 {
-    // A plugin is a single self-contained HTML document that travels whole over SignalR (the Blazor
-    // circuit for the local viewer, the MiniLcm hubs for remote clients). The default cap is 32KB,
-    // which large plugins blow past; 3MB leaves generous headroom for their inlined assets.
-    private const long MaxSignalRMessageSize = 3 * 1024 * 1024;
-
     public static WebApplication SetupAppServer(WebApplicationOptions options, Action<WebApplicationBuilder>? configure = null)
     {
         var builder = WebApplication.CreateBuilder(options);
@@ -54,9 +49,7 @@ public static class FwLiteWebServer
             //todo os should be web, when the server is running remotely to the client, but linux runs the server locally so we will default using the OS to determine the platform (the default value)
         });
         builder.Logging.AddDebug();
-        builder.Services.AddRazorComponents()
-            .AddInteractiveServerComponents(circuitOptions => circuitOptions.DetailedErrors = true)
-            .AddHubOptions(hubOptions => hubOptions.MaximumReceiveMessageSize = MaxSignalRMessageSize);
+        builder.Services.AddRazorComponents().AddInteractiveServerComponents(circuitOptions => circuitOptions.DetailedErrors = true);
         if (builder.Configuration.GetValue("FwLiteWeb:EnableFileLogging", true) &&
             builder.Configuration.GetValue<string>("FwLiteWeb:LogFileName") is { Length: > 0 } logFileName)
         {
@@ -74,14 +67,15 @@ public static class FwLiteWebServer
         builder.Services.AddSwaggerGen();
         builder.Services.AddSignalR(options =>
         {
-            options.MaximumReceiveMessageSize = MaxSignalRMessageSize;
             options.AddFilter(new LockedProjectFilter());
             options.EnableDetailedErrors = true;
         }).AddJsonProtocol();
+        builder.Services.AddHealthChecks();
 
         configure?.Invoke(builder);
         var app = builder.Build();
         app.Logger.LogInformation("FwLite FwLiteWeb startup");
+        EnsureDataDirectoriesExist(app);
 // Configure the HTTP request pipeline.
         app.UseSwagger();
         app.UseSwaggerUI(o =>
@@ -132,6 +126,7 @@ public static class FwLiteWebServer
         app.MapImport();
         app.MapAuthRoutes();
         app.MapMiniLcmRoutes("/api/mini-lcm");
+        app.MapHealthChecks("/health");
 
         app.MapStaticAssets();
         app.MapRazorComponents<App>()
@@ -141,5 +136,24 @@ public static class FwLiteWebServer
             })
             .AddAdditionalAssemblies(typeof(FwLiteShared._Imports).Assembly);
         return app;
+    }
+
+    /// <summary>
+    /// Creates the project and auth-cache directories up front, the way the MAUI host already does
+    /// (see <c>FwLiteMauiKernel</c>). FwLiteWeb never did, which was harmless while the paths defaulted
+    /// to the working directory (always present), but a host can point <c>LcmCrdt:ProjectPath</c> /
+    /// <c>Auth:CacheFileName</c> at a per-user location that doesn't exist yet — the Platform.Bible
+    /// extension does, and it can't create the directory itself. Without this, a missing directory makes
+    /// project listing (<see cref="Directory.EnumerateFiles(string, string)"/>), project creation
+    /// (SQLite can't open a file under a missing directory), and MSAL cache init all fail.
+    /// </summary>
+    private static void EnsureDataDirectoriesExist(WebApplication app)
+    {
+        var projectPath = app.Services.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
+        Directory.CreateDirectory(projectPath);
+
+        var cacheFileName = app.Services.GetRequiredService<IOptions<AuthConfig>>().Value.CacheFileName;
+        var cacheDir = Path.GetDirectoryName(cacheFileName);
+        if (!string.IsNullOrEmpty(cacheDir)) Directory.CreateDirectory(cacheDir);
     }
 }

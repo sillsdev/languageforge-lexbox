@@ -7,6 +7,7 @@ using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
+using MiniLcm.Media;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Resource;
@@ -322,7 +323,11 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         {
             Id = Guid.NewGuid(),
             Name = "Test Plugin",
-            Html = "<html><body><h1>Hello</h1></body></html>",
+            FileUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+            FileSize = 42,
+            Permissions = ["edit"],
+            Contexts = ["entry"],
+            Requires = ["history"],
         };
         var createPluginChange = new CreatePluginChange(plugin.Id, plugin);
         yield return new ChangeWithDependencies(createPluginChange);
@@ -331,7 +336,8 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             plugin with
             {
                 Name = "Updated Plugin",
-                Html = "<html><body><h1>Updated</h1></body></html>",
+                FileUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+                FileSize = 43,
             });
         yield return new ChangeWithDependencies(editPluginChange, [createPluginChange]);
 

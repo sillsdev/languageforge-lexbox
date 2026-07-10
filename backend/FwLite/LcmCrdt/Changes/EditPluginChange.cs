@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using MiniLcm.Media;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Core;
 using SIL.Harmony.Entities;
@@ -13,7 +14,11 @@ public class EditPluginChange : EditChange<Plugin>, ISelfNamedType<EditPluginCha
     {
         Name = plugin.Name;
         Description = plugin.Description;
-        Html = plugin.Html;
+        FileUri = plugin.FileUri;
+        FileSize = plugin.FileSize;
+        Permissions = plugin.Permissions;
+        Contexts = plugin.Contexts;
+        Requires = plugin.Requires;
     }
 
     [JsonConstructor]
@@ -23,13 +28,21 @@ public class EditPluginChange : EditChange<Plugin>, ISelfNamedType<EditPluginCha
 
     public required string Name { get; set; }
     public string? Description { get; set; }
-    public required string Html { get; set; }
+    public required MediaUri FileUri { get; set; }
+    public long FileSize { get; set; }
+    public string[] Permissions { get; set; } = [];
+    public string[] Contexts { get; set; } = [];
+    public string[] Requires { get; set; } = [];
 
     public override ValueTask ApplyChange(Plugin entity, IChangeContext context)
     {
         entity.Name = Name;
         entity.Description = Description;
-        entity.Html = Html;
+        entity.FileUri = FileUri;
+        entity.FileSize = FileSize;
+        entity.Permissions = Permissions;
+        entity.Contexts = Contexts;
+        entity.Requires = Requires;
         return ValueTask.CompletedTask;
     }
 }

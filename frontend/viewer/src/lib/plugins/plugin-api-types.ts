@@ -10,8 +10,14 @@ export const PLUGIN_API_VERSION = 1;
 export const PLUGIN_MESSAGE_SOURCE = 'fwlite-plugin';
 export const HOST_MESSAGE_SOURCE = 'fwlite-plugin-host';
 
-export type PluginPermission = 'internet';
-export const KNOWN_PLUGIN_PERMISSIONS: PluginPermission[] = ['internet'];
+/**
+ * Permissions a plugin declares via `<meta name="fwlite-plugin-permissions" content="internet edit">`.
+ * - `internet`: the network-blocking CSP is not injected (surfaced as a warning badge).
+ * - `edit`: the plugin may request dictionary writes (each still user-approved). Without it, write
+ *   methods reject immediately — a read-only plugin can never even show a write dialog.
+ */
+export type PluginPermission = 'internet' | 'edit';
+export const KNOWN_PLUGIN_PERMISSIONS: PluginPermission[] = ['internet', 'edit'];
 
 /**
  * Contexts a plugin declares it can be launched from, via
@@ -20,6 +26,17 @@ export const KNOWN_PLUGIN_PERMISSIONS: PluginPermission[] = ['internet'];
  */
 export type PluginContext = 'entry';
 export const KNOWN_PLUGIN_CONTEXTS: PluginContext[] = ['entry'];
+
+/**
+ * Optional host features. Not every host has them (comments and history live in the CRDT layer;
+ * a future FieldWorks-backed host won't have either), so hosts advertise them in
+ * {@link HostInitMessage.capabilities} and plugins declare the ones they can't work without via
+ * `<meta name="fwlite-plugin-requires" content="comments history">` — letting a host warn before
+ * launch instead of the plugin failing mid-run. Feature names are capabilities, not backend
+ * implementation names, so they stay meaningful across hosts.
+ */
+export type PluginHostFeature = 'comments' | 'history';
+export const KNOWN_PLUGIN_HOST_FEATURES: PluginHostFeature[] = ['comments', 'history'];
 
 /**
  * How `openEntry` surfaces an entry. `view`/`edit` open a dialog over the still-mounted plugin;
@@ -56,6 +73,13 @@ export interface HostResponseMessage {
   error?: PluginApiError;
 }
 
+/** What this host build/project supports, so plugins can feature-detect and degrade gracefully. */
+export interface HostCapabilities {
+  openEntryModes: OpenEntryMode[];
+  comments: boolean;
+  history: boolean;
+}
+
 export interface HostInitMessage {
   source: typeof HOST_MESSAGE_SOURCE;
   v: number;
@@ -64,8 +88,7 @@ export interface HostInitMessage {
   project: {projectName: string; projectCode: string};
   theme: 'light' | 'dark';
   permissions: PluginPermission[];
-  /** What this host build supports, so plugins can feature-detect and degrade gracefully. */
-  capabilities: {openEntryModes: OpenEntryMode[]};
+  capabilities: HostCapabilities;
   context?: {entryId?: string};
 }
 
@@ -79,6 +102,7 @@ export type PluginApiErrorCode =
   | 'invalid-args'
   | 'permission-denied'
   | 'not-supported'
+  | 'conflict'
   | 'storage-full'
   | 'internal';
 

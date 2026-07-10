@@ -4,10 +4,13 @@ import type {IUploadFileResponse} from '$lib/dotnet-types/generated-types/MiniLc
 import type {IHistoryServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IHistoryServiceJsInvokable';
 import {
   KNOWN_OPEN_ENTRY_MODES,
+  type HostCapabilities,
   type OpenEntryMode,
   PluginApiException,
   type PluginEntryFilter,
   type PluginEntryQuery,
+  type PluginHostFeature,
+  type PluginPermission,
   type PluginWriteOperation,
 } from './plugin-api-types';
 import type {PluginStorage} from './plugin-local-data';
@@ -26,20 +29,116 @@ type MorphTokens = Partial<Record<MorphTypeKind, {prefix?: string; postfix?: str
 
 const DEFAULT_ENTRY_LIMIT = 100;
 const MAX_ENTRY_LIMIT = 1000;
-const MAX_SUMMARY_LINES = 25;
+/**
+ * Backstop against pathological summaries, NOT a display budget: the confirm dialog scrolls, and
+ * silently truncating a write summary would let junk lines push real changes out of sight.
+ */
+const MAX_SUMMARY_LINES = 1000;
 const MAX_BATCH_OPERATIONS = 200;
 const DEFAULT_ACTIVITY_TAKE = 50;
 const MAX_ACTIVITY_TAKE = 500;
 
 /**
- * Implements the plugin-facing API (v1) as a thin, deliberately small adapter over the MiniLcm
- * API. Every method a plugin can call is dispatched through {@link handle}; anything else gets
- * an unknown-method error. Writes never reach MiniLcm without user approval.
+ * The complete plugin-facing API, v1. One method here = one method plugins can call (the SDK's
+ * `window.fwlite` surface, minus its pure-JS utilities). {@link PluginApiAdapter} implements it;
+ * {@link argDecoders} validates the untyped postMessage args for it. Adding a method means adding
+ * it in all three places — the compiler enforces that — plus plugin-sdk.js and plugin-prompt.ts.
  */
-export class PluginApiAdapter {
+export interface PluginApiMethods {
+  getWritingSystems(): Promise<unknown>;
+  getEntries(query: PluginEntryQuery): Promise<PluginEntry[]>;
+  countEntries(query: PluginEntryQuery): Promise<number>;
+  getEntry(id: string): Promise<PluginEntry | null>;
+  getPartsOfSpeech(): Promise<unknown>;
+  getSemanticDomains(): Promise<unknown>;
+  getMedia(mediaUri: string): Promise<{data: ArrayBuffer; fileName?: string; mimeType?: string} | null>;
+  saveFile(data: unknown, metadata: unknown): Promise<IUploadFileResponse>;
+  createEntry(entry: unknown): Promise<PluginEntry>;
+  updateEntry(before: unknown, after: unknown): Promise<PluginEntry>;
+  applyChanges(operations: unknown): Promise<PluginEntry[]>;
+  openEntry(id: string, mode: OpenEntryMode): Promise<void>;
+  notify(message: string): Promise<void>;
+  // Comments (read-only; requires the `comments` host feature)
+  getCommentThreads(options: unknown): Promise<unknown>;
+  getCommentThread(threadId: string): Promise<unknown>;
+  getUserComments(threadId: string): Promise<unknown>;
+  getUnreadComments(threadId: string | undefined): Promise<unknown>;
+  getUnreadCommentsForSubject(options: unknown): Promise<unknown>;
+  countUnreadComments(threadId: string | undefined): Promise<unknown>;
+  // Activity / history (read-only; requires the `history` host feature)
+  getActivity(query: unknown): Promise<unknown>;
+  getEntityHistory(entityId: string): Promise<unknown>;
+  getChangeContext(options: unknown): Promise<unknown>;
+  getObjectAtCommit(options: unknown): Promise<unknown>;
+  listActivityAuthors(): Promise<unknown>;
+  listActivityChangeTypes(): Promise<unknown>;
+  // Per-plugin persistent storage
+  storageGet(key: string): Promise<unknown>;
+  storageSet(key: string, value: unknown): Promise<void>;
+  storageRemove(key: string): Promise<void>;
+}
+
+type ArgDecoders = {
+  [K in keyof PluginApiMethods]: (args: unknown[]) => Parameters<PluginApiMethods[K]>;
+};
+
+/**
+ * Turns the untrusted `unknown[]` coming over postMessage into each method's typed arguments,
+ * throwing `invalid-args` on anything malformed. The mapped type makes this table provably
+ * complete: a method added to {@link PluginApiMethods} without a decoder fails to compile.
+ */
+const argDecoders: ArgDecoders = {
+  getWritingSystems: () => [],
+  getEntries: ([query]) => [asQuery(query)],
+  countEntries: ([query]) => [asQuery(query)],
+  getEntry: ([id]) => [asId(id)],
+  getPartsOfSpeech: () => [],
+  getSemanticDomains: () => [],
+  getMedia: ([uri]) => [asNonEmptyString(uri, 'mediaUri')],
+  saveFile: ([data, metadata]) => [data, metadata],
+  createEntry: ([entry]) => [entry],
+  updateEntry: ([before, after]) => [before, after],
+  applyChanges: ([operations]) => [operations],
+  openEntry: ([id, options]) => [asId(id), asOpenEntryMode(options)],
+  notify: ([message]) => [asNonEmptyString(message, 'message')],
+  getCommentThreads: ([options]) => [options],
+  getCommentThread: ([id]) => [asId(id)],
+  getUserComments: ([id]) => [asId(id)],
+  getUnreadComments: ([options]) => [asOptionalId(readField(options, 'threadId'))],
+  getUnreadCommentsForSubject: ([options]) => [options],
+  countUnreadComments: ([options]) => [asOptionalId(readField(options, 'threadId'))],
+  getActivity: ([query]) => [query],
+  getEntityHistory: ([id]) => [asId(id)],
+  getChangeContext: ([options]) => [options],
+  getObjectAtCommit: ([options]) => [options],
+  listActivityAuthors: () => [],
+  listActivityChangeTypes: () => [],
+  storageGet: ([key]) => [asNonEmptyString(key, 'key')],
+  storageSet: ([key, value]) => [asNonEmptyString(key, 'key'), value],
+  storageRemove: ([key]) => [asNonEmptyString(key, 'key')],
+};
+
+function isPluginApiMethod(method: string): method is keyof PluginApiMethods {
+  return Object.hasOwn(argDecoders, method);
+}
+
+export interface PluginApiConfig {
+  /** Permissions the running plugin declared (parsed from its actual HTML). */
+  permissions: PluginPermission[];
+  /** Optional features this host/project supports. */
+  capabilities: Pick<HostCapabilities, 'comments' | 'history'>;
+}
+
+/**
+ * Implements the plugin-facing API (v1) as a thin, deliberately small adapter over the MiniLcm
+ * API. Every plugin request is dispatched through {@link handle}. Writes never reach MiniLcm
+ * without user approval, and only for plugins that declared the `edit` permission.
+ */
+export class PluginApiAdapter implements PluginApiMethods {
   constructor(
     private api: IMiniLcmJsInvokable,
     private storage: PluginStorage,
+    private config: PluginApiConfig,
     private callbacks: PluginHostCallbacks,
     private historyService?: IHistoryServiceJsInvokable,
   ) {}
@@ -48,42 +147,18 @@ export class PluginApiAdapter {
   #headwordDeps?: Promise<{vernacular: IWritingSystem[]; morphTokens: MorphTokens}>;
 
   handle(method: string, args: unknown[]): Promise<unknown> {
-    switch (method) {
-      case 'getWritingSystems': return this.api.getWritingSystems();
-      case 'getEntries': return this.getEntries(asQuery(args[0]));
-      case 'countEntries': return this.countEntries(asQuery(args[0]));
-      case 'getEntry': return this.getEntry(asId(args[0]));
-      case 'getPartsOfSpeech': return this.api.getPartsOfSpeech();
-      case 'getSemanticDomains': return this.api.getSemanticDomains();
-      case 'getMedia': return this.getMedia(asNonEmptyString(args[0], 'mediaUri'));
-      case 'saveFile': return this.saveFile(args[0], args[1]);
-      case 'createEntry': return this.createEntry(args[0]);
-      case 'updateEntry': return this.updateEntry(args[0], args[1]);
-      case 'applyChanges': return this.applyChanges(args[0]);
-      case 'openEntry': return Promise.resolve(this.callbacks.openEntry(asId(args[0]), asOpenEntryMode(args[1])));
-      case 'notify': return Promise.resolve(this.callbacks.notify(asNonEmptyString(args[0], 'message')));
-      // Comments (read-only)
-      case 'getCommentThreads': return this.getCommentThreads(args[0]);
-      case 'getCommentThread': return this.api.getCommentThread(asId(args[0]));
-      case 'getUserComments': return this.api.getUserComments(asId(args[0]));
-      case 'getUnreadComments': return this.api.getUnreadComments(asOptionalId(readField(args[0], 'threadId')));
-      case 'getUnreadCommentsForSubject': return this.getUnreadCommentsForSubject(args[0]);
-      case 'countUnreadComments': return this.api.countUnreadComments(asOptionalId(readField(args[0], 'threadId')));
-      // Activity / history (read-only)
-      case 'getActivity': return this.getActivity(args[0]);
-      case 'getEntityHistory': return this.history().getHistory(asId(args[0]));
-      case 'getChangeContext': return this.getChangeContext(args[0]);
-      case 'getObjectAtCommit': return this.getObjectAtCommit(args[0]);
-      case 'listActivityAuthors': return this.history().listActivityAuthors();
-      case 'listActivityChangeTypes': return this.history().listActivityChangeTypes();
-      case 'storageGet': return Promise.resolve(this.storage.get(asNonEmptyString(args[0], 'key')));
-      case 'storageSet': return Promise.resolve(this.storage.set(asNonEmptyString(args[0], 'key'), args[1]));
-      case 'storageRemove': return Promise.resolve(this.storage.remove(asNonEmptyString(args[0], 'key')));
-      default: throw new PluginApiException('unknown-method', `Unknown plugin API method: ${method}`);
+    if (!isPluginApiMethod(method)) {
+      throw new PluginApiException('unknown-method', `Unknown plugin API method: ${method}`);
     }
+    const decodedArgs = argDecoders[method](args);
+    return (this[method] as (...decoded: unknown[]) => Promise<unknown>)(...decodedArgs);
   }
 
-  private async getEntries(query: PluginEntryQuery): Promise<PluginEntry[]> {
+  getWritingSystems(): Promise<unknown> {
+    return this.api.getWritingSystems();
+  }
+
+  async getEntries(query: PluginEntryQuery): Promise<PluginEntry[]> {
     const options = toQueryOptions(query);
     const entries = query.search
       ? await this.api.searchEntries(query.search, options)
@@ -91,14 +166,22 @@ export class PluginApiAdapter {
     return await this.withHeadwords(entries);
   }
 
-  private async getEntry(id: string): Promise<PluginEntry | null> {
+  async countEntries(query: PluginEntryQuery): Promise<number> {
+    return await this.api.countEntries(query.search || undefined, {filter: toGridifyFilter(query.filter)});
+  }
+
+  async getEntry(id: string): Promise<PluginEntry | null> {
     const entry = await this.api.getEntry(id);
     if (!entry) return null;
     return (await this.withHeadwords([entry]))[0];
   }
 
-  private async countEntries(query: PluginEntryQuery): Promise<number> {
-    return await this.api.countEntries(query.search || undefined, {filter: toGridifyFilter(query.filter)});
+  getPartsOfSpeech(): Promise<unknown> {
+    return this.api.getPartsOfSpeech();
+  }
+
+  getSemanticDomains(): Promise<unknown> {
+    return this.api.getSemanticDomains();
   }
 
   /**
@@ -106,7 +189,7 @@ export class PluginApiAdapter {
    * mediaUri). The app downloads the file automatically if needed; returns null when it can't be
    * had (offline, or not found), so plugins can degrade instead of crashing.
    */
-  private async getMedia(mediaUri: string): Promise<{data: ArrayBuffer; fileName?: string; mimeType?: string} | null> {
+  async getMedia(mediaUri: string): Promise<{data: ArrayBuffer; fileName?: string; mimeType?: string} | null> {
     const file = await this.api.getFileStream(mediaUri);
     if (!file.stream) return null;
     const data = await file.stream.arrayBuffer();
@@ -118,7 +201,8 @@ export class PluginApiAdapter {
    * with a `mediaUri` you then write into an entry field (via updateEntry) to attach it. The bytes
    * themselves are stored locally; the entry edit that references them is still user-approved.
    */
-  private async saveFile(data: unknown, metadata: unknown): Promise<IUploadFileResponse> {
+  async saveFile(data: unknown, metadata: unknown): Promise<IUploadFileResponse> {
+    this.#requireEditPermission();
     if (!(data instanceof ArrayBuffer) && !(data instanceof Uint8Array) && !(data instanceof Blob)) {
       throw new PluginApiException('invalid-args', 'saveFile requires the file bytes as an ArrayBuffer, Uint8Array, or Blob');
     }
@@ -130,36 +214,147 @@ export class PluginApiAdapter {
     return await this.api.saveFile(data, {filename, mimeType});
   }
 
-  private getCommentThreads(input: unknown) {
+  async createEntry(input: unknown): Promise<PluginEntry> {
+    this.#requireEditPermission();
+    const prepared = this.prepareCreate(input);
+    if (!await this.callbacks.confirmWrite(prepared.operation)) {
+      throw new PluginApiException('permission-denied', 'The user declined this change');
+    }
+    return prepared.apply();
+  }
+
+  async updateEntry(beforeInput: unknown, afterInput: unknown): Promise<PluginEntry> {
+    this.#requireEditPermission();
+    const prepared = await this.prepareUpdate(beforeInput, afterInput);
+    if (!prepared) return (await this.withHeadwords([stripHeadword(afterInput as IEntry)]))[0]; // nothing changed
+    if (!await this.callbacks.confirmWrite(prepared.operation)) {
+      throw new PluginApiException('permission-denied', 'The user declined this change');
+    }
+    return prepared.apply();
+  }
+
+  /** Applies several creates/updates behind a SINGLE approval dialog, then runs them in order. */
+  async applyChanges(input: unknown): Promise<PluginEntry[]> {
+    this.#requireEditPermission();
+    if (!Array.isArray(input)) throw new PluginApiException('invalid-args', 'applyChanges requires an array of operations');
+    if (input.length > MAX_BATCH_OPERATIONS) {
+      throw new PluginApiException('invalid-args', `Too many operations in one batch (max ${MAX_BATCH_OPERATIONS})`);
+    }
+    // Prepare (validate + summarize) everything up front so a bad op fails before anything is applied.
+    const prepared: PreparedWrite[] = [];
+    for (const op of input) {
+      const p = await this.prepareOperation(op);
+      if (p) prepared.push(p);
+    }
+    if (prepared.length === 0) return [];
+    const approved = await this.callbacks.confirmWrite({
+      kind: 'batch',
+      count: prepared.length,
+      summary: buildBatchSummary(prepared.map(p => p.operation)),
+    });
+    if (!approved) throw new PluginApiException('permission-denied', 'The user declined these changes');
+    const results: PluginEntry[] = [];
+    for (const p of prepared) results.push(await p.apply());
+    return results;
+  }
+
+  async openEntry(id: string, mode: OpenEntryMode): Promise<void> {
+    this.callbacks.openEntry(id, mode);
+  }
+
+  async notify(message: string): Promise<void> {
+    this.callbacks.notify(message);
+  }
+
+  getCommentThreads(input: unknown): Promise<unknown> {
+    this.#requireFeature('comments');
     const {subjectType, subjectId} = input as {subjectType?: unknown; subjectId?: unknown};
     const includeComments = (input as {includeComments?: unknown})?.includeComments;
     return this.api.getCommentThreads(asSubjectType(subjectType), asId(subjectId), includeComments === true);
   }
 
-  private getUnreadCommentsForSubject(input: unknown) {
+  getCommentThread(threadId: string): Promise<unknown> {
+    this.#requireFeature('comments');
+    return this.api.getCommentThread(threadId);
+  }
+
+  getUserComments(threadId: string): Promise<unknown> {
+    this.#requireFeature('comments');
+    return this.api.getUserComments(threadId);
+  }
+
+  getUnreadComments(threadId: string | undefined): Promise<unknown> {
+    this.#requireFeature('comments');
+    return this.api.getUnreadComments(threadId);
+  }
+
+  getUnreadCommentsForSubject(input: unknown): Promise<unknown> {
+    this.#requireFeature('comments');
     const {subjectType, subjectId} = input as {subjectType?: unknown; subjectId?: unknown};
     return this.api.getUnreadCommentsForSubject(asSubjectType(subjectType), asId(subjectId));
   }
 
-  private getActivity(input: unknown) {
+  countUnreadComments(threadId: string | undefined): Promise<unknown> {
+    this.#requireFeature('comments');
+    return this.api.countUnreadComments(threadId);
+  }
+
+  getActivity(input: unknown): Promise<unknown> {
     const query = (input ?? {}) as {skip?: unknown; take?: unknown; authorFilterKeys?: unknown; changeTypeKeys?: unknown; sort?: unknown};
     const skip = Math.max(asOptionalNumber(query.skip) ?? 0, 0);
     const take = Math.min(Math.max(asOptionalNumber(query.take) ?? DEFAULT_ACTIVITY_TAKE, 1), MAX_ACTIVITY_TAKE);
     return this.history().projectActivity(skip, take, asOptionalStringArray(query.authorFilterKeys), asOptionalStringArray(query.changeTypeKeys), asActivitySort(query.sort));
   }
 
-  private getChangeContext(input: unknown) {
+  getEntityHistory(entityId: string): Promise<unknown> {
+    return this.history().getHistory(entityId);
+  }
+
+  getChangeContext(input: unknown): Promise<unknown> {
     const {commitId, changeIndex} = input as {commitId?: unknown; changeIndex?: unknown};
     return this.history().loadChangeContext(asId(commitId), asOptionalNumber(changeIndex) ?? 0);
   }
 
-  private getObjectAtCommit(input: unknown) {
+  getObjectAtCommit(input: unknown): Promise<unknown> {
     const {commitId, entityId} = input as {commitId?: unknown; entityId?: unknown};
     return this.history().getObject(asId(commitId), asId(entityId));
   }
 
+  listActivityAuthors(): Promise<unknown> {
+    return this.history().listActivityAuthors();
+  }
+
+  listActivityChangeTypes(): Promise<unknown> {
+    return this.history().listActivityChangeTypes();
+  }
+
+  async storageGet(key: string): Promise<unknown> {
+    return this.storage.get(key);
+  }
+
+  async storageSet(key: string, value: unknown): Promise<void> {
+    this.storage.set(key, value);
+  }
+
+  async storageRemove(key: string): Promise<void> {
+    this.storage.remove(key);
+  }
+
+  #requireEditPermission(): void {
+    if (this.config.permissions.includes('edit')) return;
+    throw new PluginApiException('permission-denied',
+      'This plugin has not declared the "edit" permission, so it cannot change the dictionary. ' +
+      'Declare <meta name="fwlite-plugin-permissions" content="edit"> to request write access.');
+  }
+
+  #requireFeature(feature: PluginHostFeature): void {
+    if (this.config.capabilities[feature]) return;
+    throw new PluginApiException('not-supported', `This project does not support ${feature}`);
+  }
+
   /** History lives on a separate service that isn't available for every project type. */
   private history(): IHistoryServiceJsInvokable {
+    this.#requireFeature('history');
     if (!this.historyService) {
       throw new PluginApiException('not-supported', 'Activity/history is not available for this project');
     }
@@ -181,58 +376,18 @@ export class PluginApiAdapter {
       });
   }
 
-  private async createEntry(input: unknown): Promise<PluginEntry> {
-    const prepared = this.prepareCreate(input);
-    if (!await this.callbacks.confirmWrite(prepared.operation)) {
-      throw new PluginApiException('permission-denied', 'The user declined this change');
-    }
-    return prepared.apply();
-  }
-
-  private async updateEntry(beforeInput: unknown, afterInput: unknown): Promise<PluginEntry> {
-    const prepared = this.prepareUpdate(beforeInput, afterInput);
-    if (!prepared) return (await this.withHeadwords([stripHeadword(afterInput as IEntry)]))[0]; // nothing changed
-    if (!await this.callbacks.confirmWrite(prepared.operation)) {
-      throw new PluginApiException('permission-denied', 'The user declined this change');
-    }
-    return prepared.apply();
-  }
-
-  /** Applies several creates/updates behind a SINGLE approval dialog, then runs them in order. */
-  private async applyChanges(input: unknown): Promise<PluginEntry[]> {
-    if (!Array.isArray(input)) throw new PluginApiException('invalid-args', 'applyChanges requires an array of operations');
-    if (input.length > MAX_BATCH_OPERATIONS) {
-      throw new PluginApiException('invalid-args', `Too many operations in one batch (max ${MAX_BATCH_OPERATIONS})`);
-    }
-    // Prepare (validate + summarize) everything up front so a bad op fails before anything is applied.
-    const prepared = input.flatMap(op => {
-      const p = this.prepareOperation(op);
-      return p ? [p] : [];
-    });
-    if (prepared.length === 0) return [];
-    const approved = await this.callbacks.confirmWrite({
-      kind: 'batch',
-      count: prepared.length,
-      summary: buildBatchSummary(prepared.map(p => p.operation)),
-    });
-    if (!approved) throw new PluginApiException('permission-denied', 'The user declined these changes');
-    const results: PluginEntry[] = [];
-    for (const p of prepared) results.push(await p.apply());
-    return results;
-  }
-
-  private prepareOperation(op: unknown): {operation: PluginWriteOperation; apply: () => Promise<PluginEntry>} | null {
+  private async prepareOperation(op: unknown): Promise<PreparedWrite | null> {
     if (typeof op !== 'object' || op === null) throw new PluginApiException('invalid-args', 'Each operation must be an object');
     const type = (op as {type?: unknown}).type;
     if (type === 'createEntry') return this.prepareCreate((op as {entry?: unknown}).entry);
     if (type === 'updateEntry') {
       const {before, after} = op as {before?: unknown; after?: unknown};
-      return this.prepareUpdate(before, after);
+      return await this.prepareUpdate(before, after);
     }
     throw new PluginApiException('invalid-args', `Unknown operation type: ${String(type)}`);
   }
 
-  private prepareCreate(input: unknown): {operation: PluginWriteOperation; apply: () => Promise<PluginEntry>} {
+  private prepareCreate(input: unknown): PreparedWrite {
     if (typeof input !== 'object' || input === null) {
       throw new PluginApiException('invalid-args', 'createEntry requires an entry object');
     }
@@ -245,20 +400,39 @@ export class PluginApiAdapter {
     };
   }
 
-  private prepareUpdate(beforeInput: unknown, afterInput: unknown): {operation: PluginWriteOperation; apply: () => Promise<PluginEntry>} | null {
+  /**
+   * updateEntry has compare-and-swap semantics: `before` must match the entry's CURRENT state or
+   * the call fails with `conflict`. That's what makes the approval dialog trustworthy — the diff
+   * it shows is guaranteed to be the real effect. Without the check, a plugin could fabricate
+   * `before` so the dialog shows "cat → dog" while the write actually clobbers something else.
+   */
+  private async prepareUpdate(beforeInput: unknown, afterInput: unknown): Promise<PreparedWrite | null> {
     // Drop the computed `headword` so it never reaches the real diff/apply — it's not a model field.
     const before = stripHeadword(beforeInput as IEntry);
     const after = stripHeadword(afterInput as IEntry);
     if (!before?.id || !after?.id || before.id !== after.id) {
       throw new PluginApiException('invalid-args', 'updateEntry requires before and after versions of the same entry');
     }
-    const summary = diffSummary(before, after);
+    const current = await this.api.getEntry(before.id);
+    if (!current) {
+      throw new PluginApiException('conflict', 'The entry no longer exists — it may have been deleted');
+    }
+    if (diffSummary(before, current).length > 0) {
+      throw new PluginApiException('conflict',
+        'The entry changed since it was fetched — fetch it again, reapply your edit, and retry');
+    }
+    const summary = diffSummary(current, after);
     if (summary.length === 0) return null;
     return {
       operation: {kind: 'updateEntry', before, after, summary},
       apply: async () => (await this.withHeadwords([await this.api.updateEntry(before, after)]))[0],
     };
   }
+}
+
+interface PreparedWrite {
+  operation: PluginWriteOperation;
+  apply: () => Promise<PluginEntry>;
 }
 
 /** headword = citationForm (undecorated), else lexemeForm with the morph type's affix tokens. */
@@ -455,29 +629,56 @@ function normalizeNewEntry(input: Partial<IEntry>): IEntry {
   return entry;
 }
 
-function describeEntry(entry: IEntry): string[] {
+/** Keys that are structural noise in a write summary: generated ids and ordering bookkeeping. */
+const SUMMARY_NOISE_KEYS = new Set(['id', 'entryId', 'senseId', 'order']);
+
+/**
+ * Copy of a value with empty leaves ('', null, undefined, {}, []) and noise keys removed, so a
+ * created entry's summary lists exactly the substance that will be stored. Returns undefined when
+ * nothing remains.
+ */
+export function pruneForSummary(value: unknown): unknown {
+  if (value === null || value === undefined || value === '') return undefined;
+  if (Array.isArray(value)) {
+    const pruned = value.map(pruneForSummary).filter(item => item !== undefined);
+    return pruned.length === 0 ? undefined : pruned;
+  }
+  if (typeof value === 'object') {
+    const result: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value)) {
+      if (SUMMARY_NOISE_KEYS.has(key)) continue;
+      const pruned = pruneForSummary(item);
+      if (pruned !== undefined) result[key] = pruned;
+    }
+    return Object.keys(result).length === 0 ? undefined : result;
+  }
+  return value;
+}
+
+/**
+ * One line per leaf value of the (pruned) entry, so the approval dialog shows EVERYTHING that will
+ * be stored — a hand-picked field list here would let a plugin smuggle data through the fields the
+ * list forgot.
+ */
+export function describeEntry(entry: IEntry): string[] {
   const lines: string[] = [];
-  for (const [ws, value] of Object.entries(entry.lexemeForm)) {
-    lines.push(`Word (${ws}): ${shorten(value)}`);
-  }
-  for (const [ws, value] of Object.entries(entry.citationForm)) {
-    lines.push(`Citation form (${ws}): ${shorten(value)}`);
-  }
-  entry.senses.forEach((sense, index) => {
-    for (const [ws, value] of Object.entries(sense.gloss)) {
-      lines.push(`Sense ${index + 1} gloss (${ws}): ${shorten(value)}`);
-    }
-    for (const [ws, value] of Object.entries(sense.definition)) {
-      lines.push(`Sense ${index + 1} definition (${ws}): ${shorten(richToText(value))}`);
-    }
-    for (const domain of sense.semanticDomains) {
-      lines.push(`Sense ${index + 1} semantic domain: ${domain.code} ${shorten(Object.values(domain.name)[0] ?? '')}`);
-    }
-    if (sense.partOfSpeech) {
-      lines.push(`Sense ${index + 1} part of speech: ${shorten(Object.values(sense.partOfSpeech.name)[0] ?? '')}`);
-    }
-  });
+  leafLines(pruneForSummary(entry), '', lines);
   return capLines(lines);
+}
+
+function leafLines(value: unknown, path: string, lines: string[]): void {
+  if (value === undefined) return;
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => leafLines(item, `${path}[${index}]`, lines));
+    return;
+  }
+  if (typeof value === 'object' && value !== null) {
+    for (const [key, item] of Object.entries(value)) {
+      leafLines(item, path ? `${path}.${key}` : key, lines);
+    }
+    return;
+  }
+  lines.push(`${path}: ${renderValue(value)}`);
 }
 
 /** Human-readable field-level diff between two JSON-ish values, for the write-approval dialog. */
@@ -516,7 +717,17 @@ function diffInto(before: unknown, after: unknown, path: string, lines: string[]
 function deepEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
-  return JSON.stringify(a) === JSON.stringify(b);
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((item, index) => deepEqual(item, b[index]));
+  }
+  const aRecord = a as Record<string, unknown>;
+  const bRecord = b as Record<string, unknown>;
+  const keys = new Set([...Object.keys(aRecord), ...Object.keys(bRecord)]);
+  for (const key of keys) {
+    if (!deepEqual(aRecord[key], bRecord[key])) return false;
+  }
+  return true;
 }
 
 function renderValue(value: unknown): string {
@@ -525,21 +736,23 @@ function renderValue(value: unknown): string {
   return shorten(JSON.stringify(value));
 }
 
-function richToText(value: unknown): string {
-  if (typeof value === 'string') return value;
-  if (typeof value === 'object' && value !== null && Array.isArray((value as {spans?: unknown}).spans)) {
-    return ((value as {spans: {text?: string}[]}).spans).map(span => span.text ?? '').join('');
-  }
-  return JSON.stringify(value);
-}
-
 function shorten(value: string): string {
   return value.length > 80 ? value.slice(0, 77) + '…' : value;
 }
 
+// Bidi embedding/override/isolate marks and control characters can visually reorder or hide parts
+// of a summary line, making the dialog read differently from what is applied — strip them.
+// eslint-disable-next-line no-control-regex
+const SUMMARY_UNSAFE_CHARS = /[\u0000-\u001F\u007F\u200E\u200F\u202A-\u202E\u2066-\u2069]/g;
+
+function sanitizeLine(line: string): string {
+  return line.replace(SUMMARY_UNSAFE_CHARS, ' ');
+}
+
 function capLines(lines: string[]): string[] {
-  if (lines.length <= MAX_SUMMARY_LINES) return lines;
-  return [...lines.slice(0, MAX_SUMMARY_LINES), `…and ${lines.length - MAX_SUMMARY_LINES} more changes`];
+  const sanitized = lines.map(sanitizeLine);
+  if (sanitized.length <= MAX_SUMMARY_LINES) return sanitized;
+  return [...sanitized.slice(0, MAX_SUMMARY_LINES), `…and ${sanitized.length - MAX_SUMMARY_LINES} more changes`];
 }
 
 /** Flattens each batched op's summary under a numbered header, for the single confirmation dialog. */

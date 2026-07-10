@@ -11,7 +11,7 @@
   import {usePluginService} from '$project/data/plugin-service.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import {parsePluginContexts, parsePluginPermissions} from './plugin-srcdoc';
+  import {AppNotification} from '$lib/notifications/notifications';
   import PluginEditorDialog from './PluginEditorDialog.svelte';
   import PluginAiPromptDialog from './PluginAiPromptDialog.svelte';
 
@@ -28,6 +28,21 @@
   let editingPlugin = $state<IPlugin | undefined>(undefined);
   let aiPromptOpen = $state(false);
 
+  // The trust store is plain localStorage; bump this to re-read it after revoking from a card.
+  let trustVersion = $state(0);
+  // Trust is pinned to a content hash we'd need the file to verify, so the card shows whether a
+  // grant EXISTS — if the plugin changed since, the grant is stale and it will ask again anyway.
+  function hasWriteTrust(plugin: IPlugin): boolean {
+    trustVersion; // eslint-disable-line @typescript-eslint/no-unused-expressions
+    return pluginService.writeTrustStore.grantedHash(plugin.id) !== undefined;
+  }
+
+  function revokeWriteTrust(plugin: IPlugin) {
+    pluginService.writeTrustStore.revoke(plugin.id);
+    trustVersion++;
+    AppNotification.display($t`“${plugin.name}” will ask before making changes again.`, {timeout: 'short'});
+  }
+
   function run(plugin: IPlugin) {
     navigate(`${$base.uri}/plugins/${plugin.id}`);
   }
@@ -42,18 +57,28 @@
     editorOpen = true;
   }
 
-  async function onSubmit(plugin: IPlugin) {
-    if (editingPlugin) await pluginService.update(plugin);
-    else await pluginService.add(plugin);
+  async function withPluginHtml(plugin: IPlugin, action: (html: string) => Promise<void> | void) {
+    const loaded = await pluginService.getHtml(plugin);
+    if (loaded.result === 'offline') {
+      AppNotification.display($t`You're offline and this plugin's file isn't on this device yet.`, 'warning');
+      return;
+    }
+    if (loaded.result === 'error') {
+      AppNotification.error($t`Couldn't load the plugin file. ${loaded.message ?? ''}`);
+      return;
+    }
+    await action(loaded.html);
   }
 
   function exportPlugin(plugin: IPlugin) {
-    const url = URL.createObjectURL(new Blob([plugin.html], {type: 'text/html'}));
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = pluginFileName(plugin.name);
-    anchor.click();
-    URL.revokeObjectURL(url);
+    return withPluginHtml(plugin, (html) => {
+      const url = URL.createObjectURL(new Blob([html], {type: 'text/html'}));
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = pluginFileName(plugin.name);
+      anchor.click();
+      URL.revokeObjectURL(url);
+    });
   }
 
   function pluginFileName(name: string): string {
@@ -61,8 +86,10 @@
     return `${safe || 'plugin'}.html`;
   }
 
-  async function duplicate(plugin: IPlugin) {
-    await pluginService.add({id: crypto.randomUUID(), name: $t`${plugin.name} (copy)`, html: plugin.html});
+  function duplicate(plugin: IPlugin) {
+    return withPluginHtml(plugin, async (html) => {
+      await pluginService.create({name: $t`${plugin.name} (copy)`, description: plugin.description, html});
+    });
   }
 
   async function onDelete(plugin: IPlugin) {
@@ -75,7 +102,7 @@
   }
 
   function sizeKb(plugin: IPlugin): string {
-    return `${Math.max(1, Math.round(plugin.html.length / 1024))} KB`;
+    return `${Math.max(1, Math.round(plugin.fileSize / 1024))} KB`;
   }
 </script>
 
@@ -141,13 +168,29 @@
               {/if}
               <Card.Description class="flex flex-wrap items-center gap-2">
                 <span>{sizeKb(plugin)}</span>
-                {#if parsePluginContexts(plugin.html).includes('entry')}
+                {#if !plugin.permissions.includes('edit')}
+                  <Badge variant="secondary">
+                    <Icon icon="i-mdi-eye-outline" />
+                    {$t`Read-only`}
+                  </Badge>
+                {:else if hasWriteTrust(plugin)}
+                  <Badge variant="secondary">
+                    <Icon icon="i-mdi-shield-check" />
+                    {$t`Edits without asking`}
+                  </Badge>
+                {:else}
+                  <Badge variant="secondary">
+                    <Icon icon="i-mdi-pencil-outline" />
+                    {$t`Edits — asks first`}
+                  </Badge>
+                {/if}
+                {#if plugin.contexts.includes('entry')}
                   <Badge variant="secondary">
                     <Icon icon="i-mdi-menu" />
                     {$t`Entry menu`}
                   </Badge>
                 {/if}
-                {#if parsePluginPermissions(plugin.html).includes('internet')}
+                {#if plugin.permissions.includes('internet')}
                   <Badge variant="destructive">
                     <Icon icon="i-mdi-web" />
                     {$t`Internet`}
@@ -166,10 +209,16 @@
                   <Icon icon="i-mdi-dots-vertical" />
                 </DropdownMenu.Trigger>
                 <DropdownMenu.Content align="end">
-                  <DropdownMenu.Item onSelect={() => exportPlugin(plugin)}>
+                  <DropdownMenu.Item onSelect={() => void exportPlugin(plugin)}>
                     <Icon icon="i-mdi-download" />
                     {$t`Export`}
                   </DropdownMenu.Item>
+                  {#if hasWriteTrust(plugin)}
+                    <DropdownMenu.Item onSelect={() => revokeWriteTrust(plugin)}>
+                      <Icon icon="i-mdi-shield-off-outline" />
+                      {$t`Require approval for edits`}
+                    </DropdownMenu.Item>
+                  {/if}
                   {#if canManage}
                     <DropdownMenu.Item onSelect={() => void duplicate(plugin)}>
                       <Icon icon="i-mdi-content-copy" />
@@ -191,5 +240,5 @@
   </div>
 </div>
 
-<PluginEditorDialog bind:open={editorOpen} plugin={editingPlugin} {onSubmit} />
+<PluginEditorDialog bind:open={editorOpen} plugin={editingPlugin} />
 <PluginAiPromptDialog bind:open={aiPromptOpen} />
