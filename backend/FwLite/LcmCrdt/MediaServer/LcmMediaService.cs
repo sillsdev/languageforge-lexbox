@@ -64,11 +64,7 @@ public class LcmMediaService(
         var localResource = await resourceService.GetLocalResource(fileId);
         if (localResource is null)
         {
-            var downloadTask = DownloadTasks.GetOrAdd(fileId, async _ =>
-            {
-                // Check again if we have it locally in case another thread completed before the GetOrAdd factory ran
-                return await resourceService.GetLocalResource(fileId) ?? await resourceService.DownloadResource(fileId, this);
-            });
+            var downloadTask = GetOrStartDownload(fileId);
             try
             {
                 localResource = await downloadTask;
@@ -96,6 +92,33 @@ public class LcmMediaService(
         if (!File.Exists(localResource.LocalPath))
             throw new FileNotFoundException("Unable to find the file with Id" + fileId, localResource.LocalPath);
         return new(File.OpenRead(localResource.LocalPath), Path.GetFileName(localResource.LocalPath));
+    }
+
+    // Single-flight download starter. Uses the *value* overload of GetOrAdd, not the factory
+    // overload: ConcurrentDictionary may invoke a factory more than once under contention, and an
+    // async factory with side effects would start a separate DownloadResource on each invocation —
+    // the losing tasks still run and race to AddLocalResource, reintroducing the duplicate-key
+    // insert. Handing GetOrAdd a not-yet-started TaskCompletionSource.Task means only the caller
+    // whose task actually got stored kicks off the download; everyone else awaits that same task.
+    private async Task<LocalResource> GetOrStartDownload(Guid fileId)
+    {
+        var tcs = new TaskCompletionSource<LocalResource>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var task = DownloadTasks.GetOrAdd(fileId, tcs.Task);
+        if (task == tcs.Task)
+        {
+            try
+            {
+                // Check again if we have it locally in case another thread committed it before we started.
+                var resource = await resourceService.GetLocalResource(fileId)
+                            ?? await resourceService.DownloadResource(fileId, this);
+                tcs.SetResult(resource);
+            }
+            catch (Exception e)
+            {
+                tcs.SetException(e);
+            }
+        }
+        return await task;
     }
 
     // Media files are proxied (lexbox -> FwHeadless). A cold request — e.g. the first one after the
