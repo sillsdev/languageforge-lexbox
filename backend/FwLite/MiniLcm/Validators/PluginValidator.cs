@@ -27,9 +27,11 @@ public class PluginValidator : AbstractValidator<Plugin>
         RuleFor(p => p.Requires).Must(BeValidTokenList).WithMessage("Invalid requires list");
     }
 
-    private static bool BeValidTokenList(string[] tokens)
+    private static bool BeValidTokenList(string[]? tokens)
     {
-        return tokens.Length <= MaxTokens
+        // Null can arrive through the JS deserialization boundary; reject it as invalid input.
+        return tokens is not null
+            && tokens.Length <= MaxTokens
             && tokens.All(token => !string.IsNullOrWhiteSpace(token) && token.Length <= MaxTokenLength);
     }
 }

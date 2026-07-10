@@ -98,13 +98,24 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
     {
         var created = await CreatePluginAsManager("My Plugin");
         var newFileUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org");
-        await Api.UpdatePlugin(created with { Name = "My Updated Plugin", FileUri = newFileUri, FileSize = 99 });
+        await Api.UpdatePlugin(created with
+        {
+            Name = "My Updated Plugin",
+            FileUri = newFileUri,
+            FileSize = 99,
+            Permissions = ["edit", "internet"],
+            Contexts = [],
+            Requires = ["comments"],
+        });
 
         var fetched = await Api.GetPlugin(created.Id);
         fetched.Should().NotBeNull();
         fetched.Name.Should().Be("My Updated Plugin");
         fetched.FileUri.Should().Be(newFileUri);
         fetched.FileSize.Should().Be(99);
+        fetched.Permissions.Should().Equal("edit", "internet");
+        fetched.Contexts.Should().BeEmpty();
+        fetched.Requires.Should().Equal("comments");
     }
 
     [Fact]

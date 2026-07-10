@@ -4,7 +4,8 @@
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import {t} from 'svelte-i18n-lingui';
-  import {navigate, useRouter} from 'svelte-routing';
+  import {untrack} from 'svelte';
+  import {navigate, useLocation, useRouter} from 'svelte-routing';
   import {usePluginService} from '$project/data/plugin-service.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
   import {useFeatures} from '$lib/services/feature-service';
@@ -26,15 +27,16 @@
 
   const {pluginId}: Props = $props();
 
-  const launchEntryIdParam = new URLSearchParams(window.location.search).get('entryId') ?? undefined;
-  const launchEntryId = launchEntryIdParam && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(launchEntryIdParam)
-    ? launchEntryIdParam
-    : undefined;
-
   const pluginService = usePluginService();
   const projectContext = useProjectContext();
   const features = useFeatures();
   const {base} = useRouter();
+  const location = useLocation();
+
+  const launchEntryId = $derived.by(() => {
+    const param = new URLSearchParams($location.search).get('entryId') ?? undefined;
+    return param && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(param) ? param : undefined;
+  });
 
   const plugin = $derived(pluginService.current.find(candidate => candidate.id === pluginId));
 
@@ -48,14 +50,22 @@
     | {status: 'offline'}
     | {status: 'error'; message?: string}
     | {status: 'ready'; html: string; manifest: PluginManifest; hash: string};
-  let htmlState = $state<HtmlState>({status: 'loading'});
+  // $state.raw: replaced wholesale, and its contents feed postMessage — a deep $state proxy
+  // would make structuredClone (and so the init message) throw DataCloneError.
+  let htmlState = $state.raw<HtmlState>({status: 'loading'});
 
+  // Keyed on the fields that determine the content, not object identity: a plugin-list refetch
+  // rebuilds the objects, and that must not tear down a running plugin.
+  const pluginKey = $derived(plugin
+    ? [plugin.id, plugin.fileUri, plugin.name, plugin.description ?? ''].join('\u0000')
+    : undefined);
   $effect(() => {
-    if (!plugin) return;
-    const requested = plugin;
+    const requestedKey = pluginKey;
+    if (!requestedKey) return;
+    const requested = untrack(() => plugin)!;
     htmlState = {status: 'loading'};
     void pluginService.getHtml(requested).then(async result => {
-      if (plugin !== requested) return; // a newer load owns the state
+      if (pluginKey !== requestedKey) return; // a newer load owns the state
       if (result.result === 'ok') {
         htmlState = {
           status: 'ready',
@@ -194,9 +204,10 @@
 
   let iframeElement = $state<HTMLIFrameElement>();
   $effect(() => {
-    if (!host || !iframeElement) return;
-    host.attach(iframeElement);
-    return () => host.detach();
+    const attached = host;
+    if (!attached || !iframeElement) return;
+    attached.attach(iframeElement);
+    return () => attached.detach();
   });
 
   const srcdoc = $derived(

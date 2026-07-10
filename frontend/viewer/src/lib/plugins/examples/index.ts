@@ -18,22 +18,12 @@ export type ExampleFunction =
  */
 export type ExampleCapability = 'internet' | 'microphone' | 'camera' | 'entry-menu';
 
-export interface ExampleFunctionInfo {
-  key: ExampleFunction;
-  /** English display name (section heading and filter-chip label). */
-  label: string;
-}
-
-/** Fixed display order of the gallery's sections and filter chips. */
-export const exampleFunctions: ExampleFunctionInfo[] = [
-  {key: 'collect', label: 'Collect words'},
-  {key: 'enrich', label: 'Enrich & clean up'},
-  {key: 'record', label: 'Record & illustrate'},
-  {key: 'explore', label: 'Explore & analyze'},
-  {key: 'review', label: 'Review & history'},
-  {key: 'publish', label: 'Publish'},
-  {key: 'play', label: 'Play & learn'},
-];
+/**
+ * Fixed display order of the gallery's sections and filter chips. Display names live in
+ * PluginEditorDialog (this module is imported by Playwright's node-side test loader, which can't
+ * resolve the i18n runtime).
+ */
+export const exampleFunctions: ExampleFunction[] = ['collect', 'enrich', 'record', 'explore', 'review', 'publish', 'play'];
 
 export interface ExamplePlugin {
   /** Stable identifier, e.g. 'dictionary-stats'. */
@@ -260,20 +250,15 @@ export const examplePlugins: ExamplePlugin[] = [
   },
 ];
 
-/** English label for a function key. */
-export function exampleFunctionLabel(key: ExampleFunction): string {
-  return exampleFunctions.find((f) => f.key === key)?.label ?? key;
-}
-
 /**
  * Examples grouped by their PRIMARY function, in {@link exampleFunctions} order, skipping empty
  * sections. This is the gallery's default browse view (each example appears once).
  */
-export function examplePluginsByPrimaryFunction(): {function: ExampleFunctionInfo; plugins: ExamplePlugin[]}[] {
+export function examplePluginsByPrimaryFunction(): {function: ExampleFunction; plugins: ExamplePlugin[]}[] {
   return exampleFunctions
-    .map((info) => ({
-      function: info,
-      plugins: examplePlugins.filter((plugin) => plugin.functions[0] === info.key),
+    .map((key) => ({
+      function: key,
+      plugins: examplePlugins.filter((plugin) => plugin.functions[0] === key),
     }))
     .filter((group) => group.plugins.length > 0);
 }

@@ -14,6 +14,7 @@ import {
   type PluginWriteOperation,
 } from './plugin-api-types';
 import type {PluginStorage} from './plugin-local-data';
+import {gt} from 'svelte-i18n-lingui';
 
 export interface PluginHostCallbacks {
   /** Shows the write to the user; resolves true only if they approve it. */
@@ -666,33 +667,33 @@ export function pruneForSummary(value: unknown): unknown {
  */
 export function describeEntry(entry: IEntry): string[] {
   const lines: string[] = [];
-  leafLines(pruneForSummary(entry), '', lines);
+  leafLines(pruneForSummary(entry), [], lines);
   return capLines(lines);
 }
 
-function leafLines(value: unknown, path: string, lines: string[]): void {
+function leafLines(value: unknown, path: PathSegment[], lines: string[]): void {
   if (value === undefined) return;
   if (Array.isArray(value)) {
-    value.forEach((item, index) => leafLines(item, `${path}[${index}]`, lines));
+    value.forEach((item, index) => leafLines(item, [...path, index], lines));
     return;
   }
   if (typeof value === 'object' && value !== null) {
     for (const [key, item] of Object.entries(value)) {
-      leafLines(item, path ? `${path}.${key}` : key, lines);
+      leafLines(item, [...path, key], lines);
     }
     return;
   }
-  lines.push(`${path}: ${renderValue(value)}`);
+  lines.push(`${formatPath(path)}: ${renderValue(value)}`);
 }
 
 /** Human-readable field-level diff between two JSON-ish values, for the write-approval dialog. */
 export function diffSummary(before: unknown, after: unknown): string[] {
   const lines: string[] = [];
-  diffInto(before, after, '', lines);
+  diffInto(before, after, [], lines);
   return capLines(lines);
 }
 
-function diffInto(before: unknown, after: unknown, path: string, lines: string[]): void {
+function diffInto(before: unknown, after: unknown, path: PathSegment[], lines: string[]): void {
   if (deepEqual(before, after)) return;
   const bothObjects =
     typeof before === 'object' && before !== null && !Array.isArray(before) &&
@@ -703,7 +704,7 @@ function diffInto(before: unknown, after: unknown, path: string, lines: string[]
       diffInto(
         (before as Record<string, unknown>)[key],
         (after as Record<string, unknown>)[key],
-        path ? `${path}.${key}` : key,
+        [...path, key],
         lines);
     }
     return;
@@ -711,11 +712,66 @@ function diffInto(before: unknown, after: unknown, path: string, lines: string[]
   if (Array.isArray(before) && Array.isArray(after)) {
     const length = Math.max(before.length, after.length);
     for (let i = 0; i < length; i++) {
-      diffInto(before[i], after[i], `${path}[${i}]`, lines);
+      diffInto(before[i], after[i], [...path, i], lines);
     }
     return;
   }
-  lines.push(`${path}: ${renderValue(before)} → ${renderValue(after)}`);
+  lines.push(`${formatPath(path)}: ${renderValue(before)} → ${renderValue(after)}`);
+}
+
+type PathSegment = string | number;
+
+/**
+ * The dialog's readers are dictionary editors, not developers, so paths render as the app's own
+ * field names ("Sense 1 Gloss (en)"), falling back to the raw key for anything unknown — coverage
+ * must never depend on this list being complete.
+ */
+function fieldLabel(key: string): string | undefined {
+  switch (key) {
+    case 'lexemeForm': return gt`Word`;
+    case 'citationForm': return gt`Citation form`;
+    case 'literalMeaning': return gt`Literal meaning`;
+    case 'note': return gt`Note`;
+    case 'morphType': return gt`Morph type`;
+    case 'homographNumber': return gt`Homograph number`;
+    case 'publishIn': return gt`Publish in`;
+    case 'complexFormTypes': return gt`Complex form type`;
+    case 'components': return gt`Component`;
+    case 'complexForms': return gt`Complex form`;
+    case 'senses': return gt`Sense`;
+    case 'gloss': return gt`Gloss`;
+    case 'definition': return gt`Definition`;
+    case 'partOfSpeech': return gt`Part of speech`;
+    case 'partOfSpeechId': return gt`Part of speech`;
+    case 'semanticDomains': return gt`Semantic domain`;
+    case 'exampleSentences': return gt`Example`;
+    case 'sentence': return gt`Sentence`;
+    case 'translations': return gt`Translation`;
+    case 'reference': return gt`Reference`;
+    case 'pictures': return gt`Picture`;
+    case 'caption': return gt`Caption`;
+    case 'mediaUri': return gt`File`;
+    default: return undefined;
+  }
+}
+
+function formatPath(segments: PathSegment[]): string {
+  const parts: string[] = [];
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i];
+    if (typeof segment === 'number') {
+      // An index humanizes onto the collection's label: senses,0 → "Sense 1".
+      if (parts.length > 0) parts[parts.length - 1] += ` ${segment + 1}`;
+      else parts.push(`${segment + 1}`);
+      continue;
+    }
+    const label = fieldLabel(segment);
+    if (label !== undefined) parts.push(label);
+    // An unknown trailing key is usually a writing system id: lexemeForm,seh → "Word (seh)".
+    else if (i === segments.length - 1) parts.push(`(${segment})`);
+    else parts.push(segment);
+  }
+  return parts.join(' ');
 }
 
 function deepEqual(a: unknown, b: unknown): boolean {
@@ -735,8 +791,18 @@ function deepEqual(a: unknown, b: unknown): boolean {
 }
 
 function renderValue(value: unknown): string {
-  if (value === undefined || value === null || value === '') return '(empty)';
+  if (value === undefined || value === null || value === '') return gt`(empty)`;
   if (typeof value === 'string') return `"${shorten(value)}"`;
+  if (typeof value === 'object' && !Array.isArray(value)) {
+    // Referenced items (semantic domains, parts of speech, publications) read by their name.
+    const named = value as {code?: unknown; name?: unknown};
+    if (typeof named.name === 'object' && named.name !== null) {
+      const name = Object.values(named.name as Record<string, unknown>).find(candidate => typeof candidate === 'string' && candidate);
+      if (typeof name === 'string') {
+        return typeof named.code === 'string' && named.code ? `${named.code} ${shorten(name)}` : `"${shorten(name)}"`;
+      }
+    }
+  }
   return shorten(JSON.stringify(value));
 }
 
@@ -756,14 +822,15 @@ function sanitizeLine(line: string): string {
 function capLines(lines: string[]): string[] {
   const sanitized = lines.map(sanitizeLine);
   if (sanitized.length <= MAX_SUMMARY_LINES) return sanitized;
-  return [...sanitized.slice(0, MAX_SUMMARY_LINES), `…and ${sanitized.length - MAX_SUMMARY_LINES} more changes`];
+  const hidden = sanitized.length - MAX_SUMMARY_LINES;
+  return [...sanitized.slice(0, MAX_SUMMARY_LINES), gt`…and ${hidden} more changes`];
 }
 
 /** Flattens each batched op's summary under a numbered header, for the single confirmation dialog. */
 function buildBatchSummary(operations: PluginWriteOperation[]): string[] {
   const lines: string[] = [];
   operations.forEach((operation, index) => {
-    const label = operation.kind === 'createEntry' ? 'Add entry' : 'Change entry';
+    const label = operation.kind === 'createEntry' ? gt`Add entry` : gt`Change entry`;
     lines.push(`${index + 1}. ${label}:`);
     for (const line of operation.summary) lines.push(`   ${line}`);
   });

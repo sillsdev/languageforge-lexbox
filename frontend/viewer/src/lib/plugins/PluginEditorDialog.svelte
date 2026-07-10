@@ -13,7 +13,6 @@
   import {usePluginService} from '$project/data/plugin-service.svelte';
   import {parsePluginManifest} from './plugin-manifest';
   import {
-    exampleFunctionLabel,
     exampleFunctions,
     examplePlugins,
     examplePluginsByPrimaryFunction,
@@ -116,6 +115,16 @@
   const shownCount = $derived(filtering ? flatResults.length : groupedView.reduce((n, g) => n + g.plugins.length, 0));
   const hasActiveFilter = $derived(filtering || !!search.trim());
 
+  const functionLabels: Record<ExampleFunction, string> = $derived({
+    collect: $t`Collect words`,
+    enrich: $t`Enrich & clean up`,
+    record: $t`Record & illustrate`,
+    explore: $t`Explore & analyze`,
+    review: $t`Review & history`,
+    publish: $t`Publish`,
+    play: $t`Play & learn`,
+  });
+
   const capabilityMeta: Record<ExampleCapability, {icon: IconClass; label: string; variant: 'destructive' | 'secondary'}> = {
     internet: {icon: 'i-mdi-web', label: $t`Internet`, variant: 'destructive'},
     microphone: {icon: 'i-mdi-microphone', label: $t`Microphone`, variant: 'secondary'},
@@ -204,7 +213,7 @@
     onclick={() => void useExample(example)}>
     {#if showPrimaryFunction}
       <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        {exampleFunctionLabel(example.functions[0])}
+        {functionLabels[example.functions[0]]}
       </span>
     {/if}
     <span class="font-medium">{example.name}</span>
@@ -252,15 +261,15 @@
       </Dialog.Header>
 
       <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label={$t`Filter by function`}>
-        {#each exampleFunctions as fn (fn.key)}
-          {@const pressed = selectedFunctions.includes(fn.key)}
+        {#each exampleFunctions as fn (fn)}
+          {@const pressed = selectedFunctions.includes(fn)}
           <button
             type="button"
             aria-pressed={pressed}
             class="rounded-full border px-3 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
               {pressed ? 'border-primary bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}"
-            onclick={() => toggleFunction(fn.key)}>
-            {fn.label}
+            onclick={() => toggleFunction(fn)}>
+            {functionLabels[fn]}
           </button>
         {/each}
         {#if hasActiveFilter}
@@ -291,10 +300,10 @@
             </div>
           </section>
         {:else}
-          {#each groupedView as group (group.function.key)}
-            <section aria-labelledby="fn-{group.function.key}">
-              <h3 id="fn-{group.function.key}" class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                {group.function.label}
+          {#each groupedView as group (group.function)}
+            <section aria-labelledby="fn-{group.function}">
+              <h3 id="fn-{group.function}" class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                {functionLabels[group.function]}
               </h3>
               <div class="grid gap-3 sm:grid-cols-2">
                 {#each group.plugins as example (example.key)}

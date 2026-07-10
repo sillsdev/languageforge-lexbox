@@ -320,7 +320,7 @@ public class MiniLcmRepository(
 
     public async Task<Plugin?> GetPlugin(Guid pluginId)
     {
-        return await AsyncExtensions.SingleOrDefaultAsync(Plugins.AsQueryable(), p => p.Id == pluginId);
+        return await AsyncExtensions.SingleOrDefaultAsync(Plugins, p => p.Id == pluginId);
     }
 
     public async Task<CommentThread?> GetCommentThread(Guid threadId)

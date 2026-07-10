@@ -20,7 +20,8 @@ describe('example plugin registry', () => {
 
   // Badges are read from the registry before the HTML is loaded, so the registry must not lie about
   // what the plugin declares. `microphone`/`camera` can't be derived from stored HTML, so aren't checked.
-  it('declares internet/entry-menu capabilities that agree with each example’s HTML meta', async () => {
+  // Loads all 27 example files; generous timeout for slow shared-CI runs.
+  it('declares internet/entry-menu capabilities that agree with each example’s HTML meta', {timeout: 30_000}, async () => {
     for (const example of examplePlugins) {
       const manifest = parsePluginManifest(await example.loadHtml());
       const capabilities = new Set(example.capabilities ?? []);
@@ -30,7 +31,7 @@ describe('example plugin registry', () => {
   });
 
   // The examples are the de-facto tutorial, so they must model correct manifest declarations.
-  it('declares the edit permission exactly on the examples that write, and requires on the ones that need optional features', async () => {
+  it('declares the edit permission exactly on the examples that write, and requires on the ones that need optional features', {timeout: 30_000}, async () => {
     for (const example of examplePlugins) {
       const html = await example.loadHtml();
       const manifest = parsePluginManifest(html);

@@ -25,29 +25,43 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} cambios)"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "…and {0} more changes"
+msgstr ""
+
+#. Toast shown after a trusted plugin's write is auto-approved (no confirm dialog); {0} is the plugin name.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” added an entry"
 msgstr ""
 
+#. Toast shown right after the user picks "Always allow for this plugin" in the write-confirm dialog; {0} is the plugin name.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
 msgstr ""
 
+#. Toast shown after a trusted plugin's write is auto-approved (no confirm dialog); {0} is the plugin name. Pairs with "added an entry" / "made {1} changes" for other write kinds.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” changed an entry"
 msgstr ""
 
+#. Toast shown after a trusted plugin's batch write is auto-approved; {0} is the plugin name, {1} is the number of changes made.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” made {1} changes"
 msgstr ""
 
+#. Security warning shown when a plugin's sandboxed iframe navigates away from its own page (not allowed); {0} is the plugin name. Paired with the "Plugin stopped" heading.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
 msgstr ""
 
+#. Toast shown after revoking a plugin's "Always allow" write trust (from the plugin toolbar or the card menu); {0} is the plugin name.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "“{0}” will ask before making changes again."
+msgstr ""
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "(empty)"
 msgstr ""
 
 #: src/lib/entry-editor/CommentDialog.svelte
@@ -194,6 +208,7 @@ msgid "Add component"
 msgstr "Añadir componente"
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Add entry"
 msgstr ""
 
@@ -273,6 +288,7 @@ msgstr ""
 msgid "All authors"
 msgstr ""
 
+#. Button in the write-confirmation dialog: approves this write AND grants blanket future approval for this plugin (see "Edits without asking" badge).
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Always allow for this plugin"
 msgstr ""
@@ -444,6 +460,7 @@ msgstr ""
 msgid "Can change the dictionary"
 msgstr ""
 
+#. List item in the plugin consent card (shown before first running a plugin), when the plugin has edit permission. Contrast: "Read-only: cannot change your dictionary".
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Can change your dictionary — it will ask you first"
 msgstr ""
@@ -469,6 +486,14 @@ msgstr ""
 msgid "Cancel"
 msgstr "Cancelar"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Caption"
+msgstr ""
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Change entry"
+msgstr ""
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
@@ -492,6 +517,7 @@ msgstr "Elegir tema"
 #. Relevant view: Classic
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
@@ -541,6 +567,10 @@ msgstr ""
 msgid "Code"
 msgstr ""
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Collect words"
+msgstr ""
+
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
@@ -555,12 +585,20 @@ msgstr ""
 msgid "Comments for {0}"
 msgstr ""
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Complex form"
+msgstr ""
+
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Complex Form"
 msgstr "Forma compleja"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Complex form type"
+msgstr ""
 
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
@@ -587,6 +625,7 @@ msgstr "Formas complejas"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Component"
 msgstr "Componente"
 
@@ -638,15 +677,18 @@ msgstr "Copiar versión"
 msgid "Couldn't load that example. Please try again."
 msgstr ""
 
+#. Error banner/toast when fetching a plugin's HTML file fails (not an offline case) while editing, exporting, or duplicating it; {0} is the underlying error message.
 #: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "Couldn't load the plugin file. {0}"
 msgstr ""
 
+#. Heading shown when a plugin's file failed to load for a reason other than being offline; an optional detail message may follow beneath it.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Couldn't load this plugin"
 msgstr ""
 
+#. Error banner in the plugin editor dialog when creating/updating a plugin fails; {0} is the underlying error message.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Couldn't save the plugin. {0}"
 msgstr ""
@@ -754,6 +796,7 @@ msgstr "Directorio de datos"
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
@@ -952,10 +995,12 @@ msgstr ""
 msgid "Editor"
 msgstr "Editor"
 
+#. Badge on a plugin's card in the Plugins list: default state, before the user grants "Always allow for this plugin". Contrast: "Edits without asking", "Read-only".
 #: src/lib/plugins/PluginsView.svelte
 msgid "Edits — asks first"
 msgstr ""
 
+#. Badge on a plugin's card in the Plugins list, shown once the plugin has been granted "Always allow" and no longer prompts before writes. Contrast: "Edits — asks first", "Read-only".
 #: src/lib/plugins/PluginsView.svelte
 msgid "Edits without asking"
 msgstr ""
@@ -970,6 +1015,10 @@ msgstr ""
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Termina con"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Enrich & clean up"
+msgstr ""
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -1048,6 +1097,7 @@ msgstr "Error al obtener el estado de sincronización."
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Example"
 msgstr "Ejemplo"
@@ -1067,6 +1117,10 @@ msgstr ""
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Exit fullscreen"
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Explore & analyze"
 msgstr ""
 
 #. Dropdown menu item on a plugin card; downloads the plugin as an .html file.
@@ -1160,6 +1214,10 @@ msgstr "Versión de FieldWorks Lite"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "FieldWorks logo"
 msgstr "Logo de FieldWorks"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "File"
+msgstr ""
 
 #. Error message for duplicate file upload
 #: src/lib/components/audio/AudioDialog.svelte
@@ -1297,6 +1355,7 @@ msgstr "Obtener soporte"
 #. Brief translation/equivalent (one word or short phrase)
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
@@ -1356,6 +1415,10 @@ msgstr "Historia"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or#press and release to start recording."
 msgstr "Mantén presionado para grabar o#presionar y liberar para empezar a grabar."
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Homograph number"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1477,6 +1540,7 @@ msgstr "Modo lista"
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Significado literal"
@@ -1625,6 +1689,10 @@ msgstr "Modo"
 msgid "More"
 msgstr ""
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Morph type"
+msgstr ""
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1648,6 +1716,7 @@ msgstr "Nombre"
 msgid "Name is required"
 msgstr "Se requiere nombre"
 
+#. List item in the plugin consent card; {0} is a capability/feature name the plugin declares it needs (e.g. "comments", "history") that this project doesn't have enabled.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Needs “{0}”, which this project doesn't support — it may not work properly"
 msgstr ""
@@ -1830,6 +1899,7 @@ msgstr "No se han encontrado palabras"
 msgid "None"
 msgstr "Ninguno"
 
+#. List item in the plugin consent card, shown when the plugin does NOT request internet access. Deliberately worded as an enforced restriction ("not allowed"), not just an absent capability. Contrast: "Can access the internet (and could send dictionary data there)".
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Not allowed to use the internet"
 msgstr ""
@@ -1860,6 +1930,7 @@ msgstr "No sincronizado"
 #. Field label
 #. General notes/remarks field in entry editor
 #. Unconstrained text for additional metadata/comments
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "Nota"
@@ -1966,6 +2037,8 @@ msgstr "Parte de"
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
+#: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
@@ -1991,6 +2064,10 @@ msgstr "Escoge una parte de la voz"
 msgid "Pick a starting point — you can edit everything afterwards."
 msgstr ""
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Picture"
+msgstr ""
+
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
 #. Allows quick reference while editing without scrolling
@@ -2004,6 +2081,10 @@ msgstr "Pinned"
 msgid "Platform"
 msgstr "Plataforma"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Play & learn"
+msgstr ""
+
 #. Generic fallback label for a plugin (a small custom HTML mini-app) when its name is unavailable, and as the noun in delete-confirmation prompts.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
@@ -2016,6 +2097,7 @@ msgstr ""
 msgid "Plugin HTML"
 msgstr ""
 
+#. Heading shown when a plugin is force-stopped for trying to navigate its sandboxed iframe away from its own page (a possible data-exfiltration attempt or bug). Paired with the "tried to leave its sandbox page" message.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Plugin stopped"
 msgstr ""
@@ -2098,12 +2180,20 @@ msgstr ""
 msgid "Publication"
 msgstr "Publicación"
 
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Publish"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Publish Word in"
 #. Field label: selects which publications an entry appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Entry in"
 msgstr "Publicar entrada en"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Publish in"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Publish Entry in"
@@ -2112,17 +2202,24 @@ msgstr "Publicar entrada en"
 msgid "Publish Word in"
 msgstr "Publicar palabra en"
 
+#. Badge on a plugin's card in the Plugins list, shown when the plugin has no permission to change the dictionary at all. Contrast: "Edits — asks first", "Edits without asking".
 #: src/lib/plugins/PluginsView.svelte
 msgid "Read-only"
 msgstr ""
 
+#. List item in the plugin consent card (shown before first running a plugin), when the plugin has no edit permission. Contrast: "Can change your dictionary — it will ask you first".
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Read-only: cannot change your dictionary"
+msgstr ""
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Record & illustrate"
 msgstr ""
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Reference"
 msgstr "Referencia"
@@ -2179,6 +2276,7 @@ msgstr "Reportar un problema técnico"
 msgid "Requests internet access"
 msgstr ""
 
+#. Dropdown menu item on a plugin's card; revokes a previously-granted "Always allow" write trust, so the plugin goes back to asking before every change.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Require approval for edits"
 msgstr ""
@@ -2196,6 +2294,10 @@ msgstr ""
 #: src/project/tasks/DoneView.svelte
 msgid "Review"
 msgstr "Revisión"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Review & history"
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -2295,6 +2397,7 @@ msgstr "Seleccionar archivo"
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
 #. Used to organize and filter entries by meaning category
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr "Dominio semántico"
@@ -2318,6 +2421,7 @@ msgstr "Envíenos un mensaje"
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Acepción"
@@ -2325,6 +2429,7 @@ msgstr "Acepción"
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Sentencia"
@@ -2604,10 +2709,12 @@ msgstr "Este {0} ha sido eliminado"
 msgid "This date # and this emoji # are snippets"
 msgstr "Esta fecha # y este emoji # son fragmentos"
 
+#. Tooltip on the "Trusted" button in the plugin toolbar; clicking it revokes the plugin's "Always allow" write trust.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "This plugin can make changes without asking. Click to make it ask again."
 msgstr ""
 
+#. Heading shown when trying to run a plugin while offline and its file hasn't been cached on this device yet. Paired with the message below it; see similar offline messages in PluginsView and PluginEditorDialog.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "This plugin isn't on this device yet"
 msgstr ""
@@ -2659,6 +2766,7 @@ msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Traducción"
@@ -2676,6 +2784,7 @@ msgstr "Traducción {0}"
 msgid "Troubleshoot"
 msgstr "Solución de problemas"
 
+#. Button/badge in the plugin toolbar shown once the plugin has been granted "Always allow" write trust; clicking it revokes that trust (see tooltip on this same button).
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Trusted"
 msgstr ""
@@ -2869,6 +2978,7 @@ msgstr "palabra"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
@@ -2956,14 +3066,17 @@ msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 msgid "You have already downloaded the {0} project"
 msgstr "Ya has descargado el proyecto {0}"
 
+#. Body text under the "This plugin isn't on this device yet" heading, shown when trying to run a plugin offline whose file isn't cached locally yet. Keep phrasing consistent with the similar messages in PluginsView and PluginEditorDialog.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "You're offline and the plugin file hasn't been downloaded here. Connect to the internet and try again — after that it works offline."
 msgstr ""
 
+#. Toast shown when trying to export/duplicate/import a plugin offline whose file isn't cached on this device yet. Keep phrasing consistent with the similar messages in PluginRunView and PluginEditorDialog.
 #: src/lib/plugins/PluginsView.svelte
 msgid "You're offline and this plugin's file isn't on this device yet."
 msgstr ""
 
+#. Inline error in the plugin editor dialog, shown when opening an existing plugin to edit while offline and its file isn't cached on this device yet. Keep phrasing consistent with the similar messages in PluginRunView and PluginsView.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "You're offline and this plugin's file isn't on this device yet. Connect and try again."
 msgstr ""

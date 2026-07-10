@@ -117,7 +117,7 @@ describe('updateEntry compare-and-swap', () => {
     await adapter.handle('updateEntry', [before, after]);
 
     expect(api.updateEntry).toHaveBeenCalled();
-    expect(confirmed?.summary.join('\n')).toContain('lexemeForm.seh: "nyumba" → "yumba"');
+    expect(confirmed?.summary.join('\n')).toContain('Word (seh): "nyumba" → "yumba"');
   });
 
   it('rejects with conflict when before does not match the current entry (fabricated or stale)', async () => {
@@ -162,11 +162,11 @@ describe('createEntry summary completeness', () => {
     }]);
 
     const summary = confirmed!.summary.join('\n');
-    expect(summary).toContain('lexemeForm.seh: "nyumba"');
-    expect(summary).toContain('note.en: "smuggled note"');
-    expect(summary).toContain('literalMeaning.en: "house-place"');
-    expect(summary).toContain('senses[0].gloss.en: "house"');
-    expect(summary).toContain('senses[0].pictures[0].mediaUri: "sil-media://x/1"');
+    expect(summary).toContain('Word (seh): "nyumba"');
+    expect(summary).toContain('Note (en): "smuggled note"');
+    expect(summary).toContain('Literal meaning (en): "house-place"');
+    expect(summary).toContain('Sense 1 Gloss (en): "house"');
+    expect(summary).toContain('Sense 1 Picture 1 File: "sil-media://x/1"');
   });
 
   it('declines reject with permission-denied and nothing is applied', async () => {
