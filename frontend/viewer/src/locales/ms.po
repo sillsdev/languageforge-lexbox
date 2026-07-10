@@ -25,6 +25,11 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} perubahan)"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "(unknown)"
+msgstr ""
+
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
 #: src/lib/components/audio/audio-editor.svelte
@@ -192,6 +197,10 @@ msgstr ""
 msgid "Add Word"
 msgstr "Tambah Perkataan"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Add your first entry to start building your dictionary."
+msgstr ""
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -224,6 +233,15 @@ msgstr "satu entri"
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Analisis"
+
+#. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
+#: src/home/CreateProjectDialog.svelte
+msgid "Analysis writing system code"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Analysis writing systems"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -335,13 +353,17 @@ msgstr ""
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Batal"
@@ -374,6 +396,7 @@ msgstr "Pilih tema"
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
 msgstr "Bentuk petikan"
 
@@ -393,6 +416,8 @@ msgstr "padam"
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Tutup"
@@ -403,10 +428,28 @@ msgstr "Tutup"
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Closed"
+msgstr ""
+
+#. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
+#: src/home/CreateProjectDialog.svelte
+msgid "Code"
+msgstr ""
+
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
 msgstr "Warna"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+#: src/project/browse/EntryView.svelte
+msgid "Comments"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Comments for {0}"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -476,6 +519,16 @@ msgstr "Salin versi"
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr ""
 
+#. Confirm button in the create-project dialog footer; creates the new dictionary project.
+#: src/home/CreateProjectDialog.svelte
+msgid "Create"
+msgstr ""
+
+#. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
+#: src/home/HomeView.svelte
+msgid "Create a new FieldWorks Lite project"
+msgstr ""
+
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
 msgid "Create Custom View"
@@ -542,8 +595,13 @@ msgstr "Gelap"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard"
 msgstr "Papan Pemuka"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Dashboard failed to load"
+msgstr ""
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -554,6 +612,7 @@ msgstr "Direktori Data"
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
 msgstr "Definisi"
 
@@ -694,6 +753,19 @@ msgstr "Memuat turun {0}..."
 msgid "Downloading..."
 msgstr "Memuat turun..."
 
+#. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
+#: src/home/CreateProjectDialog.svelte
+msgid "e.g. th, sw"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Edit comment"
+msgstr ""
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
@@ -709,6 +781,10 @@ msgstr ""
 msgid "Editor"
 msgstr "Editor"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Empty comment"
+msgstr ""
+
 #. Filter operator
 #. Search operator: matches fields ending with the search term
 #. Related operators: "Starts with", "Contains", "Equals"
@@ -722,6 +798,14 @@ msgstr "Berakhir dengan"
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Entries missing..."
 msgstr "Entri yang hilang..."
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with examples"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with senses"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
@@ -791,6 +875,10 @@ msgstr "Contoh"
 msgid "Example sentence"
 msgstr "Ayat contoh"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Example sentences"
+msgstr ""
+
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
@@ -822,6 +910,16 @@ msgstr "Gagal membuka direktori data, gunakan laluan dalam medan teks sebaliknya
 #: src/lib/services/url-opener.ts
 msgid "Failed to open URL: {0}"
 msgstr "Gagal membuka URL: {0}"
+
+#. Error toast when snapshot regeneration fails in the Troubleshoot dialog
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to regenerate Harmony snapshots"
+msgstr ""
+
+#. Error toast when search index regeneration fails in the Troubleshoot dialog
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to regenerate search index"
+msgstr ""
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
@@ -870,7 +968,7 @@ msgstr "Versi FieldWorks Lite"
 
 #. Alt text for FieldWorks logo image
 #: src/home/HomeView.svelte
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -997,6 +1095,7 @@ msgstr "Dapatkan sokongan"
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Glos"
 
@@ -1021,6 +1120,11 @@ msgstr "Maklumat tatabahasa."
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
 msgstr "hijau"
+
+#. Success toast after rebuilding Harmony snapshot/projected tables from commit history
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Harmony snapshots regenerated successfully"
+msgstr ""
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1127,6 +1231,7 @@ msgstr "Logo Lexbox"
 #. Lite view equivalent: "Word"
 #. Field label: the main headword/base form
 #: src/lib/views/entity-config.ts
+#: src/project/dashboard/DashboardView.svelte
 msgid "Lexeme form"
 msgstr "Bentuk leksem"
 
@@ -1157,6 +1262,10 @@ msgstr "Makna harfiah"
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Loading comments..."
 msgstr ""
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
@@ -1288,11 +1397,13 @@ msgid "My custom view..."
 msgstr "Pandangan tersuai saya..."
 
 #. Field label for the custom view name input.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Nama"
 
 #. Validation error shown when the custom view name is empty.
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Nama diperlukan"
@@ -1326,6 +1437,14 @@ msgstr "Data baru"
 msgid "New Entry"
 msgstr "Entri Baru"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "New Project"
+msgstr ""
+
+#: src/home/HomeView.svelte
+msgid "New Project (Local only)"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
 #. Dialog title for creating new word
@@ -1343,6 +1462,10 @@ msgstr ""
 msgid "Next"
 msgstr "Seterusnya"
 
+#: src/project/dashboard/DashboardView.svelte
+msgid "Next milestone: {0}. {1} to go."
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1350,6 +1473,10 @@ msgstr ""
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "No analysis writing systems configured."
 msgstr ""
 
 #. Placeholder when no audio file
@@ -1360,6 +1487,10 @@ msgstr "Tiada audio"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "No comment threads yet."
 msgstr ""
 
 #. Empty state message in the manage custom views dialog when none exist.
@@ -1416,6 +1547,10 @@ msgstr "Tiada pelayan dikonfigurasikan"
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
 msgstr "Tiada subjek, tidak dapat membuat {0} baru"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "No vernacular writing systems configured."
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1491,6 +1626,16 @@ msgstr ""
 msgid "Oldest first"
 msgstr ""
 
+#. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
+msgstr ""
+
+#. Warning in regenerate-search-index confirm dialog: operation may be slow
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "On large projects this may take a while. Do not close the app or interrupt the process."
+msgstr ""
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
@@ -1498,6 +1643,7 @@ msgstr "Satu komit FieldWorks Classic mungkin terdiri daripada perubahan pada be
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "Open"
 msgstr "Buka"
 
@@ -1629,11 +1775,6 @@ msgstr "Projek {0} tidak ditemui pada {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Projek {0} pada {1} belum disediakan untuk FieldWorks Lite"
 
-#. Placeholder for project search
-#: src/home/HomeView.svelte
-msgid "Project name..."
-msgstr "Nama projek..."
-
 #. Filter option
 #. Publication type/dictionary for entries
 #. Used to organize entries by which publication(s) they should appear in
@@ -1673,6 +1814,42 @@ msgstr "Perhalusi penapis anda untuk melihat lebih banyak..."
 #: src/home/Server.svelte
 msgid "Refresh Projects"
 msgstr "Segarkan Semula Projek"
+
+#. Confirm button in the regenerate-snapshots warning dialog (Troubleshoot)
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate"
+msgstr ""
+
+#. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate Harmony snapshots"
+msgstr ""
+
+#. Alert dialog title before starting Harmony snapshot regeneration
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate Harmony snapshots?"
+msgstr ""
+
+#. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate search index"
+msgstr ""
+
+#. Alert dialog title before starting search index regeneration
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate search index?"
+msgstr ""
+
+#. Blocking progress message while Harmony snapshots are being rebuilt
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
+msgstr ""
+
+#. Blocking progress message while the entry search index is being rebuilt
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerating search index. This may take a while — do not close the app."
+msgstr ""
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -1723,6 +1900,10 @@ msgstr "Semak"
 msgid "rose"
 msgstr "merah jambu"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Save"
+msgstr ""
+
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Save As"
@@ -1747,6 +1928,11 @@ msgstr "Cari # atau #"
 #: src/project/ProjectDropdown.svelte
 msgid "Search Dictionaries"
 msgstr "Cari Kamus"
+
+#. Success toast after rebuilding the FTS entry search index
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Search index regenerated successfully"
+msgstr ""
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1851,6 +2037,10 @@ msgstr "Tunjukkan"
 msgid "Show {0} more..."
 msgstr "Tunjukkan {0} lagi..."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Sign in to add comments."
+msgstr ""
+
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
@@ -1874,6 +2064,10 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "Medan tertentu"
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Start a new thread"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -1966,6 +2160,7 @@ msgid "Syncing..."
 msgstr "Sedang disegerakkan..."
 
 #. Theme option
+#: src/lib/activity/utils.ts
 #: src/lib/components/ThemePicker.svelte
 msgid "System"
 msgstr "Sistem"
@@ -1993,6 +2188,10 @@ msgstr "Tugasan"
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Tell us about a bug or issue you’ve encountered."
 msgstr "Beritahu kami mengenai pepijat atau isu yang anda temui."
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Tell us how you work and what would help most. Your ideas guide what we build."
+msgstr ""
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
@@ -2053,6 +2252,16 @@ msgstr ""
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Projek ini kini dibuka dalam FieldWorks. Untuk terus bekerja dalam FieldWorks Lite, tutup projek dalam FieldWorks dan klik Buka Semula."
 
+#. Warning in regenerate-snapshots confirm dialog: explains what the operation does
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "This rebuilds snapshot and projected tables from commit history."
+msgstr ""
+
+#. Warning in regenerate-search-index confirm dialog: explains what the operation does
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "This rebuilds the full-text search index from dictionary entries."
+msgstr ""
+
 #. Status message
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
@@ -2063,6 +2272,10 @@ msgstr "Tugasan ini selesai"
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Ini akan menyegerakkan salinan FieldWorks Lite dan FieldWorks Classic projek anda dalam Lexbox."
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Thread"
+msgstr ""
+
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -2072,6 +2285,12 @@ msgstr "Togol penapis"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Togol disemat"
+
+#: src/project/dashboard/DashboardView.svelte
+#: src/project/dashboard/DashboardView.svelte
+#: src/project/dashboard/DashboardView.svelte
+msgid "Total entries"
+msgstr ""
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -2136,11 +2355,8 @@ msgid "Unable to upload the picture"
 msgstr ""
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityItem.svelte
-#: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/AuthorLabel.svelte
+#: src/lib/activity/utils.ts
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Unknown"
@@ -2156,6 +2372,10 @@ msgstr "Ralat tidak diketahui"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Unknown error {0}"
 msgstr "Ralat tidak diketahui {0}"
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Unknown error creating project"
+msgstr ""
 
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -2245,6 +2465,19 @@ msgstr "Menggunakan komponen sebagai"
 msgid "Vernacular"
 msgstr "Bahasaan"
 
+#. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system code"
+msgstr ""
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Vernacular writing system is required"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Vernacular writing systems"
+msgstr ""
+
 #. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
@@ -2254,6 +2487,10 @@ msgstr "Lihat"
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "ungu"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "What would you like to see here?"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -2305,6 +2542,14 @@ msgstr "Perkataan atau Papar Sebagai diperlukan"
 msgid "Word or meaning:"
 msgstr "Perkataan atau makna:"
 
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write a reply..."
+msgstr ""
+
+#: src/lib/entry-editor/CommentDialog.svelte
+msgid "Write the first comment..."
+msgstr ""
+
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"
@@ -2351,3 +2596,11 @@ msgstr "Anda tidak mempunyai kebenaran untuk memuat turun projek {0} daripada {1
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah pun memuat turun projek {0}"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "You've passed every milestone. What an achievement!"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Your dictionary starts here"
+msgstr ""

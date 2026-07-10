@@ -17,7 +17,8 @@ export interface ICombinedProjectsService
 	localProjects() : Promise<IProjectModel[]>;
 	downloadProjectByCode(code: string, server: ILexboxServer, userRole?: UserProjectRole) : Promise<DownloadProjectByCodeResult>;
 	downloadProject(project: IProjectModel) : Promise<void>;
-	createProject(name: string) : Promise<void>;
+	createProject(name: string, code: string, vernacularWs: string, analysisWs?: string) : Promise<void>;
+	createDemoProject(name: string) : Promise<void>;
 	deleteProject(code: string) : Promise<void>;
 }
 /* eslint-enable */

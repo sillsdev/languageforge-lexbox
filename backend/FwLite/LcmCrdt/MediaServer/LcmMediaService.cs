@@ -174,8 +174,12 @@ public class LcmMediaService(
         }
     }
 
-    public string ProjectResourceCachePath =>
-        Path.Combine(options.Value.LocalResourceCachePath, currentProjectService.Project.Name);
+    public string ProjectResourceCachePath => ProjectCachePath(currentProjectService.Project, options.Value);
+
+    public static string ProjectCachePath(CrdtProject project, CrdtConfig options)
+    {
+        return Path.Combine(options.LocalResourceCachePath, project.Name);
+    }
 
 
     async Task<UploadResult> IRemoteResourceService.UploadResource(Guid resourceId, string localPath)

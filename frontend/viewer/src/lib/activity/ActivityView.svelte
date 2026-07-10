@@ -21,6 +21,7 @@
     type ActivityFilters,
     type ActivityLoad,
   } from './utils';
+  import AuthorLabel from './AuthorLabel.svelte';
 
   const historyService = useHistoryService();
 
@@ -163,9 +164,7 @@
                 <FormatRelativeDate date={row.timestamp}
                         actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
               </span>
-              <span>
-                {row.metadata.authorName ?? $t`Unknown`}
-              </span>
+              <AuthorLabel authorId={row.metadata.authorId} authorName={row.metadata.authorName} />
             </div>
           </ListItem>
         {/snippet}

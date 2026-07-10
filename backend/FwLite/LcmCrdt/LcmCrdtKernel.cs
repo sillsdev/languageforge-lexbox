@@ -6,6 +6,7 @@ using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.CustomJsonPatches;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
 using LcmCrdt.Data;
@@ -21,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MiniLcm.Import;
 using MiniLcm.Project;
 using MiniLcm.Validators;
 using Refit;
@@ -53,6 +55,7 @@ public static class LcmCrdtKernel
 
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
+        services.AddSingleton<ProjectImporter>();
         services.AddScoped<SnapshotAtCommitService>();
         services.AddSingleton<SetupCollationInterceptor>();
         services.AddDbContextFactory<LcmCrdtDbContext>(ConfigureDbOptions, ServiceLifetime.Scoped);
@@ -67,11 +70,13 @@ public static class LcmCrdtKernel
             crdtConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
+        services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
         services.AddSingleton<ProjectDataCache>();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
+        services.AddScoped<LocalCommentReadStatusService>();
         services.AddScoped<LcmMediaService>();
         services.AddScoped<SyncRepository>();
         services.AddSingleton<CrdtProjectsService>();
@@ -125,11 +130,14 @@ public static class LcmCrdtKernel
             .UseLinqToDbCrdt(provider)
             .UseLinqToDB(optionsBuilder =>
             {
-                var mappingSchema = new MappingSchema();
-                new FluentMappingBuilder(mappingSchema).HasAttribute<Commit>(new ColumnAttribute("DateTime",
-                        nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
-                    .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
-                        nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
+                // Extend the mapping schema UseLinqToDbCrdt (above) registered: it configures Harmony's
+                // Commit.HybridDateTime.DateTime UTC conversion there, and a fresh schema would shadow it,
+                // making linq2db read commit timestamps in local time (issue #2092). A null schema means
+                // that invariant broke, so fail loudly rather than silently regressing.
+                var mappingSchema = optionsBuilder.DbContextOptions.GetLinqToDBOptions()?.ConnectionOptions.MappingSchema
+                    ?? throw new InvalidOperationException(
+                        "linq2db mapping schema was not registered by UseLinqToDbCrdt; Harmony's Commit UTC conversion would be missing (issue #2092).");
+                new FluentMappingBuilder(mappingSchema)
                     //tells linq2db to rewrite Sense.SemanticDomainRows / Entry.PublishInRows into
                     //Json.Query(<underlying column>). The rewrite lives on the *Rows shadow accessors
                     //rather than the real IList<T> columns; see Entry.PublishInRows for why.
@@ -146,7 +154,6 @@ public static class LcmCrdtKernel
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
-                optionsBuilder.AddMappingSchema(mappingSchema);
                 optionsBuilder.AddCustomOptions(options => options.UseSQLite());
 
                 // Register read-relevant interceptors for LinqToDB
@@ -284,6 +291,20 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(writingSystemArrayConverter);
             })
+            .Add<CommentThread>(builder =>
+            {
+                builder.HasIndex(t => new { t.SubjectType, t.SubjectId });
+                builder.HasIndex(t => t.CreatedAt);
+                builder.HasMany(t => t.Comments)
+                    .WithOne()
+                    .HasForeignKey(c => c.CommentThreadId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            })
+            .Add<UserComment>(builder =>
+            {
+                builder.HasIndex(c => c.CommentThreadId);
+                builder.HasIndex(c => c.CreatedAt);
+            })
             .Add<MorphType>()
             .Add<ComplexFormComponent>(builder =>
             {
@@ -361,6 +382,12 @@ public static class LcmCrdtKernel
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()
+            .Add<CreateCommentThreadChange>()
+            .Add<CreateUserCommentChange>()
+            .Add<EditUserCommentChange>()
+            .Add<SetCommentThreadStatusChange>()
+            .Add<DeleteChange<CommentThread>>()
+            .Add<DeleteChange<UserComment>>()
             .Add<CreateMorphTypeChange>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()

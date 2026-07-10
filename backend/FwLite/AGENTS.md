@@ -41,6 +41,9 @@ The frontend viewer uses TypeScript types and API interfaces generated from .NET
 ```bash
 # To manually update generated types:
 dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
+
+# Verify types are committed (also runs in CI):
+task fw-lite:has-stale-generated-types
 ```
 
 The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`.
@@ -243,6 +246,10 @@ if (entity?.DeletedAt is not null) return;
 ```
 
 ---
+
+## 🚨 linq2db and timestamps
+
+linq2db wraps every SQLite timestamp comparison in `strftime('...%f', ...)` — millisecond precision, not configurable. Never filter or compare commit timestamps through `ToLinqToDB()`; use EF for those predicates (full-precision TEXT comparison, like Harmony's own `CrdtRepository`). `OrderBy` on a timestamp column is safe. See `SnapshotAtCommitService.DeleteCommitsAfter`.
 
 ## 🚨 Harmony Projected Tables (`LcmCrdtDbContext`)
 

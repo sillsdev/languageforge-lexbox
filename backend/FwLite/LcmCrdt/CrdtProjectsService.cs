@@ -1,13 +1,17 @@
 using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 using LcmCrdt.MediaServer;
+using LcmCrdt.Utils;
 using SIL.Harmony;
+using MiniLcm.Import;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using LcmCrdt.Objects;
+using LcmCrdt.FullTextSearch;
 using LcmCrdt.Project;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using MiniLcm.Project;
 
@@ -18,7 +22,8 @@ public partial class CrdtProjectsService(
     ILogger<CrdtProjectsService> logger,
     IOptions<LcmCrdtConfig> config,
     IMemoryCache memoryCache,
-    ProjectDataCache projectDataCache
+    ProjectDataCache projectDataCache,
+    ProjectImporter projectImporter
 ) : IProjectProvider
 {
     private static readonly Lock EnsureProjectDataCacheIsLoadedLock = new();
@@ -63,6 +68,14 @@ public partial class CrdtProjectsService(
         }
     }
 
+    private async Task ExecInProject(CrdtProject project, Func<IServiceProvider, CurrentProjectService, Task> exec)
+    {
+        await using var scope = provider.CreateAsyncScope();
+        var scopedServices = scope.ServiceProvider;
+        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
+        await currentProjectService.SetupProjectContext(project);
+        await exec(scopedServices, currentProjectService);
+    }
 
     public async ValueTask EnsureProjectDataCacheIsLoaded()
     {
@@ -77,13 +90,11 @@ public partial class CrdtProjectsService(
         UserProjectRole role)
     {
         if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return;
-        await using var scope = provider.CreateAsyncScope();
-        var scopedServices = scope.ServiceProvider;
-        var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
-        await currentProjectService.SetupProjectContext(project);
-
-        await currentProjectService.UpdateLastUser(userName, userId);
-        await currentProjectService.UpdateUserRole(role);
+        await ExecInProject(project, async (scopedServices, currentProjectService) =>
+        {
+            await currentProjectService.UpdateLastUser(userName, userId);
+            await currentProjectService.UpdateUserRole(role);
+        });
     }
 
     public IEnumerable<CrdtProject> ListProjects()
@@ -112,13 +123,53 @@ public partial class CrdtProjectsService(
         return GetProject(code) is not null;
     }
 
+    public async Task RegenerateHarmonySnapshotsAsync(string projectCode)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        logger.LogInformation("Regenerating Harmony snapshots for project {ProjectCode}", projectCode);
+
+        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project {projectCode} not found");
+
+        await ExecInProject(project, async (services, _) =>
+        {
+            var dataModel = services.GetRequiredService<DataModel>();
+            var dbContextFactory = services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>();
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+            await dataModel.RegenerateSnapshots();
+        });
+
+        logger.LogInformation(
+            "Finished regenerating Harmony snapshots for project {ProjectCode} in {ElapsedMs}ms",
+            projectCode,
+            stopwatch.ElapsedMilliseconds);
+    }
+
+    public async Task RegenerateEntrySearchTableAsync(string projectCode)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        logger.LogInformation("Regenerating entry search table for project {ProjectCode}", projectCode);
+
+        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project {projectCode} not found");
+
+        await ExecInProject(project, async (services, _) =>
+        {
+            var dbContextFactory = services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>();
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+            await EntrySearchService.RegenerateEntrySearchTable(dbContext);
+        });
+
+        logger.LogInformation(
+            "Finished regenerating entry search table for project {ProjectCode} in {ElapsedMs}ms",
+            projectCode,
+            stopwatch.ElapsedMilliseconds);
+    }
+
     public record CreateProjectRequest(
         string Name,
         string Code,
         Guid? Id = null,
         Uri? Domain = null,
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
-        bool SeedNewProjectData = false,
         string? Path = null,
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
@@ -127,7 +178,47 @@ public partial class CrdtProjectsService(
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
-        return await CreateProject(new(name, name, AfterCreate: ExampleProjectData.Seed, SeedNewProjectData: true, Role: UserProjectRole.Manager));
+        // Code must satisfy the lowercase-only ProjectCode rule; the display name keeps its casing.
+        return await CreateProjectFromTemplate(new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager), vernacularWs: "de");
+    }
+
+    /// <summary>
+    /// Creates a CRDT project pre-populated from the embedded template snapshot (a blank
+    /// FieldWorks/liblcm project — system data only, no user entries), plus the requested vernacular WS
+    /// and, if <paramref name="analysisWs"/> is a non-English code, that analysis WS too (the template
+    /// always ships English analysis, like FieldWorks). Runs through the normal <see cref="CreateProject"/>
+    /// path, so identity (ClientId, per-project commit Ids) is minted by ordinary Harmony writes.
+    /// </summary>
+    public virtual async Task<CrdtProject> CreateProjectFromTemplate(
+        CreateProjectRequest request,
+        WritingSystemId vernacularWs,
+        WritingSystemId? analysisWs = null)
+    {
+        // Templated projects are created locally; this path has no way to associate one with a server
+        // at creation time, so reject a Domain up front — the invariant holds where the project is born.
+        if (request.Domain is not null)
+        {
+            throw new ArgumentException(
+                "Templated projects can't be associated with a server at creation time — they're local-only.",
+                nameof(request));
+        }
+
+        var callerAfterCreate = request.AfterCreate;
+        return await CreateProject(request with
+        {
+            AfterCreate = async (provider, project) =>
+            {
+                var api = provider.GetRequiredService<IMiniLcmApi>();
+                var jsonOptions = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions;
+                var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs);
+                var commitMetadataInterceptor = provider.GetRequiredService<CommitMetadataInterceptor>();
+                using (commitMetadataInterceptor.Intercept(CommitHelpers.StampAsTemplate))
+                {
+                    await projectImporter.ImportProject(api, snapshot);
+                }
+                if (callerAfterCreate is not null) await callerAfterCreate(provider, project);
+            }
+        });
     }
 
     public virtual async Task<CrdtProject> CreateProject(CreateProjectRequest request)
@@ -166,9 +257,6 @@ public partial class CrdtProjectsService(
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
-            var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
-            if (request.SeedNewProjectData)
-                await SeedSystemData(dataModel, projectData);
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
             // Ensure "data migrations" are executed on project creation (e.g. seeding morph types)
             // These should happen AFTER the initial download, so they can be run conditionally based on
@@ -187,7 +275,7 @@ public partial class CrdtProjectsService(
             }
             catch
             {
-                EnsureDeleteProject(sqliteFile);
+                _ = EnsureDeleteProject(sqliteFile, suppressException: true);
             }
 
             throw;
@@ -196,46 +284,69 @@ public partial class CrdtProjectsService(
         return crdtProject;
     }
 
-    private void EnsureDeleteProject(string sqliteFile)
+    private Task EnsureDeleteProject(string sqliteFile, bool suppressException = false)
     {
-        _ = Task.Run(async () =>
+        return Task.Run(async () =>
         {
+            var safeSqliteFile = SanitizeForLog(sqliteFile);
             var counter = 0;
-            while (File.Exists(sqliteFile) && counter < 10)
+            var walFile = sqliteFile + "-wal";
+            var shmFile = sqliteFile + "-shm";
+            try
             {
-                await Task.Delay(1000);
+                var connStr = new SqliteConnectionStringBuilder { DataSource = sqliteFile }.ConnectionString;
+                using var clearConn = new SqliteConnection(connStr);
+                SqliteConnection.ClearPool(clearConn);
+            }
+            catch
+            {
+                //ignore, this is to ensure that all connections are closed
+            }
+
+            while ((File.Exists(sqliteFile) || File.Exists(walFile) || File.Exists(shmFile)) && counter < 10)
+            {
                 try
                 {
-                    File.Delete(sqliteFile);
+                    if (File.Exists(walFile))
+                        File.Delete(walFile);
+                    if (File.Exists(shmFile))
+                        File.Delete(shmFile);
+                    if (File.Exists(sqliteFile))
+                        File.Delete(sqliteFile);
                     return;
                 }
                 catch (IOException)
                 {
-                    //inuse, try again
+                    counter++;
+                    if (counter < 10)
+                        await Task.Delay(1000);
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", sqliteFile);
+                    logger.LogError(exception, "Failed to delete sqlite file {SqliteFile}", safeSqliteFile);
+                    if (!suppressException)
+                        throw;
                     return;
                 }
-
-                counter++;
             }
 
-            logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", sqliteFile);
+            if (File.Exists(sqliteFile) || File.Exists(walFile) || File.Exists(shmFile))
+            {
+                logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", safeSqliteFile);
+                if (!suppressException)
+                    throw new IOException($"Failed to delete sqlite file {safeSqliteFile} after 10 attempts");
+            }
         });
     }
+
+    private static string SanitizeForLog(string value) => value.ReplaceLineEndings(string.Empty);
 
     public async Task DeleteProject(string code)
     {
         var project = GetProject(code) ?? throw new InvalidOperationException($"Project {code} not found");
-        await using var serviceScope = provider.CreateAsyncScope();
-        var currentProjectService = serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>();
-        currentProjectService.SetupProjectContextForNewDb(project);
-        var projectResourceCachePath = serviceScope.ServiceProvider.GetRequiredService<LcmMediaService>().ProjectResourceCachePath;
+        var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<CrdtConfig>>().Value);
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
-        await using var db = await serviceScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
-        await db.Database.EnsureDeletedAsync();
+        await EnsureDeleteProject(project.DbPath);
     }
 
     internal static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)
@@ -245,15 +356,22 @@ public partial class CrdtProjectsService(
         await db.SaveChangesAsync();
     }
 
-    internal static async Task SeedSystemData(DataModel dataModel, ProjectData projectData)
-    {
-        await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
-        await PreDefinedData.AddPredefinedComplexFormTypes(dataModel, projectData);
-        await PreDefinedData.AddPredefinedPartsOfSpeech(dataModel, projectData);
-        await PreDefinedData.AddPredefinedSemanticDomains(dataModel, projectData);
-        await PreDefinedData.AddPredefinedCustomViews(dataModel, projectData);
-    }
-
-    [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
+    // Mirrors LexBox's server-side rule (LexCore.Entities.Project.ProjectCodeRegex). LexBox is the
+    // source of truth — keep these in sync so a code valid here is also valid on the server.
+    [GeneratedRegex(@"^[a-z\d][a-z-\d]*$")]
     public static partial Regex ProjectCode();
+
+    // Normalises an arbitrary name into a code satisfying ProjectCode(): lowercase, every other character
+    // becomes '-', and leading '-' is trimmed so the first character is alphanumeric. FwData project names
+    // (e.g. "Sena 3") routinely contain uppercase letters and spaces, which the code rule rejects.
+    public static string SanitizeProjectCode(string name)
+    {
+        var sb = new StringBuilder(name.Length);
+        foreach (var c in name.ToLowerInvariant())
+            sb.Append(c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '-' ? c : '-');
+        var code = sb.ToString().TrimStart('-');
+        if (code.Length == 0)
+            throw new ArgumentException($"Project name '{name}' has no usable characters for a project code", nameof(name));
+        return code;
+    }
 }
