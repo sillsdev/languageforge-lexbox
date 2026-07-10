@@ -74,7 +74,7 @@ export class FwLiteApi {
     const tag = langTag.trim().toLocaleLowerCase().split('-')[0];
     if (!code || !tag) return false;
     const writingSystems = await this.getWritingSystems(code);
-    const vernLangTags = Object.keys(writingSystems.vernacular).map((v) => v.toLocaleLowerCase());
+    const vernLangTags = writingSystems.vernacular.map((ws) => ws.wsId.toLocaleLowerCase());
     return vernLangTags.some((v) => v === tag || v.startsWith(`${tag}-`));
   }
 
