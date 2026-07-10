@@ -126,7 +126,7 @@
         <Editor.Field.Root>
           <Editor.Field.Title name={$t`Caption`} />
           <Editor.Field.Body subGrid>
-            <RichMultiWsInput bind:value={caption} writingSystems={writingSystemService.allWritingSystems()} />
+            <RichMultiWsInput bind:value={caption} writingSystems={writingSystemService.uniqueWritingSystems()} />
           </Editor.Field.Body>
         </Editor.Field.Root>
       </Editor.Grid>
