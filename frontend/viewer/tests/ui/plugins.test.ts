@@ -1,10 +1,9 @@
 import {expect, test, type Page} from '@playwright/test';
-import {examplePlugins} from '../src/lib/plugins/examples';
-import {waitForProjectViewReady} from './test-utils';
+import {examplePlugins} from '../../src/lib/plugins/examples';
+import {DemoProjectPage} from './demo-project.page';
 
 async function gotoPlugins(page: Page) {
-  await page.goto('/testing/project-view');
-  await waitForProjectViewReady(page, true);
+  await new DemoProjectPage(page).goto();
   await page.getByRole('button', {name: 'Plugins'}).click();
   await expect(page.getByRole('heading', {name: 'Plugins'})).toBeVisible();
 }
