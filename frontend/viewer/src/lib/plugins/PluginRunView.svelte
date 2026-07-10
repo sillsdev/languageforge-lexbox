@@ -126,13 +126,22 @@
   const srcdoc = $derived(plugin && approved ? buildPluginSrcdoc(plugin.html, permissions) : undefined);
   let reloadToken = $state(0);
 
-  // Fullscreen the whole view (toolbar included) rather than the bare iframe, so the Exit-fullscreen
-  // button stays reachable — otherwise the user has to know Esc/F11.
+  // Fullscreen hides the whole toolbar for true immersion; the only chrome left is a minimal exit
+  // control overlaid on the plugin (Esc also exits, browser-native). Feature-detected so we don't
+  // offer a dead button where the Fullscreen API is unavailable (e.g. the Android WebView).
+  const canFullscreen = document.fullscreenEnabled;
   let containerElement = $state<HTMLElement>();
   let isFullscreen = $state(false);
-  function toggleFullscreen() {
+  function enterFullscreen() {
+    void containerElement?.requestFullscreen();
+  }
+  function exitFullscreen() {
     if (document.fullscreenElement) void document.exitFullscreen();
-    else void containerElement?.requestFullscreen();
+  }
+  function onFullscreenChange() {
+    const nowFullscreen = !!document.fullscreenElement;
+    if (nowFullscreen && !isFullscreen) AppNotification.display($t`Press Esc to exit fullscreen`, {timeout: 'short'});
+    isFullscreen = nowFullscreen;
   }
 
   function goBack() {
@@ -141,32 +150,29 @@
 </script>
 
 <svelte:window onmessage={(event) => host?.handleWindowMessage(event)} />
-<svelte:document onfullscreenchange={() => isFullscreen = !!document.fullscreenElement} />
+<svelte:document onfullscreenchange={onFullscreenChange} />
 
 <div class="h-full flex flex-col bg-background" bind:this={containerElement}>
-  <div class="flex items-center gap-2 border-b px-2 py-1.5">
-    <Button variant="ghost" size="icon" icon="i-mdi-arrow-left" title={$t`Back to plugins`} onclick={goBack} />
-    <Icon icon="i-mdi-puzzle" class="text-primary" />
-    <span class="font-medium truncate">{plugin?.name ?? $t`Plugin`}</span>
-    {#if permissions.includes('internet')}
-      <Badge variant="destructive">
-        <Icon icon="i-mdi-web" />
-        {$t`Internet`}
-      </Badge>
-    {/if}
-    <div class="grow"></div>
-    {#if approved}
-      <Button variant="ghost" size="icon" icon="i-mdi-refresh" title={$t`Reload plugin`} onclick={() => reloadToken++} />
-      <Button
-        variant="ghost"
-        size="icon"
-        icon={isFullscreen ? 'i-mdi-fullscreen-exit' : 'i-mdi-fullscreen'}
-        title={isFullscreen ? $t`Exit fullscreen` : $t`Fullscreen`}
-        aria-label={isFullscreen ? $t`Exit fullscreen` : $t`Fullscreen`}
-        onclick={toggleFullscreen}
-      />
-    {/if}
-  </div>
+  {#if !isFullscreen}
+    <div class="flex items-center gap-2 border-b px-2 py-1.5">
+      <Button variant="ghost" size="icon" icon="i-mdi-arrow-left" title={$t`Back to plugins`} onclick={goBack} />
+      <Icon icon="i-mdi-puzzle" class="text-primary" />
+      <span class="font-medium truncate">{plugin?.name ?? $t`Plugin`}</span>
+      {#if permissions.includes('internet')}
+        <Badge variant="destructive">
+          <Icon icon="i-mdi-web" />
+          {$t`Internet`}
+        </Badge>
+      {/if}
+      <div class="grow"></div>
+      {#if approved}
+        <Button variant="ghost" size="icon" icon="i-mdi-refresh" title={$t`Reload plugin`} onclick={() => reloadToken++} />
+        {#if canFullscreen}
+          <Button variant="ghost" size="icon" icon="i-mdi-fullscreen" title={$t`Fullscreen`} aria-label={$t`Fullscreen`} onclick={enterFullscreen} />
+        {/if}
+      {/if}
+    </div>
+  {/if}
 
   <div class="grow relative min-h-0">
     {#if !plugin}
@@ -232,6 +238,19 @@
           class="absolute inset-0 w-full h-full border-0 bg-background"
         ></iframe>
       {/key}
+      {#if isFullscreen}
+        <!-- The plugin owns a sandboxed iframe, so pointer events don't reach the host: an
+             auto-hiding-on-mouse-move control can't work here. Keep it persistent but faded. -->
+        <Button
+          variant="secondary"
+          size="icon"
+          icon="i-mdi-fullscreen-exit"
+          title={$t`Exit fullscreen`}
+          aria-label={$t`Exit fullscreen`}
+          onclick={exitFullscreen}
+          class="absolute top-2 end-2 z-10 opacity-40 shadow-md transition-opacity hover:opacity-100 focus-visible:opacity-100 motion-reduce:transition-none"
+        />
+      {/if}
     {/if}
   </div>
 </div>

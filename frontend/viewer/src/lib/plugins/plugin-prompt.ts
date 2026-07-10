@@ -11,17 +11,35 @@ export interface PluginPromptOptions {
   mobile?: boolean;
   /** Add broad steering to treat sacred/cultural/traditional content respectfully. Default false. */
   culturalSensitivity?: boolean;
-  /** Read-only: the plugin never modifies the dictionary. Default false. */
-  readOnly?: boolean;
+  /** The plugin may modify the dictionary (every write is still user-confirmed). Default true. */
+  allowEdits?: boolean;
   /** The plugin may use the internet. Default false (offline-first). */
   internet?: boolean;
 }
 
+/** Placeholder used when the user copies the prompt without describing their plugin first. */
+const DESCRIPTION_PLACEHOLDER =
+  'REPLACE THIS PARAGRAPH with a description of the plugin you want — what it shows or does, roughly how it should look, and anything it should save between sessions.';
+
 /**
- * Builds the project-aware prompt users paste into an AI assistant (Claude, ChatGPT, …) to have
- * it write a plugin. Kept in English on purpose: it addresses the AI, not the user, and English
- * prompts work best across models. The embedded API documentation is the authoritative public
- * reference for plugin API v1 — keep it in sync with plugin-sdk.js and plugin-api-adapter.ts.
+ * The closing section that tells the AI what to build. Kept separate from {@link buildPluginPrompt}
+ * so the user's description can be spliced in with a cheap string op on every keystroke, without
+ * re-running the project-data queries that build the body.
+ */
+export function pluginTaskSection(description: string): string {
+  return `---
+
+## What I want the plugin to do
+
+${description.trim() || DESCRIPTION_PLACEHOLDER}`;
+}
+
+/**
+ * Builds the project-aware body of the prompt users paste into an AI assistant (Claude, ChatGPT, …)
+ * to have it write a plugin. Append {@link pluginTaskSection} to get the complete prompt. Kept in
+ * English on purpose: it addresses the AI, not the user, and English prompts work best across models.
+ * The embedded API documentation is the authoritative public reference for plugin API v1 — keep it in
+ * sync with plugin-sdk.js and plugin-api-adapter.ts.
  */
 export async function buildPluginPrompt(
   api: IMiniLcmJsInvokable,
@@ -31,7 +49,7 @@ export async function buildPluginPrompt(
   const projectSpecific = options.projectSpecific ?? true;
   const mobile = options.mobile ?? true;
   const culturalSensitivity = options.culturalSensitivity ?? false;
-  const readOnly = options.readOnly ?? false;
+  const readOnly = !(options.allowEdits ?? true);
   const internet = options.internet ?? false;
   const [writingSystems, partsOfSpeech, semanticDomains, entryCount] = await Promise.all([
     api.getWritingSystems(),
@@ -141,7 +159,7 @@ ${writesRequirement}
 
 Your plugin runs inside app chrome that already gives you the following. Build on these instead of duplicating them — it keeps plugins small and consistent, and avoids bugs (a hand-rolled fullscreen button, for instance, usually just breaks):
 
-- **Fullscreen** — a fullscreen (and exit-fullscreen) toggle in the plugin toolbar. Do **not** add your own fullscreen button.
+- **Fullscreen** — a fullscreen button in the plugin toolbar; once fullscreen the app shows its own exit control (and Esc exits). Do **not** add your own fullscreen button.
 - **Reload** — a reload button in the toolbar. Do **not** add your own.
 - **Back** — a button to leave the plugin and return to the list.
 - **Theme** — light/dark via \`fwlite.theme\`, which follows the app. Drive your colors from it; don't build a theme switcher.
@@ -365,11 +383,5 @@ fwlite.ready.then(async () => {
 </body>
 </html>
 \`\`\`
-
----
-
-## What I want the plugin to do
-
-REPLACE THIS PARAGRAPH with a description of the plugin you want — what it shows or does, roughly how it should look, and anything it should save between sessions.
 `;
 }

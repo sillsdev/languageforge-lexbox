@@ -408,6 +408,14 @@ msgstr ""
 msgid "Can access the internet (and could send dictionary data there)"
 msgstr ""
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Can change the dictionary"
+msgstr ""
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Can use the internet"
+msgstr ""
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -581,9 +589,8 @@ msgstr ""
 msgid "Copy the HTML file the AI produces, then add it here via “New plugin”."
 msgstr ""
 
-#. Step 1 of a numbered list in the "Create a plugin with AI" dialog, referring to the AI prompt text shown below it.
 #: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Copy the prompt below. It already contains everything the AI needs to know about plugins and this project."
+msgid "Copy the prompt and paste it into an AI assistant (e.g. Claude or ChatGPT). It already contains everything the AI needs to know about plugins and this project."
 msgstr ""
 
 #. Button
@@ -737,6 +744,14 @@ msgstr "Xóa từ"
 msgid "Deleted"
 msgstr "Đã xóa"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Describe the plugin you want"
+msgstr ""
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Describe the plugin you want below."
+msgstr ""
+
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Description"
 msgstr ""
@@ -844,6 +859,10 @@ msgstr "Đang tải xuống..."
 #. Dropdown menu item on a plugin card; creates a copy of that plugin (see "{0} (copy)" for its default name).
 #: src/lib/plugins/PluginsView.svelte
 msgid "Duplicate"
+msgstr ""
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "e.g. A flashcard game that quizzes me on entries missing an English gloss and lets me fill it in when I remember the word."
 msgstr ""
 
 #: src/lib/plugins/PluginEditorDialog.svelte
@@ -1258,6 +1277,10 @@ msgstr "Thông tin ngữ pháp."
 msgid "green"
 msgstr "xanh"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Handle content with cultural care"
+msgstr ""
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
@@ -1355,6 +1378,14 @@ msgstr "Lần đồng bộ cuối: #"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Độ dài:"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Lets it load things from the web. Off keeps the plugin fully offline."
+msgstr ""
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Lets the AI use this project's languages and categories. Turn off to build a plugin that works in any project."
+msgstr ""
 
 #. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1463,6 +1494,10 @@ msgstr "Gợi ý"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Hãy đảm bảo [các thay đổi của bạn đã được đồng bộ]({0}) với Lexbox."
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Makes the layout fit small phone screens, not just desktop."
+msgstr ""
+
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
@@ -1482,10 +1517,6 @@ msgstr "Quản lý"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Cần thực hiện cập nhật thủ công. Vui lòng làm theo các hướng dẫn được cung cấp."
-
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "May use the internet"
-msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1804,10 +1835,6 @@ msgstr ""
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Một commit của FieldWorks Classic có thể gồm các thay đổi trên nhiều mục hoặc trường. Ngược lại, một commit có thể chỉ ảnh hưởng tới dữ liệu không được đồng bộ tới FieldWorks Lite."
 
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Only for this project"
-msgstr ""
-
 #. Button to open downloaded project
 #: src/home/Server.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
@@ -1884,11 +1911,6 @@ msgstr "Một phần của"
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Loại từ"
-
-#. Step 2 of a numbered list in the "Create a plugin with AI" dialog. "Claude" is a product name — do not translate; "ChatGPT" is also a product name.
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Paste it into an AI assistant (e.g. Claude or ChatGPT) and replace the last paragraph with a description of the plugin you want."
-msgstr ""
 
 #. Placeholder text in the plugin HTML textarea of the plugin editor dialog.
 #: src/lib/plugins/PluginEditorDialog.svelte
@@ -1967,6 +1989,10 @@ msgstr ""
 msgid "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
 msgstr ""
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Press Esc to exit fullscreen"
+msgstr ""
+
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
@@ -1977,6 +2003,10 @@ msgstr "Xem trước"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "Xem trước không khả dụng"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Preview the full prompt"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2017,10 +2047,6 @@ msgstr "Đăng bài viết trong"
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
 msgstr "Xuất bản Từ trong"
-
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Read-only (suggest no changes)"
-msgstr ""
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2079,10 +2105,6 @@ msgstr "Báo lỗi kỹ thuật"
 #. Badge shown on a plugin in the editor dialog that requests internet access (contrast with "No internet access").
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Requests internet access"
-msgstr ""
-
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Respect sacred/cultural content"
 msgstr ""
 
 #. Button label to restore a deleted Entry or Word inside EntryView
@@ -2298,6 +2320,10 @@ msgstr "Bỏ qua"
 msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
 msgstr ""
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Some words may be sacred or sensitive, and a plugin can't tell which — so it treats all the language data respectfully and won't trivialize or gamify it."
+msgstr ""
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr ""
@@ -2339,10 +2365,6 @@ msgstr "Chủ đề không có đối tượng phù hợp loại: {0}"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Gửi"
-
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Support mobile screens"
-msgstr ""
 
 #. Button or tab label
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -2415,6 +2437,10 @@ msgstr "Đang đồng bộ..."
 msgid "System"
 msgstr "Hệ thống"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Tailor to this project"
+msgstr ""
+
 #. Page title with task name
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
@@ -2466,6 +2492,10 @@ msgstr "Số commit của FieldWorks Lite không nhất thiết khớp với s�
 #. Dialog description; {0} is the plugin's display name. Followed by a list of the specific changes it wants to make.
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
+msgstr ""
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "The plugin may suggest edits — you still approve each change. Turn off for a view-only plugin."
 msgstr ""
 
 #. Error message
@@ -2778,6 +2808,10 @@ msgstr "Từ hoặc Hiển thị như là bắt buộc."
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Từ hoặc ý nghĩa:"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Works on phones"
+msgstr ""
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Write a reply..."

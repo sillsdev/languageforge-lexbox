@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {buildPluginPrompt} from './plugin-prompt';
+import {buildPluginPrompt, pluginTaskSection} from './plugin-prompt';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
 
 const api = {
@@ -26,8 +26,8 @@ describe('buildPluginPrompt options', () => {
     expect(p).not.toContain('Read-only plugin');
   });
 
-  it('readOnly omits the writing + recording sections and states read-only', async () => {
-    const p = await buildPluginPrompt(api, project, {readOnly: true});
+  it('allowEdits off omits the writing + recording sections and states read-only', async () => {
+    const p = await buildPluginPrompt(api, project, {allowEdits: false});
     expect(p).toContain('Read-only plugin');
     expect(p).not.toContain('fwlite.createEntry');
     expect(p).not.toContain('fwlite.applyChanges');
@@ -55,5 +55,23 @@ describe('buildPluginPrompt options', () => {
   it('cultural sensitivity adds its section', async () => {
     const p = await buildPluginPrompt(api, project, {culturalSensitivity: true});
     expect(p).toContain('## Cultural sensitivity');
+  });
+
+  it('body leaves the task section to pluginTaskSection', async () => {
+    const p = await buildPluginPrompt(api, project);
+    expect(p).not.toContain('What I want the plugin to do');
+  });
+});
+
+describe('pluginTaskSection', () => {
+  it('splices a supplied description in verbatim', () => {
+    const s = pluginTaskSection('  A verb-conjugation drill  ');
+    expect(s).toContain('## What I want the plugin to do');
+    expect(s).toContain('A verb-conjugation drill');
+    expect(s).not.toContain('REPLACE THIS PARAGRAPH');
+  });
+
+  it('falls back to the placeholder when empty', () => {
+    expect(pluginTaskSection('   ')).toContain('REPLACE THIS PARAGRAPH');
   });
 });

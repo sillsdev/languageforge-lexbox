@@ -403,6 +403,14 @@ msgstr "Camera"
 msgid "Can access the internet (and could send dictionary data there)"
 msgstr "Can access the internet (and could send dictionary data there)"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Can change the dictionary"
+msgstr "Can change the dictionary"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Can use the internet"
+msgstr "Can use the internet"
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -576,10 +584,9 @@ msgstr "Copy prompt"
 msgid "Copy the HTML file the AI produces, then add it here via “New plugin”."
 msgstr "Copy the HTML file the AI produces, then add it here via “New plugin”."
 
-#. Step 1 of a numbered list in the "Create a plugin with AI" dialog, referring to the AI prompt text shown below it.
 #: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Copy the prompt below. It already contains everything the AI needs to know about plugins and this project."
-msgstr "Copy the prompt below. It already contains everything the AI needs to know about plugins and this project."
+msgid "Copy the prompt and paste it into an AI assistant (e.g. Claude or ChatGPT). It already contains everything the AI needs to know about plugins and this project."
+msgstr "Copy the prompt and paste it into an AI assistant (e.g. Claude or ChatGPT). It already contains everything the AI needs to know about plugins and this project."
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -732,6 +739,14 @@ msgstr "Delete Word"
 msgid "Deleted"
 msgstr "Deleted"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Describe the plugin you want"
+msgstr "Describe the plugin you want"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Describe the plugin you want below."
+msgstr "Describe the plugin you want below."
+
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Description"
 msgstr "Description"
@@ -840,6 +855,10 @@ msgstr "Downloading..."
 #: src/lib/plugins/PluginsView.svelte
 msgid "Duplicate"
 msgstr "Duplicate"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "e.g. A flashcard game that quizzes me on entries missing an English gloss and lets me fill it in when I remember the word."
+msgstr "e.g. A flashcard game that quizzes me on entries missing an English gloss and lets me fill it in when I remember the word."
 
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "e.g. Dashboard of dictionary statistics"
@@ -1253,6 +1272,10 @@ msgstr "Grammatical info."
 msgid "green"
 msgstr "green"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Handle content with cultural care"
+msgstr "Handle content with cultural care"
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
@@ -1350,6 +1373,14 @@ msgstr "Last sync: #"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Length:"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Lets it load things from the web. Off keeps the plugin fully offline."
+msgstr "Lets it load things from the web. Off keeps the plugin fully offline."
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Lets the AI use this project's languages and categories. Turn off to build a plugin that works in any project."
+msgstr "Lets the AI use this project's languages and categories. Turn off to build a plugin that works in any project."
 
 #. Product name
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1458,6 +1489,10 @@ msgstr "Make a suggestion"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Make sure your [changes are synced]({0}) to Lexbox."
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Makes the layout fit small phone screens, not just desktop."
+msgstr "Makes the layout fit small phone screens, not just desktop."
+
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
@@ -1477,10 +1512,6 @@ msgstr "Manager"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Manual update is required. Please follow the instructions provided."
-
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "May use the internet"
-msgstr "May use the internet"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Sense"
@@ -1799,10 +1830,6 @@ msgstr "Oldest first"
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Only for this project"
-msgstr "Only for this project"
-
 #. Button to open downloaded project
 #: src/home/Server.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
@@ -1879,11 +1906,6 @@ msgstr "Part of"
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Part of speech"
-
-#. Step 2 of a numbered list in the "Create a plugin with AI" dialog. "Claude" is a product name — do not translate; "ChatGPT" is also a product name.
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Paste it into an AI assistant (e.g. Claude or ChatGPT) and replace the last paragraph with a description of the plugin you want."
-msgstr "Paste it into an AI assistant (e.g. Claude or ChatGPT) and replace the last paragraph with a description of the plugin you want."
 
 #. Placeholder text in the plugin HTML textarea of the plugin editor dialog.
 #: src/lib/plugins/PluginEditorDialog.svelte
@@ -1962,6 +1984,10 @@ msgstr "Plugins are code written by people on your team (often with AI help). Th
 msgid "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
 msgstr "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Press Esc to exit fullscreen"
+msgstr "Press Esc to exit fullscreen"
+
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
@@ -1972,6 +1998,10 @@ msgstr "Preview"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "Preview not available"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Preview the full prompt"
+msgstr "Preview the full prompt"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2012,10 +2042,6 @@ msgstr "Publish Entry in"
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
 msgstr "Publish Word in"
-
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Read-only (suggest no changes)"
-msgstr "Read-only (suggest no changes)"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2075,10 +2101,6 @@ msgstr "Report a technical problem"
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Requests internet access"
 msgstr "Requests internet access"
-
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Respect sacred/cultural content"
-msgstr "Respect sacred/cultural content"
 
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
@@ -2293,6 +2315,10 @@ msgstr "Skip"
 msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
 msgstr "Small custom apps that work with this project's dictionary — shared with the whole team."
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Some words may be sacred or sensitive, and a plugin can't tell which — so it treats all the language data respectfully and won't trivialize or gamify it."
+msgstr "Some words may be sacred or sensitive, and a plugin can't tell which — so it treats all the language data respectfully and won't trivialize or gamify it."
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr "Something went wrong"
@@ -2334,10 +2360,6 @@ msgstr "Subject does not have suitable object of type: {0}"
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Submit"
 msgstr "Submit"
-
-#: src/lib/plugins/PluginAiPromptDialog.svelte
-msgid "Support mobile screens"
-msgstr "Support mobile screens"
 
 #. Button or tab label
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -2410,6 +2432,10 @@ msgstr "Syncing..."
 msgid "System"
 msgstr "System"
 
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Tailor to this project"
+msgstr "Tailor to this project"
+
 #. Page title with task name
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
@@ -2462,6 +2488,10 @@ msgstr "The number of FieldWorks Lite commits will not necessarily match the num
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr "The plugin “{0}” is asking to make this change to your dictionary:"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "The plugin may suggest edits — you still approve each change. Turn off for a view-only plugin."
+msgstr "The plugin may suggest edits — you still approve each change. Turn off for a view-only plugin."
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
@@ -2773,6 +2803,10 @@ msgstr "Word or Display as is required"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Word or meaning:"
+
+#: src/lib/plugins/PluginAiPromptDialog.svelte
+msgid "Works on phones"
+msgstr "Works on phones"
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Write a reply..."
