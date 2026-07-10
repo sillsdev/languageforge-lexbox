@@ -1349,18 +1349,40 @@
   },
   {
     "$type": "CreatePluginChange",
-    "Name": "Lodge",
-    "Html": "Bedfordshire",
-    "EntityId": "f2dd8f6b-ec81-d71e-5849-e1756fbac139"
+    "Name": "South Dakota",
+    "Description": "cultivate",
+    "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+    "FileSize": 7006730054478530864,
+    "Permissions": [
+      "artificial intelligence"
+    ],
+    "Contexts": [
+      "Developer"
+    ],
+    "Requires": [
+      "interactive"
+    ],
+    "EntityId": "0bb97e98-8ce9-e3a6-cdf1-1425a2780347"
   },
   {
     "$type": "EditPluginChange",
-    "Name": "Ergonomic Frozen Cheese",
-    "Html": "Flats",
-    "EntityId": "3c4f92b1-e0c2-edf0-b407-d0cea075af0a"
+    "Name": "Investment Account",
+    "Description": "Gorgeous Granite Computer",
+    "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+    "FileSize": 6231492617012874517,
+    "Permissions": [
+      "innovate"
+    ],
+    "Contexts": [
+      "fresh-thinking"
+    ],
+    "Requires": [
+      "maximized"
+    ],
+    "EntityId": "d4d44566-77fa-3c2e-5cf0-7cd31b69b00f"
   },
   {
     "$type": "delete:Plugin",
-    "EntityId": "26accf27-93f5-f767-621a-563c58379c6a"
+    "EntityId": "c558fd49-9bd3-759c-d342-4e1c86a0d647"
   }
 ]

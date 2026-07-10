@@ -306,9 +306,20 @@
   EntityType: Plugin
     Properties: 
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Contexts (string[]) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
       DeletedAt (DateTimeOffset?)
-      Html (string) Required
+      Description (string)
+      FileSize (long) Required
+      FileUri (MediaUri) Required
       Name (string) Required
+      Permissions (string[]) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      Requires (string[]) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
     Keys: 
       Id PK

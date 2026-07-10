@@ -738,7 +738,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       result: ReadFileResult.Success,
       stream: {
         stream: () => Promise.resolve(new Response(bytes.slice() as BodyInit).body!),
-        arrayBuffer: () => Promise.resolve(bytes.slice().buffer as ArrayBuffer),
+        arrayBuffer: () => Promise.resolve(bytes.slice().buffer),
       },
     };
   }

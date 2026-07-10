@@ -18,7 +18,7 @@ test('runs the built-in example plugin after consent', async ({page}) => {
 
   // First run requires consent and states the sandbox guarantees
   await expect(page.getByText('Run this plugin?')).toBeVisible();
-  await expect(page.getByText('No internet access')).toBeVisible();
+  await expect(page.getByText('Not allowed to use the internet')).toBeVisible();
   await page.getByRole('button', {name: 'Run plugin'}).click();
 
   // The plugin talks to the project through the sandboxed bridge and renders real data
@@ -46,8 +46,8 @@ test('creates a plugin from pasted HTML and exchanges data over the bridge', asy
   const card = page.locator('[data-slot="card"]', {hasText: 'Bridge test'});
   await expect(card).toBeVisible();
   await card.getByRole('button', {name: 'Run'}).click();
-  await page.getByRole('button', {name: 'Run plugin'}).click();
 
+  // Creating a plugin yourself counts as run consent — no consent card for the author.
   const frame = page.frameLocator('iframe[title="Bridge test"]');
   await expect(frame.locator('#msg')).toContainText(/Counted \d+ entries, default vernacular: \w+/, {timeout: 15000});
 });
@@ -58,7 +58,8 @@ test('plugin writes require user approval and apply after it', async ({page}) =>
   await page.getByRole('button', {name: 'New plugin'}).click();
   await page.getByLabel('Name').fill('Write test');
   await page.getByLabel('Plugin HTML').fill([
-    '<!DOCTYPE html><html><head><title>Write test</title></head><body>',
+    '<!DOCTYPE html><html><head><title>Write test</title>',
+    '<meta name="fwlite-plugin-permissions" content="edit"></head><body>',
     '<button id="add">Add word</button><div id="status">idle</div>',
     '<script>fwlite.ready.then(async () => {',
     '  const ws = await fwlite.getWritingSystems();',
@@ -77,7 +78,6 @@ test('plugin writes require user approval and apply after it', async ({page}) =>
 
   const card = page.locator('[data-slot="card"]', {hasText: 'Write test'});
   await card.getByRole('button', {name: 'Run'}).click();
-  await page.getByRole('button', {name: 'Run plugin'}).click();
 
   const frame = page.frameLocator('iframe[title="Write test"]');
   await frame.locator('#add').click();
@@ -93,6 +93,45 @@ test('plugin writes require user approval and apply after it', async ({page}) =>
   await expect(page.getByText('Plugin wants to add an entry')).toBeVisible();
   await page.getByRole('button', {name: 'Add entry'}).click();
   await expect(frame.locator('#status')).toContainText('created:');
+
+  // "Always allow" applies the pending write AND stops asking: the next write shows no dialog
+  await frame.locator('#add').click();
+  await expect(page.getByText('Plugin wants to add an entry')).toBeVisible();
+  await page.getByRole('button', {name: 'Always allow for this plugin'}).click();
+  await expect(frame.locator('#status')).toContainText('created:');
+  await frame.locator('#add').click();
+  await expect(frame.locator('#status')).toContainText('created:');
+  await expect(page.getByText('Plugin wants to add an entry')).toBeHidden();
+});
+
+test('a plugin without the edit permission cannot even ask to write', async ({page}) => {
+  await gotoPlugins(page);
+
+  await page.getByRole('button', {name: 'New plugin'}).click();
+  await page.getByLabel('Name').fill('No-edit test');
+  await page.getByLabel('Plugin HTML').fill([
+    '<!DOCTYPE html><html><head><title>No-edit test</title></head><body>',
+    '<div id="status">idle</div>',
+    '<script>fwlite.ready.then(async () => {',
+    '  try {',
+    '    await fwlite.createEntry({lexemeForm: {en: "nope"}});',
+    '    document.getElementById("status").textContent = "created";',
+    '  } catch (error) {',
+    '    document.getElementById("status").textContent = "error:" + error.code;',
+    '  }',
+    '});</script>',
+    '</body></html>',
+  ].join('\n'));
+  await page.getByRole('button', {name: 'Add plugin'}).click();
+
+  const card = page.locator('[data-slot="card"]', {hasText: 'No-edit test'});
+  await expect(card.getByText('Read-only')).toBeVisible();
+  await card.getByRole('button', {name: 'Run'}).click();
+
+  // Rejected up front — no dialog ever appears
+  const frame = page.frameLocator('iframe[title="No-edit test"]');
+  await expect(frame.locator('#status')).toHaveText('error:permission-denied');
+  await expect(page.getByText('Plugin wants to add an entry')).toBeHidden();
 });
 
 test('the curated example gallery is offered in full', () => {
@@ -141,7 +180,6 @@ for (const example of examplePlugins) {
     const card = page.locator('[data-slot="card"]', {hasText: pluginName});
     await expect(card).toBeVisible();
     await card.getByRole('button', {name: 'Run'}).click();
-    await page.getByRole('button', {name: 'Run plugin'}).click();
 
     const frame = page.frameLocator(`iframe[title="${pluginName}"]`);
     // Loading clearing proves the plugin finished talking to the project over the bridge.

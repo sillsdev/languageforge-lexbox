@@ -3,13 +3,13 @@ import {buildPluginPrompt, pluginTaskSection} from './plugin-prompt';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
 
 const api = {
-  getWritingSystems: async () => ({
+  getWritingSystems: () => Promise.resolve({
     vernacular: [{wsId: 'seh', name: 'Sena', isAudio: false}],
     analysis: [{wsId: 'en', name: 'English', isAudio: false}],
   }),
-  getPartsOfSpeech: async () => [{id: 'p1', name: {en: 'Noun'}}],
-  getSemanticDomains: async () => [{id: 'd1', code: '1.1', name: {en: 'Sky'}}],
-  countEntries: async () => 1583,
+  getPartsOfSpeech: () => Promise.resolve([{id: 'p1', name: {en: 'Noun'}}]),
+  getSemanticDomains: () => Promise.resolve([{id: 'd1', code: '1.1', name: {en: 'Sky'}}]),
+  countEntries: () => Promise.resolve(1583),
 } as unknown as IMiniLcmJsInvokable;
 
 const project = {projectName: 'Test Project', projectCode: 'test'};
@@ -38,6 +38,24 @@ describe('buildPluginPrompt options', () => {
     const p = await buildPluginPrompt(api, project, {internet: true});
     expect(p).toContain('Internet is allowed');
     expect(p).not.toContain('No network access');
+    expect(p).toContain('<meta name="fwlite-plugin-permissions" content="edit internet">');
+  });
+
+  it('the skeleton declares exactly the permissions the options imply', async () => {
+    expect(await buildPluginPrompt(api, project))
+      .toContain('<meta name="fwlite-plugin-permissions" content="edit">');
+    expect(await buildPluginPrompt(api, project, {allowEdits: false}))
+      .not.toContain('<meta name="fwlite-plugin-permissions"');
+    expect(await buildPluginPrompt(api, project, {allowEdits: false, internet: true}))
+      .toContain('<meta name="fwlite-plugin-permissions" content="internet">');
+  });
+
+  it('documents the conflict contract and the requires meta', async () => {
+    const p = await buildPluginPrompt(api, project);
+    expect(p).toContain(`error.code === 'conflict'`);
+    expect(p).toContain('fwlite-plugin-requires');
+    expect(p).toContain('capabilities.comments');
+    expect(p).toContain('capabilities.history');
   });
 
   it('mobile off softens the layout requirement', async () => {

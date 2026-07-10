@@ -26,7 +26,11 @@
 
   // The description is spliced in cheaply; only the options rebuild the (query-backed) body.
   const fullPrompt = $derived(basePrompt ? `${basePrompt}\n\n${pluginTaskSection(description)}` : '');
-  $effect(() => { fullPrompt; copied = false; });
+  $effect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    fullPrompt;
+    copied = false;
+  });
 
   // These only steer the generated prompt; they don't restrict what a finished plugin can do.
   // Every switch reads "on = plugin gains this capability/trait", so the mixed default positions

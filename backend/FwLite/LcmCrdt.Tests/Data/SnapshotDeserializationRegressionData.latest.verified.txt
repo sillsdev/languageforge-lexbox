@@ -4094,12 +4094,23 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "Plugin",
-      "Id": "1673f062-9249-8b83-8641-3b6ce90186b9",
+      "Id": "d7147f14-258d-ccda-9165-a12e38c1e65e",
       "DeletedAt": null,
-      "Name": "collaborative",
-      "Html": "wireless"
+      "Name": "hard drive",
+      "Description": "Director",
+      "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+      "FileSize": 1690216227413767371,
+      "Permissions": [
+        "array"
+      ],
+      "Contexts": [
+        "View"
+      ],
+      "Requires": [
+        "convergence"
+      ]
     },
-    "Id": "1673f062-9249-8b83-8641-3b6ce90186b9",
+    "Id": "d7147f14-258d-ccda-9165-a12e38c1e65e",
     "DeletedAt": null
   }
 ]

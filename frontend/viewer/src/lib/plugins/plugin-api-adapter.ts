@@ -258,12 +258,14 @@ export class PluginApiAdapter implements PluginApiMethods {
     return results;
   }
 
-  async openEntry(id: string, mode: OpenEntryMode): Promise<void> {
+  openEntry(id: string, mode: OpenEntryMode): Promise<void> {
     this.callbacks.openEntry(id, mode);
+    return Promise.resolve();
   }
 
-  async notify(message: string): Promise<void> {
+  notify(message: string): Promise<void> {
     this.callbacks.notify(message);
+    return Promise.resolve();
   }
 
   getCommentThreads(input: unknown): Promise<unknown> {
@@ -328,16 +330,18 @@ export class PluginApiAdapter implements PluginApiMethods {
     return this.history().listActivityChangeTypes();
   }
 
-  async storageGet(key: string): Promise<unknown> {
-    return this.storage.get(key);
+  storageGet(key: string): Promise<unknown> {
+    return Promise.resolve(this.storage.get(key));
   }
 
-  async storageSet(key: string, value: unknown): Promise<void> {
+  storageSet(key: string, value: unknown): Promise<void> {
     this.storage.set(key, value);
+    return Promise.resolve();
   }
 
-  async storageRemove(key: string): Promise<void> {
+  storageRemove(key: string): Promise<void> {
     this.storage.remove(key);
+    return Promise.resolve();
   }
 
   #requireEditPermission(): void {
@@ -477,7 +481,7 @@ function asOpenEntryMode(value: unknown): OpenEntryMode {
   const mode = (value as {mode?: unknown}).mode;
   if (mode === undefined) return 'view';
   if (typeof mode !== 'string' || !KNOWN_OPEN_ENTRY_MODES.includes(mode as OpenEntryMode)) {
-    throw new PluginApiException('invalid-args', `Unknown openEntry mode: ${String(mode)}`);
+    throw new PluginApiException('invalid-args', `Unknown openEntry mode: ${JSON.stringify(mode)}`);
   }
   return mode as OpenEntryMode;
 }
@@ -536,7 +540,7 @@ function asSubjectType(value: unknown): SubjectType {
 function asActivitySort(value: unknown): ActivitySort {
   if (value === undefined || value === null) return ActivitySort.NewestFirst;
   if (typeof value !== 'string' || !Object.values(ActivitySort).includes(value as ActivitySort)) {
-    throw new PluginApiException('invalid-args', `Not a valid activity sort: ${String(value)}`);
+    throw new PluginApiException('invalid-args', `Not a valid activity sort: ${JSON.stringify(value)}`);
   }
   return value as ActivitySort;
 }

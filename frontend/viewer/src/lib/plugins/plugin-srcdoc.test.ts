@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {buildPluginSrcdoc, parsePluginContexts, parsePluginPermissions} from './plugin-srcdoc';
+import {buildPluginSrcdoc} from './plugin-srcdoc';
 
 function parse(html: string): Document {
   return new DOMParser().parseFromString(html, 'text/html');
@@ -52,31 +52,5 @@ describe('buildPluginSrcdoc', () => {
   it('keeps the doctype when present and omits it when absent', () => {
     expect(buildPluginSrcdoc('<!DOCTYPE html><html></html>', []).startsWith('<!DOCTYPE html>')).toBe(true);
     expect(buildPluginSrcdoc('<html></html>', []).startsWith('<html')).toBe(true);
-  });
-});
-
-describe('parsePluginPermissions', () => {
-  it('reads declared permissions from the meta tag', () => {
-    expect(parsePluginPermissions('<html><head><meta name="fwlite-plugin-permissions" content="internet"></head></html>'))
-      .toEqual(['internet']);
-  });
-
-  it('ignores unknown permissions and missing meta tags', () => {
-    expect(parsePluginPermissions('<html><head><meta name="fwlite-plugin-permissions" content="teleport internet"></head></html>'))
-      .toEqual(['internet']);
-    expect(parsePluginPermissions('<html><head></head></html>')).toEqual([]);
-  });
-});
-
-describe('parsePluginContexts', () => {
-  it('reads declared contexts from the meta tag', () => {
-    expect(parsePluginContexts('<html><head><meta name="fwlite-plugin-contexts" content="entry"></head></html>'))
-      .toEqual(['entry']);
-  });
-
-  it('ignores unknown contexts and missing meta tags', () => {
-    expect(parsePluginContexts('<html><head><meta name="fwlite-plugin-contexts" content="entry galaxy"></head></html>'))
-      .toEqual(['entry']);
-    expect(parsePluginContexts('<html><head></head></html>')).toEqual([]);
   });
 });
