@@ -63,6 +63,7 @@ jobs:
     timeout-minutes: 120
     name: Dotnet tests on ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
     permissions:
+      contents: read
       checks: write
     environment:
       name: ${{ inputs.environment }}
