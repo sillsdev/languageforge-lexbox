@@ -95,6 +95,7 @@ public static class EntryQueryHelpers
     {
         return e.CitationForm.SearchValue(query)
             || e.LexemeForm.Values.Any(kvp =>
+                !kvp.Key.IsAudio &&
                 string.IsNullOrEmpty(e.CitationForm[kvp.Key]?.Trim()) &&
                 SqlHelpers.ContainsIgnoreCaseAccents((leading ?? "") + (kvp.Value?.Trim() ?? "") + (trailing ?? ""), query));
     }
@@ -102,9 +103,10 @@ public static class EntryQueryHelpers
     private static Expression<Func<Entry, string?, string?, string, bool>> SearchHeadwords()
     {
         return (e, leading, trailing, query) =>
-            Json.QueryValues(e.CitationForm).Any(
-                v => SqlHelpers.ContainsIgnoreCaseAccents(v, query)) ||
+            Json.QueryEntries(e.CitationForm).Any(
+                kv => !SqlHelpers.IsAudioWs(kv.Key) && SqlHelpers.ContainsIgnoreCaseAccents(kv.Value, query)) ||
             Json.QueryEntries(e.LexemeForm).Any(kv =>
+                !SqlHelpers.IsAudioWs(kv.Key) &&
                 string.IsNullOrEmpty((Json.At(e.CitationForm, kv.Key) ?? "").Trim()) &&
                 SqlHelpers.ContainsIgnoreCaseAccents((leading ?? "") + (kv.Value ?? "").Trim() + (trailing ?? ""), query));
     }

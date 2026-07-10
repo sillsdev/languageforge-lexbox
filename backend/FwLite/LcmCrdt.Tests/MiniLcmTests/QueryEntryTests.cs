@@ -79,6 +79,38 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         timePerEntry.TotalMicroseconds.Should().BeLessThan(0.5);
     }
 
+    [Fact]
+    public async Task SearchEntries_DoesNotMatchAudioWritingSystemValues()
+    {
+        const string audioWs = "en-Zxxx-x-audio";
+        new WritingSystemId(audioWs).IsAudio.Should().BeTrue("the whole test is vacuous unless this is an audio writing system");
+        await Api.CreateWritingSystem(new WritingSystem
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = audioWs,
+            Name = "English Audio",
+            Abbreviation = "en-a",
+            Font = "Arial"
+        });
+        var id = Guid.NewGuid();
+        await Api.CreateEntry(new Entry
+        {
+            Id = id,
+            // the audio value is a media URI whose only text ("-", "lexbox", ...) is not real dictionary content
+            LexemeForm = { ["en"] = "cool entry", [audioWs] = "sil-media://lexbox.org/2354c80a-ac85-46af-8873-66916a3417a0" },
+        });
+
+        // guard against a vacuous test: the entry is findable via its real (non-audio) content
+        (await Api.SearchEntries("cool").ToArrayAsync()).Should().Contain(e => e.Id == id);
+
+        // non-FTS path (< 3 chars): "-" only appears in the audio media URI
+        (await Api.SearchEntries("-").ToArrayAsync()).Should().NotContain(e => e.Id == id);
+
+        // FTS path (>= 3 chars): "lexbox" only appears in the audio media URI
+        (await Api.SearchEntries("lexbox").ToArrayAsync()).Should().NotContain(e => e.Id == id);
+    }
+
     public override async Task DisposeAsync()
     {
         await base.DisposeAsync();

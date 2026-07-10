@@ -77,4 +77,12 @@ public class MauiTroubleshootingService(
         var shareTitle = $"FieldWorks Lite project {projectCode}";
         await _share.RequestAsync(new ShareFileRequest(shareTitle, new ShareFile(filePath, "application/x-sqlite3")));
     }
+
+    [JSInvokable]
+    public Task RegenerateHarmonySnapshots(string projectCode) =>
+        projectsService.RegenerateHarmonySnapshotsAsync(projectCode);
+
+    [JSInvokable]
+    public Task RegenerateEntrySearchTable(string projectCode) =>
+        projectsService.RegenerateEntrySearchTableAsync(projectCode);
 }

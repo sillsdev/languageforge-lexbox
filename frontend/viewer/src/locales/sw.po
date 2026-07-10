@@ -482,6 +482,8 @@ msgstr ""
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/plugins/PluginEditorDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Ghairi"
@@ -1160,6 +1162,16 @@ msgstr "Imeshindwa kufungua faharasa ya data, tumia njia katika sehemu ya maandi
 msgid "Failed to open URL: {0}"
 msgstr "Imeshindwa kufungua URL: {0}"
 
+#. Error toast when snapshot regeneration fails in the Troubleshoot dialog
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to regenerate Harmony snapshots"
+msgstr ""
+
+#. Error toast when search index regeneration fails in the Troubleshoot dialog
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to regenerate search index"
+msgstr ""
+
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
@@ -1390,6 +1402,11 @@ msgstr "kijani"
 
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Handle content with cultural care"
+msgstr ""
+
+#. Success toast after rebuilding Harmony snapshot/projected tables from commit history
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Harmony snapshots regenerated successfully"
 msgstr ""
 
 #. Sort option
@@ -1960,6 +1977,16 @@ msgstr "Nyuma ya mtandao, haiwezi kupakua"
 msgid "Oldest first"
 msgstr ""
 
+#. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
+msgstr ""
+
+#. Warning in regenerate-search-index confirm dialog: operation may be slow
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "On large projects this may take a while. Do not close the app or interrupt the process."
+msgstr ""
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
@@ -2236,6 +2263,42 @@ msgstr "Boresho kichujio chako kuona zaidi..."
 msgid "Refresh Projects"
 msgstr "Onyesha Upya Miradi"
 
+#. Confirm button in the regenerate-snapshots warning dialog (Troubleshoot)
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate"
+msgstr ""
+
+#. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate Harmony snapshots"
+msgstr ""
+
+#. Alert dialog title before starting Harmony snapshot regeneration
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate Harmony snapshots?"
+msgstr ""
+
+#. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate search index"
+msgstr ""
+
+#. Alert dialog title before starting search index regeneration
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate search index?"
+msgstr ""
+
+#. Blocking progress message while Harmony snapshots are being rebuilt
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
+msgstr ""
+
+#. Blocking progress message while the entry search index is being rebuilt
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerating search index. This may take a while — do not close the app."
+msgstr ""
+
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
@@ -2361,6 +2424,11 @@ msgstr "Tafuta Kamusi"
 #: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Search examples"
+msgstr ""
+
+#. Success toast after rebuilding the FTS entry search index
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Search index regenerated successfully"
 msgstr ""
 
 #. Dialog title with field name
@@ -2728,6 +2796,16 @@ msgstr ""
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Mradi huu umefunguliwa kwenye FieldWorks. Ili kuendelea kufanya kazi kwenye FieldWorks Lite, funga mradi katika FieldWorks na bofya Fungua Upya."
+
+#. Warning in regenerate-snapshots confirm dialog: explains what the operation does
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "This rebuilds snapshot and projected tables from commit history."
+msgstr ""
+
+#. Warning in regenerate-search-index confirm dialog: explains what the operation does
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "This rebuilds the full-text search index from dictionary entries."
+msgstr ""
 
 #. Warning detail in the delete-plugin confirmation dialog; plugins are shared project-wide, not per-user.
 #: src/lib/plugins/PluginsView.svelte
