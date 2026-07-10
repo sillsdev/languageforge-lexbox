@@ -131,6 +131,7 @@ globalThis.webViewComponent = function LexiconSelect({
       <CreateLexicon
         createLexicon={createLexicon}
         defaultVernacularWs={vernacularLanguage}
+        existingCodes={lexicons?.map((l) => l.code)}
         onCancel={() => setShowCreate(false)}
         onCreated={onCreated}
       />

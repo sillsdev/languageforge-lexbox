@@ -32,6 +32,7 @@ interface CreateLexiconProps {
     analysisWs?: string,
   ) => Promise<void>;
   defaultVernacularWs?: string;
+  existingCodes?: string[];
   onCancel: () => void;
   onCreated: (code: string) => Promise<void>;
 }
@@ -40,6 +41,7 @@ interface CreateLexiconProps {
 export default function CreateLexicon({
   createLexicon,
   defaultVernacularWs,
+  existingCodes,
   onCancel,
   onCreated,
 }: CreateLexiconProps): ReactElement {
@@ -57,9 +59,15 @@ export default function CreateLexicon({
     if (!codeEdited) setCode(deriveCode(name));
   }, [codeEdited, name]);
 
+  // Codes are lowercased by CODE_PATTERN and on the backend, but compare case-insensitively
+  // so a well-formed collision is caught before the create round-trips and 400s.
+  const codeExists =
+    !!code && (existingCodes ?? []).some((c) => c.toLowerCase() === code.toLowerCase());
+
   const isValid = !!(
     name.trim() &&
     CODE_PATTERN.test(code) &&
+    !codeExists &&
     isValidLangTag(vernacularWs.trim()) &&
     (!analysisWs.trim() || isValidLangTag(analysisWs.trim()))
   );
@@ -104,6 +112,11 @@ export default function CreateLexicon({
           }}
           value={code}
         />
+        {codeExists && (
+          <p className="tw:text-sm tw:text-destructive tw:mt-1">
+            {localizedStrings['%lexicon_createLexicon_codeExists%']}
+          </p>
+        )}
       </div>
 
       <div>
