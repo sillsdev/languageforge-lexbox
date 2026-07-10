@@ -594,6 +594,89 @@ namespace LcmCrdt.Migrations
                     b.ToTable("UserComment");
                 });
 
+            modelBuilder.Entity("MiniLcm.Models.Variant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("HideMinorEntry")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("MainEntryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MainHeadword")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("MainSenseId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("MainSenseId");
+
+                    b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Types")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("VariantEntryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VariantHeadword")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MainEntryId");
+
+                    b.HasIndex("MainSenseId");
+
+                    b.HasIndex("SnapshotId")
+                        .IsUnique();
+
+                    b.HasIndex("VariantEntryId", "MainEntryId")
+                        .IsUnique()
+                        .HasFilter("MainSenseId IS NULL");
+
+                    b.HasIndex("VariantEntryId", "MainEntryId", "MainSenseId")
+                        .IsUnique()
+                        .HasFilter("MainSenseId IS NOT NULL");
+
+                    b.ToTable("Variants", (string)null);
+                });
+
+            modelBuilder.Entity("MiniLcm.Models.VariantType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SnapshotId")
+                        .IsUnique();
+
+                    b.ToTable("VariantType");
+                });
+
             modelBuilder.Entity("MiniLcm.Models.WritingSystem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -919,6 +1002,39 @@ namespace LcmCrdt.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
+            modelBuilder.Entity("MiniLcm.Models.Variant", b =>
+                {
+                    b.HasOne("MiniLcm.Models.Entry", null)
+                        .WithMany("Variants")
+                        .HasForeignKey("MainEntryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MiniLcm.Models.Sense", null)
+                        .WithMany()
+                        .HasForeignKey("MainSenseId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
+                        .WithOne()
+                        .HasForeignKey("MiniLcm.Models.Variant", "SnapshotId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MiniLcm.Models.Entry", null)
+                        .WithMany("VariantOf")
+                        .HasForeignKey("VariantEntryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MiniLcm.Models.VariantType", b =>
+                {
+                    b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
+                        .WithOne()
+                        .HasForeignKey("MiniLcm.Models.VariantType", "SnapshotId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
             modelBuilder.Entity("MiniLcm.Models.WritingSystem", b =>
                 {
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
@@ -967,6 +1083,10 @@ namespace LcmCrdt.Migrations
                     b.Navigation("Components");
 
                     b.Navigation("Senses");
+
+                    b.Navigation("VariantOf");
+
+                    b.Navigation("Variants");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.Sense", b =>

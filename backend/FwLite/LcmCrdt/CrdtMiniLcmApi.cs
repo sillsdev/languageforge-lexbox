@@ -407,6 +407,145 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
+    public async IAsyncEnumerable<VariantType> GetVariantTypes()
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await foreach (var variantType in repo.VariantTypes.AsAsyncEnumerable())
+        {
+            yield return variantType;
+        }
+    }
+
+    public async Task<VariantType?> GetVariantType(Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.VariantTypes.SingleOrDefaultAsync(v => v.Id == id);
+    }
+
+    public async Task<VariantType> CreateVariantType(VariantType variantType)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        if (variantType.Id == default) variantType.Id = Guid.NewGuid();
+        await AddChange(new CreateVariantType(variantType.Id, variantType.Name));
+        return await repo.VariantTypes.SingleAsync(v => v.Id == variantType.Id);
+    }
+
+    public async Task SubmitUpdateVariantType(Guid id, UpdateObjectInput<VariantType> update)
+    {
+        await AddChange(new JsonPatchChange<VariantType>(id, update.Patch));
+    }
+
+    public async Task<VariantType> UpdateVariantType(Guid id, UpdateObjectInput<VariantType> update)
+    {
+        await SubmitUpdateVariantType(id, update);
+        return await GetVariantType(id) ?? throw NotFoundException.ForType<VariantType>(id);
+    }
+
+    public async Task<VariantType> UpdateVariantType(VariantType before, VariantType after, IMiniLcmApi? api = null)
+    {
+        await VariantTypeSync.Sync(before, after, api ?? this);
+        return await GetVariantType(after.Id) ?? throw NotFoundException.ForType<VariantType>(after.Id);
+    }
+
+    public async Task DeleteVariantType(Guid id)
+    {
+        await AddChange(new DeleteChange<VariantType>(id));
+    }
+
+    public async Task SubmitCreateVariant(Variant variant)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var existing = await repo.FindVariant(variant);
+        if (existing is not null) return;
+        // Always generate a new entity ID — the caller's ID is never used.
+        // This aligns with FwData (which ignores the ID entirely) and prevents
+        // Harmony duplicate-ID pitfalls during sync.
+        variant.Id = Guid.NewGuid();
+        await AddChange(await CreateVariantChange(repo, variant));
+    }
+
+    private static async Task<AddVariantChange> CreateVariantChange(MiniLcmRepository repo, Variant variant)
+    {
+        if (variant.MainSenseId is not null)
+        {
+            //a missing sense is tolerated (out-of-order sync; the change soft-deletes the link),
+            //but a sense that exists under a DIFFERENT entry is a bad request
+            var senseEntryId = await repo.Senses
+                .Where(s => s.Id == variant.MainSenseId.Value)
+                .Select(s => (Guid?)s.EntryId)
+                .FirstOrDefaultAsync();
+            if (senseEntryId is not null && senseEntryId != variant.MainEntryId)
+                throw new InvalidOperationException($"Sense {variant.MainSenseId} does not belong to entry {variant.MainEntryId}, it belongs to {senseEntryId}");
+        }
+        var typeIds = variant.Types.Select(t => t.Id).ToArray();
+        var knownTypeIds = (await repo.VariantTypes.Where(t => typeIds.Contains(t.Id)).Select(t => t.Id).ToArrayAsync()).ToHashSet();
+        // Drop type refs whose VariantType was concurrently deleted on the other replica (delete wins);
+        // this is the sync-reachable path (SubmitCreateVariant), and AddVariantChange.NewEntity applies
+        // the same tolerance at change-apply time. Throwing here would wedge the whole project sync.
+        if (variant.Types.Any(t => !knownTypeIds.Contains(t.Id)))
+            variant.Types = [.. variant.Types.Where(t => knownTypeIds.Contains(t.Id))];
+        return new AddVariantChange(variant);
+    }
+
+    public async Task<Variant> CreateVariant(Variant variant)
+    {
+        await SubmitCreateVariant(variant);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.FindVariant(variant) ?? throw NotFoundException.ForType<Variant>(variant.VariantEntryId);
+    }
+
+    public async Task<Variant> UpdateVariant(Variant before, Variant after, IMiniLcmApi? api = null)
+    {
+        await VariantSync.Sync(before, after, api ?? this);
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.FindVariant(after) ?? throw NotFoundException.ForType<Variant>(after.VariantEntryId);
+    }
+
+    public async Task SubmitUpdateVariant(Variant variant, UpdateObjectInput<Variant> update)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        // resolved by composite key; a link deleted on the other side stays deleted (delete wins)
+        var existing = await repo.FindVariant(variant);
+        if (existing is null) return;
+        await AddChange(new JsonPatchChange<Variant>(existing.Id, update.Patch));
+    }
+
+    public async Task DeleteVariant(Variant variant)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var existing = await repo.FindVariant(variant);
+        if (existing is null) return;
+        await AddChange(new DeleteChange<Variant>(existing.Id));
+    }
+
+    public async Task AddVariantType(Variant variant, Guid variantTypeId, BetweenPosition? position = null)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var existing = await repo.FindVariant(variant);
+        if (existing is null) return;
+        // type concurrently deleted on the other replica → drop the add (delete wins), matching Remove/MoveVariantType
+        var variantType = await repo.VariantTypes.SingleOrDefaultAsync(vt => vt.Id == variantTypeId);
+        if (variantType is null) return;
+        await AddChange(new AddVariantTypeChange(existing.Id, new VariantTypeRef { Id = variantType.Id }, position));
+    }
+
+    public async Task RemoveVariantType(Variant variant, Guid variantTypeId)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var existing = await repo.FindVariant(variant);
+        if (existing is null) return;
+        await AddChange(new RemoveVariantTypeChange(existing.Id, variantTypeId));
+    }
+
+    public async Task MoveVariantType(Variant variant, Guid variantTypeId, BetweenPosition position)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var existing = await repo.FindVariant(variant);
+        if (existing is null) return;
+        var order = OrderPicker.PickOrder(existing.Types, position);
+        await AddChange(new ReorderVariantTypeChange(variantTypeId, existing.Id, order));
+    }
+
     public async IAsyncEnumerable<MorphType> GetMorphTypes()
     {
         await using var repo = await repoFactory.CreateRepoAsync();
@@ -529,6 +668,18 @@ public class CrdtMiniLcmApi(
             if (!createdEntryIds.Contains(complexForm.ComplexFormEntryId)) continue;
             yield return new AddEntryComponentChange(complexForm);
         }
+        foreach (var variantOf in entry.VariantOf)
+        {
+            //only add variant links if the main entry was created already, otherwise it will be added when the main entry is created
+            if (!createdEntryIds.Contains(variantOf.MainEntryId)) continue;
+            yield return new AddVariantChange(variantOf);
+        }
+        foreach (var variant in entry.Variants)
+        {
+            //only add variant links if the variant entry was created already, otherwise it will be added when the variant entry is created
+            if (!createdEntryIds.Contains(variant.VariantEntryId)) continue;
+            yield return new AddVariantChange(variant);
+        }
         foreach (var addComplexFormTypeChange in entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c)))
         {
             yield return addComplexFormTypeChange;
@@ -599,12 +750,18 @@ public class CrdtMiniLcmApi(
                 })
                 .ToArrayAsync(),
             ..await ToPublications(entry.PublishIn).ToArrayAsync(),
-            ..options.IncludeComplexFormsAndComponents ?
+            ..options.IncludeEntryReferences ?
                 await ToComplexFormComponents(entry.Components).ToArrayAsync() :
                 Enumerable.Empty<AddEntryComponentChange>(),
-            ..options.IncludeComplexFormsAndComponents ?
+            ..options.IncludeEntryReferences ?
                 await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync() :
                 Enumerable.Empty<AddEntryComponentChange>(),
+            ..options.IncludeEntryReferences ?
+                await ToVariants(entry.VariantOf).ToArrayAsync() :
+                Enumerable.Empty<AddVariantChange>(),
+            ..options.IncludeEntryReferences ?
+                await ToVariants(entry.Variants).ToArrayAsync() :
+                Enumerable.Empty<AddVariantChange>(),
             ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
         ]);
         return await repo.GetEntry(entry.Id) ?? throw NotFoundException.ForType<Entry>(entry.Id);
@@ -649,6 +806,21 @@ public class CrdtMiniLcmApi(
                     // the entry is a component, so we let its complex-form pick the order
                     yield return await repo.CreateComplexFormComponentChange(complexFormComponent);
                 }
+            }
+        }
+
+        async IAsyncEnumerable<AddVariantChange> ToVariants(IList<Variant> variants)
+        {
+            foreach (var variant in variants)
+            {
+                if (variant.VariantEntryId == default) variant.VariantEntryId = entry.Id;
+                if (variant.MainEntryId == default) variant.MainEntryId = entry.Id;
+                if (variant.VariantEntryId == variant.MainEntryId)
+                {
+                    throw new InvalidOperationException($"Variant {variant} has the same variant entry id as its main entry");
+                }
+                if (variant.MaybeId is null) variant.Id = Guid.NewGuid();
+                yield return await CreateVariantChange(repo, variant);
             }
         }
 

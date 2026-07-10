@@ -70,6 +70,8 @@
       "Components": [],
       "ComplexForms": [],
       "ComplexFormTypes": [],
+      "VariantOf": [],
+      "Variants": [],
       "PublishIn": []
     }
   ],
@@ -251,5 +253,6 @@
         "Order": 0
       }
     ]
-  }
+  },
+  "VariantTypes": []
 }

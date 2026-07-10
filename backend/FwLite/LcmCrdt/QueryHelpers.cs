@@ -4,12 +4,13 @@ namespace LcmCrdt;
 
 public static class QueryHelpers
 {
-    public static void Finalize(this Entry entry,
-        IComparer<ComplexFormComponent> complexFormComparer)
+    public static void Finalize(this Entry entry, CompareInfo compareInfo)
     {
         entry.Senses.ApplySortOrder();
         entry.Components.ApplySortOrder();
-        entry.ComplexForms.Sort(complexFormComparer);
+        entry.ComplexForms.Sort(compareInfo.AsComplexFormComparer());
+        entry.VariantOf.Sort(Variant.VariantOfOrder);
+        entry.Variants.Sort(Variant.VariantsOrder);
         foreach (var sense in entry.Senses)
         {
             sense.Finalize();
@@ -55,4 +56,5 @@ public static class QueryHelpers
             return a.ComplexFormEntryId.CompareTo(b.ComplexFormEntryId);
         });
     }
+
 }

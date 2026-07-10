@@ -58,6 +58,10 @@ public partial class ResumableImportApi(IMiniLcmApi api) : IMiniLcmApi
     {
         return await HasCreated(complexFormType, _api.GetComplexFormTypes(), () => _api.CreateComplexFormType(complexFormType));
     }
+    async Task<VariantType> IMiniLcmWriteApi.CreateVariantType(VariantType variantType)
+    {
+        return await HasCreated(variantType, _api.GetVariantTypes(), () => _api.CreateVariantType(variantType));
+    }
     async Task<SemanticDomain> IMiniLcmWriteApi.CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         return await HasCreated(semanticDomain, _api.GetSemanticDomains(), () => _api.CreateSemanticDomain(semanticDomain));

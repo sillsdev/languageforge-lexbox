@@ -25,6 +25,8 @@ public class UpdateDiffTests
                 .Excluding(x => x.Components)
                 .Excluding(x => x.ComplexForms)
                 .Excluding(x => x.ComplexFormTypes)
+                .Excluding(x => x.VariantOf)
+                .Excluding(x => x.Variants)
                 .Excluding(x => x.PublishIn);
         });
     }

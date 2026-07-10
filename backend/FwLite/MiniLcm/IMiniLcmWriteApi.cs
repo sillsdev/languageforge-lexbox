@@ -44,6 +44,13 @@ public interface IMiniLcmWriteApi
     Task DeleteComplexFormType(Guid id);
     #endregion
 
+    #region VariantType
+    Task<VariantType> CreateVariantType(VariantType variantType);
+    Task<VariantType> UpdateVariantType(Guid id, UpdateObjectInput<VariantType> update);
+    Task<VariantType> UpdateVariantType(VariantType before, VariantType after, IMiniLcmApi? api = null);
+    Task DeleteVariantType(Guid id);
+    #endregion
+
     #region MorphType
     Task<MorphType> CreateMorphType(MorphType morphType);
     Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update);
@@ -65,6 +72,15 @@ public interface IMiniLcmWriteApi
     Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent);
     Task AddComplexFormType(Guid entryId, Guid complexFormTypeId);
     Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId);
+    // Variant links are unordered (no position/move) and resolved by their composite key
+    // (VariantEntryId, MainEntryId, MainSenseId) — see VARIANTS.md. A link's Types sequence
+    // IS ordered (FLEx lets users reorder it), hence the picture-style position/move pair.
+    Task<Variant> CreateVariant(Variant variant);
+    Task<Variant> UpdateVariant(Variant before, Variant after, IMiniLcmApi? api = null);
+    Task DeleteVariant(Variant variant);
+    Task AddVariantType(Variant variant, Guid variantTypeId, BetweenPosition? position = null);
+    Task RemoveVariantType(Variant variant, Guid variantTypeId);
+    Task MoveVariantType(Variant variant, Guid variantTypeId, BetweenPosition position);
     Task AddPublication(Guid entryId, Guid publicationId);
     Task RemovePublication(Guid entryId, Guid publicationId);
     #endregion
@@ -139,13 +155,33 @@ public interface IMiniLcmWriteApi
     #endregion
 
     #region Submit (fire-and-forget write variants for sync)
-    // Result-less write variants the sync uses instead of the returning Update/Create methods above. The CRDT
-    // overrides them to submit the change without fetching the result, so applying to an object the other side
-    // deleted leaves it deleted (delete wins) rather than throwing. The defaults forward to the returning
-    // method (correct for FwData, which still surfaces a genuinely-missing object).
+    // Result-less write variants the sync's diff-apply uses instead of the returning Update/Create methods above.
+    // The CRDT overrides them to submit the change without fetching the result, so applying to an object the other
+    // side deleted leaves it deleted (delete wins) rather than throwing NotFoundException — which would otherwise
+    // wedge the whole project sync. The defaults forward to the returning method (correct for FwData, which still
+    // surfaces a genuinely-missing object).
+    //
+    // A Submit variant is only needed where the sync diff writes to a target that could have been concurrently
+    // deleted on the opposite replica: every id-targeted Update/Move, plus the child Creates run inside EntrySync
+    // (SubmitCreateSense/ExampleSentence/ComplexFormComponent/Variant) whose parent entry may be gone. It is NOT
+    // needed for a fresh top-level Create of a dependency type — that mints a new object, so there is no
+    // concurrent-delete race (hence there is no SubmitCreateVariantType/ComplexFormType/etc.).
+    //
+    // Wrapper authors: these have default bodies, so they are NOT compile-enforced like the other write methods.
+    // A wrapper that forwards to a Submit method (or is meant to preserve its semantics) MUST override it
+    // explicitly — see the "Submit* write variants" rule in backend/FwLite/AGENTS.md for why each wrapper's
+    // default behavior is wrong here.
     Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update) => UpdateEntry(id, update);
     Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => CreateComplexFormComponent(complexFormComponent, position);
     Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => MoveComplexFormComponent(complexFormComponent, between);
+    Task SubmitCreateVariant(Variant variant) => CreateVariant(variant);
+    /// <summary>
+    /// Patches a variant link's own fields (HideMinorEntry, Comment) — the link is located by
+    /// its composite key, not its Id, since FwData links have no stable Id. Abstract (unlike
+    /// its Submit* siblings) because there is no id-based UpdateVariant(id, patch) twin to
+    /// forward to; the patch path only exists for sync.
+    /// </summary>
+    Task SubmitUpdateVariant(Variant variant, UpdateObjectInput<Variant> update);
     Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => CreateSense(entryId, sense, position);
     Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => UpdateSense(entryId, senseId, update);
     Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => CreateExampleSentence(entryId, senseId, exampleSentence, position);
@@ -157,6 +193,7 @@ public interface IMiniLcmWriteApi
     Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update) => UpdatePublication(id, update);
     Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update) => UpdateSemanticDomain(id, update);
     Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update) => UpdateComplexFormType(id, update);
+    Task SubmitUpdateVariantType(Guid id, UpdateObjectInput<VariantType> update) => UpdateVariantType(id, update);
     #endregion
 
     #region CustomView

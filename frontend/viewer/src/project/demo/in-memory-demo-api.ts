@@ -3,6 +3,8 @@
 import {
   DotnetService,
   type IComplexFormComponent,
+  type IVariant,
+  type IVariantType,
   type IComplexFormType,
   type ICreateEntryOptions,
   type IEntry,
@@ -26,7 +28,7 @@ import {
   ViewBase,
   MorphTypeKind,
 } from '$lib/dotnet-types';
-import {entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
+import {entries, morphTypes, partsOfSpeech, projectName, variantTypes, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
@@ -600,6 +602,30 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   deleteCustomView(_id: string): Promise<void> {
     this._customViews = this._customViews.filter(v => v.id !== _id);
     return Promise.resolve();
+  }
+
+  getVariantTypes(): Promise<IVariantType[]> {
+    return Promise.resolve(variantTypes);
+  }
+
+  getVariantType(_id: string): Promise<IVariantType | null> {
+    return Promise.resolve(variantTypes.find(vt => vt.id === _id) ?? null);
+  }
+
+  createVariant(_variant: IVariant): Promise<IVariant> {
+    throw new Error('Method not implemented.');
+  }
+
+  deleteVariant(_variant: IVariant): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  addVariantType(_variant: IVariant, _variantTypeId: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  removeVariantType(_variant: IVariant, _variantTypeId: string): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
   createComplexFormComponent(_complexFormComponent: IComplexFormComponent): Promise<IComplexFormComponent> {

@@ -92,14 +92,16 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             .For(e => e.Components).Exclude(c => c.Id)
             .For(e => e.Components).Exclude(c => c.Order)
             .For(e => e.ComplexForms).Exclude(c => c.Id)
-            .For(e => e.ComplexForms).Exclude(c => c.Order);
+            .For(e => e.ComplexForms).Exclude(c => c.Order)
+            .For(e => e.VariantOf).Exclude(v => v.Id)
+            .For(e => e.Variants).Exclude(v => v.Id);
         return options;
     }
 
     internal static void AssertSnapshotsAreEquivalent(ProjectSnapshot expected, ProjectSnapshot actual)
     {
-        var excludeOrderTypes = new[] { typeof(Sense), typeof(ExampleSentence), typeof(Picture), typeof(ComplexFormComponent), typeof(WritingSystem) };
-        var excludeIds = new[] { typeof(ComplexFormComponent), typeof(WritingSystem) };
+        var excludeOrderTypes = new[] { typeof(Sense), typeof(ExampleSentence), typeof(Picture), typeof(ComplexFormComponent), typeof(VariantTypeRef), typeof(WritingSystem) };
+        var excludeIds = new[] { typeof(ComplexFormComponent), typeof(Variant), typeof(WritingSystem) };
         actual.Should().BeEquivalentTo(expected,
             options =>
                 options
@@ -109,6 +111,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                     .WithoutStrictOrderingFor(x => x.SemanticDomains)
                     .WithoutStrictOrderingFor(x => x.ComplexFormTypes)
                     .WithoutStrictOrderingFor(x => x.MorphTypes)
+                    .WithoutStrictOrderingFor(x => x.VariantTypes)
                     //when excluding properties consider https://github.com/sillsdev/languageforge-lexbox/issues/1912
                     .Using<double>(Exclude)
                     .When(info => info.RuntimeType == typeof(double) && info.Path.EndsWith(".Order") && excludeOrderTypes.Contains(info.ParentType))

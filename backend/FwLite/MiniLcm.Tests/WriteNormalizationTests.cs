@@ -505,6 +505,69 @@ public class WriteNormalizationTests
 
     #endregion
 
+    #region Variant Tests
+
+    // These cover the Submit* variant overrides. Each asserts two things: the payload is
+    // NFD-normalized, AND the call forwards to _api.Submit* rather than the returning
+    // Create/Update — proving the wrapper preserves the sync's delete-wins semantics
+    // instead of downgrading to a NotFound-throwing write (see AGENTS.md "Submit* write variants").
+
+    [Fact]
+    public async Task SubmitCreateVariant_NormalizesToNfd_AndKeepsSubmitSemantics()
+    {
+        var variant = NfcTestData.CreateNfcVariant();
+
+        Variant? captured = null;
+        Mock.Get(_mockApi)
+            .Setup(api => api.SubmitCreateVariant(It.IsAny<Variant>()))
+            .Callback<Variant>(v => captured = v)
+            .Returns(Task.CompletedTask);
+
+        await _normalizingApi.SubmitCreateVariant(variant);
+
+        AssertNormalizedToNfd(captured, variant);
+        Mock.Get(_mockApi).Verify(api => api.CreateVariant(It.IsAny<Variant>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitUpdateVariant_JsonPatch_NormalizesToNfd()
+    {
+        var update = new UpdateObjectInput<Variant>().Set(v => v.Comment, NfcTestData.CreateNfcRichMultiString());
+
+        UpdateObjectInput<Variant>? captured = null;
+        Mock.Get(_mockApi)
+            .Setup(api => api.SubmitUpdateVariant(It.IsAny<Variant>(), It.IsAny<UpdateObjectInput<Variant>>()))
+            .Callback<Variant, UpdateObjectInput<Variant>>((_, patch) => captured = patch)
+            .Returns(Task.CompletedTask);
+
+        await _normalizingApi.SubmitUpdateVariant(NfcTestData.CreateNfcVariant(), update);
+
+        captured.Should().NotBeNull();
+        var byPath = captured.Patch.Operations.ToDictionary(o => o.Path!, o => o.Value);
+        AssertAllDecomposed(byPath["/Comment"].Should().BeOfType<RichMultiString>().Subject);
+    }
+
+    [Fact]
+    public async Task SubmitUpdateVariantType_JsonPatch_NormalizesToNfd_AndKeepsSubmitSemantics()
+    {
+        var update = new UpdateObjectInput<VariantType>().Set(vt => vt.Name, NfcTestData.CreateNfcMultiString());
+
+        UpdateObjectInput<VariantType>? captured = null;
+        Mock.Get(_mockApi)
+            .Setup(api => api.SubmitUpdateVariantType(It.IsAny<Guid>(), It.IsAny<UpdateObjectInput<VariantType>>()))
+            .Callback<Guid, UpdateObjectInput<VariantType>>((_, patch) => captured = patch)
+            .Returns(Task.CompletedTask);
+
+        await _normalizingApi.SubmitUpdateVariantType(Guid.NewGuid(), update);
+
+        captured.Should().NotBeNull();
+        var byPath = captured.Patch.Operations.ToDictionary(o => o.Path!, o => o.Value);
+        AssertAllDecomposed(byPath["/Name"].Should().BeOfType<MultiString>().Subject);
+        Mock.Get(_mockApi).Verify(api => api.UpdateVariantType(It.IsAny<Guid>(), It.IsAny<UpdateObjectInput<VariantType>>()), Times.Never);
+    }
+
+    #endregion
+
     #region Sense Tests
 
     [Fact]

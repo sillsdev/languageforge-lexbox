@@ -16739,8 +16739,8 @@
   "WritingSystems": {
     "Analysis": [
       {
-        "Id": "e15928c1-48ce-439c-bbf7-f23457718d72",
-        "MaybeId": "e15928c1-48ce-439c-bbf7-f23457718d72",
+        "Id": "53f7afa3-13c7-4c07-a9e4-038912170095",
+        "MaybeId": "53f7afa3-13c7-4c07-a9e4-038912170095",
         "WsId": "en",
         "IsAudio": false,
         "Name": "en",
@@ -16780,5 +16780,56 @@
       }
     ],
     "Vernacular": []
-  }
+  },
+  "VariantTypes": [
+    {
+      "Id": "3942addb-99fd-43e9-ab7d-99025ceb0d4e",
+      "Name": {
+        "en": "Unspecified Variant"
+      },
+      "DeletedAt": null
+    },
+    {
+      "Id": "024b62c9-93b3-41a0-ab19-587a0030219a",
+      "Name": {
+        "en": "Dialectal Variant"
+      },
+      "DeletedAt": null
+    },
+    {
+      "Id": "4343b1ef-b54f-4fa4-9998-271319a6d74c",
+      "Name": {
+        "en": "Free Variant"
+      },
+      "DeletedAt": null
+    },
+    {
+      "Id": "01d4fbc1-3b0c-4f52-9163-7ab0d4f4711c",
+      "Name": {
+        "en": "Irregularly Inflected Form"
+      },
+      "DeletedAt": null
+    },
+    {
+      "Id": "a32f1d1c-4832-46a2-9732-c2276d6547e8",
+      "Name": {
+        "en": "Plural"
+      },
+      "DeletedAt": null
+    },
+    {
+      "Id": "837ebe72-8c1d-4864-95d9-fa313c499d78",
+      "Name": {
+        "en": "Past"
+      },
+      "DeletedAt": null
+    },
+    {
+      "Id": "0c4663b3-4d9a-47af-b9a1-c8565d8112ed",
+      "Name": {
+        "en": "Spelling Variant"
+      },
+      "DeletedAt": null
+    }
+  ]
 }

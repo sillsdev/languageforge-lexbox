@@ -70,6 +70,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "Guid_7"

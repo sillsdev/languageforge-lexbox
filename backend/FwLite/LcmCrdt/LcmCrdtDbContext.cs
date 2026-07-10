@@ -23,6 +23,8 @@ public class LcmCrdtDbContext(
     public IQueryable<Entry> Entries => Set<Entry>().AsNoTracking();
     public IQueryable<ComplexFormComponent> ComplexFormComponents => Set<ComplexFormComponent>().AsNoTracking();
     public IQueryable<ComplexFormType> ComplexFormTypes => Set<ComplexFormType>().AsNoTracking();
+    public IQueryable<Variant> Variants => Set<Variant>().AsNoTracking();
+    public IQueryable<VariantType> VariantTypes => Set<VariantType>().AsNoTracking();
     public IQueryable<MorphType> MorphTypes => Set<MorphType>().AsNoTracking();
     public IQueryable<Sense> Senses => Set<Sense>().AsNoTracking();
     public IQueryable<ExampleSentence> ExampleSentences => Set<ExampleSentence>().AsNoTracking();

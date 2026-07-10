@@ -8,6 +8,6 @@ internal class ComplexFormTypeValidator : AbstractValidator<ComplexFormType>
     public ComplexFormTypeValidator()
     {
         RuleFor(c => c.DeletedAt).Null();
-        RuleFor(c => c.Name).Required(c => c.Id.ToString("D"));
+        RuleFor(c => c.Name).Required(c => c.Id.ToString("D")).NoEmptyValues(c => c.Id.ToString("D"));
     }
 }

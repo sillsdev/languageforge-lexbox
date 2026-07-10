@@ -136,6 +136,44 @@ public partial class MiniLcmApiNotifyWrapper(
         NotifyEntriesChanged(complexFormComponent.ComplexFormEntryId, complexFormComponent.ComponentEntryId);
     }
 
+    async Task<Variant> IMiniLcmWriteApi.CreateVariant(Variant variant)
+    {
+        var result = await _api.CreateVariant(variant);
+        NotifyEntriesChanged(result.VariantEntryId, result.MainEntryId);
+        return result;
+    }
+
+    async Task<Variant> IMiniLcmWriteApi.UpdateVariant(Variant before, Variant after, IMiniLcmApi? api)
+    {
+        var result = await _api.UpdateVariant(before, after, api ?? this);
+        NotifyEntriesChanged(result.VariantEntryId, result.MainEntryId);
+        return result;
+    }
+
+    async Task IMiniLcmWriteApi.DeleteVariant(Variant variant)
+    {
+        await _api.DeleteVariant(variant);
+        NotifyEntriesChanged(variant.VariantEntryId, variant.MainEntryId);
+    }
+
+    async Task IMiniLcmWriteApi.AddVariantType(Variant variant, Guid variantTypeId, BetweenPosition? position)
+    {
+        await _api.AddVariantType(variant, variantTypeId, position);
+        NotifyEntriesChanged(variant.VariantEntryId, variant.MainEntryId);
+    }
+
+    async Task IMiniLcmWriteApi.RemoveVariantType(Variant variant, Guid variantTypeId)
+    {
+        await _api.RemoveVariantType(variant, variantTypeId);
+        NotifyEntriesChanged(variant.VariantEntryId, variant.MainEntryId);
+    }
+
+    async Task IMiniLcmWriteApi.MoveVariantType(Variant variant, Guid variantTypeId, BetweenPosition position)
+    {
+        await _api.MoveVariantType(variant, variantTypeId, position);
+        NotifyEntriesChanged(variant.VariantEntryId, variant.MainEntryId);
+    }
+
     async Task IMiniLcmWriteApi.DeleteEntry(Guid id)
     {
         await _api.DeleteEntry(id);

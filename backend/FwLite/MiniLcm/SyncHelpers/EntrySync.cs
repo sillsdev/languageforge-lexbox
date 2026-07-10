@@ -70,6 +70,8 @@ public static class EntrySync
             var changes = 0;
             changes += await SyncComplexFormComponents(beforeEntry.Components, afterEntry.Components, api);
             changes += await SyncComplexForms(beforeEntry.ComplexForms, afterEntry.ComplexForms, api);
+            changes += await SyncVariants(beforeEntry.VariantOf, afterEntry.VariantOf, api);
+            changes += await SyncVariants(beforeEntry.Variants, afterEntry.Variants, api);
             return changes;
         }
         catch (Exception e)
@@ -118,6 +120,15 @@ public static class EntrySync
         );
     }
 
+    private static async Task<int> SyncVariants(IList<Variant> beforeVariants, IList<Variant> afterVariants, IMiniLcmApi api)
+    {
+        return await DiffCollection.Diff(
+            beforeVariants,
+            afterVariants,
+            new VariantsDiffApi(api)
+        );
+    }
+
     private static async Task<int> SensesSync(Guid entryId,
         IList<Sense> beforeSenses,
         IList<Sense> afterSenses,
@@ -153,13 +164,13 @@ public static class EntrySync
             {
                 // Api.CreateEntry() is optimized and assumes all senses are new rather than moved.
                 // So, we use the "smarter" SensesSync for the senses, which can handle moved senses.
-                addedEntry = await api.CreateEntry(afterEntry with { Senses = [] }, CreateEntryOptions.WithoutComplexFormsAndComponents);
+                addedEntry = await api.CreateEntry(afterEntry with { Senses = [] }, CreateEntryOptions.WithoutEntryReferences);
                 await SensesSync(addedEntry.Id, [], afterEntry.Senses, api, allBeforeSenses, allAfterSenses);
                 addedEntry = addedEntry with { Senses = afterEntry.Senses };
             }
             else
             {
-                addedEntry = await api.CreateEntry(afterEntry, CreateEntryOptions.WithoutComplexFormsAndComponents);
+                addedEntry = await api.CreateEntry(afterEntry, CreateEntryOptions.WithoutEntryReferences);
             }
             return (1, addedEntry);
         }
@@ -283,6 +294,33 @@ public static class EntrySync
                 return Task.FromResult(0);
             }
             throw new InvalidOperationException($"changing complex form components is not supported, they should just be deleted and recreated");
+        }
+    }
+
+    private class VariantsDiffApi(IMiniLcmApi api) : CollectionDiffApi<Variant, (Guid, Guid, Guid?)>
+    {
+        public override (Guid, Guid, Guid?) GetId(Variant variant)
+        {
+            //we can't use the ID as there's none defined by Fw so it won't work as a sync key
+            return (variant.VariantEntryId, variant.MainEntryId, variant.MainSenseId);
+        }
+
+        public override async Task<int> Add(Variant after)
+        {
+            await api.SubmitCreateVariant(after);
+            return 1;
+        }
+
+        public override async Task<int> Remove(Variant before)
+        {
+            await api.DeleteVariant(before);
+            return 1;
+        }
+
+        public override Task<int> Replace(Variant beforeVariant, Variant afterVariant)
+        {
+            //endpoints match (same composite key) — sync the link's own data (types, HideMinorEntry, Comment)
+            return VariantSync.Sync(beforeVariant, afterVariant, api);
         }
     }
 

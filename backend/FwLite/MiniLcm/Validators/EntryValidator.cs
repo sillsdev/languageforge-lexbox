@@ -22,6 +22,14 @@ public class EntryValidator : AbstractValidator<Entry>
         // RuleForEach(e => e.ComplexForms).SetValidator(entry => new ComplexFormComponentValidator(entry)); // TODO: Not implemented yet
         // TODO: ComplexFormComponentValidator(entry) might need to know the "direction" of the entry it's validating, i.e. one class for "I'm a component" and another for "I'm the complex entry"
         RuleForEach(e => e.ComplexFormTypes).SetValidator(new ComplexFormTypeValidator());
+        RuleForEach(e => e.VariantOf).Must(NotBeEmptyMainEntryReference).WithMessage("Variant main-entry reference must not be empty.");
+        RuleForEach(e => e.VariantOf).Must(NotBeVariantOfSelfReference).WithMessage("Variant main-entry reference must not be the same as the entry.");
+        RuleForEach(e => e.VariantOf).Must(HaveCorrectVariantEntryReference).WithMessage("Variant entry reference must be correct.");
+        RuleForEach(e => e.Variants).Must(NotBeEmptyVariantEntryReference).WithMessage("Variant entry reference must not be empty.");
+        RuleForEach(e => e.Variants).Must(NotBeVariantSelfReference).WithMessage("Variant entry reference must not be the same as the entry.");
+        RuleForEach(e => e.Variants).Must(HaveCorrectMainEntryReference).WithMessage("Variant main-entry reference must be correct.");
+        RuleForEach(e => e.VariantOf).SetValidator(new VariantValidator());
+        RuleForEach(e => e.Variants).SetValidator(new VariantValidator());
     }
 
     private bool NotBeEmptyComponentReference(Entry entry, ComplexFormComponent component)
@@ -49,6 +57,38 @@ public class EntryValidator : AbstractValidator<Entry>
     {
         // Empty GUID is okay here because it can be guessed from the parent object
         return component.ComponentEntryId == entry.Id || component.ComponentEntryId == Guid.Empty;
+    }
+
+    private bool NotBeEmptyMainEntryReference(Entry entry, Variant variant)
+    {
+        return variant.MainEntryId != Guid.Empty;
+    }
+
+    private bool NotBeEmptyVariantEntryReference(Entry entry, Variant variant)
+    {
+        return variant.VariantEntryId != Guid.Empty;
+    }
+
+    private bool NotBeVariantOfSelfReference(Entry entry, Variant variant)
+    {
+        return variant.MainEntryId != entry.Id;
+    }
+
+    private bool HaveCorrectVariantEntryReference(Entry entry, Variant variant)
+    {
+        // Empty GUID is okay here because it can be guessed from the parent object
+        return variant.VariantEntryId == entry.Id || variant.VariantEntryId == Guid.Empty;
+    }
+
+    private bool NotBeVariantSelfReference(Entry entry, Variant variant)
+    {
+        return variant.VariantEntryId != entry.Id || variant.VariantEntryId == Guid.Empty;
+    }
+
+    private bool HaveCorrectMainEntryReference(Entry entry, Variant variant)
+    {
+        // Empty GUID is okay here because it can be guessed from the parent object
+        return variant.MainEntryId == entry.Id || variant.MainEntryId == Guid.Empty;
     }
 
     private string GetEntryIdentifier(Entry entry)

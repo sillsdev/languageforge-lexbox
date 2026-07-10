@@ -33,6 +33,16 @@ public record Entry : IObjectWithId<Entry>
 
     public virtual List<ComplexFormType> ComplexFormTypes { get; set; } = [];
 
+    /// <summary>
+    /// This entry is a variant of these entries/senses
+    /// </summary>
+    public virtual List<Variant> VariantOf { get; set; } = [];
+
+    /// <summary>
+    /// Entries which are variants of this entry (or one of its senses)
+    /// </summary>
+    public virtual List<Variant> Variants { get; set; } = [];
+
     public virtual List<Publication> PublishIn { get; set; } = [];
 
     //Server-side query rewrite target — LcmCrdt rewrites this to Json.Query(PublishIn) so
@@ -78,6 +88,14 @@ public record Entry : IObjectWithId<Entry>
             [
                 ..ComplexFormTypes.Select(cft => cft.Copy())
             ],
+            VariantOf =
+            [
+                ..VariantOf.Select(v => v.Copy())
+            ],
+            Variants =
+            [
+                ..Variants.Select(v => v.Copy())
+            ],
             PublishIn = [ ..PublishIn.Select(p => p.Copy())]
         };
     }
@@ -90,18 +108,4 @@ public record Entry : IObjectWithId<Entry>
     public void RemoveReference(Guid id, DateTimeOffset time)
     {
     }
-}
-
-public class Variants
-{
-    public Guid Id { get; set; }
-    public IList<ComplexFormComponent> VariantsOf { get; set; } = [];
-    public IList<VariantType> Types { get; set; } = [];
-}
-
-
-public class VariantType
-{
-    public required Guid Id { get; set; }
-    public required MultiString Name { get; set; }
 }

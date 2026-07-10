@@ -1346,5 +1346,112 @@
   {
     "$type": "delete:UserComment",
     "EntityId": "4be242d0-b1a6-986f-cc0d-b35860e69e60"
+  },
+  {
+    "$type": "jsonPatch:VariantType",
+    "PatchDocument": [],
+    "EntityId": "f796b111-fed8-1fae-dacf-b549eb9ec93c"
+  },
+  {
+    "$type": "jsonPatch:Variant",
+    "PatchDocument": [],
+    "EntityId": "c753ced5-4a9f-8b3f-441a-72fd448a4ecb"
+  },
+  {
+    "$type": "delete:VariantType",
+    "EntityId": "32502ad4-c55c-fd4e-9e03-fd41b1630ada"
+  },
+  {
+    "$type": "delete:Variant",
+    "EntityId": "eb03a87f-0d94-f1d4-be8b-1843383fe74d"
+  },
+  {
+    "$type": "AddVariantChange",
+    "VariantEntryId": "e269cf82-fb4c-b0e2-1327-93389e9c4a21",
+    "MainEntryId": "7cf2ef69-3a01-1402-43b4-59f0340c03aa",
+    "MainSenseId": "f4d3d906-6aed-5cf3-55f5-ceb2a3b4f595",
+    "Types": [
+      {
+        "Id": "606508ea-b0bb-5b9e-2cfb-2e2fdc2aba35",
+        "Order": 0
+      },
+      {
+        "Id": "7de9cece-74e6-93b4-9cda-1a0b21616664",
+        "Order": 0
+      }
+    ],
+    "HideMinorEntry": false,
+    "Comment": {
+      "se": {
+        "Spans": [
+          {
+            "Text": "mobile",
+            "Ws": "yal",
+            "Bold": "Off",
+            "FontSize": 971683928,
+            "ForeColor": "#00FFFF",
+            "Tags": [
+              "6bfc8990-ba0c-4312-0978-a188b7362a9c"
+            ]
+          },
+          {
+            "Text": "bandwidth",
+            "Ws": "lpo",
+            "Bold": "Off",
+            "FontSize": 361788072,
+            "ForeColor": "#0000FF",
+            "Tags": [
+              "e25b45a2-560d-8122-6c0c-3aa989bd4667"
+            ]
+          },
+          {
+            "Text": "Money Market Account",
+            "Ws": "aox",
+            "Bold": "Invert",
+            "FontSize": 1881504352,
+            "ForeColor": "#A52A2A",
+            "Tags": [
+              "6cc91054-e9b2-75ca-58c4-833bb87a1948"
+            ]
+          },
+          {
+            "Text": "index",
+            "Ws": "se",
+            "Tags": [
+              "7353c7b7-43d3-40be-a82b-f1e5b4d31652"
+            ]
+          }
+        ]
+      }
+    },
+    "EntityId": "3dd7c405-ea5e-d908-08cc-11e36ddb60fa"
+  },
+  {
+    "$type": "AddVariantTypeChange",
+    "VariantTypeId": "3d19f188-5dc5-ec28-7035-bdf83b9d2df3",
+    "Order": 0.9152785924984018,
+    "Between": {
+      "Previous": "33187bcc-9543-d9ff-a3ae-99463cba8305",
+      "Next": "d6bee76a-42a1-6dff-cc98-18a0d3faeb21"
+    },
+    "EntityId": "440ffc2f-b320-ffbc-e9d2-b921bdefcd3f"
+  },
+  {
+    "$type": "RemoveVariantTypeChange",
+    "VariantTypeId": "c525542a-22f9-3f06-ce7e-d968f464e381",
+    "EntityId": "11589fe6-8515-f40c-1d0a-d2a844cc8fe1"
+  },
+  {
+    "$type": "ReorderVariantTypeChange",
+    "VariantTypeId": "a6ba2998-406e-47af-fa84-76cc23f1e835",
+    "Order": 0.7073390569914089,
+    "EntityId": "3984f906-7fb3-27c5-506d-30898c9d029c"
+  },
+  {
+    "$type": "CreateVariantType",
+    "Name": {
+      "es": "Health, Music \u0026 Tools"
+    },
+    "EntityId": "814b85d6-0828-bc87-3c0b-a0b120ddc230"
   }
 ]

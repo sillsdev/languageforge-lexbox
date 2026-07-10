@@ -107,6 +107,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
@@ -152,6 +154,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
@@ -198,6 +202,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
@@ -252,6 +258,8 @@
             "DeletedAt": null
           }
         ],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
@@ -314,6 +322,8 @@
             "DeletedAt": null
           }
         ],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
@@ -385,6 +395,8 @@
             "DeletedAt": null
           }
         ],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "00edefeb-173e-45cd-836c-eea2ba514429",
@@ -429,6 +441,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "75050583-70d7-4605-a6e6-872b8f36c482",
@@ -473,6 +487,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "9e84db09-1885-4bbb-9482-4891a46f6f49",
@@ -517,6 +533,8 @@
         "Components": [],
         "ComplexForms": [],
         "ComplexFormTypes": [],
+        "VariantOf": [],
+        "Variants": [],
         "PublishIn": []
       },
       "Id": "d9f70cf9-a479-4141-92e5-44155d063da2",

@@ -1,0 +1,249 @@
+using FwDataMiniLcmBridge.Api;
+using FwDataMiniLcmBridge.LcmUtils;
+using FwDataMiniLcmBridge.Tests.Fixtures;
+using MiniLcm.Models;
+using SIL.LCModel;
+
+namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
+
+[Collection(ProjectLoaderFixture.Name)]
+public class VariantTests(ProjectLoaderFixture fixture) : VariantTestsBase
+{
+    protected override Task<IMiniLcmApi> NewApi()
+    {
+        return Task.FromResult<IMiniLcmApi>(fixture.NewProjectApi("variant-test", "en", "en"));
+    }
+
+    [Fact]
+    public async Task GetVariantTypes_IncludesIrregularlyInflectedFormSubtypes()
+    {
+        // Plural and Past are children of Irregularly Inflected Form in the possibility
+        // list; the flattened read must surface them (they're the headline use case)
+        var types = await Api.GetVariantTypes().ToArrayAsync();
+        types.Should().Contain(t => t.Id == LexEntryTypeTags.kguidLexTypPluralVar);
+        types.Should().Contain(t => t.Id == LexEntryTypeTags.kguidLexTypPastVar);
+        types.Should().Contain(t => t.Id == LexEntryTypeTags.kguidLexTypSpellingVar);
+    }
+
+    [Fact]
+    public async Task CreateVariantType_LandsAsATopLevelPossibility()
+    {
+        // the flattened read can surface children, but created types must be top-level
+        var created = await Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "custom type" } } });
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
+        fwDataApi.Cache.LangProject.LexDbOA.VariantEntryTypesOA.PossibilitiesOS
+            .Should().Contain(p => p.Guid == created.Id);
+    }
+
+    [Fact]
+    public async Task UpdateVariant_PreservesAMultiBitHideMinorEntry()
+    {
+        // LCM reserves HideMinorEntry as a per-publication bitfield; a bool-level no-op
+        // write must not collapse a multi-bit value to 1
+        var created = await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { HideMinorEntry = true });
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
+        var variantEntry = fwDataApi.EntriesRepository.GetObject(_variantEntryId);
+        await fwDataApi.Cache.DoUsingNewOrCurrentUOW("Set HideMinorEntry bits",
+            "Unset HideMinorEntry bits",
+            () =>
+            {
+                variantEntry.VariantEntryRefs.Single().HideMinorEntry = 2;
+                return ValueTask.CompletedTask;
+            });
+
+        // before deliberately disagrees so the diff emits a HideMinorEntry patch op
+        await Api.UpdateVariant(created with { HideMinorEntry = false }, created with { HideMinorEntry = true });
+
+        variantEntry.VariantEntryRefs.Single().HideMinorEntry.Should().Be(2);
+        var entry = await Api.GetEntry(_variantEntryId);
+        entry!.VariantOf.Single().HideMinorEntry.Should().BeTrue();
+    }
+}
+
+/// <summary>
+/// tests the per-link fidelity when FwData has multiple variant LexEntryRefs on one entry
+/// </summary>
+[Collection(ProjectLoaderFixture.Name)]
+public class VariantTestsMultipleRefs(ProjectLoaderFixture fixture) : VariantTestsBase
+{
+    protected override Task<IMiniLcmApi> NewApi()
+    {
+        return Task.FromResult<IMiniLcmApi>(fixture.NewProjectApi("variant-test-multipleRefs", "en", "en"));
+    }
+
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
+        var variantEntry = fwDataApi.EntriesRepository.GetObject(_variantEntryId);
+        await fwDataApi.Cache.DoUsingNewOrCurrentUOW("Add dangling variant LexEntryRefs",
+            "Remove dangling variant LexEntryRefs",
+            () =>
+            {
+                //FLEx data can contain variant refs with no components; they must not confuse reads or writes
+                foreach (var _ in Enumerable.Range(0, 2))
+                {
+                    var entryRef = fwDataApi.Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
+                    variantEntry.EntryRefsOS.Add(entryRef);
+                    entryRef.RefType = LexEntryRefTags.krtVariant;
+                }
+                return ValueTask.CompletedTask;
+            });
+    }
+
+    [Fact]
+    public async Task VariantRefsWithDifferentTypes_ReadAsSeparateLinksWithOwnTypes()
+    {
+        var otherMainEntry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "other main" } }
+        });
+        var typeA = await Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "type a" } } });
+        var typeB = await Api.CreateVariantType(new VariantType { Id = Guid.NewGuid(), Name = new() { { "en", "type b" } } });
+
+        await Api.CreateVariant(Variant.FromEntries(_variantEntry, _mainEntry) with { Types = [typeA.ToRef()] });
+        await Api.CreateVariant(Variant.FromEntries(_variantEntry, otherMainEntry) with { Types = [typeB.ToRef()] });
+
+        var entry = await Api.GetEntry(_variantEntryId);
+        entry!.VariantOf.Should().HaveCount(2);
+        entry.VariantOf.Should().ContainSingle(v => v.MainEntryId == _mainEntryId)
+            .Which.Types.Should().ContainSingle(t => t.Id == typeA.Id);
+        entry.VariantOf.Should().ContainSingle(v => v.MainEntryId == otherMainEntry.Id)
+            .Which.Types.Should().ContainSingle(t => t.Id == typeB.Id);
+    }
+
+    [Fact]
+    public async Task DuplicateVariantRefs_AreNotDuplicated()
+    {
+        await AddDuplicateVariantRef();
+
+        var entry = await Api.GetEntry(_variantEntryId);
+        entry.Should().NotBeNull();
+        entry!.VariantOf.Should().HaveCount(1);
+        var mainEntry = await Api.GetEntry(_mainEntryId);
+        mainEntry.Should().NotBeNull();
+        mainEntry!.Variants.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task DuplicateVariantRefs_BothAreRemoved()
+    {
+        await AddDuplicateVariantRef();
+
+        var entry = await Api.GetEntry(_variantEntryId);
+        await Api.DeleteVariant(entry!.VariantOf.Single());
+
+        entry = await Api.GetEntry(_variantEntryId);
+        entry.Should().NotBeNull();
+        entry!.VariantOf.Should().BeEmpty();
+    }
+
+    private async Task AddDuplicateVariantRef()
+    {
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
+        var variantEntry = fwDataApi.EntriesRepository.GetObject(_variantEntryId);
+        var mainEntry = fwDataApi.EntriesRepository.GetObject(_mainEntryId);
+        await fwDataApi.Cache.DoUsingNewOrCurrentUOW("Add variant LexEntryRefs",
+            "Remove variant LexEntryRefs",
+            () =>
+            {
+                variantEntry.MakeVariantOf(mainEntry, fwDataApi.VariantTypesFlattened.First());
+                variantEntry.MakeVariantOf(mainEntry, fwDataApi.VariantTypesFlattened.Last());
+                return ValueTask.CompletedTask;
+            });
+    }
+}
+
+/// <summary>
+/// tests per-link edits when FLEx put multiple targets in ONE variant LexEntryRef:
+/// Types/HideMinorEntry/Comment live on the ref, shared across all its targets
+/// </summary>
+[Collection(ProjectLoaderFixture.Name)]
+public class VariantTestsSharedRef(ProjectLoaderFixture fixture) : MiniLcmTestBase
+{
+    private readonly Guid _variantEntryId = Guid.NewGuid();
+    private readonly Guid _mainEntryId = Guid.NewGuid();
+    private readonly Guid _otherMainEntryId = Guid.NewGuid();
+
+    protected override Task<IMiniLcmApi> NewApi()
+    {
+        return Task.FromResult<IMiniLcmApi>(fixture.NewProjectApi("variant-test-sharedRef", "en", "en"));
+    }
+
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+        await Api.CreateEntry(new()
+        {
+            Id = _variantEntryId,
+            LexemeForm = { { "en", "variant form" } }
+        });
+        await Api.CreateEntry(new()
+        {
+            Id = _mainEntryId,
+            LexemeForm = { { "en", "main entry" } }
+        });
+        await Api.CreateEntry(new()
+        {
+            Id = _otherMainEntryId,
+            LexemeForm = { { "en", "other main" } }
+        });
+        var fwDataApi = (FwDataMiniLcmApi)BaseApi;
+        var variantEntry = fwDataApi.EntriesRepository.GetObject(_variantEntryId);
+        await fwDataApi.Cache.DoUsingNewOrCurrentUOW("Add shared variant LexEntryRef",
+            "Remove shared variant LexEntryRef",
+            () =>
+            {
+                var entryRef = fwDataApi.Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
+                variantEntry.EntryRefsOS.Add(entryRef);
+                entryRef.RefType = LexEntryRefTags.krtVariant;
+                entryRef.HideMinorEntry = 1;
+                entryRef.VariantEntryTypesRS.Add(fwDataApi.Cache.ServiceLocator
+                    .GetInstance<ILexEntryTypeRepository>()
+                    .GetObject(LexEntryTypeTags.kguidLexTypDialectalVar));
+                entryRef.ComponentLexemesRS.Add(fwDataApi.EntriesRepository.GetObject(_mainEntryId));
+                entryRef.ComponentLexemesRS.Add(fwDataApi.EntriesRepository.GetObject(_otherMainEntryId));
+                return ValueTask.CompletedTask;
+            });
+    }
+
+    [Fact]
+    public async Task SharedRef_ReadsAsOneLinkPerTarget()
+    {
+        var entry = await Api.GetEntry(_variantEntryId);
+        entry!.VariantOf.Should().HaveCount(2);
+        entry.VariantOf.Should().OnlyContain(v => v.HideMinorEntry && v.Types.Count == 1);
+    }
+
+    [Fact]
+    public async Task AddVariantType_OnASharedRefLink_DoesNotAffectTheSiblingLink()
+    {
+        var entry = await Api.GetEntry(_variantEntryId);
+        var link = entry!.VariantOf.Single(v => v.MainEntryId == _mainEntryId);
+
+        await Api.AddVariantType(link, LexEntryTypeTags.kguidLexTypSpellingVar);
+
+        entry = await Api.GetEntry(_variantEntryId);
+        var edited = entry!.VariantOf.Single(v => v.MainEntryId == _mainEntryId);
+        var sibling = entry.VariantOf.Single(v => v.MainEntryId == _otherMainEntryId);
+        edited.Types.Select(t => t.Id).Should()
+            .BeEquivalentTo([LexEntryTypeTags.kguidLexTypDialectalVar, LexEntryTypeTags.kguidLexTypSpellingVar]);
+        sibling.Types.Select(t => t.Id).Should().BeEquivalentTo([LexEntryTypeTags.kguidLexTypDialectalVar]);
+        sibling.HideMinorEntry.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RemoveVariantType_OnASharedRefLink_DoesNotAffectTheSiblingLink()
+    {
+        var entry = await Api.GetEntry(_variantEntryId);
+        var link = entry!.VariantOf.Single(v => v.MainEntryId == _mainEntryId);
+
+        await Api.RemoveVariantType(link, LexEntryTypeTags.kguidLexTypDialectalVar);
+
+        entry = await Api.GetEntry(_variantEntryId);
+        entry!.VariantOf.Single(v => v.MainEntryId == _mainEntryId).Types.Should().BeEmpty();
+        entry.VariantOf.Single(v => v.MainEntryId == _otherMainEntryId).Types
+            .Should().ContainSingle(t => t.Id == LexEntryTypeTags.kguidLexTypDialectalVar);
+    }
+}

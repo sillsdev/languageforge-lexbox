@@ -6,9 +6,9 @@ namespace MiniLcm.Import;
 
 /// <summary>
 /// Populates <paramref name="importTo"/> from a <see cref="ProjectSnapshot"/> in dependency order
-/// (writing systems → parts of speech → publications → complex-form types → morph types →
-/// semantic domains → entries). Both FwData→CRDT import and template-based project creation funnel
-/// through here, so the ordering and the create-vs-update rules live in exactly one place.
+/// (writing systems → parts of speech → publications → complex-form types → variant types →
+/// morph types → semantic domains → entries). Both FwData→CRDT import and template-based project
+/// creation funnel through here, so the ordering and the create-vs-update rules live in exactly one place.
 /// </summary>
 public class ProjectImporter(ILogger<ProjectImporter> logger)
 {
@@ -37,6 +37,13 @@ public class ProjectImporter(ILogger<ProjectImporter> logger)
         {
             await importTo.CreateComplexFormType(complexFormType);
             logger.LogInformation("Imported complex form type {Id}", complexFormType.Id);
+        }
+
+        logger.LogInformation("Importing {Count} variant types", snapshot.VariantTypes.Length);
+        foreach (var variantType in snapshot.VariantTypes)
+        {
+            await importTo.CreateVariantType(variantType);
+            logger.LogInformation("Imported variant type {Id}", variantType.Id);
         }
 
         // Reconcile against the destination's existing morph types: MorphTypeSync updates them in place

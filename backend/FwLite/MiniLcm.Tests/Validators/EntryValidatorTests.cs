@@ -135,6 +135,38 @@ public class EntryValidatorTests
         _validator.TestValidate(entry).ShouldHaveValidationErrorFor("Components[0]");
     }
 
+    [Fact]
+    public void Fails_WhenVariantOfContainsEmptyMainEntryGuid()
+    {
+        var entryId = Guid.NewGuid();
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, VariantOf = [new Variant(){ VariantEntryId = entryId, MainEntryId = Guid.Empty }] };
+        _validator.TestValidate(entry).ShouldHaveValidationErrorFor("VariantOf[0]");
+    }
+
+    [Fact]
+    public void Succeeds_WhenVariantOfContainsEmptyVariantEntryGuid()
+    {
+        var entryId = Guid.NewGuid();
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, VariantOf = [new Variant(){ VariantEntryId = Guid.Empty, MainEntryId = Guid.NewGuid() }] };
+        _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void Fails_WhenVariantsContainEmptyVariantEntryGuid()
+    {
+        var entryId = Guid.NewGuid();
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, Variants = [new Variant(){ VariantEntryId = Guid.Empty, MainEntryId = entryId }] };
+        _validator.TestValidate(entry).ShouldHaveValidationErrorFor("Variants[0]");
+    }
+
+    [Fact]
+    public void Succeeds_WhenVariantsContainEmptyMainEntryGuid()
+    {
+        var entryId = Guid.NewGuid();
+        var entry = new Entry() { Id = entryId, LexemeForm = new MultiString(){{"en", "lexeme"}}, Variants = [new Variant(){ VariantEntryId = Guid.NewGuid(), MainEntryId = Guid.Empty }] };
+        _validator.TestValidate(entry).ShouldNotHaveAnyValidationErrors();
+    }
+
     private void SetProperty(Entry entry, string propName, string content)
     {
         var propInfo = typeof(Entry).GetProperty(propName);

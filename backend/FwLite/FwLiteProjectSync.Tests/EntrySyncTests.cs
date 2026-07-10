@@ -370,6 +370,19 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
             options = options
                 .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
+            // both apis sort variant links by composite key, not the order the expected object was built in;
+            // headwords are derived on read like the complex-form ones above (see VariantTestsBase)
+            options = options
+                .WithoutStrictOrderingFor(e => e.VariantOf)
+                .WithoutStrictOrderingFor(e => e.Variants)
+                .For(e => e.VariantOf).Exclude(v => v.VariantHeadword)
+                .For(e => e.VariantOf).Exclude(v => v.MainHeadword)
+                .For(e => e.Variants).Exclude(v => v.VariantHeadword)
+                .For(e => e.Variants).Exclude(v => v.MainHeadword)
+                // Type order is (re)assigned on write like every other Order above; the randomly-built
+                // values don't round-trip. Real order round-trip is asserted in VariantSyncTests.
+                .For(e => e.VariantOf).For(v => v.Types).Exclude(t => t.Order)
+                .For(e => e.Variants).For(v => v.Types).Exclude(t => t.Order);
             if (currentApiType == ApiType.FwData)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)
@@ -950,6 +963,43 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         actualNewComponentEntry.Senses[0].Id.Should().Be(senseId);
         actualNewComponentEntry.ComplexForms.Should().HaveCount(1);
         actualNewComponentEntry.ComplexForms[0].ComplexFormEntryId.Should().Be(complexForm.Id);
+    }
+
+    [Fact]
+    public async Task CanSyncVariantWhenTargetSenseMovesToDifferentEntry()
+    {
+        var senseId = Guid.NewGuid();
+        var oldMainEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "old-main" } }, Senses = [new() { Id = senseId }] });
+        var oldMainEntryAfter = oldMainEntry.Copy();
+        oldMainEntryAfter.Senses.Clear(); // sense is moved from here
+
+        var newMainEntry = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "new-main" } } });
+        var newMainEntryAfter = newMainEntry.Copy();
+        newMainEntryAfter.Senses.Add(new Sense() { Id = senseId }); // sense is moved to here
+
+        var variantEntry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "variant" } },
+        };
+        variantEntry.VariantOf.Add(Variant.FromEntries(variantEntry, oldMainEntry, senseId));
+        variantEntry = await Api.CreateEntry(variantEntry);
+
+        var variantEntryAfter = variantEntry.Copy();
+        variantEntryAfter.VariantOf = [Variant.FromEntries(variantEntry, newMainEntry, senseId)];
+
+        await EntrySync.SyncFull(
+            [variantEntry, oldMainEntry, newMainEntry],
+            [variantEntryAfter, oldMainEntryAfter, newMainEntryAfter],
+            Api);
+
+        var actualVariantEntry = await Api.GetEntry(variantEntry.Id);
+        actualVariantEntry.Should().NotBeNull();
+        var link = actualVariantEntry!.VariantOf.Should().ContainSingle().Subject;
+        link.MainEntryId.Should().Be(newMainEntry.Id);
+        link.MainSenseId.Should().Be(senseId);
+        (await Api.GetEntry(oldMainEntry.Id))!.Variants.Should().BeEmpty();
+        (await Api.GetEntry(newMainEntry.Id))!.Variants.Should().ContainSingle();
     }
 
     [Fact]

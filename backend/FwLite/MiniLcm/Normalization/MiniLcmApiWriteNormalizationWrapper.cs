@@ -207,6 +207,46 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #endregion
 
+    #region VariantType
+
+    public async Task<VariantType> CreateVariantType(VariantType variantType)
+    {
+        return await _api.CreateVariantType(NormalizeVariantType(variantType));
+    }
+
+    public Task<VariantType> UpdateVariantType(Guid id, UpdateObjectInput<VariantType> update)
+    {
+        return _api.UpdateVariantType(id, NormalizePatch(update));
+    }
+
+    // Overridden (rather than left to the interface default) so the sync's delete-wins semantics survive
+    // this wrapper — see the Submit* region in IMiniLcmWriteApi and the AGENTS.md "Submit* write variants" rule.
+    public Task SubmitUpdateVariantType(Guid id, UpdateObjectInput<VariantType> update)
+    {
+        return _api.SubmitUpdateVariantType(id, NormalizePatch(update));
+    }
+
+
+    public async Task<VariantType> UpdateVariantType(VariantType before, VariantType after, IMiniLcmApi? api = null)
+    {
+        return await _api.UpdateVariantType(NormalizeVariantType(before), NormalizeVariantType(after), api);
+    }
+
+    public Task DeleteVariantType(Guid id)
+    {
+        return _api.DeleteVariantType(id);
+    }
+
+    private static VariantType NormalizeVariantType(VariantType vt)
+    {
+        return vt with
+        {
+            Name = StringNormalizer.Normalize(vt.Name)
+        };
+    }
+
+    #endregion
+
     #region MorphType
 
     public async Task<MorphType> CreateMorphType(MorphType morphType)
@@ -286,6 +326,47 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.RemoveComplexFormType(entryId, complexFormTypeId);
     }
 
+    public async Task<Variant> CreateVariant(Variant variant)
+    {
+        return await _api.CreateVariant(NormalizeVariant(variant));
+    }
+
+    // See SubmitUpdateVariantType above: forward to _api.SubmitCreateVariant so delete-wins is preserved.
+    public Task SubmitCreateVariant(Variant variant)
+    {
+        return _api.SubmitCreateVariant(NormalizeVariant(variant));
+    }
+
+    public async Task<Variant> UpdateVariant(Variant before, Variant after, IMiniLcmApi? api = null)
+    {
+        return await _api.UpdateVariant(NormalizeVariant(before), NormalizeVariant(after), api);
+    }
+
+    public Task SubmitUpdateVariant(Variant variant, UpdateObjectInput<Variant> update)
+    {
+        return _api.SubmitUpdateVariant(variant, NormalizePatch(update));
+    }
+
+    public Task DeleteVariant(Variant variant)
+    {
+        return _api.DeleteVariant(variant);
+    }
+
+    public Task AddVariantType(Variant variant, Guid variantTypeId, BetweenPosition? position = null)
+    {
+        return _api.AddVariantType(variant, variantTypeId, position);
+    }
+
+    public Task RemoveVariantType(Variant variant, Guid variantTypeId)
+    {
+        return _api.RemoveVariantType(variant, variantTypeId);
+    }
+
+    public Task MoveVariantType(Variant variant, Guid variantTypeId, BetweenPosition position)
+    {
+        return _api.MoveVariantType(variant, variantTypeId, position);
+    }
+
     public Task AddPublication(Guid entryId, Guid publicationId)
     {
         return _api.AddPublication(entryId, publicationId);
@@ -306,7 +387,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
             Note = StringNormalizer.Normalize(entry.Note),
             Senses = [.. entry.Senses.Select(NormalizeSense)],
             Components = [.. entry.Components.Select(NormalizeComplexFormComponent)],
-            ComplexForms = [.. entry.ComplexForms.Select(NormalizeComplexFormComponent)]
+            ComplexForms = [.. entry.ComplexForms.Select(NormalizeComplexFormComponent)],
+            VariantOf = [.. entry.VariantOf.Select(NormalizeVariant)],
+            Variants = [.. entry.Variants.Select(NormalizeVariant)]
         };
     }
 
@@ -316,6 +399,18 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         {
             ComplexFormHeadword = StringNormalizer.Normalize(cfc.ComplexFormHeadword),
             ComponentHeadword = StringNormalizer.Normalize(cfc.ComponentHeadword)
+        };
+    }
+
+    private static Variant NormalizeVariant(Variant variant)
+    {
+        return variant with
+        {
+            VariantHeadword = StringNormalizer.Normalize(variant.VariantHeadword),
+            MainHeadword = StringNormalizer.Normalize(variant.MainHeadword),
+            Comment = StringNormalizer.Normalize(variant.Comment),
+            // type refs carry no strings to normalize; copy to keep before/after lists independent
+            Types = [.. variant.Types.Select(t => t.Copy())]
         };
     }
 
