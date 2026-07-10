@@ -136,7 +136,7 @@
       <Button icon="i-mdi-download" variant="secondary" loading={downloading} disabled={uploading || downloading} onclick={() => downloadPicture()}>
         {$t`Download Picture`}
       </Button>
-      <Button icon="i-mdi-image-refresh" variant="secondary" loading={uploading} disabled={uploading} onclick={() => fileInputElement?.click()}>
+      <Button icon="i-mdi-image-refresh" variant="secondary" loading={uploading} disabled={uploading || deleting} onclick={() => fileInputElement?.click()}>
         {$t`Replace Picture`}
       </Button>
       <Button icon="i-mdi-delete" variant="destructive" loading={deleting} disabled={uploading || deleting} onclick={() => deletePicture()}>
@@ -145,7 +145,7 @@
       <Button variant="secondary" onclick={() => (open = false)}>
         {$t`Cancel`}
       </Button>
-      <Button disabled={uploading} onclick={() => submit()}>
+      <Button disabled={uploading || deleting} onclick={() => submit()}>
         {$t`Submit`}
       </Button>
     </Dialog.DialogFooter>
