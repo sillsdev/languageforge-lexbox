@@ -133,6 +133,7 @@ public class LcmMediaService(
         HttpStatusCode.BadGateway,          // 502
         HttpStatusCode.ServiceUnavailable,  // 503
         HttpStatusCode.GatewayTimeout,      // 504
+        (HttpStatusCode)520, // Non-standard status code used by Cloudflare for "Server returned unknown error", seen in CI
     ];
 
     private async Task<IMediaServerClient> MediaServerClient()
