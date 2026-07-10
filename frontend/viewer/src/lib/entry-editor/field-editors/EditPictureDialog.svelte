@@ -19,8 +19,9 @@
     onUploadReplacement: (file: File) => Promise<string | null>;
     /** Applies the buffered edits (caption + replaced image) to the model. */
     onSubmit: (after: IPicture) => void;
-    /** Deletes the picture immediately (has its own confirmation); independent of Submit. */
-    onDelete: () => void;
+    /** Deletes the picture immediately (has its own confirmation); independent of Submit. Returns a
+        promise that resolves once the delete — or its cancellation — has settled. */
+    onDelete: () => Promise<void>;
   };
   let {open = $bindable(false), picture, onUploadReplacement, onSubmit, onDelete}: Props = $props();
 
@@ -44,6 +45,20 @@
   const preview = $derived<IPicture>({...picture, caption, mediaUri});
 
   let uploading = $state(false);
+
+  // Guards the delete flow against re-entry: a fast double-click could otherwise fire onDelete twice
+  // before the confirmation prompt's modal overlay blocks the button, causing a duplicate prompt /
+  // concurrent delete. Held until onDelete (delete or its cancellation) resolves.
+  let deleting = $state(false);
+  async function deletePicture() {
+    if (deleting) return;
+    deleting = true;
+    try {
+      await onDelete();
+    } finally {
+      deleting = false;
+    }
+  }
 
   let fileInputElement = $state<HTMLInputElement>();
   async function onFileSelected(event: Event) {
@@ -94,7 +109,7 @@
       <Button icon="i-mdi-image-refresh" variant="secondary" loading={uploading} disabled={uploading} onclick={() => fileInputElement?.click()}>
         {$t`Replace Picture`}
       </Button>
-      <Button icon="i-mdi-delete" variant="destructive" disabled={uploading} onclick={() => onDelete()}>
+      <Button icon="i-mdi-delete" variant="destructive" loading={deleting} disabled={uploading || deleting} onclick={() => deletePicture()}>
         {$t`Delete Picture`}
       </Button>
       <Button variant="secondary" onclick={() => (open = false)}>

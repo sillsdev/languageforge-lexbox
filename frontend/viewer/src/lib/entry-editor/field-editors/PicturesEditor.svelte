@@ -181,6 +181,6 @@
     picture={editingPicture}
     onUploadReplacement={(file) => uploadReplacement(file)}
     onSubmit={(after) => void submitEdits(after)}
-    onDelete={() => void deleteEditingPicture()}
+    onDelete={() => deleteEditingPicture()}
   />
 {/if}
