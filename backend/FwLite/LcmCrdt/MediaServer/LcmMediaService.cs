@@ -64,10 +64,9 @@ public class LcmMediaService(
         var localResource = await resourceService.GetLocalResource(fileId);
         if (localResource is null)
         {
-            var downloadTask = GetOrStartDownload(fileId);
             try
             {
-                localResource = await downloadTask;
+                localResource = await GetOrStartDownload(fileId);
             }
             catch
             {
@@ -79,13 +78,6 @@ public class LcmMediaService(
                     return new ReadFileResponse(ReadFileResult.Offline);
                 }
                 throw;
-            }
-            finally
-            {
-                // Once the download completes, we need to remove the task from the ConcurrentDictionary
-                // so that a new download can be attempted later by a different thread. That way if the local
-                // file is ever deleted (say, by being replaced with a different picture) a new download can start.
-                DownloadTasks.TryRemove(new KeyValuePair<Guid, Task<LocalResource>>(fileId, downloadTask));
             }
         }
         //todo, consider trying to download the file again, maybe the cache was cleared
@@ -104,21 +96,27 @@ public class LcmMediaService(
     {
         var tcs = new TaskCompletionSource<LocalResource>(TaskCreationOptions.RunContinuationsAsynchronously);
         var task = DownloadTasks.GetOrAdd(fileId, tcs.Task);
-        if (task == tcs.Task)
+        if (task != tcs.Task) return await task;
+        try
         {
-            try
-            {
-                // Check again if we have it locally in case another thread committed it before we started.
-                var resource = await resourceService.GetLocalResource(fileId)
-                            ?? await resourceService.DownloadResource(fileId, this);
-                tcs.SetResult(resource);
-            }
-            catch (Exception e)
-            {
-                tcs.SetException(e);
-            }
+            // Check again if we have it locally in case another thread committed it before we started.
+            var resource = await resourceService.GetLocalResource(fileId)
+                        ?? await resourceService.DownloadResource(fileId, this);
+            tcs.SetResult(resource);
+            return resource;
         }
-        return await task;
+        catch (Exception e)
+        {
+            tcs.SetException(e);
+            throw;
+        }
+        finally
+        {
+            // Once the download completes, we need to remove the task from the ConcurrentDictionary
+            // so that a new download can be attempted later by a different thread. That way if the local
+            // file is ever deleted (say, by being replaced with a different picture) a new download can start.
+            DownloadTasks.TryRemove(fileId, out _);
+        }
     }
 
     // Media files are proxied (lexbox -> FwHeadless). A cold request — e.g. the first one after the
