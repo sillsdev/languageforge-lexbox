@@ -659,6 +659,10 @@ msgstr "다운로드 {0}"
 msgid "Download page"
 msgstr "다운로드 페이지"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Download Picture"
+msgstr ""
+
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
@@ -2111,6 +2115,10 @@ msgstr "예제 문장을 입력합니다."
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "유형:"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Unable to download the picture"
+msgstr ""
 
 #. Generic error displayed in place of a picture when loading fails for an unspecified reason
 #: src/lib/entry-editor/field-editors/PictureImage.svelte

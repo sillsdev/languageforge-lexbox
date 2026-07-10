@@ -213,4 +213,22 @@ test.describe('Sense pictures', () => {
     // The edit never reached the model, so it isn't shown under the picture.
     await expect(picturesField.getByText('Discarded')).toHaveCount(0);
   });
+
+  test('Download Picture saves the image under its media-server filename', async ({page}) => {
+    const browsePage = new BrowsePage(page);
+    await browsePage.goto();
+    // "nyumba" has demo pictures whose media-server filename is deterministic (demo-picture.svg).
+    await browsePage.selectEntryByFilter('nyumba');
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await expect(picturesField.locator('img').first()).toBeVisible({timeout: 5000});
+
+    await picturesField.getByRole('button', {name: 'Edit Picture'}).first().click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible({timeout: 5000});
+
+    const downloadPromise = page.waitForEvent('download');
+    await dialog.getByRole('button', {name: 'Download Picture'}).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe('demo-picture.svg');
+  });
 });

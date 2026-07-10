@@ -7,6 +7,8 @@
   import PictureImage from './PictureImage.svelte';
   import {ACCEPTED_PICTURE_TYPES} from './picture-formats';
   import {t} from 'svelte-i18n-lingui';
+  import {useLexboxApi} from '$lib/services/service-provider';
+  import {AppNotification} from '$lib/notifications/notifications';
   import {useWritingSystemService} from '$project/data';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {watch} from 'runed';
@@ -27,6 +29,7 @@
 
   useBackHandler({addToStack: () => open, onBack: () => (open = false), key: 'edit-picture-dialog'});
   const writingSystemService = useWritingSystemService();
+  const api = useLexboxApi();
 
   // Buffered, local edits. Nothing here reaches the model until Submit; Cancel just closes and the
   // next open re-seeds these from the picture, discarding whatever was typed/replaced.
@@ -57,6 +60,30 @@
       await onDelete();
     } finally {
       deleting = false;
+    }
+  }
+
+  // Downloads the currently-shown image, saved under the filename the media server reports for it.
+  let downloading = $state(false);
+  async function downloadPicture() {
+    if (downloading) return;
+    downloading = true;
+    try {
+      const file = await api.getFileStream(mediaUri);
+      if (!file.stream) {
+        AppNotification.display(file.errorMessage ?? $t`Unable to download the picture`, {type: 'error'});
+        return;
+      }
+      const blob = await new Response(await file.stream.stream()).blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = file.fileName ?? 'picture';
+      anchor.click();
+      // Release the object URL on the next tick, once the browser has captured the blob.
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    } finally {
+      downloading = false;
     }
   }
 
@@ -106,6 +133,9 @@
     </Editor.Root>
 
     <Dialog.DialogFooter>
+      <Button icon="i-mdi-download" variant="secondary" loading={downloading} disabled={uploading || downloading} onclick={() => downloadPicture()}>
+        {$t`Download Picture`}
+      </Button>
       <Button icon="i-mdi-image-refresh" variant="secondary" loading={uploading} disabled={uploading} onclick={() => fileInputElement?.click()}>
         {$t`Replace Picture`}
       </Button>
