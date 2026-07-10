@@ -77,9 +77,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       }
       logger.info('Validating lexicon code:', newValue);
       try {
-        // A usable lexicon must resolve and have at least one vernacular writing system.
-        // Analysis writing systems are optional (selectLexicon tolerates their absence), and
-        // both fields are arrays — so `!!writingSystems.analysis` would pass even an empty one.
         return (await fwLiteApi.getWritingSystems(newValue)).vernacular.length > 0;
       } catch {
         return false;
