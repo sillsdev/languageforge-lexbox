@@ -636,6 +636,8 @@ function normalizeNewEntry(input: Partial<IEntry>): IEntry {
 
 /** Keys that are structural noise in a write summary: generated ids and ordering bookkeeping. */
 const SUMMARY_NOISE_KEYS = new Set(['id', 'entryId', 'senseId', 'order']);
+/** App defaults normalizeNewEntry stamps on every create; a matching value says nothing. */
+const SUMMARY_DEFAULT_VALUES: Record<string, unknown> = {morphType: MorphTypeKind.Stem, homographNumber: 0};
 
 /**
  * Copy of a value with empty leaves ('', null, undefined, {}, []) and noise keys removed, so a
@@ -652,6 +654,7 @@ export function pruneForSummary(value: unknown): unknown {
     const result: Record<string, unknown> = {};
     for (const [key, item] of Object.entries(value)) {
       if (SUMMARY_NOISE_KEYS.has(key)) continue;
+      if (key in SUMMARY_DEFAULT_VALUES && SUMMARY_DEFAULT_VALUES[key] === item) continue;
       const pruned = pruneForSummary(item);
       if (pruned !== undefined) result[key] = pruned;
     }
