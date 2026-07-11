@@ -125,6 +125,9 @@ export class PluginService {
         // copy can never be stale, and re-saving identical content reuses the same file.
         filename: `plugin-${contentHash.slice(0, 16)}.html`,
         mimeType: 'text/html',
+        // Keeps plugin files together in the project's LinkedFiles (for FLEx users and the
+        // media manager) instead of scattering hash-named folders at its root.
+        linkedFilesSubfolder: 'Plugins',
       });
       if (response.result === UploadFileResult.TooBig) {
         throw new Error('This plugin file is too big (the limit is 10MB)');
