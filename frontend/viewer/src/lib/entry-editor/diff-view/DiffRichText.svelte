@@ -14,7 +14,7 @@
 
   function toPlain(rich?: IRichMultiString): IMultiString | undefined {
     if (!rich) return undefined;
-    return Object.fromEntries(Object.entries(rich).map(([wsId, value]) => [wsId, asString(value)]));
+    return Object.fromEntries(Object.entries(rich).map(([wsId, value]) => [wsId, asString(value) ?? '']));
   }
 </script>
 
