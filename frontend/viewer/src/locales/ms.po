@@ -35,7 +35,6 @@ msgstr ""
 msgid "(no headword)"
 msgstr ""
 
-#. Italic placeholder in an activity-log summary when an entry has no headword text in any vernacular writing system.
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "(unknown)"
@@ -224,7 +223,6 @@ msgstr ""
 msgid "Add Word"
 msgstr "Tambah Perkataan"
 
-#. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A chip with the added item follows.
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
 msgstr ""
@@ -537,7 +535,6 @@ msgstr "Tutup"
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
 
-#. Field label in the activity change-preview diff. "Code" is the short identifier on a semantic domain (e.g. "1.1") or the writing-system ID (e.g. "en").
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Closed"
 msgstr ""
@@ -2673,7 +2670,6 @@ msgstr "Togol penapis"
 msgid "Toggle pinned"
 msgstr "Togol disemat"
 
-#. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to the translation of an example sentence (not of the headword itself).
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
@@ -2950,7 +2946,6 @@ msgstr "Perkataan atau makna:"
 msgid "words"
 msgstr ""
 
-#. Standalone noun used as {0} in activity-log strings (e.g. "Created writing system"). A writing system defines a script and language variant (e.g. "Latin/English", "Cyrillic/Russian").
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Write a reply..."
 msgstr ""

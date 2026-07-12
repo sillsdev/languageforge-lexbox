@@ -10,6 +10,18 @@ const entryId = 'entry-1';
 const entrySnap = {id: entryId, lexemeForm: {en: 'run'}, senses: []} as unknown as IEntry;
 
 describe('assembleEntryAtCommit', () => {
+  it('uses the latest snapshot when an entity appears multiple times in the commit', () => {
+    const contexts = [
+      ctx('Entry', entrySnap),
+      ctx('Sense', {id: 's1', entryId, gloss: {en: 'old gloss'}}),
+      ctx('Sense', {id: 's1', entryId, gloss: {en: 'new gloss'}}),
+    ];
+    const entry = assembleEntryAtCommit(entryId, contexts, []);
+    expect(entry?.senses).toHaveLength(1);
+    expect(entry?.senses[0].gloss).toEqual({en: 'new gloss'});
+  });
+
+
   it('returns undefined when the commit has no entry snapshot', () => {
     expect(assembleEntryAtCommit(entryId, [ctx('Sense', {id: 's1', entryId})], [])).toBeUndefined();
   });

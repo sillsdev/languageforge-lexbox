@@ -14,14 +14,14 @@ public class HistoryServiceJsInvokable(HistoryService historyService)
     }
 
     [JSInvokable]
-    public Task<ProjectActivity[]> ProjectActivity(
+    public async Task<ProjectActivity[]> ProjectActivity(
         int skip,
         int take,
         string[]? authorFilterKeys = null,
         string[]? changeTypeKeys = null,
         ActivitySort sort = ActivitySort.NewestFirst)
     {
-        return historyService.ProjectActivity(skip, take,
+        return await historyService.ProjectActivity(skip, take,
             new ActivityQuery(authorFilterKeys, changeTypeKeys, sort));
     }
 

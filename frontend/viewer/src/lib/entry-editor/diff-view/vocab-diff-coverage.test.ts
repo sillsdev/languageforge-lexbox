@@ -1,7 +1,10 @@
 import {describe, it, expect} from 'vitest';
 import {readFileSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {dirname, join} from 'node:path';
 import {IGNORED_VOCAB_FIELDS} from './vocab-diff-fields';
+
+const here = dirname(fileURLToPath(import.meta.url));
 
 // The vocab models DiffVocabPrimitive renders. Each must have every property either handled (a row) or
 // deliberately ignored — so a new backend field can't silently vanish from the diff preview (the bug that
@@ -11,8 +14,7 @@ import {IGNORED_VOCAB_FIELDS} from './vocab-diff-fields';
 const MODELS = ['IPartOfSpeech', 'ISemanticDomain', 'IPublication', 'IComplexFormType', 'IMorphType', 'IWritingSystem', 'ICustomView'];
 
 function propertyNames(model: string): string[] {
-  // vitest runs with cwd = frontend/viewer, so resolve the generated interface from there.
-  const path = resolve(process.cwd(), 'src/lib/dotnet-types/generated-types/MiniLcm/Models', `${model}.ts`);
+  const path = join(here, '../../dotnet-types/generated-types/MiniLcm/Models', `${model}.ts`);
   const src = readFileSync(path, 'utf8');
   const body = src.slice(src.indexOf('{') + 1, src.lastIndexOf('}'));
   // Lines like `\tname: IMultiString;` or `\tprefix?: string;` — capture the identifier before `?:`/`:`.
@@ -20,7 +22,7 @@ function propertyNames(model: string): string[] {
 }
 
 function handledFields(): Set<string> {
-  const path = resolve(process.cwd(), 'src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte');
+  const path = join(here, 'DiffVocabPrimitive.svelte');
   const src = readFileSync(path, 'utf8');
   return new Set([...src.matchAll(/present\('(\w+)'\)/g)].map((m) => m[1]));
 }
