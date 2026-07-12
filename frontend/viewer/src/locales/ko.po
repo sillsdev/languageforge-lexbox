@@ -58,7 +58,7 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
 msgid "{0} activity types"
 msgstr ""
 
@@ -148,6 +148,13 @@ msgstr "계정"
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "활동"
+
+#. Label of the activity-type filter button. When nothing is selected the feed is unfiltered.
+#: src/lib/activity/ChangeTypeFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Activity type"
+msgstr ""
 
 #. Error boundary title shown if the whole Activity view crashes while rendering. Distinct from the per-change "Failed to load this change" error.
 #: src/lib/activity/ActivityView.svelte
@@ -269,13 +276,6 @@ msgstr ""
 msgid "All"
 msgstr "모두"
 
-#. Filter option in activity view activity-type dropdown — show all kinds of edits.
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-msgid "All activity types"
-msgstr ""
-
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
@@ -359,6 +359,11 @@ msgstr ""
 #. Field label in the activity change-preview diff for a writing system. Shows whether it's an audio writing system (Yes/No).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Audio"
+msgstr ""
+
+#. Activity-type filter section: audio recordings and other media files.
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Audio & media"
 msgstr ""
 
 #. Status message when audio was not synced
@@ -513,6 +518,16 @@ msgstr "클래식 FieldWorks 프로젝트"
 msgid "clear"
 msgstr "clear"
 
+#. Aria-label of the small × button next to the filter that clears it without opening the popup.
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Clear activity type filter"
+msgstr ""
+
+#. Button in the empty activity feed: resets the author and activity-type filters.
+#: src/lib/activity/ActivityView.svelte
+msgid "Clear filters"
+msgstr ""
+
 #. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
@@ -555,6 +570,7 @@ msgstr ""
 msgid "Color"
 msgstr "색상"
 
+#: src/lib/activity/ChangeTypeFilter.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
@@ -977,6 +993,11 @@ msgstr "로 끝납니다."
 msgid "entries"
 msgstr ""
 
+#. Activity-type filter section header (Classic view; Lite says "Words"): changes to dictionary entries.
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Entries"
+msgstr ""
+
 #. Filter option label
 #. Dropdown to filter entries by missing fields
 #. Example: "Entries missing Definition" shows words without definitions
@@ -1085,6 +1106,10 @@ msgstr ""
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "examples"
+msgstr ""
+
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Examples"
 msgstr ""
 
 #. Field label in the activity change-preview diff for a writing system. Exemplars are the list of index letters (e.g. A, B, C…) used for alphabetical browsing.
@@ -1481,6 +1506,11 @@ msgstr "빛"
 msgid "List mode"
 msgstr "목록 모드"
 
+#. Activity-type filter section: changes to the dictionary's supporting lists and configuration (parts of speech, semantic domains, publications, writing systems, custom views…).
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Lists & settings"
+msgstr ""
+
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
@@ -1602,6 +1632,11 @@ msgstr "의미"
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "meanings"
+msgstr ""
+
+#. Activity-type filter section header (Lite view; Classic says "Senses").
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Meanings"
 msgstr ""
 
 #. Noun for a media resource of non-audio/unknown type, e.g. "Added media file" in the activity log
@@ -1752,10 +1787,6 @@ msgstr ""
 msgid "No activity matches these filters"
 msgstr ""
 
-#: src/lib/activity/ActivityFilter.svelte
-msgid "No activity types"
-msgstr ""
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
 msgstr ""
@@ -1803,6 +1834,11 @@ msgstr "기록을 찾을 수 없습니다."
 #: src/lib/components/field-editors/select.svelte
 msgid "No items found"
 msgstr "항목을 찾을 수 없습니다."
+
+#. Empty state of the activity-type filter popup when the search matches nothing.
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "No matching activity types"
+msgstr ""
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1905,6 +1941,12 @@ msgstr ""
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "하나의 FieldWorks Classic 커밋은 여러 항목 또는 필드에 대한 변경 사항으로 구성될 수 있습니다. 반면에 커밋은 FieldWorks Lite에 동기화되지 않은 데이터에만 영향을 미칠 수 있습니다."
+
+#. Hover shortcut on a filter row: narrows the filter to just that item/group, replacing the current selection.
+#: src/lib/activity/ChangeTypeFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Only"
+msgstr ""
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
@@ -2213,6 +2255,11 @@ msgstr "오디오 교체"
 msgid "Report a technical problem"
 msgstr "기술 문제 신고하기"
 
+#. Footer button in the activity-type filter popup: clears the selection (back to unfiltered).
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Reset"
+msgstr ""
+
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
 msgid "Restore"
@@ -2251,6 +2298,11 @@ msgstr "보기 저장"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
 msgstr "검색 # 또는 #"
+
+#. Placeholder of the search box inside the activity-type filter popup.
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Search activity types"
+msgstr ""
 
 #. Search placeholder
 #: src/project/ProjectDropdown.svelte
@@ -2353,6 +2405,11 @@ msgstr ""
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "senses"
+msgstr ""
+
+#. Activity-type filter section header (Classic view; Lite says "Meanings").
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Senses"
 msgstr ""
 
 #. Field label for example text
@@ -2944,6 +3001,11 @@ msgstr "단어 또는 의미:"
 #. Lowercase plural noun interpolated into activity-log lines (e.g. "Created 5 words"). Paired with "words" / "entries" terminology across the app.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "words"
+msgstr ""
+
+#. Activity-type filter section header (Lite view; Classic says "Entries"): changes to dictionary entries.
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Words"
 msgstr ""
 
 #: src/lib/entry-editor/CommentDialog.svelte

@@ -14,6 +14,7 @@
   import ActivityFilter from './ActivityFilter.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import {Icon} from '$lib/components/ui/icon';
+  import {Button} from '$lib/components/ui/button';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {IProjectActivity} from '$lib/dotnet-types';
   import ActivityViewPicker from './ActivityViewPicker.svelte';
@@ -27,7 +28,6 @@
     emptyActivityLoad,
     hasActiveServerSideFilters,
     MIN_VISIBLE_FILTERED,
-    serverQueryKey,
     toServerQuery,
     type ActivityFilters,
     type ActivityLoad,
@@ -71,8 +71,11 @@
   let filters = $state<ActivityFilters>(createDefaultActivityFilters());
   let pageCount = $state(1);
 
-  const queryKey = $derived.by(() => serverQueryKey(filters));
-  const serverQuery = $derived.by(() => toServerQuery(filters));
+  // Filters apply instantly in the UI but the server query is debounced, so rapid multi-toggling in the
+  // type filter batches into one request.
+  const debouncedQuery = new Debounced(() => toServerQuery(filters), 300);
+  const serverQuery = $derived(debouncedQuery.current);
+  const queryKey = $derived(JSON.stringify(serverQuery));
 
   const activity = resource(
     [() => queryKey, () => pageCount, () => serverQuery, () => historyService.loaded],
@@ -311,7 +314,15 @@
         {/snippet}
       </VList>
     {:else if !loading.current}
-      <div class="p-4 text-center opacity-75">{$t`No activity matches these filters`}</div>
+      <div class="flex flex-col items-center gap-2 p-4 text-center opacity-75">
+        <span>{$t`No activity matches these filters`}</span>
+        {#if hasActiveServerSideFilters(filters)}
+          <Button variant="outline" size="sm"
+            onclick={() => filters = {...createDefaultActivityFilters(), sort: filters.sort}}>
+            {$t`Clear filters`}
+          </Button>
+        {/if}
+      </div>
     {/if}
   </div>
   </div>

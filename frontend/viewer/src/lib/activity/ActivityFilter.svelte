@@ -13,7 +13,6 @@
   import type {IconClass} from '$lib/icon-class';
   import {
     ALL_AUTHORS,
-    ALL_CHANGE_TYPES,
     applyMultiSelectValue,
     authorFilterKey,
     compareActivityAuthors,
@@ -25,6 +24,7 @@
     type MultiFilterSelection,
   } from './utils';
   import AuthorLabel from './AuthorLabel.svelte';
+  import ChangeTypeFilter from './ChangeTypeFilter.svelte';
   import type {Snippet} from 'svelte';
 
   type Props = {
@@ -61,10 +61,8 @@
   );
 
   const authorKeys = $derived(authors.current.map(authorFilterKey));
-  const changeTypeKeys = $derived(changeTypes.current.map(ct => ct.key));
 
   const authorSelectValue = $derived(resolveFilterKeys(filters.authorFilterKeys, authorKeys));
-  const changeTypeSelectValue = $derived(resolveFilterKeys(filters.changeTypeFilterKeys, changeTypeKeys));
 
   const sortLabels = $derived<Record<ActivitySort, string>>({
     [ActivitySort.NewestFirst]: $t`Newest first`,
@@ -95,10 +93,6 @@
 
   function onAuthorValueChange(value: string[]) {
     filters.authorFilterKeys = applyMultiSelectValue(value, authorKeys, ALL_AUTHORS, filters.authorFilterKeys);
-  }
-
-  function onChangeTypeValueChange(value: string[]) {
-    filters.changeTypeFilterKeys = applyMultiSelectValue(value, changeTypeKeys, ALL_CHANGE_TYPES, filters.changeTypeFilterKeys);
   }
 </script>
 
@@ -139,36 +133,10 @@
       </Select.Content>
     </Select.Root>
 
-    <Select.Root type="multiple" value={changeTypeSelectValue} onValueChange={onChangeTypeValueChange}>
-      <Select.Trigger class="w-44 max-w-full grow">
-        {#if isAllFilterSelection(filters.changeTypeFilterKeys, changeTypeKeys)}
-          {$t`All activity types`}
-        {:else if filters.changeTypeFilterKeys.length === 0}
-          {$t`No activity types`}
-        {:else if filters.changeTypeFilterKeys.length === 1}
-          {changeTypes.current.find(ct => ct.key === filters.changeTypeFilterKeys[0])?.label ?? filters.changeTypeFilterKeys[0]}
-        {:else}
-          {$t`${filters.changeTypeFilterKeys.length} activity types`}
-        {/if}
-      </Select.Trigger>
-      <Select.Content>
-        <Select.Item value={ALL_CHANGE_TYPES} label={$t`All activity types`}>
-          {#snippet selectedIndicator()}
-            {@const icon = allSelectionIcon(filters.changeTypeFilterKeys, changeTypeKeys)}
-            {#if icon}
-              <Icon {icon} class="size-4" />
-            {/if}
-          {/snippet}
-          <span class="font-bold">{$t`All activity types`}</span>
-        </Select.Item>
-        {#each changeTypes.current as changeType (changeType.key)}
-          <Select.Item value={changeType.key} label={changeType.label}>
-            {changeType.label}
-            <span class="text-muted-foreground ml-1">({changeType.commitCount})</span>
-          </Select.Item>
-        {/each}
-      </Select.Content>
-    </Select.Root>
+    <ChangeTypeFilter
+      changeTypes={changeTypes.current}
+      selected={filters.changeTypeFilterKeys}
+      onSelectionChange={(keys) => filters.changeTypeFilterKeys = keys} />
   </div>
 
   <!-- Sort menu on the left, optional trailing element (list-mode icon) on the right — mirrors the entry
