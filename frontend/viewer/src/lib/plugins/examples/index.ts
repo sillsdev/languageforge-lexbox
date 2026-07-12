@@ -220,6 +220,13 @@ export const examplePlugins: ExamplePlugin[] = [
 
   // ---- Play & learn ----
   {
+    key: 'speaking-isles',
+    name: 'The Speaking Isles',
+    description: 'Explore a 3D island world grown from your dictionary: learn scattered words to lift the Hush, build with blocks, and give the language new words and example sentences at Wellsprings and Echo Stones.',
+    functions: ['play', 'collect', 'explore'],
+    loadHtml: async () => (await import('./speaking-isles.html?raw')).default,
+  },
+  {
     key: 'crossword',
     name: 'Crossword',
     description: 'Generate a playable crossword from your words, clued by their meanings.',

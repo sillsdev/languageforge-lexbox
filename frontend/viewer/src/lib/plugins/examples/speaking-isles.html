@@ -1,0 +1,2929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="fwlite-plugin-permissions" content="edit">
+<title>The Speaking Isles</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: rgba(252, 252, 254, 0.94);
+    --surface-solid: #ffffff;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #6366f1;
+    --gold: #eab308;
+    --good: #16a34a;
+    --danger: #dc2626;
+    --shadow: 0 4px 22px rgba(16, 24, 40, 0.18);
+    --radius: 14px;
+  }
+  html[data-theme="dark"] {
+    --bg: #0a0b12;
+    --surface: rgba(21, 23, 34, 0.92);
+    --surface-solid: #1a1c28;
+    --border: #2d3046;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --gold: #facc15;
+    --good: #4ade80;
+    --danger: #f87171;
+    --shadow: 0 4px 26px rgba(0, 0, 0, 0.55);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #0b0e1a;
+    color: var(--text);
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  #gl { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; cursor: grab; }
+  #gl.dragging { cursor: grabbing; }
+
+  /* ---------- shared bits ---------- */
+  .panel {
+    background: var(--surface);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    color: var(--text);
+  }
+  button.btn {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 11px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface-solid);
+    color: var(--text);
+  }
+  button.btn:hover { border-color: var(--accent); }
+  button.btn:disabled { opacity: 0.5; cursor: default; }
+  button.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button.btn.primary:hover { filter: brightness(1.1); }
+  button.btn.ghost { background: transparent; }
+  input.field, textarea.field {
+    font-family: inherit; font-size: 1rem;
+    width: 100%;
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    padding: 10px 12px;
+    outline: none;
+  }
+  input.field:focus, textarea.field:focus { border-color: var(--accent); }
+  textarea.field { resize: vertical; min-height: 64px; }
+  .muted { color: var(--text-muted); }
+  .hidden { display: none !important; }
+
+  /* ---------- boot / title ---------- */
+  #boot, #title {
+    position: fixed; inset: 0; z-index: 60;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(120% 90% at 50% 8%, #1d2547 0%, #0b0e1a 58%, #07080f 100%);
+    color: #e8eaf6; text-align: center; padding: 24px;
+  }
+  #boot .spinner {
+    width: 38px; height: 38px; border: 3px solid rgba(255,255,255,0.15);
+    border-top-color: #a5b4fc; border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #boot p { color: #9aa3c7; font-size: 0.9rem; margin-top: 16px; }
+  #title h1 {
+    margin: 0;
+    font-size: clamp(2rem, 7vw, 3.6rem);
+    font-weight: 800; letter-spacing: 0.06em;
+    background: linear-gradient(180deg, #fdf6d8 10%, #ffd76a 45%, #8fb7ff 90%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 42px rgba(255, 214, 110, 0.25);
+  }
+  #title .tagline { color: #aab3d6; margin: 10px 0 0; font-size: clamp(0.9rem, 2.6vw, 1.05rem); letter-spacing: 0.04em; }
+  #title .story {
+    max-width: 560px; margin: 26px 0 0; min-height: 108px;
+    color: #cdd4ef; font-size: clamp(0.95rem, 2.8vw, 1.08rem); line-height: 1.65; font-weight: 300;
+  }
+  #title .story em { color: #ffd76a; font-style: normal; }
+  #title .dots { display: flex; gap: 7px; margin: 18px 0 22px; }
+  #title .dots span { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.22); transition: background 0.2s; }
+  #title .dots span.on { background: #ffd76a; }
+  #title .btn-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  #title button.big {
+    font-size: 1.05rem; padding: 13px 30px; border-radius: 999px; border: 1px solid rgba(255,215,106,0.6);
+    background: linear-gradient(180deg, rgba(255,215,106,0.16), rgba(255,215,106,0.05));
+    color: #ffe9ad; cursor: pointer; font-weight: 700; letter-spacing: 0.03em;
+  }
+  #title button.big:hover { background: linear-gradient(180deg, rgba(255,215,106,0.3), rgba(255,215,106,0.1)); }
+  #title button.linkish { background: none; border: none; color: #8f99c4; cursor: pointer; font-size: 0.9rem; }
+  #title button.linkish:hover { color: #cdd4ef; }
+  #title .hint { position: absolute; bottom: 16px; left: 0; right: 0; color: #6b7499; font-size: 0.78rem; padding: 0 18px; }
+
+  /* ---------- HUD ---------- */
+  #hud { position: fixed; inset: 0; pointer-events: none; z-index: 20; }
+  #banner {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    padding: 8px 18px; text-align: center; min-width: 200px; max-width: min(430px, 86vw);
+  }
+  #banner .rname { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #banner .rbar { height: 5px; border-radius: 999px; background: var(--border); margin-top: 6px; overflow: hidden; }
+  #banner .rbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--gold)); border-radius: 999px; transition: width 0.5s; }
+  #banner .rsub { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+  #stats {
+    position: absolute; top: 12px; right: 12px;
+    padding: 8px 14px; font-size: 0.88rem; font-weight: 600;
+    display: flex; flex-direction: column; gap: 3px; align-items: flex-end;
+  }
+  #stats .lum { color: var(--gold); }
+  #stats .wds { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+  #cross {
+    position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px;
+    border-radius: 50%; background: rgba(255,255,255,0.85); box-shadow: 0 0 6px rgba(0,0,0,0.6);
+  }
+  #cross.build { width: 10px; height: 10px; margin: -5px 0 0 -5px; background: transparent; border: 2px solid rgba(255,255,255,0.9); border-radius: 3px; }
+  #prompt {
+    position: absolute; bottom: 118px; left: 50%; transform: translateX(-50%);
+    padding: 9px 16px; font-size: 0.92rem; white-space: nowrap; max-width: 88vw; overflow: hidden; text-overflow: ellipsis;
+    pointer-events: auto; cursor: pointer;
+  }
+  #prompt b { color: var(--gold); }
+  #prompt kbd {
+    background: var(--border); border-radius: 5px; padding: 1px 7px; font-family: inherit;
+    font-size: 0.8rem; font-weight: 700; margin-right: 7px;
+  }
+  #hotbar {
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 6px; padding: 7px; pointer-events: auto;
+  }
+  #hotbar .slot {
+    width: 46px; height: 46px; border-radius: 9px; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    cursor: pointer; position: relative; background: var(--surface-solid);
+  }
+  #hotbar .slot.sel { border-color: var(--gold); box-shadow: 0 0 10px rgba(234,179,8,0.45); }
+  #hotbar .slot .cube { width: 22px; height: 22px; border-radius: 4px; box-shadow: inset -4px -5px 0 rgba(0,0,0,0.25), inset 3px 3px 0 rgba(255,255,255,0.25); }
+  #hotbar .slot .num { position: absolute; top: 1px; left: 4px; font-size: 0.62rem; color: var(--text-muted); }
+  #hotbar .slot .lock { font-size: 1rem; color: var(--text-muted); }
+  #modebadge {
+    position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: var(--gold);
+    padding: 4px 12px; pointer-events: none;
+  }
+  #compassbar {
+    position: absolute; top: 12px; left: 12px; padding: 7px 12px; font-size: 0.8rem;
+    color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+  }
+  #compassbar .arrow { display: inline-block; transition: transform 0.1s linear; font-size: 1rem; color: var(--gold); }
+
+  /* ---------- Echo dialogue ---------- */
+  #echo {
+    position: fixed; bottom: 14px; left: 14px; z-index: 30;
+    max-width: min(430px, calc(100vw - 28px));
+    padding: 13px 16px 11px; display: flex; gap: 12px; align-items: flex-start;
+    pointer-events: auto; cursor: pointer;
+  }
+  #echo .orb {
+    flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #fff8dc, #ffd76a 45%, #b07a1a 100%);
+    box-shadow: 0 0 16px rgba(255, 215, 106, 0.8);
+    animation: echobob 2.6s ease-in-out infinite;
+  }
+  @keyframes echobob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  #echo .who { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase; }
+  #echo .txt { font-size: 0.94rem; line-height: 1.5; margin-top: 2px; min-height: 2.8em; }
+  #echo .more { font-size: 0.72rem; color: var(--text-muted); margin-top: 5px; }
+
+  /* ---------- modals ---------- */
+  .overlay {
+    position: fixed; inset: 0; z-index: 40;
+    background: rgba(5, 7, 16, 0.55);
+    display: flex; align-items: center; justify-content: center; padding: 18px;
+  }
+  .dialog { width: 100%; max-width: 460px; max-height: 92vh; overflow-y: auto; padding: 22px; }
+  .dialog h2 { margin: 0 0 4px; font-size: 1.25rem; }
+  .dialog .sub { color: var(--text-muted); font-size: 0.85rem; margin: 0 0 14px; }
+  .dialog .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; justify-content: flex-end; }
+  .chip {
+    display: inline-block; font-size: 0.72rem; font-weight: 600; padding: 3px 10px;
+    border-radius: 999px; background: var(--border); color: var(--text-muted); margin-right: 6px;
+  }
+  /* word card */
+  #card .head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  #card .hw { font-size: 1.7rem; font-weight: 800; }
+  #card .listen {
+    border: none; background: var(--border); color: var(--text); cursor: pointer;
+    border-radius: 999px; width: 34px; height: 34px; font-size: 1rem;
+  }
+  #card .gl { font-size: 1.08rem; margin-top: 8px; }
+  #card .def { color: var(--text-muted); font-size: 0.92rem; margin-top: 6px; line-height: 1.5; }
+  #card .meta { margin-top: 12px; }
+  /* quiz */
+  #quiz .q { font-size: 1.05rem; margin: 4px 0 14px; }
+  #quiz .q b { font-size: 1.3rem; }
+  #quiz .opts { display: flex; flex-direction: column; gap: 9px; }
+  #quiz .opt {
+    text-align: left; font-size: 0.98rem; padding: 12px 14px; border-radius: 11px;
+    border: 1.5px solid var(--border); background: var(--surface-solid); color: var(--text); cursor: pointer;
+    font-family: inherit;
+  }
+  #quiz .opt:hover { border-color: var(--accent); }
+  #quiz .opt.nope { opacity: 0.45; text-decoration: line-through; pointer-events: none; }
+  #quiz .opt.yes { border-color: var(--good); background: color-mix(in oklab, var(--good) 14%, var(--surface-solid)); }
+  #quiz .streak { font-size: 0.8rem; color: var(--gold); font-weight: 700; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+  .dialog.shake { animation: shake 0.3s; }
+  /* contribute */
+  #contrib label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin: 12px 0 5px; }
+  #contrib .note { font-size: 0.82rem; margin-top: 10px; padding: 9px 12px; border-radius: 9px; background: var(--border); color: var(--text-muted); }
+  #contrib .note.warn { color: var(--danger); }
+  #contrib .note.good { color: var(--good); }
+  /* pause + finale */
+  #pause .keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 0.88rem; margin: 14px 0; }
+  #pause .keys kbd { background: var(--border); border-radius: 5px; padding: 1px 8px; font-family: inherit; font-size: 0.8rem; font-weight: 700; text-align: center; }
+  #finale { text-align: center; }
+  #finale h2 { font-size: 1.5rem; }
+  #finale .big { font-size: 2.6rem; margin: 8px 0; }
+  #finale .stats { display: flex; justify-content: center; gap: 26px; margin: 16px 0; }
+  #finale .stats div { text-align: center; }
+  #finale .stats b { display: block; font-size: 1.5rem; color: var(--gold); }
+  #finale .stats span { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ---------- toast ---------- */
+  #toast {
+    position: fixed; top: 64px; left: 50%; transform: translateX(-50%) translateY(-8px);
+    z-index: 50; padding: 10px 18px; font-size: 0.9rem; font-weight: 600;
+    opacity: 0; transition: opacity 0.25s, transform 0.25s; pointer-events: none;
+    max-width: 88vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast .gold { color: var(--gold); }
+
+  /* ---------- touch controls ---------- */
+  #joy {
+    position: fixed; z-index: 25; bottom: 86px; left: 22px; width: 116px; height: 116px;
+    border-radius: 50%; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.22);
+    display: none;
+  }
+  #joy .nub {
+    position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px;
+    border-radius: 50%; background: rgba(255,255,255,0.28);
+  }
+  #tbtns { position: fixed; z-index: 25; bottom: 86px; right: 18px; display: none; flex-direction: column; gap: 12px; }
+  #tbtns button {
+    width: 58px; height: 58px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1); color: #fff; font-size: 0.78rem; font-weight: 700;
+  }
+  body.touch #joy { display: block; }
+  body.touch #tbtns { display: flex; }
+  body.touch #cross { display: none; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<div id="boot">
+  <div class="spinner"></div>
+  <p id="boot-msg">Waking the isles…</p>
+</div>
+
+<div id="title" class="hidden">
+  <h1>The Speaking Isles</h1>
+  <p class="tagline" id="title-project">an island grown from your dictionary</p>
+  <div class="story" id="story-text"></div>
+  <div class="dots" id="story-dots"></div>
+  <div class="btn-row">
+    <button class="linkish hidden" id="btn-back">‹ back</button>
+    <button class="big" id="btn-next">Next</button>
+    <button class="linkish" id="btn-skip">skip the tale</button>
+  </div>
+  <div class="hint" id="title-hint"></div>
+</div>
+
+<div id="hud" class="hidden">
+  <div id="banner" class="panel">
+    <div class="rname" id="banner-name">The Speaking Isles</div>
+    <div class="rbar"><i id="banner-bar"></i></div>
+    <div class="rsub" id="banner-sub"></div>
+  </div>
+  <div id="compassbar" class="panel"><span class="arrow" id="compass-arrow">➤</span><span id="compass-label">The Great Beacon</span></div>
+  <div id="stats" class="panel">
+    <span class="lum">✦ <span id="stat-lumens">0</span> lumens</span>
+    <span class="wds"><span id="stat-words">0</span> / <span id="stat-total">0</span> words learned</span>
+  </div>
+  <div id="cross"></div>
+  <div id="prompt" class="panel hidden"></div>
+  <div id="modebadge" class="panel hidden">⛏ BUILD MODE</div>
+  <div id="hotbar" class="panel hidden"></div>
+</div>
+
+<div id="echo" class="panel hidden">
+  <div class="orb"></div>
+  <div>
+    <div class="who">Echo</div>
+    <div class="txt" id="echo-text"></div>
+    <div class="more" id="echo-more">tap to continue</div>
+  </div>
+</div>
+
+<div id="card-overlay" class="overlay hidden">
+  <div id="card" class="dialog panel">
+    <div class="head">
+      <span class="hw" id="card-hw"></span>
+      <button class="listen hidden" id="card-listen" title="Listen">▶</button>
+    </div>
+    <div class="gl" id="card-gloss"></div>
+    <div class="def muted" id="card-def"></div>
+    <div class="meta" id="card-meta"></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="card-open">Open in dictionary</button>
+      <button class="btn ghost" id="card-leave">Leave it</button>
+      <button class="btn primary" id="card-learn">Learn this word ✦</button>
+    </div>
+  </div>
+</div>
+
+<div id="quiz-overlay" class="overlay hidden">
+  <div id="quiz" class="dialog panel">
+    <div class="streak" id="quiz-streak"></div>
+    <div class="q" id="quiz-q"></div>
+    <div class="opts" id="quiz-opts"></div>
+    <div class="btn-row"><button class="btn ghost" id="quiz-flee">Not yet</button></div>
+  </div>
+</div>
+
+<div id="contrib-overlay" class="overlay hidden">
+  <div id="contrib" class="dialog panel">
+    <h2 id="contrib-title"></h2>
+    <p class="sub" id="contrib-sub"></p>
+    <div id="contrib-body"></div>
+    <div class="note hidden" id="contrib-note"></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="contrib-cancel">Walk away</button>
+      <button class="btn primary" id="contrib-save"></button>
+    </div>
+  </div>
+</div>
+
+<div id="pause-overlay" class="overlay hidden">
+  <div id="pause" class="dialog panel">
+    <h2>The Speaking Isles</h2>
+    <p class="sub" id="pause-progress"></p>
+    <div class="keys">
+      <kbd>W A S D</kbd><span>walk &nbsp;·&nbsp; drag the world to look around</span>
+      <kbd>Space</kbd><span>jump (again in water to swim up)</span>
+      <kbd>E</kbd><span>touch a word-light, shrine or beacon</span>
+      <kbd>B</kbd><span>build mode on/off</span>
+      <kbd>Click</kbd><span>build mode: break block · <b>right-click / ⇧click</b>: place</span>
+      <kbd>1–9</kbd><span>choose a block</span>
+      <kbd>Esc</kbd><span>this menu</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" id="pause-sound">Sound: on</button>
+      <button class="btn ghost" id="pause-reset">Restart journey</button>
+      <button class="btn primary" id="pause-close">Keep exploring</button>
+    </div>
+  </div>
+</div>
+
+<div id="finale-overlay" class="overlay hidden">
+  <div id="finale" class="dialog panel">
+    <div class="big">🌅</div>
+    <h2>The Beacon speaks again</h2>
+    <p class="sub" id="finale-text"></p>
+    <div class="stats">
+      <div><b id="fin-words">0</b><span>words learned</span></div>
+      <div><b id="fin-isles">0</b><span>isles restored</span></div>
+      <div><b id="fin-given">0</b><span>gifts to the dictionary</span></div>
+    </div>
+    <div class="btn-row" style="justify-content:center">
+      <button class="btn primary" id="finale-close">Keep exploring the Isles</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="panel"></div>
+
+<div id="joy"><div class="nub" id="joy-nub"></div></div>
+<div id="tbtns">
+  <button id="tb-build">⛏</button>
+  <button id="tb-act">✦</button>
+  <button id="tb-jump">⤒</button>
+</div>
+<script>
+'use strict';
+/* ============================================================================
+ * The Speaking Isles — a 3D word-world for FW Lite.
+ *
+ * Everything here is hand-rolled and self-contained (WebGL1 + WebAudio, no
+ * libraries, no network): the plugin sandbox is offline by design.
+ * Sections: core utils · dictionary data · world generation · renderer ·
+ * player & input · gameplay (word-lights, wellsprings, building) · UI shell.
+ * ==========================================================================*/
+
+function $(id) { return document.getElementById(id); }
+function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+function lerp(a, b, t) { return a + (b - a) * t; }
+function smoothstep(t) { return t * t * (3 - 2 * t); }
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c];
+  });
+}
+function uuid() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+  });
+}
+function shuffled(list, rand) {
+  var a = list.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor((rand ? rand() : Math.random()) * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// Deterministic per-project world: seed from a string (project code).
+function hashString(str) {
+  var h = 2166136261 >>> 0;
+  for (var i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function mulberry32(seed) {
+  var a = seed >>> 0;
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// 2D value noise + fbm, seeded, for the island heightmap.
+function makeNoise2D(seed) {
+  function hash2(x, y) {
+    var h = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(seed | 0, 2246822519);
+    h = Math.imul(h ^ h >>> 13, 1274126177);
+    return ((h ^ h >>> 16) >>> 0) / 4294967296;
+  }
+  function noise(x, y) {
+    var xi = Math.floor(x), yi = Math.floor(y);
+    var xf = x - xi, yf = y - yi;
+    var u = smoothstep(xf), v = smoothstep(yf);
+    var a = hash2(xi, yi), b = hash2(xi + 1, yi), c = hash2(xi, yi + 1), d = hash2(xi + 1, yi + 1);
+    return lerp(lerp(a, b, u), lerp(c, d, u), v);
+  }
+  noise.fbm = function (x, y, octaves) {
+    var total = 0, amp = 1, freq = 1, max = 0;
+    for (var i = 0; i < octaves; i++) {
+      total += noise(x * freq, y * freq) * amp;
+      max += amp;
+      amp *= 0.5; freq *= 2.03;
+    }
+    return total / max;
+  };
+  return noise;
+}
+
+/* ---------------------------------------------------------------------------
+ * Sound: tiny generative WebAudio kit (context starts on first user gesture).
+ * -------------------------------------------------------------------------*/
+var Sound = (function () {
+  var ctx = null, master = null, padGain = null;
+  var muted = false;
+
+  function ensure() {
+    if (ctx || muted) return !!ctx;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return false;
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0.5;
+    master.connect(ctx.destination);
+    startAmbience();
+    return true;
+  }
+  function resume() { if (ctx && ctx.state === 'suspended') void ctx.resume(); }
+
+  // Quiet wind: filtered noise, slowly wandering.
+  function startAmbience() {
+    var len = ctx.sampleRate * 2;
+    var buffer = ctx.createBuffer(1, len, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    var src = ctx.createBufferSource();
+    src.buffer = buffer; src.loop = true;
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass'; filter.frequency.value = 420; filter.Q.value = 0.4;
+    padGain = ctx.createGain();
+    padGain.gain.value = 0.028;
+    var lfo = ctx.createOscillator(), lfoGain = ctx.createGain();
+    lfo.frequency.value = 0.09; lfoGain.gain.value = 160;
+    lfo.connect(lfoGain); lfoGain.connect(filter.frequency); lfo.start();
+    src.connect(filter); filter.connect(padGain); padGain.connect(master);
+    src.start();
+  }
+
+  function tone(freq, dur, opts) {
+    if (!ensure()) return;
+    opts = opts || {};
+    var osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.type = opts.type || 'sine';
+    osc.frequency.value = freq;
+    var t0 = ctx.currentTime + (opts.delay || 0);
+    var vol = opts.vol || 0.12;
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    if (opts.slide) osc.frequency.exponentialRampToValueAtTime(opts.slide, t0 + dur);
+    osc.connect(gain); gain.connect(master);
+    osc.start(t0); osc.stop(t0 + dur + 0.05);
+  }
+
+  var PENT = [0, 3, 5, 7, 10, 12, 15, 17];
+  function notes(base, steps, gap, dur, type, vol) {
+    steps.forEach(function (s, i) {
+      tone(base * Math.pow(2, PENT[s % PENT.length] / 12), dur, {delay: i * gap, type: type || 'sine', vol: vol || 0.1});
+    });
+  }
+
+  return {
+    poke: function () { ensure(); resume(); },
+    setMuted: function (m) {
+      muted = m;
+      if (master) master.gain.value = m ? 0 : 0.5;
+    },
+    get muted() { return muted; },
+    click: function () { tone(660, 0.06, {type: 'triangle', vol: 0.05}); },
+    hop: function () { tone(300, 0.1, {type: 'sine', vol: 0.045, slide: 420}); },
+    splash: function () { tone(200, 0.25, {type: 'sine', vol: 0.06, slide: 90}); },
+    place: function () { tone(340, 0.07, {type: 'square', vol: 0.035, slide: 240}); },
+    dig: function () { tone(160, 0.09, {type: 'square', vol: 0.045, slide: 90}); },
+    open: function () { notes(440, [0, 2], 0.07, 0.22, 'sine', 0.08); },
+    good: function () { notes(523, [0, 2, 4], 0.09, 0.3, 'sine', 0.1); },
+    bad: function () { tone(220, 0.22, {type: 'triangle', vol: 0.06, slide: 180}); },
+    collect: function () { notes(523, [0, 3, 5, 7], 0.08, 0.5, 'sine', 0.11); },
+    gift: function () { notes(392, [0, 4, 7, 4, 9], 0.11, 0.6, 'triangle', 0.09); },
+    restore: function () { notes(392, [0, 2, 4, 5, 7], 0.16, 1.1, 'sine', 0.12); },
+    beacon: function () { notes(262, [0, 4, 7, 9, 12, 14, 16], 0.19, 1.6, 'sine', 0.13); },
+  };
+})();
+/* ---------------------------------------------------------------------------
+ * Dictionary data: load entries, writing systems and semantic domains, then
+ * shape them into the isles — one region per well-populated top-level domain.
+ * -------------------------------------------------------------------------*/
+var MAX_LOADED_ENTRIES = 3000;
+
+// Biome flavors keyed by top-level semantic-domain code (SIL framework 1-9).
+var BIOMES = {
+  '1': {kind: 'meadow',   grass: [0.36, 0.62, 0.30], accent: [0.55, 0.80, 0.95], label: 'meadows under a wide sky'},
+  '2': {kind: 'orchard',  grass: [0.40, 0.60, 0.28], accent: [0.90, 0.55, 0.60], label: 'orchards where people lived'},
+  '3': {kind: 'library',  grass: [0.42, 0.56, 0.34], accent: [0.72, 0.62, 0.90], label: 'ruins of the old library'},
+  '4': {kind: 'village',  grass: [0.44, 0.62, 0.30], accent: [0.92, 0.72, 0.42], label: 'a village of gathering-fires'},
+  '5': {kind: 'hearth',   grass: [0.47, 0.63, 0.28], accent: [0.95, 0.80, 0.50], label: 'hearth-fields and garden rows'},
+  '6': {kind: 'quarry',   grass: [0.45, 0.55, 0.32], accent: [0.75, 0.70, 0.62], label: 'the makers’ quarry'},
+  '7': {kind: 'cliffs',   grass: [0.38, 0.55, 0.33], accent: [0.60, 0.65, 0.72], label: 'wind-carved cliffs'},
+  '8': {kind: 'crystal',  grass: [0.34, 0.58, 0.40], accent: [0.45, 0.90, 0.85], label: 'the crystal glade'},
+  '9': {kind: 'monolith', grass: [0.40, 0.58, 0.36], accent: [0.55, 0.70, 0.95], label: 'the grammar monoliths'},
+  wild: {kind: 'mist',    grass: [0.38, 0.56, 0.38], accent: [0.80, 0.70, 0.95], label: 'mist-wrapped wilds'},
+};
+var WILD_NAMES = ['The Drift', 'The Quiet Meadow', 'The Far Shore', 'The Sleeping Hollow'];
+
+var Dict = {
+  project: null,
+  vernWs: 'en', analysisWsIds: ['en'], audioWsIds: [],
+  vernName: '', writeCapable: false,
+  entries: [], byId: new Map(),
+  domains: [], domainByCode: new Map(),
+  regions: [],  // {name, biome, domain, topCode, entries[], needsExample[], glossPool[]}
+  glossPool: [],
+};
+
+function firstAnalysisText(multi) { return fwlite.firstValue(multi, Dict.analysisWsIds); }
+
+function entryGloss(entry) {
+  var senses = entry.senses || [];
+  for (var i = 0; i < senses.length; i++) {
+    var g = firstAnalysisText(senses[i].gloss);
+    if (g) return g;
+  }
+  for (var j = 0; j < senses.length; j++) {
+    var d = firstAnalysisText(senses[j].definition);
+    if (d) return d;
+  }
+  return '';
+}
+function entryDefinition(entry) {
+  var senses = entry.senses || [];
+  for (var i = 0; i < senses.length; i++) {
+    var d = firstAnalysisText(senses[i].definition);
+    if (d) return d;
+  }
+  return '';
+}
+function entryPartOfSpeech(entry) {
+  var senses = entry.senses || [];
+  for (var i = 0; i < senses.length; i++) {
+    var pos = senses[i].partOfSpeech;
+    if (pos && pos.name) {
+      var name = fwlite.firstValue(pos.name, Dict.analysisWsIds);
+      if (name) return name;
+    }
+  }
+  return '';
+}
+function entryTopDomainCode(entry) {
+  var senses = entry.senses || [];
+  for (var i = 0; i < senses.length; i++) {
+    var domains = senses[i].semanticDomains || [];
+    for (var j = 0; j < domains.length; j++) {
+      var code = domains[j].code;
+      if (code) return String(code).split('.')[0];
+    }
+  }
+  return null;
+}
+// The audio-writing-system value on an entry form is a media reference getMedia understands.
+function entryAudioRef(entry) {
+  for (var i = 0; i < Dict.audioWsIds.length; i++) {
+    var ws = Dict.audioWsIds[i];
+    var v = (entry.citationForm && entry.citationForm[ws]) || (entry.lexemeForm && entry.lexemeForm[ws]);
+    if (v) return v;
+  }
+  return null;
+}
+function senseNeedingExample(entry) {
+  var senses = entry.senses || [];
+  for (var i = 0; i < senses.length; i++) {
+    var s = senses[i];
+    if ((s.exampleSentences || []).length === 0 && (firstAnalysisText(s.gloss) || firstAnalysisText(s.definition))) return s;
+  }
+  return null;
+}
+function domainName(domain) {
+  return fwlite.firstValue(domain.name, Dict.analysisWsIds) || ('Domain ' + (domain.code || ''));
+}
+
+function loadDictionary() {
+  return fwlite.ready.then(function () {
+    Dict.project = fwlite.project;
+    Dict.writeCapable = fwlite.permissions.indexOf('edit') >= 0;
+    return Promise.all([fwlite.getWritingSystems(), fwlite.getSemanticDomains()]);
+  }).then(function (results) {
+    var ws = results[0] || {};
+    var vernacular = ws.vernacular || [], analysis = ws.analysis || [];
+    var vern = vernacular.filter(function (w) { return !w.isAudio; })[0];
+    Dict.vernWs = vern ? vern.wsId : (vernacular[0] ? vernacular[0].wsId : 'en');
+    Dict.vernName = vern ? (vern.name || vern.wsId) : '';
+    Dict.audioWsIds = vernacular.filter(function (w) { return w.isAudio; }).map(function (w) { return w.wsId; });
+    Dict.analysisWsIds = analysis.filter(function (w) { return !w.isAudio; }).map(function (w) { return w.wsId; });
+    if (!Dict.analysisWsIds.length) Dict.analysisWsIds = ['en'];
+
+    Dict.domains = results[1] || [];
+    Dict.domains.forEach(function (d) { if (d.code) Dict.domainByCode.set(String(d.code), d); });
+
+    var all = [];
+    function page(offset) {
+      return fwlite.getEntries({limit: 1000, offset: offset, sort: {ascending: true}}).then(function (batch) {
+        all = all.concat(batch);
+        if (batch.length < 1000 || all.length >= MAX_LOADED_ENTRIES) return all;
+        return page(offset + batch.length);
+      });
+    }
+    return page(0);
+  }).then(function (entries) {
+    Dict.entries = entries.filter(function (e) { return fwlite.headword(e); });
+    Dict.entries.forEach(function (e) { Dict.byId.set(e.id, e); });
+    Dict.glossPool = [];
+    Dict.entries.forEach(function (e) {
+      var g = entryGloss(e);
+      if (g) Dict.glossPool.push(g);
+    });
+    buildRegions();
+    return Dict;
+  });
+}
+
+function buildRegions() {
+  var groups = new Map();
+  var drifting = [];
+  Dict.entries.forEach(function (entry) {
+    var top = entryTopDomainCode(entry);
+    if (top && BIOMES[top]) {
+      if (!groups.has(top)) groups.set(top, []);
+      groups.get(top).push(entry);
+    } else {
+      drifting.push(entry);
+    }
+  });
+
+  var ranked = Array.from(groups.entries()).sort(function (a, b) { return b[1].length - a[1].length; });
+  var regions = [];
+  ranked.slice(0, 7).forEach(function (pair) {
+    var topCode = pair[0];
+    var domain = Dict.domainByCode.get(topCode) || null;
+    regions.push(makeRegion(domain ? domainName(domain) : ('Domain ' + topCode), BIOMES[topCode], domain, topCode, pair[1]));
+  });
+  ranked.slice(7).forEach(function (pair) { drifting = drifting.concat(pair[1]); });
+
+  if (drifting.length || regions.length === 0) {
+    regions.push(makeRegion(WILD_NAMES[0], BIOMES.wild, null, null, drifting));
+  }
+  var wildIndex = 1;
+  while (regions.length < 4) {
+    regions.push(makeRegion(WILD_NAMES[wildIndex++ % WILD_NAMES.length], BIOMES.wild, null, null, []));
+  }
+  regions.forEach(function (region, index) {
+    region.index = index;
+    region.needsExample = region.entries.filter(senseNeedingExample);
+    region.target = region.entries.length ? clamp(Math.ceil(region.entries.length * 0.4), 2, 10) : 0;
+  });
+  Dict.regions = regions;
+}
+
+function makeRegion(name, biome, domain, topCode, entries) {
+  return {name: name, biome: biome, domain: domain, topCode: topCode, entries: entries, needsExample: [], target: 0, index: 0};
+}
+/* ---------------------------------------------------------------------------
+ * The world: a 256×256×64 voxel island, generated deterministically from the
+ * project code, carved into radial region sectors — one per dictionary region.
+ * -------------------------------------------------------------------------*/
+var WORLD = 256, HEIGHT = 64, SEA = 13;
+var CHUNK = 16, CHUNKS = WORLD / CHUNK;
+var CX = WORLD / 2, CZ = WORLD / 2;
+
+var B = {
+  AIR: 0, GRASS: 1, DIRT: 2, STONE: 3, SAND: 4, WOOD: 5, LEAVES: 6, ROCK: 7,
+  CRYSTAL: 8, RUIN: 9, MONOLITH: 10, SHROOM_STEM: 11, SHROOM_CAP: 12,
+  PLANKS: 13, STONEBRICK: 14, LANTERN: 15, SONGSTONE: 16, BEACON: 17, PATH: 18,
+};
+// [r, g, b, glow] — grass/leaves get re-tinted per region biome at mesh time.
+var BLOCK_STYLE = {};
+BLOCK_STYLE[B.GRASS] = [0.42, 0.62, 0.30, 0];
+BLOCK_STYLE[B.DIRT] = [0.47, 0.35, 0.24, 0];
+BLOCK_STYLE[B.STONE] = [0.52, 0.53, 0.56, 0];
+BLOCK_STYLE[B.SAND] = [0.83, 0.77, 0.58, 0];
+BLOCK_STYLE[B.WOOD] = [0.44, 0.31, 0.19, 0];
+BLOCK_STYLE[B.LEAVES] = [0.32, 0.54, 0.26, 0];
+BLOCK_STYLE[B.ROCK] = [0.45, 0.46, 0.50, 0];
+BLOCK_STYLE[B.CRYSTAL] = [0.55, 0.95, 0.92, 0.75];
+BLOCK_STYLE[B.RUIN] = [0.62, 0.58, 0.50, 0];
+BLOCK_STYLE[B.MONOLITH] = [0.30, 0.34, 0.48, 0];
+BLOCK_STYLE[B.SHROOM_STEM] = [0.85, 0.82, 0.74, 0];
+BLOCK_STYLE[B.SHROOM_CAP] = [0.68, 0.40, 0.75, 0.12];
+BLOCK_STYLE[B.PLANKS] = [0.62, 0.47, 0.30, 0];
+BLOCK_STYLE[B.STONEBRICK] = [0.58, 0.60, 0.64, 0];
+BLOCK_STYLE[B.LANTERN] = [1.0, 0.83, 0.45, 0.9];
+BLOCK_STYLE[B.SONGSTONE] = [0.45, 0.88, 0.80, 0.8];
+BLOCK_STYLE[B.BEACON] = [1.0, 0.95, 0.75, 1.0];
+BLOCK_STYLE[B.PATH] = [0.60, 0.52, 0.38, 0];
+
+var World = {
+  blocks: new Uint8Array(WORLD * WORLD * HEIGHT),
+  heights: new Uint8Array(WORLD * WORLD),
+  regionMap: new Uint8Array(WORLD * WORLD), // region index, 254 = hub, 255 = open sea
+  protected: new Set(),
+  interactables: [],   // {type:'stone'|'well'|'beacon', x, y, z, region, data}
+  seed: 1,
+  spawn: {x: CX + 0.5, y: 40, z: CZ + 20.5},
+  beacon: {x: CX, y: 0, z: CZ, lit: false},
+};
+
+function blockIndex(x, y, z) { return ((x << 8) | z) << 6 | y; }
+function inWorld(x, y, z) { return x >= 0 && x < WORLD && z >= 0 && z < WORLD && y >= 0 && y < HEIGHT; }
+function getBlock(x, y, z) { return inWorld(x, y, z) ? World.blocks[blockIndex(x, y, z)] : (y < 0 ? B.STONE : B.AIR); }
+function setBlock(x, y, z, type) { if (inWorld(x, y, z)) World.blocks[blockIndex(x, y, z)] = type; }
+function isSolid(x, y, z) { return getBlock(x, y, z) !== B.AIR; }
+function columnRegion(x, z) {
+  if (x < 0 || x >= WORLD || z < 0 || z >= WORLD) return 255;
+  return World.regionMap[(x << 8) | z];
+}
+function surfaceY(x, z) {
+  for (var y = HEIGHT - 1; y > 0; y--) {
+    if (getBlock(x, y, z) !== B.AIR) return y;
+  }
+  return 0;
+}
+
+function generateWorld(seedText, regions) {
+  World.seed = hashString(seedText || 'speaking-isles');
+  var noise = makeNoise2D(World.seed);
+  var rand = mulberry32(World.seed ^ 0x9e3779b9);
+  var regionCount = regions.length;
+  var angleOffset = rand() * Math.PI * 2;
+  World.regionCount = regionCount;
+  World.angleOffset = angleOffset;
+  var blocks = World.blocks;
+  blocks.fill(0);
+  World.protected.clear();
+  World.interactables = [];
+
+  var HUB_R = 17;
+  for (var x = 0; x < WORLD; x++) {
+    for (var z = 0; z < WORLD; z++) {
+      var dx = x - CX + 0.5, dz = z - CZ + 0.5;
+      var dist = Math.sqrt(dx * dx + dz * dz);
+      var dn = dist / (WORLD / 2);
+      // Radial region sectors with a noisy boundary so borders feel organic.
+      var angle = Math.atan2(dz, dx) + angleOffset + (noise.fbm(x * 0.02 + 40, z * 0.02, 2) - 0.5) * 0.55;
+      var sector = ((Math.floor(angle / (Math.PI * 2) * regionCount) % regionCount) + regionCount) % regionCount;
+      var region = regions[sector];
+
+      var island = clamp(1.18 - 1.45 * Math.pow(dn, 1.35), 0, 1);
+      island *= 0.82 + 0.36 * noise.fbm(x * 0.008 + 7, z * 0.008 + 3, 3);
+      var base = noise.fbm(x * 0.016, z * 0.016, 4);
+      var h = SEA - 7 + island * (7 + base * 21);
+      if (region.biome.kind === 'cliffs') h += island * 6 * noise.fbm(x * 0.05, z * 0.05, 2);
+      if (region.biome.kind === 'quarry') h = SEA - 7 + island * (7 + Math.round(base * 7) * 3);
+      if (dist < HUB_R + 6) h = lerp(SEA + 4, h, smoothstep(clamp((dist - HUB_R) / 6, 0, 1)));
+      var height = clamp(Math.round(h), 1, HEIGHT - 12);
+
+      var colRegion = dist < HUB_R ? 254 : (height <= SEA - 2 ? 255 : sector);
+      World.regionMap[(x << 8) | z] = colRegion;
+      World.heights[(x << 8) | z] = height;
+
+      var sandy = height <= SEA + 1;
+      for (var y = 0; y <= height; y++) {
+        var type = B.STONE;
+        if (y === height) type = sandy ? B.SAND : B.GRASS;
+        else if (y >= height - 3) type = sandy ? B.SAND : B.DIRT;
+        blocks[blockIndex(x, y, z)] = type;
+      }
+    }
+  }
+
+  carveHub();
+  regions.forEach(function (region, index) { decorateRegion(region, index, regionCount, angleOffset); });
+  placeSpawn(angleOffset);
+}
+
+function flatten(cx, cz, radius, top, type) {
+  for (var x = cx - radius; x <= cx + radius; x++) {
+    for (var z = cz - radius; z <= cz + radius; z++) {
+      if (!inWorld(x, 0, z)) continue;
+      for (var y = top + 1; y < HEIGHT; y++) setBlock(x, y, z, B.AIR);
+      for (var y2 = Math.max(1, top - 4); y2 < top; y2++) {
+        if (getBlock(x, y2, z) === B.AIR) setBlock(x, y2, z, B.DIRT);
+      }
+      setBlock(x, top, z, type);
+      World.heights[(x << 8) | z] = top;
+    }
+  }
+}
+
+function protect(x, y, z) { World.protected.add(blockIndex(x, y, z)); }
+function buildProtected(x, y, z, type) { setBlock(x, y, z, type); protect(x, y, z); }
+
+function carveHub() {
+  var top = SEA + 4;
+  flatten(CX, CZ, 12, top, B.PATH);
+  // Plaza rings
+  for (var x = CX - 12; x <= CX + 12; x++) {
+    for (var z = CZ - 12; z <= CZ + 12; z++) {
+      var d = Math.sqrt((x - CX + 0.5) * (x - CX + 0.5) + (z - CZ + 0.5) * (z - CZ + 0.5));
+      if (d <= 12) setBlock(x, top, z, d > 10.4 ? B.STONEBRICK : (d > 4.2 ? B.PATH : B.STONEBRICK));
+    }
+  }
+  // The Great Beacon: a stone spire, dark until lit.
+  var y0 = top + 1;
+  for (var i = 0; i < 4; i++) {
+    for (var bx = CX - 1; bx <= CX + 1; bx++) {
+      for (var bz = CZ - 1; bz <= CZ + 1; bz++) buildProtected(bx, y0 + i, bz, B.STONEBRICK);
+    }
+  }
+  for (var j = 0; j < 5; j++) buildProtected(CX, y0 + 4 + j, CZ, B.MONOLITH);
+  buildProtected(CX, y0 + 9, CZ, B.STONE); // becomes B.BEACON when lit
+  // Lantern posts at the plaza edge
+  for (var k = 0; k < 4; k++) {
+    var ang = k * Math.PI / 2 + Math.PI / 4;
+    var lx = Math.round(CX + Math.cos(ang) * 10), lz = Math.round(CZ + Math.sin(ang) * 10);
+    buildProtected(lx, top + 1, lz, B.WOOD);
+    buildProtected(lx, top + 2, lz, B.WOOD);
+    buildProtected(lx, top + 3, lz, B.LANTERN);
+  }
+  World.beacon = {x: CX, y: y0 + 9, z: CZ, lit: false};
+  World.interactables.push({type: 'beacon', x: CX + 0.5, y: y0 + 2, z: CZ + 0.5, region: -1, data: null});
+}
+
+// A deterministic surface spot inside a region's sector ring, biased away from other picks.
+function regionSpot(index, regionCount, angleOffset, rand, minR, maxR) {
+  for (var tries = 0; tries < 60; tries++) {
+    var ang = (index + 0.12 + rand() * 0.76) * Math.PI * 2 / regionCount - angleOffset;
+    var r = (minR + rand() * (maxR - minR)) * (WORLD / 2);
+    var x = Math.round(CX + Math.cos(ang) * r), z = Math.round(CZ + Math.sin(ang) * r);
+    if (!inWorld(x, 2, z)) continue;
+    if (columnRegion(x, z) !== index) continue;
+    var y = World.heights[(x << 8) | z];
+    if (y <= SEA + 1) continue;
+    return {x: x, y: y, z: z};
+  }
+  return null;
+}
+
+function decorateRegion(region, index, regionCount, angleOffset) {
+  var rand = mulberry32(World.seed ^ (index * 0x85ebca6b + 0x1234));
+  var kind = region.biome.kind;
+
+  // Scatter biome features across the sector.
+  var featureCount = 130;
+  for (var i = 0; i < featureCount; i++) {
+    var spot = regionSpot(index, regionCount, angleOffset, rand, 0.16, 0.88);
+    if (!spot) continue;
+    var x = spot.x, y = spot.y, z = spot.z;
+    if (getBlock(x, y, z) !== B.GRASS && getBlock(x, y, z) !== B.SAND) continue;
+    var roll = rand();
+    if (kind === 'meadow' || kind === 'orchard' || kind === 'village' || kind === 'hearth') {
+      if (roll < 0.55) plantTree(x, y, z, rand);
+      else if (roll < 0.62 && kind === 'village') lanternPost(x, y, z);
+      else if (roll < 0.7) setBlock(x, y + 1, z, B.ROCK);
+    } else if (kind === 'crystal') {
+      if (roll < 0.5) crystalSpike(x, y, z, rand);
+      else if (roll < 0.72) plantTree(x, y, z, rand);
+    } else if (kind === 'cliffs' || kind === 'quarry') {
+      if (roll < 0.4) boulder(x, y, z, rand);
+      else if (roll < 0.55) plantTree(x, y, z, rand);
+    } else if (kind === 'library' || kind === 'monolith') {
+      if (roll < 0.4) monolith(x, y, z, rand);
+      else if (roll < 0.6) plantTree(x, y, z, rand);
+    } else { // mist / wilds
+      if (roll < 0.45) mushroom(x, y, z, rand);
+      else if (roll < 0.7) plantTree(x, y, z, rand);
+    }
+  }
+
+  // Word-places: Echo Stones ask for sentences; the Wellspring welcomes new words.
+  if (Dict.writeCapable) {
+    var wellSpot = regionSpot(index, regionCount, angleOffset, rand, 0.3, 0.55);
+    if (wellSpot) buildWellspring(wellSpot, index);
+    var stoneCount = Math.min(3, region.needsExample.length);
+    for (var s = 0; s < stoneCount; s++) {
+      var stoneSpot = regionSpot(index, regionCount, angleOffset, rand, 0.25, 0.7);
+      if (stoneSpot) buildEchoStone(stoneSpot, index, s);
+    }
+  }
+}
+
+function plantTree(x, y, z, rand) {
+  var trunk = 3 + Math.floor(rand() * 3);
+  for (var i = 1; i <= trunk; i++) setBlock(x, y + i, z, B.WOOD);
+  var ty = y + trunk;
+  for (var lx = -2; lx <= 2; lx++) {
+    for (var lz = -2; lz <= 2; lz++) {
+      for (var ly = 0; ly <= 2; ly++) {
+        var d = Math.abs(lx) + Math.abs(lz) + ly;
+        if (d > 3 || (lx === 0 && lz === 0 && ly < 2)) continue;
+        if (rand() < 0.85 && getBlock(x + lx, ty + ly, z + lz) === B.AIR) setBlock(x + lx, ty + ly, z + lz, B.LEAVES);
+      }
+    }
+  }
+  setBlock(x, ty + 2, z, B.LEAVES);
+}
+function crystalSpike(x, y, z, rand) {
+  var h = 1 + Math.floor(rand() * 3);
+  for (var i = 1; i <= h; i++) setBlock(x, y + i, z, B.CRYSTAL);
+  if (rand() < 0.5) setBlock(x + (rand() < 0.5 ? 1 : -1), y + 1, z, B.CRYSTAL);
+}
+function boulder(x, y, z, rand) {
+  for (var bx = 0; bx <= 1; bx++) {
+    for (var bz = 0; bz <= 1; bz++) {
+      if (rand() < 0.8) setBlock(x + bx, y + 1, z + bz, B.ROCK);
+      if (rand() < 0.3) setBlock(x + bx, y + 2, z + bz, B.ROCK);
+    }
+  }
+}
+function monolith(x, y, z, rand) {
+  var h = 3 + Math.floor(rand() * 3);
+  var type = rand() < 0.5 ? B.RUIN : B.MONOLITH;
+  for (var i = 1; i <= h; i++) setBlock(x, y + i, z, type);
+  if (rand() < 0.35) setBlock(x, y + h + 1, z, B.LANTERN);
+}
+function mushroom(x, y, z, rand) {
+  var h = 2 + Math.floor(rand() * 2);
+  for (var i = 1; i <= h; i++) setBlock(x, y + i, z, B.SHROOM_STEM);
+  for (var mx = -1; mx <= 1; mx++) {
+    for (var mz = -1; mz <= 1; mz++) setBlock(x + mx, y + h + 1, z + mz, B.SHROOM_CAP);
+  }
+}
+function lanternPost(x, y, z) {
+  setBlock(x, y + 1, z, B.WOOD);
+  setBlock(x, y + 2, z, B.LANTERN);
+}
+
+// A Wellspring: a low ring of stone around a glowing songstone basin, where a
+// player gives the isles a word the dictionary has never held.
+function buildWellspring(spot, regionIndex) {
+  var top = spot.y;
+  flatten(spot.x, spot.z, 2, top, B.STONEBRICK);
+  for (var x = spot.x - 2; x <= spot.x + 2; x++) {
+    for (var z = spot.z - 2; z <= spot.z + 2; z++) protect(x, top, z);
+  }
+  buildProtected(spot.x, top + 1, spot.z, B.RUIN);
+  buildProtected(spot.x, top + 2, spot.z, B.SONGSTONE);
+  [[2, 2], [-2, 2], [2, -2], [-2, -2]].forEach(function (c) {
+    buildProtected(spot.x + c[0], top + 1, spot.z + c[1], B.RUIN);
+  });
+  World.interactables.push({type: 'well', x: spot.x + 0.5, y: top + 1.5, z: spot.z + 0.5, region: regionIndex, data: null});
+}
+
+function buildEchoStone(spot, regionIndex, slot) {
+  var top = spot.y;
+  buildProtected(spot.x, top + 1, spot.z, B.MONOLITH);
+  buildProtected(spot.x, top + 2, spot.z, B.MONOLITH);
+  buildProtected(spot.x, top + 3, spot.z, B.CRYSTAL);
+  World.interactables.push({type: 'stone', x: spot.x + 0.5, y: top + 1.5, z: spot.z + 0.5, region: regionIndex, data: {slot: slot}});
+}
+
+function placeSpawn(angleOffset) {
+  var x = CX, z = CZ + 14;
+  World.spawn = {x: x + 0.5, y: World.heights[(x << 8) | z] + 1.01, z: z + 0.5};
+}
+
+function lightBeacon() {
+  setBlock(World.beacon.x, World.beacon.y, World.beacon.z, B.BEACON);
+  World.beacon.lit = true;
+  Renderer.remeshAt(World.beacon.x, World.beacon.z);
+}
+/* ---------------------------------------------------------------------------
+ * Renderer: WebGL1, chunked voxel meshes with baked per-vertex AO and light,
+ * a procedural sky, a water plane, and additive billboards for word-lights.
+ * -------------------------------------------------------------------------*/
+var Restored = {}; // regionIndex -> true once the Hush is lifted there
+
+var VOXEL_VS = [
+  'attribute vec3 aPos;',
+  'attribute vec4 aCol;',
+  'uniform mat4 uVP;',
+  'uniform vec3 uCam;',
+  'varying vec4 vCol;',
+  'varying float vDist;',
+  'void main() {',
+  '  gl_Position = uVP * vec4(aPos, 1.0);',
+  '  vCol = aCol;',
+  '  vDist = distance(aPos, uCam);',
+  '}',
+].join('\n');
+
+var VOXEL_FS = [
+  'precision mediump float;',
+  'varying vec4 vCol;',
+  'varying float vDist;',
+  'uniform float uDay;',
+  'uniform vec3 uFogCol;',
+  'uniform vec2 uFog;',
+  'void main() {',
+  '  vec3 night = vCol.rgb * vec3(0.20, 0.24, 0.40);',
+  '  vec3 lit = mix(night, vCol.rgb, uDay);',
+  '  vec3 col = mix(lit, vCol.rgb * 1.2, vCol.a);',
+  '  float f = smoothstep(uFog.x, uFog.y, vDist);',
+  '  gl_FragColor = vec4(mix(col, uFogCol, f), 1.0);',
+  '}',
+].join('\n');
+
+var SKY_VS = [
+  'attribute vec2 aNdc;',
+  'varying vec2 vNdc;',
+  'void main() { vNdc = aNdc; gl_Position = vec4(aNdc, 0.9999, 1.0); }',
+].join('\n');
+
+var SKY_FS = [
+  'precision mediump float;',
+  'varying vec2 vNdc;',
+  'uniform vec3 uFwd, uRight, uUp;',
+  'uniform vec2 uTan;',
+  'uniform vec3 uSunDir;',
+  'uniform float uDay;',
+  'uniform vec3 uHorizon, uZenith;',
+  'float hash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 54.53))) * 43758.5453); }',
+  'void main() {',
+  '  vec3 dir = normalize(uFwd + uRight * vNdc.x * uTan.x + uUp * vNdc.y * uTan.y);',
+  '  float h = clamp(dir.y, 0.0, 1.0);',
+  '  vec3 col = mix(uHorizon, uZenith, pow(h, 0.55));',
+  '  float sun = dot(dir, uSunDir);',
+  '  col += vec3(1.0, 0.85, 0.55) * pow(clamp(sun, 0.0, 1.0), 260.0) * 1.6;',
+  '  col += vec3(1.0, 0.62, 0.30) * pow(clamp(sun, 0.0, 1.0), 8.0) * 0.24 * (1.0 - uDay);',
+  '  float moon = dot(dir, -uSunDir);',
+  '  col += vec3(0.82, 0.88, 1.0) * pow(clamp(moon, 0.0, 1.0), 700.0) * 1.1;',
+  '  if (uDay < 0.5 && dir.y > 0.02) {',
+  '    vec3 cell = floor(dir * 130.0);',
+  '    float star = step(0.9955, hash(cell));',
+  '    float tw = 0.6 + 0.4 * hash(cell + 7.0);',
+  '    col += vec3(star) * tw * (1.0 - uDay * 2.0);',
+  '  }',
+  '  gl_FragColor = vec4(col, 1.0);',
+  '}',
+].join('\n');
+
+var WATER_VS = [
+  'attribute vec3 aPos;',
+  'uniform mat4 uVP;',
+  'uniform vec3 uCam;',
+  'varying float vDist;',
+  'varying vec2 vXz;',
+  'void main() {',
+  '  gl_Position = uVP * vec4(aPos, 1.0);',
+  '  vDist = distance(aPos, uCam);',
+  '  vXz = aPos.xz;',
+  '}',
+].join('\n');
+
+var WATER_FS = [
+  'precision mediump float;',
+  'varying float vDist;',
+  'varying vec2 vXz;',
+  'uniform float uTime, uDay;',
+  'uniform vec3 uFogCol;',
+  'uniform vec2 uFog;',
+  'void main() {',
+  '  float wave = sin(vXz.x * 0.7 + uTime * 1.1) * sin(vXz.y * 0.6 - uTime * 0.9);',
+  '  vec3 day = vec3(0.16, 0.38, 0.55) + wave * 0.03;',
+  '  vec3 night = vec3(0.03, 0.07, 0.16) + wave * 0.012;',
+  '  vec3 col = mix(night, day, uDay);',
+  '  float f = smoothstep(uFog.x, uFog.y, vDist);',
+  '  gl_FragColor = vec4(mix(col, uFogCol, f), 0.62);',
+  '}',
+].join('\n');
+
+var SPRITE_VS = [
+  'attribute vec3 aCenter;',
+  'attribute vec2 aOff;',
+  'attribute vec4 aCol;',
+  'attribute float aSize;',
+  'uniform mat4 uVP;',
+  'uniform vec3 uRight, uUp;',
+  'varying vec2 vUv;',
+  'varying vec4 vCol;',
+  'void main() {',
+  '  vec3 pos = aCenter + (uRight * aOff.x + uUp * aOff.y) * aSize;',
+  '  gl_Position = uVP * vec4(pos, 1.0);',
+  '  vUv = aOff;',
+  '  vCol = aCol;',
+  '}',
+].join('\n');
+
+var SPRITE_FS = [
+  'precision mediump float;',
+  'varying vec2 vUv;',
+  'varying vec4 vCol;',
+  'void main() {',
+  '  float d = length(vUv);',
+  '  float a = smoothstep(1.0, 0.1, d) * vCol.a;',
+  '  gl_FragColor = vec4(vCol.rgb * a, a);',
+  '}',
+].join('\n');
+
+var FACES = [
+  {n: [1, 0, 0],  tu: [0, 1, 0], tv: [0, 0, 1], shade: 0.80},
+  {n: [-1, 0, 0], tu: [0, 0, 1], tv: [0, 1, 0], shade: 0.80},
+  {n: [0, 1, 0],  tu: [0, 0, 1], tv: [1, 0, 0], shade: 1.00},
+  {n: [0, -1, 0], tu: [1, 0, 0], tv: [0, 0, 1], shade: 0.55},
+  {n: [0, 0, 1],  tu: [1, 0, 0], tv: [0, 1, 0], shade: 0.72},
+  {n: [0, 0, -1], tu: [0, 1, 0], tv: [1, 0, 0], shade: 0.72},
+];
+var CORNER_SIGNS = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+
+var MAX_SPRITES = 1200;
+
+var Renderer = (function () {
+  var gl, canvas;
+  var progVoxel, progSky, progWater, progSprite;
+  var chunks = [];           // [cx][cz] -> {vbo, ibo, count, dirty}
+  var skyVbo, waterVbo, spriteVbo, spriteIbo;
+  var spriteData = new Float32Array(MAX_SPRITES * 4 * 10);
+  var spriteCount = 0;
+  var vp = new Float32Array(16);
+
+  function compile(type, src) {
+    var sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error('shader: ' + gl.getShaderInfoLog(sh));
+    return sh;
+  }
+  function program(vsSrc, fsSrc, attrs) {
+    var p = gl.createProgram();
+    gl.attachShader(p, compile(gl.VERTEX_SHADER, vsSrc));
+    gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fsSrc));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error('link: ' + gl.getProgramInfoLog(p));
+    var out = {p: p, a: {}, u: {}};
+    attrs.forEach(function (name) { out.a[name] = gl.getAttribLocation(p, name); });
+    var uniformCount = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+    for (var i = 0; i < uniformCount; i++) {
+      var info = gl.getActiveUniform(p, i);
+      out.u[info.name] = gl.getUniformLocation(p, info.name);
+    }
+    return out;
+  }
+
+  function init(canvasEl) {
+    canvas = canvasEl;
+    gl = canvas.getContext('webgl', {antialias: true, alpha: false, powerPreference: 'high-performance'});
+    if (!gl) throw new Error('WebGL is not available');
+    progVoxel = program(VOXEL_VS, VOXEL_FS, ['aPos', 'aCol']);
+    progSky = program(SKY_VS, SKY_FS, ['aNdc']);
+    progWater = program(WATER_VS, WATER_FS, ['aPos']);
+    progSprite = program(SPRITE_VS, SPRITE_FS, ['aCenter', 'aOff', 'aCol', 'aSize']);
+
+    skyVbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, skyVbo);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+
+    waterVbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, waterVbo);
+    var w = WORLD, y = SEA + 0.42;
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -w, y, -w, w * 2, y, -w, w * 2, y, w * 2,
+      -w, y, -w, w * 2, y, w * 2, -w, y, w * 2,
+    ]), gl.STATIC_DRAW);
+
+    spriteVbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, spriteVbo);
+    gl.bufferData(gl.ARRAY_BUFFER, spriteData.byteLength, gl.DYNAMIC_DRAW);
+    spriteIbo = gl.createBuffer();
+    var indices = new Uint16Array(MAX_SPRITES * 6);
+    for (var i = 0; i < MAX_SPRITES; i++) {
+      var v = i * 4, o = i * 6;
+      indices[o] = v; indices[o + 1] = v + 1; indices[o + 2] = v + 2;
+      indices[o + 3] = v; indices[o + 4] = v + 2; indices[o + 5] = v + 3;
+    }
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, spriteIbo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
+    for (var cx = 0; cx < CHUNKS; cx++) {
+      chunks[cx] = [];
+      for (var cz = 0; cz < CHUNKS; cz++) chunks[cx][cz] = {vbo: null, ibo: null, count: 0, dirty: true};
+    }
+    resize();
+  }
+
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    var wCss = canvas.clientWidth || window.innerWidth;
+    var hCss = canvas.clientHeight || window.innerHeight;
+    canvas.width = Math.max(1, Math.round(wCss * dpr));
+    canvas.height = Math.max(1, Math.round(hCss * dpr));
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+
+  /* ---- meshing ---- */
+  function voxelJitter(x, y, z) {
+    var h = Math.imul(x, 3129871) ^ Math.imul(z, 116129781) ^ Math.imul(y, 76543);
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    return 0.94 + (((h >>> 16) & 255) / 255) * 0.12;
+  }
+
+  function blockColor(type, x, y, z, faceIndex) {
+    var style = BLOCK_STYLE[type] || [1, 0, 1, 0];
+    var r = style[0], g = style[1], b = style[2];
+    var region = columnRegion(x, z);
+    var regionData = region < Dict.regions.length ? Dict.regions[region] : null;
+    if (regionData) {
+      if (type === B.GRASS && faceIndex === 2) {
+        r = regionData.biome.grass[0]; g = regionData.biome.grass[1]; b = regionData.biome.grass[2];
+      } else if (type === B.LEAVES) {
+        r = lerp(r, regionData.biome.accent[0], 0.22);
+        g = lerp(g, regionData.biome.accent[1], 0.22);
+        b = lerp(b, regionData.biome.accent[2], 0.22);
+      }
+    }
+    // The Hush: unrestored regions render grey and dim until their words return.
+    if (regionData && !Restored[region] && !style[3]) {
+      var luma = (r + g + b) / 3;
+      r = lerp(luma, r, 0.30) * 0.72;
+      g = lerp(luma, g, 0.30) * 0.72;
+      b = lerp(luma, b, 0.30) * 0.76;
+    }
+    var jitter = voxelJitter(x, y, z);
+    return [r * jitter, g * jitter, b * jitter, style[3]];
+  }
+
+  function meshChunk(cx, cz) {
+    var verts = [], indices = [];
+    var x0 = cx * CHUNK, z0 = cz * CHUNK;
+    for (var x = x0; x < x0 + CHUNK; x++) {
+      for (var z = z0; z < z0 + CHUNK; z++) {
+        for (var y = 0; y < HEIGHT; y++) {
+          var type = World.blocks[blockIndex(x, y, z)];
+          if (!type) continue;
+          for (var f = 0; f < 6; f++) {
+            var face = FACES[f];
+            var nx = x + face.n[0], ny = y + face.n[1], nz = z + face.n[2];
+            if (ny >= 0 && ny < HEIGHT && getBlock(nx, ny, nz)) continue;
+            if (ny < 0) continue;
+            var col = blockColor(type, x, y, z, f);
+            var glow = col[3];
+            var base = verts.length / 7;
+            var aos = [0, 0, 0, 0];
+            for (var c = 0; c < 4; c++) {
+              var su = CORNER_SIGNS[c][0], sv = CORNER_SIGNS[c][1];
+              var px = x + 0.5 + 0.5 * (face.n[0] + su * face.tu[0] + sv * face.tv[0]);
+              var py = y + 0.5 + 0.5 * (face.n[1] + su * face.tu[1] + sv * face.tv[1]);
+              var pz = z + 0.5 + 0.5 * (face.n[2] + su * face.tu[2] + sv * face.tv[2]);
+              var ao = 1;
+              if (!glow) {
+                var bx = x + face.n[0], by = y + face.n[1], bz = z + face.n[2];
+                var s1 = isSolid(bx + su * face.tu[0], by + su * face.tu[1], bz + su * face.tu[2]) ? 1 : 0;
+                var s2 = isSolid(bx + sv * face.tv[0], by + sv * face.tv[1], bz + sv * face.tv[2]) ? 1 : 0;
+                var cc = isSolid(bx + su * face.tu[0] + sv * face.tv[0], by + su * face.tu[1] + sv * face.tv[1], bz + su * face.tu[2] + sv * face.tv[2]) ? 1 : 0;
+                ao = (s1 && s2) ? 0.45 : 1 - 0.16 * (s1 + s2 + cc);
+              }
+              aos[c] = ao;
+              var shade = face.shade * ao;
+              verts.push(px, py, pz, col[0] * shade, col[1] * shade, col[2] * shade, glow);
+            }
+            if (aos[0] + aos[2] >= aos[1] + aos[3]) indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
+            else indices.push(base + 1, base + 2, base + 3, base + 1, base + 3, base);
+          }
+        }
+      }
+    }
+    var chunk = chunks[cx][cz];
+    if (!chunk.vbo) { chunk.vbo = gl.createBuffer(); chunk.ibo = gl.createBuffer(); }
+    gl.bindBuffer(gl.ARRAY_BUFFER, chunk.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.ibo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+    chunk.count = indices.length;
+    chunk.dirty = false;
+  }
+
+  function meshAll() {
+    for (var cx = 0; cx < CHUNKS; cx++) {
+      for (var cz = 0; cz < CHUNKS; cz++) meshChunk(cx, cz);
+    }
+  }
+
+  function remeshAt(x, z) {
+    var cx = Math.floor(x / CHUNK), cz = Math.floor(z / CHUNK);
+    for (var dx = -1; dx <= 1; dx++) {
+      for (var dz = -1; dz <= 1; dz++) {
+        var nx = cx + dx, nz = cz + dz;
+        if (nx >= 0 && nx < CHUNKS && nz >= 0 && nz < CHUNKS) {
+          // Only border edits dirty a neighbor.
+          if (dx === 0 && dz === 0) chunks[nx][nz].dirty = true;
+          else if ((dx !== 0 && (x % CHUNK === (dx < 0 ? 0 : CHUNK - 1))) || (dz !== 0 && (z % CHUNK === (dz < 0 ? 0 : CHUNK - 1)))) chunks[nx][nz].dirty = true;
+        }
+      }
+    }
+  }
+
+  function remeshRegion(regionIndex) {
+    for (var cx = 0; cx < CHUNKS; cx++) {
+      for (var cz = 0; cz < CHUNKS; cz++) {
+        var found = false;
+        for (var x = cx * CHUNK; x < (cx + 1) * CHUNK && !found; x++) {
+          for (var z = cz * CHUNK; z < (cz + 1) * CHUNK && !found; z++) {
+            if (columnRegion(x, z) === regionIndex) found = true;
+          }
+        }
+        if (found) chunks[cx][cz].dirty = true;
+      }
+    }
+  }
+
+  function processDirty(budget) {
+    var done = 0;
+    for (var cx = 0; cx < CHUNKS && done < budget; cx++) {
+      for (var cz = 0; cz < CHUNKS && done < budget; cz++) {
+        if (chunks[cx][cz].dirty) { meshChunk(cx, cz); done++; }
+      }
+    }
+  }
+
+  /* ---- matrices ---- */
+  function m4mul(out, a, b) {
+    for (var c = 0; c < 4; c++) {
+      for (var r = 0; r < 4; r++) {
+        out[c * 4 + r] = a[r] * b[c * 4] + a[4 + r] * b[c * 4 + 1] + a[8 + r] * b[c * 4 + 2] + a[12 + r] * b[c * 4 + 3];
+      }
+    }
+  }
+  var scratchP = new Float32Array(16), scratchV = new Float32Array(16);
+  function buildVP(cam, aspect) {
+    var fovY = 1.15; // ~66°
+    var f = 1 / Math.tan(fovY / 2), near = 0.1, far = 400;
+    scratchP.fill(0);
+    scratchP[0] = f / aspect; scratchP[5] = f;
+    scratchP[10] = (far + near) / (near - far); scratchP[11] = -1;
+    scratchP[14] = 2 * far * near / (near - far);
+
+    var cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+    var cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw);
+    var fwd = [-sy * cp, sp, -cy * cp];
+    var right = [cy, 0, -sy];
+    var up = [
+      right[1] * fwd[2] - right[2] * fwd[1],
+      right[2] * fwd[0] - right[0] * fwd[2],
+      right[0] * fwd[1] - right[1] * fwd[0],
+    ];
+    var e = [cam.x, cam.y, cam.z];
+    scratchV[0] = right[0]; scratchV[4] = right[1]; scratchV[8] = right[2];
+    scratchV[1] = up[0]; scratchV[5] = up[1]; scratchV[9] = up[2];
+    scratchV[2] = -fwd[0]; scratchV[6] = -fwd[1]; scratchV[10] = -fwd[2];
+    scratchV[3] = 0; scratchV[7] = 0; scratchV[11] = 0;
+    scratchV[12] = -(right[0] * e[0] + right[1] * e[1] + right[2] * e[2]);
+    scratchV[13] = -(up[0] * e[0] + up[1] * e[1] + up[2] * e[2]);
+    scratchV[14] = fwd[0] * e[0] + fwd[1] * e[1] + fwd[2] * e[2];
+    scratchV[15] = 1;
+    m4mul(vp, scratchP, scratchV);
+    return {fwd: fwd, right: right, up: up, tanY: Math.tan(fovY / 2), tanX: Math.tan(fovY / 2) * aspect};
+  }
+
+  /* ---- sprites ---- */
+  function beginSprites() { spriteCount = 0; }
+  function pushSprite(x, y, z, size, r, g, b, a) {
+    if (spriteCount >= MAX_SPRITES) return;
+    var o = spriteCount * 40;
+    for (var c = 0; c < 4; c++) {
+      var i = o + c * 10;
+      spriteData[i] = x; spriteData[i + 1] = y; spriteData[i + 2] = z;
+      spriteData[i + 3] = CORNER_SIGNS[c][0]; spriteData[i + 4] = CORNER_SIGNS[c][1];
+      spriteData[i + 5] = r; spriteData[i + 6] = g; spriteData[i + 7] = b; spriteData[i + 8] = a;
+      spriteData[i + 9] = size;
+    }
+    spriteCount++;
+  }
+
+  /* ---- frame ---- */
+  function skyColors(day, sunEl) {
+    var duskAmount = clamp(1 - Math.abs(sunEl) * 3.2, 0, 1);
+    var horizon = [
+      lerp(lerp(0.055, 0.78, day), 0.94, duskAmount * 0.55),
+      lerp(lerp(0.07, 0.85, day), 0.52, duskAmount * 0.55),
+      lerp(lerp(0.15, 0.94, day), 0.36, duskAmount * 0.55),
+    ];
+    var zenith = [lerp(0.015, 0.30, day), lerp(0.025, 0.52, day), lerp(0.07, 0.85, day)];
+    return {horizon: horizon, zenith: zenith};
+  }
+
+  function render(state) {
+    processDirty(3);
+    var aspect = canvas.width / canvas.height;
+    var basis = buildVP(state.cam, aspect);
+
+    var sunAngle = state.dayPhase * Math.PI * 2;
+    var sunDir = [Math.cos(sunAngle) * 0.45, Math.sin(sunAngle), Math.cos(sunAngle) * 0.6];
+    var sunLen = Math.sqrt(sunDir[0] * sunDir[0] + sunDir[1] * sunDir[1] + sunDir[2] * sunDir[2]);
+    sunDir = [sunDir[0] / sunLen, sunDir[1] / sunLen, sunDir[2] / sunLen];
+    var sunEl = Math.sin(sunAngle);
+    var day = clamp(sunEl * 2.4 + 0.55, 0.07, 1);
+    var colors = skyColors(day, sunEl);
+    var fogNear = lerp(38, 62, day), fogFar = lerp(80, 118, day);
+
+    gl.disable(gl.BLEND);
+    gl.disable(gl.DEPTH_TEST);
+    gl.depthMask(false);
+
+    // Sky
+    gl.useProgram(progSky.p);
+    gl.bindBuffer(gl.ARRAY_BUFFER, skyVbo);
+    gl.enableVertexAttribArray(progSky.a.aNdc);
+    gl.vertexAttribPointer(progSky.a.aNdc, 2, gl.FLOAT, false, 0, 0);
+    gl.uniform3fv(progSky.u.uFwd, basis.fwd);
+    gl.uniform3fv(progSky.u.uRight, basis.right);
+    gl.uniform3fv(progSky.u.uUp, basis.up);
+    gl.uniform2f(progSky.u.uTan, basis.tanX, basis.tanY);
+    gl.uniform3fv(progSky.u.uSunDir, sunDir);
+    gl.uniform1f(progSky.u.uDay, day);
+    gl.uniform3fv(progSky.u.uHorizon, colors.horizon);
+    gl.uniform3fv(progSky.u.uZenith, colors.zenith);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    // Voxel chunks
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthMask(true);
+    gl.clear(gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.CULL_FACE);
+    gl.useProgram(progVoxel.p);
+    gl.uniformMatrix4fv(progVoxel.u.uVP, false, vp);
+    gl.uniform3f(progVoxel.u.uCam, state.cam.x, state.cam.y, state.cam.z);
+    gl.uniform1f(progVoxel.u.uDay, day);
+    gl.uniform3fv(progVoxel.u.uFogCol, colors.horizon);
+    gl.uniform2f(progVoxel.u.uFog, fogNear, fogFar);
+    var drawn = 0;
+    for (var cx = 0; cx < CHUNKS; cx++) {
+      for (var cz = 0; cz < CHUNKS; cz++) {
+        var chunk = chunks[cx][cz];
+        if (!chunk.count) continue;
+        var mx = cx * CHUNK + 8 - state.cam.x, mz = cz * CHUNK + 8 - state.cam.z;
+        var dist = Math.sqrt(mx * mx + mz * mz);
+        if (dist > fogFar + 24) continue;
+        if (dist > 30) {
+          var dot = (mx / dist) * basis.fwd[0] + (mz / dist) * basis.fwd[2];
+          if (dot < 0.05) continue;
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, chunk.vbo);
+        gl.enableVertexAttribArray(progVoxel.a.aPos);
+        gl.vertexAttribPointer(progVoxel.a.aPos, 3, gl.FLOAT, false, 28, 0);
+        gl.enableVertexAttribArray(progVoxel.a.aCol);
+        gl.vertexAttribPointer(progVoxel.a.aCol, 4, gl.FLOAT, false, 28, 12);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.ibo);
+        gl.drawElements(gl.TRIANGLES, chunk.count, gl.UNSIGNED_SHORT, 0);
+        drawn++;
+      }
+    }
+
+    // Water
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(false);
+    gl.disable(gl.CULL_FACE);
+    gl.useProgram(progWater.p);
+    gl.bindBuffer(gl.ARRAY_BUFFER, waterVbo);
+    gl.enableVertexAttribArray(progWater.a.aPos);
+    gl.vertexAttribPointer(progWater.a.aPos, 3, gl.FLOAT, false, 0, 0);
+    gl.uniformMatrix4fv(progWater.u.uVP, false, vp);
+    gl.uniform3f(progWater.u.uCam, state.cam.x, state.cam.y, state.cam.z);
+    gl.uniform1f(progWater.u.uTime, state.time);
+    gl.uniform1f(progWater.u.uDay, day);
+    gl.uniform3fv(progWater.u.uFogCol, colors.horizon);
+    gl.uniform2f(progWater.u.uFog, fogNear, fogFar);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    // Sprites (word-lights, particles, beacon beam)
+    if (spriteCount) {
+      gl.blendFunc(gl.ONE, gl.ONE);
+      gl.useProgram(progSprite.p);
+      gl.bindBuffer(gl.ARRAY_BUFFER, spriteVbo);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, spriteData.subarray(0, spriteCount * 40));
+      gl.enableVertexAttribArray(progSprite.a.aCenter);
+      gl.vertexAttribPointer(progSprite.a.aCenter, 3, gl.FLOAT, false, 40, 0);
+      gl.enableVertexAttribArray(progSprite.a.aOff);
+      gl.vertexAttribPointer(progSprite.a.aOff, 2, gl.FLOAT, false, 40, 12);
+      gl.enableVertexAttribArray(progSprite.a.aCol);
+      gl.vertexAttribPointer(progSprite.a.aCol, 4, gl.FLOAT, false, 40, 20);
+      gl.enableVertexAttribArray(progSprite.a.aSize);
+      gl.vertexAttribPointer(progSprite.a.aSize, 1, gl.FLOAT, false, 40, 36);
+      gl.uniformMatrix4fv(progSprite.u.uVP, false, vp);
+      gl.uniform3fv(progSprite.u.uRight, basis.right);
+      gl.uniform3fv(progSprite.u.uUp, basis.up);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, spriteIbo);
+      gl.drawElements(gl.TRIANGLES, spriteCount * 6, gl.UNSIGNED_SHORT, 0);
+    }
+    gl.depthMask(true);
+    return {day: day, chunksDrawn: drawn, fwd: basis.fwd};
+  }
+
+  return {
+    init: init, resize: resize, meshAll: meshAll, remeshAt: remeshAt, remeshRegion: remeshRegion,
+    beginSprites: beginSprites, pushSprite: pushSprite, render: render,
+  };
+})();
+/* ---------------------------------------------------------------------------
+ * Player physics (AABB vs voxels) and input: keyboard + drag-look + touch.
+ * No pointer lock — the plugin sandbox doesn't allow it — so the camera is
+ * grab-and-drag, which also works on touch screens.
+ * -------------------------------------------------------------------------*/
+var Player = {
+  x: 128, y: 40, z: 148,
+  vx: 0, vy: 0, vz: 0,
+  yaw: 0, pitch: -0.12,
+  onGround: false, inWater: false,
+  EYE: 1.62, HALF: 0.32, HEIGHT: 1.8,
+};
+
+function playerCollides(px, py, pz) {
+  var x0 = Math.floor(px - Player.HALF), x1 = Math.floor(px + Player.HALF);
+  var y0 = Math.floor(py), y1 = Math.floor(py + Player.HEIGHT);
+  var z0 = Math.floor(pz - Player.HALF), z1 = Math.floor(pz + Player.HALF);
+  for (var x = x0; x <= x1; x++) {
+    for (var y = y0; y <= y1; y++) {
+      for (var z = z0; z <= z1; z++) {
+        if (isSolid(x, y, z)) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function movePlayer(dt) {
+  var input = Input.moveVector();
+  var speed = Player.inWater ? 2.7 : 4.5;
+  var cy = Math.cos(Player.yaw), sy = Math.sin(Player.yaw);
+  // forward is -Z at yaw 0 (matches the camera basis in the renderer)
+  var ax = (input.x * cy - input.y * sy) * speed;
+  var az = (-input.x * sy - input.y * cy) * speed;
+
+  var accel = Player.onGround ? 14 : 5;
+  Player.vx = lerp(Player.vx, ax, clamp(accel * dt, 0, 1));
+  Player.vz = lerp(Player.vz, az, clamp(accel * dt, 0, 1));
+
+  var wasInWater = Player.inWater;
+  Player.inWater = Player.y + 0.2 < SEA + 0.42 && !isSolid(Math.floor(Player.x), Math.floor(Player.y), Math.floor(Player.z));
+  if (Player.inWater && !wasInWater && Player.vy < -4) Sound.splash();
+
+  if (Player.inWater) {
+    Player.vy += -4.5 * dt;
+    Player.vy *= Math.pow(0.35, dt);
+    if (Input.jumpHeld) Player.vy = lerp(Player.vy, 3.2, clamp(8 * dt, 0, 1));
+  } else {
+    Player.vy += -21 * dt;
+    if (Input.consumeJump() && Player.onGround) { Player.vy = 7.6; Sound.hop(); }
+  }
+  Player.vy = clamp(Player.vy, -40, 12);
+
+  var nx = Player.x + Player.vx * dt;
+  if (!playerCollides(nx, Player.y, Player.z)) Player.x = nx; else Player.vx = 0;
+  var nz = Player.z + Player.vz * dt;
+  if (!playerCollides(Player.x, Player.y, nz)) Player.z = nz; else Player.vz = 0;
+  var ny = Player.y + Player.vy * dt;
+  Player.onGround = false;
+  if (!playerCollides(Player.x, ny, Player.z)) {
+    Player.y = ny;
+  } else {
+    if (Player.vy < 0) Player.onGround = true;
+    Player.vy = 0;
+  }
+
+  Player.x = clamp(Player.x, 2, WORLD - 2);
+  Player.z = clamp(Player.z, 2, WORLD - 2);
+  if (Player.y < -8) respawn();
+}
+
+function respawn() {
+  Player.x = World.spawn.x; Player.z = World.spawn.z;
+  Player.y = surfaceY(Math.floor(Player.x), Math.floor(Player.z)) + 1.1;
+  Player.vx = Player.vy = Player.vz = 0;
+}
+
+function eyePos() { return {x: Player.x, y: Player.y + Player.EYE, z: Player.z}; }
+function lookDir() {
+  var cp = Math.cos(Player.pitch);
+  return {
+    x: -Math.sin(Player.yaw) * cp,
+    y: Math.sin(Player.pitch),
+    z: -Math.cos(Player.yaw) * cp,
+  };
+}
+
+// Amanatides & Woo voxel traversal.
+function raycastVoxel(maxDist) {
+  var o = eyePos(), d = lookDir();
+  var x = Math.floor(o.x), y = Math.floor(o.y), z = Math.floor(o.z);
+  var stepX = d.x > 0 ? 1 : -1, stepY = d.y > 0 ? 1 : -1, stepZ = d.z > 0 ? 1 : -1;
+  var tDeltaX = Math.abs(1 / (d.x || 1e-9)), tDeltaY = Math.abs(1 / (d.y || 1e-9)), tDeltaZ = Math.abs(1 / (d.z || 1e-9));
+  var tMaxX = tDeltaX * (d.x > 0 ? (x + 1 - o.x) : (o.x - x));
+  var tMaxY = tDeltaY * (d.y > 0 ? (y + 1 - o.y) : (o.y - y));
+  var tMaxZ = tDeltaZ * (d.z > 0 ? (z + 1 - o.z) : (o.z - z));
+  var face = [0, 0, 0];
+  for (var i = 0; i < 160; i++) {
+    if (tMaxX < tMaxY && tMaxX < tMaxZ) {
+      if (tMaxX > maxDist) return null;
+      x += stepX; tMaxX += tDeltaX; face = [-stepX, 0, 0];
+    } else if (tMaxY < tMaxZ) {
+      if (tMaxY > maxDist) return null;
+      y += stepY; tMaxY += tDeltaY; face = [0, -stepY, 0];
+    } else {
+      if (tMaxZ > maxDist) return null;
+      z += stepZ; tMaxZ += tDeltaZ; face = [0, 0, -stepZ];
+    }
+    if (inWorld(x, y, z) && World.blocks[blockIndex(x, y, z)]) return {x: x, y: y, z: z, face: face};
+  }
+  return null;
+}
+
+/* ---- input ---- */
+var Input = (function () {
+  var keys = {};
+  var jumpQueued = false;
+  var joyVec = {x: 0, y: 0};
+  var api = {
+    jumpHeld: false,
+    enabled: false,
+    onAction: null,     // E / tap action button
+    onBuildToggle: null,
+    onSlot: null,
+    onClick: null,      // (isPlace)
+    onPause: null,
+  };
+
+  api.moveVector = function () {
+    var x = 0, y = 0;
+    if (keys.KeyA || keys.ArrowLeft) x -= 1;
+    if (keys.KeyD || keys.ArrowRight) x += 1;
+    if (keys.KeyW || keys.ArrowUp) y += 1;
+    if (keys.KeyS || keys.ArrowDown) y -= 1;
+    x += joyVec.x; y += joyVec.y;
+    var len = Math.sqrt(x * x + y * y);
+    if (len > 1) { x /= len; y /= len; }
+    return {x: x, y: y};
+  };
+  api.consumeJump = function () {
+    var j = jumpQueued; jumpQueued = false; return j;
+  };
+
+  function typingInField() {
+    var el = document.activeElement;
+    return el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA');
+  }
+
+  window.addEventListener('keydown', function (e) {
+    if (typingInField()) return;
+    if (e.code === 'Escape') { if (api.onPause) api.onPause(); return; }
+    if (!api.enabled) return;
+    keys[e.code] = true;
+    if (e.code === 'Space') { jumpQueued = true; api.jumpHeld = true; e.preventDefault(); }
+    if (e.code === 'KeyE' || e.code === 'Enter') { if (api.onAction) api.onAction(); }
+    if (e.code === 'KeyB') { if (api.onBuildToggle) api.onBuildToggle(); }
+    if (/^Digit[1-9]$/.test(e.code)) { if (api.onSlot) api.onSlot(+e.code.slice(5) - 1); }
+    Sound.poke();
+  });
+  window.addEventListener('keyup', function (e) {
+    keys[e.code] = false;
+    if (e.code === 'Space') api.jumpHeld = false;
+  });
+  window.addEventListener('blur', function () { keys = {}; api.jumpHeld = false; joyVec.x = joyVec.y = 0; });
+
+  // Drag-look + click-to-act on the canvas.
+  var canvas = $('gl');
+  var dragging = false, moved = 0, lastX = 0, lastY = 0, downTime = 0;
+  canvas.addEventListener('mousedown', function (e) {
+    if (!api.enabled) return;
+    dragging = true; moved = 0; lastX = e.clientX; lastY = e.clientY; downTime = performance.now();
+    canvas.classList.add('dragging');
+    Sound.poke();
+  });
+  window.addEventListener('mousemove', function (e) {
+    if (!dragging) return;
+    var dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    moved += Math.abs(dx) + Math.abs(dy);
+    Player.yaw -= dx * 0.0034;
+    Player.pitch = clamp(Player.pitch - dy * 0.0034, -1.45, 1.45);
+  });
+  window.addEventListener('mouseup', function (e) {
+    if (!dragging) return;
+    dragging = false;
+    canvas.classList.remove('dragging');
+    if (moved < 6 && performance.now() - downTime < 350 && api.onClick) {
+      api.onClick(e.button === 2 || e.shiftKey);
+    }
+  });
+  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  canvas.addEventListener('wheel', function (e) {
+    if (api.enabled && api.onSlot && Game.buildMode) {
+      e.preventDefault();
+      api.onSlot((Game.slot + (e.deltaY > 0 ? 1 : HOTBAR.length - 1)) % HOTBAR.length, true);
+    }
+  }, {passive: false});
+
+  // Touch: left pad = joystick, canvas drag = look, buttons on the right.
+  var joy = $('joy'), nub = $('joy-nub');
+  var joyTouch = null, lookTouch = null, lookLast = null, lookMoved = 0;
+  function setJoy(t) {
+    var rect = joy.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2, cyy = rect.top + rect.height / 2;
+    var dx = (t.clientX - cx) / (rect.width / 2), dy = (t.clientY - cyy) / (rect.height / 2);
+    var len = Math.sqrt(dx * dx + dy * dy);
+    if (len > 1) { dx /= len; dy /= len; }
+    joyVec.x = dx; joyVec.y = -dy;
+    nub.style.transform = 'translate(' + dx * 32 + 'px,' + dy * 32 + 'px)';
+  }
+  joy.addEventListener('touchstart', function (e) {
+    e.preventDefault();
+    joyTouch = e.changedTouches[0].identifier;
+    setJoy(e.changedTouches[0]);
+    Sound.poke();
+  }, {passive: false});
+  window.addEventListener('touchmove', function (e) {
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      var t = e.changedTouches[i];
+      if (t.identifier === joyTouch) setJoy(t);
+      else if (t.identifier === lookTouch && lookLast) {
+        var dx = t.clientX - lookLast.x, dy = t.clientY - lookLast.y;
+        lookLast = {x: t.clientX, y: t.clientY};
+        lookMoved += Math.abs(dx) + Math.abs(dy);
+        Player.yaw -= dx * 0.0042;
+        Player.pitch = clamp(Player.pitch - dy * 0.0042, -1.45, 1.45);
+      }
+    }
+  }, {passive: true});
+  window.addEventListener('touchend', function (e) {
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      var t = e.changedTouches[i];
+      if (t.identifier === joyTouch) {
+        joyTouch = null; joyVec.x = joyVec.y = 0;
+        nub.style.transform = '';
+      }
+      if (t.identifier === lookTouch) {
+        if (lookMoved < 10 && api.enabled && api.onClick) api.onClick(false);
+        lookTouch = null; lookLast = null;
+      }
+    }
+  });
+  canvas.addEventListener('touchstart', function (e) {
+    document.body.classList.add('touch');
+    if (!api.enabled) return;
+    e.preventDefault();
+    var t = e.changedTouches[0];
+    if (lookTouch === null) { lookTouch = t.identifier; lookLast = {x: t.clientX, y: t.clientY}; lookMoved = 0; }
+    Sound.poke();
+  }, {passive: false});
+
+  function bindButton(id, down, up) {
+    var el = $(id);
+    el.addEventListener('touchstart', function (e) { e.preventDefault(); down(); }, {passive: false});
+    if (up) el.addEventListener('touchend', function (e) { e.preventDefault(); up(); }, {passive: false});
+  }
+  bindButton('tb-jump', function () { jumpQueued = true; api.jumpHeld = true; Sound.poke(); }, function () { api.jumpHeld = false; });
+  bindButton('tb-act', function () { if (api.onAction) api.onAction(); });
+  bindButton('tb-build', function () { if (api.onBuildToggle) api.onBuildToggle(); });
+
+  return api;
+})();
+/* ---------------------------------------------------------------------------
+ * Gameplay: word-lights and quizzes, the Hush and its lifting, building,
+ * word-places that give real words and sentences back to the dictionary,
+ * Echo's story, and the saved journey (fwlite.storage).
+ * -------------------------------------------------------------------------*/
+var HOTBAR = [
+  {type: B.PLANKS, name: 'Planks', unlock: 3},
+  {type: B.STONEBRICK, name: 'Stone brick', unlock: 3},
+  {type: B.WOOD, name: 'Timber', unlock: 5},
+  {type: B.LEAVES, name: 'Leaves', unlock: 5},
+  {type: B.PATH, name: 'Path', unlock: 8},
+  {type: B.SAND, name: 'Sand', unlock: 8},
+  {type: B.CRYSTAL, name: 'Crystal', unlock: 12},
+  {type: B.LANTERN, name: 'Lantern', unlock: 12},
+  {type: B.SONGSTONE, name: 'Songstone', unlock: 'gift'},
+];
+var BUILD_UNLOCK_AT = 3;
+var ORBS_PER_REGION = 8;
+var SAVE_KEY = 'isles-save-v1';
+var DAY_LENGTH = 300; // seconds per full cycle
+
+var Game = {
+  started: false,
+  paused: false,
+  time: 0, dayPhase: 0.22,
+  lumens: 0, given: 0, placed: 0, streak: 0,
+  learned: new Set(),
+  edits: {},
+  slot: 0, buildMode: false, songUnlocked: false,
+  story: {},
+  saveDirty: false,
+  orbs: [],
+  totalWords: 0,
+};
+
+/* ---- persistence ---- */
+function saveGame() {
+  var data = {
+    learned: Array.from(Game.learned),
+    restored: Object.keys(Restored).map(Number),
+    edits: Game.edits,
+    lumens: Game.lumens, given: Game.given, placed: Game.placed,
+    slot: Game.slot, songUnlocked: Game.songUnlocked,
+    story: Game.story, muted: Sound.muted,
+    dayPhase: Game.dayPhase,
+    pos: {x: Player.x, y: Player.y, z: Player.z, yaw: Player.yaw, pitch: Player.pitch},
+  };
+  Game.saveDirty = false;
+  return fwlite.storage.set(SAVE_KEY, data).catch(function () { /* storage full: play on */ });
+}
+function markDirty() { Game.saveDirty = true; }
+
+function loadSave() {
+  return fwlite.storage.get(SAVE_KEY).then(function (data) { return data || null; }).catch(function () { return null; });
+}
+
+function applySave(data) {
+  if (!data) return false;
+  (data.learned || []).forEach(function (id) { if (Dict.byId.has(id)) Game.learned.add(id); });
+  (data.restored || []).forEach(function (i) { if (i >= 0 && i < Dict.regions.length) Restored[i] = true; });
+  Game.edits = data.edits || {};
+  Object.keys(Game.edits).forEach(function (key) {
+    var p = key.split(',');
+    var x = +p[0], y = +p[1], z = +p[2];
+    if (!inWorld(x, y, z) || World.protected.has(blockIndex(x, y, z))) return;
+    setBlock(x, y, z, Game.edits[key]);
+    var top = surfaceY(x, z);
+    World.heights[(x << 8) | z] = top;
+  });
+  Game.lumens = data.lumens || 0;
+  Game.given = data.given || 0;
+  Game.placed = data.placed || 0;
+  Game.slot = data.slot || 0;
+  Game.songUnlocked = !!data.songUnlocked;
+  Game.story = data.story || {};
+  Game.dayPhase = typeof data.dayPhase === 'number' ? data.dayPhase : 0.22;
+  Sound.setMuted(!!data.muted);
+  if (data.pos && typeof data.pos.x === 'number') {
+    Player.x = data.pos.x; Player.y = data.pos.y; Player.z = data.pos.z;
+    Player.yaw = data.pos.yaw || 0; Player.pitch = data.pos.pitch || 0;
+    if (playerCollides(Player.x, Player.y, Player.z)) respawn();
+  }
+  return true;
+}
+
+/* ---- word-lights ---- */
+function regionHue(region) {
+  var a = region.biome.accent;
+  return [a[0], a[1], a[2]];
+}
+
+function initOrbs() {
+  Game.orbs = [];
+  Game.totalWords = Dict.entries.length;
+  var rand = mulberry32((Math.random() * 1e9) | 0);
+  Dict.regions.forEach(function (region) {
+    region.queue = shuffled(region.entries.filter(function (e) { return !Game.learned.has(e.id); }), rand);
+    region.qi = 0;
+    for (var i = 0; i < ORBS_PER_REGION; i++) spawnOrb(region, rand);
+  });
+}
+
+function spawnOrb(region, rand) {
+  rand = rand || Math.random;
+  while (region.qi < region.queue.length && Game.learned.has(region.queue[region.qi].id)) region.qi++;
+  if (region.qi >= region.queue.length) return null;
+  var entry = region.queue[region.qi++];
+  var spot = regionSpot(region.index, World.regionCount, World.angleOffset, typeof rand === 'function' ? rand : Math.random, 0.14, 0.8);
+  if (!spot) spot = {x: CX + 4, y: World.heights[((CX + 4) << 8) | CZ], z: CZ};
+  var orb = {
+    entry: entry, region: region,
+    x: spot.x + 0.5, y: spot.y + 1.9, z: spot.z + 0.5,
+    phase: Math.random() * Math.PI * 2,
+  };
+  Game.orbs.push(orb);
+  return orb;
+}
+
+function removeOrb(orb) {
+  var i = Game.orbs.indexOf(orb);
+  if (i >= 0) Game.orbs.splice(i, 1);
+}
+
+function learnedInRegion(region) {
+  return region.entries.reduce(function (n, e) { return n + (Game.learned.has(e.id) ? 1 : 0); }, 0);
+}
+
+function collectWord(orb, silent) {
+  Game.learned.add(orb.entry.id);
+  Game.streak++;
+  var bonus = Math.min(Game.streak - 1, 5);
+  Game.lumens += 10 + bonus * 2;
+  burst(orb.x, orb.y, orb.z, regionHue(orb.region), 26, true);
+  Sound.collect();
+  removeOrb(orb);
+  spawnOrb(orb.region);
+  if (!silent) {
+    toast('✦ <b>' + escapeHtml(fwlite.headword(orb.entry)) + '</b> joins your voice' + (bonus ? ' <span class="gold">+streak</span>' : ''));
+  }
+  updateHud();
+  checkUnlocks();
+  checkRestore(orb.region);
+  if (!Game.story.firstCollect) { Game.story.firstCollect = true; echoSay(STORY.firstCollect); }
+  markDirty();
+}
+
+function checkUnlocks() {
+  var n = Game.learned.size;
+  // Teach the write-back loop early (only where the host actually allows edits),
+  // before the build hint, so contributing is part of the game from the start.
+  if (n >= 2 && Dict.writeCapable && !Game.story.placesHint) {
+    Game.story.placesHint = true;
+    echoSay(STORY.placesHint);
+  }
+  if (n >= BUILD_UNLOCK_AT && !Game.story.buildHint) {
+    Game.story.buildHint = true;
+    echoSay(STORY.buildHint);
+  }
+  renderHotbar();
+}
+
+function checkRestore(region) {
+  if (Restored[region.index] || !region.target) return;
+  if (learnedInRegion(region) < region.target) return;
+  Restored[region.index] = true;
+  Game.lumens += 40;
+  Renderer.remeshRegion(region.index);
+  Sound.restore();
+  toast('🌿 <b>' + escapeHtml(region.name) + '</b> awakens — the Hush lifts!');
+  var eye = eyePos();
+  burst(eye.x + lookDir().x * 4, eye.y + 2, eye.z + lookDir().z * 4, [1, 0.9, 0.5], 60, true);
+  if (!Game.story.firstRestore) { Game.story.firstRestore = true; echoSay(STORY.firstRestore); }
+  else echoSay(['<b>' + escapeHtml(region.name) + '</b> breathes again. ' + restoredCount() + ' of ' + liveRegionCount() + ' isles are awake.']);
+  if (canLightBeacon() && !World.beacon.lit && !Game.story.beaconReady) {
+    Game.story.beaconReady = true;
+    setTimeout(function () { echoSay(STORY.beaconReady); }, 3000);
+  }
+  updateHud();
+  markDirty();
+}
+
+function restoredCount() { return Object.keys(Restored).length; }
+function liveRegionCount() { return Dict.regions.filter(function (r) { return r.target > 0; }).length; }
+function requiredRestores() {
+  var live = liveRegionCount();
+  return live ? Math.max(1, Math.ceil(live * 0.6)) : 0;
+}
+function canLightBeacon() {
+  var required = requiredRestores();
+  if (required === 0) return Game.given > 0;
+  return restoredCount() >= required;
+}
+
+/* ---- particles ---- */
+var particles = [];
+function burst(x, y, z, color, count, sparkle) {
+  for (var i = 0; i < count; i++) {
+    var ang = Math.random() * Math.PI * 2, up = Math.random() * 0.9 + 0.1;
+    var speed = 1.5 + Math.random() * 3;
+    particles.push({
+      x: x, y: y, z: z,
+      vx: Math.cos(ang) * speed * (1 - up), vy: up * speed * 1.6, vz: Math.sin(ang) * speed * (1 - up),
+      life: 0, ttl: 0.7 + Math.random() * 0.9,
+      size: 0.1 + Math.random() * 0.16,
+      r: color[0], g: color[1], b: color[2],
+      grav: sparkle ? -1.4 : -4,
+    });
+  }
+  if (particles.length > 500) particles.splice(0, particles.length - 500);
+}
+function updateParticles(dt) {
+  for (var i = particles.length - 1; i >= 0; i--) {
+    var p = particles[i];
+    p.life += dt;
+    if (p.life > p.ttl) { particles.splice(i, 1); continue; }
+    p.vy += p.grav * dt;
+    p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+  }
+}
+
+function drawSprites() {
+  Renderer.beginSprites();
+  var eye = eyePos();
+  var t = Game.time;
+  for (var i = 0; i < Game.orbs.length; i++) {
+    var orb = Game.orbs[i];
+    var dx = orb.x - eye.x, dz = orb.z - eye.z;
+    var d2 = dx * dx + dz * dz;
+    if (d2 > 4900) continue;
+    var bob = Math.sin(t * 1.8 + orb.phase) * 0.2;
+    var hue = regionHue(orb.region);
+    var pulse = 0.82 + Math.sin(t * 3 + orb.phase) * 0.18;
+    Renderer.pushSprite(orb.x, orb.y + bob, orb.z, 1.5, hue[0] * 0.35 * pulse, hue[1] * 0.35 * pulse, hue[2] * 0.35 * pulse, 0.5);
+    Renderer.pushSprite(orb.x, orb.y + bob, orb.z, 0.42, 1, 0.96, 0.8, 0.95);
+    if (d2 < 650) {
+      var oa = t * 1.3 + orb.phase;
+      Renderer.pushSprite(orb.x + Math.cos(oa) * 0.7, orb.y + bob + Math.sin(oa * 1.7) * 0.3, orb.z + Math.sin(oa) * 0.7, 0.12, hue[0], hue[1], hue[2], 0.8);
+      Renderer.pushSprite(orb.x + Math.cos(oa + 3.1) * 0.85, orb.y + bob + Math.cos(oa * 1.3) * 0.3, orb.z + Math.sin(oa + 3.1) * 0.85, 0.09, 1, 1, 1, 0.7);
+    }
+  }
+  // Word-place pulses
+  for (var s = 0; s < World.interactables.length; s++) {
+    var it = World.interactables[s];
+    var sdx = it.x - eye.x, sdz = it.z - eye.z;
+    if (sdx * sdx + sdz * sdz > 3600) continue;
+    if (it.type === 'well') {
+      var ap = 0.5 + Math.sin(t * 2.2 + s) * 0.25;
+      Renderer.pushSprite(it.x, it.y + 1.1, it.z, 0.9, 0.3 * ap, 0.7 * ap, 0.62 * ap, 0.5);
+    } else if (it.type === 'stone' && !it.done) {
+      var sp = 0.5 + Math.sin(t * 1.6 + s * 2) * 0.3;
+      Renderer.pushSprite(it.x, it.y + 1.8, it.z, 0.7, 0.45 * sp, 0.5 * sp, 0.9 * sp, 0.5);
+    }
+  }
+  // Beacon beam
+  if (World.beacon.lit) {
+    for (var b = 0; b < 16; b++) {
+      var by = World.beacon.y + 1 + b * 2.6;
+      var flick = 0.16 + Math.sin(t * 4 + b) * 0.05;
+      Renderer.pushSprite(World.beacon.x + 0.5, by, World.beacon.z + 0.5, 2.4 - b * 0.06, 1 * flick, 0.9 * flick, 0.6 * flick, 0.55);
+    }
+    Renderer.pushSprite(World.beacon.x + 0.5, World.beacon.y + 1.2, World.beacon.z + 0.5, 3.2, 0.5, 0.42, 0.25, 0.5);
+  }
+  // Particles
+  for (var p = 0; p < particles.length; p++) {
+    var pt = particles[p];
+    var fade = 1 - pt.life / pt.ttl;
+    Renderer.pushSprite(pt.x, pt.y, pt.z, pt.size, pt.r * fade, pt.g * fade, pt.b * fade, fade);
+  }
+}
+
+/* ---- interaction targeting ---- */
+function findTarget() {
+  var eye = eyePos(), dir = lookDir();
+  var best = null, bestScore = Infinity;
+  function consider(x, y, z, range, obj) {
+    var dx = x - eye.x, dy = y - eye.y, dz = z - eye.z;
+    var dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    if (dist > range) return;
+    var dot = (dx * dir.x + dy * dir.y + dz * dir.z) / (dist || 1);
+    if (dist > 1.6 && dot < 0.35) return;
+    var score = dist - dot * 1.5;
+    if (score < bestScore) { bestScore = score; best = obj; }
+  }
+  for (var i = 0; i < Game.orbs.length; i++) {
+    var orb = Game.orbs[i];
+    consider(orb.x, orb.y, orb.z, 3.6, {kind: 'orb', orb: orb});
+  }
+  for (var s = 0; s < World.interactables.length; s++) {
+    var it = World.interactables[s];
+    consider(it.x, it.y, it.z, it.type === 'beacon' ? 5 : 3.8, {kind: it.type, it: it});
+  }
+  return best;
+}
+
+function promptTextFor(target) {
+  var key = document.body.classList.contains('touch') ? '<kbd>✦</kbd>' : '<kbd>E</kbd>';
+  if (target.kind === 'orb') return key + 'word-light: <b>' + escapeHtml(fwlite.headword(target.orb.entry)) + '</b>';
+  if (target.kind === 'stone') return key + (target.it.done ? 'a quiet Echo Stone' : 'Echo Stone — <b>a word waits for a sentence</b>');
+  if (target.kind === 'well') return key + 'Wellspring — <b>give the isles a new word</b>';
+  if (target.kind === 'beacon') {
+    if (World.beacon.lit) return key + 'The Great Beacon shines';
+    return key + (canLightBeacon() ? '<b>light the Great Beacon</b>' : 'The Great Beacon sleeps');
+  }
+  return '';
+}
+
+function activateTarget(target) {
+  if (!target) return;
+  if (target.kind === 'orb') openWordCard(target.orb);
+  else if (target.kind === 'stone') openEchoStone(target.it);
+  else if (target.kind === 'well') openWellspring(target.it);
+  else if (target.kind === 'beacon') tryBeacon();
+}
+
+/* ---- word card & quiz ---- */
+var cardOrb = null;
+var audioCache = {};
+
+function openWordCard(orb) {
+  cardOrb = orb;
+  var entry = orb.entry;
+  Sound.open();
+  $('card-hw').textContent = fwlite.headword(entry);
+  var gloss = entryGloss(entry);
+  $('card-gloss').textContent = gloss || '— no meaning recorded yet —';
+  var def = entryDefinition(entry);
+  $('card-def').textContent = def && def !== gloss ? def : '';
+  var meta = '';
+  var pos = entryPartOfSpeech(entry);
+  if (pos) meta += '<span class="chip">' + escapeHtml(pos) + '</span>';
+  meta += '<span class="chip">' + escapeHtml(orb.region.name) + '</span>';
+  $('card-meta').innerHTML = meta;
+  var audioRef = entryAudioRef(entry);
+  $('card-listen').classList.toggle('hidden', !audioRef);
+  $('card-learn').textContent = gloss && quizOptionsFor(entry).length >= 2 ? 'Learn this word ✦' : 'Take the light ✦';
+  showOverlay('card-overlay');
+}
+
+function playEntryAudio(entry) {
+  var ref = entryAudioRef(entry);
+  if (!ref) return;
+  var cached = audioCache[entry.id];
+  if (cached) { void cached.play().catch(function () {}); return; }
+  fwlite.getMedia(ref).then(function (media) {
+    if (!media) { toast('The recording is out of reach right now.'); return; }
+    var blob = new Blob([media.data], {type: media.mimeType || 'audio/wav'});
+    var audio = new Audio(URL.createObjectURL(blob));
+    audioCache[entry.id] = audio;
+    void audio.play().catch(function () {});
+  }).catch(function () { toast('The recording is out of reach right now.'); });
+}
+
+function quizOptionsFor(entry) {
+  var correct = entryGloss(entry);
+  if (!correct) return [];
+  var seen = {}; seen[correct] = true;
+  var pool = [];
+  for (var i = 0; i < Dict.glossPool.length; i++) {
+    var g = Dict.glossPool[i];
+    if (!seen[g]) { seen[g] = true; pool.push(g); }
+  }
+  return [correct].concat(shuffled(pool).slice(0, 3));
+}
+
+function startQuiz(orb) {
+  var entry = orb.entry;
+  var options = quizOptionsFor(entry);
+  if (options.length < 2) { hideOverlay('card-overlay'); collectWord(orb); return; }
+  var correct = options[0];
+  var reverse = Math.random() < 0.35 && Dict.glossPool.length >= 4;
+  hideOverlay('card-overlay');
+  $('quiz-streak').textContent = Game.streak > 1 ? '✦ streak × ' + Game.streak : '';
+  var optsEl = $('quiz-opts');
+  optsEl.innerHTML = '';
+  var answers;
+  if (reverse) {
+    // Show the meaning, pick the headword among others from the same isle (or anywhere).
+    var others = shuffled(Dict.entries.filter(function (e) { return e.id !== entry.id && fwlite.headword(e); })).slice(0, 3);
+    if (others.length < 1) reverse = false;
+    else {
+      $('quiz-q').innerHTML = 'Which word means <b>“' + escapeHtml(correct) + '”</b>?';
+      answers = shuffled([{label: fwlite.headword(entry), ok: true}].concat(others.map(function (e) {
+        return {label: fwlite.headword(e), ok: false};
+      })));
+    }
+  }
+  if (!reverse) {
+    $('quiz-q').innerHTML = 'What does <b>' + escapeHtml(fwlite.headword(entry)) + '</b> mean?';
+    answers = shuffled(options.map(function (g) { return {label: g, ok: g === correct}; }));
+  }
+  answers.forEach(function (a) {
+    var btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = a.label;
+    btn.addEventListener('click', function () {
+      if (a.ok) {
+        btn.classList.add('yes');
+        Sound.good();
+        setTimeout(function () {
+          hideOverlay('quiz-overlay');
+          collectWord(orb);
+        }, 420);
+      } else {
+        Game.streak = 0;
+        $('quiz-streak').textContent = '';
+        btn.classList.add('nope');
+        $('quiz').classList.remove('shake');
+        void $('quiz').offsetWidth;
+        $('quiz').classList.add('shake');
+        Sound.bad();
+      }
+    });
+    optsEl.appendChild(btn);
+  });
+  showOverlay('quiz-overlay');
+}
+
+/* ---- contributions (real dictionary writes, user-approved by the app) ---- */
+var contribContext = null;
+
+function openEchoStone(stone) {
+  var region = Dict.regions[stone.region];
+  var candidate = null, sense = null;
+  while (region.needsExample.length) {
+    candidate = region.needsExample[0];
+    sense = senseNeedingExample(candidate);
+    if (sense) break;
+    region.needsExample.shift();
+    candidate = null;
+  }
+  if (!candidate) {
+    stone.done = true;
+    echoSay(['This stone has heard every sentence it hoped for. It hums, content.']);
+    return;
+  }
+  Sound.open();
+  contribContext = {mode: 'sentence', entry: candidate, stone: stone, region: region};
+  $('contrib-title').textContent = 'The Echo Stone listens';
+  $('contrib-sub').innerHTML = 'The word <b>' + escapeHtml(fwlite.headword(candidate)) + '</b> (“' +
+    escapeHtml(entryGloss(candidate)) + '”) has no example sentence in the dictionary yet. Speak one, and it becomes part of the language’s record.';
+  $('contrib-body').innerHTML =
+    '<label>A sentence using “' + escapeHtml(fwlite.headword(candidate)) + '”' + (Dict.vernName ? ' (' + escapeHtml(Dict.vernName) + ')' : '') + '</label>' +
+    '<textarea class="field" id="contrib-sentence" rows="3"></textarea>' +
+    '<label>What it means (optional translation)</label>' +
+    '<input class="field" id="contrib-translation">';
+  setContribNote('');
+  $('contrib-save').textContent = 'Give the sentence';
+  showOverlay('contrib-overlay');
+  setTimeout(function () { var el = $('contrib-sentence'); if (el) el.focus(); }, 60);
+}
+
+function openWellspring(well) {
+  var region = Dict.regions[well.region];
+  Sound.open();
+  contribContext = {mode: 'word', region: region, well: well};
+  $('contrib-title').textContent = 'The Wellspring';
+  $('contrib-sub').innerHTML = 'Give the isles a word they do not know yet — it will be created in <b>' +
+    escapeHtml(Dict.project ? Dict.project.projectName : 'the dictionary') + '</b>' +
+    (region.domain ? ', in the domain <b>' + escapeHtml(domainName(region.domain)) + '</b>.' : '.');
+  $('contrib-body').innerHTML =
+    '<label>The word' + (Dict.vernName ? ' (' + escapeHtml(Dict.vernName) + ')' : '') + '</label>' +
+    '<input class="field" id="contrib-word" autocomplete="off">' +
+    '<label>Its meaning</label>' +
+    '<input class="field" id="contrib-gloss" autocomplete="off">';
+  setContribNote('');
+  $('contrib-save').textContent = 'Add the word';
+  showOverlay('contrib-overlay');
+  setTimeout(function () { var el = $('contrib-word'); if (el) el.focus(); }, 60);
+}
+
+function setContribNote(text, kind) {
+  var note = $('contrib-note');
+  note.classList.toggle('hidden', !text);
+  note.className = 'note' + (kind ? ' ' + kind : '') + (text ? '' : ' hidden');
+  note.textContent = text || '';
+}
+
+function richText(text, ws) { return {spans: [{text: text, ws: ws}]}; }
+
+function submitContribution() {
+  var context = contribContext;
+  if (!context) return;
+  var saveBtn = $('contrib-save');
+  if (context.mode === 'word') {
+    var word = ($('contrib-word').value || '').trim();
+    var gloss = ($('contrib-gloss').value || '').trim();
+    if (!word) { setContribNote('The Wellspring waits for a word.', 'warn'); return; }
+    var lexeme = {}; lexeme[Dict.vernWs] = word;
+    var glossObj = {};
+    if (gloss) glossObj[Dict.analysisWsIds[0]] = gloss;
+    var sense = {gloss: glossObj, semanticDomains: context.region.domain ? [context.region.domain] : []};
+    saveBtn.disabled = true;
+    setContribNote('Adding to the dictionary…');
+    fwlite.createEntry({lexemeForm: lexeme, senses: [sense]}).then(function (created) {
+      saveBtn.disabled = false;
+      hideOverlay('contrib-overlay');
+      acceptGift(created, context.region, context.well);
+    }).catch(function (err) { contribFailed(err, saveBtn); });
+  } else {
+    var sentence = ($('contrib-sentence').value || '').trim();
+    var translation = ($('contrib-translation').value || '').trim();
+    if (!sentence) { setContribNote('The stone waits for a sentence.', 'warn'); return; }
+    saveBtn.disabled = true;
+    setContribNote('Speaking to the dictionary…');
+    var entryId = context.entry.id;
+    fwlite.getEntry(entryId).then(function (fresh) {
+      if (!fresh) throw new Error('The entry is gone');
+      var before = JSON.parse(JSON.stringify(fresh));
+      var after = JSON.parse(JSON.stringify(fresh));
+      var sense = null;
+      for (var i = 0; i < (after.senses || []).length; i++) {
+        if ((after.senses[i].exampleSentences || []).length === 0) { sense = after.senses[i]; break; }
+      }
+      if (!sense) sense = after.senses && after.senses[0];
+      if (!sense) throw new Error('The entry has no senses to speak into');
+      var example = {id: uuid(), senseId: sense.id, sentence: {}, translations: []};
+      example.sentence[Dict.vernWs] = richText(sentence, Dict.vernWs);
+      if (translation) {
+        var tr = {};
+        tr[Dict.analysisWsIds[0]] = richText(translation, Dict.analysisWsIds[0]);
+        example.translations.push({id: uuid(), text: tr});
+      }
+      sense.exampleSentences = sense.exampleSentences || [];
+      sense.exampleSentences.push(example);
+      return fwlite.updateEntry(before, after);
+    }).then(function (updated) {
+      saveBtn.disabled = false;
+      hideOverlay('contrib-overlay');
+      Dict.byId.set(updated.id, updated);
+      var region = context.region;
+      var index = region.needsExample.indexOf(context.entry);
+      if (index >= 0) region.needsExample.splice(index, 1);
+      giftMoment(context.stone.x, context.stone.y + 2, context.stone.z);
+      toast('🗣 The sentence joins <b>' + escapeHtml(fwlite.headword(updated)) + '</b> — a true gift to the language.');
+    }).catch(function (err) { contribFailed(err, saveBtn); });
+  }
+}
+
+function contribFailed(err, saveBtn) {
+  saveBtn.disabled = false;
+  if (err && err.code === 'permission-denied') setContribNote('The change was not approved — nothing was changed.', 'warn');
+  else if (err && err.code === 'conflict') setContribNote('Someone edited this entry just now. Close and try again.', 'warn');
+  else setContribNote('The isles could not hear it: ' + (err && err.message || 'unknown error'), 'warn');
+}
+
+function acceptGift(created, region, well) {
+  Dict.entries.push(created);
+  Dict.byId.set(created.id, created);
+  Game.totalWords = Dict.entries.length;
+  var gloss = entryGloss(created);
+  if (gloss) Dict.glossPool.push(gloss);
+  region.entries.push(created);
+  if (!region.target) region.target = 2;
+  Game.learned.add(created.id); // your own word already lives in your voice
+  giftMoment(well.x, well.y + 1.5, well.z);
+  toast('🌟 <b>' + escapeHtml(fwlite.headword(created)) + '</b> is born into the dictionary!');
+  checkRestore(region);
+  updateHud();
+}
+
+function giftMoment(x, y, z) {
+  Game.given++;
+  Game.lumens += 60;
+  if (!Game.songUnlocked) {
+    Game.songUnlocked = true;
+    setTimeout(function () { echoSay(STORY.songstone); }, 1200);
+  }
+  Sound.gift();
+  burst(x, y, z, [0.5, 0.95, 0.85], 46, true);
+  renderHotbar();
+  updateHud();
+  markDirty();
+  if (!Game.story.firstGift) { Game.story.firstGift = true; echoSay(STORY.firstGift); }
+}
+
+/* ---- beacon ---- */
+function tryBeacon() {
+  if (World.beacon.lit) { echoSay(['The Beacon holds every word you gathered. It will not go out.']); return; }
+  if (!canLightBeacon()) {
+    if (requiredRestores() === 0) echoSay(STORY.beaconNeedsWords);
+    else echoSay(['The Beacon needs ' + requiredRestores() + ' isles awake — ' + restoredCount() + ' so far. Keep gathering the word-lights.']);
+    return;
+  }
+  lightBeacon();
+  Sound.beacon();
+  var b = World.beacon;
+  burst(b.x + 0.5, b.y + 2, b.z + 0.5, [1, 0.92, 0.6], 80, true);
+  Game.lumens += 150;
+  try { fwlite.notify('The Great Beacon of ' + (Dict.project ? Dict.project.projectName : 'the Isles') + ' shines again — ' + Game.learned.size + ' words strong.'); } catch (e) { /* not fatal */ }
+  $('fin-words').textContent = Game.learned.size.toLocaleString();
+  $('fin-isles').textContent = restoredCount().toLocaleString();
+  $('fin-given').textContent = Game.given.toLocaleString();
+  $('finale-text').textContent = 'Every word you learned is a lantern now. The Isles will keep growing as ' +
+    (Dict.project ? Dict.project.projectName : 'your dictionary') + ' grows — come back when new words are born.';
+  setTimeout(function () { showOverlay('finale-overlay'); }, 1400);
+  markDirty();
+}
+
+/* ---- building ---- */
+function buildUnlocked() { return Game.learned.size >= BUILD_UNLOCK_AT || Game.given > 0; }
+function slotUnlocked(i) {
+  var s = HOTBAR[i];
+  if (s.unlock === 'gift') return Game.songUnlocked;
+  return Game.learned.size >= s.unlock || Game.given > 0;
+}
+
+function toggleBuildMode() {
+  if (!buildUnlocked()) {
+    echoSay(['The isles lend their bones only to those who carry ' + BUILD_UNLOCK_AT + ' words. Learn a few word-lights first.']);
+    return;
+  }
+  Game.buildMode = !Game.buildMode;
+  $('hotbar').classList.toggle('hidden', !Game.buildMode);
+  $('modebadge').classList.toggle('hidden', !Game.buildMode);
+  $('cross').classList.toggle('build', Game.buildMode);
+  Sound.click();
+  markDirty();
+}
+
+function handleClick(isPlace) {
+  if (!Game.started || Game.paused) return;
+  if (!Game.buildMode) {
+    var target = findTarget();
+    if (target) activateTarget(target);
+    return;
+  }
+  var hit = raycastVoxel(6.5);
+  if (!hit) return;
+  if (isPlace) {
+    if (!slotUnlocked(Game.slot)) { toast('That block is still locked — learn more words.'); return; }
+    var px = hit.x + hit.face[0], py = hit.y + hit.face[1], pz = hit.z + hit.face[2];
+    if (!inWorld(px, py, pz) || getBlock(px, py, pz) !== B.AIR) return;
+    // don't entomb yourself
+    var overlapsPlayer = px === Math.floor(Player.x) && pz === Math.floor(Player.z) && py >= Math.floor(Player.y) && py <= Math.floor(Player.y + Player.HEIGHT);
+    if (overlapsPlayer) return;
+    setBlock(px, py, pz, HOTBAR[Game.slot].type);
+    Game.edits[px + ',' + py + ',' + pz] = HOTBAR[Game.slot].type;
+    Game.placed++;
+    if (py >= World.heights[(px << 8) | pz]) World.heights[(px << 8) | pz] = py;
+    Renderer.remeshAt(px, pz);
+    Sound.place();
+    markDirty();
+  } else {
+    if (World.protected.has(blockIndex(hit.x, hit.y, hit.z))) { toast('The old stones refuse to move.'); return; }
+    if (hit.y <= 1) return;
+    setBlock(hit.x, hit.y, hit.z, B.AIR);
+    Game.edits[hit.x + ',' + hit.y + ',' + hit.z] = B.AIR;
+    if (World.heights[(hit.x << 8) | hit.z] === hit.y) World.heights[(hit.x << 8) | hit.z] = surfaceY(hit.x, hit.z);
+    Renderer.remeshAt(hit.x, hit.z);
+    Sound.dig();
+    markDirty();
+  }
+}
+
+/* ---- Echo story ---- */
+var STORY = {
+  intro: [
+    'You made it. I was starting to think the tide had swallowed every visitor.',
+    'This is — <b>was</b> — a speaking land. Every hill and harbor was named in the old words. Then the Hush came, the names faded to grey, and the words scattered into little lights.',
+    'See them glinting out there? Walk to one and touch it. If you can hold its meaning, it will stay with you.',
+  ],
+  emptyIsles: [
+    'These isles are young — the dictionary has almost no words yet.',
+    'That makes you a founder. Find a <b>Wellspring</b> — a glowing teal basin — and give the isles their first words. Each one becomes a real dictionary entry.',
+  ],
+  firstCollect: [
+    'You held it! Feel that? The ground remembers the word now.',
+    'Gather enough lights in an isle and its Hush will lift entirely.',
+  ],
+  firstRestore: [
+    'Look at the color come back! One isle awake…',
+    'The Great Beacon at the center plaza is watching. Wake enough isles, and it will take your words as fuel.',
+  ],
+  buildHint: [
+    'Three words already! The isles trust you now — press <b>B</b> and you can shape their stone and timber yourself.',
+    'Build a home, a bridge, a monument to your favorite word. The isles will remember it.',
+  ],
+  placesHint: [
+    'One more thing, Wordkeeper. Two kinds of stone can carry words back into the real dictionary.',
+    '<b>Echo Stones</b> hold a word that has no example sentence yet — give it one. <b>Wellsprings</b> welcome words the dictionary has never held. Both write to the actual project, and the app shows you exactly what will change and asks you to approve it first.',
+  ],
+  firstGift: [
+    'A real word! It left the game and joined the language itself.',
+    'This is how the isles truly grow. Every sentence, every word you add outlives us both.',
+  ],
+  songstone: ['The isles felt your gift. Take the <b>Songstone</b> — a block that sings — it is yours to build with now.'],
+  beaconReady: ['The Beacon stirs! Enough isles are awake. Go to the central plaza and speak to it.'],
+  beaconNeedsWords: [
+    'The Beacon feeds on words, and the dictionary is still nearly empty.',
+    'Add at least one word at a Wellspring, and the Beacon will listen.',
+  ],
+};
+
+var echoQueue = [], echoTimer = null, echoLine = null;
+function echoSay(lines) {
+  echoQueue = echoQueue.concat(lines);
+  if (echoLine === null) echoNext();
+}
+function echoFinishLine() {
+  if (echoTimer) { clearInterval(echoTimer); echoTimer = null; }
+  $('echo-text').innerHTML = echoLine;
+  $('echo-more').textContent = echoQueue.length ? 'tap to continue' : 'tap to close';
+}
+function echoNext() {
+  var el = $('echo');
+  if (!echoQueue.length) {
+    el.classList.add('hidden');
+    echoLine = null;
+    return;
+  }
+  el.classList.remove('hidden');
+  echoLine = echoQueue.shift();
+  var target = $('echo-text');
+  target.textContent = '';
+  $('echo-more').textContent = '…';
+  var plain = echoLine.replace(/<[^>]+>/g, '');
+  var i = 0;
+  if (echoTimer) clearInterval(echoTimer);
+  echoTimer = setInterval(function () {
+    i += 2;
+    if (i >= plain.length) echoFinishLine();
+    else target.textContent = plain.slice(0, i);
+  }, 18);
+}
+$('echo').addEventListener('click', function () {
+  if (echoTimer) echoFinishLine();
+  else echoNext();
+});
+/* ---------------------------------------------------------------------------
+ * UI shell: overlays, HUD, title & story, pause, boot sequence, main loop.
+ * -------------------------------------------------------------------------*/
+var openOverlays = 0;
+function showOverlay(id) {
+  var el = $(id);
+  if (el.classList.contains('hidden')) {
+    el.classList.remove('hidden');
+    openOverlays++;
+  }
+  Input.enabled = false;
+}
+function hideOverlay(id) {
+  var el = $(id);
+  if (!el.classList.contains('hidden')) {
+    el.classList.add('hidden');
+    openOverlays = Math.max(0, openOverlays - 1);
+  }
+  if (openOverlays === 0 && Game.started) Input.enabled = true;
+}
+
+var toastTimer = null;
+function toast(html) {
+  var el = $('toast');
+  el.innerHTML = html;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { el.classList.remove('show'); }, 3200);
+}
+
+/* ---- HUD ---- */
+function updateHud() {
+  $('stat-lumens').textContent = Game.lumens.toLocaleString();
+  $('stat-words').textContent = Game.learned.size.toLocaleString();
+  $('stat-total').textContent = Game.totalWords.toLocaleString();
+}
+
+var lastBannerRegion = -2;
+function updateBanner() {
+  var region = columnRegion(Math.floor(Player.x), Math.floor(Player.z));
+  if (region === lastBannerRegion) {
+    if (region < Dict.regions.length) {
+      var r0 = Dict.regions[region];
+      $('banner-bar').style.width = (r0.target ? clamp(learnedInRegion(r0) / r0.target, 0, 1) * 100 : 0) + '%';
+    }
+    return;
+  }
+  lastBannerRegion = region;
+  if (region === 254) {
+    $('banner-name').textContent = 'The Beacon Plaza';
+    $('banner-sub').textContent = World.beacon.lit ? 'the heart of the isles, alight' : 'the silent heart of the isles';
+    $('banner-bar').style.width = '0%';
+  } else if (region === 255) {
+    $('banner-name').textContent = 'The Silver Sea';
+    $('banner-sub').textContent = 'the water keeps no words';
+    $('banner-bar').style.width = '0%';
+  } else if (region < Dict.regions.length) {
+    var r = Dict.regions[region];
+    $('banner-name').textContent = r.name;
+    var learned = learnedInRegion(r);
+    if (Restored[region]) $('banner-sub').textContent = r.biome.label + ' — awake';
+    else if (r.target) $('banner-sub').textContent = 'word-lights held: ' + learned + ' of ' + r.target + ' to lift the Hush';
+    else $('banner-sub').textContent = r.biome.label + ' — no words live here yet';
+    $('banner-bar').style.width = (r.target ? clamp(learned / r.target, 0, 1) * 100 : 0) + '%';
+  }
+}
+
+function updateCompass() {
+  var dx = World.beacon.x + 0.5 - Player.x, dz = World.beacon.z + 0.5 - Player.z;
+  var dist = Math.sqrt(dx * dx + dz * dz);
+  var fx = -Math.sin(Player.yaw), fz = -Math.cos(Player.yaw);
+  var dot = fx * dx + fz * dz, cross = fx * dz - fz * dx;
+  var a = Math.atan2(cross, dot);
+  $('compass-arrow').style.transform = 'rotate(' + (a * 180 / Math.PI - 90) + 'deg)';
+  $('compass-label').textContent = dist < 14 ? 'The Great Beacon' : 'Beacon · ' + Math.round(dist) + 'm';
+}
+
+var currentTarget = null;
+function updatePrompt() {
+  currentTarget = (Game.started && openOverlays === 0 && !Game.buildMode) ? findTarget() : null;
+  var el = $('prompt');
+  if (currentTarget) {
+    el.innerHTML = promptTextFor(currentTarget);
+    el.classList.remove('hidden');
+  } else {
+    el.classList.add('hidden');
+  }
+}
+$('prompt').addEventListener('click', function () { activateTarget(currentTarget); });
+
+function renderHotbar() {
+  var bar = $('hotbar');
+  bar.innerHTML = '';
+  HOTBAR.forEach(function (slot, i) {
+    var el = document.createElement('div');
+    el.className = 'slot' + (i === Game.slot ? ' sel' : '');
+    var unlocked = slotUnlocked(i);
+    if (unlocked) {
+      var style = BLOCK_STYLE[slot.type];
+      var cube = document.createElement('div');
+      cube.className = 'cube';
+      cube.style.background = 'rgb(' + Math.round(style[0] * 255) + ',' + Math.round(style[1] * 255) + ',' + Math.round(style[2] * 255) + ')';
+      if (style[3]) cube.style.boxShadow = '0 0 10px rgb(' + Math.round(style[0] * 255) + ',' + Math.round(style[1] * 255) + ',' + Math.round(style[2] * 255) + ')';
+      el.appendChild(cube);
+    } else {
+      el.innerHTML = '<span class="lock">🔒</span>';
+    }
+    var num = document.createElement('span');
+    num.className = 'num';
+    num.textContent = i + 1;
+    el.appendChild(num);
+    el.title = slot.name + (unlocked ? '' : (slot.unlock === 'gift' ? ' — add a new word to unlock' : ' — learn ' + slot.unlock + ' words to unlock'));
+    el.addEventListener('click', function () { selectSlot(i); });
+    bar.appendChild(el);
+  });
+}
+function selectSlot(i) {
+  Game.slot = i;
+  renderHotbar();
+  Sound.click();
+  toast(escapeHtml(HOTBAR[i].name) + (slotUnlocked(i) ? '' : ' — locked'));
+  markDirty();
+}
+
+/* ---- title & story ---- */
+var storyPages = [];
+var storyPage = 0;
+function buildStoryPages(hasSave) {
+  var lang = Dict.vernName || (Dict.project && Dict.project.projectName) || 'your language';
+  if (hasSave) {
+    return ['Welcome back, Wordkeeper. The isles kept your ' + Game.learned.size + ' words warm while you were away.'];
+  }
+  return [
+    'Long ago these isles were <em>named into being</em> — every hill, harbor and hollow carried a word of ' + escapeHtml(lang) + '.',
+    'Then came <em>the Hush</em>. The names faded to grey, and the words scattered into small drifting lights.',
+    'You are the new <em>Wordkeeper</em>. Learn the scattered words and the land will wake. Add new words, and this world — and the real dictionary behind it — will grow.',
+  ];
+}
+function showTitle(hasSave) {
+  storyPages = buildStoryPages(hasSave);
+  storyPage = 0;
+  var dots = $('story-dots');
+  dots.innerHTML = '';
+  storyPages.forEach(function () {
+    var d = document.createElement('span');
+    dots.appendChild(d);
+  });
+  $('title-project').textContent = Dict.project
+    ? 'an island grown from ' + Dict.project.projectName + ' — ' + Game.totalWords.toLocaleString() + ' words strong'
+    : 'an island grown from your dictionary';
+  $('title-hint').textContent = document.body.classList.contains('touch')
+    ? 'joystick to walk · drag to look · ✦ to touch the lights'
+    : 'WASD to walk · drag the world to look · E to touch the lights';
+  $('btn-skip').classList.toggle('hidden', storyPages.length === 1);
+  renderStoryPage(hasSave);
+  $('boot').classList.add('hidden');
+  $('title').classList.remove('hidden');
+}
+function renderStoryPage(hasSave) {
+  $('story-text').innerHTML = storyPages[storyPage];
+  var dots = $('story-dots').children;
+  for (var i = 0; i < dots.length; i++) dots[i].className = i <= storyPage ? 'on' : '';
+  $('btn-back').classList.toggle('hidden', storyPage === 0);
+  var last = storyPage === storyPages.length - 1;
+  $('btn-next').textContent = last ? (hasSave ? 'Continue the journey' : 'Step ashore') : 'Next';
+  $('btn-skip').classList.toggle('hidden', last);
+}
+function wireTitle(hasSave) {
+  $('btn-next').onclick = function () {
+    Sound.poke(); Sound.click();
+    if (storyPage < storyPages.length - 1) {
+      storyPage++;
+      renderStoryPage(hasSave);
+    } else {
+      startGame(hasSave);
+    }
+  };
+  $('btn-back').onclick = function () {
+    if (storyPage > 0) { storyPage--; renderStoryPage(hasSave); }
+  };
+  $('btn-skip').onclick = function () { Sound.poke(); startGame(hasSave); };
+}
+
+function startGame(hasSave) {
+  $('title').classList.add('hidden');
+  $('hud').classList.remove('hidden');
+  Game.started = true;
+  Input.enabled = true;
+  updateHud();
+  renderHotbar();
+  if (Game.buildMode) { Game.buildMode = false; }
+  if (!hasSave) {
+    respawn();
+    setTimeout(function () {
+      echoSay(Game.totalWords === 0 ? STORY.intro.slice(0, 2).concat(STORY.emptyIsles) : STORY.intro);
+    }, 900);
+  } else if (Game.totalWords === 0 && !Game.story.emptyNudge) {
+    Game.story.emptyNudge = true;
+    setTimeout(function () { echoSay(STORY.emptyIsles); }, 900);
+  }
+}
+
+/* ---- pause ---- */
+function togglePause() {
+  if (!Game.started) return;
+  if ($('pause-overlay').classList.contains('hidden')) {
+    $('pause-progress').textContent =
+      Game.learned.size + ' words learned · ' + restoredCount() + ' of ' + liveRegionCount() + ' isles awake · ' +
+      Game.given + ' gifts given · ' + Game.placed + ' blocks placed';
+    $('pause-sound').textContent = 'Sound: ' + (Sound.muted ? 'off' : 'on');
+    showOverlay('pause-overlay');
+  } else {
+    hideOverlay('pause-overlay');
+  }
+}
+
+function resetJourney() {
+  if (!window.confirm('Start the journey over? Your learned words, buildings and story reset. (The dictionary itself is never touched.)')) return;
+  fwlite.storage.remove(SAVE_KEY).catch(function () {});
+  Game.learned = new Set();
+  Game.edits = {};
+  Game.lumens = 0; Game.given = 0; Game.placed = 0; Game.streak = 0;
+  Game.slot = 0; Game.songUnlocked = false; Game.story = {};
+  Game.buildMode = false;
+  Game.dayPhase = 0.22;
+  Restored = {};
+  $('hotbar').classList.add('hidden');
+  $('modebadge').classList.add('hidden');
+  $('cross').classList.remove('build');
+  hideOverlay('pause-overlay');
+  $('hud').classList.add('hidden');
+  Game.started = false;
+  Input.enabled = false;
+  buildRegions();
+  generateWorld(Dict.project ? Dict.project.projectCode : 'isles', Dict.regions);
+  Renderer.meshAll();
+  initOrbs();
+  respawn();
+  lastBannerRegion = -2;
+  showTitle(false);
+  wireTitle(false);
+}
+
+/* ---- wire up static UI ---- */
+$('card-leave').addEventListener('click', function () { hideOverlay('card-overlay'); });
+$('card-learn').addEventListener('click', function () { if (cardOrb) startQuiz(cardOrb); });
+$('card-open').addEventListener('click', function () {
+  if (!cardOrb) return;
+  fwlite.openEntry(cardOrb.entry.id, {mode: 'view'}).catch(function () { toast('Could not open the entry here.'); });
+});
+$('card-listen').addEventListener('click', function () { if (cardOrb) playEntryAudio(cardOrb.entry); });
+$('quiz-flee').addEventListener('click', function () { hideOverlay('quiz-overlay'); });
+$('contrib-cancel').addEventListener('click', function () { hideOverlay('contrib-overlay'); });
+$('contrib-save').addEventListener('click', submitContribution);
+$('pause-close').addEventListener('click', function () { hideOverlay('pause-overlay'); });
+$('pause-sound').addEventListener('click', function () {
+  Sound.setMuted(!Sound.muted);
+  $('pause-sound').textContent = 'Sound: ' + (Sound.muted ? 'off' : 'on');
+  markDirty();
+});
+$('pause-reset').addEventListener('click', resetJourney);
+$('finale-close').addEventListener('click', function () { hideOverlay('finale-overlay'); });
+
+Input.onPause = togglePause;
+Input.onAction = function () {
+  if (openOverlays > 0) return;
+  var target = findTarget();
+  if (target) activateTarget(target);
+};
+Input.onBuildToggle = function () { if (openOverlays === 0) toggleBuildMode(); };
+Input.onSlot = function (i, quiet) {
+  if (i >= 0 && i < HOTBAR.length && Game.buildMode) {
+    Game.slot = i;
+    renderHotbar();
+    if (!quiet) Sound.click();
+  }
+};
+Input.onClick = handleClick;
+
+window.addEventListener('resize', function () { Renderer.resize(); });
+
+/* ---- boot ---- */
+function bootMessage(msg) { $('boot-msg').textContent = msg; }
+
+function boot() {
+  bootMessage('Listening for the dictionary…');
+  fwlite.ready.then(function () {
+    document.documentElement.setAttribute('data-theme', fwlite.theme || 'light');
+    bootMessage('Gathering the words of ' + (fwlite.project ? fwlite.project.projectName : 'the project') + '…');
+    return loadDictionary();
+  }).then(function () {
+    bootMessage('Singing the isles into being…');
+    // Let the boot message paint before the heavy synchronous work.
+    return new Promise(function (resolve) { setTimeout(resolve, 30); });
+  }).then(function () {
+    generateWorld(Dict.project ? Dict.project.projectCode : 'isles', Dict.regions);
+    Renderer.init($('gl'));
+    return loadSave();
+  }).then(function (save) {
+    var hasSave = applySave(save) && Game.learned.size + Game.given + Object.keys(Game.edits).length > 0;
+    bootMessage('Raising the land…');
+    return new Promise(function (resolve) { setTimeout(function () { resolve(hasSave); }, 30); });
+  }).then(function (hasSave) {
+    Renderer.meshAll();
+    Game.totalWords = Dict.entries.length;
+    initOrbs();
+    if (!hasSave) respawn();
+    if (Object.keys(Restored).length) { /* colors already baked by meshAll */ }
+    showTitle(hasSave);
+    wireTitle(hasSave);
+    requestAnimationFrame(frame);
+  }).catch(function (err) {
+    bootMessage('The isles could not wake: ' + (err && err.message || err));
+  });
+}
+
+/* ---- main loop ---- */
+var lastFrame = 0, saveTimer = 0, hudTimer = 0;
+function frame(now) {
+  requestAnimationFrame(frame);
+  var dt = clamp((now - lastFrame) / 1000, 0, 0.05);
+  lastFrame = now;
+  Game.time += dt;
+  Game.dayPhase = (Game.dayPhase + dt / DAY_LENGTH) % 1;
+
+  if (Game.started && openOverlays === 0) movePlayer(dt);
+  updateParticles(dt);
+  drawSprites();
+  Renderer.render({
+    cam: {x: Player.x, y: Player.y + Player.EYE, z: Player.z, yaw: Player.yaw, pitch: Player.pitch},
+    time: Game.time,
+    dayPhase: Game.dayPhase,
+  });
+
+  hudTimer += dt;
+  if (hudTimer > 0.12 && Game.started) {
+    hudTimer = 0;
+    updateBanner();
+    updateCompass();
+    updatePrompt();
+  }
+  saveTimer += dt;
+  if (saveTimer > 8) {
+    saveTimer = 0;
+    if (Game.saveDirty && Game.started) void saveGame();
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
