@@ -20,6 +20,11 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
+#. Change-card header: how many further things this one change did beyond the sentence shown ({0} = count). The preview below shows them all.
+#: src/lib/activity/ActivityItem.svelte
+msgid "(+{0} more)"
+msgstr "(+{0} more)"
+
 #. Activity-log line: placeholder shown in place of a newly created entry's name when it has no headword text yet.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "(no headword)"
@@ -549,6 +554,11 @@ msgstr "Comments"
 msgid "Comments for {0}"
 msgstr "Comments for {0}"
 
+#. Title/tooltip for an icon button that opens a popover with the raw commit metadata (JSON) for an activity-log entry.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Commit details"
+msgstr "Commit details"
+
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -574,10 +584,6 @@ msgstr "complex form types"
 msgid "Complex form types"
 msgstr "Complex form types"
 
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Complex form:"
-msgstr "Complex form:"
-
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Complex forms"
@@ -599,10 +605,6 @@ msgstr "component"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Component"
 msgstr "Component"
-
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Component:"
-msgstr "Component:"
 
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of component entries in a compound word.
 #: src/lib/activity/ChangeSummary.svelte
@@ -692,10 +694,6 @@ msgstr "Created {0} {1}"
 msgid "Current Entry"
 msgstr "Current Entry"
 
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Current version"
-msgstr "Current version"
-
 #. Relevant view: Lite
 #. Classic view equivalent: "Current Entry"
 #. Label in picker: marks the word that is currently being edited
@@ -781,8 +779,7 @@ msgid "Delete Word"
 msgstr "Delete Word"
 
 #. Change type indicator
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
 msgid "Deleted"
 msgstr "Deleted"
 
@@ -815,6 +812,7 @@ msgid "Description"
 msgstr "Description"
 
 #. Button to view activity details
+#: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
 msgstr "Details"
@@ -918,6 +916,12 @@ msgstr "e.g. th, sw"
 msgid "Edit"
 msgstr "Edit"
 
+#. Button label. {0} = "Entry" (Classic view) or "Word" (Lite view); opens the edit dialog for the entry named in the summary line above it.
+#: src/lib/activity/EntryHeadwordButton.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
+msgid "Edit {0}"
+msgstr "Edit {0}"
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Edit comment"
 msgstr "Edit comment"
@@ -987,7 +991,7 @@ msgstr "entry"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1099,6 +1103,11 @@ msgstr "Failed to load activity"
 #: src/project/browse/EntriesList.svelte
 msgid "Failed to load entries"
 msgstr "Failed to load entries"
+
+#. Inline error shown on a single change card when its detail failed to load. Distinct from "Activity view failed", which is the whole view crashing.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Failed to load this change"
+msgstr "Failed to load this change"
 
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1312,7 +1321,7 @@ msgstr "Gloss"
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
 #. {0} = entry/word name (e.g., "Go to banana")
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Go to {0}"
@@ -1622,6 +1631,11 @@ msgstr "Missing: {0}"
 msgid "Mode"
 msgstr "Mode"
 
+#: src/lib/activity/EntryHeadwordButton.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
+msgid "More options"
+msgstr "More options"
+
 #. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
 #: src/lib/activity/ChangeSummary.svelte
 msgid "morph type"
@@ -1825,11 +1839,6 @@ msgstr "None"
 msgid "Not equal"
 msgstr "Not equal"
 
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Not found"
-msgstr "Not found"
-
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
@@ -1909,7 +1918,7 @@ msgid "Open in FieldWorks"
 msgstr "Open in FieldWorks"
 
 #. Menu option
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -2005,13 +2014,14 @@ msgstr "Prefix"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Preview"
 
 #: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Preview not available"
-msgstr "Preview not available"
+msgid "Preview not available for this type of change"
+msgstr "Preview not available for this type of change"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2755,7 +2765,7 @@ msgstr "Unknown update result"
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
@@ -2883,7 +2893,7 @@ msgstr "word"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/EntryHeadwordButton.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
