@@ -3,7 +3,7 @@
   import type {ReadonlyDeep} from 'type-fest';
   import type {IRichString} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IRichString';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
-  import {Label} from '../ui/label';
+  import WsCode from '../writing-system/WsCode.svelte';
   import StompSafeLcmRichTextEditor from '../stomp/stomp-safe-lcm-rich-text-editor.svelte';
   import AudioInput from '$lib/components/field-editors/audio-input.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
@@ -58,7 +58,7 @@
       class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
       title={`${ws.name} (${ws.wsId})`}
     >
-      <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
+      <WsCode id={labelId} for={inputId} abbreviation={ws.abbreviation} class="justify-self-start" />
       {#if !ws.isAudio}
         <StompSafeLcmRichTextEditor
           bind:value={value[ws.wsId]}
