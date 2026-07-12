@@ -55,7 +55,7 @@ public record ProjectActivity(
     public string ChangeName => HistoryService.ChangesNameHelper(Changes);
     public string[] ChangeTypes { get; } = Changes.Select(c => HistoryService.GetChangeTypeKey(c.Change)).Distinct().ToArray();
     /// <summary>Resolved display info per change, parallel to <see cref="Changes"/> by index. Set during enrichment.</summary>
-    public IReadOnlyList<ActivityChangeInfo> ChangeInfo { get; set; } = [];
+    public IReadOnlyList<ActivityChangeInfo> ChangeInfo { get; init; } = [];
 }
 
 public record ChangeContext(
@@ -159,8 +159,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 commit.ChangeEntities.ToList(),
                 commit.Metadata);
         var activities = await queryable.ToLinqToDB().ToArrayAsyncLinqToDB();
-        await ActivityChangeInfoResolver.ResolveAsync(dbContext, activities);
-        return activities;
+        return await ActivityChangeInfoResolver.ResolveAsync(dbContext, activities);
     }
 
     private static IQueryable<Commit> ApplyActivityFilters(IQueryable<Commit> commits, ActivityQuery query)

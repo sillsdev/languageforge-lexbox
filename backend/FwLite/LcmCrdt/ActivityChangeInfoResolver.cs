@@ -24,7 +24,7 @@ namespace LcmCrdt;
 /// </summary>
 internal static class ActivityChangeInfoResolver
 {
-    public static async Task ResolveAsync(ICrdtDbContext db, IReadOnlyList<ProjectActivity> activities)
+    public static async Task<ProjectActivity[]> ResolveAsync(ICrdtDbContext db, IReadOnlyList<ProjectActivity> activities)
     {
         var entryIds = new HashSet<Guid>();
         var senseIds = new HashSet<Guid>();
@@ -152,12 +152,10 @@ internal static class ActivityChangeInfoResolver
             return string.IsNullOrEmpty(glossPart) ? headword : $"{headword} › {glossPart}";
         }
 
-        foreach (var activity in activities)
+        return activities.Select(activity => activity with
         {
-            activity.ChangeInfo = activity.Changes
-                .Select(change => Build(change, Headword))
-                .ToList();
-        }
+            ChangeInfo = activity.Changes.Select(change => Build(change, Headword)).ToList(),
+        }).ToArray();
 
         ActivityChangeInfo Build(ChangeEntity<IChange> change, Func<Guid, string?> headword)
         {
@@ -250,21 +248,21 @@ internal static class ActivityChangeInfoResolver
 
     // Deleted objects are dropped from the projected tables, so the loads below can't label them ("Deleted
     // word" with no word). Recover any still-missing ids from their latest snapshot — a delete's own snapshot
-    // keeps every field, only DeletedAt is set. No-op in the common case where nothing is missing.
+    // keeps every field, only DeletedAt is set. No-op in the common case where nothing is missing; when ids
+    // ARE missing (deleted objects visible on the page — rare and few), one Take(1) query per id beats
+    // loading each entity's whole snapshot history.
     private static async Task RecoverDeleted<T>(ICrdtDbContext db, HashSet<Guid> ids, Dictionary<Guid, T> loaded)
         where T : class, IObjectWithId
     {
-        var missing = ids.Where(id => !loaded.ContainsKey(id)).ToHashSet();
-        if (missing.Count == 0) return;
-        var snapshots = await (
-            from commit in db.Commits.DefaultOrder()
-            from snapshot in db.Snapshots.InnerJoin(s => s.CommitId == commit.Id)
-            where missing.Contains(snapshot.EntityId)
-            select snapshot
-        ).ToListAsyncLinqToDB();
-        foreach (var group in snapshots.GroupBy(s => s.EntityId))
+        foreach (var id in ids.Where(id => !loaded.ContainsKey(id)))
         {
-            if (group.Last().Entity.DbObject is T entity) loaded[group.Key] = entity;
+            var snapshot = await (
+                from commit in db.Commits.DefaultOrderDescending()
+                from s in db.Snapshots.InnerJoin(s => s.CommitId == commit.Id)
+                where s.EntityId == id
+                select s
+            ).FirstOrDefaultAsyncLinqToDB();
+            if (snapshot?.Entity.DbObject is T entity) loaded[id] = entity;
         }
     }
 
@@ -323,7 +321,8 @@ internal static class ActivityChangeInfoResolver
     {
         if (cfcIds.Count == 0) return [];
         var changeEntities = await db.Set<ChangeEntity<IChange>>()
-            .Where(ce => cfcIds.Contains(ce.EntityId))
+            .Where(ce => cfcIds.Contains(ce.EntityId)
+                && Sql.Expr<string>("json_extract({0}, '$.\"$type\"')", ce.Change) == nameof(AddEntryComponentChange))
             .ToListAsyncLinqToDB();
         return changeEntities
             .Select(ce => ce.Change)

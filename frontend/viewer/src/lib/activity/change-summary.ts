@@ -100,7 +100,8 @@ function prop(obj: unknown, key: string): unknown {
   const record = obj as Record<string, unknown>;
   const camel = key[0].toLowerCase() + key.slice(1);
   const pascal = key[0].toUpperCase() + key.slice(1);
-  return record[camel] ?? record[pascal];
+  // Key presence, not ??, so an explicit camelCase null (e.g. a cleared reference) isn't conflated with absent.
+  return camel in record ? record[camel] : record[pascal];
 }
 
 /** The `$type` discriminator of a raw change payload ('' when absent). */
