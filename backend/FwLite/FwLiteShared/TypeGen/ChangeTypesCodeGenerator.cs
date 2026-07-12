@@ -1,4 +1,3 @@
-using System.Reflection;
 using LcmCrdt;
 using Reinforced.Typings;
 using Reinforced.Typings.Ast;
@@ -8,16 +7,16 @@ namespace FwLiteShared.TypeGen;
 
 /// <summary>
 /// Emits a `ChangeType` string-literal union and a `knownChangeTypes` array built from the registered CRDT
-/// change types (<see cref="LcmCrdtKernel.AllChangeTypes"/>) and each type's <c>IPolyType.TypeName</c>
-/// (the serialized <c>$type</c> discriminator). Attached to the <c>ChangeTypes</c> marker; suppresses the
-/// marker's own output.
+/// change types (<see cref="LcmCrdtKernel.AllChangeTypes"/>) and each type's serialized <c>$type</c>
+/// discriminator (<see cref="HistoryService.GetChangeTypeKeyFromType"/>). Attached to the <c>ChangeTypes</c>
+/// marker; suppresses the marker's own output.
 /// </summary>
 public class ChangeTypesCodeGenerator : ClassCodeGenerator
 {
     public override RtClass GenerateNode(Type element, RtClass result, TypeResolver resolver)
     {
         var typeNames = LcmCrdtKernel.AllChangeTypes()
-            .Select(GetChangeTypeName)
+            .Select(HistoryService.GetChangeTypeKeyFromType)
             .Distinct()
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
@@ -30,16 +29,5 @@ public class ChangeTypesCodeGenerator : ClassCodeGenerator
 
         // Suppress the marker class; only the raw union/array above is emitted.
         return null!;
-    }
-
-    private static string GetChangeTypeName(Type changeType)
-    {
-        var typeNameProperty = changeType.GetProperty("TypeName",
-            BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
-        // Mirrors Harmony's own discriminator logic, so the generated list stays in sync with the runtime $type:
-        // generic/shared changes (jsonPatch:, delete:, SetOrderChange:) define a custom static TypeName, while a
-        // dedicated change class (e.g. SetPartOfSpeechChange) has none and serializes under its CLR type name.
-        // The fallback to changeType.Name is therefore intentional, not a silent mismatch.
-        return typeNameProperty?.GetValue(null) as string ?? changeType.Name;
     }
 }

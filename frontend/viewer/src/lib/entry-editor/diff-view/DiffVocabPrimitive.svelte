@@ -15,8 +15,8 @@
   // One component for all vocab object types (PartOfSpeech, SemanticDomain, Publication, ComplexFormType,
   // MorphType, WritingSystem, CustomView). They don't share a TS interface beyond IObjectWithId, so fields are
   // read loosely and each row renders only when the field is present on the before or after snapshot.
-  // The field-completeness guardrail is `vocab-diff-fields.ts` + `vocab-diff-coverage.test.ts` — keep the
-  // HANDLED_VOCAB_FIELDS set there in sync with the rows below when a vocab model gains a field.
+  // The field-completeness guardrail is `vocab-diff-coverage.test.ts`, which parses the `present('…')`
+  // rows below — when a vocab model gains a field, add a row here (or ignore it in vocab-diff-fields.ts).
   let {before, after}: {before?: IObjectWithId; after?: IObjectWithId} = $props();
 
   const writingSystemService = useWritingSystemService();

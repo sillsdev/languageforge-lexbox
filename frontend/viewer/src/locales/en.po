@@ -25,6 +25,7 @@ msgstr "– ({0} changes)"
 msgid "(+{0} more)"
 msgstr "(+{0} more)"
 
+#. Activity-log line: placeholder shown in place of a newly created entry's name when it has no headword text yet.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "(no headword)"
 msgstr "(no headword)"
@@ -144,6 +145,11 @@ msgstr "Account"
 msgid "Activity"
 msgstr "Activity"
 
+#. Error boundary title shown if the whole Activity view crashes while rendering. Distinct from the per-change "Failed to load this change" error.
+#: src/lib/activity/ActivityView.svelte
+msgid "Activity view failed"
+msgstr "Activity view failed"
+
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
 #. Action: Opens file picker to upload MP3/WAV/etc
@@ -218,7 +224,10 @@ msgstr "Add Word"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
 
+#. Tooltip/aria-label for a change-category badge icon on an activity row (paired with "Removed", "Edited", "Reordered").
+#. Also an sr-only label marking the added side of an audio value's before/after diff.
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/entry-editor/diff-view/DiffAudio.svelte
 msgid "Added"
 msgstr "Added"
 
@@ -235,6 +244,7 @@ msgstr "Added {0}"
 msgid "Added comment"
 msgstr "Added comment"
 
+#. Activity-log line: a complex-form component entry was added to another entry's Components list; a chip with the component's name may follow.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added component"
 msgstr "Added component"
@@ -244,6 +254,7 @@ msgstr "Added component"
 msgid "Added picture"
 msgstr "Added picture"
 
+#. Activity-log line, fallback when the added list item has no dedicated noun. {0} = the field's label (e.g. "Publications"); a chip with the added value may follow.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added to {0}"
@@ -342,6 +353,7 @@ msgstr "Ask questions and get help on our community forum."
 msgid "audio"
 msgstr "audio"
 
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's an audio writing system (Yes/No).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Audio"
 msgstr "Audio"
@@ -381,6 +393,7 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Auto syncing"
 
+#. Field label in the activity change-preview diff for a custom view. Shows which base view ("FieldWorks Classic" or "FieldWorks Lite") the custom view extends.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Base view"
 msgstr "Base view"
@@ -447,10 +460,12 @@ msgstr "Changed {0}"
 msgid "Changed {0} to"
 msgstr "Changed {0} to"
 
+#. Activity-log line: one of an entry's complex-form components was replaced with another entry (the new entry's name isn't shown). Compare "Changed component to", which shows it.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Changed component"
 msgstr "Changed component"
 
+#. Activity-log line: one of an entry's complex-form components was replaced with another; a chip with the new component's name follows.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Changed component to"
 msgstr "Changed component to"
@@ -547,6 +562,7 @@ msgstr "Comments"
 msgid "Comments for {0}"
 msgstr "Comments for {0}"
 
+#. Title/tooltip for an icon button that opens a popover with the raw commit metadata (JSON) for an activity-log entry.
 #: src/lib/activity/ActivityItem.svelte
 msgid "Commit details"
 msgstr "Commit details"
@@ -908,6 +924,7 @@ msgstr "e.g. th, sw"
 msgid "Edit"
 msgstr "Edit"
 
+#. Button label. {0} = "Entry" (Classic view) or "Word" (Lite view); opens the edit dialog for the entry named in the summary line above it.
 #: src/lib/activity/EntryHeadwordButton.svelte
 #: src/lib/activity/EntryHeadwordButton.svelte
 msgid "Edit {0}"
@@ -922,6 +939,7 @@ msgstr "Edit comment"
 msgid "Edit Custom View"
 msgstr "Edit Custom View"
 
+#. Tooltip/aria-label for the "changed" change-category badge icon on an activity row (paired with "Added", "Removed", "Reordered").
 #: src/lib/activity/ActivityView.svelte
 msgid "Edited"
 msgstr "Edited"
@@ -990,6 +1008,7 @@ msgstr "entry"
 msgid "Entry"
 msgstr "Entry"
 
+#. Field label in the activity change-preview diff for a custom view: which entry-level fields it shows.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Entry fields"
 msgstr "Entry fields"
@@ -1044,6 +1063,7 @@ msgstr "example"
 msgid "Example"
 msgstr "Example"
 
+#. Field label in the activity change-preview diff for a custom view: which example-sentence fields it shows.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Example fields"
 msgstr "Example fields"
@@ -1065,6 +1085,7 @@ msgstr "Example sentences"
 msgid "examples"
 msgstr "examples"
 
+#. Field label in the activity change-preview diff for a writing system. Exemplars are the list of index letters (e.g. A, B, C…) used for alphabetical browsing.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Exemplars"
 msgstr "Exemplars"
@@ -1090,6 +1111,11 @@ msgstr "Failed to load activity"
 #: src/project/browse/EntriesList.svelte
 msgid "Failed to load entries"
 msgstr "Failed to load entries"
+
+#. Inline error shown on a single change card when its detail failed to load. Distinct from "Activity view failed", which is the whole view crashing.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Failed to load this change"
+msgstr "Failed to load this change"
 
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1135,6 +1161,7 @@ msgstr "Field"
 msgid "Fields"
 msgstr "Fields"
 
+#. Value shown in the activity change-preview diff for a custom view's base view. "FieldWorks" is a product name — do not translate; "Classic" may be translated.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "FieldWorks Classic"
 msgstr "FieldWorks Classic"
@@ -1396,6 +1423,7 @@ msgstr "Installing Update..."
 msgid "Keep going"
 msgstr "Keep going"
 
+#. Field label in the activity change-preview diff for a morph type. "Kind" is the morphological pattern (e.g. prefix, suffix, infix, stem).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Kind"
 msgstr "Kind"
@@ -1513,6 +1541,7 @@ msgstr "Logout"
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 
+#. Field label in the activity change-preview diff for a publication. Shows whether this is the main/default publication (Yes/No).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Main"
 msgstr "Main"
@@ -2119,7 +2148,10 @@ msgstr "Remove"
 msgid "Remove audio"
 msgstr "Remove audio"
 
+#. Tooltip/aria-label for a change-category badge icon on an activity row (paired with "Added", "Edited", "Reordered").
+#. Also an sr-only label marking the removed side of an audio value's before/after diff.
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/entry-editor/diff-view/DiffAudio.svelte
 msgid "Removed"
 msgstr "Removed"
 
@@ -2128,6 +2160,7 @@ msgstr "Removed"
 msgid "Removed {0}"
 msgstr "Removed {0}"
 
+#. Activity-log line: a complex-form component entry was removed from another entry's Components list; a chip with the component's name may follow.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Removed component"
 msgstr "Removed component"
@@ -2152,6 +2185,7 @@ msgstr "Reopen"
 msgid "Reopened comment thread"
 msgstr "Reopened comment thread"
 
+#. Tooltip/aria-label for the "reordered" change-category badge icon on an activity row (paired with "Added", "Removed", "Edited").
 #: src/lib/activity/ActivityView.svelte
 msgid "Reordered"
 msgstr "Reordered"
@@ -2236,6 +2270,10 @@ msgstr "Select {0}"
 msgid "Select {0} to view details"
 msgstr "Select {0} to view details"
 
+#: src/lib/activity/ActivityView.svelte
+msgid "Select a change to view details"
+msgstr "Select a change to view details"
+
 #. Empty state message
 #: src/project/tasks/TasksView.svelte
 msgid "Select a new task to work on"
@@ -2304,6 +2342,7 @@ msgstr "sense"
 msgid "Sense"
 msgstr "Sense"
 
+#. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Sense fields"
 msgstr "Sense fields"
@@ -2321,6 +2360,7 @@ msgstr "senses"
 msgid "Sentence"
 msgstr "Sentence"
 
+#. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set {0}"
 msgstr "Set {0}"
@@ -2635,6 +2675,7 @@ msgstr "Toggle pinned"
 msgid "Total entries"
 msgstr "Total entries"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to one of an example sentence's free translations.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "translation"
 msgstr "translation"
@@ -2665,6 +2706,7 @@ msgstr "Troubleshoot"
 msgid "Try again"
 msgstr "Try again"
 
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's a Vernacular or Analysis writing system.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Type"
 msgstr "Type"
@@ -2796,6 +2838,7 @@ msgstr "Updated picture"
 msgid "Updates"
 msgstr "Updates"
 
+#. Activity-log line. {0} = "audio recording" or "media file"; a marker chip follows when it's audio.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Uploaded {0}"
 msgstr "Uploaded {0}"
@@ -2830,7 +2873,8 @@ msgstr "Vernacular writing systems"
 msgid "View"
 msgstr "View"
 
-#: src/lib/activity/ActivityListViewOptions.svelte
+#. Title/tooltip for an icon button that opens the view picker (switch between Classic, Lite, or a custom view).
+#: src/lib/activity/ActivityViewPicker.svelte
 msgid "View options"
 msgstr "View options"
 
@@ -2910,6 +2954,7 @@ msgstr "Write a reply..."
 msgid "Write the first comment..."
 msgstr "Write the first comment..."
 
+#. Standalone singular noun used as {0} in "Reordered {0}" when naming one item, e.g. "Reordered writing system" plus a chip with its name. Paired with plural "writing systems".
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "writing system"
@@ -2920,6 +2965,7 @@ msgstr "writing system"
 msgid "Writing System"
 msgstr "Writing System"
 
+#. Field label in the activity change-preview diff for a writing system. "Writing system code" is the technical identifier (e.g. "en", "fr-Latn"), distinct from its display name.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Writing system code"
 msgstr "Writing system code"

@@ -234,7 +234,13 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         };
     }
 
-    private static string GetChangeTypeKeyFromType(Type changeType)
+    /// <summary>
+    /// The serialized <c>$type</c> discriminator of a change type. Mirrors Harmony's own logic: generic/shared
+    /// changes (jsonPatch:, delete:, SetOrderChange:) define a custom static <c>TypeName</c>, while a dedicated
+    /// change class serializes under its CLR type name. Single source of truth — the ChangeTypes TS codegen
+    /// uses this too, so the generated list can't drift from the runtime discriminators.
+    /// </summary>
+    public static string GetChangeTypeKeyFromType(Type changeType)
     {
         var typeNameProp = changeType.GetProperty("TypeName",
             System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy);

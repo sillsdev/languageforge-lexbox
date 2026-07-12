@@ -202,6 +202,39 @@ describe('describeChange', () => {
       .toEqual([{kind: 'editObject', object: 'customView', label: 'Example sentences (pt)'}]);
   });
 
+  // Handlers whose whole job is picking the right payload property — table-pinned so a wrong-property
+  // regression (e.g. reading `publication` where the wire has `newPublication`) can't hide behind the
+  // routing-only exhaustiveness test below.
+  it.each<[object, ChangeFact]>([
+    [{'$type': 'ReplaceSemanticDomainChange', SemanticDomain: {Code: '5.2', Name: {en: 'Food'}}, EntityId: 's'},
+      {kind: 'replaceItem', entity: 'sense', fieldId: 'semanticDomains', label: '5.2 Food'}],
+    [{'$type': 'AddPublicationChange', Publication: {Name: {en: 'Main Dictionary'}}, EntityId: 'e'},
+      {kind: 'addItem', entity: 'entry', fieldId: 'publishIn', label: 'Main Dictionary'}],
+    [{'$type': 'ReplacePublicationChange', NewPublication: {Name: {en: 'School Dictionary'}}, EntityId: 'e'},
+      {kind: 'replaceItem', entity: 'entry', fieldId: 'publishIn', label: 'School Dictionary'}],
+    [{'$type': 'AddTranslationChange', EntityId: 'x'},
+      {kind: 'addItem', entity: 'example', fieldId: 'translations'}],
+    [{'$type': 'RemoveTranslationChange', EntityId: 'x'},
+      {kind: 'removeItem', entity: 'example', fieldId: 'translations'}],
+    [{'$type': 'UpdateTranslationChange', EntityId: 'x'},
+      {kind: 'changeField', entity: 'example', fieldId: 'translations'}],
+    [{'$type': 'SetFirstTranslationIdChange', EntityId: 'x'},
+      {kind: 'setDefaultTranslation'}],
+    [{'$type': 'AddEntryComponentChange', EntityId: 'c'},
+      {kind: 'componentLink', action: 'add'}],
+    [{'$type': 'SetComplexFormComponentChange', EntityId: 'c'},
+      {kind: 'componentLink', action: 'update'}],
+  ])('describes %j', (change, expected) => {
+    expect(describeChange(changeEntity(change))).toEqual([expected]);
+  });
+
+  it('decodes a vocab jsonPatch remove op as clearing the field', () => {
+    expect(describeChange(changeEntity({
+      '$type': 'jsonPatch:PartOfSpeech',
+      PatchDocument: [{op: 'remove', path: '/Name/en'}],
+    }))).toEqual([{kind: 'editObjectField', object: 'partOfSpeech', field: 'Name', ws: 'en', cleared: true}]);
+  });
+
   it('summarizes a comment post as just the comment (the paired thread create is plumbing, not a fact)', () => {
     expect(describeChange(changeEntity({'$type': 'CreateCommentThreadChange', SubjectId: 's', EntityId: 't'}))).toEqual([]);
     expect(describeChange(changeEntity({'$type': 'CreateUserCommentChange', Text: 'looks wrong', EntityId: 'c'})))
@@ -284,6 +317,15 @@ describe('recognizeTreeCommit', () => {
     );
     expect(result?.fact).toMatchObject({kind: 'create', entity: 'sense'});
     expect(result?.subject).toBe('Apfel › apple');
+  });
+
+  it('recognizes an entry creation mixed with same-root edits (unlike the sense branch, purity is not required — the collapsed card shows every field anyway)', () => {
+    const result = recognizeTreeCommit(
+      [changeEntity({'$type': 'CreateEntryChange'}), changeEntity({'$type': 'jsonPatch:Entry'})],
+      [{subject: 'Apfel', rootEntryId: 'e1'}, {subject: 'Apfel', rootEntryId: 'e1'}],
+      ['CreateEntryChange', 'jsonPatch:Entry'],
+    );
+    expect(result?.fact).toMatchObject({kind: 'create', entity: 'entry'});
   });
 
   it('does NOT recognize a sense addition mixed with an edit (must not hide the edit)', () => {

@@ -30,6 +30,7 @@ msgstr "- ({0}개 변경)"
 msgid "(+{0} more)"
 msgstr ""
 
+#. Activity-log line: placeholder shown in place of a newly created entry's name when it has no headword text yet.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "(no headword)"
 msgstr ""
@@ -149,6 +150,11 @@ msgstr "계정"
 msgid "Activity"
 msgstr "활동"
 
+#. Error boundary title shown if the whole Activity view crashes while rendering. Distinct from the per-change "Failed to load this change" error.
+#: src/lib/activity/ActivityView.svelte
+msgid "Activity view failed"
+msgstr ""
+
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
 #. Action: Opens file picker to upload MP3/WAV/etc
@@ -223,7 +229,10 @@ msgstr "단어 추가"
 msgid "Add your first entry to start building your dictionary."
 msgstr ""
 
+#. Tooltip/aria-label for a change-category badge icon on an activity row (paired with "Removed", "Edited", "Reordered").
+#. Also an sr-only label marking the added side of an audio value's before/after diff.
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/entry-editor/diff-view/DiffAudio.svelte
 msgid "Added"
 msgstr ""
 
@@ -240,6 +249,7 @@ msgstr ""
 msgid "Added comment"
 msgstr ""
 
+#. Activity-log line: a complex-form component entry was added to another entry's Components list; a chip with the component's name may follow.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added component"
 msgstr ""
@@ -249,6 +259,7 @@ msgstr ""
 msgid "Added picture"
 msgstr ""
 
+#. Activity-log line, fallback when the added list item has no dedicated noun. {0} = the field's label (e.g. "Publications"); a chip with the added value may follow.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added to {0}"
@@ -347,6 +358,7 @@ msgstr "커뮤니티 포럼에서 질문하고 도움을 받으세요."
 msgid "audio"
 msgstr ""
 
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's an audio writing system (Yes/No).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Audio"
 msgstr ""
@@ -386,6 +398,7 @@ msgstr "자동"
 msgid "Auto syncing"
 msgstr "자동 동기화"
 
+#. Field label in the activity change-preview diff for a custom view. Shows which base view ("FieldWorks Classic" or "FieldWorks Lite") the custom view extends.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Base view"
 msgstr ""
@@ -452,10 +465,12 @@ msgstr ""
 msgid "Changed {0} to"
 msgstr ""
 
+#. Activity-log line: one of an entry's complex-form components was replaced with another entry (the new entry's name isn't shown). Compare "Changed component to", which shows it.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Changed component"
 msgstr ""
 
+#. Activity-log line: one of an entry's complex-form components was replaced with another; a chip with the new component's name follows.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Changed component to"
 msgstr ""
@@ -552,6 +567,7 @@ msgstr ""
 msgid "Comments for {0}"
 msgstr ""
 
+#. Title/tooltip for an icon button that opens a popover with the raw commit metadata (JSON) for an activity-log entry.
 #: src/lib/activity/ActivityItem.svelte
 msgid "Commit details"
 msgstr ""
@@ -913,6 +929,7 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
+#. Button label. {0} = "Entry" (Classic view) or "Word" (Lite view); opens the edit dialog for the entry named in the summary line above it.
 #: src/lib/activity/EntryHeadwordButton.svelte
 #: src/lib/activity/EntryHeadwordButton.svelte
 msgid "Edit {0}"
@@ -927,6 +944,7 @@ msgstr ""
 msgid "Edit Custom View"
 msgstr "사용자 지정 보기 편집"
 
+#. Tooltip/aria-label for the "changed" change-category badge icon on an activity row (paired with "Added", "Removed", "Reordered").
 #: src/lib/activity/ActivityView.svelte
 msgid "Edited"
 msgstr ""
@@ -995,6 +1013,7 @@ msgstr "항목"
 msgid "Entry"
 msgstr "항목"
 
+#. Field label in the activity change-preview diff for a custom view: which entry-level fields it shows.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Entry fields"
 msgstr ""
@@ -1049,6 +1068,7 @@ msgstr ""
 msgid "Example"
 msgstr "예"
 
+#. Field label in the activity change-preview diff for a custom view: which example-sentence fields it shows.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Example fields"
 msgstr ""
@@ -1070,6 +1090,7 @@ msgstr ""
 msgid "examples"
 msgstr ""
 
+#. Field label in the activity change-preview diff for a writing system. Exemplars are the list of index letters (e.g. A, B, C…) used for alphabetical browsing.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Exemplars"
 msgstr ""
@@ -1096,6 +1117,11 @@ msgstr ""
 msgid "Failed to load entries"
 msgstr "항목을 로드하지 못했습니다."
 
+#. Inline error shown on a single change card when its detail failed to load. Distinct from "Activity view failed", which is the whole view crashing.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Failed to load this change"
+msgstr ""
+
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to open data directory, use the path in the text field instead"
@@ -1111,6 +1137,7 @@ msgstr "URL을 열지 못했습니다: {0}"
 msgid "Failed to regenerate Harmony snapshots"
 msgstr ""
 
+#. Error toast when search index regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate search index"
 msgstr ""
@@ -1139,6 +1166,7 @@ msgstr "필드"
 msgid "Fields"
 msgstr "필드"
 
+#. Value shown in the activity change-preview diff for a custom view's base view. "FieldWorks" is a product name — do not translate; "Classic" may be translated.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "FieldWorks Classic"
 msgstr ""
@@ -1400,6 +1428,7 @@ msgstr "업데이트 설치 중..."
 msgid "Keep going"
 msgstr "계속 진행"
 
+#. Field label in the activity change-preview diff for a morph type. "Kind" is the morphological pattern (e.g. prefix, suffix, infix, stem).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Kind"
 msgstr ""
@@ -1517,6 +1546,7 @@ msgstr "로그아웃"
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "제작: ❤️ 출처: 🇦🇹 🇹🇭 🇺🇸"
 
+#. Field label in the activity change-preview diff for a publication. Shows whether this is the main/default publication (Yes/No).
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Main"
 msgstr ""
@@ -1869,6 +1899,7 @@ msgstr ""
 msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
 msgstr ""
 
+#. Warning in regenerate-search-index confirm dialog: operation may be slow
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a while. Do not close the app or interrupt the process."
 msgstr ""
@@ -2087,10 +2118,12 @@ msgstr ""
 msgid "Regenerate Harmony snapshots?"
 msgstr ""
 
+#. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index"
 msgstr ""
 
+#. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
 msgstr ""
@@ -2100,6 +2133,7 @@ msgstr ""
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
 msgstr ""
 
+#. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr ""
@@ -2119,7 +2153,10 @@ msgstr "제거"
 msgid "Remove audio"
 msgstr "오디오 제거"
 
+#. Tooltip/aria-label for a change-category badge icon on an activity row (paired with "Added", "Edited", "Reordered").
+#. Also an sr-only label marking the removed side of an audio value's before/after diff.
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/entry-editor/diff-view/DiffAudio.svelte
 msgid "Removed"
 msgstr ""
 
@@ -2128,6 +2165,7 @@ msgstr ""
 msgid "Removed {0}"
 msgstr ""
 
+#. Activity-log line: a complex-form component entry was removed from another entry's Components list; a chip with the component's name may follow.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Removed component"
 msgstr ""
@@ -2152,6 +2190,7 @@ msgstr "다시 열기"
 msgid "Reopened comment thread"
 msgstr ""
 
+#. Tooltip/aria-label for the "reordered" change-category badge icon on an activity row (paired with "Added", "Removed", "Edited").
 #: src/lib/activity/ActivityView.svelte
 msgid "Reordered"
 msgstr ""
@@ -2221,6 +2260,7 @@ msgstr "검색 # 또는 #"
 msgid "Search Dictionaries"
 msgstr "사전 검색"
 
+#. Success toast after rebuilding the FTS entry search index
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
 msgstr ""
@@ -2234,6 +2274,10 @@ msgstr "{0} 선택"
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "자세한 내용을 보려면 {0} 을 선택하세요."
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Select a change to view details"
+msgstr ""
 
 #. Empty state message
 #: src/project/tasks/TasksView.svelte
@@ -2303,6 +2347,7 @@ msgstr ""
 msgid "Sense"
 msgstr "Sense"
 
+#. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Sense fields"
 msgstr ""
@@ -2320,6 +2365,7 @@ msgstr ""
 msgid "Sentence"
 msgstr "문장"
 
+#. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set {0}"
 msgstr ""
@@ -2598,6 +2644,7 @@ msgstr "이제 이 프로젝트가 FieldWorks에서 열렸습니다. FieldWorks 
 msgid "This rebuilds snapshot and projected tables from commit history."
 msgstr ""
 
+#. Warning in regenerate-search-index confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr ""
@@ -2633,6 +2680,7 @@ msgstr "고정 토글"
 msgid "Total entries"
 msgstr ""
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to one of an example sentence's free translations.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "translation"
 msgstr ""
@@ -2663,6 +2711,7 @@ msgstr "문제 해결"
 msgid "Try again"
 msgstr ""
 
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's a Vernacular or Analysis writing system.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Type"
 msgstr ""
@@ -2794,6 +2843,7 @@ msgstr ""
 msgid "Updates"
 msgstr "업데이트"
 
+#. Activity-log line. {0} = "audio recording" or "media file"; a marker chip follows when it's audio.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Uploaded {0}"
 msgstr ""
@@ -2828,7 +2878,8 @@ msgstr ""
 msgid "View"
 msgstr "보기"
 
-#: src/lib/activity/ActivityListViewOptions.svelte
+#. Title/tooltip for an icon button that opens the view picker (switch between Classic, Lite, or a custom view).
+#: src/lib/activity/ActivityViewPicker.svelte
 msgid "View options"
 msgstr ""
 
@@ -2908,6 +2959,7 @@ msgstr ""
 msgid "Write the first comment..."
 msgstr ""
 
+#. Standalone singular noun used as {0} in "Reordered {0}" when naming one item, e.g. "Reordered writing system" plus a chip with its name. Paired with plural "writing systems".
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "writing system"
@@ -2918,6 +2970,7 @@ msgstr ""
 msgid "Writing System"
 msgstr "쓰기 시스템"
 
+#. Field label in the activity change-preview diff for a writing system. "Writing system code" is the technical identifier (e.g. "en", "fr-Latn"), distinct from its display name.
 #: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Writing system code"
 msgstr ""

@@ -245,6 +245,25 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
     }
 
     [Fact]
+    public async Task ProjectActivity_ChangeInfo_UnlabellableSenseHasNullSubject()
+    {
+        var entryId = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry { Id = entryId }), Meta());
+        var senseId = await CreateSense(entryId, gloss: null, order: 1.0);
+        var patch = new JsonPatchDocument<Sense>();
+        patch.Replace(s => s.Gloss["en"], "");
+        await DataModel.AddChange(ClientId, new JsonPatchChange<Sense>(senseId, patch), Meta());
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
+
+        // Neither a headword nor a gloss to label the sense with: the subject is null (the frontend just
+        // omits the leading subject token), never a hardcoded English placeholder.
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1
+            && a.ChangeInfo[0].RootEntryId == entryId
+            && a.ChangeInfo[0].Subject == null);
+    }
+
+    [Fact]
     public async Task ProjectActivity_ChangeInfo_Reorder_NamesParentEntryAndMovedSense()
     {
         var entryId = Guid.NewGuid();
