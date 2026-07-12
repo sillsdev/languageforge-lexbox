@@ -183,6 +183,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
+            typeof(ActivityChangeInfo),
             typeof(ActivityAuthor),
             typeof(ActivityChangeType),
             typeof(ActivityQuery),
@@ -195,6 +196,8 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteRelease),
             typeof(AvailableUpdate),
         ], exportBuilder => exportBuilder.WithPublicProperties());
+
+        builder.ExportAsClass<ChangeTypes>().WithCodeGenerator<ChangeTypesCodeGenerator>();
 
         builder.ExportAsEnum<ActivitySort>().UseString();
         builder.ExportAsEnum<FwEventType>().UseString();
