@@ -5,6 +5,11 @@
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
   import {FormatRelativeDate} from '$lib/components/ui/format';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import ListDetailLayout from '$lib/layout/ListDetailLayout.svelte';
+  import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
+  import {QueryParamStateBool} from '$lib/utils/url.svelte';
+  import {ActivityParam} from '$lib/utils/search-params';
   import ActivityItem from './ActivityItem.svelte';
   import ActivityFilter from './ActivityFilter.svelte';
   import Loading from '$lib/components/Loading.svelte';
@@ -123,13 +128,30 @@
   let selectedRow = $state<IProjectActivity>();
   let vlist = $state<VList<IProjectActivity>>();
 
+  // DESKTOP: the detail is a sibling split pane, so the newest commit auto-selects (the page opens
+  // answering "what changed recently?"). MOBILE: the detail is hierarchical (full-screen on tap, back
+  // returns to the list), so nothing auto-selects — detailOpen drives navigation, like Browse's entryOpen.
+  const detailOpen = new QueryParamStateBool(
+    {key: ActivityParam.DetailOpen, allowBack: IsMobile.value, replaceOnDefaultValue: IsMobile.value},
+    false,
+  );
+  const defaultLayout = [35, 65] as const;
+
+  function selectRow(row: IProjectActivity) {
+    selectedRow = row;
+    detailOpen.current = true;
+  }
+
   $effect(() => {
     const visible = visibleActivity;
     if (!visible?.length) {
       selectedRow = undefined;
       return;
     }
-    if (!selectedRow || !visible.some(a => a.commitId === selectedRow?.commitId)) {
+    if (selectedRow && !visible.some(a => a.commitId === selectedRow?.commitId)) {
+      selectedRow = undefined;
+    }
+    if (!selectedRow && !IsMobile.value) {
       selectedRow = visible[0];
     }
   });
@@ -185,10 +207,14 @@
   {/if}
 {/snippet}
 
-<div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
-     style="grid-template-rows: auto 1fr; grid-template-columns: minmax(8rem,25%) minmax(0,2fr)">
-
-  <div>
+<ViewErrorBoundary class="flex flex-col h-full" title={$t`Activity view failed`}>
+<ListDetailLayout
+  detailVisible={!!(selectedRow && detailOpen.current)}
+  {defaultLayout}
+  listMinSize={20}>
+{#snippet list()}
+  <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
+  <div class="md:mr-3">
     <ActivityFilter bind:filters>
       {#snippet trailing()}
         <ActivityViewPicker />
@@ -196,7 +222,7 @@
     </ActivityFilter>
   </div>
 
-  <div class="gap-4 overflow-hidden row-start-2 relative">
+  <div class="flex-1 mt-1 overflow-hidden relative">
     {#if activity.error && awaitingFreshData}
       <div class="flex h-full items-center justify-center gap-2 text-muted-foreground">
         <Icon icon="i-mdi-alert-circle-outline" />
@@ -217,7 +243,7 @@
                relocated). Multi-fact commits get no badge — see commitBadge — and keep per-fact glyphs. -->
           {@const badge = commitBadge(summary)}
           <ListItem
-            onclick={() => selectedRow = row}
+            onclick={() => selectRow(row)}
             selected={selectedRow?.commitId === row.commitId}
             class="mb-2 relative overflow-hidden">
             {#if summary.entries.length === 0}
@@ -288,8 +314,19 @@
       <div class="p-4 text-center opacity-75">{$t`No activity matches these filters`}</div>
     {/if}
   </div>
-
+  </div>
+{/snippet}
+{#snippet detail()}
   {#if selectedRow}
-    <ActivityItem class="sub-grid row-span-2 col-start-2" activity={selectedRow} showHistoryButton />
+    <div class="h-full p-2 md:p-4">
+      <ActivityItem activity={selectedRow} showHistoryButton
+        showClose={IsMobile.value} onClose={() => detailOpen.current = false} />
+    </div>
+  {:else}
+    <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
+      <p>{$t`Select a change to view details`}</p>
+    </div>
   {/if}
-</div>
+{/snippet}
+</ListDetailLayout>
+</ViewErrorBoundary>

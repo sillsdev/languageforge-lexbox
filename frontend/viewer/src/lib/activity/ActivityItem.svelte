@@ -37,7 +37,7 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
   import * as Popover from '$lib/components/ui/popover';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, XButton} from '$lib/components/ui/button';
   import HistoryView from '$lib/history/HistoryView.svelte';
   import {Icon} from '$lib/components/ui/icon';
   import {usePartsOfSpeech} from '$project/data';
@@ -46,11 +46,15 @@
   type Props = HTMLAttributes<HTMLDivElement> & {
     activity: IProjectActivity;
     showHistoryButton?: boolean;
+    showClose?: boolean;
+    onClose?: () => void;
   }
 
   const {
     activity,
     showHistoryButton = false,
+    showClose = false,
+    onClose,
     class: className,
     ...restProps
   }: Props = $props();
@@ -181,6 +185,9 @@
 <div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full min-w-0 min-h-0')}>
   {#if activity}
     <div class="text-sm flex flex-wrap justify-between items-center gap-2">
+      {#if showClose && onClose}
+        <XButton onclick={onClose} size="icon" />
+      {/if}
       <span>
         <span>
           {$t`Author:`}

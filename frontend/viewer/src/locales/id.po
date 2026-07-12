@@ -149,6 +149,11 @@ msgstr "Akun"
 msgid "Activity"
 msgstr "Aktivitas"
 
+#. Error boundary title shown if the whole Activity view crashes while rendering. Distinct from the per-change "Failed to load this change" error.
+#: src/lib/activity/ActivityView.svelte
+msgid "Activity view failed"
+msgstr ""
+
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
 #. Action: Opens file picker to upload MP3/WAV/etc
@@ -2266,6 +2271,10 @@ msgstr "Pilih {0}"
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "Pilih {0} untuk melihat detailnya"
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Select a change to view details"
+msgstr ""
 
 #. Empty state message
 #: src/project/tasks/TasksView.svelte
