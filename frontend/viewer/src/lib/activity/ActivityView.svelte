@@ -1,6 +1,6 @@
 <script lang="ts">
   import {useHistoryService} from '$lib/services/history-service';
-  import {t} from 'svelte-i18n-lingui';
+  import {plural, t} from 'svelte-i18n-lingui';
   import {Debounced, resource} from 'runed';
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
@@ -11,6 +11,12 @@
   import {Icon} from '$lib/components/ui/icon';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {IProjectActivity} from '$lib/dotnet-types';
+  import ActivityViewPicker from './ActivityViewPicker.svelte';
+  import ChangeSummary from './ChangeSummary.svelte';
+  import {summarizeActivity, groupByRootEntry, factCategory, commitBadge, type CommitBadge} from './change-summary';
+  import type {IconClass} from '$lib/icon-class';
+  import type {ChangeFact, ChangeFactWithSubject} from './change-summary';
+  import {FACT_GLYPH} from './fact-glyph';
   import {
     createDefaultActivityFilters,
     emptyActivityLoad,
@@ -24,6 +30,35 @@
   import AuthorLabel from './AuthorLabel.svelte';
 
   const historyService = useHistoryService();
+
+  function glyphFor(fact: ChangeFact) {
+    return FACT_GLYPH[factCategory(fact)];
+  }
+
+  // Row-level badge in the top-right corner: the icon SHAPE classifies every row's change kind;
+  // COLOUR is reserved for structural creates/deletes (entries, senses, vocab objects, imports) so
+  // routine edits recede and the events worth noticing pop.
+  const BADGE_ICON: Record<CommitBadge['category'], IconClass> = {
+    added: 'i-mdi-plus',
+    removed: 'i-mdi-minus',
+    changed: 'i-mdi-pencil-outline',
+    reordered: 'i-mdi-swap-vertical',
+  };
+  function badgeColor(badge: CommitBadge): string {
+    if (!badge.structural) return 'text-muted-foreground';
+    return badge.category === 'added' ? 'text-emerald-600 dark:text-emerald-400'
+      : badge.category === 'removed' ? 'text-destructive'
+      : 'text-muted-foreground';
+  }
+  function badgeLabel(category: CommitBadge['category']): string {
+    const labels: Record<CommitBadge['category'], string> = {
+      added: $t`Added`,
+      removed: $t`Removed`,
+      changed: $t`Edited`,
+      reordered: $t`Reordered`,
+    };
+    return labels[category];
+  }
 
   const THRESHOLD = 20;
   const BATCH_SIZE = THRESHOLD * 2;
@@ -127,10 +162,39 @@
   }
 </script>
 
-<div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
-     style="grid-template-rows: auto minmax(0,100%); grid-template-columns: minmax(8rem,25%) 2fr">
+<!-- One change line: an optional change-kind glyph + the summary. `groupHeadword` (set when the line sits
+     under an entry-group header) lets ChangeSummary render the subject relative to the header — hidden when
+     identical, a muted "› gloss" context token for senses/examples — AND reserves a gutter so wrapped lines
+     hang-indent under the text — a bulleted list of the group's changes. Ungrouped rows are one-offs,
+     so the glyph sits inline; single-fact commits skip it entirely (the item shows one glyph in its
+     top-right corner instead — see below). -->
+{#snippet factLine(entry: ChangeFactWithSubject, groupHeadword?: string, hideGlyph = false)}
+  {@const glyph = hideGlyph ? undefined : glyphFor(entry.fact)}
+  {#if groupHeadword !== undefined}
+    <div class="flex items-center gap-1.5">
+      <span class="w-3.5 shrink-0 flex justify-center">
+        {#if glyph}<Icon icon={glyph.icon} class="size-3.5 {glyph.class}" />{/if}
+      </span>
+      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} {groupHeadword} /></span>
+    </div>
+  {:else}
+    <div class="flex items-center gap-1 min-w-0">
+      {#if glyph}<Icon icon={glyph.icon} class="size-3.5 shrink-0 {glyph.class}" />{/if}
+      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></span>
+    </div>
+  {/if}
+{/snippet}
 
-  <ActivityFilter bind:filters />
+<div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
+     style="grid-template-rows: auto 1fr; grid-template-columns: minmax(8rem,25%) minmax(0,2fr)">
+
+  <div>
+    <ActivityFilter bind:filters>
+      {#snippet trailing()}
+        <ActivityViewPicker />
+      {/snippet}
+    </ActivityFilter>
+  </div>
 
   <div class="gap-4 overflow-hidden row-start-2 relative">
     {#if activity.error && awaitingFreshData}
@@ -148,12 +212,64 @@
              onscroll={onListScroll}
              getKey={row => row.commitId} bufferSize={400}>
         {#snippet children(row)}
+          {@const summary = summarizeActivity(row.changes, row.changeInfo, row.changeTypes)}
+          <!-- The badge replaces the inline glyph on single-fact rows (it IS that fact's glyph,
+               relocated). Multi-fact commits get no badge — see commitBadge — and keep per-fact glyphs. -->
+          {@const badge = commitBadge(summary)}
           <ListItem
             onclick={() => selectedRow = row}
             selected={selectedRow?.commitId === row.commitId}
-            class="mb-2">
-            <span>{row.changeName}</span>
-            <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
+            class="mb-2 relative overflow-hidden">
+            {#if summary.entries.length === 0}
+              <span>{row.changeName}</span>
+            {:else}
+              <!-- Facts group by the entry tree they touch: the header line is the group's `lead` (the
+                   entry's own create/delete — the main event) when the commit contains one, else the bare
+                   bold headword; the entry's other changes list beneath along an indent rail. Single-fact
+                   and headwordless groups render inline instead (their line names its own subject). Base
+                   text muted so verbs recede; subject header and data chips render foreground. -->
+              {@const groups = groupByRootEntry(summary.entries)}
+              <div class="space-y-1 text-muted-foreground">
+                {#each groups as group, gi (gi)}
+                  {#if group.lead && group.facts.length > 0}
+                    <div>
+                      {@render factLine(group.lead)}
+                      <div class="ms-1 space-y-0.5 border-s border-muted-foreground/40 ps-2">
+                        {#each group.facts as entry, i (i)}
+                          {@render factLine(entry, group.headword ?? '')}
+                        {/each}
+                      </div>
+                    </div>
+                  {:else if group.headword && group.facts.length > 1}
+                    <div>
+                      <div class="font-semibold text-foreground">{group.headword}</div>
+                      <div class="ms-1 space-y-0.5 border-s border-muted-foreground/40 ps-2">
+                        {#each group.facts as entry, i (i)}
+                          {@render factLine(entry, group.headword)}
+                        {/each}
+                      </div>
+                    </div>
+                  {:else}
+                    {#if group.lead}
+                      {@render factLine(group.lead, undefined, !!badge)}
+                    {/if}
+                    {#each group.facts as entry, i (i)}
+                      {@render factLine(entry, undefined, !!badge)}
+                    {/each}
+                  {/if}
+                {/each}
+                {#if summary.remaining > 0}
+                  <div class="ps-5">{$plural(summary.remaining, {one: '(+# more change)', other: '(+# more changes)'})}</div>
+                {/if}
+              </div>
+            {/if}
+            {#if badge}
+              <span class="absolute top-1 end-1" role="img" title={badgeLabel(badge.category)} aria-label={badgeLabel(badge.category)}>
+                <Icon icon={BADGE_ICON[badge.category]} class="size-3.5 {badgeColor(badge)}" />
+              </span>
+            {/if}
+            <div class="mt-2 text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
+              <AuthorLabel class="min-w-0" authorId={row.metadata.authorId} authorName={row.metadata.authorName} />
               <span class="flex items-center gap-1">
                 {#if !row.metadata.extraMetadata['SyncDate']}
                   <Icon
@@ -164,7 +280,6 @@
                 <FormatRelativeDate date={row.timestamp}
                         actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
               </span>
-              <AuthorLabel authorId={row.metadata.authorId} authorName={row.metadata.authorName} />
             </div>
           </ListItem>
         {/snippet}
