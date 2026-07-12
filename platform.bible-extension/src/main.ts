@@ -241,18 +241,66 @@ export async function deactivate(): Promise<boolean> {
   return await shutDownFwLite();
 }
 
+/**
+ * Returns a stable per-user directory for FW Lite data (projects, auth cache), in its own
+ * subdirectory so it doesn't collide with Platform.Bible's own `papi.storage` data for this
+ * extension (`.../extensions/lexicon/user-data/`). Mirrors Platform.Bible's own `app://` scheme
+ * (paranext-core's `getAppDir()`): the real per-user location when packaged, the repo-local
+ * dev-appdata directory in development, so `npm start` doesn't read/write production user data.
+ *
+ * Uses process.env/globalThis instead of require('os'/'path') because Platform.Bible blocks
+ * non-papi requires, so paths are assembled by hand with the platform-appropriate separator
+ * (backslash on Windows, forward slash on Linux/Mac, which .NET requires there).
+ */
+function getFwLiteDataDir(platform: string): string {
+  const isWindows = platform === 'win32';
+  const sep = isWindows ? '\\' : '/';
+  let appDataDir: string;
+  if (globalThis.isPackaged) {
+    // Mirrors paranext-core's os.homedir()
+    const home = isWindows ? process.env.USERPROFILE : process.env.HOME;
+    if (!home) {
+      const homeVar = isWindows ? 'USERPROFILE' : 'HOME';
+      throw new Error(`Cannot determine FW Lite data directory: ${homeVar} is not set`);
+    }
+    appDataDir = `${home}${sep}.platform.bible`;
+  } else {
+    appDataDir = `${globalThis.resourcesPath}${sep}dev-appdata`;
+  }
+  return `${appDataDir}${sep}extensions${sep}lexicon${sep}fw-lite`;
+}
+
+/**
+ * Returns the extension-relative path to the FW Lite binary. Forward slashes on all platforms:
+ * createProcess (Node) resolves it, so unlike getFwLiteDataDir it needs no Windows separator.
+ */
+function getFwLiteBinaryPath(platform: string): string {
+  switch (platform) {
+    case 'win32':
+      return 'fw-lite/win-x64/FwLiteWeb.exe';
+    case 'linux':
+      // The extension zip doesn't preserve the Unix executable bit, but paranext-core's
+      // createProcess.spawn sets it on the command before spawning, so a plain spawn works.
+      return 'fw-lite/linux-x64/FwLiteWeb';
+    default:
+      // macOS is out of scope for now: https://github.com/sillsdev/languageforge-lexbox/issues/1603
+      throw new Error(`Cannot launch FW Lite on unsupported platform '${platform}'`);
+  }
+}
+
 /** Launches the FieldWorks Lite process and returns its URL domain. */
 function launchFwLite(context: ExecutionActivationContext): string {
-  const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('Requires createProcess elevated privileges to launch FW Lite');
   }
-  if (context.elevatedPrivileges.createProcess.osData.platform !== 'win32') {
-    throw new Error('Requires Windows to launch FW Lite');
-  }
+  const { platform } = context.elevatedPrivileges.createProcess.osData;
+  const binaryPath = getFwLiteBinaryPath(platform);
   // TODO: Instead of hardcoding the URL and port we should run it and find them in the output.
   const baseUrl = 'http://localhost:29348';
 
+  const dataDir = getFwLiteDataDir(platform);
+  const sep = platform === 'win32' ? '\\' : '/';
+  const authCacheFile = `${dataDir}${sep}msal.json`;
   fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
@@ -263,6 +311,8 @@ function launchFwLite(context: ExecutionActivationContext): string {
       '--FwLiteWeb:CorsAllowAny=true',
       '--FwLiteWeb:EnableFileLogging=false', // already piped to P.B (and triggers npm watch)
       '--FwLiteWeb:OpenBrowser=false',
+      `--LcmCrdt:ProjectPath=${dataDir}`,
+      `--Auth:CacheFileName=${authCacheFile}`,
     ],
     { stdio: ['pipe', 'pipe', 'pipe'] },
   );

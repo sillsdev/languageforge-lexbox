@@ -29,22 +29,29 @@ task fw-lite:has-stale-generated-types
 
 The generated files are located in `src/lib/dotnet-types/generated-types/`.
 
-### E2E Testing (Playwright)
+### Testing
 
-To run E2E tests for the viewer:
+| Suite | Location | Runnable here? |
+|---|---|---|
+| UI | `tests/ui/` | ✅ Yes — auto-starts a dev server with in-memory demo; no infra needed |
+| E2E | `tests/e2e/` | ❌ Needs a Lexbox kind cluster + published FwLiteWeb binary |
+| Launcher | `tests/launcher/` | ❌ Needs a published FwLiteWeb binary |
+
+**Don't run E2E or Launcher tests unless you've explicitly set up that infrastructure** — they fail loudly without it and the setup isn't part of normal dev.
+
+UI tests (the runnable ones) — from `frontend/viewer/`:
+
 ```bash
-# From frontend/viewer/ directory
-# Automatically starts dev server if needed
-# For debugging e.g. with Chrome MCP: dev server/demo project will be available at port 5173 & path /testing/project-view/browse
+# Dev server / demo project: http://localhost:5173/testing/project-view (useful for Chrome MCP debugging).
 
-# Filter by test name (the ONLY RIGHT choice if testing specific features or changes) e.g.
-task playwright-test-standalone -- entries-list
+# Filter by test name (the ONLY RIGHT choice when testing specific features or changes), e.g.
+task test:ui-standalone -- entries-list
 
-# All tests
-task playwright-test-standalone
+# All UI tests
+task test:ui-standalone
 
-# In UI mode
-task playwright-test-standalone -- entries-list --ui
+# Playwright UI mode
+task test:ui-standalone -- entries-list --ui
 ```
 
 ## Tech Stack
@@ -63,7 +70,7 @@ task playwright-test-standalone -- entries-list --ui
 | `src/lib/` | Shared components, entry editor |
 | `src/locales/` | i18n translation files (JSON) |
 | `.storybook/` | Component storybook |
-| `tests/` | Playwright E2E tests |
+| `tests/` | Playwright (UI + e2e) and Vitest (launcher) tests |
 
 ## i18n (Lingui)
 

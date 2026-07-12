@@ -11,6 +11,12 @@ spec:
           env:
             - name: Email__BaseUrl
               value: "http://localhost:6579"
+            # Trust the kind cluster's pod network so X-Forwarded-Proto from the
+            # ingress-nginx controller is honored — otherwise lexbox sees the request
+            # as HTTP and emits HTTP URLs in /.well-known/openid-configuration, which
+            # breaks the FwLite OAuth flow over the HTTPS port-forward used in CI.
+            - name: ForwardedHeadersOptions__KnownNetworks__0
+              value: "0.0.0.0/0"
           volumeMounts:
             - mountPath: /frontend
               name: gql-schema

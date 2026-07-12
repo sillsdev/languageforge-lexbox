@@ -1,6 +1,4 @@
 import {type Locator, type Page, expect} from '@playwright/test';
-import {waitForProjectViewReady} from './test-utils';
-import type {EntryApiHelper} from './entry-api-helper';
 
 /**
  * Component object for EntriesList.
@@ -13,20 +11,13 @@ export class EntriesListComponent {
   readonly selectedEntry: Locator;
   readonly searchInput: Locator;
 
-  constructor(readonly page: Page, readonly api: EntryApiHelper) {
+  constructor(readonly page: Page) {
     const table = page.locator('[role="table"]');
     this.vlist = table.locator('> div > div');
     this.entryRows = table.locator('[role="row"]');
     this.skeletons = table.locator('[data-skeleton]');
     this.selectedEntry = table.locator('[role="row"][aria-selected="true"]');
     this.searchInput = page.locator('input.real-input').first();
-  }
-
-  async goto(waitForTestUtils = false): Promise<void> {
-    await this.page.goto('/testing/project-view');
-    await waitForProjectViewReady(this.page, waitForTestUtils);
-    const renderedRowCount = await this.entryRows.count();
-    expect(renderedRowCount).toBeGreaterThan(0);
   }
 
   async waitForSkeletonsToResolve(): Promise<void> {
@@ -61,23 +52,6 @@ export class EntriesListComponent {
   async scrollToPercent(percent: number): Promise<void> {
     const scrollHeight = await this.vlist.evaluate((el) => el.scrollHeight);
     await this.scrollToPixels(scrollHeight * percent);
-  }
-
-  async scrollToIndex(targetIndex: number): Promise<void> {
-    const totalCount = await this.api.countEntries();
-    if (targetIndex >= totalCount) throw new Error(`Target index ${targetIndex} exceeds total count ${totalCount}`);
-
-    const targetScroll = await this.vlist.evaluate((el, params) => {
-      const {idx, total} = params;
-      return (idx / total) * el.scrollHeight;
-    }, {idx: targetIndex, total: totalCount});
-
-    await this.vlist.evaluate((el, target) => {
-      el.scrollTop = Math.min(target, el.scrollHeight - el.clientHeight);
-    }, targetScroll);
-
-    await this.page.waitForTimeout(300);
-    await this.waitForSkeletonsToResolve();
   }
 
   async scrollToEnd(): Promise<void> {

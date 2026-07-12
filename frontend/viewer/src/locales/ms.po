@@ -403,6 +403,8 @@ msgstr ""
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Batal"
@@ -948,6 +950,15 @@ msgstr "Gagal membuka direktori data, gunakan laluan dalam medan teks sebaliknya
 msgid "Failed to open URL: {0}"
 msgstr "Gagal membuka URL: {0}"
 
+#. Error toast when snapshot regeneration fails in the Troubleshoot dialog
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to regenerate Harmony snapshots"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to regenerate search index"
+msgstr ""
+
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
@@ -1161,6 +1172,11 @@ msgstr "Maklumat tatabahasa."
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
 msgstr "hijau"
+
+#. Success toast after rebuilding Harmony snapshot/projected tables from commit history
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Harmony snapshots regenerated successfully"
+msgstr ""
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1668,6 +1684,15 @@ msgstr "Luar talian, tidak dapat memuat turun"
 msgid "Oldest first"
 msgstr ""
 
+#. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "On large projects this may take a while. Do not close the app or interrupt the process."
+msgstr ""
+
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
@@ -1835,6 +1860,39 @@ msgstr "Perhalusi penapis anda untuk melihat lebih banyak..."
 msgid "Refresh Projects"
 msgstr "Segarkan Semula Projek"
 
+#. Confirm button in the regenerate-snapshots warning dialog (Troubleshoot)
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate"
+msgstr ""
+
+#. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate Harmony snapshots"
+msgstr ""
+
+#. Alert dialog title before starting Harmony snapshot regeneration
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate Harmony snapshots?"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate search index"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerate search index?"
+msgstr ""
+
+#. Blocking progress message while Harmony snapshots are being rebuilt
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Regenerating search index. This may take a while — do not close the app."
+msgstr ""
+
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
@@ -1930,6 +1988,10 @@ msgstr "Cari # atau #"
 #: src/project/ProjectDropdown.svelte
 msgid "Search Dictionaries"
 msgstr "Cari Kamus"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Search index regenerated successfully"
+msgstr ""
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2296,6 +2358,15 @@ msgstr ""
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Projek ini kini dibuka dalam FieldWorks. Untuk terus bekerja dalam FieldWorks Lite, tutup projek dalam FieldWorks dan klik Buka Semula."
+
+#. Warning in regenerate-snapshots confirm dialog: explains what the operation does
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "This rebuilds snapshot and projected tables from commit history."
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "This rebuilds the full-text search index from dictionary entries."
+msgstr ""
 
 #. Status message
 #: src/project/tasks/TaskView.svelte

@@ -45,6 +45,8 @@ internal static class LcmHelpers
     {
         foreach (var ws in entry.Cache.ServiceLocator.WritingSystems.VernacularWritingSystems)
         {
+            //audio writing systems hold a media-file reference, not searchable text
+            if (entry.Cache.GetWritingSystemId(ws.Handle).IsAudio) continue;
             var headword = entry.HeadWordForWs(ws.Handle);
             if (headword is null) continue;
             var text = headword.Text;
@@ -54,11 +56,12 @@ internal static class LcmHelpers
         return false;
     }
 
-    internal static bool SearchValue(this ITsMultiString multiString, string value)
+    internal static bool SearchValue(this ITsMultiString multiString, LcmCache cache, string value)
     {
         for (var i = 0; i < multiString.StringCount; i++)
         {
-            var tsString = multiString.GetStringFromIndex(i, out var _);
+            var tsString = multiString.GetStringFromIndex(i, out var ws);
+            if (cache.GetWritingSystemId(ws).IsAudio) continue;
             if (string.IsNullOrEmpty(tsString.Text)) continue;
             if (tsString.Text.ContainsDiacriticMatch(value))
             {
