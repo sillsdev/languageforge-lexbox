@@ -180,6 +180,34 @@
     font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: var(--gold);
     padding: 4px 12px; pointer-events: none;
   }
+  /* Context-aware "what to do next" line, sits just under the top banner. */
+  #objective {
+    top: 74px; left: 50%; transform: translateX(-50%);
+    padding: 6px 15px; font-size: 0.82rem; font-weight: 600; text-align: center;
+    max-width: 88vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    pointer-events: none; color: var(--text);
+  }
+  #objective b { color: var(--gold); }
+  #objective.ready { border-color: var(--gold); box-shadow: 0 0 16px rgba(234,179,8,0.4); }
+  /* First-run control primer; fades out after the player starts moving/looking. */
+  #firsthint {
+    bottom: 150px; left: 50%; transform: translateX(-50%);
+    padding: 12px 18px; font-size: 0.9rem; line-height: 1.7; text-align: center;
+    max-width: min(440px, 90vw); pointer-events: none;
+    transition: opacity 0.6s; opacity: 1;
+  }
+  #firsthint.fading { opacity: 0; }
+  #firsthint kbd {
+    background: var(--border); border-radius: 5px; padding: 1px 8px; font-family: inherit;
+    font-size: 0.82rem; font-weight: 700; margin: 0 2px;
+  }
+  #firsthint .lead { color: var(--gold); font-weight: 700; display: block; margin-bottom: 4px; }
+  #helpbtn {
+    position: absolute; top: 70px; right: 12px; width: 34px; height: 34px;
+    border-radius: 50%; font-size: 1rem; font-weight: 700; color: var(--text-muted);
+    cursor: pointer; pointer-events: auto; padding: 0;
+  }
+  #helpbtn:hover { color: var(--text); border-color: var(--accent); }
   #compassbar {
     position: absolute; top: 12px; left: 12px; padding: 7px 12px; font-size: 0.8rem;
     color: var(--text-muted); display: flex; align-items: center; gap: 8px;
@@ -323,8 +351,11 @@
   </div>
   <div id="cross"></div>
   <div id="prompt" class="panel hidden"></div>
+  <div id="objective" class="panel hidden"></div>
+  <div id="firsthint" class="panel hidden"></div>
   <div id="modebadge" class="panel hidden">⛏ BUILD MODE</div>
   <div id="hotbar" class="panel hidden"></div>
+  <button id="helpbtn" class="panel" title="How to play (Esc)">?</button>
 </div>
 
 <div id="echo" class="panel hidden">
@@ -772,6 +803,9 @@ var B = {
   AIR: 0, GRASS: 1, DIRT: 2, STONE: 3, SAND: 4, WOOD: 5, LEAVES: 6, ROCK: 7,
   CRYSTAL: 8, RUIN: 9, MONOLITH: 10, SHROOM_STEM: 11, SHROOM_CAP: 12,
   PLANKS: 13, STONEBRICK: 14, LANTERN: 15, SONGSTONE: 16, BEACON: 17, PATH: 18,
+  // Flowers/blooms — placed only in restored regions (see bloomRegion), so the
+  // grey Hush stays bare and waking an isle is what brings the colour.
+  FLOWER_RED: 19, FLOWER_GOLD: 20, FLOWER_VIOLET: 21, FLOWER_WHITE: 22, BLOOM: 23,
 };
 // [r, g, b, glow] — grass/leaves get re-tinted per region biome at mesh time.
 var BLOCK_STYLE = {};
@@ -793,6 +827,11 @@ BLOCK_STYLE[B.LANTERN] = [1.0, 0.83, 0.45, 0.9];
 BLOCK_STYLE[B.SONGSTONE] = [0.45, 0.88, 0.80, 0.8];
 BLOCK_STYLE[B.BEACON] = [1.0, 0.95, 0.75, 1.0];
 BLOCK_STYLE[B.PATH] = [0.60, 0.52, 0.38, 0];
+BLOCK_STYLE[B.FLOWER_RED] = [0.90, 0.24, 0.32, 0.10];
+BLOCK_STYLE[B.FLOWER_GOLD] = [0.98, 0.80, 0.28, 0.12];
+BLOCK_STYLE[B.FLOWER_VIOLET] = [0.72, 0.40, 0.92, 0.12];
+BLOCK_STYLE[B.FLOWER_WHITE] = [0.95, 0.95, 0.99, 0.08];
+BLOCK_STYLE[B.BLOOM] = [0.45, 0.95, 0.88, 0.45];
 
 var World = {
   blocks: new Uint8Array(WORLD * WORLD * HEIGHT),
@@ -1203,7 +1242,8 @@ var Renderer = (function () {
   var gl, canvas;
   var progVoxel, progSky, progWater, progSprite;
   var chunks = [];           // [cx][cz] -> {vbo, ibo, count, dirty}
-  var skyVbo, waterVbo, spriteVbo, spriteIbo;
+  var skyVbo, waterVbo, spriteVbo, spriteIbo, creatureVbo;
+  var creatureCount = 0;
   var spriteData = new Float32Array(MAX_SPRITES * 4 * 10);
   var spriteCount = 0;
   var vp = new Float32Array(16);
@@ -1265,11 +1305,22 @@ var Renderer = (function () {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, spriteIbo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 
+    creatureVbo = gl.createBuffer();
+
     for (var cx = 0; cx < CHUNKS; cx++) {
       chunks[cx] = [];
       for (var cz = 0; cz < CHUNKS; cz++) chunks[cx][cz] = {vbo: null, ibo: null, count: 0, dirty: true};
     }
     resize();
+  }
+
+  /* Uploads per-frame creature geometry (7 floats/vert: xyz + rgb + glow), drawn
+   * in the voxel pass so critters pick up the same fog and day/night lighting. */
+  function updateCreatures(verts) {
+    creatureCount = verts.length / 7;
+    if (!creatureCount) return;
+    gl.bindBuffer(gl.ARRAY_BUFFER, creatureVbo);
+    gl.bufferData(gl.ARRAY_BUFFER, verts, gl.DYNAMIC_DRAW);
   }
 
   function resize() {
@@ -1539,6 +1590,17 @@ var Renderer = (function () {
       }
     }
 
+    // Creatures — same voxel program/uniforms, culling off so cube winding is irrelevant.
+    if (creatureCount) {
+      gl.disable(gl.CULL_FACE);
+      gl.bindBuffer(gl.ARRAY_BUFFER, creatureVbo);
+      gl.enableVertexAttribArray(progVoxel.a.aPos);
+      gl.vertexAttribPointer(progVoxel.a.aPos, 3, gl.FLOAT, false, 28, 0);
+      gl.enableVertexAttribArray(progVoxel.a.aCol);
+      gl.vertexAttribPointer(progVoxel.a.aCol, 4, gl.FLOAT, false, 28, 12);
+      gl.drawArrays(gl.TRIANGLES, 0, creatureCount);
+    }
+
     // Water
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -1582,7 +1644,7 @@ var Renderer = (function () {
 
   return {
     init: init, resize: resize, meshAll: meshAll, remeshAt: remeshAt, remeshRegion: remeshRegion,
-    beginSprites: beginSprites, pushSprite: pushSprite, render: render,
+    beginSprites: beginSprites, pushSprite: pushSprite, updateCreatures: updateCreatures, render: render,
   };
 })();
 /* ---------------------------------------------------------------------------
@@ -2013,11 +2075,15 @@ function checkRestore(region) {
   if (learnedInRegion(region) < region.target) return;
   Restored[region.index] = true;
   Game.lumens += 40;
+  bloomRegion(region.index);            // scatter flowers, then rebuild the mesh in full colour
+  spawnCreaturesForRegion(region.index);
   Renderer.remeshRegion(region.index);
   Sound.restore();
   toast('🌿 <b>' + escapeHtml(region.name) + '</b> awakens — the Hush lifts!');
   var eye = eyePos();
-  burst(eye.x + lookDir().x * 4, eye.y + 2, eye.z + lookDir().z * 4, [1, 0.9, 0.5], 60, true);
+  var accent = region.biome.accent;
+  burst(eye.x + lookDir().x * 4, eye.y + 2, eye.z + lookDir().z * 4, [1, 0.9, 0.5], 40, true);
+  burst(eye.x + lookDir().x * 5, eye.y + 2.5, eye.z + lookDir().z * 5, accent, 40, true);
   if (!Game.story.firstRestore) { Game.story.firstRestore = true; echoSay(STORY.firstRestore); }
   else echoSay(['<b>' + escapeHtml(region.name) + '</b> breathes again. ' + restoredCount() + ' of ' + liveRegionCount() + ' isles are awake.']);
   if (canLightBeacon() && !World.beacon.lit && !Game.story.beaconReady) {
@@ -2071,10 +2137,12 @@ function drawSprites() {
   Renderer.beginSprites();
   var eye = eyePos();
   var t = Game.time;
+  var nearestOrb = null, nearestD2 = Infinity;
   for (var i = 0; i < Game.orbs.length; i++) {
     var orb = Game.orbs[i];
     var dx = orb.x - eye.x, dz = orb.z - eye.z;
     var d2 = dx * dx + dz * dz;
+    if (d2 < nearestD2) { nearestD2 = d2; nearestOrb = orb; }
     if (d2 > 4900) continue;
     var bob = Math.sin(t * 1.8 + orb.phase) * 0.2;
     var hue = regionHue(orb.region);
@@ -2087,19 +2155,33 @@ function drawSprites() {
       Renderer.pushSprite(orb.x + Math.cos(oa + 3.1) * 0.85, orb.y + bob + Math.cos(oa * 1.3) * 0.3, orb.z + Math.sin(oa + 3.1) * 0.85, 0.09, 1, 1, 1, 0.7);
     }
   }
-  // Word-place pulses
+  // Training wheels: while you're still learning the ropes, the nearest word-light
+  // casts a tall shaft so a first-timer can always see where to head.
+  if (nearestOrb && Game.learned.size < 3 && nearestD2 < 24000) {
+    var nh = regionHue(nearestOrb.region);
+    for (var g = 0; g < 10; g++) {
+      var gf = 0.12 + Math.sin(t * 3 + g) * 0.04;
+      Renderer.pushSprite(nearestOrb.x, nearestOrb.y + 1 + g * 1.5, nearestOrb.z, 0.5, nh[0] * gf, nh[1] * gf, nh[2] * gf, 0.5);
+    }
+  }
+  // Word-place pulses (+ a soft findable shaft over Wellsprings)
   for (var s = 0; s < World.interactables.length; s++) {
     var it = World.interactables[s];
     var sdx = it.x - eye.x, sdz = it.z - eye.z;
-    if (sdx * sdx + sdz * sdz > 3600) continue;
-    if (it.type === 'well') {
+    var sd2 = sdx * sdx + sdz * sdz;
+    if (it.type === 'well' && sd2 < 16000) {
       var ap = 0.5 + Math.sin(t * 2.2 + s) * 0.25;
       Renderer.pushSprite(it.x, it.y + 1.1, it.z, 0.9, 0.3 * ap, 0.7 * ap, 0.62 * ap, 0.5);
-    } else if (it.type === 'stone' && !it.done) {
+      for (var wb = 0; wb < 7; wb++) {
+        var wf = 0.10 + Math.sin(t * 2.6 + wb) * 0.03;
+        Renderer.pushSprite(it.x, it.y + 1.5 + wb * 1.4, it.z, 0.55, 0.28 * wf, 0.8 * wf, 0.72 * wf, 0.5);
+      }
+    } else if (it.type === 'stone' && !it.done && sd2 < 3600) {
       var sp = 0.5 + Math.sin(t * 1.6 + s * 2) * 0.3;
       Renderer.pushSprite(it.x, it.y + 1.8, it.z, 0.7, 0.45 * sp, 0.5 * sp, 0.9 * sp, 0.5);
     }
   }
+  drawLifeSprites(eye, t);
   // Beacon beam
   if (World.beacon.lit) {
     for (var b = 0; b < 16; b++) {
@@ -2576,6 +2658,220 @@ $('echo').addEventListener('click', function () {
   else echoNext();
 });
 /* ---------------------------------------------------------------------------
+ * Life & colour: everything here is gated on a region being *restored*, so the
+ * grey Hush stays calm and waking an isle is what makes it bloom and teem.
+ *   - flowers: bright blocks scattered on restore (persist via the world mesh)
+ *   - creatures: little voxel critters that hop over restored land
+ *   - motes: glowing "glimmerwings" by day, fireflies by night, plus a gentle
+ *     always-on shimmer at the hub so spawn is never lifeless.
+ * -------------------------------------------------------------------------*/
+var Life = {
+  bloomed: {},        // regionIndex -> true (flowers placed)
+  anchors: {},        // regionIndex -> [{x,y,z}] drift points for motes/fireflies
+  hubAnchors: [],
+  creatures: [],
+  lastDay: 1,
+  creatureVerts: new Float32Array(0),
+};
+var MAX_CREATURES = 18;
+var CREATURES_PER_REGION = 3;
+var MOTES_PER_REGION = 5;
+var FIREFLIES_PER_REGION = 6;
+
+function flowerPalette(kind) {
+  switch (kind) {
+    case 'meadow': case 'hearth': case 'village':
+      return [B.FLOWER_RED, B.FLOWER_GOLD, B.FLOWER_VIOLET, B.FLOWER_WHITE, B.FLOWER_GOLD];
+    case 'orchard': return [B.FLOWER_RED, B.FLOWER_WHITE, B.FLOWER_GOLD, B.FLOWER_RED];
+    case 'crystal': return [B.BLOOM, B.FLOWER_WHITE, B.BLOOM, B.FLOWER_VIOLET];
+    case 'library': case 'monolith': return [B.FLOWER_VIOLET, B.FLOWER_WHITE];
+    case 'cliffs': case 'quarry': return [B.FLOWER_GOLD, B.FLOWER_WHITE];
+    default: return [B.FLOWER_VIOLET, B.FLOWER_WHITE, B.BLOOM];
+  }
+}
+
+// Scatter flowers on grass across a region. Deterministic, so re-running for an
+// already-restored region on load reproduces the same meadow.
+function bloomRegion(index) {
+  if (Life.bloomed[index]) return;
+  var region = Dict.regions[index];
+  if (!region) return;
+  Life.bloomed[index] = true;
+  var rand = mulberry32((World.seed ^ Math.imul(index + 1, 0x27d4eb2d)) >>> 0);
+  var palette = flowerPalette(region.biome.kind);
+  var density = (region.biome.kind === 'cliffs' || region.biome.kind === 'quarry') ? 26 : 70;
+  for (var i = 0; i < density; i++) {
+    var spot = regionSpot(index, World.regionCount, World.angleOffset, rand, 0.15, 0.86);
+    if (!spot) continue;
+    if (getBlock(spot.x, spot.y, spot.z) !== B.GRASS) continue;
+    if (getBlock(spot.x, spot.y + 1, spot.z) !== B.AIR) continue;
+    setBlock(spot.x, spot.y + 1, spot.z, palette[Math.floor(rand() * palette.length)]);
+    World.heights[(spot.x << 8) | spot.z] = spot.y + 1;
+  }
+  // A handful of drift anchors for this region's motes/fireflies.
+  var anchors = [];
+  var arand = mulberry32((World.seed ^ Math.imul(index + 7, 0x9e3779b1)) >>> 0);
+  for (var a = 0; a < 8; a++) {
+    var p = regionSpot(index, World.regionCount, World.angleOffset, arand, 0.2, 0.8);
+    if (p) anchors.push({x: p.x + 0.5, y: p.y + 1, z: p.z + 0.5});
+  }
+  Life.anchors[index] = anchors;
+}
+
+function spawnCreaturesForRegion(index) {
+  var region = Dict.regions[index];
+  if (!region) return;
+  var rand = mulberry32((World.seed ^ Math.imul(index + 13, 0x85ebca77)) >>> 0);
+  var accent = region.biome.accent;
+  for (var i = 0; i < CREATURES_PER_REGION && Life.creatures.length < MAX_CREATURES; i++) {
+    var spot = regionSpot(index, World.regionCount, World.angleOffset, rand, 0.25, 0.75);
+    if (!spot) continue;
+    Life.creatures.push({
+      x: spot.x + 0.5, z: spot.z + 0.5, region: index,
+      dir: rand() * Math.PI * 2,
+      hop: rand() * Math.PI * 2,
+      speed: 0.8 + rand() * 0.7,
+      turn: 0,
+      // brighten the biome accent so critters read as their own creature, not terrain
+      r: clamp(accent[0] * 0.7 + 0.3, 0, 1), g: clamp(accent[1] * 0.7 + 0.3, 0, 1), b: clamp(accent[2] * 0.7 + 0.3, 0, 1),
+    });
+  }
+}
+
+function initLife() {
+  Life.creatures = [];
+  Life.hubAnchors = [];
+  for (var k = 0; k < 6; k++) {
+    var ang = k / 6 * Math.PI * 2;
+    var r = 6 + (k % 2) * 3;
+    Life.hubAnchors.push({x: CX + 0.5 + Math.cos(ang) * r, y: SEA + 6, z: CZ + 0.5 + Math.sin(ang) * r});
+  }
+  for (var i = 0; i < Dict.regions.length; i++) {
+    if (Restored[i]) { if (!Life.anchors[i]) bloomRegion(i); spawnCreaturesForRegion(i); }
+  }
+}
+
+// Bloom every already-restored region's flowers BEFORE the world is meshed.
+function bloomRestoredRegions() {
+  for (var i = 0; i < Dict.regions.length; i++) if (Restored[i]) bloomRegion(i);
+}
+
+function updateLife(dt) {
+  for (var i = 0; i < Life.creatures.length; i++) {
+    var c = Life.creatures[i];
+    c.hop += dt * (3.2 + c.speed);
+    // occasional gentle turn
+    c.turn -= dt;
+    if (c.turn <= 0) { c.dir += (Math.random() - 0.5) * 1.6; c.turn = 0.8 + Math.random() * 1.6; }
+    var step = c.speed * dt;
+    var nx = c.x + Math.cos(c.dir) * step, nz = c.z + Math.sin(c.dir) * step;
+    var gx = Math.floor(nx), gz = Math.floor(nz);
+    var here = Math.floor(c.x), herez = Math.floor(c.z);
+    var groundNow = surfaceY(here, herez);
+    var groundNext = surfaceY(gx, gz);
+    // turn back at region edges, water, and anything it can't hop up/down
+    if (columnRegion(gx, gz) !== c.region || groundNext <= SEA || Math.abs(groundNext - groundNow) > 1) {
+      c.dir += Math.PI * 0.6 + (Math.random() - 0.5);
+    } else {
+      c.x = nx; c.z = nz;
+    }
+    c.groundY = surfaceY(Math.floor(c.x), Math.floor(c.z)) + 1;
+  }
+  Life.creatureVerts = buildCreatureMesh();
+}
+
+// A small critter = body + head + tail cubes; a hop lifts it off the ground.
+function buildCreatureMesh() {
+  var verts = [];
+  var eye = eyePos();
+  for (var i = 0; i < Life.creatures.length; i++) {
+    var c = Life.creatures[i];
+    var dx = c.x - eye.x, dz = c.z - eye.z;
+    if (dx * dx + dz * dz > 3600) continue; // cull distant critters
+    var lift = Math.max(0, Math.sin(c.hop)) * 0.38;
+    var baseY = c.groundY + lift + 0.22;
+    var fx = Math.cos(c.dir), fz = Math.sin(c.dir);
+    pushBox(verts, c.x, baseY, c.z, 0.26, 0.20, 0.30, c.r, c.g, c.b);                    // body
+    pushBox(verts, c.x + fx * 0.26, baseY + 0.20, c.z + fz * 0.26, 0.18, 0.17, 0.18,     // head (brighter)
+      clamp(c.r + 0.12, 0, 1), clamp(c.g + 0.12, 0, 1), clamp(c.b + 0.12, 0, 1));
+    pushBox(verts, c.x - fx * 0.28, baseY + 0.16, c.z - fz * 0.28, 0.09, 0.09, 0.09, c.r, c.g, c.b); // tail
+  }
+  return new Float32Array(verts);
+}
+
+// Axis-aligned box as 6 faces (36 verts); culling is off for creatures so any
+// winding is fine. Face shading matches the world's top-bright / bottom-dark look.
+function pushBox(v, cx, cy, cz, hx, hy, hz, r, g, b) {
+  var x0 = cx - hx, x1 = cx + hx, y0 = cy - hy, y1 = cy + hy, z0 = cz - hz, z1 = cz + hz;
+  var C = [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0], [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]];
+  var faces = [
+    [4, 5, 6, 7, 0.72], [1, 0, 3, 2, 0.72], [5, 1, 2, 6, 0.80],
+    [0, 4, 7, 3, 0.80], [7, 6, 2, 3, 1.00], [0, 1, 5, 4, 0.55],
+  ];
+  for (var f = 0; f < 6; f++) {
+    var q = faces[f], s = q[4];
+    var quad = [C[q[0]], C[q[1]], C[q[2]], C[q[0]], C[q[2]], C[q[3]]];
+    for (var t = 0; t < 6; t++) {
+      var p = quad[t];
+      v.push(p[0], p[1], p[2], r * s, g * s, b * s, 0);
+    }
+  }
+}
+
+// Glowing ambient life pushed into the sprite buffer (called from drawSprites).
+function drawLifeSprites(eye, t) {
+  var day = Life.lastDay;
+  var dayAmt = clamp((day - 0.35) / 0.4, 0, 1);       // motes fade in by day
+  var nightAmt = clamp((0.6 - day) / 0.4, 0, 1);      // fireflies fade in by night
+
+  function nearby(x, z) { var dx = x - eye.x, dz = z - eye.z; return dx * dx + dz * dz < 5000; }
+
+  for (var idx = 0; idx < Dict.regions.length; idx++) {
+    if (!Restored[idx]) continue;
+    var anchors = Life.anchors[idx];
+    if (!anchors || !anchors.length) continue;
+    var accent = Dict.regions[idx].biome.accent;
+    if (dayAmt > 0.02) {
+      for (var m = 0; m < MOTES_PER_REGION; m++) {
+        var an = anchors[m % anchors.length];
+        var ph = t * 0.6 + m * 1.7 + idx;
+        var mx = an.x + Math.cos(ph) * (2.2 + m * 0.4);
+        var mz = an.z + Math.sin(ph * 1.1) * (2.2 + m * 0.4);
+        var my = an.y + 1.4 + Math.sin(ph * 1.7) * 1.1;
+        if (!nearby(mx, mz)) continue;
+        var fl = (0.6 + 0.4 * Math.sin(ph * 3)) * dayAmt;
+        Renderer.pushSprite(mx, my, mz, 0.6, accent[0] * 0.5 * fl, accent[1] * 0.5 * fl, accent[2] * 0.5 * fl, 0.5);
+        Renderer.pushSprite(mx, my, mz, 0.14, accent[0] * fl, accent[1] * fl, accent[2] * fl, 0.9);
+      }
+    }
+    if (nightAmt > 0.02) {
+      for (var fF = 0; fF < FIREFLIES_PER_REGION; fF++) {
+        var fa = anchors[fF % anchors.length];
+        var fp = t * 0.5 + fF * 2.3 + idx * 2;
+        var fx2 = fa.x + Math.cos(fp * 0.9) * (1.6 + fF * 0.3);
+        var fz2 = fa.z + Math.sin(fp) * (1.6 + fF * 0.3);
+        var fy2 = fa.y + 0.6 + Math.abs(Math.sin(fp * 1.3)) * 1.0;
+        if (!nearby(fx2, fz2)) continue;
+        var blink = Math.max(0, Math.sin(fp * 2.5 + fF)) * nightAmt;
+        if (blink < 0.05) continue;
+        Renderer.pushSprite(fx2, fy2, fz2, 0.10, 1.0 * blink, 0.85 * blink, 0.35 * blink, 0.95);
+      }
+    }
+  }
+
+  // A little life at the hub so spawn/plaza is never dead.
+  for (var h = 0; h < Life.hubAnchors.length; h++) {
+    var ha = Life.hubAnchors[h];
+    var hp = t * 0.5 + h * 1.3;
+    var hx = ha.x + Math.cos(hp) * 1.6, hz = ha.z + Math.sin(hp * 1.2) * 1.6;
+    var hy = ha.y + Math.sin(hp * 1.6) * 0.8;
+    if (!nearby(hx, hz)) continue;
+    var warm = day > 0.5;
+    var hfl = 0.5 + 0.4 * Math.sin(hp * 3);
+    Renderer.pushSprite(hx, hy, hz, 0.12, (warm ? 1.0 : 0.7) * hfl, (warm ? 0.9 : 0.8) * hfl, (warm ? 0.55 : 1.0) * hfl, 0.85);
+  }
+}
+/* ---------------------------------------------------------------------------
  * UI shell: overlays, HUD, title & story, pause, boot sequence, main loop.
  * -------------------------------------------------------------------------*/
 var openOverlays = 0;
@@ -2649,7 +2945,61 @@ function updateCompass() {
   var dot = fx * dx + fz * dz, cross = fx * dz - fz * dx;
   var a = Math.atan2(cross, dot);
   $('compass-arrow').style.transform = 'rotate(' + (a * 180 / Math.PI - 90) + 'deg)';
-  $('compass-label').textContent = dist < 14 ? 'The Great Beacon' : 'Beacon · ' + Math.round(dist) + 'm';
+  var ready = canLightBeacon() && !World.beacon.lit;
+  var label = dist < 14 ? 'The Great Beacon' : 'Beacon · ' + Math.round(dist) + 'm';
+  $('compass-label').innerHTML = ready ? '<b style="color:var(--gold)">Beacon ready ✦</b>' : label;
+}
+
+// One short, high-value line telling the player what to do right now. Deliberately
+// only appears at the two moments a newcomer can be lost — the very first word,
+// and when the Beacon is finally ready — so it never competes with the banner.
+function updateObjective() {
+  var el = $('objective');
+  var msg = '';
+  var ready = false;
+  var actKey = document.body.classList.contains('touch') ? '✦' : 'E';
+  if (Game.started && openOverlays === 0 && !Game.buildMode) {
+    if (Game.learned.size === 0 && Game.totalWords > 0) {
+      msg = 'Walk to a glowing <b>word-light</b> and press <b>' + actKey + '</b> to learn it';
+    } else if (Game.totalWords === 0 && Dict.writeCapable) {
+      msg = 'Find a <b>Wellspring</b> and add the isles’ first word';
+    } else if (canLightBeacon() && !World.beacon.lit) {
+      msg = 'The <b>Great Beacon</b> is ready — follow the arrow to the plaza';
+      ready = true;
+    }
+  }
+  el.classList.toggle('ready', ready);
+  if (msg) { el.innerHTML = msg; el.classList.remove('hidden'); }
+  else el.classList.add('hidden');
+}
+
+/* First-run control primer — shown once when a new player steps ashore, and
+ * dismissed as soon as they move or look (whichever comes first), else after 11s. */
+function showFirstHint() {
+  if (Game.firstHintDone) return;
+  var el = $('firsthint');
+  el.classList.remove('hidden', 'fading');
+  el.innerHTML = document.body.classList.contains('touch')
+    ? '<span class="lead">Welcome, Wordkeeper</span>Left stick to walk · drag the world to look · tap <b>✦</b> to touch a word-light'
+    : '<span class="lead">Welcome, Wordkeeper</span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to walk · <b>drag</b> the world to look · <kbd>E</kbd> to touch a word-light';
+  var dismissed = false;
+  function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
+    Game.firstHintDone = true;
+    el.classList.add('fading');
+    setTimeout(function () { el.classList.add('hidden'); }, 700);
+    window.removeEventListener('keydown', onKey);
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('touchmove', onMove);
+  }
+  function onKey(e) { if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].indexOf(e.code) >= 0) dismiss(); }
+  var moves = 0;
+  function onMove() { if (++moves > 8) dismiss(); }
+  window.addEventListener('keydown', onKey);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove);
+  setTimeout(dismiss, 11000);
 }
 
 var currentTarget = null;
@@ -2768,6 +3118,7 @@ function startGame(hasSave) {
   if (Game.buildMode) { Game.buildMode = false; }
   if (!hasSave) {
     respawn();
+    showFirstHint();
     setTimeout(function () {
       echoSay(Game.totalWords === 0 ? STORY.intro.slice(0, 2).concat(STORY.emptyIsles) : STORY.intro);
     }, 900);
@@ -2801,6 +3152,8 @@ function resetJourney() {
   Game.buildMode = false;
   Game.dayPhase = 0.22;
   Restored = {};
+  Life.bloomed = {}; Life.anchors = {};
+  Game.firstHintDone = false;
   $('hotbar').classList.add('hidden');
   $('modebadge').classList.add('hidden');
   $('cross').classList.remove('build');
@@ -2812,6 +3165,7 @@ function resetJourney() {
   generateWorld(Dict.project ? Dict.project.projectCode : 'isles', Dict.regions);
   Renderer.meshAll();
   initOrbs();
+  initLife();
   respawn();
   lastBannerRegion = -2;
   showTitle(false);
@@ -2837,6 +3191,7 @@ $('pause-sound').addEventListener('click', function () {
 });
 $('pause-reset').addEventListener('click', resetJourney);
 $('finale-close').addEventListener('click', function () { hideOverlay('finale-overlay'); });
+$('helpbtn').addEventListener('click', togglePause);
 
 Input.onPause = togglePause;
 Input.onAction = function () {
@@ -2878,11 +3233,12 @@ function boot() {
     bootMessage('Raising the land…');
     return new Promise(function (resolve) { setTimeout(function () { resolve(hasSave); }, 30); });
   }).then(function (hasSave) {
+    bloomRestoredRegions();   // flowers must exist before meshAll bakes them in
     Renderer.meshAll();
     Game.totalWords = Dict.entries.length;
     initOrbs();
+    initLife();
     if (!hasSave) respawn();
-    if (Object.keys(Restored).length) { /* colors already baked by meshAll */ }
     showTitle(hasSave);
     wireTitle(hasSave);
     requestAnimationFrame(frame);
@@ -2902,12 +3258,15 @@ function frame(now) {
 
   if (Game.started && openOverlays === 0) movePlayer(dt);
   updateParticles(dt);
+  if (Game.started) updateLife(dt);
+  Renderer.updateCreatures(Life.creatureVerts);
   drawSprites();
-  Renderer.render({
+  var frameInfo = Renderer.render({
     cam: {x: Player.x, y: Player.y + Player.EYE, z: Player.z, yaw: Player.yaw, pitch: Player.pitch},
     time: Game.time,
     dayPhase: Game.dayPhase,
   });
+  Life.lastDay = frameInfo.day;
 
   hudTimer += dt;
   if (hudTimer > 0.12 && Game.started) {
@@ -2915,6 +3274,7 @@ function frame(now) {
     updateBanner();
     updateCompass();
     updatePrompt();
+    updateObjective();
   }
   saveTimer += dt;
   if (saveTimer > 8) {
