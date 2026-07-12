@@ -1,7 +1,8 @@
 <script module lang="ts">
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import ChangeTypeFilter from '$lib/activity/ChangeTypeFilter.svelte';
-  import type {IActivityChangeType} from '$lib/dotnet-types';
+  import AuthorFilter from '$lib/activity/AuthorFilter.svelte';
+  import type {IActivityAuthor, IActivityChangeType} from '$lib/dotnet-types';
   import {fwliteStoryParameters} from '../fwl-parameters';
 
   const {Story} = defineMeta({
@@ -32,12 +33,26 @@
 <script lang="ts">
   let selection = $state<string[]>([]);
   let partialSelection = $state<string[]>(['CreateSenseChange', 'jsonPatch:Sense']);
+  const authors: IActivityAuthor[] = [
+    {authorId: undefined, authorName: undefined, commitCount: 3},
+    {authorId: 'a1', authorName: 'Alice', commitCount: 40},
+    {authorId: 'b1', authorName: 'Bob', commitCount: 12},
+    {authorId: undefined, authorName: 'FieldWorks', commitCount: 7},
+  ];
 </script>
 
 <Story name="Empty selection (no filter)">
   {#snippet template()}
     <div class="w-64">
       <ChangeTypeFilter {changeTypes} selected={selection} onSelectionChange={(keys) => (selection = keys)} />
+    </div>
+  {/snippet}
+</Story>
+
+<Story name="Author filter (same shell)">
+  {#snippet template()}
+    <div class="w-64">
+      <AuthorFilter {authors} selected={['a1']} onSelectionChange={() => {}} />
     </div>
   {/snippet}
 </Story>

@@ -62,7 +62,7 @@ msgstr "{0} activity types"
 msgid "{0} ago"
 msgstr "{0} ago"
 
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/AuthorFilter.svelte
 msgid "{0} authors"
 msgstr "{0} authors"
 
@@ -145,7 +145,6 @@ msgid "Activity"
 msgstr "Activity"
 
 #. Label of the activity-type filter button. When nothing is selected the feed is unfiltered.
-#: src/lib/activity/ChangeTypeFilter.svelte
 #: src/lib/activity/ChangeTypeFilter.svelte
 #: src/lib/activity/ChangeTypeFilter.svelte
 msgid "Activity type"
@@ -271,13 +270,6 @@ msgstr "Added to {0}"
 msgid "All"
 msgstr "All"
 
-#. Filter option in activity view author dropdown — show commits from every author.
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-msgid "All authors"
-msgstr "All authors"
-
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
@@ -380,6 +372,12 @@ msgstr "Audio saved and uploaded to Lexbox"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "Audio saved locally"
 msgstr "Audio saved locally"
+
+#. Label of the author filter button in the activity view. When nothing is selected the feed is unfiltered.
+#: src/lib/activity/AuthorFilter.svelte
+#: src/lib/activity/AuthorFilter.svelte
+msgid "Author"
+msgstr "Author"
 
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
@@ -517,6 +515,11 @@ msgstr "clear"
 #: src/lib/activity/ChangeTypeFilter.svelte
 msgid "Clear activity type filter"
 msgstr "Clear activity type filter"
+
+#. Aria-label of the small × button next to the author filter that clears it without opening the popup.
+#: src/lib/activity/AuthorFilter.svelte
+msgid "Clear author filter"
+msgstr "Clear author filter"
 
 #. Button in the empty activity feed: resets the author and activity-type filters.
 #: src/lib/activity/ActivityView.svelte
@@ -1792,10 +1795,6 @@ msgstr "No analysis writing systems configured."
 msgid "No audio"
 msgstr "No audio"
 
-#: src/lib/activity/ActivityFilter.svelte
-msgid "No authors"
-msgstr "No authors"
-
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "No comment threads yet."
 msgstr "No comment threads yet."
@@ -1834,6 +1833,11 @@ msgstr "No items found"
 #: src/lib/activity/ChangeTypeFilter.svelte
 msgid "No matching activity types"
 msgstr "No matching activity types"
+
+#. Empty state of the author filter popup when the search matches nothing.
+#: src/lib/activity/AuthorFilter.svelte
+msgid "No matching authors"
+msgstr "No matching authors"
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1939,7 +1943,7 @@ msgstr "One FieldWorks Classic commit may consist of changes to multiple entries
 
 #. Hover shortcut on a filter row: narrows the filter to just that item/group, replacing the current selection.
 #: src/lib/activity/ChangeTypeFilter.svelte
-#: src/lib/activity/ChangeTypeFilter.svelte
+#: src/lib/activity/FacetFilterRow.svelte
 msgid "Only"
 msgstr "Only"
 
@@ -2251,7 +2255,7 @@ msgid "Report a technical problem"
 msgstr "Report a technical problem"
 
 #. Footer button in the activity-type filter popup: clears the selection (back to unfiltered).
-#: src/lib/activity/ChangeTypeFilter.svelte
+#: src/lib/activity/FacetFilter.svelte
 msgid "Reset"
 msgstr "Reset"
 
@@ -2298,6 +2302,11 @@ msgstr "Search # or #"
 #: src/lib/activity/ChangeTypeFilter.svelte
 msgid "Search activity types"
 msgstr "Search activity types"
+
+#. Placeholder of the search box inside the author filter popup (shown only for long author lists).
+#: src/lib/activity/AuthorFilter.svelte
+msgid "Search authors"
+msgstr "Search authors"
 
 #. Search placeholder
 #: src/project/ProjectDropdown.svelte

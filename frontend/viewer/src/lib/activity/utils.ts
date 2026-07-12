@@ -1,7 +1,6 @@
 import {ActivitySort, type IActivityAuthor, type IActivityQuery, type IProjectActivity} from '$lib/dotnet-types';
 import {gt} from 'svelte-i18n-lingui';
 
-export const ALL_AUTHORS = '__all__';
 export const UNKNOWN_AUTHOR_KEY = '__unknown__';
 export const FIELDWORKS_AUTHOR_KEY = authorFilterKey({authorName: 'FieldWorks'});
 // Mirrors SystemAuthorId in backend/FwLite/LcmCrdt/Utils/CommitHelpers.cs
@@ -20,10 +19,9 @@ export const emptyActivityLoad: ActivityLoad = {
   queryKey: '',
 };
 
-export type MultiFilterSelection = string[] | 'all';
-
 export type ActivityFilters = {
-  authorFilterKeys: MultiFilterSelection;
+  /** Author keys to narrow the feed to; empty = no filter (everything shows). */
+  authorFilterKeys: string[];
   /** Change-type keys to narrow the feed to; empty = no filter (everything shows). */
   changeTypeFilterKeys: string[];
   sort: ActivitySort;
@@ -31,23 +29,15 @@ export type ActivityFilters = {
 
 export function createDefaultActivityFilters(): ActivityFilters {
   return {
-    authorFilterKeys: 'all',
+    authorFilterKeys: [],
     changeTypeFilterKeys: [],
     sort: ActivitySort.NewestFirst,
   };
 }
 
-export function isAllFilterSelection(selected: MultiFilterSelection, allKeys: string[]): boolean {
-  return selected === 'all' || (allKeys.length > 0 && selected.length === allKeys.length && allKeys.every(k => selected.includes(k)));
-}
-
-export function resolveFilterKeys(selected: MultiFilterSelection, allKeys: string[]): string[] {
-  return selected === 'all' ? allKeys : selected;
-}
-
 export function toServerQuery(filters: ActivityFilters): IActivityQuery {
   return {
-    authorFilterKeys: filters.authorFilterKeys === 'all' ? undefined : filters.authorFilterKeys,
+    authorFilterKeys: filters.authorFilterKeys.length ? filters.authorFilterKeys : undefined,
     changeTypeKeys: filters.changeTypeFilterKeys.length ? filters.changeTypeFilterKeys : undefined,
     sort: filters.sort,
   };
@@ -87,21 +77,6 @@ export function compareActivityAuthors(a: IActivityAuthor, b: IActivityAuthor): 
   return aName.localeCompare(bName);
 }
 
-export function applyMultiSelectValue(
-  value: string[],
-  allKeys: string[],
-  allKey: string,
-  currentSelection: MultiFilterSelection,
-): MultiFilterSelection {
-  if (value.includes(allKey)) {
-    return isAllFilterSelection(currentSelection, allKeys) ? [] : 'all';
-  }
-  if (isAllFilterSelection(value, allKeys)) {
-    return 'all';
-  }
-  return value;
-}
-
 export function hasActiveServerSideFilters(filters: ActivityFilters): boolean {
-  return filters.authorFilterKeys !== 'all' || filters.changeTypeFilterKeys.length > 0;
+  return filters.authorFilterKeys.length > 0 || filters.changeTypeFilterKeys.length > 0;
 }

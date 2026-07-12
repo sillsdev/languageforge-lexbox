@@ -4,7 +4,6 @@
   import {resource} from 'runed';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
   import {ActivitySort} from '$lib/dotnet-types';
-  import * as Select from '$lib/components/ui/select';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import {Button, buttonVariants} from '$lib/components/ui/button';
   import {badgeVariants} from '$lib/components/ui/badge';
@@ -12,18 +11,11 @@
   import {Icon} from '$lib/components/ui/icon';
   import type {IconClass} from '$lib/icon-class';
   import {
-    ALL_AUTHORS,
-    applyMultiSelectValue,
-    authorFilterKey,
     compareActivityAuthors,
     createDefaultActivityFilters,
-    isAllFilterSelection,
-    resolveFilterKeys,
-    wellKnownAuthorKeyToLabel,
     type ActivityFilters,
-    type MultiFilterSelection,
   } from './utils';
-  import AuthorLabel from './AuthorLabel.svelte';
+  import AuthorFilter from './AuthorFilter.svelte';
   import ChangeTypeFilter from './ChangeTypeFilter.svelte';
   import type {Snippet} from 'svelte';
 
@@ -60,10 +52,6 @@
     {initialValue: []},
   );
 
-  const authorKeys = $derived(authors.current.map(authorFilterKey));
-
-  const authorSelectValue = $derived(resolveFilterKeys(filters.authorFilterKeys, authorKeys));
-
   const sortLabels = $derived<Record<ActivitySort, string>>({
     [ActivitySort.NewestFirst]: $t`Newest first`,
     [ActivitySort.OldestFirst]: $t`Oldest first`,
@@ -78,60 +66,16 @@
     [ActivitySort.SyncedOldestFirst]: 'i-mdi-cloud-arrow-up',
   };
 
-  function authorKeyToLabel(key: string): string {
-    const wellKnownLabel = wellKnownAuthorKeyToLabel(key);
-    if (wellKnownLabel) return wellKnownLabel;
-    const author = authors.current.find(a => authorFilterKey(a) === key);
-    return author?.authorName ?? key;
-  }
-
-  function allSelectionIcon(selected: MultiFilterSelection, allKeys: string[]): IconClass | undefined {
-    if (selected === 'all' || isAllFilterSelection(selected, allKeys)) return 'i-mdi-check';
-    if (selected.length === 0) return undefined;
-    return 'i-mdi-minus';
-  }
-
-  function onAuthorValueChange(value: string[]) {
-    filters.authorFilterKeys = applyMultiSelectValue(value, authorKeys, ALL_AUTHORS, filters.authorFilterKeys);
-  }
 </script>
 
 <div class="flex flex-col gap-2 mb-1">
   <div class="flex flex-wrap gap-2">
     <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 shrink-0" />
 
-    <Select.Root type="multiple" value={authorSelectValue} onValueChange={onAuthorValueChange}>
-      <Select.Trigger class="w-32 max-w-full grow">
-        {#if isAllFilterSelection(filters.authorFilterKeys, authorKeys)}
-          {$t`All authors`}
-        {:else if filters.authorFilterKeys.length === 0}
-          {$t`No authors`}
-        {:else if filters.authorFilterKeys.length === 1}
-          {@const selectedAuthor = authors.current.find(a => authorFilterKey(a) === filters.authorFilterKeys[0])}
-          <AuthorLabel authorId={selectedAuthor?.authorId} authorName={selectedAuthor?.authorName} />
-        {:else}
-          {$t`${filters.authorFilterKeys.length} authors`}
-        {/if}
-      </Select.Trigger>
-      <Select.Content>
-        <Select.Item value={ALL_AUTHORS} label={$t`All authors`}>
-          {#snippet selectedIndicator()}
-            {@const icon = allSelectionIcon(filters.authorFilterKeys, authorKeys)}
-            {#if icon}
-              <Icon {icon} class="size-4" />
-            {/if}
-          {/snippet}
-          <span class="font-bold">{$t`All authors`}</span>
-        </Select.Item>
-        {#each authors.current as author (authorFilterKey(author))}
-          {@const key = authorFilterKey(author)}
-          <Select.Item value={key} label={authorKeyToLabel(key)}>
-            <AuthorLabel authorId={author.authorId} authorName={author.authorName} />
-            <span class="text-muted-foreground ml-1">({author.commitCount})</span>
-          </Select.Item>
-        {/each}
-      </Select.Content>
-    </Select.Root>
+    <AuthorFilter
+      authors={authors.current}
+      selected={filters.authorFilterKeys}
+      onSelectionChange={(keys) => filters.authorFilterKeys = keys} />
 
     <ChangeTypeFilter
       changeTypes={changeTypes.current}
