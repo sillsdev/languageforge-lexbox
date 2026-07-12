@@ -62,7 +62,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         await AddEntryCommit(new CommitMetadata { AuthorName = "Bob", AuthorId = "bob-id" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(AuthorFilterKeys: ["alice-id"])).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(AuthorFilterKeys: ["alice-id"]));
 
         activities.Should().OnlyContain(a => a.Metadata.AuthorId == "alice-id");
         activities.Should().HaveCountGreaterThanOrEqualTo(1);
@@ -74,7 +74,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         await AddEntryCommit(new CommitMetadata { AuthorName = "FieldWorks" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(AuthorFilterKeys: ["alice-id"])).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(AuthorFilterKeys: ["alice-id"]));
 
         activities.Should().NotContain(a => a.Metadata.AuthorName == "FieldWorks");
         activities.Should().Contain(a => a.Metadata.AuthorName == "Alice");
@@ -87,7 +87,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await Task.Delay(5);
         await AddEntryCommit(new CommitMetadata { AuthorName = "Second", AuthorId = "second" }, "beta");
 
-        var activities = await Service.ProjectActivity(0, 1000, new ActivityQuery(Sort: ActivitySort.OldestFirst)).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 1000, new ActivityQuery(Sort: ActivitySort.OldestFirst));
         var firstIndex = Array.FindIndex(activities, a => a.Metadata.AuthorId == "first");
         var secondIndex = Array.FindIndex(activities, a => a.Metadata.AuthorId == "second");
         firstIndex.Should().BeGreaterThanOrEqualTo(0);
@@ -101,7 +101,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await SetSyncDate(syncedCommit.Id, new DateTimeOffset(2025, 6, 1, 12, 0, 0, TimeSpan.Zero));
         await AddEntryCommit(new CommitMetadata { AuthorName = "Unsynced", AuthorId = "unsynced" }, "unsynced-entry");
 
-        var activities = await Service.ProjectActivity(0, 1000, new ActivityQuery(Sort: ActivitySort.SyncedNewestFirst)).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 1000, new ActivityQuery(Sort: ActivitySort.SyncedNewestFirst));
         var commitAuthors = activities.Select(a => a.Metadata.AuthorId).Where(a => a is not null);
         commitAuthors.Should().ContainInOrder(["unsynced", "synced"]);
     }
@@ -113,7 +113,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await SetSyncDate(syncedCommit.Id, new DateTimeOffset(2025, 6, 1, 12, 0, 0, TimeSpan.Zero));
         await AddEntryCommit(new CommitMetadata { AuthorName = "Unsynced", AuthorId = "unsynced" }, "unsynced-entry");
 
-        var activities = await Service.ProjectActivity(0, 1000, new ActivityQuery(Sort: ActivitySort.SyncedOldestFirst)).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 1000, new ActivityQuery(Sort: ActivitySort.SyncedOldestFirst));
         var commitAuthors = activities.Select(a => a.Metadata.AuthorId).Where(a => a is not null);
         commitAuthors.Should().ContainInOrder(["synced", "unsynced"]);
     }
@@ -125,7 +125,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         await AddEntryCommit(new CommitMetadata { AuthorName = "Bob", AuthorId = "bob-id" });
 
-        var page = await Service.ProjectActivity(0, 1, new ActivityQuery(AuthorFilterKeys: ["alice-id"])).ToArrayAsync();
+        var page = await Service.ProjectActivity(0, 1, new ActivityQuery(AuthorFilterKeys: ["alice-id"]));
 
         page.Should().HaveCount(1);
         page[0].Metadata.AuthorId.Should().Be("alice-id");
@@ -137,7 +137,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         await AddNewPublicationCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: [nameof(CreateEntryChange)])).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: [nameof(CreateEntryChange)]));
 
         activities.Should().OnlyContain(a => a.ChangeTypes.Contains(nameof(CreateEntryChange)));
         activities.Should().HaveCountGreaterThanOrEqualTo(1);
@@ -150,10 +150,10 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         await AddNewPublicationCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         await AddNewPartOfSpeechCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
-        (await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync())
+        (await Service.ProjectActivity(0, 100, new ActivityQuery()))
             .Should().Contain(a => a.ChangeTypes.Contains(nameof(CreatePartOfSpeechChange)));
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: [nameof(CreateEntryChange), nameof(CreatePublicationChange)])).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: [nameof(CreateEntryChange), nameof(CreatePublicationChange)]));
 
         activities.Should().HaveCountGreaterThanOrEqualTo(2); // the entry + publication commits, so the filter can't pass vacuously on an empty result
         activities.Should().OnlyContain(a => a.ChangeTypes.Any(t => t == nameof(CreateEntryChange) || t == nameof(CreatePublicationChange)));
@@ -165,7 +165,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
     {
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
 
-        var activity = await Service.ProjectActivity(0, 1).SingleAsync();
+        var activity = (await Service.ProjectActivity(0, 1)).Single();
 
         activity.ChangeTypes.Should().Contain("CreateEntryChange");
     }
@@ -185,7 +185,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
             HomographNumber = 2
         }), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "plain");
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "homograph₂");
@@ -206,7 +206,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
             }
         }), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "nyumba");
     }
@@ -222,7 +222,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
             MorphType = MorphTypeKind.Suffix
         }), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "-ness");
     }
@@ -234,7 +234,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry { Id = entryId }),
             new CommitMetadata { AuthorName = "A", AuthorId = "a" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // No displayable headword: the subject and root-entry headword are null (the frontend renders its
         // placeholder, never "(Unknown)"), but the change still resolves to its root entry.
@@ -261,7 +261,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         }, entryId), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
         await DataModel.AddChange(ClientId, new SetOrderChange<Sense>(senseId, 2.0), new CommitMetadata { AuthorName = "A", AuthorId = "a" });
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // The reorder names the parent entry as the subject and the moved sense's gloss as the target.
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "to run");
@@ -273,7 +273,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         var meta = new CommitMetadata { AuthorName = "A", AuthorId = "a" };
         await DataModel.AddChange(ClientId, new CreatePartOfSpeechChange(Guid.NewGuid(), new MultiString { ["en"] = "Verb" }), meta);
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // A vocab object has no root entry, so no root-entry headword either.
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
@@ -294,7 +294,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await DataModel.AddChange(ClientId, new CreateSenseChange(new Sense { Id = senseId, Gloss = new MultiString { ["en"] = "to run" } }, entryId), meta);
         await DataModel.AddChange(ClientId, new SetPartOfSpeechChange(senseId, posId), meta);
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // The set-part-of-speech change names the sense as its subject and the assigned part of speech as its target.
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
@@ -308,7 +308,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         var entryId = await CreateEntry("run");
         await CreateSense(entryId, gloss: "to run", order: 1.0);
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // A lone sense needs no number (nothing to disambiguate): "run · Added sense to run".
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "to run");
@@ -322,7 +322,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await CreateSense(entryId, gloss: "a jog", order: 2.0);
         await CreateSense(entryId, gloss: null, order: 3.0);
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // With more than one sense every sense is numbered by position (like FieldWorks), independent of the
         // gloss — unique or not — shown as a subscript after the gloss, like a homograph number. An empty
@@ -338,7 +338,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         var entryId = await CreateEntry("run");
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Entry>(entryId), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // The deleted entry is gone from the projected tables; its label is recovered from its last snapshot.
         activities.Should().Contain(a => a.ChangeTypes.Contains("delete:Entry")
@@ -353,7 +353,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         var senseId = await CreateSense(entryId, gloss: "to run", order: 1.0);
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Sense>(senseId), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // Recovered from its snapshot; absent from the live sibling list, so labeled by gloss with no number.
         activities.Should().Contain(a => a.ChangeTypes.Contains("delete:Sense")
@@ -366,7 +366,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         var meta = Meta();
         await DataModel.AddChange(ClientId, new CreateSemanticDomainChange(Guid.NewGuid(), new MultiString { ["en"] = "Food" }, "5.2"), meta);
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "5.2 Food");
     }
@@ -376,7 +376,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
     {
         await AddNewPublicationCommit(Meta(), "Main Dictionary");
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "Main Dictionary");
     }
@@ -386,7 +386,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
     {
         await DataModel.AddChange(ClientId, new CreateComplexFormType(Guid.NewGuid(), new MultiString { ["en"] = "Compound" }), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "Compound");
     }
@@ -400,7 +400,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         patch.Replace(m => m.SecondaryOrder, 99);
         await DataModel.AddChange(ClientId, new JsonPatchChange<MorphType>(suffixId, patch), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "suffix");
     }
@@ -416,7 +416,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
             Sentence = new() { ["en"] = new RichString("I run daily") }
         }, senseId), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // An example resolves to its parent sense's subject and its root entry (id + headword).
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
@@ -432,7 +432,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         var componentId = await CreateEntry("bird");
         await AddComponent(complexFormId, componentId);
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // The link's subject is the complex form; the target is the component being linked.
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
@@ -450,7 +450,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         // Delete the link: it leaves the projection, so its endpoints must come from the create change.
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<ComplexFormComponent>(component.Id), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // The delete still names the complex form (subject) and component (target) for orientation.
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
@@ -467,7 +467,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         var component = await AddComponent(complexFormId, componentId);
         await DataModel.AddChange(ClientId, SetComplexFormComponentChange.NewComponent(component.Id, newComponentId), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
             && a.ChangeInfo[0].Subject == "blackbird"
@@ -484,7 +484,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         var senseId = await CreateSense(entryId, gloss: "to run", order: 1.0, semanticDomains: [domain!]);
         await DataModel.AddChange(ClientId, new RemoveSemanticDomainChange(domainId, senseId), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // The remove change names the sense as subject and the removed domain as target.
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
@@ -502,7 +502,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await DataModel.AddChange(ClientId, new AddPublicationChange(entryId, publication!), Meta());
         await DataModel.AddChange(ClientId, new RemovePublicationChange(entryId, publicationId), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // The remove change names the entry as subject and the removed publication as target.
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
@@ -520,7 +520,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         await DataModel.AddChange(ClientId, new AddComplexFormTypeChange(entryId, type!), Meta());
         await DataModel.AddChange(ClientId, new RemoveComplexFormTypeChange(entryId, typeId), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
             && a.ChangeInfo[0].Subject == "blackbird"
@@ -540,7 +540,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         }, senseId), Meta());
         await DataModel.AddChange(ClientId, new SetOrderChange<ExampleSentence>(exampleId, 2.0), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // Reordering an example names its parent sense as the subject and the example's root entry (id + headword).
         activities.Should().Contain(a => a.ChangeInfo.Count == 1
@@ -557,7 +557,7 @@ public class HistoryServiceActivityTests : IAsyncLifetime, IAsyncDisposable
         var component = await AddComponent(complexFormId, componentId);
         await DataModel.AddChange(ClientId, new SetOrderChange<ComplexFormComponent>(component.Id, 2.0), Meta());
 
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery()).ToArrayAsync();
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // Reordering a component names the complex form as subject and the moved component as target.
         activities.Should().Contain(a => a.ChangeInfo.Count == 1

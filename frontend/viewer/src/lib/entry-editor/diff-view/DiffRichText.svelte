@@ -1,33 +1,21 @@
 <script lang="ts">
-  import type {IRichMultiString, IWritingSystem} from '$lib/dotnet-types';
+  import type {IMultiString, IRichMultiString, IWritingSystem} from '$lib/dotnet-types';
   import type {ReadonlyDeep} from 'type-fest';
-  import WsCode from '$lib/components/writing-system/WsCode.svelte';
   import {asString} from '$project/data';
-  import DiffText from './DiffText.svelte';
-  import DiffShell from './DiffShell.svelte';
-  import DiffAudio from './DiffAudio.svelte';
+  import DiffMultiString from './DiffMultiString.svelte';
 
+  // Rich strings diff as their plain text (span formatting isn't shown in previews), so this just
+  // flattens each alternative and delegates the layout to DiffMultiString.
   let {before, after, writingSystems}: {
     before?: IRichMultiString;
     after?: IRichMultiString;
     writingSystems: ReadonlyArray<ReadonlyDeep<IWritingSystem>>;
   } = $props();
+
+  function toPlain(rich?: IRichMultiString): IMultiString | undefined {
+    if (!rich) return undefined;
+    return Object.fromEntries(Object.entries(rich).map(([wsId, value]) => [wsId, asString(value)]));
+  }
 </script>
 
-<div class="grid grid-cols-subgrid col-span-full gap-y-2">
-  {#each writingSystems as ws (ws.wsId)}
-    <!-- Self-contained 2-col row so WS-code + value stay side-by-side regardless of the ancestor
-         container width. The editor's `@lg/editor:grid-cols-subgrid` variant only aligns with the
-         ambient editor grid when the container ≥ 1024px, which the activity preview pane often isn't. -->
-    <div class="grid gap-x-2 gap-y-1 grid-cols-[max-content_1fr] col-span-full items-baseline" title={`${ws.name} (${ws.wsId})`}>
-      <WsCode abbreviation={ws.abbreviation} />
-      {#if ws.isAudio}
-        <DiffAudio before={asString(before?.[ws.wsId])} after={asString(after?.[ws.wsId])} />
-      {:else}
-        <DiffShell>
-          <DiffText before={asString(before?.[ws.wsId])} after={asString(after?.[ws.wsId])} />
-        </DiffShell>
-      {/if}
-    </div>
-  {/each}
-</div>
+<DiffMultiString before={toPlain(before)} after={toPlain(after)} {writingSystems} />

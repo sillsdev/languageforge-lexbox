@@ -143,11 +143,12 @@ internal static class ActivityChangeInfoResolver
         }
 
         // "headword › senseLabel". Degrades to just the headword when the sense has nothing to distinguish it
-        // (a lone, gloss-less sense), and to "sense" when there's neither a headword nor a distinguishing label.
-        string SenseLabel(string? headword, Sense sense)
+        // (a lone, gloss-less sense), and to null when there's neither a headword nor a distinguishing label
+        // (Subject is display data, so a translatable fallback has to come from the frontend, not here).
+        string? SenseLabel(string? headword, Sense sense)
         {
             var glossPart = SenseGlossPart(sense);
-            if (headword is null) return string.IsNullOrEmpty(glossPart) ? "sense" : glossPart;
+            if (headword is null) return string.IsNullOrEmpty(glossPart) ? null : glossPart;
             return string.IsNullOrEmpty(glossPart) ? headword : $"{headword} › {glossPart}";
         }
 

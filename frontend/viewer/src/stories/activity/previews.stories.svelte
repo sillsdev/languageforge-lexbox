@@ -161,18 +161,18 @@
 <Story name="Collapsed entry in activity grid (repro)">
   {#snippet template()}
     <div style="height: 640px;" class="border overflow-hidden">
-      <!-- Mirror ActivityView's outer grid exactly (post-fix: `auto 1fr` rows) -->
+      <!-- Mirror ActivityView's split layout: a list pane beside the detail pane -->
       <div
-        class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
-        style="grid-template-rows: auto 1fr; grid-template-columns: minmax(8rem,25%) minmax(0,2fr)">
-        <div class="flex flex-wrap items-center gap-2 bg-muted/40 rounded p-2">Filter bar</div>
-        <div class="overflow-hidden row-start-2 relative bg-muted/20 rounded p-2 space-y-2 text-sm">
+        class="h-full m-4 grid gap-x-6 overflow-hidden"
+        style="grid-template-columns: 35% minmax(0,1fr)">
+        <div class="overflow-hidden relative bg-muted/20 rounded p-2 space-y-2 text-sm">
+          <div class="flex flex-wrap items-center gap-2 bg-muted/40 rounded p-2">Filter bar</div>
           <div class="p-2 bg-muted rounded">Commit A · snappy — CreateEntryChange, CreateSenseChange</div>
           <div class="p-2 bg-muted rounded">Commit B · Set Word (seh) to fooo</div>
           <div class="p-2 bg-muted rounded">Commit C · Added semantic domain 1.1 Sky</div>
           <div class="p-2 bg-muted rounded">Commit D · Added component</div>
         </div>
-        <div class="sub-grid row-span-2 col-start-2 grid gap-2 grid-rows-[auto_1fr] h-full min-w-0 min-h-0">
+        <div class="grid gap-2 grid-rows-[auto_1fr] h-full min-w-0 min-h-0">
           <div class="text-sm">Author: Demo – (2 changes)<div class="text-xs text-muted-foreground">CreateEntryChange, CreateSenseChange</div></div>
           <div class="overflow-auto border rounded p-3 min-w-0 min-h-0">
             <CollapsedEntryDiff entry={structuredClone(allWsEntry)} />

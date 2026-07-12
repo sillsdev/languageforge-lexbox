@@ -144,7 +144,9 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         return registeredTypes;
     }
 
-    public async IAsyncEnumerable<ProjectActivity> ProjectActivity(int skip = 0, int take = 100, ActivityQuery? query = null)
+    // Returns a materialized page rather than streaming: ActivityChangeInfoResolver batch-loads labels
+    // across all changes in the page at once.
+    public async Task<ProjectActivity[]> ProjectActivity(int skip = 0, int take = 100, ActivityQuery? query = null)
     {
         query ??= new ActivityQuery();
         await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
@@ -156,18 +158,9 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 commit.HybridDateTime.DateTime,
                 commit.ChangeEntities.ToList(),
                 commit.Metadata);
-        // Materialize the whole page before resolving: ActivityChangeInfoResolver batch-loads labels across all
-        // changes in the page at once, so this enumerates the page rather than streaming row-by-row.
-        var activities = new List<ProjectActivity>();
-        await foreach (var projectActivity in queryable.ToLinqToDB().AsAsyncEnumerable())
-        {
-            activities.Add(projectActivity);
-        }
+        var activities = await queryable.ToLinqToDB().ToArrayAsyncLinqToDB();
         await ActivityChangeInfoResolver.ResolveAsync(dbContext, activities);
-        foreach (var projectActivity in activities)
-        {
-            yield return projectActivity;
-        }
+        return activities;
     }
 
     private static IQueryable<Commit> ApplyActivityFilters(IQueryable<Commit> commits, ActivityQuery query)

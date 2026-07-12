@@ -29,7 +29,7 @@
   import CollapsedEntryDiff from './CollapsedEntryDiff.svelte';
   import CollapsedSenseDiff from './CollapsedSenseDiff.svelte';
   import ChangeSummary from './ChangeSummary.svelte';
-  import {describeActivity, factCategory, recognizeTreeCommit, type ChangeFactWithSubject} from './change-summary';
+  import {changeType, describeActivity, factCategory, recognizeTreeCommit, type ChangeFactWithSubject} from './change-summary';
   import {FACT_GLYPH} from './fact-glyph';
   import {formatJsonForUi} from './utils';
   import AuthorLabel from './AuthorLabel.svelte';
@@ -37,7 +37,7 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
   import * as Popover from '$lib/components/ui/popover';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, XButton} from '$lib/components/ui/button';
   import HistoryView from '$lib/history/HistoryView.svelte';
   import {Icon} from '$lib/components/ui/icon';
   import {usePartsOfSpeech} from '$project/data';
@@ -46,11 +46,15 @@
   type Props = HTMLAttributes<HTMLDivElement> & {
     activity: IProjectActivity;
     showHistoryButton?: boolean;
+    showClose?: boolean;
+    onClose?: () => void;
   }
 
   const {
     activity,
     showHistoryButton = false,
+    showClose = false,
+    onClose,
     class: className,
     ...restProps
   }: Props = $props();
@@ -62,8 +66,6 @@
   const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(change => {
     return new ChangeWithLazyContext(change, activity, () => historyService.loadChangeContext(activity.commitId, change.index));
   }));
-
-  const changeType = (change: unknown) => (change as Record<string, unknown> | undefined)?.['$type'] as string | undefined;
 
   type TreeAssembled =
     | {kind: 'entryTree'; entry: IEntry}
@@ -182,7 +184,10 @@
 
 <div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full min-w-0 min-h-0')}>
   {#if activity}
-    <div class="text-sm flex flex-wrap justify-between gap-2">
+    <div class="text-sm flex flex-wrap justify-between items-center gap-2">
+      {#if showClose && onClose}
+        <XButton onclick={onClose} size="icon" />
+      {/if}
       <span>
         <span>
           {$t`Author:`}
@@ -312,6 +317,20 @@
   </div>
 {/snippet}
 
+<!-- Per-card failure containment: a change whose context fails to load shows an inline error card
+     instead of rejecting out of the {#await} and leaving a permanently blank row. -->
+{#snippet loadError(error: unknown)}
+  <div class="change px-4 py-3">
+    <div class="flex items-center gap-2 text-muted-foreground">
+      <Icon icon="i-mdi-alert-circle-outline" class="size-4 shrink-0 text-destructive" />
+      <span>{$t`Failed to load this change`}</span>
+    </div>
+    {#if error instanceof Error && error.message}
+      <div class="mt-1 ps-6 text-xs text-muted-foreground break-words">{error.message}</div>
+    {/if}
+  </div>
+{/snippet}
+
 {#snippet changeList(items: ActivityUnit[])}
   <div class="change-list flex flex-col gap-4 overflow-auto border rounded">
     {#key items}
@@ -337,6 +356,8 @@
                   {@render changeCard(change)}
                 {/each}
               {/if}
+            {:catch error}
+              {@render loadError(error)}
             {/await}
           {/if}
         {/snippet}
@@ -381,6 +402,8 @@
         </div>
       </Tabs.Root>
     </div>
+  {:catch error}
+    {@render loadError(error)}
   {/await}
 {/snippet}
 

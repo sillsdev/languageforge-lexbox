@@ -6,7 +6,6 @@
   import DiffRichText from '$lib/entry-editor/diff-view/DiffRichText.svelte';
   import DiffSelect from '$lib/entry-editor/diff-view/DiffSelect.svelte';
   import DiffMultiSelect from '$lib/entry-editor/diff-view/DiffMultiSelect.svelte';
-  import DiffValue from '$lib/entry-editor/diff-view/DiffValue.svelte';
 
   const {Story} = defineMeta({
     title: 'editor/diff/overview',
@@ -129,14 +128,6 @@
               after={[domains[0], domains[2]]}
               idSelector={(d) => d.id}
               labelSelector={(d) => d.code} />
-          </Editor.Field.Body>
-        </Editor.Field.Root>
-
-        <div class="col-span-full font-bold">Generic fallback</div>
-        <Editor.Field.Root>
-          <Editor.Field.Title name="Changed" />
-          <Editor.Field.Body>
-            <DiffValue before={1} after={3} />
           </Editor.Field.Body>
         </Editor.Field.Root>
       </Editor.Grid>

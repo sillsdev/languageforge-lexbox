@@ -1450,7 +1450,7 @@ msgstr "Bentuk leksem atau bentuk Kutipan diperlukan"
 msgid "Light"
 msgstr "Cahaya"
 
-#. Section header in a list-view options popup. In the entry list the options are "Simple" and "Preview"; in the activity list they are "Simple" and "Detailed".
+#. Section header in the entry-list view options popup; the options are "Simple" and "Preview".
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr "Mode daftar"

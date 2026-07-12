@@ -103,7 +103,8 @@ function prop(obj: unknown, key: string): unknown {
   return record[camel] ?? record[pascal];
 }
 
-function changeType(change: unknown): string {
+/** The `$type` discriminator of a raw change payload ('' when absent). */
+export function changeType(change: unknown): string {
   if (!change || typeof change !== 'object') return '';
   return ((change as Record<string, unknown>)['$type'] as string) ?? '';
 }
@@ -458,7 +459,7 @@ export function groupByRootEntry(entries: readonly ChangeFactWithSubject[]): Ent
   return groups;
 }
 
-/** The broad kind of a change, for a gutter glyph in Detailed mode (fast visual grepping down a commit). */
+/** The broad kind of a change, for the gutter glyph on each fact line (fast visual grepping down a commit). */
 export type FactCategory = 'added' | 'removed' | 'changed' | 'reordered' | 'other';
 
 export function factCategory(fact: ChangeFact): FactCategory {
