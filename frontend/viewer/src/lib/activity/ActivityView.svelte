@@ -5,9 +5,8 @@
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
   import {FormatRelativeDate} from '$lib/components/ui/format';
-  import {ResizableHandle, ResizablePane, ResizablePaneGroup} from '$lib/components/ui/resizable';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import IfOnce from '$lib/components/if-once/if-once.svelte';
+  import ListDetailLayout from '$lib/layout/ListDetailLayout.svelte';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
   import {ActivityParam} from '$lib/utils/search-params';
@@ -137,8 +136,6 @@
     false,
   );
   const defaultLayout = [35, 65] as const;
-  let leftPane: ResizablePane | undefined = $state();
-  let rightPane: ResizablePane | undefined = $state();
 
   function selectRow(row: IProjectActivity) {
     selectedRow = row;
@@ -211,15 +208,11 @@
 {/snippet}
 
 <ViewErrorBoundary class="flex flex-col h-full" title={$t`Activity view failed`}>
-<ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 overflow-visible!">
-  <IfOnce show={!IsMobile.value || !selectedRow || !detailOpen.current}>
-  <ResizablePane
-    bind:this={leftPane}
-    defaultSize={defaultLayout[0]}
-    collapsible
-    collapsedSize={0}
-    minSize={20}
-    class="min-h-0 flex flex-col relative">
+<ListDetailLayout
+  detailVisible={!!(selectedRow && detailOpen.current)}
+  {defaultLayout}
+  listMinSize={20}>
+{#snippet list()}
   <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
   <div class="md:mr-3">
     <ActivityFilter bind:filters>
@@ -322,26 +315,18 @@
     {/if}
   </div>
   </div>
-  </ResizablePane>
-  </IfOnce>
-  {#if !IsMobile.value}
-    <ResizableHandle class="my-4" {leftPane} {rightPane} withHandle resetTo={defaultLayout} />
+{/snippet}
+{#snippet detail()}
+  {#if selectedRow}
+    <div class="h-full p-2 md:p-4">
+      <ActivityItem activity={selectedRow} showHistoryButton
+        showClose={IsMobile.value} onClose={() => detailOpen.current = false} />
+    </div>
+  {:else}
+    <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
+      <p>{$t`Select a change to view details`}</p>
+    </div>
   {/if}
-  {#if !IsMobile.value || (selectedRow && detailOpen.current)}
-    <ResizablePane
-      bind:this={rightPane}
-      defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
-      {#if selectedRow}
-        <div class="h-full p-2 md:p-4">
-          <ActivityItem activity={selectedRow} showHistoryButton
-            showClose={IsMobile.value} onClose={() => detailOpen.current = false} />
-        </div>
-      {:else}
-        <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
-          <p>{$t`Select a change to view details`}</p>
-        </div>
-      {/if}
-    </ResizablePane>
-  {/if}
-</ResizablePaneGroup>
+{/snippet}
+</ListDetailLayout>
 </ViewErrorBoundary>
