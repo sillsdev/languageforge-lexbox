@@ -19,7 +19,8 @@
   mousedown preventDefault: focusing the pill makes Chromium cancel the smooth scroll it triggers -->
 <!-- opaque bg-background underlay: the tint colors are translucent washes shared with
   the duplicate widget's trigger, and the pill floats over form content -->
-<div class="pointer-events-auto max-w-full rounded-full bg-background shadow-md">
+<!-- 32rem cap: the headword preview would otherwise stretch the pill across the whole dialog -->
+<div class="pointer-events-auto max-w-[min(100%,32rem)] rounded-full bg-background shadow-md">
   <div class="max-w-full flex items-center rounded-full border text-sm {duplicateTintClass(summary.hasExactWordMatch)}">
     <button
       type="button"

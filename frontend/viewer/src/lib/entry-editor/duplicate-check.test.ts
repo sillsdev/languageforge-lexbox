@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 import type {IEntry} from '$lib/dotnet-types';
 import {
   classifyDuplicates,
@@ -7,6 +7,7 @@ import {
   mergeSearchResults,
   normalizeForCompare,
   stripMorphTokens,
+  trapEnter,
   type DuplicateQueries,
 } from './duplicate-check';
 
@@ -77,6 +78,21 @@ describe('stripMorphTokens', () => {
 
   it('leaves untokenized input alone', () => {
     expect(stripMorphTokens('aji', morphTypes)).toBe('aji');
+  });
+});
+
+describe('trapEnter', () => {
+  // the host dialog submits on Enter; a leak here silently creates the duplicate being warned about
+  it('stops Enter from reaching the dialog, letting other keys through', () => {
+    const enter = new KeyboardEvent('keydown', {key: 'Enter'});
+    const enterStop = vi.spyOn(enter, 'stopPropagation');
+    trapEnter(enter);
+    expect(enterStop).toHaveBeenCalledOnce();
+
+    const space = new KeyboardEvent('keydown', {key: ' '});
+    const spaceStop = vi.spyOn(space, 'stopPropagation');
+    trapEnter(space);
+    expect(spaceStop).not.toHaveBeenCalled();
   });
 });
 
