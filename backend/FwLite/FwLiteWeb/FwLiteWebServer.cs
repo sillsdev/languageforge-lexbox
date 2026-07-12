@@ -70,10 +70,12 @@ public static class FwLiteWebServer
             options.AddFilter(new LockedProjectFilter());
             options.EnableDetailedErrors = true;
         }).AddJsonProtocol();
+        builder.Services.AddHealthChecks();
 
         configure?.Invoke(builder);
         var app = builder.Build();
         app.Logger.LogInformation("FwLite FwLiteWeb startup");
+        EnsureDataDirectoriesExist(app);
 // Configure the HTTP request pipeline.
         app.UseSwagger();
         app.UseSwaggerUI(o =>
@@ -124,6 +126,7 @@ public static class FwLiteWebServer
         app.MapImport();
         app.MapAuthRoutes();
         app.MapMiniLcmRoutes("/api/mini-lcm");
+        app.MapHealthChecks("/health");
 
         app.MapStaticAssets();
         app.MapRazorComponents<App>()
@@ -133,5 +136,24 @@ public static class FwLiteWebServer
             })
             .AddAdditionalAssemblies(typeof(FwLiteShared._Imports).Assembly);
         return app;
+    }
+
+    /// <summary>
+    /// Creates the project and auth-cache directories up front, the way the MAUI host already does
+    /// (see <c>FwLiteMauiKernel</c>). FwLiteWeb never did, which was harmless while the paths defaulted
+    /// to the working directory (always present), but a host can point <c>LcmCrdt:ProjectPath</c> /
+    /// <c>Auth:CacheFileName</c> at a per-user location that doesn't exist yet — the Platform.Bible
+    /// extension does, and it can't create the directory itself. Without this, a missing directory makes
+    /// project listing (<see cref="Directory.EnumerateFiles(string, string)"/>), project creation
+    /// (SQLite can't open a file under a missing directory), and MSAL cache init all fail.
+    /// </summary>
+    private static void EnsureDataDirectoriesExist(WebApplication app)
+    {
+        var projectPath = app.Services.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
+        Directory.CreateDirectory(projectPath);
+
+        var cacheFileName = app.Services.GetRequiredService<IOptions<AuthConfig>>().Value.CacheFileName;
+        var cacheDir = Path.GetDirectoryName(cacheFileName);
+        if (!string.IsNullOrEmpty(cacheDir)) Directory.CreateDirectory(cacheDir);
     }
 }

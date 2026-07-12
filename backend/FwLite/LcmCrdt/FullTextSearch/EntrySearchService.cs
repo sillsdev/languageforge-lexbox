@@ -155,7 +155,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     public static string LexemeForm(WritingSystem[] wss, Entry entry)
     {
         return string.Join(" ",
-            wss.Where(ws => ws.Type == WritingSystemType.Vernacular)
+            wss.Where(ws => ws.Type == WritingSystemType.Vernacular && !ws.IsAudio)
                 .Select(ws => entry.LexemeForm[ws.WsId])
                 .Where(h => !string.IsNullOrEmpty(h)));
     }
@@ -163,7 +163,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     public static string CitationForm(WritingSystem[] wss, Entry entry)
     {
         return string.Join(" ",
-            wss.Where(ws => ws.Type == WritingSystemType.Vernacular)
+            wss.Where(ws => ws.Type == WritingSystemType.Vernacular && !ws.IsAudio)
                 .Select(ws => entry.CitationForm[ws.WsId])
                 .Where(h => !string.IsNullOrEmpty(h)));
     }
@@ -185,7 +185,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     private static IEnumerable<string> JoinAll(MultiString ms, WritingSystem[] wss, WritingSystemType type)
     {
-        return wss.Where(ws => ws.Type == type)
+        return wss.Where(ws => ws.Type == type && !ws.IsAudio)
             .Select(ws => ms.Values.TryGetValue(ws.WsId, out var value) ? value : null)
             .OfType<string>()
             .Where(v => v.Length > 0);
@@ -193,7 +193,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     private static IEnumerable<RichString> JoinAll(RichMultiString ms, WritingSystem[] wss, WritingSystemType type)
     {
-        return wss.Where(ws => ws.Type == type)
+        return wss.Where(ws => ws.Type == type && !ws.IsAudio)
             .Select(ws => ms.TryGetValue(ws.WsId, out var value) ? value : null)
             .OfType<RichString>();
     }
@@ -321,7 +321,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         // This ensures FTS matches across all WS, including morph-token-decorated forms.
         var headwords = EntryQueryHelpers.ComputeHeadwords(entry, morphTypeLookup);
         var headword = string.Join(" ",
-            writingSystems.Where(ws => ws.Type == WritingSystemType.Vernacular)
+            writingSystems.Where(ws => ws.Type == WritingSystemType.Vernacular && !ws.IsAudio)
                 .Select(ws => headwords[ws.WsId])
                 .Where(h => !string.IsNullOrEmpty(h)));
 

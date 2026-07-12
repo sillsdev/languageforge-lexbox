@@ -90,6 +90,13 @@ public static class ProjectRoutes
                     _ => Results.InternalServerError("DownloadProjectByCodeResult enum value not handled, please inform FW Lite devs")
                 };
             });
+        group.MapDelete("/crdt/{code}",
+            async (CrdtProjectsService projectService, string code) =>
+            {
+                if (!projectService.ProjectExists(code)) return Results.NotFound($"Project {code} not found");
+                await projectService.DeleteProject(code);
+                return Results.Ok();
+            });
         return group;
     }
 
