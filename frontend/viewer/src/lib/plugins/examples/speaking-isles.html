@@ -165,11 +165,12 @@
   #hotbar {
     position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
     display: flex; gap: 6px; padding: 7px; pointer-events: auto;
+    max-width: 96vw; overflow-x: auto;
   }
   #hotbar .slot {
     width: 46px; height: 46px; border-radius: 9px; border: 2px solid var(--border);
     display: flex; align-items: center; justify-content: center; flex-direction: column;
-    cursor: pointer; position: relative; background: var(--surface-solid);
+    cursor: pointer; position: relative; background: var(--surface-solid); flex: 0 0 auto;
   }
   #hotbar .slot.sel { border-color: var(--gold); box-shadow: 0 0 10px rgba(234,179,8,0.45); }
   #hotbar .slot .cube { width: 22px; height: 22px; border-radius: 4px; box-shadow: inset -4px -5px 0 rgba(0,0,0,0.25), inset 3px 3px 0 rgba(255,255,255,0.25); }
@@ -315,6 +316,35 @@
   body.touch #joy { display: block; }
   body.touch #tbtns { display: flex; }
   body.touch #cross { display: none; }
+  /* Lift the on-screen controls above the bottom-centre hotbar and keep Echo clear of them. */
+  body.touch #joy { bottom: 120px; left: 18px; }
+  body.touch #tbtns { bottom: 120px; right: 14px; }
+  body.touch #prompt { bottom: 196px; }
+  body.touch #firsthint { bottom: 210px; }
+  /* On a phone the bottom-left is busy with the joystick, so Echo's narration moves up top. */
+  body.touch #echo { top: 112px; bottom: auto; left: 10px; right: 54px; max-width: none; }
+  body.touch #helpbtn { top: 108px; }
+
+  /* Narrow phones: tighten the whole HUD so nothing overlaps at ~360–430px wide. */
+  @media (max-width: 560px) {
+    #hotbar { gap: 4px; padding: 5px; }
+    #hotbar .slot { width: 34px; height: 34px; }
+    #hotbar .slot .cube { width: 17px; height: 17px; }
+    /* Three top boxes can't share a 390px row, so: compass shrinks to just its arrow
+       (top-left), the banner left-anchors beside it, and stats keep the right corner. */
+    #compassbar { padding: 5px 7px; }
+    #compassbar #compass-label { display: none; }
+    #banner {
+      left: 46px; transform: none; text-align: left;
+      min-width: 0; max-width: calc(100vw - 180px); padding: 6px 10px;
+    }
+    #banner .rname { font-size: 0.84rem; }
+    #banner .rsub { font-size: 0.62rem; }
+    #stats { padding: 6px 9px; }
+    #stats .lum { font-size: 0.76rem; }
+    #stats .wds { font-size: 0.62rem; }
+    #objective { max-width: 92vw; font-size: 0.74rem; top: 60px; }
+  }
 </style>
 </head>
 <body>
@@ -464,6 +494,15 @@
 
 function $(id) { return document.getElementById(id); }
 function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+function toByte(v) { return v <= 0 ? 0 : v >= 1 ? 255 : (v * 255) | 0; }
+
+// Cheap capability sniff so we can spend fewer pixels/draws on modest phones.
+var LOW_END = (function () {
+  try {
+    return (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+           (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  } catch (e) { return false; }
+})();
 function lerp(a, b, t) { return a + (b - a) * t; }
 function smoothstep(t) { return t * t * (3 - 2 * t); }
 function escapeHtml(s) {
@@ -783,7 +822,8 @@ function buildRegions() {
   regions.forEach(function (region, index) {
     region.index = index;
     region.needsExample = region.entries.filter(senseNeedingExample);
-    region.target = region.entries.length ? clamp(Math.ceil(region.entries.length * 0.4), 2, 10) : 0;
+    // Low enough that the first isle wakes within a minute or two — the early "wow".
+    region.target = region.entries.length ? clamp(Math.ceil(region.entries.length * 0.3), 2, 6) : 0;
   });
   Dict.regions = regions;
 }
@@ -836,6 +876,9 @@ BLOCK_STYLE[B.BLOOM] = [0.45, 0.95, 0.88, 0.45];
 var World = {
   blocks: new Uint8Array(WORLD * WORLD * HEIGHT),
   heights: new Uint8Array(WORLD * WORLD),
+  // Highest solid block per column, kept current by setBlock; lets meshing skip the
+  // empty air above each column instead of scanning all 64 levels everywhere.
+  top: new Uint8Array(WORLD * WORLD),
   regionMap: new Uint8Array(WORLD * WORLD), // region index, 254 = hub, 255 = open sea
   protected: new Set(),
   interactables: [],   // {type:'stone'|'well'|'beacon', x, y, z, region, data}
@@ -847,7 +890,11 @@ var World = {
 function blockIndex(x, y, z) { return ((x << 8) | z) << 6 | y; }
 function inWorld(x, y, z) { return x >= 0 && x < WORLD && z >= 0 && z < WORLD && y >= 0 && y < HEIGHT; }
 function getBlock(x, y, z) { return inWorld(x, y, z) ? World.blocks[blockIndex(x, y, z)] : (y < 0 ? B.STONE : B.AIR); }
-function setBlock(x, y, z, type) { if (inWorld(x, y, z)) World.blocks[blockIndex(x, y, z)] = type; }
+function setBlock(x, y, z, type) {
+  if (!inWorld(x, y, z)) return;
+  World.blocks[blockIndex(x, y, z)] = type;
+  if (type !== B.AIR) { var c = (x << 8) | z; if (y > World.top[c]) World.top[c] = y; }
+}
 function isSolid(x, y, z) { return getBlock(x, y, z) !== B.AIR; }
 function columnRegion(x, z) {
   if (x < 0 || x >= WORLD || z < 0 || z >= WORLD) return 255;
@@ -870,6 +917,7 @@ function generateWorld(seedText, regions) {
   World.angleOffset = angleOffset;
   var blocks = World.blocks;
   blocks.fill(0);
+  World.top.fill(0);
   World.protected.clear();
   World.interactables = [];
 
@@ -896,6 +944,7 @@ function generateWorld(seedText, regions) {
       var colRegion = dist < HUB_R ? 254 : (height <= SEA - 2 ? 255 : sector);
       World.regionMap[(x << 8) | z] = colRegion;
       World.heights[(x << 8) | z] = height;
+      World.top[(x << 8) | z] = height;
 
       var sandy = height <= SEA + 1;
       for (var y = 0; y <= height; y++) {
@@ -1236,6 +1285,8 @@ var FACES = [
 ];
 var CORNER_SIGNS = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
 
+// Packed voxel vertex: 3×float32 position + 4×uint8 colour(rgb+glow) = 16 bytes.
+var VERT_STRIDE = 16;
 var MAX_SPRITES = 1200;
 
 var Renderer = (function () {
@@ -1314,17 +1365,19 @@ var Renderer = (function () {
     resize();
   }
 
-  /* Uploads per-frame creature geometry (7 floats/vert: xyz + rgb + glow), drawn
-   * in the voxel pass so critters pick up the same fog and day/night lighting. */
-  function updateCreatures(verts) {
-    creatureCount = verts.length / 7;
+  /* Uploads per-frame creature geometry in the same packed 16B/vertex layout as
+   * chunks, drawn in the voxel pass so critters pick up fog and day/night lighting.
+   * The caller reuses one ArrayBuffer, so no per-frame allocation happens here. */
+  function updateCreatures(buffer, vertCount) {
+    creatureCount = vertCount || 0;
     if (!creatureCount) return;
     gl.bindBuffer(gl.ARRAY_BUFFER, creatureVbo);
-    gl.bufferData(gl.ARRAY_BUFFER, verts, gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(buffer, 0, creatureCount * VERT_STRIDE), gl.DYNAMIC_DRAW);
   }
 
   function resize() {
-    var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    // Fewer pixels on modest hardware: fill rate is the main cost of a full-screen voxel scene.
+    var dpr = Math.min(window.devicePixelRatio || 1, LOW_END ? 1.0 : 1.5);
     var wCss = canvas.clientWidth || window.innerWidth;
     var hCss = canvas.clientHeight || window.innerHeight;
     canvas.width = Math.max(1, Math.round(wCss * dpr));
@@ -1369,7 +1422,9 @@ var Renderer = (function () {
     var x0 = cx * CHUNK, z0 = cz * CHUNK;
     for (var x = x0; x < x0 + CHUNK; x++) {
       for (var z = z0; z < z0 + CHUNK; z++) {
-        for (var y = 0; y < HEIGHT; y++) {
+        // Only scan up to this column's highest solid block; everything above is air.
+        var yTop = World.top[(x << 8) | z];
+        for (var y = 0; y <= yTop; y++) {
           var type = World.blocks[blockIndex(x, y, z)];
           if (!type) continue;
           for (var f = 0; f < 6; f++) {
@@ -1407,11 +1462,26 @@ var Renderer = (function () {
     var chunk = chunks[cx][cz];
     if (!chunk.vbo) { chunk.vbo = gl.createBuffer(); chunk.ibo = gl.createBuffer(); }
     gl.bindBuffer(gl.ARRAY_BUFFER, chunk.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, packVerts(verts), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
     chunk.count = indices.length;
     chunk.dirty = false;
+  }
+
+  // Interleave [x,y,z (3×f32=12B), r,g,b,glow (4×u8=4B)] → 16B/vertex, ~43% less
+  // GPU memory than four floats of colour. The shader still receives normalized 0..1.
+  function packVerts(verts) {
+    var n = verts.length / 7;
+    var buffer = new ArrayBuffer(n * VERT_STRIDE);
+    var f = new Float32Array(buffer), u = new Uint8Array(buffer);
+    for (var i = 0; i < n; i++) {
+      var s = i * 7, fo = i * 4, bo = i * VERT_STRIDE + 12;
+      f[fo] = verts[s]; f[fo + 1] = verts[s + 1]; f[fo + 2] = verts[s + 2];
+      u[bo] = toByte(verts[s + 3]); u[bo + 1] = toByte(verts[s + 4]);
+      u[bo + 2] = toByte(verts[s + 5]); u[bo + 3] = toByte(verts[s + 6]);
+    }
+    return buffer;
   }
 
   function meshAll() {
@@ -1535,7 +1605,9 @@ var Renderer = (function () {
     var sunEl = Math.sin(sunAngle);
     var day = clamp(sunEl * 2.4 + 0.55, 0.07, 1);
     var colors = skyColors(day, sunEl);
-    var fogNear = lerp(38, 62, day), fogFar = lerp(80, 118, day);
+    // Pull the fog/draw distance in on low-end devices so fewer chunks are drawn per frame.
+    var fogNear = lerp(38, 62, day) * (LOW_END ? 0.82 : 1);
+    var fogFar = lerp(80, 118, day) * (LOW_END ? 0.72 : 1);
 
     gl.disable(gl.BLEND);
     gl.disable(gl.DEPTH_TEST);
@@ -1581,9 +1653,9 @@ var Renderer = (function () {
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, chunk.vbo);
         gl.enableVertexAttribArray(progVoxel.a.aPos);
-        gl.vertexAttribPointer(progVoxel.a.aPos, 3, gl.FLOAT, false, 28, 0);
+        gl.vertexAttribPointer(progVoxel.a.aPos, 3, gl.FLOAT, false, VERT_STRIDE, 0);
         gl.enableVertexAttribArray(progVoxel.a.aCol);
-        gl.vertexAttribPointer(progVoxel.a.aCol, 4, gl.FLOAT, false, 28, 12);
+        gl.vertexAttribPointer(progVoxel.a.aCol, 4, gl.UNSIGNED_BYTE, true, VERT_STRIDE, 12);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.ibo);
         gl.drawElements(gl.TRIANGLES, chunk.count, gl.UNSIGNED_SHORT, 0);
         drawn++;
@@ -1595,9 +1667,9 @@ var Renderer = (function () {
       gl.disable(gl.CULL_FACE);
       gl.bindBuffer(gl.ARRAY_BUFFER, creatureVbo);
       gl.enableVertexAttribArray(progVoxel.a.aPos);
-      gl.vertexAttribPointer(progVoxel.a.aPos, 3, gl.FLOAT, false, 28, 0);
+      gl.vertexAttribPointer(progVoxel.a.aPos, 3, gl.FLOAT, false, VERT_STRIDE, 0);
       gl.enableVertexAttribArray(progVoxel.a.aCol);
-      gl.vertexAttribPointer(progVoxel.a.aCol, 4, gl.FLOAT, false, 28, 12);
+      gl.vertexAttribPointer(progVoxel.a.aCol, 4, gl.UNSIGNED_BYTE, true, VERT_STRIDE, 12);
       gl.drawArrays(gl.TRIANGLES, 0, creatureCount);
     }
 
@@ -2025,6 +2097,37 @@ function spawnOrb(region, rand) {
   };
   Game.orbs.push(orb);
   return orb;
+}
+
+// Pull a few word-lights right up to the spawn point (in the isles nearest the
+// hub) so a new player reaches their very first one within seconds, and make that
+// starter isle quick to wake. Only for a fresh journey.
+function placeStarterOrbs() {
+  var sx = World.spawn.x, sz = World.spawn.z;
+  var usedOrbs = [], usedSpots = [];
+  for (var r = 7; r <= 17 && usedOrbs.length < 3; r += 2) {
+    for (var a = 0; a < 12 && usedOrbs.length < 3; a++) {
+      var ang = a / 12 * Math.PI * 2 + r;
+      var x = Math.round(sx + Math.cos(ang) * r), z = Math.round(sz + Math.sin(ang) * r);
+      if (!inWorld(x, 2, z)) continue;
+      var reg = columnRegion(x, z);
+      if (reg >= Dict.regions.length) continue;      // skip hub (254) and sea (255)
+      var y = surfaceY(x, z);
+      if (y <= SEA) continue;
+      var near = usedSpots.some(function (s) { return Math.abs(s.x - x) + Math.abs(s.z - z) < 7; });
+      if (near) continue;
+      var region = Dict.regions[reg];
+      var orb = null;
+      for (var i = 0; i < Game.orbs.length; i++) {
+        if (Game.orbs[i].region === region && usedOrbs.indexOf(Game.orbs[i]) < 0) { orb = Game.orbs[i]; break; }
+      }
+      if (!orb) orb = spawnOrb(region);
+      if (!orb) continue;
+      orb.x = x + 0.5; orb.y = y + 1.9; orb.z = z + 0.5;
+      if (region.target > 3) region.target = 3;      // first isle wakes fast
+      usedOrbs.push(orb); usedSpots.push({x: x, z: z});
+    }
+  }
 }
 
 function removeOrb(orb) {
@@ -2671,12 +2774,19 @@ var Life = {
   hubAnchors: [],
   creatures: [],
   lastDay: 1,
-  creatureVerts: new Float32Array(0),
+  creatureVertCount: 0,
 };
 var MAX_CREATURES = 18;
 var CREATURES_PER_REGION = 3;
 var MOTES_PER_REGION = 5;
 var FIREFLIES_PER_REGION = 6;
+
+// One reused packed buffer for all creature geometry (3 boxes × 36 verts each),
+// so the per-frame rebuild never allocates — important for GC on low-end phones.
+var CREATURE_MAX_VERTS = MAX_CREATURES * 3 * 36;
+Life.creatureAB = new ArrayBuffer(CREATURE_MAX_VERTS * 16);
+Life.creatureF = new Float32Array(Life.creatureAB);
+Life.creatureU = new Uint8Array(Life.creatureAB);
 
 function flowerPalette(kind) {
   switch (kind) {
@@ -2777,12 +2887,13 @@ function updateLife(dt) {
     }
     c.groundY = surfaceY(Math.floor(c.x), Math.floor(c.z)) + 1;
   }
-  Life.creatureVerts = buildCreatureMesh();
+  Life.creatureVertCount = buildCreatureMesh();
 }
 
 // A small critter = body + head + tail cubes; a hop lifts it off the ground.
+// Writes straight into the reused packed buffer and returns the vertex count.
 function buildCreatureMesh() {
-  var verts = [];
+  var vi = 0;
   var eye = eyePos();
   for (var i = 0; i < Life.creatures.length; i++) {
     var c = Life.creatures[i];
@@ -2791,31 +2902,39 @@ function buildCreatureMesh() {
     var lift = Math.max(0, Math.sin(c.hop)) * 0.38;
     var baseY = c.groundY + lift + 0.22;
     var fx = Math.cos(c.dir), fz = Math.sin(c.dir);
-    pushBox(verts, c.x, baseY, c.z, 0.26, 0.20, 0.30, c.r, c.g, c.b);                    // body
-    pushBox(verts, c.x + fx * 0.26, baseY + 0.20, c.z + fz * 0.26, 0.18, 0.17, 0.18,     // head (brighter)
+    vi = pushBox(vi, c.x, baseY, c.z, 0.26, 0.20, 0.30, c.r, c.g, c.b);                     // body
+    vi = pushBox(vi, c.x + fx * 0.26, baseY + 0.20, c.z + fz * 0.26, 0.18, 0.17, 0.18,      // head (brighter)
       clamp(c.r + 0.12, 0, 1), clamp(c.g + 0.12, 0, 1), clamp(c.b + 0.12, 0, 1));
-    pushBox(verts, c.x - fx * 0.28, baseY + 0.16, c.z - fz * 0.28, 0.09, 0.09, 0.09, c.r, c.g, c.b); // tail
+    vi = pushBox(vi, c.x - fx * 0.28, baseY + 0.16, c.z - fz * 0.28, 0.09, 0.09, 0.09, c.r, c.g, c.b); // tail
   }
-  return new Float32Array(verts);
+  return vi;
 }
 
-// Axis-aligned box as 6 faces (36 verts); culling is off for creatures so any
-// winding is fine. Face shading matches the world's top-bright / bottom-dark look.
-function pushBox(v, cx, cy, cz, hx, hy, hz, r, g, b) {
+// Axis-aligned box as 6 faces (36 verts) written into the packed creature buffer at
+// vertex index vi; culling is off for creatures so winding is irrelevant. Face shading
+// matches the world's top-bright / bottom-dark look. Returns the next vertex index.
+function pushBox(vi, cx, cy, cz, hx, hy, hz, r, g, b) {
   var x0 = cx - hx, x1 = cx + hx, y0 = cy - hy, y1 = cy + hy, z0 = cz - hz, z1 = cz + hz;
   var C = [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0], [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]];
   var faces = [
     [4, 5, 6, 7, 0.72], [1, 0, 3, 2, 0.72], [5, 1, 2, 6, 0.80],
     [0, 4, 7, 3, 0.80], [7, 6, 2, 3, 1.00], [0, 1, 5, 4, 0.55],
   ];
+  var F = Life.creatureF, U = Life.creatureU;
   for (var f = 0; f < 6; f++) {
     var q = faces[f], s = q[4];
-    var quad = [C[q[0]], C[q[1]], C[q[2]], C[q[0]], C[q[2]], C[q[3]]];
+    var order = [q[0], q[1], q[2], q[0], q[2], q[3]];
+    var br = toByte(r * s), bg = toByte(g * s), bb = toByte(b * s);
     for (var t = 0; t < 6; t++) {
-      var p = quad[t];
-      v.push(p[0], p[1], p[2], r * s, g * s, b * s, 0);
+      if (vi >= CREATURE_MAX_VERTS) return vi;
+      var p = C[order[t]];
+      var fo = vi * 4, bo = vi * 16 + 12;
+      F[fo] = p[0]; F[fo + 1] = p[1]; F[fo + 2] = p[2];
+      U[bo] = br; U[bo + 1] = bg; U[bo + 2] = bb; U[bo + 3] = 0;
+      vi++;
     }
   }
+  return vi;
 }
 
 // Glowing ambient life pushed into the sprite buffer (called from drawSprites).
@@ -2977,6 +3096,9 @@ function updateObjective() {
  * dismissed as soon as they move or look (whichever comes first), else after 11s. */
 function showFirstHint() {
   if (Game.firstHintDone) return;
+  // On touch the title already showed the touch controls and the on-screen pad is
+  // self-evident, so this extra primer would just crowd the top. The objective line guides them.
+  if (document.body.classList.contains('touch')) { Game.firstHintDone = true; return; }
   var el = $('firsthint');
   el.classList.remove('hidden', 'fading');
   el.innerHTML = document.body.classList.contains('touch')
@@ -3167,6 +3289,7 @@ function resetJourney() {
   initOrbs();
   initLife();
   respawn();
+  placeStarterOrbs();
   lastBannerRegion = -2;
   showTitle(false);
   wireTitle(false);
@@ -3215,6 +3338,14 @@ window.addEventListener('resize', function () { Renderer.resize(); });
 function bootMessage(msg) { $('boot-msg').textContent = msg; }
 
 function boot() {
+  // Show touch controls (and touch-worded hints) from the start on phones/tablets —
+  // coarse pointer, no fine pointer — but never on a desktop. A hybrid laptop still
+  // reveals them the moment a real touch happens (handled in the input layer).
+  if (window.matchMedia &&
+      window.matchMedia('(pointer: coarse)').matches &&
+      !window.matchMedia('(pointer: fine)').matches) {
+    document.body.classList.add('touch');
+  }
   bootMessage('Listening for the dictionary…');
   fwlite.ready.then(function () {
     document.documentElement.setAttribute('data-theme', fwlite.theme || 'light');
@@ -3238,7 +3369,7 @@ function boot() {
     Game.totalWords = Dict.entries.length;
     initOrbs();
     initLife();
-    if (!hasSave) respawn();
+    if (!hasSave) { respawn(); placeStarterOrbs(); }
     showTitle(hasSave);
     wireTitle(hasSave);
     requestAnimationFrame(frame);
@@ -3259,7 +3390,7 @@ function frame(now) {
   if (Game.started && openOverlays === 0) movePlayer(dt);
   updateParticles(dt);
   if (Game.started) updateLife(dt);
-  Renderer.updateCreatures(Life.creatureVerts);
+  Renderer.updateCreatures(Life.creatureAB, Life.creatureVertCount);
   drawSprites();
   var frameInfo = Renderer.render({
     cam: {x: Player.x, y: Player.y + Player.EYE, z: Player.z, yaw: Player.yaw, pitch: Player.pitch},
