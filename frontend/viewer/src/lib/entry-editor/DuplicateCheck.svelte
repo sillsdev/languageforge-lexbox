@@ -14,7 +14,7 @@
   import type {IEntry, ISense} from '$lib/dotnet-types';
   import {SortField} from '$lib/dotnet-types';
   import {resource, watch} from 'runed';
-  import {t} from 'svelte-i18n-lingui';
+  import {plural, t} from 'svelte-i18n-lingui';
   import {slide} from 'svelte/transition';
   import {navigate, useRouter} from 'svelte-routing';
   import * as Collapsible from '$lib/components/ui/collapsible';
@@ -190,11 +190,16 @@
 
 <div class="min-h-9 flex flex-col justify-center w-full" aria-live="polite">
   {#if !matches?.length}
-    {#if (duplicatesResource.loading && hasQueries) || matches}
+    {#if (duplicatesResource.loading && hasQueries) || matches || duplicatesResource.error}
       <div class="flex items-center gap-2 px-1 text-sm text-muted-foreground" transition:slide={{duration: 150}}>
         {#if duplicatesResource.loading}
           <Loading class="size-4" />
           {pt($t`Checking for similar entries…`, $t`Checking for similar words…`, viewService.currentView)}
+        {:else if duplicatesResource.error}
+          <!-- inline, not AppNotification.error: this search re-fires per typing pause, and a
+            failure toast per pause would bury the dialog; the strip already owns a status line -->
+          <Icon icon="i-mdi-alert-outline" class="size-4" />
+          {pt($t`Could not check for similar entries`, $t`Could not check for similar words`, viewService.currentView)}
         {:else}
           <Icon icon="i-mdi-check-circle-outline" class="size-4 text-green-600 dark:text-green-500" />
           {pt($t`No similar entries found`, $t`Looks like a new word`, viewService.currentView)}
@@ -283,7 +288,7 @@
               <Button variant="ghost" size="sm" class="w-full text-muted-foreground"
                 onkeydown={trapEnter}
                 onclick={() => displayCount = matches.length}>
-                {$t`Show ${remainingEntries} more...`}
+                {$plural(remainingEntries, {one: 'Show # more...', other: 'Show # more...'})}
               </Button>
             </li>
           {/if}

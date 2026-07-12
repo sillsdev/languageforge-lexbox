@@ -87,6 +87,11 @@ msgstr "{num, plural, other {# commit FieldWorks Classic mới}}"
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, other {# commit FieldWorks Lite mới}}"
 
+#. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "{num, plural, one {Show # more...} other {Show # more...}}"
+msgstr ""
+
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -565,6 +570,20 @@ msgstr "Đã sao chép vào khay nhớ tạm"
 msgid "Copy version"
 msgstr "Sao chép phiên bản"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Could not check for similar words"
+#. Status line in the New Entry dialog when the background duplicate search failed (e.g. connection lost); typing again retries
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Could not check for similar entries"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Could not check for similar entries"
+#. Status line in the New Word dialog when the background duplicate search failed (e.g. connection lost); typing again retries
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Could not check for similar words"
+msgstr ""
+
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/SyncDialog.svelte
@@ -955,6 +974,7 @@ msgstr "Mở URL thất bại: {0}"
 msgid "Failed to regenerate Harmony snapshots"
 msgstr ""
 
+#. Error toast when search index regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate search index"
 msgstr ""
@@ -1689,6 +1709,7 @@ msgstr ""
 msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
 msgstr ""
 
+#. Warning in regenerate-search-index confirm dialog: operation may be slow
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a while. Do not close the app or interrupt the process."
 msgstr ""
@@ -1876,10 +1897,12 @@ msgstr ""
 msgid "Regenerate Harmony snapshots?"
 msgstr ""
 
+#. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index"
 msgstr ""
 
+#. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
 msgstr ""
@@ -1889,6 +1912,7 @@ msgstr ""
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
 msgstr ""
 
+#. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr ""
@@ -1989,6 +2013,7 @@ msgstr "Tìm # hoặc #"
 msgid "Search Dictionaries"
 msgstr "Tìm từ điển"
 
+#. Success toast after rebuilding the FTS entry search index
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
 msgstr ""
@@ -2099,7 +2124,6 @@ msgid "Show"
 msgstr "Hiển thị"
 
 #. Expand button with count
-#: src/lib/entry-editor/DuplicateCheck.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Show {0} more..."
 msgstr "Hiển thị thêm {0}..."
@@ -2364,6 +2388,7 @@ msgstr "Dự án này hiện đã mở trong FieldWorks. Để tiếp tục làm
 msgid "This rebuilds snapshot and projected tables from commit history."
 msgstr ""
 
+#. Warning in regenerate-search-index confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr ""
