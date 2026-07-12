@@ -108,6 +108,12 @@ msgstr "A new version of FieldWorks Lite is available."
 msgid "a word"
 msgstr "a word"
 
+#. Field label in the activity change-preview diff for vocabulary objects (part of speech, semantic domain, etc.). Shows the abbreviated form alongside the full name.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Abbreviation"
+msgstr "Abbreviation"
+
 #. Dialog title
 #: src/lib/about/AboutDialog.svelte
 msgid "About"
@@ -196,6 +202,12 @@ msgstr "Add Word"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
 
+#. Tooltip/aria-label for a change-category badge icon on an activity row (paired with "Removed", "Edited", "Reordered").
+#. Also an sr-only label marking the added side of an audio value's before/after diff.
+#: src/lib/entry-editor/diff-view/DiffAudio.svelte
+msgid "Added"
+msgstr "Added"
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -225,6 +237,7 @@ msgstr "an entry"
 
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Analysis"
@@ -233,6 +246,7 @@ msgstr "Analysis"
 msgid "Analysis writing system code"
 msgstr "Analysis writing system code"
 
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
 msgstr "Analysis writing systems"
@@ -282,6 +296,11 @@ msgstr "Are you sure you want to delete {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Ask questions and get help on our community forum."
 
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's an audio writing system (Yes/No).
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Audio"
+msgstr "Audio"
+
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
@@ -311,6 +330,11 @@ msgstr "Auto"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Auto syncing"
 msgstr "Auto syncing"
+
+#. Field label in the activity change-preview diff for a custom view. Shows which base view ("FieldWorks Classic" or "FieldWorks Lite") the custom view extends.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Base view"
+msgstr "Base view"
 
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
@@ -423,6 +447,7 @@ msgstr "Closed"
 
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 msgid "Code"
 msgstr "Code"
 
@@ -633,6 +658,10 @@ msgstr "Delete Word"
 msgid "Deleted"
 msgstr "Deleted"
 
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Description"
+msgstr "Description"
+
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
@@ -794,6 +823,11 @@ msgstr "entry"
 msgid "Entry"
 msgstr "Entry"
 
+#. Field label in the activity change-preview diff for a custom view: which entry-level fields it shows.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Entry fields"
+msgstr "Entry fields"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word only"
 #. Label for picker when creating relationships: select only the entry itself (not a specific sense/meaning)
@@ -838,6 +872,11 @@ msgstr "Error getting sync status."
 msgid "Example"
 msgstr "Example"
 
+#. Field label in the activity change-preview diff for a custom view: which example-sentence fields it shows.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Example fields"
+msgstr "Example fields"
+
 #. Field label
 #. Sentence/phrase showing usage of a word
 #. Appears under each Sense/Meaning; can have multiple examples per meaning
@@ -848,6 +887,11 @@ msgstr "Example sentence"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
 msgstr "Example sentences"
+
+#. Field label in the activity change-preview diff for a writing system. Exemplars are the list of index letters (e.g. A, B, C…) used for alphabetical browsing.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Exemplars"
+msgstr "Exemplars"
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -915,7 +959,13 @@ msgstr "Field"
 msgid "Fields"
 msgstr "Fields"
 
+#. Value shown in the activity change-preview diff for a custom view's base view. "FieldWorks" is a product name — do not translate; "Classic" may be translated.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "FieldWorks Classic"
+msgstr "FieldWorks Classic"
+
 #. Product name
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
@@ -1045,6 +1095,11 @@ msgstr "Find word..."
 msgid "Finish"
 msgstr "Finish"
 
+#. Field label in the activity change-preview diff. "Font" is the typeface name configured on a writing system.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Font"
+msgstr "Font"
+
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
@@ -1166,6 +1221,11 @@ msgstr "Installing Update..."
 msgid "Keep going"
 msgstr "Keep going"
 
+#. Field label in the activity change-preview diff for a morph type. "Kind" is the morphological pattern (e.g. prefix, suffix, infix, stem).
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Kind"
+msgstr "Kind"
+
 #. Label showing the date of the last change in the FwLite↔Classic sync panel. # is replaced by a formatted relative date component (e.g., "3 days ago").
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1279,6 +1339,11 @@ msgstr "Logout"
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 
+#. Field label in the activity change-preview diff for a publication. Shows whether this is the main/default publication (Yes/No).
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Main"
+msgstr "Main"
+
 #. Button label in the Feedback & Support dialog. Opens an external link to submit a feature suggestion.
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Make a suggestion"
@@ -1363,6 +1428,8 @@ msgstr "My custom view..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Name"
@@ -1430,6 +1497,10 @@ msgstr "Next"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Next milestone: {0}. {1} to go."
 msgstr "Next milestone: {0}. {1} to go."
+
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "No"
+msgstr "No"
 
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
@@ -1691,6 +1762,16 @@ msgstr "Pinned"
 msgid "Platform"
 msgstr "Platform"
 
+#. Field label in the activity change-preview diff for a morph type. "Postfix" is the character(s) appended after a morpheme to mark its grammatical role (e.g. "-" for a suffix).
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Postfix"
+msgstr "Postfix"
+
+#. Field label in the activity change-preview diff for a morph type. "Prefix" is the character(s) prepended before a morpheme to mark its grammatical role (e.g. "-" for a prefix).
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Prefix"
+msgstr "Prefix"
+
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/project/browse/EntryListViewOptions.svelte
@@ -1806,6 +1887,12 @@ msgstr "Remove"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
 msgstr "Remove audio"
+
+#. Tooltip/aria-label for a change-category badge icon on an activity row (paired with "Added", "Edited", "Reordered").
+#. Also an sr-only label marking the removed side of an audio value's before/after diff.
+#: src/lib/entry-editor/diff-view/DiffAudio.svelte
+msgid "Removed"
+msgstr "Removed"
 
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -1931,6 +2018,11 @@ msgstr "Send us a message"
 #: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Sense"
+
+#. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Sense fields"
+msgstr "Sense fields"
 
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
@@ -2221,12 +2313,15 @@ msgid "Total entries"
 msgstr "Total entries"
 
 #. Field label
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Translation"
 
 #. Field title in the example editor when an entry has multiple translations. {0} = 1-based index number (e.g., "Translation 1", "Translation 2"). When there is only one translation, "Translation" is used instead.
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Translation {0}"
@@ -2242,6 +2337,11 @@ msgstr "Troubleshoot"
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
 msgstr "Try again"
+
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's a Vernacular or Analysis writing system.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Type"
+msgstr "Type"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2315,6 +2415,7 @@ msgstr "Unknown update result"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffEntryLinkList.svelte
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryView.svelte
@@ -2371,6 +2472,7 @@ msgstr "Uses components as"
 
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Vernacular"
@@ -2383,6 +2485,7 @@ msgstr "Vernacular writing system code"
 msgid "Vernacular writing system is required"
 msgstr "Vernacular writing system is required"
 
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
 msgstr "Vernacular writing systems"
@@ -2464,6 +2567,11 @@ msgstr "Write the first comment..."
 msgid "Writing System"
 msgstr "Writing System"
 
+#. Field label in the activity change-preview diff for a writing system. "Writing system code" is the technical identifier (e.g. "en", "fr-Latn"), distinct from its display name.
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Writing system code"
+msgstr "Writing system code"
+
 #. Tooltip on a text span in the rich-text editor. {0} = writing system code (e.g., "en", "fr-IPA"). Identifies which writing system the span belongs to.
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
@@ -2479,6 +2587,10 @@ msgstr "Writing systems"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Writing Systems"
+
+#: src/lib/entry-editor/diff-view/DiffVocabPrimitive.svelte
+msgid "Yes"
+msgstr "Yes"
 
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte

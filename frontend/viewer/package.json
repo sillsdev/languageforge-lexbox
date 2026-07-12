@@ -111,6 +111,7 @@
     "@lingui/core": "^5.6.1",
     "@microsoft/dotnet-js-interop": "^10.0.0",
     "@microsoft/signalr": "^10.0.0",
+    "@sanity/diff-match-patch": "^3.2.0",
     "fast-json-patch": "^3.1.1",
     "jsdom": "^26.1.0",
     "just-throttle": "^4.2.0",
