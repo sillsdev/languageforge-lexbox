@@ -26,6 +26,7 @@ msgid "– ({0} changes)"
 msgstr "– ({0} thay đổi)"
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "(unknown)"
 msgstr ""
 
@@ -233,7 +234,6 @@ msgstr "một mục"
 msgid "Analysis"
 msgstr "Phân tích"
 
-#. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
 msgstr ""
@@ -459,10 +459,9 @@ msgstr "Mẫu phức tạp"
 msgid "Complex form types"
 msgstr "Loại mẫu phức tạp"
 
-#. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Complex form:"
-msgstr "Mẫu phức tạp:"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -480,10 +479,9 @@ msgstr "Các mẫu phức tạp"
 msgid "Component"
 msgstr "Thành phần"
 
-#. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Component:"
-msgstr "Thành phần:"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -513,12 +511,10 @@ msgstr "Sao chép phiên bản"
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr ""
 
-#. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
 msgid "Create"
 msgstr ""
 
-#. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
 msgstr ""
@@ -558,10 +554,9 @@ msgstr "Tạo chế độ xem"
 msgid "Current Entry"
 msgstr "Mục hiện tại"
 
-#. Column header
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Current version"
-msgstr "Phiên bản hiện tại"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Current Entry"
@@ -739,7 +734,6 @@ msgstr "Đang tải xuống {0}..."
 msgid "Downloading..."
 msgstr "Đang tải xuống..."
 
-#. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
 msgstr ""
@@ -897,6 +891,7 @@ msgstr "Mở URL thất bại: {0}"
 msgid "Failed to regenerate Harmony snapshots"
 msgstr ""
 
+#. Error toast when search index regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate search index"
 msgstr ""
@@ -1222,7 +1217,7 @@ msgstr "Hình thức từ vựng hoặc Hình thức trích dẫn là bắt bu�
 msgid "Light"
 msgstr "Sáng"
 
-#. Section header in the entry list view options popup. Controls whether the entry list shows simple rows or a preview. Options below it: "Simple" and "Preview".
+#. Section header in the entry-list view options popup; the options are "Simple" and "Preview".
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr "Chế độ danh sách"
@@ -1543,11 +1538,10 @@ msgstr "Không có"
 msgid "Not equal"
 msgstr "Không bằng"
 
-#. Placeholder shown in the activity change preview when a referenced entry or sense no longer exists in the dictionary.
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Not found"
-msgstr "Không tìm thấy"
+msgstr ""
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
@@ -1596,6 +1590,7 @@ msgstr ""
 msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
 msgstr ""
 
+#. Warning in regenerate-search-index confirm dialog: operation may be slow
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a while. Do not close the app or interrupt the process."
 msgstr ""
@@ -1707,10 +1702,9 @@ msgstr "Nền tảng"
 msgid "Preview"
 msgstr "Xem trước"
 
-#. Shown in the change preview area where no preview is available for the selected change
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
-msgstr "Xem trước không khả dụng"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1783,10 +1777,12 @@ msgstr ""
 msgid "Regenerate Harmony snapshots?"
 msgstr ""
 
+#. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index"
 msgstr ""
 
+#. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
 msgstr ""
@@ -1796,6 +1792,7 @@ msgstr ""
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
 msgstr ""
 
+#. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr ""
@@ -1874,6 +1871,7 @@ msgstr "Tìm # hoặc #"
 msgid "Search Dictionaries"
 msgstr "Tìm từ điển"
 
+#. Success toast after rebuilding the FTS entry search index
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
 msgstr ""
@@ -2192,6 +2190,7 @@ msgstr "Dự án này hiện đã mở trong FieldWorks. Để tiếp tục làm
 msgid "This rebuilds snapshot and projected tables from commit history."
 msgstr ""
 
+#. Warning in regenerate-search-index confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr ""
@@ -2381,7 +2380,6 @@ msgstr "Sử dụng các thành phần như"
 msgid "Vernacular"
 msgstr "Tiếng địa phương"
 
-#. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
 msgstr ""

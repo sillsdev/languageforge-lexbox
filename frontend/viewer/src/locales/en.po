@@ -21,6 +21,7 @@ msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "(unknown)"
 msgstr "(unknown)"
 
@@ -228,7 +229,6 @@ msgstr "an entry"
 msgid "Analysis"
 msgstr "Analysis"
 
-#. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
 msgstr "Analysis writing system code"
@@ -454,7 +454,6 @@ msgstr "Complex Form"
 msgid "Complex form types"
 msgstr "Complex form types"
 
-#. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Complex form:"
 msgstr "Complex form:"
@@ -475,7 +474,6 @@ msgstr "Complex forms"
 msgid "Component"
 msgstr "Component"
 
-#. Label in change preview
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Component:"
 msgstr "Component:"
@@ -508,12 +506,10 @@ msgstr "Copy version"
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr "Couldn't sync right now — your local changes are safe."
 
-#. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
 msgid "Create"
 msgstr "Create"
 
-#. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
 msgstr "Create a new FieldWorks Lite project"
@@ -553,7 +549,6 @@ msgstr "Create View"
 msgid "Current Entry"
 msgstr "Current Entry"
 
-#. Column header
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Current version"
 msgstr "Current version"
@@ -734,7 +729,6 @@ msgstr "Downloading {0}..."
 msgid "Downloading..."
 msgstr "Downloading..."
 
-#. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
 msgstr "e.g. th, sw"
@@ -1218,7 +1212,7 @@ msgstr "Lexeme form or Citation form is required"
 msgid "Light"
 msgstr "Light"
 
-#. Section header in the entry list view options popup. Controls whether the entry list shows simple rows or a preview. Options below it: "Simple" and "Preview".
+#. Section header in the entry-list view options popup; the options are "Simple" and "Preview".
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "List mode"
 msgstr "List mode"
@@ -1539,7 +1533,6 @@ msgstr "None"
 msgid "Not equal"
 msgstr "Not equal"
 
-#. Placeholder shown in the activity change preview when a referenced entry or sense no longer exists in the dictionary.
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Not found"
@@ -1704,7 +1697,6 @@ msgstr "Platform"
 msgid "Preview"
 msgstr "Preview"
 
-#. Shown in the change preview area where no preview is available for the selected change
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "Preview not available"
@@ -2383,7 +2375,6 @@ msgstr "Uses components as"
 msgid "Vernacular"
 msgstr "Vernacular"
 
-#. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
 msgstr "Vernacular writing system code"
