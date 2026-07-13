@@ -5,6 +5,7 @@ import { type ReactElement, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 const CODE_PATTERN = /^[a-z\d][a-z\d-]*$/;
+const MIN_CODE_LENGTH = 4;
 
 function isValidLangTag(tag: string): boolean {
   try {
@@ -59,13 +60,14 @@ export default function CreateLexicon({
     if (!codeEdited) setCode(deriveCode(name));
   }, [codeEdited, name]);
 
-  // Codes are lowercased by CODE_PATTERN and on the backend, but compare case-insensitively
-  // so a well-formed collision is caught before the create round-trips and 400s.
+  // The code input lowercases as typed, but existingCodes may come from elsewhere with different
+  // casing, so compare case-insensitively to catch a well-formed collision before it 400s.
   const codeExists =
     !!code && (existingCodes ?? []).some((c) => c.toLowerCase() === code.toLowerCase());
 
   const isValid = !!(
     name.trim() &&
+    code.length >= MIN_CODE_LENGTH &&
     CODE_PATTERN.test(code) &&
     !codeExists &&
     isValidLangTag(vernacularWs.trim()) &&
@@ -107,7 +109,7 @@ export default function CreateLexicon({
         <Input
           id="createLexiconCode"
           onChange={(e) => {
-            setCode(e.target.value);
+            setCode(e.target.value.toLowerCase());
             setCodeEdited(true);
           }}
           value={code}
@@ -117,7 +119,12 @@ export default function CreateLexicon({
             {localizedStrings['%lexicon_createLexicon_codeExists%']}
           </p>
         )}
-        {!codeExists && !!code && !CODE_PATTERN.test(code) && (
+        {!codeExists && !!code && code.length < MIN_CODE_LENGTH && (
+          <p className="tw:text-sm tw:text-destructive tw:mt-1">
+            {localizedStrings['%lexicon_createLexicon_codeTooShort%']}
+          </p>
+        )}
+        {!codeExists && code.length >= MIN_CODE_LENGTH && !CODE_PATTERN.test(code) && (
           <p className="tw:text-sm tw:text-destructive tw:mt-1">
             {localizedStrings['%lexicon_createLexicon_codeInvalid%']}
           </p>
