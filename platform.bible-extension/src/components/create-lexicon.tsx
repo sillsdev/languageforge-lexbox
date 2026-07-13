@@ -117,6 +117,11 @@ export default function CreateLexicon({
             {localizedStrings['%lexicon_createLexicon_codeExists%']}
           </p>
         )}
+        {!codeExists && !!code && !CODE_PATTERN.test(code) && (
+          <p className="tw:text-sm tw:text-destructive tw:mt-1">
+            {localizedStrings['%lexicon_createLexicon_codeInvalid%']}
+          </p>
+        )}
       </div>
 
       <div>
