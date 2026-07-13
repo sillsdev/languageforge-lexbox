@@ -54,8 +54,8 @@
 
   let state = $state<LoadState>({status: 'loading'});
 
+  const mediaUri = $derived(picture.mediaUri);
   $effect(() => {
-    const mediaUri = picture.mediaUri;
     state = {status: 'loading'};
     let revoked = false;
     let createdUrl: string | undefined;
