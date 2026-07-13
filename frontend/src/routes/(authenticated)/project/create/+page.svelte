@@ -112,9 +112,10 @@
       if (!browser || !code || !user.canCreateProjects || code === defaultCode) return Promise.resolve(true);
       return _projectCodeAvailable(code);
     }, {initialValue: true, debounce: DEFAULT_DEBOUNCE_TIME});
+  let languageCodeIsFromUrl = $state(false);
   //don't flag as invalid until user has supplied a source (language code or custom code)
   const codeErrors = $derived(
-    $tainted?.languageCode || $form.customCode
+    $tainted?.languageCode || languageCodeIsFromUrl || $form.customCode
       ? [...new Set(concatAll($errors.code, codeIsAvailable.current ? undefined : $t('project.create.code_exists')))]
       : [],
   );
@@ -179,6 +180,7 @@
             form.code = form.languageCode = urlValues.code;
           } else {
             form.languageCode = urlValues.code.replace(new RegExp(`${standardCodeSuffix}$`), '');
+            languageCodeIsFromUrl = true;
           }
         }
         return form;
