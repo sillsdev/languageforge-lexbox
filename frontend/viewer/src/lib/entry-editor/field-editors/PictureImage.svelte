@@ -13,12 +13,13 @@
     busy?: boolean;
     /** Whether to render the caption beneath the picture (hidden inside the edit dialog). */
     showCaption?: boolean;
+    readonly?: boolean;
   };
-  const {picture, onEdit, busy = false, showCaption = true}: Props = $props();
+  const {picture, onEdit, busy = false, showCaption = true, readonly = false}: Props = $props();
 
   // When an edit handler is wired the picture becomes a button that opens the edit dialog. The
   // whole picture is clickable; the pencil is only a hover-independent hint (works on touch).
-  const editable = $derived(!!onEdit);
+  const editable = $derived(!readonly);
 
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);

@@ -117,12 +117,12 @@
   }
 
   async function deleteEditingPicture(): Promise<void> {
-    const target = editingPicture ? $state.snapshot(editingPicture) : undefined;
-    if (!target) return;
+    const targetId = editingPicture?.id;
+    if (!targetId) return;
     if (!(await dialogsService.promptDelete($t`Picture`))) return;
     busyAction = 'edit';
     try {
-      await api.deletePicture(entryId, senseId, target.id);
+      await api.deletePicture(entryId, senseId, targetId);
       editDialogOpen = false;
     } finally {
       busyAction = null;
@@ -146,8 +146,9 @@
       {#each pictures as picture (picture.id)}
         <PictureImage
           {picture}
+          {readonly}
           busy={busyAction !== null}
-          onEdit={readonly ? undefined : () => openEditor(picture)}
+          onEdit={() => openEditor(picture)}
         />
       {/each}
     </div>
@@ -175,10 +176,10 @@
   {/if}
 </div>
 
-{#if editingPicture}
+{#if editDialogOpen}
   <EditPictureDialog
     bind:open={editDialogOpen}
-    picture={editingPicture}
+    picture={editingPicture!}
     onUploadReplacement={(file) => uploadReplacement(file)}
     onSubmit={(after) => void submitEdits(after)}
     onDelete={() => deleteEditingPicture()}
