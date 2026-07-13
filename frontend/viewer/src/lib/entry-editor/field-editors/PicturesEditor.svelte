@@ -122,8 +122,9 @@
     if (!(await dialogsService.promptDelete($t`Picture`))) return;
     busyAction = 'edit';
     try {
-      await api.deletePicture(entryId, senseId, targetId);
+      // Close dialog *before* deleting picture so that dialog's close animation has time to play
       editDialogOpen = false;
+      await api.deletePicture(entryId, senseId, targetId);
     } finally {
       busyAction = null;
     }
@@ -176,10 +177,10 @@
   {/if}
 </div>
 
-{#if editDialogOpen}
+{#if editingPicture}
   <EditPictureDialog
     bind:open={editDialogOpen}
-    picture={editingPicture!}
+    picture={editingPicture}
     onUploadReplacement={(file) => uploadReplacement(file)}
     onSubmit={(after) => void submitEdits(after)}
     onDelete={() => deleteEditingPicture()}
