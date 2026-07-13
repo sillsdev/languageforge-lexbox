@@ -112,9 +112,12 @@
       if (!browser || !code || !user.canCreateProjects || code === defaultCode) return Promise.resolve(true);
       return _projectCodeAvailable(code);
     }, {initialValue: true, debounce: DEFAULT_DEBOUNCE_TIME});
-  const codeErrors = $derived([
-    ...new Set(concatAll($errors.code, codeIsAvailable.current ? undefined : $t('project.create.code_exists'))),
-  ]);
+  //don't flag as invalid until user has supplied a source (language code or custom code)
+  const codeErrors = $derived(
+    $tainted?.languageCode || $form.customCode
+      ? [...new Set(concatAll($errors.code, codeIsAvailable.current ? undefined : $t('project.create.code_exists')))]
+      : [],
+  );
 
   let relatedProjectsInput = $derived({projectName: $form.name, langCode: $form.languageCode, orgId: $form.orgId})
   const relatedProjects = resource(() => relatedProjectsInput, async input => {
