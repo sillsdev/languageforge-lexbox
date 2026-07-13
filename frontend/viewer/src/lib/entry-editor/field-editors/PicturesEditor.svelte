@@ -12,19 +12,15 @@
   import {randomId} from '$lib/utils';
 
   type Props = {
-    value: IPicture[] | undefined;
+    pictures: IPicture[];
     entryId: string;
     senseId: string;
     readonly?: boolean;
   };
-  const {value, entryId, senseId, readonly = false}: Props = $props();
+  const {pictures, entryId, senseId, readonly = false}: Props = $props();
 
   const api = useLexboxApi();
   const dialogsService = useDialogsService();
-
-  // `pictures` is typed as required, but older/legacy sense data may omit it entirely,
-  // so guard against undefined rather than trusting the type at runtime.
-  const pictures = $derived(value ?? []);
 
   let fileInputElement = $state<HTMLInputElement>();
   // Which operation is in flight: 'add' drives the add-button spinner; 'edit' covers the

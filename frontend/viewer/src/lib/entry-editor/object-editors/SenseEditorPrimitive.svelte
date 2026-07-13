@@ -102,7 +102,7 @@
   <Editor.Field.Root fieldId="pictures" class={cn(fields.pictures?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.sense.pictures.label)} helpId={entityConfig.sense.pictures.helpId} />
     <Editor.Field.Body>
-      <PicturesEditor value={sense.pictures} entryId={sense.entryId} senseId={sense.id} {readonly} />
+      <PicturesEditor pictures={sense.pictures ?? []} entryId={sense.entryId} senseId={sense.id} {readonly} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
