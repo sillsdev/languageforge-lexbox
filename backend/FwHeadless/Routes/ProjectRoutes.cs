@@ -24,8 +24,12 @@ public static class ProjectRoutes
         ProjectCreationService projectCreationService,
         ILogger<Program> logger)
     {
-        if (input.WsVernacular.Count == 0)
+        // Null-safe against a malformed body (System.Text.Json leaves an absent list null).
+        if (input.WsVernacular is not { Count: > 0 })
             return TypedResults.Problem("At least one vernacular writing system is required",
+                statusCode: StatusCodes.Status400BadRequest);
+        if (input.WsAnalysis is not { Count: > 0 })
+            return TypedResults.Problem("At least one analysis writing system is required",
                 statusCode: StatusCodes.Status400BadRequest);
         var invalidWs = input.WsVernacular.Concat(input.WsAnalysis).FirstOrDefault(ws => !IetfLanguageTag.IsValid(ws));
         if (invalidWs is not null)

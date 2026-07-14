@@ -24,6 +24,10 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     // so a sync job can't be queued for a project mid-creation and race on the same fw/ folder and repo.
     private readonly ConcurrentDictionary<Guid, byte> _projectsBeingCreated = new();
 
+    // Serialises the check-then-add across the two dictionaries above, so a creation and a sync can't
+    // both slip through by interleaving their checks.
+    private readonly Lock _reservationLock = new();
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await foreach (var projectId in _projectsToSync.Reader.ReadAllAsync(stoppingToken))
@@ -68,8 +72,11 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     /// </summary>
     public bool TryStartProjectCreation(Guid projectId)
     {
-        if (_projectsQueuedOrRunning.ContainsKey(projectId)) return false;
-        return _projectsBeingCreated.TryAdd(projectId, 0);
+        lock (_reservationLock)
+        {
+            if (_projectsQueuedOrRunning.ContainsKey(projectId)) return false;
+            return _projectsBeingCreated.TryAdd(projectId, 0);
+        }
     }
 
     public void EndProjectCreation(Guid projectId)
@@ -86,14 +93,18 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
 
     public bool QueueJob(Guid projectId)
     {
-        //don't sync a project while it's still being created from a template (would race on the repo)
-        if (_projectsBeingCreated.ContainsKey(projectId))
+        bool addedToQueue;
+        lock (_reservationLock)
         {
-            logger.LogInformation("Project {ProjectId} is being created, not queueing a sync job", projectId);
-            return false;
+            //don't sync a project while it's still being created from a template (would race on the repo)
+            if (_projectsBeingCreated.ContainsKey(projectId))
+            {
+                logger.LogInformation("Project {ProjectId} is being created, not queueing a sync job", projectId);
+                return false;
+            }
+            //will only queue job if it's not already queued
+            addedToQueue = _projectsQueuedOrRunning.TryAdd(projectId, new());
         }
-        //will only queue job if it's not already queued
-        var addedToQueue = _projectsQueuedOrRunning.TryAdd(projectId, new());
         if (addedToQueue)
         {
             if (!_projectsToSync.Writer.TryWrite(projectId))

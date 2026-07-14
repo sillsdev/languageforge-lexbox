@@ -128,6 +128,9 @@ public class ProjectCreationService(
     {
         // TODO: Implement — populate the project with the requested anthropology categories
         // (enhanced/standard). Currently a no-op; 'none' is the only fully-handled option.
+        if (anthropologyCategories != AnthropologyCategories.None)
+            logger.LogWarning("anthropologyCategories '{Categories}' was requested but is not implemented yet; " +
+                "the new project will have no anthropology categories", anthropologyCategories);
     }
 
     /// <summary>
@@ -139,11 +142,13 @@ public class ProjectCreationService(
     {
         var expected = config.Value.FdoDataModelVersion;
         var actual = ReadModelVersion(fwDataProject.FilePath);
-        if (actual is not null && actual != expected)
+        // Fail closed: an unreadable version ('actual' == null) is treated as a mismatch, since this is
+        // the last safety net before an irreversible push in a data-loss-risk area.
+        if (actual != expected)
         {
             throw new InvalidOperationException(
-                $"New project's data-model version '{actual}' does not match FwHeadless FdoDataModelVersion " +
-                $"'{expected}'; refusing to push to avoid data corruption.");
+                $"New project's data-model version '{actual ?? "(unreadable)"}' does not match FwHeadless " +
+                $"FdoDataModelVersion '{expected}'; refusing to push to avoid data corruption.");
         }
     }
 
