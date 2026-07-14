@@ -53,7 +53,7 @@ public class CreateProjectFromTemplateTests : IClassFixture<IntegrationFixture>
             var lastCommit = await _adminApiTester.GetProjectLastCommit(code);
             lastCommit.Should().NotBeNull("the template project should have been pushed to the repo");
 
-            var tagsResponse = await _adminApiTester.HttpClient.GetAsync($"/hg/{code}/tags?style=json");
+            var tagsResponse = await _adminApiTester.HttpClient.GetAsync($"{_adminApiTester.BaseUrl}/hg/{code}/tags?style=json");
             tagsResponse.EnsureSuccessStatusCode();
             var tip = (await tagsResponse.Content.ReadFromJsonAsync<JsonObject>())?["node"]?.ToString();
             tip.Should().NotBeNullOrEmpty();
@@ -61,7 +61,7 @@ public class CreateProjectFromTemplateTests : IClassFixture<IntegrationFixture>
 
             // 3. The pushed .fwdata carries the requested writing systems. FwHeadless always names the
             //    file fw.fwdata (its fixed project name), so fetch that from hgweb and check the codes.
-            var fwDataResponse = await _adminApiTester.HttpClient.GetAsync($"/hg/{code}/raw-file/tip/fw.fwdata");
+            var fwDataResponse = await _adminApiTester.HttpClient.GetAsync($"{_adminApiTester.BaseUrl}/hg/{code}/raw-file/tip/fw.fwdata");
             fwDataResponse.EnsureSuccessStatusCode();
             var fwData = await fwDataResponse.Content.ReadAsStringAsync();
             fwData.Should().NotBeEmpty();
