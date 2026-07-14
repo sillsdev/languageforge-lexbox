@@ -1,6 +1,8 @@
+using System.Text.RegularExpressions;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Controllers.ActionResults;
 using LexBoxApi.Jobs;
+using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -20,9 +22,96 @@ public class ProjectController(
     IHgService hgService,
     LexBoxDbContext lexBoxDbContext,
     IPermissionService permissionService,
-    ISchedulerFactory scheduler)
+    ISchedulerFactory scheduler,
+    FwHeadlessClient fwHeadlessClient,
+    ILogger<ProjectController> logger)
     : ControllerBase
 {
+    /// <summary>
+    /// Admin-only: create a new FLEx project whose repo is populated with a template .fwdata
+    /// (from the SIL.LCModel package) configured for the requested writing systems.
+    /// </summary>
+    /// <param name="code">Project code for the new project.</param>
+    /// <param name="wsVernacular">Vernacular writing system id(s); at least one is required. Repeat the query param for multiple.</param>
+    /// <param name="wsAnalysis">Analysis writing system id(s); defaults to ["en"] when none are given. Repeat the query param for multiple.</param>
+    /// <param name="name">Optional display name; defaults to the code.</param>
+    /// <param name="anthropologyCategories">Which anthropology categories to populate (default none).</param>
+    [HttpPost("createFromTemplate")]
+    [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Guid>> CreateFromTemplate(
+        string code,
+        [FromQuery] string[] wsVernacular,
+        [FromQuery] string[]? wsAnalysis = null,
+        string? name = null,
+        AnthropologyCategories anthropologyCategories = AnthropologyCategories.None,
+        CancellationToken cancellationToken = default)
+    {
+        if (wsVernacular is null || wsVernacular.Length == 0)
+            return Problem("At least one vernacular writing system is required", statusCode: StatusCodes.Status400BadRequest);
+        if (code is null || code.Length < 4 || !Regex.IsMatch(code, Project.ProjectCodeRegex))
+            return Problem($"Invalid project code '{code}'", statusCode: StatusCodes.Status400BadRequest);
+        if (await projectService.ProjectExists(code))
+            return Problem($"A project with code '{code}' already exists", statusCode: StatusCodes.Status409Conflict);
+
+        // Default the analysis writing systems to English when none were supplied.
+        var wsAnalysisOrDefault = wsAnalysis is { Length: > 0 } ? wsAnalysis : ["en"];
+
+        var projectId = await projectService.CreateProject(new CreateProjectInput(
+            Id: null,
+            Name: string.IsNullOrWhiteSpace(name) ? code : name,
+            Description: string.Empty,
+            Code: code,
+            Type: ProjectType.FLEx,
+            RetentionPolicy: RetentionPolicy.Verified,
+            IsConfidential: false,
+            ProjectManagerId: null,
+            OrgId: null));
+
+        // Saga: the project row + empty repo now exist. Have FwHeadless populate the repo with the
+        // template .fwdata; if that fails, compensate by tearing the project back down. Cleanup runs
+        // on a fresh token so a client disconnect can't skip it.
+        string? error;
+        try
+        {
+            error = await fwHeadlessClient.CreateProjectFromTemplate(projectId, wsVernacular, wsAnalysisOrDefault, anthropologyCategories, cancellationToken);
+        }
+        catch
+        {
+            await CleanupFailedCreation(projectId, code);
+            throw;
+        }
+        if (error is not null)
+        {
+            await CleanupFailedCreation(projectId, code);
+            return Problem($"Failed to create the project from the template: {error}", statusCode: StatusCodes.Status500InternalServerError);
+        }
+
+        await projectService.UpdateLastCommit(code);
+        return projectId;
+    }
+
+    private async Task CleanupFailedCreation(Guid projectId, string code)
+    {
+        try
+        {
+            await hgService.DeleteRepoIfExists(code);
+            var project = await lexBoxDbContext.Projects.FindAsync(projectId);
+            if (project is not null)
+            {
+                lexBoxDbContext.Projects.Remove(project);
+                await lexBoxDbContext.SaveChangesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to roll back project {ProjectId} ({Code}) after a failed template creation", projectId, code);
+        }
+    }
+
     [HttpPost("refreshProjectLastChanged")]
     public async Task<ActionResult> RefreshProjectLastChanged(string projectCode)
     {
