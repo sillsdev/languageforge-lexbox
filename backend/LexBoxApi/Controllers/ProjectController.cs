@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.RegularExpressions;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Controllers.ActionResults;
@@ -57,8 +58,7 @@ public class ProjectController(
         if (await projectService.ProjectExists(code))
             return Problem($"A project with code '{code}' already exists", statusCode: StatusCodes.Status409Conflict);
 
-        // Default the analysis writing systems to English when none were supplied.
-        var wsAnalysisOrDefault = wsAnalysis is { Length: > 0 } ? wsAnalysis : ["en"];
+        var wsAnalysisOrDefault = AnalysisWritingSystemsOrDefault(wsAnalysis);
 
         var projectId = await projectService.CreateProject(new CreateProjectInput(
             Id: null,
@@ -74,37 +74,39 @@ public class ProjectController(
         // Saga: the project row + empty repo now exist. Have FwHeadless populate the repo with the
         // template .fwdata; if that fails, compensate by tearing the project back down. Cleanup runs
         // on a fresh token so a client disconnect can't skip it.
-        string? error;
+        (HttpStatusCode statusCode, string? error) result;
         try
         {
-            error = await fwHeadlessClient.CreateProjectFromTemplate(projectId, wsVernacular, wsAnalysisOrDefault, anthropologyCategories, cancellationToken);
+            result = await fwHeadlessClient.CreateProjectFromTemplate(projectId, wsVernacular, wsAnalysisOrDefault, anthropologyCategories, cancellationToken);
         }
         catch
         {
             await CleanupFailedCreation(projectId, code);
             throw;
         }
-        if (error is not null)
+        if (result.error is not null)
         {
             await CleanupFailedCreation(projectId, code);
-            return Problem($"Failed to create the project from the template: {error}", statusCode: StatusCodes.Status500InternalServerError);
+            // Surface a bad request from FwHeadless (e.g. an invalid writing-system tag) as 400, not 500.
+            var statusCode = result.statusCode == HttpStatusCode.BadRequest
+                ? StatusCodes.Status400BadRequest
+                : StatusCodes.Status500InternalServerError;
+            return Problem($"Failed to create the project from the template: {result.error}", statusCode: statusCode);
         }
 
         await projectService.UpdateLastCommit(code);
         return projectId;
     }
 
+    /// <summary>Analysis writing systems to use, defaulting to English when none are supplied.</summary>
+    public static string[] AnalysisWritingSystemsOrDefault(string[]? wsAnalysis) =>
+        wsAnalysis is { Length: > 0 } ? wsAnalysis : ["en"];
+
     private async Task CleanupFailedCreation(Guid projectId, string code)
     {
         try
         {
-            await hgService.DeleteRepoIfExists(code);
-            var project = await lexBoxDbContext.Projects.FindAsync(projectId);
-            if (project is not null)
-            {
-                lexBoxDbContext.Projects.Remove(project);
-                await lexBoxDbContext.SaveChangesAsync();
-            }
+            await projectService.CleanupFailedProjectCreation(projectId, code);
         }
         catch (Exception ex)
         {
