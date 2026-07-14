@@ -31,13 +31,37 @@ public class CreateFromTemplateValidationTests
     public async Task Rejects_when_no_vernacular_writing_system_is_supplied()
     {
         var result = await NewController().CreateFromTemplate("myproj", wsVernacular: []);
-        result.Result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        var problem = result.Result.Should().BeOfType<ObjectResult>()
+            .Which.Value.Should().BeOfType<ProblemDetails>().Which;
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Detail.Should().Contain("vernacular");
     }
 
     [Fact]
     public async Task Rejects_an_invalid_project_code()
     {
         var result = await NewController().CreateFromTemplate("Bad Code!", wsVernacular: ["fr"]);
-        result.Result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        var problem = result.Result.Should().BeOfType<ObjectResult>()
+            .Which.Value.Should().BeOfType<ProblemDetails>().Which;
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Detail.Should().Contain("Invalid project code");
+    }
+
+    [Fact]
+    public void Analysis_writing_systems_default_to_english_when_null()
+    {
+        ProjectController.AnalysisWritingSystemsOrDefault(null).Should().Equal("en");
+    }
+
+    [Fact]
+    public void Analysis_writing_systems_default_to_english_when_empty()
+    {
+        ProjectController.AnalysisWritingSystemsOrDefault([]).Should().Equal("en");
+    }
+
+    [Fact]
+    public void Analysis_writing_systems_are_kept_when_supplied()
+    {
+        ProjectController.AnalysisWritingSystemsOrDefault(["fr", "es"]).Should().Equal("fr", "es");
     }
 }

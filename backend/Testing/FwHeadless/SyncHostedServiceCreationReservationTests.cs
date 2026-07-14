@@ -40,4 +40,14 @@ public class SyncHostedServiceCreationReservationTests
         svc.EndProjectCreation(projectId);
         svc.QueueJob(projectId).Should().BeTrue("syncing is allowed once creation has finished");
     }
+
+    [Fact]
+    public void A_queued_sync_blocks_a_creation()
+    {
+        var svc = NewService();
+        var projectId = Guid.NewGuid();
+
+        svc.QueueJob(projectId).Should().BeTrue();
+        svc.TryStartProjectCreation(projectId).Should().BeFalse("a sync is already queued for this project");
+    }
 }
