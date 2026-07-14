@@ -11,6 +11,9 @@
     <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" />
     <PackageReference Include="SIL.Chorus.Mercurial" />
     <PackageReference Include="SIL.Chorus.ChorusMerge" GeneratePathProperty="true" />
+    <!-- GeneratePathProperty so we can copy the NewLangProj template out of the package (below).
+         SIL.LCModel is otherwise a transitive dependency via FwDataMiniLcmBridge. -->
+    <PackageReference Include="SIL.LCModel" GeneratePathProperty="true" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\Harmony.App.References.props" />
   <ItemGroup>
@@ -35,6 +38,11 @@
     <Content Remove="Mercurial\contrib\vs2022-settings.json" />
     <Content Include="Mercurial\**" CopyToOutputDirectory="Always" Watch="false" />
     <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" Watch="false" />
+    <!-- Ship the LCM project templates (NewLangProj.fwdata etc.) so ProjectCreationService can build a
+         new project from them. TemplatesFolder is pointed at this output folder in FwHeadlessKernel. -->
+    <Content Include="$(PkgSIL_LCModel)/contentFiles/Templates/*.*"
+      Link="Templates/%(Filename)%(Extension)"
+      CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="chorusmerge">
