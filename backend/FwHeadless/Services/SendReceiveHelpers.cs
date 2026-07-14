@@ -160,6 +160,29 @@ public static class SendReceiveHelpers
         await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", fileDir, progress);
     }
 
+    public static async Task InitRepo(string folder, IProgress? progress = null)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.folder", folder);
+        progress ??= new NullProgress();
+        Directory.CreateDirectory(folder);
+        // Use Chorus rather than a bare `hg init`: CreateOrUseExisting also wires up the custom hg
+        // extensions FwHeadless relies on (e.g. fixutf8) so later send/receive works correctly.
+        await Task.Run(() => HgRepository.CreateOrUseExisting(folder, progress));
+    }
+
+    public static async Task SetBranch(string folder, string branchName, IProgress? progress = null)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.branch", branchName);
+        progress ??= new NullProgress();
+        // FLEx repos keep their data on a branch named after the FDO model version; a clone looking for
+        // that branch reports "no such branch" if the initial commit landed on 'default' instead. hg
+        // records the branch for the *next* commit, so this must run before the first commit. Numeric
+        // branch names are accepted thanks to the fixutf8 extension wired into Mercurial/mercurial.ini.
+        await ExecuteHgSuccess($"hg branch --force {EscapeShellArg(branchName)}", folder, progress);
+    }
+
     private static string EscapeShellArg(string arg)
     {
         var quote = """

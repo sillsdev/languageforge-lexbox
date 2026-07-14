@@ -41,14 +41,17 @@ public class ProjectCreationService(
         var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
         try
         {
-            // Populate the empty repo using only already-exercised FwHeadless primitives:
-            //   1. Clone the empty remote -> local fw/ folder (.hg, no fwdata yet).
-            //   2. Build fw.fwdata into that folder from the SIL.LCModel template.
-            //   3. Add the remaining writing systems, saving and releasing the LCM file locks.
-            //   4. hg add + commit the (untracked) fwdata, then push.
-            var cloneResult = await srService.Clone(fwDataProject, projectCode);
-            if (!cloneResult.Success)
-                throw new SendReceiveException("Clone of the new project's repo failed", cloneResult);
+            // Build the first commit of a brand-new FLEx repo from scratch, mirroring LfMerge's genesis
+            // recipe (hg init -> branch -> write files -> commit) since Clone can't establish an empty
+            // remote and Language_Forge_Send_Receive refuses to make the *first* commit itself:
+            //   1. hg init the local fw/ folder (no clone -- the empty remote has nothing to clone).
+            //   2. Set the branch to the FDO model version BEFORE any commit; FLEx clients look for the
+            //      data on that branch, so a first commit on 'default' would be invisible to them.
+            //   3. Build fw.fwdata into that folder from the SIL.LCModel template.
+            //   4. Add the remaining writing systems, saving and releasing the LCM file locks.
+            //   5. hg add + commit the (untracked) fwdata onto the model-version branch, then push.
+            await srService.InitRepo(fwDataProject.ProjectFolder);
+            await srService.SetBranch(fwDataProject.ProjectFolder, config.Value.FdoDataModelVersion);
 
             BuildFromTemplate(fwDataProject, vernacularWritingSystems[0], analysisWritingSystems[0]);
             await AddWritingSystems(fwDataProject, vernacularWritingSystems, analysisWritingSystems);
