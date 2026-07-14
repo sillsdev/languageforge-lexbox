@@ -25,6 +25,7 @@ public static class FwHeadlessKernel
         services.AddScoped<ISendReceiveService, SendReceiveService>();
         services.AddScoped<IProjectLookupService, ProjectLookupService>();
         services.AddScoped<ProjectDeletionService>();
+        services.AddScoped<ProjectCreationService>();
         services.AddScoped<LogSanitizerService>();
         services.AddScoped<SafeLoggingProgress>();
         services.AddScoped<IProjectMetadataService, ProjectMetadataService>();
