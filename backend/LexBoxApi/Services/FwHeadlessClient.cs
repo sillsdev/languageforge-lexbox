@@ -1,5 +1,7 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
+using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.Sync;
 using Microsoft.AspNetCore.Mvc;
@@ -195,6 +197,31 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             projectId,
             await response.Content.ReadAsStringAsync());
         return null;
+    }
+
+    /// <summary>
+    /// Populates a newly-created (empty) project's repo with a template .fwdata configured for the
+    /// given writing systems. Runs inline (a new empty project is small). Returns null on success,
+    /// or the error body on failure.
+    /// </summary>
+    public async Task<string?> CreateProjectFromTemplate(Guid projectId,
+        IReadOnlyList<string> wsVernacular,
+        IReadOnlyList<string> wsAnalysis,
+        AnthropologyCategories anthropologyCategories,
+        CancellationToken cancellationToken = default)
+    {
+        var input = new CreateProjectFromTemplateInput(wsVernacular, wsAnalysis, anthropologyCategories);
+        var response = await httpClient.PostAsJsonAsync($"/api/project/create-from-template?projectId={projectId}",
+            input,
+            cancellationToken);
+        if (response.IsSuccessStatusCode) return null;
+        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        logger.LogError("Failed to create project from template: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+            response.StatusCode,
+            response.ReasonPhrase,
+            projectId,
+            responseBody);
+        return responseBody;
     }
 
 }
