@@ -232,6 +232,27 @@ public class ProjectService(
         return project;
     }
 
+    /// <summary>
+    /// Compensating cleanup for a project whose template population failed after CreateProject:
+    /// removes the repo and the project row and invalidates the same caches as a permanent delete.
+    /// Unlike DeleteProjectPermanently this is not gated on retention policy, because it only undoes a
+    /// project this same request just created. FwHeadless cleans up its own local state on failure.
+    /// </summary>
+    public async Task CleanupFailedProjectCreation(Guid projectId, string code)
+    {
+        await hgService.DeleteRepoIfExists(code);
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project is not null)
+        {
+            dbContext.Projects.Remove(project);
+            await dbContext.SaveChangesAsync();
+        }
+        // Don't forget to add more Invalidate calls here if we add new caches
+        InvalidateProjectCodeCache(code);
+        InvalidateProjectConfidentialityCache(projectId);
+        InvalidateProjectOrgIdsCache(projectId);
+    }
+
     public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
     {
         var cacheKey = $"ProjectOrgsForId:{projectId}";
