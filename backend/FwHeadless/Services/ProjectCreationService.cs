@@ -27,7 +27,8 @@ public class ProjectCreationService(
         Guid projectId,
         string projectCode,
         IReadOnlyList<string> vernacularWritingSystems,
-        IReadOnlyList<string> analysisWritingSystems)
+        IReadOnlyList<string> analysisWritingSystems,
+        AnthropologyCategories anthropologyCategories)
     {
         if (vernacularWritingSystems.Count == 0)
             throw new ArgumentException("At least one vernacular writing system is required", nameof(vernacularWritingSystems));
@@ -51,7 +52,7 @@ public class ProjectCreationService(
 
             BuildFromTemplate(fwDataProject, vernacularWritingSystems[0], analysisWritingSystems[0]);
             await AddWritingSystems(fwDataProject, vernacularWritingSystems, analysisWritingSystems);
-            ApplyAnthropologyCategories(fwDataProject);
+            ApplyAnthropologyCategories(anthropologyCategories);
             AssertModelVersionMatches(fwDataProject);
 
             await srService.CommitFile(fwDataProject.FilePath, InitialCommitMessage);
@@ -123,7 +124,7 @@ public class ProjectCreationService(
         });
     }
 
-    private void ApplyAnthropologyCategories(FwDataProject fwDataProject)
+    private void ApplyAnthropologyCategories(AnthropologyCategories anthropologyCategories)
     {
         // TODO: Implement — populate the project with the requested anthropology categories
         // (enhanced/standard). Currently a no-op; 'none' is the only fully-handled option.
