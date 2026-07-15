@@ -6,6 +6,9 @@ const defaultOptions: ArgosScreenshotOptions = {
     {height: 720, width: 1280},
     'iphone-x',
   ],
+  // The app version is a per-build string; hiding it keeps snapshots stable across builds.
+  // visibility:hidden preserves layout so surrounding elements don't shift.
+  argosCSS: '[data-testid="app-version"] { visibility: hidden; }',
 };
 
 const marketingScreenshotSizes: Exclude<ArgosScreenshotOptions['viewports'], undefined> = [
