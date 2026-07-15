@@ -208,10 +208,11 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
     public async Task<(HttpStatusCode StatusCode, string? Error)> CreateProjectFromTemplate(Guid projectId,
         IReadOnlyList<string> wsVernacular,
         IReadOnlyList<string> wsAnalysis,
+        string wsUi,
         AnthropologyCategories anthropologyCategories,
         CancellationToken cancellationToken = default)
     {
-        var input = new CreateProjectFromTemplateInput(wsVernacular, wsAnalysis, anthropologyCategories);
+        var input = new CreateProjectFromTemplateInput(wsVernacular, wsAnalysis, wsUi, anthropologyCategories);
         var response = await httpClient.PostAsJsonAsync($"/api/project/create-from-template?projectId={projectId}",
             input,
             cancellationToken);

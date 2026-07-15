@@ -28,12 +28,15 @@ public class ProjectCreationService(
         string projectCode,
         IReadOnlyList<string> vernacularWritingSystems,
         IReadOnlyList<string> analysisWritingSystems,
+        string uiWritingSystem,
         AnthropologyCategories anthropologyCategories)
     {
         if (vernacularWritingSystems.Count == 0)
             throw new ArgumentException("At least one vernacular writing system is required", nameof(vernacularWritingSystems));
         if (analysisWritingSystems.Count == 0)
             throw new ArgumentException("At least one analysis writing system is required", nameof(analysisWritingSystems));
+        if (string.IsNullOrEmpty(uiWritingSystem))
+            throw new ArgumentException("A UI writing system is required", nameof(uiWritingSystem));
 
         // Reserve the project so a concurrent create or sync can't race on the same fw/ folder and repo.
         if (!syncHostedService.TryStartProjectCreation(projectId))
@@ -53,7 +56,7 @@ public class ProjectCreationService(
             await srService.InitRepo(fwDataProject.ProjectFolder);
             await srService.SetBranch(fwDataProject.ProjectFolder, config.Value.FdoDataModelVersion);
 
-            BuildFromTemplate(fwDataProject, vernacularWritingSystems[0], analysisWritingSystems[0]);
+            BuildFromTemplate(fwDataProject, vernacularWritingSystems[0], analysisWritingSystems[0], uiWritingSystem);
             await AddWritingSystems(fwDataProject, vernacularWritingSystems, analysisWritingSystems);
             ApplyAnthropologyCategories(anthropologyCategories);
             AssertModelVersionMatches(fwDataProject);
@@ -76,12 +79,12 @@ public class ProjectCreationService(
         }
     }
 
-    private void BuildFromTemplate(FwDataProject fwDataProject, string vernacularWs, string analysisWs)
+    private void BuildFromTemplate(FwDataProject fwDataProject, string vernacularWs, string analysisWs, string uiWs)
     {
-        // NewProject copies the SIL.LCModel template (with the first vernacular + analysis WS) and
-        // returns a loaded cache; dispose it right away so its file locks are released before we
+        // NewProject copies the SIL.LCModel template (with the first vernacular + analysis WS and the UI
+        // WS) and returns a loaded cache; dispose it right away so its file locks are released before we
         // re-open the project through FwDataFactory to add the remaining writing systems.
-        using var cache = projectLoader.NewProject(fwDataProject, analysisWs, vernacularWs);
+        using var cache = projectLoader.NewProject(fwDataProject, analysisWs, vernacularWs, uiWs);
     }
 
     private async Task AddWritingSystems(

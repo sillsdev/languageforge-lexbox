@@ -19,7 +19,7 @@ public interface IProjectLoader
     /// <returns></returns>
     LcmCache LoadCache(FwDataProject project);
 
-    LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs);
+    LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs, string uiWs = "en");
 }
 
 public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
@@ -75,7 +75,7 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         return cache;
     }
 
-    public virtual LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs)
+    public virtual LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs, string uiWs = "en")
     {
         Init();
         var lcmDirectories = new LcmDirectories(project.ProjectsPath, TemplatesFolder);
@@ -85,7 +85,8 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
             lcmDirectories,
             progress.SynchronizeInvoke,
             new CoreWritingSystemDefinition(analysisWs) { Id = analysisWs },
-            new CoreWritingSystemDefinition(vernacularWs) { Id = vernacularWs });
+            new CoreWritingSystemDefinition(vernacularWs) { Id = vernacularWs },
+            uiWs);
         return LoadCache(project);
     }
 
@@ -94,8 +95,11 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         ILcmDirectories lcmDirectories,
         ISynchronizeInvoke syncInvoke,
         CoreWritingSystemDefinition analysisWs,
-        CoreWritingSystemDefinition vernacularWs)
+        CoreWritingSystemDefinition vernacularWs,
+        string uiWs)
     {
-        LcmCache.CreateNewLangProj(progress, [projectName, lcmDirectories, syncInvoke, analysisWs, vernacularWs]);
+        // uiWs is the user-interface writing system; CreateNewLangProj takes it as a plain string ICU
+        // locale after the analysis/vernacular definitions.
+        LcmCache.CreateNewLangProj(progress, [projectName, lcmDirectories, syncInvoke, analysisWs, vernacularWs, uiWs]);
     }
 }

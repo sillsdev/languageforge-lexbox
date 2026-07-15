@@ -47,6 +47,7 @@ public class ProjectController(
         string code,
         [FromQuery] string[] wsVernacular,
         [FromQuery] string[]? wsAnalysis = null,
+        string wsUi = "en",
         string? name = null,
         AnthropologyCategories anthropologyCategories = AnthropologyCategories.None,
         CancellationToken cancellationToken = default)
@@ -77,7 +78,7 @@ public class ProjectController(
         (HttpStatusCode statusCode, string? error) result;
         try
         {
-            result = await fwHeadlessClient.CreateProjectFromTemplate(projectId, wsVernacular, wsAnalysisOrDefault, anthropologyCategories, cancellationToken);
+            result = await fwHeadlessClient.CreateProjectFromTemplate(projectId, wsVernacular, wsAnalysisOrDefault, wsUi, anthropologyCategories, cancellationToken);
         }
         catch
         {
