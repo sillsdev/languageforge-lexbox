@@ -13,6 +13,8 @@ const WRITE_TRUST_PREFIX = 'fwlite-plugin-write-trust';
 /** Per-plugin storage budget; plugins get an explicit storage-full error beyond this. */
 const MAX_PLUGIN_STORAGE_BYTES = 256 * 1024;
 
+const textEncoder = new TextEncoder();
+
 export class PluginStorage {
   #key: string;
 
@@ -52,18 +54,68 @@ export class PluginStorage {
   }
 }
 
-export async function sha256Hex(text: string): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-  return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
+export function hexFromBytes(data: ArrayBuffer | Uint8Array): string {
+  return [...new Uint8Array(data)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
+
+export async function sha256HexBytes(data: BufferSource): Promise<string> {
+  return hexFromBytes(await crypto.subtle.digest('SHA-256', data));
+}
+
+export async function sha256Hex(text: string): Promise<string> {
+  return sha256HexBytes(textEncoder.encode(text));
+}
+
+export type ComputePluginHashOptions = {
+  /** Pre-encoded HTML; skips a second TextEncoder pass when the caller already has bytes. */
+  htmlBytes?: BufferSource;
+  /** Precomputed SHA-256 of the HTML bytes; skips hashing the HTML body again (e.g. after save). */
+  htmlDigest?: BufferSource;
+};
 
 /**
  * Hash of everything trust decisions are about: the code AND the displayed identity. Including
  * the name/description means a synced rename can't silently keep riding an existing approval —
  * the name is what users recognize in the consent and write dialogs.
+ *
+ * Implemented as sha256(sha256(name‖desc) ‖ sha256(html)) over length-prefixed UTF-8 fields so
+ * multi-MB HTML is never copied into a JSON string (or any other full-size intermediate string).
  */
-export function computePluginHash(plugin: {name: string; description?: string; html: string}): Promise<string> {
-  return sha256Hex(JSON.stringify([plugin.name, plugin.description ?? '', plugin.html]));
+export async function computePluginHash(
+  plugin: {name: string; description?: string; html: string},
+  options?: ComputePluginHashOptions,
+): Promise<string> {
+  const nameBytes = textEncoder.encode(plugin.name);
+  const descBytes = textEncoder.encode(plugin.description ?? '');
+  const identity = new Uint8Array(4 + nameBytes.length + 4 + descBytes.length);
+  const identityView = new DataView(identity.buffer);
+  identityView.setUint32(0, nameBytes.length);
+  identity.set(nameBytes, 4);
+  identityView.setUint32(4 + nameBytes.length, descBytes.length);
+  identity.set(descBytes, 8 + nameBytes.length);
+
+  const identityDigest = await sha256Raw(identity);
+  const htmlDigest = options?.htmlDigest
+    ? asUint8Array(options.htmlDigest)
+    : await sha256Raw(options?.htmlBytes ?? textEncoder.encode(plugin.html));
+
+  const combined = new Uint8Array(identityDigest.length + htmlDigest.length);
+  combined.set(identityDigest, 0);
+  combined.set(htmlDigest, identityDigest.length);
+  return sha256HexBytes(combined);
+}
+
+function asUint8Array(data: BufferSource): Uint8Array {
+  // Prefer isView over instanceof ArrayBuffer — vitest can put digests in another realm
+  // where instanceof ArrayBuffer is false and data.buffer would be undefined.
+  if (ArrayBuffer.isView(data)) {
+    return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+  }
+  return new Uint8Array(data);
+}
+
+async function sha256Raw(data: BufferSource): Promise<Uint8Array> {
+  return new Uint8Array(await crypto.subtle.digest('SHA-256', data));
 }
 
 /**

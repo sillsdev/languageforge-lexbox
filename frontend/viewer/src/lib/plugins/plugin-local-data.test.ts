@@ -1,5 +1,12 @@
 import {beforeEach, describe, expect, it} from 'vitest';
-import {computePluginHash, PluginConsentStore, PluginStorage, PluginWriteTrustStore} from './plugin-local-data';
+import {
+  computePluginHash,
+  hexFromBytes,
+  PluginConsentStore,
+  PluginStorage,
+  PluginWriteTrustStore,
+  sha256Hex,
+} from './plugin-local-data';
 
 beforeEach(() => localStorage.clear());
 
@@ -11,6 +18,29 @@ describe('computePluginHash', () => {
     expect(await computePluginHash({name: 'B', description: 'd', html: '<html></html>'})).not.toBe(base);
     expect(await computePluginHash({name: 'A', description: 'e', html: '<html></html>'})).not.toBe(base);
     expect(await computePluginHash({name: 'A', description: 'd', html: '<html></html>'})).toBe(base);
+  });
+
+  it('length-prefixes identity fields so adjacent concatenations cannot collide', async () => {
+    const a = await computePluginHash({name: 'ab', description: '', html: 'x'});
+    const b = await computePluginHash({name: 'a', description: 'b', html: 'x'});
+    expect(a).not.toBe(b);
+  });
+
+  it('accepts precomputed html bytes or digest without changing the result', async () => {
+    const plugin = {name: 'A', description: 'd', html: '<html></html>'};
+    const htmlBytes = new TextEncoder().encode(plugin.html);
+    const htmlDigest = await crypto.subtle.digest('SHA-256', htmlBytes);
+    const base = await computePluginHash(plugin);
+    expect(await computePluginHash(plugin, {htmlBytes})).toBe(base);
+    expect(await computePluginHash(plugin, {htmlDigest})).toBe(base);
+  });
+});
+
+describe('sha256Hex / hexFromBytes', () => {
+  it('hex-encodes a digest without hashing it again', async () => {
+    const text = '<html></html>';
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    expect(hexFromBytes(digest)).toBe(await sha256Hex(text));
   });
 });
 
