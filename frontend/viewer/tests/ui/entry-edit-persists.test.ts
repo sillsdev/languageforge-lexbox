@@ -1,5 +1,6 @@
 import {expect, test} from '@playwright/test';
-import {BrowsePage} from './browse-page';
+
+import {DemoProjectPage} from './demo-project.page';
 
 /**
  * Critical tests: Verify that entry edits are saved to the backend.
@@ -11,30 +12,30 @@ import {BrowsePage} from './browse-page';
 test.describe('Entry edit persistence', () => {
 
   test('UI edit of gloss field is saved to backend', async ({page}) => {
-    const browsePage = new BrowsePage(page);
-    await browsePage.goto();
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
 
     // Get an existing entry with senses from demo data that has an English gloss
-    const {entryId, headword, originalGloss} = await browsePage.api.getEntryWithEnglishGloss();
+    const {entryId, headword, originalGloss} = await projectPage.api.getEntryWithEnglishGloss();
     expect(entryId).toBeTruthy();
     expect(headword).toBeTruthy();
     expect(originalGloss).toBeTruthy();
 
     // Select the entry
-    await browsePage.selectEntryByFilter(headword);
+    await projectPage.selectEntryByFilter(headword);
 
     // Verify we have the expected original value
-    const glossInput = await browsePage.entryView.getGlossInput(0, 'Eng');
+    const glossInput = await projectPage.entryView.getGlossInput(0, 'Eng');
     await expect(glossInput).toHaveValue(originalGloss);
 
     // Edit the gloss
     const timestamp = Date.now().toString().slice(-6);
     const newGloss = `edited-${timestamp}`;
-    await browsePage.entryView.editGloss(newGloss, 0, 'Eng');
+    await projectPage.entryView.editGloss(newGloss, 0, 'Eng');
 
     // Verify via API that the change was saved
     await expect(async () => {
-      const savedGloss = await browsePage.api.getEntryGloss(entryId, 'en');
+      const savedGloss = await projectPage.api.getEntryGloss(entryId, 'en');
       expect(savedGloss).toBe(newGloss);
     }).toPass({timeout: 5000});
 
@@ -43,69 +44,69 @@ test.describe('Entry edit persistence', () => {
   });
 
   test('adding sense via UI is saved to backend', async ({page}) => {
-    const browsePage = new BrowsePage(page);
-    await browsePage.goto();
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
 
     // Get an existing entry and count its senses
-    const {entryId, headword, senseCount: initialSenseCount} = await browsePage.api.getEntryAtIndex(15);
+    const {entryId, headword, senseCount: initialSenseCount} = await projectPage.api.getEntryAtIndex(15);
     expect(entryId).toBeTruthy();
     expect(headword).toBeTruthy();
 
     // Select the entry
-    await browsePage.selectEntryByFilter(headword);
+    await projectPage.selectEntryByFilter(headword);
 
     // Add a new sense
-    await browsePage.entryView.addSense();
+    await projectPage.entryView.addSense();
 
     // Verify UI shows new sense
-    const senseCount = await browsePage.entryView.getSenseCount();
+    const senseCount = await projectPage.entryView.getSenseCount();
     expect(senseCount).toBeGreaterThan(initialSenseCount);
 
     // Fill in the new sense's gloss
     const timestamp = Date.now().toString().slice(-6);
     const senseGloss = `new-sense-${timestamp}`;
-    await browsePage.entryView.editGloss(senseGloss, senseCount - 1);
+    await projectPage.entryView.editGloss(senseGloss, senseCount - 1);
 
     // Verify via API that the sense was added
     await expect(async () => {
-      const savedSenseCount = await browsePage.api.getEntrySenseCount(entryId);
+      const savedSenseCount = await projectPage.api.getEntrySenseCount(entryId);
       expect(savedSenseCount).toBe(initialSenseCount + 1);
-      const hasGloss = await browsePage.api.entryHasGlossValue(entryId, senseGloss);
+      const hasGloss = await projectPage.api.entryHasGlossValue(entryId, senseGloss);
       expect(hasGloss).toBe(true);
     }).toPass({timeout: 5000});
 
     // Also verify the UI shows the new sense with the gloss we entered
-    const newGlossInput = await browsePage.entryView.getGlossInput(senseCount - 1);
+    const newGlossInput = await projectPage.entryView.getGlossInput(senseCount - 1);
     await expect(newGlossInput).toHaveValue(senseGloss);
   });
 
   test('editing lexeme form is saved to backend', async ({page}) => {
-    const browsePage = new BrowsePage(page);
-    await browsePage.goto();
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
 
     // Get an existing entry from the demo data
-    const {entryId, headword: originalLexeme} = await browsePage.api.getEntryAtIndex(10);
+    const {entryId, headword: originalLexeme} = await projectPage.api.getEntryAtIndex(10);
     expect(entryId).toBeTruthy();
     expect(originalLexeme).toBeTruthy();
 
     // Search and select the entry
-    await browsePage.selectEntryByFilter(originalLexeme);
+    await projectPage.selectEntryByFilter(originalLexeme);
 
     // Edit the lexeme
     const timestamp = Date.now().toString().slice(-6);
     const editMarker = `-E${timestamp}`;
     const newLexeme = originalLexeme + editMarker;
 
-    await browsePage.entryView.editLexemeForm(newLexeme);
+    await projectPage.entryView.editLexemeForm(newLexeme);
 
     // Verify via API that the change was saved
     await expect(async () => {
-      const savedLexeme = await browsePage.api.getEntryLexeme(entryId);
+      const savedLexeme = await projectPage.api.getEntryLexeme(entryId);
       expect(savedLexeme).toBe(newLexeme);
     }).toPass({timeout: 5000});
 
     // Also verify the UI shows the new value
-    const lexemeInput = await browsePage.entryView.getLexemeInput();
+    const lexemeInput = await projectPage.entryView.getLexemeInput();
     await expect(lexemeInput).toHaveValue(newLexeme);
   });
 });

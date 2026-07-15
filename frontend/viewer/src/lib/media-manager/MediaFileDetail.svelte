@@ -52,6 +52,7 @@
         return {
           filename,
           mimeType: guessMimeType(filename),
+          extraFields: {},
         };
       }
       return undefined;

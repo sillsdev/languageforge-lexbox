@@ -10,5 +10,6 @@ export interface ILcmFileMetadata
 	author?: string;
 	uploadDate?: string;
 	sizeInBytes?: number;
+	extraFields: { [key:string]: any };
 }
 /* eslint-enable */

@@ -1,17 +1,3 @@
-<script module lang="ts">
-  import {onMount} from 'svelte';
-  import {writable} from 'svelte/store';
-
-  export let useShadcn = writable(false);
-
-  globalThis.enableShadcn = (enable = true) => {
-    useShadcn.set(enable);
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    enable ? localStorage.setItem('shadcnMode', 'true') : localStorage.removeItem('shadcnMode');
-  };
-  useShadcn.set(localStorage.getItem('shadcnMode') === 'true');
-</script>
-
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
   import ProjectSidebar from './project/ProjectSidebar.svelte';
@@ -26,6 +12,7 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
   import MediaManagerView from '$lib/media-manager/MediaManagerView.svelte';
+  import {onMount} from 'svelte';
 
   const {
     onloaded,
