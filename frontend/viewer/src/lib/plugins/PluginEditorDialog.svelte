@@ -11,6 +11,7 @@
   import {tick} from 'svelte';
   import type {IPlugin} from '$lib/dotnet-types';
   import {usePluginService} from '$project/data/plugin-service.svelte';
+  import {isCompletePluginHtml} from './plugin-html';
   import {parsePluginManifest} from './plugin-manifest';
   import {
     exampleFunctions,
@@ -91,9 +92,11 @@
     }
   }
 
-  const permissions = $derived(html.trim() ? parsePluginManifest(html).permissions : []);
+  const htmlIncomplete = $derived(!isCompletePluginHtml(html));
+  // Don't parse a truncated paste for the internet badge — wait until the document looks complete.
+  const permissions = $derived(htmlIncomplete ? [] : parsePluginManifest(html).permissions);
   const sizeKb = $derived(Math.round(html.length / 102.4) / 10);
-  const canSave = $derived(!!name.trim() && !!html.trim() && !saving && !htmlLoading && !(plugin && loadedHtml === undefined));
+  const canSave = $derived(!!name.trim() && !htmlIncomplete && !saving && !htmlLoading && !(plugin && loadedHtml === undefined));
 
   const primaryGroups = examplePluginsByPrimaryFunction();
 
@@ -381,7 +384,7 @@
                   {$t`Requests internet access`}
                 </Badge>
               {/if}
-              {#if html.trim()}
+              {#if html.length}
                 <span>{$t`${sizeKb} KB`}</span>
               {/if}
             </div>
@@ -399,6 +402,11 @@
               spellcheck="false"
               class="font-mono text-xs min-h-64 max-h-[50vh]"
             />
+            {#if htmlIncomplete && html.length}
+              <p class="text-sm text-destructive">
+                {$t`This doesn't look like a complete HTML file. It should start with <!DOCTYPE html> and end with </html>.`}
+              </p>
+            {/if}
           {/if}
         </div>
       </div>
