@@ -208,7 +208,7 @@
   </Sidebar.Content>
   <Sidebar.Footer>
       <div class="text-xs text-muted-foreground py-2 m-auto">
-        <div>FieldWorks Lite {config.appVersion}</div>
+        <div data-testid="app-version">FieldWorks Lite {config.appVersion}</div>
         <div {@attach devModeToggle}>{$t`Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸`}</div>
       </div>
   </Sidebar.Footer>
