@@ -91,7 +91,7 @@ jobs:
       - name: Publish test results to TestHistory
         if: always()
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
-        uses: hahn-kev/TestHistory/.github/actions/upload-results@d8d0ef67fa32428fe91b878252de81e8b05d3f14 # master
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
         with:
           server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
           project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
@@ -196,7 +196,7 @@ jobs:
       - name: Publish test results to TestHistory
         if: always() # run even when the UI tests above failed
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
-        uses: hahn-kev/TestHistory/.github/actions/upload-results@d8d0ef67fa32428fe91b878252de81e8b05d3f14 # master
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
         with:
           server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
           project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
@@ -270,7 +270,7 @@ jobs:
       - name: Publish test results to TestHistory
         if: always()
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
-        uses: hahn-kev/TestHistory/.github/actions/upload-results@d8d0ef67fa32428fe91b878252de81e8b05d3f14 # master
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
         with:
           server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
           project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
@@ -589,7 +589,7 @@ jobs:
       - name: Publish launcher test results to TestHistory
         if: always() # run even when the launcher tests above failed
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
-        uses: hahn-kev/TestHistory/.github/actions/upload-results@d8d0ef67fa32428fe91b878252de81e8b05d3f14 # master
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
         with:
           server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
           project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
@@ -647,7 +647,7 @@ jobs:
       - name: Publish E2E test results to TestHistory
         if: always() # run even when the E2E tests above failed
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
-        uses: hahn-kev/TestHistory/.github/actions/upload-results@d8d0ef67fa32428fe91b878252de81e8b05d3f14 # master
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
         with:
           server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
           project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
