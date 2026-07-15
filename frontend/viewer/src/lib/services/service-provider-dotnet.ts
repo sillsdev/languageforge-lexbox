@@ -89,8 +89,11 @@ function transformArgs(args: unknown[]): unknown[] {
 }
 
 function transformBlob(result: unknown): unknown {
-  if (result instanceof Blob) return window.DotNet.createJSStreamReference(result);
-  if (result instanceof ArrayBuffer) return window.DotNet.createJSStreamReference(result);
+  // SaveFile takes IJSStreamReference; without this wrapper Blazor serializes ArrayBuffer/
+  // Uint8Array as __byte[] which the stream converter rejects.
+  if (result instanceof Blob || result instanceof ArrayBuffer || result instanceof Uint8Array) {
+    return window.DotNet.createJSStreamReference(result);
+  }
   return result;
 }
 
