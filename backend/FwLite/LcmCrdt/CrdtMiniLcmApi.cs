@@ -75,11 +75,20 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var systems = await repo.WritingSystemsOrdered.ToArrayAsync();
+        // Exemplars are stored but unused by the UI and sync (WritingSystemSync TODO).
+        // Omit them from the wire payload to keep project-open JSInterop small.
         return new WritingSystems
         {
-            Analysis = [.. systems.Where(ws => ws.Type == WritingSystemType.Analysis)],
-            Vernacular = [.. systems.Where(ws => ws.Type == WritingSystemType.Vernacular)]
+            Analysis = [.. systems.Where(ws => ws.Type == WritingSystemType.Analysis).Select(WithoutExemplars)],
+            Vernacular = [.. systems.Where(ws => ws.Type == WritingSystemType.Vernacular).Select(WithoutExemplars)]
         };
+
+        static WritingSystem WithoutExemplars(WritingSystem ws)
+        {
+            var copy = ws.Copy();
+            copy.Exemplars = [];
+            return copy;
+        }
     }
 
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)

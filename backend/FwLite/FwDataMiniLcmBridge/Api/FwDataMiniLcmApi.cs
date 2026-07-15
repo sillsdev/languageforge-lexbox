@@ -125,7 +125,8 @@ public class FwDataMiniLcmApi(
             Name = ws.LanguageTag,
             Abbreviation = ws.Abbreviation,
             Font = ws.DefaultFontName,
-            Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
+            // Exemplars unused by UI/sync (CompleteExemplars is disabled); keep payload small.
+            Exemplars = []
         };
     }
 

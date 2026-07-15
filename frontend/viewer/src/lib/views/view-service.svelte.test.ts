@@ -74,6 +74,7 @@ class MockCustomViewService {
   constructor(views: ICustomView[] = []) {
     this.current = views;
   }
+  ensureLoaded(): void {}
 }
 
 const mockProjectStorage = {
