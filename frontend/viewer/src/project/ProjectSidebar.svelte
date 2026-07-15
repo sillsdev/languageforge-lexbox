@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  export type View = 'dashboard' | 'browse' | 'tasks' | 'activity';
+  export type View = 'dashboard' | 'browse' | 'tasks' | 'activity' | 'plugins';
 </script>
 
 <script lang="ts">
@@ -94,6 +94,9 @@
 
           {#if features.history}
             {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
+          {/if}
+          {#if features.plugins}
+            {@render ViewButton('plugins', 'i-mdi-puzzle', $t`Plugins`)}
           {/if}
         </Sidebar.Menu>
       </Sidebar.GroupContent>

@@ -30,6 +30,7 @@ public class LcmCrdtDbContext(
     public IQueryable<PartOfSpeech> PartsOfSpeech => Set<PartOfSpeech>().AsNoTracking();
     public IQueryable<Publication> Publications => Set<Publication>().AsNoTracking();
     public IQueryable<CustomView> CustomViews => Set<CustomView>().AsNoTracking();
+    public IQueryable<Plugin> Plugins => Set<Plugin>().AsNoTracking();
     public IQueryable<CommentThread> CommentThreads => Set<CommentThread>().AsNoTracking();
     public IQueryable<UserComment> UserComments => Set<UserComment>().AsNoTracking();
     public DbSet<UnreadComment> UnreadComments => Set<UnreadComment>();

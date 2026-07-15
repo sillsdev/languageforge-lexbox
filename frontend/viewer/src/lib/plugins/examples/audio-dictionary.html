@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio Dictionary</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f4f1;
+    --surface: #ffffff;
+    --surface-alt: #f0ece6;
+    --border: #e4ded5;
+    --text: #241f1a;
+    --text-muted: #7a7167;
+    --accent: #c2560f;
+    --accent-soft: #fbe9dd;
+    --good: #2f8f4e;
+    --good-soft: #e3f4e8;
+    --shadow: 0 1px 2px rgba(40, 25, 10, 0.06), 0 2px 8px rgba(40, 25, 10, 0.06);
+    --radius: 16px;
+  }
+  html[data-theme="dark"] {
+    --bg: #17140f;
+    --surface: #201c16;
+    --surface-alt: #2a251d;
+    --border: #3a342a;
+    --text: #f0ebe2;
+    --text-muted: #a89e8f;
+    --accent: #f08a4b;
+    --accent-soft: #3a2416;
+    --good: #5cc47a;
+    --good-soft: #16301f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 14px 48px;
+  }
+  .wrap { width: 100%; max-width: 620px; margin: 0 auto; }
+  .vern { font-family: var(--vern-font, inherit); }
+
+  h1 { font-size: 1.35rem; margin: 0 0 2px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.88rem; }
+
+  /* Coverage panel */
+  .coverage {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .ring { flex: 0 0 auto; position: relative; width: 108px; height: 108px; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .ring-track { stroke: var(--surface-alt); }
+  .ring .ring-fill { stroke: var(--accent); transition: stroke-dashoffset 0.5s ease; stroke-linecap: round; }
+  .ring-label {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .ring-pct { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+  .ring-cap { font-size: 0.66rem; color: var(--text-muted); margin-top: 2px; }
+  .coverage-info { flex: 1 1 auto; min-width: 0; }
+  .coverage-headline { font-size: 0.98rem; font-weight: 600; margin-bottom: 4px; }
+  .coverage-sub { font-size: 0.82rem; color: var(--text-muted); }
+  .ws-select-row { margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .ws-select-row label { font-size: 0.8rem; color: var(--text-muted); }
+  select, .refresh-btn {
+    font: inherit;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .refresh-btn:hover { border-color: var(--accent); }
+  .ws-bars { margin: 4px 0 16px; display: flex; flex-direction: column; gap: 8px; }
+  .ws-bar-row { font-size: 0.8rem; }
+  .ws-bar-head { display: flex; justify-content: space-between; margin-bottom: 3px; color: var(--text-muted); }
+  .bar { background: var(--surface-alt); border-radius: 999px; height: 7px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.4s ease; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .tab {
+    flex: 1;
+    padding: 9px 6px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .tab[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+
+  .search {
+    width: 100%;
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .count-note { font-size: 0.8rem; color: var(--text-muted); margin: 0 2px 10px; }
+
+  /* Entry rows */
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .row.playing { border-color: var(--accent); background: var(--accent-soft); }
+  .row-body { flex: 1 1 auto; min-width: 0; }
+  .row-head { font-size: 1.05rem; font-weight: 600; word-break: break-word; }
+  .row-gloss { font-size: 0.83rem; color: var(--text-muted); word-break: break-word; }
+  .row-fail { font-size: 0.78rem; color: var(--accent); margin-top: 2px; }
+  .row-prog { height: 4px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; margin-top: 6px; display: none; }
+  .row.playing .row-prog { display: block; }
+  .row-prog-fill { height: 100%; width: 0; background: var(--accent); }
+
+  .play-btn {
+    flex: 0 0 auto;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .play-btn:hover { filter: brightness(1.08); }
+  .play-btn:active { transform: scale(0.94); }
+  .play-btn .spin { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.45); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+  .record-btn {
+    flex: 0 0 auto;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+  }
+  .record-btn:hover { background: var(--accent-soft); }
+
+  /* Practice */
+  .practice-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 22px 24px;
+    text-align: center;
+  }
+  .practice-pos { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 18px; }
+  .big-play {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 2.2rem;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow);
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .big-play:hover { filter: brightness(1.08); }
+  .big-play:active { transform: scale(0.95); }
+  .big-play .spin { width: 34px; height: 34px; border: 3px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .practice-prog { height: 5px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; margin: 18px auto 4px; max-width: 260px; }
+  .practice-prog-fill { height: 100%; width: 0; background: var(--accent); }
+  .practice-answer { min-height: 64px; margin: 16px 0 6px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+  .practice-answer.hidden .answer-content { visibility: hidden; }
+  .answer-head { font-size: 1.6rem; font-weight: 700; word-break: break-word; }
+  .answer-gloss { font-size: 1rem; color: var(--text-muted); word-break: break-word; }
+  .reveal-hint { color: var(--text-muted); font-size: 0.85rem; }
+  .practice-fail { color: var(--accent); font-size: 0.82rem; min-height: 1.1em; margin-top: 4px; }
+  .practice-controls { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
+  .pbtn {
+    font: inherit; font-size: 0.9rem; font-weight: 600;
+    padding: 10px 20px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface-alt); color: var(--text);
+  }
+  .pbtn:hover { border-color: var(--accent); }
+  .pbtn.primary { background: var(--accent); color: #fff; border-color: transparent; }
+  .pbtn.primary:hover { filter: brightness(1.08); }
+  .pbtn kbd { margin-left: 6px; font-size: 0.72rem; opacity: 0.75; font-family: inherit; }
+  .practice-kbd { text-align: center; color: var(--text-muted); font-size: 0.78rem; margin-top: 14px; }
+
+  /* States */
+  .center-state { text-align: center; padding: 54px 20px; color: var(--text-muted); }
+  .center-state .big-emoji { font-size: 2.4rem; margin-bottom: 12px; }
+  .spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    color: var(--text);
+  }
+  .hint { font-size: 0.82rem; color: var(--text-muted); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Audio Dictionary</h1>
+  <p class="subtitle" id="subtitle">Reviewing pronunciation recordings&hellip;</p>
+
+  <!-- Loading -->
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="scan-text">Scanning entries&hellip;</div>
+  </div>
+
+  <!-- No audio writing system in project -->
+  <div id="no-audio-ws" class="center-state" hidden>
+    <div class="big-emoji">&#128266;</div>
+    <p><strong>This project has no audio writing system.</strong></p>
+    <p class="hint">Pronunciation recordings are stored in an audio writing system (one marked as audio-only).
+    Add one in the app's writing-system settings, then record pronunciations on an entry &mdash; they'll show up here.</p>
+  </div>
+
+  <!-- Error -->
+  <div id="error" class="error-box" hidden></div>
+
+  <!-- Main app -->
+  <div id="app" hidden>
+    <div class="coverage">
+      <div class="ring">
+        <svg width="108" height="108" viewBox="0 0 108 108">
+          <circle class="ring-track" cx="54" cy="54" r="48" fill="none" stroke-width="9"></circle>
+          <circle class="ring-fill" id="ring-fill" cx="54" cy="54" r="48" fill="none" stroke-width="9"
+                  stroke-dasharray="301.6" stroke-dashoffset="301.6"></circle>
+        </svg>
+        <div class="ring-label">
+          <div class="ring-pct" id="ring-pct">0%</div>
+          <div class="ring-cap">recorded</div>
+        </div>
+      </div>
+      <div class="coverage-info">
+        <div class="coverage-headline" id="coverage-headline"></div>
+        <div class="coverage-sub" id="coverage-sub"></div>
+        <div class="ws-select-row">
+          <span id="ws-select-wrap" hidden>
+            <label for="ws-select">Recording:</label>
+            <select id="ws-select"></select>
+          </span>
+          <button class="refresh-btn" id="refresh-btn" type="button">Refresh</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ws-bars" id="ws-bars" hidden></div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" id="tab-listen" role="tab" aria-selected="true">Listen</button>
+      <button class="tab" id="tab-practice" role="tab" aria-selected="false">Practice</button>
+      <button class="tab" id="tab-missing" role="tab" aria-selected="false">Missing</button>
+    </div>
+
+    <!-- Listen / browse -->
+    <section id="view-listen" role="tabpanel">
+      <input type="search" class="search" id="search" placeholder="Search headword or meaning&hellip;" autocomplete="off">
+      <p class="count-note" id="listen-count"></p>
+      <div id="listen-list"></div>
+      <div id="listen-empty" class="center-state" hidden>
+        <div class="big-emoji">&#127908;</div>
+        <p><strong>No recordings yet.</strong></p>
+        <p class="hint">No entry has audio in this writing system. Switch to the <em>Missing</em> tab to add some in the app.</p>
+      </div>
+      <div id="listen-no-match" class="center-state" hidden>No entries match your search.</div>
+    </section>
+
+    <!-- Practice -->
+    <section id="view-practice" role="tabpanel" hidden>
+      <div id="practice-empty" class="center-state" hidden>
+        <div class="big-emoji">&#127911;</div>
+        <p><strong>Nothing to practice yet.</strong></p>
+        <p class="hint">Once entries have recordings, listening practice appears here.</p>
+      </div>
+      <div id="practice-card" class="practice-card" hidden>
+        <div class="practice-pos" id="practice-pos"></div>
+        <button class="big-play" id="big-play" type="button" aria-label="Play recording">&#9654;</button>
+        <div class="practice-prog"><div class="practice-prog-fill" id="practice-prog-fill"></div></div>
+        <div class="practice-answer hidden" id="practice-answer">
+          <div class="reveal-hint" id="reveal-hint">Listen, then reveal the word.</div>
+          <div class="answer-content">
+            <div class="answer-head vern" id="answer-head"></div>
+            <div class="answer-gloss" id="answer-gloss"></div>
+          </div>
+        </div>
+        <div class="practice-fail" id="practice-fail"></div>
+        <div class="practice-controls">
+          <button class="pbtn" id="btn-reveal" type="button">Reveal</button>
+          <button class="pbtn primary" id="btn-next" type="button">Next <kbd>&rarr;</kbd></button>
+        </div>
+        <div class="practice-kbd">Space = play &middot; &rarr; = next</div>
+      </div>
+    </section>
+
+    <!-- Missing worklist -->
+    <section id="view-missing" role="tabpanel" hidden>
+      <p class="count-note" id="missing-count"></p>
+      <p class="hint" style="margin:0 2px 12px;">This plugin can't record audio. Tap <strong>Record in app</strong> to open the
+      entry in the editor, where you can add a pronunciation.</p>
+      <div id="missing-list"></div>
+      <div id="missing-empty" class="center-state" hidden>
+        <div class="big-emoji">&#127881;</div>
+        <p><strong>Every entry has a recording.</strong></p>
+        <p class="hint">Nothing is missing audio in this writing system.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<audio id="player" preload="none"></audio>
+
+<script>
+(function () {
+  'use strict';
+
+  var fw = window.fwlite;
+  var STORAGE_KEY = 'audio-dictionary-v1';
+  var PAGE = 1000;
+  var CAP = 5000;
+  var RING_CIRC = 301.6; // 2*pi*48
+
+  var state = {
+    entries: [],
+    capped: false,
+    audioWsList: [],   // [{wsId, name, font}]
+    selectedWs: null,
+    vernFont: '',
+    activeTab: 'listen',
+    practiceIndex: 0,
+    practiceRevealed: false,
+    // derived per selected ws
+    withAudio: [],     // [{entry, ref, headword, gloss}]
+    withoutAudio: [],  // [{entry, headword, gloss}]
+  };
+
+  // ---- playback controller ----
+  var audioEl = document.getElementById('player');
+  var pb = { url: null, id: null, progressEl: null };
+
+  function revokeUrl() {
+    if (pb.url) { URL.revokeObjectURL(pb.url); pb.url = null; }
+  }
+  function stopPlayback() {
+    audioEl.pause();
+    revokeUrl();
+    pb.id = null;
+    pb.progressEl = null;
+    clearPlayingRows();
+    setBigPlayIcon('idle');
+  }
+  /** Fetch + play a media reference. Returns true on success, false when media is null/unavailable. */
+  function playRef(id, ref, progressEl) {
+    stopPlayback();
+    pb.id = id;
+    pb.progressEl = progressEl || null;
+    return fw.getMedia(ref).then(function (media) {
+      if (pb.id !== id) return false;   // superseded while fetching
+      if (!media) { pb.id = null; return false; }
+      revokeUrl();
+      pb.url = URL.createObjectURL(new Blob([media.data], { type: media.mimeType || '' }));
+      audioEl.src = pb.url;
+      return audioEl.play().then(function () { return true; }, function () { return true; });
+    });
+  }
+
+  audioEl.addEventListener('timeupdate', function () {
+    if (pb.progressEl && audioEl.duration) {
+      pb.progressEl.style.width = Math.min(100, (audioEl.currentTime / audioEl.duration) * 100) + '%';
+    }
+  });
+  audioEl.addEventListener('ended', function () {
+    if (pb.progressEl) pb.progressEl.style.width = '100%';
+    setBigPlayIcon('idle');
+  });
+
+  // ---- helpers ----
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+  function el(id) { return document.getElementById(id); }
+  function show(id, on) { el(id).hidden = !on; }
+  function showError(message) {
+    show('loading', false);
+    var box = el('error');
+    box.hidden = false;
+    box.textContent = message;
+  }
+
+  function refFor(entry, wsId) {
+    var cf = entry.citationForm && entry.citationForm[wsId];
+    if (cf) return cf;
+    var lf = entry.lexemeForm && entry.lexemeForm[wsId];
+    if (lf) return lf;
+    return null;
+  }
+
+  function firstGloss(entry) {
+    var senses = entry.senses || [];
+    var i, ws, t;
+    for (i = 0; i < senses.length; i++) {
+      var g = senses[i].gloss;
+      if (g) for (ws in g) { if (g[ws]) { t = fw.asText(g[ws]); if (t) return t; } }
+    }
+    for (i = 0; i < senses.length; i++) {
+      var d = senses[i].definition;
+      if (d) for (ws in d) { if (d[ws]) { t = fw.asText(d[ws]); if (t) return t; } }
+    }
+    return '';
+  }
+
+  // ---- persistence ----
+  function loadPrefs() {
+    return fw.storage.get(STORAGE_KEY).then(function (v) {
+      if (v && typeof v === 'object') {
+        state.selectedWs = v.selectedWs || null;
+        state.activeTab = v.activeTab || 'listen';
+        state.practiceIndex = typeof v.practiceIndex === 'number' ? v.practiceIndex : 0;
+      }
+    });
+  }
+  function savePrefs() {
+    return fw.storage.set(STORAGE_KEY, {
+      selectedWs: state.selectedWs,
+      activeTab: state.activeTab,
+      practiceIndex: state.practiceIndex,
+    });
+  }
+
+  // ---- data loading ----
+  function loadAllEntries() {
+    var all = [];
+    state.capped = false;
+    function next(offset) {
+      return fw.getEntries({ limit: PAGE, offset: offset }).then(function (batch) {
+        all = all.concat(batch || []);
+        el('scan-text').textContent = 'Scanning entries… ' + all.length + ' loaded';
+        if (!batch || batch.length < PAGE) return all;
+        if (all.length >= CAP) { state.capped = true; return all; }
+        return next(offset + PAGE);
+      });
+    }
+    return next(0);
+  }
+
+  // ---- coverage + derived lists ----
+  function coverageFor(wsId) {
+    var have = 0;
+    for (var i = 0; i < state.entries.length; i++) {
+      if (refFor(state.entries[i], wsId)) have++;
+    }
+    return { have: have, total: state.entries.length };
+  }
+
+  function rebuildLists() {
+    var ws = state.selectedWs;
+    state.withAudio = [];
+    state.withoutAudio = [];
+    state.entries.forEach(function (entry) {
+      var head = fw.headword(entry) || '—';
+      var gloss = firstGloss(entry);
+      var ref = refFor(entry, ws);
+      if (ref) state.withAudio.push({ entry: entry, ref: ref, headword: head, gloss: gloss, search: (head + ' ' + gloss).toLowerCase() });
+      else state.withoutAudio.push({ entry: entry, headword: head, gloss: gloss });
+    });
+    if (state.practiceIndex >= state.withAudio.length) state.practiceIndex = 0;
+  }
+
+  function renderCoverage() {
+    var cov = coverageFor(state.selectedWs);
+    var pct = cov.total ? Math.round((cov.have / cov.total) * 100) : 0;
+    el('ring-pct').textContent = pct + '%';
+    el('ring-fill').setAttribute('stroke-dashoffset', String(RING_CIRC * (1 - pct / 100)));
+    el('coverage-headline').textContent = cov.have + ' of ' + cov.total + ' entries have a recording';
+    var sub = cov.total ? pct + '% recorded' : 'No entries in this project';
+    if (state.capped) sub += ' · showing first ' + CAP + ' entries';
+    el('coverage-sub').textContent = sub;
+
+    // Per-ws bars only when more than one audio ws.
+    var barsBox = el('ws-bars');
+    if (state.audioWsList.length > 1) {
+      barsBox.hidden = false;
+      barsBox.innerHTML = '';
+      state.audioWsList.forEach(function (w) {
+        var c = coverageFor(w.wsId);
+        var p = c.total ? Math.round((c.have / c.total) * 100) : 0;
+        var row = document.createElement('div');
+        row.className = 'ws-bar-row';
+        var head = document.createElement('div');
+        head.className = 'ws-bar-head';
+        var nm = document.createElement('span');
+        nm.textContent = w.name;
+        var val = document.createElement('span');
+        val.textContent = c.have + '/' + c.total + ' (' + p + '%)';
+        head.appendChild(nm); head.appendChild(val);
+        var bar = document.createElement('div');
+        bar.className = 'bar';
+        var fill = document.createElement('div');
+        fill.className = 'bar-fill';
+        fill.style.width = p + '%';
+        bar.appendChild(fill);
+        row.appendChild(head); row.appendChild(bar);
+        barsBox.appendChild(row);
+      });
+    } else {
+      barsBox.hidden = true;
+    }
+  }
+
+  // ---- rows (Listen / Missing) ----
+  function clearPlayingRows() {
+    var rows = document.querySelectorAll('.row.playing');
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].classList.remove('playing');
+      var f = rows[i].querySelector('.row-prog-fill');
+      if (f) f.style.width = '0';
+    }
+  }
+
+  function makeListenRow(item) {
+    var row = document.createElement('div');
+    row.className = 'row';
+
+    var btn = document.createElement('button');
+    btn.className = 'play-btn';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Play recording');
+    btn.textContent = '▶';
+
+    var body = document.createElement('div');
+    body.className = 'row-body';
+    var head = document.createElement('div');
+    head.className = 'row-head vern';
+    head.textContent = item.headword;
+    var gloss = document.createElement('div');
+    gloss.className = 'row-gloss';
+    gloss.textContent = item.gloss || 'No meaning recorded';
+    var fail = document.createElement('div');
+    fail.className = 'row-fail';
+    fail.hidden = true;
+    var prog = document.createElement('div');
+    prog.className = 'row-prog';
+    var progFill = document.createElement('div');
+    progFill.className = 'row-prog-fill';
+    prog.appendChild(progFill);
+    body.appendChild(head); body.appendChild(gloss); body.appendChild(fail); body.appendChild(prog);
+
+    function setIcon(kind) {
+      if (kind === 'loading') { btn.innerHTML = ''; var s = document.createElement('span'); s.className = 'spin'; btn.appendChild(s); }
+      else if (kind === 'playing') { btn.textContent = '⏸'; }
+      else { btn.textContent = '▶'; }
+    }
+
+    btn.addEventListener('click', function () {
+      // Toggle if this row is the active one.
+      if (pb.id === item.entry.id && !audioEl.paused) { stopPlayback(); setIcon('idle'); return; }
+      fail.hidden = true;
+      setIcon('loading');
+      playRef(item.entry.id, item.ref, progFill).then(function (ok) {
+        setIcon(ok ? 'playing' : 'idle');
+        if (ok) {
+          clearPlayingRows();
+          row.classList.add('playing');
+        } else {
+          fail.hidden = false;
+          fail.textContent = "Couldn't load the recording (offline?).";
+        }
+      }).catch(function () {
+        setIcon('idle');
+        fail.hidden = false;
+        fail.textContent = "Couldn't play the recording.";
+      });
+    });
+
+    row.appendChild(btn);
+    row.appendChild(body);
+    return row;
+  }
+
+  function renderListen() {
+    var q = el('search').value.trim().toLowerCase();
+    var list = el('listen-list');
+    list.innerHTML = '';
+
+    if (state.withAudio.length === 0) {
+      show('listen-empty', true);
+      show('listen-no-match', false);
+      el('listen-count').textContent = '';
+      el('search').hidden = true;
+      return;
+    }
+    el('search').hidden = false;
+    show('listen-empty', false);
+
+    var items = q ? state.withAudio.filter(function (it) { return it.search.indexOf(q) !== -1; }) : state.withAudio;
+    el('listen-count').textContent = q
+      ? items.length + ' of ' + state.withAudio.length + ' recordings match'
+      : state.withAudio.length + ' entr' + (state.withAudio.length === 1 ? 'y' : 'ies') + ' with a recording';
+
+    if (items.length === 0) { show('listen-no-match', true); return; }
+    show('listen-no-match', false);
+
+    var frag = document.createDocumentFragment();
+    items.forEach(function (it) { frag.appendChild(makeListenRow(it)); });
+    list.appendChild(frag);
+  }
+
+  function renderMissing() {
+    var list = el('missing-list');
+    list.innerHTML = '';
+    if (state.withoutAudio.length === 0) {
+      show('missing-empty', true);
+      el('missing-count').textContent = '';
+      return;
+    }
+    show('missing-empty', false);
+    el('missing-count').textContent =
+      state.withoutAudio.length + ' entr' + (state.withoutAudio.length === 1 ? 'y' : 'ies') + ' without a recording';
+
+    var canEdit = !fw.capabilities || !fw.capabilities.openEntryModes || fw.capabilities.openEntryModes.indexOf('edit') !== -1;
+    var frag = document.createDocumentFragment();
+    state.withoutAudio.forEach(function (item) {
+      var row = document.createElement('div');
+      row.className = 'row';
+      var body = document.createElement('div');
+      body.className = 'row-body';
+      var head = document.createElement('div');
+      head.className = 'row-head vern';
+      head.textContent = item.headword;
+      var gloss = document.createElement('div');
+      gloss.className = 'row-gloss';
+      gloss.textContent = item.gloss || 'No meaning recorded';
+      body.appendChild(head); body.appendChild(gloss);
+
+      var btn = document.createElement('button');
+      btn.className = 'record-btn';
+      btn.type = 'button';
+      btn.textContent = 'Record in app';
+      btn.addEventListener('click', function () {
+        fw.openEntry(item.entry.id, { mode: canEdit ? 'edit' : 'view' }).catch(function () {});
+      });
+
+      row.appendChild(body);
+      row.appendChild(btn);
+      frag.appendChild(row);
+    });
+    list.appendChild(frag);
+  }
+
+  // ---- practice ----
+  function setBigPlayIcon(kind) {
+    var b = el('big-play');
+    if (!b) return;
+    if (kind === 'loading') { b.innerHTML = ''; var s = document.createElement('span'); s.className = 'spin'; b.appendChild(s); }
+    else if (kind === 'playing') { b.textContent = '⏸'; }
+    else { b.textContent = '▶'; }
+  }
+
+  function renderPractice() {
+    if (state.withAudio.length === 0) {
+      show('practice-empty', true);
+      show('practice-card', false);
+      return;
+    }
+    show('practice-empty', false);
+    show('practice-card', true);
+    if (state.practiceIndex >= state.withAudio.length) state.practiceIndex = 0;
+    var item = state.withAudio[state.practiceIndex];
+    el('practice-pos').textContent = 'Card ' + (state.practiceIndex + 1) + ' of ' + state.withAudio.length;
+    el('answer-head').textContent = item.headword;
+    el('answer-gloss').textContent = item.gloss || 'No meaning recorded';
+    el('practice-prog-fill').style.width = '0';
+    el('practice-fail').textContent = '';
+    setReveal(state.practiceRevealed);
+  }
+
+  function setReveal(on) {
+    state.practiceRevealed = on;
+    var box = el('practice-answer');
+    box.classList.toggle('hidden', !on);
+    el('reveal-hint').style.display = on ? 'none' : 'block';
+    el('btn-reveal').textContent = on ? 'Hide' : 'Reveal';
+  }
+
+  function practicePlay() {
+    if (state.withAudio.length === 0) return;
+    var item = state.withAudio[state.practiceIndex];
+    el('practice-fail').textContent = '';
+    setBigPlayIcon('loading');
+    playRef(item.entry.id, item.ref, el('practice-prog-fill')).then(function (ok) {
+      setBigPlayIcon(ok ? 'playing' : 'idle');
+      if (!ok) el('practice-fail').textContent = "Couldn't load the recording (offline?).";
+    }).catch(function () {
+      setBigPlayIcon('idle');
+      el('practice-fail').textContent = "Couldn't play the recording.";
+    });
+  }
+
+  function practiceNext() {
+    stopPlayback();
+    if (state.withAudio.length === 0) return;
+    state.practiceIndex = (state.practiceIndex + 1) % state.withAudio.length;
+    state.practiceRevealed = false;
+    savePrefs();
+    renderPractice();
+    practicePlay();
+  }
+
+  // ---- tabs ----
+  function setTab(tab) {
+    stopPlayback();
+    state.activeTab = tab;
+    savePrefs();
+    ['listen', 'practice', 'missing'].forEach(function (t) {
+      el('tab-' + t).setAttribute('aria-selected', String(t === tab));
+      show('view-' + t, t === tab);
+    });
+    if (tab === 'listen') renderListen();
+    else if (tab === 'practice') { renderPractice(); }
+    else renderMissing();
+  }
+
+  // ---- ws selector + refresh ----
+  function onSelectWs(wsId) {
+    state.selectedWs = wsId;
+    state.practiceIndex = 0;
+    state.practiceRevealed = false;
+    savePrefs();
+    rebuildLists();
+    renderCoverage();
+    setTab(state.activeTab);
+  }
+
+  function refresh() {
+    var btn = el('refresh-btn');
+    btn.disabled = true;
+    btn.textContent = 'Refreshing…';
+    stopPlayback();
+    loadAllEntries().then(function (entries) {
+      state.entries = entries;
+      rebuildLists();
+      renderCoverage();
+      setTab(state.activeTab);
+      fw.notify('Coverage refreshed').catch(function () {});
+    }).catch(function (err) {
+      fw.notify('Refresh failed: ' + (err && err.message ? err.message : 'error')).catch(function () {});
+    }).finally(function () {
+      btn.disabled = false;
+      btn.textContent = 'Refresh';
+    });
+  }
+
+  // ---- init ----
+  function wireEvents() {
+    el('tab-listen').addEventListener('click', function () { setTab('listen'); });
+    el('tab-practice').addEventListener('click', function () { setTab('practice'); if (state.withAudio.length) practicePlay(); });
+    el('tab-missing').addEventListener('click', function () { setTab('missing'); });
+    el('search').addEventListener('input', renderListen);
+    el('refresh-btn').addEventListener('click', refresh);
+    el('big-play').addEventListener('click', function () {
+      if (pb.id && !audioEl.paused) { stopPlayback(); setBigPlayIcon('idle'); }
+      else practicePlay();
+    });
+    el('btn-reveal').addEventListener('click', function () { setReveal(!state.practiceRevealed); });
+    el('btn-next').addEventListener('click', practiceNext);
+
+    document.addEventListener('keydown', function (event) {
+      if (state.activeTab !== 'practice') return;
+      var tag = (event.target && event.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (event.code === 'Space') {
+        event.preventDefault();
+        if (pb.id && !audioEl.paused) { stopPlayback(); setBigPlayIcon('idle'); }
+        else practicePlay();
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        practiceNext();
+      }
+    });
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+    wireEvents();
+
+    Promise.all([fw.getWritingSystems(), loadPrefs()]).then(function (results) {
+      var wsData = results[0];
+      var all = (wsData.vernacular || []).concat(wsData.analysis || []);
+      var seen = {};
+      state.audioWsList = [];
+      all.forEach(function (w) {
+        if (!w.isAudio || seen[w.wsId]) return;
+        seen[w.wsId] = true;
+        state.audioWsList.push({ wsId: w.wsId, name: w.name || w.wsId, font: w.font || '' });
+      });
+
+      // Vernacular text font for headword display.
+      var vern = (wsData.vernacular || []).filter(function (w) { return !w.isAudio && w.font; });
+      state.vernFont = vern.map(function (w) { return '"' + w.font + '"'; }).join(', ');
+      if (state.vernFont) document.documentElement.style.setProperty('--vern-font', state.vernFont + ', system-ui, sans-serif');
+
+      if (state.audioWsList.length === 0) {
+        show('loading', false);
+        show('no-audio-ws', true);
+        return;
+      }
+
+      // Validate persisted ws still exists.
+      if (!state.selectedWs || !state.audioWsList.some(function (w) { return w.wsId === state.selectedWs; })) {
+        state.selectedWs = state.audioWsList[0].wsId;
+      }
+
+      return loadAllEntries().then(function (entries) {
+        state.entries = entries;
+
+        show('loading', false);
+        el('subtitle').textContent = context.project.projectName +
+          ' · ' + state.entries.length + ' entr' + (state.entries.length === 1 ? 'y' : 'ies') +
+          (state.capped ? ' (first ' + CAP + ')' : '');
+        show('app', true);
+
+        // Writing-system selector (only when several audio ws).
+        if (state.audioWsList.length > 1) {
+          show('ws-select-wrap', true);
+          var sel = el('ws-select');
+          state.audioWsList.forEach(function (w) {
+            var opt = document.createElement('option');
+            opt.value = w.wsId;
+            opt.textContent = w.name;
+            if (w.wsId === state.selectedWs) opt.selected = true;
+            sel.appendChild(opt);
+          });
+          sel.addEventListener('change', function () { onSelectWs(sel.value); });
+        }
+
+        rebuildLists();
+        renderCoverage();
+        setTab(state.activeTab || 'listen');
+      });
+    }).catch(function (err) {
+      showError('Could not load the audio dictionary: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  fw.ready.then(init);
+})();
+</script>
+</body>
+</html>

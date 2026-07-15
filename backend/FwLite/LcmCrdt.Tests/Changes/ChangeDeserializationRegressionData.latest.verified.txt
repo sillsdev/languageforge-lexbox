@@ -1346,5 +1346,43 @@
   {
     "$type": "delete:UserComment",
     "EntityId": "4be242d0-b1a6-986f-cc0d-b35860e69e60"
+  },
+  {
+    "$type": "CreatePluginChange",
+    "Name": "South Dakota",
+    "Description": "cultivate",
+    "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+    "FileSize": 7006730054478530864,
+    "Permissions": [
+      "artificial intelligence"
+    ],
+    "Contexts": [
+      "Developer"
+    ],
+    "Requires": [
+      "interactive"
+    ],
+    "EntityId": "0bb97e98-8ce9-e3a6-cdf1-1425a2780347"
+  },
+  {
+    "$type": "EditPluginChange",
+    "Name": "Investment Account",
+    "Description": "Gorgeous Granite Computer",
+    "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+    "FileSize": 6231492617012874517,
+    "Permissions": [
+      "innovate"
+    ],
+    "Contexts": [
+      "fresh-thinking"
+    ],
+    "Requires": [
+      "maximized"
+    ],
+    "EntityId": "d4d44566-77fa-3c2e-5cf0-7cd31b69b00f"
+  },
+  {
+    "$type": "delete:Plugin",
+    "EntityId": "c558fd49-9bd3-759c-d342-4e1c86a0d647"
   }
 ]

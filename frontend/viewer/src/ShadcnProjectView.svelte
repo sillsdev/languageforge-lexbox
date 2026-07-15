@@ -6,8 +6,10 @@
   import DashboardView from './project/dashboard/DashboardView.svelte';
   import {initViewService} from '$lib/views/view-service.svelte';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
-  import {navigate, Route, useRouter} from 'svelte-routing';
+  import {navigate, Route, useLocation, useRouter} from 'svelte-routing';
   import ActivityView from '$lib/activity/ActivityView.svelte';
+  import PluginsView from '$lib/plugins/PluginsView.svelte';
+  import PluginRunView from '$lib/plugins/PluginRunView.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
@@ -31,6 +33,7 @@
   });
   let open = $state(true);
   const {base} = useRouter();
+  const location = useLocation();
 
   type FwLiteEvent = {type: 'notification', message: string};
 
@@ -63,6 +66,16 @@
       </Route>
       <Route path="/activity">
         <ActivityView />
+      </Route>
+      <Route path="/plugins">
+        <PluginsView />
+      </Route>
+      <Route path="/plugins/:id" let:params>
+        <!-- Key includes the query so relaunching the SAME plugin from a different entry restarts
+             it with the new launch context (a running plugin can't be handed a new context). -->
+        {#key `${params.id}${$location.search}`}
+          <PluginRunView pluginId={params.id} />
+        {/key}
       </Route>
       <Route path="/">
         {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}

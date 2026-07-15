@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fwlite-plugin-contexts" content="entry">
+<title>Crossword</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --surface: #fff; --surface-2: #f0f1f4; --border: #e2e4e9;
+    --text: #1c1e21; --text-muted: #6b7280; --accent: #4f46e5; --accent-soft: #e0e7ff;
+    --good: #16a34a; --bad: #dc2626; --radius: 12px;
+    --cell: 40px;
+    --block: #2b2d33;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b; --surface: #1f2126; --surface-2: #26282e; --border: #33353c;
+    --text: #edeef1; --text-muted: #9aa0ab; --accent: #818cf8; --accent-soft: #312e6b;
+    --good: #4ade80; --bad: #f87171; --block: #0c0d10;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  h1 { font-size: 1.15rem; margin: 0 0 2px; }
+  .sub { color: var(--text-muted); font-size: 0.8rem; margin: 0 0 14px; }
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px;
+  }
+  button, select {
+    font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 8px 14px; cursor: pointer; line-height: 1;
+  }
+  button:hover, select:hover { border-color: var(--accent); }
+  button:active { transform: translateY(1px); }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; background: var(--surface); }
+  .seg button { border: none; border-radius: 0; padding: 8px 12px; background: transparent; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .layout { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+  .board-wrap { overflow-x: auto; max-width: 100%; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  .board {
+    display: grid; gap: 2px; background: var(--border);
+    border: 2px solid var(--border); border-radius: 6px; padding: 2px; width: max-content;
+  }
+  .cell { width: var(--cell); height: var(--cell); position: relative; background: var(--block); border-radius: 3px; }
+  .cell.on { background: var(--surface); }
+  .cell.on input {
+    width: 100%; height: 100%; border: none; background: transparent; color: var(--text);
+    text-align: center; font-size: calc(var(--cell) * 0.5); text-transform: uppercase;
+    font-family: var(--vern-font, inherit); padding: 0; border-radius: 3px; caret-color: var(--accent);
+  }
+  .cell.on input:focus { outline: none; }
+  .cell.active-word { background: var(--accent-soft); }
+  .cell.active-cell { box-shadow: inset 0 0 0 2px var(--accent); }
+  .cell.wrong input { color: var(--bad); }
+  .cell.correct input { color: var(--good); }
+  .cell .num {
+    position: absolute; top: 1px; left: 2px; font-size: calc(var(--cell) * 0.26);
+    color: var(--text-muted); line-height: 1; pointer-events: none; font-family: system-ui, sans-serif;
+  }
+  .clues { flex: 1 1 260px; min-width: 240px; }
+  .clues h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); margin: 0 0 6px; }
+  .clue-group { margin-bottom: 18px; }
+  ol.clue-list { list-style: none; margin: 0; padding: 0; }
+  ol.clue-list li {
+    display: flex; gap: 8px; padding: 7px 9px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+    align-items: baseline;
+  }
+  ol.clue-list li:hover { background: var(--surface-2); }
+  ol.clue-list li.active { background: var(--accent-soft); }
+  ol.clue-list li.done .ctext { color: var(--text-muted); text-decoration: line-through; }
+  .cnum { font-weight: 700; min-width: 1.4em; text-align: right; }
+  .ctext { flex: 1; }
+  .open-entry {
+    border: none; background: transparent; color: var(--accent); padding: 0 2px; font-size: 0.95rem;
+    border-radius: 4px; flex: 0 0 auto;
+  }
+  .len { color: var(--text-muted); font-size: 0.8rem; }
+  .status { margin-top: 10px; min-height: 1.2em; font-size: 0.9rem; }
+  .status.good { color: var(--good); }
+  .status.bad { color: var(--bad); }
+  .msg { padding: 40px 12px; text-align: center; color: var(--text-muted); }
+  .msg.error { color: var(--bad); }
+  .spinner {
+    width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 640px) { :root { --cell: 34px; } body { padding: 12px; } }
+</style>
+</head>
+<body>
+<main id="app"><div class="msg"><div class="spinner"></div>Loading dictionary…</div></main>
+
+<script>
+"use strict";
+(function () {
+  var app = document.getElementById("app");
+
+  // ---------- utilities ----------
+  function el(tag, props, children) {
+    var e = document.createElement(tag);
+    if (props) for (var k in props) {
+      if (k === "class") e.className = props[k];
+      else if (k === "text") e.textContent = props[k];
+      else if (k === "html") e.innerHTML = props[k];
+      else if (k.slice(0, 2) === "on") e.addEventListener(k.slice(2), props[k]);
+      else e.setAttribute(k, props[k]);
+    }
+    if (children) children.forEach(function (c) { if (c) e.appendChild(c); });
+    return e;
+  }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function showMessage(cls, htmlOrText, isHtml) {
+    app.innerHTML = "";
+    var d = el("div", { class: "msg " + (cls || "") });
+    if (isHtml) d.innerHTML = htmlOrText; else d.textContent = htmlOrText;
+    app.appendChild(d);
+  }
+
+  // ---------- crossword builder ----------
+  function buildCrossword(words, maxWords, seedWord) {
+    var attempts = 80, best = null;
+    for (var a = 0; a < attempts; a++) {
+      var pool = shuffle(words.slice()).slice(0, Math.min(words.length, maxWords * 4));
+      pool.sort(function (x, y) { return y.answer.length - x.answer.length; });
+      if (seedWord) {
+        // ensure the seed word is present and placed first
+        pool = pool.filter(function (w) { return w.answer !== seedWord.answer; });
+        pool.unshift(seedWord);
+      }
+      var g = tryBuild(pool, maxWords);
+      if (g && g.placed.length >= 3 && (!best || g.placed.length > best.placed.length)) best = g;
+      if (best && best.placed.length >= maxWords) break;
+    }
+    return best;
+  }
+
+  function tryBuild(pool, maxWords) {
+    var cells = {}, placed = [];
+    function key(r, c) { return r + "," + c; }
+    function get(r, c) { return cells[key(r, c)]; }
+
+    function canPlace(word, r, c, dir) {
+      var L = word.length, crosses = 0;
+      for (var i = 0; i < L; i++) {
+        var rr = dir === "D" ? r + i : r;
+        var cc = dir === "A" ? c + i : c;
+        var ex = get(rr, cc);
+        if (ex) {
+          if (ex !== word[i]) return null;
+          crosses++;
+        } else {
+          if (dir === "A") { if (get(rr - 1, cc) || get(rr + 1, cc)) return null; }
+          else { if (get(rr, cc - 1) || get(rr, cc + 1)) return null; }
+        }
+      }
+      if (dir === "A") { if (get(r, c - 1) || get(r, c + L)) return null; }
+      else { if (get(r - 1, c) || get(r + L, c)) return null; }
+      return crosses;
+    }
+    function put(w, r, c, dir) {
+      for (var i = 0; i < w.answer.length; i++) {
+        var rr = dir === "D" ? r + i : r;
+        var cc = dir === "A" ? c + i : c;
+        cells[key(rr, cc)] = w.answer[i];
+      }
+      placed.push({ word: w, answer: w.answer, r: r, c: c, dir: dir });
+    }
+
+    put(pool[0], 0, 0, "A");
+    var used = {}; used[0] = true;
+
+    var progress = true;
+    while (progress && placed.length < maxWords) {
+      progress = false;
+      for (var wi = 0; wi < pool.length; wi++) {
+        if (used[wi]) continue;
+        if (placed.length >= maxWords) break;
+        var word = pool[wi].answer, bestP = null;
+        for (var pIdx = 0; pIdx < placed.length; pIdx++) {
+          var p = placed[pIdx];
+          for (var pi = 0; pi < p.answer.length; pi++) {
+            var pr = p.dir === "D" ? p.r + pi : p.r;
+            var pc = p.dir === "A" ? p.c + pi : p.c;
+            var pch = p.answer[pi];
+            for (var i = 0; i < word.length; i++) {
+              if (word[i] !== pch) continue;
+              var dir = p.dir === "A" ? "D" : "A";
+              var r = dir === "D" ? pr - i : pr;
+              var c = dir === "A" ? pc - i : pc;
+              var cr = canPlace(word, r, c, dir);
+              if (cr !== null) {
+                var score = cr * 10 - (Math.abs(r) + Math.abs(c));
+                if (!bestP || score > bestP.score) bestP = { r: r, c: c, dir: dir, score: score };
+              }
+            }
+          }
+        }
+        if (bestP) { put(pool[wi], bestP.r, bestP.c, bestP.dir); used[wi] = true; progress = true; }
+      }
+    }
+
+    var minR = Infinity, minC = Infinity, maxR = -Infinity, maxC = -Infinity;
+    placed.forEach(function (p) {
+      for (var i = 0; i < p.answer.length; i++) {
+        var rr = p.dir === "D" ? p.r + i : p.r;
+        var cc = p.dir === "A" ? p.c + i : p.c;
+        if (rr < minR) minR = rr; if (cc < minC) minC = cc;
+        if (rr > maxR) maxR = rr; if (cc > maxC) maxC = cc;
+      }
+    });
+    placed.forEach(function (p) { p.r -= minR; p.c -= minC; });
+    return { placed: placed, rows: maxR - minR + 1, cols: maxC - minC + 1 };
+  }
+
+  // ---------- app ----------
+  var CFG = { sizes: { S: 8, M: 14, L: 22 }, maxScan: 5000 };
+  var state = {
+    vernWs: null, analysisWs: [], cluePref: [], clueLang: null,
+    words: [], size: "M", puzzle: null, cellEls: {}, clues: [], seed: null
+  };
+
+  // Clue languages are the project's analysis writing systems, most-preferred first.
+  function cluePrefFor(langId) {
+    var ids = state.analysisWs.map(function (w) { return w.id; });
+    if (!langId) return ids;
+    return [langId].concat(ids.filter(function (id) { return id !== langId; }));
+  }
+
+  fwlite.ready.then(init).catch(function (e) {
+    showMessage("error", "Could not start: " + (e && e.message ? e.message : e));
+  });
+
+  function init() {
+    document.documentElement.dataset.theme = fwlite.theme ||
+      (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+    return fwlite.getWritingSystems().then(function (ws) {
+      // primary vernacular = first non-audio vernacular WS from the API
+      var vern = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      state.vernWs = vern[0];
+      if (!state.vernWs) throw new Error("No vernacular writing system found.");
+      if (state.vernWs.font) {
+        document.documentElement.style.setProperty("--vern-font",
+          '"' + state.vernWs.font + '", var(--fallback-font, inherit)');
+      }
+      // clues are shown in the analysis writing systems the project actually uses
+      state.analysisWs = (ws.analysis || []).filter(function (w) { return !w.isAudio; });
+      state.clueLang = state.analysisWs.length ? state.analysisWs[0].id : null;
+      state.cluePref = cluePrefFor(state.clueLang);
+      return loadWords();
+    }).then(function () {
+      if (!state.words.length) {
+        showMessage("", "No words in this project are long enough or have a meaning to build a puzzle from.");
+        return;
+      }
+      // optional: seed from launch entry
+      var ctxId = fwlite.context && fwlite.context.entryId;
+      if (ctxId) {
+        return fwlite.getEntry(ctxId).then(function (entry) {
+          var w = entry && wordFromEntry(entry);
+          if (w) state.seed = w;
+        }).catch(function () {}).then(newPuzzle);
+      }
+      newPuzzle();
+    });
+  }
+
+  function loadWords() {
+    // page through entries up to a cap so very large projects can't stall puzzle setup
+    var all = [], PAGE = 1000;
+    function page(offset) {
+      return fwlite.getEntries({ limit: PAGE, offset: offset }).then(function (batch) {
+        if (!batch || !batch.length) return;
+        all = all.concat(batch);
+        if (batch.length === PAGE && all.length < CFG.maxScan) return page(offset + PAGE);
+      });
+    }
+    return page(0).then(function () {
+      var seen = {}, out = [];
+      all.forEach(function (entry) {
+        var w = wordFromEntry(entry);
+        if (!w) return;
+        if (seen[w.answer]) return;
+        seen[w.answer] = true;
+        out.push(w);
+      });
+      state.words = out;
+    });
+  }
+
+  // Extract a crossword-worthy word from an entry, or null.
+  function wordFromEntry(entry) {
+    var head = (fwlite.headword(entry) || "").trim();
+    if (!head) return null;
+    // letters only (allow combining marks); reject spaces, digits, punctuation, hyphens
+    if (/[\s\d]/.test(head)) return null;
+    if (/[^\p{L}\p{M}]/u.test(head)) return null;
+    var answer = head.toUpperCase();
+    if (answer.length < 3 || answer.length > 12) return null;
+
+    // find a sense with a usable gloss for the clue
+    var glossMS = null, def = "", pos = "", hasExample = false, senseWithGloss = null;
+    (entry.senses || []).forEach(function (s) {
+      if (!glossMS && s.gloss && Object.keys(s.gloss).some(function (k) { return (s.gloss[k] || "").trim(); })) {
+        glossMS = s.gloss; senseWithGloss = s;
+      }
+      if (!def && s.definition) { var t = fwlite.asText(s.definition); if (t) def = t; }
+      if (s.partOfSpeech && s.partOfSpeech.name) pos = fwlite.firstValue(s.partOfSpeech.name, state.cluePref) || pos;
+      if (s.exampleSentences && s.exampleSentences.length) hasExample = true;
+    });
+    if (!glossMS && !def) return null; // need something to clue with
+
+    return {
+      answer: answer, headword: head, entryId: entry.id,
+      glossMS: glossMS, def: def, pos: pos,
+      // interestingness score: prefer richer, mid-length words
+      score: (glossMS ? 1 : 0) + (def ? 1 : 0) + (hasExample ? 1 : 0) +
+             (answer.length >= 5 && answer.length <= 8 ? 1 : 0)
+    };
+  }
+
+  function clueText(w) {
+    var g = "";
+    if (w.glossMS) g = fwlite.firstValue(w.glossMS, state.cluePref);
+    if (!g && w.def) g = w.def;
+    if (!g) g = "(no meaning available)";
+    g = g.replace(/\s+/g, " ").trim();
+    if (w.pos) g = g + " · " + w.pos;
+    return g;
+  }
+
+  function newPuzzle() {
+    // choose the most interesting words as the candidate pool, then randomise within it
+    var target = CFG.sizes[state.size];
+    var ranked = state.words.slice().sort(function (a, b) { return b.score - a.score; });
+    var pool = ranked.slice(0, Math.max(target * 6, 60));
+    var puzzle = buildCrossword(pool, target, state.seed);
+    if (!puzzle || puzzle.placed.length < 3) {
+      // fallback: use whole set
+      puzzle = buildCrossword(state.words.slice(), target, state.seed);
+    }
+    if (!puzzle) { showMessage("error", "Could not build a puzzle. Try again."); return; }
+    state.puzzle = puzzle;
+    numberAndRender();
+  }
+
+  function numberAndRender() {
+    var puzzle = state.puzzle;
+    // assign clue numbers in reading order
+    var startMap = {}; // "r,c" -> {across, down}
+    puzzle.placed.forEach(function (p) {
+      var k = p.r + "," + p.c;
+      startMap[k] = startMap[k] || { r: p.r, c: p.c };
+      startMap[k][p.dir === "A" ? "across" : "down"] = p;
+    });
+    var starts = Object.keys(startMap).map(function (k) { return startMap[k]; });
+    starts.sort(function (a, b) { return a.r - b.r || a.c - b.c; });
+    var num = 0;
+    state.clues = [];
+    starts.forEach(function (s) {
+      num++;
+      s.num = num;
+      ["across", "down"].forEach(function (d) {
+        if (s[d]) {
+          var p = s[d];
+          p.num = num; p.dir2 = d;
+          state.clues.push(p);
+        }
+      });
+    });
+    render();
+  }
+
+  function render() {
+    var puzzle = state.puzzle;
+    app.innerHTML = "";
+    state.cellEls = {};
+
+    // ----- header -----
+    app.appendChild(el("h1", { text: "Crossword" }));
+    app.appendChild(el("p", { class: "sub",
+      text: (fwlite.project ? fwlite.project.projectName + " · " : "") +
+            state.vernWs.name + " · " + puzzle.placed.length + " words" }));
+
+    // ----- toolbar -----
+    var toolbar = el("div", { class: "toolbar" });
+
+    var sizeSeg = el("div", { class: "seg" });
+    [["S", "Small"], ["M", "Medium"], ["L", "Large"]].forEach(function (pair) {
+      sizeSeg.appendChild(el("button", {
+        text: pair[1], "aria-pressed": state.size === pair[0] ? "true" : "false",
+        title: "About " + CFG.sizes[pair[0]] + " words",
+        onclick: function () { state.size = pair[0]; state.seed = null; newPuzzle(); }
+      }));
+    });
+    toolbar.appendChild(sizeSeg);
+
+    // clue-language toggle only when the project has more than one analysis WS to choose between
+    if (state.analysisWs.length > 1) {
+      var langSeg = el("div", { class: "seg" });
+      state.analysisWs.forEach(function (w) {
+        langSeg.appendChild(el("button", {
+          text: w.abbreviation || w.name || w.id,
+          "aria-pressed": state.clueLang === w.id ? "true" : "false",
+          title: "Clues in " + (w.name || w.id),
+          onclick: function () {
+            state.clueLang = w.id;
+            state.cluePref = cluePrefFor(w.id);
+            render(); // reuse same grid, just relabel clues
+          }
+        }));
+      });
+      toolbar.appendChild(langSeg);
+    }
+
+    toolbar.appendChild(el("button", { class: "primary", text: "New puzzle",
+      onclick: function () { state.seed = null; newPuzzle(); } }));
+    toolbar.appendChild(el("button", { text: "Check", onclick: checkAll }));
+    toolbar.appendChild(el("button", { text: "Reveal", onclick: revealAll }));
+    toolbar.appendChild(el("button", { text: "Clear", onclick: clearAll }));
+    app.appendChild(toolbar);
+
+    // ----- layout: board + clues -----
+    var layout = el("div", { class: "layout" });
+
+    var boardWrap = el("div", { class: "board-wrap" });
+    var board = el("div", { class: "board" });
+    board.style.gridTemplateColumns = "repeat(" + puzzle.cols + ", var(--cell))";
+    board.style.gridTemplateRows = "repeat(" + puzzle.rows + ", var(--cell))";
+
+    // determine which (r,c) are "on", their answer letter, and cell->words map
+    var onCells = {}; // "r,c" -> {letter, across, down}
+    puzzle.placed.forEach(function (p) {
+      for (var i = 0; i < p.answer.length; i++) {
+        var rr = p.dir === "D" ? p.r + i : p.r;
+        var cc = p.dir === "A" ? p.c + i : p.c;
+        var k = rr + "," + cc;
+        onCells[k] = onCells[k] || { r: rr, c: cc, letter: p.answer[i] };
+        onCells[k][p.dir === "A" ? "across" : "down"] = p;
+      }
+    });
+    state.onCells = onCells;
+
+    // number labels
+    var numAt = {};
+    state.clues.forEach(function (p) { numAt[p.r + "," + p.c] = p.num; });
+
+    for (var r = 0; r < puzzle.rows; r++) {
+      for (var c = 0; c < puzzle.cols; c++) {
+        var k = r + "," + c;
+        var cell = el("div", { class: "cell" });
+        if (onCells[k]) {
+          cell.className = "cell on";
+          if (numAt[k]) cell.appendChild(el("span", { class: "num", text: String(numAt[k]) }));
+          var input = el("input", {
+            type: "text", maxlength: "1", autocomplete: "off", autocapitalize: "characters",
+            spellcheck: "false", "aria-label": "cell", "data-k": k
+          });
+          bindCell(input, r, c);
+          cell.appendChild(input);
+          state.cellEls[k] = { cell: cell, input: input };
+        }
+        board.appendChild(cell);
+      }
+    }
+    boardWrap.appendChild(board);
+    layout.appendChild(boardWrap);
+
+    // ----- clue lists -----
+    var clues = el("div", { class: "clues" });
+    clues.appendChild(buildClueGroup("Across", "across"));
+    clues.appendChild(buildClueGroup("Down", "down"));
+    layout.appendChild(clues);
+
+    app.appendChild(layout);
+
+    var status = el("div", { class: "status", id: "status" });
+    app.appendChild(status);
+
+    // restore any typed letters (on language toggle / re-render)
+    if (state.entries) {
+      Object.keys(state.entries).forEach(function (k) {
+        if (state.cellEls[k]) state.cellEls[k].input.value = state.entries[k];
+      });
+    } else {
+      state.entries = {};
+    }
+
+    // focus first clue
+    if (state.clues.length) setActive(orderedClues()[0], 0);
+  }
+
+  function buildClueGroup(title, dir) {
+    var group = el("div", { class: "clue-group" });
+    group.appendChild(el("h2", { text: title }));
+    var list = el("ol", { class: "clue-list" });
+    orderedClues().filter(function (p) { return p.dir2 === dir; }).forEach(function (p) {
+      var li = el("li", { "data-clue": p.num + p.dir2 });
+      li.appendChild(el("span", { class: "cnum", text: p.num }));
+      var txt = el("span", { class: "ctext" });
+      txt.appendChild(document.createTextNode(clueText(p.word)));
+      txt.appendChild(el("span", { class: "len", text: " (" + p.answer.length + ")" }));
+      li.appendChild(txt);
+      var open = el("button", { class: "open-entry", text: "↗", title: "Open this entry in the app" });
+      open.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        if (p.word.entryId) fwlite.openEntry(p.word.entryId).catch(function () {});
+      });
+      li.appendChild(open);
+      li.addEventListener("click", function () {
+        setActive(p, 0);
+        var fk = p.r + "," + p.c;
+        if (state.cellEls[fk]) state.cellEls[fk].input.focus();
+      });
+      p._li = li;
+      list.appendChild(li);
+    });
+    group.appendChild(list);
+    return group;
+  }
+
+  function orderedClues() {
+    return state.clues.slice().sort(function (a, b) {
+      return a.num - b.num || (a.dir2 === "across" ? -1 : 1);
+    });
+  }
+
+  // ---------- interaction ----------
+  function cellWords(r, c) {
+    var o = state.onCells[r + "," + c] || {};
+    return { across: o.across, down: o.down };
+  }
+
+  function bindCell(input, r, c) {
+    input.addEventListener("focus", function () {
+      var w = cellWords(r, c);
+      var word = (state.activeDir === "down" && w.down) ? w.down :
+                 (state.activeDir === "across" && w.across) ? w.across :
+                 (w.across || w.down);
+      setActive(word, indexInWord(word, r, c));
+    });
+    input.addEventListener("input", function () {
+      var v = input.value;
+      // keep last character, uppercase
+      v = v.slice(-1);
+      input.value = v ? v.toUpperCase() : "";
+      state.entries[r + "," + c] = input.value;
+      clearMark(r, c);
+      if (input.value) moveNext(r, c, +1);
+      checkComplete();
+    });
+    input.addEventListener("keydown", function (ev) {
+      var key = ev.key;
+      if (key === "Backspace") {
+        if (!input.value) { ev.preventDefault(); moveNext(r, c, -1, true); }
+        else { state.entries[r + "," + c] = ""; clearMark(r, c); }
+      } else if (key === "ArrowRight") { ev.preventDefault(); focusCell(r, c + 1); }
+      else if (key === "ArrowLeft") { ev.preventDefault(); focusCell(r, c - 1); }
+      else if (key === "ArrowDown") { ev.preventDefault(); focusCell(r + 1, c); }
+      else if (key === "ArrowUp") { ev.preventDefault(); focusCell(r - 1, c); }
+      else if (key === " ") {
+        ev.preventDefault(); // toggle direction
+        var w = cellWords(r, c);
+        if (w.across && w.down) {
+          state.activeDir = state.activeDir === "across" ? "down" : "across";
+          setActive(state.activeDir === "across" ? w.across : w.down, indexInWord(state.activeDir === "across" ? w.across : w.down, r, c));
+        }
+      } else if (key === "Tab") {
+        ev.preventDefault();
+        gotoAdjacentClue(ev.shiftKey ? -1 : 1);
+      }
+    });
+  }
+
+  function indexInWord(word, r, c) {
+    if (!word) return 0;
+    return word.dir === "A" ? c - word.c : r - word.r;
+  }
+
+  function focusCell(r, c) {
+    var e = state.cellEls[r + "," + c];
+    if (e) e.input.focus();
+  }
+
+  function moveNext(r, c, delta, isBack) {
+    var word = state.activeWord;
+    if (!word) return;
+    var idx = indexInWord(word, r, c) + delta;
+    if (idx < 0 || idx >= word.answer.length) return;
+    var nr = word.dir === "D" ? word.r + idx : word.r;
+    var nc = word.dir === "A" ? word.c + idx : word.c;
+    focusCell(nr, nc);
+    if (isBack) {
+      var e = state.cellEls[nr + "," + nc];
+      if (e) { e.input.value = ""; state.entries[nr + "," + nc] = ""; clearMark(nr, nc); }
+    }
+  }
+
+  function setActive(word, idx) {
+    if (!word) return;
+    state.activeWord = word;
+    state.activeDir = word.dir === "A" ? "across" : "down";
+    // clear highlights
+    Object.keys(state.cellEls).forEach(function (k) {
+      state.cellEls[k].cell.classList.remove("active-word", "active-cell");
+    });
+    state.clues.forEach(function (p) { if (p._li) p._li.classList.remove("active"); });
+    // highlight word cells
+    for (var i = 0; i < word.answer.length; i++) {
+      var rr = word.dir === "D" ? word.r + i : word.r;
+      var cc = word.dir === "A" ? word.c + i : word.c;
+      var e = state.cellEls[rr + "," + cc];
+      if (e) e.cell.classList.add("active-word");
+    }
+    if (word._li) {
+      word._li.classList.add("active");
+      word._li.scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  function gotoAdjacentClue(delta) {
+    var list = orderedClues();
+    var i = list.indexOf(state.activeWord);
+    var ni = (i + delta + list.length) % list.length;
+    var w = list[ni];
+    setActive(w, 0);
+    focusCell(w.r, w.c);
+  }
+
+  function clearMark(r, c) {
+    var e = state.cellEls[r + "," + c];
+    if (e) e.cell.classList.remove("wrong", "correct");
+  }
+
+  // ---------- check / reveal / clear ----------
+  function statusEl() { return document.getElementById("status"); }
+  function setStatus(msg, cls) {
+    var s = statusEl(); if (!s) return;
+    s.textContent = msg; s.className = "status " + (cls || "");
+  }
+
+  function checkAll() {
+    var wrong = 0, filled = 0, total = 0;
+    Object.keys(state.onCells).forEach(function (k) {
+      var e = state.cellEls[k]; if (!e) return;
+      total++;
+      var have = (state.entries[k] || "").toUpperCase();
+      e.cell.classList.remove("wrong", "correct");
+      if (have) {
+        filled++;
+        if (have === state.onCells[k].letter) e.cell.classList.add("correct");
+        else { e.cell.classList.add("wrong"); wrong++; }
+      }
+    });
+    if (filled === 0) setStatus("Nothing to check yet — start filling in the grid.", "");
+    else if (wrong === 0 && filled === total) setStatus("All correct — puzzle solved! 🎉", "good");
+    else if (wrong === 0) setStatus("So far so good — " + (total - filled) + " squares left.", "good");
+    else setStatus(wrong + " square" + (wrong > 1 ? "s" : "") + " look wrong (shown in red).", "bad");
+  }
+
+  function revealAll() {
+    if (!confirm("Reveal all answers? This fills in the whole grid.")) return;
+    Object.keys(state.onCells).forEach(function (k) {
+      var e = state.cellEls[k]; if (!e) return;
+      e.input.value = state.onCells[k].letter;
+      state.entries[k] = state.onCells[k].letter;
+      e.cell.classList.remove("wrong"); e.cell.classList.add("correct");
+    });
+    markDoneClues();
+    setStatus("Answers revealed.", "");
+  }
+
+  function clearAll() {
+    Object.keys(state.cellEls).forEach(function (k) {
+      state.cellEls[k].input.value = "";
+      state.entries[k] = "";
+      state.cellEls[k].cell.classList.remove("wrong", "correct");
+    });
+    state.clues.forEach(function (p) { if (p._li) p._li.classList.remove("done"); });
+    setStatus("", "");
+  }
+
+  function wordFilledCorrectly(w) {
+    for (var i = 0; i < w.answer.length; i++) {
+      var rr = w.dir === "D" ? w.r + i : w.r;
+      var cc = w.dir === "A" ? w.c + i : w.c;
+      if ((state.entries[rr + "," + cc] || "").toUpperCase() !== w.answer[i]) return false;
+    }
+    return true;
+  }
+
+  function markDoneClues() {
+    state.clues.forEach(function (p) {
+      if (p._li) p._li.classList.toggle("done", wordFilledCorrectly(p));
+    });
+  }
+
+  function checkComplete() {
+    markDoneClues();
+    var all = true;
+    for (var k in state.onCells) {
+      if ((state.entries[k] || "").toUpperCase() !== state.onCells[k].letter) { all = false; break; }
+    }
+    if (all && !state._won) {
+      state._won = true;
+      setStatus("Solved! 🎉", "good");
+      fwlite.notify("Crossword solved — nicely done!").catch(function () {});
+    } else if (!all) {
+      state._won = false;
+    }
+  }
+})();
+</script>
+</body>
+</html>

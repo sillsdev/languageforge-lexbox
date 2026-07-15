@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fwlite-plugin-permissions" content="edit">
+<title>Character Inspector</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --warn: #b45309;
+    --warn-soft: #fef3e0;
+    --warn-border: #f0c27a;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+    --vern-font: inherit;
+    --mono: ui-monospace, "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --warn: #fbbf24;
+    --warn-soft: #3a2f12;
+    --warn-border: #6b5320;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 12px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 20px; font-size: 0.92rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+  section { margin-bottom: 6px; }
+
+  /* --- Controls --- */
+  .controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+  .ctrl { display: flex; flex-direction: column; gap: 6px; }
+  .ctrl.grow { flex: 1; min-width: 180px; }
+  label.fld { font-size: 0.82rem; color: var(--text-muted); }
+  select {
+    font-size: 0.95rem; padding: 9px 12px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--surface-alt);
+    color: var(--text); font-family: inherit; width: 100%;
+  }
+  select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .checkline { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; padding-bottom: 9px; }
+  .checkline input { width: auto; }
+
+  /* --- Totals --- */
+  .totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .stat-card .label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-card .value { font-size: 2rem; font-weight: 700; line-height: 1; }
+  .cap-note {
+    display: inline-block; margin-top: 10px; font-size: 0.78rem; color: var(--warn);
+    background: var(--warn-soft); padding: 3px 10px; border-radius: 999px;
+  }
+
+  /* --- Flag cards --- */
+  .flag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .flag-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; text-align: left; cursor: pointer; font-family: inherit;
+    color: var(--text); transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .flag-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .flag-card.has { border-color: var(--warn-border); background: var(--warn-soft); }
+  .flag-card.has:hover { border-color: var(--warn); }
+  .flag-card.active { border-color: var(--warn); box-shadow: 0 0 0 3px var(--warn-soft); }
+  .flag-card.zero { cursor: default; opacity: 0.85; }
+  .flag-card .fc-count { font-size: 1.7rem; font-weight: 700; line-height: 1; }
+  .flag-card.has .fc-count { color: var(--warn); }
+  .flag-card.zero .fc-count { color: var(--good); }
+  .flag-card .fc-title { font-weight: 600; font-size: 0.9rem; margin: 6px 0 2px; }
+  .flag-card .fc-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.35; }
+  .flag-card.disabled { cursor: default; opacity: 0.7; }
+
+  .all-clean {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--good-soft); border: 1px solid var(--good);
+    border-radius: 12px; padding: 16px 18px; margin-bottom: 14px;
+  }
+  .all-clean .big { font-size: 1.8rem; }
+  .all-clean .msg { font-weight: 600; }
+  .all-clean .sub { font-size: 0.85rem; color: var(--text-muted); }
+
+  /* --- Detail list --- */
+  .detail { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; }
+  .detail-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .detail-head h3 { margin: 0; font-size: 0.98rem; }
+  .list { display: flex; flex-direction: column; gap: 8px; max-height: 460px; overflow-y: auto; }
+  .item { background: var(--surface-alt); border-radius: 10px; padding: 11px 13px; }
+  .item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .item .hw { font-weight: 700; font-family: var(--vern-font); word-break: break-word; }
+  .field-chip {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em;
+    color: var(--text-muted); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 1px 7px; margin-right: 6px;
+  }
+  .ctx { font-family: var(--vern-font); font-size: 1rem; word-break: break-word; margin: 6px 0; line-height: 1.5; }
+  .ctx .tok { font-family: var(--mono); font-size: 0.82em; color: var(--text-muted); background: var(--surface); border-radius: 3px; padding: 0 2px; }
+  .ctx .tok.bad, .ctx mark.hl { background: var(--warn-soft); color: var(--warn); border-radius: 3px; padding: 0 2px; }
+  .ctx mark.hl { font-weight: 700; }
+  .ctx .arrow { color: var(--text-muted); margin: 0 6px; font-family: system-ui; }
+  .ctx .after { color: var(--text); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 0.76rem;
+    background: var(--surface); border: 1px solid var(--warn-border); border-radius: 999px; padding: 2px 9px;
+  }
+  .chip .g { font-family: var(--vern-font); font-weight: 700; }
+  .chip .cp { font-family: var(--mono); color: var(--text-muted); }
+  .chip .nm { color: var(--text-muted); }
+  .item-actions { display: flex; gap: 8px; margin-top: 9px; flex-wrap: wrap; align-items: center; }
+  .item-status { font-size: 0.8rem; }
+  .item-status.declined { color: var(--warn); }
+  .item-status.error { color: var(--warn); }
+
+  .btn { border: none; padding: 7px 14px; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover:not(:disabled) { background: var(--border); }
+
+  /* --- Inventory --- */
+  .inv-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 14px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border); display: inline-block; }
+  .swatch.expected { background: var(--surface-alt); }
+  .swatch.unexpected { background: var(--warn-soft); border-color: var(--warn-border); }
+  .swatch.invisible { background: var(--surface-alt); border-style: dashed; }
+
+  .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+  .tile {
+    background: var(--surface-alt); border: 1px solid var(--border); border-radius: 10px;
+    padding: 9px 6px 8px; text-align: center; position: relative; overflow: hidden;
+  }
+  .tile.unexpected { border-color: var(--warn-border); background: var(--warn-soft); }
+  .tile.invisible { border-style: dashed; }
+  .tile .glyph { font-size: 1.7rem; line-height: 1.15; font-family: var(--vern-font); min-height: 1.9rem; word-break: break-all; }
+  .tile .glyph.token { font-family: var(--mono); font-size: 1.1rem; color: var(--text-muted); }
+  .tile .cp { font-size: 0.6rem; color: var(--text-muted); font-family: var(--mono); margin-top: 3px; letter-spacing: 0.02em; }
+  .tile .count { font-size: 0.82rem; font-weight: 700; margin-top: 3px; }
+  .tile .mini { height: 4px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+  .tile .mini > i { display: block; height: 100%; background: var(--accent); }
+  .tile.unexpected .mini > i { background: var(--warn); }
+  .tile .flag-dot { position: absolute; top: 5px; right: 6px; font-size: 0.7rem; color: var(--warn); font-weight: 700; }
+
+  .muted-note { font-size: 0.85rem; color: var(--text-muted); }
+  .note {
+    font-size: 0.85rem; padding: 9px 12px; border-radius: 8px; margin-top: 12px;
+    background: var(--accent-soft); color: var(--accent);
+  }
+
+  /* --- States --- */
+  .center-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 34px; height: 34px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    margin: 0 auto 16px; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text); padding: 14px 18px; border-radius: var(--radius);
+  }
+  #app { display: none; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Character Inspector</h1>
+  <p class="subtitle" id="subtitle">Examining the characters used in this project&rsquo;s words&hellip;</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading project&hellip;</div>
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="app">
+    <div class="card">
+      <div class="controls">
+        <div class="ctrl grow">
+          <label class="fld" for="ws-select">Writing system to inspect</label>
+          <select id="ws-select"></select>
+        </div>
+        <div class="ctrl">
+          <label class="fld" for="sort-select">Sort characters by</label>
+          <select id="sort-select">
+            <option value="freq">Frequency</option>
+            <option value="code">Code point</option>
+          </select>
+        </div>
+        <label class="checkline"><input type="checkbox" id="include-examples"> Also scan example sentences</label>
+      </div>
+    </div>
+
+    <div id="results">
+      <div id="results-loading" class="center-state">
+        <div class="spinner"></div>
+        <div id="scan-text">Scanning entries&hellip;</div>
+      </div>
+      <div id="results-content" hidden>
+        <div class="totals" id="totals"></div>
+        <div id="cap-wrap"></div>
+
+        <section>
+          <div class="card">
+            <h2>Needs attention</h2>
+            <div id="all-clean-wrap"></div>
+            <div class="flag-grid" id="flag-grid"></div>
+            <div id="detail"></div>
+          </div>
+        </section>
+
+        <section>
+          <div class="card">
+            <div class="inv-head">
+              <h2>Character inventory</h2>
+              <span class="muted-note" id="inv-summary"></span>
+            </div>
+            <div class="legend">
+              <span><i class="swatch expected"></i> In the alphabet / neutral</span>
+              <span><i class="swatch unexpected"></i> Not in the alphabet</span>
+              <span><i class="swatch invisible"></i> Invisible / space</span>
+            </div>
+            <div id="exemplar-note"></div>
+            <div class="inv-grid" id="inv-grid"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE = 1000, CAP = 5000, STORAGE_KEY = 'char-inspector';
+  var fwlite = window.fwlite;
+
+  // Regex for Unicode property escapes (ES2018). Script= escapes built via RegExp so an
+  // engine lacking them degrades gracefully instead of failing to parse the whole script.
+  var RE_LETTERISH = /[\p{L}\p{M}\p{N}]/u;
+  var RE_MARK = /\p{M}/u;
+  var RE_ZS = /\p{Zs}/u, RE_CF = /\p{Cf}/u, RE_ZL = /\p{Zl}/u, RE_ZP = /\p{Zp}/u;
+  var SCRIPT_RE = {};
+  try {
+    SCRIPT_RE.Latin = new RegExp('\\p{Script=Latin}', 'u');
+    SCRIPT_RE.Cyrillic = new RegExp('\\p{Script=Cyrillic}', 'u');
+    SCRIPT_RE.Greek = new RegExp('\\p{Script=Greek}', 'u');
+  } catch (e) { SCRIPT_RE = null; }
+  var scriptSupported = !!SCRIPT_RE;
+
+  var NAMED = {
+    0x00A0: 'No-break space', 0x202F: 'Narrow no-break space', 0x2007: 'Figure space',
+    0x2009: 'Thin space', 0x2008: 'Punctuation space', 0x2002: 'En space', 0x2003: 'Em space',
+    0x3000: 'Ideographic space', 0x1680: 'Ogham space mark', 0x205F: 'Medium mathematical space',
+    0x200B: 'Zero-width space', 0x200C: 'Zero-width non-joiner', 0x200D: 'Zero-width joiner',
+    0x2060: 'Word joiner', 0xFEFF: 'Zero-width no-break space (BOM)', 0x00AD: 'Soft hyphen',
+    0x180E: 'Mongolian vowel separator', 0x200E: 'Left-to-right mark', 0x200F: 'Right-to-left mark',
+    0x2028: 'Line separator', 0x2029: 'Paragraph separator'
+  };
+
+  var FLAG_META = [
+    {key: 'exemplar', title: 'Not in the alphabet', desc: 'Letters or marks outside this writing system’s expected characters.'},
+    {key: 'whitespace', title: 'Whitespace problems', desc: 'Leading/trailing spaces, repeated spaces, tabs or line breaks in headwords.'},
+    {key: 'invisible', title: 'Invisible characters', desc: 'Zero-width, control, or non-standard space characters you can’t see.'},
+    {key: 'script', title: 'Mixed scripts', desc: 'A headword mixing Latin with look-alike Cyrillic or Greek letters.'}
+  ];
+
+  var state = {
+    vernacular: [],          // [{wsId, name, font, exemplars}]
+    ws: null,
+    includeExamples: false,
+    sort: 'freq',
+    exemplars: [],
+    expectedSet: null,       // Set<char> or null when no exemplars defined
+    charMap: null,           // Map<char, {ch, cp, count}>
+    totalChars: 0,
+    scanned: 0,
+    capped: false,
+    issues: null,            // {exemplar:Map, whitespace:Map, invisible:Map, script:Map}
+    activeFlag: null,
+    scanToken: 0,
+    cleaning: false
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function hex(cp) { return 'U+' + cp.toString(16).toUpperCase().padStart(4, '0'); }
+
+  function applyTheme(theme) {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (dark ? 'dark' : 'light'));
+  }
+  function showError(msg) {
+    $('loading').style.display = 'none';
+    var b = $('error'); b.style.display = 'block'; b.textContent = msg;
+  }
+  function applyVernFont() {
+    var ws = state.vernacular.find(function (w) { return w.wsId === state.ws; });
+    var font = ws && ws.font ? '"' + ws.font + '", ' : '';
+    document.documentElement.style.setProperty('--vern-font', font + 'inherit');
+  }
+
+  // --- Character classification ------------------------------------------------
+  function isLetterish(ch) { return RE_LETTERISH.test(ch); }
+
+  // Returns display info for an invisible / irregular character, or null for a
+  // normal printable one. ASCII whitespace is handled by the whitespace check, not here.
+  function invisibleInfo(cp) {
+    if (cp === 0x20 || cp === 0x09 || cp === 0x0a || cp === 0x0d) return null;
+    var name = NAMED[cp];
+    if (cp < 0x20 || (cp >= 0x7f && cp <= 0x9f)) return {symbol: '␀', name: name || ('Control character ' + hex(cp))};
+    var ch = String.fromCodePoint(cp);
+    if (RE_ZS.test(ch)) return {symbol: '␣', name: name || ('Space separator ' + hex(cp))};
+    if (RE_CF.test(ch)) return {symbol: '∅', name: name || ('Format character ' + hex(cp))};
+    if (RE_ZL.test(ch) || RE_ZP.test(ch)) return {symbol: '↵', name: name || ('Line separator ' + hex(cp))};
+    return null;
+  }
+
+  // Visible token for a whitespace/invisible char, so it never renders blank. null = show as-is.
+  function visToken(cp) {
+    if (cp === 0x20) return '␣';       // ␣
+    if (cp === 0x09) return '⇥';       // ⇥
+    if (cp === 0x0a || cp === 0x0d) return '↵'; // ↵
+    var info = invisibleInfo(cp);
+    return info ? info.symbol : null;
+  }
+
+  function scriptOf(ch) {
+    if (!scriptSupported) return null;
+    if (SCRIPT_RE.Latin.test(ch)) return 'Latin';
+    if (SCRIPT_RE.Cyrillic.test(ch)) return 'Cyrillic';
+    if (SCRIPT_RE.Greek.test(ch)) return 'Greek';
+    return null;
+  }
+
+  // --- Whitespace normalization (the only auto-fixable issue) ------------------
+  // Collapses runs of ASCII whitespace to a single space and trims ends. Leaves
+  // NBSP / zero-width / other invisibles untouched — those need human judgement.
+  function cleanWhitespace(t) {
+    return t.replace(/[\t\n\r\f\v ]+/g, ' ').replace(/^ +| +$/g, '');
+  }
+  var RE_ASCII_WS = /[\t\n\r\f\v ]/;
+
+  // Marks which ASCII-whitespace positions the clean would remove/alter.
+  function wsMarks(text) {
+    var chars = Array.from(text), n = chars.length, marks = new Array(n).fill(false), i;
+    function ws(k) { return k >= 0 && k < n && RE_ASCII_WS.test(chars[k]); }
+    for (i = 0; i < n; i++) {
+      if (!RE_ASCII_WS.test(chars[i])) continue;
+      var leading = true, trailing = true, a;
+      for (a = 0; a < i; a++) { if (!RE_ASCII_WS.test(chars[a])) { leading = false; break; } }
+      for (a = i + 1; a < n; a++) { if (!RE_ASCII_WS.test(chars[a])) { trailing = false; break; } }
+      if (leading || trailing) { marks[i] = true; continue; }
+      if (chars[i] !== ' ' || ws(i - 1) || ws(i + 1)) marks[i] = true;
+    }
+    return {chars: chars, marks: marks};
+  }
+
+  // --- Escaping helper ---------------------------------------------------------
+  function textNode(v) { return document.createTextNode(v == null ? '' : String(v)); }
+
+  // --- Scan --------------------------------------------------------------------
+  function newIssues() { return {exemplar: new Map(), whitespace: new Map(), invisible: new Map(), script: new Map()}; }
+
+  function addIssue(cat, entryId, headword, field) {
+    var m = state.issues[cat], it = m.get(entryId);
+    if (!it) { it = {entryId: entryId, headword: headword, fields: []}; m.set(entryId, it); }
+    it.fields.push(field);
+  }
+
+  function headwordOf(entry) {
+    var cf = entry.citationForm && entry.citationForm[state.ws];
+    var lf = entry.lexemeForm && entry.lexemeForm[state.ws];
+    if (cf) return cf;
+    if (lf) return lf;
+    var wsIds = state.vernacular.map(function (w) { return w.wsId; });
+    return fwlite.firstValue(entry.citationForm || {}, wsIds) || fwlite.firstValue(entry.lexemeForm || {}, wsIds) || '(no headword)';
+  }
+
+  function uniqChars(arr) {
+    var seen = {}, out = [];
+    arr.forEach(function (c) { if (!seen[c]) { seen[c] = true; out.push(c); } });
+    return out;
+  }
+
+  // Scans one text value, updating the inventory and issue buckets.
+  function scanText(entryId, headword, fieldKey, fieldLabel, isMono, text) {
+    if (!text) return;
+    var chars = Array.from(text);
+
+    chars.forEach(function (ch) {
+      var cp = ch.codePointAt(0);
+      var rec = state.charMap.get(ch);
+      if (!rec) { rec = {ch: ch, cp: cp, count: 0}; state.charMap.set(ch, rec); }
+      rec.count++;
+      state.totalChars++;
+    });
+
+    if (state.expectedSet) {
+      var bad = [];
+      chars.forEach(function (ch) { if (!state.expectedSet.has(ch) && isLetterish(ch)) bad.push(ch); });
+      if (bad.length) addIssue('exemplar', entryId, headword, {key: fieldKey, label: fieldLabel, text: text, chars: uniqChars(bad)});
+    }
+
+    var inv = [];
+    chars.forEach(function (ch) {
+      var info = invisibleInfo(ch.codePointAt(0));
+      if (info) inv.push({ch: ch, cp: ch.codePointAt(0), name: info.name});
+    });
+    if (inv.length) addIssue('invisible', entryId, headword, {key: fieldKey, label: fieldLabel, text: text, chars: inv});
+
+    if (scriptSupported) {
+      var found = {};
+      chars.forEach(function (ch) { var s = scriptOf(ch); if (s) found[s] = true; });
+      var scripts = Object.keys(found);
+      if (scripts.length >= 2) addIssue('script', entryId, headword, {key: fieldKey, label: fieldLabel, text: text, scripts: scripts});
+    }
+
+    if (isMono) {
+      var cleaned = cleanWhitespace(text);
+      if (cleaned !== text) addIssue('whitespace', entryId, headword, {key: fieldKey, label: fieldLabel, text: text, cleaned: cleaned});
+    }
+  }
+
+  function scanEntry(entry) {
+    var headword = headwordOf(entry);
+    var cf = entry.citationForm && entry.citationForm[state.ws];
+    var lf = entry.lexemeForm && entry.lexemeForm[state.ws];
+    scanText(entry.id, headword, 'citationForm', 'Citation form', true, cf);
+    scanText(entry.id, headword, 'lexemeForm', 'Lexeme form', true, lf);
+    if (state.includeExamples && entry.senses) {
+      entry.senses.forEach(function (sense) {
+        (sense.exampleSentences || []).forEach(function (ex) {
+          var t = fwlite.asText(ex.sentence);
+          // Only the chosen WS's slice of the rich string is relevant.
+          if (ex.sentence && ex.sentence.spans) {
+            t = ex.sentence.spans.filter(function (s) { return s.ws === state.ws; })
+              .map(function (s) { return s.text; }).join('');
+          }
+          scanText(entry.id, headword, null, 'Example', false, t);
+        });
+      });
+    }
+  }
+
+  function runScan() {
+    var token = ++state.scanToken;
+    state.charMap = new Map();
+    state.totalChars = 0;
+    state.scanned = 0;
+    state.capped = false;
+    state.issues = newIssues();
+    state.activeFlag = null;
+
+    var wsMeta = state.vernacular.find(function (w) { return w.wsId === state.ws; });
+    state.exemplars = (wsMeta && wsMeta.exemplars) || [];
+    if (state.exemplars.length) {
+      var set = new Set();
+      state.exemplars.forEach(function (ex) {
+        Array.from(ex).forEach(function (c) { set.add(c); set.add(c.toUpperCase()); set.add(c.toLowerCase()); });
+      });
+      state.expectedSet = set;
+    } else {
+      state.expectedSet = null;
+    }
+
+    $('results-content').hidden = true;
+    $('results-loading').hidden = false;
+    $('scan-text').textContent = 'Scanning entries…';
+
+    fwlite.countEntries({}).then(function (total) {
+      if (token !== state.scanToken) return;
+      if (total === 0) { showEmpty(); return; }
+      var offset = 0;
+      function loadPage() {
+        return fwlite.getEntries({limit: PAGE, offset: offset}).then(function (page) {
+          if (token !== state.scanToken) return;
+          page.forEach(scanEntry);
+          offset += page.length;
+          state.scanned = offset;
+          $('scan-text').textContent = 'Scanned ' + offset.toLocaleString() + ' of ' +
+            Math.min(total, CAP).toLocaleString() + ' entries…';
+          if (page.length < PAGE) return;
+          if (offset >= CAP) { state.capped = true; return; }
+          return loadPage();
+        });
+      }
+      return loadPage().then(function () {
+        if (token !== state.scanToken) return;
+        renderResults();
+      });
+    }).catch(function (err) {
+      if (token !== state.scanToken) return;
+      $('results-loading').hidden = true;
+      $('results-content').hidden = false;
+      $('totals').innerHTML = '';
+      $('detail').innerHTML = '';
+      var box = document.createElement('div');
+      box.className = 'error-box';
+      box.textContent = 'Could not scan entries: ' + (err && err.message ? err.message : String(err));
+      $('cap-wrap').innerHTML = '';
+      $('cap-wrap').appendChild(box);
+    });
+  }
+
+  function showEmpty() {
+    $('results-loading').hidden = true;
+    $('results-content').hidden = false;
+    $('totals').innerHTML = '';
+    $('cap-wrap').innerHTML = '';
+    $('flag-grid').innerHTML = '';
+    $('all-clean-wrap').innerHTML = '';
+    $('detail').innerHTML = '';
+    $('inv-grid').innerHTML = '';
+    $('inv-summary').textContent = '';
+    $('exemplar-note').innerHTML = '';
+    var msg = document.createElement('div');
+    msg.className = 'center-state';
+    msg.textContent = 'This project has no entries yet, so there are no characters to inspect.';
+    $('totals').appendChild(msg);
+  }
+
+  // --- Render ------------------------------------------------------------------
+  function renderResults() {
+    $('results-loading').hidden = true;
+    $('results-content').hidden = false;
+    var wsMeta = state.vernacular.find(function (w) { return w.wsId === state.ws; });
+    $('subtitle').textContent = 'Characters in ' + (wsMeta ? wsMeta.name : state.ws) +
+      ' · scanned ' + state.scanned.toLocaleString() + ' ' + (state.scanned === 1 ? 'entry' : 'entries') + '.';
+    renderTotals();
+    renderFlags();
+    renderInventory();
+  }
+
+  function renderTotals() {
+    var distinct = state.charMap.size;
+    var cards = [
+      {label: 'Distinct characters', value: distinct.toLocaleString()},
+      {label: 'Total characters', value: state.totalChars.toLocaleString()},
+      {label: 'Entries scanned', value: state.scanned.toLocaleString()}
+    ];
+    var host = $('totals');
+    host.innerHTML = '';
+    cards.forEach(function (c) {
+      var card = document.createElement('div');
+      card.className = 'card stat-card';
+      var l = document.createElement('div'); l.className = 'label'; l.textContent = c.label;
+      var v = document.createElement('div'); v.className = 'value'; v.textContent = c.value;
+      card.appendChild(l); card.appendChild(v);
+      host.appendChild(card);
+    });
+
+    var capWrap = $('cap-wrap');
+    capWrap.innerHTML = '';
+    if (state.capped) {
+      var note = document.createElement('span');
+      note.className = 'cap-note';
+      note.textContent = 'Stopped after the first ' + CAP.toLocaleString() + ' entries.';
+      capWrap.appendChild(note);
+    }
+  }
+
+  function flagCount(key) { return state.issues[key].size; }
+
+  function renderFlags() {
+    var grid = $('flag-grid');
+    grid.innerHTML = '';
+    var totalIssues = 0;
+    FLAG_META.forEach(function (m) { totalIssues += flagCount(m.key); });
+
+    var cleanWrap = $('all-clean-wrap');
+    cleanWrap.innerHTML = '';
+    if (totalIssues === 0) {
+      var banner = document.createElement('div');
+      banner.className = 'all-clean';
+      var big = document.createElement('div'); big.className = 'big'; big.textContent = '✓';
+      var txt = document.createElement('div');
+      var msg = document.createElement('div'); msg.className = 'msg'; msg.textContent = 'No problems found';
+      var sub = document.createElement('div'); sub.className = 'sub';
+      sub.textContent = 'Every character is in the alphabet, with no stray whitespace, invisible, or mixed-script characters.';
+      txt.appendChild(msg); txt.appendChild(sub);
+      banner.appendChild(big); banner.appendChild(txt);
+      cleanWrap.appendChild(banner);
+    }
+
+    FLAG_META.forEach(function (m) {
+      var count = flagCount(m.key);
+      var disabled = (m.key === 'exemplar' && !state.expectedSet) || (m.key === 'script' && !scriptSupported);
+      var card = document.createElement(disabled || count === 0 ? 'div' : 'button');
+      card.className = 'flag-card';
+      if (disabled) card.className += ' disabled';
+      else if (count === 0) card.className += ' zero';
+      else card.className += ' has';
+      if (state.activeFlag === m.key) card.className += ' active';
+
+      var countEl = document.createElement('div');
+      countEl.className = 'fc-count';
+      countEl.textContent = disabled ? '—' : (count === 0 ? '✓' : count.toLocaleString());
+      var titleEl = document.createElement('div'); titleEl.className = 'fc-title'; titleEl.textContent = m.title;
+      var descEl = document.createElement('div'); descEl.className = 'fc-desc';
+      if (disabled && m.key === 'exemplar') descEl.textContent = 'No alphabet (exemplars) is defined for this writing system, so this check is skipped.';
+      else if (disabled && m.key === 'script') descEl.textContent = 'Script detection is unavailable in this browser.';
+      else descEl.textContent = m.desc;
+
+      card.appendChild(countEl); card.appendChild(titleEl); card.appendChild(descEl);
+      if (!disabled && count > 0) {
+        card.addEventListener('click', function () {
+          state.activeFlag = state.activeFlag === m.key ? null : m.key;
+          renderFlags();
+          renderDetail();
+        });
+      }
+      grid.appendChild(card);
+    });
+
+    renderDetail();
+  }
+
+  function fieldChips(fields) {
+    var wrap = document.createElement('span');
+    var seen = {};
+    fields.forEach(function (f) {
+      if (seen[f.label]) return; seen[f.label] = true;
+      var c = document.createElement('span'); c.className = 'field-chip'; c.textContent = f.label;
+      wrap.appendChild(c);
+    });
+    return wrap;
+  }
+
+  // Renders text into `parent`, showing invisibles as tokens and marking flagged chars.
+  function renderContext(parent, text, shouldMark) {
+    Array.from(text).forEach(function (ch) {
+      var cp = ch.codePointAt(0);
+      var tok = visToken(cp);
+      var mark = shouldMark ? shouldMark(ch, cp) : false;
+      if (tok) {
+        var s = document.createElement('span');
+        s.className = 'tok' + (mark ? ' bad' : '');
+        s.textContent = tok;
+        parent.appendChild(s);
+      } else if (mark) {
+        var m = document.createElement('mark');
+        m.className = 'hl';
+        m.textContent = ch;
+        parent.appendChild(m);
+      } else {
+        parent.appendChild(textNode(ch));
+      }
+    });
+  }
+
+  function charChip(ch, cp, name) {
+    var chip = document.createElement('span');
+    chip.className = 'chip';
+    var g = document.createElement('span'); g.className = 'g';
+    var tok = visToken(cp);
+    g.textContent = tok || (RE_MARK.test(ch) ? '◌' + ch : ch);
+    var cpEl = document.createElement('span'); cpEl.className = 'cp'; cpEl.textContent = hex(cp);
+    chip.appendChild(g); chip.appendChild(cpEl);
+    if (name) { var nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = name; chip.appendChild(nm); }
+    return chip;
+  }
+
+  function renderDetail() {
+    var host = $('detail');
+    host.innerHTML = '';
+    var key = state.activeFlag;
+    if (!key) return;
+    var items = Array.from(state.issues[key].values());
+    if (items.length === 0) return;
+
+    var wrap = document.createElement('div');
+    wrap.className = 'detail';
+    var head = document.createElement('div');
+    head.className = 'detail-head';
+    var h = document.createElement('h3');
+    var meta = FLAG_META.find(function (m) { return m.key === key; });
+    h.textContent = meta.title + ' — ' + items.length + ' ' + (items.length === 1 ? 'entry' : 'entries');
+    head.appendChild(h);
+
+    if (key === 'whitespace') {
+      var cleanAll = document.createElement('button');
+      cleanAll.className = 'btn btn-primary';
+      cleanAll.textContent = 'Clean all (' + items.length + ')';
+      cleanAll.addEventListener('click', function () { cleanAll.disabled = true; cleanAllWhitespace(); });
+      head.appendChild(cleanAll);
+    }
+    wrap.appendChild(head);
+
+    var list = document.createElement('div');
+    list.className = 'list';
+    items.forEach(function (item) { list.appendChild(renderItem(key, item)); });
+    wrap.appendChild(list);
+    host.appendChild(wrap);
+  }
+
+  function renderItem(key, item) {
+    var row = document.createElement('div');
+    row.className = 'item';
+
+    var top = document.createElement('div');
+    top.className = 'item-top';
+    var hw = document.createElement('span'); hw.className = 'hw'; hw.textContent = item.headword;
+    top.appendChild(hw);
+    top.appendChild(fieldChips(item.fields));
+    row.appendChild(top);
+
+    if (key === 'whitespace') {
+      item.fields.forEach(function (f) {
+        var line = document.createElement('div'); line.className = 'ctx';
+        var m = wsMarks(f.text);
+        m.chars.forEach(function (ch, i) {
+          var cp = ch.codePointAt(0);
+          var tok = visToken(cp);
+          if (tok) { var s = document.createElement('span'); s.className = 'tok' + (m.marks[i] ? ' bad' : ''); s.textContent = tok; line.appendChild(s); }
+          else line.appendChild(textNode(ch));
+        });
+        var arrow = document.createElement('span'); arrow.className = 'arrow'; arrow.textContent = '→'; line.appendChild(arrow);
+        var after = document.createElement('span'); after.className = 'after';
+        renderContext(after, f.cleaned, null);
+        line.appendChild(after);
+        row.appendChild(line);
+      });
+    } else if (key === 'exemplar') {
+      var badSet = {};
+      item.fields.forEach(function (f) { f.chars.forEach(function (c) { badSet[c] = true; }); });
+      item.fields.forEach(function (f) {
+        var line = document.createElement('div'); line.className = 'ctx';
+        renderContext(line, f.text, function (ch) { return !!badSet[ch]; });
+        row.appendChild(line);
+      });
+      var chips = document.createElement('div'); chips.className = 'chips';
+      Object.keys(badSet).forEach(function (c) { chips.appendChild(charChip(c, c.codePointAt(0), null)); });
+      row.appendChild(chips);
+    } else if (key === 'invisible') {
+      var invSet = {};
+      item.fields.forEach(function (f) { f.chars.forEach(function (c) { invSet[c.ch] = c.name; }); });
+      item.fields.forEach(function (f) {
+        var line = document.createElement('div'); line.className = 'ctx';
+        renderContext(line, f.text, function (ch) { return Object.prototype.hasOwnProperty.call(invSet, ch); });
+        row.appendChild(line);
+      });
+      var ichips = document.createElement('div'); ichips.className = 'chips';
+      Object.keys(invSet).forEach(function (ch) { ichips.appendChild(charChip(ch, ch.codePointAt(0), invSet[ch])); });
+      row.appendChild(ichips);
+    } else if (key === 'script') {
+      item.fields.forEach(function (f) {
+        var counts = {};
+        Array.from(f.text).forEach(function (ch) { var s = scriptOf(ch); if (s) counts[s] = (counts[s] || 0) + 1; });
+        var dominant = null, best = -1;
+        Object.keys(counts).forEach(function (s) { if (counts[s] > best) { best = counts[s]; dominant = s; } });
+        var line = document.createElement('div'); line.className = 'ctx';
+        renderContext(line, f.text, function (ch) { var s = scriptOf(ch); return s && s !== dominant; });
+        row.appendChild(line);
+        var sc = document.createElement('div'); sc.className = 'chips';
+        Object.keys(counts).forEach(function (s) {
+          var chip = document.createElement('span'); chip.className = 'chip';
+          var g = document.createElement('span'); g.className = 'nm'; g.textContent = s + ' ×' + counts[s];
+          chip.appendChild(g); sc.appendChild(chip);
+        });
+        row.appendChild(sc);
+      });
+    }
+
+    var actions = document.createElement('div');
+    actions.className = 'item-actions';
+    var open = document.createElement('button');
+    open.className = 'btn btn-ghost';
+    open.textContent = 'Open';
+    open.addEventListener('click', function () { fwlite.openEntry(item.entryId).catch(function () {}); });
+    actions.appendChild(open);
+
+    if (key === 'whitespace') {
+      var clean = document.createElement('button');
+      clean.className = 'btn btn-primary';
+      clean.textContent = 'Clean whitespace';
+      clean.addEventListener('click', function () {
+        clean.disabled = true; open.disabled = true;
+        cleanOne(item).then(function (result) {
+          if (result === 'done') {
+            state.issues.whitespace.delete(item.entryId);
+            renderFlags(); // rebuilds counts + detail list (and closes the flag if now empty)
+          } else {
+            clean.disabled = false; open.disabled = false;
+            setItemStatus(actions, result);
+          }
+        });
+      });
+      actions.appendChild(clean);
+    }
+    row.appendChild(actions);
+    return row;
+  }
+
+  function setItemStatus(actions, kind) {
+    var existing = actions.querySelector('.item-status');
+    if (existing) existing.remove();
+    var s = document.createElement('span');
+    s.className = 'item-status ' + kind;
+    s.textContent = kind === 'declined' ? 'Not cleaned (you declined)' : 'Could not clean — try again';
+    actions.appendChild(s);
+  }
+
+  // Re-fetches, applies whitespace clean to the mono fields, and writes.
+  // Resolves 'done' | 'declined' | 'error'. Never throws.
+  function cleanOne(item) {
+    return fwlite.getEntry(item.entryId).then(function (entry) {
+      if (!entry) return 'done'; // gone; treat as resolved
+      var after = JSON.parse(JSON.stringify(entry));
+      var changed = false;
+      item.fields.forEach(function (f) {
+        var cur = entry[f.key] && entry[f.key][state.ws];
+        if (!cur) return;
+        var cl = cleanWhitespace(cur);
+        if (cl !== cur) {
+          if (!after[f.key]) after[f.key] = {};
+          after[f.key][state.ws] = cl;
+          changed = true;
+        }
+      });
+      if (!changed) return 'done';
+      return fwlite.updateEntry(entry, after).then(function () { return 'done'; }, function (err) {
+        return (err && err.code === 'permission-denied') ? 'declined' : 'error';
+      });
+    }, function () { return 'error'; });
+  }
+
+  function cleanAllWhitespace() {
+    var items = Array.from(state.issues.whitespace.values());
+    var i = 0;
+    function next() {
+      if (i >= items.length) { renderFlags(); return; }
+      var item = items[i++];
+      cleanOne(item).then(function (result) {
+        if (result === 'done' || result === 'declined') {
+          if (result === 'done') state.issues.whitespace.delete(item.entryId);
+        }
+        next();
+      });
+    }
+    next();
+  }
+
+  function renderInventory() {
+    var recs = Array.from(state.charMap.values());
+    var maxCount = recs.reduce(function (m, r) { return Math.max(m, r.count); }, 1);
+
+    if (state.sort === 'code') {
+      recs.sort(function (a, b) { return a.cp - b.cp; });
+    } else {
+      recs.sort(function (a, b) { return b.count - a.count || a.cp - b.cp; });
+    }
+
+    var expectedNote = $('exemplar-note');
+    expectedNote.innerHTML = '';
+    if (!state.expectedSet) {
+      var note = document.createElement('div');
+      note.className = 'note';
+      note.textContent = 'This writing system has no defined alphabet (exemplar characters), so characters can’t be checked against it. Define exemplars in the writing-system settings to enable that check.';
+      expectedNote.appendChild(note);
+    }
+
+    var grid = $('inv-grid');
+    grid.innerHTML = '';
+    recs.forEach(function (rec) {
+      grid.appendChild(buildTile(rec, maxCount));
+    });
+
+    var unexpected = 0;
+    recs.forEach(function (r) { if (state.expectedSet && !state.expectedSet.has(r.ch) && isLetterish(r.ch)) unexpected++; });
+    $('inv-summary').textContent = recs.length.toLocaleString() + ' distinct' +
+      (state.expectedSet ? ' · ' + unexpected.toLocaleString() + ' not in the alphabet' : '');
+  }
+
+  function buildTile(rec, maxCount) {
+    var tile = document.createElement('div');
+    tile.className = 'tile';
+    var cp = rec.cp, ch = rec.ch;
+    var tok = visToken(cp);
+    var invisible = tok != null;
+    var unexpected = state.expectedSet && !state.expectedSet.has(ch) && isLetterish(ch);
+    if (unexpected) tile.className += ' unexpected';
+    else if (invisible) tile.className += ' invisible';
+
+    if (unexpected) {
+      var dot = document.createElement('span'); dot.className = 'flag-dot'; dot.textContent = '!';
+      tile.appendChild(dot);
+    }
+
+    var glyph = document.createElement('div');
+    glyph.className = 'glyph' + (invisible ? ' token' : '');
+    if (invisible) glyph.textContent = tok;
+    else if (RE_MARK.test(ch)) glyph.textContent = '◌' + ch;
+    else glyph.textContent = ch;
+    tile.appendChild(glyph);
+
+    var cpEl = document.createElement('div'); cpEl.className = 'cp'; cpEl.textContent = hex(cp);
+    tile.appendChild(cpEl);
+    var cnt = document.createElement('div'); cnt.className = 'count'; cnt.textContent = rec.count.toLocaleString();
+    tile.appendChild(cnt);
+    var mini = document.createElement('div'); mini.className = 'mini';
+    var fill = document.createElement('i'); fill.style.width = Math.max(4, Math.round((rec.count / maxCount) * 100)) + '%';
+    mini.appendChild(fill); tile.appendChild(mini);
+
+    tile.title = hex(cp) + (rec.count === 1 ? ' · 1 occurrence' : ' · ' + rec.count.toLocaleString() + ' occurrences');
+    return tile;
+  }
+
+  // --- Persistence -------------------------------------------------------------
+  function persist() {
+    fwlite.storage.set(STORAGE_KEY, {ws: state.ws, includeExamples: state.includeExamples, sort: state.sort}).catch(function () {});
+  }
+
+  // --- Init --------------------------------------------------------------------
+  function init(context) {
+    applyTheme(context.theme);
+    Promise.all([fwlite.getWritingSystems(), fwlite.storage.get(STORAGE_KEY)]).then(function (res) {
+      var wsData = res[0], saved = res[1] || {};
+      state.vernacular = (wsData.vernacular || []).filter(function (w) { return !w.isAudio; })
+        .map(function (w) { return {wsId: w.wsId, name: w.name, font: w.font, exemplars: w.exemplars || []}; });
+
+      $('loading').style.display = 'none';
+      $('app').style.display = 'block';
+
+      if (state.vernacular.length === 0) {
+        $('results-loading').hidden = true;
+        $('results-content').hidden = false;
+        $('ws-select').disabled = true;
+        var msg = document.createElement('div');
+        msg.className = 'center-state';
+        msg.textContent = 'This project has no text vernacular writing systems to inspect.';
+        $('totals').appendChild(msg);
+        $('subtitle').textContent = 'No writing systems available.';
+        return;
+      }
+
+      var select = $('ws-select');
+      select.innerHTML = '';
+      state.vernacular.forEach(function (w) {
+        var opt = document.createElement('option');
+        opt.value = w.wsId;
+        opt.textContent = w.name + ' (' + w.wsId + ')';
+        select.appendChild(opt);
+      });
+
+      var savedWs = state.vernacular.some(function (w) { return w.wsId === saved.ws; }) ? saved.ws : state.vernacular[0].wsId;
+      state.ws = savedWs;
+      state.includeExamples = !!saved.includeExamples;
+      state.sort = saved.sort === 'code' ? 'code' : 'freq';
+      select.value = state.ws;
+      $('include-examples').checked = state.includeExamples;
+      $('sort-select').value = state.sort;
+      applyVernFont();
+
+      select.addEventListener('change', function () {
+        state.ws = select.value; applyVernFont(); persist(); runScan();
+      });
+      $('include-examples').addEventListener('change', function () {
+        state.includeExamples = $('include-examples').checked; persist(); runScan();
+      });
+      $('sort-select').addEventListener('change', function () {
+        state.sort = $('sort-select').value; persist(); renderInventory();
+      });
+
+      runScan();
+    }).catch(function (err) {
+      showError('Could not start: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

@@ -4089,5 +4089,28 @@
     },
     "Id": "4f5808a8-bbf1-e23d-e5fe-5a997f13bf3a",
     "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Plugin",
+      "Id": "d7147f14-258d-ccda-9165-a12e38c1e65e",
+      "DeletedAt": null,
+      "Name": "hard drive",
+      "Description": "Director",
+      "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+      "FileSize": 1690216227413767371,
+      "Permissions": [
+        "array"
+      ],
+      "Contexts": [
+        "View"
+      ],
+      "Requires": [
+        "convergence"
+      ]
+    },
+    "Id": "d7147f14-258d-ccda-9165-a12e38c1e65e",
+    "DeletedAt": null
   }
 ]

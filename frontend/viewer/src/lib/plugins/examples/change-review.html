@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fwlite-plugin-requires" content="history">
+<title>Change Review</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+    --vern-font: inherit;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px 16px 48px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 2px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; font-size: 0.9rem; }
+
+  /* Headline / progress card */
+  .headline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .headline .big { font-size: 2.3rem; font-weight: 800; line-height: 1; color: var(--accent); }
+  .headline.done .big { color: var(--good); }
+  .headline .hbody { flex: 1; min-width: 190px; }
+  .headline .hmsg { font-weight: 600; margin-bottom: 8px; }
+  .headline .hsub { color: var(--text-muted); font-size: 0.83rem; margin-top: 8px; }
+  .bar { background: var(--surface-alt); border-radius: 999px; height: 9px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s ease; }
+  .headline.done .bar > i { background: var(--good); }
+
+  /* Toolbar */
+  .toolbar {
+    position: sticky; top: 0; z-index: 6;
+    display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
+    padding: 8px 0 10px; margin-bottom: 4px;
+    background: linear-gradient(var(--bg), var(--bg) 78%, transparent);
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); font-weight: 600; }
+  select {
+    font: inherit; font-size: 0.88rem; padding: 8px 11px; max-width: 100%;
+    border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font-family: inherit;
+  }
+  select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding-bottom: 8px; cursor: pointer; user-select: none; }
+  .toggle input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+  .spacer { flex: 1 1 auto; }
+  .btn {
+    border: 1px solid var(--border); background: var(--surface-alt); color: var(--text);
+    padding: 9px 14px; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .actions { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+
+  .showing { color: var(--text-muted); font-size: 0.8rem; margin: 2px 2px 10px; min-height: 1em; }
+
+  /* Day headers */
+  .day {
+    font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted);
+    margin: 16px 2px 8px; padding: 2px 0;
+  }
+  ul.feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+
+  /* Change row */
+  .row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: opacity 0.2s ease, border-color 0.12s ease;
+  }
+  .row.reviewed { opacity: 0.6; }
+  .row.reviewed .head { background: var(--surface-alt); }
+  .head { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; }
+  .head-main { flex: 1; min-width: 0; cursor: pointer; }
+  .head-main:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+  .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+  .avatar {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center;
+    font-size: 0.68rem; font-weight: 700; color: #fff;
+  }
+  .author { font-weight: 600; font-size: 0.88rem; }
+  .time { color: var(--text-muted); font-size: 0.8rem; }
+  .cname { font-size: 0.95rem; font-weight: 600; overflow-wrap: anywhere; }
+  .multi { color: var(--text-muted); font-weight: 400; font-size: 0.85rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .chip {
+    font-size: 0.7rem; color: var(--text-muted); background: var(--surface-alt);
+    border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px;
+  }
+  .caret { color: var(--text-muted); font-size: 0.8rem; margin-top: 6px; }
+
+  /* Reviewed checkbox */
+  .review-check {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    flex-shrink: 0; cursor: pointer; user-select: none; padding: 2px 0 0;
+    font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); font-weight: 600;
+  }
+  .review-check input { width: 20px; height: 20px; accent-color: var(--good); cursor: pointer; }
+
+  /* Detail */
+  .detail { border-top: 1px solid var(--border); padding: 14px; background: var(--surface-alt); }
+  .detail .dline { font-size: 0.86rem; margin-bottom: 10px; }
+  .detail .dlabel { color: var(--text-muted); }
+  .entry-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .entry-chip {
+    display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 0.85rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 5px 6px 5px 12px;
+  }
+  .entry-chip .hw { font-weight: 600; font-family: var(--vern-font); overflow-wrap: anywhere; }
+  .entry-chip .open {
+    border: none; background: var(--accent); color: #fff; border-radius: 999px;
+    font: inherit; font-size: 0.76rem; font-weight: 600; padding: 4px 11px; cursor: pointer;
+  }
+  .entry-chip .open:hover { filter: brightness(1.08); }
+  .raw-toggle {
+    background: none; border: none; color: var(--accent); font: inherit; font-size: 0.82rem;
+    font-weight: 600; cursor: pointer; padding: 4px 0; margin-top: 2px;
+  }
+  .raw-toggle:hover { text-decoration: underline; }
+  pre.raw {
+    margin: 8px 0 0; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; font-size: 0.78rem; line-height: 1.5; overflow-x: auto; max-height: 320px;
+    white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text);
+  }
+  .dmuted { color: var(--text-muted); font-size: 0.85rem; }
+
+  .more {
+    display: block; margin: 16px auto 0; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; color: var(--text); font: inherit; font-size: 0.85rem; font-weight: 600;
+    padding: 9px 20px; cursor: pointer;
+  }
+  .more:hover { border-color: var(--accent); }
+  .more:disabled { opacity: 0.6; cursor: default; }
+  .more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* States */
+  .center { text-align: center; padding: 54px 20px; color: var(--text-muted); }
+  .center .big-emoji { font-size: 2.4rem; }
+  .center .headmsg { font-size: 1.05rem; color: var(--text); margin: 8px 0 4px; font-weight: 600; }
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text); padding: 16px 18px; border-radius: var(--radius);
+  }
+  .notsupported {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 40px 24px; text-align: center;
+  }
+  .notsupported .big-emoji { font-size: 2.4rem; }
+  .notsupported .headmsg { font-size: 1.05rem; color: var(--text); margin: 10px 0 6px; font-weight: 600; }
+  .notsupported p { color: var(--text-muted); font-size: 0.9rem; margin: 0 auto; max-width: 420px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } .row, .bar > i { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Change Review</h1>
+  <p class="subtitle" id="subtitle">Work through recent changes to the dictionary and check each one off.</p>
+
+  <div id="live" class="sr" aria-live="polite"></div>
+
+  <!-- Loading -->
+  <div id="loading" class="center">
+    <div class="spinner"></div>
+    <div>Loading change history&hellip;</div>
+  </div>
+
+  <!-- History not supported -->
+  <div id="notsupported" class="notsupported" hidden>
+    <div class="big-emoji" aria-hidden="true">&#128220;</div>
+    <div class="headmsg">Change history isn&rsquo;t available for this project</div>
+    <p>This project doesn&rsquo;t keep a change history, so there&rsquo;s nothing to review here. History is available on projects that sync through Lexbox.</p>
+  </div>
+
+  <!-- Error -->
+  <div id="error" class="error-box" hidden></div>
+
+  <!-- Main app -->
+  <div id="app" hidden>
+    <div class="headline" id="headline">
+      <div class="big" id="headline-num">&mdash;</div>
+      <div class="hbody">
+        <div class="hmsg" id="headline-msg"></div>
+        <div class="bar"><i id="headline-fill" style="width:0%"></i></div>
+        <div class="hsub" id="headline-sub"></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="field">
+        <label for="author-filter">Author</label>
+        <select id="author-filter"></select>
+      </div>
+      <div class="field">
+        <label for="type-filter">Change type</label>
+        <select id="type-filter"></select>
+      </div>
+      <label class="toggle"><input type="checkbox" id="unreviewed-only"> Unreviewed only</label>
+      <div class="spacer"></div>
+      <div class="actions">
+        <button class="btn" id="mark-visible" type="button">Mark visible reviewed</button>
+        <button class="btn" id="refresh" type="button">Refresh</button>
+      </div>
+    </div>
+
+    <div class="showing" id="showing"></div>
+    <div id="feed"></div>
+    <div id="feed-empty" class="center" hidden></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var F = window.fwlite;
+  var TAKE = 40;
+  var LOAD_MORE_PAGE_CAP = 6;   // when "unreviewed only" is on, keep paging up to this many pages per click
+  var RAW_CAP = 4000;           // cap raw JSON detail length
+  var STATE_KEY = 'change-review-state-v1';
+  var PREFS_KEY = 'change-review-prefs-v1';
+  var UNKNOWN_AUTHOR_KEY = '__unknown__';
+  var SYSTEM_AUTHOR_KEY = '00000000-0000-0000-0000-000000000001';
+  var AVATAR_COLORS = ['#4f46e5', '#0891b2', '#059669', '#d97706', '#db2777', '#7c3aed', '#0284c7', '#65a30d'];
+
+  var state = {
+    rows: [],              // IProjectActivity[] (deduped by commitId)
+    seen: {},              // commitId -> 1
+    reviewed: {},          // commitId -> 1 (persisted)
+    authors: [],           // {authorId?, authorName?, commitCount}
+    typeLabels: {},        // changeType key -> label
+    totalCommits: null,    // project-wide commit total (from authors), or null if unknown
+    authorFilter: '',      // '' = all, else author filter key
+    typeFilter: '',        // '' = all, else change type key
+    unreviewedOnly: false,
+    skip: 0,
+    done: false,
+    loading: false,
+    detailOpen: {},        // commitId -> 1 (which rows are expanded)
+  };
+
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+    if (text != null) e.appendChild(document.createTextNode(text));
+    return e;
+  }
+  function $(id) { return document.getElementById(id); }
+  function errMsg(err) { return err && err.message ? err.message : String(err); }
+  function notify(msg) { try { F.notify(msg); } catch (e) { /* toast is best-effort */ } }
+  function announce(msg) { $('live').textContent = msg; }
+
+  function applyTheme() {
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', F.theme || (prefersDark ? 'dark' : 'light'));
+  }
+
+  // --- Author helpers (mirror the app's author filter key derivation) --------
+  function authorKeyOf(author) {
+    if (!author) return UNKNOWN_AUTHOR_KEY;
+    if (!author.authorId && !author.authorName) return UNKNOWN_AUTHOR_KEY;
+    if (author.authorId) return author.authorId;
+    return 'name:' + author.authorName;
+  }
+  function authorKeyOfActivity(activity) {
+    var meta = (activity && activity.metadata) || {};
+    return authorKeyOf({authorId: meta.authorId, authorName: meta.authorName});
+  }
+  function authorLabel(author) {
+    var key = authorKeyOf(author);
+    if (key === UNKNOWN_AUTHOR_KEY) return 'Unknown';
+    if (key === SYSTEM_AUTHOR_KEY) return 'System';
+    return author.authorName || author.authorId || 'Unknown';
+  }
+  function activityAuthorName(activity) {
+    var meta = (activity && activity.metadata) || {};
+    var key = authorKeyOfActivity(activity);
+    if (key === UNKNOWN_AUTHOR_KEY) return 'Unknown';
+    if (key === SYSTEM_AUTHOR_KEY) return 'System';
+    return meta.authorName || meta.authorId || 'Unknown';
+  }
+  function initials(name) {
+    if (!name) return '?';
+    var parts = String(name).trim().split(/\s+/);
+    var s = (parts[0] ? parts[0][0] : '') + (parts.length > 1 ? parts[parts.length - 1][0] : '');
+    return s.toUpperCase() || '?';
+  }
+  function avatarColor(name) {
+    var h = 0, str = name || '?';
+    for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  }
+
+  // --- Time helpers ----------------------------------------------------------
+  function relTime(iso) {
+    var t = new Date(iso).getTime();
+    if (isNaN(t)) return '';
+    var s = Math.floor((Date.now() - t) / 1000);
+    if (s < 45) return 'just now';
+    var m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
+    var h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
+    var d = Math.floor(h / 24); if (d < 7) return d + 'd ago';
+    return new Date(t).toLocaleDateString(undefined, {day: 'numeric', month: 'short'});
+  }
+  function dayLabel(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return 'Earlier';
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var that = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var diff = Math.round((today - that) / 86400000);
+    if (diff <= 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    if (diff < 7) return diff + ' days ago';
+    return d.toLocaleDateString(undefined, {day: 'numeric', month: 'short', year: 'numeric'});
+  }
+
+  function humanizeType(key) {
+    if (!key) return '';
+    var label = key.replace(/Change$/, '').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+    return label || key;
+  }
+  function typeLabel(key) {
+    return state.typeLabels[key] || humanizeType(key);
+  }
+
+  // --- Persistence -----------------------------------------------------------
+  function loadReviewed(raw) {
+    // Versioned envelope: {v:1, reviewed:{commitId:true}}. Tolerate older/plain shapes.
+    if (raw && typeof raw === 'object') {
+      if (raw.reviewed && typeof raw.reviewed === 'object') return Object.assign({}, raw.reviewed);
+      if (raw.v === undefined && !raw.reviewed) return Object.assign({}, raw); // plain map fallback
+    }
+    return {};
+  }
+  function saveReviewed() {
+    F.storage.set(STATE_KEY, {v: 1, reviewed: state.reviewed}).catch(function () { /* storage best-effort */ });
+  }
+  function loadPrefs(raw) {
+    if (!raw || typeof raw !== 'object') return;
+    if (typeof raw.authorFilter === 'string') state.authorFilter = raw.authorFilter;
+    if (typeof raw.typeFilter === 'string') state.typeFilter = raw.typeFilter;
+    if (typeof raw.unreviewedOnly === 'boolean') state.unreviewedOnly = raw.unreviewedOnly;
+  }
+  function savePrefs() {
+    F.storage.set(PREFS_KEY, {
+      v: 1,
+      authorFilter: state.authorFilter,
+      typeFilter: state.typeFilter,
+      unreviewedOnly: state.unreviewedOnly,
+    }).catch(function () {});
+  }
+
+  function reviewedCount() { return Object.keys(state.reviewed).length; }
+
+  // --- Filtering (server params + client-side safety net) --------------------
+  function serverParams() {
+    var p = {take: TAKE, skip: state.skip, sort: 'NewestFirst'};
+    if (state.authorFilter) p.authorFilterKeys = [state.authorFilter];
+    if (state.typeFilter) p.changeTypeKeys = [state.typeFilter];
+    return p;
+  }
+  function passesFilter(activity) {
+    if (state.authorFilter && authorKeyOfActivity(activity) !== state.authorFilter) return false;
+    if (state.typeFilter) {
+      var types = Array.isArray(activity.changeTypes) ? activity.changeTypes : [];
+      if (types.indexOf(state.typeFilter) < 0) return false;
+    }
+    if (state.unreviewedOnly && state.reviewed[activity.commitId]) return false;
+    return true;
+  }
+  function visibleRows() {
+    return state.rows.filter(passesFilter);
+  }
+
+  // --- Headline / progress ---------------------------------------------------
+  function updateHeadline() {
+    var total = state.totalCommits;
+    var reviewed = reviewedCount();
+    var num = $('headline-num');
+    var fill = $('headline-fill');
+    var msg = $('headline-msg');
+    var sub = $('headline-sub');
+    var headline = $('headline');
+
+    if (total && total > 0) {
+      var unreviewed = Math.max(0, total - reviewed);
+      var reviewedShown = Math.min(reviewed, total);
+      var pct = Math.round(reviewedShown / total * 100);
+      var done = unreviewed === 0;
+      headline.classList.toggle('done', done);
+      num.textContent = String(unreviewed);
+      fill.style.width = pct + '%';
+      msg.textContent = done
+        ? 'Every change has been reviewed — all caught up!'
+        : unreviewed + ' change' + (unreviewed === 1 ? '' : 's') + ' still to review';
+      sub.textContent = reviewedShown.toLocaleString() + ' of ' + total.toLocaleString() +
+        ' change' + (total === 1 ? '' : 's') + ' reviewed (' + pct + '%)';
+    } else {
+      // Total unknown: fall back to what we've loaded.
+      var loadedUnreviewed = state.rows.filter(function (a) { return !state.reviewed[a.commitId]; }).length;
+      headline.classList.toggle('done', loadedUnreviewed === 0 && state.done && state.rows.length > 0);
+      num.textContent = String(loadedUnreviewed);
+      fill.style.width = '0%';
+      msg.textContent = loadedUnreviewed + ' unreviewed among loaded changes';
+      sub.textContent = state.done
+        ? reviewed.toLocaleString() + ' reviewed so far'
+        : 'Load more to see the rest — ' + reviewed.toLocaleString() + ' reviewed so far';
+    }
+  }
+
+  function updateShowing() {
+    var vis = visibleRows().length;
+    var filtered = state.authorFilter || state.typeFilter || state.unreviewedOnly;
+    $('showing').textContent = filtered
+      ? 'Showing ' + vis + ' change' + (vis === 1 ? '' : 's') + ' in this view' + (state.done ? '' : ' so far')
+      : '';
+  }
+
+  // --- Rendering the feed ----------------------------------------------------
+  function render() {
+    updateHeadline();
+    updateShowing();
+
+    var feed = $('feed');
+    var emptyBox = $('feed-empty');
+    feed.textContent = '';
+
+    var rows = visibleRows();
+    if (rows.length === 0) {
+      feed.hidden = true;
+      emptyBox.hidden = false;
+      emptyBox.textContent = '';
+      if (state.loading && !state.done) {
+        emptyBox.appendChild(el('div', {class: 'spinner'}));
+        emptyBox.appendChild(el('div', {}, 'Loading changes…'));
+      } else {
+        renderEmpty(emptyBox);
+      }
+      return;
+    }
+    feed.hidden = false;
+    emptyBox.hidden = true;
+
+    var groups = [], map = {};
+    rows.forEach(function (a) {
+      var d = dayLabel(a.timestamp);
+      if (!map[d]) { map[d] = []; groups.push(d); }
+      map[d].push(a);
+    });
+    groups.forEach(function (d) {
+      feed.appendChild(el('h2', {class: 'day'}, d));
+      var ul = el('ul', {class: 'feed'});
+      map[d].forEach(function (a) { ul.appendChild(renderRow(a)); });
+      feed.appendChild(ul);
+    });
+
+    if (!state.done) {
+      var more = el('button', {class: 'more', type: 'button'}, 'Load more changes');
+      more.addEventListener('click', loadMore);
+      feed.appendChild(more);
+    }
+  }
+
+  function renderEmpty(box) {
+    if (state.unreviewedOnly && reviewedCount() > 0) {
+      box.appendChild(el('div', {class: 'big-emoji', 'aria-hidden': 'true'}, '🎉'));
+      box.appendChild(el('div', {class: 'headmsg'}, 'You’re all caught up.'));
+      box.appendChild(el('div', {}, 'No unreviewed changes in this view.'));
+    } else if (state.authorFilter || state.typeFilter) {
+      box.appendChild(el('div', {class: 'headmsg'}, 'No changes match these filters.'));
+      box.appendChild(el('div', {}, 'Try clearing the author or change-type filter.'));
+    } else {
+      box.appendChild(el('div', {class: 'big-emoji', 'aria-hidden': 'true'}, '📭'));
+      box.appendChild(el('div', {class: 'headmsg'}, 'No changes yet'));
+      box.appendChild(el('div', {}, 'When edits are made to this project, they’ll show up here to review.'));
+    }
+  }
+
+  function renderRow(activity) {
+    var isReviewed = !!state.reviewed[activity.commitId];
+    var li = el('li', {});
+    var row = el('div', {class: 'row' + (isReviewed ? ' reviewed' : '')});
+    row.setAttribute('data-commit', activity.commitId);
+
+    var head = el('div', {class: 'head'});
+
+    // Main clickable area (expands detail)
+    var main = el('div', {class: 'head-main', role: 'button', tabindex: '0'});
+    main.setAttribute('aria-expanded', state.detailOpen[activity.commitId] ? 'true' : 'false');
+
+    var meta = el('div', {class: 'meta'});
+    var name = activityAuthorName(activity);
+    var av = el('span', {class: 'avatar', 'aria-hidden': 'true'}, initials(name));
+    av.style.background = avatarColor(name);
+    meta.appendChild(av);
+    meta.appendChild(el('span', {class: 'author'}, name));
+    var time = el('time', {class: 'time'}, relTime(activity.timestamp));
+    if (activity.timestamp) {
+      time.setAttribute('datetime', activity.timestamp);
+      try { time.title = new Date(activity.timestamp).toLocaleString(); } catch (e) {}
+    }
+    meta.appendChild(time);
+    main.appendChild(meta);
+
+    var cname = el('div', {class: 'cname'}, activity.changeName || 'Change');
+    var changeCount = Array.isArray(activity.changes) ? activity.changes.length : 0;
+    if (changeCount > 1) cname.appendChild(el('span', {class: 'multi'}, '  · ' + changeCount + ' changes'));
+    main.appendChild(cname);
+
+    var types = Array.isArray(activity.changeTypes) ? activity.changeTypes : [];
+    if (types.length) {
+      var chips = el('div', {class: 'chips'});
+      types.slice(0, 6).forEach(function (tk) { chips.appendChild(el('span', {class: 'chip'}, typeLabel(tk))); });
+      main.appendChild(chips);
+    }
+
+    var caret = el('div', {class: 'caret'}, state.detailOpen[activity.commitId] ? 'Hide details ▴' : 'Show details ▾');
+    main.appendChild(caret);
+
+    function toggleDetail() {
+      if (state.detailOpen[activity.commitId]) delete state.detailOpen[activity.commitId];
+      else state.detailOpen[activity.commitId] = 1;
+      var open = !!state.detailOpen[activity.commitId];
+      main.setAttribute('aria-expanded', open ? 'true' : 'false');
+      caret.textContent = open ? 'Hide details ▴' : 'Show details ▾';
+      var existing = row.querySelector('.detail');
+      if (existing) existing.parentNode.removeChild(existing);
+      if (open) row.appendChild(buildDetail(activity));
+    }
+    main.addEventListener('click', toggleDetail);
+    main.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetail(); }
+    });
+    head.appendChild(main);
+
+    // Reviewed checkbox
+    var check = el('label', {class: 'review-check'});
+    var box = el('input', {type: 'checkbox'});
+    box.checked = isReviewed;
+    box.setAttribute('aria-label', 'Mark this change reviewed');
+    box.addEventListener('change', function () {
+      setReviewed(activity.commitId, box.checked);
+      row.classList.toggle('reviewed', box.checked);
+      // If we're hiding reviewed rows, a newly-reviewed row should drop out.
+      if (state.unreviewedOnly && box.checked) { render(); }
+      else { updateHeadline(); updateShowing(); }
+    });
+    check.appendChild(box);
+    check.appendChild(el('span', {}, 'Done'));
+    head.appendChild(check);
+
+    row.appendChild(head);
+    if (state.detailOpen[activity.commitId]) row.appendChild(buildDetail(activity));
+    li.appendChild(row);
+    return li;
+  }
+
+  function setReviewed(commitId, on) {
+    if (on) state.reviewed[commitId] = 1;
+    else delete state.reviewed[commitId];
+    saveReviewed();
+  }
+
+  // --- Detail (defensive rendering of a loosely-specified ChangeContext) -----
+  function buildDetail(activity) {
+    var detail = el('div', {class: 'detail'});
+    var loading = el('div', {class: 'dmuted'}, 'Loading details…');
+    detail.appendChild(loading);
+
+    var changeIndex = 0;
+    if (Array.isArray(activity.changes) && activity.changes[0] && typeof activity.changes[0].index === 'number') {
+      changeIndex = activity.changes[0].index;
+    }
+
+    F.getChangeContext({commitId: activity.commitId, changeIndex: changeIndex}).then(function (ctx) {
+      detail.textContent = '';
+      renderDetail(detail, activity, ctx);
+    }).catch(function (err) {
+      detail.textContent = '';
+      var box = el('div', {class: 'dmuted'});
+      box.textContent = (err && err.code === 'not-supported')
+        ? 'Details aren’t available for this change.'
+        : 'Couldn’t load the details for this change.';
+      detail.appendChild(box);
+    });
+    return detail;
+  }
+
+  function renderDetail(detail, activity, ctx) {
+    ctx = (ctx && typeof ctx === 'object') ? ctx : {};
+
+    var cname = ctx.changeName || activity.changeName;
+    if (cname) {
+      var line = el('div', {class: 'dline'});
+      line.appendChild(el('span', {class: 'dlabel'}, 'Change: '));
+      line.appendChild(document.createTextNode(String(cname)));
+      detail.appendChild(line);
+    }
+
+    if (ctx.entityType) {
+      var etype = el('div', {class: 'dline'});
+      etype.appendChild(el('span', {class: 'dlabel'}, 'Affected: '));
+      etype.appendChild(document.createTextNode(humanizeType(String(ctx.entityType))));
+      detail.appendChild(etype);
+    }
+
+    // Affected entries -> offer Open + show headword. Degrade gracefully if none.
+    var entries = Array.isArray(ctx.affectedEntries) ? ctx.affectedEntries : [];
+    if (entries.length) {
+      var chips = el('div', {class: 'entry-chips'});
+      entries.forEach(function (entry) {
+        if (!entry || typeof entry !== 'object') return;
+        var chip = el('div', {class: 'entry-chip'});
+        var hw = '';
+        try { hw = F.headword(entry); } catch (e) { hw = ''; }
+        if (!hw) hw = 'Untitled entry';
+        chip.appendChild(el('span', {class: 'hw'}, hw));
+        var id = typeof entry.id === 'string' ? entry.id : null;
+        if (id) {
+          var open = el('button', {class: 'open', type: 'button'}, 'Open');
+          open.addEventListener('click', function () {
+            try { F.openEntry(id, {mode: 'view'}); } catch (e) { notify('Could not open the entry.'); }
+          });
+          chip.appendChild(open);
+        }
+        chips.appendChild(chip);
+      });
+      if (chips.childNodes.length) detail.appendChild(chips);
+    } else {
+      detail.appendChild(el('div', {class: 'dmuted'}, 'No linked entry for this change.'));
+    }
+
+    // Raw snapshot (fully defensive: whatever the shape, JSON.stringify + textContent, capped).
+    if (ctx.snapshot && typeof ctx.snapshot === 'object') {
+      var raw = null;
+      var toggle = el('button', {class: 'raw-toggle', type: 'button'}, 'Show raw change data');
+      detail.appendChild(toggle);
+      toggle.addEventListener('click', function () {
+        if (raw) { raw.parentNode.removeChild(raw); raw = null; toggle.textContent = 'Show raw change data'; return; }
+        raw = el('pre', {class: 'raw'});
+        var text;
+        try { text = JSON.stringify(ctx.snapshot, null, 2); } catch (e) { text = String(ctx.snapshot); }
+        if (typeof text === 'string' && text.length > RAW_CAP) text = text.slice(0, RAW_CAP) + '\n… (truncated)';
+        raw.textContent = text;
+        detail.appendChild(raw);
+        toggle.textContent = 'Hide raw change data';
+      });
+    }
+  }
+
+  // --- Loading pages ---------------------------------------------------------
+  function loadPage() {
+    return F.getActivity(serverParams()).then(function (activities) {
+      activities = Array.isArray(activities) ? activities : [];
+      if (activities.length < TAKE) state.done = true;
+      state.skip += activities.length;
+      var gained = 0;
+      activities.forEach(function (a) {
+        if (!a || !a.commitId) return;
+        if (state.seen[a.commitId]) return;
+        state.seen[a.commitId] = 1;
+        state.rows.push(a);
+        if (passesFilter(a)) gained++;
+      });
+      return gained;
+    });
+  }
+
+  function loadMore() {
+    if (state.loading || state.done) return;
+    state.loading = true;
+    var btn = $('feed').querySelector('.more');
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+
+    // When hiding reviewed rows, one page may be entirely reviewed and add nothing
+    // visible, so keep paging (up to a cap) until we surface at least one new row.
+    var pagesLeft = LOAD_MORE_PAGE_CAP;
+    function step() {
+      return loadPage().then(function (gained) {
+        pagesLeft--;
+        if (!state.done && pagesLeft > 0 && state.unreviewedOnly && gained === 0) return step();
+      });
+    }
+    step().then(function () {
+      state.loading = false;
+      render();
+      var vis = visibleRows().length;
+      announce(vis + ' change' + (vis === 1 ? '' : 's') + ' shown');
+    }).catch(function (err) {
+      state.loading = false;
+      state.done = true;
+      render();
+      notify('Could not load more changes: ' + errMsg(err));
+    });
+  }
+
+  // --- Reset + reload (filter change / refresh) ------------------------------
+  function reload() {
+    state.rows = [];
+    state.seen = {};
+    state.skip = 0;
+    state.done = false;
+    state.loading = true;
+    $('feed').textContent = '';
+    $('feed-empty').hidden = true;
+    render();
+    loadPage().then(function () {
+      state.loading = false;
+      render();
+    }).catch(function (err) {
+      state.loading = false;
+      state.done = true;
+      renderError(err);
+    });
+  }
+
+  function renderError(err) {
+    $('loading').hidden = true;
+    $('app').hidden = true;
+    $('notsupported').hidden = true;
+    var box = $('error');
+    box.hidden = false;
+    box.textContent = (err && err.code === 'not-supported')
+      ? 'Change history isn’t available for this project.'
+      : 'Something went wrong loading the change history: ' + errMsg(err) + ' Use the reload button above to try again.';
+  }
+
+  function showNotSupported() {
+    $('loading').hidden = true;
+    $('app').hidden = true;
+    $('error').hidden = true;
+    $('notsupported').hidden = false;
+  }
+
+  // --- Filter controls -------------------------------------------------------
+  function populateFilters() {
+    var authorSel = $('author-filter');
+    authorSel.textContent = '';
+    authorSel.appendChild(new Option('All authors', ''));
+    var sorted = state.authors.slice().sort(function (a, b) {
+      return authorLabel(a).localeCompare(authorLabel(b));
+    });
+    sorted.forEach(function (a) {
+      var key = authorKeyOf(a);
+      var opt = new Option(authorLabel(a) + ' (' + (a.commitCount || 0) + ')', key);
+      authorSel.appendChild(opt);
+    });
+    if (state.authorFilter && !sorted.some(function (a) { return authorKeyOf(a) === state.authorFilter; })) {
+      state.authorFilter = '';
+    }
+    authorSel.value = state.authorFilter;
+
+    var typeSel = $('type-filter');
+    typeSel.textContent = '';
+    typeSel.appendChild(new Option('All change types', ''));
+    var typeList = Object.keys(state.typeLabels).map(function (k) {
+      return {key: k, label: state.typeLabels[k]};
+    }).sort(function (a, b) { return a.label.localeCompare(b.label); });
+    typeList.forEach(function (t) { typeSel.appendChild(new Option(t.label, t.key)); });
+    if (state.typeFilter && !state.typeLabels[state.typeFilter]) state.typeFilter = '';
+    typeSel.value = state.typeFilter;
+
+    $('unreviewed-only').checked = state.unreviewedOnly;
+  }
+
+  function wireControls() {
+    $('author-filter').addEventListener('change', function () {
+      state.authorFilter = this.value; savePrefs(); reload();
+    });
+    $('type-filter').addEventListener('change', function () {
+      state.typeFilter = this.value; savePrefs(); reload();
+    });
+    $('unreviewed-only').addEventListener('change', function () {
+      state.unreviewedOnly = this.checked; savePrefs(); render();
+    });
+    $('refresh').addEventListener('click', function () {
+      var btn = this; btn.disabled = true;
+      refreshTotals().then(function () { reload(); }).then(function () { btn.disabled = false; }, function () { btn.disabled = false; });
+    });
+    $('mark-visible').addEventListener('click', function () {
+      var rows = visibleRows();
+      var changed = 0;
+      rows.forEach(function (a) { if (!state.reviewed[a.commitId]) { state.reviewed[a.commitId] = 1; changed++; } });
+      if (changed === 0) { notify('Nothing new to mark here.'); return; }
+      saveReviewed();
+      render();
+      notify('Marked ' + changed + ' change' + (changed === 1 ? '' : 's') + ' reviewed.');
+      announce(changed + ' changes marked reviewed');
+    });
+  }
+
+  function refreshTotals() {
+    return Promise.all([
+      F.listActivityAuthors().catch(function () { return state.authors; }),
+      F.listActivityChangeTypes().catch(function () { return null; }),
+    ]).then(function (res) {
+      if (Array.isArray(res[0])) {
+        state.authors = res[0];
+        var total = 0, ok = false;
+        res[0].forEach(function (a) {
+          if (a && typeof a.commitCount === 'number') { total += a.commitCount; ok = true; }
+        });
+        state.totalCommits = ok ? total : null;
+      }
+      if (Array.isArray(res[1])) {
+        state.typeLabels = {};
+        res[1].forEach(function (t) {
+          if (t && typeof t.key === 'string') state.typeLabels[t.key] = t.label || humanizeType(t.key);
+        });
+      }
+      populateFilters();
+    });
+  }
+
+  // --- Init ------------------------------------------------------------------
+  function init() {
+    applyTheme();
+    if (F.project && F.project.projectName) {
+      $('subtitle').textContent = 'Work through recent changes to ' + F.project.projectName + ' and check each one off.';
+    }
+
+    // Pick up a vernacular font for entry headwords in the detail view.
+    F.getWritingSystems().then(function (ws) {
+      var v = (ws.vernacular || []).find(function (w) { return !w.isAudio && w.font; });
+      if (v && v.font) document.documentElement.style.setProperty('--vern-font', '"' + v.font + '", inherit');
+    }).catch(function () {});
+
+    Promise.all([
+      F.storage.get(STATE_KEY).catch(function () { return null; }),
+      F.storage.get(PREFS_KEY).catch(function () { return null; }),
+    ]).then(function (stored) {
+      state.reviewed = loadReviewed(stored[0]);
+      loadPrefs(stored[1]);
+
+      // Authors + change types gate history support: they reject with 'not-supported'
+      // when the project has no history at all.
+      return Promise.all([F.listActivityAuthors(), F.listActivityChangeTypes()]);
+    }).then(function (res) {
+      if (Array.isArray(res[0])) {
+        state.authors = res[0];
+        var total = 0, ok = false;
+        res[0].forEach(function (a) {
+          if (a && typeof a.commitCount === 'number') { total += a.commitCount; ok = true; }
+        });
+        state.totalCommits = ok ? total : null;
+      }
+      if (Array.isArray(res[1])) {
+        res[1].forEach(function (t) {
+          if (t && typeof t.key === 'string') state.typeLabels[t.key] = t.label || humanizeType(t.key);
+        });
+      }
+
+      populateFilters();
+      wireControls();
+
+      $('loading').hidden = true;
+      $('app').hidden = false;
+
+      // First page of the feed.
+      state.loading = true;
+      render();
+      return loadPage().then(function () {
+        state.loading = false;
+        render();
+      });
+    }).catch(function (err) {
+      if (err && err.code === 'not-supported') showNotSupported();
+      else renderError(err);
+    });
+  }
+
+  F.ready.then(init);
+})();
+</script>
+</body>
+</html>

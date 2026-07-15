@@ -31,5 +31,8 @@ export function useFeatures(): LexboxFeatures {
     get customViews() {
       return !!context.features.customViews;
     },
+    get plugins() {
+      return !!context.features.plugins;
+    },
   } satisfies Required<IMiniLcmFeatures>;
 }

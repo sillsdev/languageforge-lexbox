@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fwlite-plugin-permissions" content="edit">
+<title>Gap Finder</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --warn: #b45309;
+    --warn-soft: #fef3e0;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+    --vern-font: inherit;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --warn: #fbbf24;
+    --warn-soft: #3a2f12;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px 16px 48px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 2px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.9rem; }
+
+  /* Health summary */
+  .health {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .health .pct { font-size: 2.4rem; font-weight: 800; line-height: 1; color: var(--accent); }
+  .health.complete .pct { color: var(--good); }
+  .health .hbody { flex: 1; min-width: 200px; }
+  .health .hmsg { font-weight: 600; margin-bottom: 8px; }
+  .health .hsub { color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; }
+  .bar { background: var(--surface-alt); border-radius: 999px; height: 10px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s ease; }
+  .health.complete .bar > i { background: var(--good); }
+
+  .toolbar { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 18px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); font-weight: 600; }
+  select, input[type="text"] {
+    font: inherit; font-size: 0.9rem; padding: 8px 11px;
+    border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font-family: inherit;
+  }
+  select:focus, input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .spacer { flex: 1; }
+  .btn {
+    border: none; padding: 9px 16px; border-radius: 9px;
+    font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-ghost { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--border); }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .cap-note {
+    display: inline-block; font-size: 0.78rem; color: var(--warn);
+    background: var(--warn-soft); padding: 4px 12px; border-radius: 999px; margin-bottom: 16px;
+  }
+
+  /* Dashboard grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .card {
+    text-align: left; font: inherit; cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 8px;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card h3 { margin: 0; font-size: 0.95rem; font-weight: 700; }
+  .card .count-row { display: flex; align-items: baseline; gap: 8px; }
+  .card .count { font-size: 1.9rem; font-weight: 800; line-height: 1; color: var(--accent); }
+  .card .count-label { font-size: 0.82rem; color: var(--text-muted); }
+  .card .ratio { font-size: 0.78rem; color: var(--text-muted); }
+  .card .mini-bar { background: var(--surface-alt); border-radius: 999px; height: 6px; overflow: hidden; }
+  .card .mini-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+  .card .tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--accent); }
+  .card.done { border-color: var(--good-soft); }
+  .card.done .count, .card.done .mini-bar > i { color: var(--good); background: var(--good); }
+  .card.done .count { background: none; }
+  .card.done .check { color: var(--good); font-weight: 800; font-size: 1.4rem; }
+
+  /* Worklist */
+  .wl-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+  .back-btn {
+    background: var(--surface-alt); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 12px; cursor: pointer; font: inherit; font-size: 0.85rem; font-weight: 600;
+  }
+  .back-btn:hover { background: var(--border); }
+  .wl-head h2 { margin: 0; font-size: 1.15rem; }
+  .wl-count { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 2px 12px; font-weight: 700; font-size: 0.82rem; }
+  .wl-blurb { color: var(--text-muted); font-size: 0.88rem; margin: 0 0 16px; }
+
+  .items { display: flex; flex-direction: column; gap: 10px; }
+  .item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: var(--shadow);
+  }
+  .item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .item .hw { font-weight: 700; font-family: var(--vern-font); word-break: break-word; }
+  .item .ctx { color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; word-break: break-word; }
+  .open {
+    color: var(--accent); cursor: pointer; text-decoration: none;
+    font-size: 0.82rem; font-weight: 600; white-space: nowrap; flex-shrink: 0;
+  }
+  .open:hover { text-decoration: underline; }
+  .fix { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .fix-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .fix-row .sctx { flex: 1; min-width: 120px; font-size: 0.85rem; color: var(--text-muted); word-break: break-word; }
+  .fix-row select, .fix-row input[type="text"] { flex: 1; min-width: 150px; }
+  .save-btn {
+    background: var(--accent); color: #fff; border: none; border-radius: 9px;
+    padding: 8px 14px; font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .save-btn:hover { filter: brightness(1.08); }
+  .save-btn:disabled { opacity: 0.5; cursor: default; }
+  .fix-hint { font-size: 0.78rem; color: var(--text-muted); }
+  .list-note { text-align: center; color: var(--text-muted); font-size: 0.82rem; padding: 12px; }
+
+  /* States */
+  .center-state { text-align: center; padding: 56px 20px; color: var(--text-muted); }
+  .celebrate { text-align: center; padding: 48px 20px; }
+  .celebrate .big { font-size: 2.6rem; }
+  .celebrate .msg { font-weight: 600; color: var(--good); margin-top: 10px; }
+  .spinner { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .scan-bar { max-width: 320px; margin: 16px auto 0; }
+  .error-box { border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface)); color: var(--text); padding: 14px 18px; border-radius: var(--radius); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gap Finder</h1>
+  <p class="subtitle" id="subtitle">A friendly check-up for your dictionary&rsquo;s completeness.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Scanning your lexicon&hellip;</div>
+    <div class="scan-bar bar"><i id="scan-fill" style="width:0%"></i></div>
+  </div>
+
+  <div id="empty" class="center-state" hidden>
+    This project has no entries yet. Add some words, then come back for a health check.
+  </div>
+
+  <div id="error" class="error-box" hidden></div>
+
+  <div id="app" hidden>
+    <div class="health" id="health">
+      <div class="pct" id="health-pct">&mdash;</div>
+      <div class="hbody">
+        <div class="hmsg" id="health-msg"></div>
+        <div class="bar"><i id="health-fill" style="width:0%"></i></div>
+        <div class="hsub" id="health-sub"></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="field" id="gloss-ws-field" hidden>
+        <label for="gloss-ws">Show meanings in</label>
+        <select id="gloss-ws"></select>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost" id="rescan-btn">Rescan</button>
+    </div>
+
+    <div id="cap-note" class="cap-note" hidden></div>
+
+    <!-- Dashboard -->
+    <section id="dashboard">
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- Worklist -->
+    <section id="worklist" hidden>
+      <div class="wl-head">
+        <button class="back-btn" id="back-btn">&larr; All checks</button>
+        <h2 id="wl-title"></h2>
+        <span class="wl-count" id="wl-count"></span>
+      </div>
+      <p class="wl-blurb" id="wl-blurb"></p>
+      <div class="items" id="wl-items"></div>
+      <div id="wl-celebrate" class="celebrate" hidden>
+        <div class="big">&#127881;</div>
+        <div class="msg" id="wl-celebrate-msg">Nothing to fix here &mdash; nicely done!</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE = 1000;          // API max per call
+  var CAP = 5000;           // safety cap on entries scanned
+  var WORKLIST_CAP = 500;   // rows rendered per worklist (fix these, then rescan for more)
+  var PREFS_KEY = 'gapfinder-prefs';
+
+  var state = {
+    entries: [],
+    vernacular: [],      // [{wsId, name, font}]
+    analysis: [],        // [{wsId, name}]
+    analysisIds: [],
+    defVernWs: null,
+    defVernName: '',
+    parts: [],           // [{id, name (MultiString), display}]
+    cards: [],
+    totalSenses: 0,
+    capped: false,
+    glossWs: null,       // analysis WS used for showing existing meanings
+    view: 'dashboard',   // 'dashboard' or a card id
+  };
+
+  function $(id) { return document.getElementById(id); }
+  var F = window.fwlite;
+
+  function applyTheme(theme) {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (dark ? 'dark' : 'light'));
+  }
+  function showError(msg) {
+    $('loading').hidden = true;
+    $('app').hidden = true;
+    var b = $('error'); b.hidden = false; b.textContent = msg;
+  }
+  function notify(msg) { try { F.notify(msg); } catch (e) { /* toast is best-effort */ } }
+  function deepCopy(obj) { return JSON.parse(JSON.stringify(obj)); }
+  function errMsg(err) { return err && err.message ? err.message : String(err); }
+
+  // --- Text helpers (gloss is plain, definition/sentence are rich; asText handles both) ---
+  function textVal(multi, ws) {
+    if (!ws || !multi || multi[ws] == null) return '';
+    return F.asText(multi[ws]).trim();
+  }
+  function firstAnalysis(multi) {
+    if (!multi) return '';
+    if (state.glossWs) { var v = textVal(multi, state.glossWs); if (v) return v; }
+    for (var i = 0; i < state.analysisIds.length; i++) {
+      var t = textVal(multi, state.analysisIds[i]);
+      if (t) return t;
+    }
+    return '';
+  }
+  function headwordOf(entry) {
+    return F.headword(entry) || '(no headword)';
+  }
+  function senseCtx(sense, index) {
+    return firstAnalysis(sense.gloss) || firstAnalysis(sense.definition) || ('Sense ' + (index + 1));
+  }
+  function hasExample(sense) {
+    return (sense.exampleSentences || []).some(function (ex) { return textVal(ex.sentence, state.defVernWs); });
+  }
+  function hasDefinition(sense) {
+    return state.analysisIds.some(function (id) { return textVal(sense.definition, id); });
+  }
+  function findSense(entry, senseId) {
+    return (entry.senses || []).filter(function (s) { return s.id === senseId; })[0] || null;
+  }
+
+  // --- Load every entry (client-side is the source of truth: the demo backend ignores
+  //     the missing* filters, and several checks below have no server filter anyway). ---
+  function fetchAll(total) {
+    var target = Math.min(total, CAP);
+    var out = [];
+    function loadNext() {
+      if (out.length >= target) return Promise.resolve(out);
+      var limit = Math.min(PAGE, target - out.length);
+      return F.getEntries({limit: limit, offset: out.length}).then(function (page) {
+        out = out.concat(page);
+        var pct = target ? Math.round(out.length / target * 100) : 100;
+        $('scan-fill').style.width = pct + '%';
+        $('loading-text').textContent = 'Scanned ' + out.length.toLocaleString() + ' of ' + target.toLocaleString() + ' entries…';
+        if (!page.length || out.length >= target) return out;
+        return loadNext();
+      });
+    }
+    return loadNext();
+  }
+
+  // --- Build the gap categories and populate them from the loaded entries ---
+  function buildCards() {
+    state.cards = [];
+    var byId = {};
+    function add(c) { c.items = []; state.cards.push(c); byId[c.id] = c; }
+
+    state.analysis.forEach(function (ws) {
+      add({id: 'gloss:' + ws.wsId, level: 'entry', fix: 'gloss', wsId: ws.wsId,
+        title: 'No gloss in ' + ws.name,
+        blurb: 'Entries where not one sense has a gloss in ' + ws.name + '. Add a short meaning below.'});
+    });
+    add({id: 'pos', level: 'sense', fix: 'pos',
+      title: 'No part of speech',
+      blurb: 'Senses not yet tagged with a part of speech. Pick one from the dropdown to set it.'});
+    if (state.defVernWs) add({id: 'example', level: 'sense', fix: null,
+      title: 'No example sentence',
+      blurb: 'Senses with no example sentence in ' + state.defVernName + '. Open the entry to add one.'});
+    if (state.analysisIds.length) add({id: 'definition', level: 'sense', fix: null,
+      title: 'No definition',
+      blurb: 'Senses with no definition written in any analysis language yet.'});
+    add({id: 'domain', level: 'sense', fix: null,
+      title: 'No semantic domain',
+      blurb: 'Senses not yet tagged with a semantic domain.'});
+    add({id: 'nosenses', level: 'entry', fix: null,
+      title: 'No senses',
+      blurb: 'Entries that have no senses at all. Open each to add a meaning.'});
+
+    state.totalSenses = 0;
+    state.entries.forEach(function (entry) {
+      var senses = entry.senses || [];
+      var hw = headwordOf(entry);
+      if (!senses.length) {
+        byId['nosenses'].items.push({entryId: entry.id, headword: hw});
+        return;
+      }
+      state.analysis.forEach(function (ws) {
+        var has = senses.some(function (s) { return textVal(s.gloss, ws.wsId); });
+        if (!has) {
+          byId['gloss:' + ws.wsId].items.push({
+            entryId: entry.id, headword: hw,
+            senses: senses.map(function (s, i) { return {id: s.id, ctx: senseCtx(s, i)}; }),
+          });
+        }
+      });
+      senses.forEach(function (s, i) {
+        state.totalSenses++;
+        var ctx = senseCtx(s, i);
+        if (!s.partOfSpeech && !s.partOfSpeechId) byId['pos'].items.push(senseItem(entry.id, hw, s.id, ctx));
+        if (byId['example'] && !hasExample(s)) byId['example'].items.push(senseItem(entry.id, hw, s.id, ctx));
+        if (byId['definition'] && !hasDefinition(s)) byId['definition'].items.push(senseItem(entry.id, hw, s.id, ctx));
+        if (!(s.semanticDomains && s.semanticDomains.length)) byId['domain'].items.push(senseItem(entry.id, hw, s.id, ctx));
+      });
+    });
+
+    state.cards.forEach(function (c) {
+      c.denom = c.level === 'entry' ? state.entries.length : state.totalSenses;
+    });
+  }
+  function senseItem(entryId, headword, senseId, ctx) {
+    return {entryId: entryId, headword: headword, senseId: senseId, ctx: ctx};
+  }
+  function cardById(id) {
+    return state.cards.filter(function (c) { return c.id === id; })[0] || null;
+  }
+
+  // --- Health summary -------------------------------------------------------
+  function updateSummary() {
+    var good = 0, denom = 0, gaps = 0;
+    state.cards.forEach(function (c) {
+      gaps += c.items.length;
+      if (c.denom > 0) { good += (c.denom - c.items.length); denom += c.denom; }
+    });
+    var pct = denom ? Math.round(good / denom * 100) : 100;
+    var complete = gaps === 0;
+    $('health').classList.toggle('complete', complete);
+    $('health-pct').textContent = pct + '%';
+    $('health-fill').style.width = pct + '%';
+    $('health-msg').textContent = healthMessage(pct, complete);
+    $('health-sub').textContent = complete
+      ? 'No gaps across ' + state.entries.length.toLocaleString() + ' entries.'
+      : gaps.toLocaleString() + ' gap' + (gaps === 1 ? '' : 's') + ' found across ' + state.cards.length + ' checks. Tap a card to work through them.';
+  }
+  function healthMessage(pct, complete) {
+    if (complete) return 'Your dictionary looks complete — wonderful work!';
+    if (pct >= 90) return 'Almost there — just a few gaps left.';
+    if (pct >= 70) return 'Good progress. A steady bit of cleanup to go.';
+    if (pct >= 40) return 'Coming along nicely — plenty of quick wins below.';
+    return 'Lots of room to grow. Pick a card and chip away.';
+  }
+
+  // --- Dashboard ------------------------------------------------------------
+  function renderDashboard() {
+    var grid = $('grid');
+    grid.innerHTML = '';
+    state.cards.forEach(function (card) {
+      var count = card.items.length;
+      var done = count === 0;
+      var btn = document.createElement('button');
+      btn.className = 'card' + (done ? ' done' : '');
+      btn.type = 'button';
+
+      var h = document.createElement('h3');
+      h.textContent = card.title;
+      btn.appendChild(h);
+
+      var row = document.createElement('div');
+      row.className = 'count-row';
+      if (done) {
+        var chk = document.createElement('span');
+        chk.className = 'check';
+        chk.textContent = '✓';
+        row.appendChild(chk);
+        var ok = document.createElement('span');
+        ok.className = 'count-label';
+        ok.textContent = 'All good';
+        row.appendChild(ok);
+      } else {
+        var n = document.createElement('span');
+        n.className = 'count';
+        n.textContent = count.toLocaleString();
+        row.appendChild(n);
+        var lbl = document.createElement('span');
+        lbl.className = 'count-label';
+        lbl.textContent = card.level === 'entry' ? 'entries' : 'senses';
+        row.appendChild(lbl);
+      }
+      btn.appendChild(row);
+
+      var good = Math.max(0, card.denom - count);
+      var pct = card.denom ? Math.round(good / card.denom * 100) : 100;
+      var ratio = document.createElement('div');
+      ratio.className = 'ratio';
+      ratio.textContent = card.denom
+        ? good.toLocaleString() + ' of ' + card.denom.toLocaleString() + ' ' + (card.level === 'entry' ? 'entries' : 'senses') + ' complete'
+        : (card.level === 'entry' ? 'no entries' : 'no senses yet');
+      btn.appendChild(ratio);
+
+      var mb = document.createElement('div');
+      mb.className = 'mini-bar';
+      var fill = document.createElement('i');
+      fill.style.width = pct + '%';
+      mb.appendChild(fill);
+      btn.appendChild(mb);
+
+      if (!done && card.fix) {
+        var tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = 'Fix here';
+        btn.appendChild(tag);
+      }
+
+      btn.addEventListener('click', function () { openCard(card.id); });
+      grid.appendChild(btn);
+    });
+  }
+
+  // --- Worklist -------------------------------------------------------------
+  function openCard(id) {
+    state.view = id;
+    savePrefs();
+    renderView();
+  }
+  function goDashboard() {
+    state.view = 'dashboard';
+    savePrefs();
+    renderView();
+  }
+
+  function renderWorklist(card) {
+    $('wl-title').textContent = card.title;
+    $('wl-blurb').textContent = card.blurb;
+    updateCardHeader(card);
+
+    var host = $('wl-items');
+    host.innerHTML = '';
+    var celebrate = $('wl-celebrate');
+
+    if (card.items.length === 0) {
+      host.hidden = true;
+      celebrate.hidden = false;
+      return;
+    }
+    host.hidden = false;
+    celebrate.hidden = true;
+
+    var shown = card.items.slice(0, WORKLIST_CAP);
+    shown.forEach(function (item) {
+      host.appendChild(card.fix === 'gloss' ? renderGlossItem(card, item)
+        : card.fix === 'pos' ? renderPosItem(card, item)
+        : renderPlainItem(card, item));
+    });
+    if (card.items.length > WORKLIST_CAP) {
+      var note = document.createElement('div');
+      note.className = 'list-note';
+      note.textContent = 'Showing the first ' + WORKLIST_CAP.toLocaleString() + ' of ' +
+        card.items.length.toLocaleString() + '. Fix some, then Rescan to see the rest.';
+      host.appendChild(note);
+    }
+  }
+
+  function updateCardHeader(card) {
+    var count = card.items.length;
+    $('wl-count').textContent = count === 0 ? 'All clear'
+      : count.toLocaleString() + ' ' + (card.level === 'entry' ? 'entries' : 'senses');
+  }
+
+  function itemShell(item) {
+    var row = document.createElement('div');
+    row.className = 'item';
+    var top = document.createElement('div');
+    top.className = 'item-top';
+    var left = document.createElement('div');
+    var hw = document.createElement('div');
+    hw.className = 'hw';
+    hw.textContent = item.headword;
+    left.appendChild(hw);
+    top.appendChild(left);
+    var open = document.createElement('a');
+    open.className = 'open';
+    open.textContent = 'Open ↗';
+    open.addEventListener('click', function () { F.openEntry(item.entryId); });
+    top.appendChild(open);
+    row.appendChild(top);
+    return {row: row, left: left};
+  }
+
+  function renderPlainItem(card, item) {
+    var shell = itemShell(item);
+    if (item.ctx) {
+      var ctx = document.createElement('div');
+      ctx.className = 'ctx';
+      ctx.textContent = item.ctx;
+      shell.left.appendChild(ctx);
+    }
+    return shell.row;
+  }
+
+  function renderPosItem(card, item) {
+    var shell = itemShell(item);
+    var ctx = document.createElement('div');
+    ctx.className = 'ctx';
+    ctx.textContent = item.ctx;
+    shell.left.appendChild(ctx);
+
+    var fix = document.createElement('div');
+    fix.className = 'fix';
+    var fixRow = document.createElement('div');
+    fixRow.className = 'fix-row';
+    var select = document.createElement('select');
+    var ph = document.createElement('option');
+    ph.value = '';
+    ph.textContent = 'Set part of speech…';
+    select.appendChild(ph);
+    state.parts.forEach(function (pos) {
+      var opt = document.createElement('option');
+      opt.value = pos.id;
+      opt.textContent = pos.display;
+      select.appendChild(opt);
+    });
+    fixRow.appendChild(select);
+    fix.appendChild(fixRow);
+    shell.row.appendChild(fix);
+
+    select.addEventListener('change', function () {
+      var posId = select.value;
+      if (!posId) return;
+      var pos = state.parts.filter(function (p) { return p.id === posId; })[0];
+      if (!pos) return;
+      select.disabled = true;
+      applyWrite(item.entryId, function (before, after) {
+        var s = findSense(after, item.senseId);
+        if (!s) return false;
+        s.partOfSpeech = {id: pos.id, name: pos.name};
+        s.partOfSpeechId = pos.id;
+        return true;
+      }).then(function () {
+        removeItem(card, item, shell.row);
+        notify('Part of speech saved for “' + item.headword + '”.');
+      }, function (err) {
+        select.disabled = false;
+        select.value = '';
+        handleWriteError(err, card, item, shell.row);
+      });
+    });
+    return shell.row;
+  }
+
+  function renderGlossItem(card, item) {
+    var shell = itemShell(item);
+    var fix = document.createElement('div');
+    fix.className = 'fix';
+    var hint = document.createElement('div');
+    hint.className = 'fix-hint';
+    hint.textContent = 'Add a ' + card.title.replace('No gloss in ', '') + ' gloss to any sense:';
+    fix.appendChild(hint);
+
+    item.senses.forEach(function (sense) {
+      var fixRow = document.createElement('div');
+      fixRow.className = 'fix-row';
+      var sctx = document.createElement('span');
+      sctx.className = 'sctx';
+      sctx.textContent = sense.ctx;
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Type a gloss…';
+      var save = document.createElement('button');
+      save.className = 'save-btn';
+      save.textContent = 'Save';
+
+      function submit() {
+        var value = input.value.trim();
+        if (!value) { input.focus(); return; }
+        input.disabled = true; save.disabled = true;
+        applyWrite(item.entryId, function (before, after) {
+          var s = findSense(after, sense.id);
+          if (!s) return false;
+          if (!s.gloss) s.gloss = {};
+          s.gloss[card.wsId] = value;
+          return true;
+        }).then(function () {
+          // The entry now has a gloss in this WS, so its gap is resolved.
+          removeItem(card, item, shell.row);
+          notify('Gloss saved for “' + item.headword + '”.');
+        }, function (err) {
+          input.disabled = false; save.disabled = false;
+          handleWriteError(err, card, item, shell.row);
+        });
+      }
+      save.addEventListener('click', submit);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
+
+      fixRow.appendChild(sctx);
+      fixRow.appendChild(input);
+      fixRow.appendChild(save);
+      fix.appendChild(fixRow);
+    });
+    shell.row.appendChild(fix);
+    return shell.row;
+  }
+
+  // Re-fetch immediately before writing, apply only the one field, and write the diff.
+  // `mutate` returns false when the target sense no longer exists (nothing to write).
+  function applyWrite(entryId, mutate) {
+    return F.getEntry(entryId).then(function (before) {
+      if (!before) { var e = new Error('gone'); e.code = 'gone'; throw e; }
+      var after = deepCopy(before);
+      if (!mutate(before, after)) { var g = new Error('nochange'); g.code = 'nochange'; throw g; }
+      return F.updateEntry(before, after);
+    });
+  }
+
+  function handleWriteError(err, card, item, row) {
+    if (err && err.code === 'permission-denied') {
+      notify('Not saved — no problem, it’s still in the list.');
+    } else if (err && (err.code === 'gone' || err.code === 'nochange')) {
+      // Entry or sense changed elsewhere; the gap is effectively resolved.
+      removeItem(card, item, row);
+      notify('That item changed elsewhere — removed from the list.');
+    } else {
+      notify('Could not save: ' + errMsg(err));
+    }
+  }
+
+  function removeItem(card, item, row) {
+    var idx = card.items.indexOf(item);
+    if (idx >= 0) card.items.splice(idx, 1);
+    if (row && row.parentNode) row.parentNode.removeChild(row);
+    updateCardHeader(card);
+    updateSummary();
+    if (card.items.length === 0) {
+      $('wl-items').hidden = true;
+      $('wl-celebrate').hidden = false;
+      $('wl-celebrate-msg').textContent = 'Every gap here is filled — nicely done!';
+    }
+  }
+
+  // --- View switching -------------------------------------------------------
+  function renderView() {
+    updateSummary();
+    var card = state.view === 'dashboard' ? null : cardById(state.view);
+    if (!card) state.view = 'dashboard';
+    $('dashboard').hidden = state.view !== 'dashboard';
+    $('worklist').hidden = state.view === 'dashboard';
+    if (state.view === 'dashboard') renderDashboard();
+    else renderWorklist(card);
+  }
+
+  // --- Prefs ----------------------------------------------------------------
+  function savePrefs() {
+    F.storage.set(PREFS_KEY, {glossWs: state.glossWs, view: state.view}).catch(function () {});
+  }
+
+  // --- Scan pipeline --------------------------------------------------------
+  function scanAll(total) {
+    $('app').hidden = true;
+    $('loading').hidden = false;
+    $('scan-fill').style.width = '0%';
+    return fetchAll(total).then(function (entries) {
+      state.entries = entries;
+      state.capped = total > CAP;
+      buildCards();
+      $('cap-note').hidden = !state.capped;
+      if (state.capped) {
+        $('cap-note').textContent = 'Scanned the first ' + CAP.toLocaleString() +
+          ' entries. Fix some and Rescan to check the rest.';
+      }
+      $('loading').hidden = true;
+      $('app').hidden = false;
+      renderView();
+    });
+  }
+
+  // --- Init -----------------------------------------------------------------
+  function init(context) {
+    applyTheme(context.theme);
+    $('subtitle').textContent = 'A friendly completeness check for ' + context.project.projectName + '.';
+
+    Promise.all([
+      F.getWritingSystems(),
+      F.getPartsOfSpeech(),
+      F.countEntries({}),
+      F.storage.get(PREFS_KEY),
+    ]).then(function (res) {
+      var ws = res[0], parts = res[1], total = res[2], prefs = res[3] || {};
+
+      state.vernacular = (ws.vernacular || []).filter(function (w) { return !w.isAudio; })
+        .map(function (w) { return {wsId: w.wsId, name: w.name || w.wsId, font: w.font}; });
+      state.analysis = (ws.analysis || []).filter(function (w) { return !w.isAudio; })
+        .map(function (w) { return {wsId: w.wsId, name: w.name || w.wsId}; });
+      state.analysisIds = state.analysis.map(function (w) { return w.wsId; });
+      if (state.vernacular.length) {
+        state.defVernWs = state.vernacular[0].wsId;
+        state.defVernName = state.vernacular[0].name;
+        var vf = state.vernacular[0].font;
+        document.documentElement.style.setProperty('--vern-font', (vf ? '"' + vf + '", ' : '') + 'inherit');
+      }
+      state.parts = parts.map(function (p) {
+        return {id: p.id, name: p.name, display: (F.firstValue(p.name, state.analysisIds) || Object.values(p.name || {})[0] || '(unnamed)')};
+      });
+
+      // Restore the meanings-in preference if it is still a valid analysis WS.
+      if (prefs.glossWs && state.analysisIds.indexOf(prefs.glossWs) >= 0) state.glossWs = prefs.glossWs;
+      else state.glossWs = state.analysisIds[0] || null;
+
+      // Meanings-in selector (only worth showing with 2+ analysis writing systems).
+      if (state.analysis.length > 1) {
+        $('gloss-ws-field').hidden = false;
+        var sel = $('gloss-ws');
+        sel.innerHTML = '';
+        state.analysis.forEach(function (w) {
+          var opt = document.createElement('option');
+          opt.value = w.wsId;
+          opt.textContent = w.name;
+          if (w.wsId === state.glossWs) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', function () {
+          state.glossWs = sel.value;
+          savePrefs();
+          buildCards();          // context strings depend on the chosen WS
+          renderView();
+        });
+      }
+
+      $('rescan-btn').addEventListener('click', function () {
+        var btn = $('rescan-btn');
+        btn.disabled = true;
+        F.countEntries({}).then(function (t) {
+          if (t === 0) { $('app').hidden = true; $('empty').hidden = false; return; }
+          return scanAll(t);
+        }).catch(function (err) {
+          notify('Rescan failed: ' + errMsg(err));
+        }).then(function () { btn.disabled = false; });
+      });
+      $('back-btn').addEventListener('click', goDashboard);
+
+      if (total === 0) {
+        $('loading').hidden = true;
+        $('empty').hidden = false;
+        return;
+      }
+
+      if (prefs.view && prefs.view !== 'dashboard') state.view = prefs.view;
+
+      return scanAll(total).then(function () {
+        // A restored view may point at a card that no longer exists; renderView falls back.
+      });
+    }).catch(function (err) {
+      showError('Could not run the health check: ' + errMsg(err));
+    });
+  }
+
+  F.ready.then(init);
+})();
+</script>
+</body>
+</html>

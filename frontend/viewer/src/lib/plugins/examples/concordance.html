@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concordance</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --mark-bg: #fde68a;
+    --mark-text: #422006;
+    --context: #9098a5;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 12px;
+    --mono: "SFMono-Regular", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --mark-bg: #b7791f;
+    --mark-text: #fffbeb;
+    --context: #7b828e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 18px 14px 40px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 1.35rem; margin: 0 0 2px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; font-size: 0.9rem; }
+
+  .controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .search-box { position: relative; }
+  .search-box input {
+    font: inherit;
+    font-size: 1.05rem;
+    width: 100%;
+    padding: 11px 14px 11px 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+  }
+  .search-box input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+  .search-box .icon {
+    position: absolute;
+    left: 13px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: var(--text-muted); pointer-events: none;
+  }
+
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    margin-top: 12px;
+    align-items: flex-start;
+  }
+  fieldset {
+    border: none; padding: 0; margin: 0;
+    display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;
+  }
+  legend, .opt-label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  label.chk { display: inline-flex; align-items: center; gap: 5px; font-size: 0.86rem; cursor: pointer; white-space: nowrap; }
+  label.chk input { accent-color: var(--accent); }
+  .opt-group { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+  .opt-group select {
+    font: inherit; font-size: 0.84rem; padding: 4px 8px;
+    border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);
+  }
+  .sep { width: 1px; align-self: stretch; background: var(--border); }
+
+  .summary {
+    margin: 4px 2px 14px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    min-height: 1.2em;
+  }
+  .summary strong { color: var(--text); }
+  .cap-note {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 0.78rem;
+    color: #b45309;
+    background: var(--surface-alt);
+    padding: 2px 9px;
+    border-radius: 999px;
+  }
+  html[data-theme="dark"] .cap-note { color: #fcd34d; }
+
+  /* KWIC table — matched term sits in its own centered column so hits align. */
+  .kwic-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  table.kwic { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+  table.kwic td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: baseline; }
+  table.kwic tr:last-child td { border-bottom: none; }
+  table.kwic tr:hover td { background: var(--accent-soft); }
+
+  .col-head { white-space: nowrap; }
+  .col-head a {
+    color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer;
+    border-radius: 4px;
+  }
+  .col-head a:hover { text-decoration: underline; }
+  .col-head a.vern { font-family: var(--vern-font, inherit); }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 1px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .kwic-cell { font-family: var(--mono); white-space: nowrap; }
+  .kwic-cell.vern { font-family: var(--vern-font, var(--mono)); }
+  td.left { text-align: right; color: var(--context); max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
+  td.term { text-align: center; }
+  td.right { text-align: left; color: var(--context); max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
+  td.term mark {
+    background: var(--mark-bg);
+    color: var(--mark-text);
+    padding: 0 1px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  /* Async / empty states */
+  .center-state { text-align: center; padding: 54px 20px; color: var(--text-muted); }
+  .center-state .big { font-size: 1.05rem; color: var(--text); margin-bottom: 4px; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+  }
+
+  @media (max-width: 560px) {
+    table.kwic { font-size: 0.82rem; }
+    td.left, td.right { max-width: 38vw; }
+    .badge { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Concordance</h1>
+  <p class="subtitle" id="subtitle">Keyword-in-context search across every word and phrase in the dictionary.</p>
+
+  <div class="controls" id="controls" style="display:none;">
+    <div class="search-box">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input id="search" type="text" placeholder="Type a word to search…" autocomplete="off" spellcheck="false" aria-label="Search term">
+    </div>
+
+    <div class="options">
+      <fieldset id="fields" aria-label="Fields to search">
+        <legend>Search in</legend>
+        <label class="chk"><input type="checkbox" data-field="headword" checked> Headwords</label>
+        <label class="chk"><input type="checkbox" data-field="gloss" checked> Glosses</label>
+        <label class="chk"><input type="checkbox" data-field="definition" checked> Definitions</label>
+        <label class="chk"><input type="checkbox" data-field="example" checked> Examples</label>
+        <label class="chk"><input type="checkbox" data-field="translation" checked> Translations</label>
+      </fieldset>
+      <div class="sep" aria-hidden="true"></div>
+      <div class="opt-group">
+        <label class="chk"><input type="checkbox" id="case"> Case-sensitive</label>
+        <label class="chk"><span class="opt-label">Match</span>
+          <select id="match-mode">
+            <option value="substring">Substring</option>
+            <option value="word">Whole word</option>
+          </select>
+        </label>
+        <label class="chk"><span class="opt-label">Sort by</span>
+          <select id="sort-mode">
+            <option value="headword">Headword</option>
+            <option value="match">Match term</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Indexing entries…</div>
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="initial" class="center-state" style="display:none;">
+    <div class="big">Type a word to search</div>
+    <div>Every occurrence appears as a keyword-in-context line, aligned on your search term.</div>
+  </div>
+
+  <div id="no-results" class="center-state" style="display:none;">
+    <div class="big">No occurrences found</div>
+    <div>Try a different word, widen the fields, or turn off whole-word / case-sensitive matching.</div>
+  </div>
+
+  <div id="results-wrap" class="kwic-scroll" style="display:none;">
+    <table class="kwic"><tbody id="results"></tbody></table>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE_SIZE = 1000;       // API max per call
+  var ENTRY_CAP = 5000;       // stop loading after this many entries
+  var RESULT_CAP = 500;       // stop rendering after this many hits
+  var CONTEXT_CHARS = 60;     // characters of context shown each side of a hit
+  var DEBOUNCE_MS = 180;
+  var STORAGE_KEY = 'concordance.options.v1';
+
+  var FIELD_LABELS = {
+    headword: 'headword',
+    gloss: 'gloss',
+    definition: 'definition',
+    example: 'example',
+    translation: 'translation'
+  };
+  var FIELD_ORDER = { headword: 0, gloss: 1, definition: 2, example: 3, translation: 4 };
+  var WORD_CHAR = /[\p{L}\p{N}_]/u;
+
+  var state = {
+    index: [],            // [{entryId, headword, field, ws, vernacular, text}]
+    entriesLoaded: 0,
+    capped: false,
+    wsInfo: {},           // wsId -> {abbreviation, name, vernacular}
+    collator: new Intl.Collator(undefined, {sensitivity: 'base', numeric: true}),
+    debounce: null
+  };
+
+  var options = {
+    fields: { headword: true, gloss: true, definition: true, example: true, translation: true },
+    caseSensitive: false,
+    matchMode: 'substring',
+    sortMode: 'headword'
+  };
+
+  function el(id) { return document.getElementById(id); }
+  var fwlite = window.fwlite;
+
+  function applyTheme(theme) {
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = theme || (prefersDark ? 'dark' : 'light');
+  }
+
+  function showError(message) {
+    el('loading').style.display = 'none';
+    el('controls').style.display = 'none';
+    var box = el('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  // ---- Options persistence -------------------------------------------------
+
+  function loadOptions() {
+    return fwlite.storage.get(STORAGE_KEY).then(function (saved) {
+      if (!saved || typeof saved !== 'object') return;
+      if (saved.fields) {
+        Object.keys(options.fields).forEach(function (f) {
+          if (typeof saved.fields[f] === 'boolean') options.fields[f] = saved.fields[f];
+        });
+      }
+      if (typeof saved.caseSensitive === 'boolean') options.caseSensitive = saved.caseSensitive;
+      if (saved.matchMode === 'substring' || saved.matchMode === 'word') options.matchMode = saved.matchMode;
+      if (saved.sortMode === 'headword' || saved.sortMode === 'match') options.sortMode = saved.sortMode;
+    }).catch(function () { /* storage is best-effort; defaults are fine */ });
+  }
+
+  function saveOptions() {
+    fwlite.storage.set(STORAGE_KEY, options).catch(function () {});
+  }
+
+  function reflectOptionsToUi() {
+    Array.prototype.forEach.call(el('fields').querySelectorAll('input[data-field]'), function (box) {
+      box.checked = !!options.fields[box.getAttribute('data-field')];
+    });
+    el('case').checked = options.caseSensitive;
+    el('match-mode').value = options.matchMode;
+    el('sort-mode').value = options.sortMode;
+  }
+
+  // ---- Loading & indexing --------------------------------------------------
+
+  function fetchAll(total) {
+    var target = Math.min(total, ENTRY_CAP);
+    var out = [];
+    function next() {
+      if (out.length >= target) return Promise.resolve(out);
+      var limit = Math.min(PAGE_SIZE, target - out.length);
+      return fwlite.getEntries({limit: limit, offset: out.length}).then(function (page) {
+        out = out.concat(page);
+        el('loading-text').textContent = 'Loaded ' + out.length.toLocaleString() +
+          ' of ' + target.toLocaleString() + ' entries…';
+        if (!page.length || out.length >= target) return out;
+        return next();
+      });
+    }
+    return next();
+  }
+
+  function addUnit(entryId, headword, field, ws, vernacular, value) {
+    var text = fwlite.asText(value);
+    if (!text) return;
+    state.index.push({
+      entryId: entryId,
+      headword: headword,
+      field: field,
+      ws: ws,
+      vernacular: vernacular,
+      text: text
+    });
+  }
+
+  // Pulls each writing-system value out of a (Rich)MultiString as its own indexable unit.
+  function addMultiString(entryId, headword, field, vernacular, multiString) {
+    if (!multiString) return;
+    Object.keys(multiString).forEach(function (ws) {
+      addUnit(entryId, headword, field, ws, vernacular, multiString[ws]);
+    });
+  }
+
+  function headwordOf(entry) {
+    return fwlite.headword(entry) || '(no headword)';
+  }
+
+  function buildIndex(entries) {
+    entries.forEach(function (entry) {
+      var head = headwordOf(entry);
+      addMultiString(entry.id, head, 'headword', true, entry.lexemeForm);
+      addMultiString(entry.id, head, 'headword', true, entry.citationForm);
+      (entry.senses || []).forEach(function (sense) {
+        addMultiString(entry.id, head, 'gloss', false, sense.gloss);
+        addMultiString(entry.id, head, 'definition', false, sense.definition);
+        (sense.exampleSentences || []).forEach(function (ex) {
+          addMultiString(entry.id, head, 'example', true, ex.sentence);
+          (ex.translations || []).forEach(function (tr) {
+            addMultiString(entry.id, head, 'translation', false, tr.text);
+          });
+        });
+      });
+    });
+  }
+
+  // ---- Search --------------------------------------------------------------
+
+  function isWordChar(ch) { return !!ch && WORD_CHAR.test(ch); }
+
+  function isWholeWord(hay, idx, len) {
+    return !isWordChar(hay.charAt(idx - 1)) && !isWordChar(hay.charAt(idx + len));
+  }
+
+  function matchPositions(hay, needle, wholeWord) {
+    var positions = [];
+    var len = needle.length;
+    var from = 0, idx;
+    while ((idx = hay.indexOf(needle, from)) !== -1) {
+      if (!wholeWord || isWholeWord(hay, idx, len)) positions.push(idx);
+      from = idx + len;
+    }
+    return positions;
+  }
+
+  function search(term) {
+    var wholeWord = options.matchMode === 'word';
+    var caseSensitive = options.caseSensitive;
+    var needle = caseSensitive ? term : term.toLowerCase();
+    var len = term.length;
+    var hits = [];
+    var entrySet = Object.create(null);
+    var total = 0;
+
+    for (var i = 0; i < state.index.length; i++) {
+      var unit = state.index[i];
+      if (!options.fields[unit.field]) continue;
+      var hay = caseSensitive ? unit.text : unit.text.toLowerCase();
+      var positions = matchPositions(hay, needle, wholeWord);
+      if (!positions.length) continue;
+      entrySet[unit.entryId] = true;
+      for (var p = 0; p < positions.length; p++) {
+        total++;
+        if (hits.length < RESULT_CAP * 4) {
+          hits.push({ unit: unit, at: positions[p], len: len });
+        }
+      }
+    }
+
+    sortHits(hits);
+    return { hits: hits, total: total, entryCount: Object.keys(entrySet).length };
+  }
+
+  function sortHits(hits) {
+    var c = state.collator;
+    if (options.sortMode === 'match') {
+      hits.sort(function (a, b) {
+        var ta = a.unit.text.substr(a.at, a.len);
+        var tb = b.unit.text.substr(b.at, b.len);
+        return c.compare(ta, tb) ||
+          c.compare(a.unit.headword, b.unit.headword) ||
+          (FIELD_ORDER[a.unit.field] - FIELD_ORDER[b.unit.field]);
+      });
+    } else {
+      hits.sort(function (a, b) {
+        return c.compare(a.unit.headword, b.unit.headword) ||
+          (FIELD_ORDER[a.unit.field] - FIELD_ORDER[b.unit.field]) ||
+          (a.at - b.at);
+      });
+    }
+  }
+
+  // ---- Rendering -----------------------------------------------------------
+
+  function clipLeft(text) {
+    return text.length > CONTEXT_CHARS ? '…' + text.slice(text.length - CONTEXT_CHARS) : text;
+  }
+  function clipRight(text) {
+    return text.length > CONTEXT_CHARS ? text.slice(0, CONTEXT_CHARS) + '…' : text;
+  }
+
+  function makeHeadCell(hit) {
+    var td = document.createElement('td');
+    td.className = 'col-head';
+    var a = document.createElement('a');
+    a.className = 'vern';
+    a.setAttribute('role', 'link');
+    a.tabIndex = 0;
+    a.textContent = hit.unit.headword;
+    var entryId = hit.unit.entryId;
+    a.addEventListener('click', function () { fwlite.openEntry(entryId); });
+    a.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fwlite.openEntry(entryId); }
+    });
+    td.appendChild(a);
+    return td;
+  }
+
+  function makeBadgeCell(hit) {
+    var td = document.createElement('td');
+    var ws = state.wsInfo[hit.unit.ws];
+    var wsLabel = (ws && ws.abbreviation) || hit.unit.ws;
+    var badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = FIELD_LABELS[hit.unit.field] + ' · ' + wsLabel;
+    td.appendChild(badge);
+    return td;
+  }
+
+  function makeKwicCells(hit) {
+    var text = hit.unit.text;
+    var vernClass = hit.unit.vernacular ? ' vern' : '';
+
+    var left = document.createElement('td');
+    left.className = 'left kwic-cell' + vernClass;
+    left.textContent = clipLeft(text.slice(0, hit.at));
+
+    var termTd = document.createElement('td');
+    termTd.className = 'term kwic-cell' + vernClass;
+    var mark = document.createElement('mark');
+    mark.textContent = text.substr(hit.at, hit.len);
+    termTd.appendChild(mark);
+
+    var right = document.createElement('td');
+    right.className = 'right kwic-cell' + vernClass;
+    right.textContent = clipRight(text.slice(hit.at + hit.len));
+
+    return [left, termTd, right];
+  }
+
+  function renderResults(result) {
+    var body = el('results');
+    body.textContent = '';
+    var frag = document.createDocumentFragment();
+    var shown = Math.min(result.hits.length, RESULT_CAP);
+    for (var i = 0; i < shown; i++) {
+      var hit = result.hits[i];
+      var tr = document.createElement('tr');
+      tr.appendChild(makeHeadCell(hit));
+      tr.appendChild(makeBadgeCell(hit));
+      makeKwicCells(hit).forEach(function (cell) { tr.appendChild(cell); });
+      frag.appendChild(tr);
+    }
+    body.appendChild(frag);
+    el('results-wrap').style.display = 'block';
+  }
+
+  function setStates(opts) {
+    el('initial').style.display = opts.initial ? 'block' : 'none';
+    el('no-results').style.display = opts.noResults ? 'block' : 'none';
+    el('results-wrap').style.display = opts.results ? 'block' : 'none';
+  }
+
+  function writeSummary(result, shown) {
+    var s = el('summary');
+    s.textContent = '';
+    var occ = result.total.toLocaleString() + ' occurrence' + (result.total === 1 ? '' : 's');
+    var ent = result.entryCount.toLocaleString() + ' entr' + (result.entryCount === 1 ? 'y' : 'ies');
+    var strong = document.createElement('strong');
+    strong.textContent = occ;
+    s.appendChild(strong);
+    s.appendChild(document.createTextNode(' in ' + ent));
+    if (shown < result.total) {
+      var cap = document.createElement('span');
+      cap.className = 'cap-note';
+      cap.textContent = 'showing first ' + shown.toLocaleString();
+      s.appendChild(cap);
+    }
+  }
+
+  function runSearch() {
+    var term = el('search').value.trim();
+    if (!term) {
+      el('summary').textContent = '';
+      setStates({ initial: true });
+      return;
+    }
+    var result = search(term);
+    if (!result.total) {
+      el('summary').textContent = '';
+      setStates({ noResults: true });
+      return;
+    }
+    var shown = Math.min(result.hits.length, RESULT_CAP);
+    writeSummary(result, shown);
+    setStates({ results: true });
+    renderResults(result);
+  }
+
+  function scheduleSearch() {
+    clearTimeout(state.debounce);
+    state.debounce = setTimeout(runSearch, DEBOUNCE_MS);
+  }
+
+  // ---- Wiring --------------------------------------------------------------
+
+  function wireEvents() {
+    el('search').addEventListener('input', scheduleSearch);
+
+    Array.prototype.forEach.call(el('fields').querySelectorAll('input[data-field]'), function (box) {
+      box.addEventListener('change', function () {
+        options.fields[box.getAttribute('data-field')] = box.checked;
+        saveOptions();
+        runSearch();
+      });
+    });
+    el('case').addEventListener('change', function () {
+      options.caseSensitive = this.checked; saveOptions(); runSearch();
+    });
+    el('match-mode').addEventListener('change', function () {
+      options.matchMode = this.value; saveOptions(); runSearch();
+    });
+    el('sort-mode').addEventListener('change', function () {
+      options.sortMode = this.value; saveOptions(); runSearch();
+    });
+  }
+
+  function setupWritingSystems(ws) {
+    var fonts = [];
+    function register(list, vernacular) {
+      (list || []).forEach(function (w) {
+        state.wsInfo[w.wsId] = { abbreviation: w.abbreviation, name: w.name, vernacular: vernacular };
+        if (vernacular && w.font) fonts.push('"' + w.font + '"');
+      });
+    }
+    register(ws.vernacular, true);
+    register(ws.analysis, false);
+    if (fonts.length) {
+      document.documentElement.style.setProperty('--vern-font', fonts.join(', '));
+    }
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+
+    Promise.all([
+      loadOptions(),
+      fwlite.getWritingSystems(),
+      fwlite.countEntries({})
+    ]).then(function (results) {
+      var ws = results[1];
+      var total = results[2];
+      setupWritingSystems(ws);
+
+      if (!total) {
+        el('loading').style.display = 'none';
+        el('subtitle').textContent = 'This project has no entries to search yet.';
+        return;
+      }
+      state.capped = total > ENTRY_CAP;
+
+      return fetchAll(total).then(function (entries) {
+        el('loading-text').textContent = 'Indexing text…';
+        state.entriesLoaded = entries.length;
+        buildIndex(entries);
+
+        reflectOptionsToUi();
+        wireEvents();
+
+        var sub = 'Searching ' + state.entriesLoaded.toLocaleString() + ' entries · ' +
+          state.index.length.toLocaleString() + ' text fields indexed.';
+        if (state.capped) {
+          sub += ' Capped at the first ' + ENTRY_CAP.toLocaleString() + ' entries.';
+        }
+        el('subtitle').textContent = sub;
+
+        el('loading').style.display = 'none';
+        el('controls').style.display = 'block';
+        setStates({ initial: true });
+        el('search').focus();
+      });
+    }).catch(function (err) {
+      showError('Could not build the concordance: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>
