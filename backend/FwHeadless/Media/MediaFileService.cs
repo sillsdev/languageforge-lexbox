@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using System.Security.Cryptography;
 using FwHeadless.Services;
 using LcmCrdt.MediaServer;
@@ -132,7 +133,13 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
 
     private static LcmFileMetadata ToLcmFileMetadata(MediaFile existingDbFile)
     {
-        return new LcmFileMetadata(existingDbFile.Filename, existingDbFile.Metadata?.MimeType ?? "application/octet-stream", existingDbFile.Metadata?.Author, existingDbFile.Metadata?.UploadDate, existingDbFile.Metadata?.SizeInBytes);
+
+        return new LcmFileMetadata(existingDbFile.Filename, existingDbFile.Metadata?.MimeType ?? MediaTypeNames
+                .Application.Octet, existingDbFile.Metadata?.Author, existingDbFile.Metadata?.UploadDate,
+            existingDbFile.Metadata?.SizeInBytes)
+        {
+            ExtraFields = existingDbFile.Metadata?.ExtraFields.ToDictionary() ?? new Dictionary<string, object>(),
+        };
     }
 
     public async Task SaveMediaFile(MediaFile mediaFile, Stream fileStream)

@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using Microsoft.Extensions.Options;
 using MiniLcm.Project;
 using Refit;
@@ -130,7 +131,7 @@ public class LcmMediaService(
             fileId: resourceId.ToString("D"),
             filename: fileName);
         var uploadedMetadata = new LcmFileMetadata(fileName,
-            response.Metadata?.MimeType ?? metadata?.MimeType ?? "application/octet-stream",
+            response.Metadata?.MimeType ?? metadata?.MimeType ?? MediaTypeNames.Application.Octet,
             response.Metadata?.Author ?? metadata?.Author,
             response.Metadata?.UploadDate ?? metadata?.UploadDate,
             response.Metadata?.SizeInBytes ?? metadata?.SizeInBytes);
