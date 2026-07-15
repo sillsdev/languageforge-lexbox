@@ -1308,15 +1308,13 @@ msgstr "Loading..."
 msgid "Local"
 msgstr "Local"
 
-#: src/lib/media-manager/MediaFileDetail.svelte
-#: src/lib/media-manager/MediaManagerView.svelte
+#: src/lib/media-manager/media-file-utils.ts
 msgid "Local and remote"
 msgstr "Local and remote"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
-#: src/lib/media-manager/MediaFileDetail.svelte
-#: src/lib/media-manager/MediaManagerView.svelte
+#: src/lib/media-manager/media-file-utils.ts
 msgid "Local only"
 msgstr "Local only"
 
@@ -1850,8 +1848,7 @@ msgstr "Refresh Projects"
 msgid "Release notes"
 msgstr "Release notes"
 
-#: src/lib/media-manager/MediaFileDetail.svelte
-#: src/lib/media-manager/MediaManagerView.svelte
+#: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
 msgstr "Remote only"
 
@@ -2323,6 +2320,7 @@ msgid "Type:"
 msgstr "Type:"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to export file"
 msgstr "Unable to export file"
 
@@ -2330,6 +2328,7 @@ msgstr "Unable to export file"
 msgid "Unable to load audio"
 msgstr "Unable to load audio"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to open file"
 msgstr "Unable to open file"

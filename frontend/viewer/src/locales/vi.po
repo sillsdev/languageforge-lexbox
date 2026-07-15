@@ -1313,15 +1313,13 @@ msgstr ""
 msgid "Local"
 msgstr "Cục bộ"
 
-#: src/lib/media-manager/MediaFileDetail.svelte
-#: src/lib/media-manager/MediaManagerView.svelte
+#: src/lib/media-manager/media-file-utils.ts
 msgid "Local and remote"
 msgstr ""
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
-#: src/lib/media-manager/MediaFileDetail.svelte
-#: src/lib/media-manager/MediaManagerView.svelte
+#: src/lib/media-manager/media-file-utils.ts
 msgid "Local only"
 msgstr "Chỉ cục bộ"
 
@@ -1855,8 +1853,7 @@ msgstr "Làm mới Dự án"
 msgid "Release notes"
 msgstr "Ghi chú phát hành"
 
-#: src/lib/media-manager/MediaFileDetail.svelte
-#: src/lib/media-manager/MediaManagerView.svelte
+#: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
 msgstr ""
 
@@ -2328,6 +2325,7 @@ msgid "Type:"
 msgstr "Loại:"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to export file"
 msgstr ""
 
@@ -2335,6 +2333,7 @@ msgstr ""
 msgid "Unable to load audio"
 msgstr ""
 
+#: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to open file"
 msgstr ""

@@ -104,9 +104,10 @@
     };
   }
 
-  const loadedMedia = resource(() => [file.id, mediaFilesService] as const,
-    async ([fileId, service], _, {signal}) => {
-      if (!service) return undefined;
+  const loadedMedia = resource(() => [file.id, file.local, mediaFilesService] as const,
+    async ([fileId, local, service], _, {signal}) => {
+      // never fetch remote-only files: getFileStream implicitly downloads them, which is the Load button's job
+      if (!service || !local) return undefined;
 
       const result = await loadFileBlob(service, fileId, signal);
       signal.throwIfAborted();
