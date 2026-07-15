@@ -49,7 +49,7 @@
     | {status: 'loading'}
     | {status: 'offline'}
     | {status: 'error'; message?: string}
-    | {status: 'ready'; html: string; manifest: PluginManifest; hash: string};
+    | {status: 'ready'; docUrl: string; manifest: PluginManifest; hash: string};
   // $state.raw: replaced wholesale, and its contents feed postMessage — a deep $state proxy
   // would make structuredClone (and so the init message) throw DataCloneError.
   let htmlState = $state.raw<HtmlState>({status: 'loading'});
@@ -67,11 +67,15 @@
     void pluginService.getHtml(requested).then(async result => {
       if (pluginKey !== requestedKey) return; // a newer load owns the state
       if (result.result === 'ok') {
+        const manifest = parsePluginManifest(result.html);
         htmlState = {
           status: 'ready',
-          html: result.html,
-          manifest: parsePluginManifest(result.html),
+          manifest,
           hash: await computePluginHash({name: requested.name, description: requested.description, html: result.html}),
+          // The (possibly multi-MB) HTML is deliberately NOT kept in state or a srcdoc attribute:
+          // the composed document goes into a Blob the iframe loads by URL, so the strings are
+          // GC-able as soon as this scope ends. The source of truth stays the on-disk cache file.
+          docUrl: URL.createObjectURL(new Blob([buildPluginSrcdoc(result.html, manifest.permissions)], {type: 'text/html'})),
         };
       } else if (result.result === 'offline') {
         htmlState = {status: 'offline'};
@@ -79,6 +83,13 @@
         htmlState = {status: 'error', message: result.message};
       }
     });
+  });
+
+  $effect(() => {
+    const current = htmlState;
+    return () => {
+      if (current.status === 'ready') URL.revokeObjectURL(current.docUrl);
+    };
   });
 
   const manifest = $derived(htmlState.status === 'ready' ? htmlState.manifest : undefined);
@@ -210,8 +221,7 @@
     return () => attached.detach();
   });
 
-  const srcdoc = $derived(
-    htmlState.status === 'ready' && approved ? buildPluginSrcdoc(htmlState.html, htmlState.manifest.permissions) : undefined);
+  const docUrl = $derived(htmlState.status === 'ready' && approved ? htmlState.docUrl : undefined);
   let reloadToken = $state(0);
 
   /**
@@ -228,7 +238,7 @@
     if (iframeLoadCount > 1) stoppedForNavigation = true;
   }
   $effect(() => {
-    reloadToken; srcdoc; // eslint-disable-line @typescript-eslint/no-unused-expressions
+    reloadToken; docUrl; // eslint-disable-line @typescript-eslint/no-unused-expressions
     iframeLoadCount = 0;
     stoppedForNavigation = false;
   });
@@ -394,12 +404,12 @@
           </Card.Footer>
         </Card.Root>
       </div>
-    {:else if srcdoc}
+    {:else if docUrl}
       {#key reloadToken}
         <iframe
           bind:this={iframeElement}
           title={plugin.name}
-          {srcdoc}
+          src={docUrl}
           sandbox={PLUGIN_IFRAME_SANDBOX}
           allow={PLUGIN_IFRAME_ALLOW}
           onload={onIframeLoad}

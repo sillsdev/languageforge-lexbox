@@ -32,8 +32,10 @@ flowchart LR
 - **`plugin-service.svelte.ts`** owns persistence: uploading the HTML as a content-hash-named media
   file, building the entity, fetching HTML back (with offline/error outcomes), and carrying
   device-local grants across local edits.
-- **`plugin-srcdoc.ts`** builds the iframe `srcdoc`: injects the SDK and, unless the plugin declares
-  the `internet` permission, a CSP `<meta>` that blocks network fetches. The iframe uses
+- **`plugin-srcdoc.ts`** composes the document the iframe runs: injects the SDK and, unless the
+  plugin declares the `internet` permission, a CSP `<meta>` that blocks network fetches. The result
+  is loaded via a revocable Blob URL (not a `srcdoc` attribute or retained state) so multi-MB plugin
+  HTML stays GC-able; the on-disk cache file remains the source of truth. The iframe uses
   `sandbox="allow-scripts allow-forms allow-modals allow-downloads"` — critically **without**
   `allow-same-origin`, so the plugin gets an opaque origin: no cookies, no app localStorage, no
   `window.parent` DOM access. One caveat the code and copy are honest about: nothing can stop a
@@ -87,7 +89,7 @@ projects. For `fwlite` (SDK + adapter):
 
 ## Testing
 
-`frontend/viewer/tests/plugins.test.ts` runs against the in-browser demo project
-(`task playwright-test-standalone -- plugins`), covering consent, the postMessage bridge, write
-approval/trust, and plugin creation. The demo project seeds one example plugin (see `examples/`).
+`frontend/viewer/tests/ui/plugins.test.ts` runs against the in-browser demo project
+(`task test:ui-standalone -- plugins`), covering consent, the postMessage bridge, write
+approval/trust, and plugin creation. The demo project seeds example plugins (see `examples/`).
 Unit tests live next to their modules (`*.test.ts`).
