@@ -12,71 +12,25 @@
   import {cn} from '$lib/utils';
   import {resource, watch} from 'runed';
   import {t} from 'svelte-i18n-lingui';
-
-  type LocationStatus = 'local' | 'remote' | 'both';
+  import {basename, formatFileSize, guessMimeType, mediaFileDisplayName, mediaFileLocationLabel, type MediaFileLocation} from './media-file-utils';
 
   let {
     file,
     mediaFilesService,
-    locationStatus: status,
+    location,
     loadingFile = false,
-    onLoadFile: onLoadFile,
+    onLoadFile,
     class: className,
   }: {
     file: IHarmonyResource;
     mediaFilesService?: IMediaFilesServiceJsInvokable;
-    locationStatus: LocationStatus;
+    location: MediaFileLocation;
     loadingFile?: boolean;
     onLoadFile?: (fileId: string) => Promise<void>;
     class?: string;
   } = $props();
 
   let savingAs = $state(false);
-
-  const locationLabels: Record<LocationStatus, () => string> = {
-    local: () => $t`Local only`,
-    remote: () => $t`Remote only`,
-    both: () => $t`Local and remote`,
-  };
-
-  function displayNameFromPath(localPath?: string, fallback?: string): string {
-    if (localPath) {
-      return localPath.split(/[/\\]/).pop() ?? fallback ?? '';
-    }
-    return fallback ?? '';
-  }
-
-  function guessMimeType(filename: string): string {
-    const ext = filename.slice(filename.lastIndexOf('.')).toLowerCase();
-    const mimeByExt: Record<string, string> = {
-      '.mp3': 'audio/mpeg',
-      '.wav': 'audio/wav',
-      '.ogg': 'audio/ogg',
-      '.webm': 'audio/webm',
-      '.m4a': 'audio/mp4',
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.png': 'image/png',
-      '.gif': 'image/gif',
-      '.webp': 'image/webp',
-      '.svg': 'image/svg+xml',
-      '.mp4': 'video/mp4',
-      '.pdf': 'application/pdf',
-    };
-    return mimeByExt[ext] ?? 'application/octet-stream';
-  }
-
-  function formatFileSize(bytes?: number): string | undefined {
-    if (bytes == null) return undefined;
-    const units = ['B', 'KB', 'MB', 'GB'];
-    let size = bytes;
-    let unitIndex = 0;
-    while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024;
-      unitIndex++;
-    }
-    return `${size.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
-  }
 
   const metadata = resource(
     () => [file.id, file.remote, file.localPath, file.metadata, mediaFilesService] as const,
@@ -86,17 +40,15 @@
       }
       if (remote && service) {
         try {
-          const remoteMetadata = await service.getFileMetadata(fileId);
-          throwIfAborted(signal);
-          return remoteMetadata;
-        } catch (error) {
-          if (error instanceof DOMException && error.name === 'AbortError') throw error;
-          // fall through to local fallback when available
+          return await service.getFileMetadata(fileId);
+        } catch {
+          /* fall through to local fallback when available */
+        } finally {
+          signal.throwIfAborted();
         }
       }
-      throwIfAborted(signal);
       if (localPath) {
-        const filename = displayNameFromPath(localPath, fileId);
+        const filename = basename(localPath) ?? fileId;
         return {
           filename,
           mimeType: guessMimeType(filename),
@@ -106,31 +58,25 @@
     },
   );
 
-  function throwIfAborted(signal?: AbortSignal) {
-    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
-  }
-
   async function loadFileBlob(
     service: IMediaFilesServiceJsInvokable,
     fileId: string,
-    mimeTypeHint?: string,
-    filenameHint?: string,
     signal?: AbortSignal,
-  ): Promise<{kind: 'success'; blob: Blob; mimeType: string} | {kind: 'error'; response: IReadFileResponseJs}> {
+  ): Promise<{kind: 'success'; blob: Blob; filename?: string} | {kind: 'error'; response: IReadFileResponseJs}> {
     const response = await service.getFileStream(fileId);
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     if (!response.stream) {
       return {kind: 'error', response};
     }
 
     const stream = await response.stream.stream();
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     const blob = await new Response(stream).blob();
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     return {
       kind: 'success',
       blob,
-      mimeType: mimeTypeHint || blob.type || guessMimeType(filenameHint ?? response.fileName ?? ''),
+      filename: response.fileName,
     };
   }
 
@@ -138,6 +84,15 @@
 
   async function mediaFileAudioLoader(fileId: string) {
     if (!mediaFilesService) throw new Error('No media files service');
+    // best cheap attempt at reusing what we already loaded
+    // better would be to have a single media-load path instead of two (more work)
+    const loaded = loadedMedia.current;
+    if (fileId === file.id && loaded?.kind === 'success') {
+      return {
+        stream: loaded.blob.stream(),
+        filename: loaded.filename ?? metadata.current?.filename ?? fileId,
+      };
+    }
     const response = await mediaFilesService.getFileStream(fileId);
     if (!response.stream) {
       AppNotification.error($t`Unable to load audio`, readFileErrorMessage(response.result, response.errorMessage));
@@ -149,46 +104,57 @@
     };
   }
 
-  const preview = resource(
-    () => [file.id, file.local, mediaFilesService, metadata.current] as const,
-    async ([fileId, local, service, meta], _, {signal}) => {
-      if (!service || !local || !meta) return undefined;
-      if (meta.mimeType.startsWith('audio/')) return undefined;
+  const loadedMedia = resource(() => [file.id, mediaFilesService] as const,
+    async ([fileId, service], _, {signal}) => {
+      if (!service) return undefined;
 
-      const result = await loadFileBlob(service, fileId, meta.mimeType, meta.filename, signal);
-      throwIfAborted(signal);
+      const result = await loadFileBlob(service, fileId, signal);
+      signal.throwIfAborted();
       if (result.kind === 'error') {
         return {kind: 'error' as const, response: result.response};
       }
 
-      const url = URL.createObjectURL(result.blob);
-      if (signal.aborted) {
-        URL.revokeObjectURL(url);
-        throw new DOMException('Aborted', 'AbortError');
-      }
       return {
         kind: 'success' as const,
-        url,
         blob: result.blob,
-        mimeType: result.mimeType,
+        filename: result.filename,
       };
     },
   );
 
+  const preview = $derived.by(() => {
+    const meta = metadata.current;
+    const media = loadedMedia.current;
+    if (!meta || !media) return undefined;
+    if (meta.mimeType.startsWith('audio/')) return undefined;
+
+    if (media.kind === 'error') {
+      return {kind: 'error' as const, response: media.response};
+    }
+
+    const url = URL.createObjectURL(media.blob);
+    return {
+      kind: 'success' as const,
+      url,
+      blob: media.blob,
+      mimeType: meta.mimeType || media.blob.type || guessMimeType(meta.filename ?? media.filename ?? ''),
+    };
+  });
+
   watch(() => file.id, () => {
     metadata.mutate(undefined);
-    preview.mutate(undefined);
+    loadedMedia.mutate(undefined);
   });
 
   $effect(() => {
-    const url = preview.current?.kind === 'success' ? preview.current.url : undefined;
+    const url = preview?.kind === 'success' ? preview.url : undefined;
     return () => {
       if (url) URL.revokeObjectURL(url);
     };
   });
 
   const effectiveMimeType = $derived(
-    metadata.current?.mimeType ?? (preview.current?.kind === 'success' ? preview.current.mimeType : undefined),
+    metadata.current?.mimeType ?? (preview?.kind === 'success' ? preview.mimeType : undefined),
   );
 
   const previewKind = $derived.by(() => {
@@ -199,11 +165,7 @@
     return 'other';
   });
 
-  const title = $derived(
-    metadata.current?.filename
-      ?? file.metadata?.filename
-      ?? displayNameFromPath(file.localPath, file.id),
-  );
+  const title = $derived(metadata.current?.filename ?? mediaFileDisplayName(file));
 
   const canSaveAs = $derived(file.local);
 
@@ -221,8 +183,8 @@
   }
 
   async function loadBlobForSave(): Promise<Blob | undefined> {
-    if (preview.current?.kind === 'success') {
-      return preview.current.blob;
+    if (loadedMedia.current?.kind === 'success') {
+      return loadedMedia.current.blob;
     }
     if (!file.local) return undefined;
     if (!mediaFilesService) {
@@ -230,12 +192,7 @@
       return undefined;
     }
 
-    const result = await loadFileBlob(
-      mediaFilesService,
-      file.id,
-      metadata.current?.mimeType,
-      metadata.current?.filename,
-    );
+    const result = await loadFileBlob(mediaFilesService, file.id);
     if (result.kind === 'error') {
       AppNotification.error(
         $t`Unable to export file`,
@@ -295,7 +252,7 @@
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
         <h2 class="break-all text-lg font-semibold leading-snug">{title}</h2>
-        <p class="mt-1 text-sm text-muted-foreground">{locationLabels[status]()}</p>
+        <p class="mt-1 text-sm text-muted-foreground">{mediaFileLocationLabel(location)}</p>
       </div>
       {#if canSaveAs}
         <Button
@@ -303,7 +260,7 @@
           icon="i-mdi-content-save"
           class="shrink-0"
           loading={savingAs}
-          disabled={savingAs || (!isAudioPreview && preview.loading)}
+          disabled={savingAs || (!isAudioPreview && loadedMedia.loading)}
           onclick={() => void saveAs()}
         >
           {$t`Save as`}
@@ -368,26 +325,26 @@
         </div>
       {:else if isAudioPreview}
         <AudioInput audioId={file.id} readonly loader={mediaFileAudioLoader} />
-      {:else if metadata.loading || preview.loading}
+      {:else if metadata.loading || loadedMedia.loading}
         <div class="flex items-center gap-2 text-sm text-muted-foreground">
           <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
           {$t`Loading preview...`}
         </div>
-      {:else if preview.current?.kind === 'error'}
+      {:else if preview?.kind === 'error'}
         <div class="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
           <Icon icon="i-mdi-file-alert-outline" class="mx-auto mb-2 size-8" />
-          <p>{readFileErrorMessage(preview.current.response.result, preview.current.response.errorMessage)}</p>
+          <p>{readFileErrorMessage(preview.response.result, preview.response.errorMessage)}</p>
         </div>
-      {:else if preview.current?.kind === 'success'}
+      {:else if preview?.kind === 'success'}
         {#if previewKind === 'image'}
           <img
-            src={preview.current.url}
+            src={preview.url}
             alt={title}
             class="max-h-80 w-full rounded-md border bg-background object-contain"
           />
         {:else if previewKind === 'video'}
           <!-- svelte-ignore a11y_media_has_caption -->
-          <video controls src={preview.current.url} class="max-h-80 w-full rounded-md border bg-background"></video>
+          <video controls src={preview.url} class="max-h-80 w-full rounded-md border bg-background"></video>
         {:else}
           <div class="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
             <Icon icon="i-mdi-file-outline" class="mx-auto mb-2 size-8" />

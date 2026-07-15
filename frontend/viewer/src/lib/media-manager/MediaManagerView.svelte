@@ -12,6 +12,7 @@
   import {SvelteSet} from 'svelte/reactivity';
   import {t} from 'svelte-i18n-lingui';
   import MediaFileDetail from './MediaFileDetail.svelte';
+  import {mediaFileDisplayName, mediaFileLocation, mediaFileLocationLabel} from './media-file-utils';
 
 
   const projectContext = useProjectContext();
@@ -25,30 +26,6 @@
     },
     {initialValue: []},
   );
-
-  type LocationStatus = 'local' | 'remote' | 'both';
-
-  function displayName(resource: IHarmonyResource): string {
-    if (resource.metadata) {
-      return resource.metadata.filename;
-    }
-    if (resource.localPath) {
-      return resource.localPath.split(/[/\\]/).pop() ?? resource.id;
-    }
-    return resource.id;
-  }
-
-  function locationStatus(resource: IHarmonyResource): LocationStatus {
-    if (resource.local && resource.remote) return 'both';
-    if (resource.local) return 'local';
-    return 'remote';
-  }
-
-  const locationLabels: Record<LocationStatus, () => string> = {
-    local: () => $t`Local only`,
-    remote: () => $t`Remote only`,
-    both: () => $t`Local and remote`,
-  };
 
   const loadingFileCount = $derived(
     mediaFiles.current.filter((file) => file.remote && !file.local).length,
@@ -64,10 +41,6 @@
 
   function selectFile(file: IHarmonyResource) {
     selectedFileId = file.id;
-  }
-
-  async function loadFileForDetail(fileId: string) {
-    await loadFile(fileId);
   }
 
   async function loadFile(fileId: string, event?: MouseEvent) {
@@ -178,7 +151,7 @@
     <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
       <ul class="min-h-0 space-y-2 overflow-y-auto overscroll-contain pb-4 px-2 pt-2 md:pb-0">
         {#each mediaFiles.current as file (file.id)}
-          {@const status = locationStatus(file)}
+          {@const status = mediaFileLocation(file)}
           <li>
             <div
               role="button"
@@ -197,12 +170,12 @@
               )}
             >
               <div
-                class="flex w-5 shrink-0 flex-col items-center justify-center gap-0.5 pt-0.5 sm:pt-0"
-                title={locationLabels[status]()}
-                aria-label={locationLabels[status]()}
+                class="flex w-5 shrink-0 flex-col items-center justify-center gap-1 pt-0.5 sm:pt-0"
+                title={mediaFileLocationLabel(status)}
+                aria-label={mediaFileLocationLabel(status)}
               >
                 {#if status === 'local' || status === 'both'}
-                  <Icon icon="i-mdi-laptop" class="size-5 text-blue-600 dark:text-blue-400" />
+                  <Icon icon="i-mdi-laptop" class="size-5 text-emerald-600 dark:text-emerald-400" />
                 {/if}
                 {#if status === 'remote' || status === 'both'}
                   <Icon icon="i-mdi-cloud-outline" class="size-5 text-sky-600 dark:text-sky-400" />
@@ -210,10 +183,10 @@
               </div>
               <div class="min-w-0 flex-1">
                 <p class="break-all text-sm font-medium leading-snug sm:text-base sm:leading-normal">
-                  {displayName(file)}
+                  {mediaFileDisplayName(file)}
                 </p>
                 <p class="mt-1 text-xs text-muted-foreground sm:text-sm">
-                  {locationLabels[status]()}
+                  {mediaFileLocationLabel(status)}
                 </p>
               </div>
               {#if file.remote && !file.local}
@@ -238,9 +211,9 @@
           <MediaFileDetail
             file={selectedFile}
             {mediaFilesService}
-            locationStatus={locationStatus(selectedFile)}
+            location={mediaFileLocation(selectedFile)}
             loadingFile={loadingFileIds.has(selectedFile.id)}
-            onLoadFile={loadFileForDetail}
+            onLoadFile={loadFile}
             class="h-full"
           />
         </aside>
@@ -260,9 +233,9 @@
           <MediaFileDetail
             file={selectedFile}
             {mediaFilesService}
-            locationStatus={locationStatus(selectedFile)}
+            location={mediaFileLocation(selectedFile)}
             loadingFile={loadingFileIds.has(selectedFile.id)}
-            onLoadFile={loadFileForDetail}
+            onLoadFile={loadFile}
          />
         {/if}
       </div>

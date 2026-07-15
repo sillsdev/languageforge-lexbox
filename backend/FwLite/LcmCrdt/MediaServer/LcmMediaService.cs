@@ -22,15 +22,17 @@ public class LcmMediaService(
 {
     public async Task<HarmonyResource<LcmFileMetadata>[]> AllResources()
     {
-        return await resourceService.AllResources();
+        var resources = await resourceService.AllResources();
+        return [.. resources
+            .OrderBy(r => r.Metadata?.Filename is null)
+            .ThenBy(r => r.Metadata?.Filename)
+            .ThenBy(r => r.Id)
+        ];
     }
 
     /// <summary>
     /// should only be used in fw-headless for files which already exist in the lexbox db
     /// </summary>
-    /// <param name="fileId"></param>
-    /// <param name="localPath"></param>
-    /// <param name="metadata"></param>
     public async Task AddExistingRemoteResource(Guid fileId, string localPath, LcmFileMetadata metadata)
     {
         await resourceService.AddExistingRemoteResource(localPath,
@@ -74,7 +76,7 @@ public class LcmMediaService(
         }
         //todo, consider trying to download the file again, maybe the cache was cleared
         if (!File.Exists(localResource.LocalPath))
-            throw new FileNotFoundException("Unable to find the file with Id" + fileId, localResource.LocalPath);
+            throw new FileNotFoundException($"Unable to find the file with Id {fileId}", localResource.LocalPath);
         return new(File.OpenRead(localResource.LocalPath), Path.GetFileName(localResource.LocalPath));
     }
 
@@ -120,7 +122,6 @@ public class LcmMediaService(
         return Path.Combine(options.LocalResourceCachePath, project.Name);
     }
 
-
     async Task<UploadResult<LcmFileMetadata>> IRemoteResourceService<LcmFileMetadata>.UploadResource(Guid resourceId, string localPath, LcmFileMetadata? metadata)
     {
         var mediaClient = await MediaServerClient();
@@ -152,7 +153,7 @@ public class LcmMediaService(
         }
 
         if (metadata.SizeInBytes is null) metadata = metadata with { SizeInBytes = new FileInfo(localPath).Length };
-        
+
         try
         {
             IRemoteResourceService<LcmFileMetadata>? remoteResourceService = null;
