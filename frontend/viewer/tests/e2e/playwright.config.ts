@@ -26,7 +26,12 @@ export default defineConfig({
     actionTimeout: 30_000,
     navigationTimeout: 60_000,
     trace: 'on',
-    screenshot: 'on',
+    // 'only-on-failure', not 'on': Playwright's automatic end-of-test screenshot is uploaded to
+    // Argos by the reporter under the test title, bypassing our argos-screenshot helper (so its
+    // argosCSS version-masking never applies) and churning on the per-build app version. That
+    // capture also just duplicates the controlled e2e-* snapshots the tests already take, so drop
+    // it on passing runs. Traces stay on for debugging; failure screenshots are still captured.
+    screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     viewport: {width: 1280, height: 720},
     // Kind cluster ingress uses a snake-oil cert.
