@@ -1,11 +1,9 @@
 using System.Xml;
 using FwDataMiniLcmBridge;
-using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using Microsoft.Extensions.Options;
-using MiniLcm.Models;
 
 namespace FwHeadless.Services;
 
@@ -16,7 +14,6 @@ namespace FwHeadless.Services;
 public class ProjectCreationService(
     IOptions<FwHeadlessConfig> config,
     ISendReceiveService srService,
-    FwDataFactory fwDataFactory,
     IProjectLoader projectLoader,
     SyncHostedService syncHostedService,
     ILogger<ProjectCreationService> logger)
@@ -50,14 +47,13 @@ public class ProjectCreationService(
             //   1. hg init the local fw/ folder (no clone -- the empty remote has nothing to clone).
             //   2. Set the branch to the FDO model version BEFORE any commit; FLEx clients look for the
             //      data on that branch, so a first commit on 'default' would be invisible to them.
-            //   3. Build fw.fwdata into that folder from the SIL.LCModel template.
-            //   4. Add the remaining writing systems, saving and releasing the LCM file locks.
-            //   5. hg add + commit the (untracked) fwdata onto the model-version branch, then push.
+            //   3. Build fw.fwdata into that folder from the SIL.LCModel template, configured with all
+            //      of the requested writing systems.
+            //   4. hg add + commit the (untracked) fwdata onto the model-version branch, then push.
             await srService.InitRepo(fwDataProject.ProjectFolder);
             await srService.SetBranch(fwDataProject.ProjectFolder, config.Value.FdoDataModelVersion);
 
-            BuildFromTemplate(fwDataProject, vernacularWritingSystems[0], analysisWritingSystems[0], uiWritingSystem);
-            await AddWritingSystems(fwDataProject, vernacularWritingSystems, analysisWritingSystems);
+            BuildFromTemplate(fwDataProject, vernacularWritingSystems, analysisWritingSystems, uiWritingSystem);
             ApplyAnthropologyCategories(anthropologyCategories);
             AssertModelVersionMatches(fwDataProject);
 
@@ -79,55 +75,16 @@ public class ProjectCreationService(
         }
     }
 
-    private void BuildFromTemplate(FwDataProject fwDataProject, string vernacularWs, string analysisWs, string uiWs)
-    {
-        // NewProject copies the SIL.LCModel template (with the first vernacular + analysis WS and the UI
-        // WS) and returns a loaded cache; dispose it right away so its file locks are released before we
-        // re-open the project through FwDataFactory to add the remaining writing systems.
-        using var cache = projectLoader.NewProject(fwDataProject, analysisWs, vernacularWs, uiWs);
-    }
-
-    private async Task AddWritingSystems(
+    private void BuildFromTemplate(
         FwDataProject fwDataProject,
         IReadOnlyList<string> vernacularWritingSystems,
-        IReadOnlyList<string> analysisWritingSystems)
+        IReadOnlyList<string> analysisWritingSystems,
+        string uiWs)
     {
-        // The template already has the first vernacular + first analysis WS; add the rest, deduping
-        // against what's present. saveOnDispose flushes the additions to the .fwdata XML when the api
-        // is disposed; CloseProjectAsync then disposes the underlying LcmCache so the following hg
-        // add/commit doesn't hit a file lock.
-        try
-        {
-            using (var api = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, saveOnDispose: true))
-            {
-                var existing = await api.GetWritingSystems();
-                var vernacularPresent = existing.Vernacular.Select(ws => ws.WsId).ToHashSet();
-                var analysisPresent = existing.Analysis.Select(ws => ws.WsId).ToHashSet();
-                foreach (var code in vernacularWritingSystems)
-                    await AddWritingSystem(api, code, WritingSystemType.Vernacular, vernacularPresent);
-                foreach (var code in analysisWritingSystems)
-                    await AddWritingSystem(api, code, WritingSystemType.Analysis, analysisPresent);
-            }
-        }
-        finally
-        {
-            await fwDataFactory.CloseProjectAsync(fwDataProject);
-        }
-    }
-
-    private static async Task AddWritingSystem(FwDataMiniLcmApi api, string code, WritingSystemType type, HashSet<WritingSystemId> present)
-    {
-        var wsId = new WritingSystemId(code);
-        if (!present.Add(wsId)) return; // already present (the template's first WS, or a repeated request)
-        await api.CreateWritingSystem(new WritingSystem
-        {
-            Id = Guid.Empty,
-            WsId = wsId,
-            Name = code,
-            Abbreviation = code,
-            Font = "Charis SIL",
-            Type = type,
-        });
+        // NewProject copies the SIL.LCModel template, configured with all of the requested writing
+        // systems (the first of each list is the default of that type), and returns a loaded cache;
+        // dispose it right away so its file locks are released before the following hg add/commit.
+        using var cache = projectLoader.NewProject(fwDataProject, analysisWritingSystems, vernacularWritingSystems, uiWs);
     }
 
     private void ApplyAnthropologyCategories(AnthropologyCategories anthropologyCategories)
