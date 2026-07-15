@@ -35,6 +35,9 @@ public static class ProjectRoutes
         if (invalidWs is not null)
             return TypedResults.Problem($"Invalid writing system code: {invalidWs}",
                 statusCode: StatusCodes.Status400BadRequest);
+        if (string.IsNullOrEmpty(input.WsUi) || !IetfLanguageTag.IsValid(input.WsUi))
+            return TypedResults.Problem($"Invalid UI writing system code: {input.WsUi}",
+                statusCode: StatusCodes.Status400BadRequest);
 
         var projectCode = await projectLookupService.GetProjectCode(projectId);
         if (projectCode is null)
@@ -44,7 +47,7 @@ public static class ProjectRoutes
         }
 
         await projectCreationService.CreateFromTemplate(
-            projectId, projectCode, input.WsVernacular, input.WsAnalysis, input.AnthropologyCategories);
+            projectId, projectCode, input.WsVernacular, input.WsAnalysis, input.WsUi, input.AnthropologyCategories);
         return TypedResults.Ok();
     }
 }
