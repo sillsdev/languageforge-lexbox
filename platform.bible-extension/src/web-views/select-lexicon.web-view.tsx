@@ -4,7 +4,7 @@ import type { IProjectModel } from 'lexicon';
 import { useCallback, useEffect, useState } from 'react';
 import AuthStatus from '../components/auth-status';
 import LexiconComboBox from '../components/lexicon-combo-box';
-import type { AuthServerStatus } from '../utils/fw-lite-api';
+import type { AuthServerStatus, LoginResult } from '../utils/fw-lite-api';
 
 globalThis.webViewComponent = function LexiconSelect({ projectId }: WebViewProps) {
   const [lexicons, setLexicons] = useState<IProjectModel[] | undefined>();
@@ -27,17 +27,14 @@ globalThis.webViewComponent = function LexiconSelect({ projectId }: WebViewProps
 
   // lexicon.login/lexicon.logout only resolve once the sign-in attempt has fully finished. Both
   // return the refreshed server list (login also returns the sign-in outcome) so the UI doesn't
-  // need a separate round trip to pick up the new status.
+  // need a separate round trip to pick up the new status. login returns the outcome so AuthStatus
+  // can show a non-success result (Offline / a swallowed hard failure) instead of failing silently.
   const login = useCallback(
-    async (authority: string): Promise<void> => {
+    async (authority: string): Promise<LoginResult | undefined> => {
       try {
         const { result, servers } = await commands.sendCommand('lexicon.login', authority);
         applyServers(servers);
-        // The command reports Offline/Cancelled as normal outcomes and swallows hard failures
-        // (result === undefined). Cancellation is user-initiated, so leave it silent; surface the
-        // rest so a sign-in that didn't complete is visible rather than looking like success.
-        if (result !== 'Success' && result !== 'Cancelled')
-          logger.warn(`Lexbox sign-in did not complete${result ? `: ${result}` : ''}`);
+        return result;
       } catch (e) {
         // Sign-in resolves only when the user finishes in the browser, which can outlive the PAPI
         // request timeout (default 30s); refresh so a sign-in that landed anyway still shows up.
@@ -75,6 +72,28 @@ globalThis.webViewComponent = function LexiconSelect({ projectId }: WebViewProps
       .then(setAuthServers)
       .catch((e) => logger.error('Error fetching Lexbox auth servers:', JSON.stringify(e)));
   }, [projectId]);
+
+  // Re-check sign-in status when the view regains focus. Sign-in state isn't pushed here, and the
+  // browser flow can finish after login()'s command times out, so without this a completed sign-in
+  // (or a sign-in/out done in the embedded viewer) wouldn't show until the view is reopened. Both
+  // events are observed because it's not guaranteed which fires for a webview regaining focus.
+  useEffect(() => {
+    const refresh = (): void => {
+      commands
+        .sendCommand('lexicon.authServers')
+        .then(applyServers)
+        .catch((e) => logger.error('Error refreshing Lexbox auth servers:', JSON.stringify(e)));
+    };
+    const onVisibility = (): void => {
+      if (document.visibilityState === 'visible') refresh();
+    };
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [applyServers]);
 
   return (
     <>
