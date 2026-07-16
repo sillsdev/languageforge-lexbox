@@ -11,7 +11,6 @@ export const LOCALIZED_STRING_KEYS: LocalizeKey[] = [
   '%lexicon_auth_logoutError%',
   '%lexicon_auth_sectionTitle%',
   '%lexicon_auth_signedInAs%',
-  '%lexicon_auth_signedOut%',
   '%lexicon_auth_signInFailed%',
   '%lexicon_auth_signInOffline%',
   '%lexicon_button_cancel%',
