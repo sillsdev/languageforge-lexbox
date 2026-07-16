@@ -60,19 +60,8 @@ globalThis.webViewComponent = function LexiconSelect({ projectId }: WebViewProps
       .catch((e) => logger.error('Error fetching lexicons:', JSON.stringify(e)));
   }, [projectId]);
 
-  // Sign-in state isn't pushed to this view, and a browser sign-in can finish after the login
-  // command times out — so also re-check whenever the view regains focus or becomes visible.
   useEffect(() => {
     refreshAuthServers();
-    const onVisibility = (): void => {
-      if (document.visibilityState === 'visible') refreshAuthServers();
-    };
-    window.addEventListener('focus', refreshAuthServers);
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => {
-      window.removeEventListener('focus', refreshAuthServers);
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
   }, [refreshAuthServers]);
 
   return (

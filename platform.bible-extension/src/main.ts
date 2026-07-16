@@ -11,6 +11,12 @@ import * as webViewProviders from './web-views';
 
 let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.Readable>;
 
+// Signing in can easily take longer than 30s, set increase to 5min. The stack of timeouts seems to be:
+//  5 min - papi command (this one)
+//  5 min - undici/node fetch (has gone back and forth; 300s today, see https://github.com/nodejs/undici/pull/5467)
+//  inf.  - FW Lite
+const SIGN_IN_TIMEOUT_MS = 5 * 60 * 1000;
+
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('Lexicon extension activating!');
 
@@ -196,6 +202,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       }
       return { result, servers: await getAuthServers() };
     },
+    undefined,
+    { timeoutMilliseconds: SIGN_IN_TIMEOUT_MS },
   );
 
   const logoutCommandPromise = papi.commands.registerCommand(
