@@ -88,7 +88,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (webViewId: string, word: string) => {
       let success = false;
 
-      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
       if (!projectManager) return { success };
 
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
@@ -105,7 +106,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (webViewId: string) => {
       let success = false;
 
-      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
       if (!projectManager) return { success };
 
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
@@ -142,7 +144,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (webViewId: string, word: string) => {
       let success = false;
 
-      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
       if (!projectManager) return { success };
 
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
@@ -159,7 +162,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (webViewId: string, word: string) => {
       let success = false;
 
-      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
       if (!projectManager) return { success };
 
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
