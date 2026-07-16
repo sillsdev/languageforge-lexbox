@@ -880,6 +880,7 @@ var World = {
   // empty air above each column instead of scanning all 64 levels everywhere.
   top: new Uint8Array(WORLD * WORLD),
   regionMap: new Uint8Array(WORLD * WORLD), // region index, 254 = hub, 255 = open sea
+  reachable: null,   // Uint8Array flood-fill from spawn (walk+step+swim); see computeReachable
   protected: new Set(),
   interactables: [],   // {type:'stone'|'well'|'beacon', x, y, z, region, data}
   seed: 1,
@@ -957,8 +958,46 @@ function generateWorld(seedText, regions) {
   }
 
   carveHub();
-  regions.forEach(function (region, index) { decorateRegion(region, index, regionCount, angleOffset); });
   placeSpawn(angleOffset);
+  computeReachable();  // on the base terrain, so shrines are only placed where a walker can get
+  regions.forEach(function (region, index) { decorateRegion(region, index, regionCount, angleOffset); });
+}
+
+/**
+ * Marks every column a player can actually get to from spawn using only walk +
+ * auto-step(≤1) + swim — no jumping, no building. Water counts as traversable at its
+ * surface, which is what keeps the whole coast connected. Used to guarantee that word-
+ * lights and shrines never spawn somewhere you can't reach. Re-run after the world (or a
+ * player edit) changes the heightfield.
+ */
+function computeReachable() {
+  if (!World.reachable) World.reachable = new Uint8Array(WORLD * WORLD);
+  var reach = World.reachable;
+  reach.fill(0);
+  var heights = World.heights;
+  function foot(i) { var h = heights[i]; return h < SEA ? SEA : h; }
+  var queue = new Int32Array(WORLD * WORLD);
+  var head = 0, tail = 0;
+  var start = (Math.floor(World.spawn.x) << 8) | Math.floor(World.spawn.z);
+  reach[start] = 1; queue[tail++] = start;
+  while (head < tail) {
+    var idx = queue[head++];
+    var x = idx >> 8, z = idx & 0xFF, fA = foot(idx);
+    for (var k = 0; k < 4; k++) {
+      var nx = x + (k === 0 ? 1 : k === 1 ? -1 : 0);
+      var nz = z + (k === 2 ? 1 : k === 3 ? -1 : 0);
+      if (nx < 0 || nx >= WORLD || nz < 0 || nz >= WORLD) continue;
+      var ni = (nx << 8) | nz;
+      if (reach[ni]) continue;
+      if (foot(ni) <= fA + 1) { reach[ni] = 1; queue[tail++] = ni; }  // step up ≤1, or drop any depth
+    }
+  }
+}
+
+function isReachable(x, z) {
+  x = Math.floor(x); z = Math.floor(z);
+  if (x < 0 || x >= WORLD || z < 0 || z >= WORLD) return false;
+  return !World.reachable || World.reachable[(x << 8) | z] === 1;
 }
 
 function flatten(cx, cz, radius, top, type) {
@@ -1010,7 +1049,8 @@ function carveHub() {
 }
 
 // A deterministic surface spot inside a region's sector ring, biased away from other picks.
-function regionSpot(index, regionCount, angleOffset, rand, minR, maxR) {
+// With requireReach, only returns spots a walker can actually get to (see computeReachable).
+function regionSpot(index, regionCount, angleOffset, rand, minR, maxR, requireReach) {
   for (var tries = 0; tries < 60; tries++) {
     var ang = (index + 0.12 + rand() * 0.76) * Math.PI * 2 / regionCount - angleOffset;
     var r = (minR + rand() * (maxR - minR)) * (WORLD / 2);
@@ -1019,7 +1059,22 @@ function regionSpot(index, regionCount, angleOffset, rand, minR, maxR) {
     if (columnRegion(x, z) !== index) continue;
     var y = World.heights[(x << 8) | z];
     if (y <= SEA + 1) continue;
+    if (requireReach && !isReachable(x, z)) continue;
     return {x: x, y: y, z: z};
+  }
+  return null;
+}
+
+// Fallback when a random reachable spot can't be found: scan the region for any reachable
+// land column. Guarantees content lands somewhere the player can walk to.
+function reachableSpotInRegion(index) {
+  for (var x = 1; x < WORLD - 1; x += 2) {
+    for (var z = 1; z < WORLD - 1; z += 2) {
+      if (columnRegion(x, z) !== index) continue;
+      var y = World.heights[(x << 8) | z];
+      if (y <= SEA + 1) continue;
+      if (isReachable(x, z)) return {x: x, y: y, z: z};
+    }
   }
   return null;
 }
@@ -1056,12 +1111,14 @@ function decorateRegion(region, index, regionCount, angleOffset) {
   }
 
   // Word-places: Echo Stones ask for sentences; the Wellspring welcomes new words.
+  // These write to the real dictionary, so they MUST be reachable — require it, and
+  // fall back to any reachable land in the region rather than risk a stranded shrine.
   if (Dict.writeCapable) {
-    var wellSpot = regionSpot(index, regionCount, angleOffset, rand, 0.3, 0.55);
+    var wellSpot = regionSpot(index, regionCount, angleOffset, rand, 0.3, 0.55, true) || reachableSpotInRegion(index);
     if (wellSpot) buildWellspring(wellSpot, index);
     var stoneCount = Math.min(3, region.needsExample.length);
     for (var s = 0; s < stoneCount; s++) {
-      var stoneSpot = regionSpot(index, regionCount, angleOffset, rand, 0.25, 0.7);
+      var stoneSpot = regionSpot(index, regionCount, angleOffset, rand, 0.25, 0.7, true) || reachableSpotInRegion(index);
       if (stoneSpot) buildEchoStone(stoneSpot, index, s);
     }
   }
@@ -2094,6 +2151,7 @@ function regionHue(region) {
 }
 
 function initOrbs() {
+  computeReachable();   // reachability on the final terrain (post-decorate/bloom) for orb placement
   Game.orbs = [];
   Game.totalWords = Dict.entries.length;
   var rand = mulberry32((Math.random() * 1e9) | 0);
@@ -2109,7 +2167,9 @@ function spawnOrb(region, rand) {
   while (region.qi < region.queue.length && Game.learned.has(region.queue[region.qi].id)) region.qi++;
   if (region.qi >= region.queue.length) return null;
   var entry = region.queue[region.qi++];
-  var spot = regionSpot(region.index, World.regionCount, World.angleOffset, typeof rand === 'function' ? rand : Math.random, 0.14, 0.8);
+  // Only spawn a word-light where the player can actually walk to it.
+  var spot = regionSpot(region.index, World.regionCount, World.angleOffset, typeof rand === 'function' ? rand : Math.random, 0.14, 0.8, true)
+    || reachableSpotInRegion(region.index);
   if (!spot) spot = {x: CX + 4, y: World.heights[((CX + 4) << 8) | CZ], z: CZ};
   var orb = {
     entry: entry, region: region,
@@ -2135,6 +2195,7 @@ function placeStarterOrbs() {
       if (reg >= Dict.regions.length) continue;      // skip hub (254) and sea (255)
       var y = surfaceY(x, z);
       if (y <= SEA) continue;
+      if (!isReachable(x, z)) continue;              // never strand a starter light
       var near = usedSpots.some(function (s) { return Math.abs(s.x - x) + Math.abs(s.z - z) < 7; });
       if (near) continue;
       var region = Dict.regions[reg];
