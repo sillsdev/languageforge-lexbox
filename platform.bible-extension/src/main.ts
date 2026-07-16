@@ -308,7 +308,6 @@ function launchFwLite(context: ExecutionActivationContext): string {
       '--urls',
       baseUrl,
       '--FwLite:UpdateCheckCondition=Never',
-      '--FwLiteWeb:CorsAllowAny=true',
       '--FwLiteWeb:EnableFileLogging=false', // already piped to P.B (and triggers npm watch)
       '--FwLiteWeb:OpenBrowser=false',
       `--LcmCrdt:ProjectPath=${dataDir}`,
