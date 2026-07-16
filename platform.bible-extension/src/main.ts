@@ -83,7 +83,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Register commands */
 
-  /** Fetches the configured Lexbox servers and their current sign-in status. */
   const getAuthServers = async () => {
     try {
       return await fwLiteApi.getAuthServers();
@@ -191,14 +190,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (authority: string) => {
       let result: LoginResult | undefined;
       try {
-        // Blocks until the user finishes (or gives up) in their system browser; see the doc
-        // comment on FwLiteApi.login for why there's no timeout here.
         result = await fwLiteApi.login(authority);
       } catch (e) {
         logger.error('Error signing in to Lexbox:', JSON.stringify(e));
       }
-      // Return the sign-in outcome alongside the refreshed servers so the caller can tell success
-      // from failure (Offline / Cancelled / a swallowed hard error), not just see a fresh list.
       return { result, servers: await getAuthServers() };
     },
   );
@@ -360,9 +355,8 @@ function launchFwLite(context: ExecutionActivationContext): string {
       '--FwLiteWeb:OpenBrowser=false',
       `--LcmCrdt:ProjectPath=${dataDir}`,
       `--Auth:CacheFileName=${authCacheFile}`,
-      // Sign-in opens the user's default browser instead of an embedded web view: an embedded
-      // login inside the extension's webview would likely be blocked by the webview sandbox
-      // and/or Lexbox's frame-ancestors CSP.
+      // Sign in via the user's default browser: an embedded login would be blocked by the
+      // webview sandbox and/or Lexbox's frame-ancestors CSP.
       '--Auth:SystemWebViewLogin=true',
     ],
     { stdio: ['pipe', 'pipe', 'pipe'] },

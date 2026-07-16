@@ -14,21 +14,11 @@ import type {
 } from '@dotnet-types';
 import { GridifyConditionalOperator } from '../types/enums';
 
-// The auth types below alias the FW Lite backend's generated types (imported type-only via the
-// tsconfig `@dotnet-types` path) under extension-local names, so they can't drift from the C#
-// models the REST API actually returns.
-
-/** A Lexbox server FW Lite can sign in to, as configured on the FW Lite backend. */
+// Local aliases for the FW Lite backend's generated API types (type-only via @dotnet-types).
 export type LexboxServer = ILexboxServer;
-
-/** Sign-in status of a single {@link LexboxServer}, as returned by `GET /api/auth/servers`. */
 export type AuthServerStatus = IServerStatus;
 
-/**
- * Outcome of a system-browser login attempt. Derived from FwLiteShared's generated `LoginResult`
- * enum as a string union (rather than the enum itself) so outcomes compare against string literals
- * without pulling the enum's runtime code into a bundle — `@dotnet-types` is type-only here.
- */
+/** The generated `LoginResult` enum as a string union, which keeps the import type-only. */
 export type LoginResult = `${GeneratedLoginResult}`;
 
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
@@ -151,16 +141,13 @@ export class FwLiteApi {
     return (await this.fetchPath(path, 'POST', entry)) as IEntry;
   }
 
-  /** Lists configured Lexbox servers along with the current sign-in status of each. */
   async getAuthServers(): Promise<AuthServerStatus[]> {
     return (await this.fetchPath('auth/servers')) as AuthServerStatus[];
   }
 
   /**
-   * Triggers a system-browser sign-in for the given server (see `AuthConfig.SystemWebViewLogin` on
-   * the FW Lite backend). The request doesn't resolve until the user finishes in their browser,
-   * cancels, or the backend gives up — there is currently no server-side timeout, so this can stay
-   * pending indefinitely if the user abandons the browser tab.
+   * Triggers a system-browser sign-in. Doesn't resolve until the user finishes in their browser,
+   * cancels, or MSAL gives up — an abandoned sign-in can stay pending indefinitely.
    */
   async login(authority: string): Promise<LoginResult> {
     const path = `auth/login-web-view/${sanitizeUrlComponent(authority)}`;
@@ -169,9 +156,7 @@ export class FwLiteApi {
 
   async logout(authority: string): Promise<void> {
     const path = `auth/logout/${sanitizeUrlComponent(authority)}`;
-    // The logout endpoint redirects to the FW Lite web app root, so there's no JSON body to parse;
-    // this relies on papi.fetch following that redirect by default (hence bypassing fetchPath, which
-    // would try to parse the redirected HTML root page as JSON).
+    // The endpoint redirects to the web-app root, so fetchPath would choke parsing HTML as JSON.
     const results = await papi.fetch(this.getUrl(path));
     if (!results.ok) throw new Error(`Failed to fetch: ${results.statusText}`);
   }

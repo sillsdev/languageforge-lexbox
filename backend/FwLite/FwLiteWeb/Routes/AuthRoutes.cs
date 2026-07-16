@@ -24,9 +24,8 @@ public static class AuthRoutes
 
                 return Results.Redirect(await authService.SignInWebApp(options.Value.GetServerByAuthority(authority), returnUrl));
             });
-        //separate from /login/{authority} because that endpoint redirects the caller's browser to an auth
-        //url and requires a Referer header, neither of which applies here: this opens the system's default
-        //browser itself and blocks until the user finishes (or MSAL gives up), then reports the outcome.
+        //separate from /login/{authority}, which redirects the caller's browser and requires a Referer
+        //header; neither applies here, where the server opens the system's default browser itself
         group.MapGet("/login-web-view/{authority}",
             async (AuthService authService, string authority, IOptions<AuthConfig> options) =>
             {
