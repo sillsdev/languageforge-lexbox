@@ -1,4 +1,5 @@
 using System.Text.Json;
+using MiniLcm.Media;
 using Soenneker.Utils.AutoBogus.Config;
 using Soenneker.Utils.AutoBogus.Context;
 using Soenneker.Utils.AutoBogus.Generators;
@@ -56,9 +57,15 @@ public static class AutoFakerDefault
                 }, true),
                 new PredicateOverride<MorphTypeKind>(morph =>
                 {
-                    // Unkown values map to null and get replaced with MorphType.Stem so they're not round-tripped
+                    // Unknown values map to null and get replaced with MorphType.Stem so they're not round-tripped
                     return morph is not MorphTypeKind.Unknown;
                 }, true),
+                new SimpleOverride<MediaUri>(context =>
+                {
+                    // MediaUri values created by AutoFaker should use NotFound authority since they don't point at actual files
+                    // We keep the FileId so that distinct pictures will still have distincy MediaUri values
+                    context.Instance = new MediaUri(context.Instance.As<MediaUri>().FileId, MediaUri.NotFoundAuthority);
+                }, false),
                 new SimpleGenericOverride(typeof(JsonPatchDocument<>), context =>
                 {
                     context.Instance = Activator.CreateInstance(context.GenerateType.Type!)!;

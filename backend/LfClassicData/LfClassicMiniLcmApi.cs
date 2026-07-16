@@ -3,6 +3,7 @@ using LfClassicData.Entities;
 using LfClassicData.Entities.MongoUtils;
 using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -12,33 +13,11 @@ using Sense = MiniLcm.Models.Sense;
 
 namespace LfClassicData;
 
-public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext, SystemDbContext systemDbContext, IMemoryCache memoryCache) : IMiniLcmReadApi
+//doesn't actually implement IMiniLcmApi, because there's not much more we're doing with this, and we don't want to have to keep adding methods that do nothing.
+public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext, SystemDbContext systemDbContext, IMemoryCache memoryCache)
 {
     private IMongoCollection<Entities.Entry> Entries => dbContext.Entries(projectCode);
-    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
-    {
-        return AsyncEnumerable.Empty<ComplexFormType>();
-    }
 
-    public Task<ComplexFormType?> GetComplexFormType(Guid id)
-    {
-        return Task.FromResult<ComplexFormType?>(null);
-    }
-
-    public IAsyncEnumerable<MorphType> GetMorphTypes()
-    {
-        return AsyncEnumerable.Empty<MorphType>();
-    }
-
-    public Task<MorphType?> GetMorphType(Guid id)
-    {
-        return Task.FromResult<MorphType?>(null);
-    }
-
-    public Task<MorphType?> GetMorphType(MorphTypeKind kind)
-    {
-        return Task.FromResult<MorphType?>(null);
-    }
 
     private Dictionary<Guid, PartOfSpeech>? _partsOfSpeechCacheByGuid = null;
     private Dictionary<string, PartOfSpeech>? _partsOfSpeechCacheByStringKey = null;
@@ -79,17 +58,6 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         };
     }
 
-    public async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
-    {
-        var ws = await GetWritingSystems();
-        return type switch
-        {
-            WritingSystemType.Vernacular => ws.Vernacular.FirstOrDefault(w => w.WsId == id),
-            WritingSystemType.Analysis => ws.Analysis.FirstOrDefault(w => w.WsId == id),
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        };
-    }
-
     public async Task<string?> PickDefaultVernacularWritingSystem()
     {
         var cacheKey = $"LfClassic|DefaultVernacular|{projectCode}";
@@ -116,25 +84,6 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         }
     }
 
-    public IAsyncEnumerable<Publication> GetPublications()
-    {
-        return AsyncEnumerable.Empty<Publication>();
-    }
-
-    public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
-    {
-        if (_partsOfSpeechCacheByGuid is null)
-        {
-            _partsOfSpeechCacheByGuid = await GetPartsOfSpeech().ToDictionaryAsync(pos => pos.Id);
-        }
-        return _partsOfSpeechCacheByGuid.GetValueOrDefault(id);
-    }
-
-    public Task<Publication?> GetPublication(Guid id)
-    {
-        return Task.FromResult<Publication?>(null);
-    }
-
     public async ValueTask<PartOfSpeech?> GetPartOfSpeech(string key)
     {
         if (_partsOfSpeechCacheByStringKey is null)
@@ -142,7 +91,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             _partsOfSpeechCacheByStringKey = await GetPartsOfSpeech().ToDictionaryAsync(pos => pos.Name["__key"]);
         }
         return _partsOfSpeechCacheByStringKey.GetValueOrDefault(key);
-    }
+    }   
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
@@ -152,11 +101,6 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         {
             yield return ToSemanticDomain(item);
         }
-    }
-
-    public async Task<SemanticDomain?> GetSemanticDomain(Guid id)
-    {
-        return await GetSemanticDomains().FirstOrDefaultAsync(semdom => semdom.Id == id);
     }
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
@@ -334,6 +278,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                 .Select(sd => new SemanticDomain { Id = Guid.Empty, Code = sd, Name = new MultiString { { "en", sd } } })
                 .ToList(),
             ExampleSentences = sense.Examples?.OfType<Example>().Select(example => ToExampleSentence(sense.Guid, example)).ToList() ?? [],
+            Pictures = sense.Pictures?.OfType<Entities.Picture>().Select(pic => ToPicture(sense.Guid, pic)).ToList() ?? [],
         };
     }
 
@@ -346,6 +291,17 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             Reference = new((example.Reference?.TryGetValue("en", out var value) == true) ? value.Value : string.Empty),
             Sentence = ToRichMultiString(example.Sentence),
             Translations = [new Translation() { Id = Guid.NewGuid(), Text = ToRichMultiString(example.Translation) }]
+        };
+    }
+
+    private static MiniLcm.Models.Picture ToPicture(Guid senseId, Entities.Picture picture)
+    {
+        return new MiniLcm.Models.Picture
+        {
+            Id = picture.Guid,
+            Caption = ToRichMultiString(picture.Caption),
+            // TODO: Create a LfClassicMediaAdapter that can create MediaUris for LF URLs, then use that rather than returning NotFound
+            MediaUri = MediaUri.NotFound,
         };
     }
 
@@ -419,11 +375,6 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return await ToSense(entryId, sense);
     }
 
-    public Task<Sense?> GetSense(Guid id)
-    {
-        throw new NotSupportedException("Getting a sense by ID without the entry ID is not supported in LfClassicMiniLcmApi");
-    }
-
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
         var entry = await Entries.Find(e => e.Guid == entryId).FirstOrDefaultAsync();
@@ -435,8 +386,14 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return ToExampleSentence(sense.Guid, exampleSentence);
     }
 
-    public Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
+    public async Task<MiniLcm.Models.Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
     {
-        throw new NotImplementedException();
+        var entry = await Entries.Find(e => e.Guid == entryId).FirstOrDefaultAsync();
+        if (entry is null) return null;
+        var sense = entry.Senses?.FirstOrDefault(s => s?.Guid == senseId);
+        if (sense is null) return null;
+        var picture = sense.Pictures?.FirstOrDefault(e => e?.Guid == id);
+        if (picture is null) return null;
+        return ToPicture(sense.Guid, picture);
     }
 }

@@ -94,8 +94,17 @@ public sealed class InProcessLongRunningWorkQueue(
         }
         finally
         {
-            if (lockTaken) queueLock.Release();
-            await CompleteQueuedSlot();
+            // Drain while still holding the lock so StopService / wake-lock release
+            // cannot race a following StartForegroundService / acquire.
+            if (lockTaken)
+            {
+                await CompleteQueuedSlotUnderLock();
+                queueLock.Release();
+            }
+            else
+            {
+                Interlocked.Decrement(ref queuedOrRunningCount);
+            }
         }
     }
 
@@ -112,7 +121,7 @@ public sealed class InProcessLongRunningWorkQueue(
         }
     }
 
-    private async Task CompleteQueuedSlot()
+    private async Task CompleteQueuedSlotUnderLock()
     {
         if (Interlocked.Decrement(ref queuedOrRunningCount) != 0) return;
         if (Interlocked.Exchange(ref hostActive, 0) == 0) return;

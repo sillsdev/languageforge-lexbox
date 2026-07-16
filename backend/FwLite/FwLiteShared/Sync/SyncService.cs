@@ -4,6 +4,7 @@ using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LexCore.Sync;
 using LcmCrdt;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Data;
 using LcmCrdt.MediaServer;
 using LcmCrdt.RemoteSync;
@@ -25,11 +26,11 @@ public class SyncService(
     CurrentProjectService currentProjectService,
     ProjectEventBus changeEventBus,
     LexboxProjectService lexboxProjectService,
-    IMiniLcmApi lexboxApi,
     LcmMediaService lcmMediaService,
     IOptions<AuthConfig> authOptions,
     ILogger<SyncService> logger,
-    SyncRepository syncRepository)
+    SyncRepository syncRepository,
+    LocalCommentReadStatusService commentReadStatusService)
 {
     public async Task<SyncResults> SafeExecuteSync(bool skipNotifications = false)
     {
@@ -106,6 +107,7 @@ public class SyncService(
             }
             logger.LogInformation("Synced project {ProjectName} with server", project.Name);
             UpdateSyncStatus(SyncStatus.Success);
+            await ApplySyncedCommentReadStatus(syncResults, project.LastUserId);
             await syncRepository.UpdateSyncDate(syncDate);
             // Best-effort: if the push listener failed to start at project-open (e.g. user was offline), this
             // restarts it now that we know auth + network are healthy. If it's already running, the cache
@@ -208,35 +210,61 @@ public class SyncService(
     {
         try
         {
+            var deletedEntryIds = syncResults.MissingFromLocal
+                .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
+                .OfType<DeleteChange<Entry>>()
+                .Select(c => c.EntityId)
+                .ToHashSet();
+
+            var changedEntryIds = new List<Guid>();
             await foreach (var entryId in syncResults.MissingFromLocal
                                .SelectMany(c => c.Snapshots, (commit, snapshot) => snapshot.Entity)
                                .ToAsyncEnumerable()
                                .SelectMany(e => GetEntryId(e.DbObject as IObjectWithId))
                                .Distinct())
             {
-                if (entryId is null) continue;
-                var entry = await lexboxApi.GetEntry(entryId.Value);
-                if (entry is not null)
-                {
-                    changeEventBus.PublishEntryChangedEvent(currentProjectService.Project, entry);
-                }
-                else
-                {
-                    logger.LogError("Failed to get entry {EntryId}, was not found", entryId);
-                }
+                if (entryId is null || deletedEntryIds.Contains(entryId.Value)) continue;
+                changedEntryIds.Add(entryId.Value);
             }
 
-            foreach (var deleteChange in syncResults.MissingFromLocal
-                         .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
-                         .OfType<DeleteChange<Entry>>())
-            {
-                changeEventBus.PublishEvent(currentProjectService.Project, new EntryDeletedEvent(deleteChange.EntityId));
-            }
+            if (changedEntryIds.Count == 0 && deletedEntryIds.Count == 0) return;
+            changeEventBus.PublishEntriesChanged(currentProjectService.Project, [.. changedEntryIds], [.. deletedEntryIds]);
         }
         catch (Exception e)
         {
             logger.LogError(e, "Failed to send notifications, continuing");
         }
+    }
+
+    private async Task ApplySyncedCommentReadStatus(SyncResults syncResults, string? currentUserId)
+    {
+        await commentReadStatusService.MarkCommentsUnread(GetUnreadCommentsFromSyncResults(syncResults, currentUserId));
+        var (deletedCommentIds, deletedThreadIds) = GetDeletedCommentsFromSyncResults(syncResults);
+        await commentReadStatusService.RemoveUnreadComments(deletedCommentIds);
+        foreach (var threadId in deletedThreadIds)
+        {
+            await commentReadStatusService.MarkThreadRead(threadId);
+        }
+    }
+
+    public static IEnumerable<(Guid CommentId, Guid CommentThreadId)> GetUnreadCommentsFromSyncResults(SyncResults syncResults, string? currentUserId)
+    {
+        return syncResults.MissingFromLocal
+            .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
+            .OfType<CreateUserCommentChange>()
+            //with no current user (not signed in) nothing is "ours", so every synced comment is unread
+            .Where(change => currentUserId is null || change.AuthorId != currentUserId)
+            .Select(change => (CommentId: change.EntityId, change.CommentThreadId));
+    }
+
+    public static (IEnumerable<Guid> CommentIds, IEnumerable<Guid> ThreadIds) GetDeletedCommentsFromSyncResults(
+        SyncResults syncResults)
+    {
+        var changes = syncResults.MissingFromLocal
+            .SelectMany(c => c.ChangeEntities, (_, change) => change.Change);
+        var commentIds = changes.OfType<DeleteChange<UserComment>>().Select(change => change.EntityId);
+        var threadIds = changes.OfType<DeleteChange<CommentThread>>().Select(change => change.EntityId);
+        return (commentIds, threadIds);
     }
 
     private async IAsyncEnumerable<Guid?> GetEntryId(IObjectWithId? entity)

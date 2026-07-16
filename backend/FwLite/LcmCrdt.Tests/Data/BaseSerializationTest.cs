@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LcmCrdt.Changes;
+using MiniLcm.Models;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
@@ -63,6 +64,14 @@ public abstract class BaseSerializationTest
                         morphType.Kind = canonical.Kind;
                     }
                     morphType.Id = canonical.Id;
+                }
+            }, true),
+            new SimpleOverride<CommentThread>(context =>
+            {
+                if (context.Instance is CommentThread thread && thread.Comments is { Count: > 0 })
+                {
+                    foreach (var comment in thread.Comments)
+                        comment.CommentThreadId = thread.Id;
                 }
             }, true)
         );

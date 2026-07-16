@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using System.Text.Json;
+using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
 using SIL.Harmony;
 using SIL.Harmony.Db;
@@ -28,6 +30,9 @@ public class LcmCrdtDbContext(
     public IQueryable<PartOfSpeech> PartsOfSpeech => Set<PartOfSpeech>().AsNoTracking();
     public IQueryable<Publication> Publications => Set<Publication>().AsNoTracking();
     public IQueryable<CustomView> CustomViews => Set<CustomView>().AsNoTracking();
+    public IQueryable<CommentThread> CommentThreads => Set<CommentThread>().AsNoTracking();
+    public IQueryable<UserComment> UserComments => Set<UserComment>().AsNoTracking();
+    public DbSet<UnreadComment> UnreadComments => Set<UnreadComment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,6 +49,13 @@ public class LcmCrdtDbContext(
 
         var morphTypeModel = modelBuilder.Entity<MorphType>();
         morphTypeModel.HasIndex(m => m.Kind).IsUnique();
+
+        var unreadCommentModel = modelBuilder.Entity<UnreadComment>();
+        unreadCommentModel.HasKey(c => c.CommentId);
+        unreadCommentModel.HasIndex(c => c.CommentThreadId);
+
+        var senseModel = modelBuilder.Entity<Sense>();
+        senseModel.Property(s => s.Pictures).HasColumnType("jsonb").HasDefaultValueSql("'[]'");
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
@@ -59,6 +71,10 @@ public class LcmCrdtDbContext(
             .HaveConversion<RichMultiStringDbConverter>();
         builder.Properties<WritingSystemId>()
             .HaveConversion<WritingSystemIdConverter>();
+        builder.Properties<DateTimeOffset>()
+            .HaveConversion<DateTimeOffsetDbConverter>();
+        builder.Properties<List<Picture>>()
+            .HaveConversion<PictureListDbConverter>();
     }
 
     private class MultiStringDbConverter() : ValueConverter<MultiString, string>(
@@ -91,4 +107,13 @@ public class LcmCrdtDbContext(
     private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
         id => id.Code,
         code => new WritingSystemId(code));
+
+    private class DateTimeOffsetDbConverter() : ValueConverter<DateTimeOffset, DateTime>(
+        d => d.UtcDateTime,
+        //need to use ticks here because the DateTime is stored as UTC, but the db records it as unspecified
+        d => new DateTimeOffset(d.Ticks, TimeSpan.Zero));
+
+    private class PictureListDbConverter() : ValueConverter<List<Picture>, string>(
+        pic => JsonSerializer.Serialize(pic, (JsonSerializerOptions?)null),
+        json => JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
 }

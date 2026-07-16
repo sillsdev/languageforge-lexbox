@@ -49,6 +49,10 @@ public static class ReinforcedFwLiteTypingConfig
         builder.Substitute(typeof(Uri), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("string"));
         builder.Substitute(typeof(Color), new RtSimpleTypeName("string"));
+        builder.Substitute(typeof(TimeSpan), new RtSimpleTypeName("unknown"));
+        builder.Substitute(typeof(Type), new RtSimpleTypeName("unknown"));
+        builder.Substitute(typeof(Commit), new RtSimpleTypeName("unknown"));
+        builder.Substitute(typeof(IObjectBase), new RtSimpleTypeName("unknown"));
         builder.Substitute(typeof(ValueTask), new RtAsyncType());
         builder.SubstituteGeneric(typeof(ValueTask<>), (type, resolver) => resolver.ResolveTypeName(typeof(Task<>).MakeGenericType(type.GenericTypeArguments[0]), true));
         var dotnetObjectRefInterface = typeof(DotNetObjectReference<>).GetInterfaces().First();
@@ -86,6 +90,7 @@ public static class ReinforcedFwLiteTypingConfig
                 typeof(RichTextObjectData),
                 typeof(Translation),
 
+                typeof(Picture),
                 typeof(MediaFile),
                 typeof(LcmFileMetadata),
                 typeof(ViewField),
@@ -113,6 +118,8 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<WritingSystemType>();
         builder.ExportAsEnum<ReadFileResult>().UseString();
         builder.ExportAsEnum<UploadFileResult>().UseString();
+        builder.ExportAsEnum<ThreadStatus>().UseString();
+        builder.ExportAsEnum<SubjectType>().UseString();
         builder.ExportAsInterface<MiniLcmJsInvokable>()
             .FlattenHierarchy()
             .WithPublicProperties()

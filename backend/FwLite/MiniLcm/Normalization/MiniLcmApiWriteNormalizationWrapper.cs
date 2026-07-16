@@ -371,6 +371,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         copy.Gloss = StringNormalizer.Normalize(sense.Gloss);
         copy.PartOfSpeech = sense.PartOfSpeech is not null ? NormalizePartOfSpeech(sense.PartOfSpeech) : null;
         copy.SemanticDomains = [.. sense.SemanticDomains.Select(NormalizeSemanticDomain)];
+        copy.Pictures = [.. sense.Pictures.Select(NormalizePicture)];
         copy.ExampleSentences = [.. sense.ExampleSentences.Select(NormalizeExampleSentence)];
         return copy;
     }
@@ -439,6 +440,49 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #endregion
 
+    #region Picture
+
+
+    private static Picture NormalizePicture(Picture picture)
+    {
+        var copy = picture.Copy();
+        copy.Caption = StringNormalizer.Normalize(picture.Caption);
+        // Normalizing MediaUri might change the filename, we want to accept whatever FW Classic gives us even if it's wrong
+        return copy;
+    }
+
+    public async Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
+    {
+        return await _api.CreatePicture(entryId, senseId, NormalizePicture(picture), position);
+    }
+
+    public Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    {
+        return _api.UpdatePicture(entryId, senseId, pictureId, NormalizePatch(update));
+    }
+
+    public Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    {
+        return _api.SubmitUpdatePicture(entryId, senseId, pictureId, NormalizePatch(update));
+    }
+
+    public async Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Picture before, Picture after, IMiniLcmApi? api = null)
+    {
+        return await _api.UpdatePicture(entryId, senseId, NormalizePicture(before), NormalizePicture(after), api);
+    }
+
+    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position)
+    {
+        return _api.MovePicture(entryId, senseId, pictureId, position);
+    }
+
+    public Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        return _api.DeletePicture(entryId, senseId, pictureId);
+    }
+
+    #endregion
+
     #region Bulk Import
 
     // Normalizing the bulk import methods may seem unintuitive:
@@ -484,6 +528,63 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     public Task DeleteCustomView(Guid id)
     {
         return _api.DeleteCustomView(id);
+    }
+
+    #endregion
+
+    #region Comments
+
+    public Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
+    {
+        return _api.CreateCommentThread(thread, NormalizeUserComment(firstComment));
+    }
+
+    public Task<UserComment> AddUserComment(Guid threadId, UserComment comment)
+    {
+        return _api.AddUserComment(threadId, NormalizeUserComment(comment));
+    }
+
+    public Task<UserComment> EditUserComment(Guid commentId, string text)
+    {
+        return _api.EditUserComment(commentId, StringNormalizer.Normalize(text));
+    }
+
+    public Task<CommentThread> SetCommentThreadStatus(Guid threadId, ThreadStatus status)
+    {
+        return _api.SetCommentThreadStatus(threadId, status);
+    }
+
+    public Task DeleteUserComment(Guid commentId)
+    {
+        return _api.DeleteUserComment(commentId);
+    }
+
+    public Task DeleteCommentThread(Guid threadId)
+    {
+        return _api.DeleteCommentThread(threadId);
+    }
+
+    public Task MarkCommentRead(Guid commentId)
+    {
+        return _api.MarkCommentRead(commentId);
+    }
+
+    public Task MarkCommentThreadRead(Guid threadId)
+    {
+        return _api.MarkCommentThreadRead(threadId);
+    }
+
+    public Task MarkAllCommentsRead()
+    {
+        return _api.MarkAllCommentsRead();
+    }
+
+    private static UserComment NormalizeUserComment(UserComment comment)
+    {
+        return comment with
+        {
+            Text = StringNormalizer.Normalize(comment.Text)
+        };
     }
 
     #endregion

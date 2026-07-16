@@ -38,6 +38,21 @@ public class SnapshotDeserializationTests : BaseSerializationTest
     }
 
     [Fact]
+    public void AutoFaker_GeneratedCommentThread_CommentsHaveMatchingThreadId()
+    {
+        for (var i = 0; i < 20; i++)
+        {
+            var thread = Faker.Generate<CommentThread>();
+            if (thread.Comments is not { Count: > 0 }) continue;
+
+            thread.Comments.Should().OnlyContain(comment => comment.CommentThreadId == thread.Id);
+            return;
+        }
+
+        throw new Exception("AutoFaker did not generate a CommentThread with comments after 20 attempts");
+    }
+
+    [Fact]
     public void CanDeserializeProjectDumpRegressionData()
     {
         //nothing should ever be removed from this file

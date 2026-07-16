@@ -141,6 +141,22 @@
       TypeDiscriminator: SetFirstTranslationIdChange
     },
     {
+      DerivedType: CreateSensePictureChange,
+      TypeDiscriminator: CreateSensePictureChange
+    },
+    {
+      DerivedType: UpdateSensePictureChange,
+      TypeDiscriminator: UpdateSensePictureChange
+    },
+    {
+      DerivedType: ReorderSensePictureChange,
+      TypeDiscriminator: ReorderSensePictureChange
+    },
+    {
+      DerivedType: RemoveSensePictureChange,
+      TypeDiscriminator: RemoveSensePictureChange
+    },
+    {
       DerivedType: CreatePartOfSpeechChange,
       TypeDiscriminator: CreatePartOfSpeechChange
     },
@@ -203,6 +219,30 @@
     {
       DerivedType: DeleteChange<CustomView>,
       TypeDiscriminator: delete:CustomView
+    },
+    {
+      DerivedType: CreateCommentThreadChange,
+      TypeDiscriminator: CreateCommentThreadChange
+    },
+    {
+      DerivedType: CreateUserCommentChange,
+      TypeDiscriminator: CreateUserCommentChange
+    },
+    {
+      DerivedType: EditUserCommentChange,
+      TypeDiscriminator: EditUserCommentChange
+    },
+    {
+      DerivedType: SetCommentThreadStatusChange,
+      TypeDiscriminator: SetCommentThreadStatusChange
+    },
+    {
+      DerivedType: DeleteChange<CommentThread>,
+      TypeDiscriminator: delete:CommentThread
+    },
+    {
+      DerivedType: DeleteChange<UserComment>,
+      TypeDiscriminator: delete:UserComment
     },
     {
       DerivedType: CreateMorphTypeChange,

@@ -3,6 +3,7 @@ using System.Text.Json;
 using Bogus;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
@@ -174,6 +175,10 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var removeTranslationChange = new RemoveTranslationChange(exampleSentence.Id, translation.Id);
         yield return new ChangeWithDependencies(removeTranslationChange, [createTranslationChange]);
 
+        var picture = new Picture { Id = Guid.NewGuid(), Caption = { { "en", new RichString("test pic") } } };
+        var createSensePictureChange = new CreateSensePictureChange(picture, sense.Id, between: null);
+        yield return new ChangeWithDependencies(createSensePictureChange, [createSenseChange]);
+
         var semanticDomain = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "test sd" } } };
         var createSemanticDomainChange = new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, "1.1.1");
         yield return new ChangeWithDependencies(createSemanticDomainChange);
@@ -240,6 +245,16 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var setExampleSentenceOrderChange = new LcmCrdt.Changes.SetOrderChange<ExampleSentence>(exampleSentence.Id, 10);
         yield return new ChangeWithDependencies(setExampleSentenceOrderChange, [createExampleSentenceChange]);
 
+        var setPictureOrderChange = new ReorderSensePictureChange(picture.Id, sense.Id, 10);
+        yield return new ChangeWithDependencies(setPictureOrderChange, [createSenseChange, createSensePictureChange]);
+
+        var updatePictureChange = new UpdateSensePictureChange(picture.Id, sense.Id, new JsonPatchDocument<Picture>()
+            .Replace(pic => pic.Caption, new() { { "en", new RichString("test caption update") } }));
+        yield return new ChangeWithDependencies(updatePictureChange, [createSenseChange, createSensePictureChange]);
+
+        var removePictureChange = new RemoveSensePictureChange(picture.Id, sense.Id);
+        yield return new ChangeWithDependencies(removePictureChange, [createSenseChange, createSensePictureChange, setPictureOrderChange, updatePictureChange]);
+
         var setComplexFormComponentOrderChange = new LcmCrdt.Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, 10);
         yield return new ChangeWithDependencies(setComplexFormComponentOrderChange, [createComplexFormComponentChange]);
 
@@ -302,5 +317,38 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
                 Analysis = null
             });
         yield return new ChangeWithDependencies(editCustomViewChange, [createCustomViewChange]);
+
+        var commentThread = new CommentThread
+        {
+            Id = Guid.NewGuid(),
+            SubjectId = entry.Id,
+            SubjectType = SubjectType.Entry,
+            Status = ThreadStatus.Open,
+            AuthorId = "author-id",
+            AuthorName = "Author",
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        var createCommentThreadChange = new CreateCommentThreadChange(commentThread);
+        yield return new ChangeWithDependencies(createCommentThreadChange, [createEntryChange]);
+
+        var userComment = new UserComment
+        {
+            Id = Guid.NewGuid(),
+            CommentThreadId = commentThread.Id,
+            Text = "Test comment",
+            AuthorId = "author-id",
+            AuthorName = "Author",
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        var createUserCommentChange = new CreateUserCommentChange(userComment);
+        yield return new ChangeWithDependencies(createUserCommentChange, [createCommentThreadChange]);
+
+        var editUserCommentChange = new EditUserCommentChange(userComment.Id, "Updated comment", DateTimeOffset.UtcNow);
+        yield return new ChangeWithDependencies(editUserCommentChange, [createUserCommentChange]);
+
+        var closeCommentThreadChange = new SetCommentThreadStatusChange(commentThread.Id, ThreadStatus.Closed, DateTimeOffset.UtcNow);
+        yield return new ChangeWithDependencies(closeCommentThreadChange, [createCommentThreadChange]);
     }
 }

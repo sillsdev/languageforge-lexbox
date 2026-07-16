@@ -30,9 +30,21 @@ public class ProjectEventBus : IDisposable
         _globalEventBus.PublishEvent(new ProjectEvent(@event, project));
     }
 
-    public void PublishEntryChangedEvent(IProjectIdentifier project, Entry entry)
+    public void PublishEntriesChanged(IProjectIdentifier project,
+        Guid[] changedEntryIds,
+        Guid[] deletedEntryIds)
     {
-        PublishEvent(project, new EntryChangedEvent(entry));
+        PublishEvent(project, new EntriesChangedEvent(changedEntryIds, deletedEntryIds));
+    }
+
+    public void PublishEntryChanged(IProjectIdentifier project, Guid entryId)
+    {
+        PublishEntriesChanged(project, [entryId], []);
+    }
+
+    public void PublishEntryDeleted(IProjectIdentifier project, Guid entryId)
+    {
+        PublishEntriesChanged(project, [], [entryId]);
     }
 
     private IObservable<T> OnProjectEvent<T>(IProjectIdentifier project) where T : IFwEvent
@@ -43,9 +55,9 @@ public class ProjectEventBus : IDisposable
             .Select(e => (T)e.Event);
     }
 
-    public IObservable<EntryChangedEvent> OnEntryChanged(IProjectIdentifier project)
+    public IObservable<EntriesChangedEvent> OnEntriesChanged(IProjectIdentifier project)
     {
-        return OnProjectEvent<EntryChangedEvent>(project);
+        return OnProjectEvent<EntriesChangedEvent>(project);
     }
 
     public void Dispose()

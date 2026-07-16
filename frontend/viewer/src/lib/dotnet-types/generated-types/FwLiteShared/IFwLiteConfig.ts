@@ -8,6 +8,7 @@ import type {FwLitePlatform} from './FwLitePlatform';
 export interface IFwLiteConfig
 {
 	useDevAssets: boolean;
+	devAssetsPort: number;
 	appVersion: string;
 	os: FwLitePlatform;
 	feedbackUrl: string;

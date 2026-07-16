@@ -88,9 +88,7 @@
       <Sidebar.GroupLabel>{$t`Dictionary`}</Sidebar.GroupLabel>
       <Sidebar.GroupContent>
         <Sidebar.Menu>
-          <DevContent>
-            {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
-          </DevContent>
+          {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
           {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`, formatNumber(stats.current?.totalEntryCount))}
           {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
 
@@ -210,7 +208,7 @@
   </Sidebar.Content>
   <Sidebar.Footer>
       <div class="text-xs text-muted-foreground py-2 m-auto">
-        <div>FieldWorks Lite {config.appVersion}</div>
+        <div data-testid="app-version">FieldWorks Lite {config.appVersion}</div>
         <div {@attach devModeToggle}>{$t`Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸`}</div>
       </div>
   </Sidebar.Footer>

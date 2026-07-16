@@ -25,6 +25,9 @@
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
+  import CommentDialog from '$lib/entry-editor/CommentDialog.svelte';
+  import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
 
@@ -70,10 +73,11 @@
     return entry;
   }
 
-  eventBus.onEntryUpdated((e) => {
-    if (e.id !== entryId) return;
-    // The event payload is the latest server state
-    setEntry(e);
+  eventBus.onEntryUpdated((id) => {
+    if (id !== entryId) return;
+    void miniLcmApi.getEntry(id).then(refreshed => {
+      if (id === entryId && refreshed) setEntry(refreshed); // entryId may have changed mid-fetch
+    });
   });
 
   eventBus.onEntryDeleted(id => {
@@ -103,6 +107,7 @@
 
   let readonly = $state(false);
   let deleted = $state(false);
+  let showCommentDialog = $state(false);
 
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
@@ -135,6 +140,17 @@
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
         <div class="flex">
+          <DevContent>
+            {#if features.comments}
+              <Button
+                variant="ghost"
+                size="icon"
+                icon="i-mdi-comment-text-outline"
+                aria-label={$t`Comments`}
+                onclick={() => showCommentDialog = !showCommentDialog}
+              />
+            {/if}
+          </DevContent>
           <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} bind:readonly />
           <EntryMenu {entry} />
         </div>
@@ -157,29 +173,42 @@
           </Alert.Root>
         </div>
       {/if}
-      {#if dictionaryPreview === 'sticky'}
-        <div class="md:px-2">
-          {@render preview(entry)}
-        </div>
-      {/if}
     </header>
-    <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('grow md:pr-2')}>
-      {#if dictionaryPreview === 'show'}
-        <div class="md:pl-2">
-          {@render preview(entry)}
-        </div>
-      {/if}
-      <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
-        {#key entry.id}
-          <EntryEditor
-            bind:this={editor}
-            bind:ref={editorRef}
-            bind:entry
-            readonly={readonly || !features.write || deleted}
-            {...entryPersistence.entryEditorProps} />
-        {/key}
+    <div class="flex min-h-0 grow gap-4">
+      <div class="flex min-h-0 min-w-0 grow flex-col">
+        {#if dictionaryPreview === 'sticky'}
+          <div class="shrink-0 md:px-2">
+            {@render preview(entry)}
+          </div>
+        {/if}
+        <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('min-w-0 grow md:pr-2')}>
+          {#if dictionaryPreview === 'show'}
+            <div class="md:pl-2">
+              {@render preview(entry)}
+            </div>
+          {/if}
+          <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
+            {#key entry.id}
+              <EntryEditor
+                bind:this={editor}
+                bind:ref={editorRef}
+                bind:entry
+                readonly={readonly || !features.write || deleted}
+                {...entryPersistence.entryEditorProps} />
+            {/key}
+          </div>
+        </ScrollArea>
       </div>
-    </ScrollArea>
+      {#if showCommentDialog}
+        <CommentDialog
+          bind:open={showCommentDialog}
+          inlineSidebar
+          subjectType={SubjectType.Entry}
+          subjectId={entry.id}
+          subjectName={headword}
+        />
+      {/if}
+    </div>
   {/if}
   {#if loadingDebounced.current && entryResource.current?.id !== entryId}
     <div

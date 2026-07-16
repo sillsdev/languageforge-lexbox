@@ -208,14 +208,22 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 {
                     await provider.GetRequiredService<SyncService>().ExecuteSync(true);
                 },
-                SeedNewProjectData: false,
                 AuthenticatedUser: currentUser?.Name,
                 AuthenticatedUserId: currentUser?.Id,
                 Role: ToRole(project.Role))));
     }
 
     [JSInvokable]
-    public Task CreateProject(string name)
+    public Task CreateProject(string name, string code, WritingSystemId vernacularWs, WritingSystemId? analysisWs = null)
+    {
+        return Task.Run(async () =>
+        {
+            await crdtProjectsService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager), vernacularWs, analysisWs);
+        });
+    }
+
+    [JSInvokable]
+    public Task CreateDemoProject(string name)
     {
         return Task.Run(async () =>
         {
