@@ -68,7 +68,6 @@
     "@vitest/ui": "catalog:",
     "bits-ui": "2.16.4",
     "clsx": "^2.1.1",
-    "embla-carousel-svelte": "^8.6.0",
     "eslint": "catalog:",
     "eslint-config-prettier": "^10.1.8",
     "eslint-output": "catalog:",

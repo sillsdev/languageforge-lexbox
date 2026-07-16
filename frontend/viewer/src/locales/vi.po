@@ -365,11 +365,16 @@ msgstr ""
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Hủy"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Caption"
+msgstr ""
 
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -635,6 +640,10 @@ msgstr "Xóa {0}"
 msgid "Delete Entry"
 msgstr "Xóa mục"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Delete Picture"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Delete Entry"
 #. Menu option: opens confirmation dialog to permanently remove word
@@ -713,6 +722,10 @@ msgstr "Tải xuống {0}"
 msgid "Download page"
 msgstr "Tải xuống trang"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Download Picture"
+msgstr ""
+
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
@@ -761,6 +774,11 @@ msgstr ""
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Chỉnh sửa chế độ xem tùy chỉnh"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Edit Picture"
+msgstr ""
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -1180,6 +1198,11 @@ msgstr "Tôi hiểu rằng điều này không thể hoàn tác"
 msgid "ID"
 msgstr ""
 
+#. Error displayed in place of a picture when the media file is missing from local storage
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Image not found"
+msgstr ""
+
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -1593,6 +1616,11 @@ msgstr ""
 msgid "No new data"
 msgstr "Không có dữ liệu mới"
 
+#. Empty state shown read-only in the Pictures field when a sense has no pictures
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "No pictures"
+msgstr ""
+
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "No server"
@@ -1675,6 +1703,11 @@ msgstr "Ngoại tuyến"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Offline, unable to download"
 msgstr "Ngoại tuyến, không thể tải xuống"
+
+#. Error when offline and trying to download image
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Offline, unable to download image"
+msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
@@ -1782,6 +1815,18 @@ msgstr "Đang chờ xử lý"
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
 msgstr "Chọn một Loại từ"
+
+#. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Picture"
+msgstr ""
+
+#. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
+#: src/lib/views/entity-config.ts
+msgid "Pictures"
+msgstr ""
 
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
@@ -1939,6 +1984,10 @@ msgstr "Mở lại"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
 msgstr "Thay thế âm thanh"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Replace Picture"
+msgstr ""
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
@@ -2158,6 +2207,7 @@ msgstr "Chủ đề không có đối tượng phù hợp loại: {0}"
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Submit"
 msgstr "Gửi"
 
@@ -2310,6 +2360,14 @@ msgstr "Ngày này # và biểu tượng cảm xúc này # là đoạn trích"
 msgid "This file is only available remotely."
 msgstr ""
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try reducing the image resolution and uploading again."
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
+msgstr ""
+
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
@@ -2402,6 +2460,10 @@ msgstr "Gõ một câu ví dụ"
 msgid "Type:"
 msgstr "Loại:"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Unable to download the picture"
+msgstr ""
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to export file"
@@ -2409,6 +2471,12 @@ msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to load audio"
+msgstr ""
+
+#. Generic error displayed in place of a picture when loading fails for an unspecified reason
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Unable to load image"
 msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
@@ -2420,6 +2488,10 @@ msgstr ""
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "Không thể mở trong FieldWorks"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to upload the picture"
+msgstr ""
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
@@ -2527,6 +2599,10 @@ msgstr ""
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Uploaded pending files"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Uploading pictures is not supported here"
 msgstr ""
 
 #. Field label
