@@ -7,8 +7,11 @@ const defaultOptions: ArgosScreenshotOptions = {
     'iphone-x',
   ],
   // The app version is a per-build string; hiding it keeps snapshots stable across builds.
-  // visibility:hidden preserves layout so surrounding elements don't shift.
-  argosCSS: '[data-testid="app-version"] { visibility: hidden; }',
+  // The "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸" line contains a heart + regional-indicator flag emoji
+  // whose glyphs depend on a color-emoji font that loads inconsistently in CI, so their width
+  // (and thus the surrounding layout) churns between screenshots. Both are decorative and not
+  // meaningful for visual regression. visibility:hidden preserves layout so nothing else shifts.
+  argosCSS: '[data-testid="app-version"], [data-testid="made-with"] { visibility: hidden; }',
 };
 
 const marketingScreenshotSizes: Exclude<ArgosScreenshotOptions['viewports'], undefined> = [
