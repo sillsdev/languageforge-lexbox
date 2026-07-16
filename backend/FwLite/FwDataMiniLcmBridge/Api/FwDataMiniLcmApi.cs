@@ -1857,7 +1857,7 @@ public class FwDataMiniLcmApi(
     public Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
     {
         PictureRepository.TryGetObject(id, out var lcmPicture);
-        ValidateOwnership(lcmPicture, entryId, senseId);
+        if (lcmPicture is not null) ValidateOwnership(lcmPicture, entryId, senseId);
         return Task.FromResult(lcmPicture is null ? null : FromLcmPicture(senseId, lcmPicture));
     }
 
