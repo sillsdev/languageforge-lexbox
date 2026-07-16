@@ -41,7 +41,7 @@
   }
 
   const missingDuration = $derived(zeroDuration.replaceAll('0', '‒')); // <=  this "figure dash" is supposed to be the dash closest to the width of a number
-  export const AUDIO_LOADER_HANDLED = Symbol();
+  export const LOADER_ERROR_HANDLED = Symbol();
 </script>
 
 <script lang="ts">
@@ -70,7 +70,7 @@
   }: {
     loader?: (
       audioId: string,
-    ) => Promise<{stream: ReadableStream; filename: string} | undefined | typeof AUDIO_LOADER_HANDLED>;
+    ) => Promise<{stream: ReadableStream; filename: string} | undefined | typeof LOADER_ERROR_HANDLED>;
     audioId: string | undefined;
     onchange?: (audioId: string | undefined) => void;
     readonly?: boolean;
@@ -101,7 +101,7 @@
           break;
       }
 
-      return AUDIO_LOADER_HANDLED;
+      return LOADER_ERROR_HANDLED;
     }
     return {stream: await file.stream.stream(), filename: file.fileName ?? ''};
   }
@@ -111,7 +111,7 @@
     playerState = 'loading';
     try {
       const result = await loader(audioId);
-      if (result === AUDIO_LOADER_HANDLED) return false;
+      if (result === LOADER_ERROR_HANDLED) return false;
       if (!result) {
         AppNotification.error(`Failed to load audio ${audioId}`);
         return;

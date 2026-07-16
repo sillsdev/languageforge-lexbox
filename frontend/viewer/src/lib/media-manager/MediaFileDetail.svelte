@@ -8,7 +8,7 @@
   import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
   import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
   import {AppNotification} from '$lib/notifications/notifications';
-  import AudioInput, {AUDIO_LOADER_HANDLED} from '$lib/components/field-editors/audio-input.svelte';
+  import AudioInput, {LOADER_ERROR_HANDLED} from '$lib/components/field-editors/audio-input.svelte';
   import {cn} from '$lib/utils';
   import {resource, watch} from 'runed';
   import {t} from 'svelte-i18n-lingui';
@@ -97,7 +97,7 @@
     const response = await mediaFilesService.getFileStream(fileId);
     if (!response.stream) {
       AppNotification.error($t`Unable to load audio`, readFileErrorMessage(response.result, response.errorMessage));
-      return AUDIO_LOADER_HANDLED;
+      return LOADER_ERROR_HANDLED;
     }
     return {
       stream: await response.stream.stream(),
