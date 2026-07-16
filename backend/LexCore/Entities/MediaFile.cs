@@ -22,14 +22,9 @@ public class MediaFile : EntityBase
         if (Metadata is null)
         {
             var fileInfo = new FileInfo(filePath);
-            int cappedSize = 0;
-            if (fileInfo.Exists)
-            {
-                cappedSize = fileInfo.Length > int.MaxValue ? int.MaxValue : (int)fileInfo.Length;
-            }
             Metadata = new FileMetadata
             {
-                SizeInBytes = cappedSize,
+                SizeInBytes = fileInfo.Length,
             };
         }
     }
@@ -43,7 +38,7 @@ public class MediaFile : EntityBase
 public class FileMetadata
 {
     public string? Sha256Hash { get; set; }
-    public int? SizeInBytes { get; set; }
+    public long? SizeInBytes { get; set; }
     public string? FileFormat { get; set; }
     public string? MimeType { get; set; }
     public string? Author { get; set; }

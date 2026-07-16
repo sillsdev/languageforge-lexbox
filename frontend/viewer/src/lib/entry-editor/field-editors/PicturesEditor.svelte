@@ -51,7 +51,7 @@
   // exceptions, so we branch on it. We intentionally do NOT pre-check the file size: the size
   // limit lives on the server and may change, so we let the server decide and handle `TooBig`.
   async function uploadFile(file: File): Promise<string | null> {
-    const response = await api.saveFile(file, {filename: file.name, mimeType: file.type});
+    const response = await api.saveFile(file, {filename: file.name, mimeType: file.type, extraFields: {}});
     switch (response.result) {
       case UploadFileResult.SavedLocally:
       case UploadFileResult.SavedToLexbox:

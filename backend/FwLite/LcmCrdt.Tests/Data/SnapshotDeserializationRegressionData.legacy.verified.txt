@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "Input": {
       "$type": "MiniLcmCrdtAdapter",
@@ -3899,6 +3899,21 @@
       },
       "Id": "853b91e6-d738-7d5d-cc98-e62904160c35",
       "DeletedAt": null
+    }
+  },
+  {
+    "Input": {
+      "$type": "RemoteResource",
+      "Id": "fce4cb31-93bd-f380-fd73-3fb0d09c0fa5",
+      "DeletedAt": "2025-09-17T23:53:03.6147633+02:00",
+      "RemoteId": "end-to-end"
+    },
+    "Output": {
+      "$type": "RemoteResource",
+      "Id": "fce4cb31-93bd-f380-fd73-3fb0d09c0fa5",
+      "DeletedAt": "2025-09-17T23:53:03.6147633+02:00",
+      "RemoteId": "end-to-end",
+      "Metadata": null
     }
   },
   {

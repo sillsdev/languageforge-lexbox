@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Net;
+using System.Net.Mime;
 using Microsoft.Extensions.Options;
 using MiniLcm.Project;
 using Refit;
@@ -13,30 +14,40 @@ using MiniLcm.Media;
 namespace LcmCrdt.MediaServer;
 
 public class LcmMediaService(
-    ResourceService resourceService,
+    ResourceService<LcmFileMetadata> resourceService,
     CurrentProjectService currentProjectService,
     IOptions<CrdtConfig> options,
     IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider,
     ILogger<LcmMediaService> logger
-) : IRemoteResourceService
+) : IRemoteResourceService<LcmFileMetadata>
 {
-    public async Task<HarmonyResource[]> AllResources()
+    public async Task<HarmonyResource<LcmFileMetadata>[]> AllResources()
     {
-        return await resourceService.AllResources();
+        var resources = await resourceService.AllResources();
+        return [.. resources
+            .OrderBy(r => r.Metadata?.Filename is null)
+            .ThenBy(r => r.Metadata?.Filename)
+            .ThenBy(r => r.Id)
+        ];
     }
 
     /// <summary>
     /// should only be used in fw-headless for files which already exist in the lexbox db
     /// </summary>
-    /// <param name="fileId"></param>
-    /// <param name="localPath"></param>
-    public async Task AddExistingRemoteResource(Guid fileId, string localPath)
+    public async Task AddExistingRemoteResource(Guid fileId, string localPath, LcmFileMetadata metadata)
     {
         await resourceService.AddExistingRemoteResource(localPath,
             currentProjectService.ProjectData.ClientId,
             fileId,
-            fileId.ToString("N"));
+            fileId.ToString("N"),
+            metadata);
+    }
+
+    public async ValueTask AddMissingMetadata(HarmonyResource<LcmFileMetadata> resource, LcmFileMetadata metadata)
+    {
+        if (resource.Metadata is not null) return;
+        await resourceService.SetResourceMetadata(resource.Id, currentProjectService.ProjectData.ClientId, metadata);
     }
 
     public async Task DeleteResource(Guid fileId)
@@ -82,7 +93,7 @@ public class LcmMediaService(
         }
         //todo, consider trying to download the file again, maybe the cache was cleared
         if (!File.Exists(localResource.LocalPath))
-            throw new FileNotFoundException("Unable to find the file with Id" + fileId, localResource.LocalPath);
+            throw new FileNotFoundException($"Unable to find the file with Id {fileId}", localResource.LocalPath);
         return new(File.OpenRead(localResource.LocalPath), Path.GetFileName(localResource.LocalPath));
     }
 
@@ -141,7 +152,7 @@ public class LcmMediaService(
         return mediaClient;
     }
 
-    async Task<DownloadResult> IRemoteResourceService.DownloadResource(string remoteId, string localResourceCachePath)
+    async Task<DownloadResult> IRemoteResourceService<LcmFileMetadata>.DownloadResource(string remoteId, string localResourceCachePath)
     {
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
@@ -181,20 +192,24 @@ public class LcmMediaService(
         return Path.Combine(options.LocalResourceCachePath, project.Name);
     }
 
-
-    async Task<UploadResult> IRemoteResourceService.UploadResource(Guid resourceId, string localPath)
+    async Task<UploadResult<LcmFileMetadata>> IRemoteResourceService<LcmFileMetadata>.UploadResource(Guid resourceId, string localPath, LcmFileMetadata? metadata)
     {
         var mediaClient = await MediaServerClient();
-        var fileName = Path.GetFileName(localPath);
-        await mediaClient.UploadFile(
+        var fileName = metadata?.Filename ?? Path.GetFileName(localPath);
+        var response = await mediaClient.UploadFile(
             new FileInfoPart(new FileInfo(localPath), fileName),
             projectId: currentProjectService.ProjectData.Id,
             fileId: resourceId.ToString("D"),
             filename: fileName);
-        return new UploadResult(resourceId.ToString("N"));
+        var uploadedMetadata = new LcmFileMetadata(fileName,
+            response.Metadata?.MimeType ?? metadata?.MimeType ?? MediaTypeNames.Application.Octet,
+            response.Metadata?.Author ?? metadata?.Author,
+            response.Metadata?.UploadDate ?? metadata?.UploadDate,
+            response.Metadata?.SizeInBytes ?? metadata?.SizeInBytes);
+        return new UploadResult<LcmFileMetadata>(resourceId.ToString("N"), uploadedMetadata);
     }
 
-    public async Task<(HarmonyResource resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
+    public async Task<(HarmonyResource<LcmFileMetadata> resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
@@ -204,16 +219,20 @@ public class LcmMediaService(
         await using (var localFile = File.Create(localPath))
         {
             await stream.CopyToAsync(localFile);
+            if (metadata.SizeInBytes is null && localFile.SafeLength() is { } length) metadata = metadata with { SizeInBytes = length };
         }
+
+        if (metadata.SizeInBytes is null) metadata = metadata with { SizeInBytes = new FileInfo(localPath).Length };
 
         try
         {
-            IRemoteResourceService? remoteResourceService = null;
+            IRemoteResourceService<LcmFileMetadata>? remoteResourceService = null;
             if (await httpClientProvider.ConnectionStatus() == ConnectionStatus.Online) remoteResourceService = this;
             return (await resourceService.AddLocalResource(
                 localPath,
                 currentProjectService.ProjectData.ClientId,
-                resourceService: remoteResourceService
+                resourceService: remoteResourceService,
+                metadata: metadata
             ), newResource: true);
         }
         catch (Exception e)
@@ -245,5 +264,27 @@ public class LcmMediaService(
         if (await httpClientProvider.ConnectionStatus() != ConnectionStatus.Online) return false;
         await resourceService.UploadPendingResources(currentProjectService.ProjectData.ClientId, this);
         return true;
+    }
+
+    public async Task DownloadResources(IEnumerable<Guid> resourceIds)
+    {
+        await Parallel.ForEachAsync(resourceIds, new ParallelOptions()
+        {
+            MaxDegreeOfParallelism = 3
+        }, async (resourceId, cancellationToken) =>
+        {
+            await resourceService.DownloadResource(resourceId, this);
+        });
+    }
+
+    public async Task<LcmFileMetadata> GetFileMetadata(Guid fileId)
+    {
+        var resource = await resourceService.GetResource(fileId);
+        if (resource is not { Metadata: not null })
+        {
+            var mediaClient = await MediaServerClient();
+            return await mediaClient.GetFileMetadata(fileId);
+        }
+        return resource.Metadata;
     }
 }

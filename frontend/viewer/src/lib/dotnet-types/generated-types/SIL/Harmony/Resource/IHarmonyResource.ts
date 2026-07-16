@@ -5,11 +5,13 @@
 
 import type {ILcmFileMetadata} from '../../../MiniLcm/Media/ILcmFileMetadata';
 
-export interface IRemoteResource
+export interface IHarmonyResource
 {
 	id: string;
-	deletedAt?: string;
 	remoteId?: string;
+	localPath?: string;
 	metadata?: ILcmFileMetadata;
+	local: boolean;
+	remote: boolean;
 }
 /* eslint-enable */

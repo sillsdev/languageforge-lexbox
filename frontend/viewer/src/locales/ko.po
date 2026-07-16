@@ -303,6 +303,10 @@ msgstr "렉스박스에 오디오 저장 및 업로드"
 msgid "Audio saved locally"
 msgstr "로컬에 저장된 오디오"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Author"
+msgstr ""
+
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
@@ -901,6 +905,22 @@ msgstr ""
 msgid "Failed to load entries"
 msgstr "항목을 로드하지 못했습니다."
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load file"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load files"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load media files"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Failed to load metadata"
+msgstr ""
+
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to open data directory, use the path in the text field instead"
@@ -921,10 +941,18 @@ msgstr ""
 msgid "Failed to regenerate search index"
 msgstr ""
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Failed to save file"
+msgstr ""
+
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
 msgstr "동기화 실패"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to upload files"
+msgstr ""
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -988,6 +1016,7 @@ msgstr "파일 이름:"
 
 #. Error message when file is missing
 #: src/lib/components/field-editors/audio-input.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 msgid "File not found"
 msgstr "파일을 찾을 수 없음"
 
@@ -1001,6 +1030,10 @@ msgstr "파일 저장이 지원되지 않음"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File too big"
 msgstr "파일이 너무 큼"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Filename"
+msgstr ""
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1161,6 +1194,10 @@ msgstr "내 프로젝트가 보이지 않습니다."
 msgid "I understand that this can't be undone"
 msgstr "이 작업은 되돌릴 수 없다는 것을 이해합니다."
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "ID"
+msgstr ""
+
 #. Error displayed in place of a picture when the media file is missing from local storage
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Image not found"
@@ -1259,6 +1296,27 @@ msgstr "목록 모드"
 msgid "Literal meaning"
 msgstr "문자 그대로의 의미"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Load"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Load all"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Load it to preview or export."
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loaded {0} file(s)"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loaded file"
+msgstr ""
+
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
@@ -1273,9 +1331,21 @@ msgstr ""
 msgid "Loading Dictionaries..."
 msgstr "사전 로드 중..."
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Loading metadata..."
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Loading preview..."
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "loading..."
 msgstr "로딩 중..."
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loading..."
+msgstr ""
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
@@ -1283,8 +1353,13 @@ msgstr "로딩 중..."
 msgid "Local"
 msgstr "로컬"
 
+#: src/lib/media-manager/media-file-utils.ts
+msgid "Local and remote"
+msgstr ""
+
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
+#: src/lib/media-manager/media-file-utils.ts
 msgid "Local only"
 msgstr "로컬 전용"
 
@@ -1353,6 +1428,15 @@ msgstr "수동 업데이트가 필요합니다. 제공된 지침을 따르세요
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Meaning"
 msgstr "의미"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Media file details"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Media Manager"
+msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1523,6 +1607,10 @@ msgstr "기록을 찾을 수 없습니다."
 msgid "No items found"
 msgstr "항목을 찾을 수 없습니다."
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "No media files found"
+msgstr ""
+
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
@@ -1619,6 +1707,10 @@ msgstr "오프라인 상태, 다운로드할 수 없음"
 #. Error when offline and trying to download image
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Offline, unable to download image"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Offline, unable to open file"
 msgstr ""
 
 #. Sort option in activity view — earliest commit first.
@@ -1751,6 +1843,7 @@ msgstr "플랫폼"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "미리 보기"
@@ -1759,6 +1852,14 @@ msgstr "미리 보기"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "미리 보기를 사용할 수 없습니다."
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Preview not available for this file type."
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Preview not supported"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1809,6 +1910,10 @@ msgstr "참조"
 msgid "Refine your filter to see more..."
 msgstr "필터를 세분화하여 자세히 보기..."
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Refresh"
+msgstr ""
+
 #. Button to reload project list
 #: src/home/HomeView.svelte
 #: src/home/Server.svelte
@@ -1856,6 +1961,10 @@ msgstr ""
 msgid "Release notes"
 msgstr "릴리스 노트"
 
+#: src/lib/media-manager/media-file-utils.ts
+msgid "Remote only"
+msgstr ""
+
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
@@ -1902,6 +2011,10 @@ msgstr "rose"
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Save"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Save as"
 msgstr ""
 
 #. Dialog button to save audio with new name
@@ -2045,6 +2158,10 @@ msgstr ""
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Simple"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Size"
+msgstr ""
 
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
@@ -2239,6 +2356,10 @@ msgstr "이 {0} 삭제됨"
 msgid "This date # and this emoji # are snippets"
 msgstr "이 날짜 #와 이 이모티콘 #은 스니펫입니다."
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "This file is only available remotely."
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the image resolution and uploading again."
 msgstr ""
@@ -2315,6 +2436,10 @@ msgstr "문제 해결"
 msgid "Try again"
 msgstr ""
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Type"
+msgstr ""
+
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
@@ -2339,10 +2464,24 @@ msgstr "유형:"
 msgid "Unable to download the picture"
 msgstr ""
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to export file"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to load audio"
+msgstr ""
+
 #. Generic error displayed in place of a picture when loading fails for an unspecified reason
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load image"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to open file"
 msgstr ""
 
 #. Error message
@@ -2449,6 +2588,18 @@ msgstr "권한 설정에 의해 업데이트가 허용되지 않았습니다."
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
 msgstr "업데이트"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Upload pending"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Uploaded"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Uploaded pending files"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"

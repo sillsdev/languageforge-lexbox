@@ -1,8 +1,9 @@
 using System.Text.Json.Serialization;
+using LexCore.Entities;
 
 namespace FwHeadless.Models;
 
-public record PostFileResult(Guid guid);
+public record PostFileResult(Guid guid, FileMetadata? metadata);
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum FileUploadErrorMessage

@@ -7,6 +7,7 @@ using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
+using MiniLcm.Media;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Resource;
@@ -281,12 +282,19 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var removePublicationChange = new RemovePublicationChange(entry.Id, publication2.Id);
         yield return new ChangeWithDependencies(removePublicationChange, [replacePublicationChange]);
 
-        yield return new ChangeWithDependencies(new CreateRemoteResourceChange(Guid.NewGuid(), "test-remote-id"));
-        var createRemoteResourcePendingUploadChange = new CreateRemoteResourcePendingUploadChange(Guid.NewGuid());
+        yield return new ChangeWithDependencies(new CreateRemoteResourceChange<LcmFileMetadata>(Guid.NewGuid(), "test-remote-id"));
+        var createRemoteResourcePendingUploadChange = new CreateRemoteResourcePendingUploadChange<LcmFileMetadata>(Guid.NewGuid());
         yield return new ChangeWithDependencies(createRemoteResourcePendingUploadChange);
         yield return new ChangeWithDependencies(
-            new RemoteResourceUploadedChange(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
+            new RemoteResourceUploadedChange<LcmFileMetadata>(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
             [createRemoteResourcePendingUploadChange]);
+        yield return new ChangeWithDependencies(
+            new SetRemoteResourceMetadataChange<LcmFileMetadata>(createRemoteResourcePendingUploadChange.EntityId, new LcmFileMetadata("test.txt", "text/plain")),
+            [createRemoteResourcePendingUploadChange]);
+
+        var createRemoteResourceChange = new CreateRemoteResourceChange<LcmFileMetadata>(Guid.NewGuid(), "test-remote-id2");
+        yield return new ChangeWithDependencies(createRemoteResourceChange);
+        yield return new ChangeWithDependencies(new DeleteRemoteResourceChange<LcmFileMetadata>(createRemoteResourceChange.EntityId), [createRemoteResourceChange]);
 
         var customView = new CustomView
         {

@@ -303,6 +303,10 @@ msgstr "Sauti ilihifadhiwa na kupakilizwa kwenye Lexbox"
 msgid "Audio saved locally"
 msgstr "Sauti ilihifadhiwa mahallini"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Author"
+msgstr ""
+
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
@@ -901,6 +905,22 @@ msgstr ""
 msgid "Failed to load entries"
 msgstr "Imeshindwa kupakia ingizo"
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load file"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load files"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load media files"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Failed to load metadata"
+msgstr ""
+
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to open data directory, use the path in the text field instead"
@@ -921,10 +941,18 @@ msgstr ""
 msgid "Failed to regenerate search index"
 msgstr ""
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Failed to save file"
+msgstr ""
+
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
 msgstr "Imeshindwa kuoanisha"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to upload files"
+msgstr ""
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -988,6 +1016,7 @@ msgstr "Jina la faili:"
 
 #. Error message when file is missing
 #: src/lib/components/field-editors/audio-input.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 msgid "File not found"
 msgstr "Faili haijapatikana"
 
@@ -1001,6 +1030,10 @@ msgstr "Hifadhi ya faili hailinganiswi"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File too big"
 msgstr "Faili kubwa sana"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Filename"
+msgstr ""
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1161,6 +1194,10 @@ msgstr "Siioni mradi wangu"
 msgid "I understand that this can't be undone"
 msgstr "Ninaelewa kuwa hii haiwezi kurudishwa nyuma"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "ID"
+msgstr ""
+
 #. Error displayed in place of a picture when the media file is missing from local storage
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Image not found"
@@ -1259,6 +1296,27 @@ msgstr "Hali ya orodha"
 msgid "Literal meaning"
 msgstr "Maana halisi"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Load"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Load all"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Load it to preview or export."
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loaded {0} file(s)"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loaded file"
+msgstr ""
+
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
@@ -1273,9 +1331,21 @@ msgstr ""
 msgid "Loading Dictionaries..."
 msgstr "Inapakia Kamusi..."
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Loading metadata..."
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Loading preview..."
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "loading..."
 msgstr "inashughulikia..."
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loading..."
+msgstr ""
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
@@ -1283,8 +1353,13 @@ msgstr "inashughulikia..."
 msgid "Local"
 msgstr "Mitaa"
 
+#: src/lib/media-manager/media-file-utils.ts
+msgid "Local and remote"
+msgstr ""
+
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
+#: src/lib/media-manager/media-file-utils.ts
 msgid "Local only"
 msgstr "Mitaa tu"
 
@@ -1353,6 +1428,15 @@ msgstr "Sasisho la mwongozo linahitajika. Tafadhali fuata maelekezo yaliyotolewa
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Meaning"
 msgstr "Maana"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Media file details"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Media Manager"
+msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1523,6 +1607,10 @@ msgstr "Hakuna historia iliyopatikana"
 msgid "No items found"
 msgstr "Hakuna kitu kilichopatikana"
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "No media files found"
+msgstr ""
+
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
@@ -1619,6 +1707,10 @@ msgstr "Nyuma ya mtandao, haiwezi kupakua"
 #. Error when offline and trying to download image
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Offline, unable to download image"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Offline, unable to open file"
 msgstr ""
 
 #. Sort option in activity view — earliest commit first.
@@ -1751,6 +1843,7 @@ msgstr "Jukwaa"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Hakiki"
@@ -1759,6 +1852,14 @@ msgstr "Hakiki"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "Muonekano awali haupatikani"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Preview not available for this file type."
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Preview not supported"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1809,6 +1910,10 @@ msgstr "Rejeleo"
 msgid "Refine your filter to see more..."
 msgstr "Boresho kichujio chako kuona zaidi..."
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Refresh"
+msgstr ""
+
 #. Button to reload project list
 #: src/home/HomeView.svelte
 #: src/home/Server.svelte
@@ -1856,6 +1961,10 @@ msgstr ""
 msgid "Release notes"
 msgstr "Maelezo ya toleo"
 
+#: src/lib/media-manager/media-file-utils.ts
+msgid "Remote only"
+msgstr ""
+
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Remove"
@@ -1902,6 +2011,10 @@ msgstr "waridi"
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Save"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Save as"
 msgstr ""
 
 #. Dialog button to save audio with new name
@@ -2045,6 +2158,10 @@ msgstr ""
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Rahisi"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Size"
+msgstr ""
 
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
@@ -2239,6 +2356,10 @@ msgstr "Hili {0} limefutwa"
 msgid "This date # and this emoji # are snippets"
 msgstr "Tarehe hii # na emoji hii # ni vigezo"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "This file is only available remotely."
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the image resolution and uploading again."
 msgstr ""
@@ -2315,6 +2436,10 @@ msgstr "Tatanua"
 msgid "Try again"
 msgstr ""
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Type"
+msgstr ""
+
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
@@ -2339,10 +2464,24 @@ msgstr "Aina:"
 msgid "Unable to download the picture"
 msgstr ""
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to export file"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to load audio"
+msgstr ""
+
 #. Generic error displayed in place of a picture when loading fails for an unspecified reason
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load image"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to open file"
 msgstr ""
 
 #. Error message
@@ -2449,6 +2588,18 @@ msgstr "Sasisho halikuruhusiwa na mipangilio ya ruhusa."
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
 msgstr "Masasisho"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Upload pending"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Uploaded"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Uploaded pending files"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
