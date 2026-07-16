@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Reactive.Linq;
+using FwLiteShared.Events;
 using FwLiteShared.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -79,10 +81,44 @@ public class InProcessLongRunningWorkQueueTests
         host.DrainedCount.Should().Be(1);
     }
 
-    private static InProcessLongRunningWorkQueue CreateQueue(ILongRunningWorkHost? host = null)
+    [Fact]
+    public async Task HostStartFailure_ContinuesWorkAndPublishesEvent()
+    {
+        using var eventBus = new GlobalEventBus(NullLogger<GlobalEventBus>.Instance);
+        UserNotificationEvent? published = null;
+        using var _ = eventBus.OnGlobalEvent.OfType<UserNotificationEvent>()
+            .Subscribe(e => published = e);
+
+        var host = new FakeLongRunningWorkHost
+        {
+            StartException = new InvalidOperationException("foreground service failed")
+        };
+        var queue = CreateQueue(host, eventBus);
+        var ran = false;
+
+        await queue.EnqueueAsync(Request("Downloading project demo"), _ =>
+        {
+            ran = true;
+            return Task.CompletedTask;
+        });
+
+        ran.Should().BeTrue();
+        published.Should().NotBeNull();
+        published!.Message.Should().Be("Background work protection failed");
+        published.NotificationType.Should().Be(UserNotificationType.Error);
+        published.Duration.Should().Be(UserNotificationDuration.Infinite);
+        published.Description.Should().Contain("Downloading project demo");
+        published.ClipboardText.Should().Contain("foreground service failed");
+        host.DrainedCount.Should().Be(1);
+    }
+
+    private static InProcessLongRunningWorkQueue CreateQueue(
+        ILongRunningWorkHost? host = null,
+        GlobalEventBus? eventBus = null)
     {
         return new InProcessLongRunningWorkQueue(
             host ?? new FakeLongRunningWorkHost(),
+            eventBus ?? new GlobalEventBus(NullLogger<GlobalEventBus>.Instance),
             NullLogger<InProcessLongRunningWorkQueue>.Instance);
     }
 
@@ -92,10 +128,12 @@ public class InProcessLongRunningWorkQueueTests
     {
         public List<string> StartedTitles { get; } = [];
         public int DrainedCount { get; private set; }
+        public Exception? StartException { get; init; }
 
         public Task WorkStartedAsync(LongRunningWorkRequest request, CancellationToken cancellationToken)
         {
             StartedTitles.Add(request.Title);
+            if (StartException is not null) throw StartException;
             return Task.CompletedTask;
         }
 

@@ -1,3 +1,4 @@
+using FwLiteShared.Events;
 using Microsoft.Extensions.Logging;
 
 namespace FwLiteShared.Services;
@@ -47,6 +48,7 @@ public sealed class NoOpLongRunningWorkHost : ILongRunningWorkHost
 
 public sealed class InProcessLongRunningWorkQueue(
     ILongRunningWorkHost workHost,
+    GlobalEventBus globalEventBus,
     ILogger<InProcessLongRunningWorkQueue> logger) : ILongRunningWorkQueue
 {
     private readonly SemaphoreSlim queueLock = new(1, 1);
@@ -117,7 +119,23 @@ public sealed class InProcessLongRunningWorkQueue(
         }
         catch (Exception e)
         {
+            // Fail open: work continues without foreground/wake-lock protection so downloads still
+            // succeed when the host fails. Surface the failure so users can report it.
             logger.LogError(e, "Error starting long-running work host for {WorkTitle}", request.Title);
+            try
+            {
+                globalEventBus.PublishEvent(new UserNotificationEvent(
+                    message: "Background work protection failed",
+                    notificationType: UserNotificationType.Error,
+                    duration: UserNotificationDuration.Infinite,
+                    description:
+                    $"\"{request.Title}\" will continue, but may stop if the screen turns off. Please report this error.",
+                    clipboardText: e.ToString()));
+            }
+            catch (Exception publishError)
+            {
+                logger.LogError(publishError, "Failed to publish long-running work host failure event");
+            }
         }
     }
 

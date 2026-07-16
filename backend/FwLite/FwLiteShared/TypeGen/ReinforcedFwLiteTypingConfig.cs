@@ -198,6 +198,8 @@ public static class ReinforcedFwLiteTypingConfig
 
         builder.ExportAsEnum<ActivitySort>().UseString();
         builder.ExportAsEnum<FwEventType>().UseString();
+        builder.ExportAsEnum<UserNotificationType>().UseString();
+        builder.ExportAsEnum<UserNotificationDuration>().UseString();
         builder.ExportAsEnum<LogLevel>().UseString(false);
         var eventJsAttrs = typeof(IFwEvent).GetCustomAttributes<JsonDerivedTypeAttribute>();
         builder.ExportAsInterfaces(

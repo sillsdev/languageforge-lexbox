@@ -72,7 +72,7 @@ public sealed class ForegroundWorkService : Service
                 PendingIntentFlags.Immutable | PendingIntentFlags.UpdateCurrent);
 
         var builder = new NotificationCompat.Builder(this, ChannelId);
-        builder.SetSmallIcon(Resource.Mipmap.logo_background);
+        builder.SetSmallIcon(Resource.Drawable.ic_notification);
         builder.SetContentTitle(title);
         builder.SetContentText(text);
         builder.SetOngoing(true);
