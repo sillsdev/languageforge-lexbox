@@ -93,7 +93,10 @@ public class LocalCommentReadStatusService(IDbContextFactory<LcmCrdtDbContext> d
             .ToArray();
         if (toInsert.Length == 0) return;
 
+        // AddRangeAsync says it exists only for use in special value generators, and all other uses should call AddRange
+#pragma warning disable VSTHRD103 // Call async methods when in an async method
         dbContext.UnreadComments.AddRange(toInsert);
+#pragma warning restore VSTHRD103 // Call async methods when in an async method
         try
         {
             await dbContext.SaveChangesAsync();
