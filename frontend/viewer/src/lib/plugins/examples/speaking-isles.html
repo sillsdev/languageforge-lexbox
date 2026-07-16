@@ -441,8 +441,8 @@
     <h2>The Speaking Isles</h2>
     <p class="sub" id="pause-progress"></p>
     <div class="keys">
-      <kbd>W A S D</kbd><span>walk &nbsp;·&nbsp; drag the world to look around</span>
-      <kbd>Space</kbd><span>jump (again in water to swim up)</span>
+      <kbd>W A S D</kbd><span>walk — single steps climb on their own &nbsp;·&nbsp; drag the world to look</span>
+      <kbd>Space</kbd><span>jump gaps &amp; ledges (again in water to swim up)</span>
       <kbd>E</kbd><span>touch a word-light, shrine or beacon</span>
       <kbd>B</kbd><span>build mode on/off</span>
       <kbd>Click</kbd><span>build mode: break block · <b>right-click / ⇧click</b>: place</span>
@@ -1730,6 +1730,7 @@ var Player = {
   yaw: 0, pitch: -0.12,
   onGround: false, inWater: false,
   EYE: 1.62, HALF: 0.32, HEIGHT: 1.8,
+  visualY: 40,   // camera height eased toward y so auto-steps read as a smooth rise
 };
 
 function playerCollides(px, py, pz) {
@@ -1773,9 +1774,13 @@ function movePlayer(dt) {
   Player.vy = clamp(Player.vy, -40, 12);
 
   var nx = Player.x + Player.vx * dt;
-  if (!playerCollides(nx, Player.y, Player.z)) Player.x = nx; else Player.vx = 0;
+  if (!playerCollides(nx, Player.y, Player.z)) Player.x = nx;
+  else if (stepUp(nx, Player.z)) Player.x = nx;
+  else Player.vx = 0;
   var nz = Player.z + Player.vz * dt;
-  if (!playerCollides(Player.x, Player.y, nz)) Player.z = nz; else Player.vz = 0;
+  if (!playerCollides(Player.x, Player.y, nz)) Player.z = nz;
+  else if (stepUp(Player.x, nz)) Player.z = nz;
+  else Player.vz = 0;
   var ny = Player.y + Player.vy * dt;
   Player.onGround = false;
   if (!playerCollides(Player.x, ny, Player.z)) {
@@ -1790,10 +1795,25 @@ function movePlayer(dt) {
   if (Player.y < -8) respawn();
 }
 
+// Auto step-up: walking into a rise of up to one block (STEP_HEIGHT) lifts the player
+// onto it instead of stopping, so single-block terrain — 95% of our land — is walkable
+// without jumping (like Minecraft's step height / Bedrock auto-jump, Roblox's auto-step).
+// Two-block-plus walls (cliffs, quarry terraces) still block, so they stay real obstacles.
+var STEP_HEIGHT = 1.05;
+function stepUp(tx, tz) {
+  if (!Player.onGround && !Player.inWater) return false;  // no climbing walls mid-air
+  for (var s = 0.5; s <= STEP_HEIGHT + 1e-6; s += 0.5) {
+    if (playerCollides(Player.x, Player.y + s, Player.z)) return false;  // ceiling above blocks the rise
+    if (!playerCollides(tx, Player.y + s, tz)) { Player.y += s; return true; }
+  }
+  return false;
+}
+
 function respawn() {
   Player.x = World.spawn.x; Player.z = World.spawn.z;
   Player.y = surfaceY(Math.floor(Player.x), Math.floor(Player.z)) + 1.1;
   Player.vx = Player.vy = Player.vz = 0;
+  Player.visualY = Player.y;
 }
 
 function eyePos() { return {x: Player.x, y: Player.y + Player.EYE, z: Player.z}; }
@@ -2063,6 +2083,7 @@ function applySave(data) {
     Player.yaw = data.pos.yaw || 0; Player.pitch = data.pos.pitch || 0;
     if (playerCollides(Player.x, Player.y, Player.z)) respawn();
   }
+  Player.visualY = Player.y;
   return true;
 }
 
@@ -3392,8 +3413,13 @@ function frame(now) {
   if (Game.started) updateLife(dt);
   Renderer.updateCreatures(Life.creatureAB, Life.creatureVertCount);
   drawSprites();
+  // Ease the camera toward the player's feet-y: a step-up (or small drop) reads as a
+  // smooth rise, but a real fall snaps so the view never lags behind the body.
+  var dyc = Player.y - Player.visualY;
+  if (Math.abs(dyc) > 1.6) Player.visualY = Player.y;
+  else Player.visualY += dyc * Math.min(1, 16 * dt);
   var frameInfo = Renderer.render({
-    cam: {x: Player.x, y: Player.y + Player.EYE, z: Player.z, yaw: Player.yaw, pitch: Player.pitch},
+    cam: {x: Player.x, y: Player.visualY + Player.EYE, z: Player.z, yaw: Player.yaw, pitch: Player.pitch},
     time: Game.time,
     dayPhase: Game.dayPhase,
   });
