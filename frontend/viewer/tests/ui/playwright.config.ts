@@ -1,13 +1,11 @@
 import {defineConfig, devices, type ReporterDescription} from '@playwright/test';
-import * as testEnv from '../tests/envVars';
+import * as testEnv from '../../../tests/envVars';
 
 const vitePort = '5173';
 const dotnetPort = '5137';
-const autoStartServer = process.env.AUTO_START_SERVER ? Boolean(process.env.AUTO_START_SERVER) : false;
+const autoStartServer = process.env.AUTO_START_SERVER === 'true';
 const serverPort = process.env.SERVER_PORT ?? (autoStartServer ? vitePort : dotnetPort);
-const allReporters: ReporterDescription[] = [
-  ['list'],
-];
+const sharedReporters: ReporterDescription[] = [['list']];
 const localReporters: ReporterDescription[] = [['html', { outputFolder: 'html-test-results', open: 'never' }]];
 const ciReporters: ReporterDescription[] = [['github'], ['junit', {outputFile: 'test-results/results.xml'}], [
   '@argos-ci/playwright/reporter',
@@ -19,7 +17,7 @@ const ciReporters: ReporterDescription[] = [['github'], ['junit', {outputFile: '
   }
 ]];
 export default defineConfig({
-  testDir: './tests',
+  testDir: '.',
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
@@ -30,16 +28,9 @@ export default defineConfig({
   outputDir: 'test-results',
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter:[
-    ...allReporters,
-    ...(process.env.CI ? [] : localReporters),
-    ...(process.env.CI ? ciReporters : [])
+    ...sharedReporters,
+    ...(process.env.CI ? ciReporters : localReporters),
   ],
-    // process.env.CI
-    // ? [['github'], ['list'], ['junit', {outputFile: 'test-results/results.xml'}]]
-    // // Putting the HTML report in a subdirectory of the main output directory results in a warning log
-    // // stating that it will "lead to artifact loss" but the warning in this case is not accurate
-    // : [['list'], ['html', {outputFolder: 'html-test-results', open: 'never'}]],
-
   use: {
     baseURL: 'http://localhost:' + serverPort,
     /* Local storage to be populated for every test */
@@ -53,11 +44,6 @@ export default defineConfig({
               name: 'isPlaywright',
               value: 'true',
             },
-            {
-              name: 'shadcnMode',
-              value: 'true'
-
-            }
           ],
         },
       ],
