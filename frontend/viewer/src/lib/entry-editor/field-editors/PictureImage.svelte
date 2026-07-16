@@ -116,7 +116,7 @@
   {#if showCaption && caption}
     <!-- `w-0 min-w-full` pins the caption to the image's width (the box above), so its `max-width`
          is the picture width; line-clamp-2 caps it at two lines with an ellipsis. -->
-    <figcaption class="text-muted-foreground line-clamp-2 w-0 min-w-full break-words text-sm">
+    <figcaption class="text-muted-foreground line-clamp-2 w-0 min-w-full break-words text-center text-sm">
       {caption}
     </figcaption>
   {/if}
