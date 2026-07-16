@@ -10,7 +10,7 @@ import type {ILexboxServer} from './ILexboxServer';
 export interface IAuthService
 {
 	servers() : Promise<IServerStatus[]>;
-	signInWebView(server: ILexboxServer) : Promise<LoginResult>;
+	signInWebView(server: ILexboxServer, cancellation?: unknown) : Promise<LoginResult>;
 	useSystemWebView() : Promise<boolean>;
 	logout(server: ILexboxServer) : Promise<void>;
 }

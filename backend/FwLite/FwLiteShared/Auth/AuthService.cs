@@ -36,11 +36,11 @@ public class AuthService(
     }
 
     [JSInvokable]
-    public async Task<LoginResult> SignInWebView(LexboxServer server)
+    public async Task<LoginResult> SignInWebView(LexboxServer server, CancellationToken cancellation = default)
     {
         try
         {
-            var result = await clientFactory.GetClient(server).SignIn(string.Empty);//does nothing here
+            var result = await clientFactory.GetClient(server).SignIn(string.Empty, cancellation);//returnUrl does nothing here
             if (!result.HandledBySystemWebView) throw new InvalidOperationException("Sign in not handled by system web view");
             options.Value.AfterLoginWebView?.Invoke();
             return LoginResult.Success;

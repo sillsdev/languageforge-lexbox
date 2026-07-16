@@ -27,14 +27,16 @@ public static class AuthRoutes
         //separate from /login/{authority}, which redirects the caller's browser and requires a Referer
         //header; neither applies here, where the server opens the system's default browser itself
         group.MapGet("/login-web-view/{authority}",
-            async (AuthService authService, string authority, IOptions<AuthConfig> options) =>
+            // cancellation binds to HttpContext.RequestAborted, so if the caller gives up (e.g. its fetch
+            // times out) the interactive sign-in is cancelled instead of left running on the server.
+            async (AuthService authService, string authority, IOptions<AuthConfig> options, CancellationToken cancellation) =>
             {
                 if (!options.Value.SystemWebViewLogin)
                 {
                     throw new NotSupportedException("System web view login is not enabled for this server");
                 }
 
-                return await authService.SignInWebView(options.Value.GetServerByAuthority(authority));
+                return await authService.SignInWebView(options.Value.GetServerByAuthority(authority), cancellation);
             });
         group.MapGet("/oauth-callback",
             async (OAuthService oAuthService, HttpContext context) =>
