@@ -57,6 +57,14 @@ export class WritingSystemService {
     return this.pickWritingSystems(selection);
   }
 
+  // Like allWritingSystems, but with duplicates removed. A writing system can belong to both the
+  // vernacular and analysis lists (common in FieldWorks projects), so the concatenated list can
+  // contain the same wsId twice; this keeps only the first occurrence of each.
+  uniqueWritingSystems(selection: Extract<WritingSystemSelection, 'vernacular-analysis' | 'analysis-vernacular'> = 'vernacular-analysis'): IWritingSystem[] {
+    return this.allWritingSystems(selection)
+      .filter((ws, index, all) => all.findIndex((other) => other.wsId === ws.wsId) === index);
+  }
+
   get analysis(): IWritingSystem[] {
     return this.pickWritingSystems('analysis');
   }
