@@ -1,5 +1,5 @@
 import {expect, test, type Page} from '@playwright/test';
-import {BrowsePage} from './browse-page';
+import {DemoProjectPage} from './demo-project.page';
 
 // A valid 96x96 PNG, used to exercise the upload flow without a real image file. It has real
 // dimensions (not 1x1) so the rendered image — and the trash button anchored to its corner —
@@ -20,10 +20,10 @@ const TEST_PNG = Buffer.from(
  */
 test.describe('Sense pictures', () => {
   test('displays a picture (and its caption) for a sense that has pictures', async ({page}) => {
-    const browsePage = new BrowsePage(page);
-    await browsePage.goto();
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
 
-    await browsePage.selectEntryByFilter('nyumba');
+    await projectPage.selectEntryByFilter('nyumba');
 
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField).toBeVisible({timeout: 5000});
@@ -39,11 +39,11 @@ test.describe('Sense pictures', () => {
   });
 
   test('shows an enabled "+ Picture" button for a sense with no pictures', async ({page}) => {
-    const browsePage = new BrowsePage(page);
-    await browsePage.goto();
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
 
     // "ambuka" has no pictures, so its Pictures field shows the add button.
-    await browsePage.selectEntryByFilter('ambuka');
+    await projectPage.selectEntryByFilter('ambuka');
 
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField).toBeVisible({timeout: 5000});
@@ -56,10 +56,10 @@ test.describe('Sense pictures', () => {
   });
 
   test('uploading a picture through the "+ Picture" button adds and renders it', async ({page}) => {
-    const browsePage = new BrowsePage(page);
-    await browsePage.goto();
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
 
-    await browsePage.selectEntryByFilter('ambuka');
+    await projectPage.selectEntryByFilter('ambuka');
 
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField).toBeVisible({timeout: 5000});
@@ -79,9 +79,9 @@ test.describe('Sense pictures', () => {
   });
 
   test('re-uploading an existing file adds a second picture that reuses it', async ({page}) => {
-    const browsePage = new BrowsePage(page);
-    await browsePage.goto();
-    await browsePage.selectEntryByFilter('ambuka');
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+    await projectPage.selectEntryByFilter('ambuka');
 
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField).toBeVisible({timeout: 5000});
@@ -101,9 +101,9 @@ test.describe('Sense pictures', () => {
 
   /** Uploads one picture to "ambuka" (which starts empty) and returns the pictures-field locator. */
   async function addOnePicture(page: Page) {
-    const browsePage = new BrowsePage(page);
-    await browsePage.goto();
-    await browsePage.selectEntryByFilter('ambuka');
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+    await projectPage.selectEntryByFilter('ambuka');
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField).toBeVisible({timeout: 5000});
     await picturesField.locator('input[type="file"]').setInputFiles({
@@ -215,10 +215,10 @@ test.describe('Sense pictures', () => {
   });
 
   test('Download Picture saves the image under its media-server filename', async ({page}) => {
-    const browsePage = new BrowsePage(page);
-    await browsePage.goto();
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
     // "nyumba" has demo pictures whose media-server filename is deterministic (demo-picture.svg).
-    await browsePage.selectEntryByFilter('nyumba');
+    await projectPage.selectEntryByFilter('nyumba');
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField.locator('img').first()).toBeVisible({timeout: 5000});
 
