@@ -758,7 +758,7 @@ namespace LcmCrdt.Migrations
                     b.ToTable("LocalResource");
                 });
 
-            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource", b =>
+            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource<MiniLcm.Media.LcmFileMetadata>", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -766,6 +766,9 @@ namespace LcmCrdt.Migrations
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("RemoteId")
                         .HasColumnType("TEXT");
@@ -778,7 +781,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("RemoteResource");
+                    b.ToTable("RemoteResource", (string)null);
                 });
 
             modelBuilder.Entity("MiniLcm.Models.CommentThread", b =>
@@ -947,11 +950,11 @@ namespace LcmCrdt.Migrations
                     b.Navigation("Commit");
                 });
 
-            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource", b =>
+            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource<MiniLcm.Media.LcmFileMetadata>", b =>
                 {
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
                         .WithOne()
-                        .HasForeignKey("SIL.Harmony.Resource.RemoteResource", "SnapshotId")
+                        .HasForeignKey("SIL.Harmony.Resource.RemoteResource<MiniLcm.Media.LcmFileMetadata>", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 

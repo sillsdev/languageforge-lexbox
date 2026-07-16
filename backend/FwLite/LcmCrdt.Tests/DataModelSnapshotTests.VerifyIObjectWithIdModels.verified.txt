@@ -1,58 +1,54 @@
-﻿{
-  DerivedTypes: [
-    {
-      DerivedType: Entry,
-      TypeDiscriminator: Entry
-    },
-    {
-      DerivedType: Sense,
-      TypeDiscriminator: Sense
-    },
-    {
-      DerivedType: ExampleSentence,
-      TypeDiscriminator: ExampleSentence
-    },
-    {
-      DerivedType: WritingSystem,
-      TypeDiscriminator: WritingSystem
-    },
-    {
-      DerivedType: PartOfSpeech,
-      TypeDiscriminator: PartOfSpeech
-    },
-    {
-      DerivedType: Publication,
-      TypeDiscriminator: Publication
-    },
-    {
-      DerivedType: SemanticDomain,
-      TypeDiscriminator: SemanticDomain
-    },
-    {
-      DerivedType: ComplexFormType,
-      TypeDiscriminator: ComplexFormType
-    },
-    {
-      DerivedType: ComplexFormComponent,
-      TypeDiscriminator: ComplexFormComponent
-    },
-    {
-      DerivedType: CustomView,
-      TypeDiscriminator: CustomView
-    },
-    {
-      DerivedType: CommentThread,
-      TypeDiscriminator: CommentThread
-    },
-    {
-      DerivedType: UserComment,
-      TypeDiscriminator: UserComment
-    },
-    {
-      DerivedType: MorphType,
-      TypeDiscriminator: MorphType
-    }
-  ],
-  IgnoreUnrecognizedTypeDiscriminators: false,
-  TypeDiscriminatorPropertyName: $type
-}
+﻿[
+  {
+    DerivedType: CommentThread,
+    TypeDiscriminator: CommentThread
+  },
+  {
+    DerivedType: ComplexFormComponent,
+    TypeDiscriminator: ComplexFormComponent
+  },
+  {
+    DerivedType: ComplexFormType,
+    TypeDiscriminator: ComplexFormType
+  },
+  {
+    DerivedType: CustomView,
+    TypeDiscriminator: CustomView
+  },
+  {
+    DerivedType: Entry,
+    TypeDiscriminator: Entry
+  },
+  {
+    DerivedType: ExampleSentence,
+    TypeDiscriminator: ExampleSentence
+  },
+  {
+    DerivedType: MorphType,
+    TypeDiscriminator: MorphType
+  },
+  {
+    DerivedType: PartOfSpeech,
+    TypeDiscriminator: PartOfSpeech
+  },
+  {
+    DerivedType: Publication,
+    TypeDiscriminator: Publication
+  },
+  {
+    DerivedType: SemanticDomain,
+    TypeDiscriminator: SemanticDomain
+  },
+  {
+    DerivedType: Sense,
+    TypeDiscriminator: Sense
+  },
+  {
+    DerivedType: UserComment,
+    TypeDiscriminator: UserComment
+  },
+  {
+    DerivedType: WritingSystem,
+    TypeDiscriminator: WritingSystem
+  }
+]

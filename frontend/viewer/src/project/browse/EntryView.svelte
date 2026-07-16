@@ -60,16 +60,25 @@
     async (id) => {
       await editor?.commit();
       const entry = await miniLcmApi.getEntry(id);
-      return setEntry(entry);
+      // The fetcher's return value is what sets entryResource.current, so we must NOT also
+      // call entryResource.mutate() here or current gets set twice and reactivity double-fires.
+      return snapshotEntry(entry);
     },
   );
 
-  function setEntry(entry: IEntry | null): IEntry | null {
+  function snapshotEntry(entry: IEntry | null): IEntry | null {
     // IMMEDIATELY take a snapshot to ensure it doesn't get mutated by the editor before EntryPersistence gets it.
     // (dirty fields immediately push their current dirty value into the entry object, which can corrupt the update diff.)
     latestPersistedSnapshot = entry ? Object.freeze(copy(entry)) : undefined;
     deleted = !!entry?.deletedAt;
-    entryResource.mutate(entry); // potentially redundant, but harmless
+    return entry;
+  }
+
+  // For entry updates that arrive OUTSIDE the resource fetcher (event bus, restore), we must
+  // push the new value into the resource ourselves via mutate().
+  function setEntry(entry: IEntry | null): IEntry | null {
+    snapshotEntry(entry);
+    entryResource.mutate(entry);
     return entry;
   }
 
