@@ -5,6 +5,9 @@
     <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
   </PropertyGroup>
   <ItemGroup>
+    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
     <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
