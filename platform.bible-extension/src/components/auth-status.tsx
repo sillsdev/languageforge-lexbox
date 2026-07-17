@@ -1,6 +1,7 @@
 import { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
 import { Button } from 'platform-bible-react';
+import { getErrorMessage } from 'platform-bible-utils';
 import { type ReactElement, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 import type { AuthServerStatus, LoginResult } from '../utils/fw-lite-api';
@@ -63,7 +64,7 @@ export default function AuthStatus({
         return undefined;
       })
       .catch((e) => {
-        logger.error(localizedStrings['%lexicon_auth_loginError%'], JSON.stringify(e));
+        logger.error(localizedStrings['%lexicon_auth_loginError%'], getErrorMessage(e));
         setAuthError(authority, {
           message: localizedStrings['%lexicon_auth_signInFailed%'],
           whenLoggedIn: false,
@@ -78,7 +79,7 @@ export default function AuthStatus({
     // eslint-disable-next-line promise/catch-or-return
     logout(authority)
       .catch((e) => {
-        logger.error(localizedStrings['%lexicon_auth_logoutError%'], JSON.stringify(e));
+        logger.error(localizedStrings['%lexicon_auth_logoutError%'], getErrorMessage(e));
         setAuthError(authority, {
           message: localizedStrings['%lexicon_auth_signOutFailed%'],
           whenLoggedIn: true,

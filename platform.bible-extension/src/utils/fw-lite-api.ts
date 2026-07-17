@@ -41,7 +41,7 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   }
   const results = await papi.fetch(input, init);
   if (!results.ok) {
-    throw new Error(`Failed to fetch: ${results.statusText}`);
+    throw new Error(`Failed to fetch: ${results.status} ${results.statusText}`);
   }
   return await results.json();
 }
@@ -159,7 +159,7 @@ export class FwLiteApi {
     const path = `auth/logout/${sanitizeUrlComponent(authority)}`;
     // The endpoint redirects to the web-app root, so fetchPath would choke parsing HTML as JSON.
     const results = await papi.fetch(this.getUrl(path));
-    if (!results.ok) throw new Error(`Failed to fetch: ${results.statusText}`);
+    if (!results.ok) throw new Error(`Failed to fetch: ${results.status} ${results.statusText}`);
   }
 
   /* eslint-enable no-type-assertion/no-type-assertion */

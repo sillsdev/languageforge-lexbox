@@ -2,6 +2,7 @@ import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
 import { ChildProcessByStdio } from 'child_process';
 import type { BrowseWebViewOptions } from 'lexicon';
+import { getErrorMessage } from 'platform-bible-utils';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
@@ -93,7 +94,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     try {
       return await fwLiteApi.getAuthServers();
     } catch (e) {
-      logger.error('Error fetching Lexbox auth servers:', JSON.stringify(e));
+      logger.error('Error fetching Lexbox auth servers:', getErrorMessage(e));
       return undefined;
     }
   };
@@ -202,7 +203,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       try {
         result = await fwLiteApi.login(authority, abort.signal);
       } catch (e) {
-        logger.error('Error signing in to Lexbox:', JSON.stringify(e));
+        logger.error('Error signing in to Lexbox:', getErrorMessage(e));
       } finally {
         clearTimeout(timeout);
       }
@@ -218,7 +219,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       try {
         await fwLiteApi.logout(authority);
       } catch (e) {
-        logger.error('Error signing out of Lexbox:', JSON.stringify(e));
+        logger.error('Error signing out of Lexbox:', getErrorMessage(e));
         throw e; // Surface the failure so the web view can flag it instead of silently re-enabling.
       }
       return getAuthServers();
