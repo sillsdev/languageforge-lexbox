@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "$type": "jsonPatch:Entry",
     "PatchDocument": [],
@@ -943,16 +943,54 @@
   {
     "$type": "uploaded:RemoteResource",
     "RemoteId": "withdrawal",
+    "Metadata": null,
     "EntityId": "9c8b252c-d342-dfe8-c1dd-5899471ecbd1"
+  },
+  {
+    "$type": "uploaded:RemoteResource",
+    "RemoteId": "Garden",
+    "Metadata": {
+      "Filename": "sky blue",
+      "MimeType": "Money Market Account",
+      "Author": "revolutionary",
+      "UploadDate": "2026-07-02T17:31:27.7008296+07:00",
+      "SizeInBytes": 7583563620226307973
+    },
+    "EntityId": "94c712d6-54c5-9d3f-b0c6-430fe30cf41d"
   },
   {
     "$type": "create:remote-resource",
     "RemoteId": "Buckinghamshire",
+    "Metadata": null,
     "EntityId": "188a57e7-7d61-8742-59eb-c0bfbf959737"
   },
   {
+    "$type": "create:remote-resource",
+    "RemoteId": "metrics",
+    "Metadata": {
+      "Filename": "Awesome Metal Hat",
+      "MimeType": "Designer",
+      "Author": "Buckinghamshire",
+      "UploadDate": "2026-07-02T16:15:28.0014248+07:00",
+      "SizeInBytes": 1645253794055249308
+    },
+    "EntityId": "7feda035-6f9b-7300-ffca-cdf3af1880ef"
+  },
+  {
     "$type": "create:pendingUpload",
+    "Metadata": null,
     "EntityId": "52d7432c-ad4f-430c-8304-925603b3fefa"
+  },
+  {
+    "$type": "create:pendingUpload",
+    "Metadata": {
+      "Filename": "input",
+      "MimeType": "revolutionize",
+      "Author": "array",
+      "UploadDate": "2026-07-02T21:32:45.4727066+07:00",
+      "SizeInBytes": -6254548910287913324
+    },
+    "EntityId": "5bbfe58b-c8ea-6248-0338-8da9044dee9b"
   },
   {
     "$type": "delete:RemoteResource",
@@ -1289,6 +1327,17 @@
     "$type": "RemoveSensePictureChange",
     "PictureId": "8697d62c-1742-7598-030d-43bcf8aef52c",
     "EntityId": "1dbb14cf-fb94-5a40-7cc5-eba28aa230ca"
+  },
+  {
+    "$type": "set:remote-resource-metadata",
+    "Metadata": {
+      "Filename": "Dynamic",
+      "MimeType": "Technician",
+      "Author": "Checking Account",
+      "UploadDate": "2026-06-17T12:54:00.0315148+07:00",
+      "SizeInBytes": -7233844666964157622
+    },
+    "EntityId": "71c0c643-4ef6-4e3d-c657-919bbcb9ecfa"
   },
   {
     "$type": "SetMainPublicationChange",

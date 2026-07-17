@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using FluentAssertions.Execution;
 using LcmCrdt.Objects;
 using Microsoft.EntityFrameworkCore;
@@ -60,25 +61,34 @@ public class DataModelSnapshotTests : IAsyncLifetime
         await Verify(_crdtDbContext.Model.ToDebugString(MetadataDebugStringOptions.LongDefault));
     }
 
+    private IEnumerable<JsonDerivedType> GetPolymorphicTypesFor(Type type)
+    {
+        var polymorphismOptions = _jsonSerializerOptions.GetTypeInfo(type)
+            .PolymorphismOptions;
+        polymorphismOptions.Should().NotBeNull("type {type} should only be called if it's configured properly", type);
+        polymorphismOptions.TypeDiscriminatorPropertyName.Should().Be("$type");
+        return polymorphismOptions.DerivedTypes.OrderBy(t => t.DerivedType.FullName);
+    }
+
     [Fact]
     [Trait("Category", "Verified")]
     public async Task VerifyChangeModels()
     {
-        await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IChange)).PolymorphismOptions);
+        await Verify(GetPolymorphicTypesFor(typeof(IChange)));
     }
 
     [Fact]
     [Trait("Category", "Verified")]
     public async Task VerifyIObjectBaseModels()
     {
-        await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IObjectBase)).PolymorphismOptions);
+        await Verify(GetPolymorphicTypesFor(typeof(IObjectBase)));
     }
 
     [Fact]
     [Trait("Category", "Verified")]
     public async Task VerifyIObjectWithIdModels()
     {
-        await Verify(_jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions);
+        await Verify(GetPolymorphicTypesFor(typeof(IObjectWithId)));
     }
 
     [Fact]

@@ -13,6 +13,7 @@ import {
   type IMiniLcmJsInvokable,
   type IMorphType,
   type IPartOfSpeech,
+  type IPicture,
   type IProjectModel,
   type IPublication,
   type IQueryOptions,
@@ -26,9 +27,10 @@ import {
   ViewBase,
   MorphTypeKind,
 } from '$lib/dotnet-types';
-import {entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
+import {demoPictureSvgs, entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
+import {randomId} from '$lib/utils';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 import {delay} from '$lib/utils/time';
 import {initProjectContext, type ProjectContext} from '$project/project-context.svelte';
@@ -53,6 +55,9 @@ import type {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Model
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
 }
+
+/** The demo plays the role of the server; it mirrors the backend's 10 MB upload limit. */
+const DEMO_FILE_SIZE_LIMIT = 10 * 1024 * 1024;
 
 const complexFormTypes = entries
   .flatMap(entry => entry.complexFormTypes)
@@ -519,6 +524,58 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve();
   }
 
+  createPicture(entryGuid: string, senseGuid: string, picture: IPicture): Promise<IPicture> {
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    // Generated demo senses may omit `pictures` entirely, so default it rather than spread undefined.
+    sense.pictures = [...(sense.pictures ?? []), picture];
+    this.#projectEventBus.notifyEntryUpdated(entry);
+    return Promise.resolve(picture);
+  }
+
+  updatePicture(entryGuid: string, senseGuid: string, _before: IPicture, after: IPicture): Promise<IPicture> {
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    const index = (sense.pictures ?? []).findIndex(p => p.id === after.id);
+    if (index === -1) throw new Error(`Picture ${after.id} not found`);
+    sense.pictures.splice(index, 1, after);
+    this.#projectEventBus.notifyEntryUpdated(entry);
+    return Promise.resolve(after);
+  }
+
+  deletePicture(entryGuid: string, senseGuid: string, pictureGuid: string): Promise<void> {
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    sense.pictures = (sense.pictures ?? []).filter(p => p.id !== pictureGuid);
+    this.#projectEventBus.notifyEntryUpdated(entry);
+    return Promise.resolve();
+  }
+
+  movePicture(entryGuid: string, senseGuid: string, pictureGuid: string, previousPictureGuid: string, nextPictureGuid: string): Promise<void> {
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    const pictures = [...(sense.pictures ?? [])];
+    const from = pictures.findIndex(p => p.id === pictureGuid);
+    if (from === -1) throw new Error(`Picture ${pictureGuid} not found`);
+    const [moved] = pictures.splice(from, 1);
+    // Insert after the previous picture if given, else before the next, else at the end.
+    const prevIdx = previousPictureGuid ? pictures.findIndex(p => p.id === previousPictureGuid) : -1;
+    const nextIdx = nextPictureGuid ? pictures.findIndex(p => p.id === nextPictureGuid) : -1;
+    const insertAt = prevIdx !== -1 ? prevIdx + 1 : nextIdx !== -1 ? nextIdx : pictures.length;
+    pictures.splice(insertAt, 0, moved);
+    sense.pictures = pictures;
+    this.#projectEventBus.notifyEntryUpdated(entry);
+    return Promise.resolve();
+  }
+
   createWritingSystem(_type: WritingSystemType, _writingSystem: IWritingSystem): Promise<IWritingSystem> {
     throw new Error('Method not implemented.');
   }
@@ -659,11 +716,56 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     throw new Error('Method not implemented.');
   }
 
-  getFileStream(_mediaUri: string): Promise<IReadFileResponseJs> {
-    return Promise.resolve({result: ReadFileResult.NotSupported});
+  // Files uploaded during the demo session (e.g. via the "+ Picture" button), keyed by the
+  // mediaUri handed back from saveFile. Lets the demo round-trip an upload without a backend.
+  #uploadedFiles = new Map<string, Blob>();
+  // Maps an already-uploaded filename to its mediaUri, mirroring how the real server dedups by
+  // filename (LcmMediaService keys by the file name within the project's resource cache).
+  #uploadedFilenames = new Map<string, string>();
+
+  getFileStream(mediaUri: string): Promise<IReadFileResponseJs> {
+    const uploaded = this.#uploadedFiles.get(mediaUri);
+    if (uploaded) {
+      return Promise.resolve({
+        result: ReadFileResult.Success,
+        fileName: mediaUri.split('/').pop() ?? 'demo-upload',
+        stream: {
+          stream: () => Promise.resolve(uploaded.stream()),
+          arrayBuffer: () => uploaded.arrayBuffer(),
+        },
+      });
+    }
+    const svg = demoPictureSvgs[mediaUri];
+    if (!svg) return Promise.resolve({result: ReadFileResult.NotFound});
+    const blob = new Blob([svg], {type: 'image/svg+xml'});
+    return Promise.resolve({
+      result: ReadFileResult.Success,
+      fileName: 'demo-picture.svg',
+      stream: {
+        stream: () => Promise.resolve(blob.stream()),
+        arrayBuffer: () => blob.arrayBuffer(),
+      },
+    });
   }
 
-  saveFile(_streamReference: Blob | ArrayBuffer | Uint8Array, _metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
-    return Promise.resolve({result: UploadFileResult.NotSupported});
+  saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
+    const blob = streamReference instanceof Blob
+      ? streamReference
+      : new Blob([streamReference as BlobPart], {type: metadata.mimeType});
+    // The demo stands in for the server, so it enforces the same 10 MB limit the real
+    // backend does — exercising the client's TooBig handling without a backend.
+    if (blob.size > DEMO_FILE_SIZE_LIMIT) {
+      return Promise.resolve({result: UploadFileResult.TooBig});
+    }
+    // Same filename as an earlier upload: report AlreadyExists and hand back the existing
+    // mediaUri (as the real server does) so the caller can point a new Picture at that file.
+    const existing = this.#uploadedFilenames.get(metadata.filename);
+    if (existing) {
+      return Promise.resolve({result: UploadFileResult.AlreadyExists, mediaUri: existing});
+    }
+    const mediaUri = `demo-upload/${randomId()}`;
+    this.#uploadedFiles.set(mediaUri, blob);
+    this.#uploadedFilenames.set(metadata.filename, mediaUri);
+    return Promise.resolve({result: UploadFileResult.SavedLocally, mediaUri});
   }
 }

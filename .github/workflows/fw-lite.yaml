@@ -49,8 +49,15 @@ jobs:
       - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
           dotnet-version: '10.x'
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
       - name: Setup Maui
-        run: dotnet workload install maui
+        run: dotnet workload install maui-windows
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
         with:
@@ -91,7 +98,7 @@ jobs:
       - name: Publish test results to TestHistory
         if: always()
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
-        uses: hahn-kev/TestHistory/.github/actions/upload-results@d8d0ef67fa32428fe91b878252de81e8b05d3f14 # master
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
         with:
           server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
           project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
@@ -196,7 +203,7 @@ jobs:
       - name: Publish test results to TestHistory
         if: always() # run even when the UI tests above failed
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
-        uses: hahn-kev/TestHistory/.github/actions/upload-results@d8d0ef67fa32428fe91b878252de81e8b05d3f14 # master
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
         with:
           server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
           project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
@@ -270,7 +277,7 @@ jobs:
       - name: Publish test results to TestHistory
         if: always()
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
-        uses: hahn-kev/TestHistory/.github/actions/upload-results@d8d0ef67fa32428fe91b878252de81e8b05d3f14 # master
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
         with:
           server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
           project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
@@ -362,7 +369,7 @@ jobs:
     name: Publish FW Lite app for Android
     needs: [ build-and-test, frontend ]
     timeout-minutes: 30
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -375,7 +382,7 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Setup Maui
-        run: dotnet workload install maui
+        run: dotnet workload install maui-android
       - name: Decode Android Keystore
         id: decodeKeystore
         env:
@@ -426,8 +433,16 @@ jobs:
         with:
           dotnet-version: '10.x'
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
       - name: Setup Maui
-        run: dotnet workload install maui
+        run: dotnet workload install maui-windows
 
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteMaui
@@ -589,7 +604,7 @@ jobs:
       - name: Publish launcher test results to TestHistory
         if: always() # run even when the launcher tests above failed
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
-        uses: hahn-kev/TestHistory/.github/actions/upload-results@d8d0ef67fa32428fe91b878252de81e8b05d3f14 # master
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
         with:
           server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
           project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
@@ -647,7 +662,7 @@ jobs:
       - name: Publish E2E test results to TestHistory
         if: always() # run even when the E2E tests above failed
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
-        uses: hahn-kev/TestHistory/.github/actions/upload-results@d8d0ef67fa32428fe91b878252de81e8b05d3f14 # master
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
         with:
           server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
           project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
