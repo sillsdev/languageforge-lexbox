@@ -195,10 +195,16 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'lexicon.login',
     async (authority: string) => {
       let result: LoginResult | undefined;
+      // Abort the backend sign-in once the command times out, so an abandoned sign-in doesn't
+      // linger on FW Lite (login-web-view cancels via HttpContext.RequestAborted).
+      const abort = new AbortController();
+      const timeout = setTimeout(() => abort.abort(), SIGN_IN_TIMEOUT_MS);
       try {
-        result = await fwLiteApi.login(authority);
+        result = await fwLiteApi.login(authority, abort.signal);
       } catch (e) {
         logger.error('Error signing in to Lexbox:', JSON.stringify(e));
+      } finally {
+        clearTimeout(timeout);
       }
       return { result, servers: await getAuthServers() };
     },
@@ -213,6 +219,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         await fwLiteApi.logout(authority);
       } catch (e) {
         logger.error('Error signing out of Lexbox:', JSON.stringify(e));
+        throw e; // Surface the failure so the web view can flag it instead of silently re-enabling.
       }
       return getAuthServers();
     },

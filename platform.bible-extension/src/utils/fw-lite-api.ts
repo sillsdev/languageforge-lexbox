@@ -147,11 +147,12 @@ export class FwLiteApi {
 
   /**
    * Triggers a system-browser sign-in. Doesn't resolve until the user finishes in their browser,
-   * cancels, or MSAL gives up — an abandoned sign-in can stay pending indefinitely.
+   * cancels, or MSAL gives up. Pass `signal` to abort an abandoned sign-in, which the backend
+   * otherwise leaves pending indefinitely.
    */
-  async login(authority: string): Promise<LoginResult> {
+  async login(authority: string, signal?: AbortSignal): Promise<LoginResult> {
     const path = `auth/login-web-view/${sanitizeUrlComponent(authority)}`;
-    return (await this.fetchPath(path)) as LoginResult;
+    return (await fetchUrl(this.getUrl(path), { signal })) as LoginResult;
   }
 
   async logout(authority: string): Promise<void> {

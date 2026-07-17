@@ -40,9 +40,15 @@ globalThis.webViewComponent = function LexiconSelect({ projectId }: WebViewProps
 
   const logout = useCallback(
     async (authority: string): Promise<void> => {
-      applyServers(await commands.sendCommand('lexicon.logout', authority));
+      try {
+        applyServers(await commands.sendCommand('lexicon.logout', authority));
+      } catch (e) {
+        // Sign-out may have failed server-side; re-fetch so the row reflects the real status.
+        refreshAuthServers();
+        throw e;
+      }
     },
-    [applyServers],
+    [applyServers, refreshAuthServers],
   );
 
   const selectLexicon = useCallback(

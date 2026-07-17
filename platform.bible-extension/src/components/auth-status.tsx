@@ -12,6 +12,9 @@ interface AuthStatusProps {
   logout: (authority: string) => Promise<void>;
 }
 
+/** A per-server auth error plus the sign-in state it belongs to, so it auto-hides once that flips. */
+type AuthError = { message: string; whenLoggedIn: boolean };
+
 /** Shows each configured Lexbox server's sign-in status with a Login/Logout button. */
 export default function AuthStatus({
   servers,
@@ -22,7 +25,7 @@ export default function AuthStatus({
 
   // Per-authority so concurrent sign-ins on different servers disable their rows independently.
   const [pendingAuthorities, setPendingAuthorities] = useState(() => new Set<string>());
-  const [signInErrors, setSignInErrors] = useState(() => new Map<string, string>());
+  const [authErrors, setAuthErrors] = useState(() => new Map<string, AuthError>());
 
   function setPending(authority: string, pending: boolean): void {
     setPendingAuthorities((prev) => {
@@ -33,44 +36,54 @@ export default function AuthStatus({
     });
   }
 
-  function setSignInError(authority: string, message?: string): void {
-    setSignInErrors((prev) => {
+  function setAuthError(authority: string, error?: AuthError): void {
+    setAuthErrors((prev) => {
       const next = new Map(prev);
-      if (message) next.set(authority, message);
+      if (error) next.set(authority, error);
       else next.delete(authority);
       return next;
     });
   }
 
   function handleLogin(authority: string): void {
-    setSignInError(authority, undefined);
+    setAuthError(authority, undefined);
     setPending(authority, true);
     // eslint-disable-next-line promise/catch-or-return
     login(authority)
       .then((result) => {
         // Cancelled was the user's own choice; anything else short of Success needs surfacing.
         if (result !== 'Success' && result !== 'Cancelled')
-          setSignInError(
-            authority,
-            result === 'Offline'
-              ? localizedStrings['%lexicon_auth_signInOffline%']
-              : localizedStrings['%lexicon_auth_signInFailed%'],
-          );
+          setAuthError(authority, {
+            message:
+              result === 'Offline'
+                ? localizedStrings['%lexicon_auth_signInOffline%']
+                : localizedStrings['%lexicon_auth_signInFailed%'],
+            whenLoggedIn: false,
+          });
         return undefined;
       })
       .catch((e) => {
         logger.error(localizedStrings['%lexicon_auth_loginError%'], JSON.stringify(e));
-        setSignInError(authority, localizedStrings['%lexicon_auth_signInFailed%']);
+        setAuthError(authority, {
+          message: localizedStrings['%lexicon_auth_signInFailed%'],
+          whenLoggedIn: false,
+        });
       })
       .finally(() => setPending(authority, false));
   }
 
   function handleLogout(authority: string): void {
-    setSignInError(authority, undefined);
+    setAuthError(authority, undefined);
     setPending(authority, true);
     // eslint-disable-next-line promise/catch-or-return
     logout(authority)
-      .catch((e) => logger.error(localizedStrings['%lexicon_auth_logoutError%'], JSON.stringify(e)))
+      .catch((e) => {
+        logger.error(localizedStrings['%lexicon_auth_logoutError%'], JSON.stringify(e));
+        setAuthError(authority, {
+          message: localizedStrings['%lexicon_auth_signOutFailed%'],
+          whenLoggedIn: true,
+        });
+      })
       .finally(() => setPending(authority, false));
   }
 
@@ -82,7 +95,10 @@ export default function AuthStatus({
       <div className="tw:flex tw:flex-col tw:gap-4">
         {servers.map((status) => {
           const isPending = pendingAuthorities.has(status.server.id);
-          const signInError = status.loggedIn ? undefined : signInErrors.get(status.server.id);
+          const rowError = authErrors.get(status.server.id);
+          // Show sign-in errors only while signed out, sign-out errors only while still signed in.
+          const errorMessage =
+            rowError?.whenLoggedIn === status.loggedIn ? rowError.message : undefined;
           return (
             <div className="tw:flex tw:flex-col tw:gap-1" key={status.server.id}>
               {servers.length > 1 && (
@@ -123,9 +139,9 @@ export default function AuthStatus({
                 </Button>
               )}
 
-              {signInError && (
+              {errorMessage && (
                 <div className="tw:text-sm tw:text-destructive" role="alert">
-                  {signInError}
+                  {errorMessage}
                 </div>
               )}
             </div>
