@@ -361,8 +361,11 @@ jobs:
   publish-android:
     name: Publish FW Lite app for Android
     needs: [ build-and-test, frontend ]
+    # Android builds on Linux (Android tooling is cross-platform; only iOS/Mac Catalyst and the
+    # Windows target are OS-locked). ubuntu-latest is cheaper and faster than the macOS runner
+    # this job used to sit on.
     timeout-minutes: 30
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -375,7 +378,9 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Setup Maui
-        run: dotnet workload install maui
+        # maui-android only — the full `maui` workload pulls iOS/Mac Catalyst packs that don't
+        # exist for Linux and would fail the install.
+        run: dotnet workload install maui-android
       - name: Decode Android Keystore
         id: decodeKeystore
         env:
