@@ -39,13 +39,12 @@ public class OrderPickerTests : IAsyncLifetime
         _ => ItemId(r.Value)
     };
 
-    public record OrderScenario(
-        string Name,
-        double[] ExistingOrders,
-        bool NullBetween,
-        int? Previous,
-        int? Next,
-        double Expected)
+    // Builds a between position from sibling indices. Missing means the referenced item is
+    // not among the siblings (deleted by another user); null means that end is unspecified.
+    private static BetweenPosition Between(int? previous = null, int? next = null) =>
+        new(Ref(previous), Ref(next));
+
+    public record OrderScenario(string Name, double[] ExistingOrders, BetweenPosition? Between, double Expected)
     {
         public override string ToString() => Name;
     }
@@ -53,27 +52,27 @@ public class OrderPickerTests : IAsyncLifetime
     private static IEnumerable<OrderScenario> AllScenarios()
     {
         // 1. No siblings, no between → first order is 1 (0 + 1)
-        yield return new("empty, no between", [], NullBetween: true, null, null, 1);
+        yield return new("empty, no between", [], null, 1);
         // 2. between is null → append after max (async optimized MaxAsync path)
-        yield return new("no between → append", [1, 2, 3], NullBetween: true, null, null, 4);
+        yield return new("no between → append", [1, 2, 3], null, 4);
         // 3. between {null,null} → append after max (async ToListAsync path, distinct from #2)
-        yield return new("between {null,null} → append", [1, 2, 3], NullBetween: false, null, null, 4);
+        yield return new("between {null,null} → append", [1, 2, 3], Between(), 4);
         // 4. previous only → just after previous
-        yield return new("previous only", [10, 20], NullBetween: false, Previous: 0, null, 11);
+        yield return new("previous only", [10, 20], Between(previous: 0), 11);
         // 5. next only → just before next
-        yield return new("next only", [10, 20], NullBetween: false, null, Next: 1, 19);
+        yield return new("next only", [10, 20], Between(next: 1), 19);
         // 6. previous < next → midpoint
-        yield return new("previous < next → midpoint", [10, 20], NullBetween: false, Previous: 0, Next: 1, 15);
+        yield return new("previous < next → midpoint", [10, 20], Between(previous: 0, next: 1), 15);
         // 7. previous > next (shifted past each other) → revert to previous + 1
-        yield return new("inverted previous > next", [20, 10], NullBetween: false, Previous: 0, Next: 1, 21);
+        yield return new("inverted previous > next", [20, 10], Between(previous: 0, next: 1), 21);
         // 8. previous == next order (distinct items, equal order) → previous + 1 (not strictly <)
-        yield return new("equal orders", [10, 10], NullBetween: false, Previous: 0, Next: 1, 11);
+        yield return new("equal orders", [10, 10], Between(previous: 0, next: 1), 11);
         // 9. deleted references
-        yield return new("both refs deleted → append", [1, 2, 3], NullBetween: false, Previous: Missing, Next: Missing, 4);
-        yield return new("previous deleted, next present", [10, 20], NullBetween: false, Previous: Missing, Next: 1, 19);
-        yield return new("next deleted, previous present", [10, 20], NullBetween: false, Previous: 0, Next: Missing, 11);
+        yield return new("both refs deleted → append", [1, 2, 3], Between(previous: Missing, next: Missing), 4);
+        yield return new("previous deleted, next present", [10, 20], Between(previous: Missing, next: 1), 19);
+        yield return new("next deleted, previous present", [10, 20], Between(previous: 0, next: Missing), 11);
         // 10. siblings supplied out of Order sequence → result unaffected by list ordering
-        yield return new("unordered siblings → midpoint", [30, 10, 20], NullBetween: false, Previous: 1, Next: 2, 15);
+        yield return new("unordered siblings → midpoint", [30, 10, 20], Between(previous: 1, next: 2), 15);
     }
 
     public static IEnumerable<object[]> Scenarios()
@@ -89,14 +88,10 @@ public class OrderPickerTests : IAsyncLifetime
     [MemberData(nameof(Scenarios))]
     public async Task PickOrder_MatchesExpected(Variant variant, OrderScenario scenario)
     {
-        BetweenPosition? between = scenario.NullBetween
-            ? null
-            : new BetweenPosition(Ref(scenario.Previous), Ref(scenario.Next));
-
         var result = variant switch
         {
-            Variant.List => OrderPicker.PickOrder(BuildList(scenario.ExistingOrders), between),
-            Variant.Async => await OrderPicker.PickOrder(await SeedAndQuery(scenario.ExistingOrders), between),
+            Variant.List => OrderPicker.PickOrder(BuildList(scenario.ExistingOrders), scenario.Between),
+            Variant.Async => await OrderPicker.PickOrder(await SeedAndQuery(scenario.ExistingOrders), scenario.Between),
             _ => throw new ArgumentOutOfRangeException(nameof(variant))
         };
 
