@@ -93,6 +93,20 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 
 If you are struggling, explain the difficulty to the user instead of cheating. **Integrity is non-negotiable.**
 
+## Agent skills
+
+### Issue tracker
+
+Issues and specs live locally as markdown files under `.scratch/` (git-ignored). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary, recorded as `Status:` lines in each issue file. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Multi-context: root `CONTEXT-MAP.md` points at per-context `CONTEXT.md` files. See `docs/agents/domain.md`.
+
 ## Cursor Cloud specific instructions
 
 System deps (.NET 10 SDK, Taskfile/`task`) are baked into the VM snapshot; the startup update script only refreshes pnpm + FwLiteWeb NuGet deps. The generated TS types under `frontend/viewer/src/lib/dotnet-types/generated-types/` are committed, so the viewer runs without a backend build.

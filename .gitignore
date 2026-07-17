@@ -46,3 +46,6 @@ failedSyncs/
 .claude/scheduled_tasks.lock
 .claude/agent-memory-local/
 screenshots/
+
+# local markdown issue tracker (agent skills)
+.scratch/
