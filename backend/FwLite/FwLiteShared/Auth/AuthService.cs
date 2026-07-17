@@ -38,9 +38,7 @@ public class AuthService(
     [JSInvokable]
     public Task<LoginResult> SignInWebView(LexboxServer server) => SignInWebView(server, CancellationToken.None);
 
-    // Not [JSInvokable]: a CancellationToken can't be marshaled from JS, and JS callers pass no
-    // arguments for it. The web route calls this overload with HttpContext.RequestAborted so an
-    // abandoned sign-in is cancelled server-side.
+    // Not [JSInvokable]: a CancellationToken can't be marshaled from JS.
     public async Task<LoginResult> SignInWebView(LexboxServer server, CancellationToken cancellation)
     {
         try

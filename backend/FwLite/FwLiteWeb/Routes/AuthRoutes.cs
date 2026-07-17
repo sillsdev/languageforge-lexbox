@@ -31,8 +31,7 @@ public static class AuthRoutes
         //separate from /login/{authority}, which redirects the caller's browser and requires a Referer
         //header; neither applies here, where the server opens the system's default browser itself
         group.MapGet("/login-web-view/{authority}",
-            // cancellation binds to HttpContext.RequestAborted, so if the caller gives up (e.g. its fetch
-            // times out) the interactive sign-in is cancelled instead of left running on the server.
+            // cancellation binds to HttpContext.RequestAborted, so an abandoned sign-in is cancelled, not left running.
             async (AuthService authService, string authority, IOptions<AuthConfig> options, CancellationToken cancellation) =>
             {
                 if (!options.Value.SystemWebViewLogin)
