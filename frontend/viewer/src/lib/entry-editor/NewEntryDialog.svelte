@@ -7,7 +7,7 @@
 <script lang="ts">
   import type {IEntry, ISense} from '$lib/dotnet-types';
   import {createEntryOptions} from '$lib/create-entry-options';
-  import {tick, untrack} from 'svelte';
+  import {untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {Button} from '$lib/components/ui/button';
@@ -23,8 +23,7 @@
   import {pt} from '$lib/views/view-text';
   import * as Editor from '$lib/components/editor';
   import Icon from '$lib/components/ui/icon/icon.svelte';
-  import DuplicateCheck, {type DuplicateSummary} from './DuplicateCheck.svelte';
-  import DuplicateSummaryPill from './DuplicateSummaryPill.svelte';
+  import DuplicateCheckSection from './DuplicateCheckSection.svelte';
   import EntryEditorPrimitive from './object-editors/EntryEditorPrimitive.svelte';
   import ObjectHeader from './object-editors/ObjectHeader.svelte';
   import SenseEditorPrimitive from './object-editors/SenseEditorPrimitive.svelte';
@@ -62,8 +61,7 @@
   async function createEntry(e: Event) {
     e.preventDefault();
     e.stopPropagation();
-    // loading: double-Enter must not create twice, so it flips before the first await
-    // duplicateActionBusy: a pending add-sense already consumes the typed meaning
+    // we might already be creating something (double-Enter or Add sense)
     if (loading || duplicateActionBusy) return;
     if (!requester) throw new Error('No requester');
 
@@ -133,8 +131,6 @@
       addSense();
 
       errors = [];
-      pillDismissed = false;
-      duplicateWidgetVisible = true;
       open = true;
     });
   }
@@ -174,29 +170,6 @@
       void createEntry(event);
     }
   }
-
-  let duplicateWidgetEl = $state<HTMLElement>();
-  let duplicateCheck = $state<DuplicateCheck>();
-  let duplicateSummary = $state<DuplicateSummary>();
-
-  // Expand first: the widget sits near the end of the scrollable content, so without the
-  // expanded list below it there isn't enough scroll room to bring its top up the dialog.
-  async function jumpToDuplicates(): Promise<void> {
-    duplicateCheck?.expand();
-    await tick();
-    duplicateWidgetEl?.scrollIntoView({behavior: 'smooth', block: 'start'});
-  }
-  let duplicateWidgetVisible = $state(true);
-  let pillDismissed = $state(false);
-  $effect(() => {
-    const el = duplicateWidgetEl;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([intersection]) => duplicateWidgetVisible = intersection.isIntersecting,
-      {root: el.closest('[data-slot="dialog-content"]')});
-    observer.observe(el);
-    return () => observer.disconnect();
-  });
 </script>
 
 {#if open}
@@ -212,7 +185,7 @@
 {/snippet}
 
 <Dialog.Root bind:open={open}>
-  <!-- Fixed frame (not min/max): the duplicate check adds and reshapes content while the
+  <!-- Fixed width (not min/max): the duplicate check adds and reshapes content while the
     dialog is open, and a content-sized dialog jumps around with every keystroke -->
   <Dialog.DialogContent onkeydown={handleKeydown}
     class="sm:min-h-[min(calc(100%-16px),30rem)] sm:w-[min(calc(100%-32px),50rem)] max-md:px-2">
@@ -250,19 +223,8 @@
           </Editor.Grid>
         </Editor.Root>
       </OverrideFields>
-      <div class="mt-3 scroll-mt-2" bind:this={duplicateWidgetEl}>
-        <DuplicateCheck {entry} {sense} bind:this={duplicateCheck} bind:busy={duplicateActionBusy} bind:summary={duplicateSummary}
-          onNavigateToEntry={() => open = false} />
-      </div>
-      {#if duplicateSummary && !duplicateWidgetVisible && !pillDismissed}
-        <div class="sticky bottom-0 z-20 h-0 pointer-events-none">
-          <div class="absolute bottom-3 inset-x-0 flex justify-center">
-            <DuplicateSummaryPill summary={duplicateSummary}
-              onJump={() => jumpToDuplicates()}
-              onDismiss={() => pillDismissed = true} />
-          </div>
-        </div>
-      {/if}
+      <DuplicateCheckSection {entry} {sense} bind:busy={duplicateActionBusy}
+        onNavigateToEntry={() => open = false} />
     </div>
     {#if errors.length}
       <div class="text-end space-y-2">

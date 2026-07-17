@@ -14,6 +14,7 @@
   import type {IEntry, ISense} from '$lib/dotnet-types';
   import {SortField} from '$lib/dotnet-types';
   import {resource, watch} from 'runed';
+  import {SvelteMap} from 'svelte/reactivity';
   import {plural, t} from 'svelte-i18n-lingui';
   import {slide} from 'svelte/transition';
   import {navigate, useRouter} from 'svelte-routing';
@@ -26,13 +27,12 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {useSaveHandler} from '$lib/services/save-event-service.svelte';
   import {useLexboxApi} from '$lib/services/service-provider';
-  import {useMorphTypesService} from '$project/data/morph-types.svelte';
   import {useWritingSystemService} from '$project/data';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
   import {entryBrowseParams} from '$lib/utils/search-params';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
-  import {classifyDuplicates, duplicateQueries, duplicateTintClass, mergeSearchResults, trapEnter, type DuplicateMatch, type DuplicateQueries} from './duplicate-check';
+  import {classifyQueryResults, getDuplicateEntryQueries as buildQueries, duplicateTintClass, mergeSearchResults, trapEnter, type DuplicateMatch, type DuplicateQueries} from './duplicate-check';
 
   interface Props {
     entry: IEntry;
@@ -49,40 +49,53 @@
 
   const lexboxApi = useLexboxApi();
   const writingSystemService = useWritingSystemService();
-  const morphTypesService = useMorphTypesService();
   const viewService = useViewService();
   const saveHandler = useSaveHandler();
   const {base} = useRouter();
 
-  // Over-fetch: the full-text search also returns cross-field hits (e.g. a typed lexeme that
-  // coincidentally equals some entry's gloss) which classifyDuplicates drops, so fetch extra
-  // to keep enough real matches after filtering.
-  const FETCH_COUNT = 20;
+  // Over-fetch: the backend is not queryable exactly how we want to use it, so we use the generic/forgiving query api
+  // (which sorts best matches to the front) and then pull out the results that are most appropriate
+  const FETCH_COUNT = 30;
   const INITIAL_DISPLAY_COUNT = 3;
 
   const vernacularWsIds = $derived(writingSystemService.vernacularNoAudio.map(ws => ws.wsId));
   const analysisWsIds = $derived(writingSystemService.analysisNoAudio.map(ws => ws.wsId));
-  const queries = $derived(duplicateQueries(entry, sense, vernacularWsIds, analysisWsIds));
+  const queries = $derived(buildQueries(entry, sense, vernacularWsIds, analysisWsIds));
   const hasQueries = $derived(queries.vernacular.length + queries.analysis.length > 0);
 
+  // Use a cache as a quick way to prevent ALL redundant queries
+  // (not just the user typing the same thing twice, but also querying vernacular again when only an analysis query changed, etc.)
+  const searchCache = new SvelteMap<string, Promise<IEntry[]>>();
+  function search(text: string, writingSystem: string): Promise<IEntry[]> {
+    const key = `${writingSystem}:${text}`;
+    let result = searchCache.get(key);
+    if (!result) {
+      result = lexboxApi.searchEntries(text, {
+        offset: 0,
+        count: FETCH_COUNT,
+        order: {field: SortField.SearchRelevance, writingSystem, ascending: true},
+      });
+      searchCache.set(key, result);
+      // don't cache a failure — a transient error must not poison the query for the dialog's life
+      result.catch(() => searchCache.delete(key));
+    }
+    return result;
+  }
+
   const duplicatesResource = resource(
-    // string key, so edits to unrelated fields don't retrigger the search
-    () => JSON.stringify([queries.vernacular, queries.analysis]),
-    async (_key, _prev, {signal}): Promise<{candidates: IEntry[], queries: DuplicateQueries, capped: boolean} | undefined> => {
-      // rank each search by the writing system the text was typed in, so that WS's headword matches sort first
+    () => queries,
+    async (queries, _prev, {signal}): Promise<{candidates: IEntry[], queries: DuplicateQueries, capped: boolean} | undefined> => {
+      // query.text / analysis texts are already diacritic-stripped (see getDuplicateEntryQueries):
+      // the backend only matches accent-insensitively for a diacritic-free query, and stripping
+      // there is what surfaces accent variants for the client to classify. Each query is searched
+      // sorted by the writing system it was typed in, so that WS's headword matches sort first.
       const searches = [
         ...queries.vernacular.map(query => ({text: query.text, writingSystem: query.wsId})),
         ...queries.analysis.map(text => ({text, writingSystem: 'default'})),
       ];
       if (!searches.length) return undefined;
-      const results = await Promise.all(searches.map(search => lexboxApi.searchEntries(search.text, {
-        offset: 0,
-        count: FETCH_COUNT,
-        order: {field: SortField.SearchRelevance, writingSystem: search.writingSystem, ascending: true},
-      })));
-      // searchEntries can't take the abort signal over JSInterop and `resource` keeps whatever
-      // resolves last, so discard results that a newer keystroke has already superseded
-      if (signal.aborted) throw new DOMException('superseded duplicate search', 'AbortError');
+      const results = await Promise.all(searches.map(s => search(s.text, s.writingSystem)));
+      signal.throwIfAborted();
       return {
         candidates: mergeSearchResults(results),
         // the queries these candidates answer — the live `queries` may already be newer
@@ -93,13 +106,13 @@
     {debounce: DEFAULT_DEBOUNCE_TIME},
   );
 
-  // Classification lives outside the resource so it tracks the lazy morph-types resource:
-  // reading it here starts its load at mount, and once loaded matches re-classify without re-searching.
+  // Classification lives outside the resource so it can compare against the displayed headword:
+  // writingSystemService.headword reads the lazy morph-types resource, so once that loads matches
+  // re-classify (with the correct morph tokens) without re-searching.
   const matches = $derived.by(() => {
-    const morphTypes = morphTypesService.current;
     const result = duplicatesResource.current;
     if (!result) return undefined;
-    return classifyDuplicates(result.candidates, result.queries, vernacularWsIds, analysisWsIds, morphTypes);
+    return classifyQueryResults(result.candidates, result.queries, writingSystemService);
   });
   const hasExactWordMatch = $derived(!!matches?.some(match => match.kind === 'same-word'));
   // Matched headwords (strongest first) shown in the collapsed header, truncated by the

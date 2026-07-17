@@ -7,7 +7,6 @@
 
   interface Props {
     summary: DuplicateSummary;
-    /** Called when the pill body is activated — the host scrolls the duplicate widget into view. */
     onJump: () => void;
     onDismiss: () => void;
   }
@@ -15,19 +14,14 @@
   let {summary, onJump, onDismiss}: Props = $props();
 </script>
 
-<!-- One visual pill, two sibling buttons (a button can't nest a button).
-  mousedown preventDefault: focusing the pill makes Chromium cancel the smooth scroll it triggers -->
-<!-- opaque bg-background underlay: the tint colors are translucent washes shared with
-  the duplicate widget's trigger, and the pill floats over form content -->
-<!-- 32rem cap: the headword preview would otherwise stretch the pill across the whole dialog -->
 <div class="pointer-events-auto max-w-[min(100%,32rem)] rounded-full bg-background shadow-md">
   <div class="max-w-full flex items-center rounded-full border text-sm {duplicateTintClass(summary.hasExactWordMatch)}">
     <button
       type="button"
       aria-label={summary.message}
-      class="min-w-0 flex items-center gap-2 rounded-s-full ps-3 py-1.5 relative after:absolute after:content-[''] after:-inset-y-2.5 after:-start-2.5 after:end-0"
+      class="min-w-0 flex items-center gap-2 rounded-s-full ps-3 py-1.5 relative after:absolute after:content-[''] after:-inset-y-2.5 after:-inset-s-2.5 after:inset-e-0"
       onkeydown={trapEnter}
-      onmousedown={e => e.preventDefault()}
+      onmousedown={e => e.preventDefault() /* focusing the pill can cancel the scroll it triggers */}
       onclick={onJump}>
       {#if summary.hasExactWordMatch}
         <Icon icon="i-mdi-alert-circle-outline" class="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
@@ -46,7 +40,7 @@
     <button
       type="button"
       aria-label={$t`Close`}
-      class="flex items-center rounded-e-full ps-1.5 pe-2.5 py-1.5 self-stretch relative after:absolute after:content-[''] after:-inset-y-2.5 after:start-0 after:-end-2.5"
+      class="flex items-center rounded-e-full ps-1.5 pe-2.5 py-1.5 self-stretch relative after:absolute after:content-[''] after:-inset-y-2.5 after:inset-s-0 after:-inset-e-2.5"
       onkeydown={trapEnter}
       onmousedown={e => e.preventDefault()}
       onclick={onDismiss}>

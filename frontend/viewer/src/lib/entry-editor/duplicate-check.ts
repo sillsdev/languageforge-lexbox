@@ -1,4 +1,4 @@
-import type {IEntry, IMorphType, ISense} from '$lib/dotnet-types';
+import type {IEntry, ISense} from '$lib/dotnet-types';
 
 export const MIN_QUERY_LENGTH = 2;
 
@@ -11,10 +11,10 @@ export const MIN_QUERY_LENGTH = 2;
 export type DuplicateMatchKind = 'same-word' | 'similar-word' | 'same-meaning';
 
 /**
- * Which field an exact match hit: 'headword' when the citation form matched (or the lexeme
- * form of an entry with no citation form — the lexeme IS the headword then), 'lexeme' when
- * only the lexeme form matched while a different citation form exists. Same severity either
- * way; it only exists so the badge doesn't claim "Same headword" for a lexeme-only match.
+ * Which field an exact match hit: 'headword' when the value matched the displayed headword
+ * (citation form, or a morph-token-decorated lexeme), 'lexeme' when it matched only the bare
+ * lexeme form while the headword differs. Same severity either way; it only exists so the badge
+ * doesn't claim "Same headword" for a lexeme-only match.
  */
 export type SameWordField = 'headword' | 'lexeme';
 
@@ -25,7 +25,12 @@ export interface DuplicateMatch {
 }
 
 export interface VernacularQuery {
+  /** Diacritic-stripped, case-folded form sent to the backend search and used for the fuzzy
+   *  (accent-insensitive) similar-word match. The backend only matches accent-insensitively when
+   *  the query has no diacritics (MiniLcm StringExtensions.ContainsDiacriticMatch). */
   text: string;
+  /** Case-folded form with diacritics kept, used to decide the exact same-word match. */
+  exact: string;
   /** The writing system the text was typed in — used to rank that WS's headword matches first */
   wsId: string;
 }
@@ -36,8 +41,6 @@ export interface DuplicateQueries {
   /** Texts the user typed into gloss fields */
   analysis: string[];
 }
-
-export type MorphTokenSource = Pick<IMorphType, 'prefix' | 'postfix'>;
 
 export function duplicateTintClass(hasExactWordMatch: boolean): string {
   return hasExactWordMatch
@@ -70,75 +73,44 @@ const kindRank: Record<DuplicateMatchKind, number> = {
 };
 
 /**
- * Mirrors the backend fold (SqlHelpers.ContainsIgnoreCaseAccents → StringExtensions):
- * invariant case fold, and diacritics are significant only when the search text itself
- * contains them — hence the keepDiacritics mode, chosen per query via hasDiacritics().
- * Collation-level equivalences (ß≈ss, ligatures, ICU-ignorable characters like soft hyphens)
- * are not replicated.
+ * Case-folds invariantly (never by the host locale) and, unless asked to keep them, strips
+ * diacritics. The two modes back the two comparison tiers: keep diacritics to decide an exact
+ * same-word match, drop them for the accent-insensitive similar-word match. Collation-level
+ * equivalences (ß≈ss, ligatures, ICU-ignorable characters like soft hyphens) are not replicated.
  */
-export function normalizeForCompare(value: string, keepDiacritics = false): string {
-  const decomposed = value.normalize('NFD');
-  const folded = keepDiacritics ? decomposed : decomposed.replace(/\p{Mn}/gu, '');
-  return folded.toLowerCase().trim();
+export function normalizeForCompare(value: string | undefined, keepDiacritics = false): string {
+  const decomposed = value?.normalize('NFD').toLowerCase().trim() ?? '';
+  if (keepDiacritics) return decomposed;
+  return decomposed.replace(/\p{Mn}/gu, '');
 }
 
-export function hasDiacritics(value: string): boolean {
-  return /\p{Mn}/u.test(value.normalize('NFD'));
-}
-
-/** Mirrors the backend's EntrySearchService.StripMorphTokens best-match strip. */
-export function stripMorphTokens(value: string, morphTypes: readonly MorphTokenSource[]): string {
-  let bestScore = 0;
-  let bestMatch: MorphTokenSource | undefined;
-  for (const morphType of morphTypes) {
-    const prefix = morphType.prefix?.trim() ? morphType.prefix : undefined;
-    const postfix = morphType.postfix?.trim() ? morphType.postfix : undefined;
-    const matchesPrefix = !!prefix && value.startsWith(prefix);
-    const matchesPostfix = !!postfix && value.endsWith(postfix)
-      && (!matchesPrefix || value.length >= prefix.length + postfix.length);
-    const score = (matchesPrefix ? 2 : 0) + (matchesPostfix ? 1 : 0);
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatch = morphType;
-    }
-  }
-  if (!bestMatch) return value;
-  let result = value;
-  if (bestMatch.prefix?.trim() && result.startsWith(bestMatch.prefix)) result = result.slice(bestMatch.prefix.length);
-  if (bestMatch.postfix?.trim() && result.endsWith(bestMatch.postfix)) result = result.slice(0, -bestMatch.postfix.length);
-  return result;
-}
-
-export function duplicateQueries(
+export function getDuplicateEntryQueries(
   entry: Pick<IEntry, 'lexemeForm' | 'citationForm'>,
   sense: Pick<ISense, 'gloss'> | undefined,
   vernacularWsIds: string[],
   analysisWsIds: string[],
 ): DuplicateQueries {
-  // dedupe per field kind, not across: the same text typed as both lexeme and gloss must
-  // still produce an analysis query, or its same-meaning matches are never classified
-  const seenVernacular = new Set<string>();
   const vernacular: VernacularQuery[] = [];
   for (const wsId of vernacularWsIds) {
+    // The same text typed in two writing systems stays two queries — each is searched sorted by
+    // its own WS so that WS's headword matches rank first. Within a WS, lexeme/citation forms that
+    // fold to the same form (identical, or differing only by case) collapse; accent variants are
+    // kept, so each keeps its own exact same-word match.
+    const seen = new Set<string>();
     for (const value of [entry.lexemeForm?.[wsId], entry.citationForm?.[wsId]]) {
-      const trimmed = value?.trim();
-      if (!trimmed) continue;
-      const normalized = normalizeForCompare(trimmed);
-      if (normalized.length < MIN_QUERY_LENGTH || seenVernacular.has(normalized)) continue;
-      seenVernacular.add(normalized);
-      vernacular.push({text: trimmed, wsId});
+      const text = normalizeForCompare(value);
+      const exact = normalizeForCompare(value, true);
+      if (text.length < MIN_QUERY_LENGTH || seen.has(exact)) continue;
+      seen.add(exact);
+      vernacular.push({text, exact, wsId});
     }
   }
 
-  const seenAnalysis = new Set<string>();
   const analysis: string[] = [];
   for (const value of analysisWsIds.map(wsId => sense?.gloss?.[wsId])) {
-    const trimmed = value?.trim();
-    if (!trimmed) continue;
-    const normalized = normalizeForCompare(trimmed);
-    if (normalized.length < MIN_QUERY_LENGTH || seenAnalysis.has(normalized)) continue;
-    seenAnalysis.add(normalized);
-    analysis.push(trimmed);
+    const normalized = normalizeForCompare(value);
+    if (normalized.length < MIN_QUERY_LENGTH) continue;
+    analysis.push(normalized);
   }
   return {vernacular, analysis};
 }
@@ -153,80 +125,79 @@ export function mergeSearchResults(results: IEntry[][]): IEntry[] {
   });
 }
 
+/** The slice of WritingSystemService the classifier reads. Structural, so the classifier stays a
+ *  pure function unit-testable without a live project context. */
+export interface DuplicateWritingSystems {
+  vernacularNoAudio: readonly {wsId: string}[];
+  analysisNoAudio: readonly {wsId: string}[];
+  /** Displayed headword for a writing system: citation form, else the morph-token-decorated lexeme. */
+  headword(entry: IEntry, wsId: string): string | undefined;
+}
+
 /**
- * Classifies search results against what the user typed, drops cross-field coincidences, and
- * orders survivors strongest match first (headword matches before gloss matches; similar words
- * closest in length first). `candidates` are expected in search-relevance order, which is
- * preserved between equally-strong matches.
- *
- * Match rules mirror the CRDT FTS backend (EntrySearchService): a typed value counts against a
- * lexeme or citation form in any vernacular WS, but typed morph tokens (e.g. the "-" on a suffix)
- * are stripped before comparing against lexeme forms and kept when comparing against citation
- * forms. The FwData search and the backend's short-query (< 3 chars) fallback never strip morph
- * tokens — that only affects which candidates arrive, not how they're classified here.
+ * Classifies each candidate against the queries, returning matches strongest-first. `candidates`
+ * must be in search-relevance order: that order is kept among equally-strong matches, and similar
+ * words are then ordered closest-in-length first.
  */
-export function classifyDuplicates(
+export function classifyQueryResults(
   candidates: IEntry[],
   queries: DuplicateQueries,
-  vernacularWsIds: string[],
-  analysisWsIds: string[],
-  morphTypes: readonly MorphTokenSource[] = [],
+  writingSystems: DuplicateWritingSystems,
 ): DuplicateMatch[] {
-  const vernQueries = queries.vernacular.map(({text}) => {
-    const keepDiacritics = hasDiacritics(text);
-    return {
-      keepDiacritics,
-      lexeme: normalizeForCompare(stripMorphTokens(text, morphTypes), keepDiacritics),
-      citation: normalizeForCompare(text, keepDiacritics),
-    };
-  });
-  const analysisQueries = queries.analysis.map(text => ({
-    keepDiacritics: hasDiacritics(text),
-    text,
+  const vernacularWsIds = writingSystems.vernacularNoAudio.map(ws => ws.wsId);
+  const analysisWsIds = writingSystems.analysisNoAudio.map(ws => ws.wsId);
+  const vernQueries = queries.vernacular.map(({exact, text}) => ({
+    exact: normalizeForCompare(exact, true),
+    fuzzy: normalizeForCompare(text),
   }));
+  const analysisQueries = queries.analysis.map(text => normalizeForCompare(text));
+
+  function vernacularForms(pick: (wsId: string) => string | undefined): string[] {
+    return vernacularWsIds.map(pick).filter((form): form is string => !!form);
+  }
+
+  function matchesExactly(forms: string[]): boolean {
+    return vernQueries.some(query => forms.some(form => normalizeForCompare(form, true) === query.exact));
+  }
+
+  function sameWordField(headwordForms: string[], lexemeForms: string[]): SameWordField | undefined {
+    if (matchesExactly(headwordForms)) return 'headword';
+    // a bare-lexeme hit is only 'lexeme' when the headword differs; a stem (lexeme IS the
+    // headword) already matched as 'headword' above
+    if (matchesExactly(lexemeForms)) return 'lexeme';
+    return undefined;
+  }
+
+  function similarWordDelta(forms: string[]): number | undefined {
+    const normalized = forms.map(form => normalizeForCompare(form));
+    let delta = Infinity;
+    for (const query of vernQueries) {
+      for (const form of normalized) {
+        if (isSimilarWord(form, query.fuzzy)) delta = Math.min(delta, Math.abs(form.length - query.fuzzy.length));
+      }
+    }
+    return delta === Infinity ? undefined : delta;
+  }
+
+  function isSameMeaning(entry: IEntry): boolean {
+    const glosses = (entry.senses ?? [])
+      .flatMap(sense => analysisWsIds.map(wsId => sense.gloss?.[wsId]))
+      .filter((gloss): gloss is string => !!gloss)
+      .map(gloss => normalizeForCompare(gloss));
+    return analysisQueries.some(query => glosses.some(gloss => gloss.includes(query) || query.includes(gloss)));
+  }
 
   function classify(entry: IEntry): {kind: DuplicateMatchKind, field?: SameWordField, lengthDelta: number} | undefined {
-    const lexemeForms = vernacularWsIds.map(wsId => entry.lexemeForm?.[wsId]).filter((form): form is string => !!form);
-    const citationForms = vernacularWsIds.map(wsId => entry.citationForm?.[wsId]).filter((form): form is string => !!form);
-    if (lexemeForms.length || citationForms.length) {
-      let sameWordField: SameWordField | undefined;
-      for (const query of vernQueries) {
-        const lex = lexemeForms.map(form => normalizeForCompare(form, query.keepDiacritics));
-        const cit = citationForms.map(form => normalizeForCompare(form, query.keepDiacritics));
-        if (cit.includes(query.citation)) {
-          sameWordField = 'headword';
-          break;
-        }
-        if (lex.includes(query.lexeme)) sameWordField ??= citationForms.length ? 'lexeme' : 'headword';
-      }
-      if (sameWordField) return {kind: 'same-word', field: sameWordField, lengthDelta: 0};
-      let lengthDelta = Infinity;
-      for (const query of vernQueries) {
-        const lex = lexemeForms.map(form => normalizeForCompare(form, query.keepDiacritics));
-        const cit = citationForms.map(form => normalizeForCompare(form, query.keepDiacritics));
-        for (const {form, queryText} of [
-          ...lex.map(form => ({form, queryText: query.lexeme})),
-          ...cit.map(form => ({form, queryText: query.citation})),
-        ]) {
-          if (isSimilarWord(form, queryText)) {
-            lengthDelta = Math.min(lengthDelta, Math.abs(form.length - queryText.length));
-          }
-        }
-      }
-      if (lengthDelta !== Infinity) return {kind: 'similar-word', lengthDelta};
-    }
-    if (analysisQueries.length) {
-      const rawGlosses = (entry.senses ?? [])
-        .flatMap(sense => analysisWsIds.map(wsId => sense.gloss?.[wsId]))
-        .filter((gloss): gloss is string => !!gloss);
-      for (const query of analysisQueries) {
-        const queryText = normalizeForCompare(query.text, query.keepDiacritics);
-        const glosses = rawGlosses.map(gloss => normalizeForCompare(gloss, query.keepDiacritics));
-        if (glosses.some(gloss => gloss.includes(queryText) || queryText.includes(gloss))) {
-          return {kind: 'same-meaning', lengthDelta: 0};
-        }
-      }
-    }
+    const headwordForms = vernacularForms(wsId => writingSystems.headword(entry, wsId));
+    const lexemeForms = vernacularForms(wsId => entry.lexemeForm?.[wsId]);
+
+    const field = sameWordField(headwordForms, lexemeForms);
+    if (field) return {kind: 'same-word', field, lengthDelta: 0};
+
+    const lengthDelta = similarWordDelta([...headwordForms, ...lexemeForms]);
+    if (lengthDelta !== undefined) return {kind: 'similar-word', lengthDelta};
+
+    if (isSameMeaning(entry)) return {kind: 'same-meaning', lengthDelta: 0};
     return undefined;
   }
 
