@@ -1531,6 +1531,7 @@ msgstr "Ý nghĩa"
 #. Success notification after adding the typed meaning to an existing word; {0} is that word's headword
 #: src/lib/entry-editor/DuplicateCheck.svelte
 msgid "Meaning added to \"{0}\""
+msgstr ""
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Media file details"
@@ -2542,6 +2543,7 @@ msgstr "Ngày này # và biểu tượng cảm xúc này # là đoạn trích"
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/DuplicateCheck.svelte
 msgid "This entry may already exist"
+msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
