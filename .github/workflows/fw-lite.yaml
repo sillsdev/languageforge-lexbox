@@ -53,15 +53,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          # No packages.lock.json in this repo (central package management), so key on the files
-          # that pin versions. restore-keys lets a stale cache seed the restore (avoids re-download
-          # of unchanged packages) even when the hash misses.
           key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
           restore-keys: |
             nuget-${{ runner.os }}-
       - name: Setup Maui
-        # maui-windows only — this job builds the net10.0-windows MAUI target (Android disabled,
-        # Apple gated to macOS), so the full `maui` workload's Android/iOS/Mac packs are dead weight.
         run: dotnet workload install maui-windows
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
@@ -373,9 +368,6 @@ jobs:
   publish-android:
     name: Publish FW Lite app for Android
     needs: [ build-and-test, frontend ]
-    # Android builds on Linux (Android tooling is cross-platform; only iOS/Mac Catalyst and the
-    # Windows target are OS-locked). ubuntu-latest is cheaper and faster than the macOS runner
-    # this job used to sit on.
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -390,8 +382,6 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Setup Maui
-        # maui-android only — the full `maui` workload pulls iOS/Mac Catalyst packs that don't
-        # exist for Linux and would fail the install.
         run: dotnet workload install maui-android
       - name: Decode Android Keystore
         id: decodeKeystore
@@ -452,7 +442,6 @@ jobs:
             nuget-${{ runner.os }}-
 
       - name: Setup Maui
-        # maui-windows only — this job builds only the net10.0-windows MAUI target.
         run: dotnet workload install maui-windows
 
       - name: Publish Windows MAUI portable app
