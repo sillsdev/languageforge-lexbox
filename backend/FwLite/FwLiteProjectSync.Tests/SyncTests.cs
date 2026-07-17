@@ -1,4 +1,5 @@
 using FluentAssertions.Equivalency;
+using FwDataMiniLcmBridge.Media;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
@@ -728,11 +729,15 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await _syncService.Import(crdtApi, fwdataApi);
         var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
 
+        var filename = "LinkedFiles/Pictures/apple.jpg";
+        var path = Path.Join(Path.GetFullPath(fwdataApi.Project.ProjectFolder), filename);
+        var mediaAdapter = _fixture.Services.GetRequiredService<IMediaAdapter>();
+
         var sense = _testEntry.Senses[0];
         var picture = new Picture
         {
             Id = Guid.NewGuid(),
-            MediaUri = MediaUri.NotFound,
+            MediaUri = mediaAdapter.MediaUriFromPath(path, fwdataApi.Cache),
             Caption = new RichMultiString { { "en", new RichString("An apple") } },
         };
         await owningApi.CreatePicture(_testEntry.Id, sense.Id, picture);
@@ -757,12 +762,16 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         IMiniLcmApi owningApi = pictureOwner == EntrySyncTestsBase.ApiType.Crdt ? crdtApi : fwdataApi;
         IMiniLcmApi otherApi = pictureOwner == EntrySyncTestsBase.ApiType.Crdt ? fwdataApi : crdtApi;
 
+        var filename = "LinkedFiles/Pictures/apple.jpg";
+        var path = Path.Join(Path.GetFullPath(fwdataApi.Project.ProjectFolder), filename);
+        var mediaAdapter = _fixture.Services.GetRequiredService<IMediaAdapter>();
+
         // Arrange - create a picture in FwData before importing so both APIs see it
         var sense = _testEntry.Senses[0];
         var picture = new Picture
         {
             Id = Guid.NewGuid(),
-            MediaUri = MediaUri.NotFound,
+            MediaUri = mediaAdapter.MediaUriFromPath(path, fwdataApi.Cache),
             Caption = new RichMultiString { { "en", new RichString("original caption") } },
         };
         await fwdataApi.CreatePicture(_testEntry.Id, sense.Id, picture);
@@ -796,12 +805,16 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         IMiniLcmApi owningApi = pictureOwner == EntrySyncTestsBase.ApiType.Crdt ? crdtApi : fwdataApi;
         IMiniLcmApi otherApi = pictureOwner == EntrySyncTestsBase.ApiType.Crdt ? fwdataApi : crdtApi;
 
+        var filename = "LinkedFiles/Pictures/apple.jpg";
+        var path = Path.Join(Path.GetFullPath(fwdataApi.Project.ProjectFolder), filename);
+        var mediaAdapter = _fixture.Services.GetRequiredService<IMediaAdapter>();
+
         // Arrange - create a picture in FwData before importing so both APIs see it
         var sense = _testEntry.Senses[0];
         var picture = new Picture
         {
             Id = Guid.NewGuid(),
-            MediaUri = MediaUri.NotFound,
+            MediaUri = mediaAdapter.MediaUriFromPath(path, fwdataApi.Cache),
             Caption = new RichMultiString { { "en", new RichString("a picture to delete") } },
         };
         await fwdataApi.CreatePicture(_testEntry.Id, sense.Id, picture);
