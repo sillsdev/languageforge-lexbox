@@ -270,4 +270,71 @@ test.describe('Sense pictures', () => {
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toBe('demo-picture.svg');
   });
+
+  test('clicking a picture opens the fullscreen viewer', async ({page}) => {
+    const picturesField = await addOnePicture(page);
+
+    await picturesField.getByRole('button', {name: 'View Picture'}).click();
+    const viewer = page.getByRole('dialog');
+    await expect(viewer).toBeVisible({timeout: 5000});
+    await expect(viewer.getByRole('heading', {name: 'Picture', exact: true})).toBeVisible();
+
+    // The picture is shown (loaded into a blob url) and the same three-dots menu is available.
+    await expect(viewer.locator('img')).toHaveAttribute('src', /^blob:/, {timeout: 5000});
+    await expect(viewer.getByRole('button', {name: 'Picture actions'})).toBeVisible();
+
+    // A freshly-uploaded picture has no caption, and a single picture has no navigation arrows.
+    await expect(viewer.getByRole('button', {name: 'Previous picture'})).toHaveCount(0);
+    await expect(viewer.getByRole('button', {name: 'Next picture'})).toHaveCount(0);
+  });
+
+  test('the fullscreen viewer navigates between pictures and shows their non-empty captions', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+    // "nyumba" has two pictures, each with an English and Portuguese caption.
+    await projectPage.selectEntryByFilter('nyumba');
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await expect(picturesField.locator('img').first()).toBeVisible({timeout: 5000});
+
+    await picturesField.getByRole('button', {name: 'View Picture'}).first().click();
+    const viewer = page.getByRole('dialog');
+    await expect(viewer).toBeVisible({timeout: 5000});
+
+    // Both non-empty captions of the first picture are shown.
+    await expect(viewer.getByText('A traditional house')).toBeVisible();
+    await expect(viewer.getByText('Uma casa tradicional')).toBeVisible();
+
+    // At the first picture, Previous is disabled and Next is enabled.
+    const previous = viewer.getByRole('button', {name: 'Previous picture'});
+    const next = viewer.getByRole('button', {name: 'Next picture'});
+    await expect(previous).toBeDisabled();
+    await expect(next).toBeEnabled();
+
+    // Next swaps in the second picture's captions and reaches the end.
+    await next.click();
+    await expect(viewer.getByText('A modern house')).toBeVisible();
+    await expect(viewer.getByText('A traditional house')).toHaveCount(0);
+    await expect(next).toBeDisabled();
+    await expect(previous).toBeEnabled();
+
+    // Previous returns to the first picture.
+    await previous.click();
+    await expect(viewer.getByText('A traditional house')).toBeVisible();
+    await expect(previous).toBeDisabled();
+  });
+
+  test('the fullscreen viewer Edit hands off to the edit dialog', async ({page}) => {
+    const picturesField = await addOnePicture(page);
+
+    await picturesField.getByRole('button', {name: 'View Picture'}).click();
+    const viewer = page.getByRole('dialog');
+    await expect(viewer).toBeVisible({timeout: 5000});
+
+    await viewer.getByRole('button', {name: 'Picture actions'}).click();
+    await page.getByRole('menuitem', {name: 'Edit'}).click();
+
+    // The edit dialog takes over (Replace/Submit live only there).
+    await expect(page.getByRole('button', {name: 'Replace Picture'})).toBeVisible({timeout: 5000});
+    await expect(page.getByRole('button', {name: 'Submit'})).toBeVisible();
+  });
 });

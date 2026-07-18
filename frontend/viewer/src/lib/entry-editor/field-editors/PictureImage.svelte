@@ -9,8 +9,10 @@
 
   type Props = {
     picture: IPicture;
-    /** When provided (and not readonly), clicking the picture opens the edit dialog and a three-dots
-        actions menu is shown; the menu also opens on a long-press of the picture. */
+    /** When provided (and not readonly), clicking the picture opens the fullscreen viewer and a
+        three-dots actions menu is shown; the menu also opens on a long-press of the picture. */
+    onView?: () => void;
+    /** Opens the edit dialog; wired into the actions menu (the "Edit" item). */
     onEdit?: () => void;
     /** Downloads the picture; wired into the actions menu (and long-press menu). */
     onDownload?: () => void;
@@ -18,15 +20,23 @@
     onDelete?: () => void;
     /** Disables the actions affordance while an operation is in flight. */
     busy?: boolean;
-    /** Whether to render the caption beneath the picture (hidden inside the edit dialog). */
+    /** Whether to render the caption beneath the picture (hidden inside the edit/viewer dialogs). */
     showCaption?: boolean;
+    /** 'thumbnail' (default) is the fixed-height field size; 'full' fills the viewer up to the
+        viewport while never exceeding the image's native size. */
+    size?: 'thumbnail' | 'full';
     readonly?: boolean;
   };
-  const {picture, onEdit, onDownload, onDelete, busy = false, showCaption = true, readonly = false}: Props = $props();
+  const {picture, onView, onEdit, onDownload, onDelete, busy = false, showCaption = true, size = 'thumbnail', readonly = false}: Props = $props();
 
-  // With an edit handler wired (and not readonly) the picture is interactive: clicking opens the
-  // edit dialog and a three-dots menu offers the actions.
-  const interactive = $derived(!readonly && !!onEdit);
+  // With a view handler wired (and not readonly) the picture is interactive: clicking opens the
+  // viewer and a three-dots menu offers the actions.
+  const interactive = $derived(!readonly && !!onView);
+  const imageClass = $derived(
+    size === 'full'
+      ? 'max-h-[80dvh] w-auto max-w-full rounded-md object-contain'
+      : 'h-40 w-auto rounded-md object-contain',
+  );
 
   // Long-press opens the actions menu, so touch users don't have to hit the small three-dots target.
   let menuOpen = $state(false);
@@ -56,7 +66,7 @@
       event.preventDefault();
       return;
     }
-    onEdit?.();
+    onView?.();
   }
 
   onDestroy(cancelLongPress);
@@ -118,8 +128,8 @@
 
 {#snippet imageContent()}
   {#if loadState.status === 'loaded'}
-    <!-- Fixed height, flexible width: the image keeps its aspect ratio and its width varies. -->
-    <img src={loadState.url} alt={caption || $t`Picture`} class="h-40 w-auto rounded-md object-contain" />
+    <!-- The image keeps its aspect ratio; thumbnail fixes the height, full caps to the viewport. -->
+    <img src={loadState.url} alt={caption || $t`Picture`} class={imageClass} />
   {:else if loadState.status === 'loading'}
     <div class="bg-muted text-muted-foreground flex h-40 w-40 items-center justify-center rounded-md">
       <span class="i-mdi-loading size-6 animate-spin"></span>
@@ -139,7 +149,7 @@
       <button
         type="button"
         class="block cursor-pointer select-none appearance-none rounded-md border-0 bg-transparent p-0 focus-visible:outline-2 disabled:cursor-default"
-        aria-label={$t`Edit Picture`}
+        aria-label={$t`View Picture`}
         disabled={busy}
         onclick={handleImageClick}
         onpointerdown={startLongPress}

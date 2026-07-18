@@ -774,7 +774,6 @@ msgid "Edit Custom View"
 msgstr "Edit Custom View"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Edit Picture"
 msgstr "Edit Picture"
 
@@ -1548,6 +1547,11 @@ msgstr "Next"
 msgid "Next milestone: {0}. {1} to go."
 msgstr "Next milestone: {0}. {1} to go."
 
+#. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Next picture"
+msgstr "Next picture"
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1816,6 +1820,7 @@ msgstr "Pick a Part of Speech"
 
 #. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
@@ -1863,6 +1868,11 @@ msgstr "Preview not available for this file type."
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
 msgstr "Preview not supported"
+
+#. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Previous picture"
+msgstr "Previous picture"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2637,6 +2647,11 @@ msgstr "Vernacular writing systems"
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "View"
+
+#. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "View Picture"
+msgstr "View Picture"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte

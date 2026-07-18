@@ -4,6 +4,7 @@
   import {Button} from '$lib/components/ui/button';
   import PictureImage from './PictureImage.svelte';
   import EditPictureDialog from './EditPictureDialog.svelte';
+  import PictureViewerDialog from './PictureViewerDialog.svelte';
   import {ACCEPTED_PICTURE_TYPES, isLosslessImage} from './picture-formats';
   import {downloadPicture as downloadPictureFile} from './picture-actions';
   import {t} from 'svelte-i18n-lingui';
@@ -34,9 +35,18 @@
   const editingPicture = $derived(editingPictureId ? pictures.find((p) => p.id === editingPictureId) : undefined);
   let editDialogOpen = $state(false);
 
+  // The fullscreen viewer, tracked by id so prev/next and deletion stay in sync with the reloaded entry.
+  let viewerPictureId = $state<string>();
+  let viewerOpen = $state(false);
+
   function openEditor(picture: IPicture) {
     editingPictureId = picture.id;
     editDialogOpen = true;
+  }
+
+  function openViewer(picture: IPicture) {
+    viewerPictureId = picture.id;
+    viewerOpen = true;
   }
 
   function onFileSelected(event: Event) {
@@ -157,6 +167,7 @@
           {picture}
           {readonly}
           busy={busyAction !== null}
+          onView={() => openViewer(picture)}
           onEdit={() => openEditor(picture)}
           onDownload={() => void downloadPicture(picture)}
           onDelete={() => void deletePicture(picture.id)}
@@ -196,3 +207,17 @@
     onDelete={() => deleteEditingPicture()}
   />
 {/if}
+
+<PictureViewerDialog
+  bind:open={viewerOpen}
+  bind:pictureId={viewerPictureId}
+  {pictures}
+  busy={busyAction !== null}
+  onEdit={(picture) => {
+    // Hand off from the viewer to the edit dialog.
+    viewerOpen = false;
+    openEditor(picture);
+  }}
+  onDownload={(picture) => void downloadPicture(picture)}
+  onDelete={(picture) => void deletePicture(picture.id)}
+/>

@@ -779,7 +779,6 @@ msgid "Edit Custom View"
 msgstr "Editar vista personalizada"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Edit Picture"
 msgstr ""
 
@@ -1553,6 +1552,11 @@ msgstr "Siguiente"
 msgid "Next milestone: {0}. {1} to go."
 msgstr ""
 
+#. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Next picture"
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1821,11 +1825,13 @@ msgstr "Escoge una parte de la voz"
 
 #. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
 msgstr ""
 
+#. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
 msgstr ""
@@ -1866,6 +1872,11 @@ msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
+msgstr ""
+
+#. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Previous picture"
 msgstr ""
 
 #. Label in project card
@@ -2641,6 +2652,11 @@ msgstr ""
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Ver"
+
+#. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "View Picture"
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
