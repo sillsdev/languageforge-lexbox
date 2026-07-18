@@ -1,4 +1,4 @@
-import {expect, test, type Page} from '@playwright/test';
+import {expect, test, type Locator, type Page} from '@playwright/test';
 import {DemoProjectPage} from './demo-project.page';
 
 // A valid 96x96 PNG, used to exercise the upload flow without a real image file. It has real
@@ -113,28 +113,40 @@ test.describe('Sense pictures', () => {
     return picturesField;
   }
 
-  /** Adds a picture, clicks it to open the edit dialog, and returns [picturesField, dialog]. */
+  /** Opens the three-dots actions menu on the first picture in the field. */
+  async function openPictureMenu(page: Page, picturesField: Locator) {
+    await picturesField.getByRole('button', {name: 'Picture actions'}).first().click();
+    // The menu content is portaled to the body (a dropdown at this viewport), so query from the page.
+    await expect(page.getByRole('menuitem', {name: 'Edit'})).toBeVisible({timeout: 5000});
+  }
+
+  /** Adds a picture, opens the edit dialog via the three-dots menu, and returns [picturesField, dialog]. */
   async function openEditor(page: Page) {
     const picturesField = await addOnePicture(page);
-    await picturesField.getByRole('button', {name: 'Edit Picture'}).click();
+    await openPictureMenu(page, picturesField);
+    await page.getByRole('menuitem', {name: 'Edit'}).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible({timeout: 5000});
     return {picturesField, dialog};
   }
 
-  test('"+ Picture" stays available; clicking a picture opens the edit dialog', async ({page}) => {
+  test('the three-dots menu offers Edit/Download/Delete and Edit opens the editor', async ({page}) => {
     const picturesField = await addOnePicture(page);
 
     // The add button is still present even though a picture now exists...
     await expect(picturesField.getByRole('button', {name: 'Picture', exact: true})).toBeVisible();
-    // ...and the picture itself is a button that opens the editor (no field-level action buttons).
-    const editButton = picturesField.getByRole('button', {name: 'Edit Picture'});
-    await expect(editButton).toBeVisible();
+    // ...and there are no field-level Replace/Delete buttons (those live inside the edit dialog).
     await expect(picturesField.getByRole('button', {name: 'Replace Picture'})).toHaveCount(0);
     await expect(picturesField.getByRole('button', {name: 'Delete Picture'})).toHaveCount(0);
 
-    // Opening it reveals the caption editor and the Replace/Delete actions inside the dialog.
-    await editButton.click();
+    // The corner three-dots menu exposes the three picture actions.
+    await openPictureMenu(page, picturesField);
+    await expect(page.getByRole('menuitem', {name: 'Edit'})).toBeVisible();
+    await expect(page.getByRole('menuitem', {name: 'Download'})).toBeVisible();
+    await expect(page.getByRole('menuitem', {name: 'Delete'})).toBeVisible();
+
+    // Edit reveals the caption editor and the Replace/Delete actions inside the dialog.
+    await page.getByRole('menuitem', {name: 'Edit'}).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByText('Caption')).toBeVisible();
     await expect(dialog.getByRole('button', {name: 'Replace Picture'})).toBeVisible();
@@ -145,7 +157,19 @@ test.describe('Sense pictures', () => {
     // Submit dismisses the dialog (leaving the picture in place).
     await dialog.getByRole('button', {name: 'Submit'}).click();
     await expect(dialog).toHaveCount(0);
-    await expect(picturesField.getByRole('button', {name: 'Edit Picture'})).toBeVisible();
+    await expect(picturesField.getByRole('button', {name: 'Picture actions'})).toBeVisible();
+  });
+
+  test('the three-dots menu Delete removes the picture after confirmation', async ({page}) => {
+    const picturesField = await addOnePicture(page);
+
+    await openPictureMenu(page, picturesField);
+    await page.getByRole('menuitem', {name: 'Delete'}).click();
+    // Confirm in the delete alert dialog (its confirm button is labelled "Delete Picture").
+    await page.getByRole('alertdialog').getByRole('button', {name: 'Delete Picture', exact: true}).click();
+
+    await expect(picturesField.locator('img')).toHaveCount(0, {timeout: 5000});
+    await expect(picturesField.getByRole('button', {name: 'Picture', exact: true})).toBeVisible();
   });
 
   test('Delete Picture (in the dialog) removes the picture after confirmation', async ({page}) => {
@@ -214,7 +238,7 @@ test.describe('Sense pictures', () => {
     await expect(picturesField.getByText('Discarded')).toHaveCount(0);
   });
 
-  test('Download Picture saves the image under its media-server filename', async ({page}) => {
+  test('Download Picture (in the dialog) saves the image under its media-server filename', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();
     // "nyumba" has demo pictures whose media-server filename is deterministic (demo-picture.svg).
@@ -222,12 +246,27 @@ test.describe('Sense pictures', () => {
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField.locator('img').first()).toBeVisible({timeout: 5000});
 
-    await picturesField.getByRole('button', {name: 'Edit Picture'}).first().click();
+    await openPictureMenu(page, picturesField);
+    await page.getByRole('menuitem', {name: 'Edit'}).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible({timeout: 5000});
 
     const downloadPromise = page.waitForEvent('download');
     await dialog.getByRole('button', {name: 'Download Picture'}).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe('demo-picture.svg');
+  });
+
+  test('the three-dots menu Download saves the image under its media-server filename', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+    await projectPage.selectEntryByFilter('nyumba');
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await expect(picturesField.locator('img').first()).toBeVisible({timeout: 5000});
+
+    const downloadPromise = page.waitForEvent('download');
+    await openPictureMenu(page, picturesField);
+    await page.getByRole('menuitem', {name: 'Download'}).click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toBe('demo-picture.svg');
   });

@@ -624,6 +624,7 @@ msgstr "Definición"
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Delete"
 msgstr "Borrar"
 
@@ -708,6 +709,7 @@ msgstr "Hecho"
 #. Notification action button
 #: src/home/Server.svelte
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "Download"
 msgstr "Descargar"
@@ -763,6 +765,7 @@ msgid "e.g. th, sw"
 msgstr ""
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
 msgstr ""
 
@@ -1823,6 +1826,10 @@ msgstr "Escoge una parte de la voz"
 msgid "Picture"
 msgstr ""
 
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+msgid "Picture actions"
+msgstr ""
+
 #. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
 #: src/lib/views/entity-config.ts
 msgid "Pictures"
@@ -2461,6 +2468,7 @@ msgid "Type:"
 msgstr "Tipo:"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to download the picture"
 msgstr ""
 

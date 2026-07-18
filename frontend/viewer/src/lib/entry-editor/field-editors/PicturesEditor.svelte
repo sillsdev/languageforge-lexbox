@@ -5,6 +5,7 @@
   import PictureImage from './PictureImage.svelte';
   import EditPictureDialog from './EditPictureDialog.svelte';
   import {ACCEPTED_PICTURE_TYPES, isLosslessImage} from './picture-formats';
+  import {downloadPicture as downloadPictureFile} from './picture-actions';
   import {t} from 'svelte-i18n-lingui';
   import {useLexboxApi} from '$lib/services/service-provider';
   import {useDialogsService} from '$lib/services/dialogs-service';
@@ -112,17 +113,28 @@
     }
   }
 
-  async function deleteEditingPicture(): Promise<void> {
-    const targetId = editingPicture?.id;
-    if (!targetId) return;
+  async function deletePicture(pictureId: string): Promise<void> {
     if (!(await dialogsService.promptDelete($t`Picture`))) return;
     busyAction = 'edit';
     try {
-      // Close dialog *before* deleting picture so that dialog's close animation has time to play
+      // Close the edit dialog (if open on this picture) *before* deleting so its close animation
+      // has time to play; harmless when the delete came from the field/menu instead.
       editDialogOpen = false;
-      await api.deletePicture(entryId, senseId, targetId);
+      await api.deletePicture(entryId, senseId, pictureId);
     } finally {
       busyAction = null;
+    }
+  }
+
+  // The edit dialog deletes whatever picture it currently has open.
+  function deleteEditingPicture(): Promise<void> {
+    return editingPicture ? deletePicture(editingPicture.id) : Promise.resolve();
+  }
+
+  async function downloadPicture(picture: IPicture): Promise<void> {
+    const result = await downloadPictureFile(api, picture.mediaUri);
+    if (!result.success) {
+      AppNotification.display(result.errorMessage ?? $t`Unable to download the picture`, {type: 'error'});
     }
   }
 
@@ -137,8 +149,8 @@
 <div class="flex flex-col gap-2">
   {#if pictures.length > 0}
     <!-- Pictures flow left-to-right and wrap; on a narrow (mobile) screen they stack vertically
-         with no CSS change. Each picture + its caption is one flex item. Clicking a picture (a
-         pencil hints at this) opens the edit dialog. -->
+         with no CSS change. Each picture + its caption is one flex item. Each picture has a
+         three-dots actions menu (also opened by a long-press); clicking a picture opens the editor. -->
     <div class="flex flex-wrap gap-4">
       {#each pictures as picture (picture.id)}
         <PictureImage
@@ -146,6 +158,8 @@
           {readonly}
           busy={busyAction !== null}
           onEdit={() => openEditor(picture)}
+          onDownload={() => void downloadPicture(picture)}
+          onDelete={() => void deletePicture(picture.id)}
         />
       {/each}
     </div>
