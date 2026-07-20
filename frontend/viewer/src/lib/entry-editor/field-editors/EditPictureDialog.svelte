@@ -69,7 +69,7 @@
     if (downloading) return;
     downloading = true;
     try {
-      const file = await api.getFileStream(mediaUri);
+      const file = await api.getFileStream(mediaUri, true);
       if (!file.stream) {
         AppNotification.display(file.errorMessage ?? $t`Unable to download the picture`, {type: 'error'});
         return;
