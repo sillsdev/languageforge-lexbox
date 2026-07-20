@@ -28,11 +28,12 @@ test.describe('Sense pictures', () => {
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField).toBeVisible({timeout: 5000});
 
-    // Pictures don't auto-load: the field first shows a "Click to load" placeholder, no image.
+    // The demo's pre-seeded pictures stand in for a remote media service, so they aren't available
+    // locally: the field shows a "Click to load" placeholder rather than auto-loading.
     await expect(picturesField.getByRole('button', {name: 'Click to load'}).first()).toBeVisible({timeout: 5000});
     await expect(picturesField.locator('img')).toHaveCount(0);
 
-    // Clicking loads it — a blob: src proves the full pipeline ran (getFileStream -> Blob -> object url).
+    // Clicking downloads it — a blob: src proves the full pipeline ran (getFileStream -> Blob -> object url).
     await loadFirstPicture(picturesField);
 
     // Caption is rendered from the best analysis alternative (shown regardless of image load).
@@ -73,11 +74,12 @@ test.describe('Sense pictures', () => {
       buffer: TEST_PNG,
     });
 
-    // The uploaded picture is added as a "click to load" placeholder (not auto-loaded); clicking
-    // it loads the image via getFileStream into a blob url.
-    await expect(picturesField.locator('img')).toHaveCount(0);
-    await loadFirstPicture(picturesField);
-    await expect(picturesField.locator('img').first()).toBeVisible({timeout: 5000});
+    // An uploaded picture is available locally, so it loads automatically (no "click to load"
+    // placeholder) and renders into a blob url.
+    const image = picturesField.locator('img').first();
+    await expect(image).toBeVisible({timeout: 5000});
+    await expect(image).toHaveAttribute('src', /^blob:/);
+    await expect(picturesField.getByRole('button', {name: 'Click to load'})).toHaveCount(0);
   });
 
   test('re-uploading an existing file adds a second picture that reuses it', async ({page}) => {
@@ -89,15 +91,15 @@ test.describe('Sense pictures', () => {
     await expect(picturesField).toBeVisible({timeout: 5000});
     const fileInput = picturesField.locator('input[type="file"]');
 
-    // First upload adds a picture; load it (click) so its image enters the entry-scoped cache.
+    // First upload adds a picture; uploaded files are local, so it loads automatically.
     await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: TEST_PNG});
-    await loadFirstPicture(picturesField);
+    await expect(picturesField.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
 
     // Uploading the same filename again -> server reports AlreadyExists with the existing mediaUri;
-    // that mediaUri is already cached, so the second picture shows immediately without a click.
+    // it's already cached, so the second picture also renders immediately.
     await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: TEST_PNG});
 
-    // Both pictures now render an image (the second straight from the cache, never clicked).
+    // Both pictures now render an image.
     await expect(picturesField.locator('img')).toHaveCount(2, {timeout: 5000});
 
     // Both pictures point at the same uploaded file (mediaUri), so the entry-scoped cache backs
@@ -119,8 +121,8 @@ test.describe('Sense pictures', () => {
     await picturesField.locator('input[type="file"]').setInputFiles({
       name: 'photo.png', mimeType: 'image/png', buffer: TEST_PNG,
     });
-    // A new picture starts unloaded; click "Click to load" so callers get a loaded picture.
-    await loadFirstPicture(picturesField);
+    // An uploaded picture is local, so it loads automatically; wait for it before returning.
+    await expect(picturesField.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
     return picturesField;
   }
 
@@ -212,10 +214,9 @@ test.describe('Sense pictures', () => {
       name: 'replacement.png', mimeType: 'image/png', buffer: TEST_PNG,
     });
 
-    // The replacement is a new (uncached) mediaUri, so the preview shows "click to load"; load it.
-    await loadFirstPicture(dialog);
-    // The dialog now previews the replacement, but the field picture is unchanged until Submit.
-    await expect(dialog.locator('img')).toHaveAttribute('src', /^blob:/);
+    // The replacement is an uploaded (local) file, so the dialog previews it immediately; the field
+    // picture is unchanged until Submit.
+    await expect(dialog.locator('img')).toHaveAttribute('src', /^blob:/, {timeout: 5000});
     await expect(fieldImage).toHaveAttribute('src', originalSrc ?? '');
 
     await dialog.getByRole('button', {name: 'Submit'}).click();

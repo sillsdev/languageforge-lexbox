@@ -4,17 +4,21 @@ import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/Re
 import {useProjectContext} from '$project/project-context.svelte';
 
 export type ImageLoadState =
-  | {status: 'not-loaded'}
   | {status: 'loading'}
   | {status: 'loaded'; url: string}
+  | {status: 'not-downloaded'}
   | {status: 'error'; reason: 'not-found' | 'offline' | 'unknown'; detail?: string};
 
 /**
- * Loads picture images once per mediaUri and hands out a shared blob object URL. Scoped to the open
- * project (see useImageService), so identical mediaUris across a sense's pictures — or the same
+ * Loads picture images and hands out a shared blob object URL, cached per mediaUri. Scoped to the
+ * open project (see useImageService), so identical mediaUris across a sense's pictures — the same
  * picture shown in a dialog, or revisited after navigating to another entry and back — are fetched
- * and decoded a single time. The cached object URLs live until the project is closed, then dispose()
+ * and decoded a single time. Cached object URLs live until the project is closed, then dispose()
  * revokes them.
+ *
+ * ensureLocal() shows a picture that's already available locally without touching the network; a
+ * picture that would have to be fetched from the remote media service stays 'not-downloaded' until
+ * download() is called (wired to a "click/tap to load" placeholder).
  */
 export class ImageService {
   readonly #getApi: () => IMiniLcmJsInvokable | undefined;
@@ -26,32 +30,48 @@ export class ImageService {
   }
 
   /**
-   * Begins loading `mediaUri` on demand (e.g. from a click). No-op if it's already been requested,
-   * so repeated clicks — or several pictures sharing one mediaUri — trigger a single fetch.
-   * Nothing loads until this is called: an untouched mediaUri stays {@link get}-reported as 'not-loaded'.
+   * Loads `mediaUri` if it's already cached locally, without downloading a remote file. Runs once
+   * per mediaUri (call from an $effect); a file that isn't local resolves to 'not-downloaded'.
    */
-  load(mediaUri: string): void {
+  ensureLocal(mediaUri: string): void {
     if (this.#cache.has(mediaUri)) return;
     this.#cache.set(mediaUri, {status: 'loading'});
-    void this.#load(mediaUri);
+    void this.#load(mediaUri, false);
   }
 
-  /** Reactive load-state for `mediaUri`. Call from a $derived; 'not-loaded' until load() is called. */
+  /**
+   * Downloads `mediaUri` from the remote media service on demand (e.g. a click on the placeholder).
+   * No-op while it's already loading or loaded.
+   */
+  download(mediaUri: string): void {
+    const current = this.#cache.get(mediaUri);
+    if (current?.status === 'loading' || current?.status === 'loaded') return;
+    this.#cache.set(mediaUri, {status: 'loading'});
+    void this.#load(mediaUri, true);
+  }
+
+  /** Reactive load-state for `mediaUri`. Call from a $derived; 'loading' until ensureLocal resolves. */
   get(mediaUri: string): ImageLoadState {
-    return this.#cache.get(mediaUri) ?? {status: 'not-loaded'};
+    return this.#cache.get(mediaUri) ?? {status: 'loading'};
   }
 
   // getFileStream reports failure via the response (not exceptions), so we branch on it; a thrown
   // error (e.g. from blob()) propagates to the global handler, matching the rest of the viewer.
-  async #load(mediaUri: string): Promise<void> {
+  async #load(mediaUri: string, downloadIfMissing: boolean): Promise<void> {
     const api = this.#getApi();
     if (!api) {
       this.#cache.set(mediaUri, {status: 'error', reason: 'unknown'});
       return;
     }
-    const file = await api.getFileStream(mediaUri);
+    const file = await api.getFileStream(mediaUri, downloadIfMissing);
     if (this.#disposed) return;
     if (!file.stream) {
+      // A local-only probe (downloadIfMissing=false) reports NotFound when the file simply isn't
+      // cached yet — that's the click-to-download case, not an error.
+      if (!downloadIfMissing && file.result === ReadFileResult.NotFound) {
+        this.#cache.set(mediaUri, {status: 'not-downloaded'});
+        return;
+      }
       const reason =
         file.result === ReadFileResult.NotFound ? 'not-found'
         : file.result === ReadFileResult.Offline ? 'offline'

@@ -30,28 +30,35 @@ locally (so it can auto-display it) versus only available remotely (so it should
   (`FwDataMiniLcmBridge/Api/FwDataMiniLcmApi.GetFileStream`), so they have no remote/download concept
   at all — they are always local.
 
-### What a true locality feature would have required (not done)
+### What a true locality feature required (subsequently done)
 
-A 🔴 cross-boundary change to the shared MiniLcm media API:
+A cross-boundary change to the shared MiniLcm media API — implemented as `downloadIfMissing`:
 
-1. `MiniLcm/Media/ReadFileResult.cs` — a new value, e.g. `RemoteNotLoaded`.
-2. `MiniLcm/IMiniLcmReadApi.GetFileStream(MediaUri, bool download = true)` — a new flag.
-3. `LcmCrdt/CrdtMiniLcmApi` + `LcmCrdt/MediaServer/LcmMediaService` — when not cached locally and
-   `download == false`, return `RemoteNotLoaded` instead of downloading.
-4. `FwDataMiniLcmBridge/Api/FwDataMiniLcmApi` — flag is a no-op (files are always local).
-5. `FwLiteShared/Services/MiniLcmJsInvokable` — thread the flag, then rebuild `FwLiteShared` to
-   regenerate the TypeScript types (`getFileStream`, `ReadFileResult`).
-6. Frontend + the in-memory demo API to exercise it.
+1. `MiniLcm/IMiniLcmReadApi.GetFileStream(MediaUri, bool downloadIfMissing = true)` — the flag.
+2. `LcmCrdt/CrdtMiniLcmApi` + `LcmCrdt/MediaServer/LcmMediaService` — when not cached locally and
+   `downloadIfMissing == false`, return `ReadFileResult.NotFound` instead of downloading (reusing
+   `NotFound` rather than adding a new enum value).
+3. `FwDataMiniLcmBridge/Api/FwDataMiniLcmApi` — flag is a no-op (files are always local).
+4. `FwLiteShared/Services/MiniLcmJsInvokable` — threads the flag; the regenerated TypeScript
+   `getFileStream(mediaUri, downloadIfMissing)` is what the viewer consumes.
+5. Frontend + the in-memory demo API (which simulates a remote media service for its pre-seeded
+   pictures) exercise it.
 
-## Decision
+## Decision (final)
 
-Skip the backend/locality work. Instead, gate auto-display purely on the **entry-view image cache**
-(`frontend/viewer/src/lib/entry-editor/field-editors/image-service.svelte.ts`):
+An interim cache-based "click to load" (no backend change) shipped first, then the backend gained a
+`downloadIfMissing` flag on `GetFileStream`, which let us implement the original locality-based
+design:
 
-- A picture whose `mediaUri` is **not in the cache** shows a "Click to load" / "Tap to load"
-  placeholder (styled like the error placeholder) and does not fetch anything up front.
-- Clicking/tapping the placeholder loads the image into the cache, replacing the placeholder.
-- Because the cache is shared for the whole entry view, once a `mediaUri` is loaded, every picture
-  that shares it — and the edit dialog / fullscreen viewer — display it immediately from the cache.
+- `GetFileStream(mediaUri, downloadIfMissing)` — when `false`, a file that isn't cached locally
+  returns `ReadFileResult.NotFound` **without** downloading (no new enum value was needed; `NotFound`
+  from a local-only probe is treated as "not downloaded yet"). When `true`, it downloads as before.
+- The viewer's `ImageService` probes each picture with `downloadIfMissing: false` on render
+  (`ensureLocal`): a locally-available picture displays immediately; one that would have to be
+  fetched from the remote media service stays `not-downloaded` and shows a "Click to load" /
+  "Tap to load" placeholder.
+- Clicking the placeholder calls `download()` (`downloadIfMissing: true`) to fetch and display it.
+- The cache is project-scoped, so once a `mediaUri` is loaded, every picture sharing it — and the
+  edit dialog / fullscreen viewer, and revisits after navigating entries — display it immediately.
 
-No backend API change.
+FwData pictures are always local, so they always auto-load.

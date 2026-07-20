@@ -67,9 +67,10 @@
       event.preventDefault();
       return;
     }
-    // First click on an unloaded picture loads it; once loaded, a click opens the viewer.
-    if (loadState.status === 'not-loaded') {
-      imageService.load(mediaUri);
+    // A picture that isn't available locally is downloaded on the first click; once loaded, a click
+    // opens the viewer.
+    if (loadState.status === 'not-downloaded') {
+      imageService.download(mediaUri);
       return;
     }
     onView?.();
@@ -92,18 +93,22 @@
   const imageService = sharedImageService ?? localImageService!;
   onDestroy(() => localImageService?.dispose());
 
-  // Nothing is fetched up front: a picture whose image isn't in the (entry-scoped) cache shows a
-  // "click to load" placeholder and is loaded only when the user clicks it. Once a mediaUri is in
-  // the cache, every picture sharing it — and the dialogs/viewer — display it immediately.
+  // A picture already available locally loads automatically; one that would have to be downloaded
+  // from the remote media service shows a "click/tap to load" placeholder instead and is fetched
+  // only when clicked. The cache is shared, so a mediaUri loaded once (here, in a dialog, or in
+  // another entry) displays immediately everywhere.
   const mediaUri = $derived(picture.mediaUri);
+  $effect(() => {
+    imageService.ensureLocal(mediaUri);
+  });
   const loadState = $derived(imageService.get(mediaUri));
 
-  // Clickable to load (when not yet loaded) or to open the viewer (when loaded and interactive).
-  const needsLoad = $derived(loadState.status === 'not-loaded');
-  const clickable = $derived(needsLoad || (loadState.status === 'loaded' && interactive));
+  // Clickable to download (when not available locally) or to open the viewer (when loaded and interactive).
+  const needsDownload = $derived(loadState.status === 'not-downloaded');
+  const clickable = $derived(needsDownload || (loadState.status === 'loaded' && interactive));
   const showMenu = $derived(interactive && !!onEdit && !!onDownload && !!onDelete);
   const loadLabel = $derived(IsMobile.value ? $t`Tap to load` : $t`Click to load`);
-  const clickLabel = $derived(needsLoad ? loadLabel : $t`View Picture`);
+  const clickLabel = $derived(needsDownload ? loadLabel : $t`View Picture`);
 
   function errorText(state: Extract<ImageLoadState, {status: 'error'}>): string {
     switch (state.reason) {
@@ -121,8 +126,8 @@
   {#if loadState.status === 'loaded'}
     <!-- The image keeps its aspect ratio; thumbnail fixes the height, full caps to the viewport. -->
     <img src={loadState.url} alt={caption || $t`Picture`} class={imageClass} />
-  {:else if loadState.status === 'not-loaded'}
-    <!-- Not fetched yet: a click/tap loads it (handled by the enclosing button). -->
+  {:else if loadState.status === 'not-downloaded'}
+    <!-- Only available remotely: a click/tap downloads it (handled by the enclosing button). -->
     <div class="bg-muted text-muted-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md">
       <span class="i-mdi-download size-6"></span>
       <span class="text-sm">{loadLabel}</span>
