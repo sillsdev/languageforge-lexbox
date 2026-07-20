@@ -2,14 +2,21 @@ import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
 import { ChildProcessByStdio } from 'child_process';
 import type { BrowseWebViewOptions } from 'lexicon';
+import { getErrorMessage } from 'platform-bible-utils';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
-import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
+import { FwLiteApi, getBrowseUrl, type LoginResult } from './utils/fw-lite-api';
 import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
 
 let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.Readable>;
+
+// Signing in can easily take longer than 30s, set increase to 5min. The stack of timeouts seems to be:
+//  5 min - papi command (this one)
+//  5 min - undici/node fetch (has gone back and forth; 300s today, see https://github.com/nodejs/undici/pull/5467)
+//  inf.  - FW Lite
+const SIGN_IN_TIMEOUT_MS = 5 * 60 * 1000;
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('Lexicon extension activating!');
@@ -83,6 +90,15 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Register commands */
 
+  const getAuthServers = async () => {
+    try {
+      return await fwLiteApi.getAuthServers();
+    } catch (e) {
+      logger.error('Error fetching Lexbox auth servers:', getErrorMessage(e));
+      return undefined;
+    }
+  };
+
   const addEntryCommandPromise = papi.commands.registerCommand(
     'lexicon.addEntry',
     async (webViewId: string, word: string) => {
@@ -99,6 +115,11 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       success = await projectManager.openWebView(WebViewType.AddWord, undefined, options);
       return { success };
     },
+  );
+
+  const authServersCommandPromise = papi.commands.registerCommand(
+    'lexicon.authServers',
+    getAuthServers,
   );
 
   const browseLexiconCommandPromise = papi.commands.registerCommand(
@@ -175,6 +196,40 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  const loginCommandPromise = papi.commands.registerCommand(
+    'lexicon.login',
+    async (authority: string) => {
+      let result: LoginResult | undefined;
+      // Abort the backend sign-in once the command times out, so an abandoned sign-in doesn't
+      // linger on FW Lite (login-web-view cancels via HttpContext.RequestAborted).
+      const abort = new AbortController();
+      const timeout = setTimeout(() => abort.abort(), SIGN_IN_TIMEOUT_MS);
+      try {
+        result = await fwLiteApi.login(authority, abort.signal);
+      } catch (e) {
+        logger.error('Error signing in to Lexbox:', getErrorMessage(e));
+      } finally {
+        clearTimeout(timeout);
+      }
+      return { result, servers: await getAuthServers() };
+    },
+    undefined,
+    { timeoutMilliseconds: SIGN_IN_TIMEOUT_MS },
+  );
+
+  const logoutCommandPromise = papi.commands.registerCommand(
+    'lexicon.logout',
+    async (authority: string) => {
+      try {
+        await fwLiteApi.logout(authority);
+      } catch (e) {
+        logger.error('Error signing out of Lexbox:', getErrorMessage(e));
+        throw e; // Surface the failure so the web view can flag it instead of silently re-enabling.
+      }
+      return getAuthServers();
+    },
+  );
+
   const selectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.selectLexicon',
     async (projectId: string, lexiconCode: string) => {
@@ -227,11 +282,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await validateLexiconCode,
     // Commands
     await addEntryCommandPromise,
+    await authServersCommandPromise,
     await browseLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
     await lexiconsCommandPromise,
+    await loginCommandPromise,
+    await logoutCommandPromise,
     await selectLexiconCommandPromise,
     // Services
     await entryService,
@@ -317,6 +375,9 @@ function launchFwLite(context: ExecutionActivationContext): string {
       '--FwLiteWeb:OpenBrowser=false',
       `--LcmCrdt:ProjectPath=${dataDir}`,
       `--Auth:CacheFileName=${authCacheFile}`,
+      // Sign in via the user's default browser: an embedded login would be blocked by the
+      // webview sandbox and/or Lexbox's frame-ancestors CSP.
+      '--Auth:SystemWebViewLogin=true',
     ],
     { stdio: ['pipe', 'pipe', 'pipe'] },
   );

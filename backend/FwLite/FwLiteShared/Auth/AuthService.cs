@@ -36,11 +36,14 @@ public class AuthService(
     }
 
     [JSInvokable]
-    public async Task<LoginResult> SignInWebView(LexboxServer server)
+    public Task<LoginResult> SignInWebView(LexboxServer server) => SignInWebView(server, CancellationToken.None);
+
+    // Not [JSInvokable]: a CancellationToken can't be marshaled from JS.
+    public async Task<LoginResult> SignInWebView(LexboxServer server, CancellationToken cancellation)
     {
         try
         {
-            var result = await clientFactory.GetClient(server).SignIn(string.Empty);//does nothing here
+            var result = await clientFactory.GetClient(server).SignIn(string.Empty, cancellation);//returnUrl does nothing here
             if (!result.HandledBySystemWebView) throw new InvalidOperationException("Sign in not handled by system web view");
             options.Value.AfterLoginWebView?.Invoke();
             return LoginResult.Success;
