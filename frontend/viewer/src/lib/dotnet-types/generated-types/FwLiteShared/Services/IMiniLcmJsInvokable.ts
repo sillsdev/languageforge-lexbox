@@ -25,6 +25,7 @@ import type {ICreateEntryOptions} from '../../MiniLcm/ICreateEntryOptions';
 import type {IComplexFormComponent} from '../../MiniLcm/Models/IComplexFormComponent';
 import type {ISense} from '../../MiniLcm/Models/ISense';
 import type {IExampleSentence} from '../../MiniLcm/Models/IExampleSentence';
+import type {IPicture} from '../../MiniLcm/Models/IPicture';
 import type {IReadFileResponseJs} from './IReadFileResponseJs';
 import type {IUploadFileResponse} from '../../MiniLcm/Media/IUploadFileResponse';
 import type {ILcmFileMetadata} from '../../MiniLcm/Media/ILcmFileMetadata';
@@ -95,7 +96,11 @@ export interface IMiniLcmJsInvokable
 	createExampleSentence(entryId: string, senseId: string, exampleSentence: IExampleSentence) : Promise<IExampleSentence>;
 	updateExampleSentence(entryId: string, senseId: string, before: IExampleSentence, after: IExampleSentence) : Promise<IExampleSentence>;
 	deleteExampleSentence(entryId: string, senseId: string, exampleSentenceId: string) : Promise<void>;
-	getFileStream(mediaUri: string) : Promise<IReadFileResponseJs>;
+	createPicture(entryId: string, senseId: string, picture: IPicture) : Promise<IPicture>;
+	updatePicture(entryId: string, senseId: string, before: IPicture, after: IPicture) : Promise<IPicture>;
+	movePicture(entryId: string, senseId: string, pictureId: string, previousPictureId?: string, nextPictureId?: string) : Promise<void>;
+	deletePicture(entryId: string, senseId: string, pictureId: string) : Promise<void>;
+	getFileStream(mediaUri: string, downloadIfMissing: boolean) : Promise<IReadFileResponseJs>;
 	saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata) : Promise<IUploadFileResponse>;
 }
 /* eslint-enable */

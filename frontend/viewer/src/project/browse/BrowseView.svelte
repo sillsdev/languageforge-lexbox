@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {ResizableHandle, ResizablePane, ResizablePaneGroup} from '$lib/components/ui/resizable';
+  import MasterDetailView from '$lib/components/master-detail/MasterDetailView.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
@@ -8,11 +8,9 @@
   import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
-  import {QueryParamState, QueryParamStateBool} from '$lib/utils/url.svelte';
   import {BrowseParam} from '$lib/utils/search-params';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
-  import IfOnce from '$lib/components/if-once/if-once.svelte';
   import {SortField, type IPartOfSpeech, type IPublication, type ISemanticDomain} from '$lib/dotnet-types';
   import SortMenu from './sort/SortMenu.svelte';
   import type {SortConfig} from './sort/options';
@@ -27,13 +25,7 @@
   const dialogsService = useDialogsService();
   const entryListViewMode = useProjectStorage().entryListViewMode;
 
-  // DESKTOP: the entry is a sibling of the list (it's a split view). We can switch between selected entries.
-  // So, selectedEntryId itself drives navigation.
-  // MOBILE: an entry is a child of the list (it's hierarchical). We always go back to the list before opening a different entry.
-  // So, entryOpen drives navigation.
-  const selectedEntryId = new QueryParamState({key: BrowseParam.EntryId, allowBack: !IsMobile.value, replaceOnDefaultValue: !IsMobile.value});
-  const entryOpen = new QueryParamStateBool({key: BrowseParam.EntryOpen, allowBack: IsMobile.value, replaceOnDefaultValue: IsMobile.value}, false);
-  const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
+  let selectedId = $state('');
   let search = $state('');
   let gridifyFilter = $state<string>();
   let publication = $state<IPublication>();
@@ -50,20 +42,14 @@
       partOfSpeech,
     });
     if (!entry) return;
-    selectedEntryId.current = entry.id;
+    selectedId = entry.id;
   }
 
-  let leftPane: ResizablePane | undefined = $state();
-  let rightPane: ResizablePane | undefined = $state();
   let entriesList: EntriesList | undefined = $state();
 
-  async function onCloseEntry() {
-    if (IsMobile.value) {
-      // we preserve the selected entry, so we can scroll to it on filter changes (like desktop)
-      entryOpen.current = false;
-      // it can creep out of view on mobile
-      await entriesList?.tryToScrollToEntry(selectedEntryId.current);
-    }
+  async function onClose() {
+    // Selected id is preserved by MasterDetailView so we can scroll back to it.
+    await entriesList?.tryToScrollToEntry(selectedId);
   }
 </script>
 <SidebarPrimaryAction>
@@ -72,62 +58,49 @@
   {/snippet}
 </SidebarPrimaryAction>
 <ViewErrorBoundary class="flex flex-col h-full" title={$t`Browse view failed`}>
-  <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 overflow-visible!">
-    <IfOnce show={!IsMobile.value || !selectedEntryId.current || !entryOpen.current}>
-      <ResizablePane
-        bind:this={leftPane}
-        defaultSize={defaultLayout[0]}
-        collapsible
-        collapsedSize={0}
-        minSize={15}
-        class="min-h-0 flex flex-col relative @container/list"
-      >
-        <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
-          <div class="md:mr-3">
-            <SearchFilter bind:search bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech />
-            <div class="my-2 flex items-center justify-between">
-              <SortMenu bind:value={sort}
-                autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
-              <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
-            </div>
+  <MasterDetailView
+    idParam={BrowseParam.EntryId}
+    openParam={BrowseParam.EntryOpen}
+    bind:selectedId
+    onClose={onClose}
+  >
+    {#snippet master({selectedId: masterSelectedId, select})}
+      <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
+        <div class="md:mr-3">
+          <SearchFilter bind:search bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech />
+          <div class="my-2 flex items-center justify-between">
+            <SortMenu bind:value={sort}
+              autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
+            <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
           </div>
-          <EntriesList bind:this={entriesList}
-                       {search}
-                       selectedEntryId={selectedEntryId.current}
-                       {sort}
-                       {gridifyFilter}
-                       {publication}
-                       {partOfSpeech}
-                       {semanticDomain}
-                       onSelectEntry={(e) => {
-                        selectedEntryId.current = e?.id ?? '';
-                        entryOpen.current = !!selectedEntryId.current;
-                       }}
-                       previewDictionary={entryMode === 'preview'}/>
         </div>
-      </ResizablePane>
-    </IfOnce>
-    {#if !IsMobile.value}
-      <ResizableHandle class="my-4" {leftPane} {rightPane} withHandle resetTo={defaultLayout} />
-    {/if}
-    {#if !IsMobile.value || (selectedEntryId.current && entryOpen.current)}
-      <ResizablePane
-        bind:this={rightPane}
-        defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
-          {#if !selectedEntryId.current}
-            <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
-              <p>{$t`Select ${pt($t`an entry`, $t`a word`, viewService.currentView)} to view details`}</p>
-            </div>
-          {:else if projectContext.maybeApi}
-            <div class="md:p-4 md:pl-4 h-full">
-              <EntryView
-                entryId={selectedEntryId.current}
-                onClose={onCloseEntry}
-                showClose={IsMobile.value}
-              />
-            </div>
-          {/if}
-      </ResizablePane>
-    {/if}
-  </ResizablePaneGroup>
+        <EntriesList bind:this={entriesList}
+                     {search}
+                     selectedEntryId={masterSelectedId}
+                     {sort}
+                     {gridifyFilter}
+                     {publication}
+                     {partOfSpeech}
+                     {semanticDomain}
+                     onSelectEntry={(e) => select(e?.id ?? '')}
+                     previewDictionary={entryMode === 'preview'}/>
+      </div>
+    {/snippet}
+    {#snippet detail({selectedId: detailSelectedId, close, showClose})}
+      {#if projectContext.maybeApi}
+        <div class="md:p-4 md:pl-4 h-full">
+          <EntryView
+            entryId={detailSelectedId}
+            onClose={close}
+            {showClose}
+          />
+        </div>
+      {/if}
+    {/snippet}
+    {#snippet empty()}
+      <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
+        <p>{$t`Select ${pt($t`an entry`, $t`a word`, viewService.currentView)} to view details`}</p>
+      </div>
+    {/snippet}
+  </MasterDetailView>
 </ViewErrorBoundary>

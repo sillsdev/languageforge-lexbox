@@ -491,9 +491,40 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public async Task<ReadFileResponseJs?> GetFileStream(string mediaUri)
+    public async Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture)
     {
-        var result = await _wrappedApi.GetFileStream(new MediaUri(mediaUri));
+        var createdPicture = await _wrappedApi.CreatePicture(entryId, senseId, picture);
+        OnDataChanged();
+        return createdPicture;
+    }
+
+    [JSInvokable]
+    public async Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Picture before, Picture after)
+    {
+        var updatedPicture = await _wrappedApi.UpdatePicture(entryId, senseId, before, after);
+        OnDataChanged();
+        return updatedPicture;
+    }
+
+    [JSInvokable]
+    // previousPictureId and nextPictureId represent the target position, where the picture should end up after being moved
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, Guid? previousPictureId = null, Guid? nextPictureId = null)
+    {
+        await _wrappedApi.MovePicture(entryId, senseId, pictureId, new MiniLcm.SyncHelpers.BetweenPosition(previousPictureId, nextPictureId));
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        await _wrappedApi.DeletePicture(entryId, senseId, pictureId);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task<ReadFileResponseJs?> GetFileStream(string mediaUri, bool downloadIfMissing)
+    {
+        var result = await _wrappedApi.GetFileStream(new MediaUri(mediaUri), downloadIfMissing);
         var stream = result.Stream is null ? null : new DotNetStreamReference(result.Stream);
         return new ReadFileResponseJs(stream, result.FileName, result.Result, result.ErrorMessage);
     }

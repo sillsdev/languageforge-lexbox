@@ -11,6 +11,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
+  import MediaManagerView from '$lib/media-manager/MediaManagerView.svelte';
   import {onMount} from 'svelte';
 
   const {
@@ -63,6 +64,9 @@
       </Route>
       <Route path="/activity">
         <ActivityView />
+      </Route>
+      <Route path="/media-manager">
+        <MediaManagerView/>
       </Route>
       <Route path="/">
         {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}

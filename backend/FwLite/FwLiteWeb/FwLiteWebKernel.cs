@@ -8,7 +8,6 @@ using FwLiteWeb.Routes;
 using LcmCrdt;
 using FwLiteWeb.Services;
 using Microsoft.AspNetCore.Http.Json;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 
 namespace FwLiteWeb;
@@ -34,12 +33,6 @@ public static class FwLiteWebKernel
         {
             jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeLcmCrdtExternalJsonTypeResolver();
         });
-
-        services.AddOptions<JsonHubProtocolOptions>().PostConfigure<IOptions<CrdtConfig>>(
-            (jsonOptions, crdtConfig) =>
-            {
-                jsonOptions.PayloadSerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeLcmCrdtExternalJsonTypeResolver();
-            });
         return services;
     }
 }

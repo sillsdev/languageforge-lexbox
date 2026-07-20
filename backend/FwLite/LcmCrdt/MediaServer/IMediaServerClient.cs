@@ -1,10 +1,15 @@
+using System.Text.Json.Serialization;
+using MiniLcm.Media;
 using Refit;
 
 namespace LcmCrdt.MediaServer;
 
 
-public interface IMediaServerClient
+internal interface IMediaServerClient
 {
+    [Get("/api/media/metadata/{fileId}")]
+    Task<LcmFileMetadata> GetFileMetadata(Guid fileId);
+    
     [Get("/api/media/{fileId}")]
     Task<HttpResponseMessage> DownloadFile(Guid fileId);
 
@@ -17,4 +22,18 @@ public interface IMediaServerClient
         string? filename = null);
 }
 
-public record MediaUploadFileResponse(Guid Guid);
+internal record MediaUploadFileResponse(Guid Guid, FileMetadata? Metadata);
+
+internal class FileMetadata
+{
+    public string? Sha256Hash { get; set; }
+    public long? SizeInBytes { get; set; }
+    public string? FileFormat { get; set; }
+    public string? MimeType { get; set; }
+    public string? Author { get; set; }
+    public DateTimeOffset? UploadDate { get; set; }
+
+    // Other optional, not-yet-mapped properties like purpose, transcript, etc., should end up in here
+    [JsonExtensionData] 
+    public IDictionary<string, object> ExtraFields { get; set; } = new Dictionary<string, object>();
+}

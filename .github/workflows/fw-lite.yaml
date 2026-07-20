@@ -49,8 +49,15 @@ jobs:
       - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
           dotnet-version: '10.x'
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
       - name: Setup Maui
-        run: dotnet workload install maui
+        run: dotnet workload install maui-windows
       - name: Install Task
         uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
         with:
@@ -84,7 +91,21 @@ jobs:
 
       - name: Dotnet test
         # Benchmarks run in a separate Release-mode job — see `benchmark` below.
-        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --no-build -p:BuildAndroid=false --filter "Category!=Benchmark"
+        # `trx` logger writes result files for the TestHistory upload below; --results-directory
+        # collects one .trx per test project into a single folder to glob.
+        run: dotnet test FwLiteOnly.slnf --logger GitHubActions --logger trx --results-directory "${{ github.workspace }}/TestResults" --no-build -p:BuildAndroid=false --filter "Category!=Benchmark"
+
+      - name: Publish test results to TestHistory
+        if: always()
+        continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: TestResults/**/*.trx
+          label: FW Lite .NET
+          on-no-files: ignore # build may fail before any tests run
 
   benchmark:
     name: Run FW Lite sync benchmarks
@@ -179,6 +200,17 @@ jobs:
       - name: Run UI tests
         working-directory: frontend/viewer
         run: task test:ui-standalone
+      - name: Publish test results to TestHistory
+        if: always() # run even when the UI tests above failed
+        continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: frontend/viewer/tests/ui/test-results/results.xml
+          label: FW Lite Viewer UI
+          on-no-files: ignore
 
       - name: Build viewer
         working-directory: frontend/viewer
@@ -242,6 +274,17 @@ jobs:
           files: ./frontend/viewer/test-results/*.xml
           action_fail_on_inconclusive: true
           comment_mode: off
+      - name: Publish test results to TestHistory
+        if: always()
+        continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: frontend/viewer/test-results/vitest-results.xml
+          label: FW Lite Viewer unit
+          on-no-files: ignore
 
   publish-mac:
     name: Publish FW Lite app for Mac
@@ -326,7 +369,7 @@ jobs:
     name: Publish FW Lite app for Android
     needs: [ build-and-test, frontend ]
     timeout-minutes: 30
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -339,7 +382,7 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Setup Maui
-        run: dotnet workload install maui
+        run: dotnet workload install maui-android
       - name: Decode Android Keystore
         id: decodeKeystore
         env:
@@ -390,8 +433,16 @@ jobs:
         with:
           dotnet-version: '10.x'
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
       - name: Setup Maui
-        run: dotnet workload install maui
+        run: dotnet workload install maui-windows
 
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteMaui
@@ -547,7 +598,20 @@ jobs:
         run: pnpm install
       - name: Test FwLite launcher
         working-directory: frontend/viewer
-        run: task test:launcher
+        # Call vitest directly (not `task test:launcher`) to add the junit reporter for the
+        # TestHistory upload below; the task forwards no CLI args. Mirrors the vitest job above.
+        run: pnpm run test:launcher --run --reporter=default --reporter=junit --outputFile.junit=test-results/launcher-results.xml
+      - name: Publish launcher test results to TestHistory
+        if: always() # run even when the launcher tests above failed
+        continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: frontend/viewer/test-results/launcher-results.xml
+          label: FW Lite Launcher
+          on-no-files: ignore
 
       - uses: ./.github/actions/setup-k8s
         with:
@@ -595,6 +659,17 @@ jobs:
           TEST_SERVER_PROTOCOL: https
           TEST_SERVER_PORT: 6580
         run: task test:e2e
+      - name: Publish E2E test results to TestHistory
+        if: always() # run even when the E2E tests above failed
+        continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: frontend/viewer/tests/e2e/test-results/e2e-results.xml
+          label: FW Lite E2E
+          on-no-files: ignore
 
       - name: Upload Playwright results/traces (on failure)
         if: failure()

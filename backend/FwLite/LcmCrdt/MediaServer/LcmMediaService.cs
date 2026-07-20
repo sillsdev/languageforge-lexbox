@@ -1,3 +1,6 @@
+using System.Collections.Concurrent;
+using System.Net;
+using System.Net.Mime;
 using Microsoft.Extensions.Options;
 using MiniLcm.Project;
 using Refit;
@@ -11,30 +14,40 @@ using MiniLcm.Media;
 namespace LcmCrdt.MediaServer;
 
 public class LcmMediaService(
-    ResourceService resourceService,
+    ResourceService<LcmFileMetadata> resourceService,
     CurrentProjectService currentProjectService,
     IOptions<CrdtConfig> options,
     IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider,
     ILogger<LcmMediaService> logger
-) : IRemoteResourceService
+) : IRemoteResourceService<LcmFileMetadata>
 {
-    public async Task<HarmonyResource[]> AllResources()
+    public async Task<HarmonyResource<LcmFileMetadata>[]> AllResources()
     {
-        return await resourceService.AllResources();
+        var resources = await resourceService.AllResources();
+        return [.. resources
+            .OrderBy(r => r.Metadata?.Filename is null)
+            .ThenBy(r => r.Metadata?.Filename)
+            .ThenBy(r => r.Id)
+        ];
     }
 
     /// <summary>
     /// should only be used in fw-headless for files which already exist in the lexbox db
     /// </summary>
-    /// <param name="fileId"></param>
-    /// <param name="localPath"></param>
-    public async Task AddExistingRemoteResource(Guid fileId, string localPath)
+    public async Task AddExistingRemoteResource(Guid fileId, string localPath, LcmFileMetadata metadata)
     {
         await resourceService.AddExistingRemoteResource(localPath,
             currentProjectService.ProjectData.ClientId,
             fileId,
-            fileId.ToString("N"));
+            fileId.ToString("N"),
+            metadata);
+    }
+
+    public async ValueTask AddMissingMetadata(HarmonyResource<LcmFileMetadata> resource, LcmFileMetadata metadata)
+    {
+        if (resource.Metadata is not null) return;
+        await resourceService.SetResourceMetadata(resource.Id, currentProjectService.ProjectData.ClientId, metadata);
     }
 
     public async Task DeleteResource(Guid fileId)
@@ -43,42 +56,96 @@ public class LcmMediaService(
     }
 
     /// <summary>
-    /// return a stream for the file, if it's not cached locally, it will be downloaded
+    /// Return a stream for the file. When <paramref name="downloadIfMissing"/> is true (the default),
+    /// a file that is not cached locally will be downloaded first.
     /// </summary>
     /// <param name="fileId">media file Id</param>
-    /// <returns></returns>
+    /// <param name="downloadIfMissing">When false, returns <see cref="ReadFileResult.NotFound"/> if the file is not already cached locally.</param>
     /// <exception cref="FileNotFoundException"></exception>
-    public async Task<ReadFileResponse> GetFileStream(Guid fileId)
+    // Coalesces concurrent downloads of the same file into one shared task. Without this, two
+    // requests for a not-yet-cached file (e.g. the UI loading a picture more than once at first
+    // render) both see no local resource and both call DownloadResource, whose AddLocalResource
+    // inserts a LocalResource keyed by the file id — the second insert then fails with
+    // "UNIQUE constraint failed: LocalResource.Id". The first caller starts the task; others
+    // await the same one. Keyed by file id (a unique Guid), so different files still download in
+    // parallel.
+    private static readonly ConcurrentDictionary<Guid, Task<LocalResource>> DownloadTasks = new();
+
+    public async Task<ReadFileResponse> GetFileStream(Guid fileId, bool downloadIfMissing = true)
     {
         var localResource = await resourceService.GetLocalResource(fileId);
         if (localResource is null)
         {
-            var connectionStatus = await httpClientProvider.ConnectionStatus();
-            if (connectionStatus == ConnectionStatus.Online)
+            if (!downloadIfMissing) return new ReadFileResponse(ReadFileResult.NotFound);
+            try
             {
-                localResource = await resourceService.DownloadResource(fileId, this);
+                localResource = await GetOrStartDownload(fileId);
             }
-            else
+            catch
             {
-                return new ReadFileResponse(ReadFileResult.Offline);
+                // Did the download fail because we're offline? Return an explicit "we're offline" result
+                // so that the frontend can display some appropriate UI. If we're online and yet the download
+                // failed, then that's a real error that should be rethrown.
+                if (await httpClientProvider.ConnectionStatus() == ConnectionStatus.Offline)
+                {
+                    return new ReadFileResponse(ReadFileResult.Offline);
+                }
+                throw;
             }
         }
         //todo, consider trying to download the file again, maybe the cache was cleared
         if (!File.Exists(localResource.LocalPath))
-            throw new FileNotFoundException("Unable to find the file with Id" + fileId, localResource.LocalPath);
+            throw new FileNotFoundException($"Unable to find the file with Id {fileId}", localResource.LocalPath);
         return new(File.OpenRead(localResource.LocalPath), Path.GetFileName(localResource.LocalPath));
     }
 
-    private async Task<(Stream? stream, string? filename)> RequestMediaFile(Guid fileId)
+    // Single-flight download starter. Uses the *value* overload of GetOrAdd, not the factory
+    // overload: ConcurrentDictionary may invoke a factory more than once under contention, and an
+    // async factory with side effects would start a separate DownloadResource on each invocation —
+    // the losing tasks still run and race to AddLocalResource, reintroducing the duplicate-key
+    // insert. Handing GetOrAdd a not-yet-started TaskCompletionSource.Task means only the caller
+    // whose task actually got stored kicks off the download; everyone else awaits that same task.
+    private async Task<LocalResource> GetOrStartDownload(Guid fileId)
     {
-        var mediaClient = await MediaServerClient();
-        var response = await mediaClient.DownloadFile(fileId);
-        if (!response.IsSuccessStatusCode)
+        var tcs = new TaskCompletionSource<LocalResource>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var task = DownloadTasks.GetOrAdd(fileId, tcs.Task);
+        if (task != tcs.Task) return await task;
+        try
         {
-            throw new Exception($"Failed to download file {fileId}: {response.StatusCode} {response.ReasonPhrase}");
+            // Check again if we have it locally in case another thread committed it before we started.
+            var resource = await resourceService.GetLocalResource(fileId)
+                        ?? await resourceService.DownloadResource(fileId, this);
+            tcs.SetResult(resource);
+            return resource;
         }
-        return (await response.Content.ReadAsStreamAsync(), response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", ""));
+        catch (Exception e)
+        {
+            tcs.SetException(e);
+            throw;
+        }
+        finally
+        {
+            // Once the download completes, we need to remove the task from the ConcurrentDictionary
+            // so that a new download can be attempted later by a different thread. That way if the local
+            // file is ever deleted (say, by being replaced with a different picture) a new download can start.
+            DownloadTasks.TryRemove(fileId, out _);
+        }
     }
+
+    // Media files are proxied (lexbox -> FwHeadless). A cold request — e.g. the first one after the
+    // backend starts, before its code paths are JIT-warmed — can exceed the proxy's timeout and come
+    // back as 504 (or 502/503) even though the backend keeps working and warms up. Retrying a
+    // transient failure a few times usually hits the now-warm backend and succeeds. A failed fetch
+    // never reaches AddLocalResource, so retrying cannot reintroduce the duplicate-key insert.
+    private const int MaxDownloadAttempts = 3;
+    private static readonly HashSet<HttpStatusCode> TransientDownloadStatusCodes =
+    [
+        HttpStatusCode.RequestTimeout,      // 408
+        HttpStatusCode.BadGateway,          // 502
+        HttpStatusCode.ServiceUnavailable,  // 503
+        HttpStatusCode.GatewayTimeout,      // 504
+        (HttpStatusCode)520, // Non-standard status code used by Cloudflare for "Server returned unknown error", seen in CI
+    ];
 
     private async Task<IMediaServerClient> MediaServerClient()
     {
@@ -87,20 +154,36 @@ public class LcmMediaService(
         return mediaClient;
     }
 
-    async Task<DownloadResult> IRemoteResourceService.DownloadResource(string remoteId, string localResourceCachePath)
+    async Task<DownloadResult> IRemoteResourceService<LcmFileMetadata>.DownloadResource(string remoteId, string localResourceCachePath)
     {
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
-        var (stream, filename) = await RequestMediaFile(new Guid(remoteId));
-        if (stream is null) throw new FileNotFoundException(remoteId);
-        await using (stream)
+        var mediaClient = await MediaServerClient();
+        var fileId = new Guid(remoteId);
+        for (var attempt = 1; ; attempt++)
         {
-            filename = Path.GetFileName(filename);
-            var localPath = Path.Combine(projectResourceCachePath, filename ?? remoteId);
-            localPath = EnsureUnique(localPath);
-            await using var localFile = File.Create(localPath);
-            await stream.CopyToAsync(localFile);
-            return new DownloadResult(localPath);
+            using var response = await mediaClient.DownloadFile(fileId);
+            if (response.IsSuccessStatusCode)
+            {
+                await using var stream = await response.Content.ReadAsStreamAsync();
+                if (stream is null) throw new FileNotFoundException(remoteId);
+                var filename = response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", "");
+                filename = Path.GetFileName(filename);
+                var localPath = Path.Combine(projectResourceCachePath, filename ?? remoteId);
+                localPath = EnsureUnique(localPath);
+                await using var localFile = File.Create(localPath);
+                await stream.CopyToAsync(localFile);
+                return new DownloadResult(localPath);
+            }
+
+            var statusCode = response.StatusCode;
+            var reasonPhrase = response.ReasonPhrase;
+            if (attempt >= MaxDownloadAttempts || !TransientDownloadStatusCodes.Contains(statusCode))
+            {
+                throw new Exception($"Failed to download file {fileId}: {statusCode} {reasonPhrase}");
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(200));
         }
     }
 
@@ -111,20 +194,24 @@ public class LcmMediaService(
         return Path.Combine(options.LocalResourceCachePath, project.Name);
     }
 
-
-    async Task<UploadResult> IRemoteResourceService.UploadResource(Guid resourceId, string localPath)
+    async Task<UploadResult<LcmFileMetadata>> IRemoteResourceService<LcmFileMetadata>.UploadResource(Guid resourceId, string localPath, LcmFileMetadata? metadata)
     {
         var mediaClient = await MediaServerClient();
-        var fileName = Path.GetFileName(localPath);
-        await mediaClient.UploadFile(
+        var fileName = metadata?.Filename ?? Path.GetFileName(localPath);
+        var response = await mediaClient.UploadFile(
             new FileInfoPart(new FileInfo(localPath), fileName),
             projectId: currentProjectService.ProjectData.Id,
             fileId: resourceId.ToString("D"),
             filename: fileName);
-        return new UploadResult(resourceId.ToString("N"));
+        var uploadedMetadata = new LcmFileMetadata(fileName,
+            response.Metadata?.MimeType ?? metadata?.MimeType ?? MediaTypeNames.Application.Octet,
+            response.Metadata?.Author ?? metadata?.Author,
+            response.Metadata?.UploadDate ?? metadata?.UploadDate,
+            response.Metadata?.SizeInBytes ?? metadata?.SizeInBytes);
+        return new UploadResult<LcmFileMetadata>(resourceId.ToString("N"), uploadedMetadata);
     }
 
-    public async Task<(HarmonyResource resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
+    public async Task<(HarmonyResource<LcmFileMetadata> resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
@@ -134,16 +221,20 @@ public class LcmMediaService(
         await using (var localFile = File.Create(localPath))
         {
             await stream.CopyToAsync(localFile);
+            if (metadata.SizeInBytes is null && localFile.SafeLength() is { } length) metadata = metadata with { SizeInBytes = length };
         }
+
+        if (metadata.SizeInBytes is null) metadata = metadata with { SizeInBytes = new FileInfo(localPath).Length };
 
         try
         {
-            IRemoteResourceService? remoteResourceService = null;
+            IRemoteResourceService<LcmFileMetadata>? remoteResourceService = null;
             if (await httpClientProvider.ConnectionStatus() == ConnectionStatus.Online) remoteResourceService = this;
             return (await resourceService.AddLocalResource(
                 localPath,
                 currentProjectService.ProjectData.ClientId,
-                resourceService: remoteResourceService
+                resourceService: remoteResourceService,
+                metadata: metadata
             ), newResource: true);
         }
         catch (Exception e)
@@ -175,5 +266,27 @@ public class LcmMediaService(
         if (await httpClientProvider.ConnectionStatus() != ConnectionStatus.Online) return false;
         await resourceService.UploadPendingResources(currentProjectService.ProjectData.ClientId, this);
         return true;
+    }
+
+    public async Task DownloadResources(IEnumerable<Guid> resourceIds)
+    {
+        await Parallel.ForEachAsync(resourceIds, new ParallelOptions()
+        {
+            MaxDegreeOfParallelism = 3
+        }, async (resourceId, cancellationToken) =>
+        {
+            await resourceService.DownloadResource(resourceId, this);
+        });
+    }
+
+    public async Task<LcmFileMetadata> GetFileMetadata(Guid fileId)
+    {
+        var resource = await resourceService.GetResource(fileId);
+        if (resource is not { Metadata: not null })
+        {
+            var mediaClient = await MediaServerClient();
+            return await mediaClient.GetFileMetadata(fileId);
+        }
+        return resource.Metadata;
     }
 }

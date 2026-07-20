@@ -3,10 +3,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {ILcmFileMetadata} from '../../../MiniLcm/Media/ILcmFileMetadata';
+
 export interface IRemoteResource
 {
 	id: string;
 	deletedAt?: string;
 	remoteId?: string;
+	metadata?: ILcmFileMetadata;
 }
 /* eslint-enable */

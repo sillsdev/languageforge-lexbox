@@ -28,6 +28,7 @@ using MiniLcm.Media;
 using MediaFile = MiniLcm.Media.MediaFile;
 using Microsoft.Extensions.Logging;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Resource;
 
 namespace FwLiteShared.TypeGen;
 
@@ -195,6 +196,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(ProjectScope),
             typeof(FwLiteRelease),
             typeof(AvailableUpdate),
+            typeof(HarmonyResource<LcmFileMetadata>),
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
         builder.ExportAsClass<ChangeTypes>().WithCodeGenerator<ChangeTypesCodeGenerator>();
