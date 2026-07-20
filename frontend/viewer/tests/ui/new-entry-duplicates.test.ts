@@ -52,7 +52,7 @@ test.describe('New entry possible duplicates', () => {
     await expect(stripSummary(dialog)).toBeVisible();
     // 'baba' is a substring of 'ubaba', so both rows match — .first() is the exact match because same-word sorts first
     const duplicateRow = duplicateRows(dialog).filter({hasText: existingLexeme}).first();
-    await duplicateRow.click();
+    // first row is auto-expanded
     await expect(duplicateRow).toHaveAttribute('aria-expanded', 'true');
 
     await dialog.getByRole('button', {name: /go to (entry|word)/i}).click();
@@ -60,29 +60,6 @@ test.describe('New entry possible duplicates', () => {
     await expect(page).toHaveURL(/entryId=/);
     const openedLexeme = await projectPage.entryView.getLexemeInput();
     await expect(openedLexeme).toHaveValue(existingLexeme);
-  });
-
-  test('a duplicate row can be opened for editing without discarding the draft', async ({page}) => {
-    const projectPage = new DemoProjectPage(page);
-    await projectPage.goto();
-
-    const dialog = await openNewEntryDialog(page);
-    await lexemeInput(dialog).fill(existingLexeme);
-
-    const duplicateRow = duplicateRows(dialog).filter({hasText: existingLexeme}).first();
-    await duplicateRow.click();
-
-    // "Edit" and "Open in new window" live behind the row's split-button menu; "Go to" is the primary
-    await dialog.getByRole('button', {name: /more actions/i}).first().click();
-    await page.getByRole('menuitem', {name: /edit (entry|word)/i}).click();
-
-    // the edit dialog opens over the still-open new-entry dialog, loaded with the existing entry
-    const editDialog = page.getByRole('dialog', {name: /update (entry|word)/i});
-    await expect(editDialog.locator('[style*="grid-area: lexemeForm"]').locator('input').first()).toHaveValue(
-      existingLexeme,
-    );
-    // the new-entry draft is still open behind the editor, not discarded
-    await expect(page.getByRole('dialog', {name: /new (entry|word)/i})).toBeVisible();
   });
 
   test('brand-new word shows the new-word indicator', async ({page}) => {
@@ -95,49 +72,39 @@ test.describe('New entry possible duplicates', () => {
     await expect(stripSummary(dialog)).toBeHidden();
   });
 
-  test('typed meaning can be added to an existing entry instead', async ({page}) => {
+  test('an auto-expanded strip collapses again once the query is no longer an exact match', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();
 
-    const entryCountBefore = await projectPage.api.countEntries();
     const dialog = await openNewEntryDialog(page);
+    // exact headword match auto-expands the strip
     await lexemeInput(dialog).fill(existingLexeme);
-    const newGloss = `rescued-${Date.now().toString().slice(-6)}`;
-    await glossInput(dialog).fill(newGloss);
+    await expect(duplicateRows(dialog).first()).toBeVisible();
 
-    // exact match auto-expands the list; expand the row to reach its actions
-    const duplicateRow = duplicateRows(dialog).filter({hasText: existingLexeme}).first();
-    await duplicateRow.click();
-    await dialog.getByRole('button', {name: /add (sense|meaning)/i}).click();
-
-    await expect(dialog).toBeHidden();
-    await expect(page).toHaveURL(/entryId=/);
-    const entryId = new URL(page.url()).searchParams.get('entryId');
-    expect(entryId).toBeTruthy();
-    await expect(async () => {
-      expect(await projectPage.api.entryHasGlossValue(entryId!, newGloss)).toBe(true);
-    }).toPass({timeout: 5000});
-    // the sense landed on the existing entry INSTEAD of a new one being created
-    expect(await projectPage.api.countEntries()).toBe(entryCountBefore);
+    // 'balal' matches 'balalika' (similar) but isn't an exact word — the auto-open must revert to collapsed
+    await lexemeInput(dialog).fill('balal');
+    await expect(stripSummary(dialog)).toBeVisible();
+    await expect(duplicateRows(dialog)).toHaveCount(0);
   });
 
   test('Enter inside the duplicate strip expands the row without creating the entry', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();
 
-    const entryCountBefore = await projectPage.api.countEntries();
     const dialog = await openNewEntryDialog(page);
     await lexemeInput(dialog).fill(existingLexeme);
 
     const duplicateRow = duplicateRows(dialog).filter({hasText: existingLexeme}).first();
+    // first row is auto-expanded
+    await expect(duplicateRow).toHaveAttribute('aria-expanded', 'true');
     await duplicateRow.focus();
     await page.keyboard.press('Enter');
-
-    // Enter activated the focused row, and was NOT also swallowed by the dialog's
-    // submit-on-Enter handler — which would have created the very duplicate being warned about
+    await expect(duplicateRow).toHaveAttribute('aria-expanded', 'false');
+    await page.keyboard.press('Enter');
     await expect(duplicateRow).toHaveAttribute('aria-expanded', 'true');
+
+    // Enter did not submit the new entry form
     await expect(dialog).toBeVisible();
-    expect(await projectPage.api.countEntries()).toBe(entryCountBefore);
   });
 
   test('partial headword match shows a collapsed strip with a similar-word badge', async ({page}) => {
@@ -202,6 +169,7 @@ test.describe('New entry possible duplicates', () => {
     // the pill's accessible name is exactly the summary message; the strip trigger's name has more text
     const pill = dialog.getByRole('button', {name: /^this (entry|word) may already exist$/i});
     await expect(pill).toBeVisible();
+    await expect(duplicateRows(dialog).first()).not.toBeInViewport();
     await pill.click();
 
     // jumping scrolls the strip into view, which dismisses the pill and shows the match rows

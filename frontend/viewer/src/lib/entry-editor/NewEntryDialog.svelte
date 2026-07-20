@@ -32,7 +32,6 @@
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'new-entry-dialog'});
   let loading = $state(false);
-  let duplicateActionBusy = $state(false);
 
   let entry = $state(defaultEntry());
   let sense = $state<ISense | undefined>(untrack(() => defaultSense(entry.id)));
@@ -61,8 +60,8 @@
   async function createEntry(e: Event) {
     e.preventDefault();
     e.stopPropagation();
-    // we might already be creating something (double-Enter or Add sense)
-    if (loading || duplicateActionBusy) return;
+    // we might already be creating something
+    if (loading) return;
     if (!requester) throw new Error('No requester');
 
     loading = true;
@@ -223,7 +222,7 @@
           </Editor.Grid>
         </Editor.Root>
       </OverrideFields>
-      <DuplicateCheckSection {entry} {sense} bind:busy={duplicateActionBusy}
+      <DuplicateCheckSection {entry} {sense}
         onNavigateToEntry={() => open = false} />
     </div>
     {#if errors.length}
@@ -235,7 +234,7 @@
     {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-      <Button onclick={e => createEntry(e)} disabled={loading || duplicateActionBusy} {loading}>
+      <Button onclick={e => createEntry(e)} {loading}>
         {pt($t`Create Entry`, $t`Add Word`, viewService.currentView)}
       </Button>
     </Dialog.DialogFooter>

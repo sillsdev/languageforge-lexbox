@@ -19,18 +19,12 @@
   import {slide} from 'svelte/transition';
   import {navigate, useRouter} from 'svelte-routing';
   import * as Collapsible from '$lib/components/ui/collapsible';
-  import * as ButtonGroup from '$lib/components/ui/button-group';
-  import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import {Badge} from '$lib/components/ui/badge';
   import {Icon} from '$lib/components/ui/icon';
   import {Button} from '$lib/components/ui/button';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
-  import EditEntryDialog from './EditEntryDialog.svelte';
   import Loading from '$lib/components/Loading.svelte';
-  import {AppNotification} from '$lib/notifications/notifications';
-  import {useSaveHandler} from '$lib/services/save-event-service.svelte';
   import {useLexboxApi} from '$lib/services/service-provider';
-  import {useMultiWindowService} from '$lib/services/multi-window-service';
   import {useWritingSystemService} from '$project/data';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
@@ -52,19 +46,15 @@
     sense?: ISense;
     /** Called right before navigating to an existing entry, so the host dialog can close itself. */
     onNavigateToEntry?: (entry: IEntry) => void;
-    /** True while an add-sense save is in flight — the host dialog should block submitting until it settles. */
-    busy?: boolean;
     /** Set while there are matches, so the host can render an out-of-view indicator. */
     summary?: DuplicateSummary;
   }
 
-  let {entry, sense, onNavigateToEntry, busy = $bindable(false), summary = $bindable()}: Props = $props();
+  let {entry, sense, onNavigateToEntry, summary = $bindable()}: Props = $props();
 
   const lexboxApi = useLexboxApi();
-  const multiWindowService = useMultiWindowService();
   const writingSystemService = useWritingSystemService();
   const viewService = useViewService();
-  const saveHandler = useSaveHandler();
   const {base} = useRouter();
 
   // Over-fetch: the backend is not queryable exactly how we want to use it, so we use the generic/forgiving query api
@@ -155,11 +145,11 @@
 
   let userToggled = $state(false);
   let expanded = $state(false);
-  // Auto-open on an exact match, until the user takes over the strip. Kept as state (not a
-  // $derived off userToggled): expand() sets userToggled, which would recompute a derived back
-  // to closed — collapsing the strip the jump-pill just tried to open.
   $effect(() => {
-    if (hasExactWordMatch && !userToggled) expanded = true;
+    if (!userToggled) {
+      // only auto-expand exact matches
+      expanded = hasExactWordMatch;
+    }
   });
 
   /** Opens the match list, counting as a user toggle (the host's jump-pill calls this). */
@@ -168,8 +158,9 @@
     userToggled = true;
   }
   let displayCount = $state(INITIAL_DISPLAY_COUNT);
-  let expandedEntryId = $state<string>();
   const displayedMatches = $derived(matches?.slice(0, displayCount) ?? []);
+  let expandedEntryId = $derived(matches?.[0]?.entry.id);
+
 
   watch(
     () => matches,
@@ -201,40 +192,6 @@
   function openEntry(target: IEntry): void {
     onNavigateToEntry?.(target);
     navigate(`${$base.uri}/browse?${entryBrowseParams(target.id)}`);
-  }
-
-  // "Edit" keeps the new-entry dialog open (unlike "Go to", which navigates away and discards it),
-  // so the user can amend the existing entry and then decide what to do with their draft.
-  let editEntryId = $state<string>();
-  let editOpen = $state(false);
-  function editEntry(target: IEntry): void {
-    editEntryId = target.id;
-    editOpen = true;
-  }
-
-  // Rescues the meaning the user already typed: instead of creating a duplicate entry,
-  // it becomes a new sense of the existing one.
-  const canAddSense = $derived(Boolean(sense && writingSystemService.firstDefOrGlossVal(sense)));
-
-  async function addSenseToEntry(target: IEntry): Promise<void> {
-    if (!sense || busy) return;
-    busy = true;
-    try {
-      // fresh id: the dialog's sense id must never end up on two entries (e.g. add-sense then create)
-      const senseSnapshot = {...$state.snapshot(sense), id: crypto.randomUUID(), entryId: target.id};
-      await saveHandler.handleSave(() => lexboxApi.createSense(target.id, senseSnapshot));
-    } finally {
-      busy = false;
-    }
-    AppNotification.display(
-      pt(
-        $t`Sense added to "${writingSystemService.headword(target)}"`,
-        $t`Meaning added to "${writingSystemService.headword(target)}"`,
-        viewService.currentView,
-      ),
-      {type: 'success', timeout: 'short'},
-    );
-    openEntry(target);
   }
 </script>
 
@@ -318,65 +275,15 @@
               </button>
               {#if isExpanded}
                 <div class="flex flex-wrap justify-end gap-1.5 px-2.5 pt-1 pb-2" transition:slide={{duration: 150}}>
-                  {#if canAddSense && (match.kind === 'same-word' || match.kind === 'similar-word')}
-                    {@const addSenseLabel = pt($t`Add sense`, $t`Add meaning`, viewService.currentView)}
-                    {@const addSenseHint = pt(
-                      $t`Add sense to this entry`,
-                      $t`Add meaning to this word`,
-                      viewService.currentView,
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      icon="i-mdi-playlist-plus"
-                      title={addSenseHint}
-                      aria-label={addSenseHint}
-                      disabled={busy}
-                      onkeydown={trapEnter}
-                      onclick={() => addSenseToEntry(match.entry)}
-                    >
-                      {addSenseLabel}
-                    </Button>
-                  {/if}
-                  <ButtonGroup.Root>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      icon="i-mdi-book-arrow-right-outline"
-                      disabled={busy}
-                      onkeydown={trapEnter}
-                      onclick={() => openEntry(match.entry)}
-                    >
-                      {pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
-                    </Button>
-                    <ResponsiveMenu.Root>
-                      <ResponsiveMenu.Trigger>
-                        {#snippet child({props})}
-                          <Button
-                            {...props}
-                            variant="outline"
-                            size="icon-sm"
-                            icon="i-mdi-chevron-down"
-                            disabled={busy}
-                            aria-label={$t`More actions`}
-                          />
-                        {/snippet}
-                      </ResponsiveMenu.Trigger>
-                      <ResponsiveMenu.Content>
-                        {#if multiWindowService}
-                          <ResponsiveMenu.Item
-                            icon="i-mdi-open-in-new"
-                            onSelect={() => void multiWindowService.openEntryInNewWindow(match.entry.id)}
-                          >
-                            {$t`Open in new Window`}
-                          </ResponsiveMenu.Item>
-                        {/if}
-                        <ResponsiveMenu.Item icon="i-mdi-pencil-outline" onSelect={() => editEntry(match.entry)}>
-                          {pt($t`Edit entry`, $t`Edit word`, viewService.currentView)}
-                        </ResponsiveMenu.Item>
-                      </ResponsiveMenu.Content>
-                    </ResponsiveMenu.Root>
-                  </ButtonGroup.Root>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    icon="i-mdi-book-arrow-right-outline"
+                    onkeydown={trapEnter}
+                    onclick={() => openEntry(match.entry)}
+                  >
+                    {pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
+                  </Button>
                 </div>
               {/if}
             </li>
@@ -400,5 +307,3 @@
     </Collapsible.Root>
   {/if}
 </div>
-
-<EditEntryDialog bind:open={editOpen} entryId={editEntryId} />

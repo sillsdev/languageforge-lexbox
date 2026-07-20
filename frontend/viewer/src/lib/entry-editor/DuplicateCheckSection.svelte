@@ -12,11 +12,9 @@
     sense?: ISense;
     /** Called right before navigating to an existing entry, so the host dialog can close itself. */
     onNavigateToEntry?: (entry: IEntry) => void;
-    /** True while an add-sense save is in flight — the host should block submitting until it settles. */
-    busy?: boolean;
   }
 
-  let {entry, sense, onNavigateToEntry, busy = $bindable(false)}: Props = $props();
+  let {entry, sense, onNavigateToEntry}: Props = $props();
 
   let duplicateWidgetEl = $state<HTMLElement>();
   let duplicateCheck = $state<DuplicateCheck>();
@@ -44,7 +42,7 @@
 </script>
 
 <div class="mt-3 scroll-mt-2" bind:this={duplicateWidgetEl}>
-  <DuplicateCheck {entry} {sense} bind:this={duplicateCheck} bind:busy bind:summary={duplicateSummary}
+  <DuplicateCheck {entry} {sense} bind:this={duplicateCheck} bind:summary={duplicateSummary}
     {onNavigateToEntry} />
 </div>
 {#if duplicateSummary && !duplicateWidgetVisible && !pillDismissed}

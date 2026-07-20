@@ -57,19 +57,18 @@ export function trapEnter(event: KeyboardEvent): void {
   if (event.key === 'Enter') event.stopPropagation();
 }
 
-// presumably relatively generous
 export const MAX_SIMILAR_LENGTH_DELTA = 3;
 
 /**
  * Deliberately broader than a starts-with headword match: mid-word containment must count
  * (typing "liman" has to surface an existing "naliman"), so it's containment in either
- * direction with no positional threshold. The length-delta cap keeps short fragments from
+ * direction with no positional threshold. The simple length-delta cap keeps short fragments from
  * matching half the lexicon (typing "uz" must not surface every word containing it).
  */
 export function isSimilarWord(a: string, b: string): boolean {
   if (!a || !b) return false;
   const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
-  // a "similar" word can be max twice as long (i.e. the difference can be no greater than the length of the shorter word 'a'≈'-a' or 'an', but not 'and')
+  // small words get a smaller allowance (their own length), so 'a' matches 'an' but not 'and'
   const maxDelta = Math.min(shorter.length, MAX_SIMILAR_LENGTH_DELTA);
   return longer.length - shorter.length <= maxDelta && longer.includes(shorter);
 }

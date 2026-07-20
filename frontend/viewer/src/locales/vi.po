@@ -176,13 +176,6 @@ msgstr "Thêm thành phần"
 msgid "Add Example"
 msgstr "Thêm ví dụ"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Add sense"
-#. Short button label on a possible-duplicate result in the New Word dialog; fuller form: "Add meaning to this word"
-#: src/lib/entry-editor/DuplicateCheck.svelte
-msgid "Add meaning"
-msgstr ""
-
 #. Button label
 #. Relevant view: Lite
 #. Classic view equivalent: "Add Sense"
@@ -191,13 +184,6 @@ msgstr ""
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
 msgstr "Thêm Ý nghĩa"
-
-#. Relevant view: Lite
-#. Classic view equivalent: "Add sense to this entry"
-#. Button on a possible-duplicate result in the New Word dialog: saves the meaning being typed onto that existing word (instead of creating a duplicate) and opens it
-#: src/lib/entry-editor/DuplicateCheck.svelte
-msgid "Add meaning to this word"
-msgstr ""
 
 #. Button in toolbar
 #: src/lib/entry-editor/NewEntryButton.svelte
@@ -212,26 +198,12 @@ msgid "Add part of"
 msgstr "Thêm phần của"
 
 #. Relevant view: Classic
-#. Lite view equivalent: "Add meaning"
-#. Short button label on a possible-duplicate result in the New Entry dialog; fuller form: "Add sense to this entry"
-#: src/lib/entry-editor/DuplicateCheck.svelte
-msgid "Add sense"
-msgstr ""
-
-#. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
 #. Small button to add another sense/meaning for a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "Thêm Ý nghĩa (sense)"
-
-#. Relevant view: Classic
-#. Lite view equivalent: "Add meaning to this word"
-#. Button on a possible-duplicate result in the New Entry dialog: saves the sense being typed onto that existing entry (instead of creating a duplicate) and opens it
-#: src/lib/entry-editor/DuplicateCheck.svelte
-msgid "Add sense to this entry"
-msgstr ""
 
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
@@ -851,17 +823,9 @@ msgstr ""
 msgid "Edit Custom View"
 msgstr "Chỉnh sửa chế độ xem tùy chỉnh"
 
-#: src/lib/entry-editor/DuplicateCheck.svelte
-msgid "Edit entry"
-msgstr ""
-
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Edit Picture"
-msgstr ""
-
-#: src/lib/entry-editor/DuplicateCheck.svelte
-msgid "Edit word"
 msgstr ""
 
 #. Role selector option
@@ -1534,13 +1498,6 @@ msgstr "Cần thực hiện cập nhật thủ công. Vui lòng làm theo các h
 msgid "Meaning"
 msgstr "Ý nghĩa"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "Sense added to \"{0}\""
-#. Success notification after adding the typed meaning to an existing word; {0} is that word's headword
-#: src/lib/entry-editor/DuplicateCheck.svelte
-msgid "Meaning added to \"{0}\""
-msgstr ""
-
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Media file details"
 msgstr ""
@@ -1581,10 +1538,6 @@ msgstr "Thiếu: {0}"
 #: src/lib/components/ThemePicker.svelte
 msgid "Mode"
 msgstr "Chế độ"
-
-#: src/lib/entry-editor/DuplicateCheck.svelte
-msgid "More actions"
-msgstr ""
 
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1879,7 +1832,6 @@ msgstr "Mở trong FieldWorks"
 
 #. Menu option
 #: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/entry-editor/DuplicateCheck.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -2253,13 +2205,6 @@ msgstr "Gửi cho chúng tôi một tin nhắn"
 #: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Ý nghĩa (sense)"
-
-#. Relevant view: Classic
-#. Lite view equivalent: "Meaning added to \"{0}\""
-#. Success notification after adding the typed sense to an existing entry; {0} is that entry's headword
-#: src/lib/entry-editor/DuplicateCheck.svelte
-msgid "Sense added to \"{0}\""
-msgstr ""
 
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
