@@ -288,20 +288,21 @@
               {/if}
             </li>
           {/each}
-          {#if matches.length > displayedMatches.length}
-            {@const remainingEntries = matches.length - displayedMatches.length}
-            <li>
-              <Button
-                variant="ghost"
-                size="sm"
-                class="w-full text-muted-foreground"
-                onkeydown={trapEnter}
-                onclick={() => (displayCount = matches.length)}
-              >
-                {$plural(remainingEntries, {one: 'Show # more...', other: 'Show # more...'})}
-              </Button>
-            </li>
-          {/if}
+          <!--
+          Uses class=hidden instead of #if or else focus/scroll jumps to the top of the dialog
+          when this button leaves the DOM.
+          -->
+          <li class={cn(matches.length > displayedMatches.length || 'hidden')}>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="w-full text-muted-foreground"
+              onkeydown={trapEnter}
+              onclick={() => (displayCount = matches.length)}
+            >
+              {$plural(matches.length - displayedMatches.length, {one: 'Show # more...', other: 'Show # more...'})}
+            </Button>
+          </li>
         </ul>
       </Collapsible.Content>
     </Collapsible.Root>
