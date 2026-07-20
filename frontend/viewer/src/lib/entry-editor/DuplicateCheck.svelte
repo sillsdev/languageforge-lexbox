@@ -32,7 +32,15 @@
   import {pt} from '$lib/views/view-text';
   import {entryBrowseParams} from '$lib/utils/search-params';
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
-  import {classifyQueryResults, getDuplicateEntryQueries as buildQueries, duplicateTintClass, mergeSearchResults, trapEnter, type DuplicateMatch, type DuplicateQueries} from './duplicate-check';
+  import {
+    classifyDuplicateCheckResults,
+    getDuplicateCheckQueries,
+    mergeSearchResults,
+    trapEnter,
+    type DuplicateCheckMatch,
+    type DuplicateCheckQueries,
+  } from './duplicate-check';
+  import {cn} from '$lib/utils';
 
   interface Props {
     entry: IEntry;
@@ -58,9 +66,7 @@
   const FETCH_COUNT = 30;
   const INITIAL_DISPLAY_COUNT = 3;
 
-  const vernacularWsIds = $derived(writingSystemService.vernacularNoAudio.map(ws => ws.wsId));
-  const analysisWsIds = $derived(writingSystemService.analysisNoAudio.map(ws => ws.wsId));
-  const queries = $derived(buildQueries(entry, sense, vernacularWsIds, analysisWsIds));
+  const queries = $derived(getDuplicateCheckQueries(entry, sense, writingSystemService));
   const hasQueries = $derived(queries.vernacular.length + queries.analysis.length > 0);
 
   // Use a cache as a quick way to prevent ALL redundant queries
@@ -84,23 +90,27 @@
 
   const duplicatesResource = resource(
     () => queries,
-    async (queries, _prev, {signal}): Promise<{candidates: IEntry[], queries: DuplicateQueries, capped: boolean} | undefined> => {
-      // query.text / analysis texts are already diacritic-stripped (see getDuplicateEntryQueries):
+    async (
+      queries,
+      _prev,
+      {signal},
+    ): Promise<{candidates: IEntry[]; queries: DuplicateCheckQueries; capped: boolean} | undefined> => {
+      // query.bare / analysis texts are already diacritic-stripped (see getDuplicateEntryQueries):
       // the backend only matches accent-insensitively for a diacritic-free query, and stripping
       // there is what surfaces accent variants for the client to classify. Each query is searched
       // sorted by the writing system it was typed in, so that WS's headword matches sort first.
       const searches = [
-        ...queries.vernacular.map(query => ({text: query.text, writingSystem: query.wsId})),
-        ...queries.analysis.map(text => ({text, writingSystem: 'default'})),
+        ...queries.vernacular.map((query) => ({text: query.bare, writingSystem: query.wsId})),
+        ...queries.analysis.map((text) => ({text, writingSystem: 'default'})),
       ];
       if (!searches.length) return undefined;
-      const results = await Promise.all(searches.map(s => search(s.text, s.writingSystem)));
+      const results = await Promise.all(searches.map((s) => search(s.text, s.writingSystem)));
       signal.throwIfAborted();
       return {
         candidates: mergeSearchResults(results),
-        // the queries these candidates answer — the live `queries` may already be newer
+        // remember what queries these candidates correspond to
         queries,
-        capped: results.some(result => result.length >= FETCH_COUNT),
+        capped: results.some((result) => result.length >= FETCH_COUNT),
       };
     },
     {debounce: DEFAULT_DEBOUNCE_TIME},
@@ -112,27 +122,33 @@
   const matches = $derived.by(() => {
     const result = duplicatesResource.current;
     if (!result) return undefined;
-    return classifyQueryResults(result.candidates, result.queries, writingSystemService);
+    return classifyDuplicateCheckResults(result.candidates, result.queries, writingSystemService);
   });
-  const hasExactWordMatch = $derived(!!matches?.some(match => match.kind === 'same-word'));
-  // Matched headwords (strongest first) shown in the collapsed header, truncated by the
-  // trigger's ellipsis, so users can dismiss a wall of loose matches at a glance.
-  const previewHeadwords = $derived([...new Set(
-    (matches ?? []).map(match => writingSystemService.headword(match.entry)).filter(Boolean),
-  )].join(', '));
+  const hasExactWordMatch = $derived(!!matches?.some((match) => match.kind === 'same-word'));
+  const previewHeadwords = $derived(
+    [...new Set((matches ?? []).map((match) => writingSystemService.headword(match.entry)).filter(Boolean))].join(', '),
+  );
   const summaryMessage = $derived.by(() => {
-    if (hasExactWordMatch) return pt($t`This entry may already exist`, $t`This word may already exist`, viewService.currentView);
-    if (matches?.length === 1) return pt($t`A similar entry already exists`, $t`A similar word already exists`, viewService.currentView);
+    if (hasExactWordMatch)
+      return pt($t`This entry may already exist`, $t`This word may already exist`, viewService.currentView);
+    if (matches?.length === 1)
+      return pt($t`A similar entry already exists`, $t`A similar word already exists`, viewService.currentView);
     return pt($t`Similar entries already exist`, $t`Similar words already exist`, viewService.currentView);
   });
   $effect(() => {
     summary = matches?.length
-      ? {count: matches.length, capped: !!duplicatesResource.current?.capped, hasExactWordMatch, previewHeadwords, message: summaryMessage}
+      ? {
+          count: matches.length,
+          capped: !!duplicatesResource.current?.capped,
+          hasExactWordMatch,
+          previewHeadwords,
+          message: summaryMessage,
+        }
       : undefined;
   });
 
-  let expanded = $state(false);
   let userToggled = $state(false);
+  let expanded = $derived(hasExactWordMatch && !userToggled);
 
   /** Opens the match list, counting as a user toggle (the host's jump-pill calls this). */
   export function expand(): void {
@@ -143,21 +159,19 @@
   let expandedEntryId = $state<string>();
   const displayedMatches = $derived(matches?.slice(0, displayCount) ?? []);
 
-  // Unfold automatically when the word itself already exists — that's the "stop and look" case.
-  // A manual collapse/expand always wins afterwards.
-  $effect(() => {
-    if (hasExactWordMatch && !userToggled) expanded = true;
-  });
-  watch(() => matches, current => {
-    if (!current?.length) {
-      expanded = false;
-      userToggled = false;
-      displayCount = INITIAL_DISPLAY_COUNT;
-      expandedEntryId = undefined;
-    }
-  });
+  watch(
+    () => matches,
+    (current) => {
+      if (!current?.length) {
+        expanded = false;
+        userToggled = false;
+        displayCount = INITIAL_DISPLAY_COUNT;
+        expandedEntryId = undefined;
+      }
+    },
+  );
 
-  function kindLabel(match: DuplicateMatch): string {
+  function kindLabel(match: DuplicateCheckMatch): string {
     switch (match.kind) {
       case 'same-word':
         // a lexeme-only match on an entry whose citation form differs must not claim "Same
@@ -167,7 +181,7 @@
           : pt($t`Same headword`, $t`Same word`, viewService.currentView);
       case 'similar-word':
         return pt($t`Similar headword`, $t`Similar word`, viewService.currentView);
-      case 'same-meaning':
+      case 'similar-meaning':
         return pt($t`Similar gloss`, $t`Similar meaning`, viewService.currentView);
     }
   }
@@ -179,7 +193,7 @@
 
   // Rescues the meaning the user already typed: instead of creating a duplicate entry,
   // it becomes a new sense of the existing one.
-  const canAddSense = $derived(!!sense && !!writingSystemService.firstDefOrGlossVal(sense));
+  const canAddSense = $derived(Boolean(sense && writingSystemService.firstDefOrGlossVal(sense)));
 
   async function addSenseToEntry(target: IEntry): Promise<void> {
     if (!sense || busy) return;
@@ -192,13 +206,15 @@
       busy = false;
     }
     AppNotification.display(
-      pt($t`Sense added to "${writingSystemService.headword(target)}"`,
+      pt(
+        $t`Sense added to "${writingSystemService.headword(target)}"`,
         $t`Meaning added to "${writingSystemService.headword(target)}"`,
-        viewService.currentView),
-      {type: 'success', timeout: 'short'});
+        viewService.currentView,
+      ),
+      {type: 'success', timeout: 'short'},
+    );
     openEntry(target);
   }
-
 </script>
 
 <div class="min-h-9 flex flex-col justify-center w-full" aria-live="polite">
@@ -222,10 +238,18 @@
   {:else}
     <Collapsible.Root
       bind:open={expanded}
-      onOpenChange={() => userToggled = true}
-      class="rounded-md border {duplicateTintClass(hasExactWordMatch)}"
+      onOpenChange={() => (userToggled = true)}
+      class={cn(
+        'rounded-md border',
+        hasExactWordMatch
+          ? 'border-amber-600/40 bg-amber-500/10 dark:border-amber-400/40'
+          : 'border-border bg-muted/50',
+      )}
+    >
+      <Collapsible.Trigger
+        class="w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer"
+        onkeydown={trapEnter}
       >
-      <Collapsible.Trigger class="w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer" onkeydown={trapEnter}>
         {#if hasExactWordMatch}
           <Icon icon="i-mdi-alert-circle-outline" class="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
         {:else}
@@ -233,6 +257,7 @@
         {/if}
         <span class="grow min-w-0 truncate text-start font-medium">
           {summaryMessage}
+          <!-- If expanded, then the preview headwords are just noise -->
           {#if !expanded && previewHeadwords}
             <span class="text-muted-foreground font-normal">— {previewHeadwords}</span>
           {/if}
@@ -251,25 +276,40 @@
             <li class="rounded bg-background/80">
               <button
                 type="button"
-                class="w-full flex items-center gap-2 {isExpanded ? 'rounded-t' : 'rounded'} hover:bg-accent px-2.5 py-2 text-start"
+                class="w-full flex items-center gap-2 {isExpanded
+                  ? 'rounded-t'
+                  : 'rounded'} hover:bg-accent px-2.5 py-2 text-start"
                 aria-expanded={isExpanded}
                 onkeydown={trapEnter}
-                onclick={() => expandedEntryId = isExpanded ? undefined : match.entry.id}>
+                onclick={() => (expandedEntryId = isExpanded ? undefined : match.entry.id)}
+              >
                 <div class="grow min-w-0 text-sm {isExpanded ? '' : 'line-clamp-1'}">
                   <DictionaryEntry entry={match.entry} inline={!isExpanded} hideExamples={!isExpanded} />
                 </div>
                 {#if badge}
-                  <Badge variant="outline" class="shrink-0 self-start whitespace-nowrap {match.kind === 'same-word' ? 'border-amber-600/50 dark:border-amber-400/50' : ''}">
+                  <Badge
+                    variant="outline"
+                    class="shrink-0 self-start whitespace-nowrap {match.kind === 'same-word'
+                      ? 'border-amber-600/50 dark:border-amber-400/50'
+                      : ''}"
+                  >
                     {badge}
                   </Badge>
                 {/if}
-                <Icon icon={isExpanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'} class="size-4 shrink-0 self-start mt-0.5 text-muted-foreground" />
+                <Icon
+                  icon={isExpanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'}
+                  class="size-4 shrink-0 self-start mt-0.5 text-muted-foreground"
+                />
               </button>
               {#if isExpanded}
                 <div class="flex flex-wrap justify-end gap-1.5 px-2.5 pt-1 pb-2" transition:slide={{duration: 150}}>
                   {#if canAddSense && (match.kind === 'same-word' || match.kind === 'similar-word')}
                     {@const addSenseLabel = pt($t`Add sense`, $t`Add meaning`, viewService.currentView)}
-                    {@const addSenseHint = pt($t`Add sense to this entry`, $t`Add meaning to this word`, viewService.currentView)}
+                    {@const addSenseHint = pt(
+                      $t`Add sense to this entry`,
+                      $t`Add meaning to this word`,
+                      viewService.currentView,
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
@@ -278,17 +318,19 @@
                       aria-label={addSenseHint}
                       disabled={busy}
                       onkeydown={trapEnter}
-                      onclick={() => addSenseToEntry(match.entry)}>
+                      onclick={() => addSenseToEntry(match.entry)}
+                    >
                       {addSenseLabel}
                     </Button>
                   {/if}
                   <Button
                     variant="outline"
                     size="sm"
-                    icon="i-mdi-arrow-right"
+                    icon="i-mdi-book-arrow-right-outline"
                     disabled={busy}
                     onkeydown={trapEnter}
-                    onclick={() => openEntry(match.entry)}>
+                    onclick={() => openEntry(match.entry)}
+                  >
                     {pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
                   </Button>
                 </div>
@@ -298,9 +340,13 @@
           {#if matches.length > displayedMatches.length}
             {@const remainingEntries = matches.length - displayedMatches.length}
             <li>
-              <Button variant="ghost" size="sm" class="w-full text-muted-foreground"
+              <Button
+                variant="ghost"
+                size="sm"
+                class="w-full text-muted-foreground"
                 onkeydown={trapEnter}
-                onclick={() => displayCount = matches.length}>
+                onclick={() => (displayCount = matches.length)}
+              >
                 {$plural(remainingEntries, {one: 'Show # more...', other: 'Show # more...'})}
               </Button>
             </li>

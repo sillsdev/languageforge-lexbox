@@ -2,7 +2,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {Badge} from '$lib/components/ui/badge';
   import {Icon} from '$lib/components/ui/icon';
-  import {duplicateTintClass, trapEnter} from './duplicate-check';
+  import {duplicateResultContainerClass, trapEnter} from './duplicate-check';
   import type {DuplicateSummary} from './DuplicateCheck.svelte';
 
   interface Props {
@@ -15,7 +15,7 @@
 </script>
 
 <div class="pointer-events-auto max-w-[min(100%,32rem)] rounded-full bg-background shadow-md">
-  <div class="max-w-full flex items-center rounded-full border text-sm {duplicateTintClass(summary.hasExactWordMatch)}">
+  <div class="max-w-full flex items-center rounded-full border text-sm {duplicateResultContainerClass(summary.hasExactWordMatch)}">
     <button
       type="button"
       aria-label={summary.message}
