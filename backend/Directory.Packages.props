@@ -109,9 +109,9 @@
     <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0064" />
     <PackageVersion Include="SIL.Chorus.Mercurial" Version="6.5.1.43" />
     <PackageVersion Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.3.0-beta0048" />
-    <PackageVersion Include="SIL.Harmony" Version="0.2.1-rc.202" />
-    <PackageVersion Include="SIL.Harmony.Core" Version="0.2.1-rc.202" />
-    <PackageVersion Include="SIL.Harmony.Linq2db" Version="0.2.1-rc.202" />
+    <PackageVersion Include="SIL.Harmony" Version="0.2.1-rc.211" />
+    <PackageVersion Include="SIL.Harmony.Core" Version="0.2.1-rc.211" />
+    <PackageVersion Include="SIL.Harmony.Linq2db" Version="0.2.1-rc.211" />
     <PackageVersion Include="SIL.Core" Version="17.0.0" />
     <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0165" />
     <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0165" />

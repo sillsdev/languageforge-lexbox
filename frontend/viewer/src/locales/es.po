@@ -26,6 +26,7 @@ msgid "– ({0} changes)"
 msgstr "– ({0} cambios)"
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/CommentDialog.svelte
 msgid "(unknown)"
 msgstr ""
 
@@ -302,6 +303,10 @@ msgstr "Audio guardado y subido a Lexbox"
 msgid "Audio saved locally"
 msgstr "Audio guardado localmente"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Author"
+msgstr ""
+
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
@@ -360,11 +365,16 @@ msgstr ""
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Cancel"
 msgstr "Cancelar"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Caption"
+msgstr ""
 
 #. Explanation of sync behavior
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -630,6 +640,10 @@ msgstr "Borrar {0}"
 msgid "Delete Entry"
 msgstr "Borrar entrada"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Delete Picture"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Delete Entry"
 #. Menu option: opens confirmation dialog to permanently remove word
@@ -708,6 +722,10 @@ msgstr "Descargar {0}"
 msgid "Download page"
 msgstr "Página de descarga"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Download Picture"
+msgstr ""
+
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
@@ -756,6 +774,11 @@ msgstr ""
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Editar vista personalizada"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Edit Picture"
+msgstr ""
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -882,6 +905,22 @@ msgstr ""
 msgid "Failed to load entries"
 msgstr "Error al cargar entradas"
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load file"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load files"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load media files"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Failed to load metadata"
+msgstr ""
+
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to open data directory, use the path in the text field instead"
@@ -897,14 +936,23 @@ msgstr "Error al abrir la URL: {0}"
 msgid "Failed to regenerate Harmony snapshots"
 msgstr ""
 
+#. Error toast when search index regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate search index"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Failed to save file"
 msgstr ""
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
 msgstr "Error de sincronización"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to upload files"
+msgstr ""
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -968,6 +1016,7 @@ msgstr "Nombre del fichero:"
 
 #. Error message when file is missing
 #: src/lib/components/field-editors/audio-input.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 msgid "File not found"
 msgstr "Archivo no encontrado"
 
@@ -981,6 +1030,10 @@ msgstr "Guardado de archivos no soportado"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File too big"
 msgstr "Archivo demasiado grande"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Filename"
+msgstr ""
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1141,6 +1194,15 @@ msgstr "No veo mi proyecto"
 msgid "I understand that this can't be undone"
 msgstr "Entiendo que esto no se puede deshacer"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "ID"
+msgstr ""
+
+#. Error displayed in place of a picture when the media file is missing from local storage
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Image not found"
+msgstr ""
+
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -1234,6 +1296,27 @@ msgstr "Modo lista"
 msgid "Literal meaning"
 msgstr "Significado literal"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Load"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Load all"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Load it to preview or export."
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loaded {0} file(s)"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loaded file"
+msgstr ""
+
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
@@ -1248,9 +1331,21 @@ msgstr ""
 msgid "Loading Dictionaries..."
 msgstr "Cargando diccionarios..."
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Loading metadata..."
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Loading preview..."
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "loading..."
 msgstr "cargando..."
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loading..."
+msgstr ""
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
@@ -1258,8 +1353,13 @@ msgstr "cargando..."
 msgid "Local"
 msgstr "Local"
 
+#: src/lib/media-manager/media-file-utils.ts
+msgid "Local and remote"
+msgstr ""
+
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
+#: src/lib/media-manager/media-file-utils.ts
 msgid "Local only"
 msgstr "Sólo local"
 
@@ -1328,6 +1428,15 @@ msgstr "Se requiere una actualización manual. Siga las instrucciones proporcion
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 msgid "Meaning"
 msgstr "Significado"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Media file details"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Media Manager"
+msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1498,10 +1607,19 @@ msgstr "No se han encontrado antecedentes"
 msgid "No items found"
 msgstr "No se han encontrado artículos"
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "No media files found"
+msgstr ""
+
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "No hay nuevos datos"
+
+#. Empty state shown read-only in the Pictures field when a sense has no pictures
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "No pictures"
+msgstr ""
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -1586,6 +1704,15 @@ msgstr "Fuera de línea"
 msgid "Offline, unable to download"
 msgstr "Desconectado, no se puede descargar"
 
+#. Error when offline and trying to download image
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Offline, unable to download image"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Offline, unable to open file"
+msgstr ""
+
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Oldest first"
@@ -1596,6 +1723,7 @@ msgstr ""
 msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
 msgstr ""
 
+#. Warning in regenerate-search-index confirm dialog: operation may be slow
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a while. Do not close the app or interrupt the process."
 msgstr ""
@@ -1688,6 +1816,18 @@ msgstr "Pendiente"
 msgid "Pick a Part of Speech"
 msgstr "Escoge una parte de la voz"
 
+#. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Picture"
+msgstr ""
+
+#. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
+#: src/lib/views/entity-config.ts
+msgid "Pictures"
+msgstr ""
+
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
 #. Allows quick reference while editing without scrolling
@@ -1703,6 +1843,7 @@ msgstr "Plataforma"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Vista previa"
@@ -1711,6 +1852,14 @@ msgstr "Vista previa"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Preview not available"
 msgstr "Vista previa no disponible"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Preview not available for this file type."
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Preview not supported"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -1761,6 +1910,10 @@ msgstr "Referencia"
 msgid "Refine your filter to see more..."
 msgstr "Afine su filtro para ver más..."
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Refresh"
+msgstr ""
+
 #. Button to reload project list
 #: src/home/HomeView.svelte
 #: src/home/Server.svelte
@@ -1783,10 +1936,12 @@ msgstr ""
 msgid "Regenerate Harmony snapshots?"
 msgstr ""
 
+#. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index"
 msgstr ""
 
+#. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
 msgstr ""
@@ -1796,6 +1951,7 @@ msgstr ""
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
 msgstr ""
 
+#. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr ""
@@ -1804,6 +1960,10 @@ msgstr ""
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
 msgstr "Notas de lanzamiento"
+
+#: src/lib/media-manager/media-file-utils.ts
+msgid "Remote only"
+msgstr ""
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -1824,6 +1984,10 @@ msgstr "Vuelva a abrir"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
 msgstr "Sustituir audio"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Replace Picture"
+msgstr ""
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
@@ -1847,6 +2011,10 @@ msgstr "rosa"
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Save"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Save as"
 msgstr ""
 
 #. Dialog button to save audio with new name
@@ -1874,6 +2042,7 @@ msgstr "Buscar # o #"
 msgid "Search Dictionaries"
 msgstr "Buscar en diccionarios"
 
+#. Success toast after rebuilding the FTS entry search index
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
 msgstr ""
@@ -1990,6 +2159,10 @@ msgstr ""
 msgid "Simple"
 msgstr "Simple"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Size"
+msgstr ""
+
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Size:"
@@ -2034,6 +2207,7 @@ msgstr "El asunto no tiene un objeto de tipo adecuado: {0}"
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Submit"
 msgstr "Enviar"
 
@@ -2182,6 +2356,18 @@ msgstr "Este {0} ha sido eliminado"
 msgid "This date # and this emoji # are snippets"
 msgstr "Esta fecha # y este emoji # son fragmentos"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "This file is only available remotely."
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try reducing the image resolution and uploading again."
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
+msgstr ""
+
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
@@ -2192,6 +2378,7 @@ msgstr "Este proyecto está ahora abierto en FieldWorks. Para continuar trabajan
 msgid "This rebuilds snapshot and projected tables from commit history."
 msgstr ""
 
+#. Warning in regenerate-search-index confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr ""
@@ -2249,6 +2436,10 @@ msgstr "Solución de problemas"
 msgid "Try again"
 msgstr ""
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Type"
+msgstr ""
+
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
@@ -2269,10 +2460,38 @@ msgstr "Escriba una frase de ejemplo"
 msgid "Type:"
 msgstr "Tipo:"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Unable to download the picture"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to export file"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to load audio"
+msgstr ""
+
+#. Generic error displayed in place of a picture when loading fails for an unspecified reason
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Unable to load image"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to open file"
+msgstr ""
+
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "No se puede abrir en FieldWorks"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to upload the picture"
+msgstr ""
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
@@ -2369,6 +2588,22 @@ msgstr "La actualización no fue permitida por la configuración de permisos."
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
 msgstr "Actualizaciones"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Upload pending"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Uploaded"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Uploaded pending files"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Uploading pictures is not supported here"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts

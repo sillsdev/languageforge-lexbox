@@ -1,6 +1,7 @@
 <script lang="ts" module>
   import {createSubscriber} from 'svelte/reactivity';
   import {on} from 'svelte/events';
+
   class AudioRuned {
     #currentTimeSub = createSubscriber((update) => on(this.audio, 'timeupdate', update));
     #durationSub = createSubscriber((update) => on(this.audio, 'durationchange', update));
@@ -40,6 +41,7 @@
   }
 
   const missingDuration = $derived(zeroDuration.replaceAll('0', '‒')); // <=  this "figure dash" is supposed to be the dash closest to the width of a number
+  export const LOADER_ERROR_HANDLED = Symbol();
 </script>
 
 <script lang="ts">
@@ -59,7 +61,6 @@
   import LexiconEditorPrimitive from '$lib/entry-editor/object-editors/LexiconEditorPrimitive.svelte';
   import OverrideFields from '$lib/views/OverrideFields.svelte';
 
-  const handled = Symbol();
   let {
     loader = defaultLoader,
     audioId = $bindable(),
@@ -67,7 +68,9 @@
     readonly = false,
     wsLabel = undefined,
   }: {
-    loader?: (audioId: string) => Promise<{stream: ReadableStream; filename: string} | undefined | typeof handled>;
+    loader?: (
+      audioId: string,
+    ) => Promise<{stream: ReadableStream; filename: string} | undefined | typeof LOADER_ERROR_HANDLED>;
     audioId: string | undefined;
     onchange?: (audioId: string | undefined) => void;
     readonly?: boolean;
@@ -77,7 +80,6 @@
     () => audioId,
     () => (loadedAudioId = undefined),
   );
-
   const projectContext = useProjectContext();
   const api = $derived(projectContext?.maybeApi);
   const supportsAudio = $derived(projectContext?.features.audio);
@@ -99,7 +101,7 @@
           break;
       }
 
-      return handled;
+      return LOADER_ERROR_HANDLED;
     }
     return {stream: await file.stream.stream(), filename: file.fileName ?? ''};
   }
@@ -109,7 +111,7 @@
     playerState = 'loading';
     try {
       const result = await loader(audioId);
-      if (result === handled) return false;
+      if (result === LOADER_ERROR_HANDLED) return false;
       if (!result) {
         AppNotification.error(`Failed to load audio ${audioId}`);
         return;

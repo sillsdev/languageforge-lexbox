@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using System.Security.Cryptography;
 using FwHeadless.Services;
 using LcmCrdt.MediaServer;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MiniLcm.Media;
 using SIL.LCModel;
+using FileMetadata = LexCore.Entities.FileMetadata;
 using MediaFile = LexCore.Entities.MediaFile;
 
 namespace FwHeadless.Media;
@@ -45,7 +47,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
                 Metadata = new FileMetadata
                 {
                     MimeType = MimeMapping.MimeUtility.GetMimeMapping(newFwFile),
-                    SizeInBytes = (int)new FileInfo(Path.Join(cache.ProjectId.ProjectFolder, newFwFile)).Length,
+                    SizeInBytes = new FileInfo(Path.Join(cache.ProjectId.ProjectFolder, newFwFile)).Length,
                 }
             };
             dbContext.Files.Add(mediaFile);
@@ -112,17 +114,32 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var existingDbFiles = dbContext.Files.Where(p => p.ProjectId == projectId).AsAsyncEnumerable();
         await foreach (var existingDbFile in existingDbFiles)
         {
-            if (lcmResources.Remove(existingDbFile.Id))
+            if (lcmResources.Remove(existingDbFile.Id, out var lcmResource))
             {
+                //the file was already tracked in harmony, but the metadata is missing, so add it
+                if (lcmResource.Metadata is null)
+                    await lcmMediaService.AddMissingMetadata(lcmResource, ToLcmFileMetadata(existingDbFile));
                 //nothing to do, the file was already tracked in harmony
                 continue;
             }
-            await lcmMediaService.AddExistingRemoteResource(existingDbFile.Id, FilePath(existingDbFile));
+
+            await lcmMediaService.AddExistingRemoteResource(existingDbFile.Id, FilePath(existingDbFile), ToLcmFileMetadata(existingDbFile));
         }
         foreach (var lcmResource in lcmResources.Values)
         {
             await lcmMediaService.DeleteResource(lcmResource.Id);
         }
+    }
+
+    private static LcmFileMetadata ToLcmFileMetadata(MediaFile existingDbFile)
+    {
+
+        return new LcmFileMetadata(existingDbFile.Filename, existingDbFile.Metadata?.MimeType ?? MediaTypeNames
+                .Application.Octet, existingDbFile.Metadata?.Author, existingDbFile.Metadata?.UploadDate,
+            existingDbFile.Metadata?.SizeInBytes)
+        {
+            ExtraFields = existingDbFile.Metadata?.ExtraFields.ToDictionary() ?? new Dictionary<string, object>(),
+        };
     }
 
     public async Task SaveMediaFile(MediaFile mediaFile, Stream fileStream)
@@ -167,7 +184,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         await sendReceiveService.CommitFile(filePath, $"Uploaded file {Path.GetFileName(filePath)}");
 
         mediaFile.InitializeMetadataIfNeeded(filePath);
-        mediaFile.Metadata.SizeInBytes = (int)fileLength;
+        mediaFile.Metadata.SizeInBytes = fileLength;
         mediaFile.Metadata.Sha256Hash = await Sha256OfFile(filePath);
 
         mediaFile.UpdateUpdatedDate();

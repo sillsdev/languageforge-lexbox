@@ -5,7 +5,6 @@ using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using FwLiteShared.Sync;
 using LcmCrdt;
-using FwLiteWeb.Hubs;
 using FwLiteWeb.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -58,11 +57,11 @@ public static class ProjectRoutes
                 await projectService.CreateExampleProject(name);
                 return Results.Ok();
             });
-        group.MapPost($"/upload/crdt/{{serverAuthority}}/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
+        group.MapPost($"/upload/crdt/{{serverAuthority}}/{{{RouteKeys.Project}}}",
             async (SyncService syncService,
                 IOptions<AuthConfig> options,
                 string serverAuthority,
-                [FromRoute(Name = CrdtMiniLcmApiHub.ProjectRouteKey)]string project,
+                [FromRoute(Name = RouteKeys.Project)]string project,
                 [FromQuery] Guid lexboxProjectId) =>
             {
                 var server = options.Value.GetServerByAuthority(serverAuthority);

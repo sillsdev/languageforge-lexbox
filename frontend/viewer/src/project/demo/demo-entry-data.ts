@@ -2,6 +2,36 @@ import {type IEntry, type IMorphType, type IWritingSystems, MorphTypeKind, Writi
 
 export const projectName = 'Sena 3';
 
+/** Media URIs for the demo pictures, mapped to inline SVG markup in {@link demoPictureSvgs}. */
+export const demoPictureMediaUris = {
+  house1: 'demo://picture/house-1',
+  house2: 'demo://picture/house-2',
+} as const;
+
+/**
+ * Inline SVG bodies served by the demo api's getFileStream, so the picture carousel has
+ * something to display in the in-browser demo project (real projects load actual media files).
+ */
+export const demoPictureSvgs: Record<string, string> = {
+  [demoPictureMediaUris.house1]:
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">' +
+    '<rect width="320" height="200" fill="#cdeccd"/>' +
+    '<polygon points="160,40 250,120 70,120" fill="#8b5a2b"/>' +
+    '<rect x="100" y="120" width="120" height="60" fill="#d9a066"/>' +
+    '<rect x="140" y="142" width="40" height="38" fill="#5b3a1a"/>' +
+    '<text x="160" y="196" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#333">Demo picture 1</text>' +
+    '</svg>',
+  [demoPictureMediaUris.house2]:
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">' +
+    '<rect width="320" height="200" fill="#cdddec"/>' +
+    '<rect x="90" y="70" width="140" height="110" fill="#9aa7b0"/>' +
+    '<rect x="110" y="90" width="40" height="40" fill="#dfe8ef"/>' +
+    '<rect x="170" y="90" width="40" height="40" fill="#dfe8ef"/>' +
+    '<rect x="140" y="140" width="40" height="40" fill="#46505a"/>' +
+    '<text x="160" y="196" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#333">Demo picture 2</text>' +
+    '</svg>',
+};
+
 export const partsOfSpeech = [
   {id: '86ff66f6-0774-407a-a0dc-3eeaf873daf7', name: {en: 'Verb'}, predefined: true},
   {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'}, predefined: true},
@@ -301,7 +331,26 @@ export const allWsEntry: IEntry = {
     partOfSpeech: partsOfSpeech[1],
     partOfSpeechId: partsOfSpeech[1].id,
     semanticDomains: [],
-    pictures: [],
+    pictures: [
+      {
+        id: 'ce4a3b1e-6d2f-4f1a-8c0d-1f2e3a4b5c6d',
+        order: 1,
+        mediaUri: demoPictureMediaUris.house1,
+        caption: {
+          en: { spans: [{ text: 'A traditional house', ws: 'en' }] },
+          pt: { spans: [{ text: 'Uma casa tradicional', ws: 'pt' }] },
+        },
+      },
+      {
+        id: 'a1b2c3d4-7e8f-4a0b-9c1d-2e3f4a5b6c7d',
+        order: 2,
+        mediaUri: demoPictureMediaUris.house2,
+        caption: {
+          en: { spans: [{ text: 'A modern house', ws: 'en' }] },
+          pt: { spans: [{ text: 'Uma casa moderna', ws: 'pt' }] },
+        },
+      },
+    ],
     exampleSentences: [{
       id: '00000000-0000-0000-0000-000000000003',
       senseId: '00000000-0000-0000-0000-000000000002',

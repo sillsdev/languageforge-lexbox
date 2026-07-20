@@ -20,6 +20,7 @@ import type {IJsInvokableLogger} from '$lib/dotnet-types/generated-types/FwLiteS
 import type {IPreferencesService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IPreferencesService';
 
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
+import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
@@ -31,6 +32,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.ProjectServicesProvider]: IProjectServicesProvider,
   [DotnetService.HistoryService]: IHistoryServiceJsInvokable,
   [DotnetService.SyncService]: ISyncServiceJsInvokable,
+  [DotnetService.MediaFilesService]: IMediaFilesServiceJsInvokable,
   [DotnetService.AppLauncher]: IAppLauncher,
   [DotnetService.TroubleshootingService]: ITroubleshootingService,
   [DotnetService.TestingService]: ITestingService,
