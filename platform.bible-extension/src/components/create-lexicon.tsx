@@ -6,6 +6,14 @@ import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 const CODE_PATTERN = /^[a-z\d][a-z\d-]*$/;
 
+function isValidLangTag(tag: string): boolean {
+  try {
+    return Intl.getCanonicalLocales(tag).length === 1;
+  } catch {
+    return false;
+  }
+}
+
 function deriveCode(name: string): string {
   return name
     .toLowerCase()
@@ -48,7 +56,12 @@ export default function CreateLexicon({
     if (!codeEdited) setCode(deriveCode(name));
   }, [codeEdited, name]);
 
-  const isValid = !!(name.trim() && CODE_PATTERN.test(code) && vernacularWs.trim());
+  const isValid = !!(
+    name.trim() &&
+    CODE_PATTERN.test(code) &&
+    isValidLangTag(vernacularWs.trim()) &&
+    (!analysisWs.trim() || isValidLangTag(analysisWs.trim()))
+  );
 
   const handleSubmit = useCallback(async () => {
     if (!isValid) return;
