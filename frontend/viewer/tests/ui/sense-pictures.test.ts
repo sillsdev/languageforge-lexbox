@@ -380,6 +380,32 @@ test.describe('Sense pictures', () => {
     await expect(viewer.locator('img')).toHaveAttribute('src', thumbnailSrc ?? '', {timeout: 5000});
   });
 
+  test('clicking the viewer captions collapses to the first caption and expands again', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+    // "nyumba"'s first picture has two captions (English + Portuguese), i.e. more than one line.
+    await projectPage.selectEntryByFilter('nyumba');
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await loadFirstPicture(picturesField);
+    await picturesField.getByRole('button', {name: 'View Picture'}).first().click();
+    const viewer = page.getByRole('dialog');
+    await expect(viewer).toBeVisible({timeout: 5000});
+
+    // Expanded by default: both captions are shown.
+    await expect(viewer.getByText('A traditional house')).toBeVisible();
+    await expect(viewer.getByText('Uma casa tradicional')).toBeVisible();
+
+    const toggle = viewer.getByRole('button', {name: 'Toggle captions'});
+    // Collapse: only the first non-empty caption remains.
+    await toggle.click();
+    await expect(viewer.getByText('Uma casa tradicional')).toHaveCount(0);
+    await expect(viewer.getByText('A traditional house')).toBeVisible();
+
+    // Expand again: both captions return.
+    await toggle.click();
+    await expect(viewer.getByText('Uma casa tradicional')).toBeVisible();
+  });
+
   test('a loaded image stays cached (project-scoped) after navigating to another entry and back', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();

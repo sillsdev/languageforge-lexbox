@@ -2425,6 +2425,11 @@ msgstr "Ini akan menyinkronkan salinan FieldWorks Lite dan FieldWorks Classic da
 msgid "Thread"
 msgstr ""
 
+#. Accessible label for the caption block in the fullscreen picture viewer; clicking it collapses to the first caption or expands to show all
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Toggle captions"
+msgstr ""
+
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"

@@ -34,12 +34,21 @@
     if (open && pictureId !== undefined && !current) open = false;
   });
 
+  // Captions collapse to just the first non-empty one on click; each picture starts expanded.
+  let collapsed = $state(false);
+
   const hasMultiple = $derived(pictures.length > 1);
   function showPrevious() {
-    if (currentIndex > 0) pictureId = pictures[currentIndex - 1].id;
+    if (currentIndex > 0) {
+      pictureId = pictures[currentIndex - 1].id;
+      collapsed = false;
+    }
   }
   function showNext() {
-    if (currentIndex >= 0 && currentIndex < pictures.length - 1) pictureId = pictures[currentIndex + 1].id;
+    if (currentIndex >= 0 && currentIndex < pictures.length - 1) {
+      pictureId = pictures[currentIndex + 1].id;
+      collapsed = false;
+    }
   }
 
   // The current picture's non-empty captions, in the project's writing-system order.
@@ -51,6 +60,8 @@
       .map((ws) => ({ws, text: asString(caption[ws.wsId]) ?? ''}))
       .filter((c) => c.text.length > 0);
   });
+  // Collapsed shows only the first caption (its text clamped to one line); expanded shows all.
+  const shownCaptions = $derived(collapsed ? captions.slice(0, 1) : captions);
 </script>
 
 <Dialog.Root bind:open>
@@ -101,15 +112,22 @@
       </div>
 
       {#if captions.length > 0}
-        <!-- Read-only captions: writing-system abbreviation label + text, like RichMultiWsInput. -->
-        <div class="grid grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-1">
-          {#each captions as {ws, text} (ws.wsId)}
-            <span class="text-muted-foreground text-sm font-medium leading-none" title={`${ws.name} (${ws.wsId})`}>
+        <!-- Read-only captions (WS abbreviation label + text, like RichMultiWsInput). Click to
+             collapse to just the first caption (line-clamp-1), click again to show them all. -->
+        <button
+          type="button"
+          class="grid w-full cursor-pointer grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-1 appearance-none border-0 bg-transparent p-0 text-left text-sm"
+          aria-label={$t`Toggle captions`}
+          aria-expanded={!collapsed}
+          onclick={() => (collapsed = !collapsed)}
+        >
+          {#each shownCaptions as {ws, text} (ws.wsId)}
+            <span class="text-muted-foreground font-medium leading-none" title={`${ws.name} (${ws.wsId})`}>
               {ws.abbreviation}
             </span>
-            <span class="break-words text-sm">{text}</span>
+            <span class="break-words" class:line-clamp-1={collapsed}>{text}</span>
           {/each}
-        </div>
+        </button>
       {/if}
     {/if}
   </Dialog.DialogContent>
