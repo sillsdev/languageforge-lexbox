@@ -77,7 +77,7 @@ describe('normalizeForExactCompare', () => {
   });
 
   it('treats a missing value as empty', () => {
-    expect(normalizeForLooseCompare(undefined)).toBe('');
+    expect(normalizeForExactCompare(undefined)).toBe('');
   });
 });
 
