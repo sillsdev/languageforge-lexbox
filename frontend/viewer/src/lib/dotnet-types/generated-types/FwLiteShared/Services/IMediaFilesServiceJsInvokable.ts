@@ -13,6 +13,6 @@ export interface IMediaFilesServiceJsInvokable
 	downloadResources(resourceIds: string[]) : Promise<void>;
 	uploadPendingResources() : Promise<void>;
 	getFileMetadata(fileId: string) : Promise<ILcmFileMetadata>;
-	getFileStream(fileId: string) : Promise<IReadFileResponseJs>;
+	getFileStream(fileId: string, downloadIfMissing: boolean) : Promise<IReadFileResponseJs>;
 }
 /* eslint-enable */

@@ -998,10 +998,10 @@ public class CrdtMiniLcmApi(
         await AddChange(new RemoveSensePictureChange(pictureId, senseId));
     }
 
-    public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
+    public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri, bool downloadIfMissing = true)
     {
         if (mediaUri == MediaUri.NotFound) return new ReadFileResponse(ReadFileResult.NotFound);
-        return await lcmMediaService.GetFileStream(mediaUri.FileId);
+        return await lcmMediaService.GetFileStream(mediaUri.FileId, downloadIfMissing);
     }
 
     public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)

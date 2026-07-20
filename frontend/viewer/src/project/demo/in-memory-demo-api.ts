@@ -723,7 +723,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   // filename (LcmMediaService keys by the file name within the project's resource cache).
   #uploadedFilenames = new Map<string, string>();
 
-  getFileStream(mediaUri: string): Promise<IReadFileResponseJs> {
+  getFileStream(mediaUri: string, _downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
     const uploaded = this.#uploadedFiles.get(mediaUri);
     if (uploaded) {
       return Promise.resolve({

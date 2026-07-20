@@ -100,7 +100,7 @@ export interface IMiniLcmJsInvokable
 	updatePicture(entryId: string, senseId: string, before: IPicture, after: IPicture) : Promise<IPicture>;
 	movePicture(entryId: string, senseId: string, pictureId: string, previousPictureId?: string, nextPictureId?: string) : Promise<void>;
 	deletePicture(entryId: string, senseId: string, pictureId: string) : Promise<void>;
-	getFileStream(mediaUri: string) : Promise<IReadFileResponseJs>;
+	getFileStream(mediaUri: string, downloadIfMissing: boolean) : Promise<IReadFileResponseJs>;
 	saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata) : Promise<IUploadFileResponse>;
 }
 /* eslint-enable */

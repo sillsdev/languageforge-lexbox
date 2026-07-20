@@ -6,11 +6,8 @@ using FwLiteShared.Services;
 using LcmCrdt;
 using FwLiteWeb;
 using FwLiteWeb.Components;
-using FwLiteWeb.Hubs;
 using FwLiteWeb.Routes;
 using FwLiteWeb.Utils;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using NReco.Logging.File;
@@ -65,11 +62,6 @@ public static class FwLiteWebServer
         builder.Services.AddFwLiteWebServices(builder.Environment);
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        builder.Services.AddSignalR(options =>
-        {
-            options.AddFilter(new LockedProjectFilter());
-            options.EnableDetailedErrors = true;
-        }).AddJsonProtocol();
         builder.Services.AddHealthChecks();
 
         configure?.Invoke(builder);
@@ -115,8 +107,6 @@ public static class FwLiteWebServer
 
             await next(context);
         });
-        app.MapHub<CrdtMiniLcmApiHub>($"/api/hub/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}/lexbox");
-        app.MapHub<FwDataMiniLcmHub>($"/api/hub/{{{FwDataMiniLcmHub.ProjectRouteKey}}}/fwdata");
         app.MapHistoryRoutes();
         app.MapActivities();
         app.MapProjectRoutes();

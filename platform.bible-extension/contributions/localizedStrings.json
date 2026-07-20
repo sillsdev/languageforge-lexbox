@@ -48,6 +48,8 @@
       "%lexicon_selectLexicon_saving%": "Saving lexicon selection",
       "%lexicon_selectLexicon_select%": "Select a lexicon",
       "%lexicon_selectLexicon_selected%": "Selected:",
+      "%lexicon_selectProject_prompt%": "Choose a project to use with the lexicon:",
+      "%lexicon_selectProject_title%": "Select a project",
       "%lexicon_webViewTitle_addWord%": "Add to lexicon",
       "%lexicon_webViewTitle_browseLexicon%": "Lexicon",
       "%lexicon_webViewTitle_findRelatedWords%": "Find related words in lexicon",
