@@ -87,10 +87,11 @@
   const imageService = sharedImageService ?? localImageService!;
   onDestroy(() => localImageService?.dispose());
 
+  const mediaUri = $derived(picture.mediaUri);
   $effect(() => {
-    imageService.preload(picture.mediaUri);
+    imageService.preload(mediaUri);
   });
-  const loadState = $derived(imageService.get(picture.mediaUri));
+  const loadState = $derived(imageService.get(mediaUri));
 
   function errorText(state: Extract<ImageLoadState, {status: 'error'}>): string {
     switch (state.reason) {
