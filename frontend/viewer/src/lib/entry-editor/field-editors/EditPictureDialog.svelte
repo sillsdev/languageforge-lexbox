@@ -70,7 +70,7 @@
     if (downloading) return;
     downloading = true;
     try {
-      const result = await downloadPictureFile(api, mediaUri);
+      const result = await downloadPictureFile(api, mediaUri, true);
       if (!result.success) {
         AppNotification.display(result.errorMessage ?? $t`Unable to download the picture`, {type: 'error'});
       }

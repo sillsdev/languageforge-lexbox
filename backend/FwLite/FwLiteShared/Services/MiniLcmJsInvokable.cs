@@ -522,9 +522,9 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public async Task<ReadFileResponseJs?> GetFileStream(string mediaUri)
+    public async Task<ReadFileResponseJs?> GetFileStream(string mediaUri, bool downloadIfMissing)
     {
-        var result = await _wrappedApi.GetFileStream(new MediaUri(mediaUri));
+        var result = await _wrappedApi.GetFileStream(new MediaUri(mediaUri), downloadIfMissing);
         var stream = result.Stream is null ? null : new DotNetStreamReference(result.Stream);
         return new ReadFileResponseJs(stream, result.FileName, result.Result, result.ErrorMessage);
     }

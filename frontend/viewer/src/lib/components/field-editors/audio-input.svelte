@@ -87,7 +87,7 @@
 
   async function defaultLoader(audioId: string) {
     if (!api) throw new Error('No api, unable to load audio');
-    const file = await api.getFileStream(audioId);
+    const file = await api.getFileStream(audioId, true);
     if (!file.stream) {
       switch (file.result) {
         case ReadFileResult.NotFound:
