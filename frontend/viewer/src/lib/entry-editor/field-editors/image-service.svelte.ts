@@ -1,8 +1,7 @@
-import {Context} from 'runed';
-import {onDestroy} from 'svelte';
 import {SvelteMap} from 'svelte/reactivity';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
+import {useProjectContext} from '$project/project-context.svelte';
 
 export type ImageLoadState =
   | {status: 'not-loaded'}
@@ -11,10 +10,11 @@ export type ImageLoadState =
   | {status: 'error'; reason: 'not-found' | 'offline' | 'unknown'; detail?: string};
 
 /**
- * Loads picture images once per mediaUri and hands out a shared blob object URL. Scoped (via context)
- * to the entry view, so identical mediaUris across a sense's pictures — or the same picture shown in
- * both the field and a dialog — are fetched and decoded a single time. The cached object URLs live
- * until the owning entry view is torn down (see initImageService), then dispose() revokes them.
+ * Loads picture images once per mediaUri and hands out a shared blob object URL. Scoped to the open
+ * project (see useImageService), so identical mediaUris across a sense's pictures — or the same
+ * picture shown in a dialog, or revisited after navigating to another entry and back — are fetched
+ * and decoded a single time. The cached object URLs live until the project is closed, then dispose()
+ * revokes them.
  */
 export class ImageService {
   readonly #getApi: () => IMiniLcmJsInvokable | undefined;
@@ -74,21 +74,21 @@ export class ImageService {
   }
 }
 
-const imageServiceContext = new Context<ImageService>('image-service');
+const imageServiceKey = Symbol('ImageService');
 
 /**
- * Creates an entry-view-scoped image cache and publishes it to descendants (pictures, the edit
- * dialog, the fullscreen viewer). Call once from the entry view; its object URLs are revoked when
- * that view is destroyed.
+ * The project-scoped image cache (one per open project), or undefined when rendered outside a
+ * project (e.g. stories). Created lazily on first use and cached on the project context, so an image
+ * loaded in one entry stays cached when you navigate to another entry and back. Its object URLs are
+ * revoked when the project context is destroyed (project closed).
  */
-export function initImageService(getApi: () => IMiniLcmJsInvokable | undefined): ImageService {
-  const service = new ImageService(getApi);
-  imageServiceContext.set(service);
-  onDestroy(() => service.dispose());
-  return service;
-}
-
-/** The entry-view image service, or undefined when rendered outside an entry view. */
 export function useImageService(): ImageService | undefined {
-  return imageServiceContext.getOr(undefined);
+  const projectContext = useProjectContext();
+  if (!projectContext) return undefined;
+  return projectContext.getOrAdd(imageServiceKey, () => {
+    const service = new ImageService(() => projectContext.maybeApi);
+    // getOrAdd runs this inside the project context's $effect.root; its teardown revokes the URLs.
+    $effect(() => () => service.dispose());
+    return service;
+  });
 }

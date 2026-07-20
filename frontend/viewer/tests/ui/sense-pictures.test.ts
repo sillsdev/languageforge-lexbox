@@ -376,7 +376,27 @@ test.describe('Sense pictures', () => {
     const viewer = page.getByRole('dialog');
     await expect(viewer).toBeVisible({timeout: 5000});
 
-    // Identical object URL => the entry-scoped cache served the image rather than re-fetching it.
+    // Identical object URL => the cache served the image rather than re-fetching it.
     await expect(viewer.locator('img')).toHaveAttribute('src', thumbnailSrc ?? '', {timeout: 5000});
+  });
+
+  test('a loaded image stays cached (project-scoped) after navigating to another entry and back', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+
+    // Load the first picture on "nyumba" and remember its object URL.
+    await projectPage.selectEntryByFilter('nyumba');
+    let picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await loadFirstPicture(picturesField);
+    const loadedSrc = await picturesField.locator('img').first().getAttribute('src');
+
+    // Navigate to a different entry, then back to "nyumba".
+    await projectPage.selectEntryByFilter('ambuka');
+    await projectPage.selectEntryByFilter('nyumba');
+
+    // The cache is project-scoped, so the same object URL is displayed immediately — no re-click,
+    // no "click to load" placeholder for that picture.
+    picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await expect(picturesField.locator('img').first()).toHaveAttribute('src', loadedSrc ?? '', {timeout: 5000});
   });
 });

@@ -84,10 +84,9 @@
   // systems first, then analysis — which is exactly the default order of allWritingSystems().
   const caption = $derived(writingSystemService.first(picture.caption) ?? '');
 
-  // Load through the entry-view image cache so a mediaUri shared by several pictures — or shown in
-  // both the field and a dialog — is fetched once. On surfaces that render entry primitives without
-  // an entry-view scope (new-entry dialog, activity/subject previews, stories), fall back to a
-  // component-local cache disposed with the component (still correct, just not shared).
+  // Load through the project-scoped image cache so a mediaUri shared by several pictures — shown in
+  // a dialog, or revisited after navigating entries — is fetched once. On surfaces without a project
+  // scope (stories), fall back to a component-local cache disposed with the component.
   const sharedImageService = useImageService();
   const localImageService = sharedImageService ? undefined : new ImageService(() => projectContext?.maybeApi);
   const imageService = sharedImageService ?? localImageService!;
