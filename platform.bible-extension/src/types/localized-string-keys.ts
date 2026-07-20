@@ -2,6 +2,14 @@ import { LocalizeKey } from 'platform-bible-utils';
 
 export const LOCALIZED_STRING_KEYS: LocalizeKey[] = [
   '%lexicon_addWord_buttonAdd%',
+  '%lexicon_createLexicon_analysisWs%',
+  '%lexicon_createLexicon_button%',
+  '%lexicon_createLexicon_code%',
+  '%lexicon_createLexicon_error%',
+  '%lexicon_createLexicon_name%',
+  '%lexicon_createLexicon_submit%',
+  '%lexicon_createLexicon_title%',
+  '%lexicon_createLexicon_vernacularWs%',
   '%lexicon_addWord_buttonSubmit%',
   '%lexicon_addWord_title%',
   '%lexicon_auth_login%',

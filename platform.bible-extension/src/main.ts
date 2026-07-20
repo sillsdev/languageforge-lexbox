@@ -256,6 +256,19 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  const createLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.createLexicon',
+    async (name: string, code: string, vernacularWs: string, analysisWs?: string) => {
+      try {
+        await fwLiteApi.createProject(name, code, vernacularWs, analysisWs);
+        return { success: true };
+      } catch (e) {
+        logger.error('Error creating lexicon:', JSON.stringify(e));
+        return { success: false };
+      }
+    },
+  );
+
   const lexiconsCommandPromise = papi.commands.registerCommand(
     'lexicon.lexicons',
     async (projectId?: string) => {
@@ -284,6 +297,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await addEntryCommandPromise,
     await authServersCommandPromise,
     await browseLexiconCommandPromise,
+    await createLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
