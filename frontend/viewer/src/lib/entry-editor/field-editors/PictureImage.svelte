@@ -1,11 +1,11 @@
 <script lang="ts">
   import type {IPicture} from '$lib/dotnet-types';
-  import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
   import {useProjectContext} from '$project/project-context.svelte';
   import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
   import {onDestroy} from 'svelte';
   import PictureActionsMenu from './PictureActionsMenu.svelte';
+  import {ImageService, useImageService, type ImageLoadState} from './image-service.svelte';
 
   type Props = {
     picture: IPicture;
@@ -72,58 +72,36 @@
   onDestroy(cancelLongPress);
 
   const projectContext = useProjectContext();
-  const api = $derived(projectContext?.maybeApi);
   const writingSystemService = useWritingSystemService();
 
   // Show a single writing system: the first non-empty caption searching vernacular writing
   // systems first, then analysis — which is exactly the default order of allWritingSystems().
   const caption = $derived(writingSystemService.first(picture.caption) ?? '');
 
-  type LoadState =
-    | {status: 'loading'}
-    | {status: 'loaded'; url: string}
-    | {status: 'error'; message: string};
+  // Load through the entry-view image cache so a mediaUri shared by several pictures — or shown in
+  // both the field and a dialog — is fetched once. On surfaces that render entry primitives without
+  // an entry-view scope (new-entry dialog, activity/subject previews, stories), fall back to a
+  // component-local cache disposed with the component (still correct, just not shared).
+  const sharedImageService = useImageService();
+  const localImageService = sharedImageService ? undefined : new ImageService(() => projectContext?.maybeApi);
+  const imageService = sharedImageService ?? localImageService!;
+  onDestroy(() => localImageService?.dispose());
 
-  // getFileStream signals failures via the `result` enum (not exceptions), so we
-  // branch on it rather than wrapping in try/catch (the global handler covers throws).
-  async function loadImage(mediaUri: string): Promise<Exclude<LoadState, {status: 'loading'}>> {
-    if (!api) return {status: 'error', message: $t`Unable to load image`};
-    const file = await api.getFileStream(mediaUri);
-    if (!file.stream) {
-      switch (file.result) {
-        case ReadFileResult.NotFound:
-          return {status: 'error', message: $t`Image not found`};
-        case ReadFileResult.Offline:
-          return {status: 'error', message: $t`Offline, unable to download image`};
-        default:
-          return {status: 'error', message: file.errorMessage ?? $t`Unable to load image`};
-      }
-    }
-    const blob = await new Response(await file.stream.stream()).blob();
-    return {status: 'loaded', url: URL.createObjectURL(blob)};
-  }
-
-  let loadState = $state<LoadState>({status: 'loading'});
-
-  const mediaUri = $derived(picture.mediaUri);
   $effect(() => {
-    loadState = {status: 'loading'};
-    let revoked = false;
-    let createdUrl: string | undefined;
-    void loadImage(mediaUri).then((result) => {
-      if (revoked) {
-        // Component/effect was torn down before the image finished loading.
-        if (result.status === 'loaded') URL.revokeObjectURL(result.url);
-        return;
-      }
-      if (result.status === 'loaded') createdUrl = result.url;
-      loadState = result;
-    });
-    return () => {
-      revoked = true;
-      if (createdUrl) URL.revokeObjectURL(createdUrl);
-    };
+    imageService.preload(picture.mediaUri);
   });
+  const loadState = $derived(imageService.get(picture.mediaUri));
+
+  function errorText(state: Extract<ImageLoadState, {status: 'error'}>): string {
+    switch (state.reason) {
+      case 'not-found':
+        return $t`Image not found`;
+      case 'offline':
+        return $t`Offline, unable to download image`;
+      default:
+        return state.detail ?? $t`Unable to load image`;
+    }
+  }
 </script>
 
 {#snippet imageContent()}
@@ -137,7 +115,7 @@
   {:else}
     <div class="bg-muted text-muted-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md">
       <span class="i-mdi-image-broken-variant size-6"></span>
-      <span class="text-sm">{loadState.message}</span>
+      <span class="text-sm">{errorText(loadState)}</span>
     </div>
   {/if}
 {/snippet}

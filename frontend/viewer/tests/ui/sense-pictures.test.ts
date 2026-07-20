@@ -97,6 +97,14 @@ test.describe('Sense pictures', () => {
 
     // Two pictures now exist (each renders its own image in the flex layout).
     await expect(picturesField.locator('img')).toHaveCount(2, {timeout: 5000});
+
+    // Both pictures point at the same uploaded file (mediaUri), so the entry-scoped cache backs
+    // them with a single shared object URL — the image is loaded once, not once per picture.
+    const sources = await picturesField
+      .locator('img')
+      .evaluateAll((images) => images.map((image) => image.getAttribute('src')));
+    expect(sources[0]).toMatch(/^blob:/);
+    expect(sources[1]).toBe(sources[0]);
   });
 
   /** Uploads one picture to "ambuka" (which starts empty) and returns the pictures-field locator. */
@@ -336,5 +344,22 @@ test.describe('Sense pictures', () => {
     // The edit dialog takes over (Replace/Submit live only there).
     await expect(page.getByRole('button', {name: 'Replace Picture'})).toBeVisible({timeout: 5000});
     await expect(page.getByRole('button', {name: 'Submit'})).toBeVisible();
+  });
+
+  test('the viewer reuses the thumbnail image from the entry-scoped cache (loaded once)', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+    await projectPage.selectEntryByFilter('nyumba');
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    const thumbnail = picturesField.locator('img').first();
+    await expect(thumbnail).toHaveAttribute('src', /^blob:/, {timeout: 5000});
+    const thumbnailSrc = await thumbnail.getAttribute('src');
+
+    await picturesField.getByRole('button', {name: 'View Picture'}).first().click();
+    const viewer = page.getByRole('dialog');
+    await expect(viewer).toBeVisible({timeout: 5000});
+
+    // Identical object URL => the entry-scoped cache served the image rather than re-fetching it.
+    await expect(viewer.locator('img')).toHaveAttribute('src', thumbnailSrc ?? '', {timeout: 5000});
   });
 });
