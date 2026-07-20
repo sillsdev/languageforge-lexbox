@@ -1957,7 +1957,7 @@ public class FwDataMiniLcmApi(
         return Task.CompletedTask;
     }
 
-    public Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
+    public Task<ReadFileResponse> GetFileStream(MediaUri mediaUri, bool downloadIfMissing = true)
     {
         if (mediaUri == MediaUri.NotFound) return Task.FromResult(new ReadFileResponse(ReadFileResult.NotFound));
         var pathFromMediaUri = mediaAdapter.PathFromMediaUri(mediaUri, Cache);

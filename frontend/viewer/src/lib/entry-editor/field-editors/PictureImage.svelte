@@ -38,7 +38,7 @@
   // branch on it rather than wrapping in try/catch (the global handler covers throws).
   async function loadImage(mediaUri: string): Promise<Exclude<LoadState, {status: 'loading'}>> {
     if (!api) return {status: 'error', message: $t`Unable to load image`};
-    const file = await api.getFileStream(mediaUri);
+    const file = await api.getFileStream(mediaUri, true);
     if (!file.stream) {
       switch (file.result) {
         case ReadFileResult.NotFound:

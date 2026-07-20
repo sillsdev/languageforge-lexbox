@@ -32,9 +32,9 @@ public class MediaFilesServiceJsInvokable(LcmMediaService mediaService)
     }
 
     [JSInvokable]
-    public async Task<MiniLcmJsInvokable.ReadFileResponseJs> GetFileStream(Guid fileId)
+    public async Task<MiniLcmJsInvokable.ReadFileResponseJs> GetFileStream(Guid fileId, bool downloadIfMissing)
     {
-        var result = await mediaService.GetFileStream(fileId);
+        var result = await mediaService.GetFileStream(fileId, downloadIfMissing);
         var stream = result.Stream is null ? null : new DotNetStreamReference(result.Stream);
         return new MiniLcmJsInvokable.ReadFileResponseJs(stream, result.FileName, result.Result, result.ErrorMessage);
     }
