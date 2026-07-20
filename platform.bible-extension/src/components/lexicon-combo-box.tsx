@@ -8,12 +8,14 @@ import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 /** Props for the LexiconComboBox component */
 interface LexiconComboBoxProps {
   lexicons?: IProjectModel[];
+  onCreateNew?: () => void;
   selectLexicon: (lexiconCode: string) => Promise<void>;
 }
 
 /** A combo-box for selecting a lexicon for a project. */
 export default function LexiconComboBox({
   lexicons,
+  onCreateNew,
   selectLexicon,
 }: LexiconComboBoxProps): ReactElement {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
@@ -84,6 +86,12 @@ export default function LexiconComboBox({
             {localizedStrings['%lexicon_selectLexicon_clear%']}
           </Button>
         </div>
+      )}
+
+      {!!onCreateNew && (
+        <Button onClick={onCreateNew} type="button" variant="secondary">
+          {localizedStrings['%lexicon_createLexicon_button%']}
+        </Button>
       )}
     </div>
   );
