@@ -6,7 +6,7 @@ import { getErrorMessage } from 'platform-bible-utils';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
-import { FwLiteApi, getBrowseUrl, type LoginResult } from './utils/fw-lite-api';
+import { FwLiteApi, type LoginResult } from './utils/fw-lite-api';
 import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
 
@@ -134,7 +134,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
       if (!lexiconCode) return { success };
 
-      const url = getBrowseUrl(baseUrl, lexiconCode);
+      const url = fwLiteApi.getBrowseUrl(lexiconCode);
       const options: BrowseWebViewOptions = { url };
       success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };
@@ -153,7 +153,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       if (!lexiconCode) return { success };
 
       logger.info(`Displaying entry '${entryId}' in lexicon '${lexiconCode}'`);
-      const url = getBrowseUrl(baseUrl, lexiconCode, entryId);
+      const url = fwLiteApi.getBrowseUrl(lexiconCode, entryId);
       const options: BrowseWebViewOptions = { url };
       success = await projectManager.openWebView(WebViewType.Main, undefined, options);
       return { success };

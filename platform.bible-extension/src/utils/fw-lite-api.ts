@@ -49,12 +49,6 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   return text ? (JSON.parse(text) as unknown) : undefined;
 }
 
-export function getBrowseUrl(baseUrl: string, lexiconCode: string, entryId?: string): string {
-  let url = `${baseUrl}/paratext/fwdata/${sanitizeUrlComponent(lexiconCode)}`;
-  if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}&entryOpen=true`;
-  return url;
-}
-
 export class FwLiteApi {
   // Shared across all instances (EntryService, main) — all talk to the same backend process.
   private static readonly projectTypeByCode = new Map<string, 'FwData' | 'Harmony'>();
@@ -171,6 +165,14 @@ export class FwLiteApi {
   }
 
   /* eslint-enable no-type-assertion/no-type-assertion */
+
+  getBrowseUrl(lexiconCode: string, entryId?: string): string {
+    const type = FwLiteApi.projectTypeByCode.get(lexiconCode) ?? 'FwData';
+    const segment = type === 'Harmony' ? 'project' : 'fwdata';
+    let url = `${this.baseUrl}/paratext/${segment}/${sanitizeUrlComponent(lexiconCode)}`;
+    if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}&entryOpen=true`;
+    return url;
+  }
 
   async createProject(
     name: string,
