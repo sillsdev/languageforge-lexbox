@@ -154,7 +154,13 @@
   });
 
   let userToggled = $state(false);
-  let expanded = $derived(hasExactWordMatch && !userToggled);
+  let expanded = $state(false);
+  // Auto-open on an exact match, until the user takes over the strip. Kept as state (not a
+  // $derived off userToggled): expand() sets userToggled, which would recompute a derived back
+  // to closed — collapsing the strip the jump-pill just tried to open.
+  $effect(() => {
+    if (hasExactWordMatch && !userToggled) expanded = true;
+  });
 
   /** Opens the match list, counting as a user toggle (the host's jump-pill calls this). */
   export function expand(): void {
