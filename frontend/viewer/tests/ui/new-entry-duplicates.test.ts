@@ -62,6 +62,29 @@ test.describe('New entry possible duplicates', () => {
     await expect(openedLexeme).toHaveValue(existingLexeme);
   });
 
+  test('a duplicate row can be opened for editing without discarding the draft', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+
+    const dialog = await openNewEntryDialog(page);
+    await lexemeInput(dialog).fill(existingLexeme);
+
+    const duplicateRow = duplicateRows(dialog).filter({hasText: existingLexeme}).first();
+    await duplicateRow.click();
+
+    // "Edit" and "Open in new window" live behind the row's split-button menu; "Go to" is the primary
+    await dialog.getByRole('button', {name: /more actions/i}).first().click();
+    await page.getByRole('menuitem', {name: /edit (entry|word)/i}).click();
+
+    // the edit dialog opens over the still-open new-entry dialog, loaded with the existing entry
+    const editDialog = page.getByRole('dialog', {name: /update (entry|word)/i});
+    await expect(editDialog.locator('[style*="grid-area: lexemeForm"]').locator('input').first()).toHaveValue(
+      existingLexeme,
+    );
+    // the new-entry draft is still open behind the editor, not discarded
+    await expect(page.getByRole('dialog', {name: /new (entry|word)/i})).toBeVisible();
+  });
+
   test('brand-new word shows the new-word indicator', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();

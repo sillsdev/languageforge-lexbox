@@ -846,10 +846,18 @@ msgstr "Edit comment"
 msgid "Edit Custom View"
 msgstr "Edit Custom View"
 
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Edit entry"
+msgstr "Edit entry"
+
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Edit Picture"
 msgstr "Edit Picture"
+
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "Edit word"
+msgstr "Edit word"
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -1569,6 +1577,10 @@ msgstr "Missing: {0}"
 msgid "Mode"
 msgstr "Mode"
 
+#: src/lib/entry-editor/DuplicateCheck.svelte
+msgid "More actions"
+msgstr "More actions"
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1862,6 +1874,7 @@ msgstr "Open in FieldWorks"
 
 #. Menu option
 #: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/entry-editor/DuplicateCheck.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"

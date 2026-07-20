@@ -19,14 +19,18 @@
   import {slide} from 'svelte/transition';
   import {navigate, useRouter} from 'svelte-routing';
   import * as Collapsible from '$lib/components/ui/collapsible';
+  import * as ButtonGroup from '$lib/components/ui/button-group';
+  import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import {Badge} from '$lib/components/ui/badge';
   import {Icon} from '$lib/components/ui/icon';
   import {Button} from '$lib/components/ui/button';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
+  import EditEntryDialog from './EditEntryDialog.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import {useSaveHandler} from '$lib/services/save-event-service.svelte';
   import {useLexboxApi} from '$lib/services/service-provider';
+  import {useMultiWindowService} from '$lib/services/multi-window-service';
   import {useWritingSystemService} from '$project/data';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
@@ -34,6 +38,7 @@
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
   import {
     classifyDuplicateCheckResults,
+    duplicateResultContainerClass,
     getDuplicateCheckQueries,
     mergeSearchResults,
     trapEnter,
@@ -56,6 +61,7 @@
   let {entry, sense, onNavigateToEntry, busy = $bindable(false), summary = $bindable()}: Props = $props();
 
   const lexboxApi = useLexboxApi();
+  const multiWindowService = useMultiWindowService();
   const writingSystemService = useWritingSystemService();
   const viewService = useViewService();
   const saveHandler = useSaveHandler();
@@ -191,6 +197,15 @@
     navigate(`${$base.uri}/browse?${entryBrowseParams(target.id)}`);
   }
 
+  // "Edit" keeps the new-entry dialog open (unlike "Go to", which navigates away and discards it),
+  // so the user can amend the existing entry and then decide what to do with their draft.
+  let editEntryId = $state<string>();
+  let editOpen = $state(false);
+  function editEntry(target: IEntry): void {
+    editEntryId = target.id;
+    editOpen = true;
+  }
+
   // Rescues the meaning the user already typed: instead of creating a duplicate entry,
   // it becomes a new sense of the existing one.
   const canAddSense = $derived(Boolean(sense && writingSystemService.firstDefOrGlossVal(sense)));
@@ -317,16 +332,45 @@
                       {addSenseLabel}
                     </Button>
                   {/if}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    icon="i-mdi-book-arrow-right-outline"
-                    disabled={busy}
-                    onkeydown={trapEnter}
-                    onclick={() => openEntry(match.entry)}
-                  >
-                    {pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
-                  </Button>
+                  <ButtonGroup.Root>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      icon="i-mdi-book-arrow-right-outline"
+                      disabled={busy}
+                      onkeydown={trapEnter}
+                      onclick={() => openEntry(match.entry)}
+                    >
+                      {pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
+                    </Button>
+                    <ResponsiveMenu.Root>
+                      <ResponsiveMenu.Trigger>
+                        {#snippet child({props})}
+                          <Button
+                            {...props}
+                            variant="outline"
+                            size="icon-sm"
+                            icon="i-mdi-chevron-down"
+                            disabled={busy}
+                            aria-label={$t`More actions`}
+                          />
+                        {/snippet}
+                      </ResponsiveMenu.Trigger>
+                      <ResponsiveMenu.Content>
+                        {#if multiWindowService}
+                          <ResponsiveMenu.Item
+                            icon="i-mdi-open-in-new"
+                            onSelect={() => void multiWindowService.openEntryInNewWindow(match.entry.id)}
+                          >
+                            {$t`Open in new Window`}
+                          </ResponsiveMenu.Item>
+                        {/if}
+                        <ResponsiveMenu.Item icon="i-mdi-pencil-outline" onSelect={() => editEntry(match.entry)}>
+                          {pt($t`Edit entry`, $t`Edit word`, viewService.currentView)}
+                        </ResponsiveMenu.Item>
+                      </ResponsiveMenu.Content>
+                    </ResponsiveMenu.Root>
+                  </ButtonGroup.Root>
                 </div>
               {/if}
             </li>
@@ -350,3 +394,5 @@
     </Collapsible.Root>
   {/if}
 </div>
+
+<EditEntryDialog bind:open={editOpen} entryId={editEntryId} />
