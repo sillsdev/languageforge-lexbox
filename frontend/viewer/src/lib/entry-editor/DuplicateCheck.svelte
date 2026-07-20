@@ -239,13 +239,7 @@
     <Collapsible.Root
       bind:open={expanded}
       onOpenChange={() => (userToggled = true)}
-      class={cn(
-        'rounded-md border',
-        hasExactWordMatch
-          ? 'border-amber-600/40 bg-amber-500/10 dark:border-amber-400/40'
-          : 'border-border bg-muted/50',
-      )}
-    >
+      class={cn('rounded-md border', duplicateResultContainerClass(hasExactWordMatch))}>
       <Collapsible.Trigger
         class="w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer"
         onkeydown={trapEnter}

@@ -46,6 +46,12 @@ export interface DuplicateCheckQueries {
   analysis: string[];
 }
 
+export function duplicateResultContainerClass(hasExactWordMatch: boolean): string {
+  return hasExactWordMatch
+    ? 'border-amber-600/40 bg-amber-500/10 dark:border-amber-400/40'
+    : 'border-border bg-muted/50';
+}
+
 /** Hosts submit on Enter; interacting with duplicate UI must never also create the entry. */
 export function trapEnter(event: KeyboardEvent): void {
   if (event.key === 'Enter') event.stopPropagation();
