@@ -64,7 +64,7 @@
     fileId: string,
     signal?: AbortSignal,
   ): Promise<{kind: 'success'; blob: Blob; filename?: string} | {kind: 'error'; response: IReadFileResponseJs}> {
-    const response = await service.getFileStream(fileId);
+    const response = await service.getFileStream(fileId, false);
     signal?.throwIfAborted();
     if (!response.stream) {
       return {kind: 'error', response};
@@ -94,7 +94,7 @@
         filename: loaded.filename ?? metadata.current?.filename ?? fileId,
       };
     }
-    const response = await mediaFilesService.getFileStream(fileId);
+    const response = await mediaFilesService.getFileStream(fileId, false);
     if (!response.stream) {
       AppNotification.error($t`Unable to load audio`, readFileErrorMessage(response.result, response.errorMessage));
       return LOADER_ERROR_HANDLED;
@@ -107,7 +107,7 @@
 
   const loadedMedia = resource(() => [file.id, file.local, mediaFilesService] as const,
     async ([fileId, local, service], _, {signal}) => {
-      // never fetch remote-only files: getFileStream implicitly downloads them, which is the Load button's job
+      // Remote-only files return NotFound when downloadIfMissing is false; the Load button handles fetching.
       if (!service || !local) return undefined;
 
       const result = await loadFileBlob(service, fileId, signal);

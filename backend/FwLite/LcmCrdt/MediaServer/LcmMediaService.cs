@@ -56,10 +56,11 @@ public class LcmMediaService(
     }
 
     /// <summary>
-    /// return a stream for the file, if it's not cached locally, it will be downloaded
+    /// Return a stream for the file. When <paramref name="downloadIfMissing"/> is true (the default),
+    /// a file that is not cached locally will be downloaded first.
     /// </summary>
     /// <param name="fileId">media file Id</param>
-    /// <returns></returns>
+    /// <param name="downloadIfMissing">When false, returns <see cref="ReadFileResult.NotFound"/> if the file is not already cached locally.</param>
     /// <exception cref="FileNotFoundException"></exception>
     // Coalesces concurrent downloads of the same file into one shared task. Without this, two
     // requests for a not-yet-cached file (e.g. the UI loading a picture more than once at first
@@ -70,11 +71,12 @@ public class LcmMediaService(
     // parallel.
     private static readonly ConcurrentDictionary<Guid, Task<LocalResource>> DownloadTasks = new();
 
-    public async Task<ReadFileResponse> GetFileStream(Guid fileId)
+    public async Task<ReadFileResponse> GetFileStream(Guid fileId, bool downloadIfMissing = true)
     {
         var localResource = await resourceService.GetLocalResource(fileId);
         if (localResource is null)
         {
+            if (!downloadIfMissing) return new ReadFileResponse(ReadFileResult.NotFound);
             try
             {
                 localResource = await GetOrStartDownload(fileId);
