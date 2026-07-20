@@ -41,7 +41,8 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   }
   const results = await papi.fetch(input, init);
   if (!results.ok) {
-    throw new Error(`Failed to fetch: ${results.status} ${results.statusText}`);
+    const errorBody = await results.text();
+    throw new Error(errorBody || `Failed to fetch: ${results.status} ${results.statusText}`);
   }
   const text = await results.text();
   // eslint-disable-next-line no-type-assertion/no-type-assertion
@@ -55,6 +56,9 @@ export function getBrowseUrl(baseUrl: string, lexiconCode: string, entryId?: str
 }
 
 export class FwLiteApi {
+  // Shared across all instances (EntryService, main) — all talk to the same backend process.
+  private static readonly projectTypeByCode = new Map<string, 'FwData' | 'Harmony'>();
+
   private readonly baseUrl: string;
   private lexiconCode?: string;
   constructor(baseUrl: string, lexiconCode?: string) {
@@ -110,11 +114,13 @@ export class FwLiteApi {
   }
 
   async getProjects(): Promise<IProjectModel[]> {
-    return (await this.fetchPath('localProjects')) as IProjectModel[];
+    const projects = (await this.fetchPath('localProjects')) as IProjectModel[];
+    projects.forEach((p) => FwLiteApi.projectTypeByCode.set(p.code, p.crdt ? 'Harmony' : 'FwData'));
+    return projects;
   }
 
   async getProjectsMatchingLanguage(langTag?: string): Promise<IProjectModel[]> {
-    const projects = (await this.fetchPath('localProjects')) as IProjectModel[];
+    const projects = await this.getProjects();
     if (!langTag?.trim()) return projects;
 
     try {
@@ -175,11 +181,14 @@ export class FwLiteApi {
     const params = new URLSearchParams({ name, code, vernacularWs });
     if (analysisWs) params.append('analysisWs', analysisWs);
     await this.fetchPath(`project/create?${params.toString()}`, 'POST');
+    FwLiteApi.projectTypeByCode.set(code, 'Harmony');
   }
 
   private checkLexiconCode(lexiconCode?: string): LexiconRef {
-    const code = sanitizeUrlComponent(lexiconCode || this.lexiconCode);
-    return { code, type: 'FwData' };
+    const rawCode = lexiconCode || this.lexiconCode;
+    const code = sanitizeUrlComponent(rawCode);
+    const type = FwLiteApi.projectTypeByCode.get(rawCode ?? '') ?? 'FwData';
+    return { code, type };
   }
 
   private getUrl(path: string): string {
