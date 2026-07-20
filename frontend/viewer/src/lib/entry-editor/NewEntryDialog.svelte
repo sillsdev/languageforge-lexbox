@@ -23,7 +23,7 @@
   import {pt} from '$lib/views/view-text';
   import * as Editor from '$lib/components/editor';
   import Icon from '$lib/components/ui/icon/icon.svelte';
-  import DuplicateCheckSection from './DuplicateCheckSection.svelte';
+  import DuplicateCheckSection from './duplicate-check/DuplicateCheckSection.svelte';
   import EntryEditorPrimitive from './object-editors/EntryEditorPrimitive.svelte';
   import ObjectHeader from './object-editors/ObjectHeader.svelte';
   import SenseEditorPrimitive from './object-editors/SenseEditorPrimitive.svelte';

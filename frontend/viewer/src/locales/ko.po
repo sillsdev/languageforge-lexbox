@@ -88,7 +88,7 @@ msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks 
 msgstr "{num, plural, other {# 새 FieldWorks Lite 커밋}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr ""
 
@@ -115,14 +115,14 @@ msgstr "새 버전의 FieldWorks Lite를 사용할 수 있습니다."
 #. Relevant view: Classic
 #. Lite view equivalent: "A similar word already exists"
 #. Warning banner in the New Entry dialog when exactly one possible duplicate was found (none an exact headword match)
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar entry already exists"
 msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "A similar entry already exists"
 #. Warning banner in the New Word dialog when exactly one possible duplicate was found (none spelled exactly the same)
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar word already exists"
 msgstr ""
 
@@ -408,14 +408,14 @@ msgstr "예를 들어 동일한 필드를 두 번 변경하면 두 개의 커밋
 #. Relevant view: Classic
 #. Lite view equivalent: "Checking for similar words…"
 #. Status line in the New Entry dialog while searching for possible duplicate entries
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar entries…"
 msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Checking for similar entries…"
 #. Status line in the New Word dialog while searching for possible duplicate words
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar words…"
 msgstr ""
 
@@ -455,7 +455,7 @@ msgstr "clear"
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/DuplicateSummaryPill.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "닫기"
@@ -554,14 +554,14 @@ msgstr "복사 버전"
 #. Relevant view: Classic
 #. Lite view equivalent: "Could not check for similar words"
 #. Status line in the New Entry dialog when the background duplicate search failed (e.g. connection lost); typing again retries
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar entries"
 msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Could not check for similar entries"
 #. Status line in the New Word dialog when the background duplicate search failed (e.g. connection lost); typing again retries
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
 msgstr ""
 
@@ -1191,14 +1191,14 @@ msgstr "{0}으로 이동"
 #. Relevant view: Classic
 #. Lite view equivalent: "Go to word"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to entry"
 msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
 msgstr ""
 
@@ -1449,7 +1449,7 @@ msgstr "로그아웃"
 #. Relevant view: Lite
 #. Classic view equivalent: "No similar entries found"
 #. Reassuring status line in the New Word dialog: the duplicate check found no existing words like the one being typed
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Looks like a new word"
 msgstr ""
 
@@ -1703,7 +1703,7 @@ msgstr "구성된 서버 없음"
 #. Relevant view: Classic
 #. Lite view equivalent: "Looks like a new word"
 #. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar entries found"
 msgstr ""
 
@@ -2088,22 +2088,22 @@ msgstr "rose"
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
 msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: only its lexeme form matches the typed text, while its citation form (shown as the headword) differs — deliberately NOT claiming "Same headword"
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same lexeme form"
 msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Same headword"
 #. Badge on a possible-duplicate result: it is spelled exactly like the word being typed in the New Word dialog
-#: src/lib/entry-editor/DuplicateCheck.svelte
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same word"
 msgstr ""
 
@@ -2255,42 +2255,42 @@ msgstr ""
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar words already exist"
 #. Warning banner in the New Entry dialog; expands to a list of possible duplicate entries
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar entries already exist"
 msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar meaning"
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
 msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
 #. Badge on a possible-duplicate result: its headword partly matches the one being typed in the New Entry dialog
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar headword"
 msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar gloss"
 #. Badge on a possible-duplicate result: one of its meanings matches the meaning being typed in the New Word dialog
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar meaning"
 msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar headword"
 #. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar word"
 msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar entries already exist"
 #. Warning banner in the New Word dialog; expands to a list of possible duplicate words
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar words already exist"
 msgstr ""
 
@@ -2499,7 +2499,7 @@ msgstr "이 날짜 #와 이 이모티콘 #은 스니펫입니다."
 #. Relevant view: Classic
 #. Lite view equivalent: "This word may already exist"
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This entry may already exist"
 msgstr ""
 
@@ -2543,7 +2543,7 @@ msgstr "이렇게 하면 렉스박스에서 프로젝트의 FieldWorks Lite 및 
 #. Relevant view: Lite
 #. Classic view equivalent: "This entry may already exist"
 #. Warning banner in the New Word dialog when a word with the exact same spelling exists; expands to a list of possible duplicates
-#: src/lib/entry-editor/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This word may already exist"
 msgstr ""
 
