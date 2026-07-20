@@ -746,7 +746,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var otherApiSense = await otherApi.GetSense(_testEntry.Id, sense.Id);
         otherApiSense.Should().NotBeNull();
-        otherApiSense!.Pictures.Should().HaveCount(1);
+        otherApiSense.Pictures.Should().HaveCount(1);
         otherApiSense.Pictures[0].Id.Should().Be(picture.Id);
         otherApiSense.Pictures[0].Caption["en"].Should().BeEquivalentTo(picture.Caption["en"]);
     }
