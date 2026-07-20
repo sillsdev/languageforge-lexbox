@@ -4,6 +4,7 @@
   import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
   import {onDestroy} from 'svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import PictureActionsMenu from './PictureActionsMenu.svelte';
   import {ImageService, useImageService, type ImageLoadState} from './image-service.svelte';
 
@@ -66,6 +67,11 @@
       event.preventDefault();
       return;
     }
+    // First click on an unloaded picture loads it; once loaded, a click opens the viewer.
+    if (loadState.status === 'not-loaded') {
+      imageService.load(mediaUri);
+      return;
+    }
     onView?.();
   }
 
@@ -87,11 +93,18 @@
   const imageService = sharedImageService ?? localImageService!;
   onDestroy(() => localImageService?.dispose());
 
+  // Nothing is fetched up front: a picture whose image isn't in the (entry-scoped) cache shows a
+  // "click to load" placeholder and is loaded only when the user clicks it. Once a mediaUri is in
+  // the cache, every picture sharing it — and the dialogs/viewer — display it immediately.
   const mediaUri = $derived(picture.mediaUri);
-  $effect(() => {
-    imageService.preload(mediaUri);
-  });
   const loadState = $derived(imageService.get(mediaUri));
+
+  // Clickable to load (when not yet loaded) or to open the viewer (when loaded and interactive).
+  const needsLoad = $derived(loadState.status === 'not-loaded');
+  const clickable = $derived(needsLoad || (loadState.status === 'loaded' && interactive));
+  const showMenu = $derived(interactive && !!onEdit && !!onDownload && !!onDelete);
+  const loadLabel = $derived(IsMobile.value ? $t`Tap to load` : $t`Click to load`);
+  const clickLabel = $derived(needsLoad ? loadLabel : $t`View Picture`);
 
   function errorText(state: Extract<ImageLoadState, {status: 'error'}>): string {
     switch (state.reason) {
@@ -109,6 +122,12 @@
   {#if loadState.status === 'loaded'}
     <!-- The image keeps its aspect ratio; thumbnail fixes the height, full caps to the viewport. -->
     <img src={loadState.url} alt={caption || $t`Picture`} class={imageClass} />
+  {:else if loadState.status === 'not-loaded'}
+    <!-- Not fetched yet: a click/tap loads it (handled by the enclosing button). -->
+    <div class="bg-muted text-muted-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md">
+      <span class="i-mdi-download size-6"></span>
+      <span class="text-sm">{loadLabel}</span>
+    </div>
   {:else if loadState.status === 'loading'}
     <div class="bg-muted text-muted-foreground flex h-40 w-40 items-center justify-center rounded-md">
       <span class="i-mdi-loading size-6 animate-spin"></span>
@@ -124,37 +143,38 @@
 <figure class="flex flex-col items-start gap-1">
   <!-- `w-fit` shrinks the box to the image so the actions menu sits on the image's corner. -->
   <div class="relative w-fit">
-    {#if interactive}
+    {#if clickable}
       <button
         type="button"
         class="block cursor-pointer select-none appearance-none rounded-md border-0 bg-transparent p-0 focus-visible:outline-2 disabled:cursor-default"
-        aria-label={$t`View Picture`}
+        aria-label={clickLabel}
         disabled={busy}
         onclick={handleImageClick}
-        onpointerdown={startLongPress}
-        onpointerup={cancelLongPress}
-        onpointercancel={cancelLongPress}
-        onpointerleave={cancelLongPress}
-        oncontextmenu={(e) => e.preventDefault()}
+        onpointerdown={showMenu ? startLongPress : undefined}
+        onpointerup={showMenu ? cancelLongPress : undefined}
+        onpointercancel={showMenu ? cancelLongPress : undefined}
+        onpointerleave={showMenu ? cancelLongPress : undefined}
+        oncontextmenu={showMenu ? (e) => e.preventDefault() : undefined}
       >
         {@render imageContent()}
       </button>
-      {#if onDownload && onDelete}
-        <!-- Three-dots actions menu anchored to the image's top-right corner; also opened by a
-             long-press on the image (startLongPress) for touch users. -->
-        <div class="absolute right-1 top-1 z-10">
-          <PictureActionsMenu
-            bind:open={menuOpen}
-            disabled={busy}
-            triggerClass="text-foreground bg-background/70 hover:bg-background/90 rounded-full shadow-sm"
-            onEdit={() => onEdit?.()}
-            onDownload={() => onDownload?.()}
-            onDelete={() => onDelete?.()}
-          />
-        </div>
-      {/if}
     {:else}
       {@render imageContent()}
+    {/if}
+    {#if showMenu}
+      <!-- Three-dots actions menu anchored to the image's top-right corner; also opened by a
+           long-press on the image (startLongPress) for touch users. Available regardless of whether
+           the image itself has been loaded yet. -->
+      <div class="absolute right-1 top-1 z-10">
+        <PictureActionsMenu
+          bind:open={menuOpen}
+          disabled={busy}
+          triggerClass="text-foreground bg-background/70 hover:bg-background/90 rounded-full shadow-sm"
+          onEdit={() => onEdit?.()}
+          onDownload={() => onDownload?.()}
+          onDelete={() => onDelete?.()}
+        />
+      </div>
     {/if}
   </div>
   {#if showCaption && caption}

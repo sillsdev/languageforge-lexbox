@@ -5,6 +5,7 @@ import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLite
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
 
 export type ImageLoadState =
+  | {status: 'not-loaded'}
   | {status: 'loading'}
   | {status: 'loaded'; url: string}
   | {status: 'error'; reason: 'not-found' | 'offline' | 'unknown'; detail?: string};
@@ -24,16 +25,20 @@ export class ImageService {
     this.#getApi = getApi;
   }
 
-  /** Starts loading `mediaUri` if it hasn't been requested yet. Call from an $effect (it mutates). */
-  preload(mediaUri: string): void {
+  /**
+   * Begins loading `mediaUri` on demand (e.g. from a click). No-op if it's already been requested,
+   * so repeated clicks — or several pictures sharing one mediaUri — trigger a single fetch.
+   * Nothing loads until this is called: an untouched mediaUri stays {@link get}-reported as 'not-loaded'.
+   */
+  load(mediaUri: string): void {
     if (this.#cache.has(mediaUri)) return;
     this.#cache.set(mediaUri, {status: 'loading'});
     void this.#load(mediaUri);
   }
 
-  /** Reactive load-state for `mediaUri`. Call from a $derived; 'loading' until preload has resolved. */
+  /** Reactive load-state for `mediaUri`. Call from a $derived; 'not-loaded' until load() is called. */
   get(mediaUri: string): ImageLoadState {
-    return this.#cache.get(mediaUri) ?? {status: 'loading'};
+    return this.#cache.get(mediaUri) ?? {status: 'not-loaded'};
   }
 
   // getFileStream reports failure via the response (not exceptions), so we branch on it; a thrown

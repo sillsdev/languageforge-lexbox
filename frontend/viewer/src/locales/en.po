@@ -411,6 +411,11 @@ msgstr "Classic FieldWorks Projects"
 msgid "clear"
 msgstr "clear"
 
+#. Placeholder on a not-yet-loaded picture (desktop); clicking it loads and displays the image
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Click to load"
+msgstr "Click to load"
+
 #. Button to close popup
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -2295,6 +2300,11 @@ msgstr "Syncing..."
 msgid "System"
 msgstr "System"
 
+#. Placeholder on a not-yet-loaded picture (mobile/touch); tapping it loads and displays the image
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Tap to load"
+msgstr "Tap to load"
+
 #. Page title with task name
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
@@ -2488,7 +2498,6 @@ msgid "Unable to load audio"
 msgstr "Unable to load audio"
 
 #. Generic error displayed in place of a picture when loading fails for an unspecified reason
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load image"
 msgstr "Unable to load image"

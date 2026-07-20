@@ -416,6 +416,11 @@ msgstr "Proyek FieldWorks Klasik"
 msgid "clear"
 msgstr "jelas"
 
+#. Placeholder on a not-yet-loaded picture (desktop); clicking it loads and displays the image
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Click to load"
+msgstr ""
+
 #. Button to close popup
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -2300,6 +2305,11 @@ msgstr "Menyinkronkan..."
 msgid "System"
 msgstr "Sistem"
 
+#. Placeholder on a not-yet-loaded picture (mobile/touch); tapping it loads and displays the image
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Tap to load"
+msgstr ""
+
 #. Page title with task name
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
@@ -2493,7 +2503,6 @@ msgid "Unable to load audio"
 msgstr ""
 
 #. Generic error displayed in place of a picture when loading fails for an unspecified reason
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load image"
 msgstr ""

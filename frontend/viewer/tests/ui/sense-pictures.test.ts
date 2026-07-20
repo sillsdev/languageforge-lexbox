@@ -28,13 +28,14 @@ test.describe('Sense pictures', () => {
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField).toBeVisible({timeout: 5000});
 
-    const image = picturesField.locator('img').first();
-    await expect(image).toBeVisible({timeout: 5000});
-    // A blob: src proves the full pipeline ran: getFileStream returned a stream that we
-    // turned into a Blob and an object url. A broken/missing image would not have this.
-    await expect(image).toHaveAttribute('src', /^blob:/);
+    // Pictures don't auto-load: the field first shows a "Click to load" placeholder, no image.
+    await expect(picturesField.getByRole('button', {name: 'Click to load'}).first()).toBeVisible({timeout: 5000});
+    await expect(picturesField.locator('img')).toHaveCount(0);
 
-    // Caption is rendered from the best analysis alternative.
+    // Clicking loads it — a blob: src proves the full pipeline ran (getFileStream -> Blob -> object url).
+    await loadFirstPicture(picturesField);
+
+    // Caption is rendered from the best analysis alternative (shown regardless of image load).
     await expect(picturesField.getByText(/A traditional house|Uma casa tradicional/)).toBeVisible();
   });
 
@@ -72,10 +73,11 @@ test.describe('Sense pictures', () => {
       buffer: TEST_PNG,
     });
 
-    // The uploaded picture is created and re-loaded via getFileStream into a blob url.
-    const image = picturesField.locator('img').first();
-    await expect(image).toBeVisible({timeout: 5000});
-    await expect(image).toHaveAttribute('src', /^blob:/);
+    // The uploaded picture is added as a "click to load" placeholder (not auto-loaded); clicking
+    // it loads the image via getFileStream into a blob url.
+    await expect(picturesField.locator('img')).toHaveCount(0);
+    await loadFirstPicture(picturesField);
+    await expect(picturesField.locator('img').first()).toBeVisible({timeout: 5000});
   });
 
   test('re-uploading an existing file adds a second picture that reuses it', async ({page}) => {
@@ -87,15 +89,15 @@ test.describe('Sense pictures', () => {
     await expect(picturesField).toBeVisible({timeout: 5000});
     const fileInput = picturesField.locator('input[type="file"]');
 
-    // First upload creates a picture.
+    // First upload adds a picture; load it (click) so its image enters the entry-scoped cache.
     await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: TEST_PNG});
-    await expect(picturesField.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
+    await loadFirstPicture(picturesField);
 
-    // Uploading the same filename again -> server reports AlreadyExists with the existing
-    // mediaUri; that's not an error here, so a second Picture pointing at the same file is added.
+    // Uploading the same filename again -> server reports AlreadyExists with the existing mediaUri;
+    // that mediaUri is already cached, so the second picture shows immediately without a click.
     await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: TEST_PNG});
 
-    // Two pictures now exist (each renders its own image in the flex layout).
+    // Both pictures now render an image (the second straight from the cache, never clicked).
     await expect(picturesField.locator('img')).toHaveCount(2, {timeout: 5000});
 
     // Both pictures point at the same uploaded file (mediaUri), so the entry-scoped cache backs
@@ -117,7 +119,8 @@ test.describe('Sense pictures', () => {
     await picturesField.locator('input[type="file"]').setInputFiles({
       name: 'photo.png', mimeType: 'image/png', buffer: TEST_PNG,
     });
-    await expect(picturesField.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
+    // A new picture starts unloaded; click "Click to load" so callers get a loaded picture.
+    await loadFirstPicture(picturesField);
     return picturesField;
   }
 
@@ -126,6 +129,12 @@ test.describe('Sense pictures', () => {
     await picturesField.getByRole('button', {name: 'Picture actions'}).first().click();
     // The menu content is portaled to the body (a dropdown at this viewport), so query from the page.
     await expect(page.getByRole('menuitem', {name: 'Edit'})).toBeVisible({timeout: 5000});
+  }
+
+  /** Clicks the first "Click to load" placeholder in a scope and waits for its image to load. */
+  async function loadFirstPicture(scope: Locator) {
+    await scope.getByRole('button', {name: 'Click to load'}).first().click();
+    await expect(scope.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
   }
 
   /** Adds a picture, opens the edit dialog via the three-dots menu, and returns [picturesField, dialog]. */
@@ -203,7 +212,9 @@ test.describe('Sense pictures', () => {
       name: 'replacement.png', mimeType: 'image/png', buffer: TEST_PNG,
     });
 
-    // The dialog previews the replacement, but the field picture is unchanged until Submit.
+    // The replacement is a new (uncached) mediaUri, so the preview shows "click to load"; load it.
+    await loadFirstPicture(dialog);
+    // The dialog now previews the replacement, but the field picture is unchanged until Submit.
     await expect(dialog.locator('img')).toHaveAttribute('src', /^blob:/);
     await expect(fieldImage).toHaveAttribute('src', originalSrc ?? '');
 
@@ -252,7 +263,8 @@ test.describe('Sense pictures', () => {
     // "nyumba" has demo pictures whose media-server filename is deterministic (demo-picture.svg).
     await projectPage.selectEntryByFilter('nyumba');
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
-    await expect(picturesField.locator('img').first()).toBeVisible({timeout: 5000});
+    // Download works without loading the image; act on the (unloaded) placeholder's actions menu.
+    await expect(picturesField.getByRole('button', {name: 'Click to load'}).first()).toBeVisible({timeout: 5000});
 
     await openPictureMenu(page, picturesField);
     await page.getByRole('menuitem', {name: 'Edit'}).click();
@@ -270,7 +282,7 @@ test.describe('Sense pictures', () => {
     await projectPage.goto();
     await projectPage.selectEntryByFilter('nyumba');
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
-    await expect(picturesField.locator('img').first()).toBeVisible({timeout: 5000});
+    await expect(picturesField.getByRole('button', {name: 'Click to load'}).first()).toBeVisible({timeout: 5000});
 
     const downloadPromise = page.waitForEvent('download');
     await openPictureMenu(page, picturesField);
@@ -302,7 +314,8 @@ test.describe('Sense pictures', () => {
     // "nyumba" has two pictures, each with an English and Portuguese caption.
     await projectPage.selectEntryByFilter('nyumba');
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
-    await expect(picturesField.locator('img').first()).toBeVisible({timeout: 5000});
+    // Load the first picture (click), then click it again to open the viewer.
+    await loadFirstPicture(picturesField);
 
     await picturesField.getByRole('button', {name: 'View Picture'}).first().click();
     const viewer = page.getByRole('dialog');
@@ -324,6 +337,10 @@ test.describe('Sense pictures', () => {
     await expect(viewer.getByText('A traditional house')).toHaveCount(0);
     await expect(next).toBeDisabled();
     await expect(previous).toBeEnabled();
+
+    // Picture 2 wasn't pre-loaded, so the viewer shows its own "click to load"; loading works here too.
+    await expect(viewer.getByRole('button', {name: 'Click to load'})).toBeVisible();
+    await loadFirstPicture(viewer);
 
     // Previous returns to the first picture.
     await previous.click();
@@ -351,9 +368,9 @@ test.describe('Sense pictures', () => {
     await projectPage.goto();
     await projectPage.selectEntryByFilter('nyumba');
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
-    const thumbnail = picturesField.locator('img').first();
-    await expect(thumbnail).toHaveAttribute('src', /^blob:/, {timeout: 5000});
-    const thumbnailSrc = await thumbnail.getAttribute('src');
+    // Load the thumbnail (click), capture its object URL, then open the viewer.
+    await loadFirstPicture(picturesField);
+    const thumbnailSrc = await picturesField.locator('img').first().getAttribute('src');
 
     await picturesField.getByRole('button', {name: 'View Picture'}).first().click();
     const viewer = page.getByRole('dialog');
