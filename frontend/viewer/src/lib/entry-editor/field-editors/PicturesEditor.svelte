@@ -99,8 +99,8 @@
       const mediaUri = await uploadFile(file);
       if (!mediaUri) return;
       const picture: IPicture = {id: randomId(), order: pictures.length, mediaUri, caption: {}};
-      await api.createPicture(entryId, senseId, picture);
-      pictures = [...pictures, picture];
+      const newPicture = await api.createPicture(entryId, senseId, picture);
+      pictures = [...pictures, newPicture];
     } finally {
       busyAction = null;
     }
@@ -125,8 +125,8 @@
     if (!before) return;
     busyAction = 'edit';
     try {
-      await api.updatePicture(entryId, senseId, before, after);
-      pictures = pictures.map((p) => (p.id === after.id ? after : p));
+      const newPicture = await api.updatePicture(entryId, senseId, before, after);
+      pictures = pictures.map((p) => (p.id === after.id ? newPicture : p));
     } finally {
       busyAction = null;
     }
