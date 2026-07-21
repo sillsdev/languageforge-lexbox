@@ -61,6 +61,17 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'lexicon.IEntryService',
   );
 
+  // A lexicon code is valid only if the backend resolves it to a project with a vernacular writing
+  // system. Used both to validate the project setting on write and to re-check a stored code before
+  // acting on it, since a lexicon can be deleted in FW Lite after it was selected.
+  const isLexiconCodeValid = async (lexiconCode: string): Promise<boolean> => {
+    try {
+      return (await fwLiteApi.getWritingSystems(lexiconCode)).vernacular.length > 0;
+    } catch {
+      return false;
+    }
+  };
+
   /* Register settings validators */
 
   const validateAnalysisLanguage = papi.projectSettings.registerValidator(
@@ -76,17 +87,13 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         return true;
       }
       logger.info('Validating lexicon code:', newValue);
-      try {
-        return (await fwLiteApi.getWritingSystems(newValue)).vernacular.length > 0;
-      } catch {
-        return false;
-      }
+      return isLexiconCodeValid(newValue);
     },
   );
 
   /* Manage project info and WebViews */
 
-  const projectManagers = new ProjectManagers();
+  const projectManagers = new ProjectManagers(isLexiconCodeValid);
 
   /* Register commands */
 
@@ -256,6 +263,26 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  // DEV-ONLY: a quick lexicon switcher. Lexicon selection is intentionally sticky — once a project
+  // has one, the only supported way to change it is clearing `lexicon.lexiconCode` in the project's
+  // Paratext settings (the next lexicon action then reopens the selector). This menu command is a
+  // development convenience and MUST be removed before release, along with:
+  //   - its entry in the `context.registrations.add(...)` list below,
+  //   - the `lexicon.changeLexicon` handler type in src/types/lexicon.d.ts,
+  //   - the `%lexicon_menu_selectLexicon%` menu item in contributions/menus.json, and
+  //   - the `%lexicon_menu_selectLexicon%` string in contributions/localizedStrings.json.
+  // (ProjectManager.openSelector stays — the non-dev clear-and-reopen path uses it too.)
+  const changeLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.changeLexicon',
+    async (webViewId: string) => {
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
+      if (!projectManager) return { success: false };
+      const success = await projectManager.openSelector();
+      return { success };
+    },
+  );
+
   const createLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.createLexicon',
     async (name: string, code: string, vernacularWs: string, analysisWs?: string) => {
@@ -298,6 +325,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await addEntryCommandPromise,
     await authServersCommandPromise,
     await browseLexiconCommandPromise,
+    await changeLexiconCommandPromise, // DEV-ONLY: remove before release (see registration above)
     await createLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,

@@ -140,6 +140,11 @@ export default function CreateLexicon({
           onChange={(e) => setVernacularWs(e.target.value)}
           value={vernacularWs}
         />
+        {!!vernacularWs.trim() && !isValidLangTag(vernacularWs.trim()) && (
+          <p className="tw:text-sm tw:text-destructive tw:mt-1">
+            {localizedStrings['%lexicon_createLexicon_langTagInvalid%']}
+          </p>
+        )}
       </div>
 
       <div>
@@ -152,6 +157,11 @@ export default function CreateLexicon({
           placeholder="en"
           value={analysisWs}
         />
+        {!!analysisWs.trim() && !isValidLangTag(analysisWs.trim()) && (
+          <p className="tw:text-sm tw:text-destructive tw:mt-1">
+            {localizedStrings['%lexicon_createLexicon_langTagInvalid%']}
+          </p>
+        )}
       </div>
 
       {error && <p className="tw:text-sm tw:text-destructive tw:mt-1">{error}</p>}

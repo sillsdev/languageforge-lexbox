@@ -100,6 +100,8 @@ declare module 'papi-shared-types' {
     'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.authServers': () => Promise<AuthServerStatus[] | undefined>;
     'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
+    /** DEV-ONLY lexicon switcher; remove before release (see src/main.ts changeLexiconCommand). */
+    'lexicon.changeLexicon': (webViewId: string) => Promise<SuccessHolder>;
     'lexicon.createLexicon': (
       name: string,
       code: string,
