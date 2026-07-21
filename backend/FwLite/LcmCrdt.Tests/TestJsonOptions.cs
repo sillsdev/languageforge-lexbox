@@ -18,6 +18,7 @@ public static class TestJsonOptions
     {
         var config = new CrdtConfig();
         LcmCrdtKernel.ConfigureCrdt(config);
+        LcmCrdtKernel.FinalizeJsonSerializerOptions(config);
         return config.JsonSerializerOptions;
     }
 }

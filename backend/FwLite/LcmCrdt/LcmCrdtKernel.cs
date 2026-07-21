@@ -66,6 +66,9 @@ public static class LcmCrdtKernel
             config => ConfigureCrdt(config, false)//don't add remote resources because they are added in AddCrdtRemoteResources
         );
         services.AddCrdtRemoteResources<LcmFileMetadata>();
+        // AddCrdtRemoteResources registers its change types in a Configure callback, so finalize the
+        // JSON options in a PostConfigure (which runs after every Configure) — see FinalizeJsonSerializerOptions.
+        services.AddOptions<CrdtConfig>().PostConfigure(FinalizeJsonSerializerOptions);
         services.AddOptions<CrdtConfig>().PostConfigure((CrdtConfig crdtConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
             crdtConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
@@ -395,12 +398,21 @@ public static class LcmCrdtKernel
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
 
+        if (addRemoteResourceEntity)
+            config.AddRemoteResourceEntity<LcmFileMetadata>();
+    }
+
+    // Adds the legacy ExampleSentence.Translation modifier to Harmony's JSON options. Reading
+    // config.JsonSerializerOptions builds the lazily-created options and freezes ChangeTypeListBuilder,
+    // so this must run only once every change type is registered. It's therefore kept out of
+    // ConfigureCrdt and run once the config is complete (a PostConfigure in DI, see AddLcmCrdtClientCore;
+    // right before reading the options for standalone callers, see TestJsonOptions.Harmony).
+    // Call once per config: it wraps the existing resolver, so a second call double-adds the modifier.
+    internal static void FinalizeJsonSerializerOptions(CrdtConfig config)
+    {
         config.JsonSerializerOptions.TypeInfoResolver =
             (config.JsonSerializerOptions.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
             .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
-
-        if (addRemoteResourceEntity)
-            config.AddRemoteResourceEntity<LcmFileMetadata>();
     }
 
     public static IEnumerable<Type> AllChangeTypes()

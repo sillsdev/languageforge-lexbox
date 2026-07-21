@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using FluentAssertions.Execution;
@@ -74,7 +75,24 @@ public class DataModelSnapshotTests : IAsyncLifetime
     [Trait("Category", "Verified")]
     public async Task VerifyChangeModels()
     {
-        await Verify(GetPolymorphicTypesFor(typeof(IChange)));
+        await Verify(GetChangePolymorphicTypes());
+    }
+
+    // IChange polymorphism is no longer expressed through PolymorphismOptions; each concrete change
+    // type instead carries a synthetic "$type" property (read by Harmony's change converter), so read
+    // the discriminator from there to snapshot the registered change set.
+    private IEnumerable<JsonDerivedType> GetChangePolymorphicTypes()
+    {
+        return LcmCrdtKernel.AllChangeTypes()
+            .Select(changeType =>
+            {
+                var discriminatorProperty = _jsonSerializerOptions.GetTypeInfo(changeType).Properties
+                    .SingleOrDefault(p => p.Name == CrdtConstants.ChangeDiscriminatorProperty);
+                discriminatorProperty.Should().NotBeNull("change type {0} should declare a $type discriminator", changeType);
+                var discriminator = discriminatorProperty!.Get!(RuntimeHelpers.GetUninitializedObject(changeType));
+                return new JsonDerivedType(changeType, (string)discriminator!);
+            })
+            .OrderBy(t => t.DerivedType.FullName);
     }
 
     [Fact]
