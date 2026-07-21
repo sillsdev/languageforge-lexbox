@@ -9,7 +9,6 @@ namespace FwLiteWeb.Routes;
 public static class AuthRoutes
 {
     public const string CallbackRoute = "AuthRoutes_Callback";
-    public record ServerStatus(string DisplayName, bool LoggedIn, string? LoggedInAs, string? Authority);
     public static IEndpointConventionBuilder MapAuthRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api/auth");
@@ -28,6 +27,19 @@ public static class AuthRoutes
                 }
 
                 return Results.Redirect(await authService.SignInWebApp(options.Value.GetServerByAuthority(authority), returnUrl));
+            });
+        //separate from /login/{authority}, which redirects the caller's browser and requires a Referer
+        //header; neither applies here, where the server opens the system's default browser itself
+        group.MapGet("/login-web-view/{authority}",
+            // cancellation binds to HttpContext.RequestAborted, so an abandoned sign-in is cancelled, not left running.
+            async (AuthService authService, string authority, IOptions<AuthConfig> options, CancellationToken cancellation) =>
+            {
+                if (!options.Value.SystemWebViewLogin)
+                {
+                    throw new NotSupportedException("System web view login is not enabled for this server");
+                }
+
+                return await authService.SignInWebView(options.Value.GetServerByAuthority(authority), cancellation);
             });
         group.MapGet("/oauth-callback",
             async (OAuthService oAuthService, HttpContext context) =>

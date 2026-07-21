@@ -48,6 +48,8 @@ task fw-lite:has-stale-generated-types
 
 The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`.
 
+⚠️ **`[JSInvokable]` methods must not have optional/defaulted parameters (nor a `CancellationToken`).** The generated TS marks them optional (`arg?`), but that's a lie: Blazor JSInterop requires JS to pass every parameter, and can't marshal a `CancellationToken` — so JS callers break at runtime. If a server-side (REST) caller needs cancellation or an extra arg, add a separate **non-`[JSInvokable]`** overload for it (see `AuthService.SignInWebView`).
+
 ## Project Structure
 
 | Directory | Priority | Purpose |
