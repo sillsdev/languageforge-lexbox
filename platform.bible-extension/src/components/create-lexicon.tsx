@@ -5,7 +5,7 @@ import { type ReactElement, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 const CODE_PATTERN = /^[a-z\d][a-z\d-]*$/;
-const MIN_CODE_LENGTH = 4;
+const MIN_CODE_LENGTH = 4; // matches Lexbox
 
 function isValidLangTag(tag: string): boolean {
   try {
