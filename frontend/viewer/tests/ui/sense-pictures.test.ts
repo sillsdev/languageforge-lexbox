@@ -397,14 +397,21 @@ test.describe('Sense pictures', () => {
     await expect(viewer.getByText('Uma casa tradicional')).toBeVisible();
 
     const toggle = viewer.getByRole('button', {name: 'Toggle captions'});
-    // Collapse: only the first non-empty caption remains.
+    // A disclosure chevron signals the toggle; it points up (rotated) while expanded.
+    const chevron = toggle.locator('.i-mdi-chevron-down');
+    await expect(chevron).toBeVisible();
+    await expect(chevron).toHaveClass(/rotate-180/);
+
+    // Collapse: only the first non-empty caption remains, and the chevron points down.
     await toggle.click();
     await expect(viewer.getByText('Uma casa tradicional')).toHaveCount(0);
     await expect(viewer.getByText('A traditional house')).toBeVisible();
+    await expect(chevron).not.toHaveClass(/rotate-180/);
 
-    // Expand again: both captions return.
+    // Expand again: both captions return and the chevron points up.
     await toggle.click();
     await expect(viewer.getByText('Uma casa tradicional')).toBeVisible();
+    await expect(chevron).toHaveClass(/rotate-180/);
   });
 
   test('a loaded image stays cached (project-scoped) after navigating to another entry and back', async ({page}) => {

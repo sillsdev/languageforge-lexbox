@@ -113,20 +113,29 @@
 
       {#if captions.length > 0}
         <!-- Read-only captions (WS abbreviation label + text, like RichMultiWsInput). Click to
-             collapse to just the first caption (line-clamp-1), click again to show them all. -->
+             collapse to just the first caption (line-clamp-1), click again to show them all. The
+             disclosure chevron signals it's toggleable. -->
         <button
           type="button"
-          class="grid w-full cursor-pointer grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-1 appearance-none border-0 bg-transparent p-0 text-left text-sm"
+          class="flex w-full cursor-pointer appearance-none items-start gap-2 border-0 bg-transparent p-0 text-left text-sm"
           aria-label={$t`Toggle captions`}
           aria-expanded={!collapsed}
           onclick={() => (collapsed = !collapsed)}
         >
-          {#each shownCaptions as {ws, text} (ws.wsId)}
-            <span class="text-muted-foreground font-medium leading-none" title={`${ws.name} (${ws.wsId})`}>
-              {ws.abbreviation}
-            </span>
-            <span class="break-words" class:line-clamp-1={collapsed}>{text}</span>
-          {/each}
+          <div class="grid min-w-0 flex-1 grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-1">
+            {#each shownCaptions as {ws, text} (ws.wsId)}
+              <span class="text-muted-foreground font-medium leading-none" title={`${ws.name} (${ws.wsId})`}>
+                {ws.abbreviation}
+              </span>
+              <span class="break-words" class:line-clamp-1={collapsed}>{text}</span>
+            {/each}
+          </div>
+          <!-- Points down when collapsed (more below), rotates to up when expanded. -->
+          <span
+            class="i-mdi-chevron-down text-muted-foreground mt-0.5 size-4 shrink-0 transition-transform"
+            class:rotate-180={!collapsed}
+            aria-hidden="true"
+          ></span>
         </button>
       {/if}
     {/if}
