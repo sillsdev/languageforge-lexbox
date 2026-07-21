@@ -25,7 +25,7 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CreateWritingSystem_Works()
     {
-        var ws = await Api.CreateWritingSystem(new()
+        var input = new WritingSystem
         {
             Id = Guid.NewGuid(),
             Type = WritingSystemType.Vernacular,
@@ -33,8 +33,11 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
             Name = "Spanish",
             Abbreviation = "Es",
             Font = "Arial"
-        });
-        ws.Should().NotBeNull();
+        };
+        var ws = await Api.CreateWritingSystem(input);
+        // compare against the input, so a dropped field (e.g. Font) fails instead of round-tripping with itself.
+        // Order and Exemplars aren't create inputs (Exemplars is populated from LCM's per-language defaults).
+        ws.Should().BeEquivalentTo(input, options => options.Excluding(w => w.Order).Excluding(w => w.Exemplars));
         var writingSystems = await Api.GetWritingSystems();
         writingSystems.Vernacular.Should().ContainEquivalentOf(ws);
     }
@@ -71,8 +74,10 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
         var writingSystem = writingSystems.Vernacular.First();
         var original = writingSystem.Copy();
         writingSystem.Abbreviation = "New Abbreviation";
+        writingSystem.Font = "Times New Roman";
         var updatedWritingSystem = await Api.UpdateWritingSystem(original, writingSystem);
         updatedWritingSystem.Abbreviation.Should().Be("New Abbreviation");
+        updatedWritingSystem.Font.Should().Be("Times New Roman");
     }
 
     [Fact]
