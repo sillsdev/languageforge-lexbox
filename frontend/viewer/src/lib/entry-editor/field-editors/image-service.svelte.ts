@@ -55,34 +55,42 @@ export class ImageService {
     return this.#cache.get(mediaUri) ?? {status: 'loading'};
   }
 
-  // getFileStream reports failure via the response (not exceptions), so we branch on it; a thrown
-  // error (e.g. from blob()) propagates to the global handler, matching the rest of the viewer.
+  // getFileStream reports expected failures via the response (branched on below). An unexpected
+  // thrown error (e.g. from blob()) is surfaced as an error state — else the picture would spin
+  // forever on 'loading' — and then re-thrown so the global handler still reports it.
   async #load(mediaUri: string, downloadIfMissing: boolean): Promise<void> {
     const api = this.#getApi();
     if (!api) {
       this.#cache.set(mediaUri, {status: 'error', reason: 'unknown'});
       return;
     }
-    const file = await api.getFileStream(mediaUri, downloadIfMissing);
-    if (this.#disposed) return;
-    if (!file.stream) {
-      // A local-only probe (downloadIfMissing=false) reports NotFound when the file simply isn't
-      // cached yet — that's the click-to-download case, not an error.
-      if (!downloadIfMissing && file.result === ReadFileResult.NotFound) {
-        this.#cache.set(mediaUri, {status: 'not-downloaded'});
+    try {
+      const file = await api.getFileStream(mediaUri, downloadIfMissing);
+      if (this.#disposed) return;
+      if (!file.stream) {
+        // A local-only probe (downloadIfMissing=false) reports NotFound when the file simply isn't
+        // cached yet — that's the click-to-download case, not an error.
+        if (!downloadIfMissing && file.result === ReadFileResult.NotFound) {
+          this.#cache.set(mediaUri, {status: 'not-downloaded'});
+          return;
+        }
+        const reason =
+          file.result === ReadFileResult.NotFound ? 'not-found'
+          : file.result === ReadFileResult.Offline ? 'offline'
+          : 'unknown';
+        this.#cache.set(mediaUri, {status: 'error', reason, detail: file.errorMessage ?? undefined});
         return;
       }
-      const reason =
-        file.result === ReadFileResult.NotFound ? 'not-found'
-        : file.result === ReadFileResult.Offline ? 'offline'
-        : 'unknown';
-      this.#cache.set(mediaUri, {status: 'error', reason, detail: file.errorMessage ?? undefined});
-      return;
+      const blob = await new Response(await file.stream.stream()).blob();
+      // Bail before minting a URL if the service was torn down mid-load, else it would never be revoked.
+      if (this.#disposed) return;
+      this.#cache.set(mediaUri, {status: 'loaded', url: URL.createObjectURL(blob)});
+    } catch (error) {
+      if (!this.#disposed) {
+        this.#cache.set(mediaUri, {status: 'error', reason: 'unknown', detail: error instanceof Error ? error.message : undefined});
+      }
+      throw error;
     }
-    const blob = await new Response(await file.stream.stream()).blob();
-    // Bail before minting a URL if the service was torn down mid-load, else it would never be revoked.
-    if (this.#disposed) return;
-    this.#cache.set(mediaUri, {status: 'loaded', url: URL.createObjectURL(blob)});
   }
 
   dispose(): void {
