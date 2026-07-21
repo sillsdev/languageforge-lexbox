@@ -22,6 +22,7 @@ export const LOCALIZED_STRING_KEYS: LocalizeKey[] = [
   '%lexicon_createLexicon_codeInvalid%',
   '%lexicon_createLexicon_codeTooShort%',
   '%lexicon_createLexicon_error%',
+  '%lexicon_createLexicon_langTagInvalid%',
   '%lexicon_createLexicon_name%',
   '%lexicon_createLexicon_submit%',
   '%lexicon_createLexicon_title%',
