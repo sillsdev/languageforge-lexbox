@@ -19,7 +19,9 @@
     senseId: string;
     readonly?: boolean;
   };
-  const {pictures, entryId, senseId, readonly = false}: Props = $props();
+  // `pictures` is bindable so add/delete/update mutate the sense directly (immediate UI) rather than
+  // waiting for the change to round-trip back through an entry reload.
+  let {pictures = $bindable(), entryId, senseId, readonly = false}: Props = $props();
 
   const api = useLexboxApi();
   const dialogsService = useDialogsService();
@@ -29,13 +31,19 @@
   // replace/delete/caption operations invoked from the edit dialog.
   let busyAction = $state<'add' | 'edit' | null>(null);
 
-  // The picture currently open in the edit dialog, tracked by id so it stays in sync with the
-  // reloaded entry after each change (e.g. its image updates in the dialog after a replace).
+  // The picture currently open in the edit dialog, tracked by id so the dialog reflects live edits
+  // to `pictures` (e.g. its image updates after a replace).
   let editingPictureId = $state<string>();
   const editingPicture = $derived(editingPictureId ? pictures.find((p) => p.id === editingPictureId) : undefined);
   let editDialogOpen = $state(false);
+  // Retain the last picture the dialog showed so it stays mounted for its close animation even after
+  // that picture is removed from `pictures` (e.g. deleted from within the dialog).
+  let lastEditedPicture = $state<IPicture>();
+  $effect(() => {
+    if (editingPicture) lastEditedPicture = editingPicture;
+  });
 
-  // The fullscreen viewer, tracked by id so prev/next and deletion stay in sync with the reloaded entry.
+  // The fullscreen viewer, tracked by id so prev/next and (direct) deletion stay in sync with `pictures`.
   let viewerPictureId = $state<string>();
   let viewerOpen = $state(false);
 
@@ -92,7 +100,7 @@
       if (!mediaUri) return;
       const picture: IPicture = {id: randomId(), order: pictures.length, mediaUri, caption: {}};
       await api.createPicture(entryId, senseId, picture);
-      // The change surfaces via the entry-changed event, which reloads the entry.
+      pictures = [...pictures, picture];
     } finally {
       busyAction = null;
     }
@@ -118,6 +126,7 @@
     busyAction = 'edit';
     try {
       await api.updatePicture(entryId, senseId, before, after);
+      pictures = pictures.map((p) => (p.id === after.id ? after : p));
     } finally {
       busyAction = null;
     }
@@ -131,6 +140,7 @@
       // has time to play; harmless when the delete came from the field/menu instead.
       editDialogOpen = false;
       await api.deletePicture(entryId, senseId, pictureId);
+      pictures = pictures.filter((p) => p.id !== pictureId);
     } finally {
       busyAction = null;
     }
@@ -198,10 +208,10 @@
   {/if}
 </div>
 
-{#if editingPicture}
+{#if lastEditedPicture}
   <EditPictureDialog
     bind:open={editDialogOpen}
-    picture={editingPicture}
+    picture={editingPicture ?? lastEditedPicture}
     onUploadReplacement={(file) => uploadReplacement(file)}
     onSubmit={(after) => void submitEdits(after)}
     onDelete={() => deleteEditingPicture()}
