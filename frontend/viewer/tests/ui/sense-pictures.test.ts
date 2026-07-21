@@ -414,6 +414,30 @@ test.describe('Sense pictures', () => {
     await expect(chevron).toHaveClass(/rotate-180/);
   });
 
+  test('reopening the viewer starts with captions expanded', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+    await projectPage.selectEntryByFilter('nyumba');
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await loadFirstPicture(picturesField);
+    await picturesField.getByRole('button', {name: 'View Picture'}).first().click();
+    const viewer = page.getByRole('dialog');
+    await expect(viewer).toBeVisible({timeout: 5000});
+
+    // Collapse, then close the viewer.
+    await viewer.getByRole('button', {name: 'Toggle captions'}).click();
+    await expect(viewer.getByText('Uma casa tradicional')).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    // Reopening (the direct flow, not via the arrows) starts expanded again — both captions show.
+    await picturesField.getByRole('button', {name: 'View Picture'}).first().click();
+    const reopened = page.getByRole('dialog');
+    await expect(reopened).toBeVisible({timeout: 5000});
+    await expect(reopened.getByText('A traditional house')).toBeVisible();
+    await expect(reopened.getByText('Uma casa tradicional')).toBeVisible();
+  });
+
   test('a loaded image stays cached (project-scoped) after navigating to another entry and back', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();

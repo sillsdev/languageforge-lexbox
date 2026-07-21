@@ -34,8 +34,14 @@
     if (open && pictureId !== undefined && !current) open = false;
   });
 
-  // Captions collapse to just the first non-empty one on click; each picture starts expanded.
+  // Captions collapse to just the first non-empty one on click; each picture starts expanded — reset
+  // whenever the viewer opens (below) and on navigation (showPrevious/showNext).
   let collapsed = $state(false);
+  // Start expanded every time the viewer opens, so a collapse left over from a previous open doesn't
+  // carry into the next picture opened directly (not via the arrows).
+  $effect(() => {
+    if (open) collapsed = false;
+  });
 
   const hasMultiple = $derived(pictures.length > 1);
   function showPrevious() {
