@@ -1832,7 +1832,7 @@ msgstr "Tertunda"
 msgid "Pick a Part of Speech"
 msgstr "Pilih Bagian dari Pidato"
 
-#. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
+#. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
