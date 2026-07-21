@@ -376,7 +376,6 @@ public static class LcmCrdtKernel
             .Add<AddPublicationChange>()
             .Add<RemovePublicationChange>()
             .Add<ReplacePublicationChange>()
-            .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
