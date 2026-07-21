@@ -68,6 +68,7 @@ export type ChangeType =
   | 'jsonPatch:SemanticDomain'
   | 'jsonPatch:Sense'
   | 'jsonPatch:WritingSystem'
+  | 'set:remote-resource-metadata'
   | 'uploaded:RemoteResource';
 
 export const knownChangeTypes = [
@@ -135,6 +136,7 @@ export const knownChangeTypes = [
   'jsonPatch:SemanticDomain',
   'jsonPatch:Sense',
   'jsonPatch:WritingSystem',
+  'set:remote-resource-metadata',
   'uploaded:RemoteResource',
 ] as const satisfies readonly ChangeType[];
 

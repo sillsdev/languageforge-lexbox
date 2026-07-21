@@ -134,6 +134,27 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         }
     }
 
+    // Every change type, dependency-ordered so it can be applied in one pass. Shared with
+    // ActivityChangeInfoResolverCoverageTests, which drives the whole catalogue through the activity feed.
+    internal static IReadOnlyList<IChange> AllChangesInDependencyOrder()
+    {
+        var remaining = GetAllChanges().ToList();
+        var ordered = new List<IChange>(remaining.Count);
+        while (remaining.Count > 0)
+        {
+            var ready = remaining
+                .Where(c => c.Dependencies is null || c.Dependencies.All(d => ordered.Contains(d)))
+                .ToList();
+            if (ready.Count == 0) throw new InvalidOperationException("Cyclic or unsatisfiable change dependencies");
+            foreach (var c in ready)
+            {
+                ordered.Add(c.Change);
+                remaining.Remove(c);
+            }
+        }
+        return ordered;
+    }
+
     private record ChangeWithDependencies(IChange Change, IEnumerable<IChange>? Dependencies = null);
 
     private static IEnumerable<ChangeWithDependencies> GetAllChanges()

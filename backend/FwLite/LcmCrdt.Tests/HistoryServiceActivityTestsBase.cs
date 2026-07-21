@@ -1,4 +1,5 @@
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +48,7 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
         {
             Id = senseId,
             Order = order,
-            Gloss = gloss is null ? new MultiString() : new MultiString { ["en"] = gloss },
+            Gloss = gloss is null ? [] : new MultiString { ["en"] = gloss },
             SemanticDomains = semanticDomains ?? []
         };
         await DataModel.AddChange(ClientId, new CreateSenseChange(sense, entryId), Meta());
@@ -61,6 +62,38 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
             new Entry { Id = componentId });
         await DataModel.AddChange(ClientId, new AddEntryComponentChange(component), Meta());
         return component;
+    }
+
+    protected async Task<Guid> AddCommentThread(Guid subjectId, SubjectType subjectType)
+    {
+        var threadId = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreateCommentThreadChange(new CommentThread
+        {
+            Id = threadId,
+            SubjectId = subjectId,
+            SubjectType = subjectType,
+            AuthorId = "a",
+            AuthorName = "A",
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        }), Meta());
+        return threadId;
+    }
+
+    protected async Task<Guid> AddComment(Guid threadId, string text)
+    {
+        var commentId = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreateUserCommentChange(new UserComment
+        {
+            Id = commentId,
+            CommentThreadId = threadId,
+            Text = text,
+            AuthorId = "a",
+            AuthorName = "A",
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        }), Meta());
+        return commentId;
     }
 
     protected async Task<Commit> AddEntryCommit(CommitMetadata metadata, string? headword = null)

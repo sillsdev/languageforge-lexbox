@@ -199,7 +199,13 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(HarmonyResource<LcmFileMetadata>),
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
-        builder.ExportAsClass<ChangeTypes>().WithCodeGenerator<ChangeTypesCodeGenerator>();
+        builder.ExportAsClass<ChangeType>().WithCodeGenerator<ChangeTypesCodeGenerator>();
+        builder.ExportAsInterface<ProjectActivity>()
+            .WithProperty(a => a.ChangeTypes, p => p.Type<ChangeType[]>());
+        builder.ExportAsInterface<ActivityChangeType>()
+            .WithProperty(t => t.Key, p => p.Type<ChangeType>());
+        builder.ExportAsInterface<ActivityQuery>()
+            .WithProperty(q => q.ChangeTypeKeys, p => p.Type<ChangeType[]>());
 
         builder.ExportAsEnum<ActivitySort>().UseString();
         builder.ExportAsEnum<FwEventType>().UseString();

@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using MiniLcm.Exceptions;
 using LinqToDB.Async;
+using SIL.Harmony.Entities;
 
 namespace LcmCrdt;
 
@@ -39,10 +40,9 @@ public static class ActivityFilterKeys
 /// <summary>
 /// Resolved display info for one change, so the frontend can name what the change is about.
 /// <paramref name="Subject"/> is the entity the change is on (entry headword, "headword › gloss" for a sense, or a vocab object's name);
-/// <paramref name="Target"/> is a referenced item the change names only by id (e.g. the part of speech assigned, the semantic domain removed).
-/// Both are null when unresolved — the frontend falls back to a type label.
-/// <paramref name="RootEntryHeadword"/> is the display headword of <paramref name="RootEntryId"/>, so the frontend can
-/// group a commit's changes under one entry header; null when there's no root entry or no displayable headword.
+/// <paramref name="Target"/> is a referenced item named only by id (e.g. the assigned part of speech). Both null when unresolved.
+/// <paramref name="RootEntryId"/> is the entry the change ultimately belongs to (the entry itself, or the owner of a sense/example);
+/// <paramref name="RootEntryHeadword"/> is <paramref name="RootEntryId"/>'s headword, for grouping a commit's changes under one entry.
 /// </summary>
 public record ActivityChangeInfo(string? Subject, Guid? RootEntryId, string? Target = null, string? RootEntryHeadword = null);
 
@@ -53,7 +53,7 @@ public record ProjectActivity(
     CommitMetadata Metadata)
 {
     public string ChangeName => HistoryService.ChangesNameHelper(Changes);
-    public string[] ChangeTypes { get; } = Changes.Select(c => HistoryService.GetChangeTypeKey(c.Change)).Distinct().ToArray();
+    public string[] ChangeTypes { get; } = [.. Changes.Select(c => HistoryService.GetChangeTypeKey(c.Change)).Distinct()];
     /// <summary>Resolved display info per change, parallel to <see cref="Changes"/> by index. Set during enrichment.</summary>
     public IReadOnlyList<ActivityChangeInfo> ChangeInfo { get; init; } = [];
 }
@@ -118,7 +118,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             })
             .Select(g => new ActivityAuthor(g.Key.AuthorId, g.Key.AuthorName, g.Count()))
             .ToListAsyncLinqToDB();
-        return authors.OrderBy(a => a.AuthorName ?? "").ThenBy(a => a.AuthorId ?? "").ToArray();
+        return [.. authors.OrderBy(a => a.AuthorName ?? "").ThenBy(a => a.AuthorId ?? "")];
     }
 
     public async Task<ActivityChangeType[]> ListActivityChangeTypes()
@@ -159,7 +159,8 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 commit.ChangeEntities.ToList(),
                 commit.Metadata);
         var activities = await queryable.ToLinqToDB().ToArrayAsyncLinqToDB();
-        return await ActivityChangeInfoResolver.ResolveAsync(dbContext, activities);
+        var writingSystems = await miniLcmApi.GetWritingSystems();
+        return await ActivityChangeInfoResolver.ResolveAsync(dbContext, activities, writingSystems);
     }
 
     private static IQueryable<Commit> ApplyActivityFilters(IQueryable<Commit> commits, ActivityQuery query)
@@ -241,7 +242,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
     /// </summary>
     public static string GetChangeTypeKeyFromType(Type changeType)
     {
-        var typeNameProp = changeType.GetProperty("TypeName",
+        var typeNameProp = changeType.GetProperty(nameof(IPolyType.TypeName),
             System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy);
         if (typeNameProp?.GetValue(null) is string name)
             return name;
@@ -318,32 +319,26 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException($"Change {changeIndex} not found in commit {commitId}");
 
-        // Use safe cast - some entity types like RemoteResource don't implement IObjectWithId
-        var snapshot = await dataModel.GetAtCommit<object>(commitId, change.EntityId) as IObjectWithId;
-        var previousSnapshot = await LoadPreviousSnapshot(crdtDbContext, commitId, change.EntityId);
-
-        await ResolveSensePartOfSpeech(snapshot);
-        await ResolveSensePartOfSpeech(previousSnapshot);
-
-        var affectedEntries = await GetAffectedEntryIds(change)
+        // These three branches are independent read-only lookups that each open their own
+        // DbContext (via the repository factories), so run them concurrently.
+        var snapshotTask = ResolveSnapshot(async () => await dataModel.GetAtCommit<object>(commitId, change.EntityId));
+        var previousSnapshotTask = ResolveSnapshot(() => dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
+        var affectedEntriesTask = GetAffectedEntryIds(change)
             .Select(async (Guid entryId, CancellationToken _) => await GetCurrentOrLatestEntry(entryId))
-            .ToArrayAsync();
+            .ToArrayAsync()
+            .AsTask();
 
-        return new ChangeContext(change, snapshot, previousSnapshot, affectedEntries);
+        await Task.WhenAll(snapshotTask, previousSnapshotTask, affectedEntriesTask);
+
+        return new ChangeContext(change, await snapshotTask, await previousSnapshotTask, await affectedEntriesTask);
     }
 
-    /// <summary>The entity's state just before <paramref name="commitId"/>, i.e. the snapshot at the most recent
-    /// commit that affected it before this one. Null if this commit created the entity.</summary>
-    private async Task<IObjectWithId?> LoadPreviousSnapshot(ICrdtDbContext dbContext, Guid commitId, Guid entityId)
+    // Some entity types like RemoteResource don't implement IObjectWithId, so cast safely.
+    private async Task<IObjectWithId?> ResolveSnapshot(Func<Task<object?>> fetch)
     {
-        var affectingCommitIds = await dbContext.Commits
-            .Where(c => c.ChangeEntities.Any(ce => ce.EntityId == entityId))
-            .DefaultOrderDescending()
-            .Select(c => c.Id)
-            .ToListAsyncLinqToDB();
-        var index = affectingCommitIds.IndexOf(commitId);
-        if (index < 0 || index + 1 >= affectingCommitIds.Count) return null;
-        return await dataModel.GetAtCommit<object>(affectingCommitIds[index + 1], entityId) as IObjectWithId;
+        var snapshot = await fetch() as IObjectWithId;
+        await ResolveSensePartOfSpeech(snapshot);
+        return snapshot;
     }
 
     // Older sense snapshots didn't store the part-of-speech object, only its id; resolve it so previews can show a label.
