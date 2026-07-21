@@ -67,9 +67,9 @@
       event.preventDefault();
       return;
     }
-    // A picture that isn't available locally is downloaded on the first click; once loaded, a click
-    // opens the viewer.
-    if (loadState.status === 'not-downloaded') {
+    // A picture not available locally downloads on click; one that errored retries on click; once
+    // loaded, a click opens the viewer.
+    if (loadState.status === 'not-downloaded' || loadState.status === 'error') {
       imageService.download(mediaUri);
       return;
     }
@@ -103,12 +103,15 @@
   });
   const loadState = $derived(imageService.get(mediaUri));
 
-  // Clickable to download (when not available locally) or to open the viewer (when loaded and interactive).
+  // Clickable to download (not available locally), to retry (after an error), or to open the viewer
+  // (loaded and interactive).
   const needsDownload = $derived(loadState.status === 'not-downloaded');
-  const clickable = $derived(needsDownload || (loadState.status === 'loaded' && interactive));
+  const hasError = $derived(loadState.status === 'error');
+  const clickable = $derived(needsDownload || hasError || (loadState.status === 'loaded' && interactive));
   const showMenu = $derived(interactive && !!onEdit && !!onDownload && !!onDelete);
   const loadLabel = $derived(IsMobile.value ? $t`Tap to load` : $t`Click to load`);
-  const clickLabel = $derived(needsDownload ? loadLabel : $t`View Picture`);
+  const retryLabel = $derived(IsMobile.value ? $t`Tap to retry` : $t`Click to retry`);
+  const clickLabel = $derived(needsDownload ? loadLabel : hasError ? retryLabel : $t`View Picture`);
 
   function errorText(state: Extract<ImageLoadState, {status: 'error'}>): string {
     switch (state.reason) {
@@ -137,9 +140,11 @@
       <span class="i-mdi-loading size-6 animate-spin"></span>
     </div>
   {:else}
-    <div class="bg-muted text-muted-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md">
+    <!-- Errored: a click/tap retries the load (handled by the enclosing button). -->
+    <div class="bg-muted text-muted-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md text-center">
       <span class="i-mdi-image-broken-variant size-6"></span>
       <span class="text-sm">{errorText(loadState)}</span>
+      <span class="text-xs">{retryLabel}</span>
     </div>
   {/if}
 {/snippet}

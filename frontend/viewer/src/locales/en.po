@@ -416,6 +416,11 @@ msgstr "clear"
 msgid "Click to load"
 msgstr "Click to load"
 
+#. Shown on a picture whose image failed to load (desktop); clicking it retries the load
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Click to retry"
+msgstr "Click to retry"
+
 #. Button to close popup
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -2304,6 +2309,11 @@ msgstr "System"
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Tap to load"
 msgstr "Tap to load"
+
+#. Shown on a picture whose image failed to load (mobile/touch); tapping it retries the load
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Tap to retry"
+msgstr "Tap to retry"
 
 #. Page title with task name
 #: src/project/tasks/TasksView.svelte

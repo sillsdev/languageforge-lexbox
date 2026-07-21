@@ -421,6 +421,10 @@ msgstr "xóa"
 msgid "Click to load"
 msgstr ""
 
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Click to retry"
+msgstr ""
+
 #. Button to close popup
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -2308,6 +2312,10 @@ msgstr "Hệ thống"
 #. Placeholder on a not-yet-loaded picture (mobile/touch); tapping it loads and displays the image
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Tap to load"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Tap to retry"
 msgstr ""
 
 #. Page title with task name

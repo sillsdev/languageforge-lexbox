@@ -40,8 +40,10 @@ export class ImageService {
   }
 
   /**
-   * Downloads `mediaUri` from the remote media service on demand (e.g. a click on the placeholder).
-   * No-op while it's already loading or loaded.
+   * Loads `mediaUri`, downloading it from the remote media service if it isn't cached locally.
+   * Backs both the "click to load" placeholder and retry-after-error: it proceeds from any state
+   * except in-flight or already-loaded, so a click on an errored (or not-downloaded) picture
+   * re-attempts the load.
    */
   download(mediaUri: string): void {
     const current = this.#cache.get(mediaUri);
