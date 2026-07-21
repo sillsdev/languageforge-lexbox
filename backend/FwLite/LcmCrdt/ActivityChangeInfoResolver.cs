@@ -80,11 +80,9 @@ internal static class ActivityChangeInfoResolver
         // Comments resolve to the entry/sense/example their thread is attached to (subject) plus a snippet of the
         // comment text (target), mirroring example sentences. Load comments and their threads up front so the
         // commented subject's id can join the entry/sense/example batch-loads below (via the cascade further down).
-        var userComments = await LoadUserComments(db, userCommentIds);
-        await RecoverDeleted(db, userCommentIds, userComments);
+        var userComments = await LoadWithRecovery(db, userCommentIds, LoadUserComments);
         foreach (var comment in userComments.Values) commentThreadIds.Add(comment.CommentThreadId);
-        var commentThreads = await LoadCommentThreads(db, commentThreadIds);
-        await RecoverDeleted(db, commentThreadIds, commentThreads);
+        var commentThreads = await LoadWithRecovery(db, commentThreadIds, LoadCommentThreads);
         foreach (var thread in commentThreads.Values)
         {
             switch (thread.SubjectType)
@@ -113,34 +111,24 @@ internal static class ActivityChangeInfoResolver
             entryIds.Add(complexFormEntryId);
             entryIds.Add(componentEntryId);
         }
-        var examples = await LoadExamples(db, exampleIds);
-        await RecoverDeleted(db, exampleIds, examples);
+        var examples = await LoadWithRecovery(db, exampleIds, LoadExamples);
         foreach (var example in examples.Values) senseIds.Add(example.SenseId);
-        var senses = await LoadSenses(db, senseIds);
-        await RecoverDeleted(db, senseIds, senses);
+        var senses = await LoadWithRecovery(db, senseIds, LoadSenses);
         foreach (var sense in senses.Values) entryIds.Add(sense.EntryId);
 
         // Sibling senses of every affected sense's entry, so a sense's subject can carry its 1-based position
         // (and detect duplicate glosses) without a per-sense query. Ordered by Order to match the editor.
         var sensesByEntry = await LoadSensesByEntry(db, [.. senses.Values.Select(s => s.EntryId)]);
 
-        var entries = await LoadEntries(db, entryIds);
-        await RecoverDeleted(db, entryIds, entries);
+        var entries = await LoadWithRecovery(db, entryIds, LoadEntries);
         var partsOfSpeech = await LoadNamed<PartOfSpeech>(db, partOfSpeechIds, p => new PartOfSpeech { Id = p.Id, Name = p.Name });
-        await RecoverDeleted(db, partOfSpeechIds, partsOfSpeech);
-        var semanticDomains = await LoadSemanticDomains(db, semanticDomainIds);
-        await RecoverDeleted(db, semanticDomainIds, semanticDomains);
+        var semanticDomains = await LoadWithRecovery(db, semanticDomainIds, LoadSemanticDomains);
         var publications = await LoadNamed<Publication>(db, publicationIds, p => new Publication { Id = p.Id, Name = p.Name });
-        await RecoverDeleted(db, publicationIds, publications);
         var complexFormTypes = await LoadNamed<ComplexFormType>(db, complexFormTypeIds, c => new ComplexFormType { Id = c.Id, Name = c.Name });
-        await RecoverDeleted(db, complexFormTypeIds, complexFormTypes);
         var morphTypes = await LoadNamed<MorphType>(db, morphTypeIds, m => new MorphType { Id = m.Id, Kind = m.Kind, Name = m.Name });
-        await RecoverDeleted(db, morphTypeIds, morphTypes);
         var writingSystemsById = await LoadNamed<WritingSystem>(db, writingSystemIds,
             w => new WritingSystem { Id = w.Id, WsId = w.WsId, Name = w.Name, Abbreviation = w.Abbreviation, Font = w.Font, Type = w.Type });
-        await RecoverDeleted(db, writingSystemIds, writingSystemsById);
         var customViews = await LoadNamed<CustomView>(db, customViewIds, v => new CustomView { Id = v.Id, Name = v.Name });
-        await RecoverDeleted(db, customViewIds, customViews);
 
         // Markers (e.g. suffix "-") for the display headword, keyed by morph-type kind; first wins on duplicates.
         // Only needed to render an entry headword, so skip the load entirely when no entry is being resolved.
@@ -342,6 +330,19 @@ internal static class ActivityChangeInfoResolver
         };
     }
 
+    // A projected load paired with its deleted-id recovery — the two always go together for a label load, so a
+    // deleted object can still be named. (LoadNamed recovers internally; the loads that recover a different way,
+    // like ComplexFormComponent via its create change, don't use this.)
+    private static async Task<Dictionary<Guid, T>> LoadWithRecovery<T>(ICrdtDbContext db,
+        HashSet<Guid> ids,
+        Func<ICrdtDbContext, HashSet<Guid>, Task<Dictionary<Guid, T>>> load)
+        where T : class, IObjectWithId
+    {
+        var loaded = await load(db, ids);
+        await RecoverDeleted(db, ids, loaded);
+        return loaded;
+    }
+
     // Deleted objects are dropped from the projected tables, so the loads below can't label them ("Deleted
     // word" with no word). Recover any still-missing ids from their latest snapshot — a delete's own snapshot
     // keeps every field, only DeletedAt is set. No-op in the common case where nothing is missing; when ids
@@ -487,12 +488,15 @@ internal static class ActivityChangeInfoResolver
     }
 
     // Vocab objects the resolver only labels by name (part of speech, publication, complex-form type, morph type).
+    // Recovers deleted ids like the per-type loads, so a removed vocab object can still be named.
     private static async Task<Dictionary<Guid, T>> LoadNamed<T>(ICrdtDbContext db, HashSet<Guid> ids, Expression<Func<T, T>> project)
         where T : class, IObjectWithId
     {
         if (ids.Count == 0) return [];
         var loaded = await db.Set<T>().Where(o => ids.Contains(o.Id)).Select(project).ToListAsyncLinqToDB();
-        return loaded.ToDictionary(o => o.Id);
+        var result = loaded.ToDictionary(o => o.Id);
+        await RecoverDeleted(db, ids, result);
+        return result;
     }
 
     // A plain (non-multi-string) display name, degraded to null when blank so it matches the null-when-empty
