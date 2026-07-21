@@ -447,8 +447,19 @@ jobs:
         run: dotnet build backend/FwLite/FwLiteMaui.Tests/FwLiteMaui.Tests.csproj -p:BuildAndroid=false
 
       - name: Test MAUI
-        run: dotnet test backend/FwLite/FwLiteMaui.Tests/FwLiteMaui.Tests.csproj --logger GitHubActions --no-build -p:BuildAndroid=false
+        run: dotnet test backend/FwLite/FwLiteMaui.Tests/FwLiteMaui.Tests.csproj --logger GitHubActions --logger trx --results-directory "${{ github.workspace }}/TestResults" --no-build -p:BuildAndroid=false
 
+      - name: Publish MAUI test results to TestHistory
+        if: always()
+        continue-on-error: true # telemetry only
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: TestResults/**/*.trx
+          label: FW Lite MAUI Windows
+          on-no-files: ignore
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteMaui
         run: |
