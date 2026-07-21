@@ -5,13 +5,24 @@ import { type ReactElement, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 const CODE_PATTERN = /^[a-z\d][a-z\d-]*$/;
-const MIN_CODE_LENGTH = 4; // matches Lexbox
+// Matches Lexbox UI validation: frontend/src/routes/(authenticated)/project/create/+page.svelte
+const MIN_CODE_LENGTH = 4;
+// Loosely approximates FW Lite backend validation via SIL.WritingSystems.IetfLanguageTag.IsValid
+const BASIC_IETF_LANGUAGE_TAG_PATTERN = /^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/;
+
+function normalizeLangTag(tag: string): string {
+  return tag.trim().replace(/_/g, '-');
+}
 
 function isValidLangTag(tag: string): boolean {
+  const normalizedTag = normalizeLangTag(tag);
+  if (!normalizedTag) return false;
+
   try {
-    return Intl.getCanonicalLocales(tag).length === 1;
+    return Intl.getCanonicalLocales(normalizedTag).length === 1;
   } catch {
-    return false;
+    // Fallback to syntax validation so we don't block backend-accepted tags that Intl rejects.
+    return BASIC_IETF_LANGUAGE_TAG_PATTERN.test(normalizedTag);
   }
 }
 
@@ -70,8 +81,8 @@ export default function CreateLexicon({
     code.length >= MIN_CODE_LENGTH &&
     CODE_PATTERN.test(code) &&
     !codeExists &&
-    isValidLangTag(vernacularWs.trim()) &&
-    (!analysisWs.trim() || isValidLangTag(analysisWs.trim()))
+    isValidLangTag(vernacularWs) &&
+    (!analysisWs.trim() || isValidLangTag(analysisWs))
   );
 
   const handleSubmit = async () => {
@@ -79,7 +90,12 @@ export default function CreateLexicon({
     setCreating(true);
     setError('');
     try {
-      await createLexicon(name.trim(), code, vernacularWs.trim(), analysisWs.trim() || undefined);
+      await createLexicon(
+        name.trim(),
+        code,
+        normalizeLangTag(vernacularWs),
+        analysisWs.trim() ? normalizeLangTag(analysisWs) : undefined,
+      );
       await onCreated(code);
     } catch (e) {
       logger.error(localizedStrings['%lexicon_createLexicon_error%'], JSON.stringify(e));
@@ -140,7 +156,7 @@ export default function CreateLexicon({
           onChange={(e) => setVernacularWs(e.target.value)}
           value={vernacularWs}
         />
-        {!!vernacularWs.trim() && !isValidLangTag(vernacularWs.trim()) && (
+        {!!vernacularWs.trim() && !isValidLangTag(vernacularWs) && (
           <p className="tw:text-sm tw:text-destructive tw:mt-1">
             {localizedStrings['%lexicon_createLexicon_langTagInvalid%']}
           </p>
@@ -157,7 +173,7 @@ export default function CreateLexicon({
           placeholder="en"
           value={analysisWs}
         />
-        {!!analysisWs.trim() && !isValidLangTag(analysisWs.trim()) && (
+        {!!analysisWs.trim() && !isValidLangTag(analysisWs) && (
           <p className="tw:text-sm tw:text-destructive tw:mt-1">
             {localizedStrings['%lexicon_createLexicon_langTagInvalid%']}
           </p>
