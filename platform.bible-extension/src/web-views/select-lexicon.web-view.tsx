@@ -108,8 +108,7 @@ globalThis.webViewComponent = function LexiconSelect({
         await selectLexicon(code);
         setDone(true);
       } catch (e) {
-        // Lexicon was created but auto-selection failed; go back to the combo box so
-        // the user can select it manually from the refreshed list.
+        // Lexicon created but auto-selection failed; return to the project-selection combo box.
         logger.error('Error auto-selecting created lexicon:', JSON.stringify(e));
         fetchLexicons();
         setShowCreate(false);

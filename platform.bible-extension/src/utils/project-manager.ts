@@ -43,8 +43,8 @@ export class ProjectManager {
         return lexiconCode;
       }
       // The stored lexicon no longer resolves (e.g. it was deleted in FW Lite). Clear it so the
-      // project isn't stuck pointing at a missing lexicon — otherwise every action would open a
-      // broken view — then fall through to prompt for a new selection.
+      // project isn't stuck pointing at a missing lexicon (which would cause every action to open a
+      // broken view), then fall through to prompt for a new selection.
       logger.warn(
         `Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`,
       );

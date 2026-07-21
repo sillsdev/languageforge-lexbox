@@ -195,9 +195,9 @@ export class FwLiteApi {
 
   /**
    * Looks up a project's API type. The cache is in-memory only and empty after an extension
-   * restart, so on a miss we repopulate it from the backend; otherwise a previously created
-   * Harmony/CRDT project would be misrouted to the FwData endpoints and every operation on it would
-   * fail. Falls back to 'FwData' if the type still can't be determined.
+   * restart, so on a miss we repopulate it from the backend; else a Harmony/CRDT project could be
+   * misrouted to the FwData endpoints and every operation on it would fail. Falls back to 'FwData'
+   * if the type can't be determined.
    */
   private async resolveProjectType(code: string): Promise<'FwData' | 'Harmony'> {
     const cached = FwLiteApi.projectTypeByCode.get(code);

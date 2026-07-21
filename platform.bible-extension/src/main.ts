@@ -264,14 +264,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   // DEV-ONLY: a quick lexicon switcher. Lexicon selection is intentionally sticky — once a project
-  // has one, the only supported way to change it is clearing `lexicon.lexiconCode` in the project's
-  // Paratext settings (the next lexicon action then reopens the selector). This menu command is a
-  // development convenience and MUST be removed before release, along with:
+  // has one, the only supported way to change it is clearing `lexicon.lexiconCode` in the project
+  // settings (the next lexicon action then reopens the selector). This menu command is a
+  // development convenience to be removed before release, along with:
   //   - its entry in the `context.registrations.add(...)` list below,
-  //   - the `lexicon.changeLexicon` handler type in src/types/lexicon.d.ts,
-  //   - the `%lexicon_menu_selectLexicon%` menu item in contributions/menus.json, and
-  //   - the `%lexicon_menu_selectLexicon%` string in contributions/localizedStrings.json.
-  // (ProjectManager.openSelector stays — the non-dev clear-and-reopen path uses it too.)
+  //   - the `lexicon.changeLexicon` handler type in `src/types/lexicon.d.ts`,
+  //   - the `%lexicon_menu_selectLexicon%` menu item in `contributions/menus.json`, and
+  //   - the `%lexicon_menu_selectLexicon%` string in `contributions/localizedStrings.json`.
+  // (`ProjectManager.openSelector` stays — the non-dev clear-and-reopen path uses it too.)
   const changeLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.changeLexicon',
     async (webViewId: string) => {
