@@ -125,9 +125,9 @@ export function mergeSearchResults(results: IEntry[][]): IEntry[] {
 }
 
 /**
- * Classifies each candidate against the queries, returning matches strongest-first. `candidates`
- * must be in search-relevance order: that order is kept among equally-strong matches, and similar
- * words are then ordered closest-in-length first.
+ * Classifies each candidate against the queries, returning matches strongest-first by kind
+ * (same-word > similar-word > similar-meaning). `candidates` must be in search-relevance order:
+ * that order is preserved among equally-ranked matches (JS sort is stable).
  */
 export function classifyDuplicateCheckResults(
   candidates: IEntry[],
