@@ -40,20 +40,20 @@
   // Start expanded every time the viewer opens, so a collapse left over from a previous open doesn't
   // carry into the next picture opened directly (not via the arrows).
   $effect(() => {
-    if (open) collapsed = false;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    pictureId; // Rerun the $effect when this changes
+    collapsed = false;
   });
 
   const hasMultiple = $derived(pictures.length > 1);
   function showPrevious() {
     if (currentIndex > 0) {
       pictureId = pictures[currentIndex - 1].id;
-      collapsed = false;
     }
   }
   function showNext() {
     if (currentIndex >= 0 && currentIndex < pictures.length - 1) {
       pictureId = pictures[currentIndex + 1].id;
-      collapsed = false;
     }
   }
 
