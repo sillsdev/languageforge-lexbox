@@ -10,7 +10,7 @@ export type DownloadPictureResult = {success: true} | {success: false; errorMess
  * getFileStream reports failure via the response (not an exception), so the caller decides how to
  * surface `errorMessage` — this keeps the notification/translation in the calling component.
  */
-export async function downloadPicture(api: IMiniLcmJsInvokable, mediaUri: string): Promise<DownloadPictureResult> {
+export async function downloadPictureFile(api: IMiniLcmJsInvokable, mediaUri: string): Promise<DownloadPictureResult> {
   const file = await api.getFileStream(mediaUri, true);
   if (!file.stream) return {success: false, errorMessage: file.errorMessage ?? undefined};
   const blob = await new Response(await file.stream.stream()).blob();

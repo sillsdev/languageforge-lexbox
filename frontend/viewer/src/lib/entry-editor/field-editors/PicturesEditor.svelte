@@ -6,7 +6,7 @@
   import EditPictureDialog from './EditPictureDialog.svelte';
   import PictureViewerDialog from './PictureViewerDialog.svelte';
   import {ACCEPTED_PICTURE_TYPES, isLosslessImage} from './picture-formats';
-  import {downloadPicture as downloadPictureFile} from './picture-actions';
+  import {downloadPictureFile} from './picture-actions';
   import {t} from 'svelte-i18n-lingui';
   import {useLexboxApi} from '$lib/services/service-provider';
   import {useDialogsService} from '$lib/services/dialogs-service';

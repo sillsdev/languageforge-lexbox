@@ -6,7 +6,7 @@
   import {Button} from '$lib/components/ui/button';
   import PictureImage from './PictureImage.svelte';
   import {ACCEPTED_PICTURE_TYPES} from './picture-formats';
-  import {downloadPicture as downloadPictureFile} from './picture-actions';
+  import {downloadPictureFile} from './picture-actions';
   import {t} from 'svelte-i18n-lingui';
   import {useLexboxApi} from '$lib/services/service-provider';
   import {AppNotification} from '$lib/notifications/notifications';
