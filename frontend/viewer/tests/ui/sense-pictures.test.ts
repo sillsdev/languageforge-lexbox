@@ -334,7 +334,7 @@ test.describe('Sense pictures', () => {
     const viewer = page.getByRole('dialog');
     await expect(viewer).toBeVisible({timeout: 5000});
 
-    await expect(viewer.getByRole('heading', {name: 'Picture 1 of 2'})).toBeVisible();
+    await expect(viewer.getByRole('heading', {name: 'Picture 1 / 2'})).toBeVisible();
 
     // Both non-empty captions of the first picture are shown.
     await expect(viewer.getByText('A traditional house')).toBeVisible();
@@ -350,7 +350,7 @@ test.describe('Sense pictures', () => {
     await next.click();
     await expect(viewer.getByText('A modern house')).toBeVisible();
     await expect(viewer.getByText('A traditional house')).toHaveCount(0);
-    await expect(viewer.getByRole('heading', {name: 'Picture 2 of 2'})).toBeVisible();
+    await expect(viewer.getByRole('heading', {name: 'Picture 2 / 2'})).toBeVisible();
     await expect(next).toBeDisabled();
     await expect(previous).toBeEnabled();
 

@@ -6,6 +6,7 @@
   import PictureActionsMenu from './PictureActionsMenu.svelte';
   import {useWritingSystemService, asString} from '$project/data';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import {useEventListener} from 'runed';
   import {t} from 'svelte-i18n-lingui';
 
   type Props = {
@@ -52,13 +53,16 @@
   });
 
   const hasMultiple = $derived(pictures.length > 1);
-  // Window-level so arrows keep working when nothing in the dialog has focus (e.g. after a nav
-  // button disables itself at the end of the list, dropping focus to the body).
-  function onWindowKeydown(e: KeyboardEvent) {
-    if (!open) return;
-    if (e.key === 'ArrowLeft') showPrevious();
-    else if (e.key === 'ArrowRight') showNext();
-  }
+  // Window-level (not on the dialog) so arrows keep working when nothing has focus — e.g. after a
+  // nav button disables itself at the end of the list, dropping focus to the body.
+  useEventListener(
+    () => (open ? window : null),
+    'keydown',
+    (e) => {
+      if (e.key === 'ArrowLeft') showPrevious();
+      else if (e.key === 'ArrowRight') showNext();
+    },
+  );
   function showPrevious() {
     if (currentIndex > 0) {
       pictureId = pictures[currentIndex - 1].id;
@@ -81,18 +85,15 @@
   const shownCaptions = $derived(collapsed ? captions.slice(0, 1) : captions);
 </script>
 
-<svelte:window onkeydown={onWindowKeydown} />
-
 <Dialog.Root bind:open>
   <!-- Shrink-to-fit up to the viewport: override the default min-width so a small picture yields a
        small dialog, while the image itself is capped to the viewport (see PictureImage size="full"). -->
   <Dialog.DialogContent class="w-fit min-w-0 max-w-[calc(100vw-2rem)] max-sm:min-h-0 sm:min-w-0">
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>
+      <Dialog.DialogTitle class="flex items-baseline gap-3">
+        {$t`Picture`}
         {#if hasMultiple && currentIndex >= 0}
-          {$t`Picture ${currentIndex + 1} of ${pictures.length}`}
-        {:else}
-          {$t`Picture`}
+          <span class="text-muted-foreground text-sm font-normal">{currentIndex + 1} / {pictures.length}</span>
         {/if}
       </Dialog.DialogTitle>
     </Dialog.DialogHeader>

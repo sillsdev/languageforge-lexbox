@@ -1836,11 +1836,6 @@ msgstr "Pick a Part of Speech"
 msgid "Picture"
 msgstr "Picture"
 
-#. Fullscreen picture viewer title showing the position in the sense's pictures, e.g. "Picture 2 of 5"
-#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
-msgid "Picture {0} of {1}"
-msgstr "Picture {0} of {1}"
-
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"

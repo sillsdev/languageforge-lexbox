@@ -1841,11 +1841,6 @@ msgstr "Choisir une partie du discours"
 msgid "Picture"
 msgstr ""
 
-#. Fullscreen picture viewer title showing the position in the sense's pictures, e.g. "Picture 2 of 5"
-#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
-msgid "Picture {0} of {1}"
-msgstr ""
-
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
