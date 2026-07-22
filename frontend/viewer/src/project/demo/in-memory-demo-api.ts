@@ -723,7 +723,8 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   // filename (LcmMediaService keys by the file name within the project's resource cache).
   #uploadedFilenames = new Map<string, string>();
   // Pre-seeded demo pictures that have been "downloaded" from the (simulated) remote media service,
-  // so a later local-only request returns them instead of NotFound.
+  // so a later local-only request returns them instead of NotFound — mirroring how a synced project
+  // fetches images on demand.
   #downloadedRemoteFiles = new Set<string>();
 
   getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
