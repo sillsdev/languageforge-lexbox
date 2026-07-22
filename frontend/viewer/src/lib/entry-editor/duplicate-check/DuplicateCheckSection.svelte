@@ -36,7 +36,7 @@
     if (!el) return;
     const observer = new IntersectionObserver(
       ([intersection]) => duplicateWidgetVisible = intersection.isIntersecting,
-      {root: el.closest('[data-slot="dialog-content"]')});
+      {root: el.closest('[data-slot="dialog-content"]'), threshold: [0.5]});
     observer.observe(el);
     return () => observer.disconnect();
   });
