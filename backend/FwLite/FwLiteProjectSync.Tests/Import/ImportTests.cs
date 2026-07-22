@@ -67,7 +67,6 @@ public class ImportTests : IClassFixture<SyncFixture>
         var ws = new WritingSystem
         {
             Id = Guid.NewGuid(),
-            // FwData derives the name from the ws id (LanguageName), so the imported ws carries "French", not the tag
             Name = "French",
             WsId = "fr",
             Abbreviation = "Fr",

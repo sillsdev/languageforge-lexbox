@@ -173,10 +173,8 @@ public class FwDataMiniLcmApi(
             {
                 Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.WsId.Code, out ws);
                 ws.Abbreviation = writingSystem.Abbreviation;
-                // writingSystem.Font is intentionally not applied: FwLite has no font UI, so an incoming
-                // Font is a template/import default that shouldn't override liblcm's per-language default.
-                // If FwLite ever lets users pick fonts, revisit this and UpdateWritingSystemProxy.Font
-                // (which already applies changes).
+                // writingSystem.Font is intentionally not applied: we want to default to liblcm's per-language default.
+                // If FwLite ever lets users pick fonts, revisit this and UpdateWritingSystemProxy.Font (which already applies changes)
                 switch (type)
                 {
                     case WritingSystemType.Analysis:

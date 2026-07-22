@@ -35,7 +35,6 @@ public abstract class WritingSystemTestsBase : MiniLcmTestBase
             Font = "Arial"
         };
         var ws = await Api.CreateWritingSystem(input);
-        // compare against the input, so a dropped field fails instead of round-tripping with itself.
         // Order and Exemplars aren't create inputs (Exemplars is populated from LCM's per-language defaults).
         // Font create behavior intentionally differs per implementation — see CreateWritingSystem_HonorsFont/_IgnoresFont.
         ws.Should().BeEquivalentTo(input, options => options.Excluding(w => w.Order).Excluding(w => w.Exemplars).Excluding(w => w.Font));
