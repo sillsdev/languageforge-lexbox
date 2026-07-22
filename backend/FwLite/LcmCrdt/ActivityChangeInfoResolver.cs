@@ -31,7 +31,7 @@ namespace LcmCrdt;
 /// </summary>
 internal static class ActivityChangeInfoResolver
 {
-    public static async Task<ProjectActivity[]> ResolveAsync(ICrdtDbContext db, IReadOnlyList<ProjectActivity> activities, WritingSystems writingSystems)
+    public static async Task<ProjectActivity[]> ResolveAsync(ICrdtDbContext db, IReadOnlyList<UnresolvedActivity> activities, WritingSystems writingSystems)
     {
         var entryIds = new HashSet<Guid>();
         var senseIds = new HashSet<Guid>();
@@ -187,10 +187,11 @@ internal static class ActivityChangeInfoResolver
             return string.IsNullOrEmpty(senseLabel) ? headword : $"{headword} › {senseLabel}";
         }
 
-        return [.. activities.Select(activity => activity with
-        {
-            ChangeInfo = [.. activity.Changes.Select(change => Build(change, Headword))],
-        })];
+        return [.. activities.Select(activity => new ProjectActivity(
+            activity.CommitId,
+            activity.Timestamp,
+            [.. activity.Changes.Select(change => new ActivityChange(change, Build(change, Headword)))],
+            activity.Metadata))];
 
         ActivityChangeInfo Build(ChangeEntity<IChange> change, Func<Guid, string?> headword)
         {

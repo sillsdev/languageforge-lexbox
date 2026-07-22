@@ -21,13 +21,13 @@ public class HistoryServiceActivityLabelPolicyTests : HistoryServiceActivityTest
 
         var renamed = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // The change that created the entry as "run" now names it by its current headword.
-        renamed.Should().Contain(a => a.ChangeTypes.Contains("CreateEntryChange") && a.ChangeInfo[0].Subject == "jog");
+        renamed.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateEntryChange) && a.Changes[0].Info.Subject == "jog");
 
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Entry>(entryId), Meta());
 
         var deleted = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // Deletion doesn't undo the drift: the label recovered from the last snapshot is the renamed one.
-        deleted.Should().Contain(a => a.ChangeTypes.Contains("CreateEntryChange") && a.ChangeInfo[0].Subject == "jog");
+        deleted.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateEntryChange) && a.Changes[0].Info.Subject == "jog");
     }
 
     [Fact]
@@ -42,12 +42,12 @@ public class HistoryServiceActivityLabelPolicyTests : HistoryServiceActivityTest
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // Only the non-latest rows can catch a regression to the projection (the latest edit's payload and the
         // current text agree).
-        activities.Should().Contain(a => a.ChangeTypes.Contains("CreateUserCommentChange")
-            && a.ChangeInfo[0].Target == "original words");
-        activities.Should().Contain(a => a.ChangeTypes.Contains("EditUserCommentChange")
-            && a.ChangeInfo[0].Target == "second words");
-        activities.Should().Contain(a => a.ChangeTypes.Contains("EditUserCommentChange")
-            && a.ChangeInfo[0].Target == "third words");
+        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateUserCommentChange)
+            && a.Changes[0].Info.Target == "original words");
+        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is EditUserCommentChange)
+            && a.Changes[0].Info.Target == "second words");
+        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is EditUserCommentChange)
+            && a.Changes[0].Info.Target == "third words");
     }
 
     [Fact]
@@ -63,6 +63,6 @@ public class HistoryServiceActivityLabelPolicyTests : HistoryServiceActivityTest
         // position N. Deliberate: the position as of the change isn't recoverable without replaying every
         // sibling sense's snapshot per activity row, while the resolver labels a whole page from one batched
         // query over the projected Senses table.
-        activities.Should().Contain(a => a.ChangeTypes.Contains("CreateSenseChange") && a.ChangeInfo[0].Target == "first₂");
+        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateSenseChange) && a.Changes[0].Info.Target == "first₂");
     }
 }

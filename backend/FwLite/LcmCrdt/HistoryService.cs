@@ -46,17 +46,23 @@ public static class ActivityFilterKeys
 /// </summary>
 public record ActivityChangeInfo(string? Subject, Guid? OwningEntryId, string? Target = null, string? OwningEntryHeadword = null);
 
+public record ActivityChange(ChangeEntity<IChange> Entity, ActivityChangeInfo Info);
+
 public record ProjectActivity(
     Guid CommitId,
     DateTimeOffset Timestamp,
-    List<ChangeEntity<IChange>> Changes,
+    IReadOnlyList<ActivityChange> Changes,
     CommitMetadata Metadata)
 {
     public string ChangeName => HistoryService.ChangesNameHelper(Changes);
-    public string[] ChangeTypes { get; } = [.. Changes.Select(c => HistoryService.GetChangeTypeKey(c.Change)).Distinct()];
-    /// <summary>Resolved display info per change, parallel to <see cref="Changes"/> by index. Set during enrichment.</summary>
-    public IReadOnlyList<ActivityChangeInfo> ChangeInfo { get; init; } = [];
 }
+
+/// <summary>The query-shaped activity row, before <see cref="ActivityChangeInfoResolver"/> turns it into a <see cref="ProjectActivity"/>.</summary>
+internal record UnresolvedActivity(
+    Guid CommitId,
+    DateTimeOffset Timestamp,
+    List<ChangeEntity<IChange>> Changes,
+    CommitMetadata Metadata);
 
 public record ChangeContext(
     Guid CommitId,
@@ -154,7 +160,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         commits = ApplyActivitySort(commits, query.Sort);
         var queryable =
             from commit in commits.Skip(skip).Take(take)
-            select new ProjectActivity(commit.Id,
+            select new UnresolvedActivity(commit.Id,
                 commit.HybridDateTime.DateTime,
                 commit.ChangeEntities.ToList(),
                 commit.Metadata);
@@ -253,9 +259,6 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             return name;
         return changeType.Name;
     }
-
-    internal static string GetChangeTypeKey(IChange change) =>
-        GetChangeTypeKeyFromType(change.GetType());
 
     public static string ChangeTypeLabel(Type changeType)
     {
@@ -400,14 +403,14 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         }
     }
 
-    public static string ChangesNameHelper(List<ChangeEntity<IChange>> changeEntities)
+    public static string ChangesNameHelper(IReadOnlyList<ActivityChange> changes)
     {
-        return changeEntities switch
+        return changes switch
         {
             { Count: 0 } => "No changes",
-            { Count: 1 } => ChangeNameHelper(changeEntities[0].Change),
-            { Count: > 10 } => $"{changeEntities.Count} changes",
-            { Count: var count } => $"{ChangeNameHelper(changeEntities[0].Change)} (+{count - 1} other change{(count > 2 ? "s" : "")})",
+            { Count: 1 } => ChangeNameHelper(changes[0].Entity.Change),
+            { Count: > 10 } => $"{changes.Count} changes",
+            { Count: var count } => $"{ChangeNameHelper(changes[0].Entity.Change)} (+{count - 1} other change{(count > 2 ? "s" : "")})",
         };
     }
 

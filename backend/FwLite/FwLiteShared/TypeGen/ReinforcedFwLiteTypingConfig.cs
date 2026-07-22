@@ -184,6 +184,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
+            typeof(ActivityChange),
             typeof(ActivityChangeInfo),
             typeof(ActivityAuthor),
             typeof(ActivityChangeType),
@@ -200,8 +201,6 @@ public static class ReinforcedFwLiteTypingConfig
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
         builder.ExportAsClass<ChangeType>().WithCodeGenerator<ChangeTypesCodeGenerator>();
-        builder.ExportAsInterface<ProjectActivity>()
-            .WithProperty(a => a.ChangeTypes, p => p.Type<ChangeType[]>());
         builder.ExportAsInterface<ActivityChangeType>()
             .WithProperty(t => t.Key, p => p.Type<ChangeType>());
         builder.ExportAsInterface<ActivityQuery>()

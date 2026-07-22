@@ -103,7 +103,7 @@
         </div>
         <div class="w-full">
           {#if record}
-            <ActivityItem activity={{...record, changes: [record.change], changeTypes: [], changeInfo: []}}/>
+            <ActivityItem activity={{...record, changes: [{entity: record.change}]}}/>
           {/if}
         </div>
       </div>

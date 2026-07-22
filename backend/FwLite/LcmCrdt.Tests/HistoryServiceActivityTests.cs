@@ -116,9 +116,9 @@ public class HistoryServiceActivityTests : HistoryServiceActivityTestsBase
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: [nameof(CreateEntryChange)]));
 
-        activities.Should().OnlyContain(a => a.ChangeTypes.Contains(nameof(CreateEntryChange)));
+        activities.Should().OnlyContain(a => a.Changes.Any(c => c.Entity.Change is CreateEntryChange));
         activities.Should().HaveCountGreaterThanOrEqualTo(1);
-        activities.Should().NotContain(a => a.ChangeTypes.Contains(nameof(CreatePublicationChange)));
+        activities.Should().NotContain(a => a.Changes.Any(c => c.Entity.Change is CreatePublicationChange));
     }
 
     [Fact]
@@ -128,22 +128,22 @@ public class HistoryServiceActivityTests : HistoryServiceActivityTestsBase
         await AddNewPublicationCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         await AddNewPartOfSpeechCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
         (await Service.ProjectActivity(0, 100, new ActivityQuery()))
-            .Should().Contain(a => a.ChangeTypes.Contains(nameof(CreatePartOfSpeechChange)));
+            .Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreatePartOfSpeechChange));
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery(ChangeTypeKeys: [nameof(CreateEntryChange), nameof(CreatePublicationChange)]));
 
         activities.Should().HaveCountGreaterThanOrEqualTo(2); // the entry + publication commits, so the filter can't pass vacuously on an empty result
-        activities.Should().OnlyContain(a => a.ChangeTypes.Any(t => t == nameof(CreateEntryChange) || t == nameof(CreatePublicationChange)));
-        activities.Should().NotContain(a => a.ChangeTypes.Contains(nameof(CreatePartOfSpeechChange)));
+        activities.Should().OnlyContain(a => a.Changes.Any(c => c.Entity.Change is CreateEntryChange || c.Entity.Change is CreatePublicationChange));
+        activities.Should().NotContain(a => a.Changes.Any(c => c.Entity.Change is CreatePartOfSpeechChange));
     }
 
     [Fact]
-    public async Task ProjectActivity_IncludesChangeTypes()
+    public async Task ProjectActivity_IncludesChanges()
     {
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
 
         var activity = (await Service.ProjectActivity(0, 1)).Single();
 
-        activity.ChangeTypes.Should().Contain("CreateEntryChange");
+        activity.Changes.Should().ContainSingle(c => c.Entity.Change is CreateEntryChange);
     }
 }

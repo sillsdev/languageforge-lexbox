@@ -25,10 +25,10 @@ public class ActivityChangeInfoResolverCoverageTests : HistoryServiceActivityTes
         var anyResolved = new Dictionary<string, bool>();
         foreach (var activity in activities)
         {
-            for (var i = 0; i < activity.Changes.Count; i++)
+            foreach (var change in activity.Changes)
             {
-                var name = EntityTypeName(activity.Changes[i].Change.EntityType);
-                var hasSubject = activity.ChangeInfo[i].Subject is not null;
+                var name = EntityTypeName(change.Entity.Change.EntityType);
+                var hasSubject = change.Info.Subject is not null;
                 allResolved[name] = allResolved.GetValueOrDefault(name, true) && hasSubject;
                 anyResolved[name] = anyResolved.GetValueOrDefault(name) || hasSubject;
             }
