@@ -264,7 +264,7 @@ internal static class ActivityChangeInfoResolver
         string? DisplayHeadword(Entry entry)
         {
             var headword = BestAlternative(
-                EntryQueryHelpers.ComputeHeadwords(entry, morphLookup).Values,
+                EntryQueryHelpers.ComputeHeadwords(entry, morphLookup).Values.Where(kvp => !kvp.Key.IsAudio),
                 writingSystemOrder,
                 v => v);
             if (headword is null) return null;
