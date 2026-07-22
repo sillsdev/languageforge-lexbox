@@ -6,6 +6,7 @@
   import {tick} from 'svelte';
   import DuplicateCheck, {type DuplicateSummary} from './DuplicateCheck.svelte';
   import DuplicateSummaryPill from './DuplicateSummaryPill.svelte';
+  import {fly} from 'svelte/transition';
 
   interface Props {
     entry: IEntry;
@@ -46,7 +47,7 @@
     {onNavigateToEntry} />
 </div>
 {#if duplicateSummary && !duplicateWidgetVisible && !pillDismissed}
-  <div class="sticky bottom-0 z-20 h-0 pointer-events-none">
+  <div class="sticky bottom-0 z-20 h-0 pointer-events-none" transition:fly={{y: 50}}>
     <div class="absolute bottom-3 inset-x-0 flex justify-center">
       <DuplicateSummaryPill summary={duplicateSummary}
         onJump={() => jumpToDuplicates()}
