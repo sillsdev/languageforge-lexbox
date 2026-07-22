@@ -85,9 +85,10 @@
   // systems first, then analysis — which is exactly the default order of allWritingSystems().
   const caption = $derived(writingSystemService.first(picture.caption) ?? '');
 
-  // Load through the project-scoped image cache so a mediaUri shared by several pictures — shown in
-  // a dialog, or revisited after navigating entries — is fetched once. On surfaces without a project
-  // scope (stories), fall back to a component-local cache disposed with the component.
+  // Load through the entry-view image cache so a mediaUri shared by several pictures — or the same
+  // picture shown in both the field and a dialog — is fetched once. On surfaces that render pictures
+  // without an entry-view scope (new-entry dialog, activity/subject previews, stories), fall back to
+  // a component-local cache disposed with the component.
   const sharedImageService = useImageService();
   const localImageService = sharedImageService ? undefined : new ImageService(() => projectContext?.maybeApi);
   const imageService = sharedImageService ?? localImageService!;
@@ -95,8 +96,8 @@
 
   // A picture already available locally loads automatically; one that would have to be downloaded
   // from the remote media service shows a "click/tap to load" placeholder instead and is fetched
-  // only when clicked. The cache is shared, so a mediaUri loaded once (here, in a dialog, or in
-  // another entry) displays immediately everywhere.
+  // only when clicked. The cache is shared within the entry view, so a mediaUri loaded once (here or
+  // in a dialog) displays immediately across the entry's pictures.
   const mediaUri = $derived(picture.mediaUri);
   $effect(() => {
     imageService.ensureLocal(mediaUri);

@@ -414,23 +414,27 @@ test.describe('Sense pictures', () => {
     await expect(chevron).toHaveClass(/rotate-180/);
   });
 
-  test('a loaded image stays cached (project-scoped) after navigating to another entry and back', async ({page}) => {
+  test('a downloaded image reloads automatically (no re-click) after navigating away and back', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();
 
-    // Load the first picture on "nyumba" and remember its object URL.
+    // "nyumba"'s first picture is remote-only, so it starts as a "Click to load" placeholder. Click
+    // it to download the file, which then lives locally (server-side cache).
     await projectPage.selectEntryByFilter('nyumba');
     let picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await loadFirstPicture(picturesField);
-    const loadedSrc = await picturesField.locator('img').first().getAttribute('src');
 
-    // Navigate to a different entry, then back to "nyumba".
+    // Navigate to a different entry, then back to "nyumba". The entry-scoped cache is torn down, but
+    // ensureLocal (downloadIfMissing=false) finds the now-local file...
     await projectPage.selectEntryByFilter('ambuka');
     await projectPage.selectEntryByFilter('nyumba');
 
-    // The cache is project-scoped, so the same object URL is displayed immediately — no re-click,
-    // no "click to load" placeholder for that picture.
+    // ...so that picture displays again on its own — no "click to load" placeholder, no re-click and
+    // no extra remote download. (The object URL differs: a fresh cache minted a new one.) Scope to
+    // the first picture: "nyumba"'s other pictures were never downloaded, so they stay placeholders.
     picturesField = page.locator('[style*="grid-area: pictures"]').first();
-    await expect(picturesField.locator('img').first()).toHaveAttribute('src', loadedSrc ?? '', {timeout: 5000});
+    const firstPicture = picturesField.locator('figure').first();
+    await expect(firstPicture.locator('img')).toHaveAttribute('src', /^blob:/, {timeout: 5000});
+    await expect(firstPicture.getByRole('button', {name: 'Click to load'})).toHaveCount(0);
   });
 });
