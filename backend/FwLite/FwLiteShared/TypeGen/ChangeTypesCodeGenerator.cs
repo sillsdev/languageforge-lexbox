@@ -8,7 +8,7 @@ namespace FwLiteShared.TypeGen;
 /// <summary>
 /// Emits a `ChangeType` string-literal union and a `knownChangeTypes` array built from the registered CRDT
 /// change types (<see cref="LcmCrdtKernel.AllChangeTypes"/>) and each type's serialized <c>$type</c>
-/// discriminator (<see cref="HistoryService.GetChangeTypeKeyFromType"/>). Attached to the <c>ChangeTypes</c>
+/// discriminator (<see cref="HistoryService.GetChangeTypeKeyFromType"/>). Attached to the <c>ChangeType</c>
 /// marker; suppresses the marker's own output.
 /// </summary>
 public class ChangeTypesCodeGenerator : ClassCodeGenerator

@@ -39,12 +39,12 @@ public static class ActivityFilterKeys
 
 /// <summary>
 /// Resolved display info for one change, so the frontend can name what the change is about.
-/// <paramref name="Subject"/> is the entity the change is on (entry headword, "headword › gloss" for a sense, or a vocab object's name);
+/// <paramref name="Subject"/> is the entity the change is on (entry headword, "headword › gloss" for a sense, or a possibility's name);
 /// <paramref name="Target"/> is a referenced item named only by id (e.g. the assigned part of speech). Both null when unresolved.
-/// <paramref name="RootEntryId"/> is the entry the change ultimately belongs to (the entry itself, or the owner of a sense/example);
-/// <paramref name="RootEntryHeadword"/> is <paramref name="RootEntryId"/>'s headword, for grouping a commit's changes under one entry.
+/// <paramref name="OwningEntryId"/> is the entry the change ultimately belongs to (the entry itself, or the owner of a sense/example);
+/// <paramref name="OwningEntryHeadword"/> is <paramref name="OwningEntryId"/>'s headword, for grouping a commit's changes under one entry.
 /// </summary>
-public record ActivityChangeInfo(string? Subject, Guid? RootEntryId, string? Target = null, string? RootEntryHeadword = null);
+public record ActivityChangeInfo(string? Subject, Guid? OwningEntryId, string? Target = null, string? OwningEntryHeadword = null);
 
 public record ProjectActivity(
     Guid CommitId,

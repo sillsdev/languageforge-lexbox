@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
 using LinqToDB;
@@ -13,14 +14,20 @@ using SIL.Harmony.Db;
 namespace LcmCrdt;
 
 /// <summary>
-/// Batch-resolves a human label (and the root entry) for each change in a page of activity, so summaries
-/// can name the entry/sense/vocab object a change is about without a per-row lookup. Degradable: leaves
-/// <see cref="ActivityChangeInfo.Subject"/> null for types it doesn't resolve (the frontend falls back to a type label).
-/// Reads the projected snapshot tables, so labels reflect the current state; objects missing from the
-/// projection (deleted) are recovered from their latest snapshot so a delete can still name its subject.
-/// The display headword is the best non-audio alternative across writing systems with morph-type markers
-/// applied (e.g. "-ness" for a suffix); it's null when there's no displayable headword (all empty/audio-only)
-/// or the entry is missing entirely, and the frontend renders a translatable placeholder in that case.
+/// Batch-resolves context for each change in a page of activity, so summaries
+/// can name the entry/sense/possibility a change is about without a per-row lookup.
+///
+/// Names (headwords, glosses, possibility names):
+/// - Use CURRENT data (from the projected tables)
+/// - Deleted objects are recovered from their latest snapshot.
+/// e.g. CreateEntryChange shows the entry's current headword, not the headword at creation time.
+/// We don't use names from renames/patch changes, since only some changes carry enough data to compute a label
+/// and mixed historical/current rows would be worse than uniform drift.
+///
+/// Quotes (longer texts e.g. example sentences, comment snippets):
+/// - Use the text from the change payload, not the current text.
+///
+/// Degradable: leaves <see cref="ActivityChangeInfo.Subject"/> null for types it doesn't resolve.
 /// </summary>
 internal static class ActivityChangeInfoResolver
 {
@@ -73,7 +80,6 @@ internal static class ActivityChangeInfoResolver
                     entryIds.Add(a.ComponentEntryId);
                     entryIds.Add(a.ComplexFormEntryId);
                     break;
-                case SetComplexFormComponentChange { ComponentEntryId: { } cid }: entryIds.Add(cid); break;
             }
         }
 
@@ -93,24 +99,14 @@ internal static class ActivityChangeInfoResolver
             }
         }
 
-        // Walk down to the root entry: component → entry, example → sense → entry. Load both ends of a component link so we can name either.
-        var components = await LoadComponents(db, componentIds);
+        // Walk up to the owning entry: component → entry, example → sense → entry. Load both ends of a component link so we can name either.
+        var components = await LoadWithRecovery(db, componentIds, LoadComponents);
         foreach (var component in components.Values)
         {
             entryIds.Add(component.ComplexFormEntryId);
             entryIds.Add(component.ComponentEntryId);
         }
 
-        // A deleted component link is absent from the projection above, so "Removed component" would have no
-        // headwords. Recover its endpoints from its create change (AddEntryComponentChange carries both entry
-        // ids) — enough to name the complex form and component for basic orientation.
-        var deletedComponentIds = componentIds.Where(id => !components.ContainsKey(id)).ToHashSet();
-        var deletedComponentEndpoints = await LoadComponentEndpointsFromCreate(db, deletedComponentIds);
-        foreach (var (complexFormEntryId, componentEntryId) in deletedComponentEndpoints.Values)
-        {
-            entryIds.Add(complexFormEntryId);
-            entryIds.Add(componentEntryId);
-        }
         var examples = await LoadWithRecovery(db, exampleIds, LoadExamples);
         foreach (var example in examples.Values) senseIds.Add(example.SenseId);
         var senses = await LoadWithRecovery(db, senseIds, LoadSenses);
@@ -164,14 +160,9 @@ internal static class ActivityChangeInfoResolver
 
         string? Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? DisplayHeadword(entry) : null;
 
-        // The distinguishing label for a sense within its entry. FieldWorks numbers senses positionally and
-        // shows the number when an entry has more than one sense — independent of the gloss (unlike homograph
-        // numbers, which key off identical headwords). Rendered like a homograph number: >1 sense →
-        // "{gloss}{subscript number}"; when the gloss is empty, "({number})" — parenthesized so a bare
-        // position can't be mistaken for a gloss that IS a digit (a bare subscript would have nothing to
-        // attach to, and this string is data, so a translatable "no gloss" placeholder can't live here).
-        // A lone sense → its gloss, or "" when it has none (nothing to distinguish).
-        string SenseGlossPart(Sense sense)
+        // Gloss + sense number if >1 sense (Mirrors FieldWorks)
+        // gloss-less sense renders as "({number})" — parenthesized so it can't read as a numeric gloss;
+        string SenseLabel(Sense sense)
         {
             var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
             var index = siblings.FindIndex(s => s.Id == sense.Id);
@@ -188,11 +179,11 @@ internal static class ActivityChangeInfoResolver
         // "headword › senseLabel". Degrades to just the headword when the sense has nothing to distinguish it
         // (a lone, gloss-less sense), and to null when there's neither a headword nor a distinguishing label
         // (Subject is display data, so a translatable fallback has to come from the frontend, not here).
-        string? SenseLabel(string? headword, Sense sense)
+        string? QualifiedSenseLabel(string? headword, Sense sense)
         {
-            var glossPart = SenseGlossPart(sense);
-            if (headword is null) return string.IsNullOrEmpty(glossPart) ? null : glossPart;
-            return string.IsNullOrEmpty(glossPart) ? headword : $"{headword} › {glossPart}";
+            var senseLabel = SenseLabel(sense);
+            if (headword is null) return string.IsNullOrEmpty(senseLabel) ? null : senseLabel;
+            return string.IsNullOrEmpty(senseLabel) ? headword : $"{headword} › {senseLabel}";
         }
 
         return [.. activities.Select(activity => activity with
@@ -205,10 +196,10 @@ internal static class ActivityChangeInfoResolver
             var info = ResolveReorder(change);
             if (info is null)
             {
-                var (subject, rootEntryId) = ResolveSubject(change, headword);
-                info = new ActivityChangeInfo(subject, rootEntryId, TargetLabel(change));
+                var (subject, owningEntryId) = ResolveSubject(change, headword);
+                info = new ActivityChangeInfo(subject, owningEntryId, TargetLabel(change));
             }
-            return info.RootEntryId is { } rootId ? info with { RootEntryHeadword = headword(rootId) } : info;
+            return info.OwningEntryId is { } owningId ? info with { OwningEntryHeadword = headword(owningId) } : info;
         }
 
         // A reorder reads best as "<container> · Reordered <item> <name>": the subject is the parent whose list changed, the target is the moved item.
@@ -217,9 +208,9 @@ internal static class ActivityChangeInfoResolver
             switch (change.Change)
             {
                 case Changes.SetOrderChange<Sense> when senses.TryGetValue(change.EntityId, out var sense):
-                    return new ActivityChangeInfo(Headword(sense.EntryId), sense.EntryId, SenseGlossPart(sense));
+                    return new ActivityChangeInfo(Headword(sense.EntryId), sense.EntryId, SenseLabel(sense));
                 case Changes.SetOrderChange<ExampleSentence> when examples.TryGetValue(change.EntityId, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
-                    return new ActivityChangeInfo(SenseLabel(Headword(exSense.EntryId), exSense), exSense.EntryId, ExampleSnippet(ex.Sentence, writingSystemOrder));
+                    return new ActivityChangeInfo(QualifiedSenseLabel(Headword(exSense.EntryId), exSense), exSense.EntryId, ExampleSnippet(ex.Sentence, writingSystemOrder));
                 case Changes.SetOrderChange<ComplexFormComponent> when components.TryGetValue(change.EntityId, out var comp):
                     return new ActivityChangeInfo(Headword(comp.ComplexFormEntryId), comp.ComplexFormEntryId,
                         entries.ContainsKey(comp.ComponentEntryId) ? Headword(comp.ComponentEntryId) : null);
@@ -228,7 +219,7 @@ internal static class ActivityChangeInfoResolver
             }
         }
 
-        (string? Subject, Guid? RootEntryId) ResolveSubject(ChangeEntity<IChange> change, Func<Guid, string?> headword)
+        (string? Subject, Guid? OwningEntryId) ResolveSubject(ChangeEntity<IChange> change, Func<Guid, string?> headword)
         {
             var id = change.EntityId;
             switch (change.Change.EntityType.Name)
@@ -238,20 +229,16 @@ internal static class ActivityChangeInfoResolver
                 case nameof(Sense) when senses.TryGetValue(id, out var sense):
                     // Adding or removing a sense is a change to its parent entry's structure, so both read as
                     // entry-level ("headword · Added sense senseN" / "· Removed sense senseN"): the subject is the
-                    // parent entry's headword and the sense identifier goes to Target. As inverse operations they
-                    // stay mirror images. Field edits keep the "headword › senseLabel" subject so they read as
+                    // parent entry's headword and the sense identifier goes to Target.
+                    // Field edits keep the "headword › senseLabel" subject so they read as
                     // sense-level (the sense itself is what's constant, a field is what changed).
                     if (change.Change is CreateSenseChange or DeleteChange<Sense>)
                         return (headword(sense.EntryId), sense.EntryId);
-                    return (SenseLabel(headword(sense.EntryId), sense), sense.EntryId);
+                    return (QualifiedSenseLabel(headword(sense.EntryId), sense), sense.EntryId);
                 case nameof(ExampleSentence) when examples.TryGetValue(id, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
-                    return (SenseLabel(headword(exSense.EntryId), exSense), exSense.EntryId);
+                    return (QualifiedSenseLabel(headword(exSense.EntryId), exSense), exSense.EntryId);
                 case nameof(ComplexFormComponent) when components.TryGetValue(id, out var component):
                     return (headword(component.ComplexFormEntryId), component.ComplexFormEntryId);
-                case nameof(ComplexFormComponent) when deletedComponentEndpoints.TryGetValue(id, out var ep):
-                    // The CFC is deleted (absent from the projection); name the complex form from the endpoints
-                    // recovered from its create change. Covers both "Removed component" and add-then-deleted.
-                    return (headword(ep.ComplexFormEntryId), ep.ComplexFormEntryId);
                 case nameof(PartOfSpeech) when partsOfSpeech.TryGetValue(id, out var pos):
                     return (Label(pos.Name), null);
                 case nameof(SemanticDomain) when semanticDomains.TryGetValue(id, out var domain):
@@ -262,7 +249,6 @@ internal static class ActivityChangeInfoResolver
                     return (Label(cft.Name), null);
                 case nameof(MorphType) when morphTypes.TryGetValue(id, out var morphType):
                     return (Label(morphType.Name), null);
-                // Writing systems and custom views name themselves by their plain (non-multi-string) display name.
                 case nameof(WritingSystem) when writingSystemsById.TryGetValue(id, out var ws):
                     return (NullIfEmpty(ws.Name), null);
                 case nameof(CustomView) when customViews.TryGetValue(id, out var view):
@@ -270,7 +256,7 @@ internal static class ActivityChangeInfoResolver
                 case nameof(CommentThread) when commentThreads.TryGetValue(id, out var thread):
                     return CommentSubject(thread, headword);
                 case nameof(UserComment) when userComments.TryGetValue(id, out var comment)
-                                              && commentThreads.TryGetValue(comment.CommentThreadId, out var commentThread):
+                                            && commentThreads.TryGetValue(comment.CommentThreadId, out var commentThread):
                     return CommentSubject(commentThread, headword);
                 default:
                     return (null, null);
@@ -278,9 +264,9 @@ internal static class ActivityChangeInfoResolver
         }
 
         // A comment resolves to whatever its thread is attached to — the entry headword, the "headword › gloss"
-        // sense label, or the example's sense label — with that entity's root entry. Mirrors the
+        // sense label, or the example's sense label — with that entity's owning entry. Mirrors the
         // Entry/Sense/ExampleSentence arms above so a comment reads at the same level as an edit to its subject.
-        (string? Subject, Guid? RootEntryId) CommentSubject(CommentThread thread, Func<Guid, string?> headword)
+        (string? Subject, Guid? OwningEntryId) CommentSubject(CommentThread thread, Func<Guid, string?> headword)
         {
             var subjectId = thread.SubjectId;
             switch (thread.SubjectType)
@@ -288,9 +274,9 @@ internal static class ActivityChangeInfoResolver
                 case SubjectType.Entry:
                     return (headword(subjectId), subjectId);
                 case SubjectType.Sense when senses.TryGetValue(subjectId, out var sense):
-                    return (SenseLabel(headword(sense.EntryId), sense), sense.EntryId);
+                    return (QualifiedSenseLabel(headword(sense.EntryId), sense), sense.EntryId);
                 case SubjectType.ExampleSentence when examples.TryGetValue(subjectId, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
-                    return (SenseLabel(headword(exSense.EntryId), exSense), exSense.EntryId);
+                    return (QualifiedSenseLabel(headword(exSense.EntryId), exSense), exSense.EntryId);
                 default:
                     return (null, null);
             }
@@ -300,7 +286,6 @@ internal static class ActivityChangeInfoResolver
         string? TargetLabel(ChangeEntity<IChange> change) => change.Change switch
         {
             SetPartOfSpeechChange { PartOfSpeechId: { } id } when partsOfSpeech.TryGetValue(id, out var pos) => Label(pos.Name),
-            // Add/remove of a reference names the referenced item as the target; the two stay mirror images.
             AddSemanticDomainChange a when semanticDomains.TryGetValue(a.SemanticDomain.Id, out var domain) => SemanticDomainLabel(domain),
             RemoveSemanticDomainChange r when semanticDomains.TryGetValue(r.SemanticDomainId, out var domain) => SemanticDomainLabel(domain),
             AddPublicationChange a when publications.TryGetValue(a.Publication.Id, out var publication) => Label(publication.Name),
@@ -309,20 +294,26 @@ internal static class ActivityChangeInfoResolver
             RemoveComplexFormTypeChange r when complexFormTypes.TryGetValue(r.ComplexFormTypeId, out var cft) => Label(cft.Name),
             // Component links resolve the component being linked (the change's subject is the complex form).
             AddEntryComponentChange a when entries.TryGetValue(a.ComponentEntryId, out var component) => DisplayHeadword(component),
-            SetComplexFormComponentChange { ComponentEntryId: { } cid } when entries.TryGetValue(cid, out var component) => DisplayHeadword(component),
-            // A deleted component link (e.g. "Removed component"): name the component from the recovered endpoints.
+            // A deleted component link (e.g. "Removed component"): name the component from the recovered link.
             _ when change.Change.EntityType == typeof(ComplexFormComponent)
-                   && deletedComponentEndpoints.TryGetValue(change.EntityId, out var ep)
-                   && entries.TryGetValue(ep.ComponentEntryId, out var component) => DisplayHeadword(component),
+                   && components.TryGetValue(change.EntityId, out var link)
+                   && entries.TryGetValue(link.ComponentEntryId, out var component) => DisplayHeadword(component),
             // Sense create/delete pair with the ResolveSubject override above: subject is the parent entry
-            // headword, target names the sense ("gwa₁ · Added sense senseN" — SenseGlossPart falls back to a
+            // headword, target names the sense ("gwa₁ · Added sense senseN" — SenseLabel falls back to a
             // subscript when the gloss is empty, matching sense-edit summaries).
-            CreateSenseChange or DeleteChange<Sense> when senses.TryGetValue(change.EntityId, out var sense) => SenseGlossPart(sense),
-            // Any change to an example sentence (create/edit/delete) names the sentence itself as the target: a
-            // short truncated snippet, since the full text is too long and is the example's only identity.
+            CreateSenseChange or DeleteChange<Sense> when senses.TryGetValue(change.EntityId, out var sense) => SenseLabel(sense),
+            // A create's snippet quotes the text as it was WRITTEN, from the change's own payload: unlike a
+            // headword or gloss (identifiers that should track current state), a snippet reads as a quote of
+            // the created content, so a later edit must not rewrite it. Null for an example created blank —
+            // correct, nothing was written. These arms must precede the entity-type arms below.
+            CreateExampleSentenceChange c => c.Sentence is { } s ? ExampleSnippet(s, writingSystemOrder) : null,
+            CreateUserCommentChange c => CommentSnippet(c.Text),
+            // Any other change to an example sentence (edit/delete) names the sentence itself as the target: a
+            // short truncated snippet of the current text, since the full text is too long and is the example's
+            // only identity.
             _ when change.Change.EntityType == typeof(ExampleSentence)
                    && examples.TryGetValue(change.EntityId, out var ex) => ExampleSnippet(ex.Sentence, writingSystemOrder),
-            // Any change to a comment (create/edit/delete) names the comment text as the target: a short
+            // Any other change to a comment (edit/delete) names the current comment text as the target: a short
             // truncated snippet, like an example sentence (the subject already names what it's a comment on).
             _ when change.Change.EntityType == typeof(UserComment)
                    && userComments.TryGetValue(change.EntityId, out var comment) => CommentSnippet(comment.Text),
@@ -331,8 +322,7 @@ internal static class ActivityChangeInfoResolver
     }
 
     // A projected load paired with its deleted-id recovery — the two always go together for a label load, so a
-    // deleted object can still be named. (LoadNamed recovers internally; the loads that recover a different way,
-    // like ComplexFormComponent via its create change, don't use this.)
+    // deleted object can still be named. (LoadNamed recovers internally.)
     private static async Task<Dictionary<Guid, T>> LoadWithRecovery<T>(ICrdtDbContext db,
         HashSet<Guid> ids,
         Func<ICrdtDbContext, HashSet<Guid>, Task<Dictionary<Guid, T>>> load)
@@ -447,23 +437,6 @@ internal static class ActivityChangeInfoResolver
         return loaded.ToDictionary(t => t.Id);
     }
 
-    // The endpoints of deleted component links, recovered from their create change (which carries both entry
-    // ids). Two steps: load the changes for these CFC ids, then read the ids off the AddEntryComponentChange.
-    private static async Task<Dictionary<Guid, (Guid ComplexFormEntryId, Guid ComponentEntryId)>> LoadComponentEndpointsFromCreate(
-        ICrdtDbContext db, HashSet<Guid> cfcIds)
-    {
-        if (cfcIds.Count == 0) return [];
-        var changeEntities = await db.Set<ChangeEntity<IChange>>()
-            .Where(ce => cfcIds.Contains(ce.EntityId)
-                && Sql.Expr<string>("json_extract({0}, '$.\"$type\"')", ce.Change) == nameof(AddEntryComponentChange))
-            .ToListAsyncLinqToDB();
-        return changeEntities
-            .Select(ce => ce.Change)
-            .OfType<AddEntryComponentChange>()
-            .GroupBy(c => c.EntityId)
-            .ToDictionary(g => g.Key, g => (g.First().ComplexFormEntryId, g.First().ComponentEntryId));
-    }
-
     private static async Task<Dictionary<Guid, ComplexFormComponent>> LoadComponents(ICrdtDbContext db, HashSet<Guid> ids)
     {
         if (ids.Count == 0) return [];
@@ -487,8 +460,8 @@ internal static class ActivityChangeInfoResolver
         return loaded.ToDictionary(d => d.Id);
     }
 
-    // Vocab objects the resolver only labels by name (part of speech, publication, complex-form type, morph type).
-    // Recovers deleted ids like the per-type loads, so a removed vocab object can still be named.
+    // Objects the resolver labels only by name (possibilities like parts of speech, plus writing systems and
+    // custom views). Recovers deleted ids like the per-type loads, so a removed item can still be named.
     private static async Task<Dictionary<Guid, T>> LoadNamed<T>(ICrdtDbContext db, HashSet<Guid> ids, Expression<Func<T, T>> project)
         where T : class, IObjectWithId
     {

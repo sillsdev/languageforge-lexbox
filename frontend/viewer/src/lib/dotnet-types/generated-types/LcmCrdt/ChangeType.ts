@@ -34,7 +34,6 @@ export type ChangeType =
   | 'ReplacePublicationChange'
   | 'ReplaceSemanticDomainChange'
   | 'SetCommentThreadStatusChange'
-  | 'SetComplexFormComponentChange'
   | 'SetFirstTranslationIdChange'
   | 'SetMainPublicationChange'
   | 'SetOrderChange:ComplexFormComponent'
@@ -102,7 +101,6 @@ export const knownChangeTypes = [
   'ReplacePublicationChange',
   'ReplaceSemanticDomainChange',
   'SetCommentThreadStatusChange',
-  'SetComplexFormComponentChange',
   'SetFirstTranslationIdChange',
   'SetMainPublicationChange',
   'SetOrderChange:ComplexFormComponent',
