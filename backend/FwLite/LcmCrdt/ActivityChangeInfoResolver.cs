@@ -137,106 +137,59 @@ internal static class ActivityChangeInfoResolver
         // in case we only have values for "missing"/deleted WS's
         var writingSystemOrder = BuildWsOrder(writingSystems);
 
-        string? Label(MultiString multiString) => BestAlternative(multiString.Values, writingSystemOrder, v => v);
-
-        string? DisplayHeadword(Entry entry)
-        {
-            morphLookup.TryGetValue(entry.MorphType, out var morphData);
-            var headword = BestAlternative(
-                EntryQueryHelpers.ComputeHeadwords(entry, morphLookup).Values.Where(kvp => !kvp.Key.IsAudio),
-                writingSystemOrder,
-                v => v?.Trim());
-            if (string.IsNullOrEmpty(headword)) return null;
-            return entry.HomographNumber > 0 ? headword + Subscript(entry.HomographNumber) : headword;
-        }
-
-        // The combination of code + name is the standard label for a semantic domain
-        string SemanticDomainLabel(SemanticDomain domain) =>
-            Label(domain.Name) is { } name ? $"{domain.Code} {name}" : domain.Code;
-
-        string? Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? DisplayHeadword(entry) : null;
-
-        // Gloss + sense number if >1 sense (Mirrors FieldWorks)
-        // A gloss-less sense renders as "◌₂", which is a tad quircky.
-        // Rejected alternatives: '(2)' is too different from subscript. '_₂' risks making the subscript hard to read. '-₂' dash/emdash could read as formatting.
-        string SenseLabel(Sense sense)
-        {
-            var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
-            var index = siblings.FindIndex(s => s.Id == sense.Id);
-            var glossText = Label(sense.Gloss);
-            // A deleted sense (recovered from its snapshot) is absent from the live sibling list — it has no
-            // meaningful position, so no number.
-            if (index < 0 || siblings.Count <= 1) return glossText ?? "";
-            return (glossText ?? "◌") + Subscript(index + 1);
-        }
-
-        // "headword › senseLabel". Degrades to just the headword when the sense has nothing to distinguish it
-        // (a lone, gloss-less sense), and to null when there's neither a headword nor a distinguishing label
-        // (Subject is display data, so a translatable fallback has to come from the frontend, not here).
-        string? QualifiedSenseLabel(string? headword, Sense sense)
-        {
-            var senseLabel = SenseLabel(sense);
-            if (headword is null) return string.IsNullOrEmpty(senseLabel) ? null : senseLabel;
-            return string.IsNullOrEmpty(senseLabel) ? headword : $"{headword} › {senseLabel}";
-        }
-
         return [.. activities.Select(activity => new ProjectActivity(
             activity.CommitId,
             activity.Timestamp,
-            [.. activity.Changes.Select(change => new ActivityChange(change, Build(change, Headword)))],
+            [.. activity.Changes.Select(change => new ActivityChange(change, Build(change)))],
             activity.Metadata))];
 
-        ActivityChangeInfo Build(ChangeEntity<IChange> change, Func<Guid, string?> headword)
+        ActivityChangeInfo Build(ChangeEntity<IChange> change)
         {
             var info = ResolveReorder(change);
             if (info is null)
             {
-                var (subject, owningEntryId) = ResolveSubject(change, headword);
+                var (subject, owningEntryId) = ResolveSubject(change);
                 info = new ActivityChangeInfo(subject, owningEntryId, TargetLabel(change));
             }
-            return info.OwningEntryId is { } owningId ? info with { OwningEntryHeadword = headword(owningId) } : info;
+            return info.OwningEntryId is { } owningId ? info with { OwningEntryHeadword = Headword(owningId) } : info;
         }
 
         // A reorder reads best as "<container> · Reordered <item> <name>": the subject is the parent whose list changed, the target is the moved item.
-        ActivityChangeInfo? ResolveReorder(ChangeEntity<IChange> change)
+        ActivityChangeInfo? ResolveReorder(ChangeEntity<IChange> change) => change.Change switch
         {
-            switch (change.Change)
-            {
-                case Changes.SetOrderChange<Sense> when senses.TryGetValue(change.EntityId, out var sense):
-                    return new ActivityChangeInfo(Headword(sense.EntryId), sense.EntryId, SenseLabel(sense));
-                case Changes.SetOrderChange<ExampleSentence> when examples.TryGetValue(change.EntityId, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
-                    return new ActivityChangeInfo(QualifiedSenseLabel(Headword(exSense.EntryId), exSense), exSense.EntryId, ExampleSnippet(ex.Sentence, writingSystemOrder));
-                case Changes.SetOrderChange<ComplexFormComponent> when components.TryGetValue(change.EntityId, out var comp):
-                    return new ActivityChangeInfo(Headword(comp.ComplexFormEntryId), comp.ComplexFormEntryId,
-                        entries.ContainsKey(comp.ComponentEntryId) ? Headword(comp.ComponentEntryId) : null);
-                default:
-                    return null;
-            }
-        }
+            Changes.SetOrderChange<Sense> when senses.TryGetValue(change.EntityId, out var sense) =>
+                new ActivityChangeInfo(Headword(sense.EntryId), sense.EntryId, SenseLabel(sense)),
+            Changes.SetOrderChange<ExampleSentence> when examples.TryGetValue(change.EntityId, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense) =>
+                new ActivityChangeInfo(QualifiedSenseLabel(Headword(exSense.EntryId), exSense), exSense.EntryId, ExampleSnippet(ex.Sentence, writingSystemOrder)),
+            Changes.SetOrderChange<ComplexFormComponent> when components.TryGetValue(change.EntityId, out var comp) =>
+                new ActivityChangeInfo(Headword(comp.ComplexFormEntryId), comp.ComplexFormEntryId,
+                    entries.ContainsKey(comp.ComponentEntryId) ? Headword(comp.ComponentEntryId) : null),
+            _ => null
+        };
 
-        (string? Subject, Guid? OwningEntryId) ResolveSubject(ChangeEntity<IChange> change, Func<Guid, string?> headword)
+        (string? Subject, Guid? OwningEntryId) ResolveSubject(ChangeEntity<IChange> change)
         {
             var id = change.EntityId;
             switch (change.Change.EntityType.Name)
             {
                 case nameof(Entry):
-                    return (headword(id), id);
+                    return (Headword(id), id);
                 case nameof(Sense) when senses.TryGetValue(id, out var sense):
                     // Adding or removing a sense is a change to its parent entry's structure, so both read as
                     // entry-level ("headword · Added sense senseN" / "· Removed sense senseN"): the subject is the
                     // parent entry's headword and the sense identifier goes to Target.
                     if (change.Change is CreateSenseChange or DeleteChange<Sense>)
-                        return (headword(sense.EntryId), sense.EntryId);
+                        return (Headword(sense.EntryId), sense.EntryId);
                     // Field edits keep the "headword › senseLabel" subject so they read as
                     // sense-level (the sense itself is what's constant, a field is what changed).
-                    return (QualifiedSenseLabel(headword(sense.EntryId), sense), sense.EntryId);
+                    return (QualifiedSenseLabel(Headword(sense.EntryId), sense), sense.EntryId);
                 case nameof(ExampleSentence) when examples.TryGetValue(id, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
                     // Example edits keep the "headword › senseLabel" subject.
                     // Unlike senses they don't have a "name" and a 3-level subject would be quite verbose.
                     // Consumers can treat the target as part of the subject if they want
-                    return (QualifiedSenseLabel(headword(exSense.EntryId), exSense), exSense.EntryId);
+                    return (QualifiedSenseLabel(Headword(exSense.EntryId), exSense), exSense.EntryId);
                 case nameof(ComplexFormComponent) when components.TryGetValue(id, out var component):
-                    return (headword(component.ComplexFormEntryId), component.ComplexFormEntryId);
+                    return (Headword(component.ComplexFormEntryId), component.ComplexFormEntryId);
                 case nameof(PartOfSpeech) when partsOfSpeech.TryGetValue(id, out var pos):
                     return (Label(pos.Name), null);
                 case nameof(SemanticDomain) when semanticDomains.TryGetValue(id, out var domain):
@@ -252,30 +205,25 @@ internal static class ActivityChangeInfoResolver
                 case nameof(CustomView) when customViews.TryGetValue(id, out var view):
                     return (NullIfEmpty(view.Name), null);
                 case nameof(CommentThread) when commentThreads.TryGetValue(id, out var thread):
-                    return CommentSubject(thread, headword);
+                    return CommentSubject(thread);
                 case nameof(UserComment) when userComments.TryGetValue(id, out var comment)
                                             && commentThreads.TryGetValue(comment.CommentThreadId, out var commentThread):
-                    return CommentSubject(commentThread, headword);
+                    return CommentSubject(commentThread);
                 default:
                     return (null, null);
             }
         }
 
-        (string? Subject, Guid? OwningEntryId) CommentSubject(CommentThread thread, Func<Guid, string?> headword)
+        (string? Subject, Guid? OwningEntryId) CommentSubject(CommentThread thread) => thread.SubjectType switch
         {
-            var subjectId = thread.SubjectId;
-            switch (thread.SubjectType)
-            {
-                case SubjectType.Entry:
-                    return (headword(subjectId), subjectId);
-                case SubjectType.Sense when senses.TryGetValue(subjectId, out var sense):
-                    return (QualifiedSenseLabel(headword(sense.EntryId), sense), sense.EntryId);
-                case SubjectType.ExampleSentence when examples.TryGetValue(subjectId, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
-                    return (QualifiedSenseLabel(headword(exSense.EntryId), exSense), exSense.EntryId);
-                default:
-                    return (null, null);
-            }
-        }
+            SubjectType.Entry =>
+                (Headword(thread.SubjectId), thread.SubjectId),
+            SubjectType.Sense when senses.TryGetValue(thread.SubjectId, out var sense) =>
+                (QualifiedSenseLabel(Headword(sense.EntryId), sense), sense.EntryId),
+            SubjectType.ExampleSentence when examples.TryGetValue(thread.SubjectId, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense) =>
+                (QualifiedSenseLabel(Headword(exSense.EntryId), exSense), exSense.EntryId),
+            _ => (null, null)
+        };
 
         // The item a change references (the part of speech set, the domain/publication/type removed).
         string? TargetLabel(ChangeEntity<IChange> change) => change.Change switch
@@ -310,6 +258,48 @@ internal static class ActivityChangeInfoResolver
                    && userComments.TryGetValue(change.EntityId, out var comment) => CommentSnippet(comment.Text),
             _ => null
         };
+
+        string? Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? DisplayHeadword(entry) : null;
+
+        string? DisplayHeadword(Entry entry)
+        {
+            var headword = BestAlternative(
+                EntryQueryHelpers.ComputeHeadwords(entry, morphLookup).Values,
+                writingSystemOrder,
+                v => v);
+            if (headword is null) return null;
+            return entry.HomographNumber > 0 ? headword + Subscript(entry.HomographNumber) : headword;
+        }
+
+        // "headword › senseLabel". Degrades to just the headword when the sense has nothing to distinguish it
+        // (a lone, gloss-less sense), and to null when there's neither a headword nor a distinguishing label
+        // (Subject is display data, so a translatable fallback has to come from the frontend, not here).
+        string? QualifiedSenseLabel(string? headword, Sense sense)
+        {
+            var senseLabel = SenseLabel(sense);
+            if (headword is null) return string.IsNullOrEmpty(senseLabel) ? null : senseLabel;
+            return string.IsNullOrEmpty(senseLabel) ? headword : $"{headword} › {senseLabel}";
+        }
+
+        // Gloss + sense number if >1 sense (Mirrors FieldWorks)
+        // A gloss-less sense renders as "◌₂", which is a tad quircky.
+        // Rejected alternatives: '(2)' is too different from subscript. '_₂' risks making the subscript hard to read. '-₂' dash/emdash could read as formatting.
+        string SenseLabel(Sense sense)
+        {
+            var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
+            var index = siblings.FindIndex(s => s.Id == sense.Id);
+            var glossText = Label(sense.Gloss);
+            // A deleted sense (recovered from its snapshot) is absent from the live sibling list — it has no
+            // meaningful position, so no number.
+            if (index < 0 || siblings.Count <= 1) return glossText ?? "";
+            return (glossText ?? "◌") + Subscript(index + 1);
+        }
+
+        // The combination of code + name is the standard label for a semantic domain
+        string SemanticDomainLabel(SemanticDomain domain) =>
+            Label(domain.Name) is { } name ? $"{domain.Code} {name}" : domain.Code;
+
+        string? Label(MultiString multiString) => BestAlternative(multiString.Values, writingSystemOrder, v => v);
     }
 
     // A projected load paired with its deleted-id recovery — the two always go together for a label load, so a
@@ -322,6 +312,18 @@ internal static class ActivityChangeInfoResolver
         var loaded = await load(db, ids);
         await RecoverDeleted(db, ids, loaded);
         return loaded;
+    }
+
+    // Objects the resolver labels only by name (possibilities like parts of speech, plus writing systems and
+    // custom views). Recovers deleted ids like the per-type loads, so a removed item can still be named.
+    private static async Task<Dictionary<Guid, T>> LoadNamed<T>(ICrdtDbContext db, HashSet<Guid> ids, Expression<Func<T, T>> project)
+        where T : class, IObjectWithId
+    {
+        if (ids.Count == 0) return [];
+        var loaded = await db.Set<T>().Where(o => ids.Contains(o.Id)).Select(project).ToListAsyncLinqToDB();
+        var result = loaded.ToDictionary(o => o.Id);
+        await RecoverDeleted(db, ids, result);
+        return result;
     }
 
     // Bulk loads snapshots for things not available in the projected tables (because they're deleted),
@@ -405,25 +407,6 @@ internal static class ActivityChangeInfoResolver
         return loaded.ToDictionary(e => e.Id);
     }
 
-    private static async Task<Dictionary<Guid, UserComment>> LoadUserComments(ICrdtDbContext db, HashSet<Guid> ids)
-    {
-        if (ids.Count == 0) return [];
-        var loaded = await db.Set<UserComment>().Where(c => ids.Contains(c.Id))
-            .Select(c => new UserComment { Id = c.Id, CommentThreadId = c.CommentThreadId, Text = c.Text })
-            .ToListAsyncLinqToDB();
-        return loaded.ToDictionary(c => c.Id);
-    }
-
-    // Only the thread's subject (what it's attached to) is used to label the thread; not its comments.
-    private static async Task<Dictionary<Guid, CommentThread>> LoadCommentThreads(ICrdtDbContext db, HashSet<Guid> ids)
-    {
-        if (ids.Count == 0) return [];
-        var loaded = await db.Set<CommentThread>().Where(t => ids.Contains(t.Id))
-            .Select(t => new CommentThread { Id = t.Id, SubjectId = t.SubjectId, SubjectType = t.SubjectType })
-            .ToListAsyncLinqToDB();
-        return loaded.ToDictionary(t => t.Id);
-    }
-
     private static async Task<Dictionary<Guid, ComplexFormComponent>> LoadComponents(ICrdtDbContext db, HashSet<Guid> ids)
     {
         if (ids.Count == 0) return [];
@@ -447,29 +430,34 @@ internal static class ActivityChangeInfoResolver
         return loaded.ToDictionary(d => d.Id);
     }
 
-    // Objects the resolver labels only by name (possibilities like parts of speech, plus writing systems and
-    // custom views). Recovers deleted ids like the per-type loads, so a removed item can still be named.
-    private static async Task<Dictionary<Guid, T>> LoadNamed<T>(ICrdtDbContext db, HashSet<Guid> ids, Expression<Func<T, T>> project)
-        where T : class, IObjectWithId
+    private static async Task<Dictionary<Guid, UserComment>> LoadUserComments(ICrdtDbContext db, HashSet<Guid> ids)
     {
         if (ids.Count == 0) return [];
-        var loaded = await db.Set<T>().Where(o => ids.Contains(o.Id)).Select(project).ToListAsyncLinqToDB();
-        var result = loaded.ToDictionary(o => o.Id);
-        await RecoverDeleted(db, ids, result);
-        return result;
+        var loaded = await db.Set<UserComment>().Where(c => ids.Contains(c.Id))
+            .Select(c => new UserComment { Id = c.Id, CommentThreadId = c.CommentThreadId, Text = c.Text })
+            .ToListAsyncLinqToDB();
+        return loaded.ToDictionary(c => c.Id);
     }
 
-    // A plain (non-multi-string) display name, degraded to null when blank so it matches the null-when-empty
-    // convention the MultiString labels use (the frontend renders a placeholder rather than an empty subject).
-    private static string? NullIfEmpty(string? name) => string.IsNullOrWhiteSpace(name) ? null : name;
-
-    private static string Subscript(int number)
+    // Only the thread's subject (what it's attached to) is used to label the thread; not its comments.
+    private static async Task<Dictionary<Guid, CommentThread>> LoadCommentThreads(ICrdtDbContext db, HashSet<Guid> ids)
     {
-        Span<char> buffer = stackalloc char[11]; // widest int32, e.g. "-2147483648"
-        number.TryFormat(buffer, out var charsWritten);
-        for (var i = 0; i < charsWritten; i++)
-            buffer[i] = buffer[i] == '-' ? '₋' : (char)(buffer[i] - '0' + '₀');
-        return buffer[..charsWritten].ToString();
+        if (ids.Count == 0) return [];
+        var loaded = await db.Set<CommentThread>().Where(t => ids.Contains(t.Id))
+            .Select(t => new CommentThread { Id = t.Id, SubjectId = t.SubjectId, SubjectType = t.SubjectType })
+            .ToListAsyncLinqToDB();
+        return loaded.ToDictionary(t => t.Id);
+    }
+
+    // Rank each writing system by the project's configured display order (GetWritingSystems already sorts by
+    // Order), so a label shows the alternative the editor lists first. A WsId shared by a vernacular and an
+    // analysis system keeps its first rank; cross-type interleaving doesn't really matter since a field holds one type.
+    private static Dictionary<WritingSystemId, int> BuildWsOrder(WritingSystems writingSystems)
+    {
+        var rank = new Dictionary<WritingSystemId, int>();
+        foreach (var ws in writingSystems.Vernacular.Concat(writingSystems.Analysis))
+            rank.TryAdd(ws.WsId, rank.Count);
+        return rank;
     }
 
     /// iterates alternatives in WS-order rather than just WS's just in case there's only data for a "missing" WS
@@ -489,15 +477,17 @@ internal static class ActivityChangeInfoResolver
         return null;
     }
 
-    // Rank each writing system by the project's configured display order (GetWritingSystems already sorts by
-    // Order), so a label shows the alternative the editor lists first. A WsId shared by a vernacular and an
-    // analysis system keeps its first rank; cross-type interleaving doesn't really matter since a field holds one type.
-    private static Dictionary<WritingSystemId, int> BuildWsOrder(WritingSystems writingSystems)
+    // A plain (non-multi-string) display name, degraded to null when blank so it matches the null-when-empty
+    // convention the MultiString labels use (the frontend renders a placeholder rather than an empty subject).
+    private static string? NullIfEmpty(string? name) => string.IsNullOrWhiteSpace(name) ? null : name;
+
+    private static string Subscript(int number)
     {
-        var rank = new Dictionary<WritingSystemId, int>();
-        foreach (var ws in writingSystems.Vernacular.Concat(writingSystems.Analysis))
-            rank.TryAdd(ws.WsId, rank.Count);
-        return rank;
+        Span<char> buffer = stackalloc char[11]; // widest int32, e.g. "-2147483648"
+        number.TryFormat(buffer, out var charsWritten);
+        for (var i = 0; i < charsWritten; i++)
+            buffer[i] = buffer[i] == '-' ? '₋' : (char)(buffer[i] - '0' + '₀');
+        return buffer[..charsWritten].ToString();
     }
 
     // Max grapheme clusters shown in an example-sentence snippet before it's truncated.
@@ -510,11 +500,8 @@ internal static class ActivityChangeInfoResolver
     internal static string? ExampleSnippet(RichMultiString sentence,
         IReadOnlyDictionary<WritingSystemId, int>? wsOrder = null)
     {
-        return BestAlternative(sentence, wsOrder ?? ImmutableDictionary<WritingSystemId, int>.Empty, richString =>
-        {
-            var plainText = Truncate(richString?.GetPlainText(), TextSnippetBudget);
-            return string.IsNullOrWhiteSpace(plainText) ? null : plainText;
-        });
+        return BestAlternative(sentence, wsOrder ?? ImmutableDictionary<WritingSystemId, int>.Empty,
+            richString => Truncate(richString?.GetPlainText(), TextSnippetBudget));
     }
 
     private static string? CommentSnippet(string? text) => Truncate(text, TextSnippetBudget);
