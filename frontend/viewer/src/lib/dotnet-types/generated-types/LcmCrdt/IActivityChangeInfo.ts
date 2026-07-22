@@ -3,13 +3,11 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import type {ChangeType} from './ChangeType';
-import type {ActivitySort} from './ActivitySort';
-
-export interface IActivityQuery
+export interface IActivityChangeInfo
 {
-	authorFilterKeys?: string[];
-	changeTypeKeys?: ChangeType[];
-	sort: ActivitySort;
+	subject?: string;
+	owningEntryId?: string;
+	target?: string;
+	owningEntryHeadword?: string;
 }
 /* eslint-enable */

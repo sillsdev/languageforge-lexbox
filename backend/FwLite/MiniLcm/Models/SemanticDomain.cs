@@ -1,6 +1,6 @@
 namespace MiniLcm.Models;
 
-public class SemanticDomain : IObjectWithId<SemanticDomain>
+public class SemanticDomain : IPossibility, IObjectWithId<SemanticDomain>
 {
     public virtual Guid Id { get; set; }
     public virtual MultiString Name { get; set; } = new();

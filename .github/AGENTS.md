@@ -81,7 +81,7 @@ flowchart TD
 ### FwLite is Separate
 
 `fw-lite.yaml` is **independent** from the main LexBox workflows:
-- Builds on Windows (MAUI requirement)
+- Core .NET build/tests run on Linux (`FwLiteCore.slnf`); MAUI build/tests on Windows only
 - Has its own test suite
 - Publishes standalone apps, not Docker images
 - Does NOT deploy to K8s
@@ -212,7 +212,7 @@ See `integration-test-gha.yaml` for the pattern (it's complex).
 ## FwLite CI Details (`fw-lite.yaml`)
 
 This is the most complex workflow because it:
-- Builds .NET on Windows (MAUI)
+- Builds core .NET on Linux, MAUI on Windows
 - Builds viewer (Node.js)
 - Runs Playwright tests
 - Publishes for 5 platforms (Windows, Mac x64, Mac ARM, Linux x64, Linux ARM)
@@ -221,16 +221,21 @@ This is the most complex workflow because it:
 
 | Job | Runner | Purpose |
 |-----|--------|---------|
-| `build-and-test` | windows-latest | .NET build + tests |
+| `build-and-test` | ubuntu-latest | Core .NET build + tests (`FwLiteCore.slnf`) |
 | `frontend` | ubuntu-latest | Build viewer, Playwright snapshots |
 | `frontend-component-unit-tests` | ubuntu-latest | Vitest unit tests |
 | `publish-mac` | macos-latest | macOS binaries |
 | `publish-linux` | ubuntu-latest | Linux binaries |
-| `publish-windows` | windows-latest | Windows MAUI + MSIX |
+| `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX |
 
-### Why Windows?
+### Solution filters
 
-.NET MAUI builds require Windows SDK. Can't build Windows target on Linux.
+- `FwLiteCore.slnf` — CI fast path (no MAUI projects)
+- `FwLiteOnly.slnf` — local full build including MAUI
+
+### Why Windows for MAUI?
+
+.NET MAUI Windows builds require the Windows SDK. Can't build Windows MAUI targets on Linux.
 
 ### Artifacts
 
@@ -320,7 +325,7 @@ Challenges:
 - Test data management is complex
 
 Current state:
-- Unit tests in `FwLiteOnly.slnf`
+- Unit tests in `FwLiteCore.slnf` (CI) / `FwLiteOnly.slnf` (local, includes MAUI)
 - Playwright snapshot tests for viewer
 - No full E2E tests in CI yet
 

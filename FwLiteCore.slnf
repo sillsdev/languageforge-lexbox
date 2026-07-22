@@ -1,0 +1,19 @@
+{
+  "solution": {
+    "path": "LexBox.sln",
+    "projects": [
+      "backend\\FwLite\\FwDataMiniLcmBridge.Tests\\FwDataMiniLcmBridge.Tests.csproj",
+      "backend\\FwLite\\FwDataMiniLcmBridge\\FwDataMiniLcmBridge.csproj",
+      "backend\\FwLite\\FwLiteProjectSync.Tests\\FwLiteProjectSync.Tests.csproj",
+      "backend\\FwLite\\FwLiteProjectSync\\FwLiteProjectSync.csproj",
+      "backend\\FwLite\\FwLiteShared\\FwLiteShared.csproj",
+      "backend\\FwLite\\FwLiteShared.Tests\\FwLiteShared.Tests.csproj",
+      "backend\\FwLite\\FwLiteWeb\\FwLiteWeb.csproj",
+      "backend\\FwLite\\LcmCrdt.Tests\\LcmCrdt.Tests.csproj",
+      "backend\\FwLite\\LcmCrdt\\LcmCrdt.csproj",
+      "backend\\FwLite\\MiniLcm\\MiniLcm.csproj",
+      "backend\\FwLite\\MiniLcm.Tests\\MiniLcm.Tests.csproj",
+      "backend\\LfClassicData\\LfClassicData.csproj"
+    ]
+  }
+}
