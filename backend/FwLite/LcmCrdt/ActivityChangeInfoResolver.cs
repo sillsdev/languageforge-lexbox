@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -112,8 +113,7 @@ internal static class ActivityChangeInfoResolver
         var senses = await LoadWithRecovery(db, senseIds, LoadSenses);
         foreach (var sense in senses.Values) entryIds.Add(sense.EntryId);
 
-        // Sibling senses of every affected sense's entry, so a sense's subject can carry its 1-based position
-        // (and detect duplicate glosses) without a per-sense query. Ordered by Order to match the editor.
+        // For looking up sense numbers
         var sensesByEntry = await LoadSensesByEntry(db, [.. senses.Values.Select(s => s.EntryId)]);
 
         var entries = await LoadWithRecovery(db, entryIds, LoadEntries);
@@ -126,26 +126,22 @@ internal static class ActivityChangeInfoResolver
             w => new WritingSystem { Id = w.Id, WsId = w.WsId, Name = w.Name, Abbreviation = w.Abbreviation, Font = w.Font, Type = w.Type });
         var customViews = await LoadNamed<CustomView>(db, customViewIds, v => new CustomView { Id = v.Id, Name = v.Name });
 
-        // Markers (e.g. suffix "-") for the display headword, keyed by morph-type kind; first wins on duplicates.
-        // Only needed to render an entry headword, so skip the load entirely when no entry is being resolved.
+        // Used to render headwords, so skip the load entirely when no entry is being resolved.
         var morphLookup = entryIds.Count == 0
             ? []
             : (await db.Set<MorphType>().Select(m => new MorphType { Kind = m.Kind, Prefix = m.Prefix, Postfix = m.Postfix }).ToListAsyncLinqToDB())
                 .GroupBy(m => m.Kind)
                 .ToDictionary(g => g.Key, g => g.First());
 
-        // The project's writing-system display order; the label helpers below pick the first non-empty
-        // alternative in this order rather than alphabetically by writing-system code.
+        // A dictionary for quick order lookup, so we can iterate multi-strings instead of known WS's
+        // in case we only have values for "missing"/deleted WS's
         var writingSystemOrder = BuildWsOrder(writingSystems);
 
-        // The alternative to show for a multi-writing-system name: first non-empty in configured order (see BestAlternative).
-        string? Label(MultiString multiString) => BestAlternative(multiString.Values, writingSystemOrder, v => v?.Trim());
+        string? Label(MultiString multiString) => BestAlternative(multiString.Values, writingSystemOrder, v => v);
 
-        // Best non-audio headword alternative (configured order, like Label) with morph-type markers applied
-        // (e.g. "-ness" for a suffix); null when there's no displayable text. FieldWorks distinguishes same-spelled
-        // entries by a homograph number shown as a subscript, assigned (> 0) only on a collision.
         string? DisplayHeadword(Entry entry)
         {
+            morphLookup.TryGetValue(entry.MorphType, out var morphData);
             var headword = BestAlternative(
                 EntryQueryHelpers.ComputeHeadwords(entry, morphLookup).Values.Where(kvp => !kvp.Key.IsAudio),
                 writingSystemOrder,
@@ -154,15 +150,15 @@ internal static class ActivityChangeInfoResolver
             return entry.HomographNumber > 0 ? headword + Subscript(entry.HomographNumber) : headword;
         }
 
-        // The app shows a domain as "code name" (e.g. "5.2 Food"); the code alone is too cryptic to identify it.
+        // The combination of code + name is the standard label for a semantic domain
         string SemanticDomainLabel(SemanticDomain domain) =>
             Label(domain.Name) is { } name ? $"{domain.Code} {name}" : domain.Code;
 
         string? Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? DisplayHeadword(entry) : null;
 
         // Gloss + sense number if >1 sense (Mirrors FieldWorks)
-        // A gloss-less sense renders as "◌₂" — U+25CC DOTTED CIRCLE, the standard stand-in base for a
-        // mark with nothing to attach to (this string is data, so a translatable placeholder can't live here).
+        // A gloss-less sense renders as "◌₂", which is a tad quircky.
+        // Rejected alternatives: '(2)' is too different from subscript. '_₂' risks making the subscript hard to read. '-₂' dash/emdash could read as formatting.
         string SenseLabel(Sense sense)
         {
             var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
@@ -170,11 +166,8 @@ internal static class ActivityChangeInfoResolver
             var glossText = Label(sense.Gloss);
             // A deleted sense (recovered from its snapshot) is absent from the live sibling list — it has no
             // meaningful position, so no number.
-            if (index < 0) return glossText ?? "";
-            var number = index + 1;
-            var multiple = siblings.Count > 1;
-            if (!string.IsNullOrEmpty(glossText)) return multiple ? glossText + Subscript(number) : glossText;
-            return multiple ? "◌" + Subscript(number) : "";
+            if (index < 0 || siblings.Count <= 1) return glossText ?? "";
+            return (glossText ?? "◌") + Subscript(index + 1);
         }
 
         // "headword › senseLabel". Degrades to just the headword when the sense has nothing to distinguish it
@@ -232,12 +225,15 @@ internal static class ActivityChangeInfoResolver
                     // Adding or removing a sense is a change to its parent entry's structure, so both read as
                     // entry-level ("headword · Added sense senseN" / "· Removed sense senseN"): the subject is the
                     // parent entry's headword and the sense identifier goes to Target.
-                    // Field edits keep the "headword › senseLabel" subject so they read as
-                    // sense-level (the sense itself is what's constant, a field is what changed).
                     if (change.Change is CreateSenseChange or DeleteChange<Sense>)
                         return (headword(sense.EntryId), sense.EntryId);
+                    // Field edits keep the "headword › senseLabel" subject so they read as
+                    // sense-level (the sense itself is what's constant, a field is what changed).
                     return (QualifiedSenseLabel(headword(sense.EntryId), sense), sense.EntryId);
                 case nameof(ExampleSentence) when examples.TryGetValue(id, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
+                    // Example edits keep the "headword › senseLabel" subject.
+                    // Unlike senses they don't have a "name" and a 3-level subject would be quite verbose.
+                    // Consumers can treat the target as part of the subject if they want
                     return (QualifiedSenseLabel(headword(exSense.EntryId), exSense), exSense.EntryId);
                 case nameof(ComplexFormComponent) when components.TryGetValue(id, out var component):
                     return (headword(component.ComplexFormEntryId), component.ComplexFormEntryId);
@@ -265,9 +261,6 @@ internal static class ActivityChangeInfoResolver
             }
         }
 
-        // A comment resolves to whatever its thread is attached to — the entry headword, the "headword › gloss"
-        // sense label, or the example's sense label — with that entity's owning entry. Mirrors the
-        // Entry/Sense/ExampleSentence arms above so a comment reads at the same level as an edit to its subject.
         (string? Subject, Guid? OwningEntryId) CommentSubject(CommentThread thread, Func<Guid, string?> headword)
         {
             var subjectId = thread.SubjectId;
@@ -284,7 +277,7 @@ internal static class ActivityChangeInfoResolver
             }
         }
 
-        // The item a change references only by id (the part of speech set, the domain/publication/type removed).
+        // The item a change references (the part of speech set, the domain/publication/type removed).
         string? TargetLabel(ChangeEntity<IChange> change) => change.Change switch
         {
             SetPartOfSpeechChange { PartOfSpeechId: { } id } when partsOfSpeech.TryGetValue(id, out var pos) => Label(pos.Name),
@@ -301,8 +294,7 @@ internal static class ActivityChangeInfoResolver
                    && components.TryGetValue(change.EntityId, out var link)
                    && entries.TryGetValue(link.ComponentEntryId, out var component) => DisplayHeadword(component),
             // Sense create/delete pair with the ResolveSubject override above: subject is the parent entry
-            // headword, target names the sense ("gwa₁ · Added sense senseN" — SenseLabel falls back to a
-            // subscript when the gloss is empty, matching sense-edit summaries).
+            // headword, target names the sense ("gwa₁ · Added sense senseN").
             CreateSenseChange or DeleteChange<Sense> when senses.TryGetValue(change.EntityId, out var sense) => SenseLabel(sense),
             // Comment quotes: create and edit both carry the complete new text, so every row can quote what was
             // written at that moment (the subject already names what it's a comment on). Must precede the
@@ -332,11 +324,8 @@ internal static class ActivityChangeInfoResolver
         return loaded;
     }
 
-    // Deleted objects are dropped from the projected tables, so the loads below can't label them ("Deleted
-    // word" with no word). Recover any still-missing ids from their latest snapshot — a delete's own snapshot
-    // keeps every field, only DeletedAt is set. No-op in the common case where nothing is missing; when ids
-    // ARE missing (deleted objects visible on the page — rare and few), one window query picks each entity's
-    // newest snapshot without pulling its whole history.
+    // Bulk loads snapshots for things not available in the projected tables (because they're deleted),
+    // but that we still want to give a name to.
     private static async Task RecoverDeleted<T>(ICrdtDbContext db, HashSet<Guid> ids, Dictionary<Guid, T> loaded)
         where T : class, IObjectWithId
     {
@@ -369,8 +358,7 @@ internal static class ActivityChangeInfoResolver
         }
     }
 
-    // Per-type projected loads: only the columns the resolver reads, so we skip hydrating heavy JSONB columns
-    // (definitions, notes, nested senses/components, pictures, …) that never feed a label.
+    // Per-type projected loads: only the columns the resolver uses for labeling
 
     private static async Task<Dictionary<Guid, Entry>> LoadEntries(ICrdtDbContext db, HashSet<Guid> ids)
     {
@@ -426,7 +414,7 @@ internal static class ActivityChangeInfoResolver
         return loaded.ToDictionary(c => c.Id);
     }
 
-    // Only the thread's subject (what it's attached to) is needed to label a comment; its comment list isn't.
+    // Only the thread's subject (what it's attached to) is used to label the thread; not its comments.
     private static async Task<Dictionary<Guid, CommentThread>> LoadCommentThreads(ICrdtDbContext db, HashSet<Guid> ids)
     {
         if (ids.Count == 0) return [];
@@ -484,11 +472,8 @@ internal static class ActivityChangeInfoResolver
         return buffer[..charsWritten].ToString();
     }
 
-    private static readonly IReadOnlyDictionary<WritingSystemId, int> EmptyWsOrder = new Dictionary<WritingSystemId, int>();
-
-    // The alternative to display from a multi-writing-system value: the first non-empty one in the project's
-    // configured writing-system order, falling back to WS code so the pick stays deterministic for a writing
-    // system not in the order map (and in tests, where none is loaded). Null when every alternative is empty.
+    /// iterates alternatives in WS-order rather than just WS's just in case there's only data for a "missing" WS
+    /// <returns>the best (based on WS order) non-empty alternative or null</returns>
     private static string? BestAlternative<T>(
         IEnumerable<KeyValuePair<WritingSystemId, T>> alternatives,
         IReadOnlyDictionary<WritingSystemId, int> wsOrder,
@@ -498,7 +483,7 @@ internal static class ActivityChangeInfoResolver
             .OrderBy(kvp => wsOrder.GetValueOrDefault(kvp.Key, int.MaxValue))
             .ThenBy(kvp => kvp.Key.Code))
         {
-            var text = render(kvp.Value);
+            var text = render(kvp.Value)?.Trim();
             if (!string.IsNullOrEmpty(text)) return text;
         }
         return null;
@@ -506,7 +491,7 @@ internal static class ActivityChangeInfoResolver
 
     // Rank each writing system by the project's configured display order (GetWritingSystems already sorts by
     // Order), so a label shows the alternative the editor lists first. A WsId shared by a vernacular and an
-    // analysis system keeps its first rank; cross-type interleaving doesn't matter since a field holds one type.
+    // analysis system keeps its first rank; cross-type interleaving doesn't really matter since a field holds one type.
     private static Dictionary<WritingSystemId, int> BuildWsOrder(WritingSystems writingSystems)
     {
         var rank = new Dictionary<WritingSystemId, int>();
@@ -516,27 +501,22 @@ internal static class ActivityChangeInfoResolver
     }
 
     // Max grapheme clusters shown in an example-sentence snippet before it's truncated.
-    // Small on purpose: it acts as a name/subject for the parent entity
-    // Should arguably be handled in CSS, but it's nice having something subject-like to populate the Subject prop with.
-    public const int TextSnippetBudget = 20;
+    // Small on purpose: it acts as a name/summary for the entity.
+    // Truncation should arguably be handled in CSS. We'll see.
+    internal const int TextSnippetBudget = 20;
 
     private static readonly Regex WhitespaceRun = new(@"\s+", RegexOptions.Compiled);
 
-    // A short one-line label for an example sentence: the best non-empty writing system's text (in configured
-    // order, like Label), flattened from rich text and whitespace-collapsed, then truncated to a grapheme
-    // budget. Null when no writing system has displayable text (mirrors the null gloss/headword degradation).
     internal static string? ExampleSnippet(RichMultiString sentence,
         IReadOnlyDictionary<WritingSystemId, int>? wsOrder = null)
     {
-        return BestAlternative(sentence, wsOrder ?? EmptyWsOrder, richString =>
+        return BestAlternative(sentence, wsOrder ?? ImmutableDictionary<WritingSystemId, int>.Empty, richString =>
         {
             var plainText = Truncate(richString?.GetPlainText(), TextSnippetBudget);
             return string.IsNullOrWhiteSpace(plainText) ? null : plainText;
         });
     }
 
-    // A short one-line label for a comment: its (plain-string) text, whitespace-collapsed and truncated to the
-    // same budget as an example snippet. Null when the comment has no displayable text.
     private static string? CommentSnippet(string? text) => Truncate(text, TextSnippetBudget);
 
     // Truncate to at most `budget` grapheme clusters (never splitting a surrogate pair or combining mark),

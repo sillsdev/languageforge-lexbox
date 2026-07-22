@@ -16,6 +16,8 @@ public class ActivityChangeInfoResolverExampleSnippetTests
     [InlineData("The quick brown fox jumps over the lazy dog", "The quick brown fox…")] // 4 words
     // A single long token with no space to break on → hard grapheme cut at the budget.
     [InlineData("Supercalifragilisticexpialidocious is long", "Supercalifragilistic…")]
+    // A space in the first half of the window is ignored — backing off to it would collapse the snippet to "ab…".
+    [InlineData("ab Supercalifragilisticexpialidocious", "ab Supercalifragilis…")]
     public void ExampleSnippet_TruncatesSpacedText(string input, string expected)
     {
         ActivityChangeInfoResolver.ExampleSnippet(Sentence(input)).Should().Be(expected);
