@@ -1,4 +1,5 @@
 import {ActivitySort, type IActivityAuthor, type IActivityQuery, type IProjectActivity} from '$lib/dotnet-types';
+import type {ChangeType} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeType';
 import {gt} from 'svelte-i18n-lingui';
 
 export const ALL_AUTHORS = '__all__';
@@ -48,7 +49,7 @@ export function resolveFilterKeys(selected: MultiFilterSelection, allKeys: strin
 export function toServerQuery(filters: ActivityFilters): IActivityQuery {
   return {
     authorFilterKeys: filters.authorFilterKeys === 'all' ? undefined : filters.authorFilterKeys,
-    changeTypeKeys: filters.changeTypeFilterKeys === 'all' ? undefined : filters.changeTypeFilterKeys,
+    changeTypeKeys: filters.changeTypeFilterKeys === 'all' ? undefined : filters.changeTypeFilterKeys as ChangeType[],
     sort: filters.sort,
   };
 }

@@ -27,7 +27,7 @@ public enum MorphTypeKind
     DiscontiguousPhrase,
 }
 
-public class MorphType : IObjectWithId<MorphType>
+public class MorphType : IPossibility, IObjectWithId<MorphType>
 {
     public virtual Guid Id { get; set; }
     public virtual required MorphTypeKind Kind { get; set; }
