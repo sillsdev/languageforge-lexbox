@@ -17,15 +17,15 @@ namespace LcmCrdt;
 /// Batch-resolves context for each change in a page of activity, so summaries
 /// can name the entry/sense/possibility a change is about without a per-row lookup.
 ///
-/// Names (headwords, glosses, possibility names):
-/// - Use CURRENT data (from the projected tables)
+/// In most cases we simply load CURRENT data: (headwords, glosses, possibility names, example-sentence snippets)
+/// - From the projected tables
 /// - Deleted objects are recovered from their latest snapshot.
-/// e.g. CreateEntryChange shows the entry's current headword, not the headword at creation time.
-/// We don't use names from renames/patch changes, since only some changes carry enough data to compute a label
+/// e.g. CreateEntryChange shows the entry's CURRENT headword - NOT the headword at CREATION time.
+/// We don't read from the change payload, since only some changes carry enough data to compute a label
 /// and mixed historical/current rows would be worse than uniform drift.
 ///
-/// Quotes (longer texts e.g. example sentences, comment snippets):
-/// - Use the text from the change payload, not the current text.
+/// Comment changes are the exception:
+/// - Every change carries the full comment text
 ///
 /// Degradable: leaves <see cref="ActivityChangeInfo.Subject"/> null for types it doesn't resolve.
 /// </summary>
@@ -161,7 +161,8 @@ internal static class ActivityChangeInfoResolver
         string? Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? DisplayHeadword(entry) : null;
 
         // Gloss + sense number if >1 sense (Mirrors FieldWorks)
-        // gloss-less sense renders as "({number})" — parenthesized so it can't read as a numeric gloss;
+        // A gloss-less sense renders as "◌₂" — U+25CC DOTTED CIRCLE, the standard stand-in base for a
+        // mark with nothing to attach to (this string is data, so a translatable placeholder can't live here).
         string SenseLabel(Sense sense)
         {
             var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
@@ -173,7 +174,7 @@ internal static class ActivityChangeInfoResolver
             var number = index + 1;
             var multiple = siblings.Count > 1;
             if (!string.IsNullOrEmpty(glossText)) return multiple ? glossText + Subscript(number) : glossText;
-            return multiple ? $"({number})" : "";
+            return multiple ? "◌" + Subscript(number) : "";
         }
 
         // "headword › senseLabel". Degrades to just the headword when the sense has nothing to distinguish it
@@ -302,19 +303,16 @@ internal static class ActivityChangeInfoResolver
             // headword, target names the sense ("gwa₁ · Added sense senseN" — SenseLabel falls back to a
             // subscript when the gloss is empty, matching sense-edit summaries).
             CreateSenseChange or DeleteChange<Sense> when senses.TryGetValue(change.EntityId, out var sense) => SenseLabel(sense),
-            // A create's snippet quotes the text as it was WRITTEN, from the change's own payload: unlike a
-            // headword or gloss (identifiers that should track current state), a snippet reads as a quote of
-            // the created content, so a later edit must not rewrite it. Null for an example created blank —
-            // correct, nothing was written. These arms must precede the entity-type arms below.
-            CreateExampleSentenceChange c => c.Sentence is { } s ? ExampleSnippet(s, writingSystemOrder) : null,
+            // Comment quotes: create and edit both carry the complete new text, so every row can quote what was
+            // written at that moment (the subject already names what it's a comment on). Must precede the
+            // entity-type fallback below, which would show the current text.
             CreateUserCommentChange c => CommentSnippet(c.Text),
-            // Any other change to an example sentence (edit/delete) names the sentence itself as the target: a
-            // short truncated snippet of the current text, since the full text is too long and is the example's
-            // only identity.
+            EditUserCommentChange c => CommentSnippet(c.Text),
+            // Any change to an example sentence names the sentence itself as the target: a short truncated
+            // snippet of the current text, since the full text is too long and is the example's only identity.
             _ when change.Change.EntityType == typeof(ExampleSentence)
                    && examples.TryGetValue(change.EntityId, out var ex) => ExampleSnippet(ex.Sentence, writingSystemOrder),
-            // Any other change to a comment (edit/delete) names the current comment text as the target: a short
-            // truncated snippet, like an example sentence (the subject already names what it's a comment on).
+            // A deleted comment names its last known text, recovered from its final snapshot.
             _ when change.Change.EntityType == typeof(UserComment)
                    && userComments.TryGetValue(change.EntityId, out var comment) => CommentSnippet(comment.Text),
             _ => null

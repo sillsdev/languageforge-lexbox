@@ -90,10 +90,10 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // With more than one sense every sense is numbered by position (like FieldWorks), independent of the
         // gloss — unique or not — shown as a subscript after the gloss, like a homograph number. An empty
-        // gloss shows the parenthesized position instead.
+        // gloss shows a dotted-circle placeholder for the subscript to attach to.
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "to run₁");
         activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "a jog₂");
-        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "(3)");
+        activities.Should().Contain(a => a.ChangeInfo.Count == 1 && a.ChangeInfo[0].Subject == "run" && a.ChangeInfo[0].Target == "◌₃");
     }
 
     [Fact]
