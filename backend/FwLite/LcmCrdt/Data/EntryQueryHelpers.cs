@@ -126,7 +126,8 @@ public static class EntryQueryHelpers
         // Iterate all WS keys that have data, not just "current" vernacular WSs,
         // so we don't lose headwords for non-current or future writing systems.
         var wsIds = entry.CitationForm.Values.Keys
-            .Union(entry.LexemeForm.Values.Keys);
+            .Union(entry.LexemeForm.Values.Keys)
+            .Where(ws => !ws.IsAudio);
 
         foreach (var wsId in wsIds)
         {

@@ -264,7 +264,7 @@ internal static class ActivityChangeInfoResolver
         string? DisplayHeadword(Entry entry)
         {
             var headword = BestAlternative(
-                EntryQueryHelpers.ComputeHeadwords(entry, morphLookup).Values.Where(kvp => !kvp.Key.IsAudio),
+                EntryQueryHelpers.ComputeHeadwords(entry, morphLookup).Values,
                 writingSystemOrder,
                 v => v);
             if (headword is null) return null;
@@ -468,6 +468,7 @@ internal static class ActivityChangeInfoResolver
         Func<T, string?> render)
     {
         foreach (var kvp in alternatives
+            .Where(kvp => !kvp.Key.IsAudio)
             .OrderBy(kvp => wsOrder.GetValueOrDefault(kvp.Key, int.MaxValue))
             .ThenBy(kvp => kvp.Key.Code))
         {

@@ -165,12 +165,8 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 commit.ChangeEntities.ToList(),
                 commit.Metadata);
 
-        // Independent reads on separate contexts (GetWritingSystems opens its own repo), so overlap them.
-        var activitiesTask = queryable.ToLinqToDB().ToArrayAsyncLinqToDB();
-        var writingSystemsTask = miniLcmApi.GetWritingSystems();
-        await Task.WhenAll(activitiesTask, writingSystemsTask);
-        var activities = await activitiesTask;
-        var writingSystems = await writingSystemsTask;
+        var activities = await queryable.ToLinqToDB().ToArrayAsyncLinqToDB();
+        var writingSystems = await miniLcmApi.GetWritingSystems();
         return await ActivityChangeInfoResolver.ResolveAsync(dbContext, activities, writingSystems);
     }
 
