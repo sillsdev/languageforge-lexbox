@@ -19,7 +19,6 @@ using SIL.LCModel.Core.Text;
 using SIL.LCModel.Core.WritingSystems;
 using SIL.LCModel.DomainServices;
 using SIL.LCModel.Infrastructure;
-using SIL.WritingSystems;
 using CollectionExtensions = SIL.Extensions.CollectionExtensions;
 
 namespace FwDataMiniLcmBridge.Api;
@@ -174,8 +173,10 @@ public class FwDataMiniLcmApi(
             {
                 Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.WsId.Code, out ws);
                 ws.Abbreviation = writingSystem.Abbreviation;
-                if (!string.IsNullOrEmpty(writingSystem.Font) && writingSystem.Font != ws.DefaultFontName)
-                    ws.DefaultFont = new FontDefinition(writingSystem.Font);
+                // writingSystem.Font is intentionally not applied: FwLite has no font UI, so an incoming
+                // Font is a template/import default that shouldn't override liblcm's per-language default.
+                // If FwLite ever lets users pick fonts, revisit this and UpdateWritingSystemProxy.Font
+                // (which already applies changes).
                 switch (type)
                 {
                     case WritingSystemType.Analysis:
