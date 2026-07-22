@@ -25,7 +25,7 @@
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
-  import CommentDialog from '$lib/entry-editor/CommentDialog.svelte';
+  import CommentDialog from '$lib/entry-editor/comments/CommentDialog.svelte';
   import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
   import DevContent from '$lib/layout/DevContent.svelte';
 

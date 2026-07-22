@@ -20,8 +20,8 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "(unknown)"
 msgstr "(unknown)"
 
@@ -357,9 +357,9 @@ msgstr "Browse view failed"
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -415,8 +415,8 @@ msgstr "clear"
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Close"
@@ -427,7 +427,7 @@ msgstr "Close"
 msgid "Close Dictionary"
 msgstr "Close Dictionary"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Closed"
 msgstr "Closed"
 
@@ -441,12 +441,12 @@ msgstr "Code"
 msgid "Color"
 msgstr "Color"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
 msgstr "Comments"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentDialog.svelte
 msgid "Comments for {0}"
 msgstr "Comments for {0}"
 
@@ -757,11 +757,11 @@ msgstr "Downloading..."
 msgid "e.g. th, sw"
 msgstr "e.g. th, sw"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit"
 msgstr "Edit"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
 msgstr "Edit comment"
 
@@ -780,7 +780,7 @@ msgstr "Edit Picture"
 msgid "Editor"
 msgstr "Editor"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
 msgstr "Empty comment"
 
@@ -1317,7 +1317,7 @@ msgstr "Loaded file"
 msgid "Loading activity"
 msgstr "Loading activity"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
 msgstr "Loading comments..."
 
@@ -1568,7 +1568,7 @@ msgstr "No audio"
 msgid "No authors"
 msgstr "No authors"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "No comment threads yet."
 msgstr "No comment threads yet."
 
@@ -1730,7 +1730,7 @@ msgstr "One FieldWorks Classic commit may consist of changes to multiple entries
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Open"
 msgstr "Open"
 
@@ -2004,7 +2004,7 @@ msgstr "Review"
 msgid "rose"
 msgstr "rose"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
 msgstr "Save"
 
@@ -2145,7 +2145,7 @@ msgstr "Show"
 msgid "Show {0} more..."
 msgstr "Show {0} more..."
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Sign in to add comments."
 
@@ -2177,7 +2177,7 @@ msgstr "Something went wrong"
 msgid "Specific field"
 msgstr "Specific field"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a new thread"
 msgstr "Start a new thread"
 
@@ -2388,7 +2388,7 @@ msgstr "This task is complete"
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Thread"
 msgstr "Thread"
 
@@ -2688,11 +2688,11 @@ msgstr "Word or Display as is required"
 msgid "Word or meaning:"
 msgstr "Word or meaning:"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Write a reply..."
 msgstr "Write a reply..."
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Write the first comment..."
 msgstr "Write the first comment..."
 

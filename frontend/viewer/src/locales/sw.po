@@ -25,8 +25,8 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} mabadiliko)"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "(unknown)"
 msgstr ""
 
@@ -362,9 +362,9 @@ msgstr ""
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -420,8 +420,8 @@ msgstr "futa"
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Funga"
@@ -432,7 +432,7 @@ msgstr "Funga"
 msgid "Close Dictionary"
 msgstr "Funga Kamusi"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Closed"
 msgstr ""
 
@@ -446,12 +446,12 @@ msgstr ""
 msgid "Color"
 msgstr "Rangi"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentDialog.svelte
 msgid "Comments for {0}"
 msgstr ""
 
@@ -762,11 +762,11 @@ msgstr "Inapakua..."
 msgid "e.g. th, sw"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
 msgstr ""
 
@@ -785,7 +785,7 @@ msgstr ""
 msgid "Editor"
 msgstr "Mhariri"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
 msgstr ""
 
@@ -1322,7 +1322,7 @@ msgstr ""
 msgid "Loading activity"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
 msgstr ""
 
@@ -1573,7 +1573,7 @@ msgstr "Hakuna sauti"
 msgid "No authors"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "No comment threads yet."
 msgstr ""
 
@@ -1735,7 +1735,7 @@ msgstr "Kumbuka moja ya FieldWorks Classic inaweza kuwa na mabadiliko kwa ingizo
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Open"
 msgstr "Fungua"
 
@@ -2009,7 +2009,7 @@ msgstr "Tathmini"
 msgid "rose"
 msgstr "waridi"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
 msgstr ""
 
@@ -2150,7 +2150,7 @@ msgstr "Onyesha"
 msgid "Show {0} more..."
 msgstr "Onyesha {0} zaidi..."
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr ""
 
@@ -2182,7 +2182,7 @@ msgstr ""
 msgid "Specific field"
 msgstr "Sehemu mahsusi"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a new thread"
 msgstr ""
 
@@ -2393,7 +2393,7 @@ msgstr "Jukumu hili limekamilika"
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Hii itaoanisha kopia za FieldWorks Lite na FieldWorks Classic za mradi wako kwenye Lexbox."
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Thread"
 msgstr ""
 
@@ -2693,11 +2693,11 @@ msgstr "Neno au Onyesha kulingana na inavyohitajika"
 msgid "Word or meaning:"
 msgstr "Neno au maana:"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Write a reply..."
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Write the first comment..."
 msgstr ""
 
