@@ -13,14 +13,18 @@
     /** Opens the fullscreen viewer; without it (or when readonly) the picture isn't interactive
         and no actions menu is offered. */
     onView?: () => void;
+    /** Opens the edit dialog; wired into the actions menu (the "Edit" item). */
     onEdit?: () => void;
+    /** Downloads the picture; wired into the actions menu (and long-press menu). */
     onDownload?: () => void;
+    /** Deletes the picture (with confirmation); wired into the actions menu. */
     onDelete?: () => void;
-    /** Disables the actions while an operation is in flight. */
+    /** Disables the actions affordance while an operation is in flight. */
     busy?: boolean;
+    /** Whether to render the caption beneath the picture (hidden inside the edit/viewer dialogs). */
     showCaption?: boolean;
-    /** 'thumbnail' (default) is the fixed-height field size; 'full' fills the viewer up to the
-        viewport while never exceeding the image's native size. */
+    /** 'thumbnail' (default) is the fixed-height field size; 'full' fills its container (the
+        viewer's fixed stage) while never exceeding the image's native size. */
     size?: 'thumbnail' | 'full';
     readonly?: boolean;
   };
@@ -29,7 +33,7 @@
   const interactive = $derived(!readonly && !!onView);
   const imageClass = $derived(
     size === 'full'
-      ? 'max-h-[80dvh] w-auto max-w-full rounded-md object-contain'
+      ? 'max-h-full max-w-full h-auto w-auto rounded-md object-contain'
       : 'h-40 w-auto rounded-md object-contain',
   );
 
@@ -55,12 +59,18 @@
   const imageService = sharedImageService ?? localImageService!;
   onDestroy(() => localImageService?.dispose());
 
+  // A picture already available locally loads automatically; one that would have to be downloaded
+  // from the remote media service shows a "click/tap to load" placeholder instead and is fetched
+  // only when clicked. The cache is shared within the entry view, so a mediaUri loaded once (here or
+  // in a dialog) displays immediately across the entry's pictures.
   const mediaUri = $derived(picture.mediaUri);
   $effect(() => {
     imageService.ensureLocal(mediaUri);
   });
   const loadState = $derived(imageService.get(mediaUri));
 
+  // Clickable to download (not available locally), to retry (after an error), or to open the viewer
+  // (loaded and interactive).
   const needsDownload = $derived(loadState.status === 'not-downloaded');
   const hasError = $derived(loadState.status === 'error');
   const clickable = $derived(needsDownload || hasError || (loadState.status === 'loaded' && interactive));
@@ -83,8 +93,10 @@
 
 {#snippet imageContent()}
   {#if loadState.status === 'loaded'}
+    <!-- The image keeps its aspect ratio; thumbnail fixes the height, full fits its container. -->
     <img src={loadState.url} alt={caption || $t`Picture`} class={imageClass} />
   {:else if loadState.status === 'not-downloaded'}
+    <!-- Only available remotely: a click/tap downloads it (handled by the enclosing button). -->
     <div class="bg-muted text-muted-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md">
       <span class="i-mdi-download size-6"></span>
       <span class="text-sm">{loadLabel}</span>
@@ -94,6 +106,7 @@
       <span class="i-mdi-loading size-6 animate-spin"></span>
     </div>
   {:else}
+    <!-- Errored: a click/tap retries the load (handled by the enclosing button). -->
     <div class="bg-muted text-muted-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md text-center">
       <span class="i-mdi-image-broken-variant size-6"></span>
       <span class="text-sm">{errorText(loadState)}</span>
@@ -118,37 +131,44 @@
   {/if}
 {/snippet}
 
-<figure class="flex flex-col items-start gap-1">
-  <!-- `w-fit` shrinks the box to the image so the actions menu sits on the image's corner. -->
-  <div class="relative w-fit">
-    {#if showMenu}
-      <!-- The context-menu flavor gives right-click and touch long-press on the picture itself. -->
-      <PictureActionsMenu
-        contextMenu
-        disabled={busy}
-        onEdit={() => onEdit?.()}
-        onDownload={() => onDownload?.()}
-        onDelete={() => onDelete?.()}
-      >
-        {@render pictureArea()}
-      </PictureActionsMenu>
-      <div class="absolute right-1 top-1 z-10">
+<figure class={size === 'full' ? 'flex size-full min-h-0 min-w-0 items-center justify-center' : 'flex flex-col items-start gap-1'}>
+  {#if size === 'full'}
+    <!-- The image caps to the figure (a definite-height flex box); a `w-fit`/auto-height wrapper
+         would leave the height unconstrained and let a tall image overflow. No corner menu in this
+         mode — the viewer dialog owns the actions menu (in its header). -->
+    {@render pictureArea()}
+  {:else}
+    <!-- `w-fit` hugs the box to the image so the actions menu sits on its corner. -->
+    <div class="relative w-fit">
+      {#if showMenu}
+        <!-- The context-menu flavor gives right-click and touch long-press on the picture itself. -->
         <PictureActionsMenu
+          contextMenu
           disabled={busy}
-          triggerClass="text-foreground bg-background/70 hover:bg-background/90 rounded-full shadow-sm"
           onEdit={() => onEdit?.()}
           onDownload={() => onDownload?.()}
           onDelete={() => onDelete?.()}
-        />
-      </div>
-    {:else}
-      {@render pictureArea()}
-    {/if}
-  </div>
+        >
+          {@render pictureArea()}
+        </PictureActionsMenu>
+        <div class="absolute right-1 top-1">
+          <PictureActionsMenu
+            disabled={busy}
+            triggerClass="not-hover:bg-background/70 shadow-sm"
+            onEdit={() => onEdit?.()}
+            onDownload={() => onDownload?.()}
+            onDelete={() => onDelete?.()}
+          />
+        </div>
+      {:else}
+        {@render pictureArea()}
+      {/if}
+    </div>
+  {/if}
   {#if showCaption && caption}
     <!-- `w-0 min-w-full` pins the caption to the image's width (the box above), so its `max-width`
          is the picture width; line-clamp-2 caps it at two lines with an ellipsis. -->
-    <figcaption class="text-muted-foreground line-clamp-2 w-0 min-w-full break-words text-center text-sm">
+    <figcaption class="text-muted-foreground line-clamp-2 w-0 min-w-full wrap-break-word text-center text-sm">
       {caption}
     </figcaption>
   {/if}

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type {IPicture} from '$lib/dotnet-types';
   import * as Dialog from '$lib/components/ui/dialog';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, XButton} from '$lib/components/ui/button';
   import PictureImage from './PictureImage.svelte';
   import PictureActionsMenu from './PictureActionsMenu.svelte';
   import {useWritingSystemService, asString} from '$project/data';
@@ -86,10 +86,15 @@
 </script>
 
 <Dialog.Root bind:open>
-  <!-- Shrink-to-fit up to the viewport: override the default min-width so a small picture yields a
-       small dialog, while the image itself is capped to the viewport (see PictureImage size="full"). -->
-  <Dialog.DialogContent class="w-fit min-w-0 max-w-[calc(100vw-2rem)] max-sm:min-h-0 sm:min-w-0">
-    <Dialog.DialogHeader>
+  <!-- Fixed stage so paging through pictures of different sizes/caption counts doesn't move the
+       dialog or the prev/next arrows. Mobile is already full-screen via the base dialog. -->
+  <!-- Own the close button (hideClose) so the actions menu and the X share one flex cluster and
+       line up, instead of the menu having to mirror the built-in X's absolute position. -->
+  <Dialog.DialogContent
+    hideClose
+    class="flex flex-col gap-3 overflow-hidden sm:h-[85dvh] sm:w-[min(92vw,48rem)] sm:min-w-0 sm:max-w-none"
+  >
+    <Dialog.DialogHeader class="shrink-0">
       <Dialog.DialogTitle class="flex items-baseline gap-3">
         {$t`Picture`}
         {#if hasMultiple && currentIndex >= 0}
@@ -98,8 +103,27 @@
       </Dialog.DialogTitle>
     </Dialog.DialogHeader>
 
+    <!-- Top-right chrome: the picture's actions menu next to the close button, both icon-xs so they
+         align by flexbox. Anchored to the dialog, never over the letterboxed image. -->
+    <div class="absolute end-4 top-4 z-10 flex items-center gap-2">
+      {#if current}
+        <PictureActionsMenu
+          size="icon-xs"
+          disabled={busy}
+          onEdit={() => current && onEdit(current)}
+          onDownload={() => current && onDownload(current)}
+          onDelete={() => current && onDelete(current)}
+        />
+      {/if}
+      <Dialog.Close>
+        {#snippet child({props})}
+          <XButton {...props} />
+        {/snippet}
+      </Dialog.Close>
+    </div>
+
     {#if current}
-      <div class="flex items-center justify-center gap-2">
+      <div class="flex min-h-0 flex-1 items-center justify-center gap-1 sm:gap-2">
         {#if hasMultiple}
           <Button
             variant="ghost"
@@ -110,17 +134,8 @@
             onclick={showPrevious}
           />
         {/if}
-        <div class="relative flex justify-center">
+        <div class="flex h-full min-h-0 min-w-0 flex-1 items-center justify-center">
           <PictureImage picture={current} size="full" showCaption={false} />
-          <div class="absolute right-1 top-1 z-10">
-            <PictureActionsMenu
-              disabled={busy}
-              triggerClass="text-foreground bg-background/70 hover:bg-background/90 rounded-full shadow-sm"
-              onEdit={() => current && onEdit(current)}
-              onDownload={() => current && onDownload(current)}
-              onDelete={() => current && onDelete(current)}
-            />
-          </div>
         </div>
         {#if hasMultiple}
           <Button
@@ -134,30 +149,34 @@
         {/if}
       </div>
 
-      {#if captions.length > 0}
-        <!-- Read-only captions, styled like RichMultiWsInput (WS abbreviation label + text). -->
-        <button
-          type="button"
-          class="flex w-full cursor-pointer appearance-none items-start gap-2 border-0 bg-transparent p-0 text-left text-sm"
-          aria-label={$t`Toggle captions`}
-          aria-expanded={!collapsed}
-          onclick={() => (collapsed = !collapsed)}
-        >
-          <div class="grid min-w-0 flex-1 grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-1">
-            {#each shownCaptions as {ws, text} (ws.wsId)}
-              <span class="text-muted-foreground font-medium leading-none" title={`${ws.name} (${ws.wsId})`}>
-                {ws.abbreviation}
-              </span>
-              <span class="break-words" class:line-clamp-1={collapsed}>{text}</span>
-            {/each}
-          </div>
-          <span
-            class="i-mdi-chevron-down text-muted-foreground mt-0.5 size-4 shrink-0 transition-transform"
-            class:rotate-180={!collapsed}
-            aria-hidden="true"
-          ></span>
-        </button>
-      {/if}
+      <!-- Reserve the caption band even when empty so paging between pictures with and without
+           captions doesn't resize the stage above (which would move the nav arrows). -->
+      <div class="h-16 shrink-0 overflow-y-auto">
+        {#if captions.length > 0}
+          <!-- Read-only captions, styled like RichMultiWsInput (WS abbreviation label + text). -->
+          <button
+            type="button"
+            class="flex w-full cursor-pointer appearance-none items-start gap-2 border-0 bg-transparent p-0 text-left text-sm"
+            aria-label={$t`Toggle captions`}
+            aria-expanded={!collapsed}
+            onclick={() => (collapsed = !collapsed)}
+          >
+            <div class="grid min-w-0 flex-1 grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-1">
+              {#each shownCaptions as {ws, text} (ws.wsId)}
+                <span class="text-muted-foreground font-medium leading-none" title={`${ws.name} (${ws.wsId})`}>
+                  {ws.abbreviation}
+                </span>
+                <span class="break-words" class:line-clamp-1={collapsed}>{text}</span>
+              {/each}
+            </div>
+            <span
+              class="i-mdi-chevron-down text-muted-foreground mt-0.5 size-4 shrink-0 transition-transform"
+              class:rotate-180={!collapsed}
+              aria-hidden="true"
+            ></span>
+          </button>
+        {/if}
+      </div>
     {/if}
   </Dialog.DialogContent>
 </Dialog.Root>

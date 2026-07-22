@@ -9,17 +9,20 @@
   import type {Snippet} from 'svelte';
   import type {ContextMenuTriggerProps, DropdownMenuTriggerProps} from 'bits-ui';
   import type {DrawerTriggerProps} from 'vaul-svelte';
+  import type {VariantProps} from 'tailwind-variants';
   import {cn} from '$lib/utils';
 
   type Props = {
     children?: Snippet;
+    /** Trigger button size (matches the shared Button sizes); ignored in `contextMenu` mode. */
+    size?: VariantProps<typeof buttonVariants>['size'];
   } & ContextMenuTriggerProps &
     DropdownMenuTriggerProps &
     DrawerTriggerProps;
 
-  let {children, class: className, ref = $bindable(null), ...rest}: Props = $props();
+  let {children, class: className, size = 'icon', ref = $bindable(null), ...rest}: Props = $props();
 
-  const triggerVariant = buttonVariants({variant: 'ghost', size: 'icon'});
+  const triggerVariant = $derived(buttonVariants({variant: 'ghost', size}));
   const state = useResponsiveMenuTrigger();
 </script>
 
