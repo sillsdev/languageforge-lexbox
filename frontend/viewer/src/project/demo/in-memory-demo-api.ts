@@ -729,7 +729,6 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
     const uploaded = this.#uploadedFiles.get(mediaUri);
     if (uploaded) {
-      // Files uploaded this session live locally, so they're available without a download.
       return Promise.resolve({
         result: ReadFileResult.Success,
         fileName: mediaUri.split('/').pop() ?? 'demo-upload',
@@ -741,8 +740,6 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     }
     const svg = demoPictureSvgs[mediaUri];
     if (!svg) return Promise.resolve({result: ReadFileResult.NotFound});
-    // Pre-seeded demo pictures stand in for a remote media service: not available locally until
-    // downloaded once (mirroring how a synced project fetches images on demand).
     if (!this.#downloadedRemoteFiles.has(mediaUri)) {
       if (!downloadIfMissing) return Promise.resolve({result: ReadFileResult.NotFound});
       this.#downloadedRemoteFiles.add(mediaUri);

@@ -179,6 +179,15 @@ test.describe('Sense pictures', () => {
     await expect(picturesField.getByRole('button', {name: 'Picture actions'})).toBeVisible();
   });
 
+  test('right-clicking a picture opens the actions menu', async ({page}) => {
+    const picturesField = await addOnePicture(page);
+
+    await picturesField.getByRole('button', {name: 'View Picture'}).click({button: 'right'});
+    await expect(page.getByRole('menuitem', {name: 'Edit'})).toBeVisible({timeout: 5000});
+    await expect(page.getByRole('menuitem', {name: 'Download'})).toBeVisible();
+    await expect(page.getByRole('menuitem', {name: 'Delete'})).toBeVisible();
+  });
+
   test('the three-dots menu Delete removes the picture after confirmation', async ({page}) => {
     const picturesField = await addOnePicture(page);
 
@@ -304,6 +313,9 @@ test.describe('Sense pictures', () => {
     await expect(viewer.locator('img')).toHaveAttribute('src', /^blob:/, {timeout: 5000});
     await expect(viewer.getByRole('button', {name: 'Picture actions'})).toBeVisible();
 
+    // Focus must move into the dialog on open (APG dialog pattern).
+    await expect.poll(() => page.evaluate(() => !!document.activeElement?.closest('[role="dialog"]'))).toBe(true);
+
     // A freshly-uploaded picture has no caption, and a single picture has no navigation arrows.
     await expect(viewer.getByRole('button', {name: 'Previous picture'})).toHaveCount(0);
     await expect(viewer.getByRole('button', {name: 'Next picture'})).toHaveCount(0);
@@ -322,6 +334,8 @@ test.describe('Sense pictures', () => {
     const viewer = page.getByRole('dialog');
     await expect(viewer).toBeVisible({timeout: 5000});
 
+    await expect(viewer.getByRole('heading', {name: 'Picture 1 of 2'})).toBeVisible();
+
     // Both non-empty captions of the first picture are shown.
     await expect(viewer.getByText('A traditional house')).toBeVisible();
     await expect(viewer.getByText('Uma casa tradicional')).toBeVisible();
@@ -336,6 +350,7 @@ test.describe('Sense pictures', () => {
     await next.click();
     await expect(viewer.getByText('A modern house')).toBeVisible();
     await expect(viewer.getByText('A traditional house')).toHaveCount(0);
+    await expect(viewer.getByRole('heading', {name: 'Picture 2 of 2'})).toBeVisible();
     await expect(next).toBeDisabled();
     await expect(previous).toBeEnabled();
 
@@ -347,6 +362,37 @@ test.describe('Sense pictures', () => {
     await previous.click();
     await expect(viewer.getByText('A traditional house')).toBeVisible();
     await expect(previous).toBeDisabled();
+
+    // Arrow keys must work even now, when the just-disabled Previous button has dropped focus to the body.
+    await page.keyboard.press('ArrowRight');
+    await expect(viewer.getByText('A modern house')).toBeVisible();
+    await page.keyboard.press('ArrowLeft');
+    await expect(viewer.getByText('A traditional house')).toBeVisible();
+  });
+
+  test('deleting the current picture in the viewer advances to the next', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+    // "nyumba" has two pictures.
+    await projectPage.selectEntryByFilter('nyumba');
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    await loadFirstPicture(picturesField);
+    await picturesField.getByRole('button', {name: 'View Picture'}).first().click();
+    const viewer = page.getByRole('dialog');
+    await expect(viewer).toBeVisible({timeout: 5000});
+    await expect(viewer.getByText('A traditional house')).toBeVisible();
+
+    await viewer.getByRole('button', {name: 'Picture actions'}).click();
+    await page.getByRole('menuitem', {name: 'Delete'}).click();
+    await page.getByRole('alertdialog').getByRole('button', {name: 'Delete Picture', exact: true}).click();
+    await expect(viewer.getByText('A modern house')).toBeVisible({timeout: 5000});
+    await expect(viewer.getByText('A traditional house')).toHaveCount(0);
+
+    // Deleting the last picture closes the viewer.
+    await viewer.getByRole('button', {name: 'Picture actions'}).click();
+    await page.getByRole('menuitem', {name: 'Delete'}).click();
+    await page.getByRole('alertdialog').getByRole('button', {name: 'Delete Picture', exact: true}).click();
+    await expect(viewer).toHaveCount(0, {timeout: 5000});
   });
 
   test('the fullscreen viewer Edit hands off to the edit dialog', async ({page}) => {

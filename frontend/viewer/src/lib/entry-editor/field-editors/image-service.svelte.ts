@@ -8,7 +8,7 @@ export type ImageLoadState =
   | {status: 'loading'}
   | {status: 'loaded'; url: string}
   | {status: 'not-downloaded'}
-  | {status: 'error'; reason: 'not-found' | 'offline' | 'unknown'; detail?: string};
+  | {status: 'error'; reason: 'not-found' | 'offline' | 'unknown'};
 
 /**
  * Loads picture images and hands out a shared blob object URL, cached per mediaUri. Scoped (via
@@ -82,7 +82,7 @@ export class ImageService {
           file.result === ReadFileResult.NotFound ? 'not-found'
           : file.result === ReadFileResult.Offline ? 'offline'
           : 'unknown';
-        this.#cache.set(mediaUri, {status: 'error', reason, detail: file.errorMessage ?? undefined});
+        this.#cache.set(mediaUri, {status: 'error', reason});
         return;
       }
       const blob = await new Response(await file.stream.stream()).blob();
@@ -91,7 +91,7 @@ export class ImageService {
       this.#cache.set(mediaUri, {status: 'loaded', url: URL.createObjectURL(blob)});
     } catch (error) {
       if (!this.#disposed) {
-        this.#cache.set(mediaUri, {status: 'error', reason: 'unknown', detail: error instanceof Error ? error.message : undefined});
+        this.#cache.set(mediaUri, {status: 'error', reason: 'unknown'});
       }
       throw error;
     }

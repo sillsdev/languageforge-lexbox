@@ -4,11 +4,8 @@ export type DownloadPictureResult = {success: true} | {success: false; errorMess
 
 /**
  * Downloads the image behind a picture's mediaUri, saved under the filename the media server
- * reports for it. Shared by the picture field, the edit dialog, and the fullscreen viewer so the
- * "Download" action behaves identically wherever it's offered.
- *
- * getFileStream reports failure via the response (not an exception), so the caller decides how to
- * surface `errorMessage` — this keeps the notification/translation in the calling component.
+ * reports for it. getFileStream reports failure via the response (not an exception); the caller
+ * decides how to surface `errorMessage`, keeping notification/translation in the component.
  */
 export async function downloadPictureFile(api: IMiniLcmJsInvokable, mediaUri: string): Promise<DownloadPictureResult> {
   const file = await api.getFileStream(mediaUri, true);

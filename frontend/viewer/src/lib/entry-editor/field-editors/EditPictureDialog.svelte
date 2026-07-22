@@ -64,7 +64,6 @@
     }
   }
 
-  // Downloads the currently-shown image, saved under the filename the media server reports for it.
   let downloading = $state(false);
   async function downloadPicture() {
     if (downloading) return;

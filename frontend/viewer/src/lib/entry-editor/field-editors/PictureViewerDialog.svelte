@@ -24,28 +24,41 @@
   useBackHandler({addToStack: () => open, onBack: () => (open = false), key: 'picture-viewer-dialog'});
   const writingSystemService = useWritingSystemService();
 
-  // Track the shown picture by id (not index) so it survives reordering; the index is derived for
-  // the prev/next arrows against the live list.
+  // Track the shown picture by id (not index) so it survives reordering.
   const currentIndex = $derived(pictures.findIndex((p) => p.id === pictureId));
   const current = $derived(currentIndex >= 0 ? pictures[currentIndex] : undefined);
 
-  // If the shown picture disappears (e.g. deleted from the menu), close the dialog.
+  // If the shown picture disappears (e.g. deleted from the menu), move to the nearest remaining
+  // picture; close only when none are left.
+  let lastIndex = 0;
   $effect(() => {
-    if (open && pictureId !== undefined && !current) open = false;
+    if (currentIndex >= 0) lastIndex = currentIndex;
+  });
+  $effect(() => {
+    if (!open || pictureId === undefined || current) return;
+    if (pictures.length > 0) {
+      pictureId = pictures[Math.min(lastIndex, pictures.length - 1)].id;
+    } else {
+      open = false;
+    }
   });
 
-  // Captions collapse to just the first non-empty one on click; each picture starts expanded — reset
-  // whenever the viewer opens (below) and on navigation (showPrevious/showNext).
+  // Captions collapse to just the first non-empty one on click; every shown picture starts expanded.
   let collapsed = $state(false);
-  // Start expanded every time the viewer opens, so a collapse left over from a previous open doesn't
-  // carry into the next picture opened directly (not via the arrows).
   $effect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    pictureId; // Rerun the $effect when this changes
+    pictureId; // rerun when the shown picture changes
     collapsed = false;
   });
 
   const hasMultiple = $derived(pictures.length > 1);
+  // Window-level so arrows keep working when nothing in the dialog has focus (e.g. after a nav
+  // button disables itself at the end of the list, dropping focus to the body).
+  function onWindowKeydown(e: KeyboardEvent) {
+    if (!open) return;
+    if (e.key === 'ArrowLeft') showPrevious();
+    else if (e.key === 'ArrowRight') showNext();
+  }
   function showPrevious() {
     if (currentIndex > 0) {
       pictureId = pictures[currentIndex - 1].id;
@@ -57,7 +70,6 @@
     }
   }
 
-  // The current picture's non-empty captions, in the project's writing-system order.
   const captions = $derived.by(() => {
     if (!current) return [];
     const caption = current.caption;
@@ -66,19 +78,23 @@
       .map((ws) => ({ws, text: asString(caption[ws.wsId]) ?? ''}))
       .filter((c) => c.text.length > 0);
   });
-  // Collapsed shows only the first caption (its text clamped to one line); expanded shows all.
   const shownCaptions = $derived(collapsed ? captions.slice(0, 1) : captions);
 </script>
+
+<svelte:window onkeydown={onWindowKeydown} />
 
 <Dialog.Root bind:open>
   <!-- Shrink-to-fit up to the viewport: override the default min-width so a small picture yields a
        small dialog, while the image itself is capped to the viewport (see PictureImage size="full"). -->
-  <Dialog.DialogContent
-    class="w-fit min-w-0 max-w-[calc(100vw-2rem)] max-sm:min-h-0 sm:min-w-0"
-    onOpenAutoFocus={(e) => e.preventDefault()}
-  >
+  <Dialog.DialogContent class="w-fit min-w-0 max-w-[calc(100vw-2rem)] max-sm:min-h-0 sm:min-w-0">
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{$t`Picture`}</Dialog.DialogTitle>
+      <Dialog.DialogTitle>
+        {#if hasMultiple && currentIndex >= 0}
+          {$t`Picture ${currentIndex + 1} of ${pictures.length}`}
+        {:else}
+          {$t`Picture`}
+        {/if}
+      </Dialog.DialogTitle>
     </Dialog.DialogHeader>
 
     {#if current}
@@ -118,9 +134,7 @@
       </div>
 
       {#if captions.length > 0}
-        <!-- Read-only captions (WS abbreviation label + text, like RichMultiWsInput). Click to
-             collapse to just the first caption (line-clamp-1), click again to show them all. The
-             disclosure chevron signals it's toggleable. -->
+        <!-- Read-only captions, styled like RichMultiWsInput (WS abbreviation label + text). -->
         <button
           type="button"
           class="flex w-full cursor-pointer appearance-none items-start gap-2 border-0 bg-transparent p-0 text-left text-sm"
@@ -136,7 +150,6 @@
               <span class="break-words" class:line-clamp-1={collapsed}>{text}</span>
             {/each}
           </div>
-          <!-- Points down when collapsed (more below), rotates to up when expanded. -->
           <span
             class="i-mdi-chevron-down text-muted-foreground mt-0.5 size-4 shrink-0 transition-transform"
             class:rotate-180={!collapsed}

@@ -43,7 +43,6 @@
     if (editingPicture) lastEditedPicture = editingPicture;
   });
 
-  // The fullscreen viewer, tracked by id so prev/next and (direct) deletion stay in sync with `pictures`.
   let viewerPictureId = $state<string>();
   let viewerOpen = $state(false);
 
@@ -146,7 +145,6 @@
     }
   }
 
-  // The edit dialog deletes whatever picture it currently has open.
   function deleteEditingPicture(): Promise<void> {
     return editingPicture ? deletePicture(editingPicture.id) : Promise.resolve();
   }
@@ -168,9 +166,6 @@
 
 <div class="flex flex-col gap-2">
   {#if pictures.length > 0}
-    <!-- Pictures flow left-to-right and wrap; on a narrow (mobile) screen they stack vertically
-         with no CSS change. Each picture + its caption is one flex item. Each picture has a
-         three-dots actions menu (also opened by a long-press); clicking a picture opens the editor. -->
     <div class="flex flex-wrap gap-4">
       {#each pictures as picture (picture.id)}
         <PictureImage
@@ -224,7 +219,6 @@
   {pictures}
   busy={busyAction !== null}
   onEdit={(picture) => {
-    // Hand off from the viewer to the edit dialog.
     viewerOpen = false;
     openEditor(picture);
   }}

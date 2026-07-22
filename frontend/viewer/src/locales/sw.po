@@ -421,6 +421,7 @@ msgstr "futa"
 msgid "Click to load"
 msgstr ""
 
+#. Shown on a picture whose image failed to load (desktop); clicking it retries the load
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Click to retry"
 msgstr ""
@@ -1840,6 +1841,11 @@ msgstr "Chagua Sehemu ya Mazungumzo"
 msgid "Picture"
 msgstr ""
 
+#. Fullscreen picture viewer title showing the position in the sense's pictures, e.g. "Picture 2 of 5"
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Picture {0} of {1}"
+msgstr ""
+
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
@@ -2314,6 +2320,7 @@ msgstr "Mfumo"
 msgid "Tap to load"
 msgstr ""
 
+#. Shown on a picture whose image failed to load (mobile/touch); tapping it retries the load
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Tap to retry"
 msgstr ""
