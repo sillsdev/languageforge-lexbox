@@ -258,9 +258,6 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createcomponentEntryChange = new CreateEntryChange(componentEntry);
         yield return new ChangeWithDependencies(createcomponentEntryChange);
 
-        var setComplexFormComponentChange = SetComplexFormComponentChange.NewComponent(complexFormComponent.Id, componentEntry.Id);
-        yield return new ChangeWithDependencies(setComplexFormComponentChange, [createcomponentEntryChange, createComplexFormComponentChange]);
-
         var setSenseOrderChange = new LcmCrdt.Changes.SetOrderChange<Sense>(sense.Id, 10);
         yield return new ChangeWithDependencies(setSenseOrderChange, [createSenseChange]);
 

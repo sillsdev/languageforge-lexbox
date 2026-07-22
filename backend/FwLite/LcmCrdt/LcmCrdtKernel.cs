@@ -237,7 +237,7 @@ public static class LcmCrdtKernel
                 builder.Property(s => s.Pictures)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
+                        json => string.IsNullOrEmpty(json) ? new() : JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
             })
             .Add<ExampleSentence>(builder =>
             {
@@ -376,7 +376,6 @@ public static class LcmCrdtKernel
             .Add<AddPublicationChange>()
             .Add<RemovePublicationChange>()
             .Add<ReplacePublicationChange>()
-            .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
@@ -398,7 +397,7 @@ public static class LcmCrdtKernel
         config.JsonSerializerOptions.TypeInfoResolver =
             (config.JsonSerializerOptions.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
             .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
-        
+
         if (addRemoteResourceEntity)
             config.AddRemoteResourceEntity<LcmFileMetadata>();
     }
