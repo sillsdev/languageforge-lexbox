@@ -232,19 +232,22 @@
     snapToSequentialPoint
   >
     <Drawer.Content
+      handle={false}
       class="fixed mt-0 h-dvh max-h-dvh overflow-hidden p-0 data-[vaul-drawer-direction=bottom]:mt-0 data-[vaul-drawer-direction=bottom]:h-dvh data-[vaul-drawer-direction=bottom]:max-h-dvh"
     >
       <Drawer.Title class="sr-only">{title}</Drawer.Title>
       <!--
         Vaul translates a full-viewport sheet for snaps. Keep position:fixed (do not use
         relative — it overrides fixed) and size the panel to the active snap so the reply
-        footer sits on the visible bottom edge.
+        footer sits on the visible bottom edge. Custom handle: the default one sits under
+        this absolute panel and would be covered.
       -->
       <div
         class="absolute inset-x-0 top-0 flex flex-col overflow-hidden bg-background"
         style:height="{(typeof activeSnapPoint === 'number' ? activeSnapPoint : defaultCommentSnap) * 100}dvh"
       >
-        <div class="flex h-full min-h-0 flex-col overflow-hidden">
+        <div class="bg-muted mx-auto mt-4 h-2 w-[100px] shrink-0 rounded-full" aria-hidden="true"></div>
+        <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
           {@render panel()}
         </div>
       </div>
