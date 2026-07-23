@@ -83,6 +83,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ Prefer IDE diagnostics (compiler/lint errors) over CLI tools for identifying issues. Fixing these diagnostics is part of completing any instruction.
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
 - ❌ Do NOT git commit or git push without explicit user approval
+- ⚠️ **Pre-commit hook prettier-formats staged `*.{js,ts,svelte,css,md,json}` files** (yes, incl. `.md`/docs) via `frontend/viewer`. If your commit stages any of those and `frontend/viewer/node_modules` is missing (fresh worktree/clone), run `cd frontend && pnpm install` first (~45s, once per worktree) — don't `--no-verify` to dodge it, that just defers the format failure to CI. If it stages none of those (e.g. backend-only), the hook is a no-op: it passes with no install, and `--no-verify` is fine.
 
 ### 🛡️ VIGILANCE
 
