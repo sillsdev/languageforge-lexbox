@@ -215,10 +215,9 @@ jobs:
         working-directory: frontend/viewer
         run: pnpm run build
 
-      # Disabled so we can format in a seperate commit and ignore it in git blame
-      # - name: Check code formatting with Prettier
-      #   working-directory: frontend/viewer
-      #   run: pnpm run format:check
+      - name: Check code formatting with Prettier
+        working-directory: frontend/viewer
+        run: pnpm run format:check
 
       - name: Upload viewer artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
