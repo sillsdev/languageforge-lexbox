@@ -64,6 +64,7 @@ public class ProjectCreationService(
             await srService.InitRepo(fwDataProject.ProjectFolder);
 
             BuildFromTemplate(fwDataProject, vernacularWritingSystems, analysisWritingSystems, uiWritingSystem);
+            FixLinkedFilesRootDirSeparator(fwDataProject);
             ApplyAnthropologyCategories(anthropologyCategories);
             AssertModelVersionMatches(fwDataProject);
 
@@ -104,6 +105,49 @@ public class ProjectCreationService(
         // systems (the first of each list is the default of that type), and returns a loaded cache;
         // dispose it right away so its file locks are released before the following hg add/commit.
         using var cache = projectLoader.NewProject(fwDataProject, analysisWritingSystems, vernacularWritingSystems, uiWs);
+    }
+
+    /// <summary>
+    /// FieldWorks (Windows) compares LangProject.LinkedFilesRootDir with an exact string, expecting the
+    /// Windows-style default <c>%proj%\LinkedFiles</c>. liblcm builds that path with Path.Combine, which on
+    /// this Linux host yields <c>%proj%/LinkedFiles</c> (forward slash), so FieldWorks warns on its first
+    /// Send/Receive. Rewrite just that one value to the backslash form.
+    ///
+    /// We deliberately do NOT parse the (potentially multi-MB) fwdata as XML -- that would be a needless
+    /// cost. The value always sits on the line immediately after the &lt;LinkedFilesRootDir&gt; open tag,
+    /// so stream the file once, fix the &lt;Uni&gt; on the line following that tag, and copy every other
+    /// line through untouched.
+    /// </summary>
+    private static void FixLinkedFilesRootDirSeparator(FwDataProject fwDataProject)
+    {
+        const string markerLinePrefix = "<LinkedFilesRootDir";
+        const string forwardSlashValue = "<Uni>%proj%/LinkedFiles</Uni>";
+        const string backslashValue = @"<Uni>%proj%\LinkedFiles</Uni>";
+
+        var sourcePath = fwDataProject.FilePath;
+        var tempPath = sourcePath + ".tmp";
+        using (var reader = new StreamReader(sourcePath))
+        using (var writer = new StreamWriter(tempPath))
+        {
+            var nextLineIsValue = false;
+            var done = false;
+            string? line;
+            while ((line = reader.ReadLine()) is not null)
+            {
+                if (nextLineIsValue)
+                {
+                    line = line.Replace(forwardSlashValue, backslashValue);
+                    nextLineIsValue = false;
+                    done = true;
+                }
+                else if (!done && line.StartsWith(markerLinePrefix, StringComparison.Ordinal))
+                {
+                    nextLineIsValue = true;
+                }
+                writer.WriteLine(line);
+            }
+        }
+        File.Move(tempPath, sourcePath, overwrite: true);
     }
 
     /// <summary>
