@@ -3,7 +3,7 @@
   import {Textarea} from '$lib/components/ui/textarea';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
   import {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
   import {cn} from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import CommentItem from './CommentItem.svelte';
@@ -58,10 +58,12 @@
     mobileThreadId ? threadViews.find((tv) => tv.thread.id === mobileThreadId) : undefined,
   );
   const mobileResolved = $derived(mobileThreadView?.thread.status === ThreadStatus.Closed);
-  const showMobileDetail = $derived(IsMobile.value && Boolean(mobileThreadView));
+  /** Full-area thread detail (mobile + tablet bottom drawer), vs in-place expand on desktop sidebar */
+  const useThreadDetail = $derived(!IsExtraLarge.value);
+  const showThreadDetail = $derived(useThreadDetail && Boolean(mobileThreadView));
 
   function toggleExpanded(threadId: string): void {
-    if (IsMobile.value) {
+    if (useThreadDetail) {
       mobileThreadId = threadId;
       return;
     }
@@ -91,8 +93,8 @@
   }
 </script>
 
-<div class="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background">
-  {#if !showMobileDetail}
+<div class="flex h-full min-h-0 flex-col overflow-hidden bg-background">
+  {#if !showThreadDetail}
     <div class="flex shrink-0 items-center justify-between gap-2 border-b border-border px-4 pt-3.5 pb-2.5">
       <div class="flex items-center gap-2">
         {#if onClose}
@@ -137,7 +139,7 @@
             placeholder={$t`Add a comment…`}
             rows={3}
             disabled={loading || saving}
-            class="text-[13px]"
+            class="text-sm"
             onkeydown={(e) => {
               if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
@@ -162,8 +164,8 @@
     {/if}
   {/if}
 
-  {#if showMobileDetail && mobileThreadView}
-    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+  {#if showThreadDetail && mobileThreadView}
+    <div class="flex h-full min-h-0 flex-col overflow-hidden">
       <div class="flex shrink-0 items-center gap-2.5 border-b border-border px-3.5 py-2.5">
         <Button
           variant="ghost"
@@ -206,7 +208,7 @@
         </div>
       </div>
 
-      {#if canComment && !mobileResolved && mobileThreadView}
+      {#if canComment && !mobileResolved}
         <div class="shrink-0 border-t border-border px-3.5 py-2.5">
           <CommentReplyInput
             variant="inline"
@@ -235,7 +237,7 @@
               {saving}
               {currentUserId}
               {editingCommentId}
-              expanded={!IsMobile.value && expandedThreadIds.has(threadView.thread.id)}
+              expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
               onToggle={() => toggleExpanded(threadView.thread.id)}
               onResolve={() => onResolve(threadView)}
               onReply={(text) => onReply(threadView, text)}
