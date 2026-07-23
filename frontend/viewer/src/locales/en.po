@@ -1161,6 +1161,10 @@ msgstr "Harmony snapshots regenerated successfully"
 msgid "Headword"
 msgstr "Headword"
 
+#: src/project/ProjectSidebar.svelte
+msgid "Help & More"
+msgstr "Help & More"
+
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
