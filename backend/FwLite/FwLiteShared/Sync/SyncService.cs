@@ -107,7 +107,7 @@ public class SyncService(
             }
             logger.LogInformation("Synced project {ProjectName} with server", project.Name);
             UpdateSyncStatus(SyncStatus.Success);
-            await ApplySyncedCommentReadStatus(syncResults, project.OriginUserId);
+            await ApplySyncedCommentReadStatus(syncResults, currentUser?.Id);
             await syncRepository.UpdateSyncDate(syncDate);
             // Best-effort: if the push listener failed to start at project-open (e.g. user was offline), this
             // restarts it now that we know auth + network are healthy. If it's already running, the cache
