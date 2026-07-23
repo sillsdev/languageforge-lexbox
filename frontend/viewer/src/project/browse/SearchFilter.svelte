@@ -114,6 +114,23 @@
     return v.replace(/([(),|\\]|\/i)/g, '\\$1');
   }
 
+  const canReset = $derived(userFilterActive || !!search || fieldFilterValue !== '');
+
+  function resetFilters() {
+    search = '';
+    missingField = null;
+    // null tells FieldSelect to fall back to its default field; WsSelect then reacts to the
+    // wsType change and repopulates selectedWs with the full writing-system set.
+    selectedField = null;
+    selectedWs = wsService.vernacularNoAudio.map(ws => ws.wsId);
+    fieldFilterValue = '';
+    filterOp = 'contains';
+    includeSubDomains = false;
+    semanticDomain = undefined;
+    partOfSpeech = undefined;
+    publication = undefined;
+  }
+
   let filtersExpanded = $state(false);
 </script>
 
@@ -141,6 +158,11 @@
           class: 'md:w-96'
         }}
       >
+        {#snippet titleActions()}
+          <Button variant="ghost" size="sm" icon="i-mdi-filter-remove-outline" onclick={resetFilters} disabled={!canReset}>
+            {$t`Reset`}
+          </Button>
+        {/snippet}
         {#snippet trigger({ props })}
           <Button {...props} variant="ghost"
             size={IsMobile.value ? 'icon-sm' : 'icon-xs'}
