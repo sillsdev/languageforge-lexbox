@@ -4,7 +4,6 @@
   import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
   import {onDestroy} from 'svelte';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import PictureActionsMenu from './PictureActionsMenu.svelte';
   import {ImageService, useImageService, type ImageLoadState} from './image-service.svelte';
 
@@ -33,11 +32,16 @@
   const interactive = $derived(!readonly && !!onView);
   const imageClass = $derived(
     size === 'full'
-      ? 'max-h-full max-w-full h-auto w-auto rounded-md object-contain'
+      ? 'max-h-full max-w-full h-auto w-auto object-contain'
       : 'h-40 w-auto rounded-md object-contain',
   );
 
+  // A touch on the corner actions menu can fire a stray click on the image behind it once the menu
+  // is open; ignore image taps while a menu is open so they don't also open the viewer/download.
+  let menuOpen = $state(false);
+
   function handleImageClick() {
+    if (menuOpen) return;
     if (loadState.status === 'not-downloaded' || loadState.status === 'error') {
       imageService.download(mediaUri);
       return;
@@ -60,7 +64,7 @@
   onDestroy(() => localImageService?.dispose());
 
   // A picture already available locally loads automatically; one that would have to be downloaded
-  // from the remote media service shows a "click/tap to load" placeholder instead and is fetched
+  // from the remote media service shows a "Load picture" placeholder instead and is fetched
   // only when clicked. The cache is shared within the entry view, so a mediaUri loaded once (here or
   // in a dialog) displays immediately across the entry's pictures.
   const mediaUri = $derived(picture.mediaUri);
@@ -75,18 +79,18 @@
   const hasError = $derived(loadState.status === 'error');
   const clickable = $derived(needsDownload || hasError || (loadState.status === 'loaded' && interactive));
   const showMenu = $derived(interactive && !!onEdit && !!onDownload && !!onDelete);
-  const loadLabel = $derived(IsMobile.value ? $t`Tap to load` : $t`Click to load`);
-  const retryLabel = $derived(IsMobile.value ? $t`Tap to retry` : $t`Click to retry`);
+  const loadLabel = $derived($t`Load picture`);
+  const retryLabel = $derived($t`Try again`);
   const clickLabel = $derived(needsDownload ? loadLabel : hasError ? retryLabel : $t`View Picture`);
 
   function errorText(state: Extract<ImageLoadState, {status: 'error'}>): string {
     switch (state.reason) {
       case 'not-found':
-        return $t`Image not found`;
+        return $t`Picture not found`;
       case 'offline':
-        return $t`Offline, unable to download image`;
+        return $t`You're offline`;
       default:
-        return $t`Unable to load image`;
+        return $t`Unable to load picture`;
     }
   }
 </script>
@@ -97,7 +101,7 @@
     <img src={loadState.url} alt={caption || $t`Picture`} class={imageClass} />
   {:else if loadState.status === 'not-downloaded'}
     <!-- Only available remotely: a click/tap downloads it (handled by the enclosing button). -->
-    <div class="bg-muted text-muted-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md">
+    <div class="bg-muted text-muted-foreground hover:text-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md transition-colors">
       <span class="i-mdi-download size-6"></span>
       <span class="text-sm">{loadLabel}</span>
     </div>
@@ -107,7 +111,7 @@
     </div>
   {:else}
     <!-- Errored: a click/tap retries the load (handled by the enclosing button). -->
-    <div class="bg-muted text-muted-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md text-center">
+    <div class="bg-muted text-muted-foreground hover:text-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md text-center transition-colors">
       <span class="i-mdi-image-broken-variant size-6"></span>
       <span class="text-sm">{errorText(loadState)}</span>
       <span class="text-xs">{retryLabel}</span>
@@ -145,6 +149,7 @@
         <PictureActionsMenu
           contextMenu
           disabled={busy}
+          onOpenChange={(o) => (menuOpen = o)}
           onEdit={() => onEdit?.()}
           onDownload={() => onDownload?.()}
           onDelete={() => onDelete?.()}
@@ -154,7 +159,8 @@
         <div class="absolute right-1 top-1">
           <PictureActionsMenu
             disabled={busy}
-            triggerClass="not-hover:bg-background/70 shadow-sm"
+            triggerClass="rounded-full not-hover:bg-background/50 shadow-sm backdrop-blur-sm hover:bg-background/90"
+            onOpenChange={(o) => (menuOpen = o)}
             onEdit={() => onEdit?.()}
             onDownload={() => onDownload?.()}
             onDelete={() => onDelete?.()}

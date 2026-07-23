@@ -160,7 +160,7 @@
   // The server rejects files above its size limit; the advice differs by format.
   function tooBigMessage(file: File): string {
     return isLosslessImage(file)
-      ? $t`This picture is too large to upload. Try reducing the image resolution and uploading again.`
+      ? $t`This picture is too large to upload. Try reducing the resolution and uploading again.`
       : $t`This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again.`;
   }
 </script>

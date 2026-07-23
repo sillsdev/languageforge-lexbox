@@ -90,11 +90,13 @@
        dialog or the prev/next arrows. Mobile is already full-screen via the base dialog. -->
   <!-- Own the close button (hideClose) so the actions menu and the X share one flex cluster and
        line up, instead of the menu having to mirror the built-in X's absolute position. -->
+  <!-- On mobile, drop the dialog's own padding so the stage can bleed to the screen edges; the
+       header and caption band re-add their own padding below. Desktop keeps the base p-6. -->
   <Dialog.DialogContent
     hideClose
-    class="flex flex-col gap-3 overflow-hidden sm:h-[85dvh] sm:w-[min(92vw,48rem)] sm:min-w-0 sm:max-w-none"
+    class="flex flex-col gap-3 overflow-hidden max-sm:p-0 sm:h-[85dvh] sm:w-[min(92vw,48rem)] sm:min-w-0 sm:max-w-none"
   >
-    <Dialog.DialogHeader class="shrink-0">
+    <Dialog.DialogHeader class="shrink-0 max-sm:px-4 max-sm:pt-4">
       <Dialog.DialogTitle class="flex items-baseline gap-3">
         {$t`Picture`}
         {#if hasMultiple && currentIndex >= 0}
@@ -123,7 +125,13 @@
     </div>
 
     {#if current}
-      <div class="flex min-h-0 flex-1 items-center justify-center gap-1 sm:gap-2">
+      <!-- No stage background: the image sits centered on the dialog's own surface, and the
+           surrounding space reads as ordinary margin (a filled panel only looks intentional with a
+           large letterbox and turns into an awkward sliver when the image nearly fills it). Arrows
+           overlay the stage edges — anchored to the stage, not the image, so they stay put across
+           aspect ratios — which also frees the horizontal gutters on mobile. -->
+      <div class="relative flex min-h-0 flex-1 items-center justify-center py-2">
+        <PictureImage picture={current} size="full" showCaption={false} />
         {#if hasMultiple}
           <Button
             variant="ghost"
@@ -132,12 +140,8 @@
             aria-label={$t`Previous picture`}
             disabled={currentIndex <= 0}
             onclick={showPrevious}
+            class="absolute start-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-background/80 shadow-sm ring-1 ring-border backdrop-blur-sm hover:bg-background"
           />
-        {/if}
-        <div class="flex h-full min-h-0 min-w-0 flex-1 items-center justify-center">
-          <PictureImage picture={current} size="full" showCaption={false} />
-        </div>
-        {#if hasMultiple}
           <Button
             variant="ghost"
             size="icon"
@@ -145,19 +149,21 @@
             aria-label={$t`Next picture`}
             disabled={currentIndex >= pictures.length - 1}
             onclick={showNext}
+            class="absolute end-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-background/80 shadow-sm ring-1 ring-border backdrop-blur-sm hover:bg-background"
           />
         {/if}
       </div>
 
-      <!-- Reserve the caption band even when empty so paging between pictures with and without
-           captions doesn't resize the stage above (which would move the nav arrows). -->
-      <div class="h-16 shrink-0 overflow-y-auto">
-        {#if captions.length > 0}
+      {#if captions.length > 0}
+        <!-- Only take space when there are captions, so a captionless picture stays centered in the
+             stage (an always-reserved band left dead space below and made the image look top-heavy).
+             Capped + scroll so many writing systems don't eat into the image's space. -->
+        <div class="max-h-[30dvh] shrink-0 overflow-y-auto max-sm:px-4 max-sm:pb-4">
           <!-- Read-only captions, styled like RichMultiWsInput (WS abbreviation label + text). -->
           <button
             type="button"
             class="flex w-full cursor-pointer appearance-none items-start gap-2 border-0 bg-transparent p-0 text-left text-sm"
-            aria-label={$t`Toggle captions`}
+            aria-label={$t`Show or hide captions`}
             aria-expanded={!collapsed}
             onclick={() => (collapsed = !collapsed)}
           >
@@ -175,8 +181,8 @@
               aria-hidden="true"
             ></span>
           </button>
-        {/if}
-      </div>
+        </div>
+      {/if}
     {/if}
   </Dialog.DialogContent>
 </Dialog.Root>

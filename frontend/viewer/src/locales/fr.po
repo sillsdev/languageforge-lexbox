@@ -416,16 +416,6 @@ msgstr "Projets FieldWorks classiques"
 msgid "clear"
 msgstr "effacer"
 
-#. Placeholder on a not-yet-loaded picture (desktop); clicking it loads and displays the image
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Click to load"
-msgstr ""
-
-#. Shown on a picture whose image failed to load (desktop); clicking it retries the load
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Click to retry"
-msgstr ""
-
 #. Button to close popup
 #: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -1210,11 +1200,6 @@ msgstr "Je comprends que cela ne peut pas être annulé"
 msgid "ID"
 msgstr ""
 
-#. Error displayed in place of a picture when the media file is missing from local storage
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Image not found"
-msgstr ""
-
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -1319,6 +1304,10 @@ msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Load it to preview or export."
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Load picture"
 msgstr ""
 
 #: src/lib/media-manager/MediaManagerView.svelte
@@ -1721,11 +1710,6 @@ msgstr "Déconnecté"
 msgid "Offline, unable to download"
 msgstr "Déconnecté, impossible de télécharger"
 
-#. Error when offline and trying to download image
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Offline, unable to download image"
-msgstr "Déconnecté, impossible de télécharger l'image"
-
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
 msgstr ""
@@ -1844,6 +1828,10 @@ msgstr ""
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Picture not found"
 msgstr ""
 
 #. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
@@ -2178,6 +2166,10 @@ msgstr "Afficher"
 msgid "Show {0} more..."
 msgstr "Afficher {0} plus..."
 
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Show or hide captions"
+msgstr ""
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Sign in to add comments."
 msgstr ""
@@ -2310,16 +2302,6 @@ msgstr "Synchronisation en cours..."
 msgid "System"
 msgstr "Système"
 
-#. Placeholder on a not-yet-loaded picture (mobile/touch); tapping it loads and displays the image
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Tap to load"
-msgstr ""
-
-#. Shown on a picture whose image failed to load (mobile/touch); tapping it retries the load
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Tap to retry"
-msgstr ""
-
 #. Page title with task name
 #: src/project/tasks/TasksView.svelte
 msgid "Task {0}"
@@ -2399,7 +2381,7 @@ msgid "This file is only available remotely."
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
-msgid "This picture is too large to upload. Try reducing the image resolution and uploading again."
+msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
@@ -2433,11 +2415,6 @@ msgstr "Cela synchronisera les copies FieldWorks Lite et FieldWorks Classic de v
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Thread"
-msgstr ""
-
-#. Accessible label for the caption block in the fullscreen picture viewer; clicking it collapses to the first caption or expands to show all
-#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
-msgid "Toggle captions"
 msgstr ""
 
 #. Button to show/hide filter panel
@@ -2475,6 +2452,7 @@ msgstr "Traduction {0}"
 msgid "Troubleshoot"
 msgstr "Dépannage"
 
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
 msgstr ""
@@ -2517,9 +2495,8 @@ msgstr ""
 msgid "Unable to load audio"
 msgstr ""
 
-#. Generic error displayed in place of a picture when loading fails for an unspecified reason
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Unable to load image"
+msgid "Unable to load picture"
 msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
@@ -2795,6 +2772,10 @@ msgstr "Vous n'êtes pas autorisé(e) de télécharger le projet {0} depuis {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Vous avez déjà téléchargé le projet {0}"
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "You're offline"
+msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"

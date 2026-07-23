@@ -13,14 +13,17 @@
     triggerClass?: string;
     /** Trigger button size; forwarded to the menu trigger (defaults to a 40px icon button). */
     size?: ComponentProps<typeof ResponsiveMenu.Trigger>['size'];
+    /** Notified when the menu opens/closes (lets a parent ignore the stray tap that a touch
+        device can fire on the element behind the trigger while the menu is open). */
+    onOpenChange?: (open: boolean) => void;
     onEdit: () => void;
     onDownload: () => void;
     onDelete: () => void;
   };
-  let {contextMenu = false, children, disabled = false, triggerClass, size, onEdit, onDownload, onDelete}: Props = $props();
+  let {contextMenu = false, children, disabled = false, triggerClass, size, onOpenChange, onEdit, onDownload, onDelete}: Props = $props();
 </script>
 
-<ResponsiveMenu.Root {contextMenu}>
+<ResponsiveMenu.Root {contextMenu} {onOpenChange}>
   <ResponsiveMenu.Trigger
     class={triggerClass}
     {size}

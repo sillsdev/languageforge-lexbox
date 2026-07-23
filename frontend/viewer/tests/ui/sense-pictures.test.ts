@@ -29,8 +29,8 @@ test.describe('Sense pictures', () => {
     await expect(picturesField).toBeVisible({timeout: 5000});
 
     // The demo's pre-seeded pictures stand in for a remote media service, so they aren't available
-    // locally: the field shows a "Click to load" placeholder rather than auto-loading.
-    await expect(picturesField.getByRole('button', {name: 'Click to load'}).first()).toBeVisible({timeout: 5000});
+    // locally: the field shows a "Load picture" placeholder rather than auto-loading.
+    await expect(picturesField.getByRole('button', {name: 'Load picture'}).first()).toBeVisible({timeout: 5000});
     await expect(picturesField.locator('img')).toHaveCount(0);
 
     // Clicking downloads it — a blob: src proves the full pipeline ran (getFileStream -> Blob -> object url).
@@ -74,12 +74,12 @@ test.describe('Sense pictures', () => {
       buffer: TEST_PNG,
     });
 
-    // An uploaded picture is available locally, so it loads automatically (no "click to load"
+    // An uploaded picture is available locally, so it loads automatically (no "Load picture"
     // placeholder) and renders into a blob url.
     const image = picturesField.locator('img').first();
     await expect(image).toBeVisible({timeout: 5000});
     await expect(image).toHaveAttribute('src', /^blob:/);
-    await expect(picturesField.getByRole('button', {name: 'Click to load'})).toHaveCount(0);
+    await expect(picturesField.getByRole('button', {name: 'Load picture'})).toHaveCount(0);
   });
 
   test('re-uploading an existing file adds a second picture that reuses it', async ({page}) => {
@@ -133,9 +133,9 @@ test.describe('Sense pictures', () => {
     await expect(page.getByRole('menuitem', {name: 'Edit'})).toBeVisible({timeout: 5000});
   }
 
-  /** Clicks the first "Click to load" placeholder in a scope and waits for its image to load. */
+  /** Clicks the first "Load picture" placeholder in a scope and waits for its image to load. */
   async function loadFirstPicture(scope: Locator) {
-    await scope.getByRole('button', {name: 'Click to load'}).first().click();
+    await scope.getByRole('button', {name: 'Load picture'}).first().click();
     await expect(scope.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
   }
 
@@ -274,7 +274,7 @@ test.describe('Sense pictures', () => {
     await projectPage.selectEntryByFilter('nyumba');
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     // Download works without loading the image; act on the (unloaded) placeholder's actions menu.
-    await expect(picturesField.getByRole('button', {name: 'Click to load'}).first()).toBeVisible({timeout: 5000});
+    await expect(picturesField.getByRole('button', {name: 'Load picture'}).first()).toBeVisible({timeout: 5000});
 
     await openPictureMenu(page, picturesField);
     await page.getByRole('menuitem', {name: 'Edit'}).click();
@@ -292,7 +292,7 @@ test.describe('Sense pictures', () => {
     await projectPage.goto();
     await projectPage.selectEntryByFilter('nyumba');
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
-    await expect(picturesField.getByRole('button', {name: 'Click to load'}).first()).toBeVisible({timeout: 5000});
+    await expect(picturesField.getByRole('button', {name: 'Load picture'}).first()).toBeVisible({timeout: 5000});
 
     const downloadPromise = page.waitForEvent('download');
     await openPictureMenu(page, picturesField);
@@ -354,8 +354,8 @@ test.describe('Sense pictures', () => {
     await expect(next).toBeDisabled();
     await expect(previous).toBeEnabled();
 
-    // Picture 2 wasn't pre-loaded, so the viewer shows its own "click to load"; loading works here too.
-    await expect(viewer.getByRole('button', {name: 'Click to load'})).toBeVisible();
+    // Picture 2 wasn't pre-loaded, so the viewer shows its own "Load picture" placeholder; loading works here too.
+    await expect(viewer.getByRole('button', {name: 'Load picture'})).toBeVisible();
     await loadFirstPicture(viewer);
 
     // Previous returns to the first picture.
@@ -442,7 +442,7 @@ test.describe('Sense pictures', () => {
     await expect(viewer.getByText('A traditional house')).toBeVisible();
     await expect(viewer.getByText('Uma casa tradicional')).toBeVisible();
 
-    const toggle = viewer.getByRole('button', {name: 'Toggle captions'});
+    const toggle = viewer.getByRole('button', {name: 'Show or hide captions'});
     // A disclosure chevron signals the toggle; it points up (rotated) while expanded.
     const chevron = toggle.locator('.i-mdi-chevron-down');
     await expect(chevron).toBeVisible();
@@ -464,7 +464,7 @@ test.describe('Sense pictures', () => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();
 
-    // "nyumba"'s first picture is remote-only, so it starts as a "Click to load" placeholder. Click
+    // "nyumba"'s first picture is remote-only, so it starts as a "Load picture" placeholder. Click
     // it to download the file, which then lives locally (server-side cache).
     await projectPage.selectEntryByFilter('nyumba');
     let picturesField = page.locator('[style*="grid-area: pictures"]').first();
@@ -475,12 +475,12 @@ test.describe('Sense pictures', () => {
     await projectPage.selectEntryByFilter('ambuka');
     await projectPage.selectEntryByFilter('nyumba');
 
-    // ...so that picture displays again on its own — no "click to load" placeholder, no re-click and
+    // ...so that picture displays again on its own — no "Load picture" placeholder, no re-click and
     // no extra remote download. (The object URL differs: a fresh cache minted a new one.) Scope to
     // the first picture: "nyumba"'s other pictures were never downloaded, so they stay placeholders.
     picturesField = page.locator('[style*="grid-area: pictures"]').first();
     const firstPicture = picturesField.locator('figure').first();
     await expect(firstPicture.locator('img')).toHaveAttribute('src', /^blob:/, {timeout: 5000});
-    await expect(firstPicture.getByRole('button', {name: 'Click to load'})).toHaveCount(0);
+    await expect(firstPicture.getByRole('button', {name: 'Load picture'})).toHaveCount(0);
   });
 });
