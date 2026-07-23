@@ -17,6 +17,7 @@ public class ProjectServicesProvider(
     CrdtProjectsService crdtProjectsService,
     IServiceProvider serviceProvider,
     LexboxProjectService lexboxProjectService,
+    OAuthClientFactory oAuthClientFactory,
     IEnumerable<IProjectProvider> projectProviders
 ): IAsyncDisposable
 {
@@ -60,6 +61,7 @@ public class ProjectServicesProvider(
                 var server = lexboxProjectService.GetServer(project.Data);
                 var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
                 var projectData = await currentProjectService.SetupProjectContext(project);
+                projectData = await ResolveOriginUser(server, currentProjectService, projectData);
                 scopedServices.GetRequiredService<BackgroundSyncService>().TriggerSync(project);
                 var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scopedServices, project);
                 scope = ProjectScope.Create(serviceScope, this, projectData.Name, miniLcm);
@@ -80,6 +82,20 @@ public class ProjectServicesProvider(
                 throw;
             }
         });
+    }
+
+    // Persist the origin server's current user before the UI reads identity off the project context, so it's
+    // right from the first render instead of racing the background sync. GetCurrentUser only reads the local
+    // MSAL cache (no network). Null means offline/signed-out: keep the persisted last-known-good value.
+    private async Task<ProjectData> ResolveOriginUser(LexboxServer? server,
+        CurrentProjectService currentProjectService,
+        ProjectData projectData)
+    {
+        if (server is null) return projectData;
+        var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
+        if (currentUser is null) return projectData;
+        await currentProjectService.UpdateOriginUser(currentUser.Name, currentUser.Id);
+        return await currentProjectService.GetProjectData();
     }
 
     [JSInvokable]

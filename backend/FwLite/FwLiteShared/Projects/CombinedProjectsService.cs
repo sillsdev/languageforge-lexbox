@@ -67,7 +67,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
         var user = await lexboxProjectService.GetLexboxUser(server);
-        await UpdateProjectServerInfo(lexboxProjects.Projects, user);
+        await UpdateProjectServerInfo(server, lexboxProjects.Projects, user);
         var projectModels = lexboxProjects.Projects.Select(p => new ProjectModel(
                 p.Name,
                 p.Code,
@@ -81,16 +81,21 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         return new(server, projectModels, lexboxProjects.CanDownloadByCode);
     }
 
-    private async Task UpdateProjectServerInfo(FieldWorksLiteProject[] lexboxProjects, LexboxUser? lexboxUser)
+    private async Task UpdateProjectServerInfo(LexboxServer server, FieldWorksLiteProject[] lexboxProjects, LexboxUser? lexboxUser)
     {
         foreach (var serverProject in lexboxProjects)
         {
             var localProject = crdtProjectsService.GetProject(serverProject.Id);
-            if (localProject?.Data is null) continue;
+            if (localProject?.Data is null || !ServerOwnsProject(localProject.Data, server)) continue;
             await crdtProjectsService.UpdateProjectServerInfo(localProject, lexboxUser?.Name, lexboxUser?.Id, ToRole(serverProject.Role));
         }
     }
 
+    // A project's user/role belong to its origin server. The same GUID can live on more than one server
+    // (shared history) and GetProject(Guid) matches on GUID alone, so a non-origin server must not stamp its
+    // user here — that mislabels the current user and, until the next sync, the CRDT commit author.
+    internal static bool ServerOwnsProject(ProjectData localProjectData, LexboxServer server) =>
+        localProjectData.ServerId == server.Id;
 
     [JSInvokable]
     public async Task<ServerProjects?> ServerProjects(string serverId, bool forceRefresh)

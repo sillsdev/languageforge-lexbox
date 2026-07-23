@@ -86,7 +86,7 @@ public class SyncService(
         try
         {
             var currentUser = await oAuthClient.GetCurrentUser();
-            await currentProjectService.UpdateLastUser(currentUser?.Name, currentUser?.Id);
+            await currentProjectService.UpdateOriginUser(currentUser?.Name, currentUser?.Id);
 
             var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
             if (!await remoteModel.ShouldSync())
@@ -107,7 +107,7 @@ public class SyncService(
             }
             logger.LogInformation("Synced project {ProjectName} with server", project.Name);
             UpdateSyncStatus(SyncStatus.Success);
-            await ApplySyncedCommentReadStatus(syncResults, project.LastUserId);
+            await ApplySyncedCommentReadStatus(syncResults, project.OriginUserId);
             await syncRepository.UpdateSyncDate(syncDate);
             // Best-effort: if the push listener failed to start at project-open (e.g. user was offline), this
             // restarts it now that we know auth + network are healthy. If it's already running, the cache

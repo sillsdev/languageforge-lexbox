@@ -89,10 +89,10 @@ public partial class CrdtProjectsService(
         string? userId,
         UserProjectRole role)
     {
-        if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return;
+        if (project.Data?.OriginUserName == userName && project.Data?.OriginUserId == userId && project.Data?.Role == role) return;
         await ExecInProject(project, async (scopedServices, currentProjectService) =>
         {
-            await currentProjectService.UpdateLastUser(userName, userId);
+            await currentProjectService.UpdateOriginUser(userName, userId);
             await currentProjectService.UpdateUserRole(role);
         });
     }

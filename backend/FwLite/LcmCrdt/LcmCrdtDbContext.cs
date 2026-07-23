@@ -41,6 +41,9 @@ public class LcmCrdtDbContext(
         var projectDataModel = modelBuilder.Entity<ProjectData>();
         projectDataModel.HasKey(p => p.Id);
         projectDataModel.Ignore(p => p.ServerId);
+        // OriginUser* is a property-only rename; the columns keep their original names to avoid a migration.
+        projectDataModel.Property(p => p.OriginUserName).HasColumnName("LastUserName");
+        projectDataModel.Property(p => p.OriginUserId).HasColumnName("LastUserId");
         //setting default value to handle migration
         projectDataModel.Property(p => p.Role).HasConversion<EnumToStringConverter<UserProjectRole>>().HasDefaultValue(UserProjectRole.Editor);
 

@@ -152,15 +152,15 @@ public class CurrentProjectService(
         await RefreshProjectData();
     }
 
-    public async Task UpdateLastUser(string? userName, string? userId)
+    public async Task UpdateOriginUser(string? userName, string? userId)
     {
         if (userName is null && userId is null) return;
-        if (userName != ProjectData.LastUserName || userId != ProjectData.LastUserId)
+        if (userName != ProjectData.OriginUserName || userId != ProjectData.OriginUserId)
         {
             await using var dbContext = await DbContextFactory.CreateDbContextAsync();
             await dbContext.ProjectData.ExecuteUpdateAsync(calls => calls
-                .SetProperty(p => p.LastUserName, userName)
-                .SetProperty(p => p.LastUserId, userId));
+                .SetProperty(p => p.OriginUserName, userName)
+                .SetProperty(p => p.OriginUserId, userId));
             await RefreshProjectData();
         }
     }

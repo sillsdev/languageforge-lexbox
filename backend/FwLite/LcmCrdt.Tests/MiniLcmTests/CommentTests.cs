@@ -9,7 +9,7 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
     private async Task SetCurrentUser(string userId, string? name = null)
     {
         var projectService = fixture.GetService<CurrentProjectService>();
-        await projectService.UpdateLastUser(name ?? userId, userId);
+        await projectService.UpdateOriginUser(name ?? userId, userId);
         await projectService.UpdateUserRole(UserProjectRole.Editor);
     }
 
@@ -24,11 +24,11 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
         return fixture.Api.MarkAllCommentsRead();
     }
 
-    private async Task ClearLastUserId()
+    private async Task ClearOriginUser()
     {
         await fixture.DbContext.ProjectData.ExecuteUpdateAsync(calls => calls
-            .SetProperty(p => p.LastUserId, (string?)null)
-            .SetProperty(p => p.LastUserName, (string?)null));
+            .SetProperty(p => p.OriginUserId, (string?)null)
+            .SetProperty(p => p.OriginUserName, (string?)null));
         await fixture.GetService<CurrentProjectService>().RefreshProjectData();
     }
 
@@ -348,9 +348,9 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
     }
 
     [Fact]
-    public async Task CreateCommentThread_WithoutLastUserId_ThrowsValidationException()
+    public async Task CreateCommentThread_WithoutOriginUserId_ThrowsValidationException()
     {
-        await ClearLastUserId();
+        await ClearOriginUser();
 
         var act = () => fixture.Api.CreateCommentThread(NewThread(), NewComment("hello"));
 
@@ -359,11 +359,11 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
     }
 
     [Fact]
-    public async Task AddUserComment_WithoutLastUserId_ThrowsValidationException()
+    public async Task AddUserComment_WithoutOriginUserId_ThrowsValidationException()
     {
         var authorId = $"author-{Guid.NewGuid()}";
         var (thread, _) = await CreateThreadWithComment(authorId);
-        await ClearLastUserId();
+        await ClearOriginUser();
 
         var act = () => fixture.Api.AddUserComment(thread.Id, NewComment("reply"));
 
