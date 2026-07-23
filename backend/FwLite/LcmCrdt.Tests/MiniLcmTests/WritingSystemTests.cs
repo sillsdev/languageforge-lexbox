@@ -38,4 +38,19 @@ public class WritingSystemTests : WritingSystemTestsBase
         createdWs.Should().NotBeNull();
         createdWs.Id.Should().Be(id);
     }
+
+    [Fact]
+    public async Task CreateWritingSystem_HonorsFont()
+    {
+        var ws = await _fixture.Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "es",
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial"
+        });
+        ws.Font.Should().Be("Arial");
+    }
 }

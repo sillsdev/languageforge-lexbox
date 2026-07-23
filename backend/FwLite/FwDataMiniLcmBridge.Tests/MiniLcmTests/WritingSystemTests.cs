@@ -19,4 +19,21 @@ public class WritingSystemTests(ProjectLoaderFixture fixture) : WritingSystemTes
         });
         return api;
     }
+
+    [Fact]
+    public async Task CreateWritingSystem_IgnoresFont()
+    {
+        var ws = await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "es",
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial"
+        });
+        // the input Font is intentionally dropped (see FwDataMiniLcmApi.CreateWritingSystem);
+        // "Charis SIL" is liblcm's default for a fresh writing system
+        ws.Font.Should().Be("Charis SIL");
+    }
 }

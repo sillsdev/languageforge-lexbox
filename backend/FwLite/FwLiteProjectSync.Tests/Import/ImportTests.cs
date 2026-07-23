@@ -67,7 +67,7 @@ public class ImportTests : IClassFixture<SyncFixture>
         var ws = new WritingSystem
         {
             Id = Guid.NewGuid(),
-            Name = "fr",
+            Name = "French",
             WsId = "fr",
             Abbreviation = "Fr",
             Font = "Charis SIL",
