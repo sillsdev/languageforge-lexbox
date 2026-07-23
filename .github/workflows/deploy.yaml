@@ -74,23 +74,33 @@ jobs:
       #        this kustomization file is in the fleet repo and only modifies the image versions being used.
       - name: Update image version in fleet kustomization.yaml
         uses: mikefarah/yq@1b9b4ac5187171d2e5e3129be0cfa827c7f9d53d # v4.53.3
+        env:
+          IMAGE: ${{ inputs.image }}
+          VERSION: ${{ inputs.version }}
+          K8S_ENVIRONMENT: ${{ inputs.k8s-environment }}
         with:
-          cmd: yq eval -i '(.images.[] | select(.name == "${{ inputs.image }}").newTag) = "${{ inputs.version }}"' "fleet/${{ inputs.k8s-environment }}/kustomization.yaml"
+          cmd: yq eval -i '(.images.[] | select(.name == strenv(IMAGE)).newTag) = strenv(VERSION)' "fleet/$K8S_ENVIRONMENT/kustomization.yaml"
       - name: Get API version
         uses: mikefarah/yq@1b9b4ac5187171d2e5e3129be0cfa827c7f9d53d # v4.53.3
         id: get-api-version
+        env:
+          K8S_ENVIRONMENT: ${{ inputs.k8s-environment }}
         with:
-          cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag' "fleet/${{ inputs.k8s-environment }}/kustomization.yaml"
+          cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag' "fleet/$K8S_ENVIRONMENT/kustomization.yaml"
       - name: Get FwHeadless version
         uses: mikefarah/yq@1b9b4ac5187171d2e5e3129be0cfa827c7f9d53d # v4.53.3
         id: get-fw-headless-version
+        env:
+          K8S_ENVIRONMENT: ${{ inputs.k8s-environment }}
         with:
-          cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-fw-headless").newTag' "fleet/${{ inputs.k8s-environment }}/kustomization.yaml"
+          cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-fw-headless").newTag' "fleet/$K8S_ENVIRONMENT/kustomization.yaml"
       - name: Get UI version
         uses: mikefarah/yq@1b9b4ac5187171d2e5e3129be0cfa827c7f9d53d # v4.53.3
         id: get-ui-version
+        env:
+          K8S_ENVIRONMENT: ${{ inputs.k8s-environment }}
         with:
-          cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-ui").newTag' "fleet/${{ inputs.k8s-environment }}/kustomization.yaml"
+          cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-ui").newTag' "fleet/$K8S_ENVIRONMENT/kustomization.yaml"
       - name: Push to fleet repo
         uses: EndBug/add-and-commit@290ea2c423ad77ca9c62ae0f5b224379612c0321 # v10.0.0
         with:
