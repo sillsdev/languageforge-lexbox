@@ -12,6 +12,17 @@ using OpenTelemetry.Trace;
 using WebServiceDefaults;
 using AppVersion = LexCore.AppVersion;
 
+// Chorus discovers its file-type handler plugins with `new DirectoryCatalog(".", "*-ChorusPlugin.dll")`,
+// which scans the *current working directory* -- not the app base dir -- and WebApplication.CreateBuilder
+// does not change CWD. When launched from anywhere other than the folder holding the co-published
+// LibFLExBridge-ChorusPlugin.dll (e.g. `dotnet run`, whose CWD is the project dir), that plugin isn't
+// found. Without it, FieldWorks extensions like `.list` fall back to Chorus's 1 MB LargeFileFilter
+// default, so the >1 MB SemanticDomainList.list is silently filtered out of a new project's first push
+// (and later merges lose their FieldWorks handlers too). Pin CWD to the base dir so the plugin is always
+// discovered. Safe here: hg runs with explicit working dirs and TemplatesFolder resolves against
+// AppContext.BaseDirectory already.
+Environment.CurrentDirectory = AppContext.BaseDirectory;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
