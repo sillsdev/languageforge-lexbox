@@ -192,7 +192,7 @@
       <Sidebar.Group>
         <Sidebar.GroupLabel>
           {#snippet child({props})}
-            <Collapsible.Trigger {...props} class={cn(props.class, 'w-full cursor-pointer hover:bg-sidebar-accent hover:text-sidebar-accent-foreground')}>
+            <Collapsible.Trigger {...props} class={cn(props.class as string, 'w-full cursor-pointer hover:bg-sidebar-accent hover:text-sidebar-accent-foreground')}>
               <span>{$t`Help & More`}</span>
               <Icon icon="i-mdi-chevron-down" class="ml-auto transition-transform group-data-[state=open]/help:rotate-180" />
             </Collapsible.Trigger>
