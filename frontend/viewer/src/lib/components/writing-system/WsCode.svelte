@@ -23,7 +23,10 @@
   for={forId}
   {id}
   class={cn(
-    'font-mono text-xs',
+    'font-mono',
+    // Monospace renders ~one step smaller than the app's sans, so the chip uses text-sm to match the
+    // text-xs-sans label floor it replaced; the plain form stays text-xs to recede inline beside the gloss.
+    plain ? 'text-xs' : 'text-sm',
     !plain && 'rounded border border-border bg-muted/50 px-1',
     // The plain form is a subordinate annotation in the read-only dictionary/activity views, so it reads
     // lighter than the value text — but at foreground/75 (~9:1 on white and muted), not the AA-floor grey,
