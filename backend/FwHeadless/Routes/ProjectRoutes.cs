@@ -47,7 +47,7 @@ public static class ProjectRoutes
         }
 
         await projectCreationService.CreateFromTemplate(
-            projectId, projectCode, input.WsVernacular, input.WsAnalysis, input.WsUi, input.AnthropologyCategories);
+            projectId, projectCode, input.WsVernacular, input.WsAnalysis, input.WsUi);
         return TypedResults.Ok();
     }
 }

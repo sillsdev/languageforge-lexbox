@@ -2,7 +2,6 @@ using System.Xml;
 using System.Xml.Linq;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
-using LexCore.Entities;
 using LexCore.Exceptions;
 using Microsoft.Extensions.Options;
 using SIL.Xml;
@@ -31,8 +30,7 @@ public class ProjectCreationService(
         string projectCode,
         IReadOnlyList<string> vernacularWritingSystems,
         IReadOnlyList<string> analysisWritingSystems,
-        string uiWritingSystem,
-        AnthropologyCategories anthropologyCategories)
+        string uiWritingSystem)
     {
         if (vernacularWritingSystems.Count == 0)
             throw new ArgumentException("At least one vernacular writing system is required", nameof(vernacularWritingSystems));
@@ -65,7 +63,6 @@ public class ProjectCreationService(
 
             BuildFromTemplate(fwDataProject, vernacularWritingSystems, analysisWritingSystems, uiWritingSystem);
             FixLinkedFilesRootDirSeparator(fwDataProject);
-            ApplyAnthropologyCategories(anthropologyCategories);
             AssertModelVersionMatches(fwDataProject);
 
             var customPropertiesFile = WriteInitialCustomPropertiesFile(fwDataProject);
@@ -164,15 +161,6 @@ public class ProjectCreationService(
             new XElement("AdditionalFields").WriteTo(writer);
         }
         return path;
-    }
-
-    private void ApplyAnthropologyCategories(AnthropologyCategories anthropologyCategories)
-    {
-        // TODO: Implement — populate the project with the requested anthropology categories
-        // (enhanced/standard). Currently a no-op; 'none' is the only fully-handled option.
-        if (anthropologyCategories != AnthropologyCategories.None)
-            logger.LogWarning("anthropologyCategories '{Categories}' was requested but is not implemented yet; " +
-                "the new project will have no anthropology categories", anthropologyCategories);
     }
 
     /// <summary>

@@ -209,10 +209,9 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         IReadOnlyList<string> wsVernacular,
         IReadOnlyList<string> wsAnalysis,
         string wsUi,
-        AnthropologyCategories anthropologyCategories,
         CancellationToken cancellationToken = default)
     {
-        var input = new CreateProjectFromTemplateInput(wsVernacular, wsAnalysis, wsUi, anthropologyCategories);
+        var input = new CreateProjectFromTemplateInput(wsVernacular, wsAnalysis, wsUi);
         var response = await httpClient.PostAsJsonAsync($"/api/project/create-from-template?projectId={projectId}",
             input,
             cancellationToken);

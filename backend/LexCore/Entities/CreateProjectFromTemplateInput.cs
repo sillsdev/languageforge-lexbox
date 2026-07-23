@@ -8,5 +8,4 @@ namespace LexCore.Entities;
 public record CreateProjectFromTemplateInput(
     IReadOnlyList<string> WsVernacular,
     IReadOnlyList<string> WsAnalysis,
-    string WsUi,
-    AnthropologyCategories AnthropologyCategories);
+    string WsUi);

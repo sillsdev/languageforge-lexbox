@@ -36,7 +36,6 @@ public class ProjectController(
     /// <param name="wsVernacular">Vernacular writing system id(s); at least one is required. Repeat the query param for multiple.</param>
     /// <param name="wsAnalysis">Analysis writing system id(s); defaults to ["en"] when none are given. Repeat the query param for multiple.</param>
     /// <param name="name">Optional display name; defaults to the code.</param>
-    /// <param name="anthropologyCategories">Which anthropology categories to populate (default none).</param>
     [HttpPost("createFromTemplate")]
     [AdminRequired]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -49,7 +48,6 @@ public class ProjectController(
         [FromQuery] string[]? wsAnalysis = null,
         string wsUi = "en",
         string? name = null,
-        AnthropologyCategories anthropologyCategories = AnthropologyCategories.None,
         CancellationToken cancellationToken = default)
     {
         if (wsVernacular is null || wsVernacular.Length == 0)
@@ -78,7 +76,7 @@ public class ProjectController(
         (HttpStatusCode statusCode, string? error) result;
         try
         {
-            result = await fwHeadlessClient.CreateProjectFromTemplate(projectId, wsVernacular, wsAnalysisOrDefault, wsUi, anthropologyCategories, cancellationToken);
+            result = await fwHeadlessClient.CreateProjectFromTemplate(projectId, wsVernacular, wsAnalysisOrDefault, wsUi, cancellationToken);
         }
         catch
         {
