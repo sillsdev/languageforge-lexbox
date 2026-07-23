@@ -16,6 +16,7 @@
   import {copy, EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {createEntryOptions} from '$lib/create-entry-options';
   import {useProjectEventBus} from '$lib/services/event-bus';
+  import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import {useFeatures} from '$lib/services/feature-service';
@@ -183,8 +184,18 @@
         </div>
       {/if}
     </header>
-    <div class="flex min-h-0 grow gap-4">
-      <div class="flex min-h-0 min-w-0 grow flex-col">
+    <div
+      class={cn(
+        'flex min-h-0 grow gap-4',
+        showCommentDialog && !IsExtraLarge.value && 'flex-col gap-0',
+      )}
+    >
+      <div
+        class={cn(
+          'flex min-h-0 min-w-0 grow flex-col',
+          showCommentDialog && !IsExtraLarge.value && 'h-[55%] shrink-0 grow-0',
+        )}
+      >
         {#if dictionaryPreview === 'sticky'}
           <div class="shrink-0 md:px-2">
             {@render preview(entry)}

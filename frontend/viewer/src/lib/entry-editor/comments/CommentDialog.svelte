@@ -3,6 +3,7 @@
   import * as Sheet from '$lib/components/ui/sheet';
   import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
+  import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useMiniLcmApi} from '$lib/services/service-provider';
   import {useProjectContext} from '$project/project-context.svelte';
@@ -11,8 +12,7 @@
   import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
   import {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
   import type {ClassValue} from 'clsx';
-  import {resource} from 'runed';
-  import {MediaQuery} from 'svelte/reactivity';
+  import {resource, watch} from 'runed';
   import {t} from 'svelte-i18n-lingui';
   import CommentPanel from './CommentPanel.svelte';
   import type {ThreadView} from './types';
@@ -37,11 +37,14 @@
   const projectContext = useProjectContext();
   const currentUserId = $derived(projectContext.projectData?.lastUserId);
   const canComment = $derived(Boolean(currentUserId));
-  const isExtraLarge = new MediaQuery('min-width: 1280px');
 
   let saving = $state(false);
   let newThreadText = $state('');
   let editingCommentId = $state<string>();
+  let showResolved = $state(false);
+  let addingComment = $state(false);
+  let expandedThreadIds = $state(new Set<string>());
+  let mobileThreadId = $state<string | null>(null);
 
   const threadsResource = resource(
     [() => open, () => subjectType, () => subjectId],
@@ -56,8 +59,29 @@
   const loading = $derived(threadsResource.loading);
 
   const title = $derived(subjectName ? $t`Comments for ${subjectName}` : $t`Comments`);
-  const hasThreads = $derived(threadViews.length > 0);
-  const shouldUseSidebar = $derived(inlineSidebar && isExtraLarge.current);
+  const dockBottom = $derived(!IsExtraLarge.value);
+
+  watch(
+    () => open,
+    (isOpen) => {
+      if (!isOpen) {
+        showResolved = false;
+        addingComment = false;
+        newThreadText = '';
+        editingCommentId = undefined;
+        expandedThreadIds = new Set();
+        mobileThreadId = null;
+      }
+    },
+  );
+
+  watch(
+    () => IsMobile.value,
+    (isMobile) => {
+      if (!isMobile) mobileThreadId = null;
+      else expandedThreadIds = new Set();
+    },
+  );
 
   function onOpenChange(value: boolean): void {
     open = value;
@@ -86,6 +110,7 @@
         updatedAt: now,
       });
       newThreadText = '';
+      addingComment = false;
       await threadsResource.refetch();
     } finally {
       saving = false;
@@ -114,11 +139,23 @@
     }
   }
 
+  async function resolveThread(threadView: ThreadView): Promise<void> {
+    saving = true;
+    try {
+      const nextStatus =
+        threadView.thread.status === ThreadStatus.Closed ? ThreadStatus.Open : ThreadStatus.Closed;
+      await api.setCommentThreadStatus(threadView.thread.id, nextStatus);
+      await threadsResource.refetch();
+    } finally {
+      saving = false;
+    }
+  }
+
   function startEditing(comment: IUserComment): void {
     editingCommentId = comment.id;
   }
 
-  function cancelEditing(commentId: string): void {
+  function cancelEditing(_commentId: string): void {
     editingCommentId = undefined;
   }
 
@@ -140,36 +177,36 @@
 {#snippet panel()}
   <CommentPanel
     bind:newThreadText
+    bind:showResolved
+    bind:addingComment
+    bind:expandedThreadIds
+    bind:mobileThreadId
     {canComment}
     {loading}
     {saving}
-    {hasThreads}
     {threadViews}
     {editingCommentId}
     {currentUserId}
+    onClose={() => onOpenChange(false)}
     onStartThread={startThread}
     onReply={replyToThread}
+    onResolve={resolveThread}
     onStartEdit={startEditing}
     onCancelEdit={cancelEditing}
     onSaveEdit={saveEdit}
   />
 {/snippet}
 
-{#if shouldUseSidebar && open}
+{#if inlineSidebar && open}
   <aside
     class={cn(
-      'flex h-full min-h-0 w-96 shrink-0 flex-col overflow-hidden rounded-lg border bg-background shadow-sm',
+      'flex min-h-0 flex-col overflow-hidden border bg-background',
+      dockBottom
+        ? 'min-h-0 w-full flex-1 rounded-none border-x-0 border-b-0'
+        : 'h-full w-[360px] shrink-0 rounded-lg shadow-sm',
       className,
     )}
   >
-    <div class="flex items-start gap-2 px-4 pt-4 pb-0">
-      <div class="min-w-0 flex-1">
-        <h2 class="truncate text-lg font-semibold" title={title}>{title}</h2>
-      </div>
-      <Button variant="ghost" size="icon" aria-label={$t`Close`} onclick={() => onOpenChange(false)}>
-        <Icon icon="i-mdi-close" />
-      </Button>
-    </div>
     {@render panel()}
   </aside>
 {:else if IsMobile.value}

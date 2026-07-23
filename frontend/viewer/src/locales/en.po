@@ -21,7 +21,6 @@ msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
-#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "(unknown)"
 msgstr "(unknown)"
 
@@ -61,6 +60,14 @@ msgstr "{0} authors"
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "{0} replies"
+msgstr "{0} replies"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "{0} resolved"
+msgstr "{0} resolved"
+
 #. Display name for server
 #: src/home/Server.svelte
 msgid "{0} Server"
@@ -97,6 +104,22 @@ msgstr "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "↩ Reopen"
+msgstr "↩ Reopen"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "+ Add"
+msgstr "+ Add"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "✓ Resolve"
+msgstr "✓ Resolve"
+
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "1 reply"
+msgstr "1 reply"
+
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
@@ -122,6 +145,10 @@ msgstr "Account"
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "Activity"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Add a comment…"
+msgstr "Add a comment…"
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -317,6 +344,10 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Auto syncing"
 
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Back"
+msgstr "Back"
+
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -360,6 +391,9 @@ msgstr "Browse view failed"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -416,7 +450,6 @@ msgstr "clear"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/comments/CommentDialog.svelte
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Close"
@@ -426,10 +459,6 @@ msgstr "Close"
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Close Dictionary"
-
-#: src/lib/entry-editor/comments/CommentThread.svelte
-msgid "Closed"
-msgstr "Closed"
 
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
@@ -441,7 +470,12 @@ msgstr "Code"
 msgid "Color"
 msgstr "Color"
 
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Comment"
+msgstr "Comment"
+
 #: src/lib/entry-editor/comments/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
 msgstr "Comments"
@@ -1166,6 +1200,10 @@ msgstr "Headword"
 msgid "Hide"
 msgstr "Hide"
 
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Hide resolved"
+msgstr "Hide resolved"
+
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1568,10 +1606,6 @@ msgstr "No audio"
 msgid "No authors"
 msgstr "No authors"
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "No comment threads yet."
-msgstr "No comment threads yet."
-
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
@@ -1610,6 +1644,10 @@ msgstr "No media files found"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "No new data"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "No open comments"
+msgstr "No open comments"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
@@ -1730,7 +1768,6 @@ msgstr "One FieldWorks Classic commit may consist of changes to multiple entries
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
-#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Open"
 msgstr "Open"
 
@@ -1972,6 +2009,7 @@ msgstr "Remove audio"
 
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Reopen"
 msgstr "Reopen"
 
@@ -1984,10 +2022,29 @@ msgstr "Replace audio"
 msgid "Replace Picture"
 msgstr "Replace Picture"
 
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Reply"
+msgstr "Reply"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Reply to this thread"
+msgstr "Reply to this thread"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Reply…"
+msgstr "Reply…"
+
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
 msgstr "Report a technical problem"
+
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Resolve"
+msgstr "Resolve"
 
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
@@ -2176,10 +2233,6 @@ msgstr "Something went wrong"
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "Specific field"
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Start a new thread"
-msgstr "Start a new thread"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2387,10 +2440,6 @@ msgstr "This task is complete"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
-
-#: src/lib/entry-editor/comments/CommentThread.svelte
-msgid "Thread"
-msgstr "Thread"
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
@@ -2600,6 +2649,10 @@ msgstr "Uploaded pending files"
 msgid "Uploading pictures is not supported here"
 msgstr "Uploading pictures is not supported here"
 
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Use \"+ Add\" to start a thread"
+msgstr "Use \"+ Add\" to start a thread"
+
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Uses components as"
@@ -2687,14 +2740,6 @@ msgstr "Word or Display as is required"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Word or meaning:"
-
-#: src/lib/entry-editor/comments/CommentThread.svelte
-msgid "Write a reply..."
-msgstr "Write a reply..."
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Write the first comment..."
-msgstr "Write the first comment..."
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
