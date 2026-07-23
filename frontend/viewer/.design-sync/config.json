@@ -1,9 +1,0 @@
-{
-  "projectId": "fe29a329-bafa-420f-bd5e-fe067206a031",
-  "projectName": "FW Lite",
-  "shape": "off-script-svelte",
-  "deliverable": "tokens+visual-reference",
-  "coverage": "core-primitives + layouts (app-shell, master-detail)",
-  "readmeHeader": ".design-sync/conventions.md",
-  "notes": "Svelte + Tailwind v4 (ShadCN-Svelte). Not React, so the standard converter (React _ds_bundle.js) does not apply. This sync ships a design-token + visual-reference system: real tokens/themes/fonts + hand-authored HTML preview cards using the app's real compiled Tailwind CSS. No runtime component bundle."
-}
