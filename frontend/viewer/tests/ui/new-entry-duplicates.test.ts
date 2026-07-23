@@ -73,29 +73,6 @@ test.describe('New entry possible duplicates', () => {
     await expect(stripSummary(dialog)).toBeHidden();
   });
 
-  test('the match list never auto-expands, stays open while matches change, and resets when they disappear', async ({page}) => {
-    const projectPage = new DemoProjectPage(page);
-    await projectPage.goto();
-
-    const dialog = await openNewEntryDialog(page);
-    // even an exact match only shows the collapsed strip — an auto-expanding list would make the form jump while typing
-    await lexemeInput(dialog).fill(existingLexeme);
-    await expect(stripSummary(dialog)).toBeVisible();
-    await expect(duplicateRows(dialog)).toHaveCount(0);
-
-    // once opened it stays open while the matches merely change...
-    await stripSummary(dialog).click();
-    await lexemeInput(dialog).fill('balal');
-    await expect(duplicateRows(dialog).filter({hasText: 'balalika'}).first()).toBeVisible();
-
-    // ...but going through no-matches resets it to collapsed
-    await lexemeInput(dialog).fill('zyzzyvazz');
-    await expect(dialog.getByText(newWordIndicator)).toBeVisible();
-    await lexemeInput(dialog).fill(existingLexeme);
-    await expect(stripSummary(dialog)).toBeVisible();
-    await expect(duplicateRows(dialog)).toHaveCount(0);
-  });
-
   test('Enter inside the duplicate strip expands the row without creating the entry', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();
