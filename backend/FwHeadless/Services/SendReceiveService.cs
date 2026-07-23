@@ -71,6 +71,11 @@ public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingPr
         await SendReceiveHelpers.CommitFile(filePath, commitMessage, progress);
     }
 
+    public async Task CommitEmpty(string folder, string commitMessage)
+    {
+        await SendReceiveHelpers.CommitEmpty(folder, commitMessage, progress);
+    }
+
     public async Task InitRepo(string folder)
     {
         await SendReceiveHelpers.InitRepo(folder, progress);

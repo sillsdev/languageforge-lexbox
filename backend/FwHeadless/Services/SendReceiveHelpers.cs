@@ -160,6 +160,17 @@ public static class SendReceiveHelpers
         await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", fileDir, progress);
     }
 
+    public static async Task CommitEmpty(string folder, string commitMessage, IProgress? progress = null)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.folder", folder);
+        progress ??= new NullProgress();
+        // No `hg add` and no file changes: this succeeds only because a pending branch change (from a
+        // preceding SetBranch) is itself a committable change in Mercurial, so it records a new head on
+        // that branch. A plain commit with truly nothing changed would exit 1 and throw.
+        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", folder, progress);
+    }
+
     public static async Task InitRepo(string folder, IProgress? progress = null)
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();

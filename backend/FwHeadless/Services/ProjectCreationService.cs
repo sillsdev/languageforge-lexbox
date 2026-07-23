@@ -1,9 +1,11 @@
 using System.Xml;
+using System.Xml.Linq;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using Microsoft.Extensions.Options;
+using SIL.Xml;
 
 namespace FwHeadless.Services;
 
@@ -19,6 +21,10 @@ public class ProjectCreationService(
     ILogger<ProjectCreationService> logger)
 {
     private const string InitialCommitMessage = "Initial project creation";
+
+    // The one file FieldWorks/FLExBridge put in a brand-new FLEx repo's first commit: a minimal custom
+    // property definition list. Mirrors FlexBridgeConstants.CustomPropertiesFilename (internal in FLExBridge).
+    private const string CustomPropertiesFilename = "FLExProject.CustomProperties";
 
     public async Task CreateFromTemplate(
         Guid projectId,
@@ -41,24 +47,36 @@ public class ProjectCreationService(
         var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
         try
         {
-            // Build the first commit of a brand-new FLEx repo from scratch, mirroring LfMerge's genesis
-            // recipe (hg init -> branch -> write files -> commit) since Clone can't establish an empty
-            // remote and Language_Forge_Send_Receive refuses to make the *first* commit itself:
+            // Build the first commit of a brand-new FLEx repo from scratch, mirroring how FieldWorks/
+            // FLExBridge create a repo, since Clone can't establish an empty remote and
+            // Language_Forge_Send_Receive refuses to make the *first* commit itself:
             //   1. hg init the local fw/ folder (no clone -- the empty remote has nothing to clone).
-            //   2. Set the branch to the send/receive branch name (FlexBridgeDataVersion.modelVersion,
-            //      e.g. 7500002.7000072) BEFORE any commit; FLEx/LfMergeBridge look for the data on that
-            //      branch, so a first commit on 'default' would be invisible to them.
-            //   3. Build fw.fwdata into that folder from the SIL.LCModel template, configured with all
+            //   2. Build fw.fwdata into that folder from the SIL.LCModel template, configured with all
             //      of the requested writing systems.
-            //   4. hg add + commit the (untracked) fwdata onto that branch, then push.
+            //   3. Commit a minimal FLExProject.CustomProperties file on hg's *default* branch -- the same
+            //      genesis file, on the same branch, FieldWorks commits first. The fwdata itself is NOT
+            //      committed; Send/Receive splits it into the nested files Mercurial actually tracks
+            //      (fwdata is excluded from tracking).
+            //   4. Set the branch to the send/receive branch name (FlexBridgeDataVersion.modelVersion,
+            //      e.g. 7500002.7000072) AFTER the genesis commit; FLEx/LfMergeBridge look for the data on
+            //      that branch, so the split data must land there while the genesis stays on 'default'.
+            //   5. Send/Receive: split fw.fwdata into its nested files, commit those on the branch, push.
             await srService.InitRepo(fwDataProject.ProjectFolder);
-            await srService.SetBranch(fwDataProject.ProjectFolder, config.Value.SendReceiveBranchName);
 
             BuildFromTemplate(fwDataProject, vernacularWritingSystems, analysisWritingSystems, uiWritingSystem);
             ApplyAnthropologyCategories(anthropologyCategories);
             AssertModelVersionMatches(fwDataProject);
 
-            await srService.CommitFile(fwDataProject.FilePath, InitialCommitMessage);
+            var customPropertiesFile = WriteInitialCustomPropertiesFile(fwDataProject);
+            await srService.CommitFile(customPropertiesFile, InitialCommitMessage);
+
+            await srService.SetBranch(fwDataProject.ProjectFolder, config.Value.SendReceiveBranchName);
+            // BUG WORKAROUND (remove once the LanguageForgeSendReceiveActionHandler bug is fixed): that
+            // handler refuses to commit when doing so "could possibly create a new branch", so it won't
+            // establish the model-version branch itself. This empty commit (no file changes -- it only
+            // records the branch change from SetBranch above) creates a head on the branch so Send/Receive
+            // will proceed.
+            await srService.CommitEmpty(fwDataProject.ProjectFolder, InitialCommitMessage);
             var pushResult = await srService.SendReceive(fwDataProject, projectCode, InitialCommitMessage);
             if (!pushResult.Success)
                 throw new SendReceiveException("Pushing the new project to the repo failed", pushResult);
@@ -86,6 +104,22 @@ public class ProjectCreationService(
         // systems (the first of each list is the default of that type), and returns a loaded cache;
         // dispose it right away so its file locks are released before the following hg add/commit.
         using var cache = projectLoader.NewProject(fwDataProject, analysisWritingSystems, vernacularWritingSystems, uiWs);
+    }
+
+    /// <summary>
+    /// Writes the genesis FLExProject.CustomProperties file into the repo root: an empty custom-property
+    /// list (just an &lt;AdditionalFields /&gt; root). Uses SIL's canonical XML settings so the bytes match
+    /// exactly what the first Send/Receive's project splitter regenerates, leaving no spurious diff.
+    /// </summary>
+    private string WriteInitialCustomPropertiesFile(FwDataProject fwDataProject)
+    {
+        var path = Path.Join(fwDataProject.ProjectFolder, CustomPropertiesFilename);
+        using (var writer = XmlWriter.Create(path, CanonicalXmlSettings.CreateXmlWriterSettings()))
+        {
+            writer.WriteStartDocument();
+            new XElement("AdditionalFields").WriteTo(writer);
+        }
+        return path;
     }
 
     private void ApplyAnthropologyCategories(AnthropologyCategories anthropologyCategories)
