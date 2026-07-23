@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
+using System.Xml.Linq;
 using FluentAssertions;
 using Testing.ApiTests;
 using Testing.Fixtures;
@@ -59,14 +60,28 @@ public class CreateProjectFromTemplateTests : IClassFixture<IntegrationFixture>
             tip.Should().NotBeNullOrEmpty();
             tip!.Replace("0", "").Should().NotBeEmpty("the repo tip should not be the all-zero empty-repo hash");
 
-            // 3. The pushed .fwdata carries the requested writing systems. FwHeadless always names the
-            //    file fw.fwdata (its fixed project name), so fetch that from hgweb and check the codes.
-            var fwDataResponse = await _adminApiTester.HttpClient.GetAsync($"{_adminApiTester.BaseUrl}/hg/{code}/raw-file/tip/fw.fwdata");
-            fwDataResponse.EnsureSuccessStatusCode();
-            var fwData = await fwDataResponse.Content.ReadAsStringAsync();
-            fwData.Should().NotBeEmpty();
-            foreach (var ws in vernacular.Concat(analysis))
-                fwData.Should().Contain($"\"{ws}\"", "writing system {0} should be present in the pushed project", ws);
+            // 3. The pushed project carries the requested writing systems. Send/Receive split the
+            //    template .fwdata into the nested files hg actually tracks; the LangProject's current
+            //    analysis/vernacular writing systems live in General/LanguageProject.langproj (XML).
+            var langprojResponse = await _adminApiTester.HttpClient.GetAsync(
+                $"{_adminApiTester.BaseUrl}/hg/{code}/raw-file/tip/General/LanguageProject.langproj");
+            langprojResponse.EnsureSuccessStatusCode();
+            var langprojXml = await langprojResponse.Content.ReadAsStringAsync();
+            langprojXml.Should().NotBeEmpty();
+
+            // <LanguageProject><LangProject><CurAnalysisWss><Uni>de en pt</Uni></CurAnalysisWss>
+            //                               <CurVernWss><Uni>fr es</Uni></CurVernWss> ... </LangProject>
+            var langProject = XDocument.Parse(langprojXml).Root?.Element("LangProject");
+            langProject.Should().NotBeNull("LanguageProject.langproj should contain a LangProject element");
+            var curAnalysisWss = SpaceSeparatedUni(langProject!, "CurAnalysisWss");
+            var curVernWss = SpaceSeparatedUni(langProject!, "CurVernWss");
+
+            // The requested writing systems should be current. FieldWorks may add its own defaults (e.g.
+            // "en" as an analysis WS), so assert each requested code is present rather than exact equality.
+            foreach (var ws in analysis)
+                curAnalysisWss.Should().Contain(ws, "analysis writing system {0} should be current in the project", ws);
+            foreach (var ws in vernacular)
+                curVernWss.Should().Contain(ws, "vernacular writing system {0} should be current in the project", ws);
         }
         finally
         {
@@ -81,6 +96,13 @@ public class CreateProjectFromTemplateTests : IClassFixture<IntegrationFixture>
         var response = await _adminApiTester.HttpClient.PostAsync(
             $"{_adminApiTester.BaseUrl}/api/project/createFromTemplate?code={code}&wsAnalysis=en", null);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    // Reads a LangProject child element's <Uni> text (a space-separated writing-system list) and splits it.
+    private static string[] SpaceSeparatedUni(XElement langProject, string elementName)
+    {
+        var uni = langProject.Element(elementName)?.Element("Uni")?.Value ?? "";
+        return uni.Split(' ', StringSplitOptions.RemoveEmptyEntries);
     }
 
     private async Task SoftDeleteProject(Guid projectId)
