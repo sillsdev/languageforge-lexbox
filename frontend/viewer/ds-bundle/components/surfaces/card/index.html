@@ -1,0 +1,57 @@
+<!-- @dsCard group="Surfaces" name="Card" subtitle="header · content · footer" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FW Lite — Card</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  html, body { margin: 0; }
+  .board { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: color-mix(in oklab, var(--border) 70%, transparent); min-height: 100%; }
+  @media (max-width: 720px) { .board { grid-template-columns: 1fr; } }
+  .pane { position: relative; padding: 2rem 1.75rem; }
+  .pane-tag { position: absolute; top: .6rem; right: .75rem; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .5; }
+  .row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+  .stack { display: flex; flex-direction: column; gap: .9rem; }
+  .cap { font-size: 11px; opacity: .55; margin: 0 0 .35rem; }
+  
+</style>
+</head>
+<body>
+  <div class="board">
+    <section class="pane light bg-background text-foreground">
+      <div class="pane-tag">Light</div>
+      <div class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm" style="max-width:22rem">
+        <div class="grid auto-rows-min gap-1.5 px-6">
+          <div class="leading-none font-semibold">Entry synced</div>
+          <div class="text-muted-foreground text-sm">Changes were merged via CRDT.</div>
+        </div>
+        <div class="px-6 text-sm">
+          The lexeme form and its senses are now up to date across all connected devices.
+        </div>
+        <div class="flex items-center gap-2 px-6">
+          <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-9 px-3">View entry</button>
+          <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-9 px-3">Dismiss</button>
+        </div>
+      </div>
+    </section>
+    <section class="pane dark bg-background text-foreground">
+      <div class="pane-tag">Dark</div>
+      <div class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm" style="max-width:22rem">
+        <div class="grid auto-rows-min gap-1.5 px-6">
+          <div class="leading-none font-semibold">Entry synced</div>
+          <div class="text-muted-foreground text-sm">Changes were merged via CRDT.</div>
+        </div>
+        <div class="px-6 text-sm">
+          The lexeme form and its senses are now up to date across all connected devices.
+        </div>
+        <div class="flex items-center gap-2 px-6">
+          <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-9 px-3">View entry</button>
+          <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-9 px-3">Dismiss</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

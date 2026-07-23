@@ -1,0 +1,148 @@
+<!-- @dsCard group="Layouts" name="Master-detail" subtitle="entries list + entry editor · resizable" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FW Lite — Master-detail</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  html, body { margin: 0; }
+  .board { display: flex; flex-direction: column; gap: 1px; background: color-mix(in oklab, var(--border) 70%, transparent); }
+  .pane { position: relative; padding: 1.5rem; }
+  .pane-tag { position: absolute; top: .5rem; right: .7rem; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .45; z-index:2; }
+  .shell { display: grid; height: 460px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .muted { color: var(--muted-foreground); }
+  .ph { border: 1px dashed color-mix(in oklab, var(--border) 90%, transparent); border-radius: var(--radius); }
+  
+</style>
+</head>
+<body>
+  <div class="board">
+    <section class="pane light bg-background text-foreground">
+      <div class="pane-tag">Light</div>
+      <p class="cap muted" style="font-size:11px;margin:0 0 .6rem">list pane · resizable divider · detail pane</p>
+      <div class="shell" style="grid-template-columns:300px 1px 1fr">
+        <div class="bg-background flex flex-col min-h-0">
+          <div class="flex items-center gap-2 border-b border-border p-2">
+            <div class="flex-1 flex items-center gap-2 rounded-md border border-input bg-background h-9 px-3 text-sm muted"><span class="i-mdi-magnify size-4"></span>Filter 10 words</div>
+            <button class="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent"><span class="i-mdi-sort size-4"></span></button>
+          </div>
+          <div class="flex flex-col gap-1 p-2 overflow-hidden">
+          <button class="w-full text-start rounded-md p-3 bg-accent text-accent-foreground">
+            <div class="flex justify-between items-end gap-2">
+              <div class="min-w-0">
+                <div class="font-semibold truncate">Apfel</div>
+                <div class="text-sm muted line-clamp-2">fruit with red, yellow, or green skin</div>
+              </div>
+              <span class="inline-flex items-center rounded-full border border-transparent bg-secondary text-secondary-foreground px-2 py-0.5 text-xs font-medium shrink-0">Noun</span>
+            </div>
+          </button>
+          <button class="w-full text-start rounded-md p-3 hover:bg-accent">
+            <div class="flex justify-between items-end gap-2">
+              <div class="min-w-0">
+                <div class="font-semibold truncate">Banane</div>
+                <div class="text-sm muted line-clamp-2">long curved fruit with soft sweet flesh</div>
+              </div>
+              <span class="inline-flex items-center rounded-full border border-transparent bg-secondary text-secondary-foreground px-2 py-0.5 text-xs font-medium shrink-0">Noun</span>
+            </div>
+          </button>
+          <button class="w-full text-start rounded-md p-3 hover:bg-accent">
+            <div class="flex justify-between items-end gap-2">
+              <div class="min-w-0">
+                <div class="font-semibold truncate">Beere</div>
+                <div class="text-sm muted line-clamp-2">small juicy fruit, typically round</div>
+              </div>
+              <span class="inline-flex items-center rounded-full border border-transparent bg-secondary text-secondary-foreground px-2 py-0.5 text-xs font-medium shrink-0">Noun</span>
+            </div>
+          </button>
+          </div>
+        </div>
+        <div style="background:var(--border)"></div>
+        <div class="bg-background flex flex-col min-h-0 p-4 gap-4 overflow-hidden">
+          <div class="flex items-center justify-between">
+            <div class="text-lg font-semibold">Apfel</div>
+            <button class="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent"><span class="i-mdi-dots-vertical size-4"></span></button>
+          </div>
+          <div>
+            <div class="text-sm font-semibold mb-2">Word</div>
+            <div class="flex flex-col gap-2">            <div style="display:grid;grid-template-columns:3rem 1fr;gap:.6rem;align-items:baseline">
+              <label class="text-sm font-medium muted" style="text-align:right">Deu</label>
+              <input class="border-input bg-background h-9 w-full rounded-md border px-3 text-sm shadow-xs" value="Apfel">
+            </div></div>
+          </div>
+          <div>
+            <div class="text-sm font-semibold mb-2">Gloss</div>
+            <div class="flex flex-col gap-2">            <div style="display:grid;grid-template-columns:3rem 1fr;gap:.6rem;align-items:baseline">
+              <label class="text-sm font-medium muted" style="text-align:right">Eng</label>
+              <input class="border-input bg-background h-9 w-full rounded-md border px-3 text-sm shadow-xs" value="apple">
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="pane dark bg-background text-foreground">
+      <div class="pane-tag">Dark</div>
+      <p class="cap muted" style="font-size:11px;margin:0 0 .6rem">list pane · resizable divider · detail pane</p>
+      <div class="shell" style="grid-template-columns:300px 1px 1fr">
+        <div class="bg-background flex flex-col min-h-0">
+          <div class="flex items-center gap-2 border-b border-border p-2">
+            <div class="flex-1 flex items-center gap-2 rounded-md border border-input bg-background h-9 px-3 text-sm muted"><span class="i-mdi-magnify size-4"></span>Filter 10 words</div>
+            <button class="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent"><span class="i-mdi-sort size-4"></span></button>
+          </div>
+          <div class="flex flex-col gap-1 p-2 overflow-hidden">
+          <button class="w-full text-start rounded-md p-3 bg-accent text-accent-foreground">
+            <div class="flex justify-between items-end gap-2">
+              <div class="min-w-0">
+                <div class="font-semibold truncate">Apfel</div>
+                <div class="text-sm muted line-clamp-2">fruit with red, yellow, or green skin</div>
+              </div>
+              <span class="inline-flex items-center rounded-full border border-transparent bg-secondary text-secondary-foreground px-2 py-0.5 text-xs font-medium shrink-0">Noun</span>
+            </div>
+          </button>
+          <button class="w-full text-start rounded-md p-3 hover:bg-accent">
+            <div class="flex justify-between items-end gap-2">
+              <div class="min-w-0">
+                <div class="font-semibold truncate">Banane</div>
+                <div class="text-sm muted line-clamp-2">long curved fruit with soft sweet flesh</div>
+              </div>
+              <span class="inline-flex items-center rounded-full border border-transparent bg-secondary text-secondary-foreground px-2 py-0.5 text-xs font-medium shrink-0">Noun</span>
+            </div>
+          </button>
+          <button class="w-full text-start rounded-md p-3 hover:bg-accent">
+            <div class="flex justify-between items-end gap-2">
+              <div class="min-w-0">
+                <div class="font-semibold truncate">Beere</div>
+                <div class="text-sm muted line-clamp-2">small juicy fruit, typically round</div>
+              </div>
+              <span class="inline-flex items-center rounded-full border border-transparent bg-secondary text-secondary-foreground px-2 py-0.5 text-xs font-medium shrink-0">Noun</span>
+            </div>
+          </button>
+          </div>
+        </div>
+        <div style="background:var(--border)"></div>
+        <div class="bg-background flex flex-col min-h-0 p-4 gap-4 overflow-hidden">
+          <div class="flex items-center justify-between">
+            <div class="text-lg font-semibold">Apfel</div>
+            <button class="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent"><span class="i-mdi-dots-vertical size-4"></span></button>
+          </div>
+          <div>
+            <div class="text-sm font-semibold mb-2">Word</div>
+            <div class="flex flex-col gap-2">            <div style="display:grid;grid-template-columns:3rem 1fr;gap:.6rem;align-items:baseline">
+              <label class="text-sm font-medium muted" style="text-align:right">Deu</label>
+              <input class="border-input bg-background h-9 w-full rounded-md border px-3 text-sm shadow-xs" value="Apfel">
+            </div></div>
+          </div>
+          <div>
+            <div class="text-sm font-semibold mb-2">Gloss</div>
+            <div class="flex flex-col gap-2">            <div style="display:grid;grid-template-columns:3rem 1fr;gap:.6rem;align-items:baseline">
+              <label class="text-sm font-medium muted" style="text-align:right">Eng</label>
+              <input class="border-input bg-background h-9 w-full rounded-md border px-3 text-sm shadow-xs" value="apple">
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

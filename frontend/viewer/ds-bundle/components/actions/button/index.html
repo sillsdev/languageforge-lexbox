@@ -1,0 +1,71 @@
+<!-- @dsCard group="Actions" name="Button" subtitle="6 variants · xs/sm/default/lg · icon · disabled" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FW Lite — Button</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  html, body { margin: 0; }
+  .board { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: color-mix(in oklab, var(--border) 70%, transparent); min-height: 100%; }
+  @media (max-width: 720px) { .board { grid-template-columns: 1fr; } }
+  .pane { position: relative; padding: 2rem 1.75rem; }
+  .pane-tag { position: absolute; top: .6rem; right: .75rem; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .5; }
+  .row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+  .stack { display: flex; flex-direction: column; gap: .9rem; }
+  .cap { font-size: 11px; opacity: .55; margin: 0 0 .35rem; }
+  
+</style>
+</head>
+<body>
+  <div class="board">
+    <section class="pane light bg-background text-foreground">
+      <div class="pane-tag">Light</div>
+      <div class="stack">
+        <div><p class="cap">variants</p><div class="row">
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-10 px-4 py-2">Default</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs h-10 px-4 py-2">Secondary</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-destructive hover:bg-destructive/90 dark:bg-destructive/60 text-white shadow-xs h-10 px-4 py-2">Destructive</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 border border-input dark:hover:bg-input/50 shadow-xs h-10 px-4 py-2">Outline</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-10 px-4 py-2">Ghost</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 text-primary underline-offset-4 hover:underline h-10 px-4 py-2">Link</button>
+        </div></div>
+        <div><p class="cap">sizes (default variant)</p><div class="row">
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-8 gap-1.5 rounded-md px-3">xs</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-9 gap-1.5 rounded-md px-3">sm</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-10 px-4 py-2">default</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-11 rounded-md px-8">lg</button>
+        </div></div>
+        <div><p class="cap">states</p><div class="row">
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-10 px-4 py-2" disabled>Disabled</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 border border-input dark:hover:bg-input/50 shadow-xs h-10 w-10 min-h-10 min-w-10" aria-label="icon"><span class="i-mdi-plus size-4"></span></button>
+        </div></div>
+      </div>
+    </section>
+    <section class="pane dark bg-background text-foreground">
+      <div class="pane-tag">Dark</div>
+      <div class="stack">
+        <div><p class="cap">variants</p><div class="row">
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-10 px-4 py-2">Default</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs h-10 px-4 py-2">Secondary</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-destructive hover:bg-destructive/90 dark:bg-destructive/60 text-white shadow-xs h-10 px-4 py-2">Destructive</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 border border-input dark:hover:bg-input/50 shadow-xs h-10 px-4 py-2">Outline</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-10 px-4 py-2">Ghost</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 text-primary underline-offset-4 hover:underline h-10 px-4 py-2">Link</button>
+        </div></div>
+        <div><p class="cap">sizes (default variant)</p><div class="row">
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-8 gap-1.5 rounded-md px-3">xs</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-9 gap-1.5 rounded-md px-3">sm</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-10 px-4 py-2">default</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-11 rounded-md px-8">lg</button>
+        </div></div>
+        <div><p class="cap">states</p><div class="row">
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs h-10 px-4 py-2" disabled>Disabled</button>
+      <button class="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none disabled:pointer-events-none disabled:opacity-50 bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 border border-input dark:hover:bg-input/50 shadow-xs h-10 w-10 min-h-10 min-w-10" aria-label="icon"><span class="i-mdi-plus size-4"></span></button>
+        </div></div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

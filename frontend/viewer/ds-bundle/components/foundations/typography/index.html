@@ -1,0 +1,83 @@
+<!-- @dsCard group="Foundations" name="Typography" subtitle="Noto Sans · Inter · weights · scale" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FW Lite — Typography</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  html, body { margin: 0; }
+  .board { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: color-mix(in oklab, var(--border) 70%, transparent); min-height: 100%; }
+  @media (max-width: 720px) { .board { grid-template-columns: 1fr; } }
+  .pane { position: relative; padding: 2rem 1.75rem; }
+  .pane-tag { position: absolute; top: .6rem; right: .75rem; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .5; }
+  .row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+  .stack { display: flex; flex-direction: column; gap: .9rem; }
+  .cap { font-size: 11px; opacity: .55; margin: 0 0 .35rem; }
+  
+</style>
+</head>
+<body>
+  <div class="board">
+    <section class="pane light bg-background text-foreground">
+      <div class="pane-tag">Light</div>
+      <div class="stack">
+        <div>
+          <p class="cap">Noto Sans — --font-sans (default UI font)</p>
+          <div class="text-2xl font-semibold">Aa Bb Cc — Lexeme</div>
+          <div class="text-base">The quick brown fox — a domesticated canine.</div>
+          <div class="text-sm text-muted-foreground">Small / muted — writing-system code, hints.</div>
+          <div class="text-xs text-muted-foreground">Extra small — badges, captions.</div>
+        </div>
+        <div>
+          <p class="cap">weights</p>
+          <div class="row" style="gap:1.25rem">
+            <span class="font-normal">Normal 400</span>
+            <span class="font-medium">Medium 500</span>
+            <span class="font-semibold">Semibold 600</span>
+            <span class="font-bold">Bold 700</span>
+          </div>
+        </div>
+        <div>
+          <p class="cap">Inter — .font-inter (alternate)</p>
+          <div class="font-inter text-base">The quick brown fox jumps over the lazy dog.</div>
+        </div>
+        <div>
+          <p class="cap">Mono — --font-mono</p>
+          <div class="font-mono text-sm">entryId: f567e7f5-7ff2</div>
+        </div>
+      </div>
+    </section>
+    <section class="pane dark bg-background text-foreground">
+      <div class="pane-tag">Dark</div>
+      <div class="stack">
+        <div>
+          <p class="cap">Noto Sans — --font-sans (default UI font)</p>
+          <div class="text-2xl font-semibold">Aa Bb Cc — Lexeme</div>
+          <div class="text-base">The quick brown fox — a domesticated canine.</div>
+          <div class="text-sm text-muted-foreground">Small / muted — writing-system code, hints.</div>
+          <div class="text-xs text-muted-foreground">Extra small — badges, captions.</div>
+        </div>
+        <div>
+          <p class="cap">weights</p>
+          <div class="row" style="gap:1.25rem">
+            <span class="font-normal">Normal 400</span>
+            <span class="font-medium">Medium 500</span>
+            <span class="font-semibold">Semibold 600</span>
+            <span class="font-bold">Bold 700</span>
+          </div>
+        </div>
+        <div>
+          <p class="cap">Inter — .font-inter (alternate)</p>
+          <div class="font-inter text-base">The quick brown fox jumps over the lazy dog.</div>
+        </div>
+        <div>
+          <p class="cap">Mono — --font-mono</p>
+          <div class="font-mono text-sm">entryId: f567e7f5-7ff2</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

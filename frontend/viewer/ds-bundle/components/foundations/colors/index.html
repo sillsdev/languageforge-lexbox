@@ -1,0 +1,166 @@
+<!-- @dsCard group="Foundations" name="Colors" subtitle="semantic tokens · light/dark · 6 accent themes" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FW Lite — Colors</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  html, body { margin: 0; }
+  .board { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: color-mix(in oklab, var(--border) 70%, transparent); min-height: 100%; }
+  @media (max-width: 720px) { .board { grid-template-columns: 1fr; } }
+  .pane { position: relative; padding: 2rem 1.75rem; }
+  .pane-tag { position: absolute; top: .6rem; right: .75rem; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .5; }
+  .row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+  .stack { display: flex; flex-direction: column; gap: .9rem; }
+  .cap { font-size: 11px; opacity: .55; margin: 0 0 .35rem; }
+  
+  .swgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .9rem .75rem; }
+  @media (max-width:520px){ .swgrid { grid-template-columns: repeat(2,1fr);} }
+  .sw { display:flex; flex-direction:column; gap:.4rem; align-items:flex-start; }
+  .chip { width: 100%; height: 44px; border-radius: var(--radius); border: 1px solid var(--border); }
+  .sw code { font-size: 11px; opacity: .7; }
+
+  .themerow { display:flex; flex-wrap:wrap; gap:1.1rem; }
+  .tc { display:flex; flex-direction:column; align-items:center; gap:.4rem; width:64px; }
+  .tc .chip { width: 48px; height: 48px; }
+  .tc span { font-size: 11px; opacity:.7; }
+
+</style>
+</head>
+<body>
+  <div class="board">
+    <section class="pane light bg-background text-foreground">
+      <div class="pane-tag">Light</div>
+      <div class="stack">
+        <div><p class="cap">semantic tokens</p>
+          <div class="swgrid">
+        <div class="sw">
+          <div class="chip bg-primary"></div>
+          <code>--primary</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-secondary"></div>
+          <code>--secondary</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-muted"></div>
+          <code>--muted</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-accent"></div>
+          <code>--accent</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-card"></div>
+          <code>--card</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-popover"></div>
+          <code>--popover</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-destructive"></div>
+          <code>--destructive</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-background"></div>
+          <code>--background</code>
+        </div>
+          </div>
+        </div>
+        <div><p class="cap">text tokens</p>
+          <div class="row" style="gap:1.25rem">
+            <span class="text-foreground">foreground</span>
+            <span class="text-muted-foreground">muted-foreground</span>
+            <span class="text-primary">primary</span>
+            <span class="text-destructive">destructive</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="pane dark bg-background text-foreground">
+      <div class="pane-tag">Dark</div>
+      <div class="stack">
+        <div><p class="cap">semantic tokens</p>
+          <div class="swgrid">
+        <div class="sw">
+          <div class="chip bg-primary"></div>
+          <code>--primary</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-secondary"></div>
+          <code>--secondary</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-muted"></div>
+          <code>--muted</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-accent"></div>
+          <code>--accent</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-card"></div>
+          <code>--card</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-popover"></div>
+          <code>--popover</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-destructive"></div>
+          <code>--destructive</code>
+        </div>
+        <div class="sw">
+          <div class="chip bg-background"></div>
+          <code>--background</code>
+        </div>
+          </div>
+        </div>
+        <div><p class="cap">text tokens</p>
+          <div class="row" style="gap:1.25rem">
+            <span class="text-foreground">foreground</span>
+            <span class="text-muted-foreground">muted-foreground</span>
+            <span class="text-primary">primary</span>
+            <span class="text-destructive">destructive</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="pane light bg-background text-foreground" style="grid-column:1 / -1">
+      <div class="pane-tag">Themes</div>
+      <div class="stack">
+        <p class="cap">accent themes (data-theme · primary color)</p>
+        <div class="themerow">
+        <div class="tc"><div class="light">
+          <div class="chip bg-primary"></div></div>
+          <span>Blue</span>
+        </div>
+        <div class="tc"><div data-theme="green" class="light">
+          <div class="chip bg-primary"></div></div>
+          <span>Green</span>
+        </div>
+        <div class="tc"><div data-theme="rose" class="light">
+          <div class="chip bg-primary"></div></div>
+          <span>Rose</span>
+        </div>
+        <div class="tc"><div data-theme="orange" class="light">
+          <div class="chip bg-primary"></div></div>
+          <span>Orange</span>
+        </div>
+        <div class="tc"><div data-theme="violet" class="light">
+          <div class="chip bg-primary"></div></div>
+          <span>Violet</span>
+        </div>
+        <div class="tc"><div data-theme="stone" class="light">
+          <div class="chip bg-primary"></div></div>
+          <span>Stone</span>
+        </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!-- @dsCard group="Layouts" name="App shell" subtitle="sidebar + primary view" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FW Lite — App shell</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  html, body { margin: 0; }
+  .board { display: flex; flex-direction: column; gap: 1px; background: color-mix(in oklab, var(--border) 70%, transparent); }
+  .pane { position: relative; padding: 1.5rem; }
+  .pane-tag { position: absolute; top: .5rem; right: .7rem; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .45; z-index:2; }
+  .shell { display: grid; height: 460px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .muted { color: var(--muted-foreground); }
+  .ph { border: 1px dashed color-mix(in oklab, var(--border) 90%, transparent); border-radius: var(--radius); }
+  
+</style>
+</head>
+<body>
+  <div class="board">
+    <section class="pane light bg-background text-foreground">
+      <div class="pane-tag">Light</div>
+      <p class="cap muted" style="font-size:11px;margin:0 0 .6rem">sidebar navigation · primary view</p>
+      <div class="shell" style="grid-template-columns:auto 1fr">
+      <aside class="bg-sidebar text-sidebar-foreground border-e border-sidebar-border flex flex-col gap-1 p-2" style="width:190px">
+        <button class="flex items-center gap-2 rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent">
+          <span class="i-mdi-book-open-page-variant size-4"></span><span>Example-Proj…</span>
+          <span class="i-mdi-chevron-down size-4 ms-auto opacity-60"></span>
+        </button>
+        <button class="inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground h-11 px-4 font-semibold shadow-xs my-1">
+          <span class="i-mdi-plus size-4"></span><span>New Word</span>
+        </button>
+        <div class="px-2 pt-2 pb-1 text-xs uppercase tracking-wide muted">Dictionary</div>
+        <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-view-dashboard size-4 shrink-0"></span><span>Dashboard</span></button>
+        <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm bg-sidebar-accent text-sidebar-accent-foreground font-medium"><span class="i-mdi-format-list-bulleted size-4 shrink-0"></span><span>Browse</span><span class="ms-auto text-xs opacity-70">10</span></button>
+        <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-checkbox-marked size-4 shrink-0"></span><span>Tasks</span></button>
+        <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-chart-line size-4 shrink-0"></span><span>Activity</span></button>
+        <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-image size-4 shrink-0"></span><span>Media Manager</span></button>
+        <div class="mt-auto flex flex-col gap-1 pt-2">
+          <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-sync size-4 shrink-0"></span><span>Synchronize</span></button>
+          <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-cog-outline size-4 shrink-0"></span><span>Settings</span></button>
+        </div>
+      </aside>
+        <main class="bg-background flex flex-col p-4 gap-3">
+          <div class="flex items-center justify-between">
+            <div class="text-lg font-semibold">Browse</div>
+            <div class="flex gap-2">
+              <button class="inline-flex items-center justify-center size-9 rounded-md border border-input bg-background hover:bg-accent"><span class="i-mdi-layers size-4"></span></button>
+              <button class="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent"><span class="i-mdi-dots-vertical size-4"></span></button>
+            </div>
+          </div>
+          <div class="ph flex-1 flex items-center justify-center muted text-sm">primary view — the master-detail workspace mounts here</div>
+        </main>
+      </div>
+    </section>
+    <section class="pane dark bg-background text-foreground">
+      <div class="pane-tag">Dark</div>
+      <p class="cap muted" style="font-size:11px;margin:0 0 .6rem">sidebar navigation · primary view</p>
+      <div class="shell" style="grid-template-columns:auto 1fr">
+      <aside class="bg-sidebar text-sidebar-foreground border-e border-sidebar-border flex flex-col gap-1 p-2" style="width:190px">
+        <button class="flex items-center gap-2 rounded-md p-2 text-sm font-medium hover:bg-sidebar-accent">
+          <span class="i-mdi-book-open-page-variant size-4"></span><span>Example-Proj…</span>
+          <span class="i-mdi-chevron-down size-4 ms-auto opacity-60"></span>
+        </button>
+        <button class="inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground h-11 px-4 font-semibold shadow-xs my-1">
+          <span class="i-mdi-plus size-4"></span><span>New Word</span>
+        </button>
+        <div class="px-2 pt-2 pb-1 text-xs uppercase tracking-wide muted">Dictionary</div>
+        <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-view-dashboard size-4 shrink-0"></span><span>Dashboard</span></button>
+        <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm bg-sidebar-accent text-sidebar-accent-foreground font-medium"><span class="i-mdi-format-list-bulleted size-4 shrink-0"></span><span>Browse</span><span class="ms-auto text-xs opacity-70">10</span></button>
+        <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-checkbox-marked size-4 shrink-0"></span><span>Tasks</span></button>
+        <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-chart-line size-4 shrink-0"></span><span>Activity</span></button>
+        <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-image size-4 shrink-0"></span><span>Media Manager</span></button>
+        <div class="mt-auto flex flex-col gap-1 pt-2">
+          <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-sync size-4 shrink-0"></span><span>Synchronize</span></button>
+          <button class="flex w-full items-center gap-2 rounded-md p-2 text-start text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><span class="i-mdi-cog-outline size-4 shrink-0"></span><span>Settings</span></button>
+        </div>
+      </aside>
+        <main class="bg-background flex flex-col p-4 gap-3">
+          <div class="flex items-center justify-between">
+            <div class="text-lg font-semibold">Browse</div>
+            <div class="flex gap-2">
+              <button class="inline-flex items-center justify-center size-9 rounded-md border border-input bg-background hover:bg-accent"><span class="i-mdi-layers size-4"></span></button>
+              <button class="inline-flex items-center justify-center size-9 rounded-md hover:bg-accent"><span class="i-mdi-dots-vertical size-4"></span></button>
+            </div>
+          </div>
+          <div class="ph flex-1 flex items-center justify-center muted text-sm">primary view — the master-detail workspace mounts here</div>
+        </main>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

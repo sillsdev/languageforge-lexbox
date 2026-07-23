@@ -1,0 +1,8 @@
+/*
+ * FW Lite — design system entry stylesheet.
+ * Rendered designs receive this file's transitive @import closure.
+ * app-compiled.css is the real compiled Tailwind v4 output captured from the
+ * running FwLite viewer: it carries every design token (6 themes x light/dark),
+ * the shadcn semantic color layer, the font @import, and the utility layer.
+ */
+@import "./tokens/app-compiled.css";
