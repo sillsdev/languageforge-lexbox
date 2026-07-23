@@ -1,25 +1,28 @@
 import {describe, expect, it, vi} from 'vitest';
-import type {IEntry} from '$lib/dotnet-types';
+import type {IEntry, IWritingSystem} from '$lib/dotnet-types';
 import {MorphTypeKind} from '$lib/dotnet-types';
 import {
   classifyDuplicateCheckResults,
   getDuplicateCheckQueries,
+  isSimilarWord,
   mergeSearchResults,
   normalizeForExactCompare,
   normalizeForLooseCompare,
   trapEnter,
-  type DuplicateCheckQueries
+  type DuplicateCheckQueries,
+  type DuplicateCheckWritingSystems
 } from './duplicate-check';
 
 // The WritingSystemService slice classifyQueryResults reads; defaults to the undecorated headword.
-const writingSystems = Object.freeze({
-  vernacularNoAudio: ['seh', 'por'].map(wsId => ({wsId})),
-  analysisNoAudio: ['en', 'fr'].map(wsId => ({wsId})),
-  headword(entry: IEntry, wsId: string): string | undefined {
+const writingSystems: DuplicateCheckWritingSystems = Object.freeze({
+  vernacularNoAudio: ['seh', 'por'].map(wsId => ({wsId}) as IWritingSystem),
+  analysisNoAudio: ['en', 'fr'].map(wsId => ({wsId}) as IWritingSystem),
+  headword(entry, wsId): string {
+    if (!wsId) throw new Error('these tests always pass a writing system');
     const citation = entry.citationForm?.[wsId]?.trim();
     if (citation) return citation;
     const lexeme = entry.lexemeForm?.[wsId]?.trim();
-    if (!lexeme) return undefined;
+    if (!lexeme) return '';
     return entry.morphType === MorphTypeKind.Suffix ? `-${lexeme}` : lexeme;
   },
 });
@@ -149,6 +152,32 @@ describe('mergeSearchResults', () => {
   });
 });
 
+describe('isSimilarWord', () => {
+  it('matches containment in either direction', () => {
+    expect(isSimilarWord('abc', 'abcde')).toBe(true);
+    expect(isSimilarWord('abcde', 'abc')).toBe(true);
+    expect(isSimilarWord('abc', 'xabcx')).toBe(true);
+    expect(isSimilarWord('abc', 'abd')).toBe(false);
+  });
+
+  it('allows the longer word at most 3 extra characters', () => {
+    expect(isSimilarWord('abc', 'abcdef')).toBe(true);
+    expect(isSimilarWord('abc', 'abcdefg')).toBe(false);
+  });
+
+  it('allows short words even fewer extra characters: their own length', () => {
+    expect(isSimilarWord('a', 'an')).toBe(true);
+    expect(isSimilarWord('a', 'and')).toBe(false);
+    expect(isSimilarWord('uz', 'uzem')).toBe(true);
+    expect(isSimilarWord('uz', 'uzemb')).toBe(false);
+  });
+
+  it('never matches an empty value', () => {
+    expect(isSimilarWord('', 'abc')).toBe(false);
+    expect(isSimilarWord('abc', '')).toBe(false);
+  });
+});
+
 describe('classifyQueryResults', () => {
 
   it('classifies exact headword matches as same-word, even via lexeme form or in other ws', () => {
@@ -170,21 +199,6 @@ describe('classifyQueryResults', () => {
     expect(classifyDuplicateCheckResults([buried], vernQueries('liman'), writingSystems)[0]?.kind).toBe('similar-word');
   });
 
-  it('drops containment matches just past the length-delta cap', () => {
-    // the cap is min(shorter length, MAX_SIMILAR_LENGTH_DELTA=3): a short query grows by at most its
-    // own length, a long one by at most 3.
-    // (Typing "uz" must not surface every word containing it.)
-    const shortAtCap = makeEntry({lexemeForm: {seh: 'uzem'}});    // 'uz' + 2 = delta 2, kept
-    const shortPastCap = makeEntry({lexemeForm: {seh: 'uzemb'}}); // delta 3 > min(2,3), dropped
-    expect(classifyDuplicateCheckResults([shortAtCap, shortPastCap], vernQueries('uz'), writingSystems).map(m => m.entry.id))
-      .toEqual([shortAtCap.id]);
-
-    const longAtCap = makeEntry({lexemeForm: {seh: 'nyumba123'}});    // 'nyumba' + 3 = delta 3, kept
-    const longPastCap = makeEntry({lexemeForm: {seh: 'nyumba1234'}}); // delta 4 > 3, dropped
-    expect(classifyDuplicateCheckResults([longAtCap, longPastCap], vernQueries('nyumba'), writingSystems).map(m => m.entry.id))
-      .toEqual([longAtCap.id]);
-  });
-
   it('matches a typed morph token against the decorated headword: "-aji" is the suffix entry "aji"', () => {
     const suffixEntry = makeEntry({lexemeForm: {seh: 'aji'}, morphType: MorphTypeKind.Suffix});
     const result = classifyDuplicateCheckResults([suffixEntry], vernQueries('-aji'), writingSystems);
@@ -200,8 +214,9 @@ describe('classifyQueryResults', () => {
     expect(result[1]).toMatchObject({kind: 'same-word', field: 'headword'});
   });
 
-  it('matches the bare lexeme of a suffix as a lexeme hit, not a headword hit', () => {
-    // typing 'aji' (no token) against suffix entry '-aji': the lexeme matched, the headword didn't
+  it('reports a suffix typed without its token as same-word, attributed to the lexeme', () => {
+    // typing 'aji' against suffix entry with headword '-aji': the headword only matched loosely,
+    // but the bare lexeme matched exactly — that's still same-word, just not a headword hit
     const suffixEntry = makeEntry({lexemeForm: {seh: 'aji'}, morphType: MorphTypeKind.Suffix});
     const result = classifyDuplicateCheckResults([suffixEntry], vernQueries('aji'), writingSystems);
     expect(result[0]).toMatchObject({kind: 'same-word', field: 'lexeme'});
@@ -222,7 +237,7 @@ describe('classifyQueryResults', () => {
     expect(typedAccented.get(plain.id)).toBe('similar-word');
   });
 
-  it('attributes a same-word match to the field that hit', () => {
+  it('reports an exact lexeme hit as same-word even when it only loosely matches the citation form', () => {
     // lexeme 'fuz' + citation 'fuza': the headword shown is 'fuza', so a match on the
     // typed 'fuz' is the same entry but NOT the same headword
     const viaLexemeOnly = makeEntry({lexemeForm: {seh: 'fuz'}, citationForm: {seh: 'fuza'}});
@@ -239,14 +254,16 @@ describe('classifyQueryResults', () => {
   });
 
   it('classifies gloss overlap as similar-meaning', () => {
-    const entry = withGloss('cabana', 'hous');
+    const entry = withGloss('cabana', 'houses');
     expect(classifyDuplicateCheckResults([entry], analysisQuery('house'), writingSystems)[0].kind).toBe('similar-meaning');
   });
 
   it('drops a candidate whose gloss equals a typed vernacular value (cross-field coincidence)', () => {
     // typing lexeme 'nyumba' must not surface an entry merely because its gloss is 'nyumba'
-    const entry = withGloss('cabana', 'nyumba');
-    expect(classifyDuplicateCheckResults([entry], vernQueries('nyumba'), writingSystems)).toEqual([]);
+    const typedEntry = {lexemeForm: {seh: 'nyumba'}, citationForm: {}};
+    const queries = getDuplicateCheckQueries(typedEntry, undefined, writingSystems);
+    const candidate = withGloss('cabana', 'nyumba');
+    expect(classifyDuplicateCheckResults([candidate], queries, writingSystems)).toEqual([]);
   });
 
   it('sorts word matches above meaning matches, preserving relevance order within a kind', () => {

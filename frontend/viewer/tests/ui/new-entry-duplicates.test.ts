@@ -28,7 +28,7 @@ function glossInput(dialog: Locator): Locator {
 }
 
 const duplicatesSummary = /already exist/i;
-const newWordIndicator = /no similar entries found|looks like a new word/i;
+const newWordIndicator = /no similar (entries|words) found/i;
 
 /** The duplicate strip's header — .first() because the jump pill repeats the message when the strip is out of view. */
 function stripSummary(dialog: Locator): Locator {
@@ -48,11 +48,12 @@ test.describe('New entry possible duplicates', () => {
     const dialog = await openNewEntryDialog(page);
     await lexemeInput(dialog).fill(existingLexeme);
 
-    // exact headword match => attention strip + auto-expanded list
+    // exact headword match => attention strip; expand it to see the matches
     await expect(stripSummary(dialog)).toBeVisible();
+    await stripSummary(dialog).click();
     // 'baba' is a substring of 'ubaba', so both rows match — .first() is the exact match because same-word sorts first
     const duplicateRow = duplicateRows(dialog).filter({hasText: existingLexeme}).first();
-    // first row is auto-expanded
+    // the first row starts expanded
     await expect(duplicateRow).toHaveAttribute('aria-expanded', 'true');
 
     await dialog.getByRole('button', {name: /go to (entry|word)/i}).click();
@@ -72,17 +73,25 @@ test.describe('New entry possible duplicates', () => {
     await expect(stripSummary(dialog)).toBeHidden();
   });
 
-  test('an auto-expanded strip collapses again once the query is no longer an exact match', async ({page}) => {
+  test('the match list never auto-expands, stays open while matches change, and resets when they disappear', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();
 
     const dialog = await openNewEntryDialog(page);
-    // exact headword match auto-expands the strip
+    // even an exact match only shows the collapsed strip — an auto-expanding list would make the form jump while typing
     await lexemeInput(dialog).fill(existingLexeme);
-    await expect(duplicateRows(dialog).first()).toBeVisible();
+    await expect(stripSummary(dialog)).toBeVisible();
+    await expect(duplicateRows(dialog)).toHaveCount(0);
 
-    // 'balal' matches 'balalika' (similar) but isn't an exact word — the auto-open must revert to collapsed
+    // once opened it stays open while the matches merely change...
+    await stripSummary(dialog).click();
     await lexemeInput(dialog).fill('balal');
+    await expect(duplicateRows(dialog).filter({hasText: 'balalika'}).first()).toBeVisible();
+
+    // ...but going through no-matches resets it to collapsed
+    await lexemeInput(dialog).fill('zyzzyvazz');
+    await expect(dialog.getByText(newWordIndicator)).toBeVisible();
+    await lexemeInput(dialog).fill(existingLexeme);
     await expect(stripSummary(dialog)).toBeVisible();
     await expect(duplicateRows(dialog)).toHaveCount(0);
   });
@@ -93,9 +102,10 @@ test.describe('New entry possible duplicates', () => {
 
     const dialog = await openNewEntryDialog(page);
     await lexemeInput(dialog).fill(existingLexeme);
+    await stripSummary(dialog).click();
 
     const duplicateRow = duplicateRows(dialog).filter({hasText: existingLexeme}).first();
-    // first row is auto-expanded
+    // the first row starts expanded
     await expect(duplicateRow).toHaveAttribute('aria-expanded', 'true');
     await duplicateRow.focus();
     await page.keyboard.press('Enter');
@@ -112,7 +122,7 @@ test.describe('New entry possible duplicates', () => {
     await projectPage.goto();
 
     const dialog = await openNewEntryDialog(page);
-    // substring of 'balalika' only — no exact match, so the strip stays collapsed
+    // substring of 'balalika' only — a similar-word match
     await lexemeInput(dialog).fill('balal');
 
     const summary = stripSummary(dialog);
@@ -135,11 +145,11 @@ test.describe('New entry possible duplicates', () => {
     await expect(dialog.getByText(/^\d+\+$/).first()).toBeVisible();
 
     const rows = duplicateRows(dialog);
-    if (await rows.count() === 0) await summary.click(); // expands automatically only on an exact match
+    await summary.click();
     // 3 = the component's initial display count
     await expect(rows).toHaveCount(3);
     await dialog.getByRole('button', {name: /show \d+ more/i}).click();
-    expect(await rows.count()).toBeGreaterThan(3);
+    await expect.poll(() => rows.count()).toBeGreaterThan(3);
   });
 
   test('matching gloss shows duplicates with a meaning badge', async ({page}) => {
@@ -152,7 +162,7 @@ test.describe('New entry possible duplicates', () => {
 
     const summary = stripSummary(dialog);
     await expect(summary).toBeVisible();
-    // gloss-only matches don't auto-expand; expand to see the badge
+    // expand to see the badge
     await summary.click();
     await expect(dialog.getByText(/similar (gloss|meaning)/i).first()).toBeVisible();
   });

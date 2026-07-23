@@ -1441,13 +1441,6 @@ msgstr "Login to see projects"
 msgid "Logout"
 msgstr "Logout"
 
-#. Relevant view: Lite
-#. Classic view equivalent: "No similar entries found"
-#. Reassuring status line in the New Word dialog: the duplicate check found no existing words like the one being typed
-#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
-msgid "Looks like a new word"
-msgstr "Looks like a new word"
-
 #. Footer text in the project sidebar. The emoji flags are the countries of origin of the development team — do not translate.
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
@@ -1696,11 +1689,18 @@ msgid "No server configured"
 msgstr "No server configured"
 
 #. Relevant view: Classic
-#. Lite view equivalent: "Looks like a new word"
+#. Lite view equivalent: "No similar words found"
 #. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar entries found"
 msgstr "No similar entries found"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "No similar entries found"
+#. Status line in the New Word dialog: the duplicate check found no existing words like the one being typed
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "No similar words found"
+msgstr "No similar words found"
 
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte

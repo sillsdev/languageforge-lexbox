@@ -1,4 +1,5 @@
 import type {IEntry, ISense} from '$lib/dotnet-types';
+import type {WritingSystemService} from '$project/data';
 
 /**
  * Ordered strongest to weakest. Candidates the backend's full-text search returned but that
@@ -16,13 +17,8 @@ export type DuplicateCheckMatchKind = 'same-word' | 'similar-word' | 'similar-me
  */
 export type SameWordField = 'headword' | 'lexeme';
 
-/** Minimal slice of WritingSystemsService, so unit-testable. */
-export interface DuplicateCheckWritingSystems {
-  vernacularNoAudio: readonly {wsId: string}[];
-  analysisNoAudio: readonly {wsId: string}[];
-  /** Displayed headword for a writing system: citation form, else the morph-token-decorated lexeme. */
-  headword(entry: IEntry, wsId: string): string | undefined;
-}
+/** The slice of WritingSystemService the duplicate check reads (kept small so tests can fake it). */
+export type DuplicateCheckWritingSystems = Pick<WritingSystemService, 'vernacularNoAudio' | 'analysisNoAudio' | 'headword'>;
 
 export interface DuplicateCheckMatch {
   entry: IEntry;
@@ -46,18 +42,12 @@ export interface DuplicateCheckQueries {
   analysis: string[];
 }
 
-export function duplicateResultContainerClass(hasExactWordMatch: boolean): string {
-  return hasExactWordMatch
-    ? 'border-amber-600/40 bg-amber-500/10 dark:border-amber-400/40'
-    : 'border-border bg-muted/50';
-}
-
 /** Hosts submit on Enter; interacting with duplicate UI must never also create the entry. */
 export function trapEnter(event: KeyboardEvent): void {
   if (event.key === 'Enter') event.stopPropagation();
 }
 
-export const MAX_SIMILAR_LENGTH_DELTA = 3;
+const MAX_SIMILAR_LENGTH_DELTA = 3;
 
 /**
  * Deliberately broader than a starts-with headword match: mid-word containment must count
@@ -80,8 +70,7 @@ const kindRank: Record<DuplicateCheckMatchKind, number> = {
 };
 
 export function normalizeForLooseCompare(value: string | undefined): string {
-  const decomposed = normalizeForExactCompare(value).trim() ?? '';
-  return decomposed.toLowerCase()
+  return normalizeForExactCompare(value).toLowerCase()
     // remove diacritics
     .replace(/\p{Mn}/gu, '');
 }

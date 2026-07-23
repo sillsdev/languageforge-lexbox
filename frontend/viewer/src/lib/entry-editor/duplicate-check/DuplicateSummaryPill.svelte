@@ -2,8 +2,8 @@
   import {t} from 'svelte-i18n-lingui';
   import {Badge} from '$lib/components/ui/badge';
   import {Icon} from '$lib/components/ui/icon';
-  import {duplicateResultContainerClass, trapEnter} from './duplicate-check';
-  import type {DuplicateSummary} from './DuplicateCheck.svelte';
+  import {trapEnter} from './duplicate-check';
+  import {duplicateResultContainerClass, type DuplicateSummary} from './DuplicateCheck.svelte';
 
   interface Props {
     summary: DuplicateSummary;

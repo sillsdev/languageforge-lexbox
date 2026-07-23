@@ -8,6 +8,12 @@
     /** One-line banner text, shared by this widget's header and the host's jump pill */
     message: string;
   }
+
+  export function duplicateResultContainerClass(hasExactWordMatch: boolean): string {
+    return hasExactWordMatch
+      ? 'border-amber-600/40 bg-amber-500/10 dark:border-amber-400/40'
+      : 'border-border bg-muted/50';
+  }
 </script>
 
 <script lang="ts">
@@ -32,7 +38,6 @@
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
   import {
     classifyDuplicateCheckResults,
-    duplicateResultContainerClass,
     getDuplicateCheckQueries,
     mergeSearchResults,
     trapEnter,
@@ -143,19 +148,14 @@
       : undefined;
   });
 
-  let userToggled = $state(false);
+  // Deliberately never auto-expanded, even for an exact match: typed prefixes flip between
+  // exact/similar, and a list that pops open and closed makes the form jump around. The amber
+  // header, preview headwords and jump pill carry the warning.
   let expanded = $state(false);
-  $effect(() => {
-    if (!userToggled) {
-      // only auto-expand exact matches
-      expanded = hasExactWordMatch;
-    }
-  });
 
-  /** Opens the match list, counting as a user toggle (the host's jump-pill calls this). */
+  /** Opens the match list (the host's jump-pill calls this). */
   export function expand(): void {
     expanded = true;
-    userToggled = true;
   }
   let displayCount = $state(INITIAL_DISPLAY_COUNT);
   const displayedMatches = $derived(matches?.slice(0, displayCount) ?? []);
@@ -167,7 +167,6 @@
     (current) => {
       if (!current?.length) {
         expanded = false;
-        userToggled = false;
         displayCount = INITIAL_DISPLAY_COUNT;
         expandedEntryId = undefined;
       }
@@ -195,6 +194,7 @@
   }
 </script>
 
+<!-- always-rendered shell: min-h reserves the strip's space so its toggling doesn't shift the form -->
 <div class="min-h-9 flex flex-col justify-center w-full" aria-live="polite">
   {#if !matches?.length}
     {#if (duplicatesResource.loading && hasQueries) || matches || duplicatesResource.error}
@@ -209,56 +209,55 @@
           {pt($t`Could not check for similar entries`, $t`Could not check for similar words`, viewService.currentView)}
         {:else}
           <Icon icon="i-mdi-check-circle-outline" class="size-4 text-green-600 dark:text-green-500" />
-          {pt($t`No similar entries found`, $t`Looks like a new word`, viewService.currentView)}
+          {pt($t`No similar entries found`, $t`No similar words found`, viewService.currentView)}
         {/if}
       </div>
     {/if}
   {:else}
-    <Collapsible.Root
-      bind:open={expanded}
-      onOpenChange={() => (userToggled = true)}
-      class={cn('rounded-md border', duplicateResultContainerClass(hasExactWordMatch))}>
-      <Collapsible.Trigger
-        class="w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer"
-        onkeydown={trapEnter}
-      >
-        {#if hasExactWordMatch}
-          <Icon icon="i-mdi-alert-circle-outline" class="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
-        {:else}
-          <Icon icon="i-mdi-information-outline" class="size-5 shrink-0 text-muted-foreground" />
-        {/if}
-        <span class="grow min-w-0 truncate text-start font-medium">
-          {summaryMessage}
-          <!-- If expanded, then the preview headwords are just noise -->
-          {#if !expanded && previewHeadwords}
-            <span class="text-muted-foreground font-normal">— {previewHeadwords}</span>
+    <div transition:slide={{duration: 150}}>
+      <Collapsible.Root
+        bind:open={expanded}
+        class={cn('rounded-md border', duplicateResultContainerClass(hasExactWordMatch))}>
+        <Collapsible.Trigger
+          class="w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer"
+          onkeydown={trapEnter}
+        >
+          {#if hasExactWordMatch}
+            <Icon icon="i-mdi-alert-circle-outline" class="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          {:else}
+            <Icon icon="i-mdi-information-outline" class="size-5 shrink-0 text-muted-foreground" />
           {/if}
-        </span>
-        {#if duplicatesResource.loading}
-          <Loading class="size-4" />
-        {/if}
-        <Badge variant="secondary">{matches.length}{duplicatesResource.current?.capped ? '+' : ''}</Badge>
-        <Icon icon={expanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'} class="size-5 shrink-0" />
-      </Collapsible.Trigger>
-      <Collapsible.Content>
-        <ul class="px-1.5 pb-1.5 space-y-1.5 max-h-56 overflow-y-auto">
-          {#each displayedMatches as match (match.entry.id)}
-            {@const badge = kindLabel(match)}
-            {@const isExpanded = expandedEntryId === match.entry.id}
-            <li class="rounded bg-background/80">
-              <button
-                type="button"
-                class="w-full flex items-center gap-2 {isExpanded
-                  ? 'rounded-t'
-                  : 'rounded'} hover:bg-accent px-2.5 py-2 text-start"
-                aria-expanded={isExpanded}
-                onkeydown={trapEnter}
-                onclick={() => (expandedEntryId = isExpanded ? undefined : match.entry.id)}
-              >
-                <div class="grow min-w-0 text-sm {isExpanded ? '' : 'line-clamp-1'}">
-                  <DictionaryEntry entry={match.entry} inline={!isExpanded} hideExamples={!isExpanded} />
-                </div>
-                {#if badge}
+          <span class="grow min-w-0 truncate text-start font-medium">
+            {summaryMessage}
+            <!-- If expanded, then the preview headwords are just noise -->
+            {#if !expanded && previewHeadwords}
+              <span class="text-muted-foreground font-normal">— {previewHeadwords}</span>
+            {/if}
+          </span>
+          {#if duplicatesResource.loading}
+            <Loading class="size-4" />
+          {/if}
+          <Badge variant="secondary">{matches.length}{duplicatesResource.current?.capped ? '+' : ''}</Badge>
+          <Icon icon={expanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'} class="size-5 shrink-0" />
+        </Collapsible.Trigger>
+        <Collapsible.Content>
+          <ul class="px-1.5 pb-1.5 space-y-1.5 max-h-56 overflow-y-auto">
+            {#each displayedMatches as match (match.entry.id)}
+              {@const badge = kindLabel(match)}
+              {@const isExpanded = expandedEntryId === match.entry.id}
+              <li class="rounded bg-background/80">
+                <button
+                  type="button"
+                  class="w-full flex items-center gap-2 {isExpanded
+                    ? 'rounded-t'
+                    : 'rounded'} hover:bg-accent px-2.5 py-2 text-start"
+                  aria-expanded={isExpanded}
+                  onkeydown={trapEnter}
+                  onclick={() => (expandedEntryId = isExpanded ? undefined : match.entry.id)}
+                >
+                  <div class="grow min-w-0 text-sm {isExpanded ? '' : 'line-clamp-1'}">
+                    <DictionaryEntry entry={match.entry} inline={!isExpanded} hideExamples={!isExpanded} />
+                  </div>
                   <Badge
                     variant="outline"
                     class="shrink-0 self-start whitespace-nowrap {match.kind === 'same-word'
@@ -267,44 +266,44 @@
                   >
                     {badge}
                   </Badge>
+                  <Icon
+                    icon={isExpanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'}
+                    class="size-4 shrink-0 self-start mt-0.5 text-muted-foreground"
+                  />
+                </button>
+                {#if isExpanded}
+                  <div class="flex flex-wrap justify-end gap-1.5 px-2.5 pt-1 pb-2" transition:slide={{duration: 150}}>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      icon="i-mdi-book-arrow-right-outline"
+                      onkeydown={trapEnter}
+                      onclick={() => openEntry(match.entry)}
+                    >
+                      {pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
+                    </Button>
+                  </div>
                 {/if}
-                <Icon
-                  icon={isExpanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'}
-                  class="size-4 shrink-0 self-start mt-0.5 text-muted-foreground"
-                />
-              </button>
-              {#if isExpanded}
-                <div class="flex flex-wrap justify-end gap-1.5 px-2.5 pt-1 pb-2" transition:slide={{duration: 150}}>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    icon="i-mdi-book-arrow-right-outline"
-                    onkeydown={trapEnter}
-                    onclick={() => openEntry(match.entry)}
-                  >
-                    {pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
-                  </Button>
-                </div>
-              {/if}
+              </li>
+            {/each}
+            <!--
+            Uses class=hidden instead of #if or else focus/scroll jumps to the top of the dialog
+            when this button leaves the DOM.
+            -->
+            <li class={cn(matches.length > displayedMatches.length || 'hidden')}>
+              <Button
+                variant="ghost"
+                size="sm"
+                class="w-full text-muted-foreground"
+                onkeydown={trapEnter}
+                onclick={() => (displayCount = matches.length)}
+              >
+                {$plural(matches.length - displayedMatches.length, {one: 'Show # more...', other: 'Show # more...'})}
+              </Button>
             </li>
-          {/each}
-          <!--
-          Uses class=hidden instead of #if or else focus/scroll jumps to the top of the dialog
-          when this button leaves the DOM.
-          -->
-          <li class={cn(matches.length > displayedMatches.length || 'hidden')}>
-            <Button
-              variant="ghost"
-              size="sm"
-              class="w-full text-muted-foreground"
-              onkeydown={trapEnter}
-              onclick={() => (displayCount = matches.length)}
-            >
-              {$plural(matches.length - displayedMatches.length, {one: 'Show # more...', other: 'Show # more...'})}
-            </Button>
-          </li>
-        </ul>
-      </Collapsible.Content>
-    </Collapsible.Root>
+          </ul>
+        </Collapsible.Content>
+      </Collapsible.Root>
+    </div>
   {/if}
 </div>
