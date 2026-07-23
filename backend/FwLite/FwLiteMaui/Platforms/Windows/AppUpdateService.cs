@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Windows.Management.Deployment;
 using Windows.Networking.Connectivity;
@@ -106,8 +107,28 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
     private async Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease, bool quitOnUpdate)
     {
         logger.LogInformation("Installing new version: {Version}, Current version: {CurrentVersion}", latestRelease.Version, AppVersion.Version);
+        ShowUpdateInstallingNotification(latestRelease);
+
+        // Preferred path: download through a loopback proxy so we can report real download
+        // progress. On any failure fall back to handing PackageManager the GitHub URL directly,
+        // which is what we did before this change — we must never regress update capability.
+        try
+        {
+            var progress = new DownloadProgressReporter(eventBus, latestRelease);
+            await using var proxy = await UpdateDownloadProxy.StartAsync(latestRelease.Url, logger, progress.Report);
+            return await Deploy(proxy.LocalUri, latestRelease, quitOnUpdate);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Proxy update path failed; falling back to direct install");
+            return await Deploy(new Uri(latestRelease.Url), latestRelease, quitOnUpdate);
+        }
+    }
+
+    private async Task<UpdateResult> Deploy(Uri packageUri, FwLiteRelease latestRelease, bool quitOnUpdate)
+    {
         var packageManager = new PackageManager();
-        var asyncOperation = packageManager.AddPackageByUriAsync(new Uri(latestRelease.Url),
+        var asyncOperation = packageManager.AddPackageByUriAsync(packageUri,
             new AddPackageOptions()
             {
                 DeferRegistrationWhenPackagesAreInUse = true,
@@ -116,15 +137,13 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
             });
         asyncOperation.Progress = (info, progressInfo) =>
         {
-            NotifyInstallProgress(progressInfo.percentage, latestRelease);
             if (progressInfo.state == DeploymentProgressState.Queued)
             {
                 logger.LogInformation("Queued update");
                 return;
             }
-            logger.LogInformation("Downloading update: {ProgressPercentage}%", progressInfo.percentage);
+            logger.LogInformation("Deploying update: {ProgressPercentage}%", progressInfo.percentage);
         };
-        ShowUpdateInstallingNotification(latestRelease);
 
         //note this asyncOperation is not reliable, it's possible the update will install and this will never resolve
         var updateTask = asyncOperation.AsTask();
@@ -145,9 +164,29 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         return UpdateResult.Started;
     }
 
-    private void NotifyInstallProgress(uint percentage, FwLiteRelease release)
+    // Turns the proxy's running byte total into throttled progress events (bytes + speed).
+    // The JsEventListener channel is small (size 10) so we cap emission at ~4/sec.
+    private sealed class DownloadProgressReporter(GlobalEventBus eventBus, FwLiteRelease release)
     {
-        eventBus.PublishEvent(new AppUpdateProgressEvent(percentage, release));
+        private static readonly TimeSpan MinInterval = TimeSpan.FromMilliseconds(250);
+        private readonly long _startTimestamp = Stopwatch.GetTimestamp();
+        private readonly Lock _lock = new();
+        private long _lastEmitTimestamp;
+
+        public void Report(long totalBytesDownloaded)
+        {
+            var now = Stopwatch.GetTimestamp();
+            lock (_lock)
+            {
+                if (_lastEmitTimestamp != 0 && Stopwatch.GetElapsedTime(_lastEmitTimestamp, now) < MinInterval)
+                    return;
+                _lastEmitTimestamp = now;
+            }
+
+            var elapsedSeconds = Stopwatch.GetElapsedTime(_startTimestamp, now).TotalSeconds;
+            var bytesPerSecond = elapsedSeconds > 0 ? totalBytesDownloaded / elapsedSeconds : 0;
+            eventBus.PublishEvent(new AppUpdateProgressEvent(totalBytesDownloaded, bytesPerSecond, release));
+        }
     }
 
     public DateTime LastUpdateCheck

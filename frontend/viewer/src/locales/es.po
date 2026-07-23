@@ -752,6 +752,10 @@ msgstr "Descargado {0}"
 msgid "Downloading {0}..."
 msgstr "Descargando {0}..."
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Downloading update..."
+msgstr ""
+
 #. Generic progress message
 #: src/home/Server.svelte
 msgid "Downloading..."
