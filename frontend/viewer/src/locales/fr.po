@@ -1994,6 +1994,10 @@ msgstr ""
 msgid "Report a technical problem"
 msgstr "Signaler un problème technique"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Reset"
+msgstr ""
+
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
 msgid "Restore"
