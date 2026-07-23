@@ -1,5 +1,6 @@
 import {Context} from 'runed';
 import {onDestroy} from 'svelte';
+import {SvelteMap} from 'svelte/reactivity';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
 
@@ -30,8 +31,8 @@ export type LoadImageOptions = {
  */
 export class ImageService {
   readonly #getApi: () => IMiniLcmJsInvokable;
-  readonly #cache = new Map<string, Extract<ImageState, {status: 'loaded'}>>();
-  readonly #inFlight = new Map<string, Promise<ImageState>>();
+  readonly #cache = new SvelteMap<string, Extract<ImageState, {status: 'loaded'}>>();
+  readonly #inFlight = new SvelteMap<string, Promise<ImageState>>();
   #disposed = false;
 
   constructor(getApi: () => IMiniLcmJsInvokable) {
