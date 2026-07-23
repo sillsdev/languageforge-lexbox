@@ -26,6 +26,9 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import DevToolsDialog from '$lib/layout/DevToolsDialog.svelte';
   import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
+  import * as Collapsible from '$lib/components/ui/collapsible';
+  import {cn} from '$lib/utils';
+  import {PersistedState} from 'runed';
 
   const config = useFwLiteConfig();
   const projectContext = useProjectContext();
@@ -56,6 +59,8 @@
   let syncDialog = $state<SyncDialog>();
   let updateDialogOpen = $state(false);
   let feedbackOpen = $state(false);
+
+  const helpOpen = new PersistedState('fw-lite-sidebar-help-open', false);
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
@@ -183,31 +188,45 @@
       </Sidebar.Menu>
     </Sidebar.Group>
 
-    <Sidebar.Group>
-      <Sidebar.Menu>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => updateDialogOpen = true}>
-            <Icon icon="i-mdi-update" />
-            {$t`Updates`}
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
-            <Icon icon="i-mdi-message" />
-            <span>{$t`Feedback & Support`}</span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectCode)}>
-            <Icon icon="i-mdi-help-circle" />
-            <span>{$t`Troubleshoot`}</span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem>
-          <LocalizationPicker inSidebar />
-        </Sidebar.MenuItem>
-      </Sidebar.Menu>
-    </Sidebar.Group>
+    <Collapsible.Root bind:open={helpOpen.current} class="group/help">
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>
+          {#snippet child({props})}
+            <Collapsible.Trigger {...props} class={cn(props.class, 'w-full cursor-pointer hover:bg-sidebar-accent hover:text-sidebar-accent-foreground')}>
+              <span>{$t`Help & More`}</span>
+              <Icon icon="i-mdi-chevron-down" class="ml-auto transition-transform group-data-[state=open]/help:rotate-180" />
+            </Collapsible.Trigger>
+          {/snippet}
+        </Sidebar.GroupLabel>
+        <Collapsible.Content class="overflow-hidden">
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton onclick={() => updateDialogOpen = true}>
+                  <Icon icon="i-mdi-update" />
+                  {$t`Updates`}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
+                  <Icon icon="i-mdi-message" />
+                  <span>{$t`Feedback & Support`}</span>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectCode)}>
+                  <Icon icon="i-mdi-help-circle" />
+                  <span>{$t`Troubleshoot`}</span>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <LocalizationPicker inSidebar />
+              </Sidebar.MenuItem>
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Collapsible.Content>
+      </Sidebar.Group>
+    </Collapsible.Root>
   </Sidebar.Content>
   <Sidebar.Footer>
       <div class="text-xs text-muted-foreground py-2 m-auto">

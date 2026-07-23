@@ -1166,6 +1166,10 @@ msgstr ""
 msgid "Headword"
 msgstr "Kata Utama"
 
+#: src/project/ProjectSidebar.svelte
+msgid "Help & More"
+msgstr ""
+
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
