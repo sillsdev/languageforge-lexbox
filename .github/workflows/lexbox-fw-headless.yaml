@@ -44,8 +44,8 @@ jobs:
       DOCKER_BUILDKIT: 1
 
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
-      - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.x'
       - name: Dotnet build
@@ -53,7 +53,7 @@ jobs:
       - name: Unit tests
         run: dotnet test backend/Testing/Testing.csproj --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results --filter "Category!=Integration&Category!=FlakyIntegration&FullyQualifiedName~FwHeadless" --blame-hang-timeout 10m
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
         if: always()
         with:
           check_name: C# FwHeadless Unit Tests
@@ -61,7 +61,7 @@ jobs:
           comment_mode: off
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: dotnet-fw-headless-unit-test-results
           path: ./test-results
@@ -69,7 +69,7 @@ jobs:
       - name: Docker meta
         id: meta
         if: ${{ !env.ACT }}
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
@@ -79,14 +79,14 @@ jobs:
             type=raw,value=${{ inputs.version }}
 
       - name: ghcr.io login
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         if: ${{ !env.ACT }}
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
+      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: backend
           file: backend/FwHeadless/Dockerfile
