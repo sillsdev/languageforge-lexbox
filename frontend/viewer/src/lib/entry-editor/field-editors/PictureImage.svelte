@@ -5,7 +5,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {onDestroy} from 'svelte';
   import PictureActionsMenu from './PictureActionsMenu.svelte';
-  import {ImageService, useImageService, type ImageLoadState} from './image-service.svelte';
+  import {ImageService, useImageService, type ImageState} from './image-service.svelte';
 
   type Props = {
     picture: IPicture;
@@ -40,15 +40,6 @@
   // is open; ignore image taps while a menu is open so they don't also open the viewer/download.
   let menuOpen = $state(false);
 
-  function handleImageClick() {
-    if (menuOpen) return;
-    if (loadState.status === 'not-downloaded' || loadState.status === 'error') {
-      imageService.download(mediaUri);
-      return;
-    }
-    onView?.();
-  }
-
   const projectContext = useProjectContext();
   const writingSystemService = useWritingSystemService();
 
@@ -56,22 +47,47 @@
   // systems first, then analysis — which is exactly the default order of allWritingSystems().
   const caption = $derived(writingSystemService.first(picture.caption) ?? '');
 
-  // On surfaces that render pictures without an entry-view scope (new-entry dialog, activity/subject
-  // previews, stories), fall back to a component-local cache disposed with the component.
+  // Prefer the entry-view cache so a mediaUri loaded once (here or in a dialog) shows immediately
+  // across the entry's pictures. Outside an entry view (edit/new-entry dialog, previews) fall back
+  // to a component-local cache disposed with the component. Both need a project api, so without a
+  // project context there's nothing to load from.
   const sharedImageService = useImageService();
-  const localImageService = sharedImageService ? undefined : new ImageService(() => projectContext?.maybeApi);
-  const imageService = sharedImageService ?? localImageService!;
+  const localImageService =
+    sharedImageService || !projectContext ? undefined : new ImageService(() => projectContext.api);
+  const imageService = sharedImageService ?? localImageService;
   onDestroy(() => localImageService?.dispose());
 
+  type DisplayState = {status: 'loading'} | ImageState;
+  let loadState = $state<DisplayState>({status: 'loading'});
+
   // A picture already available locally loads automatically; one that would have to be downloaded
-  // from the remote media service shows a "Load picture" placeholder instead and is fetched
-  // only when clicked. The cache is shared within the entry view, so a mediaUri loaded once (here or
-  // in a dialog) displays immediately across the entry's pictures.
+  // from the remote media service resolves to 'not-downloaded' (the "Load picture" placeholder) and
+  // is fetched only when clicked (download=true). A click on an errored picture retries the same way.
   const mediaUri = $derived(picture.mediaUri);
+  function load(download: boolean) {
+    if (!imageService) {
+      loadState = {status: 'error', reason: 'unknown'};
+      return;
+    }
+    const uri = mediaUri;
+    loadState = {status: 'loading'};
+    void imageService.loadImage(uri, {downloadIfMissing: download}).then((state) => {
+      // Ignore a resolution for a picture we've since navigated away from.
+      if (uri === picture.mediaUri) loadState = state;
+    });
+  }
   $effect(() => {
-    imageService.ensureLocal(mediaUri);
+    load(false);
   });
-  const loadState = $derived(imageService.get(mediaUri));
+
+  function handleImageClick() {
+    if (menuOpen) return;
+    if (loadState.status === 'not-downloaded' || loadState.status === 'error') {
+      load(true);
+      return;
+    }
+    onView?.();
+  }
 
   // Clickable to download (not available locally), to retry (after an error), or to open the viewer
   // (loaded and interactive).
@@ -83,7 +99,7 @@
   const retryLabel = $derived($t`Try again`);
   const clickLabel = $derived(needsDownload ? loadLabel : hasError ? retryLabel : $t`View Picture`);
 
-  function errorText(state: Extract<ImageLoadState, {status: 'error'}>): string {
+  function errorText(state: Extract<ImageState, {status: 'error'}>): string {
     switch (state.reason) {
       case 'not-found':
         return $t`Picture not found`;

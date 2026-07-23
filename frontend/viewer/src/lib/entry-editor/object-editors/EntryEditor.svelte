@@ -54,7 +54,7 @@
 
   // Entry-scoped image cache: pictures (and the edit/viewer dialogs) share one load per mediaUri.
   const projectContext = useProjectContext();
-  initImageService(() => projectContext?.maybeApi);
+  initImageService(() => projectContext.api);
 
   let editor = $state<Editor.Root>();
 
