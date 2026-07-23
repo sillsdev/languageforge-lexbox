@@ -45,13 +45,14 @@ public class ProjectCreationService(
             // recipe (hg init -> branch -> write files -> commit) since Clone can't establish an empty
             // remote and Language_Forge_Send_Receive refuses to make the *first* commit itself:
             //   1. hg init the local fw/ folder (no clone -- the empty remote has nothing to clone).
-            //   2. Set the branch to the FDO model version BEFORE any commit; FLEx clients look for the
-            //      data on that branch, so a first commit on 'default' would be invisible to them.
+            //   2. Set the branch to the send/receive branch name (FlexBridgeDataVersion.modelVersion,
+            //      e.g. 7500002.7000072) BEFORE any commit; FLEx/LfMergeBridge look for the data on that
+            //      branch, so a first commit on 'default' would be invisible to them.
             //   3. Build fw.fwdata into that folder from the SIL.LCModel template, configured with all
             //      of the requested writing systems.
-            //   4. hg add + commit the (untracked) fwdata onto the model-version branch, then push.
+            //   4. hg add + commit the (untracked) fwdata onto that branch, then push.
             await srService.InitRepo(fwDataProject.ProjectFolder);
-            await srService.SetBranch(fwDataProject.ProjectFolder, config.Value.FdoDataModelVersion);
+            await srService.SetBranch(fwDataProject.ProjectFolder, config.Value.SendReceiveBranchName);
 
             BuildFromTemplate(fwDataProject, vernacularWritingSystems, analysisWritingSystems, uiWritingSystem);
             ApplyAnthropologyCategories(anthropologyCategories);
