@@ -176,10 +176,11 @@ public static class SendReceiveHelpers
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
         activity?.SetTag("app.branch", branchName);
         progress ??= new NullProgress();
-        // FLEx repos keep their data on a branch named after the FDO model version; a clone looking for
-        // that branch reports "no such branch" if the initial commit landed on 'default' instead. hg
-        // records the branch for the *next* commit, so this must run before the first commit. Numeric
-        // branch names are accepted thanks to the fixutf8 extension wired into Mercurial/mercurial.ini.
+        // FLEx repos keep their data on a branch named after the FLExBridge data + FDO model version
+        // (e.g. 7500002.7000072); a clone looking for that branch reports "no such branch" if the initial
+        // commit landed on 'default' instead. hg records the branch for the *next* commit, so this must
+        // run before the first commit. Numeric/dotted branch names are accepted thanks to the fixutf8
+        // extension wired into Mercurial/mercurial.ini.
         await ExecuteHgSuccess($"hg branch --force {EscapeShellArg(branchName)}", folder, progress);
     }
 
