@@ -4,6 +4,7 @@
   import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
   import {onDestroy} from 'svelte';
+  import {watch} from 'runed';
   import PictureActionsMenu from './PictureActionsMenu.svelte';
   import {ImageService, useImageService, type ImageState} from './image-service.svelte';
 
@@ -36,26 +37,23 @@
       : 'h-40 w-auto rounded-md object-contain',
   );
 
-  // A touch on the corner actions menu can fire a stray click on the image behind it once the menu
-  // is open; ignore image taps while a menu is open so they don't also open the viewer/download.
-  let menuOpen = $state(false);
-
   const projectContext = useProjectContext();
   const writingSystemService = useWritingSystemService();
+  const imageService = getImageService();
 
   // Show a single writing system: the first non-empty caption searching vernacular writing
   // systems first, then analysis — which is exactly the default order of allWritingSystems().
   const caption = $derived(writingSystemService.first(picture.caption) ?? '');
 
-  // Prefer the entry-view cache so a mediaUri loaded once (here or in a dialog) shows immediately
-  // across the entry's pictures. Outside an entry view (edit/new-entry dialog, previews) fall back
-  // to a component-local cache disposed with the component. Both need a project api, so without a
-  // project context there's nothing to load from.
-  const sharedImageService = useImageService();
-  const localImageService =
-    sharedImageService || !projectContext ? undefined : new ImageService(() => projectContext.api);
-  const imageService = sharedImageService ?? localImageService;
-  onDestroy(() => localImageService?.dispose());
+  function getImageService() {
+    const sharedImageService = useImageService();
+    // prefer the shared service, which can cache across components
+    if (sharedImageService) return sharedImageService;
+    if (!projectContext) return undefined;
+    const localImageService = new ImageService(() => projectContext.api);
+    onDestroy(() => localImageService.dispose());
+    return localImageService;
+  }
 
   type DisplayState = {status: 'loading'} | ImageState;
   let loadState = $state<DisplayState>({status: 'loading'});
@@ -76,9 +74,11 @@
       if (uri === picture.mediaUri) loadState = state;
     });
   }
-  $effect(() => {
-    load(false);
-  });
+  watch(() => mediaUri, () => load(false));
+
+  // A touch on the corner actions menu can fire a stray click on the image behind it once the menu
+  // is open; ignore image taps while a menu is open so they don't also open the viewer/download.
+  let menuOpen = $state(false);
 
   function handleImageClick() {
     if (menuOpen) return;
