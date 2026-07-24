@@ -23,6 +23,7 @@
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {Button} from '$lib/components/ui/button';
+  import Hotkey from '$lib/components/hotkey/hotkey.svelte';
 
   const stats = useProjectStats();
   const viewService = useViewService();
@@ -42,6 +43,7 @@
     publication?: IPublication;
   } = $props();
 
+  let inputRef = $state<HTMLInputElement | null>(null);
   let missingField = $state<MissingOption | null>(null);
   let selectedField = $state<SelectedField | null>(null);
   let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsId));
@@ -49,6 +51,11 @@
   let filterOp = $state<Op>('contains')
   let includeSubDomains = $state(false);
   let userFilterActive = $state(false);
+
+  function focusSearch() {
+    inputRef?.focus();
+    inputRef?.select();
+  }
 
   const LITE_MORPHEME_TYPES = new Set([
     MorphTypeKind.Root, MorphTypeKind.BoundRoot,
@@ -134,6 +141,8 @@
   let filtersExpanded = $state(false);
 </script>
 
+<Hotkey key="f" onHotkey={focusSearch} />
+
 {#snippet placeholder()}
   {#if stats.current?.totalEntryCount !== undefined}
     <ViewT view={viewService.currentView} classic={$t`Filter # entries`} lite={$t`Filter # words`}>
@@ -148,7 +157,7 @@
 
 <div class="flex items-center gap-0.5">
   <Sidebar.Trigger icon="i-mdi-menu" class="aspect-square p-0" />
-  <ComposableInput bind:value={search} inputProps={{ 'aria-label': $t`Filter` }} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
+  <ComposableInput bind:value={search} bind:inputRef inputProps={{ 'aria-label': $t`Filter` }} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
     {#snippet after()}
       <ResponsivePopup
         bind:open={filtersExpanded}
