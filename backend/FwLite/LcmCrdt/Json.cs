@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
@@ -239,7 +240,7 @@ public static class Json
         [property: Column("fullkey")] string FullKey,
         [property: Column("path")] string Path);
 
-    public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this CrdtConfig config)
+    public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this HarmonyConfig config)
     {
         var resolver = config.MakeJsonTypeResolver();
         resolver = resolver.AddExternalMiniLcmModifiers();
@@ -253,12 +254,12 @@ public static class Json
     /// <remarks>
     /// SIL.Harmony moved <see cref="SIL.Harmony.Changes.IChange"/> polymorphism from the type-info resolver
     /// into an internal <c>JsonConverter&lt;IChange&gt;</c> that it only adds to its own
-    /// <see cref="CrdtConfig.JsonSerializerOptions"/>. A resolver alone can therefore no longer read/write
+    /// <see cref="HarmonyConfig.JsonSerializerOptions"/>. A resolver alone can therefore no longer read/write
     /// changes, so we copy Harmony's converters onto our Web-cased options. Without this, deserializing a
     /// server response throws "Deserialization of interface or abstract types is not supported. Type
     /// 'SIL.Harmony.Changes.IChange'".
     /// </remarks>
-    public static JsonSerializerOptions MakeLcmCrdtExternalJsonOptions(this CrdtConfig config)
+    public static JsonSerializerOptions MakeLcmCrdtExternalJsonOptions(this HarmonyConfig config)
     {
         var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
         {

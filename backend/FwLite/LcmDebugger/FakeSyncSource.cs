@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using LcmCrdt;
@@ -42,7 +43,7 @@ public class FakeSyncSource(Commit[] commits, SyncState? currentSyncState = null
     {
         if (options is null)
         {
-            var config = new CrdtConfig();
+            var config = new HarmonyConfig();
             LcmCrdtKernel.ConfigureCrdt(config);
             options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
             {

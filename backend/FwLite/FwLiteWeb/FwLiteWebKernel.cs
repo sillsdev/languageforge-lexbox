@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using SIL.Harmony;
@@ -29,9 +30,9 @@ public static class FwLiteWebKernel
         services.AddSingleton<IHostedService, NetworkChangeSyncTrigger>();
         services.AddOptions<FwLiteWebConfig>().BindConfiguration("FwLiteWeb");
 
-        services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
+        services.AddOptions<JsonOptions>().PostConfigure<IOptions<HarmonyConfig>>((jsonOptions, harmonyConfig) =>
         {
-            jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeLcmCrdtExternalJsonTypeResolver();
+            jsonOptions.SerializerOptions.TypeInfoResolver = harmonyConfig.Value.MakeLcmCrdtExternalJsonTypeResolver();
         });
         return services;
     }

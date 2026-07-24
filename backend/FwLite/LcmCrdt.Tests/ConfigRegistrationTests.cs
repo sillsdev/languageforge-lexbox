@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
@@ -23,11 +24,11 @@ public class ConfigRegistrationTests
         typeof(DeleteChange<RemoteResource<LcmFileMetadata>>)//Not used, instead DeleteRemoteResourceChange is used
     ];
 
-    private readonly CrdtConfig _config;
+    private readonly HarmonyConfig _config;
 
     public ConfigRegistrationTests()
     {
-        _config = new CrdtConfig();
+        _config = new HarmonyConfig();
         LcmCrdtKernel.ConfigureCrdt(_config);
     }
 

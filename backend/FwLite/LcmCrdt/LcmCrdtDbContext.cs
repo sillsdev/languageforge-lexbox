@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.ComponentModel;
 using System.Text.Json;
 using LcmCrdt.Data;
@@ -12,7 +13,7 @@ namespace LcmCrdt;
 
 public class LcmCrdtDbContext(
     DbContextOptions<LcmCrdtDbContext> dbContextOptions,
-    IOptions<CrdtConfig> options
+    IOptions<HarmonyConfig> options
     )
     : DbContext(dbContextOptions), ICrdtDbContext
 {

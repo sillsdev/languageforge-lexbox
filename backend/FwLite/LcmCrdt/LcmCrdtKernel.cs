@@ -67,9 +67,9 @@ public static class LcmCrdtKernel
             config => ConfigureCrdt(config, false)//don't add remote resources because they are added in AddCrdtRemoteResources
         );
         services.AddCrdtRemoteResources<LcmFileMetadata>();
-        services.AddOptions<CrdtConfig>().PostConfigure((CrdtConfig crdtConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
+        services.AddOptions<HarmonyConfig>().PostConfigure((HarmonyConfig harmonyConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
-            crdtConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
+            harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<CommitMetadataInterceptor>();
@@ -88,7 +88,7 @@ public static class LcmCrdtKernel
         services.AddSingleton(provider => new RefitSettings
         {
             ContentSerializer = new SystemTextJsonContentSerializer(
-                provider.GetRequiredService<IOptions<CrdtConfig>>().Value.MakeLcmCrdtExternalJsonOptions())
+                provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.MakeLcmCrdtExternalJsonOptions())
         });
         services.AddSingleton<CrdtHttpSyncService>();
         services.AddSingleton<IRefitHttpServiceFactory, RefitHttpServiceFactory>();
@@ -185,7 +185,7 @@ public static class LcmCrdtKernel
         return e => Json.Query(e.PublishIn);
     }
 
-    public static void ConfigureCrdt(CrdtConfig config, bool addRemoteResourceEntity = true)
+    public static void ConfigureCrdt(HarmonyConfig config, bool addRemoteResourceEntity = true)
     {
         config.EnableProjectedTables = true;
         config.ObjectTypeListBuilder
@@ -418,9 +418,9 @@ public static class LcmCrdtKernel
     /// </summary>
     public static IReadOnlyList<RegisteredChangeType> AllRegisteredChanges()
     {
-        var crdtConfig = new CrdtConfig();
-        ConfigureCrdt(crdtConfig);
-        return crdtConfig.ChangeTypes;
+        var harmonyConfig = new HarmonyConfig();
+        ConfigureCrdt(harmonyConfig);
+        return harmonyConfig.ChangeTypes;
     }
 
     public static IEnumerable<Type> AllChangeTypes()
@@ -430,9 +430,9 @@ public static class LcmCrdtKernel
 
     public static IEnumerable<Type> AllObjectTypes()
     {
-        var crdtConfig = new CrdtConfig();
-        ConfigureCrdt(crdtConfig);
-        return crdtConfig.ObjectTypes;
+        var harmonyConfig = new HarmonyConfig();
+        ConfigureCrdt(harmonyConfig);
+        return harmonyConfig.ObjectTypes;
     }
 
     private static IList<Translation> DeserializeTranslations(string json)

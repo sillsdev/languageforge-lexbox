@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Diagnostics;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ namespace LcmCrdt;
 
 public class SnapshotAtCommitService(
     IServiceProvider serviceProvider,
-    IOptions<CrdtConfig> crdtConfig,
+    IOptions<HarmonyConfig> harmonyConfig,
     CurrentProjectService currentProjectService,
     ILogger<SnapshotAtCommitService> logger,
     ICrdtDbContextFactory crdtDbContextFactory)
@@ -51,7 +52,7 @@ public class SnapshotAtCommitService(
             var optionsBuilder = new DbContextOptionsBuilder<LcmCrdtDbContext>()
                 .UseSqlite($"Data Source={forkDbPath}");
             LcmCrdtKernel.ConfigureDbOptions(serviceScope.ServiceProvider, optionsBuilder);
-            await using var forkDbContext = new LcmCrdtDbContext(optionsBuilder.Options, crdtConfig);
+            await using var forkDbContext = new LcmCrdtDbContext(optionsBuilder.Options, harmonyConfig);
 
             var deleted = await DeleteCommitsAfter(forkDbContext, commit, preserveAllFieldWorksCommits);
             logger.LogInformation("Deleted {Deleted} commits after {CommitId}", deleted, commitId);

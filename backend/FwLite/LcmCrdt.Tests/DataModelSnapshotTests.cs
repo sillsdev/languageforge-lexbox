@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using FluentAssertions.Execution;
@@ -20,7 +21,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
 
     protected readonly AsyncServiceScope _services;
     private readonly LcmCrdtDbContext _crdtDbContext;
-    private CrdtConfig _crdtConfig;
+    private HarmonyConfig _crdtConfig;
     private CrdtProject _crdtProject;
     private readonly JsonSerializerOptions _jsonSerializerOptions = TestJsonOptions.Harmony();
 
@@ -33,7 +34,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
         _crdtDbContext = _services.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContext();
-        _crdtConfig = _services.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value;
+        _crdtConfig = _services.ServiceProvider.GetRequiredService<IOptions<HarmonyConfig>>().Value;
     }
 
     public async Task InitializeAsync()
