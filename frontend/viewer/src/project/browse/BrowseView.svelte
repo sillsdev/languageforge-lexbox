@@ -1,5 +1,6 @@
 <script lang="ts">
   import MasterDetailView from '$lib/components/master-detail/MasterDetailView.svelte';
+  import {getOpenDialogCount} from '$lib/components/ui/dialog-shared/dialog-shared-root.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
@@ -7,8 +8,10 @@
   import {t} from 'svelte-i18n-lingui';
   import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {useFeatures} from '$lib/services/feature-service';
   import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import {BrowseParam} from '$lib/utils/search-params';
+  import {hasPrimaryModifier} from '$lib/utils/platform';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {SortField, type IPartOfSpeech, type IPublication, type ISemanticDomain} from '$lib/dotnet-types';
@@ -23,6 +26,7 @@
   const projectContext = useProjectContext();
   const viewService = useViewService();
   const dialogsService = useDialogsService();
+  const features = useFeatures();
   const entryListViewMode = useProjectStorage().entryListViewMode;
 
   let selectedId = $state('');
@@ -45,6 +49,15 @@
     selectedId = entry.id;
   }
 
+  function handleNewEntryHotkey(e: KeyboardEvent) {
+    if (e.key.toLowerCase() !== 'e' || !hasPrimaryModifier(e)) return;
+    if (!features.write) return;
+    // Re-opening NewEntryDialog cancels the in-progress one and loses form data.
+    if (getOpenDialogCount() > 0) return;
+    e.preventDefault();
+    void newEntry();
+  }
+
   let entriesList: EntriesList | undefined = $state();
 
   async function onClose() {
@@ -52,6 +65,7 @@
     await entriesList?.tryToScrollToEntry(selectedId);
   }
 </script>
+<svelte:window onkeydown={handleNewEntryHotkey} />
 <SidebarPrimaryAction>
   {#snippet children(isOpen: boolean)}
     <PrimaryNewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>
