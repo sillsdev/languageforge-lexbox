@@ -1,0 +1,309 @@
+<script lang="ts" module>
+  export interface DuplicateSummary {
+    count: number;
+    capped: boolean;
+    hasExactWordMatch: boolean;
+    /** Matched headwords, strongest first, comma-joined for one-line display */
+    previewHeadwords: string;
+    /** One-line banner text, shared by this widget's header and the host's jump pill */
+    message: string;
+  }
+
+  export function duplicateResultContainerClass(hasExactWordMatch: boolean): string {
+    return hasExactWordMatch
+      ? 'border-amber-600/40 bg-amber-500/10 dark:border-amber-400/40'
+      : 'border-border bg-muted/50';
+  }
+</script>
+
+<script lang="ts">
+  import type {IEntry, ISense} from '$lib/dotnet-types';
+  import {SortField} from '$lib/dotnet-types';
+  import {resource, watch} from 'runed';
+  import {SvelteMap} from 'svelte/reactivity';
+  import {plural, t} from 'svelte-i18n-lingui';
+  import {slide} from 'svelte/transition';
+  import {navigate, useRouter} from 'svelte-routing';
+  import * as Collapsible from '$lib/components/ui/collapsible';
+  import {Badge} from '$lib/components/ui/badge';
+  import {Icon} from '$lib/components/ui/icon';
+  import {Button} from '$lib/components/ui/button';
+  import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
+  import Loading from '$lib/components/Loading.svelte';
+  import {useLexboxApi} from '$lib/services/service-provider';
+  import {useWritingSystemService} from '$project/data';
+  import {useViewService} from '$lib/views/view-service.svelte';
+  import {pt} from '$lib/views/view-text';
+  import {entryBrowseParams} from '$lib/utils/search-params';
+  import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
+  import {
+    classifyDuplicateCheckResults,
+    getDuplicateCheckQueries,
+    mergeSearchResults,
+    trapEnter,
+    type DuplicateCheckMatch,
+    type DuplicateCheckQueries,
+  } from './duplicate-check';
+  import {cn} from '$lib/utils';
+
+  interface Props {
+    entry: IEntry;
+    sense?: ISense;
+    /** Called right before navigating to an existing entry, so the host dialog can close itself. */
+    onNavigateToEntry?: (entry: IEntry) => void;
+    /** Set while there are matches, so the host can render an out-of-view indicator. */
+    summary?: DuplicateSummary;
+  }
+
+  let {entry, sense, onNavigateToEntry, summary = $bindable()}: Props = $props();
+
+  const lexboxApi = useLexboxApi();
+  const writingSystemService = useWritingSystemService();
+  const viewService = useViewService();
+  const {base} = useRouter();
+
+  // Over-fetch: the backend is not queryable exactly how we want to use it, so we use the generic/forgiving query api
+  // (which sorts best matches to the front) and then pull out the results that are most appropriate
+  const FETCH_COUNT = 30;
+  const INITIAL_DISPLAY_COUNT = 3;
+
+  const queries = $derived(getDuplicateCheckQueries(entry, sense, writingSystemService));
+  const hasQueries = $derived(queries.vernacular.length + queries.analysis.length > 0);
+
+  // Use a cache as a quick way to prevent ALL redundant queries
+  // (not just the user typing the same thing twice, but also querying vernacular again when only an analysis query changed, etc.)
+  const searchCache = new SvelteMap<string, Promise<IEntry[]>>();
+  function search(text: string, writingSystem: string): Promise<IEntry[]> {
+    const key = `${writingSystem}:${text}`;
+    let result = searchCache.get(key);
+    if (!result) {
+      result = lexboxApi.searchEntries(text, {
+        offset: 0,
+        count: FETCH_COUNT,
+        order: {field: SortField.SearchRelevance, writingSystem, ascending: true},
+      });
+      searchCache.set(key, result);
+      // don't cache a failure — a transient error must not poison the query for the dialog's life
+      result.catch(() => searchCache.delete(key));
+    }
+    return result;
+  }
+
+  const duplicatesResource = resource(
+    () => queries,
+    async (
+      queries,
+      _prev,
+      {signal},
+    ): Promise<{candidates: IEntry[]; queries: DuplicateCheckQueries; capped: boolean} | undefined> => {
+      // query.bare / analysis texts are already diacritic-stripped (see getDuplicateEntryQueries):
+      // the backend only matches accent-insensitively for a diacritic-free query, and stripping
+      // there is what surfaces accent variants for the client to classify. Each query is searched
+      // sorted by the writing system it was typed in, so that WS's headword matches sort first.
+      const searches = [
+        ...queries.vernacular.map((query) => ({text: query.bare, writingSystem: query.wsId})),
+        ...queries.analysis.map((text) => ({text, writingSystem: 'default'})),
+      ];
+      if (!searches.length) return undefined;
+      const results = await Promise.all(searches.map((s) => search(s.text, s.writingSystem)));
+      signal.throwIfAborted();
+      return {
+        candidates: mergeSearchResults(results),
+        // remember what queries these candidates correspond to
+        queries,
+        capped: results.some((result) => result.length >= FETCH_COUNT),
+      };
+    },
+    {debounce: DEFAULT_DEBOUNCE_TIME},
+  );
+
+  // Classification lives outside the resource so it can compare against the displayed headword:
+  // writingSystemService.headword reads the lazy morph-types resource, so once that loads matches
+  // re-classify (with the correct morph tokens) without re-searching.
+  const matches = $derived.by(() => {
+    const result = duplicatesResource.current;
+    if (!result) return undefined;
+    return classifyDuplicateCheckResults(result.candidates, result.queries, writingSystemService);
+  });
+  const hasExactWordMatch = $derived(!!matches?.some((match) => match.kind === 'same-word'));
+  const previewHeadwords = $derived(
+    [...new Set((matches ?? []).map((match) => writingSystemService.headword(match.entry)).filter(Boolean))].join(', '),
+  );
+  const summaryMessage = $derived.by(() => {
+    if (hasExactWordMatch)
+      return pt($t`This entry may already exist`, $t`This word may already exist`, viewService.currentView);
+    if (matches?.length === 1)
+      return pt($t`A similar entry already exists`, $t`A similar word already exists`, viewService.currentView);
+    return pt($t`Similar entries already exist`, $t`Similar words already exist`, viewService.currentView);
+  });
+  $effect(() => {
+    summary = matches?.length
+      ? {
+          count: matches.length,
+          capped: !!duplicatesResource.current?.capped,
+          hasExactWordMatch,
+          previewHeadwords,
+          message: summaryMessage,
+        }
+      : undefined;
+  });
+
+  // Deliberately never auto-expanded, even for an exact match: typed prefixes flip between
+  // exact/similar, and a list that pops open and closed makes the form jump around. The amber
+  // header, preview headwords and jump pill carry the warning.
+  let expanded = $state(false);
+
+  /** Opens the match list (the host's jump-pill calls this). */
+  export function expand(): void {
+    expanded = true;
+  }
+  let displayCount = $state(INITIAL_DISPLAY_COUNT);
+  const displayedMatches = $derived(matches?.slice(0, displayCount) ?? []);
+  let expandedEntryId = $derived(matches?.[0]?.entry.id);
+
+
+  watch(
+    () => matches,
+    (current) => {
+      if (!current?.length) {
+        expanded = false;
+        displayCount = INITIAL_DISPLAY_COUNT;
+        expandedEntryId = undefined;
+      }
+    },
+  );
+
+  function kindLabel(match: DuplicateCheckMatch): string {
+    switch (match.kind) {
+      case 'same-word':
+        // a lexeme-only match on an entry whose citation form differs must not claim "Same
+        // headword" — the row displays that (different) citation form as the headword
+        return match.field === 'lexeme'
+          ? pt($t`Same lexeme form`, $t`Same word`, viewService.currentView)
+          : pt($t`Same headword`, $t`Same word`, viewService.currentView);
+      case 'similar-word':
+        return pt($t`Similar headword`, $t`Similar word`, viewService.currentView);
+      case 'similar-meaning':
+        return pt($t`Similar gloss`, $t`Similar meaning`, viewService.currentView);
+    }
+  }
+
+  function openEntry(target: IEntry): void {
+    onNavigateToEntry?.(target);
+    navigate(`${$base.uri}/browse?${entryBrowseParams(target.id)}`);
+  }
+</script>
+
+<!-- always-rendered shell: min-h reserves the strip's space so its toggling doesn't shift the form -->
+<div class="min-h-9 flex flex-col justify-center w-full" aria-live="polite">
+  {#if !matches?.length}
+    {#if (duplicatesResource.loading && hasQueries) || matches || duplicatesResource.error}
+      <div class="flex items-center gap-2 px-1 text-sm text-muted-foreground" transition:slide={{duration: 150}}>
+        {#if duplicatesResource.loading}
+          <Loading class="size-4" />
+          {pt($t`Checking for similar entries…`, $t`Checking for similar words…`, viewService.currentView)}
+        {:else if duplicatesResource.error}
+          <!-- inline, not AppNotification.error: this search re-fires per typing pause, and a
+            failure toast per pause would bury the dialog; the strip already owns a status line -->
+          <Icon icon="i-mdi-alert-outline" class="size-4" />
+          {pt($t`Could not check for similar entries`, $t`Could not check for similar words`, viewService.currentView)}
+        {:else}
+          <Icon icon="i-mdi-check-circle-outline" class="size-4 text-green-600 dark:text-green-500" />
+          {pt($t`No similar entries found`, $t`No similar words found`, viewService.currentView)}
+        {/if}
+      </div>
+    {/if}
+  {:else}
+    <div transition:slide={{duration: 150}}>
+      <Collapsible.Root
+        bind:open={expanded}
+        class={cn('rounded-md border', duplicateResultContainerClass(hasExactWordMatch))}>
+        <Collapsible.Trigger
+          class="w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer"
+          onkeydown={trapEnter}
+        >
+          {#if hasExactWordMatch}
+            <Icon icon="i-mdi-alert-circle-outline" class="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          {:else}
+            <Icon icon="i-mdi-information-outline" class="size-5 shrink-0 text-muted-foreground" />
+          {/if}
+          <span class="grow min-w-0 truncate text-start font-medium">
+            {summaryMessage}
+            <!-- If expanded, then the preview headwords are just noise -->
+            {#if !expanded && previewHeadwords}
+              <span class="text-muted-foreground font-normal">— {previewHeadwords}</span>
+            {/if}
+          </span>
+          {#if duplicatesResource.loading}
+            <Loading class="size-4" />
+          {/if}
+          <Badge variant="secondary">{matches.length}{duplicatesResource.current?.capped ? '+' : ''}</Badge>
+          <Icon icon={expanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'} class="size-5 shrink-0" />
+        </Collapsible.Trigger>
+        <Collapsible.Content>
+          <ul class="px-1.5 pb-1.5 space-y-1.5 max-h-56 overflow-y-auto">
+            {#each displayedMatches as match (match.entry.id)}
+              {@const badge = kindLabel(match)}
+              {@const isExpanded = expandedEntryId === match.entry.id}
+              <li class="rounded bg-background/80">
+                <button
+                  type="button"
+                  class="w-full flex items-center gap-2 {isExpanded
+                    ? 'rounded-t'
+                    : 'rounded'} hover:bg-accent px-2.5 py-2 text-start"
+                  aria-expanded={isExpanded}
+                  onkeydown={trapEnter}
+                  onclick={() => (expandedEntryId = isExpanded ? undefined : match.entry.id)}
+                >
+                  <div class="grow min-w-0 text-sm {isExpanded ? '' : 'line-clamp-1'}">
+                    <DictionaryEntry entry={match.entry} inline={!isExpanded} hideExamples={!isExpanded} />
+                  </div>
+                  <Badge
+                    variant="outline"
+                    class="shrink-0 self-start whitespace-nowrap {match.kind === 'same-word'
+                      ? 'border-amber-600/50 dark:border-amber-400/50'
+                      : ''}"
+                  >
+                    {badge}
+                  </Badge>
+                  <Icon
+                    icon={isExpanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'}
+                    class="size-4 shrink-0 self-start mt-0.5 text-muted-foreground"
+                  />
+                </button>
+                {#if isExpanded}
+                  <div class="flex flex-wrap justify-end gap-1.5 px-2.5 pt-1 pb-2" transition:slide={{duration: 150}}>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      icon="i-mdi-book-arrow-right-outline"
+                      onkeydown={trapEnter}
+                      onclick={() => openEntry(match.entry)}
+                    >
+                      {pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
+                    </Button>
+                  </div>
+                {/if}
+              </li>
+            {/each}
+            <!--
+            Uses class=hidden instead of #if or else focus/scroll jumps to the top of the dialog
+            when this button leaves the DOM.
+            -->
+            <li class={cn(matches.length > displayedMatches.length || 'hidden')}>
+              <Button
+                variant="ghost"
+                size="sm"
+                class="w-full text-muted-foreground"
+                onkeydown={trapEnter}
+                onclick={() => (displayCount = matches.length)}
+              >
+                {$plural(matches.length - displayedMatches.length, {one: 'Show # more...', other: 'Show # more...'})}
+              </Button>
+            </li>
+          </ul>
+        </Collapsible.Content>
+      </Collapsible.Root>
+    </div>
+  {/if}
+</div>

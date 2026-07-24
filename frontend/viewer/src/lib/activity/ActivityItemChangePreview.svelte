@@ -80,7 +80,7 @@
         <DropdownMenu.Item class="cursor-pointer" onclick={e => e.preventDefault()}>
           {#snippet child({props})}
             <Link {...props} to="./browse?{entryBrowseParams(entry.id)}">
-              <Icon icon="i-mdi-link" />
+              <Icon icon="i-mdi-book-arrow-right-outline" />
               {$t`Go to ${pt($t`Entry`, $t`Word`, viewService.currentView)}`}
             </Link>
           {/snippet}

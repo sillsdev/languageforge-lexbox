@@ -23,6 +23,7 @@
   import {pt} from '$lib/views/view-text';
   import * as Editor from '$lib/components/editor';
   import Icon from '$lib/components/ui/icon/icon.svelte';
+  import DuplicateCheckSection from './duplicate-check/DuplicateCheckSection.svelte';
   import EntryEditorPrimitive from './object-editors/EntryEditorPrimitive.svelte';
   import ObjectHeader from './object-editors/ObjectHeader.svelte';
   import SenseEditorPrimitive from './object-editors/SenseEditorPrimitive.svelte';
@@ -59,21 +60,26 @@
   async function createEntry(e: Event) {
     e.preventDefault();
     e.stopPropagation();
+    // we might already be creating something
+    if (loading) return;
     if (!requester) throw new Error('No requester');
 
-    await editor?.commit();
-    await addMainPublicationPromise; // make sure the main publication landed before we snapshot the entry
-    entry.senses = sense ? [sense] : [];
-    if (!validateEntry()) return;
-
     loading = true;
-    const entrySnapshot = $state.snapshot(entry);
-    // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
-    await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, createEntryOptions.asIs));
-    requester.resolve(entry);
-    requester = undefined;
-    loading = false;
-    open = false;
+    try {
+      await editor?.commit();
+      await addMainPublicationPromise; // make sure the main publication landed before we snapshot the entry
+      entry.senses = sense ? [sense] : [];
+      if (!validateEntry()) return;
+
+      const entrySnapshot = $state.snapshot(entry);
+      // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
+      await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, createEntryOptions.asIs));
+      requester.resolve(entry);
+      requester = undefined;
+      open = false;
+    } finally {
+      loading = false;
+    }
   }
 
   let errors: string[] = $state([]);
@@ -178,11 +184,16 @@
 {/snippet}
 
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)] max-md:px-2">
+  <!-- Fixed width (not min/max): the duplicate check adds and reshapes content while the
+    dialog is open, and a content-sized dialog jumps around with every keystroke -->
+  <Dialog.DialogContent onkeydown={handleKeydown}
+    class="sm:min-h-[min(calc(100%-16px),30rem)] sm:w-[min(calc(100%-32px),50rem)] max-md:px-2">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, viewService.currentView)}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    <div>
+    <!-- min-w-0: as a grid item this div defaults to min-width:auto, letting long duplicate
+      headword lists widen the dialog instead of truncating -->
+    <div class="min-w-0">
       <OverrideFields shownFields={[
         'lexemeForm', 'citationForm',
         'gloss', 'definition', 'partOfSpeechId',
@@ -211,6 +222,8 @@
           </Editor.Grid>
         </Editor.Root>
       </OverrideFields>
+      <DuplicateCheckSection {entry} {sense}
+        onNavigateToEntry={() => open = false} />
     </div>
     {#if errors.length}
       <div class="text-end space-y-2">
@@ -221,7 +234,7 @@
     {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-      <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
+      <Button onclick={e => createEntry(e)} {loading}>
         {pt($t`Create Entry`, $t`Add Word`, viewService.currentView)}
       </Button>
     </Dialog.DialogFooter>

@@ -87,6 +87,11 @@ msgstr "{num, plural, other {# commit FieldWorks Classic mới}}"
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, other {# commit FieldWorks Lite mới}}"
 
+#. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "{num, plural, one {Show # more...} other {Show # more...}}"
+msgstr ""
+
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -106,6 +111,20 @@ msgstr "**Thuật ngữ đơn giản hơn** (ví dụ *Từ* thay vì *Hình th�
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Đã có phiên bản mới của FieldWorks Lite."
+
+#. Relevant view: Classic
+#. Lite view equivalent: "A similar word already exists"
+#. Warning banner in the New Entry dialog when exactly one possible duplicate was found (none an exact headword match)
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "A similar entry already exists"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A similar entry already exists"
+#. Warning banner in the New Word dialog when exactly one possible duplicate was found (none spelled exactly the same)
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "A similar word already exists"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
@@ -386,6 +405,20 @@ msgstr "Các thay đổi cũng có thể do các trường mới được thêm 
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Thay đổi cùng một trường hai lần, ví dụ, có thể dẫn đến hai commit nhưng chỉ một thay đổi cần được áp dụng cho FieldWorks Classic. Commit cũng có thể gồm nhiều thay đổi."
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Checking for similar words…"
+#. Status line in the New Entry dialog while searching for possible duplicate entries
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Checking for similar entries…"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Checking for similar entries…"
+#. Status line in the New Word dialog while searching for possible duplicate words
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Checking for similar words…"
+msgstr ""
+
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
@@ -422,6 +455,7 @@ msgstr "xóa"
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Đóng"
@@ -516,6 +550,20 @@ msgstr "Đã sao chép vào khay nhớ tạm"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
 msgstr "Sao chép phiên bản"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Could not check for similar words"
+#. Status line in the New Entry dialog when the background duplicate search failed (e.g. connection lost); typing again retries
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Could not check for similar entries"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Could not check for similar entries"
+#. Status line in the New Word dialog when the background duplicate search failed (e.g. connection lost); typing again retries
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Could not check for similar words"
+msgstr ""
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
@@ -1140,6 +1188,20 @@ msgstr "Ghi chú"
 msgid "Go to {0}"
 msgstr "Đi tới {0}"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Go to word"
+#. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Go to entry"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Go to entry"
+#. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Go to word"
+msgstr ""
+
 #. Filter option label
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
@@ -1635,6 +1697,20 @@ msgstr "Không có máy chủ"
 msgid "No server configured"
 msgstr "Chưa cấu hình máy chủ"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "No similar words found"
+#. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "No similar entries found"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "No similar entries found"
+#. Status line in the New Word dialog: the duplicate check found no existing words like the one being typed
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "No similar words found"
+msgstr ""
+
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
@@ -2017,6 +2093,28 @@ msgstr "Xem lại"
 msgid "rose"
 msgstr "hoa hồng"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Same word"
+#. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same headword"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Same word"
+#. Badge on a possible-duplicate result: only its lexeme form matches the typed text, while its citation form (shown as the headword) differs — deliberately NOT claiming "Same headword"
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same lexeme form"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Same headword"
+#. Badge on a possible-duplicate result: it is spelled exactly like the word being typed in the New Word dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same word"
+msgstr ""
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Save"
 msgstr ""
@@ -2160,6 +2258,48 @@ msgstr "Hiển thị thêm {0}..."
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Sign in to add comments."
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Similar words already exist"
+#. Warning banner in the New Entry dialog; expands to a list of possible duplicate entries
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar entries already exist"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Similar meaning"
+#. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar gloss"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Similar word"
+#. Badge on a possible-duplicate result: its headword partly matches the one being typed in the New Entry dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar headword"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Similar gloss"
+#. Badge on a possible-duplicate result: one of its meanings matches the meaning being typed in the New Word dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar meaning"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Similar headword"
+#. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar word"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Similar entries already exist"
+#. Warning banner in the New Word dialog; expands to a list of possible duplicate words
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar words already exist"
 msgstr ""
 
 #. View option
@@ -2364,6 +2504,13 @@ msgstr "Đường dẫn này {0} đã bị xóa."
 msgid "This date # and this emoji # are snippets"
 msgstr "Ngày này # và biểu tượng cảm xúc này # là đoạn trích"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "This word may already exist"
+#. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "This entry may already exist"
+msgstr ""
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr ""
@@ -2400,6 +2547,13 @@ msgstr "Nhiệm vụ này đã hoàn thành"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Điều này sẽ đồng bộ các bản sao FieldWorks Lite và FieldWorks Classic của dự án của bạn trong Lexbox."
+
+#. Relevant view: Lite
+#. Classic view equivalent: "This entry may already exist"
+#. Warning banner in the New Word dialog when a word with the exact same spelling exists; expands to a list of possible duplicates
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "This word may already exist"
+msgstr ""
 
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Thread"
