@@ -13,6 +13,7 @@ import type {
   LoginResult as GeneratedLoginResult,
 } from '@dotnet-types';
 import { GridifyConditionalOperator } from '../types/enums';
+import { HttpStatusError } from './http-status-error';
 
 // Local aliases for the FW Lite backend's generated API types (type-only via @dotnet-types).
 export type LexboxServer = ILexboxServer;
@@ -42,7 +43,10 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   const results = await papi.fetch(input, init);
   if (!results.ok) {
     const errorBody = await results.text();
-    throw new Error(errorBody || `Failed to fetch: ${results.status} ${results.statusText}`);
+    throw new HttpStatusError(
+      results.status,
+      errorBody || `Failed to fetch: ${results.status} ${results.statusText}`,
+    );
   }
   const text = await results.text();
   // eslint-disable-next-line no-type-assertion/no-type-assertion
@@ -196,20 +200,15 @@ export class FwLiteApi {
   /**
    * Looks up a project's API type. The cache is in-memory only and empty after an extension
    * restart, so on a miss we repopulate it from the backend; else a Harmony/CRDT project could be
-   * misrouted to the FwData endpoints and every operation on it would fail. Falls back to 'FwData'
-   * if the type can't be determined.
+   * misrouted to the FwData endpoints and every operation on it would fail. `getProjects` has no
+   * per-code failure mode (it just enumerates), so if it throws, the type genuinely can't be
+   * determined; propagate the failure instead of guessing 'FwData' and misrouting a Harmony
+   * project. Only defaults to 'FwData' when the backend answered but the code is unrecognized.
    */
   private async resolveProjectType(code: string): Promise<'FwData' | 'Harmony'> {
     const cached = FwLiteApi.projectTypeByCode.get(code);
     if (cached) return cached;
-    try {
-      await this.getProjects();
-    } catch (e) {
-      logger.warn(
-        'Could not load project types; defaulting to FwData:',
-        e instanceof Error ? e.message : String(e),
-      );
-    }
+    await this.getProjects();
     return FwLiteApi.projectTypeByCode.get(code) ?? 'FwData';
   }
 
