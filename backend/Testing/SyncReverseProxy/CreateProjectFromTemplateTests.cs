@@ -1,12 +1,13 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
 using FluentAssertions;
 using Testing.ApiTests;
 using Testing.Fixtures;
+using Testing.Services;
 using Xunit.Abstractions;
+using static Testing.Services.Constants;
 
 namespace Testing.SyncReverseProxy;
 
@@ -47,10 +48,11 @@ public class CreateProjectFromTemplateTests : IClassFixture<IntegrationFixture>
             //    This is a long-running, non-idempotent operation. The shared tester's HttpClient retries
             //    transient failures/timeouts, so a slow first attempt (which already created the project
             //    row) would be retried and the retry would return 409 "already exists". Use a client that
-            //    doesn't retry and allows more time, authenticated as the same admin.
+            //    doesn't retry and allows more time. Log it in itself (cookie auth) rather than reusing the
+            //    shared tester's captured JWT, which may be stale.
             using var createClient = ApiTestBase.NewHttpClient(_adminApiTester.BaseUrl, retryTransientFailures: false).Client;
             createClient.Timeout = TimeSpan.FromMinutes(5);
-            createClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _adminApiTester.CurrJwt);
+            await JwtHelper.ExecuteLogin(AdminAuth, includeDefaultScope: true, createClient);
             var response = await createClient.PostAsync(
                 $"{_adminApiTester.BaseUrl}/api/project/createFromTemplate{query}", null);
             response.StatusCode.Should().Be(HttpStatusCode.OK,
