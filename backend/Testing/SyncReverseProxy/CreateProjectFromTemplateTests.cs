@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
@@ -43,7 +44,14 @@ public class CreateProjectFromTemplateTests : IClassFixture<IntegrationFixture>
         {
             // 1. Create the project via the admin endpoint (creates the DB row + empty repo, then has
             //    FwHeadless build the template .fwdata and push it into the empty repo).
-            var response = await _adminApiTester.HttpClient.PostAsync(
+            //    This is a long-running, non-idempotent operation. The shared tester's HttpClient retries
+            //    transient failures/timeouts, so a slow first attempt (which already created the project
+            //    row) would be retried and the retry would return 409 "already exists". Use a client that
+            //    doesn't retry and allows more time, authenticated as the same admin.
+            using var createClient = ApiTestBase.NewHttpClient(_adminApiTester.BaseUrl, retryTransientFailures: false).Client;
+            createClient.Timeout = TimeSpan.FromMinutes(5);
+            createClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _adminApiTester.CurrJwt);
+            var response = await createClient.PostAsync(
                 $"{_adminApiTester.BaseUrl}/api/project/createFromTemplate{query}", null);
             response.StatusCode.Should().Be(HttpStatusCode.OK,
                 "creation should succeed; body: {0}", await response.Content.ReadAsStringAsync());
