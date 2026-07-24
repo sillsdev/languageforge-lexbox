@@ -624,6 +624,7 @@ msgstr "Definición"
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Delete"
 msgstr "Borrar"
 
@@ -708,6 +709,7 @@ msgstr "Hecho"
 #. Notification action button
 #: src/home/Server.svelte
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "Download"
 msgstr "Descargar"
@@ -763,6 +765,7 @@ msgid "e.g. th, sw"
 msgstr ""
 
 #: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
 msgstr ""
 
@@ -776,7 +779,6 @@ msgid "Edit Custom View"
 msgstr "Editar vista personalizada"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Edit Picture"
 msgstr ""
 
@@ -1202,11 +1204,6 @@ msgstr "Entiendo que esto no se puede deshacer"
 msgid "ID"
 msgstr ""
 
-#. Error displayed in place of a picture when the media file is missing from local storage
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Image not found"
-msgstr ""
-
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -1311,6 +1308,10 @@ msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Load it to preview or export."
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Load picture"
 msgstr ""
 
 #: src/lib/media-manager/MediaManagerView.svelte
@@ -1554,6 +1555,11 @@ msgstr "Siguiente"
 msgid "Next milestone: {0}. {1} to go."
 msgstr ""
 
+#. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Next picture"
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1708,11 +1714,6 @@ msgstr "Fuera de línea"
 msgid "Offline, unable to download"
 msgstr "Desconectado, no se puede descargar"
 
-#. Error when offline and trying to download image
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Offline, unable to download image"
-msgstr ""
-
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
 msgstr ""
@@ -1820,11 +1821,21 @@ msgstr "Pendiente"
 msgid "Pick a Part of Speech"
 msgstr "Escoge una parte de la voz"
 
-#. Two uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor
+#. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
+msgstr ""
+
+#. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+msgid "Picture actions"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Picture not found"
 msgstr ""
 
 #. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
@@ -1863,6 +1874,11 @@ msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
+msgstr ""
+
+#. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Previous picture"
 msgstr ""
 
 #. Label in project card
@@ -2158,6 +2174,10 @@ msgstr "Mostrar"
 msgid "Show {0} more..."
 msgstr "Mostrar {0} más..."
 
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Show or hide captions"
+msgstr ""
+
 #: src/lib/entry-editor/CommentDialog.svelte
 msgid "Sign in to add comments."
 msgstr ""
@@ -2369,7 +2389,7 @@ msgid "This file is only available remotely."
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
-msgid "This picture is too large to upload. Try reducing the image resolution and uploading again."
+msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
@@ -2440,6 +2460,7 @@ msgstr "Traducción {0}"
 msgid "Troubleshoot"
 msgstr "Solución de problemas"
 
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
 msgstr ""
@@ -2469,6 +2490,7 @@ msgid "Type:"
 msgstr "Tipo:"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to download the picture"
 msgstr ""
 
@@ -2481,10 +2503,8 @@ msgstr ""
 msgid "Unable to load audio"
 msgstr ""
 
-#. Generic error displayed in place of a picture when loading fails for an unspecified reason
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Unable to load image"
+msgid "Unable to load picture"
 msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
@@ -2642,6 +2662,11 @@ msgstr ""
 msgid "View"
 msgstr "Ver"
 
+#. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "View Picture"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
@@ -2755,6 +2780,10 @@ msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Ya has descargado el proyecto {0}"
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "You're offline"
+msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"

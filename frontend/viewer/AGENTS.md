@@ -107,6 +107,13 @@ Add new language: Edit `lingui.config.ts`, then run extract.
 npx shadcn-svelte@next add context-menu
 ```
 
+## Error Handling
+
+Unexpected errors should reach the global error handler (`src/lib/errors/global-errors.ts`): let them
+throw (or rethrow) rather than catching and rendering raw messages inline. It shows a persistent toast
+with a copy-error button and logs to .NET. Inline UI error states are for *expected*, actionable
+failures (offline, not-found, retry) with plain, translated messages.
+
 ## Key Concepts
 
 - **MiniLcm**: Lightweight dictionary API (entries, senses, definitions)
