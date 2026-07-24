@@ -10,16 +10,26 @@
     checkPromise?: Promise<IAvailableUpdate | null>;
     installPromise?: Promise<UpdateResult>;
     installUpdate: (update: IAvailableUpdate) => Promise<void>;
-    installProgress?: number;
+    downloadProgress?: {bytesDownloaded: number; bytesPerSecond: number};
   }
 
   let {
     checkPromise,
     installPromise,
     installUpdate,
-    installProgress
+    downloadProgress
   }: Props = $props();
 
+  function formatBytes(bytes: number): string {
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let value = bytes;
+    let unit = 0;
+    while (value >= 1024 && unit < units.length - 1) {
+      value /= 1024;
+      unit++;
+    }
+    return `${value.toFixed(1)} ${units[unit]}`;
+  }
 </script>
 
 {#if checkPromise}
@@ -47,9 +57,12 @@
 {#if installPromise}
   {#await installPromise}
     <Button loading class="w-full" icon="i-mdi-download">
-      {$t`Installing Update...`}
-      <!-- Don't show 0%, because that doesn't mean anything and we're not sure if the % actually works -->
-      {#if installProgress}{installProgress}%{/if}
+      {#if downloadProgress}
+        {$t`Downloading update...`}
+        {formatBytes(downloadProgress.bytesDownloaded)} ({formatBytes(downloadProgress.bytesPerSecond)}/s)
+      {:else}
+        {$t`Installing Update...`}
+      {/if}
     </Button>
   {:then updateResult}
     <div class="flex items-center gap-4 p-4 rounded-lg bg-muted">
