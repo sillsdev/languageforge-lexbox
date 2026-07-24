@@ -54,6 +54,13 @@ export class ImageService {
     return promise;
   }
 
+  /** Reactive: the cached loaded state for this mediaUri, or undefined if not yet loaded. Read inside
+      a $derived/$effect it subscribes to cache population by any sibling sharing this service, so one
+      component loading a picture (e.g. the edit dialog) lights it up everywhere it's shown. */
+  cached(mediaUri: string): Extract<ImageState, {status: 'loaded'}> | undefined {
+    return this.#cache.get(mediaUri);
+  }
+
   // getFileStream reports expected failures via the response (branched on below); an unexpected
   // thrown error (e.g. from blob()) bubbles to the global handler, and #getApi() throws if the
   // project api isn't ready yet — both are surfaced there, not swallowed into an error state.

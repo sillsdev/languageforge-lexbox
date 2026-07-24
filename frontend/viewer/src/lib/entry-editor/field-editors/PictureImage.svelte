@@ -56,22 +56,24 @@
   }
 
   type DisplayState = {status: 'loading'} | ImageState;
-  let loadState = $state<DisplayState>({status: 'loading'});
+  let displayState = $state<DisplayState>({status: 'loading'});
+  const mediaUri = $derived(picture.mediaUri);
+  const cached = $derived(imageService?.cached(mediaUri));
+  const loadState = $derived(cached ?? displayState);
 
   // A picture already available locally loads automatically; one that would have to be downloaded
   // from the remote media service resolves to 'not-downloaded' (the "Load picture" placeholder) and
   // is fetched only when clicked (download=true). A click on an errored picture retries the same way.
-  const mediaUri = $derived(picture.mediaUri);
   function load(download: boolean) {
     if (!imageService) {
-      loadState = {status: 'error', reason: 'unknown'};
+      displayState = {status: 'error', reason: 'unknown'};
       return;
     }
     const uri = mediaUri;
-    loadState = {status: 'loading'};
+    displayState = {status: 'loading'};
     void imageService.loadImage(uri, {downloadIfMissing: download}).then((state) => {
       // Ignore a resolution for a picture we've since navigated away from.
-      if (uri === picture.mediaUri) loadState = state;
+      if (uri === picture.mediaUri) displayState = state;
     });
   }
   watch(() => mediaUri, () => load(false));
