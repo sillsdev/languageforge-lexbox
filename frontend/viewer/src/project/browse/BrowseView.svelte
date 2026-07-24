@@ -1,6 +1,6 @@
 <script lang="ts">
+  import Hotkey from '$lib/components/hotkey/hotkey.svelte';
   import MasterDetailView from '$lib/components/master-detail/MasterDetailView.svelte';
-  import {getOpenDialogCount} from '$lib/components/ui/dialog-shared/dialog-shared-root.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
@@ -11,7 +11,6 @@
   import {useFeatures} from '$lib/services/feature-service';
   import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import {BrowseParam} from '$lib/utils/search-params';
-  import {hasPrimaryModifier} from '$lib/utils/platform';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {SortField, type IPartOfSpeech, type IPublication, type ISemanticDomain} from '$lib/dotnet-types';
@@ -49,15 +48,6 @@
     selectedId = entry.id;
   }
 
-  function handleNewEntryHotkey(e: KeyboardEvent) {
-    if (e.key.toLowerCase() !== 'e' || !hasPrimaryModifier(e)) return;
-    if (!features.write) return;
-    // Re-opening NewEntryDialog cancels the in-progress one and loses form data.
-    if (getOpenDialogCount() > 0) return;
-    e.preventDefault();
-    void newEntry();
-  }
-
   let entriesList: EntriesList | undefined = $state();
 
   async function onClose() {
@@ -65,7 +55,7 @@
     await entriesList?.tryToScrollToEntry(selectedId);
   }
 </script>
-<svelte:window onkeydown={handleNewEntryHotkey} />
+<Hotkey key="e" disabled={!features.write} onHotkey={() => void newEntry()} />
 <SidebarPrimaryAction>
   {#snippet children(isOpen: boolean)}
     <PrimaryNewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>
