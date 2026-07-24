@@ -54,6 +54,20 @@ public class ChangeSerializationTests : BaseSerializationTest
         newChange.Should().BeEquivalentTo(change);
     }
 
+    [Theory]
+    [MemberData(nameof(Changes))]
+    public void CanRoundTripChangesAsIChangeWithExternalOptions(IChange change)
+    {
+        // The sync client, web host, and debugger all (de)serialize change fields as the abstract IChange
+        // using the external (Web) options. That relies on Harmony's polymorphic converter, not just the
+        // type resolver — regression guard against the "Deserialization of interface or abstract types is
+        // not supported. Type 'IChange'" break when only the resolver was wired onto the external options.
+        var options = TestJsonOptions.External();
+        var json = JsonSerializer.Serialize(change, options);
+        var newChange = JsonSerializer.Deserialize<IChange>(json, options);
+        newChange.Should().BeEquivalentTo(change);
+    }
+
     [Fact]
     public void ChangesIncludesAllValidChangeTypes()
     {

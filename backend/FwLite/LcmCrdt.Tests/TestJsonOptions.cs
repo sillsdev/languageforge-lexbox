@@ -9,10 +9,9 @@ public static class TestJsonOptions
     {
         var config = new HarmonyConfig();
         LcmCrdtKernel.ConfigureCrdt(config);
-        return new JsonSerializerOptions(JsonSerializerDefaults.General)
-        {
-            TypeInfoResolver = config.MakeLcmCrdtExternalJsonTypeResolver(),
-        };
+        // Full external options (resolver + Harmony's IChange converter), matching what the sync client,
+        // web host, and debugger use — a resolver alone can't deserialize IChange.
+        return config.MakeLcmCrdtExternalJsonOptions();
     }
 
     public static JsonSerializerOptions Harmony()
