@@ -427,6 +427,30 @@ test.describe('Sense pictures', () => {
     await expect(viewer.locator('img')).toHaveAttribute('src', thumbnailSrc ?? '', {timeout: 5000});
   });
 
+  test('loading a remote-only picture from inside the edit dialog updates the field thumbnail', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+    // "nyumba"'s pictures are remote-only, so the field starts showing a "Load picture" placeholder.
+    await projectPage.selectEntryByFilter('nyumba');
+    const picturesField = page.locator('[style*="grid-area: pictures"]').first();
+    const firstPicture = picturesField.locator('figure').first();
+    await expect(firstPicture.getByRole('button', {name: 'Load picture'})).toBeVisible({timeout: 5000});
+
+    // Open the edit dialog on the (still unloaded) picture and load it from *inside* the dialog.
+    await openPictureMenu(page, picturesField);
+    await page.getByRole('menuitem', {name: 'Edit'}).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible({timeout: 5000});
+    await loadFirstPicture(dialog);
+
+    // The field and dialog share one entry-scoped image cache, so loading in the dialog must light up
+    // the field thumbnail too — no placeholder, no second download — even once the dialog is closed.
+    await dialog.getByRole('button', {name: 'Cancel'}).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(firstPicture.locator('img')).toHaveAttribute('src', /^blob:/, {timeout: 5000});
+    await expect(firstPicture.getByRole('button', {name: 'Load picture'})).toHaveCount(0);
+  });
+
   test('clicking the viewer captions collapses to the first caption and expands again', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();
