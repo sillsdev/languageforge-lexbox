@@ -86,11 +86,8 @@ public static class LcmCrdtKernel
         services.AddHttpClient();
         services.AddSingleton(provider => new RefitSettings
         {
-            ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
-            {
-                TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
-                    .MakeLcmCrdtExternalJsonTypeResolver()
-            })
+            ContentSerializer = new SystemTextJsonContentSerializer(
+                provider.GetRequiredService<IOptions<CrdtConfig>>().Value.MakeLcmCrdtExternalJsonOptions())
         });
         services.AddSingleton<CrdtHttpSyncService>();
         services.AddSingleton<IRefitHttpServiceFactory, RefitHttpServiceFactory>();
@@ -394,9 +391,20 @@ public static class LcmCrdtKernel
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
 
-        config.JsonSerializerOptions.TypeInfoResolver =
-            (config.JsonSerializerOptions.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
-            .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
+        // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
+        // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the
+        // ChangeTypeListBuilder the first time the options are built, which would happen before the
+        // AddRemoteResourceEntity call below (and AddCrdtRemoteResources in DI) and throw
+        // "ChangeTypeListBuilder is frozen". ConfigureJsonOptions defers the tweak until options are built.
+        config.ConfigureJsonOptions(options =>
+        {
+            // Append to Harmony's existing resolver rather than replacing it (see ConfigureJsonOptions docs).
+            if (options.TypeInfoResolver is DefaultJsonTypeInfoResolver resolver)
+                resolver.Modifiers.Add(Json.ExampleSentenceTranslationModifier);
+            else
+                options.TypeInfoResolver = (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
+                    .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
+        });
 
         if (addRemoteResourceEntity)
             config.AddRemoteResourceEntity<LcmFileMetadata>();
@@ -406,7 +414,8 @@ public static class LcmCrdtKernel
     {
         var crdtConfig = new CrdtConfig();
         ConfigureCrdt(crdtConfig);
-        return crdtConfig.ChangeTypes;
+        // Harmony's ChangeTypes now yields RegisteredChangeType descriptors; project back to the CLR types.
+        return crdtConfig.ChangeTypes.Select(t => t.Type);
     }
 
     public static IEnumerable<Type> AllObjectTypes()

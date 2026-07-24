@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using LinqToDB;
 using LinqToDB.Internal.SqlQuery;
@@ -243,6 +244,29 @@ public static class Json
         var resolver = config.MakeJsonTypeResolver();
         resolver = resolver.AddExternalMiniLcmModifiers();
         return resolver;
+    }
+
+    /// <summary>
+    /// Web-cased <see cref="JsonSerializerOptions"/> for talking to the sync server (camelCase wire format),
+    /// with the external MiniLcm modifiers layered on.
+    /// </summary>
+    /// <remarks>
+    /// SIL.Harmony moved <see cref="SIL.Harmony.Changes.IChange"/> polymorphism from the type-info resolver
+    /// into an internal <c>JsonConverter&lt;IChange&gt;</c> that it only adds to its own
+    /// <see cref="CrdtConfig.JsonSerializerOptions"/>. A resolver alone can therefore no longer read/write
+    /// changes, so we copy Harmony's converters onto our Web-cased options. Without this, deserializing a
+    /// server response throws "Deserialization of interface or abstract types is not supported. Type
+    /// 'SIL.Harmony.Changes.IChange'".
+    /// </remarks>
+    public static JsonSerializerOptions MakeLcmCrdtExternalJsonOptions(this CrdtConfig config)
+    {
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        {
+            TypeInfoResolver = config.MakeLcmCrdtExternalJsonTypeResolver()
+        };
+        foreach (var converter in config.JsonSerializerOptions.Converters)
+            options.Converters.Add(converter);
+        return options;
     }
 
     internal static void ExampleSentenceTranslationModifier(JsonTypeInfo typeInfo)
