@@ -119,10 +119,10 @@
     <!-- Only included so it can be excluded. See FwLiteMaui.csproj. -->
     <PackageVersion Include="Mono.Unix" Version="7.1.0-final.1.21458.1" />
     <PackageVersion Include="Soenneker.Utils.AutoBogus" Version="4.0.895" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
-    <PackageVersion Include="SQLitePCLRaw.core" Version="3.0.3" />
-    <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.0.3" />
-    <PackageVersion Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.3" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.4" />
+    <PackageVersion Include="SQLitePCLRaw.core" Version="3.0.4" />
+    <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
+    <PackageVersion Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.4" />
     <PackageVersion Include="Squidex.Assets.TusClient" Version="8.0.1" />
     <PackageVersion Include="structuremap.patched" Version="4.7.3" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.7" />
