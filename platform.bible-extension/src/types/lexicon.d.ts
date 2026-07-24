@@ -33,6 +33,8 @@ declare module 'lexicon' {
 
   export interface SuccessHolder {
     success: boolean;
+    /** When `success` is false, a human-readable reason (e.g. a backend validation message). */
+    error?: string;
   }
 
   export interface IEntryQuery {
@@ -98,6 +100,14 @@ declare module 'papi-shared-types' {
     'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.authServers': () => Promise<AuthServerStatus[] | undefined>;
     'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
+    /** DEV-ONLY lexicon switcher; remove before release (see src/main.ts changeLexiconCommand). */
+    'lexicon.changeLexicon': (webViewId: string) => Promise<SuccessHolder>;
+    'lexicon.createLexicon': (
+      name: string,
+      code: string,
+      vernacularWs: string,
+      analysisWs?: string,
+    ) => Promise<SuccessHolder>;
     'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
