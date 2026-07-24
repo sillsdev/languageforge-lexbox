@@ -203,6 +203,7 @@ msgstr ""
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Vyote"
@@ -2085,6 +2086,10 @@ msgstr "Chagua angalau mfumo mmoja wa uandishi wa lugha ya kienyeji."
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "Chagua Faili"
+
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Selected"
+msgstr ""
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
