@@ -75,7 +75,10 @@ public class DataModelSnapshotTests : IAsyncLifetime
     [Trait("Category", "Verified")]
     public async Task VerifyChangeModels()
     {
-        await Verify(GetPolymorphicTypesFor(typeof(IChange)));
+        await Verify(LcmCrdtKernel.AllRegisteredChanges()
+            //map to JsonDerivedType to match the verification format previously used
+            .Select(c => new JsonDerivedType(c.Type, c.Discriminator))
+            .OrderBy(j => j.DerivedType.FullName));
     }
 
     [Fact]
