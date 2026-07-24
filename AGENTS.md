@@ -73,6 +73,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 
 ### Important Rules
 
+- ✅ If `AGENTS.local.md` exists at the repo root, read and follow it. It holds personal/local agent config (gitignored; may be absent on other machines) — skip silently when missing.
 - ✅ **ALWAYS read local `AGENTS.md` files** in the directories you are working in (and their parents) before starting.
 - ✅ **ALWAYS review relevant code paths** before asking clarification questions.
 - ✅ New instructions in AGENTS.md files should be SUCCINCT.
