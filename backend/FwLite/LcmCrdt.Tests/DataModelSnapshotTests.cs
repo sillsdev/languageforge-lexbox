@@ -66,7 +66,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
     {
         var polymorphismOptions = _jsonSerializerOptions.GetTypeInfo(type)
             .PolymorphismOptions;
-        polymorphismOptions.Should().NotBeNull("type {type} should only be called if it's configured properly", type);
+        polymorphismOptions.Should().NotBeNull("type {0} should only be called if it's configured properly", type);
         polymorphismOptions.TypeDiscriminatorPropertyName.Should().Be("$type");
         return polymorphismOptions.DerivedTypes.OrderBy(t => t.DerivedType.FullName);
     }
