@@ -50,15 +50,35 @@ test.describe('Browse hotkeys', () => {
       await expect(page.getByRole('dialog')).toHaveCount(1);
       await expect(lexemeInput).toHaveValue('hotkey-preserve');
     });
+
+    test('Ctrl/Cmd+E does nothing when the project is read-only', async ({page}) => {
+      await page.evaluate(async () => {
+        await window.__PLAYWRIGHT_UTILS__.setWrite(false);
+      });
+      await expect(page.getByRole('button', {name: /New (Entry|Word)/})).toHaveCount(0);
+
+      await page.keyboard.press('ControlOrMeta+e');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+    });
   });
 
   test.describe('Search focus (Ctrl/Cmd+F)', () => {
-    test('Ctrl/Cmd+F focuses the Filter search input', async ({page}) => {
+    test('Ctrl/Cmd+F focuses the Filter search input and selects existing text', async ({page}) => {
+      const filter = 'hotkey-select';
+      await projectPage.entriesList.searchInput.fill(filter);
       await projectPage.entriesList.searchInput.blur();
       await expect(projectPage.entriesList.searchInput).not.toBeFocused();
 
       await page.keyboard.press('ControlOrMeta+f');
-      await expect(projectPage.entriesList.searchInput).toBeFocused();
+
+      const searchInput = projectPage.entriesList.searchInput;
+      await expect(searchInput).toBeFocused();
+      await expect(searchInput).toHaveValue(filter);
+      await expect.poll(async () => searchInput.evaluate((el: HTMLInputElement) => ({
+        start: el.selectionStart,
+        end: el.selectionEnd,
+        length: el.value.length,
+      }))).toEqual({start: 0, end: filter.length, length: filter.length});
     });
 
     test('Ctrl/Cmd+F focuses search after selecting an entry', async ({page}) => {
