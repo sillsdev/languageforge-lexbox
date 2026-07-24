@@ -19,20 +19,14 @@
     senseId: string;
     readonly?: boolean;
   };
-  // `pictures` is bindable so add/delete/update mutate the sense directly (immediate UI) rather than
-  // waiting for the change to round-trip back through an entry reload.
   let {pictures = $bindable(), entryId, senseId, readonly = false}: Props = $props();
 
   const api = useLexboxApi();
   const dialogsService = useDialogsService();
 
   let fileInputElement = $state<HTMLInputElement>();
-  // Which operation is in flight: 'add' drives the add-button spinner; 'edit' covers the
-  // replace/delete/caption operations invoked from the edit dialog.
   let busyAction = $state<'add' | 'edit' | null>(null);
 
-  // The picture currently open in the edit dialog, tracked by id so the dialog reflects live edits
-  // to `pictures` (e.g. its image updates after a replace).
   let editingPictureId = $state<string>();
   const editingPicture = $derived(editingPictureId ? pictures.find((p) => p.id === editingPictureId) : undefined);
   let editDialogOpen = $state(false);
@@ -43,7 +37,6 @@
     if (editingPicture) lastEditedPicture = editingPicture;
   });
 
-  // The fullscreen viewer, tracked by id so prev/next and (direct) deletion stay in sync with `pictures`.
   let viewerPictureId = $state<string>();
   let viewerOpen = $state(false);
 
@@ -65,19 +58,13 @@
     if (file) void addPicture(file);
   }
 
-  // Uploads the chosen file and returns its mediaUri, or null if the upload was rejected
-  // (a notification is shown for the rejection). saveFile reports outcome via `result`, not
-  // exceptions, so we branch on it. We intentionally do NOT pre-check the file size: the size
-  // limit lives on the server and may change, so we let the server decide and handle `TooBig`.
   async function uploadFile(file: File): Promise<string | null> {
     const response = await api.saveFile(file, {filename: file.name, mimeType: file.type, extraFields: {}});
     switch (response.result) {
       case UploadFileResult.SavedLocally:
       case UploadFileResult.SavedToLexbox:
       case UploadFileResult.AlreadyExists:
-        // AlreadyExists is not an error here: one image file (mediaUri) can back many Picture
-        // objects across different senses/entries. The server returns the existing file's
-        // mediaUri, which we reuse to point a Picture at that same image.
+        // AlreadyExists is not an error here: multiple Picture objects might share one mediaUri
         break;
       case UploadFileResult.TooBig:
         AppNotification.display(tooBigMessage(file), {type: 'error', timeout: 'long'});
@@ -108,8 +95,7 @@
 
   // --- Edit dialog operations (act on the picture currently open in the dialog) ---
 
-  // Uploads a replacement file and returns its mediaUri, WITHOUT touching the model — the dialog
-  // previews it and only commits on Submit (via submitEdits).
+  // Uploads replacement file and returns its mediaUri, WITHOUT touching the model until dialog is submitted
   async function uploadReplacement(file: File): Promise<string | null> {
     busyAction = 'edit';
     try {
@@ -119,7 +105,6 @@
     }
   }
 
-  // Applies the dialog's buffered edits (new caption and/or replaced image) in one update.
   async function submitEdits(after: IPicture): Promise<void> {
     const before = editingPicture ? $state.snapshot(editingPicture) : undefined;
     if (!before) return;
@@ -167,9 +152,7 @@
 
 <div class="flex flex-col gap-2">
   {#if pictures.length > 0}
-    <!-- Pictures flow left-to-right and wrap; on a narrow (mobile) screen they stack vertically
-         with no CSS change. Each picture + its caption is one flex item. Each picture has a
-         three-dots actions menu (also opened by a long-press); clicking a picture opens the editor. -->
+    <!-- Pictures flow left-to-right and wrap; on a narrow (mobile) screen they stack vertically -->
     <div class="flex flex-wrap gap-4">
       {#each pictures as picture (picture.id)}
         <PictureImage
@@ -196,7 +179,7 @@
         {$t`Picture`}
       </Button>
     </div>
-    <!-- Hidden input drives the OS file picker for adding a picture; only JPG/PNG/TIFF/BMP offered. -->
+    <!-- Hidden input drives the OS file picker for adding a picture -->
     <input
       bind:this={fileInputElement}
       type="file"

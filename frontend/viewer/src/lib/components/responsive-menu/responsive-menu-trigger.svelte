@@ -14,7 +14,6 @@
 
   type Props = {
     children?: Snippet;
-    /** Trigger button size (matches the shared Button sizes); ignored in `contextMenu` mode. */
     size?: VariantProps<typeof buttonVariants>['size'];
   } & ContextMenuTriggerProps &
     DropdownMenuTriggerProps &

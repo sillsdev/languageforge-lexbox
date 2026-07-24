@@ -10,21 +10,12 @@
 
   type Props = {
     picture: IPicture;
-    /** Opens the fullscreen viewer; without it (or when readonly) the picture isn't interactive
-        and no actions menu is offered. */
     onView?: () => void;
-    /** Opens the edit dialog; wired into the actions menu (the "Edit" item). */
     onEdit?: () => void;
-    /** Downloads the picture; wired into the actions menu (and long-press menu). */
     onDownload?: () => void;
-    /** Deletes the picture (with confirmation); wired into the actions menu. */
     onDelete?: () => void;
-    /** Disables the actions affordance while an operation is in flight. */
     busy?: boolean;
-    /** Whether to render the caption beneath the picture (hidden inside the edit/viewer dialogs). */
     showCaption?: boolean;
-    /** 'thumbnail' (default) is the fixed-height field size; 'full' fills its container (the
-        viewer's fixed stage) while never exceeding the image's native size. */
     size?: 'thumbnail' | 'full';
     readonly?: boolean;
   };
@@ -41,8 +32,6 @@
   const writingSystemService = useWritingSystemService();
   const imageService = getImageService();
 
-  // Show a single writing system: the first non-empty caption searching vernacular writing
-  // systems first, then analysis — which is exactly the default order of allWritingSystems().
   const caption = $derived(writingSystemService.first(picture.caption) ?? '');
 
   function getImageService() {
@@ -61,9 +50,6 @@
   const cached = $derived(imageService?.cached(mediaUri));
   const loadState = $derived(cached ?? displayState);
 
-  // A picture already available locally loads automatically; one that would have to be downloaded
-  // from the remote media service resolves to 'not-downloaded' (the "Load picture" placeholder) and
-  // is fetched only when clicked (download=true). A click on an errored picture retries the same way.
   function load(download: boolean) {
     if (!imageService) {
       displayState = {status: 'error', reason: 'unknown'};
@@ -78,11 +64,10 @@
   }
   watch(() => mediaUri, () => load(false));
 
-  // A touch on the corner actions menu can fire a stray click on the image behind it once the menu
-  // is open; ignore image taps while a menu is open so they don't also open the viewer/download.
   let menuOpen = $state(false);
-
   function handleImageClick() {
+    // A touch on the corner actions menu can fire a stray click on the image behind it once the menu
+    // is open; ignore image taps while a menu is open so they don't also open the viewer/download.
     if (menuOpen) return;
     if (loadState.status === 'not-downloaded' || loadState.status === 'error') {
       load(true);
@@ -91,8 +76,6 @@
     onView?.();
   }
 
-  // Clickable to download (not available locally), to retry (after an error), or to open the viewer
-  // (loaded and interactive).
   const needsDownload = $derived(loadState.status === 'not-downloaded');
   const hasError = $derived(loadState.status === 'error');
   const clickable = $derived(needsDownload || hasError || (loadState.status === 'loaded' && interactive));
@@ -115,10 +98,8 @@
 
 {#snippet imageContent()}
   {#if loadState.status === 'loaded'}
-    <!-- The image keeps its aspect ratio; thumbnail fixes the height, full fits its container. -->
     <img src={loadState.url} alt={caption || $t`Picture`} class={imageClass} />
   {:else if loadState.status === 'not-downloaded'}
-    <!-- Only available remotely: a click/tap downloads it (handled by the enclosing button). -->
     <div class="bg-muted text-muted-foreground hover:text-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md transition-colors">
       <span class="i-mdi-download size-6"></span>
       <span class="text-sm">{loadLabel}</span>
@@ -128,7 +109,6 @@
       <span class="i-mdi-loading size-6 animate-spin"></span>
     </div>
   {:else}
-    <!-- Errored: a click/tap retries the load (handled by the enclosing button). -->
     <div class="bg-muted text-muted-foreground hover:text-foreground flex h-40 w-40 flex-col items-center justify-center gap-1 rounded-md text-center transition-colors">
       <span class="i-mdi-image-broken-variant size-6"></span>
       <span class="text-sm">{errorText(loadState)}</span>
@@ -155,15 +135,11 @@
 
 <figure class={size === 'full' ? 'flex size-full min-h-0 min-w-0 items-center justify-center' : 'flex flex-col items-start gap-1'}>
   {#if size === 'full'}
-    <!-- The image caps to the figure (a definite-height flex box); a `w-fit`/auto-height wrapper
-         would leave the height unconstrained and let a tall image overflow. No corner menu in this
-         mode — the viewer dialog owns the actions menu (in its header). -->
     {@render pictureArea()}
   {:else}
     <!-- `w-fit` hugs the box to the image so the actions menu sits on its corner. -->
     <div class="relative w-fit">
       {#if showMenu}
-        <!-- The context-menu flavor gives right-click and touch long-press on the picture itself. -->
         <PictureActionsMenu
           contextMenu
           disabled={busy}

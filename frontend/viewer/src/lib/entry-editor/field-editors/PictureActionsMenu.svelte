@@ -4,17 +4,14 @@
   import type {ComponentProps, Snippet} from 'svelte';
 
   type Props = {
-    /** Renders as a context menu on `children` (right-click / touch long-press) instead of a
-        three-dots trigger button. */
+    /** Render as right-click / long-press instead of a three-dots button. */
     contextMenu?: boolean;
     children?: Snippet;
     disabled?: boolean;
-    /** Extra classes for the three-dots trigger (e.g. to make it legible over an image). */
+    /** Extra classes for the three-dots trigger, if needed. */
     triggerClass?: string;
-    /** Trigger button size; forwarded to the menu trigger (defaults to a 40px icon button). */
+    /** Size defaults to a 40px icon button. */
     size?: ComponentProps<typeof ResponsiveMenu.Trigger>['size'];
-    /** Notified when the menu opens/closes (lets a parent ignore the stray tap that a touch
-        device can fire on the element behind the trigger while the menu is open). */
     onOpenChange?: (open: boolean) => void;
     onEdit: () => void;
     onDownload: () => void;
