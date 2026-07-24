@@ -47,7 +47,7 @@ async function doHistoryChange(change: HistoryChange): Promise<void> {
   }
 }
 
-export async function awaitPopstate(timeout = 100): Promise<boolean> {
+export async function awaitPopstate(timeout = 500): Promise<boolean> {
   const controller = new AbortController();
   const result = await Promise.any([
     new Promise<'popstate'>(resolve => {
