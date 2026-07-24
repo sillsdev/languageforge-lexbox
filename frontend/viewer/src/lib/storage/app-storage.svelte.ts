@@ -26,6 +26,7 @@ export class AppStorage {
   readonly lastUrl: StorageProp;
 
   constructor(backend: IPreferencesService) {
-    this.lastUrl = new StorageProp(PreferenceKey.AppLastUrl, backend);
+    // Frontend only writes last URL; the host restores it on next launch.
+    this.lastUrl = new StorageProp(PreferenceKey.AppLastUrl, backend, {load: false});
   }
 }

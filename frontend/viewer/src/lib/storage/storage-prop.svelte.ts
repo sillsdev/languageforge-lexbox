@@ -1,15 +1,24 @@
 import type {IPreferencesService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services';
 
+export type StoragePropOptions = {
+  /** When false, skip the initial GET — useful for write-only prefs (e.g. AppLastUrl). Default true. */
+  load?: boolean;
+};
+
 export class StorageProp {
   #key: string;
   #backend: IPreferencesService;
   #value = $state<string>('');
   #hasBeenSet = $state(false);
 
-  constructor(key: string, backend: IPreferencesService) {
+  constructor(key: string, backend: IPreferencesService, options?: StoragePropOptions) {
     this.#key = key;
     this.#backend = backend;
-    void this.load();
+    if (options?.load === false) {
+      this.#hasBeenSet = true;
+    } else {
+      void this.load();
+    }
   }
 
   get current(): string {

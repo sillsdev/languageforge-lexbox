@@ -24,7 +24,7 @@
         {type: 'info', timeout: 'long'}
       );
     }
-  }, {includeLast: true});
+  }, {includeLast: 'idle'});
 </script>
 
 <!--

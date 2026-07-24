@@ -15,7 +15,8 @@ export enum CloseReason {
 }
 
 interface OnEventOptions {
-  includeLast?: boolean;
+  /** When true, fetch last event immediately. When `'idle'`, defer until idle to keep startup free. */
+  includeLast?: boolean | 'idle';
 }
 
 export class EventBus {
@@ -67,10 +68,21 @@ export class EventBus {
 
   public onEventType<T>(type: FwEventType, callback: (event: T) => void, options?: OnEventOptions) {
     if (options?.includeLast) {
-      this.#jsEventListener.lastEvent(type).then(event => {
-        if (!event) return;
-        callback(event as T);
-      }).catch(e => console.error('Error getting last event', e));
+      const fetchLast = () => {
+        this.#jsEventListener.lastEvent(type).then(event => {
+          if (!event) return;
+          callback(event as T);
+        }).catch(e => console.error('Error getting last event', e));
+      };
+      if (options.includeLast === 'idle') {
+        if (typeof requestIdleCallback === 'function') {
+          requestIdleCallback(fetchLast);
+        } else {
+          setTimeout(fetchLast, 0);
+        }
+      } else {
+        fetchLast();
+      }
     }
     onDestroy(this.onEvent((event: IFwEvent) => {
       if (event.type === type) {

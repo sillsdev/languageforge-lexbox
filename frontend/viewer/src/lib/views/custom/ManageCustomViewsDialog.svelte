@@ -12,6 +12,7 @@
   import {useCustomViewService} from '$project/data/custom-view-service.svelte';
   import {ViewBase, type ICustomView} from '$lib/dotnet-types';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import {watch} from 'runed';
 
   interface Props {
     open: boolean;
@@ -21,6 +22,10 @@
   const customViewService = useCustomViewService();
   const viewService = useViewService();
   const dialogsService = useDialogsService();
+
+  watch(() => open, () => {
+    if (open) customViewService.ensureLoaded();
+  });
 
   const customViews = $derived(customViewService.current);
 

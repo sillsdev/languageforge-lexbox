@@ -9,9 +9,11 @@
   import {t} from 'svelte-i18n-lingui';
   import {isCustomView} from '$lib/views/view-data';
   import {ViewBase} from '$lib/dotnet-types';
+  import {onMount} from 'svelte';
 
   let {onClose}: {onClose?: () => void} = $props();
   const viewService = useViewService();
+  onMount(() => viewService.ensureCustomViewsLoaded());
 
   function getCurrentView() {
     return viewService.currentView.id;

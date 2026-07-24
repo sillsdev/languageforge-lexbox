@@ -37,6 +37,10 @@ export class ViewService {
   currentView: View = $derived.by(() => {
     if (this.#override) return this.#override;
     const id = this.#selectedId || this.#projectStorage.currentView.current;
+    // Restore a persisted custom view without forcing GetCustomViews on the default built-in path.
+    if (id && !BUILT_IN_VIEWS.some(v => v.id === id)) {
+      queueMicrotask(() => this.#customViewService.ensureLoaded());
+    }
     const found = this.views.find(v => v.id === id);
     return found ?? this.views[0];
   });
@@ -49,6 +53,11 @@ export class ViewService {
     this.#customViewService = customViewService;
     this.#persist = options?.persist ?? true;
     this.#projectStorage = projectStorage;
+  }
+
+  /** Prefetch custom views (e.g. when opening the view picker). */
+  ensureCustomViewsLoaded(): void {
+    this.#customViewService.ensureLoaded();
   }
 
   /** Select a view from the known views list by ID. */

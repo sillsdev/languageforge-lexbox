@@ -10,7 +10,7 @@
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import Loading from '$lib/components/Loading.svelte';
-  import {resource} from 'runed';
+  import {watch} from 'runed';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
   import {isDev} from '$lib/layout/DevContent.svelte';
 
@@ -32,7 +32,13 @@
   let regeneratingOperation = $state<RegeneratingOperation | null>(null);
   let regenerateConfirmOpen = $state(false);
   let regenerateSearchConfirmOpen = $state(false);
-  let canShare = resource(() => service, async (s) => await s?.getCanShare());
+  let canShare = $state(false);
+  // Defer until the dialog opens — Troubleshoot is always mounted in the sidebar.
+  watch(() => openQueryParam.current, () => {
+    if (openQueryParam.current && service) {
+      void service.getCanShare().then(value => { canShare = value ?? false; });
+    }
+  });
   const regenerating = $derived(regeneratingOperation !== null);
   // Mobile platforms keep app data in private storage that no file manager can open.
   const canOpenDataDirectory = $derived(config.os !== FwLitePlatform.Android && config.os !== FwLitePlatform.iOS);
@@ -135,7 +141,7 @@
       {/if}
       {#if projectCode}
         <div class="flex flex-wrap gap-2">
-          {#if canShare.current}
+          {#if canShare}
             <Button variant="outline" onclick={() => shareProject()}>
               <i class="i-mdi-file-export"></i>
               {$t`Share project data file`}
@@ -157,7 +163,7 @@
             <i class="i-mdi-file-eye"></i>
             {$t`Open Log file`}
           </Button>
-          {#if canShare.current}
+          {#if canShare}
             <Button variant="outline" onclick={() => service?.shareLogFile()}>
               <i class="i-mdi-file-export"></i>
               {$t`Share Log file`}
