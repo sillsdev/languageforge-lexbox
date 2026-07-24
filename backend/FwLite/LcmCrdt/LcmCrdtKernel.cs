@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using SIL.Harmony;
+using SIL.Harmony.Config;
 using SIL.Harmony.Linq2db;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
@@ -410,12 +411,21 @@ public static class LcmCrdtKernel
             config.AddRemoteResourceEntity<LcmFileMetadata>();
     }
 
-    public static IEnumerable<Type> AllChangeTypes()
+    /// <summary>
+    /// The registered CRDT change types together with their serialized <c>$type</c> discriminators, straight
+    /// from Harmony's registration. Prefer this over <see cref="AllChangeTypes"/> when you need the
+    /// discriminator, so it can't drift from what the serializer actually writes.
+    /// </summary>
+    public static IReadOnlyList<RegisteredChangeType> AllRegisteredChanges()
     {
         var crdtConfig = new CrdtConfig();
         ConfigureCrdt(crdtConfig);
-        // Harmony's ChangeTypes now yields RegisteredChangeType descriptors; project back to the CLR types.
-        return crdtConfig.ChangeTypes.Select(t => t.Type);
+        return crdtConfig.ChangeTypes;
+    }
+
+    public static IEnumerable<Type> AllChangeTypes()
+    {
+        return AllRegisteredChanges().Select(t => t.Type);
     }
 
     public static IEnumerable<Type> AllObjectTypes()
