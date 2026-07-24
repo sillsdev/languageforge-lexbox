@@ -5,5 +5,8 @@ export * from './IAuthenticationChangedEvent';
 export * from './IEntriesChangedEvent';
 export * from './IFwEvent';
 export * from './IJsEventListener';
+export * from './IUserNotificationEvent';
 export * from './IProjectEvent';
 export * from './ISyncEvent';
+export * from './UserNotificationDuration';
+export * from './UserNotificationType';

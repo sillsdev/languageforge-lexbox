@@ -4,6 +4,7 @@ using FwLiteShared.Auth;
 using FwLiteShared.Services;
 using LcmCrdt;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
@@ -66,6 +67,7 @@ public static class FwLiteMauiKernel
 #endif
 #if ANDROID
         services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
+        services.Replace(ServiceDescriptor.Singleton<ILongRunningWorkHost, AndroidForegroundWorkHost>());
 #endif
         services.AddSingleton<IAppLauncher, AppLauncher>();
 

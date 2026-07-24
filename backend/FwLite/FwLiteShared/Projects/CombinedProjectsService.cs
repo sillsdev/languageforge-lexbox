@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
+using FwLiteShared.Services;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using LexCore.Entities;
@@ -43,7 +44,8 @@ public record ServerProjects(LexboxServer Server, ProjectModel[] Projects, bool 
 public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     CrdtProjectsService crdtProjectsService,
     IEnumerable<IProjectProvider> projectProviders,
-    OAuthClientFactory oAuthClientFactory)
+    OAuthClientFactory oAuthClientFactory,
+    ILongRunningWorkQueue longRunningWorkQueue)
 {
     private IProjectProvider? FwDataProjectProvider => projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
     [JSInvokable]
@@ -193,17 +195,22 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         var server = project.Server ?? throw new ArgumentNullException($"{nameof(project.Server)} is null for project {project.Code}");
         var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project {project.Code}");
         var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
-        await Task.Run(async () => await crdtProjectsService.CreateProject(new(project.Name,
-            project.Code,
-            projectId,
-            server.Authority,
-            async (provider, project) =>
-            {
-                await provider.GetRequiredService<SyncService>().ExecuteSync(true);
-            },
-            AuthenticatedUser: currentUser?.Name,
-            AuthenticatedUserId: currentUser?.Id,
-            Role: ToRole(project.Role))));
+        await longRunningWorkQueue.EnqueueAsync(
+            new LongRunningWorkRequest(
+                $"Downloading project {project.Code}",
+                "FieldWorks Lite is downloading a project",
+                LongRunningWorkCategory.DataSync),
+            async _ => await crdtProjectsService.CreateProject(new(project.Name,
+                project.Code,
+                projectId,
+                server.Authority,
+                async (provider, project) =>
+                {
+                    await provider.GetRequiredService<SyncService>().ExecuteSync(true);
+                },
+                AuthenticatedUser: currentUser?.Name,
+                AuthenticatedUserId: currentUser?.Id,
+                Role: ToRole(project.Role))));
     }
 
     [JSInvokable]
