@@ -69,8 +69,8 @@ jobs:
       name: ${{ inputs.environment }}
     runs-on: ${{ inputs.runs-on }}
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
-      - uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.x'
       - uses: MatteoH2O1999/setup-python@429b7dee8a48c31eb72ce0b420ea938ff51c2f11 # v3.2.1
@@ -115,7 +115,7 @@ jobs:
         run: dotnet test LexBoxOnly.slnf --output ./bin --logger trx --results-directory ./test-results --filter Category=FlakyIntegration
 
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action/composite@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
+        uses: EnricoMi/publish-unit-test-result-action/composite@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
         if: ${{ always() && !env.act }}
         with:
           check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
@@ -160,7 +160,7 @@ jobs:
 #        run: 7z a ./playwright-traces.7z -mx=0 -mmt=off ./frontend/test-results -p"$ZIP_PASSWORD"
 #      - name: Upload playwright results
 #        if: ${{ !cancelled() && steps.password_protect_test_results.outcome == 'success' }}
-#        uses: actions/upload-artifact@v4
+#        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
 #        with:
 #          name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
 #          path: |
