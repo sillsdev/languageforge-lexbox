@@ -1,6 +1,7 @@
 import { ensureErrorIsTraced, traceFetch } from '$lib/otel/otel.client';
 import { getErrorMessage, validateFetchResponse } from './hooks.shared';
 
+import { maintenanceMessage } from '$lib/util/maintenance';
 import { APP_VERSION } from '$lib/util/version';
 import type { HandleClientError } from '@sveltejs/kit';
 import { USER_LOAD_KEY } from '$lib/user';
@@ -67,6 +68,12 @@ handleFetch(async ({ fetch, args }) => {
 
     return response;
   });
+
+  if (response.headers.has('maintenance-message')) {
+    maintenanceMessage.value = response.headers.get('maintenance-message');
+  } else {
+    maintenanceMessage.value = null;
+  }
 
   // invalidateUserOnJwtRefresh is considered true by default, so only skip if the value is false
   if (args[1]?.lexboxResponseHandlingConfig?.invalidateUserOnJwtRefresh !== false && response.headers.get('lexbox-jwt-updated') === 'all') {
