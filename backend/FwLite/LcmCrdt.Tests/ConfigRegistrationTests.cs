@@ -58,7 +58,6 @@ public class ConfigRegistrationTests
             .Append(typeof(DeleteChange<>))
             .ToLookup(t => t.IsGenericType);
         allChangeTypes.Should().NotBeEmpty();
-        // Harmony's ChangeTypes now yields RegisteredChangeType descriptors; project back to the CLR types.
         var registeredChangeTypes = _config.ChangeTypes.Select(t => t.Type).ToHashSet();
         using var _ = new AssertionScope();
         //non generics
