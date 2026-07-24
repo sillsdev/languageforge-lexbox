@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using SIL.Harmony;
@@ -29,9 +30,15 @@ public static class FwLiteWebKernel
         services.AddSingleton<IHostedService, NetworkChangeSyncTrigger>();
         services.AddOptions<FwLiteWebConfig>().BindConfiguration("FwLiteWeb");
 
-        services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
+        services.AddOptions<JsonOptions>().PostConfigure<IOptions<HarmonyConfig>>((jsonOptions, harmonyConfig) =>
         {
-            jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeLcmCrdtExternalJsonTypeResolver();
+            // Copy both the type resolver and Harmony's converters: IChange polymorphism now lives in an
+            // internal converter (see MakeLcmCrdtExternalJsonOptions), so the resolver alone can't decode
+            // ChangeEntity<IChange> in sync payloads.
+            var externalOptions = harmonyConfig.Value.MakeLcmCrdtExternalJsonOptions();
+            jsonOptions.SerializerOptions.TypeInfoResolver = externalOptions.TypeInfoResolver;
+            foreach (var converter in externalOptions.Converters)
+                jsonOptions.SerializerOptions.Converters.Add(converter);
         });
         return services;
     }

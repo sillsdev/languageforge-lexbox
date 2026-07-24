@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using FluentAssertions.Equivalency;
 using FluentAssertions.Execution;
 using MiniLcm.Media;
@@ -14,9 +15,9 @@ public class EntityCopyMethodTests
 
     public static IEnumerable<object[]> GetEntityTypes()
     {
-        var crdtConfig = new CrdtConfig();
-        LcmCrdtKernel.ConfigureCrdt(crdtConfig);
-        return crdtConfig.ObjectTypes
+        var harmonyConfig = new HarmonyConfig();
+        LcmCrdtKernel.ConfigureCrdt(harmonyConfig);
+        return harmonyConfig.ObjectTypes
             .Except([typeof(RemoteResource<LcmFileMetadata>)])//exclude remote resource as it's a harmony defined type, not miniLcm
             .Select(t => new object[] { t });
     }

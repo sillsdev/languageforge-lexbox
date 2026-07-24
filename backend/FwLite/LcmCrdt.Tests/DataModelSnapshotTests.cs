@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using FluentAssertions.Execution;
@@ -20,7 +21,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
 
     protected readonly AsyncServiceScope _services;
     private readonly LcmCrdtDbContext _crdtDbContext;
-    private CrdtConfig _crdtConfig;
+    private HarmonyConfig _crdtConfig;
     private CrdtProject _crdtProject;
     private readonly JsonSerializerOptions _jsonSerializerOptions = TestJsonOptions.Harmony();
 
@@ -33,7 +34,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
         _crdtDbContext = _services.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContext();
-        _crdtConfig = _services.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value;
+        _crdtConfig = _services.ServiceProvider.GetRequiredService<IOptions<HarmonyConfig>>().Value;
     }
 
     public async Task InitializeAsync()
@@ -65,7 +66,7 @@ public class DataModelSnapshotTests : IAsyncLifetime
     {
         var polymorphismOptions = _jsonSerializerOptions.GetTypeInfo(type)
             .PolymorphismOptions;
-        polymorphismOptions.Should().NotBeNull("type {type} should only be called if it's configured properly", type);
+        polymorphismOptions.Should().NotBeNull("type {0} should only be called if it's configured properly", type);
         polymorphismOptions.TypeDiscriminatorPropertyName.Should().Be("$type");
         return polymorphismOptions.DerivedTypes.OrderBy(t => t.DerivedType.FullName);
     }
@@ -74,7 +75,10 @@ public class DataModelSnapshotTests : IAsyncLifetime
     [Trait("Category", "Verified")]
     public async Task VerifyChangeModels()
     {
-        await Verify(GetPolymorphicTypesFor(typeof(IChange)));
+        await Verify(LcmCrdtKernel.AllRegisteredChanges()
+            //map to JsonDerivedType to match the verification format previously used
+            .Select(c => new JsonDerivedType(c.Type, c.Discriminator))
+            .OrderBy(j => j.DerivedType.FullName));
     }
 
     [Fact]

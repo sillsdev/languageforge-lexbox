@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Diagnostics;
 using LcmCrdt.MediaServer;
 using LcmCrdt.Objects;
@@ -20,7 +21,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     public CrdtMiniLcmApi Api => (CrdtMiniLcmApi)_services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
     public DataModel DataModel => _services.ServiceProvider.GetRequiredService<DataModel>();
     public LcmCrdtDbContext DbContext => _crdtDbContext ?? throw new InvalidOperationException("MiniLcmApiFixture not initialized");
-    public CrdtConfig CrdtConfig => _services.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value;
+    public HarmonyConfig HarmonyConfig => _services.ServiceProvider.GetRequiredService<IOptions<HarmonyConfig>>().Value;
 
     public T GetService<T>() where T : notnull
     {

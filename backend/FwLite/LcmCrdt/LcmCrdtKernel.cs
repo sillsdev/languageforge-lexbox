@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using SIL.Harmony;
+using SIL.Harmony.Config;
 using SIL.Harmony.Linq2db;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
@@ -66,9 +67,9 @@ public static class LcmCrdtKernel
             config => ConfigureCrdt(config, false)//don't add remote resources because they are added in AddCrdtRemoteResources
         );
         services.AddCrdtRemoteResources<LcmFileMetadata>();
-        services.AddOptions<CrdtConfig>().PostConfigure((CrdtConfig crdtConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
+        services.AddOptions<HarmonyConfig>().PostConfigure((HarmonyConfig harmonyConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
-            crdtConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
+            harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<CommitMetadataInterceptor>();
@@ -86,11 +87,8 @@ public static class LcmCrdtKernel
         services.AddHttpClient();
         services.AddSingleton(provider => new RefitSettings
         {
-            ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
-            {
-                TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
-                    .MakeLcmCrdtExternalJsonTypeResolver()
-            })
+            ContentSerializer = new SystemTextJsonContentSerializer(
+                provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.MakeLcmCrdtExternalJsonOptions())
         });
         services.AddSingleton<CrdtHttpSyncService>();
         services.AddSingleton<IRefitHttpServiceFactory, RefitHttpServiceFactory>();
@@ -187,7 +185,7 @@ public static class LcmCrdtKernel
         return e => Json.Query(e.PublishIn);
     }
 
-    public static void ConfigureCrdt(CrdtConfig config, bool addRemoteResourceEntity = true)
+    public static void ConfigureCrdt(HarmonyConfig config, bool addRemoteResourceEntity = true)
     {
         config.EnableProjectedTables = true;
         config.ObjectTypeListBuilder
@@ -394,26 +392,47 @@ public static class LcmCrdtKernel
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
 
-        config.JsonSerializerOptions.TypeInfoResolver =
-            (config.JsonSerializerOptions.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
-            .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
+        // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
+        // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the
+        // ChangeTypeListBuilder the first time the options are built, which would happen before the
+        // AddRemoteResourceEntity call below (and AddCrdtRemoteResources in DI) and throw
+        // "ChangeTypeListBuilder is frozen". ConfigureJsonOptions defers the tweak until options are built.
+        config.ConfigureJsonOptions(options =>
+        {
+            // Append to Harmony's existing resolver rather than replacing it (see ConfigureJsonOptions docs).
+            if (options.TypeInfoResolver is DefaultJsonTypeInfoResolver resolver)
+                resolver.Modifiers.Add(Json.ExampleSentenceTranslationModifier);
+            else
+                options.TypeInfoResolver = (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
+                    .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
+        });
 
         if (addRemoteResourceEntity)
             config.AddRemoteResourceEntity<LcmFileMetadata>();
     }
 
+    /// <summary>
+    /// The registered CRDT change types together with their serialized <c>$type</c> discriminators, straight
+    /// from Harmony's registration. Prefer this over <see cref="AllChangeTypes"/> when you need the
+    /// discriminator, so it can't drift from what the serializer actually writes.
+    /// </summary>
+    public static IReadOnlyList<RegisteredChangeType> AllRegisteredChanges()
+    {
+        var harmonyConfig = new HarmonyConfig();
+        ConfigureCrdt(harmonyConfig);
+        return harmonyConfig.ChangeTypes;
+    }
+
     public static IEnumerable<Type> AllChangeTypes()
     {
-        var crdtConfig = new CrdtConfig();
-        ConfigureCrdt(crdtConfig);
-        return crdtConfig.ChangeTypes;
+        return AllRegisteredChanges().Select(t => t.Type);
     }
 
     public static IEnumerable<Type> AllObjectTypes()
     {
-        var crdtConfig = new CrdtConfig();
-        ConfigureCrdt(crdtConfig);
-        return crdtConfig.ObjectTypes;
+        var harmonyConfig = new HarmonyConfig();
+        ConfigureCrdt(harmonyConfig);
+        return harmonyConfig.ObjectTypes;
     }
 
     private static IList<Translation> DeserializeTranslations(string json)

@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using FwLiteMaui.Services;
 using FwLiteShared;
 using FwLiteShared.Auth;
@@ -116,7 +117,7 @@ public static class FwLiteMauiKernel
             config.CacheFileName = fwLiteMauiConfig.AuthCacheFilePath;
             config.SystemWebViewLogin = true;
         });
-        services.Configure<CrdtConfig>(config =>
+        services.Configure<HarmonyConfig>(config =>
         {
             config.FailedSyncOutputPath = Path.Combine(baseDataPath, "failedSyncs");
             config.LocalResourceCachePath = Path.Combine(baseDataPath, "localResourcesCache");

@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -209,7 +210,7 @@ public partial class CrdtProjectsService(
             AfterCreate = async (provider, project) =>
             {
                 var api = provider.GetRequiredService<IMiniLcmApi>();
-                var jsonOptions = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions;
+                var jsonOptions = provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.JsonSerializerOptions;
                 var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs);
                 var commitMetadataInterceptor = provider.GetRequiredService<CommitMetadataInterceptor>();
                 using (commitMetadataInterceptor.Intercept(CommitHelpers.StampAsTemplate))
@@ -344,7 +345,7 @@ public partial class CrdtProjectsService(
     public async Task DeleteProject(string code)
     {
         var project = GetProject(code) ?? throw new InvalidOperationException($"Project {code} not found");
-        var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<CrdtConfig>>().Value);
+        var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<HarmonyConfig>>().Value);
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await EnsureDeleteProject(project.DbPath);
     }

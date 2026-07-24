@@ -138,11 +138,11 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .Select(g => new KeyValuePair<string, int>(g.Key.ChangeTypeKey, g.Count()))
             .ToDictionaryAsyncLinqToDB(p => p.Key, p => p.Value);
 
-        var registeredTypes = LcmCrdtKernel.AllChangeTypes()
-            .Select(t => new ActivityChangeType(
-                GetChangeTypeKeyFromType(t),
-                ChangeTypeLabel(t),
-                changeCounts.GetValueOrDefault(GetChangeTypeKeyFromType(t))))
+        var registeredTypes = LcmCrdtKernel.AllRegisteredChanges()
+            .Select(c => new ActivityChangeType(
+                c.Discriminator,
+                ChangeTypeLabel(c.Type),
+                changeCounts.GetValueOrDefault(c.Discriminator)))
             .Where(t => t.CommitCount > 0)
             .OrderBy(t => t.Label)
             .ToArray();
@@ -239,21 +239,6 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 .ThenBy(c => c.Id),
             _ => commits.DefaultOrderDescending(),
         };
-    }
-
-    /// <summary>
-    /// The serialized <c>$type</c> discriminator of a change type. Mirrors Harmony's own logic: generic/shared
-    /// changes (jsonPatch:, delete:, SetOrderChange:) define a custom static <c>TypeName</c>, while a dedicated
-    /// change class serializes under its CLR type name. Single source of truth — the ChangeTypes TS codegen
-    /// uses this too, so the generated list can't drift from the runtime discriminators.
-    /// </summary>
-    public static string GetChangeTypeKeyFromType(Type changeType)
-    {
-        var typeNameProp = changeType.GetProperty(nameof(IPolyType.TypeName),
-            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy);
-        if (typeNameProp?.GetValue(null) is string name)
-            return name;
-        return changeType.Name;
     }
 
     public static string ChangeTypeLabel(Type changeType)

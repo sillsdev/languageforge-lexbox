@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
@@ -23,11 +24,11 @@ public class ConfigRegistrationTests
         typeof(DeleteChange<RemoteResource<LcmFileMetadata>>)//Not used, instead DeleteRemoteResourceChange is used
     ];
 
-    private readonly CrdtConfig _config;
+    private readonly HarmonyConfig _config;
 
     public ConfigRegistrationTests()
     {
-        _config = new CrdtConfig();
+        _config = new HarmonyConfig();
         LcmCrdtKernel.ConfigureCrdt(_config);
     }
 
@@ -57,7 +58,7 @@ public class ConfigRegistrationTests
             .Append(typeof(DeleteChange<>))
             .ToLookup(t => t.IsGenericType);
         allChangeTypes.Should().NotBeEmpty();
-        var registeredChangeTypes = _config.ChangeTypes.ToHashSet();
+        var registeredChangeTypes = _config.ChangeTypes.Select(t => t.Type).ToHashSet();
         using var _ = new AssertionScope();
         //non generics
         foreach (var changeType in allChangeTypes[false])
