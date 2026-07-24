@@ -12,6 +12,7 @@ import type {
   IServerStatus,
   LoginResult as GeneratedLoginResult,
 } from '@dotnet-types';
+import { getErrorMessage } from 'platform-bible-utils';
 import { GridifyConditionalOperator } from '../types/enums';
 import { HttpStatusError } from './http-status-error';
 
@@ -35,6 +36,30 @@ function validateUrlComponent(urlComponent?: string): string {
   return urlComponent;
 }
 
+/**
+ * Backend error bodies are JSON: either a bare string or a `ProblemDetails` object with a `detail`
+ * field. Unwrap either shape to plain text so it doesn't reach the user still wrapped in
+ * JSON-string quotes; anything else, including invalid JSON, is returned as-is.
+ */
+function extractErrorMessage(body: string): string {
+  if (!body) return body;
+  try {
+    const parsed: unknown = JSON.parse(body);
+    if (typeof parsed === 'string') return parsed;
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      'detail' in parsed &&
+      typeof parsed.detail === 'string'
+    ) {
+      return parsed.detail;
+    }
+  } catch {
+    // Not JSON — fall through and use the raw text.
+  }
+  return body;
+}
+
 async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   logger.info(`About to fetch: ${input}`);
   if (init) {
@@ -45,7 +70,7 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
     const errorBody = await results.text();
     throw new HttpStatusError(
       results.status,
-      errorBody || `Failed to fetch: ${results.status} ${results.statusText}`,
+      extractErrorMessage(errorBody) || `Failed to fetch: ${results.status} ${results.statusText}`,
     );
   }
   const text = await results.text();
@@ -121,18 +146,29 @@ export class FwLiteApi {
     const projects = await this.getProjects();
     if (!langTag?.trim()) return projects;
 
-    try {
-      const matches = (
-        await Promise.all(
-          projects.map(async (p) =>
-            (await this.doesProjectMatchLangTag(p.code, langTag)) ? p : undefined,
-          ),
-        )
-      ).filter((p) => p) as IProjectModel[];
-      return matches.length ? matches : projects;
-    } catch {
-      return projects;
-    }
+    // Promise.allSettled so one project's failed check (e.g. a broken/deleted project) only
+    // drops that project from consideration.
+    const results = await Promise.allSettled(
+      projects.map(async (p) =>
+        (await this.doesProjectMatchLangTag(p.code, langTag)) ? p : undefined,
+      ),
+    );
+    results.forEach((result, i) => {
+      if (result.status === 'rejected') {
+        logger.warn(
+          `Could not check language match for project '${projects[i].code}':`,
+          getErrorMessage(result.reason),
+        );
+      }
+    });
+    const matches = results
+      .filter(
+        (result): result is PromiseFulfilledResult<IProjectModel | undefined> =>
+          result.status === 'fulfilled',
+      )
+      .map((result) => result.value)
+      .filter((p): p is IProjectModel => Boolean(p));
+    return matches.length ? matches : projects;
   }
 
   async getWritingSystems(lexiconCode?: string): Promise<IWritingSystems> {
