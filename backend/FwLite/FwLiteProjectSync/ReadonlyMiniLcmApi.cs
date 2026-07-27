@@ -14,8 +14,13 @@ namespace FwLiteProjectSync;
 /// </summary>
 public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
-    [BeaKona.AutoInterface(typeof(IMiniLcmReadApi), MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
+
+    // BeaKona forwards IMiniLcmReadApi members to _api (interface inferred from the property type). Writes are
+    // deliberately NOT auto-forwarded — that would apply them — so each is implemented below to swallow the
+    // write, and the compiler enforces that every one is handled because IMiniLcmWriteApi isn't generated.
+    [BeaKona.AutoInterface]
+    private IMiniLcmReadApi ReadApi => _api;
 
     public void Dispose()
     {
@@ -387,16 +392,4 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
     #endregion
-
-    //this is now called to this method from the ResumableImportApi, but calling GetEntries will fail because there's no writing systems
-    async IAsyncEnumerable<Entry> IMiniLcmReadApi.GetEntries(QueryOptions? options)
-    {
-        if (await _api.CountEntries() > 0)
-        {
-            await foreach (var entry in _api.GetEntries(options))
-            {
-                yield return entry;
-            }
-        }
-    }
 }
