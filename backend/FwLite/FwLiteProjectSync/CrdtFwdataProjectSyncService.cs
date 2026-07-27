@@ -17,8 +17,8 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
     public record DryRunSyncResult(
         int CrdtChanges,
         int FwdataChanges,
-        List<DryRunRecord> CrdtDryRunRecords,
-        List<DryRunRecord> FwDataDryRunRecords) : SyncResult(CrdtChanges, FwdataChanges);
+        List<RecordingMiniLcmApi.RunRecord> CrdtDryRunRecords,
+        List<RecordingMiniLcmApi.RunRecord> FwDataDryRunRecords) : SyncResult(CrdtChanges, FwdataChanges);
 
     public async Task<DryRunSyncResult> SyncDryRun(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, ProjectSnapshot projectSnapshot)
     {
@@ -62,24 +62,21 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             throw new InvalidOperationException("Project sync state does not match presence of snapshot.");
         }
 
-        // No write normalization: Data is already normalised on both sides.
-        // No query normalization: The sync doesn't do any querying.
-
-        // A dry run must predict a real sync without persisting. But the sync reads the CRDT back after writing
-        // it (direction B reads what direction A wrote), which a record-only wrapper can't fake. So the CRDT
-        // runs against a throwaway copy (writes apply and read back), while fwdata — read once, never read
-        // back, must not change — uses WriteIgnoringMiniLcmApi. RecordingMiniLcmApi records both.
         await using var crdtCopy = dryRun ? await crdtProjectsService.OpenTemporaryProjectCopy(crdt.Project) : null;
         if (dryRun)
         {
-            crdt = (CrdtMiniLcmApi)crdtCopy!.Api;
-            crdtApi = new RecordingMiniLcmApi(validationWrapperFactory.Create(crdt));
-            fwdataApi = new RecordingMiniLcmApi(new WriteIgnoringMiniLcmApi(validationWrapperFactory.Create(fwdataApi)));
+            crdtApi = crdtCopy?.Api ?? throw new InvalidOperationException("crdtCopy must be defined in a dryRun");
         }
-        else
+
+        // No write normalization: Data is already normalised on both sides.
+        // No query normalization: The sync doesn't do any querying.
+        crdtApi = validationWrapperFactory.Create(crdtApi);
+        fwdataApi = validationWrapperFactory.Create(fwdataApi);
+
+        if (dryRun)
         {
-            crdtApi = validationWrapperFactory.Create(crdtApi);
-            fwdataApi = validationWrapperFactory.Create(fwdataApi);
+            crdtApi = new RecordingMiniLcmApi(crdtApi);
+            fwdataApi = new RecordingMiniLcmApi(new WriteIgnoringMiniLcmApi(fwdataApi));
         }
 
         if (projectSnapshot is not null)
@@ -110,10 +107,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             return syncResult;
         }
 
-        LogDryRun(crdtApi, "crdt");
-        LogDryRun(fwdataApi, "fwdata");
+        LogRecordedRun(crdtApi, "crdt");
+        LogRecordedRun(fwdataApi, "fwdata");
         return new DryRunSyncResult(syncResult.CrdtChanges, syncResult.FwdataChanges,
-            GetDryRunRecords(crdtApi), GetDryRunRecords(fwdataApi));
+            GetRunRecords(crdtApi), GetRunRecords(fwdataApi));
     }
 
     private async Task<SyncResult> ImportInternal(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, int entryCount)
@@ -155,19 +152,19 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         return new SyncResult(crdtChanges, fwdataChanges);
     }
 
-    private void LogDryRun(IMiniLcmApi api, string type)
+    private void LogRecordedRun(IMiniLcmApi api, string type)
     {
         if (api is not RecordingMiniLcmApi recorder) return;
-        foreach (var dryRunRecord in recorder.DryRunRecords)
+        foreach (var dryRunRecord in recorder.RunRecords)
         {
             logger.LogInformation($"Dry run {type} record: {dryRunRecord.Method} {dryRunRecord.Description}");
         }
 
-        logger.LogInformation($"Dry run {type} changes: {recorder.DryRunRecords.Count}");
+        logger.LogInformation($"Dry run {type} changes: {recorder.RunRecords.Count}");
     }
 
-    private List<DryRunRecord> GetDryRunRecords(IMiniLcmApi api)
+    private List<RecordingMiniLcmApi.RunRecord> GetRunRecords(IMiniLcmApi api)
     {
-        return ((RecordingMiniLcmApi)api).DryRunRecords;
+        return ((RecordingMiniLcmApi)api).RunRecords;
     }
 }

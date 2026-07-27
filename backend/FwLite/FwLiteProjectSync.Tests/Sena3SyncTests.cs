@@ -4,7 +4,6 @@ using FluentAssertions.Execution;
 using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
-using MiniLcm.Import;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,21 +67,14 @@ public class Sena3SyncTests : IAsyncLifetime
         }
     }
 
-    //by default the first sync is an import, this will skip that so that the sync will actually sync data
-    private async Task<ProjectSnapshot> CreateAndSaveMinimalSnapshot(bool withWritingSystems = false)
+    private async Task<ProjectSnapshot> PrepareToSync()
     {
-        var snapshot = ProjectSnapshot.Empty;
-        if (withWritingSystems) snapshot = snapshot with { WritingSystems = await _fwDataApi.GetWritingSystems() };
+        // crdt needs a default vernacular WS in order to be readable/syncable
+        var fwdataWritingSystems = await _fwDataApi.GetWritingSystems();
+        await _crdtApi.CreateWritingSystem(fwdataWritingSystems.Vernacular.First());
 
-        //saving the snapshot will try to read the Id but it will be empty when coming from FwData
-        foreach (var ws in snapshot.WritingSystems.Analysis)
-        {
-            if (ws.MaybeId is null) ws.Id = Guid.NewGuid();
-        }
-        foreach (var ws in snapshot.WritingSystems.Vernacular)
-        {
-            if (ws.MaybeId is null) ws.Id = Guid.NewGuid();
-        }
+        //by default the first sync is an import, this will skip that so that the sync will actually sync data
+        var snapshot = await _crdtApi.TakeProjectSnapshot();
         await ProjectSnapshotService.SaveProjectSnapshot(_fwDataApi.Project, snapshot);
         return await _snapshotService.GetProjectSnapshot(_fwDataApi.Project)
             ?? throw new InvalidOperationException("Expected snapshot to exist after saving");
@@ -101,10 +93,18 @@ public class Sena3SyncTests : IAsyncLifetime
     public async Task DryRunImport_MakesNoChanges()
     {
         await WorkaroundMissingWritingSystems();
-        _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
+
+        var crdtSnapshotBefore = await _crdtApi.TakeProjectSnapshot();
+        crdtSnapshotBefore.Entries.Should().BeEmpty();
+        var fwdataSnapshotBefore = await _fwDataApi.TakeProjectSnapshot();
+
         await _syncService.ImportDryRun(_crdtApi, _fwDataApi);
-        //should still be empty
-        _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
+
+        var crdtSnapshotAfter = await _crdtApi.TakeProjectSnapshot();
+        var fwdataSnapshotAfter = await _fwDataApi.TakeProjectSnapshot();
+
+        crdtSnapshotAfter.Should().BeEquivalentTo(crdtSnapshotBefore);
+        fwdataSnapshotAfter.Should().BeEquivalentTo(fwdataSnapshotBefore);
     }
 
     [Fact]
@@ -120,15 +120,19 @@ public class Sena3SyncTests : IAsyncLifetime
     [Trait("Category", "Integration")]
     public async Task DryRunSync_MakesNoChanges()
     {
-        // The dry run applies the WS sync to the CRDT copy, so snapshot WSs must match the CRDT's or it throws
-        // re-creating existing ones (a real sync would too). Import them so both sides agree.
-        await _project.Services.GetRequiredService<ProjectImporter>()
-            .ImportWritingSystems(_crdtApi, await _fwDataApi.GetWritingSystems());
-        var projectSnapshot = await CreateAndSaveMinimalSnapshot(withWritingSystems: true);
-        _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
+        var projectSnapshot = await PrepareToSync();
+
+        var crdtSnapshotBefore = await _crdtApi.TakeProjectSnapshot();
+        crdtSnapshotBefore.Entries.Should().BeEmpty();
+        var fwdataSnapshotBefore = await _fwDataApi.TakeProjectSnapshot();
+
         await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
-        // The dry run applies the CRDT side to a throwaway copy, so the real project is untouched.
-        _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
+
+        var crdtSnapshotAfter = await _crdtApi.TakeProjectSnapshot();
+        var fwdataSnapshotAfter = await _fwDataApi.TakeProjectSnapshot();
+
+        crdtSnapshotAfter.Should().BeEquivalentTo(crdtSnapshotBefore);
+        fwdataSnapshotAfter.Should().BeEquivalentTo(fwdataSnapshotBefore);
     }
 
     [Fact]
@@ -136,15 +140,12 @@ public class Sena3SyncTests : IAsyncLifetime
     [Trait("Category", "Integration")]
     public async Task DryRunSync_MakesTheSameChangesAsSync()
     {
-        //syncing requires querying entries, which fails if there are no writing systems, so we import those first
-        await _project.Services.GetRequiredService<ProjectImporter>()
-            .ImportWritingSystems(_crdtApi, await _fwDataApi.GetWritingSystems());
-        var projectSnapshot = await CreateAndSaveMinimalSnapshot(true);
+        var projectSnapshot = await PrepareToSync();
+
         var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
         var syncResult = await _syncService.Sync(_crdtApi, _fwDataApi, projectSnapshot);
         dryRunSyncResult.CrdtChanges.Should().Be(syncResult.CrdtChanges);
-        // Fwdata changes now match: the CRDT side ran against a throwaway copy, so direction B reads back the
-        // same state a real sync would (before, the empty CRDT made it predict deleting everything).
+        // the CRDT side ran against a throwaway copy, so a dry run sync back to fwdata also reflects a real sync
         dryRunSyncResult.FwdataChanges.Should().Be(syncResult.FwdataChanges);
     }
 
@@ -176,7 +177,8 @@ public class Sena3SyncTests : IAsyncLifetime
     [Trait("Category", "Integration")]
     public async Task SyncWithoutImport_CrdtShouldMatchFwdata()
     {
-        var projectSnapshot = await CreateAndSaveMinimalSnapshot();
+        var projectSnapshot = await PrepareToSync();
+
         var results = await _syncService.Sync(_crdtApi, _fwDataApi, projectSnapshot);
         results.FwdataChanges.Should().Be(0);
         results.CrdtChanges.Should().BeGreaterThan(_fwDataApi.EntryCount);

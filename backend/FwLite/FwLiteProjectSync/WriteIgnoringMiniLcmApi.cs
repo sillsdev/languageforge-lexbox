@@ -5,13 +5,6 @@ using MiniLcm.SyncHelpers;
 
 namespace FwLiteProjectSync;
 
-/// <summary>
-/// Reads pass through; writes are ignored, returning a plausible value (the input or current state) instead
-/// of applying. The fwdata side of a dry run wraps this (under <see cref="RecordingMiniLcmApi"/>): its file
-/// must not change and is never read back, so ignoring writes is exactly right.
-/// </summary>
-// api is IMiniLcmReadApi so a write can't be forwarded by accident. BeaKona forwards reads; every write is
-// implemented below (compiler-enforced, since IMiniLcmWriteApi isn't generated).
 public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
 {
     [BeaKona.AutoInterface]

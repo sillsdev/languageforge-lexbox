@@ -285,9 +285,7 @@ public partial class CrdtProjectsService(
     }
 
     /// <summary>
-    /// Opens a throwaway copy of a project's database in its own scope and a temp dir (so it stays out of
-    /// <see cref="ListProjects"/>). Lets a dry run apply and read back changes without touching the original;
-    /// dispose the returned <see cref="TempCrdtProjectCopy"/> to close it and delete the temp files.
+    /// Opens a throwaway copy of a project's database in its own scope and a temp dir
     /// </summary>
     public async Task<TempCrdtProjectCopy> OpenTemporaryProjectCopy(CrdtProject source)
     {
@@ -300,7 +298,6 @@ public partial class CrdtProjectsService(
         {
             await sourceConnection.OpenAsync();
             await copyConnection.OpenAsync();
-            // Online backup API, not File.Copy: a consistent snapshot of the open db, WAL included.
             sourceConnection.BackupDatabase(copyConnection);
         }
 
