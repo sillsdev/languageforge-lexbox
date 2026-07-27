@@ -282,6 +282,9 @@ public static class AuthKernel
                 });
 
                 options.SetAccessTokenLifetime(TimeSpan.FromHours(1));
+                //note, if we want to change this, then we also need to change the certificate lifetime so we don't have tokens that last longer than the certificate
+                //basically this means that the renewBefore should be increased to the token lifetime + 1, just be careful we don't get to close to the
+                //certificate legnth. If the cert is only good for 90 days and we renew too soon then it won't actually be valid for very long.
                 options.SetRefreshTokenLifetime(TimeSpan.FromDays(14));
                 options.AllowAuthorizationCodeFlow()
                     .AllowRefreshTokenFlow();
