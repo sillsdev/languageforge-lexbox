@@ -18,7 +18,8 @@ public class ProjectServicesProvider(
     IServiceProvider serviceProvider,
     LexboxProjectService lexboxProjectService,
     OAuthClientFactory oAuthClientFactory,
-    IEnumerable<IProjectProvider> projectProviders
+    IEnumerable<IProjectProvider> projectProviders,
+    ILogger<ProjectServicesProvider> logger
 ): IAsyncDisposable
 {
     private IProjectProvider? FwDataProjectProvider =>
@@ -91,7 +92,17 @@ public class ProjectServicesProvider(
         ProjectData projectData)
     {
         if (server is null) return projectData;
-        var currentUser = await oAuthClientFactory.GetClient(server).GetCachedUser();
+        LexboxUser? currentUser;
+        try
+        {
+            currentUser = await oAuthClientFactory.GetClient(server).GetCachedUser();
+        }
+        catch (Exception e)
+        {
+            // Best-effort: a cache-read failure must not block opening the project.
+            logger.LogWarning(e, "Failed to read cached user for {ProjectName}; keeping persisted origin user", projectData.Name);
+            return projectData;
+        }
         if (currentUser is null) return projectData;
         await currentProjectService.UpdateLastUser(currentUser.Name, currentUser.Id);
         return await currentProjectService.GetProjectData();
