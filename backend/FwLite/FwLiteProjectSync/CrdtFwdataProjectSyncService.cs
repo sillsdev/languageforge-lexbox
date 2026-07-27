@@ -11,7 +11,8 @@ namespace FwLiteProjectSync;
 
 public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
     ILogger<CrdtFwdataProjectSyncService> logger,
-    MiniLcmApiValidationWrapperFactory validationWrapperFactory)
+    MiniLcmApiValidationWrapperFactory validationWrapperFactory,
+    CrdtProjectsService crdtProjectsService)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
@@ -63,19 +64,30 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
 
         // No write normalization: Data is already normalised on both sides.
         // No query normalization: The sync doesn't do any querying.
-        crdtApi = validationWrapperFactory.Create(crdtApi);
-        fwdataApi = validationWrapperFactory.Create(fwdataApi);
 
+        // A dry run must report exactly what a real sync would do, on both sides, without persisting.
+        // The catch: the sync writes the CRDT then reads it back within the same pass (direction B reads
+        // the CRDT after direction A wrote it), which a record-only wrapper can't satisfy. So for the CRDT
+        // we run the real sync against a throwaway copy of its database — writes really apply and read back
+        // faithfully — and record what we applied. FwData is read once up front (never read back) and its
+        // file must not change, so it stays a record-only DryRunMiniLcmApi.
+        await using var crdtCopy = dryRun ? await crdtProjectsService.OpenProjectCopy(crdt.Project) : null;
         if (dryRun)
         {
-            crdtApi = new DryRunMiniLcmApi(crdtApi);
-            fwdataApi = new DryRunMiniLcmApi(fwdataApi);
+            crdt = (CrdtMiniLcmApi)crdtCopy!.Api;
+            crdtApi = new RecordingMiniLcmApi(validationWrapperFactory.Create(crdt));
+            fwdataApi = new DryRunMiniLcmApi(validationWrapperFactory.Create(fwdataApi));
+        }
+        else
+        {
+            crdtApi = validationWrapperFactory.Create(crdtApi);
+            fwdataApi = validationWrapperFactory.Create(fwdataApi);
         }
 
         if (projectSnapshot is not null)
         {
             // Repair any missing translation IDs before doing the full sync, so the sync doesn't have to deal with them
-            var syncedIdCount = await CrdtRepairs.SyncMissingTranslationIds(projectSnapshot.Entries, fwdata, crdt, dryRun);
+            var syncedIdCount = await CrdtRepairs.SyncMissingTranslationIds(projectSnapshot.Entries, fwdata, crdt);
 
             // Patch legacy snapshots that were created before morph-type support.
             // After seeding, the CRDT has morph-types but the snapshot still has [].
@@ -147,17 +159,17 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
 
     private void LogDryRun(IMiniLcmApi api, string type)
     {
-        if (api is not DryRunMiniLcmApi dryRunApi) return;
-        foreach (var dryRunRecord in dryRunApi.DryRunRecords)
+        if (api is not IDryRunRecorder recorder) return;
+        foreach (var dryRunRecord in recorder.DryRunRecords)
         {
             logger.LogInformation($"Dry run {type} record: {dryRunRecord.Method} {dryRunRecord.Description}");
         }
 
-        logger.LogInformation($"Dry run {type} changes: {dryRunApi.DryRunRecords.Count}");
+        logger.LogInformation($"Dry run {type} changes: {recorder.DryRunRecords.Count}");
     }
 
     private List<DryRunMiniLcmApi.DryRunRecord> GetDryRunRecords(IMiniLcmApi api)
     {
-        return ((DryRunMiniLcmApi)api).DryRunRecords;
+        return ((IDryRunRecorder)api).DryRunRecords;
     }
 }

@@ -120,11 +120,15 @@ public class Sena3SyncTests : IAsyncLifetime
     [Trait("Category", "Integration")]
     public async Task DryRunSync_MakesNoChanges()
     {
-        var projectSnapshot = await CreateAndSaveMinimalSnapshot();
-        await WorkaroundMissingWritingSystems();
+        // The snapshot's writing systems must match the CRDT's, otherwise the (now faithful) dry run tries to
+        // re-create writing systems the CRDT already has — a real sync would throw there too. Import them so
+        // both sides agree, the same way DryRunSync_MakesTheSameChangesAsSync does.
+        await _project.Services.GetRequiredService<ProjectImporter>()
+            .ImportWritingSystems(_crdtApi, await _fwDataApi.GetWritingSystems());
+        var projectSnapshot = await CreateAndSaveMinimalSnapshot(withWritingSystems: true);
         _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
         await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
-        //should still be empty
+        // The dry run applies the CRDT side to a throwaway copy, so the real project is untouched.
         _crdtApi.GetEntries().ToBlockingEnumerable().Should().BeEmpty();
     }
 
@@ -140,8 +144,10 @@ public class Sena3SyncTests : IAsyncLifetime
         var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
         var syncResult = await _syncService.Sync(_crdtApi, _fwDataApi, projectSnapshot);
         dryRunSyncResult.CrdtChanges.Should().Be(syncResult.CrdtChanges);
-        //can't test fwdata changes as they will not work correctly since the sync code expects Crdts to contain data from FWData
-        //this throws off the algorithm and it will try to delete everything in fwdata since there's no data in the crdt since it was a dry run
+        // The dry run applies the CRDT side to a throwaway copy, so direction B reads back the same state a
+        // real sync would — the predicted fwdata changes now match too (previously they were garbage because
+        // the dry run left the CRDT empty and tried to delete everything from fwdata).
+        dryRunSyncResult.FwdataChanges.Should().Be(syncResult.FwdataChanges);
     }
 
     [Fact]

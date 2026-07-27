@@ -284,6 +284,32 @@ public partial class CrdtProjectsService(
         return crdtProject;
     }
 
+    /// <summary>
+    /// Opens a throwaway copy of an existing project's database in its own service scope. The copy lives in
+    /// a temp directory (not <see cref="LcmCrdtConfig.ProjectPath"/>), so it never shows up in <see cref="ListProjects"/>.
+    /// Used by dry-run sync: changes can be really applied to (and read back from) the copy without touching
+    /// the original. Dispose the returned handle to close the copy and delete its temp files.
+    /// </summary>
+    public async Task<TempCrdtProjectCopy> OpenProjectCopy(CrdtProject source)
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), "FwLiteProjectCopies");
+        Directory.CreateDirectory(tempDir);
+        var tempPath = Path.Combine(tempDir, $"{source.Name}-{Guid.NewGuid():N}.sqlite");
+
+        await using (var sourceConnection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = source.DbPath }.ConnectionString))
+        await using (var copyConnection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = tempPath }.ConnectionString))
+        {
+            await sourceConnection.OpenAsync();
+            await copyConnection.OpenAsync();
+            // WAL-safe snapshot: the online backup API reads the source's latest committed state.
+            sourceConnection.BackupDatabase(copyConnection);
+        }
+
+        var scope = provider.CreateAsyncScope();
+        var api = await scope.ServiceProvider.OpenCrdtProject(new CrdtProject(source.Name, tempPath));
+        return new TempCrdtProjectCopy(api, scope, () => EnsureDeleteProject(tempPath, suppressException: true));
+    }
+
     private Task EnsureDeleteProject(string sqliteFile, bool suppressException = false)
     {
         return Task.Run(async () =>

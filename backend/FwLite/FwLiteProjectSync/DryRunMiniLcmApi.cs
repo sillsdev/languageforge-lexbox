@@ -5,7 +5,7 @@ using MiniLcm.SyncHelpers;
 
 namespace FwLiteProjectSync;
 
-public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
+public partial class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi, IDryRunRecorder
 {
     [BeaKona.AutoInterface(typeof(IMiniLcmReadApi), MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
