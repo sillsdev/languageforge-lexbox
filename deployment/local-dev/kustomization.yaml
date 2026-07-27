@@ -37,6 +37,22 @@ patches:
   - target:
       kind: Certificate
     path: delete-oauth-certs.yaml
+  - target:
+      kind: CronJob
+      name: oauth-cert-retainer
+    path: delete-oauth-cert-retainer.yaml
+  - target:
+      kind: ServiceAccount
+      name: oauth-cert-retainer
+    path: delete-oauth-cert-retainer.yaml
+  - target:
+      kind: Role
+      name: oauth-cert-retainer
+    path: delete-oauth-cert-retainer.yaml
+  - target:
+      kind: RoleBinding
+      name: oauth-cert-retainer
+    path: delete-oauth-cert-retainer.yaml
 
   - path: app-config.yaml
   - path: fw-headless-deployment.patch.yaml

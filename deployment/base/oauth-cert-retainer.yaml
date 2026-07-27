@@ -1,0 +1,148 @@
+# Daily CronJob that retains last-seen / previous OAuth signing & encryption
+# Secrets so the API can keep validating refresh tokens across cert-manager renewals.
+# Companion Secrets hold full keypairs; cert-manager current Secrets are unchanged.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: oauth-cert-retainer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: oauth-cert-retainer
+rules:
+  # Read current cert-manager Secrets (named get; list included per design, unused by script)
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames:
+      - oauth-signing-cert
+      - oauth-encryption-cert
+    verbs: ["get", "list"]
+  # Maintain companion Secrets only (create cannot use resourceNames)
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames:
+      - oauth-signing-cert-last-seen
+      - oauth-signing-cert-previous
+      - oauth-encryption-cert-last-seen
+      - oauth-encryption-cert-previous
+    verbs: ["get", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: oauth-cert-retainer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: oauth-cert-retainer
+subjects:
+  - kind: ServiceAccount
+    name: oauth-cert-retainer
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: oauth-cert-retainer
+spec:
+  schedule: "0 4 * * *" # daily 04:00 UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          serviceAccountName: oauth-cert-retainer
+          restartPolicy: Never
+          containers:
+            - name: retain
+              # Distroless rancher/kubectl has no shell; retainer script needs bash.
+              image: bitnamilegacy/kubectl:1.31.4
+              command: ["/bin/bash", "-c"]
+              args:
+                - |
+                  set -euo pipefail
+
+                  fingerprint() {
+                    local secret="$1"
+                    kubectl get secret "$secret" -o jsonpath='{.data.tls\.crt}' \
+                      | base64 -d \
+                      | sha256sum \
+                      | awk '{print $1}'
+                  }
+
+                  secret_exists() {
+                    kubectl get secret "$1" >/dev/null 2>&1
+                  }
+
+                  # Copy full keypair (and ca.crt when present) to a companion Secret.
+                  copy_secret() {
+                    local src="$1"
+                    local dst="$2"
+                    local work stype ca
+                    work="$(mktemp -d)"
+                    stype="$(kubectl get secret "$src" -o jsonpath='{.type}')"
+                    kubectl get secret "$src" -o jsonpath='{.data.tls\.crt}' | base64 -d >"$work/tls.crt"
+                    kubectl get secret "$src" -o jsonpath='{.data.tls\.key}' | base64 -d >"$work/tls.key"
+                    if [ ! -s "$work/tls.crt" ] || [ ! -s "$work/tls.key" ]; then
+                      echo "error: $src missing tls.crt or tls.key" >&2
+                      exit 1
+                    fi
+                    ca="$(kubectl get secret "$src" -o jsonpath='{.data.ca\.crt}')"
+                    if [ -n "$ca" ]; then
+                      printf '%s' "$ca" | base64 -d >"$work/ca.crt"
+                      kubectl create secret generic "$dst" \
+                        --type="$stype" \
+                        --from-file=tls.crt="$work/tls.crt" \
+                        --from-file=tls.key="$work/tls.key" \
+                        --from-file=ca.crt="$work/ca.crt" \
+                        --dry-run=client -o yaml | kubectl apply -f -
+                    else
+                      kubectl create secret generic "$dst" \
+                        --type="$stype" \
+                        --from-file=tls.crt="$work/tls.crt" \
+                        --from-file=tls.key="$work/tls.key" \
+                        --dry-run=client -o yaml | kubectl apply -f -
+                    fi
+                    rm -rf "$work"
+                  }
+
+                  retain() {
+                    local current="$1"
+                    local last_seen="$2"
+                    local previous="$3"
+
+                    if ! secret_exists "$current"; then
+                      echo "error: current secret $current not found" >&2
+                      exit 1
+                    fi
+
+                    local current_fp
+                    current_fp="$(fingerprint "$current")"
+
+                    if ! secret_exists "$last_seen" \
+                      || [ -z "$(kubectl get secret "$last_seen" -o jsonpath='{.data.tls\.crt}')" ]; then
+                      echo "bootstrap: copying $current -> $last_seen and $previous"
+                      copy_secret "$current" "$last_seen"
+                      copy_secret "$current" "$previous"
+                      return 0
+                    fi
+
+                    local last_fp
+                    last_fp="$(fingerprint "$last_seen")"
+                    if [ "$current_fp" != "$last_fp" ]; then
+                      echo "rollover: $current fingerprint changed; $last_seen -> $previous, $current -> $last_seen"
+                      copy_secret "$last_seen" "$previous"
+                      copy_secret "$current" "$last_seen"
+                    else
+                      echo "unchanged: $current fingerprint matches $last_seen"
+                    fi
+                  }
+
+                  retain oauth-signing-cert oauth-signing-cert-last-seen oauth-signing-cert-previous
+                  retain oauth-encryption-cert oauth-encryption-cert-last-seen oauth-encryption-cert-previous

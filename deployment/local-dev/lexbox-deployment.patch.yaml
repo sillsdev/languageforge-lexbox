@@ -31,8 +31,6 @@ spec:
           - name: DbConfig__DefaultSeedUserPassword
             value: "pass"
             valueFrom: # don't use secret as defined in base
-          - $patch: delete
-            name: Authentication__Jwt__Secret
           - name: LfClassicConfig__ConnectionString
             value: mongodb://host.docker.internal:27017
           # Trust the local cluster's pod network so X-Forwarded-Proto from the
@@ -58,9 +56,19 @@ spec:
           - name: Email__SmtpPassword
             value: 'maildev_pass'
             valueFrom:
+          - name: Email__SmtpHost
+            value: 'maildev'
+            valueFrom:
+          - name: Email__From
+            value: 'Lexbox <no-reply@test.org>'
+            valueFrom:
           - name: HgConfig__LfMergeTrustToken
             value: 'dummy'
             valueFrom:
+          - name: Authentication__Jwt__Secret
+            value: 'd5cf1adc-16e6-4064-8041-4cfa00174210'
+            valueFrom:
+
       - name: maildev
         image: maildev/maildev # https://github.com/maildev/maildev/blob/master/README.md#usage
         ports:
