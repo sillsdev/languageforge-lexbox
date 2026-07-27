@@ -91,9 +91,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         }
     }
 
-    // A project's user/role belong to its origin server. The same GUID can live on more than one server
-    // (shared history) and GetProject(Guid) matches on GUID alone, so a non-origin server must not stamp its
-    // user here: that mislabels the current user and, until the next sync, the CRDT commit author.
+    // The same GUID can live on multiple servers and GetProject matches on GUID alone, so only the origin
+    // server may stamp user/role: otherwise the current user (and CRDT commit author, until next sync) is wrong.
     internal static bool ServerOwnsProject(ProjectData localProjectData, LexboxServer server) =>
         localProjectData.ServerId == server.Id;
 

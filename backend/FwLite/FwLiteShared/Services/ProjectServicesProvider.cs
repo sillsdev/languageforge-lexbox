@@ -84,10 +84,8 @@ public class ProjectServicesProvider(
         });
     }
 
-    // Persist the origin server's signed-in user before the UI reads identity off the project context, so it's
-    // right from the first render instead of racing the background sync. GetCachedUser is the fast local read
-    // (see its docs); the token refresh happens later in the background sync. Null means signed-out: keep the
-    // persisted last-known-good value.
+    // Persist the origin user before the UI reads identity, so it's right from first render instead of racing
+    // the background sync. Fast local read (see GetCachedUser); null means signed-out, so keep the persisted value.
     private async Task<ProjectData> ResolveOriginUser(LexboxServer? server,
         CurrentProjectService currentProjectService,
         ProjectData projectData)

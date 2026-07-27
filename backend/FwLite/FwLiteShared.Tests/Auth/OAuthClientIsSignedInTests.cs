@@ -39,8 +39,7 @@ public class OAuthClientIsSignedInTests
         (await client.IsSignedIn()).Should().BeFalse();
     }
 
-    // GetCachedUser is the same purely-local read: the strict mock only stubs GetAccountsAsync, so these also
-    // prove it never reaches for a token (which would keep project-open off the network).
+    // Strict mock only stubs GetAccountsAsync, so these also prove GetCachedUser never reaches for a token.
     [Fact]
     public async Task GetCachedUser_ReturnsAccountIdentity()
     {
