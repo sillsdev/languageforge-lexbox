@@ -45,8 +45,9 @@ public class CrdtMiniLcmApi(
         var metadata = new CommitMetadata
         {
             ClientVersion = AppVersion.Version,
-            AuthorName = ProjectData.OriginUserName ?? config.Value.DefaultAuthorForCommits,
-            AuthorId = ProjectData.OriginUserId
+            //todo if a user logs out and in with another account this is out of date until the next open or sync
+            AuthorName = ProjectData.LastUserName ?? config.Value.DefaultAuthorForCommits,
+            AuthorId = ProjectData.LastUserId
         };
         commitMetadataInterceptor.Apply(metadata);
         return metadata;
@@ -1208,7 +1209,7 @@ public class CrdtMiniLcmApi(
     {
         if (thread.Id == Guid.Empty) thread.Id = Guid.NewGuid();
         thread.AuthorId = RequireCommentUserId();
-        thread.AuthorName = ProjectData.OriginUserName;
+        thread.AuthorName = ProjectData.LastUserName;
         thread.CreatedAt = thread.CreatedAt == default ? now : thread.CreatedAt;
         thread.UpdatedAt = thread.UpdatedAt == default ? thread.CreatedAt : thread.UpdatedAt;
     }
@@ -1217,16 +1218,16 @@ public class CrdtMiniLcmApi(
     {
         if (comment.Id == Guid.Empty) comment.Id = Guid.NewGuid();
         comment.AuthorId = RequireCommentUserId();
-        comment.AuthorName = ProjectData.OriginUserName;
+        comment.AuthorName = ProjectData.LastUserName;
         comment.CreatedAt = comment.CreatedAt == default ? now : comment.CreatedAt;
         comment.UpdatedAt = comment.UpdatedAt == default ? comment.CreatedAt : comment.UpdatedAt;
     }
 
     private string RequireCommentUserId()
     {
-        if (string.IsNullOrEmpty(ProjectData.OriginUserId))
+        if (string.IsNullOrEmpty(ProjectData.LastUserId))
             throw new ValidationException("Cannot create or modify comments without a known user identity.");
-        return ProjectData.OriginUserId;
+        return ProjectData.LastUserId;
     }
 
     private void AssertCurrentUserCanChangeComment(UserComment comment)

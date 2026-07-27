@@ -94,7 +94,7 @@ public class ProjectServicesProvider(
         if (server is null) return projectData;
         var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
         if (currentUser is null) return projectData;
-        await currentProjectService.UpdateOriginUser(currentUser.Name, currentUser.Id);
+        await currentProjectService.UpdateLastUser(currentUser.Name, currentUser.Id);
         return await currentProjectService.GetProjectData();
     }
 

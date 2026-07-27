@@ -42,7 +42,7 @@
 
   const api = useMiniLcmApi();
   const projectContext = useProjectContext();
-  const currentUserId = $derived(projectContext.projectData?.originUserId);
+  const currentUserId = $derived(projectContext.projectData?.lastUserId);
   const canComment = $derived(Boolean(currentUserId));
   const isExtraLarge = new MediaQuery('min-width: 1280px');
 

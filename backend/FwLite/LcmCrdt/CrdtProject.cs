@@ -29,9 +29,7 @@ public class CrdtProject(string code, string dbPath) : IProjectIdentifier
 /// <param name="OriginDomain">Server to sync with, null if not synced</param>
 /// <param name="ClientId">Unique id for this client machine</param>
 /// <param name="FwProjectId">FieldWorks project id, aka LangProjectId</param>
-/// <param name="OriginUserName">Display name of the signed-in user on the origin server; identifies the current user in the UI and authors CRDT commits. Set at project open and on sync.</param>
-/// <param name="OriginUserId">Id of the signed-in user on the origin server. See <paramref name="OriginUserName"/>.</param>
-public record ProjectData(string Name, string Code, Guid Id, string? OriginDomain, Guid ClientId, Guid? FwProjectId = null, string? OriginUserName = null, string? OriginUserId = null,
+public record ProjectData(string Name, string Code, Guid Id, string? OriginDomain, Guid ClientId, Guid? FwProjectId = null, string? LastUserName = null, string? LastUserId = null,
     UserProjectRole Role = UserProjectRole.Unknown)
 {
     public static string? GetOriginDomain(Uri? uri)

@@ -5,27 +5,27 @@ public class CurrentProjectServiceTests(MiniLcmApiFixture fixture) : IClassFixtu
     private CurrentProjectService ProjectService => fixture.GetService<CurrentProjectService>();
 
     [Fact]
-    public async Task UpdateOriginUser_WithNullUser_KeepsPersistedValue()
+    public async Task UpdateLastUser_WithNullUser_KeepsPersistedValue()
     {
         // Open-time resolution falls back to this persisted value when auth is null, so a null update mustn't wipe it.
-        await ProjectService.UpdateOriginUser("Tim Haasdyk", "tim-id");
+        await ProjectService.UpdateLastUser("Tim Haasdyk", "tim-id");
 
-        await ProjectService.UpdateOriginUser(null, null);
+        await ProjectService.UpdateLastUser(null, null);
 
         var projectData = await ProjectService.GetProjectData();
-        projectData.OriginUserName.Should().Be("Tim Haasdyk");
-        projectData.OriginUserId.Should().Be("tim-id");
+        projectData.LastUserName.Should().Be("Tim Haasdyk");
+        projectData.LastUserId.Should().Be("tim-id");
     }
 
     [Fact]
-    public async Task UpdateOriginUser_ReplacesPreviousUser()
+    public async Task UpdateLastUser_ReplacesPreviousUser()
     {
-        await ProjectService.UpdateOriginUser("first", "first-id");
+        await ProjectService.UpdateLastUser("first", "first-id");
 
-        await ProjectService.UpdateOriginUser("second", "second-id");
+        await ProjectService.UpdateLastUser("second", "second-id");
 
         var projectData = await ProjectService.GetProjectData();
-        projectData.OriginUserName.Should().Be("second");
-        projectData.OriginUserId.Should().Be("second-id");
+        projectData.LastUserName.Should().Be("second");
+        projectData.LastUserId.Should().Be("second-id");
     }
 }

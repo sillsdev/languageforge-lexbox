@@ -8,7 +8,7 @@ public class CustomViewTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
     private async Task SetCurrentUser(string userId, UserProjectRole role)
     {
         var projectService = fixture.GetService<CurrentProjectService>();
-        await projectService.UpdateOriginUser("test-user", userId);
+        await projectService.UpdateLastUser("test-user", userId);
         await projectService.UpdateUserRole(role);
     }
 

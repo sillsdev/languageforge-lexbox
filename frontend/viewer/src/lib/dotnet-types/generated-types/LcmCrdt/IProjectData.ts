@@ -13,8 +13,8 @@ export interface IProjectData
 	originDomain?: string;
 	clientId: string;
 	fwProjectId?: string;
-	originUserName?: string;
-	originUserId?: string;
+	lastUserName?: string;
+	lastUserId?: string;
 	role: UserProjectRole;
 	serverId?: string;
 	isReadonly: boolean;

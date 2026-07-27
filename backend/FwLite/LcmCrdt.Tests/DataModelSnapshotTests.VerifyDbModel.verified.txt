@@ -38,14 +38,10 @@
       ClientId (Guid) Required
       Code (string) Required
       FwProjectId (Guid?)
+      LastUserId (string)
+      LastUserName (string)
       Name (string) Required
       OriginDomain (string)
-      OriginUserId (string)
-        Annotations: 
-          Relational:ColumnName: LastUserId
-      OriginUserName (string)
-        Annotations: 
-          Relational:ColumnName: LastUserName
       Role (UserProjectRole) Required ValueGenerated.OnAdd
         Annotations: 
           Relational:DefaultValue: Editor
