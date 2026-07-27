@@ -203,6 +203,7 @@ msgstr ""
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "모두"
@@ -2085,6 +2086,10 @@ msgstr "하나 이상의 모국어 쓰기 체계를 선택하세요."
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "파일 선택"
+
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Selected"
+msgstr ""
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")

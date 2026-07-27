@@ -198,6 +198,7 @@ msgstr "Add your first entry to start building your dictionary."
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "All"
@@ -2080,6 +2081,10 @@ msgstr "Select at least one vernacular writing system"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "Select file"
+
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Selected"
+msgstr "Selected"
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
