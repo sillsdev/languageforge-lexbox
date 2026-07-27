@@ -5,20 +5,18 @@ using MiniLcm.SyncHelpers;
 namespace FwLiteProjectSync;
 
 /// <summary>
-/// Records each write and forwards it to the wrapped api. Used for both sides of a dry-run sync, differing only
-/// in what it wraps: the CRDT side wraps a throwaway copy of the project (see
-/// <see cref="LcmCrdt.CrdtProjectsService.OpenTemporaryProjectCopy"/>), so writes really apply and the sync's
-/// read-back of its own writes is faithful; the fwdata side wraps a <see cref="ReadonlyMiniLcmApi"/>, so writes
-/// are recorded but discarded (its file must not change).
-///
-/// The record strings are kept identical to what the pre-split dry-run api produced. Reads are forwarded by
-/// BeaKona; writes are NOT auto-forwarded, so the compiler enforces that every one is implemented here and thus
-/// recorded — nothing can slip through unrecorded.
+/// Records each write (for the dry-run report) and forwards it to the wrapped api. Used on both sides of a
+/// dry-run sync, differing only in what it wraps: the CRDT side wraps a throwaway copy of the project (see
+/// <see cref="LcmCrdt.CrdtProjectsService.OpenTemporaryProjectCopy"/>) so writes really apply and the sync can
+/// read its own writes back faithfully; the fwdata side wraps a <see cref="WriteIgnoringMiniLcmApi"/> so the
+/// recorded writes never touch the file. Record strings match what the pre-split dry-run api produced.
 /// </summary>
 public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
     private readonly IMiniLcmApi _api = api;
 
+    // Reads are forwarded by BeaKona and not recorded (only writes are). Writes are NOT auto-forwarded, so the
+    // compiler forces each one to be implemented here — and thus recorded — rather than silently passing through.
     [BeaKona.AutoInterface]
     private IMiniLcmReadApi ReadApi => _api;
 
@@ -398,9 +396,9 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     }
 
     #region Submit (sync's result-less write variants)
-    // Forward to the wrapped api's Submit* so the CRDT side keeps its delete-wins behaviour (and the fwdata
-    // ReadonlyMiniLcmApi swallows it). The two Submit* the pre-split api left unimplemented still default to
-    // the returning Move*/Update* above, which record.
+    // Submit* are writes, so (like every write) they're implemented here to record and forward. Any Submit* not
+    // listed falls back to the interface default, which routes to the returning Update*/Move* above — those
+    // record too, so it stays covered.
     public Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdateEntry), $"Update entry {id}"));

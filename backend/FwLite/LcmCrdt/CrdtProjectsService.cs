@@ -302,7 +302,8 @@ public partial class CrdtProjectsService(
         {
             await sourceConnection.OpenAsync();
             await copyConnection.OpenAsync();
-            // WAL-safe snapshot: the online backup API reads the source's latest committed state.
+            // Online backup API, not File.Copy: captures a consistent committed snapshot while the source is
+            // open, including any WAL sidecar files a plain file copy could miss.
             sourceConnection.BackupDatabase(copyConnection);
         }
 

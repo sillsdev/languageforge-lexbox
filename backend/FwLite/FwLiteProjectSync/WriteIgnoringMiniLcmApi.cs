@@ -6,21 +6,17 @@ using MiniLcm.SyncHelpers;
 namespace FwLiteProjectSync;
 
 /// <summary>
-/// A write-swallowing view of an api: reads pass through to the wrapped api, but writes are discarded and
-/// return a plausible value (the input, or the current state) instead of being applied. Used as the inner
-/// api for the fwdata side of a dry run — wrapped by <see cref="RecordingMiniLcmApi"/>, which records what
-/// each write would have done. The fwdata file must not change and is never read back mid-sync, so swallowing
-/// its writes is exactly what a dry run wants.
+/// Reads pass through to the wrapped api; writes are ignored and return a plausible value (the input, or the
+/// current state) instead of being applied. Used as the inner api for the fwdata side of a dry run, wrapped by
+/// <see cref="RecordingMiniLcmApi"/>: the fwdata file must not change and is never read back mid-sync, so a
+/// write that leaves reads untouched is exactly what the dry run wants.
 /// </summary>
-public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
+// The api is typed IMiniLcmReadApi so this class can't forward a write even by accident. Reads are forwarded by
+// BeaKona; every write is implemented below (the compiler enforces it, since IMiniLcmWriteApi isn't generated).
+public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
 {
-    private readonly IMiniLcmApi _api = api;
-
-    // BeaKona forwards IMiniLcmReadApi members to _api (interface inferred from the property type). Writes are
-    // deliberately NOT auto-forwarded — that would apply them — so each is implemented below to swallow the
-    // write, and the compiler enforces that every one is handled because IMiniLcmWriteApi isn't generated.
     [BeaKona.AutoInterface]
-    private IMiniLcmReadApi ReadApi => _api;
+    private IMiniLcmReadApi ReadApi => api;
 
     public void Dispose()
     {
@@ -35,7 +31,7 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         WritingSystemType type,
         UpdateObjectInput<WritingSystem> update)
     {
-        var ws = await _api.GetWritingSystems();
+        var ws = await api.GetWritingSystems();
         return (type switch
         {
             WritingSystemType.Vernacular => ws.Vernacular,
@@ -56,12 +52,13 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        return Task.FromResult(partOfSpeech); // Since writes are swallowed, api.GetPartOfSpeech would return null
+        // Reads won't surface an ignored write, so return the input rather than re-reading.
+        return Task.FromResult(partOfSpeech);
     }
 
     public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
-        return _api.GetPartOfSpeech(id)!;
+        return api.GetPartOfSpeech(id)!;
     }
 
     public Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api)
@@ -81,7 +78,7 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        return _api.GetSemanticDomain(id)!;
+        return api.GetSemanticDomain(id)!;
     }
 
     public Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api)
@@ -101,7 +98,7 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
     {
-        return await _api.GetComplexFormType(id) ?? throw new NullReferenceException($"unable to find complex form type with id {id}");
+        return await api.GetComplexFormType(id) ?? throw new NullReferenceException($"unable to find complex form type with id {id}");
     }
 
     public Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api)
@@ -121,7 +118,7 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
-        return await _api.GetMorphType(id) ?? throw new NullReferenceException($"unable to find morph type with id {id}");
+        return await api.GetMorphType(id) ?? throw new NullReferenceException($"unable to find morph type with id {id}");
     }
 
     public Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api)
@@ -132,7 +129,6 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options)
     {
         options ??= new CreateEntryOptions();
-        // Only return what would have been persisted
         if (options.IncludeComplexFormsAndComponents)
             return Task.FromResult(entry);
         else
@@ -141,7 +137,7 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
-        return _api.GetEntry(id)!;
+        return api.GetEntry(id)!;
     }
 
     public Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api)
@@ -166,7 +162,7 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public async Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
-        var entry = await _api.GetEntry(entryId) ??
+        var entry = await api.GetEntry(entryId) ??
                     throw new NullReferenceException($"unable to find entry with id {entryId}");
         var sense = entry.Senses.First(s => s.Id == senseId);
         return sense;
@@ -174,7 +170,7 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api)
     {
-        return await _api.GetSense(entryId, after.Id) ?? throw new NullReferenceException($"unable to find sense with id {after.Id}");
+        return await ReadApi.GetSense(entryId, after.Id) ?? throw new NullReferenceException($"unable to find sense with id {after.Id}");
     }
 
     public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
@@ -212,7 +208,7 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         Guid exampleSentenceId,
         UpdateObjectInput<ExampleSentence> update)
     {
-        var exampleSentence = await _api.GetExampleSentence(entryId, senseId, exampleSentenceId);
+        var exampleSentence = await api.GetExampleSentence(entryId, senseId, exampleSentenceId);
         return exampleSentence ?? throw new NullReferenceException($"unable to find example sentence with id {exampleSentenceId}");
     }
 
@@ -265,7 +261,7 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         Guid pictureId,
         UpdateObjectInput<Picture> update)
     {
-        var picture = await _api.GetPicture(entryId, senseId, pictureId);
+        var picture = await api.GetPicture(entryId, senseId, pictureId);
         return picture ?? throw new NullReferenceException($"unable to find picture with id {pictureId}");
     }
 
@@ -315,12 +311,12 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        return await _api.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
+        return await api.GetPublication(id) ?? throw NotFoundException.ForType<Publication>(id);
     }
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        return await _api.GetPublication(before.Id) ?? throw NotFoundException.ForType<Publication>(before.Id);
+        return await ReadApi.GetPublication(before.Id) ?? throw NotFoundException.ForType<Publication>(before.Id);
     }
 
     public Task DeletePublication(Guid id)
@@ -339,9 +335,9 @@ public partial class ReadonlyMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     }
 
     #region Submit (sync's result-less write variants)
-    // Overridden explicitly (not inherited from the interface default, which would route to the returning
-    // Update* and re-read the object) so a dry-run of a conflicted project doesn't throw on the now-deleted
-    // object.
+    // Implemented explicitly rather than falling back to the interface default, which routes to the returning
+    // Update* and re-reads the object — that would throw when a dry run of a conflicted project hits an object
+    // the other side has already deleted.
     public Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         return Task.CompletedTask;

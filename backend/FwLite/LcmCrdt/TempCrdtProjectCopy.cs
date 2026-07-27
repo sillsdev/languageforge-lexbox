@@ -4,7 +4,7 @@ namespace LcmCrdt;
 
 /// <summary>
 /// A disposable, throwaway copy of a CRDT project's database opened in its own service scope
-/// (see <see cref="CrdtProjectsService.OpenProjectCopy"/>). Used by dry-run sync so changes can be
+/// (see <see cref="CrdtProjectsService.OpenTemporaryProjectCopy"/>). Used by dry-run sync so changes can be
 /// really applied and read back without touching the original project. Disposing closes the copy's
 /// scope and deletes its temporary database files.
 /// </summary>

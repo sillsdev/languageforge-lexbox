@@ -66,17 +66,17 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         // No query normalization: The sync doesn't do any querying.
 
         // A dry run must report exactly what a real sync would do, on both sides, without persisting.
-        // The catch: the sync writes the CRDT then reads it back within the same pass (direction B reads
-        // the CRDT after direction A wrote it), which a record-only wrapper can't satisfy. So for the CRDT
-        // we run the real sync against a throwaway copy of its database — writes really apply and read back
-        // faithfully. FwData is read once up front (never read back) and its file must not change, so it
-        // wraps a ReadonlyMiniLcmApi that discards writes. RecordingMiniLcmApi records both sides.
+        // The catch: within one pass the sync writes the CRDT then reads it back (direction B reads the CRDT
+        // that direction A just wrote), which a record-only wrapper can't satisfy. So the CRDT side runs the
+        // real sync against a throwaway copy of its database — writes apply and read back faithfully. FwData is
+        // read once up front and never read back, and its file must not change, so it wraps a
+        // WriteIgnoringMiniLcmApi. RecordingMiniLcmApi records both sides.
         await using var crdtCopy = dryRun ? await crdtProjectsService.OpenTemporaryProjectCopy(crdt.Project) : null;
         if (dryRun)
         {
             crdt = (CrdtMiniLcmApi)crdtCopy!.Api;
             crdtApi = new RecordingMiniLcmApi(validationWrapperFactory.Create(crdt));
-            fwdataApi = new RecordingMiniLcmApi(new ReadonlyMiniLcmApi(validationWrapperFactory.Create(fwdataApi)));
+            fwdataApi = new RecordingMiniLcmApi(new WriteIgnoringMiniLcmApi(validationWrapperFactory.Create(fwdataApi)));
         }
         else
         {
