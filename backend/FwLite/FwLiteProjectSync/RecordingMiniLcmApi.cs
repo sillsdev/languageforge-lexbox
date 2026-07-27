@@ -5,20 +5,21 @@ using MiniLcm.SyncHelpers;
 namespace FwLiteProjectSync;
 
 /// <summary>
-/// Dry-run wrapper for the CRDT side of a sync. Unlike <see cref="DryRunMiniLcmApi"/> (which records writes
-/// but doesn't apply them), this really applies every write to the wrapped api and records it. The wrapped api
-/// is a throwaway copy of the project (see <see cref="LcmCrdt.CrdtProjectsService.OpenProjectCopy"/>), so the
-/// sync's read-back of its own writes is faithful without touching the real project.
+/// Records each write and forwards it to the wrapped api. Used for both sides of a dry-run sync, differing only
+/// in what it wraps: the CRDT side wraps a throwaway copy of the project (see
+/// <see cref="LcmCrdt.CrdtProjectsService.OpenProjectCopy"/>), so writes really apply and the sync's read-back of
+/// its own writes is faithful; the fwdata side wraps a <see cref="ReadonlyMiniLcmApi"/>, so writes are recorded
+/// but discarded (its file must not change).
 ///
-/// Reads, <c>Submit*</c>, and any write not overridden here are auto-forwarded to the copy by AutoInterface, so
-/// the class is correct even where it doesn't record — the overrides only add the human-readable record entries.
+/// Reads, <c>Submit*</c>, and any write not overridden here are auto-forwarded by AutoInterface, so the class is
+/// correct even where it doesn't record — the overrides only add the human-readable record entries.
 /// </summary>
-public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi, IDryRunRecorder
+public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
     [BeaKona.AutoInterface(IncludeBaseInterfaces = true, MemberMatch = BeaKona.MemberMatchTypes.Any)]
     private readonly IMiniLcmApi _api = api;
 
-    public List<DryRunMiniLcmApi.DryRunRecord> DryRunRecords { get; } = [];
+    public List<DryRunRecord> DryRunRecords { get; } = [];
 
     // Don't dispose the wrapped api: it belongs to the copy's service scope, which is disposed by the
     // TempCrdtProjectCopy handle.
@@ -26,13 +27,13 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi, IDryRun
 
     private Task<T> Record<T>(string method, string description, Task<T> operation)
     {
-        DryRunRecords.Add(new DryRunMiniLcmApi.DryRunRecord(method, description));
+        DryRunRecords.Add(new DryRunRecord(method, description));
         return operation;
     }
 
     private Task Record(string method, string description, Task operation)
     {
-        DryRunRecords.Add(new DryRunMiniLcmApi.DryRunRecord(method, description));
+        DryRunRecords.Add(new DryRunRecord(method, description));
         return operation;
     }
 
