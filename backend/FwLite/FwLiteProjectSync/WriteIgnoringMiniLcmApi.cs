@@ -124,8 +124,7 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         // Return only what a real create would persist; without this option those get dropped.
         if (options.IncludeComplexFormsAndComponents)
             return Task.FromResult(entry);
-        else
-            return Task.FromResult(entry with { Components = [], ComplexForms = [] });
+        return Task.FromResult(entry with { Components = [], ComplexForms = [] });
     }
 
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
