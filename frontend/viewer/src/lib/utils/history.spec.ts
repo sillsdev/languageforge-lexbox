@@ -1,7 +1,7 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 
 import {delay} from './time';
-import {queueHistoryChange, awaitPopstate} from './history';
+import {queueHistoryChange, awaitPopstate, traverseHistory} from './history';
 import {randomId} from '$lib/utils';
 
 describe('queueHistoryChange', () => {
@@ -26,9 +26,9 @@ describe('queueHistoryChange', () => {
       processed.push('first-no-popstate');
     });
 
-    const change2 = queueTestHistoryChange(() => {
+    const change2 = queueTestHistoryChange(async () => {
       processed.push('second-with-popstate');
-      return {triggeredPopstate: true};
+      await awaitPopstate(1000);
     });
 
     const change3 = queueTestHistoryChange(() => {
@@ -48,13 +48,13 @@ describe('queueHistoryChange', () => {
   it('waits for popstate if requested', async () => {
     const processed: string[] = [];
     let teardownBResolved = false;
-    const teardownB = queueTestHistoryChange(() => {
+    const teardownB = queueTestHistoryChange(async () => {
       processed.push('teardown');
-      return {triggeredPopstate: true};
+      await awaitPopstate(1000);
     }).then(() => {
       teardownBResolved = true;
     })
-    void queueTestHistoryChange(() => processed.push('setup'));
+    void queueTestHistoryChange(() => { processed.push('setup'); });
     await delay(0);
     expect(processed).toEqual(['teardown']);
     expect(teardownBResolved).toBe(false);
@@ -66,9 +66,9 @@ describe('queueHistoryChange', () => {
   it('processes late changes after the current change is complete', async () => {
     const processed: string[] = [];
     let firstResolved = false;
-    const firstChange = queueTestHistoryChange(() => {
+    const firstChange = queueTestHistoryChange(async () => {
       processed.push('first');
-      return {triggeredPopstate: true};
+      await awaitPopstate(1000);
     }).then(() => {
       firstResolved = true;
     });
@@ -79,7 +79,7 @@ describe('queueHistoryChange', () => {
     expect(firstResolved).toBe(false);
 
     // Now we add a second change
-    void queueTestHistoryChange(() => processed.push('second'));
+    void queueTestHistoryChange(() => { processed.push('second'); });
     await delay(50);
     // the second change doesn't jump the queue of the current processing
     expect(processed).toEqual(['first']);
@@ -88,6 +88,20 @@ describe('queueHistoryChange', () => {
     await firstChange;
     // they finish together
     expect(processed).toEqual(['first', 'second']);
+  });
+
+  it('keeps the queue blocked on a real traverseHistory until popstate', async () => {
+    const processed: string[] = [];
+    const first = queueTestHistoryChange(() => traverseHistory(-1));
+    const second = queueTestHistoryChange(() => { processed.push('after'); });
+
+    // well past the old 100ms race window, with no popstate yet
+    await delay(150);
+    expect(processed).toEqual([]);
+
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    await Promise.all([first, second]);
+    expect(processed).toEqual(['after']);
   });
 
   it('handles empty queue gracefully', async () => {
@@ -171,6 +185,30 @@ describe('awaitPopstate', () => {
   });
 });
 
-function queueTestHistoryChange(callback: () => void): Promise<void> {
+describe('traverseHistory', () => {
+  it('calls history.go with the delta and resolves once popstate fires', async () => {
+    const go = vi.spyOn(history, 'go');
+    try {
+      const traversal = traverseHistory(-1, 1000);
+      expect(go).toHaveBeenCalledWith(-1);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      await expect(traversal).resolves.toBeUndefined();
+    } finally {
+      go.mockRestore();
+    }
+  });
+
+  it('reports a lost traversal once the timeout elapses', async () => {
+    // no popstate is dispatched, so the hang-breaker fires
+    const traversal = traverseHistory(-1, 20);
+    if (import.meta.env.DEV) {
+      await expect(traversal).rejects.toThrow(/did not complete/);
+    } else {
+      await expect(traversal).resolves.toBeUndefined();
+    }
+  });
+});
+
+function queueTestHistoryChange(callback: () => void | Promise<void>): Promise<void> {
   return queueHistoryChange(callback, randomId());
 }

@@ -1,6 +1,6 @@
 import {SvelteURL, createSubscriber} from 'svelte/reactivity';
 
-import {queueHistoryChange} from './history';
+import {queueHistoryChange, traverseHistory} from './history';
 import {useLocation} from 'svelte-routing';
 
 export interface QueryParamStateConfig {
@@ -54,8 +54,7 @@ export class QueryParamState {
               return;
             }
             //the last history event was pushed by us so we need to just go back otherwise the next back will do nothing
-            history.go(-1);
-            return {triggeredPopstate: true};
+            return traverseHistory(-1);
           } else {
             history.replaceState(null, '', currentUrl.href);
           }

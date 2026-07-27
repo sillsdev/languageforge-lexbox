@@ -1,4 +1,4 @@
-import {awaitPopstate, queueHistoryChange} from './history';
+import {queueHistoryChange, traverseHistory} from './history';
 
 import type {Getter} from 'runed';
 import {on} from 'svelte/events';
@@ -78,13 +78,13 @@ class BackHandler {
         return;
       }
       BackHandler.#ignorePopstate = true;
-      history.back();
-      void awaitPopstate().finally(() => {
+      const traversal = traverseHistory(-1);
+      void traversal.finally(() => {
         setTimeout(() => { //setTimeout ensures all popstate events are processed before we stop ignoring
           BackHandler.#ignorePopstate = false;
         });
       });
-      return { triggeredPopstate: true };
+      return traversal;
     }, this.fullKey);
   }
 

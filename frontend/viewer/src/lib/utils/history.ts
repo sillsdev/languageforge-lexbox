@@ -1,6 +1,6 @@
 import {delay} from './time';
 
-type HistoryChanger = () => { triggeredPopstate: true } | void;
+type HistoryChanger = () => void | Promise<void>;
 
 type HistoryChange = {
   callback: HistoryChanger;
@@ -28,26 +28,32 @@ async function processHistory() {
   while (historyQueue.length > 0) {
     const historyChange = historyQueue.shift()!;
     console.debug(`Processing history change "${historyChange.key}"`);
-    await doHistoryChange(historyChange);
+    await historyChange.callback();
     historyChange.resolve();
   }
 }
 
-async function doHistoryChange(change: HistoryChange): Promise<void> {
-  const result = change.callback();
-  if (result && result.triggeredPopstate) {
-    if (!await awaitPopstate()) {
-      const message = `Timed out waiting for popstate event after history change "${change.key}".`;
-      if (import.meta.env.DEV) {
-        throw new Error(message);
-      } else {
-        console.warn(message);
-      }
+// popstate is dispatched as a task, so it can lag behind heavy synchronous work.
+// Callers only traverse to an entry they've verified exists, so the event is
+// guaranteed to arrive; this only caps a genuinely lost traversal, it doesn't
+// gate the success path, so the exact value isn't load-bearing.
+const TRAVERSAL_TIMEOUT = 1000;
+
+export async function traverseHistory(delta: number, timeout = TRAVERSAL_TIMEOUT): Promise<void> {
+  // attach the listener before triggering the traversal so a fast popstate can't be missed
+  const traversed = awaitPopstate(timeout);
+  history.go(delta);
+  if (!await traversed) {
+    const message = `History traversal (${delta}) did not complete within ${timeout}ms; the popstate event was lost.`;
+    if (import.meta.env.DEV) {
+      throw new Error(message);
+    } else {
+      console.error(message);
     }
   }
 }
 
-export async function awaitPopstate(timeout = 100): Promise<boolean> {
+export async function awaitPopstate(timeout: number): Promise<boolean> {
   const controller = new AbortController();
   const result = await Promise.any([
     new Promise<'popstate'>(resolve => {
