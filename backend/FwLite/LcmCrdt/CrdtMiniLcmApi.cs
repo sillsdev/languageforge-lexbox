@@ -45,7 +45,7 @@ public class CrdtMiniLcmApi(
         var metadata = new CommitMetadata
         {
             ClientVersion = AppVersion.Version,
-            //todo if a user logs out and in with another account this is out of date until the next open or sync
+            //todo, if a user logs out and in with another account, this will be out of date until the next sync
             AuthorName = ProjectData.LastUserName ?? config.Value.DefaultAuthorForCommits,
             AuthorId = ProjectData.LastUserId
         };
