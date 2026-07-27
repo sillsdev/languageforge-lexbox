@@ -11,7 +11,14 @@ public sealed class TempCrdtProjectCopy(IMiniLcmApi api, AsyncServiceScope scope
 
     public async ValueTask DisposeAsync()
     {
-        await scope.DisposeAsync();
-        await cleanup();
+        // finally so the temp files are deleted even if scope disposal throws.
+        try
+        {
+            await scope.DisposeAsync();
+        }
+        finally
+        {
+            await cleanup();
+        }
     }
 }

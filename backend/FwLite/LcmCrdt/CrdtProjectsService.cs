@@ -293,17 +293,28 @@ public partial class CrdtProjectsService(
         Directory.CreateDirectory(tempDir);
         var tempPath = Path.Combine(tempDir, $"{source.Name}-{Guid.NewGuid():N}.sqlite");
 
-        await using (var sourceConnection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = source.DbPath }.ConnectionString))
-        await using (var copyConnection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = tempPath }.ConnectionString))
+        // Nothing owns the temp file or scope until TempCrdtProjectCopy is returned, so undo both if we throw first.
+        AsyncServiceScope? scope = null;
+        try
         {
-            await sourceConnection.OpenAsync();
-            await copyConnection.OpenAsync();
-            sourceConnection.BackupDatabase(copyConnection);
-        }
+            await using (var sourceConnection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = source.DbPath }.ConnectionString))
+            await using (var copyConnection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = tempPath }.ConnectionString))
+            {
+                await sourceConnection.OpenAsync();
+                await copyConnection.OpenAsync();
+                sourceConnection.BackupDatabase(copyConnection);
+            }
 
-        var scope = provider.CreateAsyncScope();
-        var api = await scope.ServiceProvider.OpenCrdtProject(new CrdtProject(source.Name, tempPath));
-        return new TempCrdtProjectCopy(api, scope, () => EnsureDeleteProject(tempPath, suppressException: true));
+            scope = provider.CreateAsyncScope();
+            var api = await scope.Value.ServiceProvider.OpenCrdtProject(new CrdtProject(source.Name, tempPath));
+            return new TempCrdtProjectCopy(api, scope.Value, () => EnsureDeleteProject(tempPath, suppressException: true));
+        }
+        catch
+        {
+            if (scope is not null) await scope.Value.DisposeAsync();
+            await EnsureDeleteProject(tempPath, suppressException: true);
+            throw;
+        }
     }
 
     private Task EnsureDeleteProject(string sqliteFile, bool suppressException = false)

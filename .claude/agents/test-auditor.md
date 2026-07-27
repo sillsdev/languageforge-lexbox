@@ -18,7 +18,7 @@ cover the changes.
 - **`Enum.GetValues<T>()`** instead of casting `int`s.
 - **New enum values** (e.g. `RegressionVersion`) need parallel
   `[InlineData]` rows.
-- **Reproduce sync bugs with `DryRunMiniLcmApi` before fixing** (PR #2252).
+- **Reproduce sync bugs with a dry-run sync (`SyncDryRun`/`ImportDryRun`) before fixing** (PR #2252).
 - **Test cleanup.** Unique filenames derived from `code` variable so
   reruns don't trip on prior state (PR #2219).
 - **`[Skip]` / `[SkipWhen]`** new additions: ask for justification.

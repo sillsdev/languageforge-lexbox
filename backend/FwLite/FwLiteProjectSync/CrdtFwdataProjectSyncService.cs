@@ -65,7 +65,11 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         await using var crdtCopy = dryRun ? await crdtProjectsService.OpenTemporaryProjectCopy(crdt.Project) : null;
         if (dryRun)
         {
-            crdtApi = crdtCopy?.Api ?? throw new InvalidOperationException("crdtCopy must be defined in a dryRun");
+            // Point the whole CRDT side at the copy, crdt included — the translation-id repair below writes
+            // through crdt, so rebinding it keeps that write off the real project and lets the copy read it back.
+            crdt = crdtCopy?.Api as CrdtMiniLcmApi
+                ?? throw new InvalidOperationException("dry run requires a CrdtMiniLcmApi copy");
+            crdtApi = crdt;
         }
 
         // No write normalization: Data is already normalised on both sides.

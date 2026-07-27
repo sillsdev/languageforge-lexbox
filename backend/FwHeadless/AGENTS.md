@@ -249,7 +249,7 @@ dotnet test ../FwLite/FwLiteProjectSync.Tests
 ## Debugging Tips
 
 1. **Enable detailed logging** in `appsettings.Development.json`
-2. **Use `DryRunMiniLcmApi`** to see what sync would do without applying
+2. **Use a dry-run sync** (`SyncDryRun`/`ImportDryRun`) to see what sync would do without applying
 3. **Check ProjectSnapshot** - if it's wrong, sync will be wrong
 4. **Compare CRDT and FwData states** manually when debugging
 5. **Mercurial log** (`hg log -v`) shows commit history
