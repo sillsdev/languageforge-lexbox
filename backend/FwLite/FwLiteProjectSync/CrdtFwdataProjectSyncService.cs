@@ -71,7 +71,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         // we run the real sync against a throwaway copy of its database — writes really apply and read back
         // faithfully. FwData is read once up front (never read back) and its file must not change, so it
         // wraps a ReadonlyMiniLcmApi that discards writes. RecordingMiniLcmApi records both sides.
-        await using var crdtCopy = dryRun ? await crdtProjectsService.OpenProjectCopy(crdt.Project) : null;
+        await using var crdtCopy = dryRun ? await crdtProjectsService.OpenTemporaryProjectCopy(crdt.Project) : null;
         if (dryRun)
         {
             crdt = (CrdtMiniLcmApi)crdtCopy!.Api;

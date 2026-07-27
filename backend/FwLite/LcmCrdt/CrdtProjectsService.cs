@@ -288,9 +288,10 @@ public partial class CrdtProjectsService(
     /// Opens a throwaway copy of an existing project's database in its own service scope. The copy lives in
     /// a temp directory (not <see cref="LcmCrdtConfig.ProjectPath"/>), so it never shows up in <see cref="ListProjects"/>.
     /// Used by dry-run sync: changes can be really applied to (and read back from) the copy without touching
-    /// the original. Dispose the returned handle to close the copy and delete its temp files.
+    /// the original. The returned <see cref="TempCrdtProjectCopy"/> is disposable — dispose it (e.g. with
+    /// <c>await using</c>) to close the copy and delete its temp files.
     /// </summary>
-    public async Task<TempCrdtProjectCopy> OpenProjectCopy(CrdtProject source)
+    public async Task<TempCrdtProjectCopy> OpenTemporaryProjectCopy(CrdtProject source)
     {
         var tempDir = Path.Combine(Path.GetTempPath(), "FwLiteProjectCopies");
         Directory.CreateDirectory(tempDir);
