@@ -48,9 +48,9 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         return Task.FromResult(partOfSpeech);
     }
 
-    public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
-        return api.GetPartOfSpeech(id)!;
+        return (await api.GetPartOfSpeech(id))!;
     }
 
     public Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api)
@@ -68,9 +68,9 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         return Task.FromResult(semanticDomain);
     }
 
-    public Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
+    public async Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        return api.GetSemanticDomain(id)!;
+        return (await api.GetSemanticDomain(id))!;
     }
 
     public Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api)
@@ -127,9 +127,9 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         return Task.FromResult(entry with { Components = [], ComplexForms = [] });
     }
 
-    public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
+    public async Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
-        return api.GetEntry(id)!;
+        return (await api.GetEntry(id))!;
     }
 
     public Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api)
