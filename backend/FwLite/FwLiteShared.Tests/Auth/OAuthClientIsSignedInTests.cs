@@ -38,4 +38,24 @@ public class OAuthClientIsSignedInTests
 
         (await client.IsSignedIn()).Should().BeFalse();
     }
+
+    // GetCachedUser is the same purely-local read: the strict mock only stubs GetAccountsAsync, so these also
+    // prove it never reaches for a token (which would keep project-open off the network).
+    [Fact]
+    public async Task GetCachedUser_ReturnsAccountIdentity()
+    {
+        var account = Mock.Of<IAccount>(a => a.Username == "tester@example.test"
+                                             && a.HomeAccountId == new AccountId("uid.tid", "uid", "tid"));
+        var (client, _) = BuildClient([account]);
+
+        (await client.GetCachedUser()).Should().Be(new LexboxUser("tester@example.test", "uid"));
+    }
+
+    [Fact]
+    public async Task GetCachedUser_ReturnsNull_WhenNoAccounts()
+    {
+        var (client, _) = BuildClient([]);
+
+        (await client.GetCachedUser()).Should().BeNull();
+    }
 }

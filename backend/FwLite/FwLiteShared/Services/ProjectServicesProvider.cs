@@ -84,15 +84,16 @@ public class ProjectServicesProvider(
         });
     }
 
-    // Persist the origin server's current user before the UI reads identity off the project context, so it's
-    // right from the first render instead of racing the background sync. GetCurrentUser only reads the local
-    // MSAL cache (no network). Null means offline/signed-out: keep the persisted last-known-good value.
+    // Persist the origin server's signed-in user before the UI reads identity off the project context, so it's
+    // right from the first render instead of racing the background sync. GetCachedUser reads the local MSAL
+    // account cache only — no token acquisition, no network — to keep project open fast; the token refresh
+    // happens later in the background sync. Null means signed-out: keep the persisted last-known-good value.
     private async Task<ProjectData> ResolveOriginUser(LexboxServer? server,
         CurrentProjectService currentProjectService,
         ProjectData projectData)
     {
         if (server is null) return projectData;
-        var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
+        var currentUser = await oAuthClientFactory.GetClient(server).GetCachedUser();
         if (currentUser is null) return projectData;
         await currentProjectService.UpdateLastUser(currentUser.Name, currentUser.Id);
         return await currentProjectService.GetProjectData();

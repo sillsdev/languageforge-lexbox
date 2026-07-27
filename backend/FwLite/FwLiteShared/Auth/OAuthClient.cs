@@ -192,6 +192,20 @@ public class OAuthClient
     }
 
     /// <summary>
+    /// The signed-in user's identity read straight from the local MSAL account cache — no token acquisition,
+    /// so no network. Use when you only need who the user is (not a usable token), e.g. to keep a hot path fast.
+    /// Like <see cref="IsSignedIn"/> this is optimistic: an account can stay cached after its refresh token has
+    /// expired, so a non-null result means "was signed in", not "can get a token right now". Null when no
+    /// account is cached. To get who the user is *and* a usable token, use <see cref="GetCurrentUser"/>.
+    /// </summary>
+    public async ValueTask<LexboxUser?> GetCachedUser()
+    {
+        await ConfigureCache();
+        var account = (await _application.GetAccountsAsync()).FirstOrDefault();
+        return account?.Username is null ? null : new LexboxUser(account.Username, account.HomeAccountId.ObjectId);
+    }
+
+    /// <summary>
     /// Gets a usable authentication result, silently refreshing when the cached token is missing or near
     /// expiry. Returns null when none can be produced — in one of two cases the caller may want to tell apart:
     /// - no usable login. A fresh interactive sign-in is required
