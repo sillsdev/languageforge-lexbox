@@ -5,25 +5,23 @@ using MiniLcm.SyncHelpers;
 namespace FwLiteProjectSync;
 
 /// <summary>
-/// Records each write (for the dry-run report) and forwards it to the wrapped api. Used on both sides of a
-/// dry-run sync, differing only in what it wraps: the CRDT side wraps a throwaway copy of the project (see
-/// <see cref="LcmCrdt.CrdtProjectsService.OpenTemporaryProjectCopy"/>) so writes really apply and the sync can
-/// read its own writes back faithfully; the fwdata side wraps a <see cref="WriteIgnoringMiniLcmApi"/> so the
-/// recorded writes never touch the file. Record strings match what the pre-split dry-run api produced.
+/// Records each write for the dry-run report, then forwards it. Both dry-run sides use it: the CRDT side wraps
+/// a throwaway copy (see <see cref="LcmCrdt.CrdtProjectsService.OpenTemporaryProjectCopy"/>) so writes apply
+/// and read back; the fwdata side wraps a <see cref="WriteIgnoringMiniLcmApi"/> so they never touch the file.
+/// Record strings match the pre-split dry-run api.
 /// </summary>
 public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
     private readonly IMiniLcmApi _api = api;
 
-    // Reads are forwarded by BeaKona and not recorded (only writes are). Writes are NOT auto-forwarded, so the
-    // compiler forces each one to be implemented here — and thus recorded — rather than silently passing through.
+    // BeaKona forwards reads (not recorded — only writes are). Writes aren't auto-forwarded, so the compiler
+    // forces each to be implemented, and thus recorded, here.
     [BeaKona.AutoInterface]
     private IMiniLcmReadApi ReadApi => _api;
 
     public List<DryRunRecord> DryRunRecords { get; } = [];
 
-    // Don't dispose the wrapped api: it belongs to the caller (the CRDT copy is disposed by its
-    // TempCrdtProjectCopy handle; the fwdata api by whoever opened it).
+    // Wrapped api is the caller's to dispose (CRDT copy via TempCrdtProjectCopy; fwdata by its opener).
     public void Dispose()
     {
     }
@@ -396,9 +394,8 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     }
 
     #region Submit (sync's result-less write variants)
-    // Submit* are writes, so (like every write) they're implemented here to record and forward. Any Submit* not
-    // listed falls back to the interface default, which routes to the returning Update*/Move* above — those
-    // record too, so it stays covered.
+    // Submit* are writes, so they're implemented here to record and forward. Any not listed falls back to the
+    // interface default, which routes to the recording Update*/Move* above.
     public Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(SubmitUpdateEntry), $"Update entry {id}"));

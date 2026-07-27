@@ -6,13 +6,12 @@ using MiniLcm.SyncHelpers;
 namespace FwLiteProjectSync;
 
 /// <summary>
-/// Reads pass through to the wrapped api; writes are ignored and return a plausible value (the input, or the
-/// current state) instead of being applied. Used as the inner api for the fwdata side of a dry run, wrapped by
-/// <see cref="RecordingMiniLcmApi"/>: the fwdata file must not change and is never read back mid-sync, so a
-/// write that leaves reads untouched is exactly what the dry run wants.
+/// Reads pass through; writes are ignored, returning a plausible value (the input or current state) instead
+/// of applying. The fwdata side of a dry run wraps this (under <see cref="RecordingMiniLcmApi"/>): its file
+/// must not change and is never read back, so ignoring writes is exactly right.
 /// </summary>
-// The api is typed IMiniLcmReadApi so this class can't forward a write even by accident. Reads are forwarded by
-// BeaKona; every write is implemented below (the compiler enforces it, since IMiniLcmWriteApi isn't generated).
+// api is IMiniLcmReadApi so a write can't be forwarded by accident. BeaKona forwards reads; every write is
+// implemented below (compiler-enforced, since IMiniLcmWriteApi isn't generated).
 public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
 {
     [BeaKona.AutoInterface]
@@ -52,7 +51,7 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
 
     public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        // Reads won't surface an ignored write, so return the input rather than re-reading.
+        // Ignored write isn't readable back, so return the input.
         return Task.FromResult(partOfSpeech);
     }
 
@@ -129,6 +128,7 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
     public Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options)
     {
         options ??= new CreateEntryOptions();
+        // Return only what a real create would persist; without this option those get dropped.
         if (options.IncludeComplexFormsAndComponents)
             return Task.FromResult(entry);
         else
@@ -335,9 +335,8 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
     }
 
     #region Submit (sync's result-less write variants)
-    // Implemented explicitly rather than falling back to the interface default, which routes to the returning
-    // Update* and re-reads the object — that would throw when a dry run of a conflicted project hits an object
-    // the other side has already deleted.
+    // Explicit, not the interface default: that routes to the returning Update* and re-reads the object, which
+    // throws when a dry run hits an object the other side already deleted.
     public Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         return Task.CompletedTask;

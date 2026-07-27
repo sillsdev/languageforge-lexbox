@@ -120,8 +120,8 @@ public class Sena3SyncTests : IAsyncLifetime
     [Trait("Category", "Integration")]
     public async Task DryRunSync_MakesNoChanges()
     {
-        // The faithful dry run really applies the WS sync to the CRDT copy, so the snapshot's WSs must match the
-        // CRDT's or it throws re-creating existing ones — a real sync would too. Import them so both sides agree.
+        // The dry run applies the WS sync to the CRDT copy, so snapshot WSs must match the CRDT's or it throws
+        // re-creating existing ones (a real sync would too). Import them so both sides agree.
         await _project.Services.GetRequiredService<ProjectImporter>()
             .ImportWritingSystems(_crdtApi, await _fwDataApi.GetWritingSystems());
         var projectSnapshot = await CreateAndSaveMinimalSnapshot(withWritingSystems: true);
@@ -143,8 +143,8 @@ public class Sena3SyncTests : IAsyncLifetime
         var dryRunSyncResult = await _syncService.SyncDryRun(_crdtApi, _fwDataApi, projectSnapshot);
         var syncResult = await _syncService.Sync(_crdtApi, _fwDataApi, projectSnapshot);
         dryRunSyncResult.CrdtChanges.Should().Be(syncResult.CrdtChanges);
-        // Fwdata changes now match: the dry run applies the CRDT side to a throwaway copy, so direction B reads
-        // back the same state a real sync would (before, the empty CRDT made it predict deleting everything).
+        // Fwdata changes now match: the CRDT side ran against a throwaway copy, so direction B reads back the
+        // same state a real sync would (before, the empty CRDT made it predict deleting everything).
         dryRunSyncResult.FwdataChanges.Should().Be(syncResult.FwdataChanges);
     }
 
