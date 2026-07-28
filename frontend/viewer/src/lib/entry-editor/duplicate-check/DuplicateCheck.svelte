@@ -194,12 +194,14 @@
   }
 </script>
 
-<!-- always-rendered shell: min-h reserves the strip's space so its toggling doesn't shift the form -->
-<div class="min-h-9 flex flex-col justify-center w-full" aria-live="polite">
+<!-- both branches share one grid cell so their slide crossfade overlaps instead of stacking heights -->
+<div class="min-h-9 grid items-center w-full" aria-live="polite">
   {#if !matches?.length}
     {#if (duplicatesResource.loading && hasQueries) || matches || duplicatesResource.error}
-      <div class="flex items-center gap-2 px-1 text-sm text-muted-foreground" transition:slide={{duration: 150}}>
-        {#if duplicatesResource.loading}
+      <div
+        class="col-start-1 row-start-1 flex items-center gap-2 px-1 text-sm text-muted-foreground"
+        transition:slide={{duration: 150}}>
+        {#if duplicatesResource.loading && !matches}
           <Loading class="size-4" />
           {pt($t`Checking for similar entries…`, $t`Checking for similar words…`, viewService.currentView)}
         {:else if duplicatesResource.error}
@@ -208,13 +210,18 @@
           <Icon icon="i-mdi-alert-outline" class="size-4" />
           {pt($t`Could not check for similar entries`, $t`Could not check for similar words`, viewService.currentView)}
         {:else}
-          <Icon icon="i-mdi-check-circle-outline" class="size-4 text-green-600 dark:text-green-500" />
+          <!-- re-checks only swap the icon: swapping the whole line flickers on every typing pause -->
+          {#if duplicatesResource.loading}
+            <Loading class="size-4" />
+          {:else}
+            <Icon icon="i-mdi-check-circle-outline" class="size-4 text-green-600 dark:text-green-500" />
+          {/if}
           {pt($t`No similar entries found`, $t`No similar words found`, viewService.currentView)}
         {/if}
       </div>
     {/if}
   {:else}
-    <div transition:slide={{duration: 150}}>
+    <div class="col-start-1 row-start-1" transition:slide={{duration: 150}}>
       <Collapsible.Root
         bind:open={expanded}
         class={cn('rounded-md border', duplicateResultContainerClass(hasExactWordMatch))}>
