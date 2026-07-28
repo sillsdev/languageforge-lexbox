@@ -287,7 +287,7 @@ public partial class CrdtProjectsService(
     /// <summary>
     /// Opens a throwaway copy of a project's database in its own scope and a temp dir
     /// </summary>
-    public async Task<TempCrdtProjectCopy> OpenTemporaryProjectCopy(CrdtProject source)
+    public async Task<TempCrdtProjectCopy> OpenTempProjectCopy(CrdtProject source)
     {
         var tempDir = Path.Combine(Path.GetTempPath(), "FwLiteProjectCopies");
         Directory.CreateDirectory(tempDir);

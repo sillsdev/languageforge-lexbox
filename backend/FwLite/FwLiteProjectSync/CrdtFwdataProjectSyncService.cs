@@ -62,7 +62,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             throw new InvalidOperationException("Project sync state does not match presence of snapshot.");
         }
 
-        await using var crdtCopy = dryRun ? await crdtProjectsService.OpenTemporaryProjectCopy(crdt.Project) : null;
+        await using var crdtCopy = dryRun ? await crdtProjectsService.OpenTempProjectCopy(crdt.Project) : null;
         if (dryRun)
         {
             // Point the whole CRDT side at the copy, crdt included — the translation-id repair below writes
