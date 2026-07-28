@@ -6,13 +6,14 @@ using SIL.Harmony.Core;
 namespace LexBoxApi.GraphQL.CustomTypes;
 
 public class IsHarmonyProjectDataLoader(
-    LexBoxDbContext dbContext,
+    IDbContextFactory<LexBoxDbContext> dbContextFactory,
     IBatchScheduler batchScheduler,
     DataLoaderOptions options)
     : BatchDataLoader<Guid, bool>(batchScheduler, options), IIsHarmonyProjectDataLoader
 {
     protected override async Task<IReadOnlyDictionary<Guid, bool>> LoadBatchAsync(IReadOnlyList<Guid> keys, CancellationToken cancellationToken)
     {
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         var serverCommits = dbContext.Set<ServerCommit>().AsQueryable();
         if (keys.Count < 100) serverCommits = serverCommits.Where(c => keys.Contains(c.ProjectId));
         var isHarmonyProject = await serverCommits
