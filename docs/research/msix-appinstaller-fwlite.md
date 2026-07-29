@@ -150,6 +150,12 @@ experiment before committing to the approach.**
 
 ## Detailed findings
 
+> **These sections are the original pre-implementation research (2026-07-28), kept for their
+> primary-source reasoning.** Where they say "UNCERTAIN", list action items, or describe code/config
+> that has since changed (`OnLaunch` removed, `TrimStart('0')` → `int.Parse`), the
+> [Status section](#status-verified-and-implemented-2026-07-29) above is authoritative for what
+> shipped. Inline ✅ notes flag the items that are now resolved.
+
 ### A. Requirements for the `.appinstaller` OS-driven update flow
 
 **Windows version minimums** (from the schema/update-settings docs):
@@ -265,49 +271,41 @@ subsequent release is picked up by Windows automatically with no lexbox polling.
   the bundle's `Package/Identity`** or the install fails outright. So the version string
   `GenerateAppInstaller` emits must be **byte-for-byte** the version the `.msixbundle` was actually
   stamped with in `.github/workflows/fw-lite.yaml` — not merely "a plausible transform of the git
-  tag." **Action item: confirm the workflow stamps the manifest with the exact same
-  `YYYY.M.D.1` value this method produces.** If the build stamps, say, `2025.01.17.0` or a
-  build-number revision, every AppInstaller install will fail with an identity mismatch.
-- **`month.TrimStart('0')` / `day.TrimStart('0')` fragility:**
-  - `"01"` → `"1"`, `"10"` → `"10"` (fine — `TrimStart` only strips leading zeros).
-  - **Edge case:** a value of exactly `"0"` would be trimmed to the empty string, producing an
-    invalid segment (`2025..17.1`). Months/days are never `00`, so this can't currently fire from a
-    real tag — but it's a latent trap and the safer implementation is `int.Parse(...).ToString()`.
-  - The hard-coded `.1` revision means two releases on the **same calendar day** would generate the
-    **same** AppInstaller version → the second is not seen as an update. Rare, but real for hotfixes.
+  tag." ✅ **Resolved:** CI stamps `MakeAppx /bv $(date +%Y.%-m.%-d).1`, which matches what
+  `ConvertVersionToAppInstallerVersion` produces (e.g. `2026.7.6.1`); locked by a unit test.
+- ✅ **Resolved — `int.Parse` replaced `TrimStart('0')`.** (Original concern, for the record: a `"0"`
+  segment would `TrimStart` to the empty string → invalid version; `int.Parse(...).ToString()` avoids
+  that. Month/day are never `00` from a real tag, so it was latent, not live.) Still a known
+  limitation: the hard-coded `.1` revision means two releases on the **same calendar day** produce the
+  **same** version → the second isn't seen as an update. Rare, but real for hotfixes.
 - The self-referencing root `Uri` must be a **stable, publicly reachable** URL that returns the
   `.appinstaller` content as `application/appinstaller`. The controller already returns
   `File(..., "application/appinstaller", "FieldWorksLite.appinstaller")`, so **that content-type
   requirement is already met**. Keep the URL (`…/download-latest?edition=windowsAppInstaller`)
   stable across releases, since it is baked into every installed package as the update source.
 
-### E. Concrete work items to finish
+### E. Original work items — status
 
-1. **De-risk first (highest priority):** on a real Windows box, install the current bundle the old
-   way, then install the next release via `Add-AppxPackage -AppInstallerFile <lexbox appinstaller
-   url>`; verify (a) app data survives, (b) `Get-AppxPackage FwLiteDesktop` / `GetAppInstallerInfo()`
-   now shows the AppInstaller URI, (c) a later version bump is auto-detected. This answers Question 2
-   empirically.
-2. **Verify version parity** between `GenerateAppInstaller`'s `YYYY.M.D.1` and the manifest version
-   stamped by `.github/workflows/fw-lite.yaml`; fix `ConvertVersionToAppInstallerVersion` to match
-   exactly and to use `int.Parse().ToString()` instead of `TrimStart('0')`.
-3. **Point `<MainBundle Uri>` at the CDN `browser_download_url`** (already the case) and test the
-   octet-stream download. Only if it fails, add a lexbox proxy that sets
-   `Content-Type: application/msixbundle` (delegating range support to the CDN via redirect). The
-   controller's `download-latest` note about needing to proxy for content-type / range is
-   **over-cautious**: range + `Content-Length` are already provided by GitHub; only content-type is
-   in question. Consider removing/rewording that stale comment once verified.
-4. **Make `GetLatestRelease(WindowsAppInstaller)` stop throwing** or route the AppInstaller edition
-   through `GenerateAppInstaller` end-to-end (the controller already special-cases it, but the
-   service throws). Decide whether `WindowsAppInstaller` is a real "edition" or just a served view of
-   the Windows edition.
-5. **Publish + document the migration** (users install once from the `.appinstaller`); decide the UX
-   for surfacing that one-time install to existing users.
-6. **Optional hardening:** validate `HoursBetweenUpdateChecks` is within 0–255 (it is: `8`), and keep
-   the `2021` schema namespace (required for the `<UpdateUris>`/`<RepairUris>` you may later add as
-   CDN fallbacks).
+1. ✅ **De-risked on a real box.** Bare install → install once via `Add-AppxPackage -AppInstallerFile`
+   → in-place update, data preserved, `GetAppInstallerInfo().Uri` populated, background auto-update
+   confirmed. (Question 2, answered empirically.)
+2. ✅ **Version parity confirmed + `ConvertVersionToAppInstallerVersion` moved to `int.Parse`**, locked
+   by a unit test.
+3. ✅ **`<MainBundle Uri>` points at the GitHub `browser_download_url` and octet-stream + 302 install
+   works** — no proxy needed. The stale controller comment was removed.
+4. ⬜ **`GetLatestRelease(WindowsAppInstaller)` still throws** — harmless today (the controller
+   special-cases that edition to `GenerateAppInstaller`), left as-is; revisit only if other call sites
+   need it.
+5. ⬜ **Download-page link** to `…/download-latest?edition=windowsAppInstaller` — deliberately **not**
+   done; the appinstaller is kept private to testers for now.
+6. ⬜ **Optional hardening** (validate `HoursBetweenUpdateChecks` range, keep the 2021 namespace for
+   later `<UpdateUris>`/`<RepairUris>`) — not needed yet.
 
 ### F. Interaction with the existing `AppUpdateService.cs` in-app updater
+
+> ✅ **Resolved:** implemented as the two-path updater (see Status section) — the in-app updater uses
+> `AddPackageByAppInstallerFileAsync` when on the track and the bundle path otherwise, so the two
+> mechanisms don't fight. The analysis below is the original reasoning behind that choice.
 
 The existing updater polls `/api/fwlite-release/should-update` and calls
 `PackageManager.AddPackageByUriAsync(<msixbundle url>, …)` with `ForceUpdateFromAnyVersion` and
