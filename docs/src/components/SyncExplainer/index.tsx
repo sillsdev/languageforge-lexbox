@@ -351,7 +351,7 @@ const SyncExplainer = (): ReactNode => {
   }, []);
 
   useEffect(() => {
-    if (!scenario) return;
+    if (!scenario) return undefined;
     const onKeyDown = (e: KeyboardEvent): void => {
       // Don't steal arrow keys from the search box or any other text field.
       if (isTextInput(e.target as HTMLElement | null)) return;
