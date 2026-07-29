@@ -1,7 +1,9 @@
 <script lang="ts">
   import {Button} from '$lib/components/ui/button';
   import {Textarea} from '$lib/components/ui/textarea';
+  import {useProjectContext} from '$project/project-context.svelte';
   import {t} from 'svelte-i18n-lingui';
+  import CommentAuthorAvatar from './CommentAuthorAvatar.svelte';
 
   let {
     value = $bindable(''),
@@ -18,6 +20,10 @@
     autofocus?: boolean;
     onSubmit: (text: string) => void | Promise<void>;
   } = $props();
+
+  const projectContext = useProjectContext();
+  const authorId = $derived(projectContext.projectData?.lastUserId);
+  const authorName = $derived(projectContext.projectData?.lastUserName);
 
   let focused = $state(false);
   let textareaEl = $state<HTMLTextAreaElement | null>(null);
@@ -60,7 +66,8 @@
 </script>
 
 {#if variant === 'inline'}
-  <div class="flex items-end gap-2" onfocusin={() => (focused = true)} onfocusout={onFocusOut}>
+  <div class="flex items-start gap-2" onfocusin={() => (focused = true)} onfocusout={onFocusOut}>
+    <CommentAuthorAvatar {authorName} {authorId} size="md" class="mt-1.5 shrink-0" />
     <Textarea
       {autofocus}
       bind:ref={textareaEl}
@@ -83,26 +90,29 @@
     />
   </div>
 {:else}
-  <div class="flex flex-col gap-1.5" onfocusin={() => (focused = true)} onfocusout={onFocusOut}>
-    <Textarea
-      {autofocus}
-      bind:ref={textareaEl}
-      bind:value
-      placeholder={replyPlaceholder}
-      rows={1}
-      disabled={saving}
-      class="min-h-8 py-1.5 text-sm"
-      onkeydown={onKeyDown}
-    />
-    {#if showActions}
-      <div class="flex justify-end gap-1.5">
-        <Button variant="outline" size="sm" onclick={cancel} disabled={saving}>
-          {$t`Cancel`}
-        </Button>
-        <Button size="sm" onclick={() => void submit()} disabled={!canSend} loading={saving}>
-          {$t`Reply`}
-        </Button>
-      </div>
-    {/if}
+  <div class="flex items-start gap-2" onfocusin={() => (focused = true)} onfocusout={onFocusOut}>
+    <CommentAuthorAvatar {authorName} {authorId} size="md" class="mt-1 shrink-0" />
+    <div class="flex flex-1 flex-col gap-1.5">
+      <Textarea
+        {autofocus}
+        bind:ref={textareaEl}
+        bind:value
+        placeholder={replyPlaceholder}
+        rows={1}
+        disabled={saving}
+        class="min-h-8 py-1.5 text-sm"
+        onkeydown={onKeyDown}
+      />
+      {#if showActions}
+        <div class="flex justify-end gap-1.5">
+          <Button variant="outline" size="sm" onclick={cancel} disabled={saving}>
+            {$t`Cancel`}
+          </Button>
+          <Button size="sm" onclick={() => void submit()} disabled={!canSend} loading={saving}>
+            {$t`Reply`}
+          </Button>
+        </div>
+      {/if}
+    </div>
   </div>
 {/if}

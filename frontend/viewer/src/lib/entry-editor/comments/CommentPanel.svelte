@@ -6,7 +6,9 @@
   import {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
   import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
   import {cn} from '$lib/utils';
+  import {useProjectContext} from '$project/project-context.svelte';
   import {t} from 'svelte-i18n-lingui';
+  import CommentAuthorAvatar from './CommentAuthorAvatar.svelte';
   import CommentItem from './CommentItem.svelte';
   import CommentReplyInput from './CommentReplyInput.svelte';
   import CommentThread from './CommentThread.svelte';
@@ -50,6 +52,9 @@
     onCancelEdit: (commentId: string) => void;
     onSaveEdit: (commentId: string, text: string) => void;
   } = $props();
+
+  const projectContext = useProjectContext();
+  const authorName = $derived(projectContext.projectData?.lastUserName);
 
   const openThreads = $derived(threadViews.filter((tv) => tv.thread.status === ThreadStatus.Open));
   const resolvedThreads = $derived(threadViews.filter((tv) => tv.thread.status === ThreadStatus.Closed));
@@ -120,27 +125,32 @@
     {#if addingComment}
       <div class="flex shrink-0 flex-col gap-2 border-b border-border px-3.5 py-3" transition:slide>
         {#if canComment}
-          <Textarea
-            autofocus
-            bind:value={newThreadText}
-            placeholder={$t`Start a conversation…`}
-            rows={3}
-            disabled={loading || saving}
-            class="text-sm"
-            onkeydown={(e) => {
-              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                e.preventDefault();
-                submitNewThread();
-              }
-            }}
-          />
-          <div class="flex justify-end gap-1.5">
-            <Button variant="outline" size="sm" onclick={cancelAdding} disabled={saving}>
-              {$t`Cancel`}
-            </Button>
-            <Button size="sm" onclick={submitNewThread} disabled={!newThreadText.trim() || loading} loading={saving}>
-              {$t`Comment`}
-            </Button>
+          <div class="flex items-start gap-2">
+            <CommentAuthorAvatar {authorName} authorId={currentUserId} size="md" class="mt-1 shrink-0" />
+            <div class="flex flex-1 flex-col gap-1.5">
+              <Textarea
+                autofocus
+                bind:value={newThreadText}
+                placeholder={$t`Start a conversation…`}
+                rows={3}
+                disabled={loading || saving}
+                class="text-sm"
+                onkeydown={(e) => {
+                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    submitNewThread();
+                  }
+                }}
+              />
+              <div class="flex justify-end gap-1.5">
+                <Button variant="outline" size="sm" onclick={cancelAdding} disabled={saving}>
+                  {$t`Cancel`}
+                </Button>
+                <Button size="sm" onclick={submitNewThread} disabled={!newThreadText.trim() || loading} loading={saving}>
+                  {$t`Comment`}
+                </Button>
+              </div>
+            </div>
           </div>
         {:else}
           <p class="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
