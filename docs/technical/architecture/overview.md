@@ -3,7 +3,7 @@ title: System overview
 sidebar_position: 1
 ---
 
-Three things live in this repo, and they share one database and one set of Mercurial repositories.
+Three things live in this repo. Lexbox and FwHeadless run server-side and share one database and one set of Mercurial repositories; FieldWorks Lite is a client app with its own local copy of each project.
 
 | Part | What it is |
 | --- | --- |

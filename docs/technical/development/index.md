@@ -20,7 +20,7 @@ OS-specific steps (hosts file entries, install commands, quirks):
 * [Linux setup](./setup-linux.md)
 * [macOS setup](./setup-macos.md)
 
-Then run `git push` once to confirm your GitHub credentials work, and `task setup`, which initializes `local.env`, points Git at the ignore-revs file, and downloads the FLEx seed-data repo.
+Then confirm your GitHub credentials work (`git ls-remote origin HEAD`), and run `task setup`, which initializes `local.env`, points Git at the ignore-revs file, and downloads the FLEx seed-data repo.
 
 ## Kubernetes workflow
 
