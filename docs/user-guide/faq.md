@@ -26,8 +26,8 @@ that go with them. Other parts of a FieldWorks Classic project are not shown.
 
 ## Can I use it on my phone?
 
-Yes. There are versions for Android phones and tablets and for iPhone and iPad, as well
-as for Windows, Mac and Linux. It is the same app on every device.
+Yes, on Android. There are versions for Android phones and tablets and for Windows and
+Linux computers. It is the same app on every device.
 
 ## Is my work safe if my phone or computer breaks?
 

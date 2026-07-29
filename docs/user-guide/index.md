@@ -15,8 +15,7 @@ and the two are kept in step through Lexbox.
 
 Download it from [lexbox.org/fw-lite](https://lexbox.org/fw-lite).
 
-There are versions for Windows, Mac, Linux, Android phones and tablets, and iPhone and
-iPad.
+There are versions for Windows and Linux computers and for Android phones and tablets.
 
 ## In this guide
 

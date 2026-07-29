@@ -132,6 +132,11 @@ export const SCENARIOS: Scenario[] = [
         text: 'The Sync button works entirely inside Lexbox: it merges the project’s two copies — FieldWorks Lite and FieldWorks Classic.',
       },
       {
+        hlNodes: ['cloud'],
+        badge: 'you',
+        text: 'It lives in two places — the Lexbox tab under Synchronize in FieldWorks Lite, and “Sync FieldWorks Lite” on your project’s page on the Lexbox website — and both do exactly the same thing.',
+      },
+      {
         t1: 'leg2',
         legs: ['leg2'],
         text: 'Changes flow both ways at once: your Lite edits go into the Classic copy, and any Classic changes come back into the Lite copy.',
