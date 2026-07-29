@@ -10,6 +10,7 @@
   import CommentReplyInput from './CommentReplyInput.svelte';
   import CommentThread from './CommentThread.svelte';
   import type {ThreadView} from './types';
+  import {slide} from 'svelte/transition';
 
   let {
     canComment,
@@ -124,20 +125,20 @@
           </Button>
         {/if}
         {#if canComment}
-          <Button size="xs" class="h-7 px-2.5 text-xs" onclick={startAdding}>
-            {$t`+ Add`}
+          <Button size="xs" icon="i-mdi-plus" class="h-7 px-2.5 text-xs" onclick={startAdding}>
+            {$t`Conversation`}
           </Button>
         {/if}
       </div>
     </div>
 
     {#if addingComment}
-      <div class="flex shrink-0 flex-col gap-2 border-b border-border bg-muted px-3.5 py-3">
+      <div class="flex shrink-0 flex-col gap-2 border-b border-border px-3.5 py-3" transition:slide>
         {#if canComment}
           <Textarea
             autofocus
             bind:value={newThreadText}
-            placeholder={$t`Add a comment…`}
+            placeholder={$t`Start a conversation…`}
             rows={3}
             disabled={loading || saving}
             class="text-sm"
@@ -226,11 +227,18 @@
         {#if loading}
           <p class="pt-8 text-center text-[13px] text-muted-foreground">{$t`Loading comments...`}</p>
         {:else if visibleThreads.length === 0}
-          <div class="pt-8 text-center text-[13px] leading-relaxed text-muted-foreground">
-            {$t`No open comments`}
-            <br />
-            <span class="text-xs">{$t`Use "+ Add" to start a thread`}</span>
-          </div>
+            {#if canComment}
+                <div class="pt-8 text-center text-[13px] leading-relaxed text-muted-foreground">
+                    <p>{$t`No open conversations`}</p>
+                    <Button size="xs" icon="i-mdi-plus" class="h-7 px-2.5 text-xs" onclick={startAdding}>
+                    {$t`Start a conversation`}
+                    </Button>
+                </div>
+            {:else}
+                <p class="pt-8 text-center text-[13px] text-muted-foreground">
+                    {$t`No open conversations`}
+                </p>
+            {/if}
         {:else}
           {#each visibleThreads as threadView (threadView.thread.id)}
             <CommentThread
