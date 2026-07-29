@@ -17,8 +17,9 @@ const config: Config = {
   },
 
   // Deploy target and DNS are still a team decision.
-  url: 'https://docs.lexbox.org',
-  baseUrl: '/',
+  // Overridable so CI can deploy previews to another host (e.g. a fork's GitHub Pages).
+  url: process.env.DOCS_URL ?? 'https://docs.lexbox.org',
+  baseUrl: process.env.DOCS_BASE_URL ?? '/',
 
   organizationName: 'sillsdev',
   projectName: 'languageforge-lexbox',
