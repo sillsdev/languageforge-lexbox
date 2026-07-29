@@ -11,7 +11,7 @@ const sections = [
   {to: '/technical/', label: 'Technical documentation'},
 ];
 
-export default function Home(): ReactNode {
+const Home = (): ReactNode => {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout description={siteConfig.tagline}>
@@ -32,4 +32,6 @@ export default function Home(): ReactNode {
       </main>
     </Layout>
   );
-}
+};
+
+export default Home;

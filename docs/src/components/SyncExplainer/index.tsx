@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState, type ReactNode} from 'react';
+import {useEffect, useRef, useState, type Dispatch, type ReactNode, type SetStateAction} from 'react';
 
 import {
   BADGE_LABELS,
@@ -33,16 +33,22 @@ interface TokenPos {
 
 const HIDDEN_TOKEN: TokenPos = {visible: false, x: 0, y: 0};
 
-function cx(...classes: (string | false | undefined)[]): string {
-  return classes.filter(Boolean).join(' ');
-}
+const cx = (...classes: (string | false | undefined)[]): string => classes.filter(Boolean).join(' ');
 
 /** Only INITIAL.text uses this; step sentences are plain text. */
-function withBold(text: string): ReactNode[] {
-  return text.split(/\*\*(.+?)\*\*/g).map((part, i) => (i % 2 ? <b key={i}>{part}</b> : part));
-}
+const withBold = (text: string): ReactNode[] => {
+  let offset = 0;
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) => {
+    const key = offset;
+    offset += part.length;
+    return i % 2 ? <b key={key}>{part}</b> : <span key={key}>{part}</span>;
+  });
+};
 
-function NodeBox({
+const isTextInput = (el: HTMLElement | null): boolean =>
+  Boolean(el?.isContentEditable) || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el?.tagName ?? '');
+
+const NodeBox = ({
   label,
   icon,
   hl,
@@ -56,20 +62,18 @@ function NodeBox({
   dim: boolean;
   checked: boolean;
   elRef: (el: HTMLDivElement | null) => void;
-}): ReactNode {
-  return (
-    <div ref={elRef} className={cx(styles.node, hl && styles.hl, dim && styles.dim)}>
-      <span className={cx(styles.check, checked && styles.on)} aria-hidden="true">
-        ✓
-      </span>
-      {icon && <div className={styles.icon}>{icon}</div>}
-      <div className={styles.k}>{label.kind}</div>
-      <div className={styles.n}>{label.name}</div>
-    </div>
-  );
-}
+}): ReactNode => (
+  <div ref={elRef} className={cx(styles.node, hl && styles.hl, dim && styles.dim)}>
+    <span className={cx(styles.check, checked && styles.on)} aria-hidden="true">
+      ✓
+    </span>
+    {icon && <div className={styles.icon}>{icon}</div>}
+    <div className={styles.k}>{label.kind}</div>
+    <div className={styles.n}>{label.name}</div>
+  </div>
+);
 
-function Connector({
+const Connector = ({
   num,
   kind,
   trigger,
@@ -87,26 +91,24 @@ function Connector({
   off?: boolean;
   inner?: boolean;
   elRef: (el: HTMLDivElement | null) => void;
-}): ReactNode {
-  return (
-    <div
-      ref={elRef}
-      className={cx(
-        styles.connector,
-        styles[kind],
-        inner && styles.inner,
-        hl && styles.hl,
-        dim && styles.dim,
-        off && styles.off,
-      )}>
-      <span className={styles.legnum}>{num}</span>
-      <div className={styles.track}>
-        <span className={styles.ah2} />
-      </div>
-      <span className={styles.trigger}>{trigger}</span>
+}): ReactNode => (
+  <div
+    ref={elRef}
+    className={cx(
+      styles.connector,
+      styles[kind],
+      inner && styles.inner,
+      hl && styles.hl,
+      dim && styles.dim,
+      off && styles.off,
+    )}>
+    <span className={styles.legnum}>{num}</span>
+    <div className={styles.track}>
+      <span className={styles.ah2} />
     </div>
-  );
-}
+    <span className={styles.trigger}>{trigger}</span>
+  </div>
+);
 
 const phoneIcon = (
   <svg
@@ -152,7 +154,146 @@ const cloudIcon = (
   </svg>
 );
 
-export default function SyncExplainer(): ReactNode {
+interface StepQueries {
+  isHl: (id: NodeId | LegId) => boolean;
+  isDim: (id: NodeId | LegId) => boolean;
+  isChecked: (id: CheckableNodeId) => boolean;
+}
+
+const Topology = ({
+  step,
+  queries: {isHl, isDim, isChecked},
+  setEl,
+}: {
+  step: Step | null;
+  queries: StepQueries;
+  setEl: (id: MeasurableId) => (el: HTMLDivElement | null) => void;
+}): ReactNode => (
+  <div className={styles.topology}>
+    <div className={styles.col}>
+      <NodeBox
+        label={NODE_LABELS.device}
+        icon={phoneIcon}
+        hl={isHl('device')}
+        dim={isDim('device')}
+        checked={isChecked('device')}
+        elRef={setEl('device')}
+      />
+      <span className={cx(styles.ghost, step?.ghost && styles.on)}>{GHOST_LABEL}</span>
+    </div>
+
+    <Connector
+      num={1}
+      kind="auto"
+      trigger={step?.offline ? LEG_TRIGGERS.offline : LEG_TRIGGERS.leg1}
+      hl={isHl('leg1')}
+      dim={isDim('leg1')}
+      off={step?.offline}
+      elRef={setEl('leg1')}
+    />
+
+    <div
+      ref={setEl('cloud')}
+      className={cx(styles.cloud, isHl('cloud') && styles.hl, isDim('cloud') && styles.dim)}>
+      <div className={styles.cloudHead}>
+        <span className={styles.n}>
+          {cloudIcon} {CLOUD_LABELS.name}
+        </span>
+        <span className={styles.sub}>{CLOUD_LABELS.sub}</span>
+      </div>
+      <div className={styles.copies}>
+        <NodeBox
+          label={NODE_LABELS.liteCopy}
+          hl={isHl('liteCopy')}
+          dim={isDim('liteCopy')}
+          checked={isChecked('liteCopy')}
+          elRef={setEl('liteCopy')}
+        />
+        <Connector
+          num={2}
+          kind="manual"
+          inner
+          trigger={LEG_TRIGGERS.leg2}
+          hl={isHl('leg2')}
+          dim={isDim('leg2')}
+          elRef={setEl('leg2')}
+        />
+        <NodeBox
+          label={NODE_LABELS.classicCopy}
+          hl={isHl('classicCopy')}
+          dim={isDim('classicCopy')}
+          checked={isChecked('classicCopy')}
+          elRef={setEl('classicCopy')}
+        />
+      </div>
+    </div>
+
+    <Connector
+      num={3}
+      kind="their"
+      trigger={LEG_TRIGGERS.leg3}
+      hl={isHl('leg3')}
+      dim={isDim('leg3')}
+      elRef={setEl('leg3')}
+    />
+
+    <div className={styles.col}>
+      <NodeBox
+        label={NODE_LABELS.colleague}
+        icon={desktopIcon}
+        hl={isHl('colleague')}
+        dim={isDim('colleague')}
+        checked={isChecked('colleague')}
+        elRef={setEl('colleague')}
+      />
+    </div>
+  </div>
+);
+
+const Stepper = ({
+  scenario,
+  stepIndex,
+  setStepIndex,
+  onReset,
+}: {
+  scenario: Scenario;
+  stepIndex: number;
+  setStepIndex: Dispatch<SetStateAction<number>>;
+  onReset: () => void;
+}): ReactNode => {
+  const lastStep = stepIndex === scenario.steps.length - 1;
+  return (
+    <div className={styles.stepper}>
+      <div className={styles.dots} aria-hidden="true">
+        {scenario.steps.map((s, i) => (
+          <i key={s.text} className={cx(i === stepIndex && styles.cur)} />
+        ))}
+      </div>
+      <span className={styles.count}>{STEPPER_LABELS.count(stepIndex + 1, scenario.steps.length)}</span>
+      <span className={styles.grow} />
+      <button
+        type="button"
+        disabled={stepIndex === 0}
+        onClick={() => setStepIndex((i) => Math.max(i - 1, 0))}>
+        {STEPPER_LABELS.back}
+      </button>
+      <button
+        type="button"
+        className={styles.primary}
+        disabled={lastStep}
+        onClick={() => setStepIndex((i) => Math.min(i + 1, scenario.steps.length - 1))}>
+        {STEPPER_LABELS.next}
+      </button>
+      {lastStep && (
+        <button type="button" onClick={onReset}>
+          {STEPPER_LABELS.reset}
+        </button>
+      )}
+    </div>
+  );
+};
+
+const SyncExplainer = (): ReactNode => {
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [tokens, setTokens] = useState<[TokenPos, TokenPos]>([HIDDEN_TOKEN, HIDDEN_TOKEN]);
@@ -166,12 +307,14 @@ export default function SyncExplainer(): ReactNode {
   };
 
   const step: Step | null = scenario ? scenario.steps[stepIndex] : null;
-  const lastStep = scenario ? stepIndex === scenario.steps.length - 1 : false;
 
-  const has = (list: readonly string[] | undefined, id: string): boolean => !!list?.includes(id);
-  const isHl = (id: NodeId | LegId): boolean => has(step?.legs, id) || has(step?.hlNodes, id);
-  const isDim = (id: NodeId | LegId): boolean => has(step?.dim, id);
-  const isChecked = (id: CheckableNodeId): boolean => has(step?.check, id);
+  const has = (list: readonly string[] | undefined, id: string): boolean =>
+    Boolean(list?.includes(id));
+  const queries: StepQueries = {
+    isHl: (id) => has(step?.legs, id) || has(step?.hlNodes, id),
+    isDim: (id) => has(step?.dim, id),
+    isChecked: (id) => has(step?.check, id),
+  };
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -187,7 +330,7 @@ export default function SyncExplainer(): ReactNode {
         : rect.top - stageRect.top + rect.height / 2 - 8;
       return {visible: true, x: rect.left - stageRect.left + rect.width / 2 - 8 + offset, y};
     };
-    const coLocated = !!step?.t1 && step.t1 === step.t2;
+    const coLocated = step?.t1 !== undefined && step.t1 === step.t2;
     setTokens((previous) => [
       place(step?.t1, coLocated ? -12 : 0, previous[0]),
       place(step?.t2, coLocated ? 12 : 0, previous[1]),
@@ -210,14 +353,15 @@ export default function SyncExplainer(): ReactNode {
   useEffect(() => {
     if (!scenario) return;
     const onKeyDown = (e: KeyboardEvent): void => {
-      const target = e.target as HTMLElement | null;
       // Don't steal arrow keys from the search box or any other text field.
-      if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName ?? '')) return;
+      if (isTextInput(e.target as HTMLElement | null)) return;
       if (e.key === 'ArrowRight') setStepIndex((i) => Math.min(i + 1, scenario.steps.length - 1));
       if (e.key === 'ArrowLeft') setStepIndex((i) => Math.max(i - 1, 0));
     };
     document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+    };
   }, [scenario]);
 
   const selectScenario = (s: Scenario): void => {
@@ -226,90 +370,17 @@ export default function SyncExplainer(): ReactNode {
     capTitleRef.current?.focus({preventScroll: true});
   };
 
+  const reset = (): void => {
+    setScenario(null);
+    setStepIndex(0);
+  };
+
   const badge = step?.badge;
 
   return (
     <div className={styles.root}>
       <div className={styles.stage} ref={stageRef}>
-        <div className={styles.topology}>
-          <div className={styles.col}>
-            <NodeBox
-              label={NODE_LABELS.device}
-              icon={phoneIcon}
-              hl={isHl('device')}
-              dim={isDim('device')}
-              checked={isChecked('device')}
-              elRef={setEl('device')}
-            />
-            <span className={cx(styles.ghost, step?.ghost && styles.on)}>{GHOST_LABEL}</span>
-          </div>
-
-          <Connector
-            num={1}
-            kind="auto"
-            trigger={step?.offline ? LEG_TRIGGERS.offline : LEG_TRIGGERS.leg1}
-            hl={isHl('leg1')}
-            dim={isDim('leg1')}
-            off={step?.offline}
-            elRef={setEl('leg1')}
-          />
-
-          <div
-            ref={setEl('cloud')}
-            className={cx(styles.cloud, isHl('cloud') && styles.hl, isDim('cloud') && styles.dim)}>
-            <div className={styles.cloudHead}>
-              <span className={styles.n}>
-                {cloudIcon} {CLOUD_LABELS.name}
-              </span>
-              <span className={styles.sub}>{CLOUD_LABELS.sub}</span>
-            </div>
-            <div className={styles.copies}>
-              <NodeBox
-                label={NODE_LABELS.liteCopy}
-                hl={isHl('liteCopy')}
-                dim={isDim('liteCopy')}
-                checked={isChecked('liteCopy')}
-                elRef={setEl('liteCopy')}
-              />
-              <Connector
-                num={2}
-                kind="manual"
-                inner
-                trigger={LEG_TRIGGERS.leg2}
-                hl={isHl('leg2')}
-                dim={isDim('leg2')}
-                elRef={setEl('leg2')}
-              />
-              <NodeBox
-                label={NODE_LABELS.classicCopy}
-                hl={isHl('classicCopy')}
-                dim={isDim('classicCopy')}
-                checked={isChecked('classicCopy')}
-                elRef={setEl('classicCopy')}
-              />
-            </div>
-          </div>
-
-          <Connector
-            num={3}
-            kind="their"
-            trigger={LEG_TRIGGERS.leg3}
-            hl={isHl('leg3')}
-            dim={isDim('leg3')}
-            elRef={setEl('leg3')}
-          />
-
-          <div className={styles.col}>
-            <NodeBox
-              label={NODE_LABELS.colleague}
-              icon={desktopIcon}
-              hl={isHl('colleague')}
-              dim={isDim('colleague')}
-              checked={isChecked('colleague')}
-              elRef={setEl('colleague')}
-            />
-          </div>
-        </div>
+        <Topology step={step} queries={queries} setEl={setEl} />
 
         {([
           ['you', TOKEN_TAGS.you, tokens[0]],
@@ -359,42 +430,11 @@ export default function SyncExplainer(): ReactNode {
         </h3>
         <p>{step ? step.text : withBold(INITIAL.text)}</p>
         {scenario && (
-          <div className={styles.stepper}>
-            <div className={styles.dots} aria-hidden="true">
-              {scenario.steps.map((s, i) => (
-                <i key={s.text} className={cx(i === stepIndex && styles.cur)} />
-              ))}
-            </div>
-            <span className={styles.count}>
-              {STEPPER_LABELS.count(stepIndex + 1, scenario.steps.length)}
-            </span>
-            <span className={styles.grow} />
-            <button
-              type="button"
-              disabled={stepIndex === 0}
-              onClick={() => setStepIndex((i) => Math.max(i - 1, 0))}>
-              {STEPPER_LABELS.back}
-            </button>
-            <button
-              type="button"
-              className={styles.primary}
-              disabled={lastStep}
-              onClick={() => setStepIndex((i) => Math.min(i + 1, scenario.steps.length - 1))}>
-              {STEPPER_LABELS.next}
-            </button>
-            {lastStep && (
-              <button
-                type="button"
-                onClick={() => {
-                  setScenario(null);
-                  setStepIndex(0);
-                }}>
-                {STEPPER_LABELS.reset}
-              </button>
-            )}
-          </div>
+          <Stepper scenario={scenario} stepIndex={stepIndex} setStepIndex={setStepIndex} onReset={reset} />
         )}
       </div>
     </div>
   );
-}
+};
+
+export default SyncExplainer;

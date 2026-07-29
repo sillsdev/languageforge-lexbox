@@ -16,7 +16,8 @@ to open a real project, because that is where your team's projects live.
 
 No. It is a companion to FieldWorks Classic. Think of it as an easier way to do everyday
 dictionary work, especially away from your desk. FieldWorks Classic is still the place
-for everything else in your project.
+for everything else in your project — it has its own
+[help and documentation](https://software.sil.org/fieldworks/).
 
 ### What can I work on in FieldWorks Lite?
 

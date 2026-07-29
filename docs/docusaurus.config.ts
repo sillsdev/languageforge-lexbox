@@ -1,7 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
-import type * as Preset from '@docusaurus/preset-classic';
-import type * as DocsPlugin from '@docusaurus/plugin-content-docs';
+import type {Options as PresetOptions, ThemeConfig} from '@docusaurus/preset-classic';
+import type {Options as DocsOptions} from '@docusaurus/plugin-content-docs';
 
 // Docusaurus appends the path of each doc relative to this directory.
 const editUrl = 'https://github.com/sillsdev/languageforge-lexbox/tree/develop/docs';
@@ -44,7 +44,7 @@ const config: Config = {
         theme: {
           customCss: './src/css/custom.css',
         },
-      } satisfies Preset.Options,
+      } satisfies PresetOptions,
     ],
   ],
 
@@ -57,7 +57,7 @@ const config: Config = {
         routeBasePath: 'user-guide',
         sidebarPath: './sidebars.ts',
         editUrl,
-      } satisfies DocsPlugin.Options,
+      } satisfies DocsOptions,
     ],
     [
       '@docusaurus/plugin-content-docs',
@@ -67,7 +67,7 @@ const config: Config = {
         routeBasePath: 'technical',
         sidebarPath: './sidebars.ts',
         editUrl,
-      } satisfies DocsPlugin.Options,
+      } satisfies DocsOptions,
     ],
   ],
 
@@ -100,7 +100,7 @@ const config: Config = {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
     },
-  } satisfies Preset.ThemeConfig,
+  } satisfies ThemeConfig,
 };
 
 export default config;
