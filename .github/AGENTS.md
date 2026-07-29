@@ -16,6 +16,12 @@ The CI/CD setup is:
 3. Consider if changes will increase build times
 4. Check if the change needs to work across multiple OS/platforms
 
+## 🔒 Cluster Access and Privacy (non-negotiable)
+
+- **NEVER access a k8s cluster without explicit permission** for that specific cluster — no `kubectl`, `helm`, `k9s`, port-forwards, or log pulls. Production requires an instruction that explicitly names production. The only exception is a throwaway local cluster (e.g. kind) you started yourself.
+- **Never push to the fleet repo** — pushing there IS deploying.
+- **Everything from a real environment is private.** Logs, DB contents, project codes, project/language names, user names: none of it goes into GitHub issues/PRs/comments or anywhere else online. Full rules in the root `AGENTS.md` (🔒 Privacy and Production Access).
+
 ---
 
 ## Workflow Overview
