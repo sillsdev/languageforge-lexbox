@@ -494,6 +494,10 @@ msgstr "Comments"
 msgid "Comments for {0}"
 msgstr "Comments for {0}"
 
+#: src/project/browse/EntryView.svelte
+msgid "Comments, {0} unread"
+msgstr "Comments, {0} unread"
+
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
