@@ -891,27 +891,6 @@
     "EntityId": "e92d4673-888c-3204-0767-17adc2a2405e"
   },
   {
-    "$type": "SetComplexFormComponentChange",
-    "ComplexFormEntryId": "bf296463-7b81-4a33-b9e7-6f4f8179715e",
-    "ComponentEntryId": null,
-    "ComponentSenseId": null,
-    "EntityId": "d5c89801-cedc-403e-9ed6-f734ad0ddf23"
-  },
-  {
-    "$type": "SetComplexFormComponentChange",
-    "ComplexFormEntryId": null,
-    "ComponentEntryId": "470eb4a9-50d7-4c28-93b2-019b1e5cf9d6",
-    "ComponentSenseId": null,
-    "EntityId": "beaa8382-2b49-45a5-81eb-e5825004fb98"
-  },
-  {
-    "$type": "SetComplexFormComponentChange",
-    "ComplexFormEntryId": null,
-    "ComponentEntryId": "e0d469cd-9d2f-44f5-8147-102f683c18ed",
-    "ComponentSenseId": "7a1c054f-472a-473f-afed-16f75fe9a90f",
-    "EntityId": "01b98e0e-c95f-430d-9512-9db44fdf7b2a"
-  },
-  {
     "$type": "jsonPatch:Publication",
     "PatchDocument": [],
     "EntityId": "da783ead-7895-42f5-958f-263816a3a1ef"

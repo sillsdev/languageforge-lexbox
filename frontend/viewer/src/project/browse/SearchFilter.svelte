@@ -23,6 +23,7 @@
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {Button} from '$lib/components/ui/button';
+  import Hotkey from '$lib/components/hotkey/hotkey.svelte';
 
   const stats = useProjectStats();
   const viewService = useViewService();
@@ -42,6 +43,7 @@
     publication?: IPublication;
   } = $props();
 
+  let inputRef = $state<HTMLInputElement | null>(null);
   let missingField = $state<MissingOption | null>(null);
   let selectedField = $state<SelectedField | null>(null);
   let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsId));
@@ -49,6 +51,11 @@
   let filterOp = $state<Op>('contains')
   let includeSubDomains = $state(false);
   let userFilterActive = $state(false);
+
+  function focusSearch() {
+    inputRef?.focus();
+    inputRef?.select();
+  }
 
   const LITE_MORPHEME_TYPES = new Set([
     MorphTypeKind.Root, MorphTypeKind.BoundRoot,
@@ -114,8 +121,27 @@
     return v.replace(/([(),|\\]|\/i)/g, '\\$1');
   }
 
+  const canReset = $derived(userFilterActive || !!search || fieldFilterValue !== '');
+
+  function resetFilters() {
+    search = '';
+    missingField = null;
+    // null tells FieldSelect to fall back to its default field; WsSelect then reacts to the
+    // wsType change and repopulates selectedWs with the full writing-system set.
+    selectedField = null;
+    selectedWs = wsService.vernacularNoAudio.map(ws => ws.wsId);
+    fieldFilterValue = '';
+    filterOp = 'contains';
+    includeSubDomains = false;
+    semanticDomain = undefined;
+    partOfSpeech = undefined;
+    publication = undefined;
+  }
+
   let filtersExpanded = $state(false);
 </script>
+
+<Hotkey key="f" onHotkey={focusSearch} />
 
 {#snippet placeholder()}
   {#if stats.current?.totalEntryCount !== undefined}
@@ -131,7 +157,7 @@
 
 <div class="flex items-center gap-0.5">
   <Sidebar.Trigger icon="i-mdi-menu" class="aspect-square p-0" />
-  <ComposableInput bind:value={search} inputProps={{ 'aria-label': $t`Filter` }} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
+  <ComposableInput bind:value={search} bind:inputRef inputProps={{ 'aria-label': $t`Filter` }} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
     {#snippet after()}
       <ResponsivePopup
         bind:open={filtersExpanded}
@@ -141,6 +167,11 @@
           class: 'md:w-96'
         }}
       >
+        {#snippet titleActions()}
+          <Button variant="ghost" size="sm" icon="i-mdi-filter-remove-outline" onclick={resetFilters} disabled={!canReset}>
+            {$t`Reset`}
+          </Button>
+        {/snippet}
         {#snippet trigger({ props })}
           <Button {...props} variant="ghost"
             size={IsMobile.value ? 'icon-sm' : 'icon-xs'}

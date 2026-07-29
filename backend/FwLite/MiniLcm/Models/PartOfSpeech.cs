@@ -1,6 +1,6 @@
 namespace MiniLcm.Models;
 
-public class PartOfSpeech : IObjectWithId<PartOfSpeech>
+public class PartOfSpeech : IPossibility, IObjectWithId<PartOfSpeech>
 {
     public Guid Id { get; set; }
     public virtual MultiString Name { get; set; } = new();

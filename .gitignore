@@ -43,6 +43,7 @@ failedSyncs/
 .claude/worktrees/
 .claude/settings.local.json
 .claude/CLAUDE.local.md
+AGENTS.local.md
 .claude/scheduled_tasks.lock
 .claude/agent-memory-local/
 screenshots/

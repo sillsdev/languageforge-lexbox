@@ -53,6 +53,7 @@ public static class GraphQlSetupKernel
                 descriptor.AddDeterministicInvariantContainsFilter();
             })
             .AddProjections()
+            .RegisterDbContextFactory<LexBoxDbContext>()
             .ModifyPagingOptions(options =>
             {
                 options.DefaultPageSize = 100;

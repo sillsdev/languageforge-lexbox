@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Hotkey from '$lib/components/hotkey/hotkey.svelte';
   import MasterDetailView from '$lib/components/master-detail/MasterDetailView.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import EntryView from './EntryView.svelte';
@@ -7,6 +8,7 @@
   import {t} from 'svelte-i18n-lingui';
   import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {useFeatures} from '$lib/services/feature-service';
   import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
   import {BrowseParam} from '$lib/utils/search-params';
   import {pt} from '$lib/views/view-text';
@@ -23,6 +25,7 @@
   const projectContext = useProjectContext();
   const viewService = useViewService();
   const dialogsService = useDialogsService();
+  const features = useFeatures();
   const entryListViewMode = useProjectStorage().entryListViewMode;
 
   let selectedId = $state('');
@@ -52,6 +55,7 @@
     await entriesList?.tryToScrollToEntry(selectedId);
   }
 </script>
+<Hotkey key="e" disabled={!features.write} onHotkey={() => void newEntry()} />
 <SidebarPrimaryAction>
   {#snippet children(isOpen: boolean)}
     <PrimaryNewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>

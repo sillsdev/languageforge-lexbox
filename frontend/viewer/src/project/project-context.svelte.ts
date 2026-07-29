@@ -98,6 +98,11 @@ export class ProjectContext {
   public get features(): IMiniLcmFeatures {
     return this.#features.current;
   }
+
+  /** Re-fetch {@link features} from the API (e.g. after a test toggles demo write). */
+  public refetchFeatures(): Promise<IMiniLcmFeatures | undefined> {
+    return this.#features.refetch();
+  }
   public get historyService(): IHistoryServiceJsInvokable | undefined {
     return this.#historyService;
   }

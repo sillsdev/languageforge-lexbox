@@ -2,7 +2,6 @@ using System.Buffers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using FluentAssertions.Execution;
-using LcmCrdt.Changes.Entries;
 using LcmCrdt.Tests.Data;
 using SIL.Harmony.Changes;
 
@@ -12,15 +11,6 @@ public class ChangeSerializationTests : BaseSerializationTest
 {
     private static IEnumerable<IChange> GeneratedChangesForType(Type type)
     {
-        //can't generate this type because there's no public constructor
-        if (type == typeof(SetComplexFormComponentChange))
-        {
-            yield return SetComplexFormComponentChange.NewComplexForm(Guid.NewGuid(), Guid.NewGuid());
-            yield return SetComplexFormComponentChange.NewComponent(Guid.NewGuid(), Guid.NewGuid());
-            yield return SetComplexFormComponentChange.NewComponentSense(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
-            yield break;
-        }
-
         object change;
         try
         {

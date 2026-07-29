@@ -94,6 +94,10 @@ msgstr "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWo
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "{num, plural, one {Show # more...} other {Show # more...}}"
+msgstr ""
+
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -110,15 +114,7 @@ msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* 
 msgstr "**Terminologi yang lebih sederhana** (mis. *Kata* alih-alih *Bentuk leksem*, *Makna* alih-alih *Rasa*)"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "↩ Reopen"
-msgstr ""
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "+ Add"
-msgstr ""
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "✓ Resolve"
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
@@ -129,6 +125,14 @@ msgstr ""
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Versi baru FieldWorks Lite telah tersedia."
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "A similar entry already exists"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "A similar word already exists"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
@@ -230,6 +234,7 @@ msgstr ""
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Semua"
@@ -397,8 +402,7 @@ msgstr ""
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -419,6 +423,14 @@ msgstr "Perubahan juga dapat terjadi karena adanya penambahan field pada versi b
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Mengubah bidang yang sama dua kali, misalnya, dapat menghasilkan dua komit namun hanya satu perubahan yang perlu diterapkan ke FieldWorks Classic. Commit juga dapat terdiri dari beberapa perubahan."
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Checking for similar entries…"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Checking for similar words…"
+msgstr ""
 
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -455,6 +467,7 @@ msgstr "jelas"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/comments/CommentDialog.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Tutup"
@@ -550,6 +563,14 @@ msgstr "Disalin ke papan klip"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
 msgstr "Versi salin"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Could not check for similar entries"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Could not check for similar words"
+msgstr ""
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
@@ -1174,6 +1195,14 @@ msgstr "Arti Singkat"
 msgid "Go to {0}"
 msgstr "Buka {0}"
 
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Go to entry"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Go to word"
+msgstr ""
+
 #. Filter option label
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
@@ -1199,6 +1228,10 @@ msgstr ""
 #: src/project/browse/sort/SortMenu.svelte
 msgid "Headword"
 msgstr "Headword"
+
+#: src/project/ProjectSidebar.svelte
+msgid "Help & More"
+msgstr ""
 
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
@@ -1538,6 +1571,7 @@ msgstr "Tidak pernah."
 
 #. Badge label on the primary "New Entry" / "New Word" button indicating it creates a new item.
 #: src/project/PrimaryNewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Baru"
 
@@ -1556,6 +1590,7 @@ msgstr "Data baru"
 #. Dialog title for creating new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "Entri Baru"
 
@@ -1571,6 +1606,7 @@ msgstr ""
 #. Classic view equivalent: "New Entry"
 #. Dialog title for creating new word
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Word"
 msgstr "Kata Baru"
@@ -1668,6 +1704,14 @@ msgstr "Tidak ada server"
 #: src/project/ProjectSidebar.svelte
 msgid "No server configured"
 msgstr "Tidak ada server yang dikonfigurasi"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "No similar entries found"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "No similar words found"
+msgstr ""
 
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte
@@ -2014,6 +2058,7 @@ msgstr "Menghapus audio"
 
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Reopen"
 msgstr "Buka kembali"
@@ -2027,18 +2072,12 @@ msgstr "Mengganti audio"
 msgid "Replace Picture"
 msgstr ""
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-#: src/lib/entry-editor/comments/CommentThread.svelte
-#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply"
 msgstr ""
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Reply to this thread"
-msgstr ""
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply…"
 msgstr ""
 
@@ -2047,6 +2086,11 @@ msgstr ""
 msgid "Report a technical problem"
 msgstr "Melaporkan masalah teknis"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Reset"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
 msgstr ""
@@ -2065,6 +2109,19 @@ msgstr "Ulasan"
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
 msgstr "naik"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same headword"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same lexeme form"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same word"
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
@@ -2134,6 +2191,10 @@ msgstr "Pilih setidaknya satu sistem penulisan bahasa daerah"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "Pilih file"
+
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Selected"
+msgstr ""
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
@@ -2209,6 +2270,30 @@ msgstr "Tampilkan {0} selengkapnya..."
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar entries already exist"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar gloss"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar headword"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar meaning"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar word"
+msgstr ""
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar words already exist"
 msgstr ""
 
 #. View option
@@ -2409,6 +2494,10 @@ msgstr "{0} ini telah dihapus"
 msgid "This date # and this emoji # are snippets"
 msgstr "Tanggal ini # dan emoji ini # adalah cuplikan"
 
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "This entry may already exist"
+msgstr ""
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr ""
@@ -2445,6 +2534,10 @@ msgstr "Tugas ini selesai"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Ini akan menyinkronkan salinan FieldWorks Lite dan FieldWorks Classic dari proyek Anda di Lexbox."
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "This word may already exist"
+msgstr ""
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte

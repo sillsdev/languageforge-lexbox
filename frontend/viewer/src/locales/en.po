@@ -89,6 +89,10 @@ msgstr "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWo
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "{num, plural, one {Show # more...} other {Show # more...}}"
+msgstr "{num, plural, one {Show # more...} other {Show # more...}}"
+
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -105,16 +109,8 @@ msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* 
 msgstr "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "↩ Reopen"
-msgstr "↩ Reopen"
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "+ Add"
 msgstr "+ Add"
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "✓ Resolve"
-msgstr "✓ Resolve"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
@@ -124,6 +120,14 @@ msgstr "1 reply"
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "A new version of FieldWorks Lite is available."
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "A similar entry already exists"
+msgstr "A similar entry already exists"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "A similar word already exists"
+msgstr "A similar word already exists"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
@@ -225,6 +229,7 @@ msgstr "Add your first entry to start building your dictionary."
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "All"
@@ -392,8 +397,7 @@ msgstr "Browse view failed"
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -414,6 +418,14 @@ msgstr "Changes can also be the result of fields being added to new versions of 
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Checking for similar entries…"
+msgstr "Checking for similar entries…"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Checking for similar words…"
+msgstr "Checking for similar words…"
 
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -450,6 +462,7 @@ msgstr "clear"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/comments/CommentDialog.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Close"
@@ -545,6 +558,14 @@ msgstr "Copied to clipboard"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
 msgstr "Copy version"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Could not check for similar entries"
+msgstr "Could not check for similar entries"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Could not check for similar words"
+msgstr "Could not check for similar words"
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
@@ -1169,6 +1190,14 @@ msgstr "Gloss"
 msgid "Go to {0}"
 msgstr "Go to {0}"
 
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Go to entry"
+msgstr "Go to entry"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Go to word"
+msgstr "Go to word"
+
 #. Filter option label
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
@@ -1194,6 +1223,10 @@ msgstr "Harmony snapshots regenerated successfully"
 #: src/project/browse/sort/SortMenu.svelte
 msgid "Headword"
 msgstr "Headword"
+
+#: src/project/ProjectSidebar.svelte
+msgid "Help & More"
+msgstr "Help & More"
 
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
@@ -1533,6 +1566,7 @@ msgstr "Never"
 
 #. Badge label on the primary "New Entry" / "New Word" button indicating it creates a new item.
 #: src/project/PrimaryNewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "New"
 
@@ -1551,6 +1585,7 @@ msgstr "New data"
 #. Dialog title for creating new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "New Entry"
 
@@ -1566,6 +1601,7 @@ msgstr "New Project (Local only)"
 #. Classic view equivalent: "New Entry"
 #. Dialog title for creating new word
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Word"
 msgstr "New Word"
@@ -1663,6 +1699,14 @@ msgstr "No server"
 #: src/project/ProjectSidebar.svelte
 msgid "No server configured"
 msgstr "No server configured"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "No similar entries found"
+msgstr "No similar entries found"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "No similar words found"
+msgstr "No similar words found"
 
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte
@@ -2009,6 +2053,7 @@ msgstr "Remove audio"
 
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Reopen"
 msgstr "Reopen"
@@ -2022,18 +2067,12 @@ msgstr "Replace audio"
 msgid "Replace Picture"
 msgstr "Replace Picture"
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-#: src/lib/entry-editor/comments/CommentThread.svelte
-#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply"
 msgstr "Reply"
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Reply to this thread"
-msgstr "Reply to this thread"
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply…"
 msgstr "Reply…"
 
@@ -2042,6 +2081,11 @@ msgstr "Reply…"
 msgid "Report a technical problem"
 msgstr "Report a technical problem"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Reset"
+msgstr "Reset"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
 msgstr "Resolve"
@@ -2060,6 +2104,19 @@ msgstr "Review"
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
 msgstr "rose"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same headword"
+msgstr "Same headword"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same lexeme form"
+msgstr "Same lexeme form"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same word"
+msgstr "Same word"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
@@ -2129,6 +2186,10 @@ msgstr "Select at least one vernacular writing system"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "Select file"
+
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Selected"
+msgstr "Selected"
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
@@ -2205,6 +2266,30 @@ msgstr "Show {0} more..."
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Sign in to add comments."
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar entries already exist"
+msgstr "Similar entries already exist"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar gloss"
+msgstr "Similar gloss"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar headword"
+msgstr "Similar headword"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar meaning"
+msgstr "Similar meaning"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar word"
+msgstr "Similar word"
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar words already exist"
+msgstr "Similar words already exist"
 
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
@@ -2404,6 +2489,10 @@ msgstr "This {0} was deleted"
 msgid "This date # and this emoji # are snippets"
 msgstr "This date # and this emoji # are snippets"
 
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "This entry may already exist"
+msgstr "This entry may already exist"
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "This file is only available remotely."
@@ -2440,6 +2529,10 @@ msgstr "This task is complete"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
+
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "This word may already exist"
+msgstr "This word may already exist"
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte

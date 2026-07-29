@@ -48,7 +48,7 @@ public class DateTimeOffsetOrmParityTests(ITestOutputHelper output) : IAsyncLife
         // switches to EF this keeps the linq2db path (the one that needed the fix) under test.
         var l2dbTimestamp = await ctx.Set<Commit>().Where(c => c.Id == commit.Id)
             .ToLinqToDB().Select(c => c.HybridDateTime.DateTime).FirstAsyncLinqToDB();
-        var activityTimestamp = (await History.ProjectActivity(0, 1000).ToArrayAsync()).First(a => a.CommitId == commit.Id).Timestamp;
+        var activityTimestamp = (await History.ProjectActivity(0, 1000)).First(a => a.CommitId == commit.Id).Timestamp;
         var historyTimestamp = (await History.GetHistory(entryId).ToArrayAsync()).First(h => h.CommitId == commit.Id).Timestamp;
 
         foreach (var (name, value) in new[]

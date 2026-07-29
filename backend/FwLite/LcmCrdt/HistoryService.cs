@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using MiniLcm.Exceptions;
 using LinqToDB.Async;
+using SIL.Harmony.Entities;
 
 namespace LcmCrdt;
 
@@ -36,28 +37,46 @@ public static class ActivityFilterKeys
     public const string AuthorNamePrefix = "name:";
 }
 
+/// <summary>
+/// Resolved display info for one change, so the frontend can name what the change is about.
+/// <paramref name="Subject"/> is the entity the change is on (entry headword, "headword › gloss" for a sense, or a possibility's name);
+/// <paramref name="Target"/> is a referenced item named only by id (e.g. the assigned part of speech). Both null when unresolved.
+/// <paramref name="OwningEntryId"/> is the entry the change ultimately belongs to (the entry itself, or the owner of a sense/example);
+/// <paramref name="OwningEntryHeadword"/> is <paramref name="OwningEntryId"/>'s headword, for grouping a commit's changes under one entry.
+/// </summary>
+public record ActivityChangeInfo(string? Subject, Guid? OwningEntryId, string? Target = null, string? OwningEntryHeadword = null);
+
+public record ActivityChange(ChangeEntity<IChange> Entity, ActivityChangeInfo Info);
+
 public record ProjectActivity(
     Guid CommitId,
     DateTimeOffset Timestamp,
-    List<ChangeEntity<IChange>> Changes,
+    IReadOnlyList<ActivityChange> Changes,
     CommitMetadata Metadata)
 {
     public string ChangeName => HistoryService.ChangesNameHelper(Changes);
-    public string[] ChangeTypes { get; } = Changes.Select(c => HistoryService.GetChangeTypeKey(c.Change)).Distinct().ToArray();
 }
+
+/// <summary>The query-shaped activity row, before <see cref="ActivityChangeInfoResolver"/> turns it into a <see cref="ProjectActivity"/>.</summary>
+internal record UnresolvedActivity(
+    Guid CommitId,
+    DateTimeOffset Timestamp,
+    List<ChangeEntity<IChange>> Changes,
+    CommitMetadata Metadata);
 
 public record ChangeContext(
     Guid CommitId,
     int ChangeIndex,
     string ChangeName,
     IObjectWithId? Snapshot,
+    IObjectWithId? PreviousSnapshot,
     ICollection<Entry> AffectedEntries)
 {
-    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId? snapshot, ICollection<Entry> affectedEntries)
-        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, affectedEntries)
+    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId? snapshot, IObjectWithId? previousSnapshot, ICollection<Entry> affectedEntries)
+        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, previousSnapshot, affectedEntries)
     {
     }
-    public string EntityType => Snapshot?.GetType().Name ?? "Unknown";
+    public string EntityType => (Snapshot ?? PreviousSnapshot)?.GetType().Name ?? "Unknown";
 }
 
 public record HistoryLineItem(
@@ -105,7 +124,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             })
             .Select(g => new ActivityAuthor(g.Key.AuthorId, g.Key.AuthorName, g.Count()))
             .ToListAsyncLinqToDB();
-        return authors.OrderBy(a => a.AuthorName ?? "").ThenBy(a => a.AuthorId ?? "").ToArray();
+        return [.. authors.OrderBy(a => a.AuthorName ?? "").ThenBy(a => a.AuthorId ?? "")];
     }
 
     public async Task<ActivityChangeType[]> ListActivityChangeTypes()
@@ -131,7 +150,9 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         return registeredTypes;
     }
 
-    public async IAsyncEnumerable<ProjectActivity> ProjectActivity(int skip = 0, int take = 100, ActivityQuery? query = null)
+    // Returns a materialized page rather than streaming: ActivityChangeInfoResolver batch-loads labels
+    // across all changes in the page at once.
+    public async Task<ProjectActivity[]> ProjectActivity(int skip = 0, int take = 100, ActivityQuery? query = null)
     {
         query ??= new ActivityQuery();
         await using ICrdtDbContext dbContext = await dbContextFactory.CreateDbContextAsync();
@@ -139,14 +160,14 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         commits = ApplyActivitySort(commits, query.Sort);
         var queryable =
             from commit in commits.Skip(skip).Take(take)
-            select new ProjectActivity(commit.Id,
+            select new UnresolvedActivity(commit.Id,
                 commit.HybridDateTime.DateTime,
                 commit.ChangeEntities.ToList(),
                 commit.Metadata);
-        await foreach (var projectActivity in queryable.ToLinqToDB().AsAsyncEnumerable())
-        {
-            yield return projectActivity;
-        }
+
+        var activities = await queryable.ToLinqToDB().ToArrayAsyncLinqToDB();
+        var writingSystems = await miniLcmApi.GetWritingSystems();
+        return await ActivityChangeInfoResolver.ResolveAsync(dbContext, activities, writingSystems);
     }
 
     private static IQueryable<Commit> ApplyActivityFilters(IQueryable<Commit> commits, ActivityQuery query)
@@ -220,17 +241,20 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         };
     }
 
-    private static string GetChangeTypeKeyFromType(Type changeType)
+    /// <summary>
+    /// The serialized <c>$type</c> discriminator of a change type. Mirrors Harmony's own logic: generic/shared
+    /// changes (jsonPatch:, delete:, SetOrderChange:) define a custom static <c>TypeName</c>, while a dedicated
+    /// change class serializes under its CLR type name. Single source of truth — the ChangeTypes TS codegen
+    /// uses this too, so the generated list can't drift from the runtime discriminators.
+    /// </summary>
+    public static string GetChangeTypeKeyFromType(Type changeType)
     {
-        var typeNameProp = changeType.GetProperty("TypeName",
+        var typeNameProp = changeType.GetProperty(nameof(IPolyType.TypeName),
             System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy);
         if (typeNameProp?.GetValue(null) is string name)
             return name;
         return changeType.Name;
     }
-
-    internal static string GetChangeTypeKey(IChange change) =>
-        GetChangeTypeKeyFromType(change.GetType());
 
     public static string ChangeTypeLabel(Type changeType)
     {
@@ -299,23 +323,37 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException($"Change {changeIndex} not found in commit {commitId}");
 
-        // Use safe cast - some entity types like RemoteResource don't implement IObjectWithId
-        var snapshot = await dataModel.GetAtCommit<object>(commitId, change.EntityId) as IObjectWithId;
+        // These three branches are independent read-only lookups that each open their own
+        // DbContext (via the repository factories), so run them concurrently.
+        var snapshotTask = ResolveSnapshot(async () => await dataModel.GetAtCommit<object>(commitId, change.EntityId));
+        var previousSnapshotTask = ResolveSnapshot(() => dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
+        var affectedEntriesTask = GetAffectedEntryIds(change)
+            .Select(async (Guid entryId, CancellationToken _) => await GetCurrentOrLatestEntry(entryId))
+            .ToArrayAsync()
+            .AsTask();
 
+        await Task.WhenAll(snapshotTask, previousSnapshotTask, affectedEntriesTask);
+
+        return new ChangeContext(change, await snapshotTask, await previousSnapshotTask, await affectedEntriesTask);
+    }
+
+    // Some entity types like RemoteResource don't implement IObjectWithId, so cast safely.
+    private async Task<IObjectWithId?> ResolveSnapshot(Func<Task<object?>> fetch)
+    {
+        var snapshot = await fetch() as IObjectWithId;
+        await ResolveSensePartOfSpeech(snapshot);
+        return snapshot;
+    }
+
+    // Older sense snapshots didn't store the part-of-speech object, only its id; resolve it so previews can show a label.
+    private async Task ResolveSensePartOfSpeech(IObjectWithId? snapshot)
+    {
         if (snapshot is Sense sense && sense.PartOfSpeechId != sense.PartOfSpeech?.Id)
         {
-            // previously we didn't update the part of speech object on sense snapshots
-            // we do now, so we patch old snapshots
             sense.PartOfSpeech = sense.PartOfSpeechId.HasValue
                 ? await dataModel.GetLatest<PartOfSpeech>(sense.PartOfSpeechId.Value)
                 : null;
         }
-
-        var affectedEntries = await GetAffectedEntryIds(change)
-            .Select(async (Guid entryId, CancellationToken _) => await GetCurrentOrLatestEntry(entryId))
-            .ToArrayAsync();
-
-        return new ChangeContext(change, snapshot, affectedEntries);
     }
 
     private async Task<Entry> GetCurrentOrLatestEntry(Guid entryId)
@@ -361,14 +399,14 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         }
     }
 
-    public static string ChangesNameHelper(List<ChangeEntity<IChange>> changeEntities)
+    public static string ChangesNameHelper(IReadOnlyList<ActivityChange> changes)
     {
-        return changeEntities switch
+        return changes switch
         {
             { Count: 0 } => "No changes",
-            { Count: 1 } => ChangeNameHelper(changeEntities[0].Change),
-            { Count: > 10 } => $"{changeEntities.Count} changes",
-            { Count: var count } => $"{ChangeNameHelper(changeEntities[0].Change)} (+{count - 1} other change{(count > 2 ? "s" : "")})",
+            { Count: 1 } => ChangeNameHelper(changes[0].Entity.Change),
+            { Count: > 10 } => $"{changes.Count} changes",
+            { Count: var count } => $"{ChangeNameHelper(changes[0].Entity.Change)} (+{count - 1} other change{(count > 2 ? "s" : "")})",
         };
     }
 

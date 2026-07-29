@@ -54,6 +54,20 @@ task test:ui-standalone
 task test:ui-standalone -- entries-list --ui
 ```
 
+### Theme (light/dark + color) for screenshots
+
+Theming is `mode-watcher`. Don't click the `ThemePicker` popover — set it directly.
+
+**Light/dark mode** defaults to `system` (follows `prefers-color-scheme`), so emulate that media query:
+- Playwright: `await page.emulateMedia({colorScheme: 'dark'})` (or `'light'`). For both, use the `assertScreenshotInBothColorSchemes` helper.
+- Browser MCP: pass `colorScheme: 'dark'` to `resize_window`.
+
+(Only breaks if something first called `setMode`, which persists a preference that overrides system.)
+
+**Color theme** (`green`/`blue`/`rose`/`orange`/`violet`/`stone`; `blue` is the default) has no media query — set the `data-theme` attribute on `<html>` instead:
+- `document.documentElement.setAttribute('data-theme','violet')` (Browser MCP `javascript_tool`, or Playwright `page.evaluate`).
+- To survive a reload, set `localStorage['mode-watcher-theme']` before load.
+
 ## Tech Stack
 
 - **Framework**: SvelteKit + Vite

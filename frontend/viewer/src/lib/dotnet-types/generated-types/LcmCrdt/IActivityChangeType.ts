@@ -3,9 +3,11 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {ChangeType} from './ChangeType';
+
 export interface IActivityChangeType
 {
-	key: string;
+	key: ChangeType;
 	label: string;
 	commitCount: number;
 }

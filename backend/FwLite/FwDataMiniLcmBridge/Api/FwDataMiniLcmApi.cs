@@ -122,7 +122,7 @@ public class FwDataMiniLcmApi(
             Type = type,
             //todo determine current and create a property for that.
             WsId = ws.Id,
-            Name = ws.LanguageTag,
+            Name = ws.LanguageName,
             Abbreviation = ws.Abbreviation,
             Font = ws.DefaultFontName,
             Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
@@ -173,6 +173,8 @@ public class FwDataMiniLcmApi(
             {
                 Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.WsId.Code, out ws);
                 ws.Abbreviation = writingSystem.Abbreviation;
+                // writingSystem.Font is intentionally not applied: we want to default to liblcm's per-language default.
+                // If FwLite ever lets users pick fonts, revisit this and UpdateWritingSystemProxy.Font (which already applies changes)
                 switch (type)
                 {
                     case WritingSystemType.Analysis:

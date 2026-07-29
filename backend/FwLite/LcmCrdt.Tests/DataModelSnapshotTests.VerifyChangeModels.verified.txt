@@ -96,10 +96,6 @@
     TypeDiscriminator: ReplacePublicationChange
   },
   {
-    DerivedType: SetComplexFormComponentChange,
-    TypeDiscriminator: SetComplexFormComponentChange
-  },
-  {
     DerivedType: AddTranslationChange,
     TypeDiscriminator: AddTranslationChange
   },

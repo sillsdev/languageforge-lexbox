@@ -184,6 +184,8 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
+            typeof(ActivityChange),
+            typeof(ActivityChangeInfo),
             typeof(ActivityAuthor),
             typeof(ActivityChangeType),
             typeof(ActivityQuery),
@@ -197,6 +199,12 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(AvailableUpdate),
             typeof(HarmonyResource<LcmFileMetadata>),
         ], exportBuilder => exportBuilder.WithPublicProperties());
+
+        builder.ExportAsClass<ChangeType>().WithCodeGenerator<ChangeTypesCodeGenerator>();
+        builder.ExportAsInterface<ActivityChangeType>()
+            .WithProperty(t => t.Key, p => p.Type<ChangeType>());
+        builder.ExportAsInterface<ActivityQuery>()
+            .WithProperty(q => q.ChangeTypeKeys, p => p.Type<ChangeType[]>());
 
         builder.ExportAsEnum<ActivitySort>().UseString();
         builder.ExportAsEnum<FwEventType>().UseString();
