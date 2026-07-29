@@ -1,0 +1,626 @@
+.root {
+  --sx-surface: var(--ifm-background-surface-color);
+  --sx-surface-2: var(--ifm-color-emphasis-100);
+  --sx-ink: var(--ifm-font-color-base);
+  --sx-ink-soft: var(--ifm-color-emphasis-700);
+  --sx-line: var(--ifm-color-emphasis-300);
+  --sx-accent: #b45309;
+  --sx-accent-soft: #f6e3cf;
+  --sx-on-accent: #fff;
+  --sx-auto: #0f766e;
+  --sx-auto-soft: #d9ece9;
+  --sx-colleague: #6d28d9;
+  --sx-colleague-soft: #e9e0fa;
+  --sx-ok: #15803d;
+  --sx-ok-soft: #dcefe2;
+  --sx-danger: #b3261e;
+  --sx-shadow: 0 1px 2px rgba(38, 34, 28, 0.06), 0 4px 14px rgba(38, 34, 28, 0.05);
+  color: var(--sx-ink);
+}
+
+:global([data-theme='dark']) .root {
+  --sx-accent: #f0a44b;
+  --sx-accent-soft: #453320;
+  --sx-on-accent: #1d1206;
+  --sx-auto: #3fbdb0;
+  --sx-auto-soft: #1d3a37;
+  --sx-colleague: #b79df5;
+  --sx-colleague-soft: #322549;
+  --sx-ok: #5fce82;
+  --sx-ok-soft: #1e3a28;
+  --sx-danger: #ff8a80;
+  --sx-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- Diagram ---------- */
+.stage {
+  position: relative;
+  background: var(--sx-surface);
+  border: 1px solid var(--sx-line);
+  border-radius: 14px;
+  box-shadow: var(--sx-shadow);
+  padding: 30px 22px 22px;
+  margin-top: 26px;
+}
+.topology {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.node {
+  position: relative;
+  background: var(--sx-surface);
+  border: 1.5px solid var(--sx-line);
+  border-radius: 12px;
+  padding: 12px 14px 11px;
+  text-align: center;
+  min-width: 128px;
+  transition: border-color 0.25s, box-shadow 0.25s, opacity 0.3s;
+}
+.node .icon {
+  color: var(--sx-ink-soft);
+  margin-bottom: 4px;
+}
+.node .icon svg {
+  display: block;
+  margin: 0 auto;
+}
+.node .k {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--sx-ink-soft);
+  font-weight: 600;
+}
+.node .n {
+  font-size: 14.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.node.hl {
+  border-color: var(--sx-accent);
+  box-shadow: 0 0 0 3px var(--sx-accent-soft);
+}
+.node .check {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--sx-ok);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 22px;
+  text-align: center;
+  visibility: hidden;
+  transform: scale(0.5);
+  transition: transform 0.25s, visibility 0.25s;
+}
+.node .check.on {
+  visibility: visible;
+  transform: scale(1);
+}
+
+.cloud {
+  background: var(--sx-surface-2);
+  border: 1.5px dashed var(--sx-line);
+  border-radius: 16px;
+  padding: 12px 14px 14px;
+  transition: opacity 0.3s, border-color 0.25s, box-shadow 0.25s;
+}
+.cloud.hl {
+  border-color: var(--sx-accent);
+  box-shadow: 0 0 0 3px var(--sx-accent-soft);
+}
+.cloudHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.cloudHead .n {
+  font-weight: 700;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cloudHead .sub {
+  font-size: 12px;
+  color: var(--sx-ink-soft);
+}
+.copies {
+  display: flex;
+  align-items: center;
+}
+.copies .node {
+  min-width: 108px;
+  padding: 9px 10px 8px;
+}
+.copies .node .n {
+  font-size: 13px;
+}
+
+.dim {
+  opacity: 0.35;
+}
+
+/* connectors */
+.connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 0 4px;
+}
+.connector .legnum {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sx-ink-soft);
+  background: var(--sx-surface-2);
+  border: 1px solid var(--sx-line);
+  border-radius: 50%;
+  width: 21px;
+  height: 21px;
+  line-height: 19px;
+  text-align: center;
+}
+.connector .track {
+  position: relative;
+  width: 74px;
+  height: 12px;
+}
+.connector.inner .track {
+  width: 46px;
+}
+.connector .track::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 5px;
+  height: 2px;
+  background: var(--sx-line);
+  transition: background 0.25s;
+}
+/* arrowheads both ends (data flows both ways; the token shows direction) */
+.connector .track::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 2px;
+  border: 4px solid transparent;
+  border-left: 6px solid var(--sx-line);
+  transition: border-color 0.25s;
+}
+.connector .track .ah2 {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  border: 4px solid transparent;
+  border-right: 6px solid var(--sx-line);
+  transition: border-color 0.25s;
+}
+.connector .trigger {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  padding: 2px 9px;
+  border-radius: 99px;
+  border: 1px solid var(--sx-line);
+  color: var(--sx-ink-soft);
+  background: var(--sx-surface);
+  transition: all 0.25s;
+}
+.connector.auto .trigger {
+  color: var(--sx-auto);
+  border-color: transparent;
+  background: var(--sx-auto-soft);
+}
+.connector.manual .trigger {
+  color: var(--sx-accent);
+  border-color: transparent;
+  background: var(--sx-accent-soft);
+}
+.connector.their .trigger {
+  color: var(--sx-colleague);
+  border-color: transparent;
+  background: var(--sx-colleague-soft);
+}
+
+.connector.hl .track::before {
+  background: currentColor;
+  height: 3px;
+  top: 4.5px;
+}
+.connector.hl .track::after {
+  border-left-color: currentColor;
+}
+.connector.hl .track .ah2 {
+  border-right-color: currentColor;
+}
+.connector.hl.auto {
+  color: var(--sx-auto);
+}
+.connector.hl.manual {
+  color: var(--sx-accent);
+}
+.connector.hl.their {
+  color: var(--sx-colleague);
+}
+.connector.hl .legnum {
+  border-color: currentColor;
+  color: inherit;
+  background: var(--sx-surface);
+}
+
+.connector.off .track::before {
+  background: repeating-linear-gradient(90deg, var(--sx-danger) 0 5px, transparent 5px 10px);
+  height: 2px;
+}
+.connector.off .trigger {
+  color: var(--sx-danger);
+  background: transparent;
+  border: 1px dashed var(--sx-danger);
+}
+
+/* ghost node: teammates on FW Lite. Space stays reserved so nothing jumps. */
+.ghost {
+  visibility: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--sx-auto);
+  background: var(--sx-auto-soft);
+  border-radius: 99px;
+  padding: 3px 11px;
+  font-weight: 600;
+}
+.ghost.on {
+  visibility: visible;
+}
+
+/* travelling tokens */
+.token {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 0.45s cubic-bezier(0.4, 0.1, 0.2, 1), visibility 0.3s;
+  left: 0;
+  top: 0;
+}
+.token .dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--sx-surface), 0 1px 5px rgba(0, 0, 0, 0.3);
+}
+.token.you .dot {
+  background: var(--sx-accent);
+}
+.token.them .dot {
+  background: var(--sx-colleague);
+}
+.token .tag {
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--sx-surface);
+  border: 1px solid var(--sx-line);
+  border-radius: 99px;
+  padding: 0 7px;
+}
+.token.you .tag {
+  color: var(--sx-accent);
+}
+.token.them .tag {
+  color: var(--sx-colleague);
+}
+.token.on {
+  visibility: visible;
+}
+@media (prefers-reduced-motion: reduce) {
+  .token {
+    transition: none;
+  }
+  .node .check {
+    transition: none;
+  }
+}
+
+/* ---------- Questions ---------- */
+.questions {
+  margin-top: 24px;
+}
+.questions h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--sx-ink-soft);
+  margin: 0 0 10px;
+  font-weight: 650;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chips button {
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  background: var(--sx-surface);
+  color: var(--sx-ink);
+  border: 1.5px solid var(--sx-line);
+  border-radius: 99px;
+  padding: 8px 16px;
+  min-height: 44px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.chips button:hover {
+  border-color: var(--sx-accent);
+}
+.chips button:focus-visible,
+.stepper button:focus-visible {
+  outline: 2.5px solid var(--sx-accent);
+  outline-offset: 2px;
+}
+.chips button[aria-pressed='true'] {
+  border-color: var(--sx-accent);
+  background: var(--sx-accent-soft);
+  font-weight: 600;
+}
+
+/* ---------- Caption / stepper ---------- */
+.caption {
+  margin-top: 18px;
+  background: var(--sx-surface);
+  border: 1px solid var(--sx-line);
+  border-radius: 14px;
+  box-shadow: var(--sx-shadow);
+  padding: 18px 22px;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.caption h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.caption p {
+  margin: 0;
+  max-width: 68ch;
+}
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-radius: 5px;
+  padding: 2px 8px;
+  margin-bottom: 2px;
+  align-self: flex-start;
+}
+.badge.auto {
+  color: var(--sx-auto);
+  background: var(--sx-auto-soft);
+}
+.badge.you {
+  color: var(--sx-accent);
+  background: var(--sx-accent-soft);
+}
+.badge.them {
+  color: var(--sx-colleague);
+  background: var(--sx-colleague-soft);
+}
+.badge.done {
+  color: var(--sx-ok);
+  background: var(--sx-ok-soft);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+.stepper .dots {
+  display: flex;
+  gap: 6px;
+}
+.stepper .dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sx-line);
+  transition: background 0.2s;
+}
+.stepper .dots i.cur {
+  background: var(--sx-accent);
+}
+.stepper .count {
+  font-size: 12px;
+  color: var(--sx-ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.stepper .grow {
+  flex: 1;
+}
+.stepper button {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 40px;
+  border-radius: 9px;
+  padding: 7px 18px;
+  border: 1.5px solid var(--sx-line);
+  background: var(--sx-surface);
+  color: var(--sx-ink);
+}
+.stepper button.primary {
+  background: var(--sx-accent);
+  border-color: var(--sx-accent);
+  color: var(--sx-on-accent);
+}
+.stepper button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--sx-ink-soft);
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.legend .lAuto i {
+  background: var(--sx-auto);
+}
+.legend .lYou i {
+  background: var(--sx-accent);
+}
+.legend .lThem i {
+  background: var(--sx-colleague);
+}
+
+/* ---------- Mobile: the topology turns vertical ---------- */
+@media (max-width: 720px) {
+  .topology {
+    flex-direction: column;
+  }
+  .connector {
+    flex-direction: row;
+    padding: 6px 0;
+    gap: 8px;
+  }
+  .connector .track {
+    width: 12px !important;
+    height: 46px;
+  }
+  .connector .track::before {
+    left: 5px;
+    right: auto;
+    top: 6px;
+    bottom: 6px;
+    height: auto;
+    width: 2px;
+  }
+  .connector .track::after {
+    right: auto;
+    left: 2px;
+    top: auto;
+    bottom: 0;
+    border: 4px solid transparent;
+    border-top: 6px solid var(--sx-line);
+    border-left-width: 4px;
+  }
+  .connector .track .ah2 {
+    left: 2px;
+    top: 0;
+    border: 4px solid transparent;
+    border-bottom: 6px solid var(--sx-line);
+    border-right-width: 4px;
+  }
+  .connector.hl .track::before {
+    width: 3px;
+  }
+  .connector.hl .track::after {
+    border-top-color: currentColor;
+    border-left-color: transparent;
+  }
+  .connector.hl .track .ah2 {
+    border-bottom-color: currentColor;
+    border-right-color: transparent;
+  }
+  .connector.off .track::before {
+    background: repeating-linear-gradient(180deg, var(--sx-danger) 0 5px, transparent 5px 10px);
+    width: 2px;
+  }
+  /* the two copies inside Lexbox stay side by side, so they have to shrink */
+  .copies .node {
+    min-width: 0;
+  }
+  .copies .connector .trigger {
+    white-space: normal;
+    text-align: center;
+  }
+  .copies .connector {
+    flex-direction: column;
+    padding: 0 2px;
+    gap: 5px;
+  }
+  .copies .connector .track {
+    width: 46px !important;
+    height: 12px;
+  }
+  .copies .connector .track::before {
+    left: 6px;
+    right: 6px;
+    top: 5px;
+    height: 2px;
+    width: auto;
+    bottom: auto;
+  }
+  .copies .connector .track::after {
+    right: 0;
+    left: auto;
+    top: 2px;
+    bottom: auto;
+    border: 4px solid transparent;
+    border-left: 6px solid var(--sx-line);
+  }
+  .copies .connector .track .ah2 {
+    left: 0;
+    top: 2px;
+    border: 4px solid transparent;
+    border-right: 6px solid var(--sx-line);
+  }
+  .copies .connector.hl .track::after {
+    border-left-color: currentColor;
+    border-top-color: transparent;
+  }
+  .copies .connector.hl .track .ah2 {
+    border-right-color: currentColor;
+    border-bottom-color: transparent;
+  }
+}

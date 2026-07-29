@@ -1,3 +1,8 @@
+---
+title: macOS setup
+sidebar_position: 3
+---
+
 ### MacOS specific requirements
 * Install ICU4c (MacOS does not have ICU installed by default)
   * `brew install icu4c`

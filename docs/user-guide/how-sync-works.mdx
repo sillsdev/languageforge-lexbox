@@ -1,0 +1,61 @@
+---
+title: How sync works
+sidebar_position: 2
+---
+
+import SyncExplainer from '@site/src/components/SyncExplainer';
+
+Your project lives in **Lexbox** in **two copies**: a **FieldWorks Lite copy** and a
+**FieldWorks Classic copy**. An edit reaches a colleague in up to three legs — some automatic,
+some not.
+
+<SyncExplainer />
+
+<details>
+<summary>How it works under the hood</summary>
+
+<table>
+  <thead>
+    <tr>
+      <th>On this page</th>
+      <th>Actually</th>
+      <th>Worth knowing</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>FieldWorks Lite copy</td>
+      <td>A CRDT change database (SIL Harmony)</td>
+      <td>Every edit is a small change record; merging is automatic and gives the same result on every device.</td>
+    </tr>
+    <tr>
+      <td>Leg 1 “automatic”</td>
+      <td>HTTP sync plus a push channel (SignalR)</td>
+      <td>Runs after every edit, when you open a project, and when your connection comes back. A recovery loop retries every 5 minutes.</td>
+    </tr>
+    <tr>
+      <td>Leg 2 “the Sync button”</td>
+      <td>A merge job in the FwHeadless service</td>
+      <td><b>There is no schedule.</b> It runs only when someone presses <i>Sync</i> in FieldWorks Lite or <i>Sync FieldWorks Lite</i> on the Lexbox project page. Jobs queue one project at a time; the very first sync imports the whole project and can take minutes.</td>
+    </tr>
+    <tr>
+      <td>FieldWorks Classic copy</td>
+      <td>A Mercurial repository (Language Depot)</td>
+      <td>The same repository FieldWorks Send/Receive has always used.</td>
+    </tr>
+    <tr>
+      <td>Leg 3 “Send/Receive”</td>
+      <td>Chorus over Mercurial</td>
+      <td>Unchanged for FieldWorks Classic users — FieldWorks Lite adds nothing they must learn.</td>
+    </tr>
+    <tr>
+      <td>“The same field” clashes</td>
+      <td>Deterministic merge rules</td>
+      <td>Between two Lite users, the most recent change wins. Between Lite and Classic (since the last leg-2 sync), the Classic value wins. Lite’s change history keeps everything.</td>
+    </tr>
+  </tbody>
+</table>
+
+Full technical documentation: [Sync](/technical/sync/).
+
+</details>

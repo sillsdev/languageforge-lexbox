@@ -1,0 +1,10 @@
+.sectionCard {
+  display: block;
+  height: 100%;
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.sectionCard:hover {
+  border-color: var(--ifm-color-primary);
+  text-decoration: none;
+}

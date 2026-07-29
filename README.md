@@ -23,9 +23,9 @@ There are some exceptions:
 
 Summary of setup steps below. See the appropriate file for your operating system for more details:
 
-* [Windows](docs/DEVELOPER-win.md)
-* [Linux](docs/DEVELOPER-linux.md)
-* [Mac](docs/DEVELOPER-osx.md)
+* [Windows](docs/technical/development/setup-windows.md)
+* [Linux](docs/technical/development/setup-linux.md)
+* [Mac](docs/technical/development/setup-macos.md)
 
 ### Prerequisites
  * docker and compose
@@ -194,7 +194,7 @@ Traces can be accessed directly with a URL like this: [https://ui.honeycomb.io/s
 
 In the application, a trace ID (aka "Error code") shown at the bottom of an error message can be Ctrl+clicked to navigate to the trace in Honeycomb.
 
-![Error example](./docs/img/error-example.png)
+![Error example](./docs/static/img/error-example.png)
 
 ## Testing
 

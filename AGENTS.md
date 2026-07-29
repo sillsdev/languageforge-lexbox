@@ -36,9 +36,9 @@ Key documentation for this project:
 - `README.md` - Project overview and setup
 - `AGENTS.md` - You are here! Agent instructions
 - `.github/AGENTS.md` - **CI/CD and deployment guide** (workflows, K8s, Docker)
-- `docs/DEVELOPER-win.md` - Windows development setup
-- `docs/DEVELOPER-linux.md` - Linux development setup
-- `docs/DEVELOPER-osx.md` - macOS development setup
+- `docs/technical/development/setup-windows.md` - Windows development setup
+- `docs/technical/development/setup-linux.md` - Linux development setup
+- `docs/technical/development/setup-macos.md` - macOS development setup
 - `backend/README.md` - Backend architecture
 - `backend/AGENTS.md` - General backend guidelines
 - `backend/LexBoxApi/AGENTS.md` - API & GraphQL specific rules

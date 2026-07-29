@@ -1,0 +1,22 @@
+/* Lexbox blue, replacing Infima's default green. */
+:root {
+  --ifm-color-primary: #1e7fa9;
+  --ifm-color-primary-dark: #1b7298;
+  --ifm-color-primary-darker: #196c8f;
+  --ifm-color-primary-darkest: #155875;
+  --ifm-color-primary-light: #218cba;
+  --ifm-color-primary-lighter: #2293c3;
+  --ifm-color-primary-lightest: #2ba5da;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #28aae1;
+  --ifm-color-primary-dark: #1d9cd2;
+  --ifm-color-primary-darker: #1b92c5;
+  --ifm-color-primary-darkest: #1678a1;
+  --ifm-color-primary-light: #3eb3e4;
+  --ifm-color-primary-lighter: #4cb8e6;
+  --ifm-color-primary-lightest: #6bc4ea;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}

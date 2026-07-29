@@ -1,3 +1,8 @@
+---
+title: Windows setup
+sidebar_position: 1
+---
+
 ### Prerequisites
   * docker and compose
     * enable Kubernetes in the Docker Desktop settings
