@@ -135,6 +135,7 @@
       <div class="flex shrink-0 flex-col gap-2 border-b border-border bg-muted px-3.5 py-3">
         {#if canComment}
           <Textarea
+            autofocus
             bind:value={newThreadText}
             placeholder={$t`Add a comment…`}
             rows={3}
@@ -211,6 +212,7 @@
       {#if canComment && !mobileResolved}
         <div class="shrink-0 border-t border-border px-3.5 py-2.5">
           <CommentReplyInput
+            autofocus
             variant="inline"
             {saving}
             onSubmit={(text) => onReply(mobileThreadView, text)}

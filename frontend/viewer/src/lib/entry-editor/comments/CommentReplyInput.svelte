@@ -8,12 +8,14 @@
     saving = false,
     placeholder,
     variant = 'default',
+    autofocus = false,
     onSubmit,
   }: {
     value?: string;
     saving?: boolean;
     placeholder?: string;
     variant?: 'default' | 'inline';
+    autofocus?: boolean;
     onSubmit: (text: string) => void | Promise<void>;
   } = $props();
 
@@ -60,6 +62,7 @@
 {#if variant === 'inline'}
   <div class="flex items-end gap-2" onfocusin={() => (focused = true)} onfocusout={onFocusOut}>
     <Textarea
+      {autofocus}
       bind:ref={textareaEl}
       bind:value
       placeholder={replyPlaceholder}
@@ -82,6 +85,7 @@
 {:else}
   <div class="flex flex-col gap-1.5" onfocusin={() => (focused = true)} onfocusout={onFocusOut}>
     <Textarea
+      {autofocus}
       bind:ref={textareaEl}
       bind:value
       placeholder={replyPlaceholder}
