@@ -166,10 +166,12 @@ interface StepQueries {
 
 const Topology = ({
   step,
+  ghostReserved,
   queries: {isHl, isDim, isChecked},
   setEl,
 }: {
   step: Step | null;
+  ghostReserved: boolean;
   queries: StepQueries;
   setEl: (id: MeasurableId) => (el: HTMLDivElement | null) => void;
 }): ReactNode => (
@@ -183,7 +185,9 @@ const Topology = ({
         checked={isChecked('device')}
         elRef={setEl('device')}
       />
-      <span className={cx(styles.ghost, step?.ghost && styles.on)}>{GHOST_LABEL}</span>
+      <span className={cx(styles.ghost, ghostReserved && styles.reserved, step?.ghost && styles.on)}>
+        {GHOST_LABEL}
+      </span>
     </div>
 
     <Connector
@@ -311,6 +315,7 @@ const SyncExplainer = (): ReactNode => {
   };
 
   const step: Step | null = scenario ? scenario.steps[stepIndex] : null;
+  const ghostReserved = scenario?.steps.some((s) => s.ghost) ?? false;
 
   const has = (list: readonly string[] | undefined, id: string): boolean =>
     Boolean(list?.includes(id));
@@ -384,7 +389,7 @@ const SyncExplainer = (): ReactNode => {
   return (
     <div className={styles.root}>
       <div className={styles.stage} ref={stageRef}>
-        <Topology step={step} queries={queries} setEl={setEl} />
+        <Topology step={step} ghostReserved={ghostReserved} queries={queries} setEl={setEl} />
 
         {([
           ['you', TOKEN_TAGS.you, tokens[0]],

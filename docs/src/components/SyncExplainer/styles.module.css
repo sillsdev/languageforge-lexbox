@@ -277,10 +277,11 @@
   border: 1px dashed var(--sx-danger);
 }
 
-/* ghost node: teammates on FW Lite. Space stays reserved so nothing jumps. */
+/* ghost node: teammates on FW Lite. Space is reserved only while a scenario
+   that uses it is active, so other views get no dead gap under the device box. */
 .ghost {
+  display: none;
   visibility: hidden;
-  display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
@@ -289,6 +290,9 @@
   border-radius: 99px;
   padding: 3px 11px;
   font-weight: 600;
+}
+.ghost.reserved {
+  display: inline-flex;
 }
 .ghost.on {
   visibility: visible;
