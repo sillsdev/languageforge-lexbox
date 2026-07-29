@@ -131,6 +131,17 @@ public class FwDataFactory(
         return Defer.Async(() => CloseProjectAsync(project));
     }
 
+    /// <summary>
+    /// Keeps the project's LcmCache from being evicted until disposed, by periodically resetting its sliding expiration.
+    /// Use around long-running work that holds one api instance past the expiration window (e.g. a sync paused in a debugger).
+    /// </summary>
+    public IDisposable PreventEviction(FwDataProject project)
+    {
+        var key = CacheKey(project);
+        var period = TimeSpan.FromMinutes(5);
+        return new Timer(_ => cache.TryGetValue(key, out _), null, period, period);
+    }
+
     public Task StartAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
