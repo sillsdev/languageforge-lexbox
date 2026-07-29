@@ -179,7 +179,7 @@ public partial class CrdtProjectsService(
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
         // Code must satisfy the lowercase-only ProjectCode rule; the display name keeps its casing.
-        return await CreateProjectFromTemplate(new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager), vernacularWs: "de");
+        return await CreateProjectFromTemplate(new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager, AuthenticatedUser: "Example User", AuthenticatedUserId: "example-user"), vernacularWs: "de");
     }
 
     /// <summary>
