@@ -41,7 +41,6 @@
   let saving = $state(false);
   let newThreadText = $state('');
   let editingCommentId = $state<string>();
-  let showResolved = $state(false);
   let addingComment = $state(false);
   let expandedThreadIds = $state(new Set<string>());
   let mobileThreadId = $state<string | null>(null);
@@ -78,7 +77,6 @@
         if (dockBottom) activeSnapPoint = defaultCommentSnap;
         return;
       }
-      showResolved = false;
       addingComment = false;
       newThreadText = '';
       editingCommentId = undefined;
@@ -193,7 +191,6 @@
 {#snippet panel()}
   <CommentPanel
     bind:newThreadText
-    bind:showResolved
     bind:addingComment
     bind:expandedThreadIds
     bind:mobileThreadId

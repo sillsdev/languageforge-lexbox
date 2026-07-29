@@ -1,5 +1,6 @@
 <script lang="ts">
   import {Button, XButton} from '$lib/components/ui/button';
+  import * as Collapsible from '$lib/components/ui/collapsible';
   import {Textarea} from '$lib/components/ui/textarea';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
   import {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
@@ -20,7 +21,6 @@
     newThreadText = $bindable(''),
     editingCommentId,
     currentUserId,
-    showResolved = $bindable(false),
     addingComment = $bindable(false),
     expandedThreadIds = $bindable(new Set<string>()),
     mobileThreadId = $bindable<string | null>(null),
@@ -39,7 +39,6 @@
     newThreadText?: string;
     editingCommentId?: string;
     currentUserId?: string;
-    showResolved?: boolean;
     addingComment?: boolean;
     expandedThreadIds?: Set<string>;
     mobileThreadId?: string | null;
@@ -54,7 +53,6 @@
 
   const openThreads = $derived(threadViews.filter((tv) => tv.thread.status === ThreadStatus.Open));
   const resolvedThreads = $derived(threadViews.filter((tv) => tv.thread.status === ThreadStatus.Closed));
-  const visibleThreads = $derived(showResolved ? threadViews : openThreads);
   const mobileThreadView = $derived(
     mobileThreadId ? threadViews.find((tv) => tv.thread.id === mobileThreadId) : undefined,
   );
@@ -111,19 +109,6 @@
         {/if}
       </div>
       <div class="flex items-center gap-1.5">
-        {#if resolvedThreads.length > 0}
-          <Button
-            variant="ghost"
-            size="xs"
-            class={cn(
-              'h-6 border border-border px-1.5 text-[11px]',
-              showResolved ? 'text-primary' : 'text-muted-foreground',
-            )}
-            onclick={() => (showResolved = !showResolved)}
-          >
-            {showResolved ? $t`Hide resolved` : $t`${resolvedThreads.length} resolved`}
-          </Button>
-        {/if}
         {#if canComment}
           <Button size="xs" icon="i-mdi-plus" class="h-7 px-2.5 text-xs" onclick={startAdding}>
             {$t`Conversation`}
@@ -226,36 +211,63 @@
       <div class="flex flex-col gap-2.5">
         {#if loading}
           <p class="pt-8 text-center text-[13px] text-muted-foreground">{$t`Loading comments...`}</p>
-        {:else if visibleThreads.length === 0}
-            {#if canComment}
-                <div class="pt-8 text-center text-[13px] leading-relaxed text-muted-foreground">
-                    <p>{$t`No open conversations`}</p>
-                    <Button size="xs" icon="i-mdi-plus" class="h-7 px-2.5 text-xs" onclick={startAdding}>
-                    {$t`Start a conversation`}
-                    </Button>
-                </div>
-            {:else}
-                <p class="pt-8 text-center text-[13px] text-muted-foreground">
-                    {$t`No open conversations`}
-                </p>
-            {/if}
         {:else}
-          {#each visibleThreads as threadView (threadView.thread.id)}
-            <CommentThread
-              {threadView}
-              {canComment}
-              {saving}
-              {currentUserId}
-              {editingCommentId}
-              expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
-              onToggle={() => toggleExpanded(threadView.thread.id)}
-              onResolve={() => onResolve(threadView)}
-              onReply={(text) => onReply(threadView, text)}
-              {onStartEdit}
-              {onCancelEdit}
-              {onSaveEdit}
-            />
-          {/each}
+          {#if openThreads.length === 0}
+            {#if canComment}
+              <div class="pt-8 text-center text-[13px] leading-relaxed text-muted-foreground">
+                <p>{$t`No open conversations`}</p>
+                <Button size="xs" icon="i-mdi-plus" class="h-7 px-2.5 text-xs" onclick={startAdding}>
+                  {$t`Start a conversation`}
+                </Button>
+              </div>
+            {:else}
+              <p class="pt-8 text-center text-[13px] text-muted-foreground">
+                {$t`No open conversations`}
+              </p>
+            {/if}
+          {:else}
+            {#each openThreads as threadView (threadView.thread.id)}
+              <CommentThread
+                {threadView}
+                {canComment}
+                {saving}
+                {currentUserId}
+                {editingCommentId}
+                expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
+                onToggle={() => toggleExpanded(threadView.thread.id)}
+                onResolve={() => onResolve(threadView)}
+                onReply={(text) => onReply(threadView, text)}
+                {onStartEdit}
+                {onCancelEdit}
+                {onSaveEdit}
+              />
+            {/each}
+          {/if}
+          {#if resolvedThreads.length > 0}
+            <Collapsible.Root class={cn(openThreads.length > 0 && 'mt-1')}>
+              <Collapsible.Trigger class="cursor-pointer text-[11px] text-muted-foreground">
+                {$t`${resolvedThreads.length} resolved`}
+              </Collapsible.Trigger>
+              <Collapsible.Content class="mt-2.5 flex flex-col gap-2.5">
+                {#each resolvedThreads as threadView (threadView.thread.id)}
+                  <CommentThread
+                    {threadView}
+                    {canComment}
+                    {saving}
+                    {currentUserId}
+                    {editingCommentId}
+                    expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
+                    onToggle={() => toggleExpanded(threadView.thread.id)}
+                    onResolve={() => onResolve(threadView)}
+                    onReply={(text) => onReply(threadView, text)}
+                    {onStartEdit}
+                    {onCancelEdit}
+                    {onSaveEdit}
+                  />
+                {/each}
+              </Collapsible.Content>
+            </Collapsible.Root>
+          {/if}
         {/if}
       </div>
     </div>

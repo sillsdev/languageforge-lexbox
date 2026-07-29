@@ -1,6 +1,7 @@
 <script lang="ts">
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
+  import * as Tooltip from '$lib/components/ui/tooltip';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
   import {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
   import {cn} from '$lib/utils';
@@ -77,22 +78,34 @@
       icon="i-mdi-chevron-down"
       class={cn('size-4 shrink-0 text-muted-foreground transition-transform', expanded && 'rotate-180')}
     />
-    <Button
-      variant="outline"
-      size="icon-xs"
-      class={cn(
-        'size-6 shrink-0',
-        resolved ? 'text-muted-foreground' : 'border-primary text-primary hover:bg-primary/10 hover:text-primary',
-      )}
-      aria-label={resolved ? $t`Reopen` : $t`Resolve`}
-      icon={resolved ? 'i-mdi-restore' : 'i-mdi-check-bold'}
-      iconProps={{class: 'size-3.5'}}
-      onclick={(e) => {
-        e.stopPropagation();
-        onResolve();
-      }}
-      disabled={saving}
-    />
+    <Tooltip.Root>
+      <Tooltip.Trigger>
+        {#snippet child({props})}
+          <Button
+            variant="outline"
+            size="icon-xs"
+            class={cn(
+              'size-6 shrink-0',
+              resolved
+                ? 'text-muted-foreground'
+                : 'border-primary text-primary hover:bg-primary/10 hover:text-primary',
+            )}
+            aria-label={resolved ? $t`Reopen` : $t`Resolve`}
+            icon={resolved ? 'i-mdi-restore' : 'i-mdi-check-bold'}
+            iconProps={{class: 'size-3.5'}}
+            disabled={saving}
+            {...props}
+            onclick={(e) => {
+              e.stopPropagation();
+              onResolve();
+            }}
+          />
+        {/snippet}
+      </Tooltip.Trigger>
+      <Tooltip.Content>
+        {resolved ? $t`Reopen` : $t`Resolve`}
+      </Tooltip.Content>
+    </Tooltip.Root>
   </button>
 
   {#if expanded}
