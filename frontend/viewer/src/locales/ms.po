@@ -26,6 +26,11 @@ msgid "– ({0} changes)"
 msgstr "– ({0} perubahan)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+msgid "(edited)"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
 msgstr ""
 
@@ -113,10 +118,6 @@ msgstr "**Lebih sedikit jenis morfem** (hanya *Akar*, *Akar Terikat*, *Batang*, 
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Terminologi lebih mudah** (cth. *Perkataan* bukan *bentuk leksem*, *Makna* bukan *Sense*)"
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "+ Add"
-msgstr ""
-
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
 msgstr ""
@@ -154,10 +155,6 @@ msgstr "Akaun"
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "Aktiviti"
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Add a comment…"
-msgstr ""
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -553,6 +550,10 @@ msgstr "Komponen-komponen"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "Mengandungi"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Conversation"
+msgstr ""
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1238,10 +1239,6 @@ msgstr ""
 msgid "Hide"
 msgstr "Sembunyi"
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Hide resolved"
-msgstr ""
-
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1687,7 +1684,8 @@ msgid "No new data"
 msgstr "Tiada data baru"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "No open comments"
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "No open conversations"
 msgstr ""
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
@@ -2060,6 +2058,7 @@ msgstr "Buang audio"
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Reopen"
 msgstr "Buka semula"
 
@@ -2091,6 +2090,7 @@ msgid "Reset"
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
 msgstr ""
@@ -2323,6 +2323,14 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "Medan tertentu"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation…"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2673,6 +2681,15 @@ msgstr "Pelayan tidak diketahui"
 msgid "Unknown update result"
 msgstr "Hasil kemas kini tidak diketahui"
 
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Unread"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Unread comments"
+msgstr ""
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -2745,10 +2762,6 @@ msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
-msgstr ""
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Use \"+ Add\" to start a thread"
 msgstr ""
 
 #. Field label

@@ -34,6 +34,9 @@
     onStartEdit,
     onCancelEdit,
     onSaveEdit,
+    unreadThreadIds = new Set<string>(),
+    unreadCount = 0,
+    onThreadOpen,
   }: {
     canComment: boolean;
     loading: boolean;
@@ -45,6 +48,8 @@
     addingComment?: boolean;
     expandedThreadIds?: Set<string>;
     mobileThreadId?: string | null;
+    unreadThreadIds?: Set<string>;
+    unreadCount?: number;
     onClose?: () => void;
     onStartThread: () => void;
     onReply: (threadView: ThreadView, text: string) => void | Promise<void>;
@@ -52,6 +57,7 @@
     onStartEdit: (comment: IUserComment) => void;
     onCancelEdit: (commentId: string) => void;
     onSaveEdit: (commentId: string, text: string) => void;
+    onThreadOpen?: (threadId: string) => void | Promise<void>;
   } = $props();
 
   const projectContext = useProjectContext();
@@ -70,11 +76,15 @@
   function toggleExpanded(threadId: string): void {
     if (useThreadDetail) {
       mobileThreadId = threadId;
+      onThreadOpen?.(threadId);
       return;
     }
     const next = new Set(expandedThreadIds);
     if (next.has(threadId)) next.delete(threadId);
-    else next.add(threadId);
+    else {
+      next.add(threadId);
+      onThreadOpen?.(threadId);
+    }
     expandedThreadIds = next;
   }
 
@@ -111,6 +121,14 @@
             class="inline-flex h-[18px] items-center rounded-[10px] bg-primary px-2 text-[11px] font-bold text-primary-foreground"
           >
             {openThreads.length}
+          </span>
+        {/if}
+        {#if unreadCount > 0}
+          <span
+            class="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[10px] bg-destructive px-1.5 text-[11px] font-bold text-destructive-foreground"
+            title={$t`Unread comments`}
+          >
+            {unreadCount}
           </span>
         {/if}
       </div>
@@ -244,6 +262,7 @@
                 {saving}
                 {currentUserId}
                 {editingCommentId}
+                hasUnread={unreadThreadIds.has(threadView.thread.id)}
                 expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                 onToggle={() => toggleExpanded(threadView.thread.id)}
                 onResolve={() => onResolve(threadView)}
@@ -272,6 +291,7 @@
                       {saving}
                       {currentUserId}
                       {editingCommentId}
+                      hasUnread={unreadThreadIds.has(threadView.thread.id)}
                       expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                       onToggle={() => toggleExpanded(threadView.thread.id)}
                       onResolve={() => onResolve(threadView)}

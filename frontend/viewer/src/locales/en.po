@@ -21,6 +21,11 @@ msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+msgid "(edited)"
+msgstr "(edited)"
+
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
 msgstr "(unknown)"
 
@@ -108,10 +113,6 @@ msgstr "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "+ Add"
-msgstr "+ Add"
-
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
 msgstr "1 reply"
@@ -149,10 +150,6 @@ msgstr "Account"
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "Activity"
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Add a comment…"
-msgstr "Add a comment…"
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -548,6 +545,10 @@ msgstr "Components"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "Contains"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Conversation"
+msgstr "Conversation"
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1233,10 +1234,6 @@ msgstr "Help & More"
 msgid "Hide"
 msgstr "Hide"
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Hide resolved"
-msgstr "Hide resolved"
-
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1682,8 +1679,9 @@ msgid "No new data"
 msgstr "No new data"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "No open comments"
-msgstr "No open comments"
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "No open conversations"
+msgstr "No open conversations"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
@@ -2055,6 +2053,7 @@ msgstr "Remove audio"
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Reopen"
 msgstr "Reopen"
 
@@ -2086,6 +2085,7 @@ msgid "Reset"
 msgstr "Reset"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
 msgstr "Resolve"
@@ -2318,6 +2318,14 @@ msgstr "Something went wrong"
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "Specific field"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation"
+msgstr "Start a conversation"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation…"
+msgstr "Start a conversation…"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2668,6 +2676,15 @@ msgstr "Unknown server"
 msgid "Unknown update result"
 msgstr "Unknown update result"
 
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Unread"
+msgstr "Unread"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Unread comments"
+msgstr "Unread comments"
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -2741,10 +2758,6 @@ msgstr "Uploaded pending files"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
 msgstr "Uploading pictures is not supported here"
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Use \"+ Add\" to start a thread"
-msgstr "Use \"+ Add\" to start a thread"
 
 #. Field label
 #: src/lib/views/entity-config.ts

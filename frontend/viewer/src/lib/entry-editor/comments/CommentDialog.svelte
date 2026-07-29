@@ -22,15 +22,20 @@
     subjectType,
     subjectId,
     subjectName,
+    unreadComments = null,
     inlineSidebar = false,
     class: className,
+    onUnreadCommentsChange,
   }: {
     open: boolean;
     subjectType: SubjectType;
     subjectId: string;
     subjectName?: string;
+    /** When null, unread comments are fetched for the subject. When set, used as-is (no fetch). */
+    unreadComments?: IUserComment[] | null;
     inlineSidebar?: boolean;
     class?: ClassValue;
+    onUnreadCommentsChange?: (comments: IUserComment[]) => void;
   } = $props();
 
   const api = useMiniLcmApi();
@@ -56,6 +61,52 @@
   );
   const threadViews = $derived(threadsResource.current);
   const loading = $derived(threadsResource.loading);
+
+  const unreadResource = resource(
+    [() => open, () => subjectType, () => subjectId, () => unreadComments],
+    async ([isOpen, targetSubjectType, targetSubjectId, externalUnread]): Promise<IUserComment[]> => {
+      if (!isOpen || externalUnread !== null) return [];
+      return api.getUnreadCommentsForSubject(targetSubjectType, targetSubjectId);
+    },
+    {initialValue: [] satisfies IUserComment[]},
+  );
+
+  let localUnreadComments = $state<IUserComment[]>([]);
+
+  function syncLocalUnreadFromSource(): void {
+    if (!open) {
+      localUnreadComments = [];
+      return;
+    }
+    if (unreadComments !== null) {
+      localUnreadComments = [...unreadComments];
+      return;
+    }
+    localUnreadComments = [...unreadResource.current];
+  }
+
+  watch(
+    () => [open, subjectType, subjectId, unreadComments, unreadResource.current] as const,
+    () => {
+      syncLocalUnreadFromSource();
+    },
+  );
+
+  const unreadThreadIds = $derived(new Set(localUnreadComments.map((c) => c.commentThreadId)));
+
+  async function refetchUnreadIfNeeded(): Promise<void> {
+    if (open && unreadComments === null) {
+      await unreadResource.refetch();
+      syncLocalUnreadFromSource();
+    }
+  }
+
+  async function onThreadOpen(threadId: string): Promise<void> {
+    if (!unreadThreadIds.has(threadId)) return;
+    await api.markCommentThreadRead(threadId);
+    localUnreadComments = localUnreadComments.filter((c) => c.commentThreadId !== threadId);
+    onUnreadCommentsChange?.(localUnreadComments);
+  }
 
   const title = $derived(subjectName ? $t`Comments for ${subjectName}` : $t`Comments`);
   const dockBottom = $derived(!IsExtraLarge.value);
@@ -126,6 +177,7 @@
       newThreadText = '';
       addingComment = false;
       await threadsResource.refetch();
+      await refetchUnreadIfNeeded();
     } finally {
       saving = false;
     }
@@ -148,6 +200,7 @@
         updatedAt: now,
       });
       await threadsResource.refetch();
+      await refetchUnreadIfNeeded();
     } finally {
       saving = false;
     }
@@ -160,6 +213,7 @@
         threadView.thread.status === ThreadStatus.Closed ? ThreadStatus.Open : ThreadStatus.Closed;
       await api.setCommentThreadStatus(threadView.thread.id, nextStatus);
       await threadsResource.refetch();
+      await refetchUnreadIfNeeded();
     } finally {
       saving = false;
     }
@@ -182,6 +236,7 @@
       await api.editUserComment(commentId, trimmed);
       cancelEditing(commentId);
       await threadsResource.refetch();
+      await refetchUnreadIfNeeded();
     } finally {
       saving = false;
     }
@@ -200,6 +255,8 @@
     {threadViews}
     {editingCommentId}
     {currentUserId}
+    {unreadThreadIds}
+    unreadCount={localUnreadComments.length}
     onClose={() => onOpenChange(false)}
     onStartThread={startThread}
     onReply={replyToThread}
@@ -207,6 +264,7 @@
     onStartEdit={startEditing}
     onCancelEdit={cancelEditing}
     onSaveEdit={saveEdit}
+    onThreadOpen={onThreadOpen}
   />
 {/snippet}
 

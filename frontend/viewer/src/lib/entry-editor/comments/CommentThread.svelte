@@ -18,6 +18,7 @@
     currentUserId,
     editingCommentId,
     expanded = false,
+    hasUnread = false,
     onToggle,
     onResolve,
     onReply,
@@ -31,6 +32,7 @@
     currentUserId?: string;
     editingCommentId?: string;
     expanded?: boolean;
+    hasUnread?: boolean;
     onToggle: () => void;
     onResolve: () => void;
     onReply: (text: string) => void | Promise<void>;
@@ -73,6 +75,13 @@
       <span class="shrink-0 text-[11px] text-muted-foreground">
         {replyCount === 1 ? $t`1 reply` : $t`${replyCount} replies`}
       </span>
+    {/if}
+    {#if hasUnread}
+      <span
+        class="size-2 shrink-0 rounded-full bg-primary"
+        aria-label={$t`Unread`}
+        title={$t`Unread`}
+      ></span>
     {/if}
     <Icon
       icon="i-mdi-chevron-down"

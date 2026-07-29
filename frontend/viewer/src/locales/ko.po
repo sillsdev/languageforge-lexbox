@@ -26,6 +26,11 @@ msgid "– ({0} changes)"
 msgstr "- ({0}개 변경)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+msgid "(edited)"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
 msgstr ""
 
@@ -113,10 +118,6 @@ msgstr "**형태소 유형 감소** (*뿌리*, *결합된 뿌리*, *줄기*, *�
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**간단한 용어 사용** (예: *어휘 형태* 대신 *단어*, *의미* 대신 *의미*)"
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "+ Add"
-msgstr ""
-
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
 msgstr ""
@@ -154,10 +155,6 @@ msgstr "계정"
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "활동"
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Add a comment…"
-msgstr ""
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -553,6 +550,10 @@ msgstr "구성 요소"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "포함 사항"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Conversation"
+msgstr ""
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1238,10 +1239,6 @@ msgstr ""
 msgid "Hide"
 msgstr "숨기기"
 
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Hide resolved"
-msgstr ""
-
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1687,7 +1684,8 @@ msgid "No new data"
 msgstr "새 데이터 없음"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "No open comments"
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "No open conversations"
 msgstr ""
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
@@ -2060,6 +2058,7 @@ msgstr "오디오 제거"
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Reopen"
 msgstr "다시 열기"
 
@@ -2091,6 +2090,7 @@ msgid "Reset"
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
 msgstr ""
@@ -2323,6 +2323,14 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "특정 필드"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation…"
+msgstr ""
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2673,6 +2681,15 @@ msgstr "알 수 없는 서버"
 msgid "Unknown update result"
 msgstr "알 수 없는 업데이트 결과"
 
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Unread"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Unread comments"
+msgstr ""
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -2745,10 +2762,6 @@ msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
-msgstr ""
-
-#: src/lib/entry-editor/comments/CommentPanel.svelte
-msgid "Use \"+ Add\" to start a thread"
 msgstr ""
 
 #. Field label
