@@ -37,12 +37,16 @@ const cx = (...classes: (string | false | undefined)[]): string => classes.filte
 
 /** Only INITIAL.text uses this; step sentences are plain text. */
 const withBold = (text: string): ReactNode[] => {
-  let offset = 0;
-  return text.split(/\*\*(.+?)\*\*/g).map((part, i) => {
-    const key = offset;
-    offset += part.length;
-    return i % 2 ? <b key={key}>{part}</b> : <span key={key}>{part}</span>;
+  const nodes: ReactNode[] = [];
+  let pos = 0;
+  text.split(/\*\*(.+?)\*\*/g).forEach((part, i) => {
+    const bold = i % 2 === 1;
+    const key = pos;
+    // Advance past the part plus its ** markers so keys stay unique source positions.
+    pos += part.length + (bold ? 4 : 0);
+    if (part) nodes.push(bold ? <b key={key}>{part}</b> : <span key={key}>{part}</span>);
   });
+  return nodes;
 };
 
 const isTextInput = (el: HTMLElement | null): boolean =>
