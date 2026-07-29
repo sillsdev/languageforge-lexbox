@@ -18,6 +18,9 @@
 
   const { trigger }: Props = $props();
 
+  const projectDataJson = $derived(JSON.stringify(projectContext.projectData, null, 2));
+  const featuresJson = $derived(JSON.stringify(projectContext.features, null, 2));
+
   export async function generateEntries(n: number) {
     for (let i = 0; i < n; i++) {
       const entry = defaultEntry();
@@ -43,6 +46,14 @@
         <Icon icon="i-mdi-generator-portable" />
         <span>Generate 10 entries</span>
       </Button>
+      <details>
+        <summary>projectData</summary>
+        <code class="whitespace-pre">{projectDataJson}</code>
+      </details>
+      <details>
+        <summary>features</summary>
+        <code class="whitespace-pre">{featuresJson}</code>
+      </details>
     </Dialog.DialogContent>
   </Dialog.Root>
 </DevContent>
