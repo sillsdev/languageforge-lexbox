@@ -3,6 +3,8 @@
   import {FormatRelativeDate} from '$lib/components/ui/format';
   import {Textarea} from '$lib/components/ui/textarea';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
+  import HistoryView from '$lib/history/HistoryView.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
   import {cn} from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import CommentAuthorAvatar from './CommentAuthorAvatar.svelte';
@@ -27,7 +29,13 @@
     onSaveEdit: (text: string) => void;
   } = $props();
 
+  const features = useFeatures();
   let draftText = $state('');
+  let showHistoryView = $state(false);
+
+  const isEdited = $derived(
+    new Date(comment.updatedAt).getTime() !== new Date(comment.createdAt).getTime()
+  );
 
   $effect(() => {
     if (editing) {
@@ -47,13 +55,29 @@
       <span class="truncate text-[13px] font-semibold">
         {comment.authorName || $t`(unknown)`}
       </span>
-      <FormatRelativeDate
-        class="ms-auto shrink-0 text-[11px] text-muted-foreground"
-        date={comment.createdAt}
-        maxUnits={1}
-        smallestUnit="minutes"
-        options={{style: 'narrow'}}
-      />
+      <div class="ms-auto flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
+        <FormatRelativeDate
+          class="shrink-0"
+          date={comment.createdAt}
+          maxUnits={1}
+          smallestUnit="minutes"
+          options={{style: 'narrow'}}
+        />
+        {#if isEdited}
+          {#if features.history}
+            <button
+              type="button"
+              class="cursor-pointer underline-offset-2 hover:underline"
+              onclick={() => (showHistoryView = true)}
+            >
+              {$t`(edited)`}
+            </button>
+            <HistoryView bind:open={showHistoryView} id={comment.id} />
+          {:else}
+            <span>{$t`(edited)`}</span>
+          {/if}
+        {/if}
+      </div>
     </div>
 
     {#if editing}
