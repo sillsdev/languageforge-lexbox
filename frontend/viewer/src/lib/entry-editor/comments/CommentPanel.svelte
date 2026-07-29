@@ -1,6 +1,7 @@
 <script lang="ts">
   import {Button, XButton} from '$lib/components/ui/button';
   import * as Collapsible from '$lib/components/ui/collapsible';
+  import {Icon} from '$lib/components/ui/icon';
   import {Textarea} from '$lib/components/ui/textarea';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
   import {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
@@ -254,27 +255,33 @@
             {/each}
           {/if}
           {#if resolvedThreads.length > 0}
-            <Collapsible.Root class={cn(openThreads.length > 0 && 'mt-1')}>
-              <Collapsible.Trigger class="cursor-pointer text-[11px] text-muted-foreground">
+            <Collapsible.Root class={cn('group/resolved', openThreads.length > 0 && 'mt-1')}>
+              <Collapsible.Trigger class="flex cursor-pointer items-center gap-1 text-[11px] text-muted-foreground">
+                <Icon
+                  icon="i-mdi-chevron-down"
+                  class="size-3.5 shrink-0 transition-transform group-data-[state=open]/resolved:rotate-180"
+                />
                 {$t`${resolvedThreads.length} resolved`}
               </Collapsible.Trigger>
-              <Collapsible.Content class="mt-2.5 flex flex-col gap-2.5">
-                {#each resolvedThreads as threadView (threadView.thread.id)}
-                  <CommentThread
-                    {threadView}
-                    {canComment}
-                    {saving}
-                    {currentUserId}
-                    {editingCommentId}
-                    expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
-                    onToggle={() => toggleExpanded(threadView.thread.id)}
-                    onResolve={() => onResolve(threadView)}
-                    onReply={(text) => onReply(threadView, text)}
-                    {onStartEdit}
-                    {onCancelEdit}
-                    {onSaveEdit}
-                  />
-                {/each}
+              <Collapsible.Content class="overflow-hidden">
+                <div class="mt-2.5 flex flex-col gap-2.5">
+                  {#each resolvedThreads as threadView (threadView.thread.id)}
+                    <CommentThread
+                      {threadView}
+                      {canComment}
+                      {saving}
+                      {currentUserId}
+                      {editingCommentId}
+                      expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
+                      onToggle={() => toggleExpanded(threadView.thread.id)}
+                      onResolve={() => onResolve(threadView)}
+                      onReply={(text) => onReply(threadView, text)}
+                      {onStartEdit}
+                      {onCancelEdit}
+                      {onSaveEdit}
+                    />
+                  {/each}
+                </div>
               </Collapsible.Content>
             </Collapsible.Root>
           {/if}
