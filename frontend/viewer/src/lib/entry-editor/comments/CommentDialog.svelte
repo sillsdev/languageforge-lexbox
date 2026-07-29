@@ -36,7 +36,7 @@
   const api = useMiniLcmApi();
   const projectContext = useProjectContext();
   const currentUserId = $derived(projectContext.projectData?.lastUserId);
-  const canComment = $derived(Boolean(currentUserId));
+  const canComment = $derived(Boolean(currentUserId) && !!projectContext.features.write);
 
   let saving = $state(false);
   let newThreadText = $state('');
