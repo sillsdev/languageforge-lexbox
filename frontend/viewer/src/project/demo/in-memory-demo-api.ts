@@ -122,7 +122,13 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
-    window.__PLAYWRIGHT_UTILS__ = { demoApi: inMemoryLexboxApi };
+    window.__PLAYWRIGHT_UTILS__ = {
+      demoApi: inMemoryLexboxApi,
+      async setWrite(write: boolean) {
+        inMemoryLexboxApi.setWrite(write);
+        await projectContext.refetchFeatures();
+      },
+    };
 
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
       localProjects(): Promise<IProjectModel[]> {
@@ -202,9 +208,16 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     ]);
   }
 
+  #write = true;
+
+  /** Test-only: toggle the write feature exposed by {@link supportedFeatures}. */
+  setWrite(write: boolean) {
+    this.#write = write;
+  }
+
   supportedFeatures() {
     return Promise.resolve({
-      write: true,
+      write: this.#write,
       audio: true,
       customViews: true,
     } satisfies IMiniLcmFeatures);

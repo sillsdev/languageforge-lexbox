@@ -48,6 +48,25 @@ Key documentation for this project:
 - `frontend/viewer/AGENTS.md` - **FwLite Viewer** (Specific frontend rules)
 - `deployment/README.md` - Deployment and infrastructure
 
+## 🔒 Privacy and Production Access (non-negotiable)
+
+These two rules override every task. No goal (a bug report, debugging, being thorough or helpful) justifies breaking them.
+
+### NEVER post project or user data online
+
+This repo and its issue tracker are public. Anything you post to GitHub (issues, PRs, comments, reviews, commit messages, branch names) or anywhere else online must contain ZERO identifying information about real projects or people:
+
+- ❌ Project codes (e.g. `abc-flex`) and project or language names tied to real data
+- ❌ User names, emails, org names
+- ❌ Content from real project data (entry text, filenames, media)
+- ❌ Stats or details that identify a specific project even without naming it
+
+Describe real cases generically instead ("a ~9k-entry production project") and give the identifying details to the user privately; they decide what gets shared and where. If you are unsure whether something is identifying, treat it as identifying and leave it out. This applies no matter where the data came from: logs, a database, a screenshot, or earlier in the conversation.
+
+### NEVER access a Kubernetes cluster without explicit permission
+
+Do not run `kubectl`, `helm`, `k9s`, port-forwards, or anything else that reads from or writes to a k8s cluster unless the user has clearly approved it for that specific cluster in the current task. Production is strictly off-limits without an instruction that explicitly names production. The only case that needs no ask is a throwaway local dev cluster (e.g. kind) that you started yourself for the task.
+
 ## Guidelines
 
 ### Testing
@@ -64,7 +83,7 @@ Key documentation for this project:
 - Check existing issues: `gh issue list --limit 30`
 - Look at recent commits: `git log --oneline -20`
 - Read the docs in `docs/` directory
-- Create a GitHub issue if unsure
+- Create a GitHub issue if unsure (public! — see 🔒 Privacy rules above)
 - Ask the user to clarify
 
 ### Pre-Flight Check
@@ -73,6 +92,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 
 ### Important Rules
 
+- ✅ If `AGENTS.local.md` exists at the repo root, read and follow it. It holds personal/local agent config (gitignored; may be absent on other machines) — skip silently when missing.
 - ✅ **ALWAYS read local `AGENTS.md` files** in the directories you are working in (and their parents) before starting.
 - ✅ **ALWAYS review relevant code paths** before asking clarification questions.
 - ✅ New instructions in AGENTS.md files should be SUCCINCT.
@@ -83,6 +103,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ Prefer IDE diagnostics (compiler/lint errors) over CLI tools for identifying issues. Fixing these diagnostics is part of completing any instruction.
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
 - ❌ Do NOT git commit or git push without explicit user approval
+- ❌ Do NOT post project/user identifiers or any real-project data online, and do NOT touch a k8s cluster without explicit permission — see **🔒 Privacy and Production Access** above
 - ⚠️ **Pre-commit hook prettier-formats staged `*.{js,ts,svelte,css,md,json}` files** (yes, incl. `.md`/docs) via `frontend/viewer`. If your commit stages any of those and `frontend/viewer/node_modules` is missing (fresh worktree/clone), run `cd frontend && pnpm install` first (~45s, once per worktree) — don't `--no-verify` to dodge it, that just defers the format failure to CI. If it stages none of those (e.g. backend-only), the hook is a no-op: it passes with no install, and `--no-verify` is fine.
 
 ### 🛡️ VIGILANCE

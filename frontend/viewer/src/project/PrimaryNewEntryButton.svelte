@@ -12,8 +12,10 @@
 
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
+  import * as Tooltip from '$lib/components/ui/tooltip';
   import { t } from 'svelte-i18n-lingui';
   import {useFeatures} from '$lib/services/feature-service';
+  import {isApplePlatform} from '$lib/utils/platform';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
 
@@ -42,16 +44,32 @@
     instances[id] === true ||
     // implicitly active (not explicitly inactive and no other instance is active)
     instances[id] === undefined && !Object.values(instances).some(_active => _active));
+
+  const shortcutHint = isApplePlatform() ? '⌘E' : 'Ctrl+E';
 </script>
 
 {#if isActive && features.write}
   <div class="relative z-1" in:receive={{ key: 'new-entry-button' }} out:send={{ key: 'new-entry-button' }}>
-    <Button variant="default" size="extended-fab" class="font-semibold" icon="i-mdi-plus-thick" {onclick}>
-      {#if shortForm}
-        <span>{$t`New`}</span>
-      {:else}
-        <span>{pt($t`New Entry`, $t`New Word`, viewService.currentView)}</span>
-      {/if}
-    </Button>
+    <Tooltip.Root>
+      <Tooltip.Trigger>
+        {#snippet child({props})}
+          <Button variant="default" size="extended-fab" class="font-semibold" icon="i-mdi-plus-thick" {...props} {onclick}>
+            {#if shortForm}
+              <span>{$t`New`}</span>
+            {:else}
+              <span>{pt($t`New Entry`, $t`New Word`, viewService.currentView)}</span>
+            {/if}
+          </Button>
+        {/snippet}
+      </Tooltip.Trigger>
+      <Tooltip.Content class="flex items-center gap-2">
+        {#if shortForm}
+          <span>{$t`New`}</span>
+        {:else}
+          <span>{pt($t`New Entry`, $t`New Word`, viewService.currentView)}</span>
+        {/if}
+        <kbd class="text-background/70 font-sans tracking-widest">{shortcutHint}</kbd>
+      </Tooltip.Content>
+    </Tooltip.Root>
   </div>
 {/if}

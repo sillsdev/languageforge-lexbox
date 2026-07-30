@@ -38,6 +38,7 @@ public class CrdtMiniLcmApi(
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
+    public CrdtProject Project => projectService.Project;
     private LcmCrdtConfig LcmConfig => config.Value;
 
     private CommitMetadata NewMetadata()
