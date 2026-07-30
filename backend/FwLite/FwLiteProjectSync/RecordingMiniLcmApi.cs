@@ -488,7 +488,7 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     #endregion
 
     // The component side alone doesn't identify a link: the same component is usually joined to several
-    // complex forms, which made distinct dry-run lines look like duplicates (docs/sync-fidelity/README.md).
+    // complex forms, so naming only the component made distinct records look like duplicates.
     // The link id is null for fwdata components, so the entry/sense ids are what actually identify it.
     private static string ComplexFormLink(ComplexFormComponent component)
     {
