@@ -53,8 +53,7 @@
   const writingSystemService = useWritingSystemService();
 
   // Entry-scoped image cache: pictures (and the edit/viewer dialogs) share one load per mediaUri.
-  const projectContext = useProjectContext();
-  initImageService(() => projectContext.api);
+  initImageService();
 
   let editor = $state<Editor.Root>();
 

@@ -80,7 +80,11 @@ export class ImageService {
 
 const imageServiceContext = new Context<ImageService>('image-service');
 
-export function initImageService(getApi: () => IMiniLcmJsInvokable): ImageService {
+export function initImageService(getApi?: () => IMiniLcmJsInvokable): ImageService {
+  if (!getApi) {
+    const projectContext = useProjectContext();
+    getApi = () => projectContext.api;
+  }
   const service = new ImageService(getApi);
   imageServiceContext.set(service);
   onDestroy(() => service.dispose());
