@@ -64,6 +64,8 @@ export class ImageService {
     const blob = await new Response(await file.stream.stream()).blob();
     if (this.#disposed) return {status: 'error', reason: 'unknown'};
     const state = {status: 'loaded', url: URL.createObjectURL(blob)} as const;
+    const previous = this.#cache.get(mediaUri);
+    if (previous) URL.revokeObjectURL(previous.url);
     this.#cache.set(mediaUri, state);
     return state;
   }
