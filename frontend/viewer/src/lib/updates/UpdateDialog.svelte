@@ -20,9 +20,9 @@
   let installPromise = $state<Promise<UpdateResult>>();
 
   const eventBus = useEventBus();
-  let installProgress = $state<number>();
+  let downloadProgress = $state<{bytesDownloaded: number; bytesPerSecond: number}>();
   eventBus.onEventType<IAppUpdateProgressEvent>(FwEventType.AppUpdateProgress, event => {
-    installProgress = event.percentage;
+    downloadProgress = {bytesDownloaded: event.bytesDownloaded, bytesPerSecond: event.bytesPerSecond};
   });
 
   watch(() => open, () => {
@@ -33,7 +33,7 @@
   });
 
   async function installUpdate(update: IAvailableUpdate) {
-    installProgress = undefined;
+    downloadProgress = undefined;
     installPromise = updateService.applyUpdate(update);
     try {
       const updateResult = await installPromise;
@@ -68,7 +68,7 @@
       {checkPromise}
       {installPromise}
       {installUpdate}
-      {installProgress} />
+      {downloadProgress} />
 
     <div class="flex justify-center gap-3">
       <Anchor
