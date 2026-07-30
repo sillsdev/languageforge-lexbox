@@ -46,6 +46,10 @@ public class RichString(ICollection<RichSpan> spans) : IEquatable<RichString>
         return string.Join("", Spans.Select(s => s.Text));
     }
 
+    // Without this, RichMultiString.ToString() prints the type name for every value, which silently
+    // emptied the dry-run sync records of their example sentence and picture caption text.
+    public override string ToString() => GetPlainText();
+
     public void EnsureWs(WritingSystemId ws)
     {
         foreach (var span in Spans)

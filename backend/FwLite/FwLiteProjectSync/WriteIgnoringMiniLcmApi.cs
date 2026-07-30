@@ -359,6 +359,16 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    {
+        return Task.CompletedTask;
+    }
+
     public Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
         return Task.CompletedTask;

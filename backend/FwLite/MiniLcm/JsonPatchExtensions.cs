@@ -1,4 +1,3 @@
-using System.Text;
 using SystemTextJsonPatch;
 
 namespace MiniLcm;
@@ -31,14 +30,12 @@ public static class JsonPatchExtensions
         }
         return false;
     }
+    /// <summary>
+    /// One line, so callers can log a patch without breaking per-line grep. Doesn't name the patched
+    /// type; callers already do.
+    /// </summary>
     public static string Summarize<T>(this JsonPatchDocument<T> document) where T : class
     {
-        var sb = new StringBuilder();
-        sb.AppendLine($"Update: {typeof(T).Name}");
-        foreach (var op in document.Operations)
-        {
-            sb.AppendLine($"{op.OperationType} {op.Path}: {op.Value}");
-        }
-        return sb.ToString();
+        return string.Join(", ", document.Operations.Select(op => $"{op.OperationType} {op.Path}: {op.Value}"));
     }
 }
