@@ -3,6 +3,7 @@ import {onDestroy} from 'svelte';
 import {SvelteMap} from 'svelte/reactivity';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
+import {guessMimeType} from '$lib/media-manager/media-file-utils';
 import {useProjectContext} from '$project/project-context.svelte';
 
 export type ImageState =
@@ -62,7 +63,10 @@ export class ImageService {
         : 'unknown';
       return {status: 'error', reason};
     }
-    const blob = await new Response(await file.stream.stream()).blob();
+    // Response(stream).blob() drops Content-Type; SVG (and some others) need the right MIME
+    // type to render in <img>, so re-apply from the filename when we have one.
+    const headers = file.fileName ? {'Content-Type': guessMimeType(file.fileName)} : undefined;
+    const blob = await new Response(await file.stream.stream(), {headers}).blob();
     if (this.#disposed) return {status: 'error', reason: 'unknown'};
     const state = {status: 'loaded', url: URL.createObjectURL(blob)} as const;
     const previous = this.#cache.get(mediaUri);
