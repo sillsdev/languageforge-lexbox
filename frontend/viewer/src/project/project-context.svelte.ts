@@ -11,6 +11,7 @@ import {DetachedResource, type DetachedResourceReturn} from './detached-resource
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
 import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
+import {devSettings} from '$lib/layout/dev-settings.svelte';
 
 const projectContextKey = 'current-project';
 
@@ -96,7 +97,10 @@ export class ProjectContext {
     return this.#projectData;
   }
   public get features(): IMiniLcmFeatures {
-    return this.#features.current;
+    const features = this.#features.current;
+    // Dev-only override lets a developer force the UI readonly by turning off write.
+    if (devSettings.readonly) return {...features, write: false};
+    return features;
   }
 
   /** Re-fetch {@link features} from the API (e.g. after a test toggles demo write). */

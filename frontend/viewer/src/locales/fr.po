@@ -1567,6 +1567,7 @@ msgstr "Jamais"
 
 #. Badge label on the primary "New Entry" / "New Word" button indicating it creates a new item.
 #: src/project/PrimaryNewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Nouveau"
 
@@ -1585,6 +1586,7 @@ msgstr "Nouvelles données"
 #. Dialog title for creating new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "Nouvelle entrée"
 
@@ -1600,6 +1602,7 @@ msgstr ""
 #. Classic view equivalent: "New Entry"
 #. Dialog title for creating new word
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Word"
 msgstr "Nouveau mot"
@@ -1977,6 +1980,11 @@ msgstr "Publier l'entrée dans"
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
 msgstr "Publier le mot dans"
+
+#: src/project/ProjectDropdown.svelte
+#: src/project/ProjectDropdown.svelte
+msgid "Read-only"
+msgstr ""
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)

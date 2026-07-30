@@ -1567,6 +1567,7 @@ msgstr "절대로"
 
 #. Badge label on the primary "New Entry" / "New Word" button indicating it creates a new item.
 #: src/project/PrimaryNewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "신규"
 
@@ -1585,6 +1586,7 @@ msgstr "새로운 데이터"
 #. Dialog title for creating new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "새 항목"
 
@@ -1600,6 +1602,7 @@ msgstr ""
 #. Classic view equivalent: "New Entry"
 #. Dialog title for creating new word
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Word"
 msgstr "새 단어"
@@ -1977,6 +1980,11 @@ msgstr "에 항목 게시"
 #: src/lib/views/entity-config.ts
 msgid "Publish Word in"
 msgstr "단어를 다음 위치에 게시"
+
+#: src/project/ProjectDropdown.svelte
+#: src/project/ProjectDropdown.svelte
+msgid "Read-only"
+msgstr ""
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
