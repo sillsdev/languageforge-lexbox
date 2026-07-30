@@ -1980,6 +1980,11 @@ msgstr "Chapisha Ingizo katika"
 msgid "Publish Word in"
 msgstr "Chapisha Neno katika"
 
+#: src/project/ProjectDropdown.svelte
+#: src/project/ProjectDropdown.svelte
+msgid "Read-only"
+msgstr ""
+
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited

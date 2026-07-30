@@ -1980,6 +1980,11 @@ msgstr "Publier l'entrée dans"
 msgid "Publish Word in"
 msgstr "Publier le mot dans"
 
+#: src/project/ProjectDropdown.svelte
+#: src/project/ProjectDropdown.svelte
+msgid "Read-only"
+msgstr ""
+
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited

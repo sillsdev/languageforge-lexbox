@@ -115,7 +115,6 @@
   }
   const sticky = $derived(dictionaryPreview === 'sticky');
 
-  let readonly = $state(false);
   let deleted = $state(false);
   let showCommentDialog = $state(false);
 
@@ -189,7 +188,7 @@
               </div>
             {/if}
           </DevContent>
-          <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} bind:readonly />
+          <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} />
           <EntryMenu {entry} />
         </div>
       </div>
@@ -202,7 +201,7 @@
                 <Icon icon="i-mdi-alert-circle" class="size-5" />
                 {$t`This ${entity} was deleted`}
               </span>
-              {#if !readonly && features.write}
+              {#if features.write}
                 <Button size="sm" variant="secondary" onclick={() => restore()}>
                   {$t`Restore`}
                 </Button>
@@ -231,7 +230,7 @@
                 bind:this={editor}
                 bind:ref={editorRef}
                 bind:entry
-                readonly={readonly || !features.write || deleted}
+                readonly={!features.write || deleted}
                 {...entryPersistence.entryEditorProps} />
             {/key}
           </div>
