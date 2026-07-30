@@ -17,7 +17,7 @@ namespace FwHeadless.Media;
 public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConfig> config, ISendReceiveService sendReceiveService)
 {
     public record MediaFileSyncResult(List<MediaFile> Added, List<MediaFile> Removed);
-    // TODO: This assumes FieldWorks is the source of truth, which is not true when FWL starts adding/deleting files
+
     public virtual async Task<MediaFileSyncResult> SyncMediaFiles(LcmCache cache)
     {
         var result = new MediaFileSyncResult([], []);
