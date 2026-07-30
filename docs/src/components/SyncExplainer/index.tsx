@@ -12,6 +12,7 @@ import {
   SCENARIOS,
   STEPPER_LABELS,
   TOKEN_TAGS,
+  TRIGGER_INFO,
   type CheckableNodeId,
   type LegId,
   type NodeId,
@@ -52,6 +53,9 @@ const withBold = (text: string): ReactNode[] => {
 const isTextInput = (el: HTMLElement | null): boolean =>
   Boolean(el?.isContentEditable) || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el?.tagName ?? '');
 
+const prefersReducedMotion = (): boolean =>
+  typeof window !== 'undefined' && Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+
 const NodeBox = ({
   label,
   icon,
@@ -81,6 +85,9 @@ const Connector = ({
   num,
   kind,
   trigger,
+  info,
+  infoOpen,
+  onToggleInfo,
   hl,
   dim,
   off,
@@ -90,6 +97,9 @@ const Connector = ({
   num: number;
   kind: 'auto' | 'manual' | 'their';
   trigger: string;
+  info?: {title: string; body: string};
+  infoOpen?: boolean;
+  onToggleInfo?: () => void;
   hl: boolean;
   dim: boolean;
   off?: boolean;
@@ -110,7 +120,30 @@ const Connector = ({
     <div className={styles.track}>
       <span className={styles.ah2} />
     </div>
-    <span className={styles.trigger}>{trigger}</span>
+    {info ? (
+      <span className={styles.infoAnchor}>
+        <button
+          type="button"
+          className={cx(styles.trigger, styles.hasInfo)}
+          aria-expanded={Boolean(infoOpen)}
+          onClick={onToggleInfo}>
+          {trigger}
+          <span className={styles.infoMark} aria-hidden="true">
+            i
+          </span>
+        </button>
+        {/* Kept mounted so the live region announces on open, not on insert. */}
+        <span className={cx(styles.infoPop, infoOpen && styles.on)} role="status" aria-live="polite">
+          {infoOpen && (
+            <>
+              <span className={styles.infoTitle}>{info.title}</span> {info.body}
+            </>
+          )}
+        </span>
+      </span>
+    ) : (
+      <span className={styles.trigger}>{trigger}</span>
+    )}
   </div>
 );
 
@@ -169,11 +202,15 @@ const Topology = ({
   ghostReserved,
   queries: {isHl, isDim, isChecked},
   setEl,
+  openInfo,
+  onToggleInfo,
 }: {
   step: Step | null;
   ghostReserved: boolean;
   queries: StepQueries;
   setEl: (id: MeasurableId) => (el: HTMLDivElement | null) => void;
+  openInfo: LegId | null;
+  onToggleInfo: (id: LegId) => void;
 }): ReactNode => (
   <div className={styles.topology}>
     <div className={styles.col}>
@@ -194,6 +231,9 @@ const Topology = ({
       num={1}
       kind="auto"
       trigger={step?.offline ? LEG_TRIGGERS.offline : LEG_TRIGGERS.leg1}
+      info={TRIGGER_INFO.leg1}
+      infoOpen={openInfo === 'leg1'}
+      onToggleInfo={() => onToggleInfo('leg1')}
       hl={isHl('leg1')}
       dim={isDim('leg1')}
       off={step?.offline}
@@ -222,6 +262,9 @@ const Topology = ({
           kind="manual"
           inner
           trigger={LEG_TRIGGERS.leg2}
+          info={TRIGGER_INFO.leg2}
+          infoOpen={openInfo === 'leg2'}
+          onToggleInfo={() => onToggleInfo('leg2')}
           hl={isHl('leg2')}
           dim={isDim('leg2')}
           elRef={setEl('leg2')}
@@ -240,6 +283,9 @@ const Topology = ({
       num={3}
       kind="their"
       trigger={LEG_TRIGGERS.leg3}
+      info={TRIGGER_INFO.leg3}
+      infoOpen={openInfo === 'leg3'}
+      onToggleInfo={() => onToggleInfo('leg3')}
       hl={isHl('leg3')}
       dim={isDim('leg3')}
       elRef={setEl('leg3')}
@@ -291,6 +337,7 @@ const Stepper = ({
         disabled={lastStep}
         onClick={() => setStepIndex((i) => Math.min(i + 1, scenario.steps.length - 1))}>
         {STEPPER_LABELS.next}
+        <span aria-hidden="true"> ›</span>
       </button>
       {lastStep && (
         <button type="button" onClick={onReset}>
@@ -306,8 +353,10 @@ const SyncExplainer = (): ReactNode => {
   const [stepIndex, setStepIndex] = useState(0);
   const [tokens, setTokens] = useState<[TokenPos, TokenPos]>([HIDDEN_TOKEN, HIDDEN_TOKEN]);
   const [resizeTick, setResizeTick] = useState(0);
+  const [openInfo, setOpenInfo] = useState<LegId | null>(null);
 
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const playerRef = useRef<HTMLDivElement | null>(null);
   const capTitleRef = useRef<HTMLHeadingElement | null>(null);
   const elements = useRef<Partial<Record<MeasurableId, HTMLDivElement | null>>>({});
   const setEl = (id: MeasurableId) => (el: HTMLDivElement | null) => {
@@ -373,10 +422,42 @@ const SyncExplainer = (): ReactNode => {
     };
   }, [scenario]);
 
+  // A toggletip must never linger over a diagram that's mid-transition.
+  useEffect(() => {
+    setOpenInfo(null);
+  }, [stepIndex, scenario]);
+
+  useEffect(() => {
+    if (!openInfo) return undefined;
+    const onPointerDown = (e: PointerEvent): void => {
+      if (!(e.target as HTMLElement).closest(`.${styles.infoAnchor}`)) setOpenInfo(null);
+    };
+    const onKeyDown = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') setOpenInfo(null);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [openInfo]);
+
+  const toggleInfo = (id: LegId): void => setOpenInfo((cur) => (cur === id ? null : id));
+
   const selectScenario = (s: Scenario): void => {
     setScenario(s);
     setStepIndex(0);
-    capTitleRef.current?.focus({preventScroll: true});
+    // Chips sit below the player, so bring the diagram + stepper back into view.
+    // Focus first, scroll last, so the scroll wins if a browser ignores
+    // preventScroll and would otherwise jump to the focused caption.
+    requestAnimationFrame(() => {
+      capTitleRef.current?.focus({preventScroll: true});
+      playerRef.current?.scrollIntoView({
+        block: 'start',
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      });
+    });
   };
 
   const reset = (): void => {
@@ -388,37 +469,59 @@ const SyncExplainer = (): ReactNode => {
 
   return (
     <div className={styles.root}>
-      <div className={styles.stage} ref={stageRef}>
-        <Topology step={step} ghostReserved={ghostReserved} queries={queries} setEl={setEl} />
+      <div className={styles.player} ref={playerRef}>
+        <div className={styles.stage} ref={stageRef}>
+          <Topology
+            step={step}
+            ghostReserved={ghostReserved}
+            queries={queries}
+            setEl={setEl}
+            openInfo={openInfo}
+            onToggleInfo={toggleInfo}
+          />
 
-        {([
-          ['you', TOKEN_TAGS.you, tokens[0]],
-          ['them', TOKEN_TAGS.them, tokens[1]],
-        ] as const).map(([who, tag, pos]) => (
-          <div
-            key={who}
-            className={cx(styles.token, styles[who], pos.visible && styles.on)}
-            style={{transform: `translate(${pos.x}px,${pos.y}px)`}}>
-            <span className={styles.dot} />
-            <span className={styles.tag}>{tag}</span>
-          </div>
-        ))}
-
-        <div className={styles.legend} aria-hidden="true">
-          {LEGEND.map((item) => (
-            <span
-              key={item.kind}
-              className={
-                item.kind === 'auto' ? styles.lAuto : item.kind === 'you' ? styles.lYou : styles.lThem
-              }>
-              <i /> {item.text}
-            </span>
+          {([
+            ['you', TOKEN_TAGS.you, tokens[0]],
+            ['them', TOKEN_TAGS.them, tokens[1]],
+          ] as const).map(([who, tag, pos]) => (
+            <div
+              key={who}
+              className={cx(styles.token, styles[who], pos.visible && styles.on)}
+              style={{transform: `translate(${pos.x}px,${pos.y}px)`}}>
+              <span className={styles.dot} />
+              <span className={styles.tag}>{tag}</span>
+            </div>
           ))}
+
+          <div className={styles.legend} aria-hidden="true">
+            {LEGEND.map((item) => (
+              <span
+                key={item.kind}
+                className={
+                  item.kind === 'auto' ? styles.lAuto : item.kind === 'you' ? styles.lYou : styles.lThem
+                }>
+                <i /> {item.text}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className={cx(styles.caption, Boolean(scenario) && styles.active)} aria-live="polite">
+          {badge && <span className={cx(styles.badge, styles[badge])}>{BADGE_LABELS[badge]}</span>}
+          <h3 ref={capTitleRef} tabIndex={-1}>
+            {scenario ? scenario.q : INITIAL.title}
+          </h3>
+          <p>{step ? step.text : withBold(INITIAL.text)}</p>
+          {scenario && (
+            <Stepper scenario={scenario} stepIndex={stepIndex} setStepIndex={setStepIndex} onReset={reset} />
+          )}
         </div>
       </div>
 
       <div className={styles.questions}>
-        <h2 id="sync-explainer-questions">{QUESTIONS_HEADING}</h2>
+        <div className={styles.qlabel} id="sync-explainer-questions">
+          {QUESTIONS_HEADING}
+        </div>
         <div className={styles.chips} role="group" aria-labelledby="sync-explainer-questions">
           {SCENARIOS.map((s) => (
             <button
@@ -430,17 +533,6 @@ const SyncExplainer = (): ReactNode => {
             </button>
           ))}
         </div>
-      </div>
-
-      <div className={styles.caption} aria-live="polite">
-        {badge && <span className={cx(styles.badge, styles[badge])}>{BADGE_LABELS[badge]}</span>}
-        <h3 ref={capTitleRef} tabIndex={-1}>
-          {scenario ? scenario.q : INITIAL.title}
-        </h3>
-        <p>{step ? step.text : withBold(INITIAL.text)}</p>
-        {scenario && (
-          <Stepper scenario={scenario} stepIndex={stepIndex} setStepIndex={setStepIndex} onReset={reset} />
-        )}
       </div>
     </div>
   );

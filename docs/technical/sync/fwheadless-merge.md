@@ -42,13 +42,13 @@ flowchart TD
     D --> G[Open FwData + CRDT copies]
     F --> G
     G --> H[Harmony sync with LexBox<br/>pull Lite changes down]
-    H --> I{Snapshot exists?}
+    H --> I{Snapshot file exists?}
     I -- no --> J[Import: whole FwData project into CRDT]
     I -- yes --> K[Merge: two directional diffs]
     K --> L{FwData changed?}
     L -- yes --> M[Send/Receive<br/>retry once on HTTP 500]
     L -- no --> N
-    J --> N[Regenerate ProjectSnapshot from the CRDT]
+    J --> N[Save fresh snapshot<br/>from the CRDT]
     M --> N
     N --> O[Harmony sync with LexBox<br/>push FieldWorks-origin changes]
 
@@ -56,13 +56,21 @@ flowchart TD
     style N fill:#ff9,stroke:#333
 ```
 
-The snapshot is regenerated **after** the post-merge Send/Receive succeeds and **from the CRDT api**, not from
-FwData — see the long comment in `SyncWorker.ExecuteSync` for why both details matter.
+**The snapshot** is a JSON file (`{project}_snapshot.json`) kept next to the project's data. It records the whole
+dictionary state — entries, senses, parts of speech and the rest — as of the last successful merge. Two things
+depend on it:
+
+- It's the baseline the merge diffs against (see [Merge semantics](#merge-semantics) below). Without a "what it
+  was last time", there's no way to tell what each side changed.
+- Its mere presence is how FwHeadless knows a project has synced before. No snapshot means the first-ever sync,
+  which *imports* the whole FwData project into a new CRDT instead of merging.
+
+It's rewritten only **after** the post-merge Send/Receive succeeds, and **from the CRDT api**, not from FwData —
+see the long comment in `SyncWorker.ExecuteSync` for why both details matter.
 
 ## Merge semantics
 
-`CrdtFwdataProjectSyncService.Sync` computes two directional diffs per entity type against the last
-`ProjectSnapshot` (the state as of the previous successful merge):
+`CrdtFwdataProjectSyncService.Sync` computes two directional diffs per entity type against the snapshot:
 
 1. snapshot → current FwData, applied to the CRDT
 2. current FwData → current CRDT, applied to FwData
@@ -101,5 +109,5 @@ immediately (before *and* after the merge) and returns `SyncBlocked`. A blocked 
 trigger endpoint with HTTP 423 and re-checked inside the worker in case it was blocked while queued. Unblocking
 is a deliberate admin action via `/api/fw-lite/sync/unblock`.
 
-Other landmines worth knowing: a stale `ProjectSnapshot` makes every subsequent diff wrong; stuck `.hg/wlock`
+Other landmines worth knowing: a stale snapshot makes every subsequent diff wrong; stuck `.hg/wlock`
 files hang Send/Receive; and an `FdoDataModelVersion` mismatch with FieldWorks risks corrupt data.

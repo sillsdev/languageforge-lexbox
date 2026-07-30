@@ -5,11 +5,14 @@ sidebar_position: 0
 
 FieldWorks Lite is a fast, simple app for building a dictionary. You can use it on a
 phone, a tablet or a computer. It works offline, and it keeps your work in step with the
-rest of your team through Lexbox.
+rest of your team through **Lexbox** — the online service that stores your team's projects.
 
 FieldWorks Lite is a companion to FieldWorks Classic, not a replacement. It edits the
-dictionary part of your project. The rest of your project stays in FieldWorks Classic,
-and the two are kept in step through Lexbox.
+dictionary part of your project. The rest of your project stays in FieldWorks Classic, and
+Lexbox keeps the two in step.
+
+You sign in to FieldWorks Lite with a Lexbox account, but you don't need to open the Lexbox
+website to use FieldWorks Lite from day to day — syncing happens inside the app.
 
 ## Get FieldWorks Lite
 

@@ -322,7 +322,7 @@ export const INITIAL = {
     'Leg **1**: your device ⇄ Lexbox — automatic whenever you’re online. ' +
     'Leg **2**: between the two copies inside Lexbox — someone presses the **Sync** button. ' +
     'Leg **3**: Lexbox ⇄ your colleague — they run **Send/Receive** in FieldWorks Classic. ' +
-    'Pick a question above to watch it happen.',
+    'Pick a question below to watch it happen.',
 };
 
 export const BADGE_LABELS: Record<BadgeKind, string> = {
@@ -352,6 +352,26 @@ export const LEG_TRIGGERS: Record<LegId, string> & {offline: string} = {
   leg2: 'the Sync button',
   leg3: 'their Send/Receive',
   offline: 'offline',
+};
+
+/**
+ * Tap-to-reveal detail behind each leg's trigger pill (a toggletip in the
+ * diagram). Keeps the "where do I find it" fact next to the leg it belongs to,
+ * instead of only in the table below. One or two short sentences each.
+ */
+export const TRIGGER_INFO: Record<LegId, {title: string; body: string}> = {
+  leg1: {
+    title: 'Automatic',
+    body: 'Runs by itself — after every edit, when you open the project, and when your connection comes back. Nothing to press.',
+  },
+  leg2: {
+    title: 'The Sync button',
+    body: 'Two buttons, same job: in FieldWorks Lite it’s Synchronize → Lexbox tab → Sync; on the Lexbox website it’s “Sync FieldWorks Lite” on your project page.',
+  },
+  leg3: {
+    title: 'Send/Receive',
+    body: 'Happens on your colleague’s computer, in FieldWorks Classic’s Send/Receive. There’s nothing to do on your side.',
+  },
 };
 
 export const TOKEN_TAGS = {you: 'your edit', them: 'their edit'};

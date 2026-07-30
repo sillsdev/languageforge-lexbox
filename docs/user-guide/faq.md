@@ -6,6 +6,14 @@ sidebar_position: 3
 Common questions about FieldWorks Lite. Questions about syncing are answered on
 [How sync works](/user-guide/how-sync-works).
 
+## What is Lexbox?
+
+Lexbox is the online service that stores your team's projects and keeps everyone's copies
+in step. FieldWorks Lite signs in to it and syncs with it for you, so you don't need to
+open the Lexbox website to do your dictionary work — that all happens in the app. The
+website is there if you want it (for example, to manage who is on a project), but everyday
+work lives entirely in FieldWorks Lite.
+
 ## Do I need a Lexbox account?
 
 Not to try the app. You can install FieldWorks Lite and choose **Create Example Project**

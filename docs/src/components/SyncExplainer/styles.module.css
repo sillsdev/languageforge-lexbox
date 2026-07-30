@@ -16,6 +16,10 @@
   --sx-danger: #b3261e;
   --sx-shadow: 0 1px 2px rgba(38, 34, 28, 0.06), 0 4px 14px rgba(38, 34, 28, 0.05);
   color: var(--sx-ink);
+  /* Respond to our own width, not the viewport: the docs column narrows as
+     Docusaurus shows its sidebars, and the wide horizontal diagram must turn
+     vertical when the column can't hold it — regardless of screen size. */
+  container-type: inline-size;
 }
 
 :global([data-theme='dark']) .root {
@@ -32,15 +36,22 @@
   --sx-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
-/* ---------- Diagram ---------- */
-.stage {
-  position: relative;
+/* ---------- Player: the diagram and its caption/stepper are one card, so the
+   controls read as driving the picture above them. ---------- */
+.player {
+  margin-top: 26px;
   background: var(--sx-surface);
   border: 1px solid var(--sx-line);
   border-radius: 14px;
   box-shadow: var(--sx-shadow);
-  padding: 30px 22px 22px;
-  margin-top: 26px;
+  /* leave room for the sticky navbar when we scroll the player into view */
+  scroll-margin-top: 70px;
+}
+
+/* ---------- Diagram ---------- */
+.stage {
+  position: relative;
+  padding: 30px 22px 18px;
 }
 .topology {
   display: flex;
@@ -165,16 +176,27 @@
   gap: 5px;
   padding: 0 4px;
 }
+/* Base leg color so the number circle carries it at rest, matching the numbered
+   circles in the "Where you'll see this in the app" table below the diagram. */
+.connector.auto {
+  color: var(--sx-auto);
+}
+.connector.manual {
+  color: var(--sx-accent);
+}
+.connector.their {
+  color: var(--sx-colleague);
+}
 .connector .legnum {
   font-size: 12px;
   font-weight: 700;
-  color: var(--sx-ink-soft);
-  background: var(--sx-surface-2);
-  border: 1px solid var(--sx-line);
+  color: currentColor;
+  background: var(--sx-surface);
+  border: 1.5px solid currentColor;
   border-radius: 50%;
   width: 21px;
   height: 21px;
-  line-height: 19px;
+  line-height: 18px;
   text-align: center;
 }
 .connector .track {
@@ -263,8 +285,8 @@
 }
 .connector.hl .legnum {
   border-color: currentColor;
-  color: inherit;
-  background: var(--sx-surface);
+  background: currentColor;
+  color: var(--sx-surface);
 }
 
 .connector.off .track::before {
@@ -275,6 +297,93 @@
   color: var(--sx-danger);
   background: transparent;
   border: 1px dashed var(--sx-danger);
+}
+
+/* ---------- Trigger toggletips: tap a leg's pill to reveal where/when ---------- */
+.infoAnchor {
+  position: relative;
+  display: inline-flex;
+}
+.trigger.hasInfo {
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 3px 10px;
+}
+.trigger.hasInfo:hover {
+  filter: brightness(0.97);
+}
+.trigger.hasInfo:focus-visible {
+  outline: 2.5px solid currentColor;
+  outline-offset: 2px;
+}
+.infoMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.2px solid currentColor;
+  font-size: 9px;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+  opacity: 0.8;
+}
+.infoPop {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  width: max-content;
+  max-width: min(240px, 78vw);
+  text-align: left;
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.45;
+  color: var(--sx-ink);
+  white-space: normal;
+}
+.infoPop:not(.on) {
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.infoPop.on {
+  background: var(--sx-surface);
+  border: 1px solid var(--sx-line);
+  border-radius: 10px;
+  box-shadow: var(--sx-shadow);
+  padding: 9px 12px;
+}
+.infoPop.on::before,
+.infoPop.on::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  border: 6px solid transparent;
+}
+.infoPop.on::before {
+  transform: translate(-50%, 1px);
+  border-bottom-color: var(--sx-line);
+}
+.infoPop.on::after {
+  transform: translateX(-50%);
+  border-bottom-color: var(--sx-surface);
+}
+.infoTitle {
+  font-weight: 700;
+  color: currentColor;
 }
 
 /* ghost node: teammates on FW Lite. Space is reserved only while a scenario
@@ -353,9 +462,9 @@
 
 /* ---------- Questions ---------- */
 .questions {
-  margin-top: 24px;
+  margin-top: 22px;
 }
-.questions h2 {
+.qlabel {
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -397,16 +506,18 @@
 
 /* ---------- Caption / stepper ---------- */
 .caption {
-  margin-top: 18px;
-  background: var(--sx-surface);
-  border: 1px solid var(--sx-line);
-  border-radius: 14px;
-  box-shadow: var(--sx-shadow);
+  border-top: 1px solid var(--sx-line);
   padding: 18px 22px;
-  min-height: 150px;
+  min-height: 132px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+/* Once a question is chosen the deck holds the answer + controls; tint it a
+   touch so it reads as the diagram's control panel, not loose text. */
+.caption.active {
+  background: var(--sx-surface-2);
+  border-radius: 0 0 14px 14px;
 }
 .caption h3 {
   margin: 0;
@@ -452,6 +563,8 @@
   align-items: center;
   gap: 14px;
   margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--sx-line);
   flex-wrap: wrap;
 }
 .stepper .dots {
@@ -527,8 +640,21 @@
   background: var(--sx-colleague);
 }
 
-/* ---------- Mobile: the topology turns vertical ---------- */
-@media (max-width: 720px) {
+/* ---------- Narrow column: the topology turns vertical ---------- */
+@container (max-width: 880px) {
+  /* Compact so diagram + one-sentence caption + stepper fit ~one viewport,
+     keeping the Next button close to the picture it drives. */
+  .stage {
+    padding: 20px 16px 14px;
+  }
+  .node {
+    min-width: 0;
+    padding: 9px 12px 8px;
+  }
+  .caption {
+    padding: 16px;
+    min-height: 0;
+  }
   .topology {
     flex-direction: column;
   }
@@ -539,7 +665,7 @@
   }
   .connector .track {
     width: 12px !important;
-    height: 46px;
+    height: 34px;
   }
   .connector .track::before {
     left: 5px;
@@ -626,5 +752,51 @@
   .copies .connector.hl .track .ah2 {
     border-right-color: currentColor;
     border-bottom-color: transparent;
+  }
+}
+
+/* ---------- Phones: squeeze so diagram + caption + stepper share one screen,
+   keeping Next next to the picture it drives. ---------- */
+@container (max-width: 560px) {
+  .stage {
+    padding: 16px 14px 10px;
+  }
+  /* the badges in the caption already carry the color key */
+  .legend {
+    display: none;
+  }
+  .cloud {
+    padding: 9px 10px 10px;
+  }
+  .cloudHead {
+    margin-bottom: 7px;
+  }
+  .connector {
+    padding: 3px 0;
+  }
+  .connector .track {
+    height: 22px;
+  }
+  .caption {
+    padding: 14px;
+    gap: 9px;
+  }
+  .caption h3 {
+    font-size: 15px;
+  }
+  .stepper {
+    gap: 10px;
+    padding-top: 12px;
+  }
+  .stepper .dots {
+    display: none;
+  }
+  /* keep the controls left, clear of the floating back-to-top button */
+  .stepper .grow {
+    display: none;
+  }
+  .stepper button {
+    min-height: 36px;
+    padding: 6px 14px;
   }
 }

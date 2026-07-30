@@ -90,6 +90,7 @@ path is only as live as its slowest manual step.
 ## Which copy wins
 
 FwHeadless keeps its own CRDT database *and* its own FwData working copy per project. The merge diffs both
-against the last `ProjectSnapshot` and applies **FwData → CRDT first**, so a field edited on both sides since the
+against the snapshot (a JSON file recording the state as of the last successful merge) and applies
+**FwData → CRDT first**, so a field edited on both sides since the
 last merge ends up with the FieldWorks Classic value. Within hop 1 (Lite clients only) there is no such
 asymmetry — Harmony merges per change. See [The FwHeadless merge](./fwheadless-merge.md).
