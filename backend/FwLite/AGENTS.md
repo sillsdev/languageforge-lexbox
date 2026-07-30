@@ -330,7 +330,7 @@ This is major work. Follow the pattern of `Sense`:
 ### "Fix a sync bug"
 
 1. Reproduce with a test in `FwLiteProjectSync.Tests/`
-2. Use `DryRunMiniLcmApi` to see what changes would be made
+2. Use a dry-run sync (`SyncDryRun`/`ImportDryRun`, which record via `RecordingMiniLcmApi`) to see what changes would be made
 3. Debug through `CrdtFwdataProjectSyncService.Sync()`
 4. Check `ProjectSnapshot` handling
 

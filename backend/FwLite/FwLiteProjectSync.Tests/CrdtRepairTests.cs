@@ -110,6 +110,25 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
     }
 
     [Fact]
+    public async Task CrdtEntryMissingTranslationId_DryRunSync_LeavesRealCrdtUntouched()
+    {
+        // arrange
+        var (fwEntry, crdtEntry, _) = await CreateSyncedEntryMissingTranslationId();
+        var crdtTranslationIdBefore = crdtEntry.SingleTranslation().Id;
+        var fwTranslationId = fwEntry.SingleTranslation().Id;
+        crdtTranslationIdBefore.Should().NotBe(fwTranslationId, "the repair hasn't run yet");
+
+        // act - a dry run repairs translation IDs on the throwaway copy, never the real project
+        var projectSnapshot = await GetSnapshot();
+        await SyncService.SyncDryRun(CrdtApi, FwDataApi, projectSnapshot);
+
+        // assert - the real crdt translation ID is unchanged (a real sync would have written the fwdata ID)
+        var crdtEntryAfter = await CrdtApi.GetEntry(crdtEntry.Id);
+        crdtEntryAfter.Should().NotBeNull();
+        crdtEntryAfter.SingleTranslation().Id.Should().Be(crdtTranslationIdBefore);
+    }
+
+    [Fact]
     public async Task CrdtEntryMissingTranslationId_FwTranslationChanged_FullSync()
     {
         // arrange
