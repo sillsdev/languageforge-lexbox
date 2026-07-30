@@ -7,7 +7,7 @@ namespace FwLiteProjectSync;
 public static class CrdtRepairs
 {
 #pragma warning disable CS0618 // Type or member is obsolete
-    public static async Task<int> SyncMissingTranslationIds(Entry[] snapshotEntries, FwDataMiniLcmApi fwDataApi, CrdtMiniLcmApi crdtApi, bool dryRun = false)
+    public static async Task<int> SyncMissingTranslationIds(Entry[] snapshotEntries, FwDataMiniLcmApi fwDataApi, CrdtMiniLcmApi crdtApi)
     {
         using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
         // Sync any available IDs from fwdata to the snapshot and the crdt entries
@@ -78,7 +78,7 @@ public static class CrdtRepairs
             }
         }
 
-        if (!dryRun && exampleSentenceIdToTranslationId.Any())
+        if (exampleSentenceIdToTranslationId.Any())
         {
             await crdtApi.SetFirstTranslationIds(exampleSentenceIdToTranslationId);
         }

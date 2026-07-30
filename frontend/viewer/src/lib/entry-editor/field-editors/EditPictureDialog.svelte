@@ -6,6 +6,7 @@
   import {Button} from '$lib/components/ui/button';
   import PictureImage from './PictureImage.svelte';
   import {ACCEPTED_PICTURE_TYPES} from './picture-formats';
+  import {downloadPictureFile} from './picture-actions';
   import {t} from 'svelte-i18n-lingui';
   import {useLexboxApi} from '$lib/services/service-provider';
   import {AppNotification} from '$lib/notifications/notifications';
@@ -63,25 +64,15 @@
     }
   }
 
-  // Downloads the currently-shown image, saved under the filename the media server reports for it.
   let downloading = $state(false);
   async function downloadPicture() {
     if (downloading) return;
     downloading = true;
     try {
-      const file = await api.getFileStream(mediaUri, true);
-      if (!file.stream) {
-        AppNotification.display(file.errorMessage ?? $t`Unable to download the picture`, {type: 'error'});
-        return;
+      const result = await downloadPictureFile(api, mediaUri);
+      if (!result.success) {
+        AppNotification.display(result.errorMessage ?? $t`Unable to download the picture`, {type: 'error'});
       }
-      const blob = await new Response(await file.stream.stream()).blob();
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = file.fileName ?? 'picture';
-      anchor.click();
-      // Release the object URL on the next tick, once the browser has captured the blob.
-      setTimeout(() => URL.revokeObjectURL(url), 0);
     } finally {
       downloading = false;
     }

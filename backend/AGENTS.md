@@ -39,7 +39,7 @@ To build against local Harmony source (e.g. when developing the CRDT substrate),
 - **Nullable**: Enabled globally, `Nullable` warnings are errors
 - **Implicit usings**: Enabled
 - **Target framework**: net10.0 (unless platform-specific)
-- **Async**: Use `async/await`, not `.Result` or `.Wait()`
+- **Async**: Use `async/await`, not `.Result` or `.Wait()`. Prefer `return await Foo()` over returning the task directly — awaiting keeps this method on the stack trace when the inner call throws. Only drop the `await` (return the task) as a hot-path micro-optimization ([#2435](https://github.com/sillsdev/languageforge-lexbox/pull/2435#discussion_r3584331713))
 - **Records**: Prefer for DTOs and immutable data
 
 ## Key Patterns

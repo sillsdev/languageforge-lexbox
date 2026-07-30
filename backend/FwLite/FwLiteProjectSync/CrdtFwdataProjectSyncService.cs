@@ -13,13 +13,14 @@ namespace FwLiteProjectSync;
 public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
     ILogger<CrdtFwdataProjectSyncService> logger,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory,
+    CrdtProjectsService crdtProjectsService,
     FwDataFactory fwDataFactory)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
         int FwdataChanges,
-        List<DryRunMiniLcmApi.DryRunRecord> CrdtDryRunRecords,
-        List<DryRunMiniLcmApi.DryRunRecord> FwDataDryRunRecords) : SyncResult(CrdtChanges, FwdataChanges);
+        List<RecordingMiniLcmApi.RunRecord> CrdtDryRunRecords,
+        List<RecordingMiniLcmApi.RunRecord> FwDataDryRunRecords) : SyncResult(CrdtChanges, FwdataChanges);
 
     public async Task<DryRunSyncResult> SyncDryRun(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, ProjectSnapshot projectSnapshot)
     {
@@ -66,6 +67,15 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             throw new InvalidOperationException("Project sync state does not match presence of snapshot.");
         }
 
+        await using var crdtCopy = dryRun ? await crdtProjectsService.OpenTempProjectCopy(crdt.Project) : null;
+        if (dryRun)
+        {
+            // Point the whole CRDT side at the copy, crdt included — the translation-id repair below writes
+            // through crdt, so rebinding it keeps that write off the real project and lets the copy read it back.
+            crdt = crdtCopy?.Api ?? throw new InvalidOperationException("crdtCopy must be defined in a dryRun");
+            crdtApi = crdt;
+        }
+
         // No write normalization: Data is already normalised on both sides.
         // No query normalization: The sync doesn't do any querying.
         crdtApi = validationWrapperFactory.Create(crdtApi);
@@ -73,14 +83,14 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
 
         if (dryRun)
         {
-            crdtApi = new DryRunMiniLcmApi(crdtApi);
-            fwdataApi = new DryRunMiniLcmApi(fwdataApi);
+            crdtApi = new RecordingMiniLcmApi(crdtApi);
+            fwdataApi = new RecordingMiniLcmApi(new WriteIgnoringMiniLcmApi(fwdataApi));
         }
 
         if (projectSnapshot is not null)
         {
             // Repair any missing translation IDs before doing the full sync, so the sync doesn't have to deal with them
-            var syncedIdCount = await CrdtRepairs.SyncMissingTranslationIds(projectSnapshot.Entries, fwdata, crdt, dryRun);
+            await CrdtRepairs.SyncMissingTranslationIds(projectSnapshot.Entries, fwdata, crdt);
 
             // Patch legacy snapshots that were created before morph-type support.
             // After seeding, the CRDT has morph-types but the snapshot still has [].
@@ -105,10 +115,10 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             return syncResult;
         }
 
-        LogDryRun(crdtApi, "crdt");
-        LogDryRun(fwdataApi, "fwdata");
+        LogRecordedRun(crdtApi, "crdt");
+        LogRecordedRun(fwdataApi, "fwdata");
         return new DryRunSyncResult(syncResult.CrdtChanges, syncResult.FwdataChanges,
-            GetDryRunRecords(crdtApi), GetDryRunRecords(fwdataApi));
+            GetRunRecords(crdtApi), GetRunRecords(fwdataApi));
     }
 
     private async Task<SyncResult> ImportInternal(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, int entryCount)
@@ -150,19 +160,19 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         return new SyncResult(crdtChanges, fwdataChanges);
     }
 
-    private void LogDryRun(IMiniLcmApi api, string type)
+    private void LogRecordedRun(IMiniLcmApi api, string type)
     {
-        if (api is not DryRunMiniLcmApi dryRunApi) return;
-        foreach (var dryRunRecord in dryRunApi.DryRunRecords)
+        if (api is not RecordingMiniLcmApi recorder) return;
+        foreach (var dryRunRecord in recorder.RunRecords)
         {
             logger.LogInformation($"Dry run {type} record: {dryRunRecord.Method} {dryRunRecord.Description}");
         }
 
-        logger.LogInformation($"Dry run {type} changes: {dryRunApi.DryRunRecords.Count}");
+        logger.LogInformation($"Dry run {type} changes: {recorder.RunRecords.Count}");
     }
 
-    private List<DryRunMiniLcmApi.DryRunRecord> GetDryRunRecords(IMiniLcmApi api)
+    private List<RecordingMiniLcmApi.RunRecord> GetRunRecords(IMiniLcmApi api)
     {
-        return ((DryRunMiniLcmApi)api).DryRunRecords;
+        return ((RecordingMiniLcmApi)api).RunRecords;
     }
 }
