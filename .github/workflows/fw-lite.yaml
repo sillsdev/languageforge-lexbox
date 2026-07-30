@@ -82,16 +82,18 @@ jobs:
       - name: Check for stale generated TypeScript types
         run: task fw-lite:has-stale-generated-types -- --no-build
 
-      - name: Set a non-UTC timezone so timezone bugs are observable
-        # Hosted runners default to UTC, which hides date bugs: the error equals the local UTC
-        # offset, which is zero on UTC (see #2092). Eastern is non-UTC, observes DST, and has a
-        # negative offset, so date round-trips run the way real users actually hit them.
-        run: sudo timedatectl set-timezone America/New_York
-
       - name: Dotnet test
         # Benchmarks run in a separate Release-mode job — see `benchmark` below.
         # MAUI tests run in publish-win. `trx` logger writes result files for the TestHistory
         # upload below; --results-directory collects one .trx per test project into a single folder.
+        #
+        # TZ forces a non-UTC timezone so date bugs are observable: on UTC the error equals the
+        # local offset, which is zero and hides bugs (see #2092). Eastern is non-UTC, observes DST,
+        # and has a negative offset. We set TZ instead of `timedatectl set-timezone` because hosted
+        # runners no longer allow it ("Failed to set time zone: Access denied"); .NET honours TZ for
+        # TimeZoneInfo.Local on Linux, so this needs no privileges and only affects the tests.
+        env:
+          TZ: America/New_York
         run: dotnet test FwLiteCore.slnf --logger GitHubActions --logger trx --results-directory "${{ github.workspace }}/TestResults" --no-build -p:BuildAndroid=false --filter "Category!=Benchmark"
 
       - name: Publish test results to TestHistory
