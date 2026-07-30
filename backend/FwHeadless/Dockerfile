@@ -45,8 +45,9 @@ RUN test -f FixFwData \
     if [ $ec -gt 1 ]; then echo "FixFwData smoke test failed with exit $ec"; exit 1; fi
 # Smoke-test: chorusmerge must engage the FieldWorks merge handler, not silently keep one
 # whole file (#2508). Runs the real wrapper from a non-/app cwd, exactly as hg does.
-COPY FwHeadless/chorusmerge-smoke/ /opt/chorusmerge-smoke/
-RUN chmod +x /opt/chorusmerge-smoke/run.sh && /opt/chorusmerge-smoke/run.sh
+# Bind-mount rather than COPY so the fixture/script don't ship in the runtime image.
+RUN --mount=type=bind,source=FwHeadless/chorusmerge-smoke,target=/opt/chorusmerge-smoke \
+    bash /opt/chorusmerge-smoke/run.sh
 USER www-data:www-data
 ENV XDG_DATA_HOME=/var/www/.local/share
 ENTRYPOINT ["tini", "--"]

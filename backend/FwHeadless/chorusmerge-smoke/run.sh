@@ -23,12 +23,13 @@ sed 's#>Verb</AUni>#>Verb_THEIRS</AUni>#'   "$BASE" > "$WORK/theirs.list"
 cp "$WORK/ours.list" "$WORK/merged.list"   # ChorusMerge writes the result back to arg 0
 
 cd "$WORK"   # a non-/app cwd, exactly as hg runs the merge tool inside the repo
-ChorusPathToRepository="$WORK" "$APP/chorusmerge" "$WORK/merged.list" "$BASE" "$WORK/theirs.list" || true
+rc=0
+ChorusPathToRepository="$WORK" "$APP/chorusmerge" "$WORK/merged.list" "$BASE" "$WORK/theirs.list" || rc=$?
 
 if grep -q Adverb_OURS "$WORK/merged.list" && grep -q Verb_THEIRS "$WORK/merged.list"; then
   echo "chorusmerge smoke OK: FieldWorks 3-way merge engaged; both edits preserved"
 else
-  echo "chorusmerge smoke FAILED: merge dropped a side (FieldWorks handler not engaged)"
+  echo "chorusmerge smoke FAILED: merge dropped a side (FieldWorks handler not engaged; chorusmerge exit=$rc)"
   echo "  Adverb_OURS=$(grep -c Adverb_OURS "$WORK/merged.list" || true)  Verb_THEIRS=$(grep -c Verb_THEIRS "$WORK/merged.list" || true)"
   exit 1
 fi
