@@ -20,11 +20,11 @@ function hashString(value: string): number {
 export function getAuthorInitials(authorName?: string): string {
   const parts = (authorName ?? '').trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
-  return `${parts[0]![0] ?? ''}${parts[1]![0] ?? ''}`.toUpperCase();
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
 }
 
 export function getAuthorColor(authorId?: string, authorName?: string): string {
   const key = authorId || authorName || '?';
-  return AVATAR_COLORS[hashString(key) % AVATAR_COLORS.length]!;
+  return AVATAR_COLORS[hashString(key) % AVATAR_COLORS.length];
 }

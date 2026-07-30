@@ -15,6 +15,7 @@
   import CommentThread from './CommentThread.svelte';
   import type {ThreadView} from './types';
   import {slide} from 'svelte/transition';
+  import {SvelteSet} from 'svelte/reactivity';
 
   let {
     canComment,
@@ -76,14 +77,14 @@
   function toggleExpanded(threadId: string): void {
     if (useThreadDetail) {
       mobileThreadId = threadId;
-      onThreadOpen?.(threadId);
+      void onThreadOpen?.(threadId);
       return;
     }
-    const next = new Set(expandedThreadIds);
+    const next = new SvelteSet(expandedThreadIds);
     if (next.has(threadId)) next.delete(threadId);
     else {
       next.add(threadId);
-      onThreadOpen?.(threadId);
+      void onThreadOpen?.(threadId);
     }
     expandedThreadIds = next;
   }

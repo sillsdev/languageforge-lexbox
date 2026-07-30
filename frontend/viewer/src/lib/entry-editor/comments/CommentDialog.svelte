@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Drawer from '$lib/components/ui/drawer';
   import * as Sheet from '$lib/components/ui/sheet';
-  import {Button, buttonVariants} from '$lib/components/ui/button';
+  import {buttonVariants} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
