@@ -3,6 +3,7 @@ import {onDestroy} from 'svelte';
 import {SvelteMap} from 'svelte/reactivity';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
+import {useProjectContext} from '$project/project-context.svelte';
 
 export type ImageState =
   | {status: 'loaded'; url: string}
@@ -86,6 +87,12 @@ export function initImageService(getApi: () => IMiniLcmJsInvokable): ImageServic
   return service;
 }
 
-export function useImageService(): ImageService | undefined {
-  return imageServiceContext.getOr(undefined);
+export function useImageService(): ImageService {
+  let imageService = imageServiceContext.getOr(undefined);
+  if (!imageService) {
+    const projectContext = useProjectContext();
+    imageService = new ImageService(() => projectContext.api);
+    onDestroy(() => imageService?.dispose());
+  }
+  return imageService;
 }

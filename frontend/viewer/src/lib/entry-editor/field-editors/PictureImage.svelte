@@ -28,21 +28,10 @@
       : 'h-40 w-auto rounded-md object-contain',
   );
 
-  const projectContext = useProjectContext();
   const writingSystemService = useWritingSystemService();
-  const imageService = getImageService();
+  const imageService = useImageService();
 
   const caption = $derived(writingSystemService.first(picture.caption) ?? '');
-
-  function getImageService() {
-    const sharedImageService = useImageService();
-    // prefer the shared service, which can cache across components
-    if (sharedImageService) return sharedImageService;
-    if (!projectContext) return undefined;
-    const localImageService = new ImageService(() => projectContext.api);
-    onDestroy(() => localImageService.dispose());
-    return localImageService;
-  }
 
   type DisplayState = {status: 'loading'} | ImageState;
   let displayState = $state<DisplayState>({status: 'loading'});
