@@ -79,7 +79,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[1. FieldWorks user does Send/Receive] --> B[2. FwHeadless detects Mercurial changes<br/>SyncHostedService]
+    A["1. User clicks Sync (FW Lite dialog<br/>or LexBox project page)"] --> B["2. POST /api/merge/execute queues a job;<br/>SyncHostedService drains the queue,<br/>one project at a time server-wide"]
     B --> C[3. Load FwData project<br/>FwDataFactory]
     C --> D[4. Sync FwData → CRDT<br/>CrdtFwdataProjectSyncService]
     D --> E[5. Sync CRDT → LexBox server<br/>CrdtSyncService]
