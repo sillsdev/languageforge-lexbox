@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Windows.Foundation;
 using Windows.Management.Deployment;
 using Windows.Networking.Connectivity;
 using LexCore.Entities;
@@ -107,13 +108,31 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
     {
         logger.LogInformation("Installing new version: {Version}, Current version: {CurrentVersion}", latestRelease.Version, AppVersion.Version);
         var packageManager = new PackageManager();
-        var asyncOperation = packageManager.AddPackageByUriAsync(new Uri(latestRelease.Url),
-            new AddPackageOptions()
-            {
-                DeferRegistrationWhenPackagesAreInUse = true,
-                ForceUpdateFromAnyVersion = true,
-                ForceAppShutdown = quitOnUpdate
-            });
+
+        //If this install is associated with an .appinstaller file, it's on the OS update track and we
+        //must update through the App Installer API. Updating the raw bundle via AddPackageByUriAsync
+        //would detach it from that track (see App Installer non-store update docs). Installs from a plain
+        //.msixbundle - how most users are installed today - have no association and take the fallback path.
+        var appInstallerUri = GetAppInstallerUri();
+        IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> asyncOperation;
+        if (appInstallerUri is not null)
+        {
+            logger.LogInformation("Updating via App Installer file {AppInstallerUri}", appInstallerUri);
+            //ForceUpdateFromAnyVersion is controlled by the .appinstaller XML, not these options.
+            asyncOperation = packageManager.AddPackageByAppInstallerFileAsync(appInstallerUri,
+                quitOnUpdate ? AddPackageByAppInstallerOptions.ForceTargetAppShutdown : AddPackageByAppInstallerOptions.None,
+                packageManager.GetDefaultPackageVolume());
+        }
+        else
+        {
+            asyncOperation = packageManager.AddPackageByUriAsync(new Uri(latestRelease.Url),
+                new AddPackageOptions()
+                {
+                    DeferRegistrationWhenPackagesAreInUse = true,
+                    ForceUpdateFromAnyVersion = true,
+                    ForceAppShutdown = quitOnUpdate
+                });
+        }
         asyncOperation.Progress = (info, progressInfo) =>
         {
             NotifyInstallProgress(progressInfo.percentage, latestRelease);
@@ -148,6 +167,24 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
     private void NotifyInstallProgress(uint percentage, FwLiteRelease release)
     {
         eventBus.PublishEvent(new AppUpdateProgressEvent(percentage, release));
+    }
+
+    /// <summary>
+    /// The .appinstaller URI this install is associated with, or null if it wasn't installed via an
+    /// .appinstaller file (i.e. it's not on the OS update track and should use the direct-bundle path).
+    /// </summary>
+    private Uri? GetAppInstallerUri()
+    {
+        try
+        {
+            return Windows.ApplicationModel.Package.Current.GetAppInstallerInfo()?.Uri;
+        }
+        catch (Exception e)
+        {
+            //Package.Current throws for unpackaged/portable apps; treat as "not on the track".
+            logger.LogWarning(e, "Unable to read App Installer info; falling back to direct bundle update");
+            return null;
+        }
     }
 
     public DateTime LastUpdateCheck
