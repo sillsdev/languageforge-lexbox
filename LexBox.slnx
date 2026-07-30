@@ -1,0 +1,36 @@
+<Solution>
+  <Folder Name="/FwLite/">
+    <Project Path="backend/FwHeadless/FwHeadless.csproj" />
+    <Project Path="backend/FwLite/FwDataMiniLcmBridge.Tests/FwDataMiniLcmBridge.Tests.csproj" />
+    <Project Path="backend/FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj" />
+    <Project Path="backend/FwLite/FwLiteMaui.Tests/FwLiteMaui.Tests.csproj" />
+    <Project Path="backend/FwLite/FwLiteMaui/FwLiteMaui.csproj">
+      <Deploy />
+    </Project>
+    <Project Path="backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj" />
+    <Project Path="backend/FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj" />
+    <Project Path="backend/FwLite/FwLiteShared.Tests/FwLiteShared.Tests.csproj" />
+    <Project Path="backend/FwLite/FwLiteShared/FwLiteShared.csproj" />
+    <Project Path="backend/FwLite/FwLiteWeb/FwLiteWeb.csproj" />
+    <Project Path="backend/FwLite/LcmCrdt.Tests/LcmCrdt.Tests.csproj" />
+    <Project Path="backend/FwLite/LcmCrdt/LcmCrdt.csproj" />
+    <Project Path="backend/FwLite/LcmDebugger/LcmDebugger.csproj" />
+    <Project Path="backend/FwLite/MiniLcm.Tests/MiniLcm.Tests.csproj" />
+    <Project Path="backend/FwLite/MiniLcm/MiniLcm.csproj" />
+    <Project Path="backend/LfClassicData/LfClassicData.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path=".env" />
+    <File Path=".gitignore" />
+    <File Path="README.md" />
+    <File Path="schema.graphql" />
+  </Folder>
+  <Project Path="backend/FixFwData/FixFwData.csproj" />
+  <Project Path="backend/LexBoxApi/LexBoxApi.csproj" />
+  <Project Path="backend/LexCore/LexCore.csproj" />
+  <Project Path="backend/LexData/LexData.csproj" />
+  <Project Path="backend/SyncReverseProxy/SyncReverseProxy.csproj" />
+  <Project Path="backend/Testing/Testing.csproj" />
+  <Project Path="backend/WebServiceDefaults/WebServiceDefaults.csproj" />
+</Solution>
