@@ -110,7 +110,7 @@ public static class Utils
 
         // Navigate up to find the repo root
         var currentDir = new DirectoryInfo(sourceDir);
-        while (currentDir != null && !File.Exists(Path.Combine(currentDir.FullName, "LexBox.sln")))
+        while (currentDir != null && !File.Exists(Path.Combine(currentDir.FullName, "LexBox.slnx")))
         {
             currentDir = currentDir.Parent;
         }
