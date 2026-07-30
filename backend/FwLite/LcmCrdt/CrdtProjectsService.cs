@@ -258,10 +258,7 @@ public partial class CrdtProjectsService(
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
-            // Ensure "data migrations" are executed on project creation (e.g. seeding morph types)
-            // These should happen AFTER the initial download, so they can be run conditionally based on
-            // the current state of the project.
-            // probably just remove this in #2350
+            // Run EF migrate + FTS regenerate-if-missing (same path as opening an existing project).
             await currentProjectService.SetupProjectContext(crdtProject);
         }
         catch (Exception e)
