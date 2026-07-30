@@ -250,7 +250,8 @@ public class Sena3SyncTests : IAsyncLifetime
         var throwAnyVerifyException = () => { if (verifyException is not null) throw verifyException; };
         try
         {
-            await Verify(JsonSerializer.Serialize(fwHeadlessSnapshot, IndentedDefaultJsonOptions))
+            // Provenance is a commit id and a timestamp from this run, so it can't be pinned; the content can.
+            await Verify(JsonSerializer.Serialize(fwHeadlessSnapshot! with { Provenance = null }, IndentedDefaultJsonOptions))
             .UseStrictJson()
             .UseFileName("sena-3-live_snapshot");
         }

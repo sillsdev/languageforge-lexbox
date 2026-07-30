@@ -1,5 +1,10 @@
+using System.Text.Json;
+using FwHeadless;
 using FwHeadless.Services;
+using FwLiteProjectSync;
 using LexCore.Sync;
+using MiniLcm;
+using MiniLcm.Models;
 using Moq;
 using static Testing.FwHeadless.Services.SyncStep;
 
@@ -21,11 +26,12 @@ public class SyncWorkerTests
             CheckBlocked,
             PreSendReceive,
             MediaSyncFwData,
+            HarmonySync,
             MediaSyncCrdt,
             GetSnapshot,
             Sync,
+            PrepareMergeBase,
             PostSendReceive,
-            RegenerateSnapshot,
             HarmonySync);
     }
 
@@ -43,10 +49,11 @@ public class SyncWorkerTests
             CheckBlocked,
             PreSendReceive,
             MediaSyncFwData,
+            HarmonySync,
             MediaSyncCrdt,
             GetSnapshot,
             Sync,
-            RegenerateSnapshot,
+            PrepareMergeBase,
             HarmonySync);
     }
 
@@ -64,10 +71,11 @@ public class SyncWorkerTests
             CheckBlocked,
             PreSendReceive,
             MediaSyncFwData,
+            HarmonySync,
             MediaSyncCrdt,
             GetSnapshot,
             Sync,
-            RegenerateSnapshot,
+            PrepareMergeBase,
             HarmonySync);
     }
 
@@ -103,9 +111,11 @@ public class SyncWorkerTests
             CheckBlocked,
             PreSendReceive,
             MediaSyncFwData,
+            HarmonySync,
             MediaSyncCrdt,
             GetSnapshot,
             Sync,
+            PrepareMergeBase,
             PostSendReceive);
     }
 
@@ -135,15 +145,16 @@ public class SyncWorkerTests
             CheckBlocked,
             PreSendReceive,
             MediaSyncFwData,
+            HarmonySync,
             MediaSyncCrdt,
             GetSnapshot,
             Sync,
+            PrepareMergeBase,
             PostSendReceive,
             PostSendReceive
         ]);
         if (retrySucceeds)
         {
-            expectedSteps.Add(RegenerateSnapshot);
             expectedSteps.Add(HarmonySync);
         }
         h.Steps.Should().Equal(expectedSteps);
@@ -194,7 +205,9 @@ public class SyncWorkerTests
 
         var result = await h.RunAsync(
             new SyncResult(CrdtChanges: 0, FwdataChanges: 0),
-            createFwDataFileBeforeSync: false);
+            snapshotExists: false,
+            createFwDataFileBeforeSync: false,
+            crdtProjectExists: false);
 
         result.Status.Should().Be(SyncJobStatusEnum.SendReceiveFailed);
         Directory.Exists(h.ProjectFolder).Should().BeFalse("project folder should be cleaned up after failed clone");
@@ -212,7 +225,10 @@ public class SyncWorkerTests
         h.SetSyncBlockedInfo(new SyncBlockedInfo { IsBlocked = true, Reason = "maintenance" });
         Directory.Exists(h.ProjectFolder).Should().BeFalse();
 
-        var result = await h.RunAsync(new SyncResult(CrdtChanges: 0, FwdataChanges: 0), setupFwDataProject: false);
+        var result = await h.RunAsync(new SyncResult(CrdtChanges: 0, FwdataChanges: 0),
+            snapshotExists: false,
+            setupFwDataProject: false,
+            crdtProjectExists: false);
 
         result.Status.Should().Be(SyncJobStatusEnum.SyncBlocked);
         result.Error.Should().Contain("blocked");
@@ -229,7 +245,7 @@ public class SyncWorkerTests
         h.SetProjectCode(null);
 
         var syncResult = new SyncResult(CrdtChanges: 0, FwdataChanges: 0);
-        var result = await h.RunAsync(syncResult, setupFwDataProject: false);
+        var result = await h.RunAsync(syncResult, snapshotExists: false, setupFwDataProject: false, crdtProjectExists: false);
 
         result.Status.Should().Be(SyncJobStatusEnum.ProjectNotFound);
         h.Steps.Should().BeEmpty();
@@ -241,7 +257,7 @@ public class SyncWorkerTests
         using var h = new SyncWorkerTestHarness();
         var syncResult = new SyncResult(CrdtChanges: 0, FwdataChanges: 0);
 
-        var result = await h.RunAsync(syncResult, authSuccess: false, setupFwDataProject: false);
+        var result = await h.RunAsync(syncResult, authSuccess: false, snapshotExists: false, setupFwDataProject: false, crdtProjectExists: false);
 
         result.Status.Should().Be(SyncJobStatusEnum.UnableToAuthenticate);
         h.Steps.Should().Equal(TestAuth);
@@ -282,7 +298,7 @@ public class SyncWorkerTests
             MediaSyncCrdt,
             GetSnapshot,
             Import,
-            RegenerateSnapshot,
+            PrepareMergeBase,
             HarmonySync);
     }
 
@@ -301,10 +317,11 @@ public class SyncWorkerTests
             CheckBlocked,
             Clone,
             MediaSyncFwData,
+            HarmonySync,
             MediaSyncCrdt,
             GetSnapshot,
             Sync,
-            RegenerateSnapshot,
+            PrepareMergeBase,
             HarmonySync);
     }
 
@@ -315,8 +332,10 @@ public class SyncWorkerTests
 
         var result = await h.RunAsync(
             new SyncResult(CrdtChanges: 0, FwdataChanges: 0),
+            snapshotExists: false,
             createFwDataFileBeforeSync: false,
-            createFwDataFileAfterClone: false);
+            createFwDataFileAfterClone: false,
+            crdtProjectExists: false);
 
         result.Status.Should().Be(SyncJobStatusEnum.ProjectIncompatible);
         result.Error.Should().Contain("does not contain a FieldWorks project");
@@ -339,7 +358,9 @@ public class SyncWorkerTests
 
         var result = await h.RunAsync(
             new SyncResult(CrdtChanges: 0, FwdataChanges: 0),
-            createFwDataFileBeforeSync: false);
+            snapshotExists: false,
+            createFwDataFileBeforeSync: false,
+            crdtProjectExists: false);
 
         result.Status.Should().Be(SyncJobStatusEnum.SendReceiveFailed);
         Directory.Exists(h.FwDataProject.ProjectFolder).Should().BeFalse("fw subfolder should be cleaned up");
@@ -357,7 +378,9 @@ public class SyncWorkerTests
         using var h = new SyncWorkerTestHarness();
         h.SetIsCrdtProject(true);
 
-        Func<Task> act = () => h.RunAsync(new SyncResult(CrdtChanges: 0, FwdataChanges: 0));
+        Func<Task> act = () => h.RunAsync(new SyncResult(CrdtChanges: 0, FwdataChanges: 0),
+            snapshotExists: false,
+            crdtProjectExists: false);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
         h.Steps.Should().Equal(
@@ -365,6 +388,147 @@ public class SyncWorkerTests
             CheckBlocked,
             PreSendReceive,
             MediaSyncFwData);
+    }
+}
+
+/// <summary>
+/// The failure modes in docs/sync-atomicity/README.md, at the orchestration level: what a sync that dies
+/// part way through leaves behind. The invariant under test is that the CRDT database and the merge base move
+/// together or not at all, because a merge base that claims less than was applied makes the next sync push the
+/// leftovers into fwdata.
+/// </summary>
+public class SyncWorkerInterruptionTests
+{
+    private const string WrittenBySync = "written by the sync";
+
+
+    [Fact]
+    public async Task SyncThrows_LeavesTheMergeBaseAndCrdtDatabaseUntouched()
+    {
+        using var h = new SyncWorkerTestHarness();
+        h.SetSyncWritesPartOfSpeech(WrittenBySync);
+        h.SetSyncThrows(new InvalidOperationException("sync died half way through"));
+
+        Func<Task> act = () => h.RunAsync(new SyncResult(CrdtChanges: 5, FwdataChanges: 3));
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        h.ReadMergeBase()!.PartsOfSpeech.Should().NotContain(pos => pos.Name["en"] == WrittenBySync);
+        (await h.ReadCrdtPartsOfSpeech()).Should().NotContain(WrittenBySync,
+            "what the interrupted sync applied to the CRDT has to go with it, or the next sync pushes it into fwdata");
+        h.AssertNothingStaged();
+    }
+
+    [Fact]
+    public async Task FwDataPushFails_LeavesTheMergeBaseAndCrdtDatabaseUntouched()
+    {
+        using var h = new SyncWorkerTestHarness();
+        h.SetSyncWritesPartOfSpeech(WrittenBySync);
+        h.SetSendReceiveResults(
+            new SendReceiveHelpers.LfMergeBridgeResult("success"),
+            new SendReceiveHelpers.LfMergeBridgeResult("network died", ProgressHelper.CreateErrorProgress()));
+
+        var result = await h.RunAsync(new SyncResult(CrdtChanges: 5, FwdataChanges: 3));
+
+        result.Status.Should().Be(SyncJobStatusEnum.SendReceiveFailed);
+        h.ReadMergeBase()!.PartsOfSpeech.Should().NotContain(pos => pos.Name["en"] == WrittenBySync,
+            "a merge base committed before the fwdata push succeeds would describe changes that may have been rolled back");
+        (await h.ReadCrdtPartsOfSpeech()).Should().NotContain(WrittenBySync);
+        h.AssertNothingStaged();
+    }
+
+    [Fact]
+    public async Task SuccessfulSync_CommitsTheMergeBaseStampedWithTheCrdtItDescribes()
+    {
+        using var h = new SyncWorkerTestHarness();
+        h.SetSyncWritesPartOfSpeech(WrittenBySync);
+
+        var result = await h.RunAsync(new SyncResult(CrdtChanges: 5, FwdataChanges: 3));
+
+        result.Status.Should().Be(SyncJobStatusEnum.Success);
+        h.AssertNothingStaged();
+        (await h.ReadCrdtPartsOfSpeech()).Should().Contain(WrittenBySync,
+            "committing the sync moves the staged database into place");
+        var mergeBase = h.ReadMergeBase();
+        mergeBase!.PartsOfSpeech.Should().Contain(pos => pos.Name["en"] == WrittenBySync,
+            "the committed merge base must describe the CRDT the sync produced, not the one it started from");
+        mergeBase.Provenance!.CrdtCommitId.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task StagedSyncLeftBehind_IsDiscardedBeforeTheNextSyncReadsTheMergeBase()
+    {
+        using var h = new SyncWorkerTestHarness();
+        // A run that died before its commit point: staged files on disk, nothing applied.
+        h.WriteSyncJournal(SyncJournalState.Staged);
+        await File.WriteAllTextAsync(h.StagedCrdtDbPath, "a half finished sync");
+        await File.WriteAllTextAsync(h.StagedMergeBasePath, "a merge base that was never committed");
+
+        var result = await h.RunAsync(new SyncResult(CrdtChanges: 1, FwdataChanges: 0));
+
+        result.Status.Should().Be(SyncJobStatusEnum.Success);
+        h.AssertNothingStaged();
+    }
+
+    [Fact]
+    public async Task CommitInterruptedPartWay_IsFinishedBeforeTheNextSyncReadsTheMergeBase()
+    {
+        using var h = new SyncWorkerTestHarness();
+        // A run that died between moving the CRDT database into place and moving its merge base: the base on disk
+        // is the old one and describes less than the database holds, which is what corrupts the next sync.
+        var interruptedBase = ProjectSnapshot.Empty with
+        {
+            Provenance = new SnapshotProvenance(Guid.NewGuid(), DateTimeOffset.UtcNow),
+            ComplexFormTypes = [new ComplexFormType { Id = Guid.NewGuid(), Name = new MultiString { { "en", "committed by the interrupted run" } } }]
+        };
+        h.WriteSyncJournal(SyncJournalState.Committing);
+        await File.WriteAllTextAsync(h.StagedMergeBasePath, JsonSerializer.Serialize(interruptedBase));
+
+        var result = await h.RunAsync(new SyncResult(CrdtChanges: 1, FwdataChanges: 0));
+
+        result.Status.Should().Be(SyncJobStatusEnum.Success);
+        h.SyncedAgainstMergeBase!.ComplexFormTypes.Should().ContainSingle()
+            .Which.Name["en"].Should().Be("committed by the interrupted run",
+                "the interrupted commit must be finished before the merge base is read, or the sync uses the superseded one");
+        h.AssertNothingStaged();
+    }
+
+    [Fact]
+    public async Task UnrecordedSyncCommitsInTheCrdt_AreReportedAsAStaleMergeBase()
+    {
+        using var h = new SyncWorkerTestHarness();
+
+        var result = await h.RunAsync(new SyncResult(CrdtChanges: 1, FwdataChanges: 0), leaveUnrecordedSyncCommit: true);
+
+        // Warn is the default: reporting, not refusing, until the fleet has been surveyed.
+        result.Status.Should().Be(SyncJobStatusEnum.Success);
+    }
+
+    [Fact]
+    public async Task UnrecordedSyncCommitsInTheCrdt_RefuseToSyncWhenConfiguredToFail()
+    {
+        using var h = new SyncWorkerTestHarness();
+        h.Config.StaleMergeBaseAction = StaleMergeBaseAction.Fail;
+
+        var result = await h.RunAsync(new SyncResult(CrdtChanges: 1, FwdataChanges: 0), leaveUnrecordedSyncCommit: true);
+
+        result.Status.Should().Be(SyncJobStatusEnum.StaleMergeBase);
+        result.Error.Should().Contain("written by the sync");
+        h.Steps.Should().NotContain(Sync, "the sync must not run against a base it can prove is stale");
+        h.AssertNothingStaged();
+    }
+
+    [Fact]
+    public async Task HumanCommitsAfterTheMergeBase_AreNotMistakenForAStaleMergeBase()
+    {
+        using var h = new SyncWorkerTestHarness();
+        h.Config.StaleMergeBaseAction = StaleMergeBaseAction.Fail;
+
+        // FW Lite edits arriving after the merge base are the normal case and the whole reason the second sync pass
+        // exists, so they must not read as staleness.
+        var result = await h.RunAsync(new SyncResult(CrdtChanges: 1, FwdataChanges: 0), leaveUnrecordedUserCommit: true);
+
+        result.Status.Should().Be(SyncJobStatusEnum.Success);
+        h.Steps.Should().Contain(Sync);
     }
 }
 

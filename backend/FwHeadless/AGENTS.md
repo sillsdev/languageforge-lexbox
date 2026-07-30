@@ -100,6 +100,7 @@ flowchart TD
 | `SendReceiveService` | Mercurial clone/push/pull | 🔴 High |
 | `CrdtFwdataProjectSyncService` | FwData ↔ CRDT bidirectional sync | 🔴 **HIGHEST** |
 | `SyncHostedService` | Background job orchestrator | 🟡 Medium |
+| `SyncStagingService` | Runs the CRDT side of a sync against a copy, commits it with the merge base | 🔴 High |
 | `ProjectLookupService` | Finds/validates projects | 🟢 Low |
 
 ---
@@ -148,6 +149,13 @@ public async Task<int> PendingCommitCount(FwDataProject project, string? project
 3. **Auth failures are silent**
    - Check `HttpClientAuthHandler.cs` for token issues
    - Logs may not clearly indicate auth problems
+
+4. **Never write to the CRDT outside the staging area during a sync**
+   - `SyncWorker` runs the sync against a copy of `crdt.sqlite` and swaps the whole file in at the end,
+     so anything written straight to the project meanwhile is discarded (the commit refuses instead, but
+     it means the sync fails). See `docs/sync-atomicity/README.md`.
+   - After the swap, anything bound to the old file is stale: `PushCrdtCommits` re-opens the project in
+     a fresh scope for that reason.
 
 ---
 

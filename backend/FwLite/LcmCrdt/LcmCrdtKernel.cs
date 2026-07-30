@@ -77,6 +77,7 @@ public static class LcmCrdtKernel
         services.AddSingleton<ProjectDataCache>();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
+        services.AddScoped<CrdtHistoryHeadService>();
         services.AddScoped<LocalCommentReadStatusService>();
         services.AddScoped<LcmMediaService>();
         services.AddScoped<SyncRepository>();

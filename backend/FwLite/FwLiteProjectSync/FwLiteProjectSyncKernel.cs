@@ -9,6 +9,8 @@ public static class FwLiteProjectSyncKernel
     {
         services.AddScoped<CrdtFwdataProjectSyncService>();
         services.AddScoped<ProjectSnapshotService>();
+        services.AddScoped<MergeBaseHealthService>();
+        services.AddScoped<SyncStagingService>();
         services.AddScoped<MiniLcmImport>();
         services.AddScoped<IProjectImport>(s => s.GetRequiredService<MiniLcmImport>());
         return services;

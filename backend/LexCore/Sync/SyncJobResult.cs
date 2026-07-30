@@ -42,5 +42,6 @@ public enum SyncJobStatusEnum
     CrdtSyncFailed,
     SendReceiveFailed,
     SyncBlocked,
+    StaleMergeBase,
     UnknownError,
 }

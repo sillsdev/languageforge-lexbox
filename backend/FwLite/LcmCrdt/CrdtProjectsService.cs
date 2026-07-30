@@ -289,30 +289,54 @@ public partial class CrdtProjectsService(
         var tempDir = Path.Combine(Path.GetTempPath(), "FwLiteProjectCopies");
         Directory.CreateDirectory(tempDir);
         var tempPath = Path.Combine(tempDir, $"{source.Name}-{Guid.NewGuid():N}.sqlite");
+        return await OpenProjectCopy(source, tempPath);
+    }
 
-        // Nothing owns the temp file or scope until TempCrdtProjectCopy is returned, so undo both if we throw first.
+    /// <summary>
+    /// Copies a project's database to <paramref name="copyPath"/> and opens it in its own scope. The returned
+    /// copy owns the file and deletes it when disposed, so callers that want to keep it (the sync staging area,
+    /// which moves it into place) must take it over with <see cref="TempCrdtProjectCopy.CloseWithoutDeleting"/>.
+    /// </summary>
+    public async Task<TempCrdtProjectCopy> OpenProjectCopy(CrdtProject source, string copyPath)
+    {
+        // Nothing owns the copied file or the scope until TempCrdtProjectCopy is returned, so undo both if we throw first.
         AsyncServiceScope? scope = null;
         try
         {
-            await using (var sourceConnection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = source.DbPath }.ConnectionString))
-            await using (var copyConnection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = tempPath }.ConnectionString))
-            {
-                await sourceConnection.OpenAsync();
-                await copyConnection.OpenAsync();
-                sourceConnection.BackupDatabase(copyConnection);
-            }
+            await CopyProjectDatabase(source.DbPath, copyPath);
 
             scope = provider.CreateAsyncScope();
             // OpenCrdtProject is typed to the interface, but a CRDT project always resolves a CrdtMiniLcmApi.
-            var api = (CrdtMiniLcmApi)await scope.Value.ServiceProvider.OpenCrdtProject(new CrdtProject(source.Name, tempPath));
-            return new TempCrdtProjectCopy(api, scope.Value, () => EnsureDeleteProject(tempPath, suppressException: true));
+            var api = (CrdtMiniLcmApi)await scope.Value.ServiceProvider.OpenCrdtProject(new CrdtProject(source.Name, copyPath));
+            return new TempCrdtProjectCopy(api, scope.Value, copyPath, () => EnsureDeleteProject(copyPath, suppressException: true));
         }
         catch
         {
             if (scope is not null) await scope.Value.DisposeAsync();
-            await EnsureDeleteProject(tempPath, suppressException: true);
+            await EnsureDeleteProject(copyPath, suppressException: true);
             throw;
         }
+    }
+
+    /// <summary>
+    /// Copies a sqlite database through sqlite's backup API, so a source with pending journal content copies
+    /// correctly and the copy lands as a single self-contained file.
+    /// </summary>
+    public static async Task CopyProjectDatabase(string sourceDbPath, string destinationDbPath)
+    {
+        await using var sourceConnection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = sourceDbPath }.ConnectionString);
+        await using var copyConnection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = destinationDbPath }.ConnectionString);
+        await sourceConnection.OpenAsync();
+        await copyConnection.OpenAsync();
+        sourceConnection.BackupDatabase(copyConnection);
+    }
+
+    /// <summary>
+    /// Deletes a database file and its sqlite sidecars, retrying while connections drain.
+    /// </summary>
+    public Task DeleteDatabaseFile(string sqliteFile)
+    {
+        return EnsureDeleteProject(sqliteFile, suppressException: true);
     }
 
     private Task EnsureDeleteProject(string sqliteFile, bool suppressException = false)

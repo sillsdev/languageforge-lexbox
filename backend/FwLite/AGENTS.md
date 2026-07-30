@@ -187,6 +187,10 @@ This orchestrates the bidirectional sync:
 1. **ProjectSnapshot must be regenerated from CRDT after sync**
    - See comment about issue #1912 in the code
    - If snapshot is generated from wrong source, future syncs will be wrong
+   - **And it must be committed together with the CRDT database.** A database ahead of its snapshot
+     makes the next sync push the difference into fwdata over the top of a user's edits; a snapshot
+     ahead of its database hides real fwdata changes. `SyncStagingService` runs the CRDT side against
+     a copy and moves both into place as one journalled step — see `docs/sync-atomicity/README.md`.
 
 2. **Order of sync operations matters**
    - WritingSystems → Publications → PartsOfSpeech → SemanticDomains → ComplexFormTypes → Entries

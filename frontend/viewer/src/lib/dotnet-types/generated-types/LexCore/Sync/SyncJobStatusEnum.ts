@@ -16,6 +16,7 @@ export enum SyncJobStatusEnum {
 	CrdtSyncFailed = "CrdtSyncFailed",
 	SendReceiveFailed = "SendReceiveFailed",
 	SyncBlocked = "SyncBlocked",
+	StaleMergeBase = "StaleMergeBase",
 	UnknownError = "UnknownError"
 }
 /* eslint-enable */

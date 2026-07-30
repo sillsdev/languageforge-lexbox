@@ -5,6 +5,15 @@ using SIL.LCModel;
 
 namespace FwHeadless;
 
+public enum StaleMergeBaseAction
+{
+    /// <summary>Log it and sync anyway.</summary>
+    Warn,
+
+    /// <summary>Refuse to sync. The project stays syncable once the base is repaired; nothing gets blocked.</summary>
+    Fail,
+}
+
 public class FwHeadlessConfig
 {
     [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
@@ -21,6 +30,14 @@ public class FwHeadlessConfig
     public int MaxUploadFileSizeKb { get; init; } = 10240;
     public long MaxUploadFileSizeBytes => MaxUploadFileSizeKb * 1024;
     public string FdoDataModelVersion { get; init; } = "7000072";
+
+    /// <summary>
+    /// What to do when a project's merge base can be proven stale, i.e. an earlier sync applied fwdata changes to
+    /// the CRDT and died before recording them. Syncing against such a base pushes those leftovers into fwdata.
+    /// Defaults to <see cref="StaleMergeBaseAction.Warn"/> so surveying the fleet doesn't take every affected
+    /// project offline; see docs/sync-atomicity/README.md for the rollout order.
+    /// </summary>
+    public StaleMergeBaseAction StaleMergeBaseAction { get; set; } = StaleMergeBaseAction.Warn;
 
     /// <summary>
     /// Project directory structure in FwHeadless: (Note that FwDataProject.ProjectsPath is the root of a SINGLE project)
