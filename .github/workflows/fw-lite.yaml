@@ -86,7 +86,9 @@ jobs:
         # Hosted runners default to UTC, which hides date bugs: the error equals the local UTC
         # offset, which is zero on UTC (see #2092). Eastern is non-UTC, observes DST, and has a
         # negative offset, so date round-trips run the way real users actually hit them.
-        run: sudo timedatectl set-timezone America/New_York
+        # .NET reads TZ for TimeZoneInfo.Local on Linux, so set that rather than `timedatectl`,
+        # which the hosted runner denies (no systemd access); $GITHUB_ENV carries it to the test step.
+        run: echo "TZ=America/New_York" >> "$GITHUB_ENV"
 
       - name: Dotnet test
         # Benchmarks run in a separate Release-mode job — see `benchmark` below.
