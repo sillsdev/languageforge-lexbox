@@ -2004,8 +2004,7 @@ public class FwDataMiniLcmApi(
     }
 
     #region Submit (result-less write variants)
-    // The CRDT implements these to skip the read-back so a deleted object stays deleted. Here there's nothing
-    // to skip: liblcm already has the object in memory, and a genuinely missing one should still throw.
+    // Nothing to skip here: liblcm holds the object already, and a genuinely missing one should still throw.
     public async Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update) => await UpdateEntry(id, update);
     public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => await CreateComplexFormComponent(complexFormComponent, position);
     public async Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => await MoveComplexFormComponent(complexFormComponent, between);

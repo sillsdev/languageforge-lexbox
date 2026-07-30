@@ -142,8 +142,7 @@ public interface IMiniLcmWriteApi
     // Result-less write variants the sync uses instead of the returning Update/Create methods above. The CRDT
     // implements them to submit the change without fetching the result, so applying to an object the other side
     // deleted leaves it deleted (delete wins) rather than throwing.
-    // Declared abstract on purpose: no default forwarding to the returning method, so a wrapper that has to
-    // see every write (recording, write-ignoring, normalizing) can't inherit one silently.
+    // No defaults on purpose: a wrapper that has to see every write can't then inherit one silently.
     Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update);
     Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null);
     Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between);

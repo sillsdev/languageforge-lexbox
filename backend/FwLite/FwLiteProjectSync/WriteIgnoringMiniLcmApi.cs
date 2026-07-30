@@ -327,8 +327,6 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
     }
 
     #region Submit (sync's result-less write variants)
-    // Explicit, not the interface default: that routes to the returning Update* and re-reads the object, which
-    // throws when a dry run hits an object the other side already deleted.
     public Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         return Task.CompletedTask;

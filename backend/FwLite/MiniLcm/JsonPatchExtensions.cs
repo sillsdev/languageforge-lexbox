@@ -30,10 +30,7 @@ public static class JsonPatchExtensions
         }
         return false;
     }
-    /// <summary>
-    /// One line, so callers can log a patch without breaking per-line grep. Doesn't name the patched
-    /// type; callers already do.
-    /// </summary>
+    /// <summary>One line: a multi-line summary breaks per-line grep of the logs it ends up in.</summary>
     public static string Summarize<T>(this JsonPatchDocument<T> document) where T : class
     {
         return string.Join(", ", document.Operations.Select(op => $"{op.OperationType} {op.Path}: {op.Value}"));

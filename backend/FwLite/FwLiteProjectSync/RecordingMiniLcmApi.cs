@@ -5,11 +5,8 @@ using MiniLcm.SyncHelpers;
 namespace FwLiteProjectSync;
 
 /// <summary>
-/// Records every write a dry-run sync would make. A record is the only evidence a dry run leaves, so
-/// each description must (a) identify the object by id, not just by a human label, since headwords,
-/// glosses and names are all non-unique, (b) name the parent object when the method knows it, and
-/// (c) carry the patch summary when the method takes one. Analogous methods say the same things in the
-/// same order; the Submit* variants repeat their non-Submit twin's description verbatim.
+/// Records every write a dry-run sync would make. The records are the run's only output, so each one must
+/// identify its object by id: headwords, glosses and names are not unique.
 /// </summary>
 public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
@@ -405,8 +402,6 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     }
 
     #region Submit (sync's result-less write variants)
-    // All of them, and the compiler enforces that: Submit* are abstract on IMiniLcmWriteApi, so none of these
-    // can be silently skipped. Forwarding to an Update*/Move* instead would record a method the sync never called.
     public async Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         RunRecords.Add(new RunRecord(nameof(SubmitUpdateEntry), $"Update entry {id}, changes: {update.Summarize()}"));
@@ -487,9 +482,8 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     }
     #endregion
 
-    // The component side alone doesn't identify a link: the same component is usually joined to several
-    // complex forms, so naming only the component made distinct records look like duplicates.
-    // The link id is null for fwdata components, so the entry/sense ids are what actually identify it.
+    // One component is joined to several complex forms, so it takes both entries to identify a link
+    // (fwdata components carry no link id).
     private static string ComplexFormLink(ComplexFormComponent component)
     {
         return $"complex form {ComplexFormName(component)}, component {ComplexFormComponentName(component)} (link {OrNull(component.MaybeId)})";
