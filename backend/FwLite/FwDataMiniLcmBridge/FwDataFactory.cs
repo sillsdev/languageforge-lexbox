@@ -20,6 +20,10 @@ public class FwDataFactory(
     IOptions<FwDataBridgeConfig> config) : IDisposable, IHostedService
 {
     private bool _shuttingDown = false;
+
+    // Sliding window before an idle LcmCache is evicted and disposed. PreventEviction refreshes inside this window.
+    private static readonly TimeSpan CacheSlidingExpiration = TimeSpan.FromMinutes(30);
+
     public FwDataFactory(ILogger<FwDataMiniLcmApi> fwdataLogger,
         IMemoryCache cache,
         ILogger<FwDataFactory> logger,
@@ -51,7 +55,7 @@ public class FwDataFactory(
         var projectService = cache.GetOrCreate(key,
                 entry =>
                 {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                    entry.SlidingExpiration = CacheSlidingExpiration;
                     entry.RegisterPostEvictionCallback(OnLcmProjectCacheEviction, (logger, _projectCacheKeys));
                     logger.LogInformation("Loading project {ProjectFileName}", project.FileName);
                     var projectService = projectLoader.LoadCache(project);
@@ -138,8 +142,9 @@ public class FwDataFactory(
     public IDisposable PreventEviction(FwDataProject project)
     {
         var key = CacheKey(project);
-        var period = TimeSpan.FromMinutes(5);
-        return new Timer(_ => cache.TryGetValue(key, out _), null, period, period);
+        // Refresh now in case little of the window remains, then every half-window so a tick can't be missed.
+        var period = CacheSlidingExpiration / 2;
+        return new Timer(_ => cache.TryGetValue(key, out _), null, TimeSpan.Zero, period);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
