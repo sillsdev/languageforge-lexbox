@@ -8,7 +8,7 @@ namespace LcmDebugger;
 /// </summary>
 public static class RunOutput
 {
-    private static readonly string RunStarted = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
+    private static readonly string RunStarted = $"{DateTimeOffset.Now:yyyy-MM-dd_HH-mm-ss}";
     private static readonly string LogDir = GetLogDir();
 
     public static string FilePath(string name)
