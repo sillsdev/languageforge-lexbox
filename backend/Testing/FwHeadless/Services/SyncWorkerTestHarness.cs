@@ -253,6 +253,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
             null!,
             NullLogger<CrdtFwdataProjectSyncService>.Instance,
             null!,
+            null!,
             null!);
 
         syncService
