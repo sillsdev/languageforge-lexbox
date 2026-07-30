@@ -87,7 +87,7 @@
           aria-label={$t`Edit comment`}
           rows={3}
           disabled={saving}
-          class="text-[13px]"
+          class="max-h-40 overflow-y-auto text-[13px]"
         />
         <div class="flex gap-1.5">
           <Button size="sm" onclick={() => onSaveEdit(draftText)} disabled={!draftText.trim()} loading={saving}>

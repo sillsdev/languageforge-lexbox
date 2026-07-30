@@ -117,21 +117,6 @@
           <XButton class="size-6" onclick={onClose} />
         {/if}
         <h2 class="text-sm font-semibold">{$t`Comments`}</h2>
-        {#if openThreads.length > 0}
-          <span
-            class="inline-flex h-[18px] items-center rounded-[10px] bg-primary px-2 text-[11px] font-bold text-primary-foreground"
-          >
-            {openThreads.length}
-          </span>
-        {/if}
-        {#if unreadCount > 0}
-          <span
-            class="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[10px] bg-destructive px-1.5 text-[11px] font-bold text-destructive-foreground"
-            title={$t`Unread comments`}
-          >
-            {unreadCount}
-          </span>
-        {/if}
       </div>
       <div class="flex items-center gap-1.5">
         {#if canComment}
@@ -154,7 +139,7 @@
                 placeholder={$t`Start a conversation…`}
                 rows={3}
                 disabled={loading || saving}
-                class="text-sm"
+                class="max-h-40 overflow-y-auto text-sm"
                 onkeydown={(e) => {
                   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                     e.preventDefault();
@@ -228,7 +213,6 @@
       {#if canComment && !mobileResolved}
         <div class="shrink-0 border-t border-border px-3.5 py-2.5">
           <CommentReplyInput
-            autofocus
             variant="inline"
             {saving}
             onSubmit={(text) => onReply(mobileThreadView, text)}
@@ -275,11 +259,13 @@
             {/each}
           {/if}
           {#if resolvedThreads.length > 0}
-            <Collapsible.Root class={cn('group/resolved', openThreads.length > 0 && 'mt-1')}>
-              <Collapsible.Trigger class="flex cursor-pointer items-center gap-1 text-[11px] text-muted-foreground">
+            <Collapsible.Root class={cn(openThreads.length > 0 && 'mt-1')}>
+              <Collapsible.Trigger
+                class="flex cursor-pointer items-center gap-1 text-[11px] text-muted-foreground [&[data-state=open]>.i-mdi-chevron-down]:rotate-180"
+              >
                 <Icon
                   icon="i-mdi-chevron-down"
-                  class="size-3.5 shrink-0 transition-transform group-data-[state=open]/resolved:rotate-180"
+                  class="size-3.5 shrink-0 transition-transform"
                 />
                 {$t`${resolvedThreads.length} resolved`}
               </Collapsible.Trigger>

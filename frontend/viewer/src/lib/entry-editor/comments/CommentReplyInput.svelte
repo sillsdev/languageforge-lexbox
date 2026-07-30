@@ -75,7 +75,7 @@
       placeholder={replyPlaceholder}
       rows={1}
       disabled={saving}
-      class="min-h-9 flex-1 py-[7px] text-sm leading-5 md:text-sm"
+      class="min-h-9 max-h-40 flex-1 overflow-y-auto py-[7px] text-sm leading-5 md:text-sm"
       onkeydown={onKeyDown}
     />
     <Button
@@ -100,7 +100,7 @@
         placeholder={replyPlaceholder}
         rows={1}
         disabled={saving}
-        class="min-h-8 py-1.5 text-sm"
+        class="min-h-8 max-h-40 overflow-y-auto py-1.5 text-sm"
         onkeydown={onKeyDown}
       />
       {#if showActions}
