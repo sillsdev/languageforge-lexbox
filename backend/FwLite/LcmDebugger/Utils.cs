@@ -5,6 +5,7 @@ using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteProjectSync;
 using LcmCrdt;
+using LexCore.Sync;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SIL.Harmony;
@@ -98,12 +99,22 @@ public static class Utils
         var crdtMiniLcmApi = project.CrdtApi;
         var fwDataMiniLcmApi = project.FwApi;
         var projectSnapshot = await snapshotService.GetProjectSnapshot(fwDataMiniLcmApi.Project);
-        var result = projectSnapshot is null
-                    ? await syncService.Import(crdtMiniLcmApi, fwDataMiniLcmApi, dryRun)
-                    : await syncService.Sync(crdtMiniLcmApi, fwDataMiniLcmApi, projectSnapshot, dryRun);
-        if (!dryRun)
+        SyncResult result;
+        try
         {
-            await snapshotService.RegenerateProjectSnapshot(crdtMiniLcmApi, fwDataMiniLcmApi.Project, keepBackup: false);
+            result = projectSnapshot is null
+                        ? await syncService.Import(crdtMiniLcmApi, fwDataMiniLcmApi, dryRun)
+                        : await syncService.Sync(crdtMiniLcmApi, fwDataMiniLcmApi, projectSnapshot, dryRun);
+            if (!dryRun)
+            {
+                await snapshotService.RegenerateProjectSnapshot(crdtMiniLcmApi, fwDataMiniLcmApi.Project, keepBackup: false);
+            }
+        }
+        catch (Exception e)
+        {
+            // the runtime prints an unhandled exception to stderr, which the file logger never sees
+            services.Logger().LogError(e, "Sync failed");
+            throw;
         }
         services.Logger().LogInformation("Sync completed successfully. Crdt changes: {CrdtChanges}, Fwdata changes: {FwdataChanges}.",
             result.CrdtChanges, result.FwdataChanges);
