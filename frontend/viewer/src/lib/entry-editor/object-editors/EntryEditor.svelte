@@ -15,6 +15,7 @@
 </script>
 <script lang="ts">
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {initImageService} from '../field-editors/image-service.svelte';
   import {useViewService, hasVisibleFields} from '$lib/views/view-service.svelte';
   import {cn, defaultExampleSentence, defaultSense} from '$lib/utils';
   import {useWritingSystemService} from '$project/data';
@@ -49,6 +50,9 @@
 
   const dialogService = useDialogsService();
   const writingSystemService = useWritingSystemService();
+
+  // Entry-scoped image cache: pictures (and the edit/viewer dialogs) share one load per mediaUri.
+  initImageService();
 
   let editor = $state<Editor.Root>();
 
