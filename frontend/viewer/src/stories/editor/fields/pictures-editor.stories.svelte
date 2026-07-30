@@ -8,10 +8,10 @@
   import FieldDecorator from './FieldDecorator.svelte';
   import PicturesEditorHarness from './PicturesEditorHarness.svelte';
 
-  const sense = allWsEntry.senses[0]!;
+  const sense = allWsEntry.senses[0];
   const entryId = sense.entryId;
   const senseId = sense.id;
-  const demoPictures = () => structuredClone(sense.pictures ?? []) as IPicture[];
+  const demoPictures = () => structuredClone(sense.pictures ?? []);
 
   // Per-story bindable copies so edits don't mutate shared demo module data.
   let withPictures = $state(demoPictures());
@@ -48,7 +48,7 @@
   play={async ({canvasElement}) => {
     const canvas = within(canvasElement);
     const loadButton = await canvas.findAllByRole('button', {name: 'Load picture'});
-    await userEvent.click(loadButton[0]!);
+    await userEvent.click(loadButton[0]);
     const img = await canvas.findByRole('img');
     await expect(img.getAttribute('src')).toMatch(/^blob:/);
   }}
@@ -74,7 +74,7 @@
   play={async ({canvasElement}) => {
     const canvas = within(canvasElement);
     const loadButtons = await canvas.findAllByRole('button', {name: 'Load picture'});
-    await userEvent.click(loadButtons[0]!);
+    await userEvent.click(loadButtons[0]);
     await userEvent.click(await canvas.findByRole('button', {name: 'View Picture'}));
     const doc = within(document.documentElement);
     const viewer = await doc.findByRole('dialog');

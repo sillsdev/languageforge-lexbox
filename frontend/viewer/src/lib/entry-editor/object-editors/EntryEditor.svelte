@@ -15,7 +15,6 @@
 </script>
 <script lang="ts">
   import {useDialogsService} from '$lib/services/dialogs-service';
-  import {useProjectContext} from '$project/project-context.svelte';
   import {initImageService} from '../field-editors/image-service.svelte';
   import {useViewService, hasVisibleFields} from '$lib/views/view-service.svelte';
   import {cn, defaultExampleSentence, defaultSense} from '$lib/utils';

@@ -43,22 +43,20 @@
     };
   }
 
-  const houseSvg = demoPictureSvgs[demoPictureMediaUris.house1]!;
+  const houseSvg = demoPictureSvgs[demoPictureMediaUris.house1];
 
   const loadingGetFileStream = () => new Promise<IReadFileResponseJs>(() => {});
 
-  const notDownloadedGetFileStream = async (_uri: string, downloadIfMissing: boolean) => {
-    if (!downloadIfMissing) return {result: ReadFileResult.NotFound};
-    return successResponse(houseSvg);
-  };
+  const notDownloadedGetFileStream = (_uri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> =>
+    Promise.resolve(downloadIfMissing ? successResponse(houseSvg) : {result: ReadFileResult.NotFound});
 
-  const loadedGetFileStream = async () => successResponse(houseSvg);
+  const loadedGetFileStream = (): Promise<IReadFileResponseJs> => Promise.resolve(successResponse(houseSvg));
 
-  const notFoundGetFileStream = async () => ({result: ReadFileResult.NotFound});
+  const notFoundGetFileStream = (): Promise<IReadFileResponseJs> => Promise.resolve({result: ReadFileResult.NotFound});
 
-  const offlineGetFileStream = async () => ({result: ReadFileResult.Offline});
+  const offlineGetFileStream = (): Promise<IReadFileResponseJs> => Promise.resolve({result: ReadFileResult.Offline});
 
-  const unknownGetFileStream = async () => ({result: ReadFileResult.Error});
+  const unknownGetFileStream = (): Promise<IReadFileResponseJs> => Promise.resolve({result: ReadFileResult.Error});
 
   const actionHandlers = {
     onView: fn(),

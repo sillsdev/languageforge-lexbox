@@ -1,12 +1,10 @@
 <script lang="ts">
   import type {IPicture} from '$lib/dotnet-types';
-  import {useProjectContext} from '$project/project-context.svelte';
   import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
-  import {onDestroy} from 'svelte';
   import {watch} from 'runed';
   import PictureActionsMenu from './PictureActionsMenu.svelte';
-  import {ImageService, useImageService, type ImageState} from './image-service.svelte';
+  import {useImageService, type ImageState} from './image-service.svelte';
 
   type Props = {
     picture: IPicture;
