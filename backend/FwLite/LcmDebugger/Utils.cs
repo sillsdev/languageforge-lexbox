@@ -5,7 +5,6 @@ using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteProjectSync;
 using LcmCrdt;
-using LexCore.Sync;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SIL.Harmony;
@@ -94,36 +93,35 @@ public static class Utils
 
     public static async Task SyncFwHeadlessProject(this IServiceProvider services, FwHeadlessProject project, bool dryRun = true)
     {
-        var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
-        var snapshotService = services.GetRequiredService<ProjectSnapshotService>();
-        var crdtMiniLcmApi = project.CrdtApi;
-        var fwDataMiniLcmApi = project.FwApi;
-        var projectSnapshot = await snapshotService.GetProjectSnapshot(fwDataMiniLcmApi.Project);
-        SyncResult result;
         try
         {
-            result = projectSnapshot is null
+            var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
+            var snapshotService = services.GetRequiredService<ProjectSnapshotService>();
+            var crdtMiniLcmApi = project.CrdtApi;
+            var fwDataMiniLcmApi = project.FwApi;
+            var projectSnapshot = await snapshotService.GetProjectSnapshot(fwDataMiniLcmApi.Project);
+            var result = projectSnapshot is null
                         ? await syncService.Import(crdtMiniLcmApi, fwDataMiniLcmApi, dryRun)
                         : await syncService.Sync(crdtMiniLcmApi, fwDataMiniLcmApi, projectSnapshot, dryRun);
             if (!dryRun)
             {
                 await snapshotService.RegenerateProjectSnapshot(crdtMiniLcmApi, fwDataMiniLcmApi.Project, keepBackup: false);
             }
+            services.Logger().LogInformation("Sync completed successfully. Crdt changes: {CrdtChanges}, Fwdata changes: {FwdataChanges}.",
+                result.CrdtChanges, result.FwdataChanges);
+
+            // A dry run's whole output is its records; too much to read in a log, so they get their own file.
+            if (result is CrdtFwdataProjectSyncService.DryRunSyncResult dryRunResult)
+            {
+                await services.WriteDryRunRecords(project.Name, "crdt", dryRunResult.CrdtDryRunRecords);
+                await services.WriteDryRunRecords(project.Name, "fwdata", dryRunResult.FwDataDryRunRecords);
+            }
         }
         catch (Exception e)
         {
             // the runtime prints an unhandled exception to stderr, which the file logger never sees
-            services.Logger().LogError(e, "Sync failed");
+            services.Logger().LogError(e, "Run failed");
             throw;
-        }
-        services.Logger().LogInformation("Sync completed successfully. Crdt changes: {CrdtChanges}, Fwdata changes: {FwdataChanges}.",
-            result.CrdtChanges, result.FwdataChanges);
-
-        // A dry run's whole output is its records; too much to read in a log, so they get their own file.
-        if (result is CrdtFwdataProjectSyncService.DryRunSyncResult dryRunResult)
-        {
-            await services.WriteDryRunRecords(project.Name, "crdt", dryRunResult.CrdtDryRunRecords);
-            await services.WriteDryRunRecords(project.Name, "fwdata", dryRunResult.FwDataDryRunRecords);
         }
     }
 
