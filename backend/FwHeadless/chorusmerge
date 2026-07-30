@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# cwd while running script is inside hg repo, so ensure we look for ChorusMerge.dll in right place
+# cwd while running script is inside the hg repo. ChorusMerge finds its FieldWorks merge
+# handlers by scanning the cwd for *-ChorusPlugin.dll (MEF DirectoryCatalog(".")), so cd to
+# where they sit next to ChorusMerge.dll, else merges silently fall back to "keep ours".
+# hg passes absolute file paths to the merge tool, so changing cwd is safe.
 SCRIPT_DIR=$(dirname $(readlink -f "$0"))
+cd "$SCRIPT_DIR"
 
 exec dotnet "${SCRIPT_DIR}/ChorusMerge.dll" "$@"
