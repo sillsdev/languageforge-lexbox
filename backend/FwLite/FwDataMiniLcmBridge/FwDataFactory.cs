@@ -144,7 +144,13 @@ public class FwDataFactory(
         var key = CacheKey(project);
         // Refresh now in case little of the window remains, then every half-window so a tick can't be missed.
         var period = CacheSlidingExpiration / 2;
-        return new Timer(_ => cache.TryGetValue(key, out _), null, TimeSpan.Zero, period);
+        return new Timer(_ =>
+        {
+            // Best-effort: the shared cache can be disposed during shutdown while a sync is still finishing,
+            // and an unhandled throw on this timer thread would take the process down.
+            try { cache.TryGetValue(key, out _); }
+            catch (ObjectDisposedException) { }
+        }, null, TimeSpan.Zero, period);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
