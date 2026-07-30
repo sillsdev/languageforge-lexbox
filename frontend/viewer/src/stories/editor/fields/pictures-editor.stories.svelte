@@ -68,7 +68,20 @@
   {/snippet}
 </Story>
 
-<Story name="Readonly with pictures" args={{readonly: true}}>
+<Story
+  name="Readonly with pictures"
+  args={{readonly: true}}
+  play={async ({canvasElement}) => {
+    const canvas = within(canvasElement);
+    const loadButtons = await canvas.findAllByRole('button', {name: 'Load picture'});
+    await userEvent.click(loadButtons[0]!);
+    await userEvent.click(await canvas.findByRole('button', {name: 'View Picture'}));
+    const doc = within(document.documentElement);
+    const viewer = await doc.findByRole('dialog');
+    await expect(viewer).toBeInTheDocument();
+    await expect(within(viewer).findByRole('heading', {name: /Picture/})).resolves.toBeInTheDocument();
+  }}
+>
   {#snippet template(args: PicturesArgs)}
     <PicturesEditorHarness>
       <PicturesEditor

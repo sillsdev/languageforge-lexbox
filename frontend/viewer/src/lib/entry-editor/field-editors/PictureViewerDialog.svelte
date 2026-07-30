@@ -14,11 +14,12 @@
     pictures: IPicture[];
     pictureId: string | undefined;
     busy?: boolean;
+    readonly?: boolean;
     onEdit: (picture: IPicture) => void;
     onDownload: (picture: IPicture) => void;
     onDelete: (picture: IPicture) => void;
   };
-  let {open = $bindable(false), pictureId = $bindable(), pictures, busy = false, onEdit, onDownload, onDelete}: Props = $props();
+  let {open = $bindable(false), pictureId = $bindable(), pictures, busy = false, readonly = false, onEdit, onDownload, onDelete}: Props = $props();
 
   useBackHandler({addToStack: () => open, onBack: () => (open = false), key: 'picture-viewer-dialog'});
   const writingSystemService = useWritingSystemService();
@@ -98,9 +99,9 @@
         <PictureActionsMenu
           size="icon-xs"
           disabled={busy}
-          onEdit={() => current && onEdit(current)}
+          onEdit={readonly ? undefined : () => current && onEdit(current)}
           onDownload={() => current && onDownload(current)}
-          onDelete={() => current && onDelete(current)}
+          onDelete={readonly ? undefined : () => current && onDelete(current)}
         />
       {/if}
       <Dialog.Close>

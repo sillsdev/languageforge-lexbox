@@ -222,7 +222,18 @@
   {/snippet}
 </Story>
 
-<Story name="Readonly">
+<Story
+  name="Readonly"
+  play={async ({canvasElement}) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.findByRole('button', {name: 'View Picture'})).resolves.toBeInTheDocument();
+    await userEvent.click(await canvas.findByRole('button', {name: 'Picture actions'}));
+    const doc = within(document.documentElement);
+    await expect(doc.findByRole('menuitem', {name: 'Download'})).resolves.toBeInTheDocument();
+    await expect(doc.queryByRole('menuitem', {name: 'Edit'})).toBeNull();
+    await expect(doc.queryByRole('menuitem', {name: 'Delete'})).toBeNull();
+  }}
+>
   {#snippet template(args: PictureArgs)}
     <PictureImageHarness getFileStream={loadedGetFileStream}>
       <PictureImage {...args} {...actionHandlers} readonly />

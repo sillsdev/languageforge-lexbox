@@ -21,7 +21,10 @@
   };
   const {picture, onView, onEdit, onDownload, onDelete, busy = false, showCaption = true, size = 'thumbnail', readonly = false}: Props = $props();
 
-  const interactive = $derived(!readonly && !!onView);
+  const canView = $derived(!!onView);
+  const showDownload = $derived(!!onDownload);
+  const showEdit = $derived(!readonly && !!onEdit);
+  const showDelete = $derived(!readonly && !!onDelete);
   const imageClass = $derived(
     size === 'full'
       ? 'max-h-full max-w-full h-auto w-auto object-contain'
@@ -67,8 +70,8 @@
 
   const needsDownload = $derived(loadState.status === 'not-downloaded');
   const hasError = $derived(loadState.status === 'error');
-  const clickable = $derived(needsDownload || hasError || (loadState.status === 'loaded' && interactive));
-  const showMenu = $derived(interactive && !!onEdit && !!onDownload && !!onDelete);
+  const clickable = $derived(needsDownload || hasError || (loadState.status === 'loaded' && canView));
+  const showMenu = $derived(showDownload || showEdit || showDelete);
   const loadLabel = $derived($t`Load picture`);
   const retryLabel = $derived($t`Try again`);
   const clickLabel = $derived(needsDownload ? loadLabel : hasError ? retryLabel : $t`View Picture`);
@@ -133,9 +136,9 @@
           contextMenu
           disabled={busy}
           onOpenChange={(o) => (menuOpen = o)}
-          onEdit={() => onEdit?.()}
+          onEdit={showEdit ? () => onEdit?.() : undefined}
           onDownload={() => onDownload?.()}
-          onDelete={() => onDelete?.()}
+          onDelete={showDelete ? () => onDelete?.() : undefined}
         >
           {@render pictureArea()}
         </PictureActionsMenu>
@@ -144,9 +147,9 @@
             disabled={busy}
             triggerClass="rounded-full not-hover:bg-background/50 shadow-sm backdrop-blur-sm hover:bg-background/90"
             onOpenChange={(o) => (menuOpen = o)}
-            onEdit={() => onEdit?.()}
+            onEdit={showEdit ? () => onEdit?.() : undefined}
             onDownload={() => onDownload?.()}
-            onDelete={() => onDelete?.()}
+            onDelete={showDelete ? () => onDelete?.() : undefined}
           />
         </div>
       {:else}

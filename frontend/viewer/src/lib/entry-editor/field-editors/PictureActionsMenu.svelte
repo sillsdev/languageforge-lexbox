@@ -13,9 +13,9 @@
     /** Size defaults to a 40px icon button. */
     size?: ComponentProps<typeof ResponsiveMenu.Trigger>['size'];
     onOpenChange?: (open: boolean) => void;
-    onEdit: () => void;
+    onEdit?: () => void;
     onDownload: () => void;
-    onDelete: () => void;
+    onDelete?: () => void;
   };
   let {contextMenu = false, children, disabled = false, triggerClass, size, onOpenChange, onEdit, onDownload, onDelete}: Props = $props();
 </script>
@@ -29,8 +29,12 @@
     {children}
   />
   <ResponsiveMenu.Content>
-    <ResponsiveMenu.Item icon="i-mdi-pencil" onSelect={onEdit}>{$t`Edit`}</ResponsiveMenu.Item>
+    {#if onEdit}
+      <ResponsiveMenu.Item icon="i-mdi-pencil" onSelect={onEdit}>{$t`Edit`}</ResponsiveMenu.Item>
+    {/if}
     <ResponsiveMenu.Item icon="i-mdi-download" onSelect={onDownload}>{$t`Download`}</ResponsiveMenu.Item>
-    <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onDelete}>{$t`Delete`}</ResponsiveMenu.Item>
+    {#if onDelete}
+      <ResponsiveMenu.Item icon="i-mdi-delete" onSelect={onDelete}>{$t`Delete`}</ResponsiveMenu.Item>
+    {/if}
   </ResponsiveMenu.Content>
 </ResponsiveMenu.Root>

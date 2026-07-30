@@ -204,6 +204,7 @@
   bind:open={viewerOpen}
   bind:pictureId={viewerPictureId}
   {pictures}
+  {readonly}
   busy={busyAction !== null}
   onEdit={(picture) => {
     viewerOpen = false;
