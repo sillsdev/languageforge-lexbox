@@ -240,33 +240,19 @@ public static class Json
         [property: Column("fullkey")] string FullKey,
         [property: Column("path")] string Path);
 
-    public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this HarmonyConfig config)
-    {
-        var resolver = config.MakeJsonTypeResolver();
-        resolver = resolver.AddExternalMiniLcmModifiers();
-        return resolver;
-    }
-
     /// <summary>
     /// Web-cased <see cref="JsonSerializerOptions"/> for talking to the sync server (camelCase wire format),
-    /// with the external MiniLcm modifiers layered on.
+    /// with the external MiniLcm modifiers layered on. Harmony's <see cref="HarmonyConfig.ConfigureExternalJsonOptions"/>
+    /// then adds its <see cref="SIL.Harmony.Changes.IChange"/>/<c>IObject</c> polymorphism (type-info modifier plus the
+    /// change converter) so that <c>ChangeEntity&lt;IChange&gt;</c> fields in sync payloads round-trip.
     /// </summary>
-    /// <remarks>
-    /// SIL.Harmony moved <see cref="SIL.Harmony.Changes.IChange"/> polymorphism from the type-info resolver
-    /// into an internal <c>JsonConverter&lt;IChange&gt;</c> that it only adds to its own
-    /// <see cref="HarmonyConfig.JsonSerializerOptions"/>. A resolver alone can therefore no longer read/write
-    /// changes, so we copy Harmony's converters onto our Web-cased options. Without this, deserializing a
-    /// server response throws "Deserialization of interface or abstract types is not supported. Type
-    /// 'SIL.Harmony.Changes.IChange'".
-    /// </remarks>
     public static JsonSerializerOptions MakeLcmCrdtExternalJsonOptions(this HarmonyConfig config)
     {
         var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
         {
-            TypeInfoResolver = config.MakeLcmCrdtExternalJsonTypeResolver()
+            TypeInfoResolver = new DefaultJsonTypeInfoResolver().AddExternalMiniLcmModifiers()
         };
-        foreach (var converter in config.JsonSerializerOptions.Converters)
-            options.Converters.Add(converter);
+        config.ConfigureExternalJsonOptions(options);
         return options;
     }
 

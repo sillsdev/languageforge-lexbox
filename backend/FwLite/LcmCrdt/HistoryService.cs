@@ -1,6 +1,8 @@
 using Humanizer;
+using Microsoft.Extensions.Options;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Config;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 using LinqToDB;
@@ -110,7 +112,7 @@ public record HistoryLineItem(
     }
 }
 
-public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory, IMiniLcmApi miniLcmApi)
+public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory, IMiniLcmApi miniLcmApi, IOptions<HarmonyConfig> harmonyConfig)
 {
 
     public async Task<ActivityAuthor[]> ListActivityAuthors()
@@ -138,7 +140,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .Select(g => new KeyValuePair<string, int>(g.Key.ChangeTypeKey, g.Count()))
             .ToDictionaryAsyncLinqToDB(p => p.Key, p => p.Value);
 
-        var registeredTypes = LcmCrdtKernel.AllRegisteredChanges()
+        var registeredTypes = harmonyConfig.Value.ChangeTypes
             .Select(c => new ActivityChangeType(
                 c.Discriminator,
                 ChangeTypeLabel(c.Type),
@@ -399,9 +401,9 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
     {
         var type = change.GetType();
         //todo call JsonPatchChange.Summarize() instead of this
-        if (type.Name.Contains("JsonPatch")) return $"Edit{change.EntityType.Name}".Humanize();
-        else if (type.Name.StartsWith("DeleteChange`")) return $"Delete{change.EntityType.Name}".Humanize();
-        else if (type.Name.StartsWith("SetOrderChange`")) return $"Reorder{change.EntityType.Name}".Humanize();
+        if (type.Name.Contains("JsonPatch")) return $"Edit{change.EntityType?.Name}".Humanize();
+        else if (type.Name.StartsWith("DeleteChange`")) return $"Delete{change.EntityType?.Name}".Humanize();
+        else if (type.Name.StartsWith("SetOrderChange`")) return $"Reorder{change.EntityType?.Name}".Humanize();
         var changeName = type.Name.Humanize();
         return Regex.Replace(changeName, " Change$", "", RegexOptions.IgnoreCase);
     }
