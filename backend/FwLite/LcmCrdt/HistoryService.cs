@@ -399,6 +399,8 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
 
     public static string ChangeNameHelper(IChange change)
     {
+        // OpaqueChange is an unregistered change type (its EntityType is null), so we can't name it meaningfully.
+        if (change is OpaqueChange) return "Unknown";
         var type = change.GetType();
         //todo call JsonPatchChange.Summarize() instead of this
         if (type.Name.Contains("JsonPatch")) return $"Edit{change.EntityType?.Name}".Humanize();
