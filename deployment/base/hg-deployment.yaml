@@ -147,7 +147,7 @@ spec:
 
 
       - name: hgresumable
-        image: ghcr.io/sillsdev/hgresume:v2026-08-03
+        image: ghcr.io/sillsdev/hgresume:v2026-08-04
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
