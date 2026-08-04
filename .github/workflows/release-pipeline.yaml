@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   set-version:
@@ -81,6 +82,7 @@ jobs:
     needs: deploy
     permissions:
       checks: write
+      contents: read
     secrets: inherit
     with:
       environment: staging
