@@ -199,6 +199,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(FwLiteRelease),
             typeof(AvailableUpdate),
             typeof(HarmonyResource<LcmFileMetadata>),
+            typeof(CameraResult),
         ], exportBuilder => exportBuilder.WithPublicProperties());
 
         builder.ExportAsClass<ChangeType>().WithCodeGenerator<ChangeTypesCodeGenerator>();
