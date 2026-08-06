@@ -13,7 +13,7 @@ export interface ICombinedProjectsService
 {
 	supportsFwData() : Promise<boolean>;
 	remoteProjects() : Promise<IServerProjects[]>;
-	serverProjects(serverId: string, forceRefresh: boolean) : Promise<IServerProjects | null>;
+	serverProjects(serverId: string, forceRefresh: boolean) : Promise<IServerProjects | undefined>;
 	localProjects() : Promise<IProjectModel[]>;
 	downloadProjectByCode(code: string, server: ILexboxServer, userRole?: UserProjectRole) : Promise<DownloadProjectByCodeResult>;
 	downloadProject(project: IProjectModel) : Promise<void>;

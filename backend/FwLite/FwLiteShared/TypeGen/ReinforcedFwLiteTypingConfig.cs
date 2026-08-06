@@ -314,8 +314,8 @@ public static class ReinforcedFwLiteTypingConfig
     }
 
     /// <summary>
-    /// introspects the return type of a method to determine if it is nullable and modifies the return type to be T | null
-    /// before Task<T?> -> Promise<T> after Promise<T | null>
+    /// introspects the return type of a method to determine if it is nullable and modifies the return type to be T | undefined
+    /// before Task<T?> -> Promise<T> after Promise<T | undefined>
     /// </summary>
     internal class NullableMethodReturnBuilder : MethodCodeGenerator
     {
@@ -342,7 +342,7 @@ public static class ReinforcedFwLiteTypingConfig
 
                 if (mayBeNull)
                 {
-                    type = new RtAsyncType(new RtSimpleTypeName(asyncResolveType.TypeName + " | null"));
+                    type = new RtAsyncType(new RtSimpleTypeName(asyncResolveType.TypeName + " | undefined"));
                 }
             }
 

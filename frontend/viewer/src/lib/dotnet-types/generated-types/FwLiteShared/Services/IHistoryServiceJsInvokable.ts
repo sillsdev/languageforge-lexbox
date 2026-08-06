@@ -18,7 +18,7 @@ export interface IHistoryServiceJsInvokable
 	projectActivity(skip: number, take: number, authorFilterKeys?: string[], changeTypeKeys?: string[], sort?: ActivitySort) : Promise<IProjectActivity[]>;
 	listActivityAuthors() : Promise<IActivityAuthor[]>;
 	listActivityChangeTypes() : Promise<IActivityChangeType[]>;
-	getSnapshot(snapshotId: string) : Promise<IObjectSnapshot | null>;
+	getSnapshot(snapshotId: string) : Promise<IObjectSnapshot | undefined>;
 	getHistory(entityId: string) : Promise<IHistoryLineItem[]>;
 	loadChangeContext(commitId: string, changeIndex: number) : Promise<IChangeContext>;
 }

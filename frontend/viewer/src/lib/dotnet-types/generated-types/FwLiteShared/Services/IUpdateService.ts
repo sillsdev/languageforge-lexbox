@@ -8,7 +8,7 @@ import type {UpdateResult} from '../AppUpdate/UpdateResult';
 
 export interface IUpdateService
 {
-	checkForUpdates() : Promise<IAvailableUpdate | null>;
+	checkForUpdates() : Promise<IAvailableUpdate | undefined>;
 	applyUpdate(update: IAvailableUpdate) : Promise<UpdateResult>;
 }
 /* eslint-enable */
