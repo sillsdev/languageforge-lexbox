@@ -28,6 +28,7 @@ using FwLiteShared.Sync;
 using MiniLcm.Media;
 using MediaFile = MiniLcm.Media.MediaFile;
 using Microsoft.Extensions.Logging;
+using Reinforced.Typings.Generators;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Resource;
 
@@ -228,6 +229,7 @@ public static class ReinforcedFwLiteTypingConfig
 
     private static MethodExportBuilder AlwaysReturnPromise(this MethodExportBuilder exportBuilder)
     {
+        exportBuilder.WithCodeGenerator<NullableMethodReturnBuilder>();
         var isUpdatePatchMethod = exportBuilder.Member.GetParameters()
             .Any(p => p.ParameterType.IsGenericType &&
                       p.ParameterType.GetGenericTypeDefinition() == typeof(UpdateObjectInput<>));
@@ -308,6 +310,42 @@ public static class ReinforcedFwLiteTypingConfig
                 node.Target = $"type {node.Target.Replace("{ ", "{").Replace(" }", "}")}";
             }
             base.Visit(node);
+        }
+    }
+
+    /// <summary>
+    /// introspects the return type of a method to determine if it is nullable and modifies the return type to be T | null
+    /// before Task<T?> -> Promise<T> after Promise<T | null>
+    /// </summary>
+    internal class NullableMethodReturnBuilder : MethodCodeGenerator
+    {
+        private static NullabilityInfoContext _nullabilityInfoContext = new();
+        protected override void GetFunctionNameAndReturnType(MethodInfo element, TypeResolver resolver, out string name, out RtTypeName type)
+        {
+            base.GetFunctionNameAndReturnType(element, resolver, out name, out type);
+            if (type is RtAsyncType {TypeNameOfAsync: RtSimpleTypeName asyncResolveType})
+            {
+                var nullabilityInfo = _nullabilityInfoContext.Create(element.ReturnParameter);
+                var mayBeNull = false;
+                //some methods return Task<T> but some just return T and we force them to always show as Promise<T>
+                //but here we need to know which as we're looking at the underlying type
+                if (element.ReturnType.IsGenericType &&
+                    (element.ReturnType.GetGenericTypeDefinition() == typeof(Task<>)
+                     || element.ReturnType.GetGenericTypeDefinition() == typeof(ValueTask<>)))
+                {
+                    mayBeNull = (nullabilityInfo.GenericTypeArguments.FirstOrDefault()?.ReadState ?? NullabilityState.Nullable) == NullabilityState.Nullable;
+                }
+                else
+                {
+                    mayBeNull = nullabilityInfo.ReadState == NullabilityState.Nullable;
+                }
+
+                if (mayBeNull)
+                {
+                    type = new RtAsyncType(new RtSimpleTypeName(asyncResolveType.TypeName + " | null"));
+                }
+            }
+
         }
     }
 }

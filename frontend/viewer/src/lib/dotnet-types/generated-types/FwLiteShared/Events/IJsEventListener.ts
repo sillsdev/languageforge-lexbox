@@ -8,7 +8,7 @@ import type {FwEventType} from './FwEventType';
 
 export interface IJsEventListener
 {
-	nextEventAsync() : Promise<IFwEvent>;
+	nextEventAsync() : Promise<IFwEvent | null>;
 	lastEvent(type: FwEventType) : Promise<IFwEvent | null>;
 }
 /* eslint-enable */

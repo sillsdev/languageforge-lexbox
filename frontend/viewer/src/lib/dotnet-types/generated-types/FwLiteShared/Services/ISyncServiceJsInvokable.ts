@@ -13,9 +13,9 @@ export interface ISyncServiceJsInvokable
 {
 	getSyncStatus() : Promise<IProjectSyncStatus>;
 	triggerFwHeadlessSync() : Promise<ISyncJobResult>;
-	countPendingCrdtCommits() : Promise<IPendingCommits>;
-	getLatestSyncedCommitDate() : Promise<string>;
+	countPendingCrdtCommits() : Promise<IPendingCommits | null>;
+	getLatestSyncedCommitDate() : Promise<string | null>;
 	executeSync(skipNotifications: boolean) : Promise<ISyncResults>;
-	getCurrentServer() : Promise<ILexboxServer>;
+	getCurrentServer() : Promise<ILexboxServer | null>;
 }
 /* eslint-enable */
