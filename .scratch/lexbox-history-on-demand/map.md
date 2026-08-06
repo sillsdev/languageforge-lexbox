@@ -41,6 +41,10 @@ decision below is resolved and a spec exists that `/implement` can build from.
 
 <!-- one line per resolved ticket: gist + link -->
 
+- [Make Mercurial history load on demand](issues/01-hg-on-demand-ux.md) — collapsed
+  section + "Show history" button gates the fetch; keep today's unbounded whole-log
+  fetch for v1 (pagination stays in fog), reuse `HgLogView`.
+
 ## Not yet specified
 
 <!-- fog toward the destination; graduates into tickets as the frontier advances -->

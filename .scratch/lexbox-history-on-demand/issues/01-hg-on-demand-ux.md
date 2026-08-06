@@ -1,7 +1,7 @@
 # Make Mercurial history load on demand
 
 Type: prototype
-Status: open
+Status: resolved
 
 ## Question
 
@@ -26,3 +26,28 @@ Backend `HgService.GetChangesets` sends `log?style=json-lex` with no rev/revcoun
 
 Output: a decided UX (with a rough `/prototype` if it clarifies) and whether
 pagination is in scope for the first cut.
+
+## Answer
+
+**Trigger: collapsed section + "Show history" button.** History stays on the project
+page (`+page.svelte`, the `project_page.history` block ~lines 618-635) but renders
+collapsed by default. A button reveals the section *and* fires the fetch. No separate
+tab, no scroll trigger.
+
+**Fetch is gated on the click** — the existing non-awaited `projectChangesets`
+`queryStore` must NOT fire on page load anymore; it fires only when the button is
+clicked. (Today it's already client-side lazy but auto-fires; the change is to defer
+that firing to the trigger.) Reuse `HgLogView` as-is inside the revealed section.
+
+**Bounding: out for v1 — just defer, keep the unbounded whole-changelog fetch.** On
+click, fetch the full log exactly as today. This fixes the *page-load* slowness (the
+stated problem) with minimal change. Large projects remain a big fetch once opened;
+the existing "Open in hgweb" link is the escape hatch. Pagination/`revcount` stays in
+the map's fog, not pulled into this ticket.
+
+No prototype needed — decision made from concrete options grounded in the real page.
+
+Implications for later tickets:
+- Layout ticket must decide whether the FwLite section gets its own independent
+  collapse/button or shares one trigger with hg (both default-collapsed).
+- Spec: the button lives where the section title + "open in hgweb" link are now.
