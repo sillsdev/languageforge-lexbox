@@ -48,14 +48,16 @@ decision below is resolved and a spec exists that `/implement` can build from.
   — new GraphQL field `Project.harmonyCommits(limit)` → `HarmonyCommit{id, dateTime,
   authorName}` from `CrdtCommits`, newest-N hard cap (no load-more), gated on
   `hasHarmonyCommits`. hg & FwLite are two separate fields, not merged server-side.
+- [Decide how hg and FwLite history are presented together](issues/03-combined-history-layout.md)
+  — two separate labeled sections (hg "History" keeps its commit graph; new
+  "FieldWorks Lite history" flat list below), each with its own on-demand toggle;
+  FwLite section shown only when `hasHarmonyCommits`. No merged timeline.
 
 ## Not yet specified
 
 <!-- fog toward the destination; graduates into tickets as the frontier advances -->
 
-- **Author identity reconciliation**: hg `user` is a free string; CRDT `AuthorName`
-  is optional (+ GUID `AuthorId`). Only matters if the layout ticket merges the two
-  into one timeline; graduates there if so.
+_(empty — all remaining work is the spec ticket)_
 
 ## Out of scope
 
