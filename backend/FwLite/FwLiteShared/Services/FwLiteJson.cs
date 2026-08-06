@@ -22,7 +22,7 @@ public static class FwLiteJson
         var options = (JsonSerializerOptions?)_jsRuntimeJsonOptionsProperty.GetValue(jsRuntime, null);
         if (options is null) throw new InvalidOperationException("JSRuntime.JsonSerializerOptions returned null");
         options.TypeInfoResolver = (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
-            .WithAddedModifier(harmonyConfig.MakeJsonTypeModifier())
             .AddExternalMiniLcmModifiers();
+        harmonyConfig.ConfigureExternalJsonOptions(options);
     }
 }
