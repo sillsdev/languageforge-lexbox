@@ -152,12 +152,17 @@
   }
 
   async function takePicture() {
-    let result = await platformFeatures.service.captureImage();
-    if (result == null) {
-      return;
+    busyAction = 'add';
+    try {
+      let result = await platformFeatures.service.captureImage();
+      if (result == null) {
+        return;
+      }
+      let file = new File([await result.image.arrayBuffer()], result.fileName, {type: result.contentType});
+      await addPicture(file);
+    } finally {
+      busyAction = null;
     }
-    let file = new File([await result.image.arrayBuffer()], result.fileName, {type: result.contentType});
-    await addPicture(file);
   }
 </script>
 
