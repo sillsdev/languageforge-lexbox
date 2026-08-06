@@ -373,6 +373,10 @@ msgstr "Visite"
 msgid "Browse view failed"
 msgstr ""
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Camera"
+msgstr ""
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
