@@ -52,6 +52,8 @@ decision below is resolved and a spec exists that `/implement` can build from.
   — two separate labeled sections (hg "History" keeps its commit graph; new
   "FieldWorks Lite history" flat list below), each with its own on-demand toggle;
   FwLite section shown only when `hasHarmonyCommits`. No merged timeline.
+- [Assemble the implementation-ready spec](issues/04-implementation-spec.md) — folded
+  all decisions into [SPEC.md](SPEC.md); ready for `/implement`. **Map complete.**
 
 ## Not yet specified
 
