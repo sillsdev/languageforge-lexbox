@@ -51,6 +51,16 @@ graphql(`
   }
 `);
 
+graphql(`
+  fragment HarmonyCommits on Project {
+    harmonyCommits {
+      id
+      dateTime
+      metadata
+    }
+  }
+`);
+
 export async function load(event: PageLoadEvent) {
   const client = getClient();
   const user = (await event.parent()).user;
@@ -122,6 +132,8 @@ export async function load(event: PageLoadEvent) {
 			`),
       { projectCode, userIsAdmin: user.isAdmin }
     );
+  // History is loaded on demand (see the "Show history" toggles on the project page), so both stores
+  // start paused and are resumed by their reveal handlers rather than fetching on page load.
   const changesetResultStore = client
     .queryStore(event.fetch,
       graphql(`
@@ -133,7 +145,20 @@ export async function load(event: PageLoadEvent) {
           }
         }
       `),
-      { projectCode }
+      { projectCode }, {}, true
+    );
+  const harmonyCommitsResultStore = client
+    .queryStore(event.fetch,
+      graphql(`
+        query projectHarmonyCommits($projectCode: String!) {
+          projectByCode(code: $projectCode) {
+            id
+            code
+            ...HarmonyCommits
+          }
+        }
+      `),
+      { projectCode }, {}, true
     );
 
   const nonNullableProject = tryMakeNonNullable(projectResult.projectByCode);
@@ -151,6 +176,14 @@ export async function load(event: PageLoadEvent) {
       ...derived(changesetResultStore, result => ({
         fetching: result.fetching,
         changesets: result.data?.projectByCode?.changesets ?? [],
+      })),
+    },
+    harmonyCommits: {
+      //spread first so the store stays pausable (see changesets above)
+      ...harmonyCommitsResultStore,
+      ...derived(harmonyCommitsResultStore, result => ({
+        fetching: result.fetching,
+        commits: result.data?.projectByCode?.harmonyCommits ?? [],
       })),
     },
     code: projectCode,

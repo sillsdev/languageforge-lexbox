@@ -20,6 +20,7 @@ const generationConfig: TypeScriptPluginConfig = {
     'UUID': 'string',
     'DateTime': 'string | Date',
     'Long': 'number',
+    'Any': 'unknown',
     /* eslint-enable @typescript-eslint/naming-convention */
   }
 };
