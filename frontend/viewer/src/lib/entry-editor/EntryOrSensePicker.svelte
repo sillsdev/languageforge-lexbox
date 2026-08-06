@@ -8,7 +8,7 @@
 </script>
 
 <script lang="ts">
-  import {useLexboxApi} from '../services/service-provider';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {SortField} from '$lib/dotnet-types';
   import NewEntryButton from './NewEntryButton.svelte';
@@ -68,7 +68,7 @@
     return writingSystemService.firstGloss(selectedSense) || writingSystemService.firstDef(selectedSense) || '';
   });
 
-  const lexboxApi = useLexboxApi();
+  const api = useMiniLcmApi();
   let search = $state('');
   const PAGE_SIZE = 50;
   let displayCount = $state(PAGE_SIZE);
@@ -77,7 +77,7 @@
   let addedEntries: IEntry[] = $state([]);
   const searchResource = resource([() => search, () => fetchCount], () => {
     if (!search) return Promise.resolve([]);
-    return lexboxApi.searchEntries(search ?? '', {
+    return api.searchEntries(search ?? '', {
       offset: 0,
       count: fetchCount,
       order: {field: SortField.SearchRelevance, writingSystem: 'default', ascending: true},

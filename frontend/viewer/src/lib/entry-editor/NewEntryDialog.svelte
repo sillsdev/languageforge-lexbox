@@ -13,7 +13,7 @@
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import {useSaveHandler} from '../services/save-event-service.svelte';
-  import {useLexboxApi} from '../services/service-provider';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
   import OverrideFields from '$lib/views/OverrideFields.svelte';
   import {useWritingSystemService, usePublications} from '$project/data';
@@ -41,7 +41,7 @@
   const publicationService = usePublications();
   const dialogsService = useDialogsService();
   dialogsService.invokeNewEntryDialog = openWithValue;
-  const lexboxApi = useLexboxApi();
+  const api = useMiniLcmApi();
   const saveHandler = useSaveHandler();
   let requester: {
     resolve: (entry: IEntry | undefined) => void
@@ -73,7 +73,7 @@
 
       const entrySnapshot = $state.snapshot(entry);
       // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
-      await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, createEntryOptions.asIs));
+      await saveHandler.handleSave(() => api.createEntry(entrySnapshot, createEntryOptions.asIs));
       requester.resolve(entry);
       requester = undefined;
       open = false;
