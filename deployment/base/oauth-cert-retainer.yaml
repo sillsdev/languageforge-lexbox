@@ -64,6 +64,11 @@ spec:
               # Distroless rancher/kubectl has no shell; retainer script needs bash.
               image: bitnamilegacy/kubectl:1.31.4
               command: ["/bin/bash", "-c"]
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 1000
+                runAsGroup: 1000
+                allowPrivilegeEscalation: false
               args:
                 - |
                   set -euo pipefail
