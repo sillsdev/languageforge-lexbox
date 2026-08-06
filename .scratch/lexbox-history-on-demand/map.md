@@ -44,17 +44,18 @@ decision below is resolved and a spec exists that `/implement` can build from.
 - [Make Mercurial history load on demand](issues/01-hg-on-demand-ux.md) — collapsed
   section + "Show history" button gates the fetch; keep today's unbounded whole-log
   fetch for v1 (pagination stays in fog), reuse `HgLogView`.
+- [Define the server API that lists FwLite/CRDT history](issues/02-fwlite-history-server-api.md)
+  — new GraphQL field `Project.harmonyCommits(limit)` → `HarmonyCommit{id, dateTime,
+  authorName}` from `CrdtCommits`, newest-N hard cap (no load-more), gated on
+  `hasHarmonyCommits`. hg & FwLite are two separate fields, not merged server-side.
 
 ## Not yet specified
 
 <!-- fog toward the destination; graduates into tickets as the frontier advances -->
 
-- **Pagination / limits**: whether on-demand hg load also introduces a bounded/paged
-  fetch (today it's unbounded). Likely surfaced by the on-demand-UX ticket.
-- **Unified vs parallel data path**: whether FwLite history rides a new GraphQL field
-  on `Project` next to `changesets`, or a separate query. Depends on the layout ticket.
-- **Author identity reconciliation**: hg `user` is a free string; CRDT `AuthorId` is a
-  GUID + optional `AuthorName`. Only matters if histories are merged into one timeline.
+- **Author identity reconciliation**: hg `user` is a free string; CRDT `AuthorName`
+  is optional (+ GUID `AuthorId`). Only matters if the layout ticket merges the two
+  into one timeline; graduates there if so.
 
 ## Out of scope
 
@@ -64,4 +65,6 @@ decision below is resolved and a spec exists that `/implement` can build from.
   rendering. First cut is "just a list."
 - Changing FwLite's in-app `HistoryService` or its `[JSInvokable]` surface.
 - Deriving human-readable change *messages* for CRDT commits by deserializing change
-  blobs server-side — unless ticket 02 explicitly decides to pull it in scope.
+  blobs server-side — ticket 02 kept this out; author + timestamp only.
+- Reaching **older FwLite history** past the newest-N hard cap (load-more / paging for
+  `harmonyCommits`) — ticket 02 hard-caps v1; a later enhancement, not this destination.
