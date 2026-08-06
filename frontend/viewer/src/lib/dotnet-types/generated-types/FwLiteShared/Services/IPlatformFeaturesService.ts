@@ -7,6 +7,7 @@ import type {ICameraResult} from './ICameraResult';
 
 export interface IPlatformFeaturesService
 {
+	supportsImageCapture() : Promise<boolean>;
 	captureImage() : Promise<ICameraResult>;
 }
 /* eslint-enable */

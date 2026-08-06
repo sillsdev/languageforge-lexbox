@@ -12,6 +12,7 @@
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {AppNotification} from '$lib/notifications/notifications';
   import {randomId} from '$lib/utils';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
 
   type Props = {
     pictures: IPicture[];
@@ -23,6 +24,7 @@
 
   const api = useLexboxApi();
   const dialogsService = useDialogsService();
+  const platformFeatures = usePlatformFeaturesService();
 
   let fileInputElement = $state<HTMLInputElement>();
   let busyAction = $state<'add' | 'edit' | null>(null);
@@ -148,6 +150,15 @@
       ? $t`This picture is too large to upload. Try reducing the resolution and uploading again.`
       : $t`This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again.`;
   }
+
+  async function takePicture() {
+    let result = await platformFeatures.service.captureImage();
+    if (result == null) {
+      return;
+    }
+    let file = new File([await result.image.arrayBuffer()], result.fileName, {type: result.contentType});
+    await addPicture(file);
+  }
 </script>
 
 <div class="flex flex-col gap-2">
@@ -178,6 +189,11 @@
       <Button icon="i-mdi-plus" size="xs" loading={busyAction === 'add'} disabled={busyAction !== null} onclick={() => fileInputElement?.click()}>
         {$t`Picture`}
       </Button>
+      {#if platformFeatures.features.supportsImageCapture}
+        <Button icon="i-mdi-camera" size="xs" loading={busyAction === 'add'} disabled={busyAction !== null} onclick={() => takePicture()}>
+          {$t`Camera`}
+        </Button>
+      {/if}
     </div>
     <!-- Hidden input drives the OS file picker for adding a picture -->
     <input

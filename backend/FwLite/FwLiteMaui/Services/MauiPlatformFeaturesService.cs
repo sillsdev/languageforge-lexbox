@@ -5,7 +5,13 @@ namespace FwLiteMaui.Services;
 
 public class MauiPlatformFeaturesService(IMediaPicker mediaPicker) : IPlatformFeaturesService
 {
-    public bool SupportsImageCapture => mediaPicker.IsCaptureSupported;
+
+    [JSInvokable]
+    public Task<bool> SupportsImageCapture()
+    {
+        return Task.FromResult(mediaPicker.IsCaptureSupported);
+    }
+
     [JSInvokable]
     public async Task<CameraResult?> CaptureImage()
     {

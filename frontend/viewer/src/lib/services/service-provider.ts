@@ -129,10 +129,6 @@ export function usePreferencesService(): IPreferencesService {
   return window.lexbox.ServiceProvider.getService(DotnetService.PreferencesService);
 }
 
-export function usePlatformFeaturesService(): IPlatformFeaturesService {
-  return window.lexbox.ServiceProvider.getService(DotnetService.PlatformFeaturesService);
-}
-
 export function useService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {
   return window.lexbox.ServiceProvider.getService(key);
 }
