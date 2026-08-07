@@ -32,8 +32,11 @@ no per-developer setup. Distribution is via `ProjectReference`, not a published 
    symbols in `RegisterCompilationStartAction`; include `ConfigureGeneratedCodeAnalysis(None)` and
    `EnableConcurrentExecution()`.
 3. Add positive, negative near-miss, and generated-code tests.
-4. Add a row to `AnalyzerReleases.Unshipped.md`.
-5. Set the `.editorconfig` severity (start at `suggestion`/`warning` for retroactive rules).
+4. Set the `.editorconfig` severity (start at `suggestion`/`warning` for retroactive rules).
+
+We don't maintain analyzer release-tracking files (`AnalyzerReleases.*.md`); RS2008 is suppressed in
+the analyzer csproj. Release tracking exists to manage compatibility for external package consumers,
+which this repo doesn't have.
 
 ## Gotcha: IDE staleness
 

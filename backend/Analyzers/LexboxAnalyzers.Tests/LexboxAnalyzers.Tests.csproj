@@ -7,6 +7,9 @@
     <!-- Excludes this project from the analyzer wiring in backend/Directory.Build.targets;
          the analyzer is referenced normally below so the tests can name its types. -->
     <IsAnalyzerProject>true</IsAnalyzerProject>
+    <!-- Opt out of central package management: this project pins Roslyn to 4.8.0 to match the
+         analyzer, which (under CentralPackageTransitivePinningEnabled) would otherwise collide
+         repo-wide with the newer Roslyn pulled transitively by EF Core Design. -->
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
