@@ -1,7 +1,6 @@
 ﻿<script lang="ts">
   import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
-  import type {IServerStatus} from '$lib/dotnet-types';
-  import type {Project} from '$lib/services/projects-service';
+  import type {IProjectModel, IServerStatus} from '$lib/dotnet-types';
   import LoginButton from '$lib/auth/LoginButton.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {t} from 'svelte-i18n-lingui';
@@ -21,8 +20,8 @@
 
   interface Props {
     status: IServerStatus | undefined;
-    projects: Project[];
-    localProjects: Project[];
+    projects: IProjectModel[];
+    localProjects: IProjectModel[];
     loading?: boolean;
     canDownloadByCode?: boolean;
     refreshProjects?: () => void;
@@ -45,7 +44,7 @@
 
   let downloading = $state('');
 
-  async function downloadCrdtProject(project: Project) {
+  async function downloadCrdtProject(project: IProjectModel) {
     if (matchesProject(localProjects, project)) return;
 
     downloading = project.code;
@@ -96,7 +95,7 @@
     }
   }
 
-  function matchesProject(projects: Project[], project: Project): Project | undefined {
+  function matchesProject(projects: IProjectModel[], project: IProjectModel): IProjectModel | undefined {
     if (project.id) {
       return projects.find(p => p.id == project.id && p.server?.id == project.server?.id);
     }
@@ -114,7 +113,7 @@
   onDownloadProject={downloadCrdtProjectByCode}
   validateCode={validateCodeForDownload}
   />
-<div>
+<div id={server?.id}>
   <div class="flex flex-row mb-2 items-end mr-2 md:mr-0">
     <div class="sub-title my-0!">
       {#if server}

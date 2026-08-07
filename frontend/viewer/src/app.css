@@ -78,6 +78,16 @@
   scroll-margin-bottom: 3.5rem;
 }
 
+/* Stops the drawer scrolling up above the keyboard on mobile. */
+[data-vaul-drawer] [class*="overflow-auto"],
+[data-vaul-drawer] [class*="overflow-y-auto"],
+[data-vaul-drawer] [class*="overflow-x-auto"],
+[data-vaul-drawer] [class*="overflow-scroll"],
+[data-vaul-drawer] [class*="overflow-y-scroll"],
+[data-vaul-drawer] [class*="overflow-x-scroll"] {
+  overscroll-behavior: contain;
+}
+
 .x-ellipsis {
   max-width: 100%;
   overflow: hidden;

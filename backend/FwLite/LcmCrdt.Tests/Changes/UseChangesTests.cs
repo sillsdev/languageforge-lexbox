@@ -3,9 +3,11 @@ using System.Text.Json;
 using Bogus;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
+using MiniLcm.Media;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Resource;
@@ -132,6 +134,27 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         }
     }
 
+    // Every change type, dependency-ordered so it can be applied in one pass. Shared with
+    // ActivityChangeInfoResolverCoverageTests, which drives the whole catalogue through the activity feed.
+    internal static IReadOnlyList<IChange> AllChangesInDependencyOrder()
+    {
+        var remaining = GetAllChanges().ToList();
+        var ordered = new List<IChange>(remaining.Count);
+        while (remaining.Count > 0)
+        {
+            var ready = remaining
+                .Where(c => c.Dependencies is null || c.Dependencies.All(d => ordered.Contains(d)))
+                .ToList();
+            if (ready.Count == 0) throw new InvalidOperationException("Cyclic or unsatisfiable change dependencies");
+            foreach (var c in ready)
+            {
+                ordered.Add(c.Change);
+                remaining.Remove(c);
+            }
+        }
+        return ordered;
+    }
+
     private record ChangeWithDependencies(IChange Change, IEnumerable<IChange>? Dependencies = null);
 
     private static IEnumerable<ChangeWithDependencies> GetAllChanges()
@@ -173,6 +196,10 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
 
         var removeTranslationChange = new RemoveTranslationChange(exampleSentence.Id, translation.Id);
         yield return new ChangeWithDependencies(removeTranslationChange, [createTranslationChange]);
+
+        var picture = new Picture { Id = Guid.NewGuid(), Caption = { { "en", new RichString("test pic") } } };
+        var createSensePictureChange = new CreateSensePictureChange(picture, sense.Id, between: null);
+        yield return new ChangeWithDependencies(createSensePictureChange, [createSenseChange]);
 
         var semanticDomain = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "test sd" } } };
         var createSemanticDomainChange = new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, "1.1.1");
@@ -231,14 +258,21 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createcomponentEntryChange = new CreateEntryChange(componentEntry);
         yield return new ChangeWithDependencies(createcomponentEntryChange);
 
-        var setComplexFormComponentChange = SetComplexFormComponentChange.NewComponent(complexFormComponent.Id, componentEntry.Id);
-        yield return new ChangeWithDependencies(setComplexFormComponentChange, [createcomponentEntryChange, createComplexFormComponentChange]);
-
         var setSenseOrderChange = new LcmCrdt.Changes.SetOrderChange<Sense>(sense.Id, 10);
         yield return new ChangeWithDependencies(setSenseOrderChange, [createSenseChange]);
 
         var setExampleSentenceOrderChange = new LcmCrdt.Changes.SetOrderChange<ExampleSentence>(exampleSentence.Id, 10);
         yield return new ChangeWithDependencies(setExampleSentenceOrderChange, [createExampleSentenceChange]);
+
+        var setPictureOrderChange = new ReorderSensePictureChange(picture.Id, sense.Id, 10);
+        yield return new ChangeWithDependencies(setPictureOrderChange, [createSenseChange, createSensePictureChange]);
+
+        var updatePictureChange = new UpdateSensePictureChange(picture.Id, sense.Id, new JsonPatchDocument<Picture>()
+            .Replace(pic => pic.Caption, new() { { "en", new RichString("test caption update") } }));
+        yield return new ChangeWithDependencies(updatePictureChange, [createSenseChange, createSensePictureChange]);
+
+        var removePictureChange = new RemoveSensePictureChange(picture.Id, sense.Id);
+        yield return new ChangeWithDependencies(removePictureChange, [createSenseChange, createSensePictureChange, setPictureOrderChange, updatePictureChange]);
 
         var setComplexFormComponentOrderChange = new LcmCrdt.Changes.SetOrderChange<ComplexFormComponent>(complexFormComponent.Id, 10);
         yield return new ChangeWithDependencies(setComplexFormComponentOrderChange, [createComplexFormComponentChange]);
@@ -254,6 +288,9 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createPublication2Change = new CreatePublicationChange(publication2.Id, publication2.Name);
         yield return new ChangeWithDependencies(createPublication2Change);
 
+        var setMainPublicationChange = new SetMainPublicationChange(publication.Id);
+        yield return new ChangeWithDependencies(setMainPublicationChange, [createPublicationChange]);
+
         var addPublicationChange = new AddPublicationChange(entry.Id, publication);
         yield return new ChangeWithDependencies(addPublicationChange, [createPublicationChange, createEntryChange]);
 
@@ -263,12 +300,19 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var removePublicationChange = new RemovePublicationChange(entry.Id, publication2.Id);
         yield return new ChangeWithDependencies(removePublicationChange, [replacePublicationChange]);
 
-        yield return new ChangeWithDependencies(new CreateRemoteResourceChange(Guid.NewGuid(), "test-remote-id"));
-        var createRemoteResourcePendingUploadChange = new CreateRemoteResourcePendingUploadChange(Guid.NewGuid());
+        yield return new ChangeWithDependencies(new CreateRemoteResourceChange<LcmFileMetadata>(Guid.NewGuid(), "test-remote-id"));
+        var createRemoteResourcePendingUploadChange = new CreateRemoteResourcePendingUploadChange<LcmFileMetadata>(Guid.NewGuid());
         yield return new ChangeWithDependencies(createRemoteResourcePendingUploadChange);
         yield return new ChangeWithDependencies(
-            new RemoteResourceUploadedChange(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
+            new RemoteResourceUploadedChange<LcmFileMetadata>(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
             [createRemoteResourcePendingUploadChange]);
+        yield return new ChangeWithDependencies(
+            new SetRemoteResourceMetadataChange<LcmFileMetadata>(createRemoteResourcePendingUploadChange.EntityId, new LcmFileMetadata("test.txt", "text/plain")),
+            [createRemoteResourcePendingUploadChange]);
+
+        var createRemoteResourceChange = new CreateRemoteResourceChange<LcmFileMetadata>(Guid.NewGuid(), "test-remote-id2");
+        yield return new ChangeWithDependencies(createRemoteResourceChange);
+        yield return new ChangeWithDependencies(new DeleteRemoteResourceChange<LcmFileMetadata>(createRemoteResourceChange.EntityId), [createRemoteResourceChange]);
 
         var customView = new CustomView
         {
@@ -299,5 +343,38 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
                 Analysis = null
             });
         yield return new ChangeWithDependencies(editCustomViewChange, [createCustomViewChange]);
+
+        var commentThread = new CommentThread
+        {
+            Id = Guid.NewGuid(),
+            SubjectId = entry.Id,
+            SubjectType = SubjectType.Entry,
+            Status = ThreadStatus.Open,
+            AuthorId = "author-id",
+            AuthorName = "Author",
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        var createCommentThreadChange = new CreateCommentThreadChange(commentThread);
+        yield return new ChangeWithDependencies(createCommentThreadChange, [createEntryChange]);
+
+        var userComment = new UserComment
+        {
+            Id = Guid.NewGuid(),
+            CommentThreadId = commentThread.Id,
+            Text = "Test comment",
+            AuthorId = "author-id",
+            AuthorName = "Author",
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        };
+        var createUserCommentChange = new CreateUserCommentChange(userComment);
+        yield return new ChangeWithDependencies(createUserCommentChange, [createCommentThreadChange]);
+
+        var editUserCommentChange = new EditUserCommentChange(userComment.Id, "Updated comment", DateTimeOffset.UtcNow);
+        yield return new ChangeWithDependencies(editUserCommentChange, [createUserCommentChange]);
+
+        var closeCommentThreadChange = new SetCommentThreadStatusChange(commentThread.Id, ThreadStatus.Closed, DateTimeOffset.UtcNow);
+        yield return new ChangeWithDependencies(closeCommentThreadChange, [createCommentThreadChange]);
     }
 }

@@ -27,6 +27,7 @@
   const features = useFeatures();
 
   let showHistoryView = $state(false);
+  const item = $derived(items[i]);
 </script>
 
 {#if !readonly || features.history}
@@ -34,7 +35,7 @@
   {#if !readonly}
     <Reorderer
       direction="vertical"
-      item={items[i]}
+      {item}
       {items}
       {getDisplayName}
       onchange={(_newItems, _fromIndex, newIndex) => onmove?.(newIndex)}

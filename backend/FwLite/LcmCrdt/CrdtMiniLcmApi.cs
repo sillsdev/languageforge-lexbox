@@ -1,7 +1,9 @@
 using System.Data;
+using FluentValidation;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
@@ -19,6 +21,7 @@ using MiniLcm.SyncHelpers;
 using SIL.Harmony.Core;
 using MiniLcm.Culture;
 using MiniLcm.Media;
+using SystemTextJsonPatch;
 
 namespace LcmCrdt;
 
@@ -29,10 +32,13 @@ public class CrdtMiniLcmApi(
     IOptions<LcmCrdtConfig> config,
     ILogger<CrdtMiniLcmApi> logger,
     LcmMediaService lcmMediaService,
+    LocalCommentReadStatusService commentReadStatusService,
+    CommitMetadataInterceptor commitMetadataInterceptor,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
+    public CrdtProject Project => projectService.Project;
     private LcmCrdtConfig LcmConfig => config.Value;
 
     private CommitMetadata NewMetadata()
@@ -44,6 +50,7 @@ public class CrdtMiniLcmApi(
             AuthorName = ProjectData.LastUserName ?? config.Value.DefaultAuthorForCommits,
             AuthorId = ProjectData.LastUserId
         };
+        commitMetadataInterceptor.Apply(metadata);
         return metadata;
     }
     private async Task<Commit> AddChange(IChange change)
@@ -180,14 +187,27 @@ public class CrdtMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
-        await AddChange(new CreatePublicationChange(pub.Id, pub.Name));
+        await AddChange(new CreatePublicationChange(pub.Id, pub.Name, pub.IsMain));
         return await GetPublication(pub.Id) ?? throw NotFoundException.ForType<Publication>(pub.Id);
-
     }
 
     public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        await AddChanges(update.Patch.ToChanges(id));
+        // IsMain is applied via SetMainPublicationChange (which converges across replicas), not as a plain patch op,
+        // so it's stripped here. Validation rejects setting IsMain to false on every update/submit path, so isMain is always true.
+        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain))
+        {
+            var patch = new JsonPatchDocument<Publication>();
+            patch.Operations.AddRange(update.Patch.Operations.Where(op =>
+                !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
+            var changes = patch.ToChanges(id).ToList();
+            if (isMain) changes.Add(new SetMainPublicationChange(id));
+            if (changes.Count > 0) await AddChanges(changes);
+        }
+        else if (update.Patch.Operations.Count > 0)
+        {
+            await AddChanges(update.Patch.ToChanges(id));
+        }
     }
 
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
@@ -538,7 +558,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
-        options ??= CreateEntryOptions.Everything;
+        options ??= CreateEntryOptions.WithMainPublication;
         await using var repo = await repoFactory.CreateRepoAsync();
 
         // This is our primitive logic for now:
@@ -558,6 +578,15 @@ public class CrdtMiniLcmApi(
                 var patchDoc = new SystemTextJsonPatch.JsonPatchDocument<Entry>();
                 patchDoc.Replace(e => e.HomographNumber, promotion.NewNumber);
                 homographPromotionChange = patchDoc.ToChanges(promotion.EntryId).Single();
+            }
+        }
+
+        if (options.AutoAddMainPublication)
+        {
+            var mainPublication = await repo.GetMainPublication();
+            if (mainPublication is not null && entry.PublishIn.All(pub => pub.Id != mainPublication.Id))
+            {
+                entry.PublishIn.Add(mainPublication);
             }
         }
         await AddChanges([
@@ -909,10 +938,71 @@ public class CrdtMiniLcmApi(
         }
     }
 
-    public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
+    public async Task<Picture> CreatePicture(Guid entryId,
+        Guid senseId,
+        Picture picture,
+        BetweenPosition? between = null)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var change = new CreateSensePictureChange(picture, senseId, between);
+        await AddChange(change);
+        return await GetPicture(entryId, senseId, change.PictureId) ?? throw NotFoundException.ForType<Picture>(change.PictureId);
+    }
+
+    public async Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var sense = await repo.GetSense(senseId);
+        return sense?.Pictures.FirstOrDefault(pic => pic.Id == id);
+    }
+
+    public async Task SubmitUpdatePicture(Guid entryId,
+        Guid senseId,
+        Guid pictureId,
+        UpdateObjectInput<Picture> update)
+    {
+        var jsonPatch = update.Patch;
+        var patchChange = new UpdateSensePictureChange(pictureId, senseId, jsonPatch);
+        await AddChange(patchChange);
+    }
+
+    public async Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Guid pictureId,
+        UpdateObjectInput<Picture> update)
+    {
+        await SubmitUpdatePicture(entryId, senseId, pictureId, update);
+        return await GetPicture(entryId, senseId, pictureId) ?? throw NotFoundException.ForType<Picture>(pictureId);
+    }
+
+    public async Task<Picture> UpdatePicture(Guid entryId,
+        Guid senseId,
+        Picture before,
+        Picture after,
+        IMiniLcmApi? api = null)
+    {
+        await PictureSync.Sync(entryId, senseId, before, after, api ?? this);
+        return await GetPicture(entryId, senseId, after.Id) ?? throw NotFoundException.ForType<Picture>(after.Id);
+    }
+
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var sense = await repo.GetSense(senseId);
+        if (sense is null) throw NotFoundException.ForType<Sense>(senseId);
+        var order = OrderPicker.PickOrder(sense.Pictures, between);
+        await AddChange(new ReorderSensePictureChange(pictureId, senseId, order));
+    }
+
+    public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        await AddChange(new RemoveSensePictureChange(pictureId, senseId));
+    }
+
+    public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri, bool downloadIfMissing = true)
     {
         if (mediaUri == MediaUri.NotFound) return new ReadFileResponse(ReadFileResult.NotFound);
-        return await lcmMediaService.GetFileStream(mediaUri.FileId);
+        return await lcmMediaService.GetFileStream(mediaUri.FileId, downloadIfMissing);
     }
 
     public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
@@ -977,6 +1067,174 @@ public class CrdtMiniLcmApi(
         if (ProjectData.Role == UserProjectRole.Manager) return;
         throw new UnauthorizedAccessException(
             $"Only managers can manage custom views.");
+    }
+
+    public async IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId, bool includeComments = false)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var threads = repo.CommentThreads
+            .Where(t => t.SubjectType == subjectType && t.SubjectId == subjectId);
+        if (includeComments)
+        {
+            threads = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(threads, t => t.Comments!.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id));
+        }
+
+        threads = threads.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id);
+        await foreach (var thread in threads.AsAsyncEnumerable())
+        {
+            yield return thread;
+        }
+    }
+
+    public async Task<CommentThread?> GetCommentThread(Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetCommentThread(id);
+    }
+
+    public async IAsyncEnumerable<UserComment> GetUserComments(Guid threadId)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var comments = repo.UserComments
+            .Where(c => c.CommentThreadId == threadId)
+            .OrderBy(c => c.CreatedAt).ThenBy(c => c.Id);
+        await foreach (var comment in comments.AsAsyncEnumerable())
+        {
+            yield return comment;
+        }
+    }
+
+    public async Task<UserComment?> GetUserComment(Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        return await repo.GetUserComment(id);
+    }
+
+    public async IAsyncEnumerable<UserComment> GetUnreadComments(Guid? threadId = null)
+    {
+        foreach (var comment in await commentReadStatusService.GetUnreadComments(threadId))
+        {
+            yield return comment;
+        }
+    }
+
+    public async IAsyncEnumerable<UserComment> GetUnreadCommentsForSubject(SubjectType subjectType, Guid subjectId)
+    {
+        foreach (var comment in await commentReadStatusService.GetUnreadCommentsForSubject(subjectType, subjectId))
+        {
+            yield return comment;
+        }
+    }
+
+    public Task<int> CountUnreadComments(Guid? threadId = null)
+    {
+        return commentReadStatusService.CountUnreadComments(threadId);
+    }
+
+    public async Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
+    {
+        if (thread.Id == Guid.Empty) thread.Id = Guid.NewGuid();
+        var now = DateTimeOffset.UtcNow;
+        StampCommentThreadAuthor(thread, now);
+        firstComment.CommentThreadId = thread.Id;
+        StampCommentAuthor(firstComment, now);
+
+        await AddChanges([
+            new CreateCommentThreadChange(thread),
+            new CreateUserCommentChange(firstComment)
+        ]);
+        return await GetCommentThread(thread.Id) ?? throw NotFoundException.ForType<CommentThread>(thread.Id);
+    }
+
+    public async Task<UserComment> AddUserComment(Guid threadId, UserComment comment)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
+        comment.CommentThreadId = threadId;
+        StampCommentAuthor(comment, DateTimeOffset.UtcNow);
+
+        await AddChange(new CreateUserCommentChange(comment));
+        return await repo.GetUserComment(comment.Id) ?? throw NotFoundException.ForType<UserComment>(comment.Id);
+    }
+
+    public async Task<UserComment> EditUserComment(Guid commentId, string text)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
+        AssertCurrentUserCanChangeComment(comment);
+        await AddChange(new EditUserCommentChange(commentId, text, DateTimeOffset.UtcNow));
+        return await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
+    }
+
+    public async Task<CommentThread> SetCommentThreadStatus(Guid threadId, ThreadStatus status)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
+        await AddChange(new SetCommentThreadStatusChange(threadId, status, DateTimeOffset.UtcNow));
+        return await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
+    }
+
+    public async Task DeleteUserComment(Guid commentId)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
+        AssertCurrentUserCanChangeComment(comment);
+        await AddChange(new DeleteChange<UserComment>(commentId));
+        await commentReadStatusService.RemoveUnreadComments([commentId]);
+    }
+
+    public async Task DeleteCommentThread(Guid threadId)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
+        await AddChange(new DeleteChange<CommentThread>(threadId));
+        await commentReadStatusService.MarkThreadRead(threadId);
+    }
+
+    public Task MarkCommentRead(Guid commentId)
+    {
+        return commentReadStatusService.MarkCommentRead(commentId);
+    }
+
+    public Task MarkCommentThreadRead(Guid threadId)
+    {
+        return commentReadStatusService.MarkThreadRead(threadId);
+    }
+
+    public Task MarkAllCommentsRead()
+    {
+        return commentReadStatusService.MarkAllRead();
+    }
+
+    private void StampCommentThreadAuthor(CommentThread thread, DateTimeOffset now)
+    {
+        if (thread.Id == Guid.Empty) thread.Id = Guid.NewGuid();
+        thread.AuthorId = RequireCommentUserId();
+        thread.AuthorName = ProjectData.LastUserName;
+        thread.CreatedAt = thread.CreatedAt == default ? now : thread.CreatedAt;
+        thread.UpdatedAt = thread.UpdatedAt == default ? thread.CreatedAt : thread.UpdatedAt;
+    }
+
+    private void StampCommentAuthor(UserComment comment, DateTimeOffset now)
+    {
+        if (comment.Id == Guid.Empty) comment.Id = Guid.NewGuid();
+        comment.AuthorId = RequireCommentUserId();
+        comment.AuthorName = ProjectData.LastUserName;
+        comment.CreatedAt = comment.CreatedAt == default ? now : comment.CreatedAt;
+        comment.UpdatedAt = comment.UpdatedAt == default ? comment.CreatedAt : comment.UpdatedAt;
+    }
+
+    private string RequireCommentUserId()
+    {
+        if (string.IsNullOrEmpty(ProjectData.LastUserId))
+            throw new ValidationException("Cannot create or modify comments without a known user identity.");
+        return ProjectData.LastUserId;
+    }
+
+    private void AssertCurrentUserCanChangeComment(UserComment comment)
+    {
+        if (comment.AuthorId == RequireCommentUserId()) return;
+        throw new UnauthorizedAccessException("Only the comment author can edit or delete this comment.");
     }
 
     public void Dispose()

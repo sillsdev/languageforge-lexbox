@@ -1,16 +1,18 @@
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteProjectSync;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SIL.Harmony;
 using SIL.LCModel;
 
 namespace LcmDebugger;
 
-public record FwHeadlessProject(CrdtMiniLcmApi CrdtApi, FwDataMiniLcmApi FwApi) : IDisposable
+public record FwHeadlessProject(CrdtMiniLcmApi CrdtApi, FwDataMiniLcmApi FwApi, string Name) : IDisposable
 {
     public void Dispose()
     {
@@ -21,6 +23,9 @@ public record FwHeadlessProject(CrdtMiniLcmApi CrdtApi, FwDataMiniLcmApi FwApi) 
 
 public static class Utils
 {
+    private static ILogger Logger(this IServiceProvider services) =>
+        services.GetRequiredService<ILoggerFactory>().CreateLogger("LcmDebugger");
+
     public static LcmCache? LoadProject(this IServiceProvider services, FwDataProject project)
     {
         var projectLoader = services.GetRequiredService<IProjectLoader>();
@@ -69,38 +74,63 @@ public static class Utils
             // Make a copy of the project to avoid modifying the original download
             var tempDir = Path.Combine(Path.GetTempPath(), $"{relativePath}_{Guid.NewGuid().ToString().Split('-')[0]}");
             Directory.CreateDirectory(tempDir);
-            Console.WriteLine($"Copying project to temporary directory: {tempDir}");
+            services.Logger().LogInformation("Copying project to temporary directory: {TempDir}", tempDir);
             LexCore.Utils.FileUtils.CopyFilesRecursively(new DirectoryInfo(currProjRoot), new DirectoryInfo(tempDir));
             currProjRoot = tempDir;
         }
 
         var fwDataProject = new FwDataProject("fw", currProjRoot);
         var fwDataMiniLcmApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
-        Console.WriteLine($"Project ID: {fwDataMiniLcmApi.ProjectId}");
+        services.Logger().LogInformation("Project ID: {ProjectId}", fwDataMiniLcmApi.ProjectId);
 
         var crdtDbPath = Path.Combine(currProjRoot, "crdt.sqlite");
         var crdtProject = new CrdtProject("unused-project-code", crdtDbPath);
         var crdtMiniLcmApi = (CrdtMiniLcmApi)await services.GetRequiredService<CrdtProjectsService>().OpenProject(crdtProject, services);
-        Console.WriteLine($"Crdt Project: {crdtMiniLcmApi.ProjectData.Code}");
+        services.Logger().LogInformation("Crdt Project: {Code}", crdtMiniLcmApi.ProjectData.Code);
 
-        return new FwHeadlessProject(crdtMiniLcmApi, fwDataMiniLcmApi);
+        return new FwHeadlessProject(crdtMiniLcmApi, fwDataMiniLcmApi, relativePath);
     }
 
     public static async Task SyncFwHeadlessProject(this IServiceProvider services, FwHeadlessProject project, bool dryRun = true)
     {
-        var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
-        var snapshotService = services.GetRequiredService<ProjectSnapshotService>();
-        var crdtMiniLcmApi = project.CrdtApi;
-        var fwDataMiniLcmApi = project.FwApi;
-        var projectSnapshot = await snapshotService.GetProjectSnapshot(fwDataMiniLcmApi.Project);
-        var result = projectSnapshot is null
-                    ? await syncService.Import(crdtMiniLcmApi, fwDataMiniLcmApi, dryRun)
-                    : await syncService.Sync(crdtMiniLcmApi, fwDataMiniLcmApi, projectSnapshot, dryRun);
-        if (!dryRun)
+        try
         {
-            await snapshotService.RegenerateProjectSnapshot(crdtMiniLcmApi, fwDataMiniLcmApi.Project, keepBackup: false);
+            var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
+            var snapshotService = services.GetRequiredService<ProjectSnapshotService>();
+            var crdtMiniLcmApi = project.CrdtApi;
+            var fwDataMiniLcmApi = project.FwApi;
+            var projectSnapshot = await snapshotService.GetProjectSnapshot(fwDataMiniLcmApi.Project);
+            var result = projectSnapshot is null
+                        ? await syncService.Import(crdtMiniLcmApi, fwDataMiniLcmApi, dryRun)
+                        : await syncService.Sync(crdtMiniLcmApi, fwDataMiniLcmApi, projectSnapshot, dryRun);
+            if (!dryRun)
+            {
+                await snapshotService.RegenerateProjectSnapshot(crdtMiniLcmApi, fwDataMiniLcmApi.Project, keepBackup: false);
+            }
+            services.Logger().LogInformation("Sync completed successfully. Crdt changes: {CrdtChanges}, Fwdata changes: {FwdataChanges}.",
+                result.CrdtChanges, result.FwdataChanges);
+
+            // A dry run's whole output is its records; too much to read in a log, so they get their own file.
+            if (result is CrdtFwdataProjectSyncService.DryRunSyncResult dryRunResult)
+            {
+                await services.WriteDryRunRecords(project.Name, "crdt", dryRunResult.CrdtDryRunRecords);
+                await services.WriteDryRunRecords(project.Name, "fwdata", dryRunResult.FwDataDryRunRecords);
+            }
         }
-        Console.WriteLine($"Sync completed successfully. Crdt changes: {result.CrdtChanges}, Fwdata changes: {result.FwdataChanges}.");
+        catch (Exception e)
+        {
+            // the runtime prints an unhandled exception to stderr, which the file logger never sees
+            services.Logger().LogError(e, "Run failed");
+            throw;
+        }
+    }
+
+    private static async Task WriteDryRunRecords(this IServiceProvider services, string projectName, string side, List<RecordingMiniLcmApi.RunRecord> records)
+    {
+        var path = RunOutput.FilePath($"{projectName}-dry-run-{side}-records.json");
+        await using var file = File.Create(path);
+        await JsonSerializer.SerializeAsync(file, records, new JsonSerializerOptions { WriteIndented = true });
+        services.Logger().LogInformation("Wrote {RecordCount} {Side} dry run records to {Path}", records.Count, side, path);
     }
 
     private static string GetDefaultDownloadsPath([CallerFilePath] string callerFilePath = "")
@@ -110,7 +140,7 @@ public static class Utils
 
         // Navigate up to find the repo root
         var currentDir = new DirectoryInfo(sourceDir);
-        while (currentDir != null && !File.Exists(Path.Combine(currentDir.FullName, "LexBox.sln")))
+        while (currentDir != null && !File.Exists(Path.Combine(currentDir.FullName, "LexBox.slnx")))
         {
             currentDir = currentDir.Parent;
         }

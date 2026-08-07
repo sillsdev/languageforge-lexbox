@@ -1,3 +1,4 @@
+using LcmCrdt.Changes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,9 +8,9 @@ namespace LcmCrdt.Tests;
 public class MorphTypeSeedingTests
 {
     [Fact]
-    public async Task NewProjectWithSeedData_HasAllCanonicalMorphTypes()
+    public async Task BlankNewProject_HasNoMorphTypesInDb()
     {
-        var code = "morph-type-seed-test";
+        var code = "morph-type-blank-test";
         var sqliteFile = $"{code}.sqlite";
         if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -19,89 +20,53 @@ public class MorphTypeSeedingTests
 
         var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
         var crdtProject = await crdtProjectsService.CreateProject(new(
-            Name: "MorphTypeSeedTest",
+            Name: "MorphTypeBlankTest",
             Code: code,
-            Path: "",
-            SeedNewProjectData: true));
+            Path: ""));
 
         var api = (CrdtMiniLcmApi)await scope.ServiceProvider.OpenCrdtProject(crdtProject);
         var morphTypes = await api.GetMorphTypes().ToArrayAsync();
 
-        morphTypes.Should().BeEquivalentTo(CanonicalMorphTypes.All.Values);
+        morphTypes.Should().BeEmpty(
+            "blank CreateProject no longer seeds morph types on migrate (#2350)");
 
         await using var dbContext = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await dbContext.Database.EnsureDeletedAsync();
     }
 
     [Fact]
-    public async Task ExistingProjectWithoutMorphTypes_GetsMorphTypesOnOpen()
+    public async Task TemplatedProject_HasCanonicalMorphTypesWithoutRedundantMigrateSeed()
     {
-        var code = "morph-type-seed-existing";
-        var sqliteFile = $"{code}.sqlite";
-        if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
+        var code = $"morph-type-seed-templated-{Guid.NewGuid():N}";
+        if (File.Exists($"{code}.sqlite")) File.Delete($"{code}.sqlite");
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddTestLcmCrdtClient();
         using var host = builder.Build();
         await using var scope = host.Services.CreateAsyncScope();
 
         var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
-        // Create project WITHOUT seeding
-        var crdtProject = await crdtProjectsService.CreateProject(new(
-            Name: "MorphTypeSeedExisting",
+        var crdtProject = await crdtProjectsService.CreateProjectFromTemplate(new(
+            Name: "MorphTypeSeedTemplated",
             Code: code,
             Path: "",
-            SeedNewProjectData: false));
+            Role: UserProjectRole.Manager),
+            vernacularWs: "fr");
 
-        // Opening the project triggers MigrateDb, which seeds morph types if missing
         var api = (CrdtMiniLcmApi)await scope.ServiceProvider.OpenCrdtProject(crdtProject);
         var morphTypes = await api.GetMorphTypes().ToArrayAsync();
-
         morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count);
 
         await using var dbContext = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+
+        var morphTypeCreatingChanges = await dbContext.Database.SqlQuery<int>(
+            $"""
+             SELECT COUNT(*) AS Value FROM ChangeEntities
+             WHERE json_extract(Change, '$."$type"') = {nameof(CreateMorphTypeChange)}
+             """).SingleAsync();
+        morphTypeCreatingChanges.Should().Be(CanonicalMorphTypes.All.Count,
+            "the template import creates exactly the canonical morph types; MigrateDb must not add a redundant seed on open");
+
         await dbContext.Database.EnsureDeletedAsync();
-    }
-
-    [Fact]
-    public async Task SeedingIsIdempotent_OpeningProjectTwiceDoesNotDuplicate()
-    {
-        var code = "morph-type-seed-idempotent";
-        var sqliteFile = $"{code}.sqlite";
-        if (File.Exists(sqliteFile)) File.Delete(sqliteFile);
-        var builder = Host.CreateEmptyApplicationBuilder(null);
-        builder.Services.AddTestLcmCrdtClient();
-        using var host = builder.Build();
-
-        // First open: seed morph types
-        {
-            await using var scope = host.Services.CreateAsyncScope();
-            var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
-            var crdtProject = await crdtProjectsService.CreateProject(new(
-                Name: "MorphTypeSeedIdempotent",
-                Code: code,
-                Path: "",
-                SeedNewProjectData: true));
-            var api = await crdtProjectsService.OpenProject(crdtProject, scope.ServiceProvider);
-            var morphTypes = await api.GetMorphTypes().ToArrayAsync();
-            morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count,
-                "morph types should have been seeded");
-        }
-
-        // Second open: morph types
-        {
-            await using var scope = host.Services.CreateAsyncScope();
-            var crdtProjectsService = scope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
-            var crdtProject = crdtProjectsService.GetProject(code);
-            crdtProject.Should().NotBeNull();
-            var api = await crdtProjectsService.OpenProject(crdtProject, scope.ServiceProvider);
-            // OpenProject calls MigrateDb(), which includes seeding morph types but only if they're not already seeded
-            var morphTypes = await api.GetMorphTypes().ToArrayAsync();
-            morphTypes.Should().HaveCount(CanonicalMorphTypes.All.Count,
-                "morph types should not be duplicated");
-
-            await using var dbContext = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
-            await dbContext.Database.EnsureDeletedAsync();
-        }
     }
 
     [Fact]

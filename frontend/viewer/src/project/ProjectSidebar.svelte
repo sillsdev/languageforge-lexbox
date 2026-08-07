@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  export type View = 'dashboard' | 'browse' | 'tasks' | 'activity';
+  export type View = 'dashboard' | 'browse' | 'tasks' | 'activity' | 'media-manager';
 </script>
 
 <script lang="ts">
@@ -26,6 +26,9 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import DevToolsDialog from '$lib/layout/DevToolsDialog.svelte';
   import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
+  import * as Collapsible from '$lib/components/ui/collapsible';
+  import {cn} from '$lib/utils';
+  import {PersistedState} from 'runed';
 
   const config = useFwLiteConfig();
   const projectContext = useProjectContext();
@@ -56,6 +59,8 @@
   let syncDialog = $state<SyncDialog>();
   let updateDialogOpen = $state(false);
   let feedbackOpen = $state(false);
+
+  const helpOpen = new PersistedState('fw-lite-sidebar-help-open', false);
 </script>
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
@@ -88,14 +93,15 @@
       <Sidebar.GroupLabel>{$t`Dictionary`}</Sidebar.GroupLabel>
       <Sidebar.GroupContent>
         <Sidebar.Menu>
-          <DevContent>
-            {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
-          </DevContent>
+          {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
           {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`, formatNumber(stats.current?.totalEntryCount))}
           {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
 
           {#if features.history}
             {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
+          {/if}
+          {#if projectContext.mediaFilesService}
+            {@render ViewButton('media-manager', 'i-mdi-image', $t`Media Manager`)}
           {/if}
         </Sidebar.Menu>
       </Sidebar.GroupContent>
@@ -182,36 +188,50 @@
       </Sidebar.Menu>
     </Sidebar.Group>
 
-    <Sidebar.Group>
-      <Sidebar.Menu>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => updateDialogOpen = true}>
-            <Icon icon="i-mdi-update" />
-            {$t`Updates`}
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
-            <Icon icon="i-mdi-message" />
-            <span>{$t`Feedback & Support`}</span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectCode)}>
-            <Icon icon="i-mdi-help-circle" />
-            <span>{$t`Troubleshoot`}</span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-        <Sidebar.MenuItem>
-          <LocalizationPicker inSidebar />
-        </Sidebar.MenuItem>
-      </Sidebar.Menu>
-    </Sidebar.Group>
+    <Collapsible.Root bind:open={helpOpen.current} class="group/help">
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>
+          {#snippet child({props})}
+            <Collapsible.Trigger {...props} class={cn(props.class as string, 'w-full cursor-pointer hover:bg-sidebar-accent hover:text-sidebar-accent-foreground')}>
+              <span>{$t`Help & More`}</span>
+              <Icon icon="i-mdi-chevron-down" class="ml-auto transition-transform group-data-[state=open]/help:rotate-180" />
+            </Collapsible.Trigger>
+          {/snippet}
+        </Sidebar.GroupLabel>
+        <Collapsible.Content class="overflow-hidden">
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton onclick={() => updateDialogOpen = true}>
+                  <Icon icon="i-mdi-update" />
+                  {$t`Updates`}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton onclick={() => feedbackOpen = true}>
+                  <Icon icon="i-mdi-message" />
+                  <span>{$t`Feedback & Support`}</span>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectCode)}>
+                  <Icon icon="i-mdi-help-circle" />
+                  <span>{$t`Troubleshoot`}</span>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <LocalizationPicker inSidebar />
+              </Sidebar.MenuItem>
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Collapsible.Content>
+      </Sidebar.Group>
+    </Collapsible.Root>
   </Sidebar.Content>
   <Sidebar.Footer>
       <div class="text-xs text-muted-foreground py-2 m-auto">
-        <div>FieldWorks Lite {config.appVersion}</div>
-        <div {@attach devModeToggle}>{$t`Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸`}</div>
+        <div data-testid="app-version">FieldWorks Lite {config.appVersion}</div>
+        <div data-testid="made-with" {@attach devModeToggle}>{$t`Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸`}</div>
       </div>
   </Sidebar.Footer>
   <Sidebar.Rail></Sidebar.Rail>

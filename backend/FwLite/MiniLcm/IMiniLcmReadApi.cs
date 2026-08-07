@@ -30,13 +30,14 @@ public interface IMiniLcmReadApi
     Task<Publication?> GetPublication(Guid id);
     Task<SemanticDomain?> GetSemanticDomain(Guid id);
     Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id);
+    Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id);
     /// <summary>
     /// Get the index of an entry within the sorted/filtered entry list.
     /// Returns -1 if the entry is not found.
     /// </summary>
     Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null);
 
-    Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
+    Task<ReadFileResponse> GetFileStream(MediaUri mediaUri, bool downloadIfMissing = true)
     {
         return Task.FromResult(new ReadFileResponse(ReadFileResult.NotSupported));
     }
@@ -47,6 +48,34 @@ public interface IMiniLcmReadApi
     Task<CustomView?> GetCustomView(Guid id)
     {
         throw new NotSupportedException("Custom views are only supported by CRDT projects");
+    }
+    IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId, bool includeComments = false)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task<CommentThread?> GetCommentThread(Guid id)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    IAsyncEnumerable<UserComment> GetUserComments(Guid threadId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task<UserComment?> GetUserComment(Guid id)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    IAsyncEnumerable<UserComment> GetUnreadComments(Guid? threadId = null)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    IAsyncEnumerable<UserComment> GetUnreadCommentsForSubject(SubjectType subjectType, Guid subjectId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    Task<int> CountUnreadComments(Guid? threadId = null)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
     }
 }
 

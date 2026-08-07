@@ -199,6 +199,21 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task SearchEntries_DoesNotMatchAudioWritingSystemValues()
+    {
+        // The audio writing system's value is a media-file reference, not searchable text.
+        _audioWs.IsAudio.Should().BeTrue("the whole test is vacuous unless this is an audio writing system");
+        var fileName = "audioonlysearchtoken.wav";
+        var entryId = await AddFileDirectly(fileName, "test");
+
+        // guard against a vacuous test: the entry is findable via its real (non-audio) lexeme form
+        (await _api.SearchEntries("test").ToArrayAsync()).Should().Contain(e => e.Id == entryId);
+
+        // the token only appears in the audio media reference, so it must not match a text search
+        (await _api.SearchEntries("audioonlysearchtoken").ToArrayAsync()).Should().NotContain(e => e.Id == entryId);
+    }
+
+    [Fact]
     public async Task GetStreamForNotFoundIsNull()
     {
         var fileStream = await _api.GetFileStream(MediaUri.NotFound);

@@ -48,4 +48,10 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
+
+    public override List<Picture> Pictures
+    {
+        get => throw new NotImplementedException();
+        set => throw new NotImplementedException();
+    }
 }

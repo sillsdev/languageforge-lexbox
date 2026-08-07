@@ -68,7 +68,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
         mResult.ShouldBeSuccessful();
         metadata.Should().NotBeNull();
-        metadata.SizeInBytes.Should().Be((int)expectedLength);
+        metadata.SizeInBytes.Should().Be(expectedLength);
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var expectedMetadata = new ApiMetadataEndpointResult(uploadMetadata)
         {
             Filename = TestRepoZipFilename,
-            SizeInBytes = (int)expectedLength,
+            SizeInBytes = expectedLength,
             MimeType = "application/zip",
         };
         expectedMetadata.Author.Should().Be(uploadMetadata.Author);
@@ -125,7 +125,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         var expectedMetadata = new ApiMetadataEndpointResult(uploadMetadata)
         {
             Filename = TestRepoZipFilename,
-            SizeInBytes = (int)expectedLength,
+            SizeInBytes = expectedLength,
             MimeType = "application/zip",
         };
         expectedMetadata.Author.Should().Be(uploadMetadata.Author);

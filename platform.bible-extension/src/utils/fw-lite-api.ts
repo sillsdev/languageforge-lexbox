@@ -7,7 +7,19 @@ import type {
   LexiconRef,
   PartialEntry,
 } from 'lexicon';
+import type {
+  ILexboxServer,
+  IServerStatus,
+  LoginResult as GeneratedLoginResult,
+} from '@dotnet-types';
 import { GridifyConditionalOperator } from '../types/enums';
+
+// Local aliases for the FW Lite backend's generated API types (type-only via @dotnet-types).
+export type LexboxServer = ILexboxServer;
+export type AuthServerStatus = IServerStatus;
+
+/** The generated `LoginResult` enum as a string union, which keeps the import type-only. */
+export type LoginResult = `${GeneratedLoginResult}`;
 
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
 function sanitizeUrlComponent(urlComponent?: string): string {
@@ -29,7 +41,7 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   }
   const results = await papi.fetch(input, init);
   if (!results.ok) {
-    throw new Error(`Failed to fetch: ${results.statusText}`);
+    throw new Error(`Failed to fetch: ${results.status} ${results.statusText}`);
   }
   return await results.json();
 }
@@ -127,6 +139,27 @@ export class FwLiteApi {
     const { code, type } = this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry`;
     return (await this.fetchPath(path, 'POST', entry)) as IEntry;
+  }
+
+  async getAuthServers(): Promise<AuthServerStatus[]> {
+    return (await this.fetchPath('auth/servers')) as AuthServerStatus[];
+  }
+
+  /**
+   * Triggers a system-browser sign-in. Doesn't resolve until the user finishes in their browser,
+   * cancels, or MSAL gives up. Pass `signal` to abort an abandoned sign-in, which the backend
+   * otherwise leaves pending indefinitely.
+   */
+  async login(authority: string, signal?: AbortSignal): Promise<LoginResult> {
+    const path = `auth/login-web-view/${sanitizeUrlComponent(authority)}`;
+    return (await fetchUrl(this.getUrl(path), { signal })) as LoginResult;
+  }
+
+  async logout(authority: string): Promise<void> {
+    const path = `auth/logout/${sanitizeUrlComponent(authority)}`;
+    // The endpoint redirects to the web-app root, so fetchPath would choke parsing HTML as JSON.
+    const results = await papi.fetch(this.getUrl(path));
+    if (!results.ok) throw new Error(`Failed to fetch: ${results.status} ${results.statusText}`);
   }
 
   /* eslint-enable no-type-assertion/no-type-assertion */

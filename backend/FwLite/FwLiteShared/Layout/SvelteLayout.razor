@@ -12,7 +12,7 @@
 @implements IAsyncDisposable
 @if (useDevAssets)
 {
-    <script type="module" src="@DevScheme://@DevHostname:5173/@@vite/client"></script>
+    <script type="module" src="@DevScheme://@DevHostname:@DevPort/@@vite/client"></script>
 }
 else
 {
@@ -58,6 +58,7 @@ else
 
     private string DevHostname => DevUri.Host;
     private string DevScheme => DevUri.Scheme;
+    private int DevPort => Config.Value.DevAssetsPort;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -75,7 +76,7 @@ else
             {
               if (useDevAssets)
               {
-                    await JS.InvokeAsync<IJSObjectReference>("import", $"{DevScheme}://{DevHostname}:5173/src/main.ts");
+                    await JS.InvokeAsync<IJSObjectReference>("import", $"{DevScheme}://{DevHostname}:{DevPort}/src/main.ts");
               }
               else
               {

@@ -15,6 +15,7 @@
     headwordClass = '',
     highlightSenseId = undefined,
     hideExamples = false,
+    inline = false,
     ...restProps
   }: HTMLAttributes<HTMLDivElement> & {
     entry: IEntry;
@@ -24,6 +25,8 @@
     headwordClass?: string;
     highlightSenseId?: string;
     hideExamples?: boolean;
+    /** Render senses as one flowing line (no line break per sense) — for compact previews */
+    inline?: boolean;
   } = $props();
 
   $effect(() => {
@@ -104,7 +107,12 @@
   <Headwords {entry} class={cn('mr-1', headwordClass)} />
   {#each senses as sense, i (sense.id)}
     {#if senses.length > 1}
-      <br />
+      {#if inline}
+        <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it preserves whitespace -->
+        {' '}
+      {:else}
+        <br />
+      {/if}
     {/if}
     <span class={cn(highlightSenseId === sense.id && 'rounded bg-secondary')}>
       {#if senses.length > 1}

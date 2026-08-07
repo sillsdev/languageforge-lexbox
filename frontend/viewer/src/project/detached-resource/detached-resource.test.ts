@@ -98,4 +98,34 @@ describe('DetachedResource', () => {
 
     expect(factory).not.toHaveBeenCalled();
   });
+
+  it('loaded flips to true only once the first fetch resolves', async () => {
+    let resolve!: (v: number) => void;
+    const res = new DetachedResource(0, () => new Promise<number>(r => { resolve = r; }), () => fakeApi);
+
+    expect(res.loaded).toBe(false);
+    void res.current; // activate
+    await vi.waitFor(() => expect(res.loading).toBe(true));
+    expect(res.loaded).toBe(false);
+
+    resolve(1);
+    await vi.waitFor(() => expect(res.loaded).toBe(true));
+  });
+
+  it('loaded distinguishes "fetched empty" from the initial value', async () => {
+    const res = new DetachedResource<number[]>([], () => Promise.resolve([]), () => fakeApi);
+
+    expect(res.loaded).toBe(false);
+    await res.refetch();
+    expect(res.loaded).toBe(true);
+    expect(res.current).toEqual([]);
+  });
+
+  it('loaded stays false when the fetch rejects', async () => {
+    const res = new DetachedResource(0, () => Promise.reject(new Error('boom')), () => fakeApi);
+
+    void res.current;
+    await vi.waitFor(() => expect(res.error).toBeDefined());
+    expect(res.loaded).toBe(false);
+  });
 });

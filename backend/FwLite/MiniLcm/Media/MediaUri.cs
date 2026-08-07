@@ -6,7 +6,8 @@ namespace MiniLcm.Media;
 [JsonConverter(typeof(MediaUriJsonConverter))]
 public readonly record struct MediaUri
 {
-    public static readonly MediaUri NotFound = new MediaUri(Guid.Empty, "not-found");
+    public const string NotFoundAuthority = "not-found";
+    public static readonly MediaUri NotFound = new MediaUri(Guid.Empty, NotFoundAuthority);
     public static readonly string NotFoundString = NotFound.ToString();
     public const string Scheme = "sil-media";
     public MediaUri(Guid fileId, string authority)

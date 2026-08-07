@@ -1,0 +1,149 @@
+# Dependabot for languageforge-lexbox
+# Target: develop | Schedule: weekly Monday | No ignore rules
+# platform.bible-extension is intentionally excluded (separate npm tree).
+version: 2
+updates:
+  # --- NuGet (CPM in backend/Directory.Packages.props; entry via LexBox.slnx) ---
+  - package-ecosystem: nuget
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 15
+    labels:
+      - dependencies
+    groups:
+      # More specific groups first — earlier matches win.
+      maui:
+        patterns:
+          - Microsoft.Maui*
+          - Microsoft.AspNetCore.Components.WebView.Maui
+      hotchocolate:
+        patterns:
+          - HotChocolate*
+      sil:
+        patterns:
+          - SIL.*
+      test:
+        patterns:
+          - xunit*
+          - Xunit*
+          - FluentAssertions*
+          - Moq*
+          - Verify*
+          - coverlet*
+          - GitHubActionsTestLogger*
+          - Meziantou.Extensions.Logging.Xunit*
+          - Soenneker.Utils.AutoBogus*
+          - Microsoft.NET.Test.Sdk
+          - BenchmarkDotNet*
+      microsoft-dotnet:
+        patterns:
+          - Microsoft.*
+          - System.*
+      other:
+        patterns:
+          - "*"
+
+  # --- pnpm workspace (frontend + viewer + https-proxy) ---
+  - package-ecosystem: npm
+    directory: /frontend
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    groups:
+      production-dependencies:
+        dependency-type: production
+      development-dependencies:
+        dependency-type: development
+
+  # --- GitHub Actions ---
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # --- Docker base images (one entry per Dockerfile directory) ---
+  - package-ecosystem: docker
+    directory: /backend
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      docker:
+        patterns:
+          - "*"
+
+  - package-ecosystem: docker
+    directory: /frontend
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      docker:
+        patterns:
+          - "*"
+
+  - package-ecosystem: docker
+    directory: /hgweb
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      docker:
+        patterns:
+          - "*"
+
+  - package-ecosystem: docker
+    directory: /backend/FwHeadless
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      docker:
+        patterns:
+          - "*"
+
+  - package-ecosystem: docker
+    directory: /backend/FwLite/FwLiteWeb
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      docker:
+        patterns:
+          - "*"

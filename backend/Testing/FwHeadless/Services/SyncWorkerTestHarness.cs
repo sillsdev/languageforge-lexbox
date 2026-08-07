@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Tests.Fixtures;
@@ -246,12 +247,14 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
         // SyncWorker only passes this through to MediaFileService.
         services.AddSingleton(_ =>
-            new Mock<LcmCrdt.MediaServer.LcmMediaService>(MockBehavior.Loose, null!, null!, Options.Create(new SIL.Harmony.CrdtConfig()), null!, null!, NullLogger<LcmCrdt.MediaServer.LcmMediaService>.Instance).Object);
+            new Mock<LcmCrdt.MediaServer.LcmMediaService>(MockBehavior.Loose, null!, null!, Options.Create(new HarmonyConfig()), null!, null!, NullLogger<LcmCrdt.MediaServer.LcmMediaService>.Instance).Object);
 
         var syncService = new Mock<CrdtFwdataProjectSyncService>(
             MockBehavior.Strict,
             null!,
             NullLogger<CrdtFwdataProjectSyncService>.Instance,
+            null!,
+            null!,
             null!);
 
         syncService
@@ -274,7 +277,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
         services.AddSingleton(syncService.Object);
 
-        var snapshotService = new Mock<ProjectSnapshotService>(MockBehavior.Strict, Options.Create(new SIL.Harmony.CrdtConfig()));
+        var snapshotService = new Mock<ProjectSnapshotService>(MockBehavior.Strict, Options.Create(new HarmonyConfig()));
         snapshotService
             .Setup(s => s.GetProjectSnapshot(It.IsAny<FwDataProject>()))
             .Callback(() => Steps.Add(GetSnapshot))

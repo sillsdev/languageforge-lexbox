@@ -1,22 +1,9 @@
-<script module lang="ts">
-  import {onMount} from 'svelte';
-  import {writable} from 'svelte/store';
-
-  export let useShadcn = writable(false);
-
-  globalThis.enableShadcn = (enable = true) => {
-    useShadcn.set(enable);
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    enable ? localStorage.setItem('shadcnMode', 'true') : localStorage.removeItem('shadcnMode');
-  };
-  useShadcn.set(localStorage.getItem('shadcnMode') === 'true');
-</script>
-
 <script lang="ts">
   import * as Sidebar from '$lib/components/ui/sidebar';
   import ProjectSidebar from './project/ProjectSidebar.svelte';
   import BrowseView from './project/browse/BrowseView.svelte';
   import TasksView from './project/tasks/TasksView.svelte';
+  import DashboardView from './project/dashboard/DashboardView.svelte';
   import {initViewService} from '$lib/views/view-service.svelte';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
   import {navigate, Route, useRouter} from 'svelte-routing';
@@ -24,6 +11,8 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
+  import MediaManagerView from '$lib/media-manager/MediaManagerView.svelte';
+  import {onMount} from 'svelte';
 
   const {
     onloaded,
@@ -70,8 +59,14 @@
       <Route path="/tasks">
         <TasksView/>
       </Route>
+      <Route path="/dashboard">
+        <DashboardView/>
+      </Route>
       <Route path="/activity">
         <ActivityView />
+      </Route>
+      <Route path="/media-manager">
+        <MediaManagerView/>
       </Route>
       <Route path="/">
         {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}

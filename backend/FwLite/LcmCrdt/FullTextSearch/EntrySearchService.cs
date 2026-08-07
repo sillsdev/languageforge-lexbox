@@ -155,7 +155,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     public static string LexemeForm(WritingSystem[] wss, Entry entry)
     {
         return string.Join(" ",
-            wss.Where(ws => ws.Type == WritingSystemType.Vernacular)
+            wss.Where(ws => ws.Type == WritingSystemType.Vernacular && !ws.IsAudio)
                 .Select(ws => entry.LexemeForm[ws.WsId])
                 .Where(h => !string.IsNullOrEmpty(h)));
     }
@@ -163,7 +163,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     public static string CitationForm(WritingSystem[] wss, Entry entry)
     {
         return string.Join(" ",
-            wss.Where(ws => ws.Type == WritingSystemType.Vernacular)
+            wss.Where(ws => ws.Type == WritingSystemType.Vernacular && !ws.IsAudio)
                 .Select(ws => entry.CitationForm[ws.WsId])
                 .Where(h => !string.IsNullOrEmpty(h)));
     }
@@ -185,7 +185,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     private static IEnumerable<string> JoinAll(MultiString ms, WritingSystem[] wss, WritingSystemType type)
     {
-        return wss.Where(ws => ws.Type == type)
+        return wss.Where(ws => ws.Type == type && !ws.IsAudio)
             .Select(ws => ms.Values.TryGetValue(ws.WsId, out var value) ? value : null)
             .OfType<string>()
             .Where(v => v.Length > 0);
@@ -193,7 +193,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     private static IEnumerable<RichString> JoinAll(RichMultiString ms, WritingSystem[] wss, WritingSystemType type)
     {
-        return wss.Where(ws => ws.Type == type)
+        return wss.Where(ws => ws.Type == type && !ws.IsAudio)
             .Select(ws => ms.TryGetValue(ws.WsId, out var value) ? value : null)
             .OfType<RichString>();
     }
@@ -276,20 +276,27 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             .DeleteAsync();
     }
 
-    public async Task RegenerateEntrySearchTable()
+    public Task RegenerateEntrySearchTable()
     {
-        await using var transaction = await dbContext.Database.BeginTransactionAsync();
-        await EntrySearchRecordsTable.TruncateAsync();
+        return RegenerateEntrySearchTable(dbContext);
+    }
+
+    public static async Task RegenerateEntrySearchTable(LcmCrdtDbContext dbContext)
+    {
+        // SQLite doesn't allow nested transactions, so check if we're already in one before opening a new transaction
+        await using var transaction = dbContext.Database.CurrentTransaction is null ? await dbContext.Database.BeginTransactionAsync() : null;
+        var entrySearchRecordsTable = dbContext.GetTable<EntrySearchRecord>();
+        await entrySearchRecordsTable.TruncateAsync();
 
         var writingSystems = await dbContext.WritingSystemsOrdered.ToArrayAsync();
         var morphTypeLookup = await dbContext.MorphTypes.ToDictionaryAsync(m => m.Kind);
-        await EntrySearchRecordsTable
+        await entrySearchRecordsTable
             .BulkCopyAsync(dbContext.Set<Entry>()
                 .LoadWith(e => e.Senses)
                 .AsQueryable()
                 .Select(entry => ToEntrySearchRecord(entry, writingSystems, morphTypeLookup))
                 .AsAsyncEnumerable());
-        await transaction.CommitAsync();
+        if (transaction is not null) await transaction.CommitAsync();
     }
 
     public async Task RegenerateIfMissing()
@@ -314,7 +321,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
         // This ensures FTS matches across all WS, including morph-token-decorated forms.
         var headwords = EntryQueryHelpers.ComputeHeadwords(entry, morphTypeLookup);
         var headword = string.Join(" ",
-            writingSystems.Where(ws => ws.Type == WritingSystemType.Vernacular)
+            writingSystems.Where(ws => ws.Type == WritingSystemType.Vernacular && !ws.IsAudio)
                 .Select(ws => headwords[ws.WsId])
                 .Where(h => !string.IsNullOrEmpty(h)));
 

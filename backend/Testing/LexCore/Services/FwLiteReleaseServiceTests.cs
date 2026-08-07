@@ -92,4 +92,14 @@ public class FwLiteReleaseServiceTests
         var actual = FwLiteReleaseService.ShouldUpdateToRelease(appVersion, latestVersion);
         actual.Should().Be(expected, reason);
     }
+
+    [Theory]
+    //must match the bundle identity version CI stamps: `date +%Y.%-m.%-d` (no leading zeros) + ".1"
+    [InlineData("v2025-01-17-a62c709c", "2025.1.17.1")]
+    [InlineData("v2026-07-06-915ca19d", "2026.7.6.1")]
+    [InlineData("v2026-10-30-deadbeef", "2026.10.30.1")]
+    public void ConvertVersionToAppInstallerVersionGivesExpectedResult(string tag, string expected)
+    {
+        FwLiteReleaseService.ConvertVersionToAppInstallerVersion(tag).Should().Be(expected);
+    }
 }

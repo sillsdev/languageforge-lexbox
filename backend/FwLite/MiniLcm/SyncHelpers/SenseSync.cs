@@ -21,6 +21,11 @@ public static class SenseSync
             beforeSense.ExampleSentences,
             afterSense.ExampleSentences,
             api);
+        changes += await PictureSync.Sync(entryId,
+            beforeSense.Id,
+            beforeSense.Pictures,
+            afterSense.Pictures,
+            api);
         changes += await DiffCollection.Diff(
             beforeSense.SemanticDomains,
             afterSense.SemanticDomains,

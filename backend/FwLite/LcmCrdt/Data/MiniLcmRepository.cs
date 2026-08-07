@@ -75,6 +75,8 @@ public class MiniLcmRepository(
     public IQueryable<PartOfSpeech> PartsOfSpeech => dbContext.PartsOfSpeech;
     public IQueryable<Publication> Publications => dbContext.Publications;
     public IQueryable<CustomView> CustomViews => dbContext.CustomViews;
+    public IQueryable<CommentThread> CommentThreads => dbContext.CommentThreads;
+    public IQueryable<UserComment> UserComments => dbContext.UserComments;
 
 
     private WritingSystem? _defaultVernacularWs;
@@ -295,6 +297,12 @@ public class MiniLcmRepository(
         return sortedIds.IndexOf(entryId);
     }
 
+    public Task<Publication?> GetMainPublication()
+    {
+        // Exactly one main publication is the only valid state; SingleOrDefault surfaces a >1 corruption rather than masking it.
+        return AsyncExtensions.SingleOrDefaultAsync(Publications.Where(pub => pub.IsMain));
+    }
+
     public async Task<Publication?> GetPublication(Guid publicationId)
     {
         var publication = await AsyncExtensions.SingleOrDefaultAsync(Publications
@@ -307,5 +315,15 @@ public class MiniLcmRepository(
         var customView = await AsyncExtensions.SingleOrDefaultAsync(CustomViews
             .AsQueryable(), cv => cv.Id == customViewId);
         return customView;
+    }
+
+    public async Task<CommentThread?> GetCommentThread(Guid threadId)
+    {
+        return await AsyncExtensions.SingleOrDefaultAsync(CommentThreads.AsQueryable(), t => t.Id == threadId);
+    }
+
+    public async Task<UserComment?> GetUserComment(Guid commentId)
+    {
+        return await AsyncExtensions.SingleOrDefaultAsync(UserComments.AsQueryable(), c => c.Id == commentId);
     }
 }

@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Net;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
@@ -56,8 +57,8 @@ public static class FwLiteSharedKernel
         services.AddOptions<FwLiteConfig>().BindConfiguration("FwLite");
         services.DecorateConstructor<IJSRuntime>((provider, runtime) =>
         {
-            var crdtConfig = provider.GetRequiredService<IOptions<CrdtConfig>>().Value;
-            runtime.ConfigureJsonSerializerOptions(crdtConfig);
+            var harmonyConfig = provider.GetRequiredService<IOptions<HarmonyConfig>>().Value;
+            runtime.ConfigureJsonSerializerOptions(harmonyConfig);
         });
         return services;
     }

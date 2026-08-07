@@ -7,6 +7,7 @@ namespace LcmCrdt.FullTextSearch;
 
 public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
 {
+    private bool EntryTableNeedsRegeneration { get; set; } = false;
     public InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         throw new NotImplementedException(
@@ -25,14 +26,33 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
         return result;
     }
 
-    private async Task UpdateSearchTableOnSave(DbContext? dbContext)
+    public async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData,
+        int result,
+        CancellationToken cancellationToken = new CancellationToken())
     {
-        if (dbContext is null) return;
+        if (EntryTableNeedsRegeneration) await RegenerateSearchTableAfterSave(eventData.Context);
+        return result;
+    }
+
+    private async Task UpdateSearchTableOnSave(DbContext? maybeDbContext)
+    {
+        if (maybeDbContext is not LcmCrdtDbContext dbContext) return;
+        // Morph types with changes to prefix or postfix tokens will require updated entry search records
+        // (Note that morph types can't be added or deleted, so we only need to catch changes, which will be rare)
+        var changedMorphTypes = dbContext.ChangeTracker.Entries<MorphType>()
+            .Any(e => e.State == EntityState.Modified && (e.Property(m => m.Prefix).IsModified || e.Property(m => m.Postfix).IsModified));
+        if (changedMorphTypes)
+        {
+            // The actual table regeneration will happen in the SavedChangesAsync handler; here we just flag that it will be needed
+            EntryTableNeedsRegeneration = true;
+            // Any change to morph-type tokens will invalidate the whole entry search table, so no need to check for individual entries
+            return;
+        }
         List<Entry> toUpdate = [];
         List<Guid> toRemove = [];
-        var newWritingSystems = dbContext.ChangeTracker.Entries()
-            .Where(e => e.Entity is WritingSystem && e.State == EntityState.Added)
-            .Select(e => (WritingSystem)e.Entity).ToList();
+        var newWritingSystems = dbContext.ChangeTracker.Entries<WritingSystem>()
+            .Where(e => e.State == EntityState.Added)
+            .Select(e => e.Entity).ToList();
         foreach (var group in dbContext.ChangeTracker.Entries()
                      .Where(e => e is { State: EntityState.Added or EntityState.Modified or EntityState.Deleted, Entity: Entry or Sense })
                      .GroupBy(e =>
@@ -51,7 +71,23 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
             if (removed is not null) toRemove.Add(removed.Value);
         }
         if (toUpdate is [] && toRemove is []) return;
-        await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, newWritingSystems, (LcmCrdtDbContext)dbContext);
+        await EntrySearchService.UpdateEntrySearchTable(toUpdate, toRemove, newWritingSystems, dbContext);
+    }
+
+    private async Task RegenerateSearchTableAfterSave(DbContext? maybeDbContext)
+    {
+        EntryTableNeedsRegeneration = false;
+        if (maybeDbContext is not LcmCrdtDbContext dbContext) return;
+        await EntrySearchService.RegenerateEntrySearchTable(dbContext);
+    }
+
+    // If saving changes fails, then the MorphType changes didn't make it into the DB and headwords don't need to be regenerated after all
+    public void SaveChangesFailed(DbContextErrorEventData eventData) => EntryTableNeedsRegeneration = false;
+
+    public Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
+    {
+        EntryTableNeedsRegeneration = false;
+        return Task.CompletedTask;
     }
 
     private async Task<(Entry? updatedEntry, Guid? removed)> ForUpdate(IEnumerable<EntityEntry> group, Guid entryId, DbContext dbContext)

@@ -1,11 +1,13 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using SIL.Harmony;
+using SIL.Harmony.Config;
 using SIL.Harmony.Linq2db;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.CustomJsonPatches;
+using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
 using LcmCrdt.Data;
@@ -21,6 +23,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MiniLcm.Import;
 using MiniLcm.Project;
 using MiniLcm.Validators;
 using Refit;
@@ -31,7 +34,7 @@ using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Text.Json.Serialization.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using MiniLcm.Media;
 
 namespace LcmCrdt;
 
@@ -53,6 +56,7 @@ public static class LcmCrdtKernel
 
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
+        services.AddSingleton<ProjectImporter>();
         services.AddScoped<SnapshotAtCommitService>();
         services.AddSingleton<SetupCollationInterceptor>();
         services.AddDbContextFactory<LcmCrdtDbContext>(ConfigureDbOptions, ServiceLifetime.Scoped);
@@ -60,18 +64,21 @@ public static class LcmCrdtKernel
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
         services.AddCrdtDataDbFactory<LcmCrdtDbContext>(
-            ConfigureCrdt
+            config => ConfigureCrdt(config, false)//don't add remote resources because they are added in AddCrdtRemoteResources
         );
-        services.AddOptions<CrdtConfig>().PostConfigure((CrdtConfig crdtConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
+        services.AddCrdtRemoteResources<LcmFileMetadata>();
+        services.AddOptions<HarmonyConfig>().PostConfigure((HarmonyConfig harmonyConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
-            crdtConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
+            harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
+        services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
         services.AddSingleton<ProjectDataCache>();
         services.AddScoped<CurrentProjectService>();
         services.AddScoped<HistoryService>();
+        services.AddScoped<LocalCommentReadStatusService>();
         services.AddScoped<LcmMediaService>();
         services.AddScoped<SyncRepository>();
         services.AddSingleton<CrdtProjectsService>();
@@ -80,11 +87,8 @@ public static class LcmCrdtKernel
         services.AddHttpClient();
         services.AddSingleton(provider => new RefitSettings
         {
-            ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
-            {
-                TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
-                    .MakeLcmCrdtExternalJsonTypeResolver()
-            })
+            ContentSerializer = new SystemTextJsonContentSerializer(
+                provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.MakeLcmCrdtExternalJsonOptions())
         });
         services.AddSingleton<CrdtHttpSyncService>();
         services.AddSingleton<IRefitHttpServiceFactory, RefitHttpServiceFactory>();
@@ -125,22 +129,30 @@ public static class LcmCrdtKernel
             .UseLinqToDbCrdt(provider)
             .UseLinqToDB(optionsBuilder =>
             {
-                var mappingSchema = new MappingSchema();
-                new FluentMappingBuilder(mappingSchema).HasAttribute<Commit>(new ColumnAttribute("DateTime",
-                        nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
-                    .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
-                        nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
+                // Extend the mapping schema UseLinqToDbCrdt (above) registered: it configures Harmony's
+                // Commit.HybridDateTime.DateTime UTC conversion there, and a fresh schema would shadow it,
+                // making linq2db read commit timestamps in local time (issue #2092). A null schema means
+                // that invariant broke, so fail loudly rather than silently regressing.
+                var mappingSchema = optionsBuilder.DbContextOptions.GetLinqToDBOptions()?.ConnectionOptions.MappingSchema
+                    ?? throw new InvalidOperationException(
+                        "linq2db mapping schema was not registered by UseLinqToDbCrdt; Harmony's Commit UTC conversion would be missing (issue #2092).");
+                new FluentMappingBuilder(mappingSchema)
                     //tells linq2db to rewrite Sense.SemanticDomainRows / Entry.PublishInRows into
                     //Json.Query(<underlying column>). The rewrite lives on the *Rows shadow accessors
                     //rather than the real IList<T> columns; see Entry.PublishInRows for why.
                     .Entity<Sense>().Property(s => s.SemanticDomainRows).IsExpression(SenseSemanticDomainRowsExpression(), isColumn: false)
                     .Entity<Entry>().Property(e => e.PublishInRows).IsExpression(EntryPublishInRowsExpression(), isColumn: false)
+                    .Entity<Entry>().Association(e => e.QueryMorphType(), e => e.MorphType, m => m!.Kind)
+                    .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComponentEntry(c), c => c.ComponentEntryId, e => e!.Id)
+                    .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComponentSense(c), c => c.ComponentSenseId, s => s!.Id)
+                    .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComplexFormEntry(c), c => c.ComplexFormEntryId, e => e!.Id)
+                    .Entity<ComplexFormComponent>().Property(c => c.ComponentHeadword).IsExpression(c => EntryQueryHelpers.QueryComponentEntry(c)!.QueryHeadwordWithTokens(EntryQueryHelpers.DefaultWritingSystem(WritingSystemType.Vernacular)), isColumn: true, alias: "componentHeadword")
+                    .Entity<ComplexFormComponent>().Property(c => c.ComplexFormHeadword).IsExpression(c => EntryQueryHelpers.QueryComplexFormEntry(c)!.QueryHeadwordWithTokens(EntryQueryHelpers.DefaultWritingSystem(WritingSystemType.Vernacular)), isColumn: true, alias: "complexFormHeadword")
                     .Entity<RichString>().Member(r => r.GetPlainText()).IsExpression(r => Json.GetPlainText(r))
                     .Entity<Guid>().Member(g => g.ToString()).IsExpression(g => Json.ToString(g))
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
-                optionsBuilder.AddMappingSchema(mappingSchema);
                 optionsBuilder.AddCustomOptions(options => options.UseSQLite());
 
                 // Register read-relevant interceptors for LinqToDB
@@ -173,7 +185,7 @@ public static class LcmCrdtKernel
         return e => Json.Query(e.PublishIn);
     }
 
-    public static void ConfigureCrdt(CrdtConfig config)
+    public static void ConfigureCrdt(HarmonyConfig config, bool addRemoteResourceEntity = true)
     {
         config.EnableProjectedTables = true;
         config.ObjectTypeListBuilder
@@ -220,6 +232,10 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<List<SemanticDomain>>(json, (JsonSerializerOptions?)null) ?? new());
+                builder.Property(s => s.Pictures)
+                    .HasColumnType("jsonb")
+                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => string.IsNullOrEmpty(json) ? new() : JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
             })
             .Add<ExampleSentence>(builder =>
             {
@@ -274,6 +290,20 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(writingSystemArrayConverter);
             })
+            .Add<CommentThread>(builder =>
+            {
+                builder.HasIndex(t => new { t.SubjectType, t.SubjectId });
+                builder.HasIndex(t => t.CreatedAt);
+                builder.HasMany(t => t.Comments)
+                    .WithOne()
+                    .HasForeignKey(c => c.CommentThreadId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            })
+            .Add<UserComment>(builder =>
+            {
+                builder.HasIndex(c => c.CommentThreadId);
+                builder.HasIndex(c => c.CreatedAt);
+            })
             .Add<MorphType>()
             .Add<ComplexFormComponent>(builder =>
             {
@@ -294,8 +324,6 @@ public static class LcmCrdtKernel
                     component.ComponentEntryId
                 }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
             });
-
-        config.AddRemoteResourceEntity();
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
@@ -331,21 +359,31 @@ public static class LcmCrdtKernel
             .Add<UpdateTranslationChange>()
             .Add<SetFirstTranslationIdChange>()
 
+            .Add<CreateSensePictureChange>()
+            .Add<UpdateSensePictureChange>()
+            .Add<ReorderSensePictureChange>()
+            .Add<RemoveSensePictureChange>()
             .Add<CreatePartOfSpeechChange>()
             .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>()
             .Add<CreatePublicationChange>()
+            .Add<SetMainPublicationChange>()
             .Add<AddComplexFormTypeChange>()
             .Add<AddEntryComponentChange>()
             .Add<RemoveComplexFormTypeChange>()
             .Add<AddPublicationChange>()
             .Add<RemovePublicationChange>()
             .Add<ReplacePublicationChange>()
-            .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()
+            .Add<CreateCommentThreadChange>()
+            .Add<CreateUserCommentChange>()
+            .Add<EditUserCommentChange>()
+            .Add<SetCommentThreadStatusChange>()
+            .Add<DeleteChange<CommentThread>>()
+            .Add<DeleteChange<UserComment>>()
             .Add<CreateMorphTypeChange>()
             .Add<Changes.SetOrderChange<Sense>>()
             .Add<Changes.SetOrderChange<ComplexFormComponent>>()
@@ -354,23 +392,47 @@ public static class LcmCrdtKernel
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
 
-        config.JsonSerializerOptions.TypeInfoResolver =
-            (config.JsonSerializerOptions.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
-            .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
+        // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
+        // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the
+        // ChangeTypeListBuilder the first time the options are built, which would happen before the
+        // AddRemoteResourceEntity call below (and AddCrdtRemoteResources in DI) and throw
+        // "ChangeTypeListBuilder is frozen". ConfigureJsonOptions defers the tweak until options are built.
+        config.ConfigureJsonOptions(options =>
+        {
+            // Append to Harmony's existing resolver rather than replacing it (see ConfigureJsonOptions docs).
+            if (options.TypeInfoResolver is DefaultJsonTypeInfoResolver resolver)
+                resolver.Modifiers.Add(Json.ExampleSentenceTranslationModifier);
+            else
+                options.TypeInfoResolver = (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
+                    .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
+        });
+
+        if (addRemoteResourceEntity)
+            config.AddRemoteResourceEntity<LcmFileMetadata>();
+    }
+
+    /// <summary>
+    /// The registered CRDT change types together with their serialized <c>$type</c> discriminators, straight
+    /// from Harmony's registration. Prefer this over <see cref="AllChangeTypes"/> when you need the
+    /// discriminator, so it can't drift from what the serializer actually writes.
+    /// </summary>
+    public static IReadOnlyList<RegisteredChangeType> AllRegisteredChanges()
+    {
+        var harmonyConfig = new HarmonyConfig();
+        ConfigureCrdt(harmonyConfig);
+        return harmonyConfig.ChangeTypes;
     }
 
     public static IEnumerable<Type> AllChangeTypes()
     {
-        var crdtConfig = new CrdtConfig();
-        ConfigureCrdt(crdtConfig);
-        return crdtConfig.ChangeTypes;
+        return AllRegisteredChanges().Select(t => t.Type);
     }
 
     public static IEnumerable<Type> AllObjectTypes()
     {
-        var crdtConfig = new CrdtConfig();
-        ConfigureCrdt(crdtConfig);
-        return crdtConfig.ObjectTypes;
+        var harmonyConfig = new HarmonyConfig();
+        ConfigureCrdt(harmonyConfig);
+        return harmonyConfig.ObjectTypes;
     }
 
     private static IList<Translation> DeserializeTranslations(string json)

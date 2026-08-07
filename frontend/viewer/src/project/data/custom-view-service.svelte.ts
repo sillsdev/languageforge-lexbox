@@ -15,13 +15,17 @@ export class CustomViewService {
 
   constructor(projectContext: ProjectContext) {
     this.#projectContext = projectContext;
-    this.#customViewsResource = projectContext.apiResource([], (api) => api.getCustomViews());
+    this.#customViewsResource = projectContext.apiResource([], async (api) => {
+      if (!this.#projectContext.features.customViews) return [];
+      return api.getCustomViews();
+    });
   }
 
-  current: ICustomView[] = $derived.by(() =>
-    this.#customViewsResource.current
-      .toSorted((a, b) => a.name.localeCompare(b.name))
-  );
+  current: ICustomView[] = $derived.by(() => {
+    if (!this.#projectContext.features.customViews) return [];
+    return this.#customViewsResource.current
+      .toSorted((a, b) => a.name.localeCompare(b.name));
+  });
 
   async add(customView: ICustomView): Promise<ICustomView> {
     const created = await this.#projectContext.api.createCustomView(customView);

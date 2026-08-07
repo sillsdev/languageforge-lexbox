@@ -7,9 +7,11 @@ import type {
   ISyncServiceJsInvokable
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {resource, type ResourceReturn} from 'runed';
-import {DetachedResource} from './detached-resource';
+import {DetachedResource, type DetachedResourceReturn} from './detached-resource';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
+import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
+import {devSettings} from '$lib/layout/dev-settings.svelte';
 
 const projectContextKey = 'current-project';
 
@@ -19,6 +21,7 @@ interface ProjectContextSetup {
   api: IMiniLcmJsInvokable;
   historyService?: IHistoryServiceJsInvokable;
   syncService?: ISyncServiceJsInvokable;
+  mediaFilesService?: IMediaFilesServiceJsInvokable;
   projectName: string;
   projectCode: string;
   projectType?: 'crdt' | 'fwdata';
@@ -47,6 +50,7 @@ export class ProjectContext {
   #projectData = $state<IProjectData>();
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
+  #mediaFilesService: IMediaFilesServiceJsInvokable | undefined = $state(undefined);
   #paratext = $state(false);
   #detachedResources = new SvelteSet<DetachedResource<unknown>>();
   #features = resource(() => this.#api, (api) => {
@@ -93,13 +97,24 @@ export class ProjectContext {
     return this.#projectData;
   }
   public get features(): IMiniLcmFeatures {
-    return this.#features.current;
+    const features = this.#features.current;
+    // Dev-only override lets a developer force the UI readonly by turning off write.
+    if (devSettings.readonly) return {...features, write: false};
+    return features;
+  }
+
+  /** Re-fetch {@link features} from the API (e.g. after a test toggles demo write). */
+  public refetchFeatures(): Promise<IMiniLcmFeatures | undefined> {
+    return this.#features.refetch();
   }
   public get historyService(): IHistoryServiceJsInvokable | undefined {
     return this.#historyService;
   }
   public get syncService(): ISyncServiceJsInvokable | undefined {
     return this.#syncService;
+  }
+  public get mediaFilesService(): IMediaFilesServiceJsInvokable | undefined {
+    return this.#mediaFilesService;
   }
   public get inParatext(): boolean {
     return this.#paratext;
@@ -113,6 +128,7 @@ export class ProjectContext {
     this.#api = args.api;
     this.#historyService = args.historyService;
     this.#syncService = args.syncService;
+    this.#mediaFilesService = args.mediaFilesService;
     this.#projectName = args.projectName;
     this.#projectCode = args.projectCode;
     this.#projectType = args.projectType;
@@ -125,9 +141,9 @@ export class ProjectContext {
     }
   }
 
-  public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): ResourceReturn<T, unknown, true> {
+  public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): DetachedResourceReturn<T> {
     if (this.#stateCache.has(key)) {
-      return this.#stateCache.get(key) as ResourceReturn<T, unknown, true>;
+      return this.#stateCache.get(key) as DetachedResourceReturn<T>;
     }
 
     return this.#ownAndCache(key, () => {
@@ -142,7 +158,7 @@ export class ProjectContext {
    * Note: we aren't using resource from runed, because it's based on $effect,
    * which ties the resource lifecycle to the calling component, rather than the project.
    */
-  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: { eager?: boolean }): ResourceReturn<T, unknown, true> {
+  public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: { eager?: boolean }): DetachedResourceReturn<T> {
     const res = new DetachedResource(initialValue, factory, () => this.#api, options);
     this.#detachedResources.add(res as DetachedResource<unknown>);
     return res;

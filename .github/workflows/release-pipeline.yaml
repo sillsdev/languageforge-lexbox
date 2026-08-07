@@ -5,6 +5,10 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+  checks: write
 
 jobs:
   set-version:
@@ -79,6 +83,7 @@ jobs:
     needs: deploy
     permissions:
       checks: write
+      contents: read
     secrets: inherit
     with:
       environment: staging
@@ -109,7 +114,7 @@ jobs:
       contents: write
     steps:
       - name: Release
-        uses: softprops/action-gh-release@a6c7483a42ee9d5daced968f6c217562cd680f7f # v2.0.0
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ needs.set-version.outputs.version }}
           target_commitish: ${{ github.sha }}

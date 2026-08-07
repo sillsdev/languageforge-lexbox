@@ -26,6 +26,7 @@ public class LocalMediaAdapter(IMemoryCache memoryCache, ILogger<LocalMediaAdapt
     internal static Dictionary<Guid, string> BuildPathsDictionary(string root, ILogger logger)
     {
         var paths = new Dictionary<Guid, string>();
+        if (!Directory.Exists(root)) return paths;
         foreach (var file in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
         {
             var fileId = PathToUri(file).FileId;

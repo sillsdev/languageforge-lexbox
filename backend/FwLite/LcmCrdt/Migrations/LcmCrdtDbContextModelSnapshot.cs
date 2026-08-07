@@ -18,6 +18,25 @@ namespace LcmCrdt.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
 
+            modelBuilder.Entity("LcmCrdt.Data.UnreadComment", b =>
+                {
+                    b.Property<Guid>("CommentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CommentThreadId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("MarkedUnreadAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CommentId");
+
+                    b.HasIndex("CommentThreadId");
+
+                    b.ToTable("UnreadComments");
+                });
+
             modelBuilder.Entity("LcmCrdt.FullTextSearch.EntrySearchRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -92,6 +111,51 @@ namespace LcmCrdt.Migrations
                     b.ToTable("ProjectData");
                 });
 
+            modelBuilder.Entity("MiniLcm.Models.CommentThread", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AuthorId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AuthorName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SubjectType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("SnapshotId")
+                        .IsUnique();
+
+                    b.HasIndex("SubjectType", "SubjectId");
+
+                    b.ToTable("CommentThread");
+                });
+
             modelBuilder.Entity("MiniLcm.Models.ComplexFormComponent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -114,7 +178,7 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("ComponentSenseId");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<double>("Order")
@@ -149,7 +213,7 @@ namespace LcmCrdt.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -179,7 +243,7 @@ namespace LcmCrdt.Migrations
                     b.Property<int>("Base")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EntryFields")
@@ -226,7 +290,7 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("HomographNumber")
@@ -268,7 +332,7 @@ namespace LcmCrdt.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<double>("Order")
@@ -311,7 +375,7 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -354,7 +418,7 @@ namespace LcmCrdt.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -381,8 +445,11 @@ namespace LcmCrdt.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsMain")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -409,7 +476,7 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -440,7 +507,7 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("EntryId")
@@ -455,6 +522,12 @@ namespace LcmCrdt.Migrations
 
                     b.Property<Guid?>("PartOfSpeechId")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Pictures")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'");
 
                     b.Property<string>("SemanticDomains")
                         .IsRequired()
@@ -475,6 +548,52 @@ namespace LcmCrdt.Migrations
                     b.ToTable("Sense");
                 });
 
+            modelBuilder.Entity("MiniLcm.Models.UserComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AuthorId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AuthorName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CommentThreadId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PreviousCommentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentThreadId");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("SnapshotId")
+                        .IsUnique();
+
+                    b.ToTable("UserComment");
+                });
+
             modelBuilder.Entity("MiniLcm.Models.WritingSystem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -485,7 +604,7 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Exemplars")
@@ -639,14 +758,17 @@ namespace LcmCrdt.Migrations
                     b.ToTable("LocalResource");
                 });
 
-            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource", b =>
+            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource<MiniLcm.Media.LcmFileMetadata>", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("RemoteId")
                         .HasColumnType("TEXT");
@@ -659,7 +781,15 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("RemoteResource");
+                    b.ToTable("RemoteResource", (string)null);
+                });
+
+            modelBuilder.Entity("MiniLcm.Models.CommentThread", b =>
+                {
+                    b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
+                        .WithOne()
+                        .HasForeignKey("MiniLcm.Models.CommentThread", "SnapshotId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("MiniLcm.Models.ComplexFormComponent", b =>
@@ -778,6 +908,20 @@ namespace LcmCrdt.Migrations
                     b.Navigation("PartOfSpeech");
                 });
 
+            modelBuilder.Entity("MiniLcm.Models.UserComment", b =>
+                {
+                    b.HasOne("MiniLcm.Models.CommentThread", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("CommentThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
+                        .WithOne()
+                        .HasForeignKey("MiniLcm.Models.UserComment", "SnapshotId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
             modelBuilder.Entity("MiniLcm.Models.WritingSystem", b =>
                 {
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
@@ -806,12 +950,17 @@ namespace LcmCrdt.Migrations
                     b.Navigation("Commit");
                 });
 
-            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource", b =>
+            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource<MiniLcm.Media.LcmFileMetadata>", b =>
                 {
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
                         .WithOne()
-                        .HasForeignKey("SIL.Harmony.Resource.RemoteResource", "SnapshotId")
+                        .HasForeignKey("SIL.Harmony.Resource.RemoteResource<MiniLcm.Media.LcmFileMetadata>", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("MiniLcm.Models.CommentThread", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("MiniLcm.Models.Entry", b =>

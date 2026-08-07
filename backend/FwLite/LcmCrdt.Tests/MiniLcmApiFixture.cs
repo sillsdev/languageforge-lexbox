@@ -1,6 +1,7 @@
+using SIL.Harmony.Config;
 using System.Diagnostics;
+using LcmCrdt.Changes;
 using LcmCrdt.MediaServer;
-using LcmCrdt.Objects;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     public CrdtMiniLcmApi Api => (CrdtMiniLcmApi)_services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
     public DataModel DataModel => _services.ServiceProvider.GetRequiredService<DataModel>();
     public LcmCrdtDbContext DbContext => _crdtDbContext ?? throw new InvalidOperationException("MiniLcmApiFixture not initialized");
-    public CrdtConfig CrdtConfig => _services.ServiceProvider.GetRequiredService<IOptions<CrdtConfig>>().Value;
+    public HarmonyConfig HarmonyConfig => _services.ServiceProvider.GetRequiredService<IOptions<HarmonyConfig>>().Value;
 
     public T GetService<T>() where T : notnull
     {
@@ -76,8 +77,12 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
         //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
         var projectData = new ProjectData("Sena 3", projectName, projectId ?? Guid.NewGuid(), null, Guid.NewGuid());
         await CrdtProjectsService.InitProjectDb(_crdtDbContext, projectData);
-        // Also trigger "data migrations" that CreateProject runs
         await currentProjectService.SetupProjectContext(crdtProject);
+        // CreateProject no longer seeds morph types on migrate (#2350). This fixture bypasses
+        // CreateProjectFromTemplate, so seed them for tests that depend on them (sorting,
+        // homograph numbers, morph-token search, MorphTypeTestsBase).
+        await DataModel.AddChanges(projectData.ClientId,
+            [.. CanonicalMorphTypes.All.Values.Select(mt => new CreateMorphTypeChange(mt))]);
         if (_seedWs)
         {
             await Api.CreateWritingSystem(new WritingSystem()

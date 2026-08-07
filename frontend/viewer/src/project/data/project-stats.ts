@@ -18,8 +18,7 @@ export function useProjectStats() {
   }, {
     onAdd: (resource) => {
       const debouncedRefetch = useDebounce(() => void resource.refetch(), 500);
-      projectEventBus.onEntryDeleted(() => void debouncedRefetch());
-      projectEventBus.onEntryUpdated(() => void debouncedRefetch());
+      projectEventBus.onEntriesChanged(() => void debouncedRefetch());
     }
   });
   return statsResource;

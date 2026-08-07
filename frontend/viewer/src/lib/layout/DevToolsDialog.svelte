@@ -7,6 +7,9 @@
   import type { Snippet } from 'svelte';
   import DevContent from './DevContent.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {createEntryOptions} from '$lib/create-entry-options';
+  import Switch from '$lib/components/ui/switch/switch.svelte';
+  import {devSettings} from './dev-settings.svelte';
 
   const projectContext = useProjectContext();
   const writingSystems = useWritingSystemService();
@@ -22,7 +25,7 @@
       const entry = defaultEntry();
       const vWsId = writingSystems.defaultVernacular?.wsId;
       if (vWsId) entry.citationForm[vWsId] = `*Test ${Math.random().toString(36).substring(2, 7)}`;
-      await projectContext.api.createEntry(entry);
+      await projectContext.api.createEntry(entry, createEntryOptions.withMainPublication);
     }
   }
 </script>
@@ -42,6 +45,9 @@
         <Icon icon="i-mdi-generator-portable" />
         <span>Generate 10 entries</span>
       </Button>
+      <div class="flex items-center space-x-2">
+        <Switch bind:checked={devSettings.readonly} label="Readonly" />
+      </div>
     </Dialog.DialogContent>
   </Dialog.Root>
 </DevContent>

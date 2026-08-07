@@ -1,5 +1,6 @@
 import type { OpenWebViewOptions, WebViewProps } from '@papi/core';
 import type { IEntryService, IProjectModel, SuccessHolder } from 'lexicon';
+import type { AuthServerStatus, LoginResult } from '../utils/fw-lite-api';
 
 // TODO: Sort out internal types and those that need to be exposed for other extensions.
 
@@ -95,11 +96,16 @@ declare module 'lexicon' {
 declare module 'papi-shared-types' {
   export interface CommandHandlers {
     'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
+    'lexicon.authServers': () => Promise<AuthServerStatus[] | undefined>;
     'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
     'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.lexicons': (projectId?: string) => Promise<IProjectModel[] | undefined>;
+    'lexicon.login': (
+      authority: string,
+    ) => Promise<{ result?: LoginResult; servers?: AuthServerStatus[] }>;
+    'lexicon.logout': (authority: string) => Promise<AuthServerStatus[] | undefined>;
     'lexicon.selectLexicon': (projectId: string, lexiconCode: string) => Promise<SuccessHolder>;
   }
 

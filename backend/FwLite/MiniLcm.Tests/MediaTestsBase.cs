@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using System.Text;
 using MiniLcm.Media;
 
@@ -65,11 +66,10 @@ public abstract class MediaTestsBase : MiniLcmTestBase
         random.NextBytes(originalBytes);
 
         const string fileName = "test-binary-file.dat";
-        const string mimeType = "application/octet-stream";
         const string author = "Binary Test Author";
         var uploadDate = DateTimeOffset.UtcNow;
 
-        var metadata = new LcmFileMetadata(fileName, mimeType, author, uploadDate);
+        var metadata = new LcmFileMetadata(fileName, MediaTypeNames.Application.Octet, author, uploadDate);
 
         // Act - Save the binary file
         UploadFileResponse saveResponse;
@@ -137,7 +137,7 @@ public abstract class MediaTestsBase : MiniLcmTestBase
         saveResponse.MediaUri.Should().Be(firstMediaUri);
     }
 
-    private async Task<UploadFileResponse> SaveTestFile(string fileName, byte[]? originalBytes = null, string mimeType = "application/octet-stream")
+    private async Task<UploadFileResponse> SaveTestFile(string fileName, byte[]? originalBytes = null, string mimeType = MediaTypeNames.Application.Octet)
     {
         const string author = "Test Author";
         var uploadDate = DateTimeOffset.UtcNow;

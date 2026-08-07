@@ -419,6 +419,8 @@ so we can get this fixed!",
       "add_button": "Add Organization",
       "modal_title": "Choose organization",
       "submit_button": "Add Organization",
+      "select_org_placeholder": "Select an organization...",
+      "no_org_selected": "Please select an organization",
       "org_not_found": "Organization not found. Please refresh the page.",
       "project_not_found": "Project not found. Please refresh the page."
     },

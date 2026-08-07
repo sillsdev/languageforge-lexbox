@@ -1,6 +1,7 @@
 using LcmCrdt.Tests;
 using Microsoft.Extensions.Logging.Abstractions;
 using MiniLcm;
+using MiniLcm.Import;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using Moq;
@@ -94,7 +95,8 @@ public class ResumableTests : IAsyncLifetime
         var import = new MiniLcmImport(
             logger: NullLogger<MiniLcmImport>.Instance,
             fwDataFactory: null!,
-            crdtProjectsService: null!
+            crdtProjectsService: null!,
+            projectImporter: new ProjectImporter(NullLogger<ProjectImporter>.Instance)
         );
 
         // Act: retry until all are imported

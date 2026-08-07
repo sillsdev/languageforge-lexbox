@@ -4,7 +4,7 @@
   import logoLight from '$lib/assets/logo-light.svg';
   import logoDark from '$lib/assets/logo-dark.svg';
   import storybookIcon from '../stories/assets/storybook-icon.svg';
-  import DevContent, {devModeToggle, isDev} from '$lib/layout/DevContent.svelte';
+  import DevContent, {devModeToggle} from '$lib/layout/DevContent.svelte';
   import {
     useImportFwdataService,
     useProjectsService,
@@ -21,13 +21,13 @@
   import {Icon} from '$lib/components/ui/icon';
   import ProjectListItem from './ProjectListItem.svelte';
   import ListItem from '$lib/components/ListItem.svelte';
-  import {Input} from '$lib/components/ui/input';
   import {crossfade} from 'svelte/transition';
   import {cubicOut} from 'svelte/easing';
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
   import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
+  import CreateProjectDialog from './CreateProjectDialog.svelte';
   import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
   import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
@@ -39,34 +39,19 @@
     easing: cubicOut,
   });
   transitionContext.set([send, receive]);
-  function dateTimeProjectSuffix(): string {
-    return new Date()
-      .toISOString()
-      .replace(/[^0-9]+/g, '-')
-      .replace(/-$/, '');
-  }
+  let createDemoProjectLoading = $state(false);
 
-  let customExampleProjectName = $state('');
-
-  let createProjectLoading = $state(false);
-
-  async function createExampleProject() {
+  async function createDemoProject() {
     try {
-      createProjectLoading = true;
-      let projectName = exampleProjectName;
-      if ($isDev) {
-        if (customExampleProjectName) {
-          projectName = customExampleProjectName;
-        } else {
-          projectName += `-dev-${dateTimeProjectSuffix()}`;
-        }
-      }
-      await projectsService.createProject(projectName);
+      createDemoProjectLoading = true;
+      await projectsService.createDemoProject(exampleProjectName);
       await refreshProjects();
     } finally {
-      createProjectLoading = false;
+      createDemoProjectLoading = false;
     }
   }
+
+  let createProjectDialog = $state<CreateProjectDialog>();
 
   let deletingProject = $state<string>();
 
@@ -118,6 +103,7 @@
 </script>
 
 <DeleteDialog bind:this={deleteDialog}/>
+<CreateProjectDialog bind:this={createProjectDialog} {refreshProjects}/>
 
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
@@ -223,25 +209,20 @@
                 </ProjectListItem>
               </Anchor>
             </DevContent>
-            {#if !projects.some(p => p.name === exampleProjectName) || $isDev}
-              <ListItem onclick={() => createExampleProject()} loading={createProjectLoading}>
+            {#if !projects.some(p => p.name === exampleProjectName)}
+              <ListItem icon="i-mdi-book-plus-outline" class="mb-2" onclick={() => createDemoProject()} loading={createDemoProjectLoading}>
                 <span>{$t`Create Example Project`}</span>
-                {#snippet actions()}
-                  <div class="flex flex-nowrap items-center gap-2">
-                    {#if $isDev}
-                      <Input
-                        bind:value={customExampleProjectName}
-                        placeholder={$t`Project name...`}
-                        onclick={(e) => e.stopPropagation()}
-                        autocapitalize="on"
-                      />
-                    {/if}
-                    <Icon icon="i-mdi-book-plus-outline" class="p-2"/>
-                  </div>
-                {/snippet}
-
               </ListItem>
             {/if}
+            <DevContent>
+              <ListItem
+                icon="i-mdi-book-plus-outline"
+                class="mb-2 bg-transparent shadow-none hover:shadow-none border-2 border-dashed border-muted-foreground/40"
+                onclick={() => createProjectDialog?.openDialog()}>
+                <span>{$t`New Project (Local only)`}</span>
+                <span class="text-sm text-muted-foreground">{$t`Create a new FieldWorks Lite project`}</span>
+              </ListItem>
+            </DevContent>
           </div>
         </div>
         <ServersList localProjects={projects} {refreshProjects}/>

@@ -13,6 +13,8 @@ namespace MiniLcm.Models;
 [JsonDerivedType(typeof(ComplexFormType), nameof(ComplexFormType))]
 [JsonDerivedType(typeof(ComplexFormComponent), nameof(ComplexFormComponent))]
 [JsonDerivedType(typeof(CustomView), nameof(CustomView))]
+[JsonDerivedType(typeof(CommentThread), nameof(CommentThread))]
+[JsonDerivedType(typeof(UserComment), nameof(UserComment))]
 [JsonDerivedType(typeof(MorphType), nameof(MorphType))]
 public interface IObjectWithId
 {

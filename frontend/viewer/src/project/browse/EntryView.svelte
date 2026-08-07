@@ -14,6 +14,7 @@
   import {Button, XButton} from '$lib/components/ui/button';
   import type {IEntry} from '$lib/dotnet-types';
   import {copy, EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
+  import {createEntryOptions} from '$lib/create-entry-options';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
@@ -24,6 +25,9 @@
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
+  import CommentDialog from '$lib/entry-editor/CommentDialog.svelte';
+  import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
 
@@ -56,23 +60,33 @@
     async (id) => {
       await editor?.commit();
       const entry = await miniLcmApi.getEntry(id);
-      return setEntry(entry);
+      // The fetcher's return value is what sets entryResource.current, so we must NOT also
+      // call entryResource.mutate() here or current gets set twice and reactivity double-fires.
+      return snapshotEntry(entry);
     },
   );
 
-  function setEntry(entry: IEntry | null): IEntry | null {
+  function snapshotEntry(entry: IEntry | null): IEntry | null {
     // IMMEDIATELY take a snapshot to ensure it doesn't get mutated by the editor before EntryPersistence gets it.
     // (dirty fields immediately push their current dirty value into the entry object, which can corrupt the update diff.)
     latestPersistedSnapshot = entry ? Object.freeze(copy(entry)) : undefined;
     deleted = !!entry?.deletedAt;
-    entryResource.mutate(entry); // potentially redundant, but harmless
     return entry;
   }
 
-  eventBus.onEntryUpdated((e) => {
-    if (e.id !== entryId) return;
-    // The event payload is the latest server state
-    setEntry(e);
+  // For entry updates that arrive OUTSIDE the resource fetcher (event bus, restore), we must
+  // push the new value into the resource ourselves via mutate().
+  function setEntry(entry: IEntry | null): IEntry | null {
+    snapshotEntry(entry);
+    entryResource.mutate(entry);
+    return entry;
+  }
+
+  eventBus.onEntryUpdated((id) => {
+    if (id !== entryId) return;
+    void miniLcmApi.getEntry(id).then(refreshed => {
+      if (id === entryId && refreshed) setEntry(refreshed); // entryId may have changed mid-fetch
+    });
   });
 
   eventBus.onEntryDeleted(id => {
@@ -83,7 +97,7 @@
 
   async function restore() {
     if (!entry) return;
-    const restoredEntry = await miniLcmApi.createEntry(entry);
+    const restoredEntry = await miniLcmApi.createEntry(entry, createEntryOptions.asIs);
     setEntry(restoredEntry);
   }
 
@@ -100,8 +114,8 @@
   }
   const sticky = $derived(dictionaryPreview === 'sticky');
 
-  let readonly = $state(false);
   let deleted = $state(false);
+  let showCommentDialog = $state(false);
 
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
@@ -134,7 +148,18 @@
         {/if}
         <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
         <div class="flex">
-          <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} bind:readonly />
+          <DevContent>
+            {#if features.comments}
+              <Button
+                variant="ghost"
+                size="icon"
+                icon="i-mdi-comment-text-outline"
+                aria-label={$t`Comments`}
+                onclick={() => showCommentDialog = !showCommentDialog}
+              />
+            {/if}
+          </DevContent>
+          <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} />
           <EntryMenu {entry} />
         </div>
       </div>
@@ -147,7 +172,7 @@
                 <Icon icon="i-mdi-alert-circle" class="size-5" />
                 {$t`This ${entity} was deleted`}
               </span>
-              {#if !readonly && features.write}
+              {#if features.write}
                 <Button size="sm" variant="secondary" onclick={() => restore()}>
                   {$t`Restore`}
                 </Button>
@@ -156,29 +181,42 @@
           </Alert.Root>
         </div>
       {/if}
-      {#if dictionaryPreview === 'sticky'}
-        <div class="md:px-2">
-          {@render preview(entry)}
-        </div>
-      {/if}
     </header>
-    <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('grow md:pr-2')}>
-      {#if dictionaryPreview === 'show'}
-        <div class="md:pl-2">
-          {@render preview(entry)}
-        </div>
-      {/if}
-      <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
-        {#key entry.id}
-          <EntryEditor
-            bind:this={editor}
-            bind:ref={editorRef}
-            bind:entry
-            readonly={readonly || !features.write || deleted}
-            {...entryPersistence.entryEditorProps} />
-        {/key}
+    <div class="flex min-h-0 grow gap-4">
+      <div class="flex min-h-0 min-w-0 grow flex-col">
+        {#if dictionaryPreview === 'sticky'}
+          <div class="shrink-0 md:px-2">
+            {@render preview(entry)}
+          </div>
+        {/if}
+        <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('min-w-0 grow md:pr-2')}>
+          {#if dictionaryPreview === 'show'}
+            <div class="md:pl-2">
+              {@render preview(entry)}
+            </div>
+          {/if}
+          <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
+            {#key entry.id}
+              <EntryEditor
+                bind:this={editor}
+                bind:ref={editorRef}
+                bind:entry
+                readonly={!features.write || deleted}
+                {...entryPersistence.entryEditorProps} />
+            {/key}
+          </div>
+        </ScrollArea>
       </div>
-    </ScrollArea>
+      {#if showCommentDialog}
+        <CommentDialog
+          bind:open={showCommentDialog}
+          inlineSidebar
+          subjectType={SubjectType.Entry}
+          subjectId={entry.id}
+          subjectName={headword}
+        />
+      {/if}
+    </div>
   {/if}
   {#if loadingDebounced.current && entryResource.current?.id !== entryId}
     <div

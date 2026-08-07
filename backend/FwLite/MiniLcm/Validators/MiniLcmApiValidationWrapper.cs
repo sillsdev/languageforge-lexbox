@@ -1,3 +1,4 @@
+using FluentValidation;
 using MiniLcm;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
@@ -23,6 +24,56 @@ public partial class MiniLcmApiValidationWrapper(
     private readonly IMiniLcmApi _api = api;
 
     // ********** Overrides go here **********
+
+    public async Task<Publication> CreatePublication(Publication pub)
+    {
+        await validators.ValidateAndThrow(pub);
+        if (pub.IsMain && await GetExistingMain() is not null)
+            throw new ValidationException("Cannot create a second main publication. A main publication already exists.");
+        return await _api.CreatePublication(pub);
+    }
+
+    public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        await validators.ValidateAndThrow(update);
+        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain) && isMain)
+            await ThrowIfAnotherMainExists(id);
+        return await _api.UpdatePublication(id, update);
+    }
+
+    public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        await validators.ValidateAndThrow(update);
+        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain) && isMain)
+            await ThrowIfAnotherMainExists(id);
+        await _api.SubmitUpdatePublication(id, update);
+    }
+
+    public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
+    {
+        await validators.ValidateAndThrow(after);
+        // This overload bypasses PublicationUpdateValidator, so enforce the single-main invariant here too.
+        if (after.IsMain && !before.IsMain)
+            await ThrowIfAnotherMainExists(after.Id);
+        if (before.IsMain && !after.IsMain)
+            throw new ValidationException("Cannot turn off the IsMain flag on a publication; the main publication is fixed.");
+        return await _api.UpdatePublication(before, after, api ?? this);
+    }
+
+    private async Task ThrowIfAnotherMainExists(Guid id)
+    {
+        if (await GetExistingMain() is { } main && main.Id != id)
+            throw new ValidationException("Cannot set IsMain on this publication. Another publication is already the main publication.");
+    }
+
+    private async Task<Publication?> GetExistingMain()
+    {
+        await foreach (var publication in _api.GetPublications())
+        {
+            if (publication.IsMain) return publication;
+        }
+        return null;
+    }
 
     public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
     {

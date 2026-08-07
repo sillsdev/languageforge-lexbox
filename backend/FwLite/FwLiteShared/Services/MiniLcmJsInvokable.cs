@@ -21,14 +21,14 @@ public class MiniLcmJsInvokable(
 {
     private readonly IMiniLcmApi _wrappedApi = userFacingWrappers.Apply(api, project, notificationWrapperFactory);
 
-    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews);
+    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews, bool? Comments);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()
     {
         var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
         var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
-        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject);
+        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject, Comments: isCrdtProject);
     }
 
     private bool CanWrite =>
@@ -100,9 +100,18 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public ValueTask<MorphType[]> GetMorphTypes()
+    public async ValueTask<MorphType[]> GetMorphTypes()
     {
-        return _wrappedApi.GetMorphTypes().ToArrayAsync();
+        return ApplyEmptyMorphTypeFallback(await _wrappedApi.GetMorphTypes().ToArrayAsync());
+    }
+
+    /// <summary>
+    /// Temporary UI stopgap after #2350 removed migrate-time morph-type seeding for blank CRDT projects.
+    /// </summary>
+    internal static MorphType[] ApplyEmptyMorphTypeFallback(MorphType[] morphTypes)
+    {
+        if (morphTypes.Length != 0) return morphTypes;
+        return [.. CanonicalMorphTypes.All.Values.Select(mt => mt.Copy())];
     }
 
     [JSInvokable]
@@ -271,9 +280,117 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public async Task<Entry> CreateEntry(Entry entry)
+    public ValueTask<CommentThread[]> GetCommentThreads(SubjectType subjectType, Guid subjectId, bool includeComments = false)
     {
-        var createdEntry = await _wrappedApi.CreateEntry(entry);
+        return _wrappedApi.GetCommentThreads(subjectType, subjectId, includeComments).ToArrayAsync();
+    }
+
+    [JSInvokable]
+    [TsFunction(Type = "Promise<ICommentThread | null>")]
+    public Task<CommentThread?> GetCommentThread(Guid id)
+    {
+        return _wrappedApi.GetCommentThread(id);
+    }
+
+    [JSInvokable]
+    public ValueTask<UserComment[]> GetUserComments(Guid threadId)
+    {
+        return _wrappedApi.GetUserComments(threadId).ToArrayAsync();
+    }
+
+    [JSInvokable]
+    [TsFunction(Type = "Promise<IUserComment | null>")]
+    public Task<UserComment?> GetUserComment(Guid id)
+    {
+        return _wrappedApi.GetUserComment(id);
+    }
+
+    [JSInvokable]
+    public ValueTask<UserComment[]> GetUnreadComments(Guid? threadId = null)
+    {
+        return _wrappedApi.GetUnreadComments(threadId).ToArrayAsync();
+    }
+
+    [JSInvokable]
+    public ValueTask<UserComment[]> GetUnreadCommentsForSubject(SubjectType subjectType, Guid subjectId)
+    {
+        return _wrappedApi.GetUnreadCommentsForSubject(subjectType, subjectId).ToArrayAsync();
+    }
+
+    [JSInvokable]
+    public Task<int> CountUnreadComments(Guid? threadId = null)
+    {
+        return _wrappedApi.CountUnreadComments(threadId);
+    }
+
+    [JSInvokable]
+    public async Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
+    {
+        var createdThread = await _wrappedApi.CreateCommentThread(thread, firstComment);
+        OnDataChanged();
+        return createdThread;
+    }
+
+    [JSInvokable]
+    public async Task<UserComment> AddUserComment(Guid threadId, UserComment comment)
+    {
+        var createdComment = await _wrappedApi.AddUserComment(threadId, comment);
+        OnDataChanged();
+        return createdComment;
+    }
+
+    [JSInvokable]
+    public async Task<UserComment> EditUserComment(Guid commentId, string text)
+    {
+        var updatedComment = await _wrappedApi.EditUserComment(commentId, text);
+        OnDataChanged();
+        return updatedComment;
+    }
+
+    [JSInvokable]
+    public async Task<CommentThread> SetCommentThreadStatus(Guid threadId, ThreadStatus status)
+    {
+        var updatedThread = await _wrappedApi.SetCommentThreadStatus(threadId, status);
+        OnDataChanged();
+        return updatedThread;
+    }
+
+    [JSInvokable]
+    public async Task DeleteUserComment(Guid commentId)
+    {
+        await _wrappedApi.DeleteUserComment(commentId);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task DeleteCommentThread(Guid threadId)
+    {
+        await _wrappedApi.DeleteCommentThread(threadId);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public Task MarkCommentRead(Guid commentId)
+    {
+        return _wrappedApi.MarkCommentRead(commentId);
+    }
+
+    [JSInvokable]
+    public Task MarkCommentThreadRead(Guid threadId)
+    {
+        return _wrappedApi.MarkCommentThreadRead(threadId);
+    }
+
+    [JSInvokable]
+    public Task MarkAllCommentsRead()
+    {
+        return _wrappedApi.MarkAllCommentsRead();
+    }
+
+    [JSInvokable]
+    public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions options)
+    {
+        var createdEntry = await _wrappedApi.CreateEntry(entry, options);
         OnDataChanged();
         return createdEntry;
     }
@@ -383,9 +500,40 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public async Task<ReadFileResponseJs?> GetFileStream(string mediaUri)
+    public async Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture)
     {
-        var result = await _wrappedApi.GetFileStream(new MediaUri(mediaUri));
+        var createdPicture = await _wrappedApi.CreatePicture(entryId, senseId, picture);
+        OnDataChanged();
+        return createdPicture;
+    }
+
+    [JSInvokable]
+    public async Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Picture before, Picture after)
+    {
+        var updatedPicture = await _wrappedApi.UpdatePicture(entryId, senseId, before, after);
+        OnDataChanged();
+        return updatedPicture;
+    }
+
+    [JSInvokable]
+    // previousPictureId and nextPictureId represent the target position, where the picture should end up after being moved
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, Guid? previousPictureId = null, Guid? nextPictureId = null)
+    {
+        await _wrappedApi.MovePicture(entryId, senseId, pictureId, new MiniLcm.SyncHelpers.BetweenPosition(previousPictureId, nextPictureId));
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        await _wrappedApi.DeletePicture(entryId, senseId, pictureId);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public async Task<ReadFileResponseJs?> GetFileStream(string mediaUri, bool downloadIfMissing)
+    {
+        var result = await _wrappedApi.GetFileStream(new MediaUri(mediaUri), downloadIfMissing);
         var stream = result.Stream is null ? null : new DotNetStreamReference(result.Stream);
         return new ReadFileResponseJs(stream, result.FileName, result.Result, result.ErrorMessage);
     }

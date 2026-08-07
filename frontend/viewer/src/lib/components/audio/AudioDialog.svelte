@@ -74,7 +74,11 @@
 
   async function uploadAudio() {
     if (!finalAudio) throw new Error($t`No file to upload`);
-    const response = await lexboxApi.saveFile(finalAudio, {filename: finalAudio.name, mimeType: finalAudio.type});
+    const response = await lexboxApi.saveFile(finalAudio, {
+      filename: finalAudio.name,
+      mimeType: finalAudio.type,
+      extraFields: {},
+    });
     switch (response.result) {
       case UploadFileResult.SavedLocally:
         AppNotification.display($t`Audio saved locally`, {type: 'success', timeout: 'short'});

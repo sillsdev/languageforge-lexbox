@@ -128,6 +128,12 @@ When the plan deviates mid-implementation (it usually does): surface
 the change and the reason in your next user-facing update. Don't
 silently rewrite the plan.
 
+When a change legitimately alters a Verify/snapshot test's output (e.g.
+`*.verified.txt`), regenerating that file **is your job** — run the test
+to produce the `.received.` output, eyeball the diff to confirm it's the
+intended change (not a regression), then accept it. Don't leave a stale
+verified file for the user to fix.
+
 ## Phase 4 · Self-review (same engine as `/polish`)
 
 **Build the affected project(s)** (`dotnet build <csproj>` /

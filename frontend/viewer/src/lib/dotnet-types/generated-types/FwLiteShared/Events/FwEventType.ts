@@ -4,10 +4,9 @@
 //     the code is regenerated.
 
 export enum FwEventType {
-	EntryChanged = "EntryChanged",
+	EntriesChanged = "EntriesChanged",
 	AuthenticationChanged = "AuthenticationChanged",
 	ProjectEvent = "ProjectEvent",
-	EntryDeleted = "EntryDeleted",
 	Sync = "Sync",
 	AppUpdate = "AppUpdate",
 	AppUpdateProgress = "AppUpdateProgress"

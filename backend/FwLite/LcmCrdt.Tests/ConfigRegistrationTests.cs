@@ -1,6 +1,8 @@
+using SIL.Harmony.Config;
 using FluentAssertions.Execution;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
+using MiniLcm.Media;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Resource;
 
@@ -12,19 +14,21 @@ public class ConfigRegistrationTests
 
     private readonly HashSet<Type> _excludedChangeTypes =
     [
-        typeof(ReplaceComplexFormTypeChange), //not currently in use
         typeof(JsonPatchChange<ComplexFormComponent>), //not supported
-        typeof(JsonPatchChange<RemoteResource>), //not supported
+        typeof(JsonPatchChange<RemoteResource<LcmFileMetadata>>), //not supported
         typeof(JsonPatchChange<ExampleSentence>), //replaced by JsonPatchExampleSentenceChange
         typeof(JsonPatchChange<CustomView>), //not supported. Use EditCustomViewChange
+        typeof(JsonPatchChange<CommentThread>), //not supported. Use SetCommentThreadStatusChange
+        typeof(JsonPatchChange<UserComment>), //not supported. Use EditUserCommentChange
         typeof(DeleteChange<MorphType>), //MorphTypes cannot be deleted
+        typeof(DeleteChange<RemoteResource<LcmFileMetadata>>)//Not used, instead DeleteRemoteResourceChange is used
     ];
 
-    private readonly CrdtConfig _config;
+    private readonly HarmonyConfig _config;
 
     public ConfigRegistrationTests()
     {
-        _config = new CrdtConfig();
+        _config = new HarmonyConfig();
         LcmCrdtKernel.ConfigureCrdt(_config);
     }
 
@@ -54,7 +58,7 @@ public class ConfigRegistrationTests
             .Append(typeof(DeleteChange<>))
             .ToLookup(t => t.IsGenericType);
         allChangeTypes.Should().NotBeEmpty();
-        var registeredChangeTypes = _config.ChangeTypes.ToHashSet();
+        var registeredChangeTypes = _config.ChangeTypes.Select(t => t.Type).ToHashSet();
         using var _ = new AssertionScope();
         //non generics
         foreach (var changeType in allChangeTypes[false])

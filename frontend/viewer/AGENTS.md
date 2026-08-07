@@ -22,27 +22,51 @@ This project depends on TypeScript types and API interfaces generated from .NET 
 ```bash
 # From repo root
 dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
+
+# Verify types are committed (also runs in CI):
+task fw-lite:has-stale-generated-types
 ```
 
 The generated files are located in `src/lib/dotnet-types/generated-types/`.
 
-### E2E Testing (Playwright)
+### Testing
 
-To run E2E tests for the viewer:
+| Suite | Location | Runnable here? |
+|---|---|---|
+| UI | `tests/ui/` | ✅ Yes — auto-starts a dev server with in-memory demo; no infra needed |
+| E2E | `tests/e2e/` | ❌ Needs a Lexbox kind cluster + published FwLiteWeb binary |
+| Launcher | `tests/launcher/` | ❌ Needs a published FwLiteWeb binary |
+
+**Don't run E2E or Launcher tests unless you've explicitly set up that infrastructure** — they fail loudly without it and the setup isn't part of normal dev.
+
+UI tests (the runnable ones) — from `frontend/viewer/`:
+
 ```bash
-# From frontend/viewer/ directory
-# Automatically starts dev server if needed
-# For debugging e.g. with Chrome MCP: dev server/demo project will be available at port 5173 & path /testing/project-view/browse
+# Dev server / demo project: http://localhost:5173/testing/project-view (useful for Chrome MCP debugging).
 
-# Filter by test name (the ONLY RIGHT choice if testing specific features or changes) e.g.
-task playwright-test-standalone -- entries-list
+# Filter by test name (the ONLY RIGHT choice when testing specific features or changes), e.g.
+task test:ui-standalone -- entries-list
 
-# All tests
-task playwright-test-standalone
+# All UI tests
+task test:ui-standalone
 
-# In UI mode
-task playwright-test-standalone -- entries-list --ui
+# Playwright UI mode
+task test:ui-standalone -- entries-list --ui
 ```
+
+### Theme (light/dark + color) for screenshots
+
+Theming is `mode-watcher`. Don't click the `ThemePicker` popover — set it directly.
+
+**Light/dark mode** defaults to `system` (follows `prefers-color-scheme`), so emulate that media query:
+- Playwright: `await page.emulateMedia({colorScheme: 'dark'})` (or `'light'`). For both, use the `assertScreenshotInBothColorSchemes` helper.
+- Browser MCP: pass `colorScheme: 'dark'` to `resize_window`.
+
+(Only breaks if something first called `setMode`, which persists a preference that overrides system.)
+
+**Color theme** (`green`/`blue`/`rose`/`orange`/`violet`/`stone`; `blue` is the default) has no media query — set the `data-theme` attribute on `<html>` instead:
+- `document.documentElement.setAttribute('data-theme','violet')` (Browser MCP `javascript_tool`, or Playwright `page.evaluate`).
+- To survive a reload, set `localStorage['mode-watcher-theme']` before load.
 
 ## Tech Stack
 
@@ -60,7 +84,7 @@ task playwright-test-standalone -- entries-list --ui
 | `src/lib/` | Shared components, entry editor |
 | `src/locales/` | i18n translation files (JSON) |
 | `.storybook/` | Component storybook |
-| `tests/` | Playwright E2E tests |
+| `tests/` | Playwright (UI + e2e) and Vitest (launcher) tests |
 
 ## i18n (Lingui)
 
@@ -82,6 +106,13 @@ Add new language: Edit `lingui.config.ts`, then run extract.
 # Add ShadCN component
 npx shadcn-svelte@next add context-menu
 ```
+
+## Error Handling
+
+Unexpected errors should reach the global error handler (`src/lib/errors/global-errors.ts`): let them
+throw (or rethrow) rather than catching and rendering raw messages inline. It shows a persistent toast
+with a copy-error button and logs to .NET. Inline UI error states are for *expected*, actionable
+failures (offline, not-found, retry) with plain, translated messages.
 
 ## Key Concepts
 

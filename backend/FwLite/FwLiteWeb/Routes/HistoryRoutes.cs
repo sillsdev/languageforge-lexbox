@@ -6,7 +6,6 @@ using SIL.Harmony.Db;
 using SIL.Harmony.Entities;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
-using FwLiteWeb.Hubs;
 using Microsoft.OpenApi;
 using MiniLcm.Models;
 
@@ -20,7 +19,7 @@ public static class HistoryRoutes
         {
             operation.Parameters?.Add(new OpenApiParameter()
             {
-                Name = CrdtMiniLcmApiHub.ProjectRouteKey, In = ParameterLocation.Path, Required = true
+                Name = RouteKeys.Project, In = ParameterLocation.Path, Required = true
             });
             return Task.CompletedTask;
         });

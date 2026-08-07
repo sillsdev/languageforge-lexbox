@@ -1,12 +1,10 @@
 using System.Collections.Concurrent;
 using LcmCrdt.FullTextSearch;
-using LcmCrdt.Objects;
 using LcmCrdt.Project;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SIL.Harmony;
 
 namespace LcmCrdt;
 
@@ -107,16 +105,6 @@ public class CurrentProjectService(
             {
                 await using var dbContext = await DbContextFactory.CreateDbContextAsync();
                 await dbContext.Database.MigrateAsync();
-
-                // Seed morph-types if missing (for existing projects created before morph-type support).
-                // Must happen BEFORE FTS regeneration so headwords include morph-type tokens.
-                var dataModel = services.GetRequiredService<DataModel>();
-                var projectData = await dbContext.ProjectData.AsNoTracking().FirstAsync();
-                // Remove in #2350
-                if (!await dbContext.MorphTypes.AnyAsync())
-                {
-                    await PreDefinedData.AddPredefinedMorphTypes(dataModel, projectData);
-                }
 
                 if (EntrySearchServiceFactory is not null)
                 {

@@ -9,6 +9,7 @@ import type {IMultiString} from '$lib/dotnet-types/i-multi-string';
 import type {IPartOfSpeech} from './IPartOfSpeech';
 import type {ISemanticDomain} from './ISemanticDomain';
 import type {IExampleSentence} from './IExampleSentence';
+import type {IPicture} from './IPicture';
 
 export interface ISense extends IObjectWithId
 {
@@ -21,5 +22,6 @@ export interface ISense extends IObjectWithId
 	partOfSpeechId?: string;
 	semanticDomains: ISemanticDomain[];
 	exampleSentences: IExampleSentence[];
+	pictures: IPicture[];
 }
 /* eslint-enable */

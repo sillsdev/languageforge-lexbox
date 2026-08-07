@@ -27,6 +27,14 @@ const EVENT_DEBOUNCE_MS = 600;
 // void (not Promise<void>) to get the correct runtime return type.
 type DebouncedVoidFn = ReturnType<typeof useDebounce<[], void>>;
 
+// useDebounce rejects a pending promise with the string "Cancelled" when its
+// cancel() supersedes it (a newer reset took over). That's expected control flow,
+// not an error; anything else is rethrown so real failures still surface.
+export function ignoreDebounceCancelled(reason: unknown): void {
+  if (reason === 'Cancelled') return;
+  throw reason;
+}
+
 export class EntryLoaderService {
   static readonly DEFAULT_GENERATION = 0;
 
@@ -115,24 +123,6 @@ export class EntryLoaderService {
     return this.#scheduleEventReset();
   }
 
-  async onEntryDeleted(_id: string): Promise<void> {
-    // We could optimize some delete events, but:
-    // 1) They probably don't happen often enough to matter.
-    // 2) Handling shifting of indices is complex and error-prone.
-    // So, we might as well just do a quiet reset to keep things simple and robust.
-    await this.quietReset();
-  }
-
-  async onEntryUpdated(_entry: IEntry): Promise<void> {
-    // We could (and I did) try to optimize some update events, however:
-    // 1) We can't debounce them. We need to handle every unique event or we get out of sync.
-    // 2) We can't rely on the local index cache to determine if the entry matches the current filter,
-    //    because the update that triggered this event may have changed whether it matches the filter or not.
-    //    So, we need to query the index from the backend anyway.
-    // So, we might as well just do a quiet reset to keep things simple and robust.
-    await this.quietReset();
-  }
-
   async #scheduleFilterReset(): Promise<void> {
     this.loading = true;
     this.#debouncedEventReset.cancel();
@@ -140,7 +130,7 @@ export class EntryLoaderService {
     // Filter resets take precedence; any entry events that arrive mid-reset are
     // replayed afterward via the eventPendingAfterFilterReset flag to ensure all updates are
     // eventually applied to the shown data.
-    const filterResetPromise = this.#debouncedFilterReset();
+    const filterResetPromise = this.#debouncedFilterReset().catch(ignoreDebounceCancelled);
     this.#filterResetInFlight = filterResetPromise;
     await this.#filterResetInFlight;
     if (this.#filterResetInFlight === filterResetPromise) {
@@ -153,7 +143,7 @@ export class EntryLoaderService {
   }
 
   #scheduleEventReset(): Promise<void> {
-    return this.#debouncedEventReset();
+    return this.#debouncedEventReset().catch(ignoreDebounceCancelled);
   }
 
   async #executeReset(isQuiet: boolean): Promise<void> {

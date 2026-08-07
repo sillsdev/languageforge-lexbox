@@ -343,7 +343,7 @@
         <EditorGrid class="border p-4">
           <OverrideFields shownFields={senseFields.map(f => f.id)} respectOrder {overrides}>
             <SenseEditorPrimitive
-              sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: []})}/>
+              sense={makeSense({id: '1', gloss: {'en': 'Hello'}, entryId: 'e1', definition: {}, semanticDomains: [], exampleSentences: [], pictures: []})}/>
           </OverrideFields>
         </EditorGrid>
         {#snippet failed(error)}

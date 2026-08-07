@@ -8,9 +8,9 @@ type AudioUrl = string;
 export type WaveSurferAudio = AudioUrl | Blob;
 
 function getPrimaryColor(element: HTMLElement | null = null): string {
-  return `hsl(${getComputedStyle(element ?? document.documentElement)
+  return getComputedStyle(element ?? document.documentElement)
     .getPropertyValue('--primary')
-    .trim()})`;
+    .trim();
 }
 
 function darkenColor(color: string): string {

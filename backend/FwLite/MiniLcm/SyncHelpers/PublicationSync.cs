@@ -35,6 +35,9 @@ public static class PublicationSync
             beforePublication.Name,
             afterPublication.Name));
 
+        if (beforePublication.IsMain != afterPublication.IsMain)
+            patchDocument.Replace(p => p.IsMain, afterPublication.IsMain);
+
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Publication>(patchDocument);
     }

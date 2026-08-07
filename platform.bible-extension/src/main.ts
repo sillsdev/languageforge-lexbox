@@ -2,14 +2,21 @@ import papi, { logger } from '@papi/backend';
 import type { ExecutionActivationContext } from '@papi/core';
 import { ChildProcessByStdio } from 'child_process';
 import type { BrowseWebViewOptions } from 'lexicon';
+import { getErrorMessage } from 'platform-bible-utils';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
-import { FwLiteApi, getBrowseUrl } from './utils/fw-lite-api';
+import { FwLiteApi, getBrowseUrl, type LoginResult } from './utils/fw-lite-api';
 import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
 
 let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.Readable>;
+
+// Signing in can easily take longer than 30s, set increase to 5min. The stack of timeouts seems to be:
+//  5 min - papi command (this one)
+//  5 min - undici/node fetch (has gone back and forth; 300s today, see https://github.com/nodejs/undici/pull/5467)
+//  inf.  - FW Lite
+const SIGN_IN_TIMEOUT_MS = 5 * 60 * 1000;
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('Lexicon extension activating!');
@@ -83,12 +90,22 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   /* Register commands */
 
+  const getAuthServers = async () => {
+    try {
+      return await fwLiteApi.getAuthServers();
+    } catch (e) {
+      logger.error('Error fetching Lexbox auth servers:', getErrorMessage(e));
+      return undefined;
+    }
+  };
+
   const addEntryCommandPromise = papi.commands.registerCommand(
     'lexicon.addEntry',
     async (webViewId: string, word: string) => {
       let success = false;
 
-      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
       if (!projectManager) return { success };
 
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
@@ -100,12 +117,18 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  const authServersCommandPromise = papi.commands.registerCommand(
+    'lexicon.authServers',
+    getAuthServers,
+  );
+
   const browseLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.browseLexicon',
     async (webViewId: string) => {
       let success = false;
 
-      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
       if (!projectManager) return { success };
 
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
@@ -142,7 +165,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (webViewId: string, word: string) => {
       let success = false;
 
-      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
       if (!projectManager) return { success };
 
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
@@ -159,7 +183,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (webViewId: string, word: string) => {
       let success = false;
 
-      const projectManager = await projectManagers.getProjectManagerFromWebViewId(webViewId);
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
       if (!projectManager) return { success };
 
       const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
@@ -168,6 +193,40 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const options = await projectManager.getLexiconWebViewOptions(word);
       success = await projectManager.openWebView(WebViewType.FindRelatedWords, undefined, options);
       return { success };
+    },
+  );
+
+  const loginCommandPromise = papi.commands.registerCommand(
+    'lexicon.login',
+    async (authority: string) => {
+      let result: LoginResult | undefined;
+      // Abort the backend sign-in once the command times out, so an abandoned sign-in doesn't
+      // linger on FW Lite (login-web-view cancels via HttpContext.RequestAborted).
+      const abort = new AbortController();
+      const timeout = setTimeout(() => abort.abort(), SIGN_IN_TIMEOUT_MS);
+      try {
+        result = await fwLiteApi.login(authority, abort.signal);
+      } catch (e) {
+        logger.error('Error signing in to Lexbox:', getErrorMessage(e));
+      } finally {
+        clearTimeout(timeout);
+      }
+      return { result, servers: await getAuthServers() };
+    },
+    undefined,
+    { timeoutMilliseconds: SIGN_IN_TIMEOUT_MS },
+  );
+
+  const logoutCommandPromise = papi.commands.registerCommand(
+    'lexicon.logout',
+    async (authority: string) => {
+      try {
+        await fwLiteApi.logout(authority);
+      } catch (e) {
+        logger.error('Error signing out of Lexbox:', getErrorMessage(e));
+        throw e; // Surface the failure so the web view can flag it instead of silently re-enabling.
+      }
+      return getAuthServers();
     },
   );
 
@@ -223,11 +282,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await validateLexiconCode,
     // Commands
     await addEntryCommandPromise,
+    await authServersCommandPromise,
     await browseLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
     await lexiconsCommandPromise,
+    await loginCommandPromise,
+    await logoutCommandPromise,
     await selectLexiconCommandPromise,
     // Services
     await entryService,
@@ -241,18 +303,66 @@ export async function deactivate(): Promise<boolean> {
   return await shutDownFwLite();
 }
 
+/**
+ * Returns a stable per-user directory for FW Lite data (projects, auth cache), in its own
+ * subdirectory so it doesn't collide with Platform.Bible's own `papi.storage` data for this
+ * extension (`.../extensions/lexicon/user-data/`). Mirrors Platform.Bible's own `app://` scheme
+ * (paranext-core's `getAppDir()`): the real per-user location when packaged, the repo-local
+ * dev-appdata directory in development, so `npm start` doesn't read/write production user data.
+ *
+ * Uses process.env/globalThis instead of require('os'/'path') because Platform.Bible blocks
+ * non-papi requires, so paths are assembled by hand with the platform-appropriate separator
+ * (backslash on Windows, forward slash on Linux/Mac, which .NET requires there).
+ */
+function getFwLiteDataDir(platform: string): string {
+  const isWindows = platform === 'win32';
+  const sep = isWindows ? '\\' : '/';
+  let appDataDir: string;
+  if (globalThis.isPackaged) {
+    // Mirrors paranext-core's os.homedir()
+    const home = isWindows ? process.env.USERPROFILE : process.env.HOME;
+    if (!home) {
+      const homeVar = isWindows ? 'USERPROFILE' : 'HOME';
+      throw new Error(`Cannot determine FW Lite data directory: ${homeVar} is not set`);
+    }
+    appDataDir = `${home}${sep}.platform.bible`;
+  } else {
+    appDataDir = `${globalThis.resourcesPath}${sep}dev-appdata`;
+  }
+  return `${appDataDir}${sep}extensions${sep}lexicon${sep}fw-lite`;
+}
+
+/**
+ * Returns the extension-relative path to the FW Lite binary. Forward slashes on all platforms:
+ * createProcess (Node) resolves it, so unlike getFwLiteDataDir it needs no Windows separator.
+ */
+function getFwLiteBinaryPath(platform: string): string {
+  switch (platform) {
+    case 'win32':
+      return 'fw-lite/win-x64/FwLiteWeb.exe';
+    case 'linux':
+      // The extension zip doesn't preserve the Unix executable bit, but paranext-core's
+      // createProcess.spawn sets it on the command before spawning, so a plain spawn works.
+      return 'fw-lite/linux-x64/FwLiteWeb';
+    default:
+      // macOS is out of scope for now: https://github.com/sillsdev/languageforge-lexbox/issues/1603
+      throw new Error(`Cannot launch FW Lite on unsupported platform '${platform}'`);
+  }
+}
+
 /** Launches the FieldWorks Lite process and returns its URL domain. */
 function launchFwLite(context: ExecutionActivationContext): string {
-  const binaryPath = 'fw-lite/FwLiteWeb.exe';
   if (context.elevatedPrivileges.createProcess === undefined) {
     throw new Error('Requires createProcess elevated privileges to launch FW Lite');
   }
-  if (context.elevatedPrivileges.createProcess.osData.platform !== 'win32') {
-    throw new Error('Requires Windows to launch FW Lite');
-  }
+  const { platform } = context.elevatedPrivileges.createProcess.osData;
+  const binaryPath = getFwLiteBinaryPath(platform);
   // TODO: Instead of hardcoding the URL and port we should run it and find them in the output.
   const baseUrl = 'http://localhost:29348';
 
+  const dataDir = getFwLiteDataDir(platform);
+  const sep = platform === 'win32' ? '\\' : '/';
+  const authCacheFile = `${dataDir}${sep}msal.json`;
   fwLiteProcess = context.elevatedPrivileges.createProcess.spawn(
     context.executionToken,
     binaryPath,
@@ -263,6 +373,11 @@ function launchFwLite(context: ExecutionActivationContext): string {
       '--FwLiteWeb:CorsAllowAny=true',
       '--FwLiteWeb:EnableFileLogging=false', // already piped to P.B (and triggers npm watch)
       '--FwLiteWeb:OpenBrowser=false',
+      `--LcmCrdt:ProjectPath=${dataDir}`,
+      `--Auth:CacheFileName=${authCacheFile}`,
+      // Sign in via the user's default browser: an embedded login would be blocked by the
+      // webview sandbox and/or Lexbox's frame-ancestors CSP.
+      '--Auth:SystemWebViewLogin=true',
     ],
     { stdio: ['pipe', 'pipe', 'pipe'] },
   );

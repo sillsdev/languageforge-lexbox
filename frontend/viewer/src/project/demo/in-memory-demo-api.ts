@@ -4,6 +4,7 @@ import {
   DotnetService,
   type IComplexFormComponent,
   type IComplexFormType,
+  type ICreateEntryOptions,
   type IEntry,
   type IExampleSentence,
   type IFilterQueryOptions,
@@ -12,6 +13,7 @@ import {
   type IMiniLcmJsInvokable,
   type IMorphType,
   type IPartOfSpeech,
+  type IPicture,
   type IProjectModel,
   type IPublication,
   type IQueryOptions,
@@ -25,9 +27,10 @@ import {
   ViewBase,
   MorphTypeKind,
 } from '$lib/dotnet-types';
-import {entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
+import {demoPictureSvgs, entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
+import {randomId} from '$lib/utils';
 import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 import {delay} from '$lib/utils/time';
 import {initProjectContext, type ProjectContext} from '$project/project-context.svelte';
@@ -44,10 +47,17 @@ import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-b
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import {initProjectStorage} from '$lib/storage';
 import {MorphTypesService} from '$project/data/morph-types.svelte';
+import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
+import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
+import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
+import type {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
 }
+
+/** The demo plays the role of the server; it mirrors the backend's 10 MB upload limit. */
+const DEMO_FILE_SIZE_LIMIT = 10 * 1024 * 1024;
 
 const complexFormTypes = entries
   .flatMap(entry => entry.complexFormTypes)
@@ -58,6 +68,7 @@ export const mockFwLiteConfig: IFwLiteConfig = {
   feedbackUrl: '',
   os: FwLitePlatform.Web,
   useDevAssets: true,
+  devAssetsPort: 5173,
   edition: 0,
   updateCheckCondition: 0,
   updateCheckInterval: 0,
@@ -111,7 +122,13 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
-    window.__PLAYWRIGHT_UTILS__ = { demoApi: inMemoryLexboxApi };
+    window.__PLAYWRIGHT_UTILS__ = {
+      demoApi: inMemoryLexboxApi,
+      async setWrite(write: boolean) {
+        inMemoryLexboxApi.setWrite(write);
+        await projectContext.refetchFeatures();
+      },
+    };
 
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
       localProjects(): Promise<IProjectModel[]> {
@@ -137,7 +154,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       downloadProjectByCode: function (_code, _server, _userRole): Promise<DownloadProjectByCodeResult> {
         return Promise.resolve(DownloadProjectByCodeResult.Success);
       },
-      createProject: function (_name: string): Promise<void> {
+      createProject: function (_name: string, _code: string, _vernacularWs: string, _analysisWs?: string): Promise<void> {
+        return Promise.resolve();
+      },
+      createDemoProject: function (_name: string): Promise<void> {
         return Promise.resolve();
       },
       deleteProject: function (_code: string): Promise<void> {
@@ -188,15 +208,153 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     ]);
   }
 
+  #write = true;
+
+  /** Test-only: toggle the write feature exposed by {@link supportedFeatures}. */
+  setWrite(write: boolean) {
+    this.#write = write;
+  }
+
   supportedFeatures() {
     return Promise.resolve({
-      write: true,
+      write: this.#write,
       audio: true,
       customViews: true,
     } satisfies IMiniLcmFeatures);
   }
 
   readonly projectName = projectName;
+
+  private _commentThreads: ICommentThread[] = [];
+  private _userComments: IUserComment[] = [];
+
+  getCommentThreads(subjectType: SubjectType, subjectId: string, includeComments = false): Promise<ICommentThread[]> {
+    return Promise.resolve(this._commentThreads
+      .filter(thread => !thread.deletedAt && thread.subjectType === subjectType && thread.subjectId === subjectId)
+      .map(thread => ({
+        ...thread,
+        comments: includeComments
+          ? this._userComments.filter(comment => !comment.deletedAt && comment.commentThreadId === thread.id).map(comment => ({...comment}))
+          : undefined,
+      })));
+  }
+
+  getCommentThread(id: string): Promise<ICommentThread | null> {
+    const thread = this._commentThreads.find(thread => thread.id === id && !thread.deletedAt);
+    return Promise.resolve(thread ? {...thread} : null);
+  }
+
+  getUserComments(threadId: string): Promise<IUserComment[]> {
+    return Promise.resolve(this._userComments
+      .filter(comment => !comment.deletedAt && comment.commentThreadId === threadId)
+      .map(comment => ({...comment})));
+  }
+
+  getUserComment(id: string): Promise<IUserComment | null> {
+    const comment = this._userComments.find(comment => comment.id === id && !comment.deletedAt);
+    return Promise.resolve(comment ? {...comment} : null);
+  }
+
+  getUnreadComments(_threadId?: string): Promise<IUserComment[]> {
+    return Promise.resolve([]);
+  }
+
+  getUnreadCommentsForSubject(_subjectType: SubjectType, _subjectId: string): Promise<IUserComment[]> {
+    return Promise.resolve([]);
+  }
+
+  countUnreadComments(_threadId?: string): Promise<number> {
+    return Promise.resolve(0);
+  }
+
+  createCommentThread(thread: ICommentThread, firstComment: IUserComment): Promise<ICommentThread> {
+    const now = new Date().toISOString();
+    const createdThread = {
+      ...thread,
+      authorId: thread.authorId ?? firstComment.authorId,
+      authorName: thread.authorName ?? firstComment.authorName,
+      createdAt: thread.createdAt || now,
+      updatedAt: thread.updatedAt || now,
+    };
+    const createdComment = {
+      ...firstComment,
+      commentThreadId: createdThread.id,
+      createdAt: firstComment.createdAt || now,
+      updatedAt: firstComment.updatedAt || now,
+    };
+    this._commentThreads = [...this._commentThreads, createdThread];
+    this._userComments = [...this._userComments, createdComment];
+    return Promise.resolve({...createdThread});
+  }
+
+  addUserComment(threadId: string, comment: IUserComment): Promise<IUserComment> {
+    const now = new Date().toISOString();
+    const createdComment = {
+      ...comment,
+      commentThreadId: threadId,
+      createdAt: comment.createdAt || now,
+      updatedAt: comment.updatedAt || now,
+    };
+    this._userComments = [...this._userComments, createdComment];
+    this.touchCommentThread(threadId, now);
+    return Promise.resolve({...createdComment});
+  }
+
+  editUserComment(commentId: string, text: string): Promise<IUserComment> {
+    const now = new Date().toISOString();
+    const index = this._userComments.findIndex(comment => comment.id === commentId);
+    if (index === -1) throw new Error(`Comment ${commentId} not found`);
+
+    const updatedComment = {...this._userComments[index], text, updatedAt: now};
+    this._userComments = this._userComments.map((comment, i) => i === index ? updatedComment : comment);
+    this.touchCommentThread(updatedComment.commentThreadId, now);
+    return Promise.resolve({...updatedComment});
+  }
+
+  setCommentThreadStatus(threadId: string, status: ThreadStatus): Promise<ICommentThread> {
+    const now = new Date().toISOString();
+    const index = this._commentThreads.findIndex(thread => thread.id === threadId);
+    if (index === -1) throw new Error(`Comment thread ${threadId} not found`);
+
+    const updatedThread = {...this._commentThreads[index], status, updatedAt: now};
+    this._commentThreads = this._commentThreads.map((thread, i) => i === index ? updatedThread : thread);
+    return Promise.resolve({...updatedThread});
+  }
+
+  deleteUserComment(commentId: string): Promise<void> {
+    const now = new Date().toISOString();
+    this._userComments = this._userComments.map(comment => comment.id === commentId
+      ? {...comment, deletedAt: now, updatedAt: now}
+      : comment);
+    return Promise.resolve();
+  }
+
+  deleteCommentThread(threadId: string): Promise<void> {
+    const now = new Date().toISOString();
+    this._commentThreads = this._commentThreads.map(thread => thread.id === threadId
+      ? {...thread, deletedAt: now, updatedAt: now}
+      : thread);
+    this._userComments = this._userComments.map(comment => comment.commentThreadId === threadId
+      ? {...comment, deletedAt: now, updatedAt: now}
+      : comment);
+    return Promise.resolve();
+  }
+
+  markCommentRead(_commentId: string): Promise<void> {
+    return Promise.resolve();
+  }
+
+  markCommentThreadRead(_threadId: string): Promise<void> {
+    return Promise.resolve();
+  }
+
+  markAllCommentsRead(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  private touchCommentThread(threadId: string, updatedAt: string): void {
+    this._commentThreads = this._commentThreads.map(thread => thread.id === threadId ? {...thread, updatedAt} : thread);
+  }
 
   private _customViews: ICustomView[] = [{
     id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -321,10 +479,14 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return JSON.parse(JSON.stringify(entry)) as IEntry;
   }
 
-  createEntry(entry: IEntry): Promise<IEntry> {
+  async createEntry(entry: IEntry, options: ICreateEntryOptions): Promise<IEntry> {
+    if (options.autoAddMainPublication) {
+      const main = (await this.getPublications()).find(p => p.isMain);
+      if (main && !entry.publishIn.some(p => p.id === main.id)) entry.publishIn.push(main);
+    }
     this._entries.push(entry);
     this.#projectEventBus.notifyEntryUpdated(entry);
-    return Promise.resolve(entry);
+    return entry;
   }
 
   updateEntry(_before: IEntry, after: IEntry): Promise<IEntry> {
@@ -371,6 +533,58 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const entry = this._entries.find(e => e.id === entryGuid)!;
     const sense = entry.senses.find(s => s.id === senseGuid)!;
     sense.exampleSentences.splice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
+    this.#projectEventBus.notifyEntryUpdated(entry);
+    return Promise.resolve();
+  }
+
+  createPicture(entryGuid: string, senseGuid: string, picture: IPicture): Promise<IPicture> {
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    // Generated demo senses may omit `pictures` entirely, so default it rather than spread undefined.
+    sense.pictures = [...(sense.pictures ?? []), picture];
+    this.#projectEventBus.notifyEntryUpdated(entry);
+    return Promise.resolve(picture);
+  }
+
+  updatePicture(entryGuid: string, senseGuid: string, _before: IPicture, after: IPicture): Promise<IPicture> {
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    const index = (sense.pictures ?? []).findIndex(p => p.id === after.id);
+    if (index === -1) throw new Error(`Picture ${after.id} not found`);
+    sense.pictures.splice(index, 1, after);
+    this.#projectEventBus.notifyEntryUpdated(entry);
+    return Promise.resolve(after);
+  }
+
+  deletePicture(entryGuid: string, senseGuid: string, pictureGuid: string): Promise<void> {
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    sense.pictures = (sense.pictures ?? []).filter(p => p.id !== pictureGuid);
+    this.#projectEventBus.notifyEntryUpdated(entry);
+    return Promise.resolve();
+  }
+
+  movePicture(entryGuid: string, senseGuid: string, pictureGuid: string, previousPictureGuid: string, nextPictureGuid: string): Promise<void> {
+    const entry = this._entries.find(e => e.id === entryGuid);
+    if (!entry) throw new Error(`Entry ${entryGuid} not found`);
+    const sense = entry.senses.find(s => s.id === senseGuid);
+    if (!sense) throw new Error(`Sense ${senseGuid} not found`);
+    const pictures = [...(sense.pictures ?? [])];
+    const from = pictures.findIndex(p => p.id === pictureGuid);
+    if (from === -1) throw new Error(`Picture ${pictureGuid} not found`);
+    const [moved] = pictures.splice(from, 1);
+    // Insert after the previous picture if given, else before the next, else at the end.
+    const prevIdx = previousPictureGuid ? pictures.findIndex(p => p.id === previousPictureGuid) : -1;
+    const nextIdx = nextPictureGuid ? pictures.findIndex(p => p.id === nextPictureGuid) : -1;
+    const insertAt = prevIdx !== -1 ? prevIdx + 1 : nextIdx !== -1 ? nextIdx : pictures.length;
+    pictures.splice(insertAt, 0, moved);
+    sense.pictures = pictures;
     this.#projectEventBus.notifyEntryUpdated(entry);
     return Promise.resolve();
   }
@@ -506,8 +720,8 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   getPublications(): Promise<IPublication[]> {
     return Promise.resolve([
-      {id: '1', name: {en: 'Main Dictionary'}, deletedAt: undefined},
-      {id: '2', name: {en: 'School Dictionary'}, deletedAt: undefined},
+      {id: '1', name: {en: 'Main Dictionary'}, isMain: true, deletedAt: undefined},
+      {id: '2', name: {en: 'School Dictionary'}, isMain: false, deletedAt: undefined},
     ]);
   }
 
@@ -515,11 +729,64 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     throw new Error('Method not implemented.');
   }
 
-  getFileStream(_mediaUri: string): Promise<IReadFileResponseJs> {
-    return Promise.resolve({result: ReadFileResult.NotSupported});
+  // Files uploaded during the demo session (e.g. via the "+ Picture" button), keyed by the
+  // mediaUri handed back from saveFile. Lets the demo round-trip an upload without a backend.
+  #uploadedFiles = new Map<string, Blob>();
+  // Maps an already-uploaded filename to its mediaUri, mirroring how the real server dedups by
+  // filename (LcmMediaService keys by the file name within the project's resource cache).
+  #uploadedFilenames = new Map<string, string>();
+  // Pre-seeded demo pictures that have been "downloaded" from the (simulated) remote media service,
+  // so a later local-only request returns them instead of NotFound — mirroring how a synced project
+  // fetches images on demand.
+  #downloadedRemoteFiles = new Set<string>();
+
+  getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
+    const uploaded = this.#uploadedFiles.get(mediaUri);
+    if (uploaded) {
+      return Promise.resolve({
+        result: ReadFileResult.Success,
+        fileName: mediaUri.split('/').pop() ?? 'demo-upload',
+        stream: {
+          stream: () => Promise.resolve(uploaded.stream()),
+          arrayBuffer: () => uploaded.arrayBuffer(),
+        },
+      });
+    }
+    const svg = demoPictureSvgs[mediaUri];
+    if (!svg) return Promise.resolve({result: ReadFileResult.NotFound});
+    if (!this.#downloadedRemoteFiles.has(mediaUri)) {
+      if (!downloadIfMissing) return Promise.resolve({result: ReadFileResult.NotFound});
+      this.#downloadedRemoteFiles.add(mediaUri);
+    }
+    const blob = new Blob([svg], {type: 'image/svg+xml'});
+    return Promise.resolve({
+      result: ReadFileResult.Success,
+      fileName: 'demo-picture.svg',
+      stream: {
+        stream: () => Promise.resolve(blob.stream()),
+        arrayBuffer: () => blob.arrayBuffer(),
+      },
+    });
   }
 
-  saveFile(_streamReference: Blob | ArrayBuffer | Uint8Array, _metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
-    return Promise.resolve({result: UploadFileResult.NotSupported});
+  saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
+    const blob = streamReference instanceof Blob
+      ? streamReference
+      : new Blob([streamReference as BlobPart], {type: metadata.mimeType});
+    // The demo stands in for the server, so it enforces the same 10 MB limit the real
+    // backend does — exercising the client's TooBig handling without a backend.
+    if (blob.size > DEMO_FILE_SIZE_LIMIT) {
+      return Promise.resolve({result: UploadFileResult.TooBig});
+    }
+    // Same filename as an earlier upload: report AlreadyExists and hand back the existing
+    // mediaUri (as the real server does) so the caller can point a new Picture at that file.
+    const existing = this.#uploadedFilenames.get(metadata.filename);
+    if (existing) {
+      return Promise.resolve({result: UploadFileResult.AlreadyExists, mediaUri: existing});
+    }
+    const mediaUri = `demo-upload/${randomId()}`;
+    this.#uploadedFiles.set(mediaUri, blob);
+    this.#uploadedFilenames.set(metadata.filename, mediaUri);
+    return Promise.resolve({result: UploadFileResult.SavedLocally, mediaUri});
   }
 }

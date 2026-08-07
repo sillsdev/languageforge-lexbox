@@ -1,4 +1,6 @@
 <script lang="ts" module>
+  import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
+
   export type Props = {
     entry: IEntry;
     readonly?: boolean;
@@ -12,8 +14,8 @@
   };
 </script>
 <script lang="ts">
-  import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {initImageService} from '../field-editors/image-service.svelte';
   import {useViewService, hasVisibleFields} from '$lib/views/view-service.svelte';
   import {cn, defaultExampleSentence, defaultSense} from '$lib/utils';
   import {useWritingSystemService} from '$project/data';
@@ -48,6 +50,9 @@
 
   const dialogService = useDialogsService();
   const writingSystemService = useWritingSystemService();
+
+  // Entry-scoped image cache: pictures (and the edit/viewer dialogs) share one load per mediaUri.
+  initImageService();
 
   let editor = $state<Editor.Root>();
 
@@ -167,9 +172,10 @@
   const showSenses = $derived(showExamples || hasVisibleFields(viewService.currentView.senseFields));
 </script>
 
-<Editor.Root bind:ref bind:this={editor}>
-  <Editor.Grid bind:ref={editorElem}>
-    <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
+<div class="flex min-h-0 gap-4">
+  <Editor.Root bind:ref bind:this={editor} class="min-w-0 flex-1">
+    <Editor.Grid bind:ref={editorElem}>
+      <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
     {#if showSenses}
       {#each entry.senses as sense, i (sense.id)}
@@ -195,11 +201,11 @@
                   <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
                   <ObjectHeader type="example" index={j + 1}>
                     <EntityListItemActions i={j} {readonly}
-                                          items={sense.exampleSentences}
-                                          getDisplayName={example => writingSystemService.firstSentenceOrTranslationVal(example)}
-                                          onmove={(newIndex) => moveExample(sense, example, newIndex)}
-                                          ondelete={() => deleteExample(sense, example)}
-                                          id={example.id} />
+                                           items={sense.exampleSentences}
+                                           getDisplayName={example => writingSystemService.firstSentenceOrTranslationVal(example)}
+                                           onmove={(newIndex) => moveExample(sense, example, newIndex)}
+                                           ondelete={() => deleteExample(sense, example)}
+                                           id={example.id}/>
                   </ObjectHeader>
 
                   <ExampleEditorPrimitive
@@ -243,8 +249,9 @@
         </code>
       </details>
     </DevContent>
-  </Editor.Grid>
-</Editor.Root>
+    </Editor.Grid>
+  </Editor.Root>
+</div>
 
 <style lang="postcss">
   @reference "#app.css";

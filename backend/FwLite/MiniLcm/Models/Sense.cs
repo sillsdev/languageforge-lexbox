@@ -25,6 +25,7 @@ public class Sense : IObjectWithId<Sense>, IOrderable
     [MiniLcmInternal, NotMapped, JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)]
     public IEnumerable<SemanticDomain> SemanticDomainRows => SemanticDomains;
     public virtual List<ExampleSentence> ExampleSentences { get; set; } = [];
+    public virtual List<Picture> Pictures { get; set; } = [];
 
     public Guid[] GetReferences()
     {
@@ -57,7 +58,8 @@ public class Sense : IObjectWithId<Sense>, IOrderable
             PartOfSpeech = PartOfSpeech?.Copy(),
             PartOfSpeechId = PartOfSpeechId,
             SemanticDomains = [..SemanticDomains.Select(s => s.Copy())],
-            ExampleSentences = [..ExampleSentences.Select(s => s.Copy())]
+            ExampleSentences = [..ExampleSentences.Select(s => s.Copy())],
+            Pictures = [..Pictures.Select(s => s.Copy())],
         };
     }
 }

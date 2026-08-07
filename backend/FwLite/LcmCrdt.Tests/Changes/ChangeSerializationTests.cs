@@ -2,7 +2,6 @@ using System.Buffers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using FluentAssertions.Execution;
-using LcmCrdt.Changes.Entries;
 using LcmCrdt.Tests.Data;
 using SIL.Harmony.Changes;
 
@@ -12,15 +11,6 @@ public class ChangeSerializationTests : BaseSerializationTest
 {
     private static IEnumerable<IChange> GeneratedChangesForType(Type type)
     {
-        //can't generate this type because there's no public constructor
-        if (type == typeof(SetComplexFormComponentChange))
-        {
-            yield return SetComplexFormComponentChange.NewComplexForm(Guid.NewGuid(), Guid.NewGuid());
-            yield return SetComplexFormComponentChange.NewComponent(Guid.NewGuid(), Guid.NewGuid());
-            yield return SetComplexFormComponentChange.NewComponentSense(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
-            yield break;
-        }
-
         object change;
         try
         {
@@ -61,6 +51,20 @@ public class ChangeSerializationTests : BaseSerializationTest
         var type = change.GetType();
         var json = JsonSerializer.Serialize(change, HarmonyJsonOptions);
         var newChange = JsonSerializer.Deserialize(json, type, HarmonyJsonOptions);
+        newChange.Should().BeEquivalentTo(change);
+    }
+
+    [Theory]
+    [MemberData(nameof(Changes))]
+    public void CanRoundTripChangesAsIChangeWithExternalOptions(IChange change)
+    {
+        // The sync client, web host, and debugger all (de)serialize change fields as the abstract IChange
+        // using the external (Web) options. That relies on Harmony's polymorphic converter, not just the
+        // type resolver — regression guard against the "Deserialization of interface or abstract types is
+        // not supported. Type 'IChange'" break when only the resolver was wired onto the external options.
+        var options = TestJsonOptions.External();
+        var json = JsonSerializer.Serialize(change, options);
+        var newChange = JsonSerializer.Deserialize<IChange>(json, options);
         newChange.Should().BeEquivalentTo(change);
     }
 

@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using FwLiteMaui.Services;
 using FwLiteShared;
 using FwLiteShared.Auth;
@@ -22,6 +23,8 @@ public static class FwLiteMauiKernel
         // MAUI has no built-in appsettings.json loading like ASP.NET Core, so this is a no-op today.
         // See https://github.com/dotnet/maui/issues/4408
         //configuration.AddJsonFile("appsettings.json", optional: true);
+        // Environment variables are wired up in MauiProgram (e.g. FwLiteMaui__BaseDataDir), so the
+        // "FwLiteMaui" section bound below can be overridden at runtime without appsettings.json.
 
         string environment = "Production";
 #if DEBUG
@@ -116,7 +119,7 @@ public static class FwLiteMauiKernel
             config.CacheFileName = fwLiteMauiConfig.AuthCacheFilePath;
             config.SystemWebViewLogin = true;
         });
-        services.Configure<CrdtConfig>(config =>
+        services.Configure<HarmonyConfig>(config =>
         {
             config.FailedSyncOutputPath = Path.Combine(baseDataPath, "failedSyncs");
             config.LocalResourceCachePath = Path.Combine(baseDataPath, "localResourcesCache");

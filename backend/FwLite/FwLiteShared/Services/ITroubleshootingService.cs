@@ -8,4 +8,6 @@ public interface ITroubleshootingService
     Task OpenLogFile();
     Task ShareLogFile();
     Task ShareCrdtProject(string projectCode);
+    Task RegenerateHarmonySnapshots(string projectCode);
+    Task RegenerateEntrySearchTable(string projectCode);
 }

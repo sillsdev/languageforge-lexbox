@@ -41,9 +41,14 @@ The frontend viewer uses TypeScript types and API interfaces generated from .NET
 ```bash
 # To manually update generated types:
 dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
+
+# Verify types are committed (also runs in CI):
+task fw-lite:has-stale-generated-types
 ```
 
 The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`.
+
+⚠️ **`[JSInvokable]` methods must not have optional/defaulted parameters (nor a `CancellationToken`).** The generated TS marks them optional (`arg?`), but that's a lie: Blazor JSInterop requires JS to pass every parameter, and can't marshal a `CancellationToken` — so JS callers break at runtime. If a server-side (REST) caller needs cancellation or an extra arg, add a separate **non-`[JSInvokable]`** overload for it (see `AuthService.SignInWebView`).
 
 ## Project Structure
 
@@ -244,12 +249,22 @@ if (entity?.DeletedAt is not null) return;
 
 ---
 
+## 🚨 linq2db and timestamps
+
+linq2db wraps every SQLite timestamp comparison in `strftime('...%f', ...)` — millisecond precision, not configurable. Never filter or compare commit timestamps through `ToLinqToDB()`; use EF for those predicates (full-precision TEXT comparison, like Harmony's own `CrdtRepository`). `OrderBy` on a timestamp column is safe. See `SnapshotAtCommitService.DeleteCommitsAfter`.
+
 ## 🚨 Harmony Projected Tables (`LcmCrdtDbContext`)
 
 `LcmCrdtDbContext` DbSets (`Entries`, `Senses`, etc.) are Harmony's **projected snapshot tables**. They contain only the latest, **un-deleted** state.
 
 - ❌ **Do NOT** add `DeletedAt is null` filters when querying these DbSets — soft-deleted rows are never present. The `DeletedAt` column exists on the entity types (it's used inside Change classes during change application — see above), but the projection drops deleted rows entirely, so filtering on it is dead code that misleads readers.
 - ✅ If you need deleted history, query the change/commit tables directly (see `HistoryService.cs`, `SnapshotAtCommitService.cs`).
+
+---
+
+## Validation
+
+Imperative validation in `MiniLcmApiValidationWrapper` (rules that need an async lookup, so they can't be FluentValidation rules) must throw `FluentValidation.ValidationException` — the same type the validators throw — not `InvalidOperationException`. Otherwise the same rule reports different exception types per code path. Reserve `InvalidOperationException` for genuine "can't happen" data-integrity guards, not user-input validation.
 
 ---
 
@@ -315,7 +330,7 @@ This is major work. Follow the pattern of `Sense`:
 ### "Fix a sync bug"
 
 1. Reproduce with a test in `FwLiteProjectSync.Tests/`
-2. Use `DryRunMiniLcmApi` to see what changes would be made
+2. Use a dry-run sync (`SyncDryRun`/`ImportDryRun`, which record via `RecordingMiniLcmApi`) to see what changes would be made
 3. Debug through `CrdtFwdataProjectSyncService.Sync()`
 4. Check `ProjectSnapshot` handling
 

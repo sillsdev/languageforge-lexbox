@@ -9,9 +9,9 @@ using MiniLcm.Models;
 namespace FwLiteProjectSync.Tests.Import;
 
 /// <summary>
-/// Tests the full MiniLcmImport.Import(IProjectIdentifier) production path,
-/// where the CRDT project is created inside Import (with SeedNewProjectData: false).
-/// Distinct from <see cref="ImportTests"/> which calls ImportProject() on a pre-initialized CRDT API.
+/// Tests the full MiniLcmImport.Import(IProjectIdentifier) production path, where the CRDT project is
+/// created (unseeded) inside Import. Distinct from <see cref="ImportTests"/> which calls ImportProject()
+/// on a pre-initialized CRDT API.
 /// </summary>
 public class FullImportTests : IAsyncLifetime
 {
@@ -43,12 +43,12 @@ public class FullImportTests : IAsyncLifetime
     }
 
     /// <summary>
-    /// Regression: Import creates a CRDT project with SeedNewProjectData: false.
-    /// Morph types must be seeded unconditionally so MorphTypeSync.Sync doesn't throw
-    /// when it encounters FwData morph types as "new".
+    /// Regression: the full import path must end with the FwData project's morph types present. The CRDT
+    /// project is created unseeded, so they arrive via the import itself — MorphTypeSync creates them
+    /// against an empty destination.
     /// </summary>
     [Fact]
-    public async Task Import_FullPath_SeedsMorphTypesBeforeImport()
+    public async Task Import_FullPath_ProducesMorphTypes()
     {
         // Arrange: create an FwData project with one entry
         var projectName = "import-morph-types-" + Guid.NewGuid().ToString("N")[..8];
@@ -72,7 +72,7 @@ public class FullImportTests : IAsyncLifetime
         var crdtApi = await Services.OpenCrdtProject((CrdtProject)crdtProject);
 
         var morphTypes = await crdtApi.GetMorphTypes().ToArrayAsync();
-        morphTypes.Should().NotBeEmpty("morph types should be seeded during project creation");
+        morphTypes.Should().NotBeEmpty("the import should create the FwData project's morph types");
 
         var entries = await crdtApi.GetEntries().ToArrayAsync();
         entries.Should().ContainSingle(e => e.LexemeForm["en"] == "test");

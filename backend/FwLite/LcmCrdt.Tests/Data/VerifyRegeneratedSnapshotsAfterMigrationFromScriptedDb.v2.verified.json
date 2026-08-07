@@ -612,7 +612,8 @@
           "en": "Fruit"
         },
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "Guid_28"
     },
@@ -648,7 +649,8 @@
           "en": "Fruit"
         },
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "Guid_31"
     },
@@ -710,7 +712,8 @@
             "Predefined": true
           }
         ],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "Guid_24"
     },
@@ -748,7 +751,8 @@
           "en": "Fruit"
         },
         "SemanticDomains": [],
-        "ExampleSentences": []
+        "ExampleSentences": [],
+        "Pictures": []
       },
       "Id": "Guid_34"
     },

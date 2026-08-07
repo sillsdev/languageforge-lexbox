@@ -1,5 +1,4 @@
 using LcmCrdt;
-using FwLiteWeb.Hubs;
 using Microsoft.OpenApi;
 
 namespace FwLiteWeb.Routes;
@@ -12,7 +11,7 @@ public static class ActivityRoutes
         {
             operation.Parameters?.Add(new OpenApiParameter()
             {
-                Name = CrdtMiniLcmApiHub.ProjectRouteKey,
+                Name = RouteKeys.Project,
                 In = ParameterLocation.Path,
                 Required = true
             });

@@ -80,17 +80,13 @@
     entryCount = entryLoader?.totalCount ?? null;
   });
 
-  // Handle entry deleted events
-  projectEventBus.onEntryDeleted(entryId => {
-    void entryLoader?.onEntryDeleted(entryId);
-  });
-
-  // Handle entry updated events
-  projectEventBus.onEntryUpdated(entry => {
-    void entryLoader?.onEntryUpdated(entry).then(() => {
+  // A change can move an entry in the sort order or in/out of the current filter,
+  // so we re-query the visible range once rather than patch rows per entry.
+  projectEventBus.onEntriesChanged(({changedEntryIds}) => {
+    void entryLoader?.quietReset().then(() => {
       // follow the selected entry if it "jumps"/reorders
-      if (entry.id === selectedEntryId) {
-        return tryToScrollToEntry(entry.id);
+      if (selectedEntryId && changedEntryIds.includes(selectedEntryId)) {
+        return tryToScrollToEntry(selectedEntryId);
       }
     });
   });

@@ -6,6 +6,7 @@
 
 <script lang="ts">
   import type {IEntry, ISense} from '$lib/dotnet-types';
+  import {createEntryOptions} from '$lib/create-entry-options';
   import {untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
@@ -15,13 +16,14 @@
   import {useLexboxApi} from '../services/service-provider';
   import {defaultEntry, defaultSense} from '../utils';
   import OverrideFields from '$lib/views/OverrideFields.svelte';
-  import {useWritingSystemService} from '$project/data';
+  import {useWritingSystemService, usePublications} from '$project/data';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {pt} from '$lib/views/view-text';
   import * as Editor from '$lib/components/editor';
   import Icon from '$lib/components/ui/icon/icon.svelte';
+  import DuplicateCheckSection from './duplicate-check/DuplicateCheckSection.svelte';
   import EntryEditorPrimitive from './object-editors/EntryEditorPrimitive.svelte';
   import ObjectHeader from './object-editors/ObjectHeader.svelte';
   import SenseEditorPrimitive from './object-editors/SenseEditorPrimitive.svelte';
@@ -36,6 +38,7 @@
 
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
+  const publicationService = usePublications();
   const dialogsService = useDialogsService();
   dialogsService.invokeNewEntryDialog = openWithValue;
   const lexboxApi = useLexboxApi();
@@ -43,6 +46,7 @@
   let requester: {
     resolve: (entry: IEntry | undefined) => void
   } | undefined;
+  let addMainPublicationPromise: Promise<void> | undefined;
 
   // Watch for changes in the open state to detect when the dialog is closed
   $effect(() => {
@@ -56,19 +60,26 @@
   async function createEntry(e: Event) {
     e.preventDefault();
     e.stopPropagation();
+    // we might already be creating something
+    if (loading) return;
     if (!requester) throw new Error('No requester');
 
-    await editor?.commit();
-    entry.senses = sense ? [sense] : [];
-    if (!validateEntry()) return;
-
     loading = true;
-    const entrySnapshot = $state.snapshot(entry);
-    await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot));
-    requester.resolve(entry);
-    requester = undefined;
-    loading = false;
-    open = false;
+    try {
+      await editor?.commit();
+      await addMainPublicationPromise; // make sure the main publication landed before we snapshot the entry
+      entry.senses = sense ? [sense] : [];
+      if (!validateEntry()) return;
+
+      const entrySnapshot = $state.snapshot(entry);
+      // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
+      await saveHandler.handleSave(() => lexboxApi.createEntry(entrySnapshot, createEntryOptions.asIs));
+      requester.resolve(entry);
+      requester = undefined;
+      open = false;
+    } finally {
+      loading = false;
+    }
   }
 
   let errors: string[] = $state([]);
@@ -115,11 +126,24 @@
       const tmpEntry = defaultEntry();
       publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
+      addMainPublicationPromise = addMainPublication(entry.id);
       addSense();
 
       errors = [];
       open = true;
     });
+  }
+
+  // Add the project's main publication to a new entry; the user can remove it when the publish-in field is shown.
+  // Gate on `loaded`, not on reading `mainPublication`: reading it lazily kicks off a second getPublications fetch,
+  // and that superseded fetch resolves with stale empty data — so the main publication would silently never be added.
+  async function addMainPublication(entryId: string) {
+    if (!publicationService.loaded) await publicationService.refetch();
+    const main = publicationService.mainPublication;
+    if (!main || entry.id !== entryId) return; // dialog moved on while we awaited
+    if (!entry.publishIn.some(p => p.id === main.id)) {
+      entry.publishIn = [...entry.publishIn, main];
+    }
   }
 
   function addSense() {
@@ -137,6 +161,7 @@
       requester = undefined;
     }
     entry = defaultEntry();
+    addMainPublicationPromise = undefined;
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -154,12 +179,21 @@
   </span>
 {/snippet}
 
+{#snippet publishInNote()}
+  {#if publishInIsFromTemplate}{@render fromActiveFilter()}{/if}
+{/snippet}
+
 <Dialog.Root bind:open={open}>
-  <Dialog.DialogContent onkeydown={handleKeydown} class="sm:min-h-[min(calc(100%-16px),30rem)] max-md:px-2">
+  <!-- Fixed width (not min/max): the duplicate check adds and reshapes content while the
+    dialog is open, and a content-sized dialog jumps around with every keystroke -->
+  <Dialog.DialogContent onkeydown={handleKeydown}
+    class="sm:min-h-[min(calc(100%-16px),30rem)] sm:w-[min(calc(100%-32px),50rem)] max-md:px-2">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, viewService.currentView)}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    <div>
+    <!-- min-w-0: as a grid item this div defaults to min-width:auto, letting long duplicate
+      headword lists widen the dialog instead of truncating -->
+    <div class="min-w-0">
       <OverrideFields shownFields={[
         'lexemeForm', 'citationForm',
         'gloss', 'definition', 'partOfSpeechId',
@@ -170,7 +204,7 @@
         <Editor.Root bind:this={editor}>
           <Editor.Grid>
             <EntryEditorPrimitive bind:entry autofocus modalMode
-              publishInDescription={publishInIsFromTemplate ? fromActiveFilter : undefined} />
+              publishInDescription={entryTemplate?.publishIn?.length ? publishInNote : undefined} />
             {#if sense}
               <Editor.SubGrid>
                 <ObjectHeader type="sense">
@@ -188,6 +222,8 @@
           </Editor.Grid>
         </Editor.Root>
       </OverrideFields>
+      <DuplicateCheckSection {entry} {sense}
+        onNavigateToEntry={() => open = false} />
     </div>
     {#if errors.length}
       <div class="text-end space-y-2">
@@ -198,7 +234,7 @@
     {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-      <Button onclick={e => createEntry(e)} disabled={loading} {loading}>
+      <Button onclick={e => createEntry(e)} {loading}>
         {pt($t`Create Entry`, $t`Add Word`, viewService.currentView)}
       </Button>
     </Dialog.DialogFooter>

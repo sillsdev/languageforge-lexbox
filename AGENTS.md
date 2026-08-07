@@ -48,14 +48,34 @@ Key documentation for this project:
 - `frontend/viewer/AGENTS.md` - **FwLite Viewer** (Specific frontend rules)
 - `deployment/README.md` - Deployment and infrastructure
 
+## 🔒 Privacy and Production Access (non-negotiable)
+
+These two rules override every task. No goal (a bug report, debugging, being thorough or helpful) justifies breaking them.
+
+### NEVER post project or user data online
+
+This repo and its issue tracker are public. Anything you post to GitHub (issues, PRs, comments, reviews, commit messages, branch names) or anywhere else online must contain ZERO identifying information about real projects or people:
+
+- ❌ Project codes (e.g. `abc-flex`) and project or language names tied to real data
+- ❌ User names, emails, org names
+- ❌ Content from real project data (entry text, filenames, media)
+- ❌ Stats or details that identify a specific project even without naming it
+
+Describe real cases generically instead ("a ~9k-entry production project") and give the identifying details to the user privately; they decide what gets shared and where. If you are unsure whether something is identifying, treat it as identifying and leave it out. This applies no matter where the data came from: logs, a database, a screenshot, or earlier in the conversation.
+
+### NEVER access a Kubernetes cluster without explicit permission
+
+Do not run `kubectl`, `helm`, `k9s`, port-forwards, or anything else that reads from or writes to a k8s cluster unless the user has clearly approved it for that specific cluster in the current task. Production is strictly off-limits without an instruction that explicitly names production. The only case that needs no ask is a throwaway local dev cluster (e.g. kind) that you started yourself for the task.
+
 ## Guidelines
 
 ### Testing
 
 - ✅ **DO run unit tests via the CLI**, filtered to the tests relevant to your changes (e.g. `dotnet test backend/FwLite/FwLiteShared.Tests --filter "FullyQualifiedName~MyTestClass"`). Verify tests you wrote or changed actually pass before handing work back. Never run whole suites just to "see if anything broke".
-- ✅ **FwLite integration tests** (e.g. `FwLiteProjectSync.Tests`) need no infrastructure but are slow. Run a **targeted selection** (specific tests, not necessarily whole classes) when you touched critical sync code **and believe the work is finished** — not on every iteration. Waiting on tests burns time; be deliberate about which runs buy real signal.
+- ✅ **`MiniLcm.Tests`, `LcmCrdt.Tests`, `FwDataMiniLcmBridge.Tests` need no infrastructure** — these are the unit/conformance tests for the two `IMiniLcmApi` implementations; run them filtered to your change like any unit test (this is where a `*TestsBase` change should be verified, including its FwData side). The FwData/LCM-backed selections load a real project (a handful of tests = seconds, a whole class = a minute or two), so keep the filter tight; don't reach for the whole class or project.
+- ✅ **FwLite integration tests** (e.g. `FwLiteProjectSync.Tests`) need no infrastructure but are slow. FwData runs **in-process via liblcm** — these tests create real FieldWorks projects with no external setup (e.g. the `ProjectTemplateTests.GenerateTemplate` regen tool). Only FwHeadless's hg/Mercurial sync and the lexbox stack (last bullet) need running infrastructure — *not* FwData itself. Run a **targeted selection** (specific tests, not necessarily whole classes) when you touched critical sync code **and believe the work is finished** — not on every iteration. Waiting on tests burns time; be deliberate about which runs buy real signal.
 - ✅ **`backend/Testing` contains unit tests too** — only tests marked `Category=Integration|FlakyIntegration|RequiresDb` (and the `Testing.Browser` namespace) need infrastructure. Its unit tests are fine to run: `task test:unit -- <filter>` excludes those categories for you.
-- ✅ **FwLite viewer Playwright tests MAY be run** — they're cheap: `task playwright-test-standalone -- <test-name-filter>` (from `frontend/viewer/`) auto-starts the vite dev server with the in-browser demo project; no lexbox stack, chromium only. Always filter to relevant tests; details in `frontend/viewer/AGENTS.md`.
+- ✅ **FwLite viewer Playwright tests MAY be run** — they're cheap: `task test:ui-standalone -- <test-name-filter>` (from `frontend/viewer/`) auto-starts the vite dev server with the in-browser demo project; no lexbox stack, chromium only. Always filter to relevant tests; details in `frontend/viewer/AGENTS.md`.
 - ❌ **Do NOT run tests that need the lexbox stack** unless the user explicitly asks: LexBox integration tests (`Category=Integration`/`FlakyIntegration`, `Testing.Browser`) and the lexbox frontend Playwright suite (`frontend/tests`). The local stack is usually down or torn down between sessions and results aren't trustworthy — rely on CI for these.
 
 ### Questions?
@@ -63,7 +83,7 @@ Key documentation for this project:
 - Check existing issues: `gh issue list --limit 30`
 - Look at recent commits: `git log --oneline -20`
 - Read the docs in `docs/` directory
-- Create a GitHub issue if unsure
+- Create a GitHub issue if unsure (public! — see 🔒 Privacy rules above)
 - Ask the user to clarify
 
 ### Pre-Flight Check
@@ -72,6 +92,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 
 ### Important Rules
 
+- ✅ If `AGENTS.local.md` exists at the repo root, read and follow it. It holds personal/local agent config (gitignored; may be absent on other machines) — skip silently when missing.
 - ✅ **ALWAYS read local `AGENTS.md` files** in the directories you are working in (and their parents) before starting.
 - ✅ **ALWAYS review relevant code paths** before asking clarification questions.
 - ✅ New instructions in AGENTS.md files should be SUCCINCT.
@@ -82,6 +103,8 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ Prefer IDE diagnostics (compiler/lint errors) over CLI tools for identifying issues. Fixing these diagnostics is part of completing any instruction.
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
 - ❌ Do NOT git commit or git push without explicit user approval
+- ❌ Do NOT post project/user identifiers or any real-project data online, and do NOT touch a k8s cluster without explicit permission — see **🔒 Privacy and Production Access** above
+- ⚠️ **Pre-commit hook prettier-formats staged `*.{js,ts,svelte,css,md,json}` files** (yes, incl. `.md`/docs) via `frontend/viewer`. If your commit stages any of those and `frontend/viewer/node_modules` is missing (fresh worktree/clone), run `cd frontend && pnpm install` first (~45s, once per worktree) — don't `--no-verify` to dodge it, that just defers the format failure to CI. If it stages none of those (e.g. backend-only), the hook is a no-op: it passes with no install, and `--no-verify` is fine.
 
 ### 🛡️ VIGILANCE
 
@@ -91,3 +114,20 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ **Assert that E2E test user actions** e.g. (scroll, click, etc.) actually have the expected effect before proceeding further.
 
 If you are struggling, explain the difficulty to the user instead of cheating. **Integrity is non-negotiable.**
+
+## Cursor Cloud specific instructions
+
+System deps (.NET 10 SDK, Taskfile/`task`) are baked into the VM snapshot; the startup update script only refreshes pnpm + FwLiteWeb NuGet deps. The generated TS types under `frontend/viewer/src/lib/dotnet-types/generated-types/` are committed, so the viewer runs without a backend build.
+
+### Running FW Lite Web (headless)
+
+`task fw-lite-web` is the documented dev workflow but it also launches the https-proxy + Storybook (only needed for MSAL OAuth / component dev). For headless cloud testing, run just the two core processes (each in its own background/tmux session):
+
+- Viewer (Vite dev server, port 5173): `pnpm -C frontend/viewer run dev`
+- Backend host (port 5137): `cd backend/FwLite/FwLiteWeb && dotnet run`
+
+The app is at `http://localhost:5137` (Blazor host that serves the viewer via Vite dev assets). On the home page, click **Create Example Project** → open it to test entry editing fully offline — no remote login required.
+
+### Gotcha: embedded webview
+
+`FwLiteWeb/appsettings.Development.json` sets `OpenBrowser: true`, which spawns an embedded Photino/Chromium window on startup. In headless this floods logs with harmless `dbus`/`gpu` errors and is unusable. When testing through an external browser, start the backend with `FwLiteWeb__OpenBrowser=false dotnet run` to suppress it (runtime override, no file change).
