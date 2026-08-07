@@ -89,6 +89,7 @@ public class ResumableTests : IAsyncLifetime
             {
                 Id = Guid.NewGuid(),
                 Name = new() { ["en"] = "Test Semantic Domain" },
+                Abbreviation = new() { ["en"] = "TSD" },
                 Code = "TSD"
             }]));
 

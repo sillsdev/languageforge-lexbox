@@ -282,7 +282,9 @@ internal static class LcmHelpers
     {
         var abbr = semanticDomain.Abbreviation;
         // UiString can be null even though there is an abbreviation available
-        return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
+        var code = abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
+        // LCM uses "***" as the missing-string marker when Abbreviation is empty
+        return code is null or "***" ? string.Empty : code;
     }
 
     internal static void SetString(this ITsMultiString multiString, FwDataMiniLcmApi api, WritingSystemId ws, string value)

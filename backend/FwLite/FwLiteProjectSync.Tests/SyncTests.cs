@@ -391,7 +391,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Id = new Guid("f4491f9b-3c5e-42ab-afc0-f22e19d0fff5"),
             Name = new MultiString() { { "en", "Language and thought" } },
-            Code = "3",
+            Abbreviation = new MultiString() { { "en", "3" } },
             Predefined = true,
         };
         await fwdataApi.CreateSemanticDomain(semdom3);
@@ -400,7 +400,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Id = new Guid("62b4ae33-f3c2-447a-9ef7-7e41805b6a02"),
             Name = new MultiString() { { "en", "Social behavior" } },
-            Code = "4",
+            Abbreviation = new MultiString() { { "en", "4" } },
             Predefined = true,
         };
         await crdtApi.CreateSemanticDomain(semdom4);
@@ -409,10 +409,12 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtSemanticDomains = await crdtApi.GetSemanticDomains().ToArrayAsync();
         var fwdataSemanticDomains = await fwdataApi.GetSemanticDomains().ToArrayAsync();
-        crdtSemanticDomains.Should().ContainEquivalentOf(semdom3);
-        crdtSemanticDomains.Should().ContainEquivalentOf(semdom4);
-        fwdataSemanticDomains.Should().ContainEquivalentOf(semdom3);
-        fwdataSemanticDomains.Should().ContainEquivalentOf(semdom4);
+        crdtSemanticDomains.Should().ContainEquivalentOf(semdom3, o => o.Excluding(sd => sd.Code));
+        crdtSemanticDomains.Should().ContainEquivalentOf(semdom4, o => o.Excluding(sd => sd.Code));
+        fwdataSemanticDomains.Should().ContainEquivalentOf(semdom3, o => o.Excluding(sd => sd.Code));
+        fwdataSemanticDomains.Should().ContainEquivalentOf(semdom4, o => o.Excluding(sd => sd.Code));
+        crdtSemanticDomains.Should().Contain(sd => sd.Id == semdom3.Id && sd.Code == "3");
+        crdtSemanticDomains.Should().Contain(sd => sd.Id == semdom4.Id && sd.Code == "4");
 
         crdtSemanticDomains.Should().BeEquivalentTo(fwdataSemanticDomains);
     }
@@ -430,7 +432,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Id = new Guid("f4491f9b-3c5e-42ab-afc0-f22e19d0fff5"),
             Name = new MultiString() { { "en", "Language and thought" } },
-            Code = "3",
+            Abbreviation = new MultiString() { { "en", "3" } },
             Predefined = true,
         };
         await fwdataApi.CreateSemanticDomain(semdom3);

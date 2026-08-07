@@ -875,7 +875,11 @@
         "Name": {
           "en": "Person"
         },
+        "Abbreviation": {},
         "Code": "2",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "DeletedAt": null,
         "Predefined": true
       },
@@ -900,7 +904,11 @@
         "Name": {
           "en": "Body"
         },
+        "Abbreviation": {},
         "Code": "2.1",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "DeletedAt": null,
         "Predefined": false
       },
@@ -925,7 +933,11 @@
         "Name": {
           "en": "Head"
         },
+        "Abbreviation": {},
         "Code": "2.1.1",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "DeletedAt": null,
         "Predefined": false
       },
@@ -950,7 +962,11 @@
         "Name": {
           "en": "Eye"
         },
+        "Abbreviation": {},
         "Code": "2.1.1.1",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "DeletedAt": null,
         "Predefined": false
       },
@@ -975,7 +991,11 @@
         "Name": {
           "en": "Universe, Creation"
         },
+        "Abbreviation": {},
         "Code": "1",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "DeletedAt": null,
         "Predefined": true
       },
@@ -1000,7 +1020,11 @@
         "Name": {
           "en": "Sky"
         },
+        "Abbreviation": {},
         "Code": "1.1",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "DeletedAt": null,
         "Predefined": true
       },
@@ -1025,7 +1049,11 @@
         "Name": {
           "en": "World"
         },
+        "Abbreviation": {},
         "Code": "1.2",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "DeletedAt": null,
         "Predefined": true
       },
@@ -1352,7 +1380,11 @@
             "Name": {
               "en": "Universe, Creation"
             },
+            "Abbreviation": {},
             "Code": "1",
+            "Description": {},
+            "OcmCodes": "",
+            "LouwNidaCodes": "",
             "DeletedAt": null,
             "Predefined": true
           }

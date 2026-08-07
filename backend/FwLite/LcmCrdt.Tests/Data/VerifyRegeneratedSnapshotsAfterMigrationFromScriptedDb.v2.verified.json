@@ -445,7 +445,11 @@
         "Name": {
           "en": "Person"
         },
+        "Abbreviation": {},
         "Code": "2",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_39"
@@ -467,7 +471,11 @@
         "Name": {
           "en": "Body"
         },
+        "Abbreviation": {},
         "Code": "2.1",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "Predefined": false
       },
       "Id": "Guid_42"
@@ -489,7 +497,11 @@
         "Name": {
           "en": "Head"
         },
+        "Abbreviation": {},
         "Code": "2.1.1",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "Predefined": false
       },
       "Id": "Guid_44"
@@ -511,7 +523,11 @@
         "Name": {
           "en": "Eye"
         },
+        "Abbreviation": {},
         "Code": "2.1.1.1",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "Predefined": false
       },
       "Id": "Guid_46"
@@ -533,7 +549,11 @@
         "Name": {
           "en": "Universe, Creation"
         },
+        "Abbreviation": {},
         "Code": "1",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_48"
@@ -555,7 +575,11 @@
         "Name": {
           "en": "Sky"
         },
+        "Abbreviation": {},
         "Code": "1.1",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_50"
@@ -577,7 +601,11 @@
         "Name": {
           "en": "World"
         },
+        "Abbreviation": {},
         "Code": "1.2",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_52"
@@ -708,7 +736,11 @@
             "Name": {
               "en": "Universe, Creation"
             },
+            "Abbreviation": {},
             "Code": "1",
+            "Description": {},
+            "OcmCodes": "",
+            "LouwNidaCodes": "",
             "Predefined": true
           }
         ],
