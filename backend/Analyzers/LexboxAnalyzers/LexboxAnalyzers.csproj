@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    In-repo Roslyn analyzers. See backend/Analyzers/README.md.
+    MUST target netstandard2.0 so the assembly loads into both the .NET (CLI) and
+    .NET Framework (Visual Studio) compiler hosts.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <!-- Consumed by backend/Directory.Build.targets to avoid the analyzer referencing itself. -->
+    <IsAnalyzerProject>true</IsAnalyzerProject>
+    <!-- Analyzer Roslyn/BCL versions are pinned here, independent of the backend's central package versions. -->
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Pin Roslyn to a version <= the Roslyn shipped in the lowest supported SDK/IDE.
+      4.8.0 is a safe floor; a higher version fails to load in older tooling with an
+      unhelpful error. PrivateAssets="all" keeps Roslyn out of consumers' reference graph.
+    -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Release tracking (RS2008). Add each new rule to AnalyzerReleases.Unshipped.md. -->
+    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- Excludes this project from the analyzer wiring in backend/Directory.Build.targets;
+         the analyzer is referenced normally below so the tests can name its types. -->
+    <IsAnalyzerProject>true</IsAnalyzerProject>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="1.1.2" />
+    <!-- Pin Roslyn so the test host compiles TestCode with a modern C# (primary constructors)
+         and to override the ancient transitive Workspaces the testing package would otherwise pull. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LexboxAnalyzers\LexboxAnalyzers.csproj" />
+  </ItemGroup>
+</Project>
