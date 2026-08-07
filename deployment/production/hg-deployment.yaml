@@ -14,8 +14,6 @@ spec:
             limits:
               memory: 1000Mi
         - name: hgresumable
-          # Keep production on the pre-rewrite image until the new hgresume is validated elsewhere.
-          image: ghcr.io/sillsdev/hgresume:v2024-05-28
           resources:
             requests:
               memory: 1000Mi
