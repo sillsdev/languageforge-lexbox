@@ -43,6 +43,9 @@ RUN test -f FixFwData \
     && python3 -c "import zipfile; open('/tmp/smoke.fwdata','wb').write(zipfile.ZipFile('/tmp/test-template-repo.zip').read('kevin-test-01.fwdata'))" \
     && ./FixFwData /tmp/smoke.fwdata; ec=$?; rm -f /tmp/test-template-repo.zip /tmp/smoke.fwdata; \
     if [ $ec -gt 1 ]; then echo "FixFwData smoke test failed with exit $ec"; exit 1; fi
+# Fail loudly if ChorusMerge finds no *-ChorusPlugin.dll (sillsdev/chorus#393 / #392); must be set
+# before the chorusmerge smoke-test RUN below.
+ENV ChorusRequirePlugins=1
 # Smoke-test: chorusmerge must engage the FieldWorks merge handler, not silently keep one
 # whole file (#2508). Runs the real wrapper from a non-/app cwd, exactly as hg does.
 # Bind-mount rather than COPY so the fixture/script don't ship in the runtime image.
