@@ -425,7 +425,11 @@ public class FwDataMiniLcmApi(
         {
             Id = semanticDomain.Guid,
             Name = FromLcmMultiString(semanticDomain.Name),
+            Abbreviation = FromLcmMultiString(semanticDomain.Abbreviation),
             Code = LcmHelpers.GetSemanticDomainCode(semanticDomain),
+            Description = FromLcmMultiString(semanticDomain.Description),
+            OcmCodes = semanticDomain.OcmCodes ?? string.Empty,
+            LouwNidaCodes = semanticDomain.LouwNidaCodes ?? string.Empty,
             Predefined = CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(semanticDomain.Guid),
         };
     }
@@ -456,10 +460,11 @@ public class FwDataMiniLcmApi(
             {
                 var lcmSemanticDomain = Cache.ServiceLocator.GetInstance<ICmSemanticDomainFactory>()
                     .Create(semanticDomain.Id, Cache.LangProject.SemanticDomainListOA);
-                lcmSemanticDomain.OcmCodes = semanticDomain.Code;
                 UpdateLcmMultiString(lcmSemanticDomain.Name, semanticDomain.Name);
-                // TODO: Find out if semantic domains are guaranteed to have an "en" writing system, or if we should use lcmCache.DefautlAnalWs instead
-                UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, new MultiString(){{"en", semanticDomain.Code}});
+                UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, semanticDomain.Abbreviation);
+                UpdateLcmMultiString(lcmSemanticDomain.Description, semanticDomain.Description);
+                lcmSemanticDomain.OcmCodes = semanticDomain.OcmCodes;
+                lcmSemanticDomain.LouwNidaCodes = semanticDomain.LouwNidaCodes;
             });
         return await GetSemanticDomain(semanticDomain.Id) ?? throw new InvalidOperationException("Semantic domain was not created");
     }

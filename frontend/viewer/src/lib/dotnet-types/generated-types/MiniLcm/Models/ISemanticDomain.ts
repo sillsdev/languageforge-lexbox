@@ -5,12 +5,17 @@
 
 import type {IObjectWithId} from './IObjectWithId';
 import type {IMultiString} from '$lib/dotnet-types/i-multi-string';
+import type {IRichMultiString} from '$lib/dotnet-types/i-multi-string';
 
 export interface ISemanticDomain extends IObjectWithId
 {
 	id: string;
 	name: IMultiString;
+	abbreviation: IMultiString;
 	code: string;
+	description: IRichMultiString;
+	ocmCodes: string;
+	louwNidaCodes: string;
 	deletedAt?: string;
 	predefined: boolean;
 }

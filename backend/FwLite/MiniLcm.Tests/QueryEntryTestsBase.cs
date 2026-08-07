@@ -21,7 +21,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await base.InitializeAsync();
         var nounPos = new PartOfSpeech() { Id = Guid.NewGuid(), Name = { { "en", "Noun" } } };
         await Api.CreatePartOfSpeech(nounPos);
-        var semanticDomain = new SemanticDomain() { Id = Guid.NewGuid(), Name = { { "en", "Fruit" } }, Code = "1. Fruit" };
+        var semanticDomain = new SemanticDomain() { Id = Guid.NewGuid(), Name = { { "en", "Fruit" } }, Abbreviation = { { "en", "1. Fruit" } } };
         await Api.CreateSemanticDomain(semanticDomain);
         var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "Very complex" } } };
         await Api.CreateComplexFormType(complexFormType);
