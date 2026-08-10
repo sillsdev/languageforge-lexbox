@@ -36,7 +36,6 @@
     onCancelEdit,
     onSaveEdit,
     unreadThreadIds = new Set<string>(),
-    unreadCount = 0,
     onThreadOpen,
   }: {
     canComment: boolean;
@@ -50,7 +49,6 @@
     expandedThreadIds?: SvelteSet<string>;
     mobileThreadId?: string | null;
     unreadThreadIds?: Set<string>;
-    unreadCount?: number;
     onClose?: () => void;
     onStartThread: () => void;
     onReply: (threadView: ThreadView, text: string) => void | Promise<void>;

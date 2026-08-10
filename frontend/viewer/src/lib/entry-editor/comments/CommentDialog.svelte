@@ -258,7 +258,6 @@
     {editingCommentId}
     {currentUserId}
     {unreadThreadIds}
-    unreadCount={localUnreadComments.length}
     onClose={() => onOpenChange(false)}
     onStartThread={startThread}
     onReply={replyToThread}
