@@ -10,7 +10,7 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/fwlite-release")]
-[ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
+[ApiExplorerSettings(GroupName = LexboxOpenApi.OpenApiPublicDocumentName)]
 public class FwLiteReleaseController(FwLiteReleaseService releaseService) : ControllerBase
 {
     [HttpGet("download-latest")]

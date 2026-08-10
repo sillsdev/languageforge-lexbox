@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
+using Scalar.AspNetCore;
 using tusdotnet;
 
 if (MigrationKernel.IsMigrationRequest(args))
@@ -58,30 +59,8 @@ builder.Services.AddControllers(options =>
 builder.Services.AddSignalR();
 builder.Services.AddSingleton(services =>
     services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.DocInclusionPredicate((docName, apiDesc) =>
-    {
-        //we only want docs marked as public in the public group, by default no docs are public. The default behavior is to include all apis in all docs.
-        if (docName == apiDesc.GroupName) return true;
-        if (docName == LexBoxKernel.OpenApiPublicDocumentName) return false;
-        return true;
-    });
-    options.SwaggerDoc(LexBoxKernel.OpenApiPublicDocumentName, new() { Title = "Lexbox Public Api" });
-    options.SwaggerDoc(LexBoxKernel.SwaggerDocumentName, new OpenApiInfo
-    {
-        Title = "LexBoxApi",
-        Description = """
-            This is the open api for LexBox, most of the api is in the [graphql endpoint](/api/graphql/ui).
-            However there are some test users for login here, with the default password of `pass`:
-            * admin@test.com (site admin)
-            * manager@test.com (Sena 3 manager)
-            * editor@test.com (Sena 3 editor)
-            """,
-    });
-});
+builder.Services.AddLexboxOpenApi();
+
 #pragma warning disable EXTEXP0018
 builder.Services.AddHybridCache();
 #pragma warning restore EXTEXP0018
@@ -157,23 +136,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler();
 app.UseHealthChecks("/api/healthz");
 // Configure the HTTP request pipeline.
-//for now allow this to run in prod, maybe later we want to disable it.
-{
-    app.UseHttpLogging();
-    app.UseSwagger(options =>
-    {
-        options.RouteTemplate = "api/swagger/{documentName}/swagger.{json|yaml}";
-    });
-    app.UseSwaggerUI(options =>
-    {
-        //the first doc is the default one
-        options.SwaggerEndpoint("/api/swagger/public/swagger.json", "Lexbox Public Api");
-        options.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Lexbox Api");
-        options.RoutePrefix = "api/swagger";
-        options.ConfigObject.DisplayRequestDuration = true;
-        options.EnableTryItOutByDefault();
-    });
-}
+app.UseHttpLogging();
 app.UseRouting();
 app.UseResumableStatusHack();
 app.UseAuthentication();
@@ -182,10 +145,11 @@ app.MapSecurityTxt();
 app.MapNitroApp("/api/graphql/ui").WithOptions(new (){ServeMode = GraphQLToolServeMode.Embedded}).AllowAnonymous();
 app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
 app.MapGraphQLHttp("/api/graphql");
+app.MapLexboxOpenApi().AllowAnonymous();
 
 app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());
 app.MapControllers();
-app.MapLfClassicApi().WithGroupName(LexBoxKernel.OpenApiPublicDocumentName)
+app.MapLfClassicApi().WithGroupName(LexboxOpenApi.OpenApiPublicDocumentName)
     .RequireAuthorization(policyBuilder => policyBuilder.RequireAuthenticatedUser().AddRequirements(new UserHasAccessToProjectRequirement()));
 app.MapTus("/api/tus-test",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))
