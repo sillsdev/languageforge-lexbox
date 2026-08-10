@@ -1,13 +1,16 @@
+using SIL.Harmony.Config;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using FwHeadless;
 using FwHeadless.Media;
+using FwHeadless.Routes;
 using FwHeadless.Services;
 using FwLiteProjectSync;
 using LcmCrdt;
 using LcmCrdt.RemoteSync;
 using LexCore.Sync;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -163,6 +166,41 @@ internal sealed class SyncWorkerTestHarness : IDisposable
         return await worker.ExecuteSync(CancellationToken.None, onlyHarmony);
     }
 
+    /// <summary>
+    /// Runs the real /sync-harmony route handler on a request scope that already has the current
+    /// project set, reproducing the ProjectContextFromIdService middleware that runs first in the
+    /// FwHeadless pipeline. The handler must isolate the worker in its own scope so this doesn't
+    /// collide in CurrentProjectService.SetupProjectContext.
+    /// </summary>
+    public async Task<Results<Ok, NotFound<string>>> RunHarmonyRouteWithPrePopulatedContextAsync()
+    {
+        Steps.Clear();
+        _didCrdtSyncOrImport = false;
+        _createFwDataFileAfterClone = true;
+
+        ProjectLookupMock.Setup(s => s.ProjectExists(ProjectId)).ReturnsAsync(true);
+
+        var sp = BuildServiceProvider(new SyncResult(0, 0));
+        try
+        {
+            SetupFwDataProject(sp, createFile: true);
+
+            await using var requestScope = sp.CreateAsyncScope();
+            requestScope.ServiceProvider.GetRequiredService<CurrentProjectService>()
+                .SetupProjectContextForNewDb(new CrdtProject("crdt", Config.GetCrdtFile(ProjectCode, ProjectId)));
+
+            return await MergeRoutes.SyncHarmonyProject(
+                ProjectId,
+                ProjectLookupMock.Object,
+                requestScope.ServiceProvider,
+                CancellationToken.None);
+        }
+        finally
+        {
+            await sp.DisposeAsync();
+        }
+    }
+
     private void SetupDefaultMocks()
     {
         SetProjectCode(ProjectCode);
@@ -246,12 +284,13 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
         // SyncWorker only passes this through to MediaFileService.
         services.AddSingleton(_ =>
-            new Mock<LcmCrdt.MediaServer.LcmMediaService>(MockBehavior.Loose, null!, null!, Options.Create(new SIL.Harmony.CrdtConfig()), null!, null!, NullLogger<LcmCrdt.MediaServer.LcmMediaService>.Instance).Object);
+            new Mock<LcmCrdt.MediaServer.LcmMediaService>(MockBehavior.Loose, null!, null!, Options.Create(new HarmonyConfig()), null!, null!, NullLogger<LcmCrdt.MediaServer.LcmMediaService>.Instance).Object);
 
         var syncService = new Mock<CrdtFwdataProjectSyncService>(
             MockBehavior.Strict,
             null!,
             NullLogger<CrdtFwdataProjectSyncService>.Instance,
+            null!,
             null!,
             null!);
 
@@ -275,7 +314,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
         services.AddSingleton(syncService.Object);
 
-        var snapshotService = new Mock<ProjectSnapshotService>(MockBehavior.Strict, Options.Create(new SIL.Harmony.CrdtConfig()));
+        var snapshotService = new Mock<ProjectSnapshotService>(MockBehavior.Strict, Options.Create(new HarmonyConfig()));
         snapshotService
             .Setup(s => s.GetProjectSnapshot(It.IsAny<FwDataProject>()))
             .Callback(() => Steps.Add(GetSnapshot))

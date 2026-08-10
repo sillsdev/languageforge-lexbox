@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization.Metadata;
+using MiniLcm;
+using SIL.Harmony.Config;
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using SIL.Harmony;
@@ -29,9 +32,15 @@ public static class FwLiteWebKernel
         services.AddSingleton<IHostedService, NetworkChangeSyncTrigger>();
         services.AddOptions<FwLiteWebConfig>().BindConfiguration("FwLiteWeb");
 
-        services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
+        services.AddOptions<JsonOptions>().PostConfigure<IOptions<HarmonyConfig>>((jsonOptions, harmonyConfig) =>
         {
-            jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeLcmCrdtExternalJsonTypeResolver();
+            // Layer the external MiniLcm modifiers onto ASP.NET's resolver, then let Harmony add its
+            // IChange/IObject polymorphism (type-info modifier + change converter) so ChangeEntity<IChange>
+            // fields in sync payloads deserialize.
+            var options = jsonOptions.SerializerOptions;
+            options.TypeInfoResolver = (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
+                .AddExternalMiniLcmModifiers();
+            harmonyConfig.Value.ConfigureExternalJsonOptions(options);
         });
         return services;
     }

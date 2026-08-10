@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Drawing;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -80,7 +81,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsThirdParty<RichMultiString>().WithName("IRichMultiString").Imports([
             new() { From = "$lib/dotnet-types/i-multi-string", Target = "type {IRichMultiString}" }
         ]);
-        var config = new CrdtConfig();
+        var config = new HarmonyConfig();
         LcmCrdtKernel.ConfigureCrdt(config);
         builder.ExportAsInterfaces([
                 ..config.ObjectTypes,

@@ -100,9 +100,18 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public ValueTask<MorphType[]> GetMorphTypes()
+    public async ValueTask<MorphType[]> GetMorphTypes()
     {
-        return _wrappedApi.GetMorphTypes().ToArrayAsync();
+        return ApplyEmptyMorphTypeFallback(await _wrappedApi.GetMorphTypes().ToArrayAsync());
+    }
+
+    /// <summary>
+    /// Temporary UI stopgap after #2350 removed migrate-time morph-type seeding for blank CRDT projects.
+    /// </summary>
+    internal static MorphType[] ApplyEmptyMorphTypeFallback(MorphType[] morphTypes)
+    {
+        if (morphTypes.Length != 0) return morphTypes;
+        return [.. CanonicalMorphTypes.All.Values.Select(mt => mt.Copy())];
     }
 
     [JSInvokable]

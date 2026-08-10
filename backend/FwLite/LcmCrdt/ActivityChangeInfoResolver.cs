@@ -50,7 +50,7 @@ internal static class ActivityChangeInfoResolver
 
         foreach (var change in activities.SelectMany(a => a.Changes))
         {
-            switch (change.Change.EntityType.Name)
+            switch (change.Change.EntityType?.Name)
             {
                 case nameof(Entry): entryIds.Add(change.EntityId); break;
                 case nameof(Sense): senseIds.Add(change.EntityId); break;
@@ -170,7 +170,7 @@ internal static class ActivityChangeInfoResolver
         (string? Subject, Guid? OwningEntryId) ResolveSubject(ChangeEntity<IChange> change)
         {
             var id = change.EntityId;
-            switch (change.Change.EntityType.Name)
+            switch (change.Change.EntityType?.Name)
             {
                 case nameof(Entry):
                     return (Headword(id), id);

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
 using LexCore.Sync;
@@ -12,7 +13,8 @@ namespace FwLiteProjectSync;
 public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
     ILogger<CrdtFwdataProjectSyncService> logger,
     MiniLcmApiValidationWrapperFactory validationWrapperFactory,
-    CrdtProjectsService crdtProjectsService)
+    CrdtProjectsService crdtProjectsService,
+    FwDataFactory fwDataFactory)
 {
     public record DryRunSyncResult(
         int CrdtChanges,
@@ -52,6 +54,9 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             activity?.SetStatus(ActivityStatusCode.Error, $"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdata.ProjectId}");
             throw new InvalidOperationException($"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdata.ProjectId}");
         }
+
+        // A sync that outlives the LcmCache's sliding expiration (e.g. paused in a debugger) would otherwise have it disposed mid-sync.
+        using var keepFwdataAlive = fwDataFactory.PreventEviction(fwdata.Project);
 
         // Project snapshot logic/handling is done outside of this class so that Sync vs Import is explicit.
         // We still choose to explicitly verify a consistent state to avoid accidental misuse.

@@ -6,6 +6,6 @@
 export interface IChange
 {
 	entityId: string;
-	entityType: unknown;
+	entityType?: unknown;
 }
 /* eslint-enable */

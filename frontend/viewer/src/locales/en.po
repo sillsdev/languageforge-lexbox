@@ -698,6 +698,7 @@ msgstr "Definition"
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Delete"
 msgstr "Delete"
 
@@ -782,6 +783,7 @@ msgstr "Done"
 #. Notification action button
 #: src/home/Server.svelte
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "Download"
 msgstr "Download"
@@ -837,6 +839,7 @@ msgid "e.g. th, sw"
 msgstr "e.g. th, sw"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
 msgstr "Edit"
 
@@ -850,7 +853,6 @@ msgid "Edit Custom View"
 msgstr "Edit Custom View"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Edit Picture"
 msgstr "Edit Picture"
 
@@ -1290,10 +1292,6 @@ msgstr "I understand that this can't be undone"
 msgid "ID"
 msgstr "ID"
 
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Image not found"
-msgstr "Image not found"
-
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -1399,6 +1397,10 @@ msgstr "Load all"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Load it to preview or export."
 msgstr "Load it to preview or export."
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Load picture"
+msgstr "Load picture"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded {0} file(s)"
@@ -1644,6 +1646,11 @@ msgstr "Next"
 msgid "Next milestone: {0}. {1} to go."
 msgstr "Next milestone: {0}. {1} to go."
 
+#. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Next picture"
+msgstr "Next picture"
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1813,10 +1820,6 @@ msgstr "Offline"
 msgid "Offline, unable to download"
 msgstr "Offline, unable to download"
 
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Offline, unable to download image"
-msgstr "Offline, unable to download image"
-
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
 msgstr "Offline, unable to open file"
@@ -1925,10 +1928,20 @@ msgstr "Pick a Part of Speech"
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
 msgstr "Picture"
+
+#. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+msgid "Picture actions"
+msgstr "Picture actions"
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Picture not found"
+msgstr "Picture not found"
 
 #. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
 #: src/lib/views/entity-config.ts
@@ -1967,6 +1980,11 @@ msgstr "Preview not available for this file type."
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
 msgstr "Preview not supported"
+
+#. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Previous picture"
+msgstr "Previous picture"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2310,6 +2328,10 @@ msgstr "Show"
 msgid "Show {0} more..."
 msgstr "Show {0} more..."
 
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Show or hide captions"
+msgstr "Show or hide captions"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Sign in to add comments."
@@ -2574,8 +2596,8 @@ msgid "This file is only available remotely."
 msgstr "This file is only available remotely."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
-msgid "This picture is too large to upload. Try reducing the image resolution and uploading again."
-msgstr "This picture is too large to upload. Try reducing the image resolution and uploading again."
+msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
+msgstr "This picture is too large to upload. Try reducing the resolution and uploading again."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
@@ -2648,6 +2670,7 @@ msgstr "Translation {0}"
 msgid "Troubleshoot"
 msgstr "Troubleshoot"
 
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
 msgstr "Try again"
@@ -2677,6 +2700,7 @@ msgid "Type:"
 msgstr "Type:"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to download the picture"
 msgstr "Unable to download the picture"
 
@@ -2690,9 +2714,8 @@ msgid "Unable to load audio"
 msgstr "Unable to load audio"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
-#: src/lib/entry-editor/field-editors/PictureImage.svelte
-msgid "Unable to load image"
-msgstr "Unable to load image"
+msgid "Unable to load picture"
+msgstr "Unable to load picture"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
@@ -2854,6 +2877,11 @@ msgstr "Vernacular writing systems"
 msgid "View"
 msgstr "View"
 
+#. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "View Picture"
+msgstr "View Picture"
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
@@ -2959,6 +2987,10 @@ msgstr "You don't have permission to download project {0} from {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "You have already downloaded the {0} project"
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "You're offline"
+msgstr "You're offline"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"

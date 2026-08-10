@@ -10,9 +10,11 @@ export class ProjectManager {
   readonly projectId: string;
   private dataProvider?: IBaseProjectDataProvider<MandatoryProjectDataTypes>;
   private readonly webViewIds: WebViewIds = {};
+  private readonly isLexiconCodeValid: (lexiconCode: string) => Promise<boolean>;
 
-  constructor(projectId: string) {
+  constructor(projectId: string, isLexiconCodeValid?: (lexiconCode: string) => Promise<boolean>) {
     this.projectId = projectId;
+    this.isLexiconCodeValid = isLexiconCodeValid ?? (async () => true);
   }
 
   static async getLexiconCode(projectId: string): Promise<string | undefined> {
@@ -36,15 +38,32 @@ export class ProjectManager {
     const lexiconCode = await this.getSetting(ProjectSettingKey.LexiconCode);
     const nameOrId = await this.getNameOrId();
     if (lexiconCode) {
-      logger.info(`Project '${nameOrId}' is using lexicon '${lexiconCode}'`);
-      return lexiconCode;
+      if (await this.isLexiconCodeValid(lexiconCode)) {
+        logger.info(`Project '${nameOrId}' is using lexicon '${lexiconCode}'`);
+        return lexiconCode;
+      }
+      // The stored lexicon no longer resolves (e.g. it was deleted in FW Lite). Clear it so the
+      // project isn't stuck pointing at a missing lexicon (which would cause every action to open a
+      // broken view), then fall through to prompt for a new selection.
+      logger.warn(
+        `Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`,
+      );
+      await this.setLexiconCode('');
+    } else {
+      logger.info(`Lexicon not yet selected for project '${nameOrId}'`);
     }
 
-    logger.info(`Lexicon not yet selected for project '${nameOrId}'`);
-    await this.openWebView(WebViewType.SelectLexicon, {
-      floatSize: { height: 500, width: 400 },
-      type: 'float',
-    });
+    await this.openSelector();
+  }
+
+  async openSelector(): Promise<boolean> {
+    const vernacularLanguage = await this.getLanguageTag();
+    const options: LexiconWebViewOptions = { vernacularLanguage };
+    return await this.openWebView(
+      WebViewType.SelectLexicon,
+      { floatSize: { height: 500, width: 400 }, type: 'float' },
+      options,
+    );
   }
 
   async setLexiconCode(lexiconCode: string): Promise<void> {

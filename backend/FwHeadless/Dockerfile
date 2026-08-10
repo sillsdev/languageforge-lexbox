@@ -43,6 +43,11 @@ RUN test -f FixFwData \
     && python3 -c "import zipfile; open('/tmp/smoke.fwdata','wb').write(zipfile.ZipFile('/tmp/test-template-repo.zip').read('kevin-test-01.fwdata'))" \
     && ./FixFwData /tmp/smoke.fwdata; ec=$?; rm -f /tmp/test-template-repo.zip /tmp/smoke.fwdata; \
     if [ $ec -gt 1 ]; then echo "FixFwData smoke test failed with exit $ec"; exit 1; fi
+# Smoke-test: chorusmerge must engage the FieldWorks merge handler, not silently keep one
+# whole file (#2508). Runs the real wrapper from a non-/app cwd, exactly as hg does.
+# Bind-mount rather than COPY so the fixture/script don't ship in the runtime image.
+RUN --mount=type=bind,source=FwHeadless/chorusmerge-smoke,target=/opt/chorusmerge-smoke \
+    bash /opt/chorusmerge-smoke/run.sh
 USER www-data:www-data
 ENV XDG_DATA_HOME=/var/www/.local/share
 ENTRYPOINT ["tini", "--"]

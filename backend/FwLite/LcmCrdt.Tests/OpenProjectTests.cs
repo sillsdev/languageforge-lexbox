@@ -21,7 +21,7 @@ public class OpenProjectTests
         var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
         var crdtProject = await crdtProjectsService.CreateExampleProject("ExampleProject");
 
-        // Opening triggers MigrateDb; the template already carries morph types so no redundant seed runs.
+        // Opening triggers MigrateDb; the template already carries morph types.
         var api = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(crdtProject);
 
         var morphTypes = await api.GetMorphTypes().ToArrayAsync();

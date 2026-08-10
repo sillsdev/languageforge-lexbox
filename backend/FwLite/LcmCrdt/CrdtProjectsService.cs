@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -209,7 +210,7 @@ public partial class CrdtProjectsService(
             AfterCreate = async (provider, project) =>
             {
                 var api = provider.GetRequiredService<IMiniLcmApi>();
-                var jsonOptions = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.JsonSerializerOptions;
+                var jsonOptions = provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.JsonSerializerOptions;
                 var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs);
                 var commitMetadataInterceptor = provider.GetRequiredService<CommitMetadataInterceptor>();
                 using (commitMetadataInterceptor.Intercept(CommitHelpers.StampAsTemplate))
@@ -258,10 +259,7 @@ public partial class CrdtProjectsService(
             await InitProjectDb(db, projectData);
             await currentProjectService.RefreshProjectData();
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
-            // Ensure "data migrations" are executed on project creation (e.g. seeding morph types)
-            // These should happen AFTER the initial download, so they can be run conditionally based on
-            // the current state of the project.
-            // probably just remove this in #2350
+            // Run EF migrate + FTS regenerate-if-missing (same path as opening an existing project).
             await currentProjectService.SetupProjectContext(crdtProject);
         }
         catch (Exception e)
@@ -378,7 +376,7 @@ public partial class CrdtProjectsService(
     public async Task DeleteProject(string code)
     {
         var project = GetProject(code) ?? throw new InvalidOperationException($"Project {code} not found");
-        var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<CrdtConfig>>().Value);
+        var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<HarmonyConfig>>().Value);
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await EnsureDeleteProject(project.DbPath);
     }

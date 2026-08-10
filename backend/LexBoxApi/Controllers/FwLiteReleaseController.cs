@@ -22,10 +22,6 @@ public class FwLiteReleaseController(FwLiteReleaseService releaseService) : Cont
         activity?.AddTag(FwLiteReleaseService.FwLiteEditionTag, edition.ToString());
         if (edition == FwLiteEdition.WindowsAppInstaller)
         {
-            //note this doesn't really work because the github server doesn't return the correct content-type of application/msixbundle
-            //in order for this to work we would need to proxy the request to github
-            //but then we would need to support range requests https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
-            //which is too complicated for now
             var appInstallerContent = await releaseService.GenerateAppInstaller();
             return File(Encoding.UTF8.GetBytes(appInstallerContent), "application/appinstaller", "FieldWorksLite.appinstaller");
         }

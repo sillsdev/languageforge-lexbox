@@ -735,8 +735,12 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   // Maps an already-uploaded filename to its mediaUri, mirroring how the real server dedups by
   // filename (LcmMediaService keys by the file name within the project's resource cache).
   #uploadedFilenames = new Map<string, string>();
+  // Pre-seeded demo pictures that have been "downloaded" from the (simulated) remote media service,
+  // so a later local-only request returns them instead of NotFound — mirroring how a synced project
+  // fetches images on demand.
+  #downloadedRemoteFiles = new Set<string>();
 
-  getFileStream(mediaUri: string, _downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
+  getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
     const uploaded = this.#uploadedFiles.get(mediaUri);
     if (uploaded) {
       return Promise.resolve({
@@ -750,6 +754,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     }
     const svg = demoPictureSvgs[mediaUri];
     if (!svg) return Promise.resolve({result: ReadFileResult.NotFound});
+    if (!this.#downloadedRemoteFiles.has(mediaUri)) {
+      if (!downloadIfMissing) return Promise.resolve({result: ReadFileResult.NotFound});
+      this.#downloadedRemoteFiles.add(mediaUri);
+    }
     const blob = new Blob([svg], {type: 'image/svg+xml'});
     return Promise.resolve({
       result: ReadFileResult.Success,
