@@ -16,6 +16,7 @@
   import {t} from 'svelte-i18n-lingui';
   import CommentPanel from './CommentPanel.svelte';
   import type {ThreadView} from './types';
+  import {SvelteSet} from 'svelte/reactivity';
 
   let {
     open = $bindable(false),
@@ -47,7 +48,7 @@
   let newThreadText = $state('');
   let editingCommentId = $state<string>();
   let addingComment = $state(false);
-  let expandedThreadIds = $state(new Set<string>());
+  const expandedThreadIds = new SvelteSet<string>();
   let mobileThreadId = $state<string | null>(null);
 
   const threadsResource = resource(
@@ -131,7 +132,7 @@
       addingComment = false;
       newThreadText = '';
       editingCommentId = undefined;
-      expandedThreadIds = new Set();
+      expandedThreadIds.clear();
       mobileThreadId = null;
       // Vaul assigns snapPoints[0] after close; restore default for the next open.
       window.setTimeout(() => {
@@ -144,7 +145,7 @@
     () => dockBottom,
     (isBottom) => {
       if (!isBottom) mobileThreadId = null;
-      else expandedThreadIds = new Set();
+      else expandedThreadIds.clear();
     },
   );
 
@@ -176,6 +177,7 @@
       });
       newThreadText = '';
       addingComment = false;
+      expandedThreadIds.add(threadId);
       await threadsResource.refetch();
       await refetchUnreadIfNeeded();
     } finally {
@@ -247,7 +249,7 @@
   <CommentPanel
     bind:newThreadText
     bind:addingComment
-    bind:expandedThreadIds
+    {expandedThreadIds}
     bind:mobileThreadId
     {canComment}
     {loading}

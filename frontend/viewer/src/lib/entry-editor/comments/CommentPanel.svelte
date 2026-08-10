@@ -26,7 +26,7 @@
     editingCommentId,
     currentUserId,
     addingComment = $bindable(false),
-    expandedThreadIds = $bindable(new Set<string>()),
+    expandedThreadIds = new SvelteSet<string>(),
     mobileThreadId = $bindable<string | null>(null),
     onClose,
     onStartThread,
@@ -47,7 +47,7 @@
     editingCommentId?: string;
     currentUserId?: string;
     addingComment?: boolean;
-    expandedThreadIds?: Set<string>;
+    expandedThreadIds?: SvelteSet<string>;
     mobileThreadId?: string | null;
     unreadThreadIds?: Set<string>;
     unreadCount?: number;
@@ -80,13 +80,11 @@
       void onThreadOpen?.(threadId);
       return;
     }
-    const next = new SvelteSet(expandedThreadIds);
-    if (next.has(threadId)) next.delete(threadId);
+    if (expandedThreadIds.has(threadId)) expandedThreadIds.delete(threadId);
     else {
-      next.add(threadId);
+      expandedThreadIds.add(threadId);
       void onThreadOpen?.(threadId);
     }
-    expandedThreadIds = next;
   }
 
   function startAdding(): void {
