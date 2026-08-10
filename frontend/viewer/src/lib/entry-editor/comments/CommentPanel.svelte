@@ -223,7 +223,7 @@
   {:else}
     <div class="min-h-0 flex-1 overflow-y-auto p-3">
       <div class="flex flex-col gap-2.5">
-        {#if loading}
+        {#if loading && !threadViews.length}
           <p class="pt-8 text-center text-[13px] text-muted-foreground">{$t`Loading comments...`}</p>
         {:else}
           {#if openThreads.length === 0}
