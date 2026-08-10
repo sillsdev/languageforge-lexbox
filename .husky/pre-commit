@@ -1,1 +1,1 @@
-cd frontend/viewer && npx lint-staged
+cd frontend/viewer && pnpm exec lint-staged || npx lint-staged
