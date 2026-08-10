@@ -206,7 +206,7 @@
     }
   }
 
-  async function resolveThread(threadView: ThreadView): Promise<void> {
+  async function toggleResolveThread(threadView: ThreadView): Promise<void> {
     saving = true;
     try {
       const nextStatus =
@@ -260,7 +260,7 @@
     onClose={() => onOpenChange(false)}
     onStartThread={startThread}
     onReply={replyToThread}
-    onResolve={resolveThread}
+    onResolve={toggleResolveThread}
     onStartEdit={startEditing}
     onCancelEdit={cancelEditing}
     onSaveEdit={saveEdit}
