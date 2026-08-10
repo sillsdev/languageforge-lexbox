@@ -58,10 +58,8 @@ public class HarmonyCommitResolverTests
         await _dbContext.SaveChangesAsync();
     }
 
-    private static string? AuthorName(HarmonyCommit commit) =>
-        commit.Metadata.TryGetProperty("authorName", out var name) && name.ValueKind == JsonValueKind.String
-            ? name.GetString()
-            : null;
+    private static string? AuthorName(ServerCommit commit) =>
+        commit.Metadata.AuthorName;
 
     [Fact]
     public async Task ReturnsCommitsNewestFirstWithCounterTiebreak()
@@ -115,7 +113,7 @@ public class HarmonyCommitResolverTests
         var commits = await HarmonyCommitResolver.GetHarmonyCommits(project, _dbContextFactory, 1, default);
 
         var metadata = commits.Should().ContainSingle().Subject.Metadata;
-        metadata.GetProperty("authorName").ValueKind.Should().Be(JsonValueKind.Null);
+        metadata.AuthorName.Should().BeNull();
     }
 
     [Fact]

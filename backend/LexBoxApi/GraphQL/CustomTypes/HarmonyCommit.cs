@@ -3,16 +3,23 @@ using HotChocolate.Types;
 using LexCore.Entities;
 using LexData;
 using Microsoft.EntityFrameworkCore;
+using SIL.Harmony.Core;
 
 namespace LexBoxApi.GraphQL.CustomTypes;
 
-/// <summary>
-/// A FieldWorks Lite (CRDT) commit, projected from the server-side <c>CrdtCommits</c> store for the
-/// project page's on-demand history list. <see cref="Metadata"/> is the commit's <c>CommitMetadata</c>
-/// passed through verbatim as a JSON scalar (camelCase) so the client can read author info today and any
-/// future metadata field without a schema change.
-/// </summary>
-public record HarmonyCommit(Guid Id, DateTimeOffset DateTime, [property: GraphQLType(typeof(AnyType))] JsonElement Metadata);
+[ObjectType]
+public class HarmonyCommitGqlConfiguration : ObjectType<ServerCommit>
+{
+    protected override void Configure(IObjectTypeDescriptor<ServerCommit> descriptor)
+    {
+        descriptor.BindFieldsExplicitly();
+        descriptor.Field(h => h.Id);
+        descriptor.Field(h => h.HybridDateTime);
+        descriptor.Field(h => h.ProjectId);
+        descriptor.Field(h => h.ClientId);
+        descriptor.Field(h => h.Metadata).Type<AnyType>();
+    }
+}
 
 public static class HarmonyCommitResolver
 {
@@ -20,7 +27,7 @@ public static class HarmonyCommitResolver
 
     private static readonly JsonSerializerOptions MetadataJsonOptions = new(JsonSerializerDefaults.Web);
 
-    public static async Task<HarmonyCommit[]> GetHarmonyCommits(
+    public static async Task<ServerCommit[]> GetHarmonyCommits(
         Project project,
         IDbContextFactory<LexBoxDbContext> dbContextFactory,
         int limit,
@@ -37,11 +44,8 @@ public static class HarmonyCommitResolver
             .OrderByDescending(c => c.HybridDateTime.DateTime)
             .ThenByDescending(c => c.HybridDateTime.Counter)
             .Take(limit)
-            .Select(c => new { c.Id, Date = c.HybridDateTime.DateTime, c.Metadata })
             .ToArrayAsync(cancellationToken);
 
-        return rows
-            .Select(r => new HarmonyCommit(r.Id, r.Date, JsonSerializer.SerializeToElement(r.Metadata, MetadataJsonOptions)))
-            .ToArray();
+        return rows;
     }
 }
