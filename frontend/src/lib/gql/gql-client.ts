@@ -66,6 +66,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
           'FlexProjectMetadata': (metaData) => metaData.projectId as string,
           'ProjectWritingSystems': () => null,
           'FLExWsId': (metaData) => metaData.tag as string,
+          'HybridDateTime': () => null,
         },
         updates: {
           Mutation: {

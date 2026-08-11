@@ -33,7 +33,12 @@
     {#if commits?.length}
       {#each commits as commit (commit.id)}
         <tr>
-          <td>{$date(commit.dateTime)}</td>
+          <td title={$date(commit.hybridDateTime.dateTime, {dateStyle: 'full', timeStyle: 'long'})}>
+            {$date(commit.hybridDateTime.dateTime)}
+            {#if commit.hybridDateTime.counter > 0}
+              <span class="text-xs text-secondary">+{commit.hybridDateTime.counter}</span>
+            {/if}
+          </td>
           <td>{authorName(commit.metadata)}</td>
         </tr>
       {/each}

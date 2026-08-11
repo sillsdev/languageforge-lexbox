@@ -15,5 +15,6 @@ public class ProjectGqlConfiguration : ObjectType<Project>
         descriptor.Field(p => p.Id).IsProjected(); // Needed for jwt refresh
         descriptor.Field(p => p.Type).IsProjected(); // harmonyCommits resolver gates on Type
         descriptor.Field(p => p.Users).Use<ProjectMembersVisibilityMiddleware>();
+        descriptor.Field(p => p.HarmonyCommits).UseSorting().UseFiltering();
     }
 }

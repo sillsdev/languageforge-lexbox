@@ -433,6 +433,7 @@ type Project {
   id: UUID!
   type: ProjectType!
   users: [ProjectUsers!]!
+  harmonyCommits(orderBy: [ServerCommitSortInput!] @cost(weight: "10") where: ServerCommitFilterInput @cost(weight: "10")): [ServerCommit!]
   changesets: [Changeset!]! @cost(weight: "10")
   hasAbandonedTransactions: Boolean!
   isLanguageForgeProject: Boolean! @cost(weight: "10")
@@ -450,7 +451,6 @@ type Project {
   resetStatus: ResetStatus!
   projectOrigin: ProjectMigrationStatus!
   migratedDate: DateTime
-  harmonyCommits: [ServerCommit!]
   userCount: Int!
   updatedDate: DateTime!
 }
@@ -828,6 +828,12 @@ input CommitMetadataFilterInput {
   extraMetadata: ListFilterInputTypeOfKeyValuePairOfStringAndStringFilterInput
 }
 
+input CommitMetadataSortInput {
+  authorName: SortEnumType @cost(weight: "10")
+  authorId: SortEnumType @cost(weight: "10")
+  clientVersion: SortEnumType @cost(weight: "10")
+}
+
 input CreateGuestUserByAdminInput {
   email: String
   name: String!
@@ -974,6 +980,11 @@ input HybridDateTimeFilterInput {
   or: [HybridDateTimeFilterInput!]
   dateTime: DateTimeOperationFilterInput
   counter: LongOperationFilterInput
+}
+
+input HybridDateTimeSortInput {
+  dateTime: SortEnumType @cost(weight: "10")
+  counter: SortEnumType @cost(weight: "10")
 }
 
 input IntOperationFilterInput {
@@ -1334,6 +1345,16 @@ input ServerCommitFilterInput {
   dateTime: DateTimeOperationFilterInput
   metadata: CommitMetadataFilterInput
   clientId: UuidOperationFilterInput
+}
+
+input ServerCommitSortInput {
+  projectId: SortEnumType @cost(weight: "10")
+  compareKey: SortEnumType @cost(weight: "10")
+  id: SortEnumType @cost(weight: "10")
+  hybridDateTime: HybridDateTimeSortInput @cost(weight: "10")
+  dateTime: SortEnumType @cost(weight: "10")
+  metadata: CommitMetadataSortInput @cost(weight: "10")
+  clientId: SortEnumType @cost(weight: "10")
 }
 
 input ServerJsonChangeFilterInput {
