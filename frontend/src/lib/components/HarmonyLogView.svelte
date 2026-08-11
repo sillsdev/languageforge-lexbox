@@ -14,9 +14,10 @@
 
   // The server returns each commit's CommitMetadata as an opaque JSON scalar. We only surface authorName
   // today; other fields stay available to the client for future use without a schema change.
-  type CommitMetadata = {authorName?: string | null};
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  type CommitMetadata = {AuthorName?: string | null};
   function authorName(metadata: unknown): string {
-    const name = (metadata as CommitMetadata | null | undefined)?.authorName;
+    const name = (metadata as CommitMetadata | null | undefined)?.AuthorName;
     return typeof name === 'string' && name.length > 0 ? name : $t('project_page.harmony.unknown_author');
   }
 </script>

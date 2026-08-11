@@ -553,7 +553,7 @@ type ServerCommit {
   hybridDateTime: HybridDateTime!
   projectId: UUID!
   clientId: UUID!
-  metadata: Any
+  metadata: JSON @cost(weight: "10")
 }
 
 type SetOrgMemberRolePayload {
@@ -1580,10 +1580,10 @@ directive @listSize("The `assumedSize` argument can be used to statically define
 "The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
 directive @specifiedBy("The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types." url: String!) on SCALAR
 
-scalar Any
-
 "The `DateTime` scalar represents an ISO-8601 compliant date time type."
 scalar DateTime @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
+
+scalar JSON
 
 "The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1."
 scalar Long

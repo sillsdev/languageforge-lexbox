@@ -17,7 +17,12 @@ public class HarmonyCommitGqlConfiguration : ObjectType<ServerCommit>
         descriptor.Field(h => h.HybridDateTime);
         descriptor.Field(h => h.ProjectId);
         descriptor.Field(h => h.ClientId);
-        descriptor.Field(h => h.Metadata).Type<AnyType>();
+        descriptor.Field(h => h.Metadata).Type<JsonType>()
+            .Resolve(context =>
+            {
+                var metadata = context.Parent<ServerCommit>().Metadata;
+                return JsonSerializer.SerializeToElement(metadata);
+            });
     }
 }
 
