@@ -5,7 +5,7 @@
   import PictureImage from './PictureImage.svelte';
   import EditPictureDialog from './EditPictureDialog.svelte';
   import PictureViewerDialog from './PictureViewerDialog.svelte';
-  import {ACCEPTED_PICTURE_TYPES, isLosslessImage} from './picture-formats';
+  import {ACCEPTED_PICTURE_TYPES, isLosslessImage, isSupportedImageType} from './picture-formats';
   import {downloadPictureFile} from './picture-actions';
   import {t} from 'svelte-i18n-lingui';
   import {useLexboxApi} from '$lib/services/service-provider';
@@ -52,12 +52,13 @@
     viewerOpen = true;
   }
 
-  function onFileSelected(event: Event) {
+  async function onFileSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
     // Reset the input so selecting the same file again re-triggers `change`.
     target.value = '';
-    if (file) void addPicture(file);
+    if (!file) return;
+    await addPicture(await convertPicture(file));
   }
 
   async function uploadFile(file: File): Promise<string | null> {
@@ -158,10 +159,35 @@
       if (result == null) {
         return;
       }
-      let file = new File([await result.image.arrayBuffer()], result.fileName, {type: result.contentType});
+      let file = await convertPicture(
+        new File([await result.image.arrayBuffer()], result.fileName, {type: result.contentType}),
+      );
       await addPicture(file);
     } finally {
       busyAction = null;
+    }
+  }
+
+  async function convertPicture(file: File): Promise<File> {
+    if (isSupportedImageType(file)) {
+      return file;
+    }
+    console.debug('Captured image is not a supported type, converting to JPG...', file);
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Unable to get canvas context');
+      ctx.drawImage(bitmap, 0, 0);
+      bitmap.close();
+      const blob = await canvas.convertToBlob({type: 'image/jpeg', quality: 0.9});
+      const newFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), {type: 'image/jpeg'});
+      console.debug('Converted captured image to JPG:', newFile);
+      return newFile;
+    } catch (err) {
+      console.error('Error converting captured image to JPG:', err);
+      AppNotification.display($t`Unable to convert captured image from ${file.type || file.name || 'unknown'} to a jpeg`, {type: 'error'});
+      throw err;
     }
   }
 </script>
@@ -191,11 +217,23 @@
   {#if !readonly}
     <!-- Right-aligned to match the "+ Component" button style. -->
     <div class="flex flex-wrap justify-end gap-2">
-      <Button icon="i-mdi-plus" size="xs" loading={busyAction === 'add'} disabled={busyAction !== null} onclick={() => fileInputElement?.click()}>
+      <Button
+        icon="i-mdi-plus"
+        size="xs"
+        loading={busyAction === 'add'}
+        disabled={busyAction !== null}
+        onclick={() => fileInputElement?.click()}
+      >
         {$t`Picture`}
       </Button>
       {#if platformFeatures.features.supportsImageCapture}
-        <Button icon="i-mdi-camera" size="xs" loading={busyAction === 'add'} disabled={busyAction !== null} onclick={() => takePicture()}>
+        <Button
+          icon="i-mdi-camera"
+          size="xs"
+          loading={busyAction === 'add'}
+          disabled={busyAction !== null}
+          onclick={() => takePicture()}
+        >
           {$t`Camera`}
         </Button>
       {/if}
