@@ -181,7 +181,7 @@ type FLExWsId {
 
 type FileMetadata {
   sha256Hash: String
-  sizeInBytes: Int
+  sizeInBytes: Long
   fileFormat: String
   mimeType: String
   author: String
@@ -901,7 +901,7 @@ input FileMetadataFilterInput {
   and: [FileMetadataFilterInput!]
   or: [FileMetadataFilterInput!]
   sha256Hash: StringOperationFilterInput
-  sizeInBytes: IntOperationFilterInput
+  sizeInBytes: LongOperationFilterInput
   fileFormat: StringOperationFilterInput
   mimeType: StringOperationFilterInput
   author: StringOperationFilterInput
@@ -1013,6 +1013,21 @@ input ListFilterInputTypeOfProjectUsersFilterInput {
   none: ProjectUsersFilterInput @cost(weight: "10")
   some: ProjectUsersFilterInput @cost(weight: "10")
   any: Boolean @cost(weight: "10")
+}
+
+input LongOperationFilterInput {
+  eq: Long @cost(weight: "10")
+  neq: Long @cost(weight: "10")
+  in: [Long] @cost(weight: "10")
+  nin: [Long] @cost(weight: "10")
+  gt: Long @cost(weight: "10")
+  ngt: Long @cost(weight: "10")
+  gte: Long @cost(weight: "10")
+  ngte: Long @cost(weight: "10")
+  lt: Long @cost(weight: "10")
+  nlt: Long @cost(weight: "10")
+  lte: Long @cost(weight: "10")
+  nlte: Long @cost(weight: "10")
 }
 
 input MediaFileFilterInput {
@@ -1286,6 +1301,9 @@ input UserFilterInput {
   username: StringOperationFilterInput
   id: UuidOperationFilterInput
   featureFlags: ListFeatureFlagOperationFilterInput
+  createdDate: DateTimeOperationFilterInput
+  locked: BooleanOperationFilterInput
+  lastActive: DateTimeOperationFilterInput
 }
 
 input UserSortInput {
