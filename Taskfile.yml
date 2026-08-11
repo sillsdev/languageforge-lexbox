@@ -16,6 +16,9 @@ includes:
   ui:
     taskfile: ./frontend/Taskfile.yml
     dir: ./frontend
+  fw-ui:
+    taskfile: ./frontend/viewer/Taskfile.yml
+    dir: ./frontend/viewer
   api:
     taskfile: ./backend/Taskfile.yml
     dir: ./backend
