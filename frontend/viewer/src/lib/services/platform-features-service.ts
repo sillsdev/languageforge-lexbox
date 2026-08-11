@@ -34,6 +34,10 @@ export function usePlatformFeaturesService(): {service: IPlatformFeaturesService
       cache.set(feature, false);
       void service[feature]().then((result) => {
         cache.set(feature, result);
+      }).catch((err) => {
+        // if the service call fails, we want to clear the cache so that we can try again later
+        cache.delete(feature);
+        throw err;
       });
     }
     Object.defineProperty(featuresObj, feature, {
