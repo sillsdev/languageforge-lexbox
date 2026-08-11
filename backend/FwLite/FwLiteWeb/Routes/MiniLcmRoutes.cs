@@ -84,7 +84,8 @@ public static class MiniLcmRoutes
                 var project = projectProvider.GetProject(projectCode);
                 if (project is null)
                 {
-                    return Results.Problem($"Project {projectCode} not found");
+                    return Results.Problem($"Project {projectCode} not found",
+                        statusCode: StatusCodes.Status404NotFound);
                 }
 
                 var services = context.HttpContext.RequestServices;

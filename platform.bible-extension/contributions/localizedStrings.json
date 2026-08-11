@@ -38,6 +38,7 @@
       "%lexicon_entryList_noResults%": "No results",
       "%lexicon_error_failedToAddEntry%": "Failed to add entry!",
       "%lexicon_error_gettingNetworkObject%": "Error getting network object:",
+      "%lexicon_error_lexiconMissing%": "The lexicon '{lexiconCode}' is no longer available. Please select a lexicon.",
       "%lexicon_error_missingParam%": "Missing required parameter: ",
       "%lexicon_findRelatedWord_noResultsInDomain%": "No entries in this semantic domain.",
       "%lexicon_findRelatedWord_selectInstruction%": "Select a semantic domain for related words in that domain",

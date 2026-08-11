@@ -39,6 +39,8 @@
   projectEventBus.onSync(e => syncStatus = e.status);
 
   function handleProjectSelect(selectedProject: IProjectModel) {
+    // These routes are the unrestricted FW Lite views, which Paratext must never reach.
+    if (projectContext.inParatext) return;
     if (selectedProject.fwdata) {
       navigate('/fwdata/' + selectedProject.code);
     } else if (selectedProject.crdt) {
