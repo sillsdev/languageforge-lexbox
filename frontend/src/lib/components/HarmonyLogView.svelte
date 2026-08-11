@@ -2,6 +2,7 @@
   import t, {date} from '$lib/i18n';
   import Loader from './Loader.svelte';
   import type {ProjectHarmonyCommitsQuery} from '$lib/gql/types';
+  import {Icon} from '$lib/icons';
 
   type Commits = NonNullable<ProjectHarmonyCommitsQuery['projectByCode']>['harmonyCommits'];
 
@@ -30,7 +31,7 @@
     </tr>
   </thead>
   <tbody>
-    {#if commits?.length}
+    {#if false}
       {#each commits as commit (commit.id)}
         <tr>
           <td title={$date(commit.hybridDateTime.dateTime, {dateStyle: 'full', timeStyle: 'long'})}>
@@ -50,7 +51,7 @@
               <Loader loading />
               {$t('project_page.harmony.loading')}
             {:else}
-              <span class="i-mdi-creation-outline text-2xl"></span>
+              <Icon icon="i-mdi-creation-outline" size="text-2xl" />
               {$t('project_page.harmony.no_history')}
             {/if}
           </div>
