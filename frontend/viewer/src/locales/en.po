@@ -2655,6 +2655,10 @@ msgstr "Type an example sentence"
 msgid "Type:"
 msgstr "Type:"
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to convert captured image from {0} to a jpeg"
+msgstr "Unable to convert captured image from {0} to a jpeg"
+
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to download the picture"

@@ -2660,6 +2660,10 @@ msgstr "Andika sentensi ya mfano"
 msgid "Type:"
 msgstr "Aina:"
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to convert captured image from {0} to a jpeg"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to download the picture"
