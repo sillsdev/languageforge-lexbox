@@ -66,14 +66,15 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   // system. Used both to validate the project setting on write and to re-check a stored code before
   // acting on it, since a lexicon can be deleted in FW Lite after it was selected.
   //
-  // Only a 404 is treated as "invalid" here: a wrong answer discards the user's stored lexicon
-  // choice, so any other failure (FW Lite still starting up when the first command fires, a
-  // transient backend fault) is treated as "still valid" rather than "deleted".
+  // Only the backend's definitive answers about the code itself count as "invalid" here — 404 (no
+  // such lexicon) and 400 (a code that can never resolve, e.g. all whitespace). A wrong answer
+  // discards the user's stored lexicon choice, so every other failure (FW Lite still starting up
+  // when the first command fires, a transient backend fault) is treated as "still valid".
   const isLexiconCodeValid = async (lexiconCode: string): Promise<boolean> => {
     try {
       return (await fwLiteApi.getWritingSystems(lexiconCode)).vernacular.length > 0;
     } catch (e) {
-      if (e instanceof HttpStatusError && e.status === 404) return false;
+      if (e instanceof HttpStatusError && (e.status === 400 || e.status === 404)) return false;
       logger.warn(`Could not verify lexicon '${lexiconCode}':`, getErrorMessage(e));
       return true;
     }

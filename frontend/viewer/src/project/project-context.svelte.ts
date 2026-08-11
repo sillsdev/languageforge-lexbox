@@ -118,12 +118,22 @@ export class ProjectContext {
   /**
    * Whether the project is embedded in Paratext, which restricts the UI to this one project.
    * Set before the project is opened, so the restriction also holds while the project is still
-   * loading and if it fails to load at all.
+   * loading and if it fails to load at all. One-way: turning it back off would silently re-enable
+   * navigation out of the embedded view.
    */
   public get inParatext(): boolean {
     return this.#paratext;
   }
   public set inParatext(value: boolean) {
+    if (this.#paratext === value) return;
+    if (this.#paratext) {
+      if (import.meta.env.DEV) {
+        throw new Error('Cannot leave Paratext mode once it is set');
+      } else {
+        console.error('Cannot leave Paratext mode once it is set');
+        return;
+      }
+    }
     this.#paratext = value;
   }
 

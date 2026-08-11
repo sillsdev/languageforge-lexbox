@@ -65,13 +65,15 @@ public static class MiniLcmRoutes
                 if (!Enum.TryParse<ProjectDataFormat>(typeString,
                         out var type))
                 {
-                    return Results.Problem($"Invalid project {typeString} type");
+                    return Results.Problem($"Invalid project type '{typeString}'",
+                        statusCode: StatusCodes.Status400BadRequest);
                 }
 
                 var projectCode = context.HttpContext.Request.RouteValues.GetValueOrDefault("projectCode")?.ToString();
                 if (string.IsNullOrWhiteSpace(projectCode))
                 {
-                    return Results.Problem("Project code not found");
+                    return Results.Problem("Project code is required",
+                        statusCode: StatusCodes.Status400BadRequest);
                 }
 
                 var projectProviders = context.HttpContext.RequestServices.GetServices<IProjectProvider>();
