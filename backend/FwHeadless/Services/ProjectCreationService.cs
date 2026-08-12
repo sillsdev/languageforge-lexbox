@@ -25,7 +25,7 @@ public class ProjectCreationService(
     // property definition list. Mirrors FlexBridgeConstants.CustomPropertiesFilename (internal in FLExBridge).
     private const string CustomPropertiesFilename = "FLExProject.CustomProperties";
 
-    public async Task CreateFromTemplate(
+    public async Task InitFwDataProject(
         Guid projectId,
         string projectCode,
         IReadOnlyList<string> vernacularWritingSystems,

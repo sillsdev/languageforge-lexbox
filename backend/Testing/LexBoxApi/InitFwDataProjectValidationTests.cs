@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace Testing.LexBoxApi;
 
 /// <summary>
-/// Unit tests for ProjectController.CreateFromTemplate input validation. The 400 branches run before
+/// Unit tests for ProjectController.InitFwDataProject input validation. The 400 branches run before
 /// any injected service is touched, so the controller can be built with null dependencies; only a
 /// ProblemDetailsFactory (from AddControllers) is needed for Problem() to render.
 /// </summary>
-public class CreateFromTemplateValidationTests
+public class InitFwDataProjectValidationTests
 {
     private static ProjectController NewController()
     {
@@ -30,7 +30,7 @@ public class CreateFromTemplateValidationTests
     [Fact]
     public async Task Rejects_when_no_vernacular_writing_system_is_supplied()
     {
-        var result = await NewController().CreateFromTemplate("myproj", wsVernacular: []);
+        var result = await NewController().InitFwDataProject("myproj", wsVernacular: []);
         var problem = result.Result.Should().BeOfType<ObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>().Which;
         problem.Status.Should().Be(StatusCodes.Status400BadRequest);
@@ -40,7 +40,7 @@ public class CreateFromTemplateValidationTests
     [Fact]
     public async Task Rejects_an_invalid_project_code()
     {
-        var result = await NewController().CreateFromTemplate("Bad Code!", wsVernacular: ["fr"]);
+        var result = await NewController().InitFwDataProject("Bad Code!", wsVernacular: ["fr"]);
         var problem = result.Result.Should().BeOfType<ObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>().Which;
         problem.Status.Should().Be(StatusCodes.Status400BadRequest);

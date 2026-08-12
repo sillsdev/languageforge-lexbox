@@ -36,13 +36,13 @@ public class ProjectController(
     /// <param name="wsVernacular">Vernacular writing system id(s); at least one is required. Repeat the query param for multiple.</param>
     /// <param name="wsAnalysis">Analysis writing system id(s); defaults to ["en"] when none are given. Repeat the query param for multiple.</param>
     /// <param name="name">Optional display name; defaults to the code.</param>
-    [HttpPost("createFromTemplate")]
+    [HttpPost("initFwDataProject")]
     [AdminRequired]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Guid>> CreateFromTemplate(
+    public async Task<ActionResult<Guid>> InitFwDataProject(
         string code,
         [FromQuery] string[] wsVernacular,
         [FromQuery] string[]? wsAnalysis = null,
@@ -76,7 +76,7 @@ public class ProjectController(
         (HttpStatusCode statusCode, string? error) result;
         try
         {
-            result = await fwHeadlessClient.CreateProjectFromTemplate(projectId, wsVernacular, wsAnalysisOrDefault, wsUi, cancellationToken);
+            result = await fwHeadlessClient.InitFwDataProject(projectId, wsVernacular, wsAnalysisOrDefault, wsUi, cancellationToken);
         }
         catch
         {

@@ -12,25 +12,25 @@ using static Testing.Services.Constants;
 namespace Testing.SyncReverseProxy;
 
 /// <summary>
-/// End-to-end coverage for the admin "create project from a template" API. This is the one path that
+/// End-to-end coverage for the admin "init fwdata project" API. This is the one path that
 /// can't be unit-tested: LexBox creates an empty hg repo and FwHeadless does the first push of a
 /// template-built .fwdata into it (via LfMergeBridge/Chorus against the real hgweb). Requires the
 /// lexbox stack, so it only runs in CI.
 /// </summary>
 [Trait("Category", "Integration")]
-public class CreateProjectFromTemplateTests : IClassFixture<IntegrationFixture>
+public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
 {
     private readonly ITestOutputHelper _output;
     private readonly ApiTestBase _adminApiTester;
 
-    public CreateProjectFromTemplateTests(ITestOutputHelper output, IntegrationFixture fixture)
+    public InitFwDataProjectTests(ITestOutputHelper output, IntegrationFixture fixture)
     {
         _output = output;
         _adminApiTester = fixture.AdminApiTester;
     }
 
     [Fact]
-    public async Task CreateFromTemplate_PopulatesTheEmptyRepoWithTheRequestedWritingSystems()
+    public async Task InitFwDataProject_PopulatesTheEmptyRepoWithTheRequestedWritingSystems()
     {
         // Valid code (lowercase/digits/hyphen, doesn't start with a hyphen), unique per run.
         var code = $"tmpl-{Guid.NewGuid():N}"[..12];
@@ -54,7 +54,7 @@ public class CreateProjectFromTemplateTests : IClassFixture<IntegrationFixture>
             createClient.Timeout = TimeSpan.FromMinutes(5);
             await JwtHelper.ExecuteLogin(AdminAuth, includeDefaultScope: true, createClient);
             var response = await createClient.PostAsync(
-                $"{_adminApiTester.BaseUrl}/api/project/createFromTemplate{query}", null);
+                $"{_adminApiTester.BaseUrl}/api/project/initFwDataProject{query}", null);
             response.StatusCode.Should().Be(HttpStatusCode.OK,
                 "creation should succeed; body: {0}", await response.Content.ReadAsStringAsync());
             projectId = await response.Content.ReadFromJsonAsync<Guid>();
@@ -100,11 +100,11 @@ public class CreateProjectFromTemplateTests : IClassFixture<IntegrationFixture>
     }
 
     [Fact]
-    public async Task CreateFromTemplate_RejectsWhenNoVernacularWritingSystem()
+    public async Task InitFwDataProject_RejectsWhenNoVernacularWritingSystem()
     {
         var code = $"tmpl-{Guid.NewGuid():N}"[..12];
         var response = await _adminApiTester.HttpClient.PostAsync(
-            $"{_adminApiTester.BaseUrl}/api/project/createFromTemplate?code={code}&wsAnalysis=en", null);
+            $"{_adminApiTester.BaseUrl}/api/project/initFwDataProject?code={code}&wsAnalysis=en", null);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
@@ -130,7 +130,7 @@ public class CreateProjectFromTemplateTests : IClassFixture<IntegrationFixture>
         }
         catch (Exception ex)
         {
-            _output.WriteLine($"[CreateProjectFromTemplateTests] Ignored cleanup exception: {ex}");
+            _output.WriteLine($"[InitFwDataProjectTests] Ignored cleanup exception: {ex}");
         }
     }
 }
