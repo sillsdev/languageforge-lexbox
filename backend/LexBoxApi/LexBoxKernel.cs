@@ -63,7 +63,7 @@ public static class LexBoxKernel
         services.AddHttpClient<FwHeadlessClient>(client =>
             {
                 client.BaseAddress = new ("http://fwHeadless");
-                // create-from-template runs inline (clone empty repo + build the template project + push),
+                // init-fwdata-project runs inline (clone empty repo + build the template project + push),
                 // which can exceed the default 100s on a cold LCM load; give FwHeadless calls more headroom.
                 client.Timeout = TimeSpan.FromMinutes(5);
             })

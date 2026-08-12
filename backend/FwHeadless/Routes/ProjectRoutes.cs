@@ -10,16 +10,16 @@ public static class ProjectRoutes
     public static IEndpointConventionBuilder MapProjectRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api/project");
-        group.MapPost("/create-from-template", CreateProjectFromTemplate);
+        group.MapPost("/init-fwdata-project", InitFwDataProject);
         return group;
     }
 
     // Internal endpoint: LexBoxApi has already created the project row + empty repo and performed the
     // admin-auth check. FwHeadless populates the empty repo with a template .fwdata configured for the
     // requested writing systems. Not idempotent — on failure LexBoxApi deletes and recreates.
-    private static async Task<Results<Ok, ProblemHttpResult>> CreateProjectFromTemplate(
+    private static async Task<Results<Ok, ProblemHttpResult>> InitFwDataProject(
         Guid projectId,
-        CreateProjectFromTemplateInput input,
+        InitFwDataProjectInput input,
         IProjectLookupService projectLookupService,
         ProjectCreationService projectCreationService,
         ILogger<Program> logger)
@@ -42,11 +42,11 @@ public static class ProjectRoutes
         var projectCode = await projectLookupService.GetProjectCode(projectId);
         if (projectCode is null)
         {
-            logger.LogError("Create-from-template request for non-existent project {ProjectId}", projectId);
+            logger.LogError("Init-fwdata-project request for non-existent project {ProjectId}", projectId);
             return TypedResults.Problem("Project not found", statusCode: StatusCodes.Status404NotFound);
         }
 
-        await projectCreationService.CreateFromTemplate(
+        await projectCreationService.InitFwDataProject(
             projectId, projectCode, input.WsVernacular, input.WsAnalysis, input.WsUi);
         return TypedResults.Ok();
     }

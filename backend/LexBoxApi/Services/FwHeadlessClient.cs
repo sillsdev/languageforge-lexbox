@@ -205,19 +205,19 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
     /// success; on failure returns the FwHeadless status code and error body so the caller can
     /// propagate the right status (e.g. surface a 400 rather than flattening it to 500).
     /// </summary>
-    public async Task<(HttpStatusCode StatusCode, string? Error)> CreateProjectFromTemplate(Guid projectId,
+    public async Task<(HttpStatusCode StatusCode, string? Error)> InitFwDataProject(Guid projectId,
         IReadOnlyList<string> wsVernacular,
         IReadOnlyList<string> wsAnalysis,
         string wsUi,
         CancellationToken cancellationToken = default)
     {
-        var input = new CreateProjectFromTemplateInput(wsVernacular, wsAnalysis, wsUi);
-        var response = await httpClient.PostAsJsonAsync($"/api/project/create-from-template?projectId={projectId}",
+        var input = new InitFwDataProjectInput(wsVernacular, wsAnalysis, wsUi);
+        var response = await httpClient.PostAsJsonAsync($"/api/project/init-fwdata-project?projectId={projectId}",
             input,
             cancellationToken);
         if (response.IsSuccessStatusCode) return (response.StatusCode, null);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        logger.LogError("Failed to create project from template: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+        logger.LogError("Failed to init fwdata project: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
             response.StatusCode,
             response.ReasonPhrase,
             projectId,
