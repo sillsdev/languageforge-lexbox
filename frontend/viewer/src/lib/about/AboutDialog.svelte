@@ -5,8 +5,12 @@
   import { onMount } from 'svelte';
   import { t } from 'svelte-i18n-lingui';
 
-  export let open: boolean;
-  export let text: string;
+  interface Props {
+    open: boolean;
+    text: string;
+  }
+
+  let { open = $bindable(), text }: Props = $props();
 
   onMount(() => {
     if (!localStorage.getItem('suppressAbout')) {

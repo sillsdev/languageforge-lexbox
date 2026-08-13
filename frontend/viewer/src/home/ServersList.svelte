@@ -3,14 +3,18 @@
   import {useAuthService, useProjectsService} from '$lib/services/service-provider';
   import Server from './Server.svelte';
 
-  export let localProjects: IProjectModel[];
-  export let refreshProjects: () => Promise<void>;
+  interface Props {
+    localProjects: IProjectModel[];
+    refreshProjects: () => Promise<void>;
+  }
+
+  let { localProjects, refreshProjects }: Props = $props();
 
   const projectsService = useProjectsService();
   const authService = useAuthService();
 
-  let remoteProjects: { [server: string]: IServerProjects } = {};
-  let loadingRemoteProjects = false;
+  let remoteProjects: { [server: string]: IServerProjects } = $state({});
+  let loadingRemoteProjects = $state(false);
 
   async function fetchRemoteProjects(): Promise<void> {
     loadingRemoteProjects = true;
@@ -25,7 +29,7 @@
     }
   }
 
-  let loadingServerProjects: undefined | string = undefined;
+  let loadingServerProjects: undefined | string = $state(undefined);
 
   async function refreshServerProjects(server: ILexboxServer, force: boolean = false) {
     loadingServerProjects = server.id;
@@ -47,7 +51,7 @@
   }
 
 
-  let serversPromise = authService.servers();
+  let serversPromise = $state(authService.servers());
 
 </script>
 

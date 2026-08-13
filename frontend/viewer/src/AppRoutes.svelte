@@ -15,35 +15,45 @@
   const appStorage = initAppStorage();
   trackUrl(appStorage);
   initRootLocation(useLocation());
+  type HarmonyProjectParams = { code: string };
+  type FwdataParams = { name: string };
 </script>
 
-<Route path="/project/:code/*" let:params>
-  <Router {url}>
-    {#key params.code}
-      <DotnetProjectView code={params.code} type="crdt" />
-    {/key}
-  </Router>
+<Route path="/project/:code/*" >
+  {#snippet children({ params }: { params: HarmonyProjectParams })}
+    <Router {url}>
+      {#key params.code}
+        <DotnetProjectView code={params.code} type="crdt" />
+      {/key}
+    </Router>
+  {/snippet}
 </Route>
-<Route path="/fwdata/:name/*" let:params>
-  <Router {url}>
-    {#key params.name}
-      <DotnetProjectView code={params.name} type="fwdata" />
-    {/key}
-  </Router>
+<Route path="/fwdata/:name/*" >
+  {#snippet children({ params }: { params: FwdataParams })}
+    <Router {url}>
+      {#key params.name}
+        <DotnetProjectView code={params.name} type="fwdata" />
+      {/key}
+    </Router>
+  {/snippet}
 </Route>
-<Route path="/paratext/project/:code/*" let:params>
-  <Router {url}>
-    {#key params.code}
-      <DotnetProjectView code={params.code} type="crdt" paratext />
-    {/key}
-  </Router>
+<Route path="/paratext/project/:code/*" >
+  {#snippet children({ params }: { params: HarmonyProjectParams })}
+    <Router {url}>
+      {#key params.code}
+        <DotnetProjectView code={params.code} type="crdt" paratext />
+      {/key}
+    </Router>
+  {/snippet}
 </Route>
-<Route path="/paratext/fwdata/:name/*" let:params>
-  <Router {url}>
-    {#key params.name}
-      <DotnetProjectView code={params.name} type="fwdata" paratext />
-    {/key}
-  </Router>
+<Route path="/paratext/fwdata/:name/*" >
+  {#snippet children({ params }: { params: FwdataParams })}
+    <Router {url}>
+      {#key params.name}
+        <DotnetProjectView code={params.name} type="fwdata" paratext />
+      {/key}
+    </Router>
+  {/snippet}
 </Route>
 <Route path="/testing/project-view/*">
   <Router {url}>
