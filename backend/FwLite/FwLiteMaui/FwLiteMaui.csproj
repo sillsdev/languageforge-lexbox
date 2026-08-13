@@ -2,9 +2,9 @@
   <PropertyGroup>
     <!--        override the target framework set in Directory.Build.props, we will use what is defined in TargetFrameworks below instead-->
     <TargetFramework />
-    <TargetFrameworks Condition=" '$(BuildAndroid)' != 'false' ">$(TargetFrameworks);net10.0-android;</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx')) And '$(BuildApple)' != 'false'">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(BuildAndroid)' != 'false' ">$(TargetFrameworks);net11.0-android;</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx')) And '$(BuildApple)' != 'false'">$(TargetFrameworks);net11.0-ios;net11.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net11.0-windows10.0.19041.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
     <!-- Note for MacCatalyst:
 		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
@@ -60,7 +60,7 @@
   <PropertyGroup>
     <TargetPlatform>$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)'))</TargetPlatform>
   </PropertyGroup>
-  <!-- Linq2DbCctorPatcher (under build\) is its own net10.0 Exe project; keep it off this compile. -->
+  <!-- Linq2DbCctorPatcher (under build\) is its own net11.0 Exe project; keep it off this compile. -->
   <ItemGroup>
     <Compile Remove="build\Linq2DbCctorPatcher\**" />
     <Content Remove="build\Linq2DbCctorPatcher\**" />
@@ -133,7 +133,7 @@
           DependsOnTargets="_VerifyLinq2DbEfCoreVersionPin"
           BeforeTargets="_ResolveAssemblies;_LinkAssembliesNoShrink;_AfterILLinkAdditionalSteps;_RemoveRegisterAttribute"
           Inputs="build\Linq2DbCctorPatcher\Program.cs;build\Linq2DbCctorPatcher\Linq2DbCctorPatcher.csproj"
-          Outputs="build\Linq2DbCctorPatcher\bin\$(Configuration)\net10.0\Linq2DbCctorPatcher.dll">
+          Outputs="build\Linq2DbCctorPatcher\bin\$(Configuration)\net11.0\Linq2DbCctorPatcher.dll">
     <Exec Command="dotnet build &quot;$(MSBuildThisFileDirectory)build\Linq2DbCctorPatcher\Linq2DbCctorPatcher.csproj&quot; --configuration $(Configuration) --nologo" />
   </Target>
   <!-- Separate target so the ItemGroup is materialized by the time _PatchLinq2Db...'s Inputs/Outputs batching reads it. -->
@@ -156,7 +156,7 @@
           Inputs="@(_Linq2DbStagedAssemblies)"
           Outputs="@(_Linq2DbStagedAssemblies->'%(FullPath).cctor-patched')">
     <PropertyGroup>
-      <_Linq2DbPatcherDll>$(MSBuildThisFileDirectory)build\Linq2DbCctorPatcher\bin\$(Configuration)\net10.0\Linq2DbCctorPatcher.dll</_Linq2DbPatcherDll>
+      <_Linq2DbPatcherDll>$(MSBuildThisFileDirectory)build\Linq2DbCctorPatcher\bin\$(Configuration)\net11.0\Linq2DbCctorPatcher.dll</_Linq2DbPatcherDll>
     </PropertyGroup>
     <Error Condition="!Exists('$(_Linq2DbPatcherDll)')"
            Text="Linq2DbCctorPatcher.dll not found at $(_Linq2DbPatcherDll). _BuildLinq2DbCctorPatcher should have produced it." />

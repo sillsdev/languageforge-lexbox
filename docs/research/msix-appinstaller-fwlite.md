@@ -171,7 +171,7 @@ experiment before committing to the approach.**
 FW Lite's generated file uses the **2021 schema** and `OnLaunch` + `ShowPrompt` +
 `UpdateBlocksActivation` + `AutomaticBackgroundTask` + `ForceUpdateFromAnyVersion`, so the effective
 floor is **Windows 10 2004 (19041)** — which is also the MAUI target framework floor
-(`net10.0-windows10.0.19041.0`), so no new constraint is introduced.
+(`net11.0-windows10.0.19041.0`), so no new constraint is introduced.
 
 **Signing / trust:** packages must be signed with a certificate trusted by the device. A CA-trusted
 cert (Trusted Signing, which FW Lite uses) means Windows already trusts it and nothing needs to be

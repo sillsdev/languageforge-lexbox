@@ -1,6 +1,7 @@
 {
+  "//": "version is a floor: CI installs it exactly (setup-dotnet global-json-file); locally rollForward:latestMinor uses the newest installed 11.x SDK.",
   "sdk": {
-    "version": "10.0.100",
+    "version": "11.0.100-preview.7.26381.103",
     "rollForward": "latestMinor"
   }
 }

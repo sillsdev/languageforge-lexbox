@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
       - name: Cache NuGet packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -123,7 +123,7 @@ jobs:
           submodules: true
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Dotnet build (Release)
         run: dotnet build backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj -c Release
@@ -300,7 +300,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteWeb
@@ -335,7 +335,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Publish Linux
         working-directory: backend/FwLite/FwLiteWeb
@@ -383,7 +383,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Setup Maui
         run: dotnet workload install maui-android
@@ -404,7 +404,7 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.FW_LITE_KEYSTORE_PASS }}
           KEYSTORE_ALIAS: ${{ vars.FW_LITE_KEYSTORE_UPLOAD_KEY_ALIAS }}
         run: |
-          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
+          dotnet publish -f net11.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
@@ -421,7 +421,7 @@ jobs:
         working-directory: backend/FwLite/FwLiteMaui
         run: |
           echo "::warning::Signing key unavailable (likely a fork PR); building an unsigned Android APK."
-          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
+          dotnet publish -f net11.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
@@ -432,8 +432,8 @@ jobs:
         with:
           name: fw-lite-android
           if-no-files-found: error
-#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/org.sil.fwlitemaui-signed.apk
-          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/*
+#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net11.0-android/org.sil.fwlitemaui-signed.apk
+          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net11.0-android/*
 
   publish-win:
     name: Publish FW Lite app for Windows
@@ -449,7 +449,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Cache NuGet packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -482,7 +482,7 @@ jobs:
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net11.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/sign/portable
           cp -r ../artifacts/publish/FwLiteMaui/* ../artifacts/sign/portable/
 
@@ -492,7 +492,7 @@ jobs:
           # AppxPackageDir is the MSIX-targets equivalent of --artifacts-path: without it
           # MAUI 10 writes AppPackages to $(MSBuildProjectDirectory)/AppPackages, ignoring
           # --artifacts-path. Redirect it under artifacts/ so everything lives in one tree.
-          dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:AppxPackageDir=../artifacts/AppPackages/ -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net11.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:AppxPackageDir=../artifacts/AppPackages/ -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
           cp ../artifacts/AppPackages/*/*.msix ../artifacts/msix/
 
@@ -609,7 +609,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
       - name: Publish FwLiteWeb (linux-x64)
         working-directory: backend/FwLite/FwLiteWeb
         run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true
