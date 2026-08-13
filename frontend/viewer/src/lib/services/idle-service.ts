@@ -1,13 +1,14 @@
 import {IsIdle} from 'runed';
-import {getContext, hasContext, setContext} from 'svelte';
+import {createContext} from 'svelte';
 
-const symbol = Symbol.for('fw-lite-idle-service');
+const [getIdleService, setIdleService] = createContext<IdleService>();
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 
 export function useIdleService(): IdleService {
-  if (hasContext(symbol)) return getContext(symbol);
+  const existingService = getIdleService();
+  if (existingService) return existingService;
   const service = new IdleService();
-  setContext(symbol, service);
+  setIdleService(service);
   return service;
 }
 

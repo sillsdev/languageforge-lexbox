@@ -1,23 +1,23 @@
-import {getContext, setContext} from 'svelte';
+import {createContext} from 'svelte';
 
 import {PreferenceKey, type IPreferencesService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services';
 import {StorageProp} from './storage-prop.svelte';
 import {usePreferencesService} from '$lib/services/service-provider';
 
-const appStorageContextKey = Symbol('app-storage');
+const [getAppStorage, setAppStorage] = createContext<AppStorage>();
 
 export function initAppStorage(): AppStorage {
-  let storage = getContext<AppStorage>(appStorageContextKey);
+  let storage = getAppStorage();
   if (storage) throw new Error('AppStorage already initialized');
 
   const backend = usePreferencesService();
   storage = new AppStorage(backend);
-  setContext(appStorageContextKey, storage);
+  setAppStorage(storage);
   return storage;
 }
 
 export function useAppStorage(): AppStorage {
-  const storage = getContext<AppStorage>(appStorageContextKey);
+  const storage = getAppStorage();
   if (!storage) throw new Error('AppStorage not initialized. Make sure to call initAppStorage() in a parent component.');
   return storage;
 }

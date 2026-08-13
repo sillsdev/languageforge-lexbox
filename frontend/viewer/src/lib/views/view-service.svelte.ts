@@ -1,21 +1,21 @@
-import {getContext, setContext} from 'svelte';
+import {createContext} from 'svelte';
 import {ViewBase, type ICustomView, type IViewField} from '$lib/dotnet-types';
 import {useCustomViewService, type CustomViewService} from '$project/data/custom-view-service.svelte';
 import {BUILT_IN_VIEWS, FW_CLASSIC_VIEW, FW_LITE_VIEW, type CustomView, type RootView, type TypedViewField, type View} from './view-data';
 import type {FieldId} from './entity-config';
 import {type ProjectStorage, useProjectStorage} from '$lib/storage/project-storage.svelte';
 
-const contextKey = Symbol('view-service');
+const [getViewService, setViewService] = createContext<ViewService>();
 
 export function initViewService(options?: {persist?: boolean}): ViewService {
   const projectStorage = useProjectStorage();
   const service = new ViewService(useCustomViewService(), projectStorage, options);
-  setContext(contextKey, service);
+  setViewService(service);
   return service;
 }
 
 export function useViewService(): ViewService {
-  const service = getContext<ViewService>(contextKey);
+  const service = getViewService();
   if (!service) throw new Error('ViewService not initialized. Did you forget to call initViewService()?');
   return service;
 }

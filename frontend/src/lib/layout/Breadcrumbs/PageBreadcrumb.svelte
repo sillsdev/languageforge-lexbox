@@ -2,7 +2,7 @@
   import type {Snippet} from 'svelte';
 
   import type {Writable} from 'svelte/store';
-  import {getContext} from 'svelte';
+  import {useBreadcrumbStore} from './context';
   import {page} from '$app/state';
   import type {Action} from 'svelte/action';
   import type {ResolvedPathname} from '$app/types';
@@ -16,7 +16,7 @@
   let isCurrentPath = $derived(page.url.pathname === href);
 
   // TODO: Now that we're in Svelte 5, let's store snippets instead of Elements
-  let crumbs: Writable<Element[]> = getContext('breadcrumb-store');
+  let crumbs: Writable<Element[]> = useBreadcrumbStore();
 
   let setup = false;
 

@@ -1,23 +1,23 @@
-import {getContext, setContext} from 'svelte';
+import {createContext} from 'svelte';
 
 import type {IPreferencesService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services';
 import {StorageProp} from './storage-prop.svelte';
 import {usePreferencesService} from '$lib/services/service-provider';
 
-const projectStorageContextKey = Symbol('project-storage');
+const [getProjectStorage, setProjectStorage] = createContext<ProjectStorage>();
 
 export function initProjectStorage(projectCode: string): ProjectStorage {
-  let storage = getContext<ProjectStorage>(projectStorageContextKey);
+  let storage = getProjectStorage();
   if (storage) throw new Error('ProjectStorage already initialized');
 
   const backend = usePreferencesService();
   storage = new ProjectStorage(projectCode, backend);
-  setContext(projectStorageContextKey, storage);
+  setProjectStorage(storage);
   return storage;
 }
 
 export function useProjectStorage(): ProjectStorage {
-  const storage = getContext<ProjectStorage>(projectStorageContextKey);
+  const storage = getProjectStorage();
   if (!storage) throw new Error('ProjectStorage not initialized. Make sure to call initProjectStorage() in a parent component.');
   return storage;
 }
