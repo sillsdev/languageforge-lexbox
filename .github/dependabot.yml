@@ -135,6 +135,8 @@ updates:
     ignore:
       # The dotnet8 stage is pinned for ChorusMerge; dependabot "bumps" it by deleting the stage.
       - dependency-name: mcr.microsoft.com/dotnet/runtime
+        update-types:
+          - version-update:semver-major
     groups:
       docker:
         patterns:
