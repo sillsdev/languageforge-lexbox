@@ -4,7 +4,7 @@
 
   //indicates that the user is a developer, show them features that are not ready for production, etc.
   //does not indicate this is at development time
-  export let isDev = writable(false);
+  export const isDev = writable(false);
 
   globalThis.enableDevMode = (enable = true) => {
     isDev.set(enable);
@@ -29,7 +29,7 @@
     children?: Snippet;
   }
 
-  let { invisible = false, children }: Props = $props();
+  const { invisible = false, children }: Props = $props();
 </script>
 
 {#if $isDev}

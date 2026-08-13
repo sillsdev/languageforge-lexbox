@@ -8,7 +8,7 @@
     children?: Snippet;
   }
 
-  let { href, title = undefined, children }: Props = $props();
+  const { href, title = undefined, children }: Props = $props();
 </script>
 
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->

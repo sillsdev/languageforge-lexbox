@@ -8,7 +8,7 @@
     children?: Snippet;
   }
 
-  let { href, title = undefined, children }: Props = $props();
+  const { href, title = undefined, children }: Props = $props();
 </script>
 
 <Anchor {href} {title} variant="text">

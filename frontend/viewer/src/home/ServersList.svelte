@@ -8,12 +8,12 @@
     refreshProjects: () => Promise<void>;
   }
 
-  let { localProjects, refreshProjects }: Props = $props();
+  const { localProjects, refreshProjects }: Props = $props();
 
   const projectsService = useProjectsService();
   const authService = useAuthService();
 
-  let remoteProjects: { [server: string]: IServerProjects } = $state({});
+  const remoteProjects: { [server: string]: IServerProjects } = $state({});
   let loadingRemoteProjects = $state(false);
 
   async function fetchRemoteProjects(): Promise<void> {
@@ -23,7 +23,6 @@
       for (let serverProjects of result) {
         remoteProjects[serverProjects.server.id] = serverProjects;
       }
-      remoteProjects = remoteProjects;
     } finally {
       loadingRemoteProjects = false;
     }
@@ -34,7 +33,6 @@
   async function refreshServerProjects(server: ILexboxServer, force: boolean = false) {
     loadingServerProjects = server.id;
     remoteProjects[server.id] = await projectsService.serverProjects(server.id, force);
-    remoteProjects = remoteProjects;
     loadingServerProjects = undefined;
   }
 

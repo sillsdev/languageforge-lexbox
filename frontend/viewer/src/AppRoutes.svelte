@@ -9,7 +9,7 @@
   import {trackUrl} from './url-tracker';
   import {initAppStorage} from '$lib/storage';
 
-  let url = '';
+  const url = '';
 
   setupGlobalErrorHandlers();
   const appStorage = initAppStorage();

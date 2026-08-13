@@ -5,11 +5,11 @@
     helpId: string;
   }
 
-  let { helpId }: Props = $props();
+  const { helpId }: Props = $props();
 
   const rootHref = 'https://downloads.languagetechnology.org/fieldworks/Documentation/en/index.htm#t=';
 
-  let href = $derived(`${rootHref}${encodeURIComponent(helpId)}`);
+  const href = $derived(`${rootHref}${encodeURIComponent(helpId)}`);
 </script>
 
 {#if href}
