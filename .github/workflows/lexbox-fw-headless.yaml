@@ -83,10 +83,9 @@ jobs:
             type=raw,enable=${{ inputs.label-latest }},value=latest
             type=raw,value=${{ inputs.version }}
 
-      # Fork PR tokens cannot write org packages on ghcr.io
       - name: ghcr.io login
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
-        if: ${{ !env.ACT && github.repository == 'sillsdev/languageforge-lexbox' && github.event.pull_request.head.repo.fork != true }}
+        if: ${{ !env.ACT }}
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -98,6 +97,6 @@ jobs:
           file: backend/FwHeadless/Dockerfile
           build-args: |
             APP_VERSION=${{ inputs.version }}
-          push: ${{ !env.ACT && github.repository == 'sillsdev/languageforge-lexbox' && github.event.pull_request.head.repo.fork != true }}
+          push: ${{ !env.ACT && github.repository == 'sillsdev/languageforge-lexbox' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
