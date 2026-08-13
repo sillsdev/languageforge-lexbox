@@ -133,8 +133,7 @@ updates:
     labels:
       - dependencies
     ignore:
-      # The dotnet8 stage is pinned for ChorusMerge, which has no net10.0 build; dependabot
-      # "bumps" it by deleting the stage, which breaks the COPY --from=dotnet8 lines.
+      # The dotnet8 stage is pinned for ChorusMerge; dependabot "bumps" it by deleting the stage.
       - dependency-name: mcr.microsoft.com/dotnet/runtime
     groups:
       docker:

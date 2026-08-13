@@ -22,8 +22,8 @@ jobs:
     needs: [ set-version ]
     permissions:
       contents: read
-      checks: write
-      packages: write
+      checks: write # publish-unit-test-result-action
+      packages: write # ghcr.io push
     uses: ./.github/workflows/lexbox-api.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -34,8 +34,8 @@ jobs:
     needs: [ set-version ]
     permissions:
       contents: read
-      checks: write
-      packages: write
+      checks: write # publish-unit-test-result-action
+      packages: write # ghcr.io push
     uses: ./.github/workflows/lexbox-ui.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -46,7 +46,7 @@ jobs:
     needs: [ set-version ]
     permissions:
       contents: read
-      packages: write
+      packages: write # ghcr.io push
     uses: ./.github/workflows/lexbox-hgweb.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -57,8 +57,8 @@ jobs:
     needs: [ set-version ]
     permissions:
       contents: read
-      checks: write
-      packages: write
+      checks: write # publish-unit-test-result-action
+      packages: write # ghcr.io push
     uses: ./.github/workflows/lexbox-fw-headless.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
