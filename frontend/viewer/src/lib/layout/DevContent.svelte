@@ -8,8 +8,11 @@
 
   globalThis.enableDevMode = (enable = true) => {
     isDev.set(enable);
-    
-    enable ? localStorage.setItem('devMode', 'true') : localStorage.removeItem('devMode');
+    if (enable) {
+      localStorage.setItem('devMode', 'true');
+    } else {
+      localStorage.removeItem('devMode');
+    }
   };
   isDev.set(localStorage.getItem('devMode') === 'true');
   export const devModeToggle = multiClick({
