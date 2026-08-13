@@ -20,6 +20,10 @@ jobs:
   build-api:
     name: Build API
     needs: [ set-version ]
+    permissions:
+      contents: read
+      checks: write
+      packages: write
     uses: ./.github/workflows/lexbox-api.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -28,6 +32,10 @@ jobs:
   build-ui:
     name: Build UI
     needs: [ set-version ]
+    permissions:
+      contents: read
+      checks: write
+      packages: write
     uses: ./.github/workflows/lexbox-ui.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -36,6 +44,9 @@ jobs:
   build-hgweb:
     name: Build hgweb
     needs: [ set-version ]
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/lexbox-hgweb.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -44,6 +55,10 @@ jobs:
   build-fw-headless:
     name: Build FwHeadless
     needs: [ set-version ]
+    permissions:
+      contents: read
+      checks: write
+      packages: write
     uses: ./.github/workflows/lexbox-fw-headless.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}

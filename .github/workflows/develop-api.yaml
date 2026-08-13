@@ -40,6 +40,10 @@ jobs:
   build-api:
     name: Build API
     needs: set-version
+    permissions:
+      contents: read
+      checks: write
+      packages: write
     uses: ./.github/workflows/lexbox-api.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}

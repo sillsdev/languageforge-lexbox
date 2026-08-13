@@ -30,6 +30,10 @@ jobs:
   build-ui:
     name: Build UI
     needs: set-version
+    permissions:
+      contents: read
+      checks: write
+      packages: write
     uses: ./.github/workflows/lexbox-ui.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -47,6 +51,9 @@ jobs:
 
   check-and-lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write # eslint-annotate-action
     defaults:
       run:
         working-directory: ./frontend

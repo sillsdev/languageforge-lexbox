@@ -22,6 +22,13 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
+    # Dependabot runs get a read-only token unless the workflow asks for more, and a called
+    # workflow can only narrow what its caller granted — so callers must grant at least this.
+    permissions:
+      contents: read
+      checks: write # publish-unit-test-result-action
+      packages: write # ghcr.io push
+
     # postgres db is for automated tests
     services:
       postgres:
