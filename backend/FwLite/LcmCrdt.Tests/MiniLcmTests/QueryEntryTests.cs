@@ -38,7 +38,6 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
 
     [Theory]
     [InlineData(50_000)]
-    //disabled because it takes too long to run
     [InlineData(100_000)]
     public async Task QueryPerformanceTesting(int count)
     {
@@ -50,6 +49,8 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         await SimpleBulkAdd(entries, entrySearchService);
         entrySearchService.EntrySearchRecords.Should().HaveCount(count);
         _fixture.DbContext.Entries.Should().HaveCount(count);
+        //"tes" matches only ~0.1% of the generated names, so the timing below measures the cost of
+        //scanning every entry rather than of materializing results
         var searchString = "tes";
         var expectedResultCount = entries.Count(e => e.LexemeForm["en"].ContainsDiacriticMatch(searchString));
 
@@ -63,7 +64,6 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         var startTimestamp = Stopwatch.GetTimestamp();
         for (int i = 0; i < testIterations; i++)
         {
-            //search should not match anything as we only want to test the match performance
             var results = await Api.SearchEntries(searchString).ToArrayAsync();
             results.Should().HaveCount(expectedResultCount);
         }
