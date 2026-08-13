@@ -39,12 +39,6 @@
   projectEventBus.onSync(e => syncStatus = e.status);
 
   function handleProjectSelect(selectedProject: IProjectModel) {
-    // These routes are the unrestricted FW Lite views, which Paratext must never reach. The
-    // dropdown is disabled in Paratext, so getting here at all means that gate failed.
-    if (projectContext.inParatext) {
-      if (import.meta.env.DEV) console.warn('Ignored project selection while embedded in Paratext');
-      return;
-    }
     if (selectedProject.fwdata) {
       navigate('/fwdata/' + selectedProject.code);
     } else if (selectedProject.crdt) {
