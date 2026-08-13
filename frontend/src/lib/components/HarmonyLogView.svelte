@@ -31,7 +31,7 @@
     </tr>
   </thead>
   <tbody>
-    {#if false}
+    {#if commits?.length}
       {#each commits as commit (commit.id)}
         <tr>
           <td title={$date(commit.hybridDateTime.dateTime, {dateStyle: 'full', timeStyle: 'long'})}>

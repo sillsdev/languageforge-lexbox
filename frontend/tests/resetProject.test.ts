@@ -44,6 +44,7 @@ test('reset project and upload .zip file', async ({page, tempProject, tempDir}) 
   expect(beforeResetJson).toHaveProperty('node');
   expect(beforeResetJson.node).not.toEqual(allZeroHash);
   const linkToHgWebTip = page.locator(`a[href="/hg/${tempProject.code}/file/${beforeResetJson.node}"]`);
+  await projectPage.showHgHistory();
   await expect(linkToHgWebTip).toBeVisible();
   expect(beforeResetJson).toHaveProperty('files');
   expect(beforeResetJson.files).toHaveLength(1);
@@ -65,6 +66,7 @@ test('reset project and upload .zip file', async ({page, tempProject, tempDir}) 
   const afterResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
   const afterResetJson = await afterResetResponse.json() as HgWebJson;
   expect(afterResetJson.node).toEqual(allZeroHash);
+  await projectPage.showHgHistory();
   await expect(linkToHgWebTip).not.toBeVisible();
   expect(afterResetJson).toHaveProperty('files');
   expect(afterResetJson.files).toHaveLength(0);
@@ -84,6 +86,7 @@ test('reset project and upload .zip file', async ({page, tempProject, tempDir}) 
   const afterResetJSon = await afterUploadResponse.json() as HgWebJson;
   expect(afterResetJSon).toEqual(beforeResetJson); // NOT .toBe(), which would check that they're the same object.
   // and the UI has updated
+  await projectPage.showHgHistory();
   await expect(linkToHgWebTip).toBeVisible();
 });
 
