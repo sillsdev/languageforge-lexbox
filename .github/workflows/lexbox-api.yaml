@@ -56,6 +56,8 @@ jobs:
         run: dotnet build LexBoxOnly.slnf
       - name: Check for pending EF model changes
         run: task api:has-pending-model-changes
+      - name: Check public OpenAPI schema is up to date
+        run: task api:check-openapi-schema
 
       - name: Unit tests
         env:

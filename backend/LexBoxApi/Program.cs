@@ -122,6 +122,14 @@ builder.Services.AddOptions<ForwardedHeadersOptions>()
         }
     });
 
+var generatingOpenApiSchema = LexboxOpenApi.IsSchemaGenerationRequest(args);
+if (generatingOpenApiSchema)
+{
+    //let the app start without infrastructure so the schema can be generated (see LexboxOpenApi.GenerateSchema)
+    LexboxOpenApi.RemoveInfrastructureHostedServices(builder.Services);
+    builder.WebHost.UseUrls("http://127.0.0.1:0");
+}
+
 var app = builder.Build();
 app.Logger.LogInformation("LexBox-api version: {version}", AppVersionService.Version);
 
@@ -167,5 +175,11 @@ app.Map("/login", Results.Unauthorized).AllowAnonymous();
 
 app.MapFileUploadProxy();
 app.MapSyncProxy(AuthKernel.DefaultScheme);
+
+if (generatingOpenApiSchema)
+{
+    await LexboxOpenApi.GenerateSchema(app);
+    return;
+}
 
 await app.RunAsync();

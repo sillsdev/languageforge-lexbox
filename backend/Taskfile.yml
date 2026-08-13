@@ -55,6 +55,22 @@ tasks:
     cmds:
       - dotnet run generate-gql-schema
 
+  generate-openapi-schema:
+    desc: "Regenerates the committed public OpenAPI schema (LexBoxApi/openapi/public.yaml)."
+    aliases: [ go ]
+    dir: ./LexBoxApi
+    cmds:
+      - dotnet run generate-openapi-schema
+
+  check-openapi-schema:
+    desc: "Fails if the committed public OpenAPI schema is out of date. Used in CI."
+    dir: ./LexBoxApi
+    cmds:
+      - dotnet run generate-openapi-schema
+      - >-
+        git diff --exit-code -- openapi/public.yaml ||
+        { echo "Public OpenAPI schema is out of date. Run 'task api:generate-openapi-schema' and commit backend/LexBoxApi/openapi/public.yaml"; exit 1; }
+
   build-docker:
     desc: "Builds the docker image for the LexBoxApi"
     dir: .
