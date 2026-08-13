@@ -15,9 +15,7 @@ export function initViewService(options?: {persist?: boolean}): ViewService {
 }
 
 export function useViewService(): ViewService {
-  const service = getViewService();
-  if (!service) throw new Error('ViewService not initialized. Did you forget to call initViewService()?');
-  return service;
+  return getViewService();
 }
 
 export class ViewService {
