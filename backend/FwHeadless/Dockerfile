@@ -17,6 +17,9 @@ RUN --mount=type=cache,target=/root/.nuget/packages dotnet build /p:Informationa
 FROM build AS publish
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:InformationalVersion=$APP_VERSION "FwHeadless/FwHeadless.csproj" -c Release -o /app/publish
 
+# Pinned to 8.0 to match ChorusMerge's TargetFramework (net8.0) in sillsdev/chorus - don't let
+# dependabot bump this. And if this stage is ever removed, the COPY --from=dotnet8 lines below
+# must go too, or Docker will try to pull a nonexistent "dotnet8" image from Docker Hub instead.
 FROM mcr.microsoft.com/dotnet/runtime:8.0 AS dotnet8
 
 FROM base AS final
