@@ -1,7 +1,8 @@
-import { logger, projectDataProviders, webViews } from '@papi/backend';
+import { localization, logger, notifications, projectDataProviders, webViews } from '@papi/backend';
 import type { MandatoryProjectDataTypes } from '@papi/core';
 import type { LexiconWebViewOptions, ProjectWebViewOptions, WebViewIds } from 'lexicon';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
+import { formatReplacementString, getErrorMessage } from 'platform-bible-utils';
 // eslint-disable-next-line no-restricted-imports
 import type { Layout } from 'shared/models/docking-framework.model';
 import { ProjectSettingKey, WebViewType } from '../types/enums';
@@ -19,6 +20,22 @@ export class ProjectManager {
 
   static async getLexiconCode(projectId: string): Promise<string | undefined> {
     return await new ProjectManager(projectId).getLexiconCode();
+  }
+
+  /** Tells the user why their lexicon selection was discarded, so the selector isn't unexplained. */
+  private static async notifyLexiconMissing(lexiconCode: string): Promise<void> {
+    try {
+      const template = await localization.getLocalizedString({
+        localizeKey: '%lexicon_error_lexiconMissing%',
+      });
+      await notifications.send({
+        message: formatReplacementString(template, { lexiconCode }),
+        severity: 'error',
+      });
+    } catch (e) {
+      // A failed notification must not stop the selector from opening.
+      logger.warn('Could not notify user of the missing lexicon:', getErrorMessage(e));
+    }
   }
 
   async getAnalysisLanguage(): Promise<string | undefined> {
@@ -49,6 +66,7 @@ export class ProjectManager {
         `Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`,
       );
       await this.setLexiconCode('');
+      await ProjectManager.notifyLexiconMissing(lexiconCode);
     } else {
       logger.info(`Lexicon not yet selected for project '${nameOrId}'`);
     }
