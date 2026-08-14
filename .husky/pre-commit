@@ -1,1 +1,27 @@
-cd frontend/viewer && pnpm exec lint-staged || npx lint-staged
+#!/usr/bin/env sh
+set -eu
+
+cd "$(git rev-parse --show-toplevel)"
+
+# Single list of extensions: cheap skip-check and lint-staged glob.
+set -- js ts svelte css md json
+grep_pat=
+glob_inner=
+for ext do
+  grep_pat="${grep_pat:+$grep_pat|}$ext"
+  glob_inner="${glob_inner:+$glob_inner,}$ext"
+done
+
+if ! git diff --cached --name-only --diff-filter=ACMR | grep -qE "\.(${grep_pat})$"; then
+  exit 0
+fi
+
+lint_staged="frontend/viewer/node_modules/.bin/lint-staged"
+if [ ! -f "$lint_staged" ]; then
+  echo "pre-commit: staged *.{${glob_inner}} files need prettier, but frontend/viewer/node_modules is missing." >&2
+  echo "pre-commit: run: cd frontend && pnpm install" >&2
+  exit 1
+fi
+
+printf '{"*.{%s}":"prettier --write"}\n' "$glob_inner" |
+  "$lint_staged" --config - --cwd frontend/viewer

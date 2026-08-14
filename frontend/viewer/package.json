@@ -130,11 +130,6 @@
     "virtua": "^0.48.2",
     "wavesurfer.js": "^7.11.1"
   },
-  "lint-staged": {
-    "*.{js,ts,svelte,css,md,json}": [
-      "prettier --write"
-    ]
-  },
   "imports": {
     "#app.css": "./src/app.css"
   }
