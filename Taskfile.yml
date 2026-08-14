@@ -38,7 +38,7 @@ tasks:
     deps: [ setup-win, setup-unix ]
     cmds:
       - git config blame.ignoreRevsFile .git-blame-ignore-revs
-      - pnpm dlx husky || npx --yes husky
+      - pnpm dlx husky
       - task: setup-k8s
       - docker build -t local-dev-init data/
   setup-k8s:
