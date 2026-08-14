@@ -66,7 +66,7 @@
     },
   );
 
-  function snapshotEntry(entry: IEntry | null): IEntry | null {
+  function snapshotEntry(entry: IEntry | undefined): IEntry | undefined {
     // IMMEDIATELY take a snapshot to ensure it doesn't get mutated by the editor before EntryPersistence gets it.
     // (dirty fields immediately push their current dirty value into the entry object, which can corrupt the update diff.)
     latestPersistedSnapshot = entry ? Object.freeze(copy(entry)) : undefined;
@@ -76,7 +76,7 @@
 
   // For entry updates that arrive OUTSIDE the resource fetcher (event bus, restore), we must
   // push the new value into the resource ourselves via mutate().
-  function setEntry(entry: IEntry | null): IEntry | null {
+  function setEntry(entry: IEntry | undefined): IEntry | undefined {
     snapshotEntry(entry);
     entryResource.mutate(entry);
     return entry;

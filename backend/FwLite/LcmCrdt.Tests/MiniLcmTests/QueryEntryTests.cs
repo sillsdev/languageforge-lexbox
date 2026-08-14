@@ -38,7 +38,6 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
 
     [Theory]
     [InlineData(50_000)]
-    //disabled because it takes too long to run
     [InlineData(100_000)]
     public async Task QueryPerformanceTesting(int count)
     {
@@ -50,6 +49,8 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         await SimpleBulkAdd(entries, entrySearchService);
         entrySearchService.EntrySearchRecords.Should().HaveCount(count);
         _fixture.DbContext.Entries.Should().HaveCount(count);
+        //"tes" matches only ~0.1% of the generated names, so the timing below measures the cost of
+        //scanning every entry rather than of materializing results
         var searchString = "tes";
         var expectedResultCount = entries.Count(e => e.LexemeForm["en"].ContainsDiacriticMatch(searchString));
 
@@ -63,20 +64,20 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         var startTimestamp = Stopwatch.GetTimestamp();
         for (int i = 0; i < testIterations; i++)
         {
-            //search should not match anything as we only want to test the match performance
             var results = await Api.SearchEntries(searchString).ToArrayAsync();
             results.Should().HaveCount(expectedResultCount);
         }
 
         var totalRuntime = Stopwatch.GetElapsedTime(startTimestamp);
         var queryTime = totalRuntime / testIterations;
-        var timePerEntry = queryTime / count;
+        //divide in floating point: TimeSpan's operator/ rounds to whole 100ns ticks, so [0.45, 0.5) became exactly 0.5
+        var timePerEntryMicroseconds = queryTime.TotalMicroseconds / count;
         outputHelper.WriteLine(
-            $"Total query time: {queryTime.TotalMilliseconds}ms, time per entry: {timePerEntry.TotalMicroseconds}microseconds");
+            $"Total query time: {queryTime.TotalMilliseconds}ms, time per entry: {timePerEntryMicroseconds}microseconds");
         //Kevin H:  1   -- on my machine I got 0.2, so this is a safe margin
         //Tim H:    1.3 -- bumped, because on CI we got 1 and then 1.1 (new gha Windows runner)
         //Tim H:    0.5 -- tightened after adding warmup. Warm-state local is 0.05-0.23 µs/entry
-        timePerEntry.TotalMicroseconds.Should().BeLessThan(0.5);
+        timePerEntryMicroseconds.Should().BeLessThan(0.5);
     }
 
     [Fact]

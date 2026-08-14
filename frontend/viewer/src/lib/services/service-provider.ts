@@ -21,6 +21,9 @@ import type {IPreferencesService} from '$lib/dotnet-types/generated-types/FwLite
 
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
 import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
+import type {
+  IPlatformFeaturesService
+} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IPlatformFeaturesService';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
@@ -41,6 +44,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.JsInvokableLogger]: IJsInvokableLogger,
   [DotnetService.UpdateService]: IUpdateService,
   [DotnetService.PreferencesService]: IPreferencesService,
+  [DotnetService.PlatformFeaturesService]: IPlatformFeaturesService,
 };
 
 export const SERVICE_KEYS = Object.values(DotnetService);

@@ -30,6 +30,10 @@ jobs:
   build-ui:
     name: Build UI
     needs: set-version
+    permissions:
+      contents: read
+      checks: write # publish-unit-test-result-action
+      packages: write # ghcr.io push
     uses: ./.github/workflows/lexbox-ui.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -47,12 +51,15 @@ jobs:
 
   check-and-lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write # eslint-annotate-action
     defaults:
       run:
         working-directory: ./frontend
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0

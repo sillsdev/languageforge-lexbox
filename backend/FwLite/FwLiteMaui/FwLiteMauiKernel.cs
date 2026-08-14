@@ -140,8 +140,10 @@ public static class FwLiteMauiKernel
         services.AddSingleton(_ => Launcher.Default);
         services.AddSingleton(_ => Browser.Default);
         services.AddSingleton(_ => Share.Default);
+        services.AddSingleton(_ => MediaPicker.Default);
         services.AddSingleton<IPreferencesService, MauiPreferencesService>();
         services.AddSingleton<ITroubleshootingService, MauiTroubleshootingService>();
+        services.AddSingleton<IPlatformFeaturesService, MauiPlatformFeaturesService>();
         logging.AddConsole();
 #if DEBUG
         logging.AddDebug();

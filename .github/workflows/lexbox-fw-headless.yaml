@@ -22,6 +22,11 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      checks: write # publish-unit-test-result-action
+      packages: write # ghcr.io push
+
     # postgres db is for automated tests
     services:
       postgres:
@@ -79,7 +84,7 @@ jobs:
             type=raw,value=${{ inputs.version }}
 
       - name: ghcr.io login
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         if: ${{ !env.ACT }}
         with:
           registry: ghcr.io

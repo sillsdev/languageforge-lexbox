@@ -3,6 +3,9 @@
     <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Testing" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="MimeMapping" />
     <PackageReference Include="Npgsql.OpenTelemetry" />

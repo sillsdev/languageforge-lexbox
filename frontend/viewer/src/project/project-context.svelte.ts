@@ -1,4 +1,4 @@
-import {getContext, onDestroy, setContext, untrack} from 'svelte';
+import {createContext, onDestroy, untrack} from 'svelte';
 import type {ILexboxServer, IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
@@ -13,8 +13,6 @@ import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProj
 import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
 import {devSettings} from '$lib/layout/dev-settings.svelte';
 
-const projectContextKey = 'current-project';
-
 type ProjectType = 'crdt' | 'fwdata' | undefined;
 
 interface ProjectContextSetup {
@@ -27,16 +25,17 @@ interface ProjectContextSetup {
   projectType?: 'crdt' | 'fwdata';
   server?: ILexboxServer;
   projectData?: IProjectData;
-  paratext?: boolean;
 }
+const [getProjectContext, setProjectContext] = createContext<ProjectContext>();
+
 export function initProjectContext(args?: ProjectContextSetup) {
   const context = new ProjectContext(args);
-  setContext(projectContextKey, context);
+  setProjectContext(context);
   onDestroy(() => context.destroy());
   return context;
 }
 export function useProjectContext() {
-  return getContext<ProjectContext>(projectContextKey);
+  return getProjectContext();
 }
 export class ProjectContext {
   #stateCache = new SvelteMap<symbol, unknown>();
@@ -116,8 +115,26 @@ export class ProjectContext {
   public get mediaFilesService(): IMediaFilesServiceJsInvokable | undefined {
     return this.#mediaFilesService;
   }
+  /**
+   * Whether the project is embedded in Paratext, which restricts the UI to this one project.
+   * Set before the project is opened, so the restriction also holds while the project is still
+   * loading and if it fails to load at all. One-way: turning it back off would silently re-enable
+   * navigation out of the embedded view.
+   */
   public get inParatext(): boolean {
     return this.#paratext;
+  }
+  public set inParatext(value: boolean) {
+    if (this.#paratext === value) return;
+    if (this.#paratext) {
+      if (import.meta.env.DEV) {
+        throw new Error('Cannot leave Paratext mode once it is set');
+      } else {
+        console.error('Cannot leave Paratext mode once it is set');
+        return;
+      }
+    }
+    this.#paratext = value;
   }
 
   constructor(args?: ProjectContextSetup) {
@@ -134,7 +151,6 @@ export class ProjectContext {
     this.#projectType = args.projectType;
     this.#server = args.server;
     this.#projectData = args.projectData;
-    this.#paratext = args.paratext ?? false;
 
     for (const res of this.#detachedResources) {
       res.onApiChange(args.api);
