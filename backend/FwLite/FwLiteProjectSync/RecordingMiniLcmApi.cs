@@ -11,7 +11,11 @@ namespace FwLiteProjectSync;
 public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
 
-    public record RunRecord(string Method, string Description);
+    public record RunRecord(string Method, string Description)
+    {
+        /// <summary>Kept to one line: LogRecordedRun writes a record per log line, and real project text carries its own breaks.</summary>
+        public string Description { get; } = Description.ReplaceLineEndings("\\n");
+    }
 
     private readonly IMiniLcmApi _api = api;
 
@@ -149,7 +153,7 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
         RunRecords.Add(new RunRecord(nameof(CreateEntry),
-            $"Create entry {entry.Headword()} ({entry.Id}), options: {options ?? new CreateEntryOptions()}"));
+            $"Create entry {entry.Headword()} ({entry.Id}), options: {options ?? CreateEntryOptions.WithMainPublication}"));
         return await _api.CreateEntry(entry, options);
     }
 
