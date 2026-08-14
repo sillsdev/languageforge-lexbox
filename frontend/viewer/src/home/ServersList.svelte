@@ -32,7 +32,8 @@
 
   async function refreshServerProjects(server: ILexboxServer, force: boolean = false) {
     loadingServerProjects = server.id;
-    remoteProjects[server.id] = await projectsService.serverProjects(server.id, force);
+    const projects = await projectsService.serverProjects(server.id, force);
+    if (projects) remoteProjects[server.id] = projects;
     loadingServerProjects = undefined;
   }
 

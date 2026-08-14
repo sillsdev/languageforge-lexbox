@@ -17,9 +17,8 @@ export function usePlatformFeaturesService(): {service: IPlatformFeaturesService
   if (!service) {
     return {
       service: {
-        captureImage(): Promise<ICameraResult> {
-          //type gen isn't working correctly, this should be Promise<ICameraResult | null>
-          return Promise.resolve(null) as unknown as Promise<ICameraResult>;
+        captureImage(): Promise<ICameraResult | undefined> {
+          return Promise.resolve(undefined);
         },
         supportsImageCapture(): Promise<boolean> {
           return Promise.resolve(false);

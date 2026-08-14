@@ -27,7 +27,6 @@ interface ProjectContextSetup {
   projectType?: 'crdt' | 'fwdata';
   server?: ILexboxServer;
   projectData?: IProjectData;
-  paratext?: boolean;
 }
 export function initProjectContext(args?: ProjectContextSetup) {
   const context = new ProjectContext(args);
@@ -116,8 +115,26 @@ export class ProjectContext {
   public get mediaFilesService(): IMediaFilesServiceJsInvokable | undefined {
     return this.#mediaFilesService;
   }
+  /**
+   * Whether the project is embedded in Paratext, which restricts the UI to this one project.
+   * Set before the project is opened, so the restriction also holds while the project is still
+   * loading and if it fails to load at all. One-way: turning it back off would silently re-enable
+   * navigation out of the embedded view.
+   */
   public get inParatext(): boolean {
     return this.#paratext;
+  }
+  public set inParatext(value: boolean) {
+    if (this.#paratext === value) return;
+    if (this.#paratext) {
+      if (import.meta.env.DEV) {
+        throw new Error('Cannot leave Paratext mode once it is set');
+      } else {
+        console.error('Cannot leave Paratext mode once it is set');
+        return;
+      }
+    }
+    this.#paratext = value;
   }
 
   constructor(args?: ProjectContextSetup) {
@@ -134,7 +151,6 @@ export class ProjectContext {
     this.#projectType = args.projectType;
     this.#server = args.server;
     this.#projectData = args.projectData;
-    this.#paratext = args.paratext ?? false;
 
     for (const res of this.#detachedResources) {
       res.onApiChange(args.api);
