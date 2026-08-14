@@ -33,6 +33,8 @@ public static class JsonPatchExtensions
     /// <summary>One line: a multi-line summary breaks per-line grep of the logs it ends up in.</summary>
     public static string Summarize<T>(this JsonPatchDocument<T> document) where T : class
     {
-        return string.Join(", ", document.Operations.Select(op => $"{op.OperationType} {op.Path}: {op.Value}"));
+        // ReplaceLineEndings covers the separators real vernacular text hides, not just \r and \n.
+        return string.Join(", ", document.Operations.Select(op => $"{op.OperationType} {op.Path}: {op.Value}"))
+            .ReplaceLineEndings("\\n");
     }
 }
