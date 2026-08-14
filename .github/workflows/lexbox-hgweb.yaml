@@ -70,6 +70,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+      -
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: hgweb
@@ -78,6 +80,11 @@ jobs:
           push: ${{ !env.ACT }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # Persist build layers across runs via a registry cache image on ghcr.
+          # Only export when we can push (auth present); import is always safe.
+          provenance: false
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
+          cache-to: ${{ !env.ACT && format('type=registry,ref={0}:buildcache,mode=max', env.IMAGE_NAME) || '' }}
   deploy-hgweb:
       uses: ./.github/workflows/deploy.yaml
       if: ${{github.ref == 'refs/heads/develop' && github.event_name == 'push'}}
