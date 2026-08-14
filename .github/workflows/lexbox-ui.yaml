@@ -20,6 +20,12 @@ jobs:
   publish-ui:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      checks: write # publish-unit-test-result-action
+      packages: write # ghcr.io push
+
     env:
       # https://docs.docker.com/develop/develop-images/build_enhancements/
       DOCKER_BUILDKIT: 1

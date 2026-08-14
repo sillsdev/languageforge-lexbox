@@ -373,6 +373,10 @@ msgstr "Parcourir"
 msgid "Browse view failed"
 msgstr ""
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Camera"
+msgstr ""
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -2655,6 +2659,10 @@ msgstr "Saisir une phrase exemplaire"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Type:"
 msgstr "Type :"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to convert captured image from {0} to a jpeg"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte

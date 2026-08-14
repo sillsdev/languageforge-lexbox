@@ -1,4 +1,4 @@
-import {getContext, setContext} from 'svelte';
+import {createContext} from 'svelte';
 
 import {IsMobile} from '$lib/hooks/is-mobile.svelte';
 import {SIDEBAR_KEYBOARD_SHORTCUT} from './constants';
@@ -56,7 +56,7 @@ class SidebarState {
   };
 }
 
-const SYMBOL_KEY = 'scn-sidebar';
+const [useSidebarContext, setSidebarContext] = createContext<SidebarState>();
 
 /**
  * Instantiates a new `SidebarState` instance and sets it in the context.
@@ -65,7 +65,7 @@ const SYMBOL_KEY = 'scn-sidebar';
  * @returns  The `SidebarState` instance.
  */
 export function setSidebar(props: SidebarStateProps): SidebarState {
-  return setContext(Symbol.for(SYMBOL_KEY), new SidebarState(props));
+  return setSidebarContext(new SidebarState(props));
 }
 
 /**
@@ -74,5 +74,5 @@ export function setSidebar(props: SidebarStateProps): SidebarState {
  * @returns The `SidebarState` instance.
  */
 export function useSidebar(): SidebarState {
-  return getContext(Symbol.for(SYMBOL_KEY));
+  return useSidebarContext();
 }
