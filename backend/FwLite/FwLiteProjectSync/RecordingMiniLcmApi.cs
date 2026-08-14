@@ -501,15 +501,16 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return $"{component.ComplexFormHeadword} ({component.ComplexFormEntryId})";
     }
 
+    // No position and neighbourless are the same append to OrderPicker, so they read the same here.
     private static string Position<T>(BetweenPosition<T>? position)
     {
-        if (position is null) return "at the end";
+        if (position is null or { Previous: null, Next: null }) return "at the end";
         return $"between {OrNull(position.Previous)} and {OrNull(position.Next)}";
     }
 
     private static string Position(BetweenPosition<ComplexFormComponent>? position)
     {
-        if (position is null) return "at the end";
+        if (position is null or { Previous: null, Next: null }) return "at the end";
         return $"between {ComplexFormComponentName(position.Previous)} and {ComplexFormComponentName(position.Next)}";
     }
 
