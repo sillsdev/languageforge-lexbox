@@ -10,6 +10,7 @@ using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Harmony;
 using LcmCrdt.MediaServer;
+using LcmCrdt.MiniLcm;
 using LcmCrdt.Objects;
 using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
@@ -28,63 +29,43 @@ public class CrdtMiniLcmApi(
     ILogger<CrdtMiniLcmApi> logger,
     LcmMediaService lcmMediaService,
     LocalCommentReadStatusService commentReadStatusService,
+    CrdtWritingSystemApi writingSystemApi,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     public ProjectData ProjectData => projectService.ProjectData;
     public CrdtProject Project => projectService.Project;
 
-    public async Task<WritingSystems> GetWritingSystems()
+    public Task<WritingSystems> GetWritingSystems()
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var systems = await repo.WritingSystemsOrdered.ToArrayAsync();
-        return new WritingSystems
-        {
-            Analysis = [.. systems.Where(ws => ws.Type == WritingSystemType.Analysis)],
-            Vernacular = [.. systems.Where(ws => ws.Type == WritingSystemType.Vernacular)]
-        };
+        return writingSystemApi.GetWritingSystems();
     }
 
-    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
+    public Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem,
+        BetweenPosition<WritingSystemId?>? between = null)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var entityId = writingSystem.MaybeId ?? Guid.NewGuid();
-        var wsType = writingSystem.Type;
-        var exists = await repo.WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == wsType);
-        if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} ({wsType}) already exists");
-        var betweenIds = between is null ? null : await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, wsType))?.Id);
-        var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(ws => ws.Type == wsType), betweenIds);
-        await harmonyChangeWriter.AddChange(new CreateWritingSystemChange(writingSystem, entityId, order));
-        return await repo.GetWritingSystem(writingSystem.WsId, wsType) ?? throw NotFoundException.ForWs(writingSystem);
+        return writingSystemApi.CreateWritingSystem(writingSystem, between);
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
+        WritingSystemType type,
+        UpdateObjectInput<WritingSystem> update)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var ws = await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
-        var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);
-        await harmonyChangeWriter.AddChange(patchChange);
-        return await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
+        return writingSystemApi.UpdateWritingSystem(id, type, update);
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
     {
-        await WritingSystemSync.Sync(before, after, api ?? this);
-        return await GetWritingSystem(after.WsId, after.Type) ?? throw NotFoundException.ForWs(after);
+        return writingSystemApi.UpdateWritingSystem(before, after, api ?? this);
     }
 
-    public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
+    public Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var ws = await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
-        var betweenIds = await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, type))?.Id);
-        var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(s => s.Type == type), betweenIds);
-        await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<WritingSystem>(ws.Id, order));
+        return writingSystemApi.MoveWritingSystem(id, type, between);
     }
 
-    public async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    public Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetWritingSystem(id, type);
+        return writingSystemApi.GetWritingSystem(id, type);
     }
 
     public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()

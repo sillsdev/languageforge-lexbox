@@ -211,7 +211,7 @@ internal partial class UnreliableApi(IMiniLcmApi api, Random random) : IMiniLcmA
         ResumableTests.MaybeThrowRandom(random, 0.2);
         return _api.CreatePublication(publication);
     }
-    Task<WritingSystem> IMiniLcmWriteApi.CreateWritingSystem(WritingSystem writingSystems, BetweenPosition<WritingSystemId?>? between)
+    Task<WritingSystem> IMiniLcmWritingSystemApi.CreateWritingSystem(WritingSystem writingSystems, BetweenPosition<WritingSystemId?>? between)
     {
         ResumableTests.MaybeThrowRandom(random, 0.2);
         return _api.CreateWritingSystem(writingSystems, between);
