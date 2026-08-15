@@ -1,5 +1,3 @@
-
-
 using LcmCrdt.Changes;
 using LcmCrdt.Data;
 using LcmCrdt.Harmony;
@@ -7,7 +5,7 @@ using LinqToDB.Async;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 
-namespace LcmCrdt.MiniLcm;
+namespace LcmCrdt.MiniLcmImp;
 
 public class CrdtWritingSystemApi(
     MiniLcmRepositoryFactory repoFactory,
@@ -47,9 +45,11 @@ public class CrdtWritingSystemApi(
         return await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi api)
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
+        WritingSystem after,
+        IMiniLcmWritingSystemApi? api = null)
     {
-        await WritingSystemSync.Sync(before, after, api);
+        await WritingSystemSync.Sync(before, after, api ?? this);
         return await GetWritingSystem(after.WsId, after.Type) ?? throw NotFoundException.ForWs(after);
     }
 

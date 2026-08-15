@@ -10,7 +10,7 @@ using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Harmony;
 using LcmCrdt.MediaServer;
-using LcmCrdt.MiniLcm;
+using LcmCrdt.MiniLcmImp;
 using LcmCrdt.Objects;
 using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
@@ -53,7 +53,9 @@ public class CrdtMiniLcmApi(
         return writingSystemApi.UpdateWritingSystem(id, type, update);
     }
 
-    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
+        WritingSystem after,
+        IMiniLcmWritingSystemApi? api = null)
     {
         return writingSystemApi.UpdateWritingSystem(before, after, api ?? this);
     }

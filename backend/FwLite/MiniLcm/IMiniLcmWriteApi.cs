@@ -17,7 +17,11 @@ public interface IMiniLcmWritingSystemApi
         UpdateObjectInput<WritingSystem> update
     );
 
-    Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi api);
+    Task<WritingSystem> UpdateWritingSystem(
+        WritingSystem before,
+        WritingSystem after,
+        IMiniLcmWritingSystemApi? api = null
+    );
     Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between);
 }
 
