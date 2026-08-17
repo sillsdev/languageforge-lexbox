@@ -8,6 +8,8 @@ on:
       - 'frontend/**'
       - '.github/workflows/lexbox-api.yaml'
       - '.github/workflows/deploy.yaml'
+      - '.github/workflows/integration-test-gha.yaml'
+      - '.github/actions/playwright-tests/**'
       - 'deployment/base/lexbox-deployment.yaml'
       - 'deployment/base/hg-deployment.yaml'
     branches:
@@ -19,6 +21,8 @@ on:
       - 'frontend/**'
       - '.github/workflows/lexbox-api.yaml'
       - '.github/workflows/deploy.yaml'
+      - '.github/workflows/integration-test-gha.yaml'
+      - '.github/actions/playwright-tests/**'
       - 'deployment/base/lexbox-deployment.yaml'
       - 'deployment/base/hg-deployment.yaml'
     branches:
