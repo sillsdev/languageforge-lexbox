@@ -53,13 +53,10 @@ graphql(`
 
 graphql(`
   fragment HarmonyCommits on Project {
-    harmonyCommits(orderBy: [ {
-      hybridDateTime:  {
-         dateTime: ASC
-         counter: ASC
-      }
-      id: ASC
-    }]) {
+    harmonyCommits(orderBy: [
+      { hybridDateTime: { dateTime: DESC, counter: DESC } },
+      { id: DESC }
+    ]) {
       id
       clientId
       hybridDateTime {
