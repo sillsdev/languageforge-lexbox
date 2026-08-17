@@ -4,7 +4,6 @@ import {jwtDecode} from 'jwt-decode';
 import {deleteCookie, getCookie} from './util/cookies';
 import {hash} from '$lib/util/hash';
 import {ensureErrorIsTraced, errorSourceTag} from './otel';
-import zxcvbn from 'zxcvbn';
 import {
   type AuthUserOrg,
   type AuthUserProject,
@@ -84,7 +83,20 @@ export function getHomePath(user: LexAuthUser | null): '/admin' | '/' {
   return user?.isAdmin ? '/admin' : '/';
 }
 
+type ZxcvbnFn = typeof import('zxcvbn');
+
+let zxcvbnImport: Promise<ZxcvbnFn> | undefined;
+
+export function preloadZxcvbn(): Promise<ZxcvbnFn> {
+  zxcvbnImport ??= import('zxcvbn').then((mod) => {
+    if (typeof mod === 'function') return mod;
+    return (mod as unknown as {default: ZxcvbnFn}).default;
+  });
+  return zxcvbnImport;
+}
+
 export async function login(userId: string, password: string): Promise<LoginResult> {
+  const zxcvbn = await preloadZxcvbn();
   const strength = zxcvbn(password);
   const response = await fetch('/api/login', {
     method: 'post',

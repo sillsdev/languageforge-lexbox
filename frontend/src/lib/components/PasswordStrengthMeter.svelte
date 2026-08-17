@@ -1,5 +1,6 @@
 <script lang="ts">
-  import zxcvbn from 'zxcvbn';
+  import {onMount} from 'svelte';
+  import {preloadZxcvbn} from '$lib/user';
 
   // zxcvbn password strength is an int between 0 and 4 inclusive
   // Feedback colors are red for bad passwords, yellow for poor, green for good
@@ -21,8 +22,14 @@
 
   const { bad = 0, poor = 2, onScoreUpdated, scoreOverride, password = '' }: Props = $props();
 
-  let strength = $derived(zxcvbn(password));
-  let score = $derived(scoreOverride ?? strength.score);
+  let zxcvbn = $state<typeof import('zxcvbn') | undefined>();
+  onMount(() => {
+    void preloadZxcvbn().then((fn) => {
+      zxcvbn = fn;
+    });
+  });
+
+  let score = $derived(scoreOverride ?? zxcvbn?.(password).score ?? 0);
   $effect(() => onScoreUpdated?.(score));
   let progressColor = $derived(passwordStrengthColor(score));
 </script>
