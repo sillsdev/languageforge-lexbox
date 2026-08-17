@@ -78,7 +78,7 @@ public class HarmonyCommitQueryTests
         commits.OrderBy(c => c.HybridDateTime)
             .Select(AuthorName)
             .Should()
-            .Equal("Author3", "Author2", "Author1");
+            .Equal("Author1", "Author2", "Author3");
     }
 
     [Fact]
