@@ -289,17 +289,19 @@ public record PositionDiff(int Index, PositionDiffKind Kind)
 /// can tell moves between parents apart from creates and deletes.
 /// </summary>
 public class MoveContext<T, TId>(
-    Dictionary<TId, T> allBefore,
-    Dictionary<TId, T> allAfter,
+    IReadOnlyDictionary<TId, T> allBefore,
+    IReadOnlyDictionary<TId, T> allAfter,
     DeferredDeletes deferredDeletes) where TId : notnull
 {
     /// <summary>False when the id still exists in the after state: it's moving somewhere else.</summary>
     public bool IsActuallyADelete(TId id) => !allAfter.ContainsKey(id);
 
-    /// <summary>True when the id already existed in the before state: the add is a move from a different parent.</summary>
+    /// <summary>
+    /// True when the id already existed in the before state: the add is a move from a different parent.
+    /// Only consults the in-memory before state; if moving children ever becomes a FieldWorks Lite
+    /// client feature this would need an api-lookup fallback, but today that would just be wasteful.
+    /// </summary>
     public bool IsActuallyAMove(TId id, [MaybeNullWhen(false)] out T movedFrom) => allBefore.TryGetValue(id, out movedFrom);
-
-    public bool ExistedBefore(TId id) => allBefore.ContainsKey(id);
 
     public void DeferDelete(Func<Task<int>> delete) => deferredDeletes.Defer(delete);
 }

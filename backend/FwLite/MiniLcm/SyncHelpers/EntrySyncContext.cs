@@ -20,8 +20,8 @@ public class EntrySyncContext
 
     // Create APIs assume every child in the payload is new; a payload containing a moved-in child
     // must be created empty instead and filled in by the child diff, which knows how to move.
-    public bool HasChildMovingIn(Entry entry) => entry.Senses.Any(s => Senses.ExistedBefore(s.Id) || HasChildMovingIn(s));
-    public bool HasChildMovingIn(Sense sense) => sense.ExampleSentences.Any(e => Examples.ExistedBefore(e.Id));
+    public bool HasChildMovingIn(Entry entry) => entry.Senses.Any(s => Senses.IsActuallyAMove(s.Id, out _) || HasChildMovingIn(s));
+    public bool HasChildMovingIn(Sense sense) => sense.ExampleSentences.Any(e => Examples.IsActuallyAMove(e.Id, out _));
 
     private static Dictionary<Guid, Sense> AllSenses(Entry[] entries)
     {

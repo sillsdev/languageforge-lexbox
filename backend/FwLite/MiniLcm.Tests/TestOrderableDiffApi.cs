@@ -134,7 +134,8 @@ public class TestOrderableDiffApi(TestOrderable[] before) : IOrderableCollection
     public async Task<int> Move(TestOrderable value, BetweenPosition<TestOrderable> between)
     {
         DiffOperations.Add(new CollectionDiffOperation(value, PositionDiffKind.Move, between));
-        await RemoveInternal(value);
+        // a move may re-parent: the value isn't in this collection yet when it arrives from another parent
+        Current.RemoveAll(v => v.Id == value.Id);
         await AddInternal(value, between);
         return 1;
     }

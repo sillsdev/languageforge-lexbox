@@ -76,13 +76,12 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
 
         await Api.MoveExampleSentence(_entryId, targetSenseId, _exampleSentenceId, new BetweenPosition(null, null));
 
-        var moved = await Api.GetExampleSentence(_entryId, targetSenseId, _exampleSentenceId);
-        moved.Should().NotBeNull();
-        moved.SenseId.Should().Be(targetSenseId);
-
         var targetSense = await Api.GetSense(_entryId, targetSenseId);
         targetSense.Should().NotBeNull();
-        targetSense.ExampleSentences.Should().ContainSingle(e => e.Id == _exampleSentenceId);
+        // asserting SenseId via GetSense: GetExampleSentence(senseId, ...) stamps the passed senseId on FwData
+        var moved = targetSense.ExampleSentences.Should().ContainSingle().Which;
+        moved.Id.Should().Be(_exampleSentenceId);
+        moved.SenseId.Should().Be(targetSenseId);
 
         var sourceSense = await Api.GetSense(_entryId, _senseId);
         sourceSense.Should().NotBeNull();

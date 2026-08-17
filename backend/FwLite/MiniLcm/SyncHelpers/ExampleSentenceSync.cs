@@ -10,7 +10,7 @@ public static class ExampleSentenceSync
         IList<ExampleSentence> beforeExampleSentences,
         IList<ExampleSentence> afterExampleSentences,
         IMiniLcmApi api,
-        MoveContext<ExampleSentence, Guid>? moves = null)
+        MoveContext<ExampleSentence, Guid>? moves)
     {
         return await DiffCollection.DiffOrderable(
             beforeExampleSentences,

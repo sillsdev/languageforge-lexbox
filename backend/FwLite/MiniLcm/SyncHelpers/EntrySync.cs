@@ -23,7 +23,6 @@ public static class EntrySync
     {
         var context = new EntrySyncContext(beforeEntries, afterEntries);
         var (changes, added) = await DiffCollection.DiffAndGetAdded(beforeEntries, afterEntries, new EntriesDiffApi(api, context), context.DeferredDeletes);
-        // all moves have executed by now, so a cascading delete can no longer destroy a child that was moved out
         changes += await context.DeferredDeletes.DeleteAll();
         return (changes, added);
     }
@@ -46,7 +45,16 @@ public static class EntrySync
         return await SyncFull([beforeEntry], [afterEntry], api);
     }
 
-    public static async Task<int> SyncWithoutComplexFormsAndComponents(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api, EntrySyncContext? context = null)
+    public static async Task<int> SyncWithoutComplexFormsAndComponents(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
+    {
+        var context = new EntrySyncContext([beforeEntry], [afterEntry]);
+        var changes = await SyncWithoutComplexFormsAndComponents(beforeEntry, afterEntry, api, context);
+        changes += await context.DeferredDeletes.DeleteAll();
+        return changes;
+    }
+
+    // callers passing a context own it: they must drain context.DeferredDeletes after the walk
+    private static async Task<int> SyncWithoutComplexFormsAndComponents(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api, EntrySyncContext context)
     {
         try
         {
@@ -122,9 +130,9 @@ public static class EntrySync
         IList<Sense> beforeSenses,
         IList<Sense> afterSenses,
         IMiniLcmApi api,
-        EntrySyncContext? context)
+        EntrySyncContext context)
     {
-        return await DiffCollection.DiffOrderable(beforeSenses, afterSenses, new SensesDiffApi(api, entryId, context), context?.Senses);
+        return await DiffCollection.DiffOrderable(beforeSenses, afterSenses, new SensesDiffApi(api, entryId, context), context.Senses);
     }
 
     public static UpdateObjectInput<Entry>? EntryDiffToUpdate(Entry beforeEntry, Entry afterEntry)
@@ -282,7 +290,7 @@ public static class EntrySync
         }
     }
 
-    private class SensesDiffApi(IMiniLcmApi api, Guid entryId, EntrySyncContext? context) : IOrderableCollectionDiffApi<Sense, Guid>
+    private class SensesDiffApi(IMiniLcmApi api, Guid entryId, EntrySyncContext context) : IOrderableCollectionDiffApi<Sense, Guid>
     {
         public Guid GetId(Sense sense)
         {
@@ -291,7 +299,7 @@ public static class EntrySync
 
         public async Task<int> Add(Sense sense, BetweenPosition<Sense> between)
         {
-            if (context is not null && context.HasChildMovingIn(sense))
+            if (context.HasChildMovingIn(sense))
             {
                 var senseWithoutExamples = sense.Copy();
                 senseWithoutExamples.ExampleSentences = [];
@@ -316,7 +324,7 @@ public static class EntrySync
 
         public Task<int> Replace(Sense before, Sense after)
         {
-            return SenseSync.Sync(entryId, before, after, api, context);
+            return SenseSync.Sync(entryId, before, after, api, context.Examples);
         }
     }
 }

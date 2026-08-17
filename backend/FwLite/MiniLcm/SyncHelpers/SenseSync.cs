@@ -9,7 +9,7 @@ public static class SenseSync
         Sense beforeSense,
         Sense afterSense,
         IMiniLcmApi api,
-        EntrySyncContext? context = null)
+        MoveContext<ExampleSentence, Guid>? exampleMoves = null)
     {
         var updateObjectInput = SenseDiffToUpdate(beforeSense, afterSense);
         if (updateObjectInput is not null) await api.SubmitUpdateSense(entryId, beforeSense.Id, updateObjectInput);
@@ -22,7 +22,9 @@ public static class SenseSync
             beforeSense.ExampleSentences,
             afterSense.ExampleSentences,
             api,
-            context?.Examples);
+            exampleMoves);
+        // pictures are not move-aware yet: a cross-sense picture move still syncs as delete+create
+        // (needs a CRDT design first - pictures are embedded in the sense, not their own entity)
         changes += await PictureSync.Sync(entryId,
             beforeSense.Id,
             beforeSense.Pictures,

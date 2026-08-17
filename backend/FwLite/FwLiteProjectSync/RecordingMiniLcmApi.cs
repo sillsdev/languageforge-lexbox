@@ -266,7 +266,7 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
     {
         RunRecords.Add(new RunRecord(nameof(MoveExampleSentence),
-            $"Move example sentence {exampleId} in sense {senseId} {Position(between)}"));
+            $"Move example sentence {exampleId} to sense {senseId} {Position(between)}"));
         await _api.MoveExampleSentence(entryId, senseId, exampleId, between);
     }
 

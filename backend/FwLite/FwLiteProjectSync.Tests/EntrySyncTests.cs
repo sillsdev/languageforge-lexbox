@@ -98,6 +98,40 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
     }
 
     [Fact]
+    public async Task SyncFull_ExampleSentenceMovedToSenseDeletedInCrdt_DoesNotThrow()
+    {
+        var exampleId = Guid.NewGuid();
+        var sourceSense = new Sense
+        {
+            Id = Guid.NewGuid(),
+            Gloss = { { "en", "source" } },
+            ExampleSentences = [new ExampleSentence { Id = exampleId, Sentence = { { "en", new RichString("example") } } }]
+        };
+        var targetSense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "target" } } };
+        var entry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "victim" } },
+            Senses = [sourceSense, targetSense]
+        });
+        await Api.DeleteSense(entry.Id, targetSense.Id);
+
+        var after = entry.Copy();
+        var movedExample = after.Senses.Single(s => s.Id == sourceSense.Id).ExampleSentences.Single();
+        after.Senses.Single(s => s.Id == sourceSense.Id).ExampleSentences.Clear();
+        movedExample.SenseId = targetSense.Id;
+        after.Senses.Single(s => s.Id == targetSense.Id).ExampleSentences.Add(movedExample);
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        // the move's target sense was already deleted in CRDT: the example must be gone, not orphaned on a dead sense
+        var actual = await Api.GetEntry(entry.Id);
+        actual.Should().NotBeNull();
+        actual.Senses.Select(s => s.Id).Should().Equal(sourceSense.Id);
+        actual.Senses[0].ExampleSentences.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task SyncFull_ComplexFormComponentReferencingEntryDeletedInCrdt_DoesNotThrow()
     {
         var component = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "component" } } });
@@ -852,7 +886,15 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         {
             Id = Guid.NewGuid(),
             Gloss = { { "en", "source" } },
-            ExampleSentences = [new ExampleSentence { Id = exampleId, Sentence = { { "en", new RichString("example") } } }]
+            ExampleSentences =
+            [
+                new ExampleSentence
+                {
+                    Id = exampleId,
+                    Sentence = { { "en", new RichString("example") } },
+                    Translations = [new Translation { Id = Guid.NewGuid(), Text = { { "en", new RichString("translation") } } }]
+                }
+            ]
         };
         var targetSense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "target" } } };
 
@@ -886,14 +928,16 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         var movedExample = sourceSenseAfter.ExampleSentences.Single();
         sourceSenseAfter.ExampleSentences.Clear(); // example is moved from here
         movedExample.SenseId = targetSense.Id;
-        movedExample.Sentence["en"] = new RichString("edited example", "en"); // moved AND edited
+        // moved AND edited in the same sync: the move must be followed by the field diff
+        movedExample.Sentence["en"] = new RichString("edited example", "en");
+        movedExample.Translations[0].Text["en"] = new RichString("edited translation", "en");
         targetSenseAfter.ExampleSentences.Add(movedExample); // example is moved to here
 
         await EntrySync.SyncFull(before, after, Api);
 
         var actualTargetSense = await Api.GetSense(targetEntryId, targetSense.Id);
         actualTargetSense.Should().NotBeNull();
-        actualTargetSense.ExampleSentences.Should().ContainSingle(e => e.Id == exampleId);
+        actualTargetSense.ExampleSentences.Select(e => e.Id).Should().Equal(exampleId);
 
         var actualSourceSense = await Api.GetSense(sourceEntryId, sourceSense.Id);
         actualSourceSense.Should().NotBeNull();
@@ -902,10 +946,55 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         var actualExample = await Api.GetExampleSentence(targetEntryId, targetSense.Id, exampleId);
         actualExample.Should().NotBeNull();
         actualExample.Sentence["en"].Should().BeEquivalentTo(new RichString("edited example", "en"));
+        actualExample.Translations.Should().ContainSingle()
+            .Which.Text["en"].Should().BeEquivalentTo(new RichString("edited translation", "en"));
+    }
+
+    [Fact]
+    public async Task CanSyncExampleSentencesMovedIntoPositionInTargetSense()
+    {
+        var moved1Id = Guid.NewGuid();
+        var moved2Id = Guid.NewGuid();
+        var firstId = Guid.NewGuid();
+        var lastId = Guid.NewGuid();
+        var source1 = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "source1" } }, ExampleSentences = [new ExampleSentence { Id = moved1Id, Sentence = { { "en", new RichString("m1") } } }] };
+        var source2 = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "source2" } }, ExampleSentences = [new ExampleSentence { Id = moved2Id, Sentence = { { "en", new RichString("m2") } } }] };
+        var target = new Sense
+        {
+            Id = Guid.NewGuid(),
+            Gloss = { { "en", "target" } },
+            ExampleSentences =
+            [
+                new ExampleSentence { Id = firstId, Sentence = { { "en", new RichString("first") } } },
+                new ExampleSentence { Id = lastId, Sentence = { { "en", new RichString("last") } } }
+            ]
+        };
+        var entry = await Api.CreateEntry(new() { LexemeForm = { { "en", "entry" } }, Senses = [source1, source2, target] });
+
+        var after = entry.Copy();
+        var afterSource1 = after.Senses.Single(s => s.Id == source1.Id);
+        var afterSource2 = after.Senses.Single(s => s.Id == source2.Id);
+        var afterTarget = after.Senses.Single(s => s.Id == target.Id);
+        var moved1 = afterSource1.ExampleSentences.Single();
+        afterSource1.ExampleSentences.Clear();
+        var moved2 = afterSource2.ExampleSentences.Single();
+        afterSource2.ExampleSentences.Clear();
+        moved1.SenseId = target.Id;
+        moved2.SenseId = target.Id;
+        afterTarget.ExampleSentences.Insert(1, moved1);
+        afterTarget.ExampleSentences.Insert(2, moved2);
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        var actualTarget = await Api.GetSense(entry.Id, target.Id);
+        actualTarget.Should().NotBeNull();
+        actualTarget.ExampleSentences.Select(e => e.Id).Should().Equal(firstId, moved1Id, moved2Id, lastId);
+        (await Api.GetSense(entry.Id, source1.Id))!.ExampleSentences.Should().BeEmpty();
+        (await Api.GetSense(entry.Id, source2.Id))!.ExampleSentences.Should().BeEmpty();
     }
 
     [Theory]
-    // The source is listed first, so its delete is processed before the target's add — the cascade-hazard order.
+    // (wholeEntryDeleted); the source entry is listed first, so its delete is processed before the target's add — the cascade-hazard order
     [InlineData(true)]
     [InlineData(false)]
     public async Task CanSyncExampleSentenceMovedOutOfDeletedParent(bool wholeEntryDeleted)
@@ -947,8 +1036,12 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
 
         var actualTargetSense = await Api.GetSense(targetEntry.Id, targetSense.Id);
         actualTargetSense.Should().NotBeNull();
-        actualTargetSense.ExampleSentences.Should().ContainSingle(e => e.Id == exampleId);
-        if (!wholeEntryDeleted)
+        actualTargetSense.ExampleSentences.Select(e => e.Id).Should().Equal(exampleId);
+        if (wholeEntryDeleted)
+        {
+            (await Api.GetEntry(sourceEntry.Id)).Should().BeNull();
+        }
+        else
         {
             var actualSourceEntry = await Api.GetEntry(sourceEntry.Id);
             actualSourceEntry.Should().NotBeNull();
@@ -987,7 +1080,10 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
 
         var actualCreatedSense = await Api.GetSense(entry.Id, createdSense.Id);
         actualCreatedSense.Should().NotBeNull();
-        actualCreatedSense.ExampleSentences.Should().ContainSingle(e => e.Id == exampleId);
+        // the sense is created without its moved-in examples and filled in afterward; its own fields must survive that split
+        actualCreatedSense.Gloss["en"].Should().Be("created target");
+        actualCreatedSense.ExampleSentences.Select(e => e.Id).Should().Equal(exampleId);
+        actualCreatedSense.ExampleSentences[0].Sentence["en"]!.Spans.Should().ContainSingle().Which.Text.Should().Be("example");
         var actualSourceSense = await Api.GetSense(entry.Id, entry.Senses[0].Id);
         actualSourceSense.Should().NotBeNull();
         actualSourceSense.ExampleSentences.Should().BeEmpty();
@@ -1027,12 +1123,56 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
 
         await EntrySync.SyncFull([sourceEntry], [sourceEntryAfter, createdEntry], Api);
 
+        var actualCreatedEntry = await Api.GetEntry(createdEntry.Id);
+        actualCreatedEntry.Should().NotBeNull();
+        // the entry is created without its moved-in examples and filled in afterward; its own fields must survive that split
+        actualCreatedEntry.LexemeForm["en"].Should().Be("created-entry");
         var actualCreatedSense = await Api.GetSense(createdEntry.Id, createdSense.Id);
         actualCreatedSense.Should().NotBeNull();
-        actualCreatedSense.ExampleSentences.Should().ContainSingle(e => e.Id == exampleId);
+        actualCreatedSense.ExampleSentences.Select(e => e.Id).Should().Equal(exampleId);
+        actualCreatedSense.ExampleSentences[0].Sentence["en"]!.Spans.Should().ContainSingle().Which.Text.Should().Be("example");
         var actualSourceSense = await Api.GetSense(sourceEntry.Id, sourceEntry.Senses[0].Id);
         actualSourceSense.Should().NotBeNull();
         actualSourceSense.ExampleSentences.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CanSyncExampleSentenceMovedFromDeletedEntryToCreatedEntry()
+    {
+        var exampleId = Guid.NewGuid();
+        var sourceEntry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "source-entry" } },
+            Senses =
+            [
+                new Sense
+                {
+                    Id = Guid.NewGuid(),
+                    Gloss = { { "en", "source" } },
+                    ExampleSentences = [new ExampleSentence { Id = exampleId, Sentence = { { "en", new RichString("example") } } }]
+                }
+            ]
+        });
+
+        var createdSense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "created target" } } };
+        var movedExample = sourceEntry.Senses[0].ExampleSentences[0].Copy();
+        movedExample.SenseId = createdSense.Id;
+        createdSense.ExampleSentences.Add(movedExample);
+        var createdEntry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "created-entry" } },
+            Senses = [createdSense]
+        };
+
+        // the example's old parent is deleted with its whole entry while the new parent is created, all in one sync
+        await EntrySync.SyncFull([sourceEntry], [createdEntry], Api);
+
+        (await Api.GetEntry(sourceEntry.Id)).Should().BeNull();
+        var actualCreatedSense = await Api.GetSense(createdEntry.Id, createdSense.Id);
+        actualCreatedSense.Should().NotBeNull();
+        actualCreatedSense.ExampleSentences.Select(e => e.Id).Should().Equal(exampleId);
     }
 
     [Theory]
