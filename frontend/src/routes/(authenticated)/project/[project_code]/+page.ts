@@ -61,6 +61,7 @@ graphql(`
       id: ASC
     }]) {
       id
+      clientId
       hybridDateTime {
         dateTime
         counter
