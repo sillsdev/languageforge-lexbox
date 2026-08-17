@@ -176,7 +176,7 @@ export class ProjectContext {
    */
   public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: { eager?: boolean }): DetachedResourceReturn<T> {
     const res = new DetachedResource(initialValue, factory, () => this.#api, options);
-    this.#detachedResources.add(res as DetachedResource<unknown>);
+    this.#detachedResources.add(res);
     return res;
   }
 
