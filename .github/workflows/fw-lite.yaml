@@ -509,7 +509,7 @@ jobs:
 
       - name: Sign with Trusted Signing
         if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' }}
-        uses: sillsdev/codesign/trusted-signing-action@v3
+        uses: sillsdev/codesign/trusted-signing-action@0485c27c94116d62f80febc468cc1979ed7245de # v3.2.0
         with:
           credentials: ${{ secrets.TRUSTED_SIGNING_CREDENTIALS }}
           files-folder: ${{ github.workspace }}/backend/FwLite/artifacts/sign
