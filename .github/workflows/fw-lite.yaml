@@ -8,7 +8,6 @@ on:
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
-      - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
     branches:
