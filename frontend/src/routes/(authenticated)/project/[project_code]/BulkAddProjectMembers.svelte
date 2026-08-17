@@ -1,3 +1,13 @@
+<script module lang="ts">
+  // Has to live in the module script and be exported: the script transform inlines a
+  // component-local enum away, which leaves the markup's references undefined at runtime.
+  // svelte-ignore non_reactive_update
+  export const enum BulkAddSteps {
+    Add,
+    Results,
+  }
+</script>
+
 <script lang="ts">
   import {BadgeButton, MemberBadge} from '$lib/components/Badges';
   import {DialogResponse, FormModal, type FormSubmitReturn} from '$lib/components/modals';
@@ -14,12 +24,6 @@
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import {SupHelp, helpLinks} from '$lib/components/help';
   import {usernameRe} from '$lib/user';
-
-  // svelte-ignore non_reactive_update
-  enum BulkAddSteps {
-    Add,
-    Results,
-  }
 
   let currentStep = $state(BulkAddSteps.Add);
 
