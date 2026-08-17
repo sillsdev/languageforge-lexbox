@@ -33,6 +33,7 @@
   const canSend = $derived(Boolean(value.trim()) && !saving);
 
   async function submit(): Promise<void> {
+    if (!canSend) return;
     const text = value.trim();
     if (!text) return;
     await onSubmit(text);

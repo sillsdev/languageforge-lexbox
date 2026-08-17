@@ -8,6 +8,7 @@
   import {cn} from '$lib/utils';
   import {t} from 'svelte-i18n-lingui';
   import CommentAuthorAvatar from './CommentAuthorAvatar.svelte';
+  import {watch} from 'runed';
 
   let {
     comment,
@@ -37,7 +38,7 @@
     new Date(comment.updatedAt).getTime() !== new Date(comment.createdAt).getTime()
   );
 
-  $effect(() => {
+  watch(() => editing, (editing) => {
     if (editing) {
       draftText = comment.text;
     }
