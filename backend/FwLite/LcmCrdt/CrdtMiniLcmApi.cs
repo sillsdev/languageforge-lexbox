@@ -890,7 +890,15 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var order = await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);
-        await AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, order));
+        var currentSenseId = await repo.ExampleSentences.Where(e => e.Id == exampleId).Select(e => e.SenseId).FirstOrDefaultAsync();
+        if (currentSenseId != default && currentSenseId != senseId)
+        {
+            await AddChange(new MoveExampleSentenceToSenseChange(exampleId, senseId, order));
+        }
+        else
+        {
+            await AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, order));
+        }
     }
 
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)

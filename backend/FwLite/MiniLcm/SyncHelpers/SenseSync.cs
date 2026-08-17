@@ -8,7 +8,8 @@ public static class SenseSync
     public static async Task<int> Sync(Guid entryId,
         Sense beforeSense,
         Sense afterSense,
-        IMiniLcmApi api)
+        IMiniLcmApi api,
+        EntrySyncContext? context = null)
     {
         var updateObjectInput = SenseDiffToUpdate(beforeSense, afterSense);
         if (updateObjectInput is not null) await api.SubmitUpdateSense(entryId, beforeSense.Id, updateObjectInput);
@@ -20,7 +21,8 @@ public static class SenseSync
             beforeSense.Id,
             beforeSense.ExampleSentences,
             afterSense.ExampleSentences,
-            api);
+            api,
+            context?.Examples);
         changes += await PictureSync.Sync(entryId,
             beforeSense.Id,
             beforeSense.Pictures,

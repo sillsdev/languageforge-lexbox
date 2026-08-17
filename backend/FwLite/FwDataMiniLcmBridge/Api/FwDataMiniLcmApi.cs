@@ -1755,20 +1755,21 @@ public class FwDataMiniLcmApi(
 
     public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between)
     {
-        if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
+        if (!EntriesRepository.TryGetObject(entryId, out _))
             throw new InvalidOperationException("Entry not found");
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
         if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
             throw new InvalidOperationException("Example sentence not found");
-
-        ValidateOwnership(lexExample, entryId, senseId);
+        if (lexSense.Entry.Guid != entryId)
+            throw new InvalidOperationException("Sense does not belong to entry");
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Example sentence",
             "Move Example sentence back",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
+                // inserting into the target sense's sequence also re-parents an example owned by another sense
                 InsertExampleSentence(lexSense, lexExample, between);
             });
         return Task.CompletedTask;

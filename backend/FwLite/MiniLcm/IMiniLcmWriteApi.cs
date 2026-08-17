@@ -106,6 +106,7 @@ public interface IMiniLcmWriteApi
         ExampleSentence before,
         ExampleSentence after,
         IMiniLcmApi? api = null);
+    /// <summary>Positions the example within the given sense, re-parenting it first if it currently belongs to a different sense (like <see cref="MoveSense"/>).</summary>
     Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);

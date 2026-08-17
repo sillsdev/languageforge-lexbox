@@ -9,12 +9,14 @@ public static class ExampleSentenceSync
         Guid senseId,
         IList<ExampleSentence> beforeExampleSentences,
         IList<ExampleSentence> afterExampleSentences,
-        IMiniLcmApi api)
+        IMiniLcmApi api,
+        MoveContext<ExampleSentence, Guid>? moves = null)
     {
         return await DiffCollection.DiffOrderable(
             beforeExampleSentences,
             afterExampleSentences,
-            new ExampleSentencesDiffApi(api, entryId, senseId));
+            new ExampleSentencesDiffApi(api, entryId, senseId),
+            moves);
     }
 
     public static async Task<int> Sync(Guid entryId,

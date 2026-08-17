@@ -264,6 +264,12 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var setExampleSentenceOrderChange = new LcmCrdt.Changes.SetOrderChange<ExampleSentence>(exampleSentence.Id, 10);
         yield return new ChangeWithDependencies(setExampleSentenceOrderChange, [createExampleSentenceChange]);
 
+        var exampleMoveTargetSense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "example move target" } } };
+        var createExampleMoveTargetSenseChange = new CreateSenseChange(exampleMoveTargetSense, entry.Id);
+        yield return new ChangeWithDependencies(createExampleMoveTargetSenseChange, [createEntryChange]);
+        var moveExampleSentenceToSenseChange = new MoveExampleSentenceToSenseChange(exampleSentence.Id, exampleMoveTargetSense.Id, 1);
+        yield return new ChangeWithDependencies(moveExampleSentenceToSenseChange, [createExampleSentenceChange, createExampleMoveTargetSenseChange]);
+
         var setPictureOrderChange = new ReorderSensePictureChange(picture.Id, sense.Id, 10);
         yield return new ChangeWithDependencies(setPictureOrderChange, [createSenseChange, createSensePictureChange]);
 

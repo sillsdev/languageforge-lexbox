@@ -1,3 +1,5 @@
+using MiniLcm.SyncHelpers;
+
 namespace MiniLcm.Tests;
 
 public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
@@ -64,6 +66,27 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
         var actualSentence = await Api.CreateExampleSentence(_entryId, _senseId, expectedExampleSentence);
         actualSentence.Should().BeEquivalentTo(expectedExampleSentence,
             options => options.Excluding(s => s.Order));
+    }
+
+    [Fact]
+    public async Task MoveExampleSentence_ReparentsToDifferentSense()
+    {
+        var targetSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
+
+        await Api.MoveExampleSentence(_entryId, targetSenseId, _exampleSentenceId, new BetweenPosition(null, null));
+
+        var moved = await Api.GetExampleSentence(_entryId, targetSenseId, _exampleSentenceId);
+        moved.Should().NotBeNull();
+        moved.SenseId.Should().Be(targetSenseId);
+
+        var targetSense = await Api.GetSense(_entryId, targetSenseId);
+        targetSense.Should().NotBeNull();
+        targetSense.ExampleSentences.Should().ContainSingle(e => e.Id == _exampleSentenceId);
+
+        var sourceSense = await Api.GetSense(_entryId, _senseId);
+        sourceSense.Should().NotBeNull();
+        sourceSense.ExampleSentences.Should().BeEmpty();
     }
 
     [Fact]
