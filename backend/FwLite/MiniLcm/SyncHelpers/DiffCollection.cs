@@ -323,9 +323,10 @@ public class DeferredDeletes
     public async Task<int> DeleteAll()
     {
         var changes = 0;
-        foreach (var delete in _deletes)
+        // by index so a delete that defers another delete extends the drain instead of throwing
+        for (var i = 0; i < _deletes.Count; i++)
         {
-            changes += await delete();
+            changes += await _deletes[i]();
         }
         _deletes.Clear();
         return changes;
