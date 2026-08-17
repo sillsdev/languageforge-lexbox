@@ -898,20 +898,28 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         };
         var targetSense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "target" } } };
 
-        Entry[] before = sameEntry
-            ?
+        Entry[] before = sameEntry ? await OneSharedEntry() : await TwoEntries();
+        var sourceEntryId = before.Single(e => e.Senses.Any(s => s.Id == sourceSense.Id)).Id;
+        var targetEntryId = before.Single(e => e.Senses.Any(s => s.Id == targetSense.Id)).Id;
+
+        async Task<Entry[]> OneSharedEntry()
+        {
+            return
             [
                 await Api.CreateEntry(new()
                 {
                     LexemeForm = { { "en", "entry" } },
                     Senses = sourceSenseFirst ? [sourceSense, targetSense] : [targetSense, sourceSense]
                 })
-            ]
-            : sourceSenseFirst
+            ];
+        }
+
+        async Task<Entry[]> TwoEntries()
+        {
+            return sourceSenseFirst
                 ? [await CreateEntryWith("source-entry", sourceSense), await CreateEntryWith("target-entry", targetSense)]
                 : [await CreateEntryWith("target-entry", targetSense), await CreateEntryWith("source-entry", sourceSense)];
-        var sourceEntryId = before.Single(e => e.Senses.Any(s => s.Id == sourceSense.Id)).Id;
-        var targetEntryId = before.Single(e => e.Senses.Any(s => s.Id == targetSense.Id)).Id;
+        }
 
         Task<Entry> CreateEntryWith(string lexemeForm, Sense sense) =>
             Api.CreateEntry(new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", lexemeForm } }, Senses = [sense] });
