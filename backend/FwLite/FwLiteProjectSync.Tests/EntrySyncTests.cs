@@ -898,29 +898,23 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         };
         var targetSense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "target" } } };
 
-        Entry[] before;
-        Guid sourceEntryId;
-        Guid targetEntryId;
-        if (sameEntry)
-        {
-            var entry = await Api.CreateEntry(new()
-            {
-                LexemeForm = { { "en", "entry" } },
-                Senses = sourceSenseFirst ? [sourceSense, targetSense] : [targetSense, sourceSense]
-            });
-            before = [entry];
-            sourceEntryId = targetEntryId = entry.Id;
-        }
-        else
-        {
-            var sourceEntry = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "source-entry" } }, Senses = [sourceSense] };
-            var targetEntry = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "target-entry" } }, Senses = [targetSense] };
-            before = sourceSenseFirst
-                ? [await Api.CreateEntry(sourceEntry), await Api.CreateEntry(targetEntry)]
-                : [await Api.CreateEntry(targetEntry), await Api.CreateEntry(sourceEntry)];
-            sourceEntryId = sourceEntry.Id;
-            targetEntryId = targetEntry.Id;
-        }
+        Entry[] before = sameEntry
+            ?
+            [
+                await Api.CreateEntry(new()
+                {
+                    LexemeForm = { { "en", "entry" } },
+                    Senses = sourceSenseFirst ? [sourceSense, targetSense] : [targetSense, sourceSense]
+                })
+            ]
+            : sourceSenseFirst
+                ? [await CreateEntryWith("source-entry", sourceSense), await CreateEntryWith("target-entry", targetSense)]
+                : [await CreateEntryWith("target-entry", targetSense), await CreateEntryWith("source-entry", sourceSense)];
+        var sourceEntryId = before.Single(e => e.Senses.Any(s => s.Id == sourceSense.Id)).Id;
+        var targetEntryId = before.Single(e => e.Senses.Any(s => s.Id == targetSense.Id)).Id;
+
+        Task<Entry> CreateEntryWith(string lexemeForm, Sense sense) =>
+            Api.CreateEntry(new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", lexemeForm } }, Senses = [sense] });
 
         var after = before.Select(e => e.Copy()).ToArray();
         var sourceSenseAfter = after.SelectMany(e => e.Senses).Single(s => s.Id == sourceSense.Id);
