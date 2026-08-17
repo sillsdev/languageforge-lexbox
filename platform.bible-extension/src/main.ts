@@ -6,8 +6,9 @@ import { getErrorMessage } from 'platform-bible-utils';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
-import { FwLiteApi, type LoginResult } from './utils/fw-lite-api';
+import { type DownloadResult, FwLiteApi, type LoginResult } from './utils/fw-lite-api';
 import { HttpStatusError } from './utils/http-status-error';
+import type { ProjectManager } from './utils/project-manager';
 import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
 
@@ -18,6 +19,13 @@ let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.
 //  5 min - undici/node fetch (has gone back and forth; 300s today, see https://github.com/nodejs/undici/pull/5467)
 //  inf.  - FW Lite
 const SIGN_IN_TIMEOUT_MS = 5 * 60 * 1000;
+
+// Downloading a project runs its full initial sync inline, which for a large project is minutes.
+// Same timeout stack as sign-in (see above).
+const DOWNLOAD_TIMEOUT_MS = 5 * 60 * 1000;
+
+// Resolving a project can open the core project picker and wait for the user to decide.
+const RESOLVE_PROJECT_TIMEOUT_MS = 10 * 60 * 1000;
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('Lexicon extension activating!');
@@ -263,6 +271,42 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  // Store the lexicon choice on the project and cache its analysis language. setLexiconCode runs the
+  // registered validator (a writing-systems check), so it throws if the code doesn't resolve — which
+  // is how download-and-select refuses to record a project whose download didn't really land.
+  const applyLexiconSelection = async (
+    projectManager: ProjectManager,
+    lexiconCode: string,
+  ): Promise<void> => {
+    await projectManager.setLexiconCode(lexiconCode);
+    if (!lexiconCode) return;
+    const langs = await fwLiteApi
+      .getWritingSystems(lexiconCode)
+      .catch((e) => logger.error('Error fetching writing systems:', JSON.stringify(e)));
+    const analysisLang = langs?.analysis[0]?.wsId ?? '';
+    if (analysisLang) {
+      logger.info(`Storing lexicon analysis language '${analysisLang}'`);
+    } else {
+      logger.info('Failed to get analysis language of the lexicon');
+    }
+    await projectManager
+      .setAnalysisLanguage(analysisLang)
+      .catch((e) => logger.error('Error setting analysis language:', JSON.stringify(e)));
+  };
+
+  // Resolving may open the core project picker and wait on the user, so it lives in its own
+  // command with a generous timeout instead of eating into the timeout of the command that acts.
+  const resolveProjectCommandPromise = papi.commands.registerCommand(
+    'lexicon.resolveProject',
+    async (webViewId: string) => {
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
+      return { projectId: projectManager?.projectId, projectName: await projectManager?.getName() };
+    },
+    undefined,
+    { timeoutMilliseconds: RESOLVE_PROJECT_TIMEOUT_MS },
+  );
+
   const selectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.selectLexicon',
     async (projectId: string, lexiconCode: string) => {
@@ -270,23 +314,65 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
-      await projectManager.setLexiconCode(lexiconCode);
-      if (lexiconCode) {
-        const langs = await fwLiteApi
-          .getWritingSystems(lexiconCode)
-          .catch((e) => logger.error('Error fetching writing systems:', JSON.stringify(e)));
-        const analysisLang = langs?.analysis[0]?.wsId ?? '';
-        if (analysisLang) {
-          logger.info(`Storing lexicon analysis language '${analysisLang}'`);
-        } else {
-          logger.info('Failed to get analysis language of the lexicon');
-        }
-        await projectManager
-          .setAnalysisLanguage(analysisLang)
-          .catch((e) => logger.error('Error setting analysis language:', JSON.stringify(e)));
-      }
+      await applyLexiconSelection(projectManager, lexiconCode);
       return { success: true };
     },
+  );
+
+  const remoteProjectsCommandPromise = papi.commands.registerCommand(
+    'lexicon.remoteProjects',
+    async () => {
+      try {
+        const [remote, local] = await Promise.all([
+          fwLiteApi.getRemoteProjects(),
+          fwLiteApi.getProjects(),
+        ]);
+        // Dedupe against ALL local projects — not the language-filtered list the web view holds —
+        // so an already-downloaded project can't reappear as downloadable.
+        return remote.filter(
+          (r) => !local.some((l) => l.id && l.id === r.id && l.server?.id === r.server?.id),
+        );
+      } catch (e) {
+        logger.error('Error fetching remote projects:', getErrorMessage(e));
+        return undefined;
+      }
+    },
+  );
+
+  const downloadAndSelectLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.downloadAndSelectLexicon',
+    async (projectId: string, authority: string, lexiconCode: string) => {
+      logger.info(`Downloading '${lexiconCode}' from '${authority}' for project '${projectId}'`);
+      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      if (!projectManager) return { result: 'Error' as const, success: false };
+
+      // Abort the backend download once the command times out, so an abandoned wait doesn't linger.
+      const abort = new AbortController();
+      const timeout = setTimeout(() => abort.abort(), DOWNLOAD_TIMEOUT_MS);
+      let result: DownloadResult;
+      try {
+        result = await fwLiteApi.downloadProject(authority, lexiconCode, abort.signal);
+      } catch (e) {
+        logger.error('Error downloading project:', getErrorMessage(e));
+        return { result: 'Error' as const, success: false };
+      } finally {
+        clearTimeout(timeout);
+      }
+      // AlreadyDownloaded is fine — the project is local, so go ahead and select it.
+      if (result !== 'Success' && result !== 'AlreadyDownloaded') return { result, success: false };
+
+      try {
+        await applyLexiconSelection(projectManager, lexiconCode);
+        return { result, success: true };
+      } catch (e) {
+        // Downloaded, but selection failed (e.g. the validator's writing-systems check). Report the
+        // download result but success:false so the web view surfaces a failure and keeps the picker.
+        logger.error('Downloaded but failed to select lexicon:', getErrorMessage(e));
+        return { result, success: false };
+      }
+    },
+    undefined,
+    { timeoutMilliseconds: DOWNLOAD_TIMEOUT_MS },
   );
 
   // DEV-ONLY: a quick lexicon switcher. Lexicon selection is intentionally sticky — once a project
@@ -309,6 +395,26 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  const deleteDownloadedLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.deleteDownloadedLexicon',
+    async (lexiconCode: string) => {
+      try {
+        // Only a synced copy may be deleted; a local-only lexicon isn't re-downloadable.
+        const project = (await fwLiteApi.getProjects()).find((p) => p.code === lexiconCode);
+        if (!project?.crdt || !project.server) {
+          return { success: false, error: `Lexicon '${lexiconCode}' is not a downloaded copy` };
+        }
+        logger.info(`Deleting downloaded lexicon '${lexiconCode}'`);
+        await fwLiteApi.deleteProject(lexiconCode);
+        return { success: true };
+      } catch (e) {
+        const error = getErrorMessage(e);
+        logger.error('Error deleting downloaded lexicon:', error);
+        return { success: false, error };
+      }
+    },
+  );
+
   const createLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.createLexicon',
     async (name: string, code: string, vernacularWs: string, analysisWs?: string) => {
@@ -325,13 +431,34 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   const lexiconsCommandPromise = papi.commands.registerCommand(
     'lexicon.lexicons',
-    async (projectId?: string) => {
+    async (projectId?: string, all?: boolean, keepCodes?: string[]) => {
       logger.info('Fetching local lexicons');
-      if (!projectId) return await fwLiteApi.getProjects();
+      if (!projectId || all)
+        return { projects: await fwLiteApi.getProjects(), filtered: false, noMatch: false };
 
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
-      const langTag = await projectManager?.getLanguageTag();
-      return await fwLiteApi.getProjectsMatchingLanguage(langTag);
+      // A stale projectId (e.g. from a restored layout) must not take down the whole list;
+      // it only costs the language-based filtering.
+      const langTag = await projectManager?.getLanguageTag().catch((e) => {
+        logger.warn(`Could not get language tag for project '${projectId}':`, getErrorMessage(e));
+        return undefined;
+      });
+      // Keep the current lexicon plus any the caller applied earlier this session (keepCodes) in the
+      // list even when their language doesn't match, so what's in use — and what was just replaced —
+      // stays visible.
+      const currentCode = await projectManager?.getLexiconCode().catch((e) => {
+        logger.warn(
+          `Could not get current lexicon for project '${projectId}':`,
+          getErrorMessage(e),
+        );
+        return undefined;
+      });
+      const keep = [...new Set([currentCode, ...(keepCodes ?? [])])].filter(
+        (c): c is string => !!c,
+      );
+      const result = await fwLiteApi.getProjectsMatchingLanguage(langTag, keep);
+      // The language label is needed for both the "filtered to X" bar and the "nothing matched X" note.
+      return { ...result, langTag: result.filtered || result.noMatch ? langTag : undefined };
     },
   );
 
@@ -353,12 +480,16 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await browseLexiconCommandPromise,
     await changeLexiconCommandPromise, // DEV-ONLY: remove before release (see registration above)
     await createLexiconCommandPromise,
+    await deleteDownloadedLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
     await lexiconsCommandPromise,
     await loginCommandPromise,
     await logoutCommandPromise,
+    await remoteProjectsCommandPromise,
+    await resolveProjectCommandPromise,
+    await downloadAndSelectLexiconCommandPromise,
     await selectLexiconCommandPromise,
     // Services
     await entryService,

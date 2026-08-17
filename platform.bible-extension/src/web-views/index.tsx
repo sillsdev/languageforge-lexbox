@@ -1,5 +1,7 @@
+import papi from '@papi/backend';
 import type { IWebViewProvider, SavedWebViewDefinition, WebViewDefinition } from '@papi/core';
 import type { BrowseWebViewOptions, LexiconWebViewOptions } from 'lexicon';
+import { formatReplacementString } from 'platform-bible-utils';
 import mainCssStyles from '../styles.css?inline';
 import tailwindCssStyles from '../tailwind.css?inline';
 import { WebViewType } from '../types/enums';
@@ -63,13 +65,25 @@ export const selectLexiconWebViewProvider: IWebViewProvider = {
       throw new Error(
         `${WebViewType.SelectLexicon} provider received request to provide a ${savedWebView.webViewType} WebView`,
       );
+    // Name the project in the tab when known. On a fresh open, options carries it; on restore
+    // (options empty) the persisted title already holds the name. Only when a tab was never opened
+    // with a project does it fall back to the generic label — the panel heading still names the
+    // project once an action resolves it.
+    const title = options.projectName
+      ? formatReplacementString(
+          await papi.localization.getLocalizedString({
+            localizeKey: '%lexicon_webViewTitle_selectLexiconForProject%',
+          }),
+          { project: options.projectName },
+        )
+      : (savedWebView.title ?? '%lexicon_webViewTitle_selectLexicon%');
     return {
       ...savedWebView,
       ...options,
       content: selectLexiconWindow,
       iconUrl,
       styles: tailwindCssStyles,
-      title: '%lexicon_webViewTitle_selectLexicon%',
+      title,
     };
   },
 };

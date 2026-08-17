@@ -18,6 +18,18 @@ export class ProjectManagers {
       logger.debug(`No projectId found for WebView '${webViewId}'`);
       return;
     }
+    // A restored layout can reference a project that no longer exists; using such an id makes
+    // every project-settings call fail, so treat it as "no project" (callers then prompt).
+    const exists = await papi.projectLookup
+      .getMetadataForProject(webViewDef.projectId)
+      .then(() => true)
+      .catch(() => false);
+    if (!exists) {
+      logger.warn(
+        `Project '${webViewDef.projectId}' for WebView '${webViewId}' no longer resolves; ignoring it`,
+      );
+      return;
+    }
     return webViewDef.projectId;
   }
 

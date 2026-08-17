@@ -1,6 +1,6 @@
 import type { OpenWebViewOptions, WebViewProps } from '@papi/core';
 import type { IEntryService, IProjectModel, SuccessHolder } from 'lexicon';
-import type { AuthServerStatus, LoginResult } from '../utils/fw-lite-api';
+import type { AuthServerStatus, DownloadResult, LoginResult } from '../utils/fw-lite-api';
 
 // TODO: Sort out internal types and those that need to be exposed for other extensions.
 
@@ -83,6 +83,8 @@ declare module 'lexicon' {
   /** Additions for options/props of WebViews that interact with a lexicon via the FwLiteApi. */
   interface LexiconOptions extends Partial<LexiconLanguages> {
     lexiconCode?: string;
+    /** The Paratext project's short name, for showing which project the view is scoped to. */
+    projectName?: string;
     word?: string;
   }
 
@@ -108,14 +110,56 @@ declare module 'papi-shared-types' {
       vernacularWs: string,
       analysisWs?: string,
     ) => Promise<SuccessHolder>;
+    /**
+     * Deletes the local copy of a downloaded (server-synced) lexicon. Refuses local-only lexicons —
+     * those aren't re-downloadable, so deleting one would destroy data.
+     */
+    'lexicon.deleteDownloadedLexicon': (lexiconCode: string) => Promise<SuccessHolder>;
     'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
-    'lexicon.lexicons': (projectId?: string) => Promise<IProjectModel[] | undefined>;
+    /**
+     * Local lexicons, filtered to the project's language when a real subset matches (`filtered`
+     * reports whether that happened; `noMatch` is true when a language was given but nothing
+     * matched it; `langTag` is that language, set for either case). Pass `all` to skip the language
+     * filter. `keepCodes` are lexicon codes to keep regardless of language (the ones the caller
+     * applied this session), on top of the project's current lexicon.
+     */
+    'lexicon.lexicons': (
+      projectId?: string,
+      all?: boolean,
+      keepCodes?: string[],
+    ) => Promise<
+      | { projects: IProjectModel[]; filtered: boolean; noMatch: boolean; langTag?: string }
+      | undefined
+    >;
     'lexicon.login': (
       authority: string,
     ) => Promise<{ result?: LoginResult; servers?: AuthServerStatus[] }>;
     'lexicon.logout': (authority: string) => Promise<AuthServerStatus[] | undefined>;
+    /** Remote (Lexbox server) CRDT projects the signed-in user can download. */
+    'lexicon.remoteProjects': () => Promise<IProjectModel[] | undefined>;
+    /**
+     * Downloads a remote project (blocking until its initial sync finishes) and, on success,
+     * selects it for the Paratext project. `success` is true only when both steps completed; when
+     * false, `result` says why the download ended (or is a success value if the download was fine
+     * but selection failed).
+     */
+    'lexicon.downloadAndSelectLexicon': (
+      projectId: string,
+      authority: string,
+      lexiconCode: string,
+    ) => Promise<{ result: DownloadResult; success: boolean }>;
+    /**
+     * Resolves the Paratext project a WebView is scoped to, prompting the user with the core
+     * project picker when it has none (e.g. a selector tab restored from a saved layout).
+     * `projectId` is undefined when the user dismisses the prompt. Kept separate from the commands
+     * that act on the project so their timeouts don't tick while the picker waits on the user.
+     * `projectName` is the resolved project's short name, for labelling the view.
+     */
+    'lexicon.resolveProject': (
+      webViewId: string,
+    ) => Promise<{ projectId?: string; projectName?: string }>;
     'lexicon.selectLexicon': (projectId: string, lexiconCode: string) => Promise<SuccessHolder>;
   }
 

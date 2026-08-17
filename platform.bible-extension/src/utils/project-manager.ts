@@ -76,10 +76,14 @@ export class ProjectManager {
 
   async openSelector(): Promise<boolean> {
     const vernacularLanguage = await this.getLanguageTag();
-    const options: LexiconWebViewOptions = { vernacularLanguage };
+    // Current lexicon (if any) so the selector can pre-select it.
+    const lexiconCode = await this.getLexiconCode();
+    const projectName = await this.getName();
+    const options: LexiconWebViewOptions = { vernacularLanguage, lexiconCode, projectName };
     return await this.openWebView(
       WebViewType.SelectLexicon,
-      { floatSize: { height: 500, width: 400 }, type: 'float' },
+      // Tall enough for the account section plus a useful slice of the list (see LexiconPicker).
+      { floatSize: { height: 640, width: 440 }, type: 'float' },
       options,
     );
   }

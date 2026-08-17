@@ -156,6 +156,9 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     [JSInvokable]
     public async Task<DownloadProjectByCodeResult> DownloadProjectByCode(string code, LexboxServer server, UserProjectRole? userRole = null)
     {
+        // Note: the local project might be from a different server, but that's currently only relevant
+        // for devs and we still can't download two projects with the same code
+        if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
         var serverProjects = await ServerProjects(server, false);
         var project = serverProjects.Projects.FirstOrDefault(p => p.Code == code);
         if (project is null)
@@ -164,9 +167,6 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             {
                 var (status, projectId) = await lexboxProjectService.GetLexboxProjectId(server, code);
                 if (status != DownloadProjectByCodeResult.Success) return status;
-                // Note: the project might be from a different server, but that's current only relevant for devs
-                // and we still can't download two projects with the same code
-                if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
                 var role = userRole.HasValue ? FromRole(userRole.Value) : ProjectRole.Editor;
                 project = new ProjectModel(
                     Name: code,
