@@ -4,10 +4,9 @@ set -eu
 cd "$(git rev-parse --show-toplevel)"
 
 # Single list of extensions: cheap skip-check and lint-staged glob.
-set -- js ts svelte css md json
 grep_pat=
 glob_inner=
-for ext do
+for ext in js ts svelte css md json; do
   grep_pat="${grep_pat:+$grep_pat|}$ext"
   glob_inner="${glob_inner:+$glob_inner,}$ext"
 done
