@@ -4,6 +4,7 @@ import {jwtDecode} from 'jwt-decode';
 import {deleteCookie, getCookie} from './util/cookies';
 import {hash} from '$lib/util/hash';
 import {ensureErrorIsTraced, errorSourceTag} from './otel';
+import type zxcvbn from 'zxcvbn';
 import {
   type AuthUserOrg,
   type AuthUserProject,
@@ -83,7 +84,7 @@ export function getHomePath(user: LexAuthUser | null): '/admin' | '/' {
   return user?.isAdmin ? '/admin' : '/';
 }
 
-type ZxcvbnFn = typeof import('zxcvbn');
+export type ZxcvbnFn = typeof zxcvbn;
 
 let zxcvbnImport: Promise<ZxcvbnFn> | undefined;
 
