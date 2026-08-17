@@ -265,6 +265,7 @@ public class MiniLcmRepository(
     public async Task<Sense?> GetSense(Guid senseId)
     {
         var sense = await AsyncExtensions.SingleOrDefaultAsync(Senses.LoadWith(s => s.PartOfSpeech)
+                .LoadWith(s => s.ExampleSentences)
                 .AsQueryable(), e => e.Id == senseId);
         sense?.Finalize();
         return sense;
