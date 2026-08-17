@@ -16,10 +16,14 @@
   // The server returns each commit's CommitMetadata as an opaque JSON scalar. We only surface authorName
   // today; other fields stay available to the client for future use without a schema change.
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  type CommitMetadata = {AuthorName?: string | null};
+  type CommitMetadata = {AuthorName?: string | null; AuthorId?: string | null};
   function authorName(metadata: unknown): string {
     const name = (metadata as CommitMetadata | null | undefined)?.AuthorName;
     return typeof name === 'string' && name.length > 0 ? name : $t('project_page.harmony.unknown_author');
+  }
+  function authorId(metadata: unknown): string {
+    const id = (metadata as CommitMetadata | null | undefined)?.AuthorId;
+    return typeof id === 'string' && id.length > 0 ? id : $t('project_page.harmony.unknown_author');
   }
 </script>
 
@@ -40,7 +44,7 @@
               <span class="text-xs text-secondary">+{commit.hybridDateTime.counter}</span>
             {/if}
           </td>
-          <td>{authorName(commit.metadata)}</td>
+          <td title={authorId(commit.metadata)}>{authorName(commit.metadata)}</td>
         </tr>
       {/each}
     {:else}
