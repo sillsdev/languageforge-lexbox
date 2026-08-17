@@ -406,7 +406,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }
 
   getWritingSystems(): Promise<IWritingSystems> {
-    return Promise.resolve(writingSystems as unknown as IWritingSystems);
+    return Promise.resolve(writingSystems);
   }
 
   async searchEntries(query: string, options: IQueryOptions | undefined): Promise<IEntry[]> {

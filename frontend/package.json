@@ -44,7 +44,7 @@
     "@sveltejs/kit": "2.60.1",
     "@sveltejs/vite-plugin-svelte": "catalog:",
     "@tailwindcss/typography": "^0.5.19",
-    "@types/mjml": "^5.0.0",
+    "@types/mjml": "^4.7.4",
     "@types/node": "^24.10.1",
     "@types/zxcvbn": "^4.4.5",
     "@typescript-eslint/parser": "catalog:",
@@ -96,14 +96,13 @@
     "@opentelemetry/semantic-conventions": "^1.43.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@types/js-cookie": "^3.0.6",
-    "@types/set-cookie-parser": "^2.4.10",
     "@vitejs/plugin-basic-ssl": "catalog:",
     "css-tree": "^3.2.1",
-    "e2e-mailbox": "1.1.7",
+    "e2e-mailbox": "1.1.5",
     "estree-walker": "^3.0.3",
     "js-cookie": "^3.0.7",
     "just-order-by": "^1.0.0",
-    "mjml": "^5.4.0",
+    "mjml": "^4.17.1",
     "runed": "catalog:",
     "set-cookie-parser": "^3.1.2",
     "svelte-exmarkdown": "catalog:",
@@ -113,6 +112,7 @@
   "pnpm": {
     "overrides": {
       "cookie": "^0.7.0",
+      "@types/mjml-core": "^4.15.2",
       "minimatch@9": "^9.0.7",
       "immutable@3": "^3.8.3"
     }
