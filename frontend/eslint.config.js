@@ -112,20 +112,13 @@ export default [
         "patterns": [{
           "group": ["svelte-intl-precompile"],
           "message": "Use $lib/i18n instead."
+        }],
+        "paths": [{
+          "name": "zxcvbn",
+          "message": "Use preloadZxcvbn() from $lib/user instead of a static zxcvbn import.",
+          "allowTypeImports": true
         }]
       }],
-      // Static zxcvbn pulls ~380KB gzip into the shared client chunk. import type and import() are allowed.
-      'no-restricted-syntax': [
-        'error',
-        {
-          selector: "ImportDeclaration[source.value='zxcvbn']:not([importKind=type])",
-          message: 'Use preloadZxcvbn() from $lib/user instead of a static zxcvbn import.',
-        },
-        {
-          selector: "ExportNamedDeclaration[source.value='zxcvbn'], ExportAllDeclaration[source.value='zxcvbn']",
-          message: 'Use preloadZxcvbn() from $lib/user instead of re-exporting zxcvbn.',
-        },
-      ],
     },
   },
   {

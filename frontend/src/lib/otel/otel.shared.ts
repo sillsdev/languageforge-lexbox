@@ -25,7 +25,7 @@ export function tracer(): Tracer {
   return trace.getTracer(SERVICE_NAME);
 }
 
-type ErrorType = 'gql' | 'fetch' | 'jwt-decode';
+type ErrorType = 'gql' | 'fetch' | 'jwt-decode' | 'zxcvbn';
 type LexBoxErrorSource = `${'client' | 'server'}-${ErrorType}`;
 export type ErrorSource = LexBoxErrorSource | ErrorHandler;
 type ErrorAttributes = Attributes & { ['app.error.source']: ErrorSource };

@@ -24,6 +24,7 @@
 
   let zxcvbn = $state<ZxcvbnFn>();
   onMount(() => {
+    if (typeof scoreOverride === 'number') return;
     void preloadZxcvbn().then((fn) => {
       zxcvbn = fn;
     });
