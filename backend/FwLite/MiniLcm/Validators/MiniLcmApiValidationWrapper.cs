@@ -313,9 +313,10 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.CreateSense(entryId, sense, between);
     }
 
-    public Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null)
+    public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null)
     {
-        return _api.SubmitCreateSense(entryId, sense, position);
+        await validators.ValidateAndThrow(sense);
+        await _api.SubmitCreateSense(entryId, sense, position);
     }
 
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
@@ -344,9 +345,10 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.DeleteSense(entryId, senseId);
     }
 
-    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    public async Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
     {
-        return _api.AddSemanticDomainToSense(senseId, semanticDomain);
+        await validators.ValidateAndThrow(semanticDomain);
+        await _api.AddSemanticDomainToSense(senseId, semanticDomain);
     }
 
     public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
@@ -372,9 +374,10 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.CreateExampleSentence(entryId, senseId, exampleSentence, between);
     }
 
-    public Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null)
+    public async Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null)
     {
-        return _api.SubmitCreateExampleSentence(entryId, senseId, exampleSentence, position);
+        await validators.ValidateAndThrow(exampleSentence);
+        await _api.SubmitCreateExampleSentence(entryId, senseId, exampleSentence, position);
     }
 
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update)
@@ -407,9 +410,10 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
     }
 
-    public Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
+    public async Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
     {
-        return _api.AddTranslation(entryId, senseId, exampleSentenceId, translation);
+        await validators.ValidateAndThrow(translation);
+        await _api.AddTranslation(entryId, senseId, exampleSentenceId, translation);
     }
 
     public Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
