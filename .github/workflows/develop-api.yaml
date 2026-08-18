@@ -10,6 +10,7 @@ on:
       - '.github/workflows/deploy.yaml'
       - '.github/workflows/integration-test-gha.yaml'
       - '.github/actions/playwright-tests/**'
+      - '.github/actions/setup-k8s/**'
       - 'deployment/base/lexbox-deployment.yaml'
       - 'deployment/base/hg-deployment.yaml'
     branches:
@@ -23,6 +24,7 @@ on:
       - '.github/workflows/deploy.yaml'
       - '.github/workflows/integration-test-gha.yaml'
       - '.github/actions/playwright-tests/**'
+      - '.github/actions/setup-k8s/**'
       - 'deployment/base/lexbox-deployment.yaml'
       - 'deployment/base/hg-deployment.yaml'
     branches:
