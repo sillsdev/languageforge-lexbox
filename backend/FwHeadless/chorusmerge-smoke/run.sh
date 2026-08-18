@@ -5,9 +5,9 @@
 # PartsOfSpeech.base.list is the FLExBridge split (nested) form of a possibility list — what
 # hg actually versions and merges. Regenerate from a .fwdata with the FLExBridge split CLI.
 #
-# The handler is discovered by scanning the *current working directory* for *-ChorusPlugin.dll,
-# and hg runs the merge tool with cwd = the repo (not /app). So this MUST run from a non-/app
-# cwd to be meaningful — running it from /app would hide the bug and pass falsely.
+# Plugins are discovered from AppContext.BaseDirectory (sillsdev/chorus#393), but hg still runs
+# the merge tool with cwd = the repo (not /app). Run from a non-/app cwd so we keep exercising
+# that path — ChorusRequirePlugins=1 (FwHeadless Dockerfile ENV) fails if none load.
 set -euo pipefail
 
 APP=${APP:-/app}
