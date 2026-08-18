@@ -639,8 +639,8 @@ public abstract class NullAndEmptyQueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry() { LexemeForm = { { "en", Apple } } });
         // null / missing key
         await Api.CreateEntry(new Entry());
-        // blank
-        await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = EmptyString } });
+        // blank - via BaseApi, because validation rejects empty values, but existing projects still contain them
+        await BaseApi.CreateEntry(new Entry() { LexemeForm = { ["en"] = EmptyString } });
         // null string
         await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = NullString } });
     }

@@ -851,13 +851,14 @@ public class FwDataMiniLcmApi(
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
+            // Text is null if TsStringUtils.MakeString was called with an empty string. Empty means absent
+            // everywhere else in MiniLcm (the json converter drops empties, the validators reject them), so
+            // don't surface one here.
+            if (string.IsNullOrEmpty(tsString.Text)) continue;
             var wsId = GetWritingSystemId(ws);
             if (!wsId.IsAudio)
             {
-                // Text is null if TsStringUtils.MakeString was called with an empty string.
-                // So, we map it back for consistent round-tripping and
-                // so we can continue to assume that MultiStrings never have null values.
-                result.Values.Add(wsId, tsString.Text ?? string.Empty);
+                result.Values.Add(wsId, tsString.Text);
             }
             else
             {

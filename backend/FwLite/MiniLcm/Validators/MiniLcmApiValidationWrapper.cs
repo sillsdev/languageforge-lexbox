@@ -16,22 +16,6 @@ public class MiniLcmApiValidationWrapperFactory(MiniLcmValidators validators) : 
     }
 }
 
-/// <summary>
-/// Validates user-supplied models before writing them.
-///
-/// Design notes:
-/// - Read operations are forwarded automatically via BeaKona.AutoInterface.
-/// - Write operations are hand-written so validation can't silently go missing again: a drifted or
-///   missing write override becomes a compile error rather than a BeaKona-generated pass-through with
-///   no validation (the exact bug in #2359 / #2362, where CreateEntry's signature drifted and every
-///   caller bound to the generated unvalidated forwarder).
-/// - Only writes that carry a model we have a validator for actually validate; the rest forward as-is.
-///   Where a method deliberately does NOT validate, that's now an explicit, visible choice.
-/// - Submit* variants forward to the inner Submit* (not the returning Update/Create) so the CRDT
-///   delete-wins semantics are preserved.
-/// - Imperative validation that needs an async lookup (the single-main-publication rule) throws
-///   FluentValidation.ValidationException, matching the type the validators throw.
-/// </summary>
 public partial class MiniLcmApiValidationWrapper(
     IMiniLcmApi api,
     MiniLcmValidators validators) : IMiniLcmApi
@@ -225,11 +209,10 @@ public partial class MiniLcmApiValidationWrapper(
 
     #region MorphType
 
-    // CreateMorphType deliberately does not validate: sync/import writes FLEx morph types whose names
-    // can be empty, which MorphTypeValidator would reject. Preserving prior behavior; see #2359.
-    public Task<MorphType> CreateMorphType(MorphType morphType)
+    public async Task<MorphType> CreateMorphType(MorphType morphType)
     {
-        return _api.CreateMorphType(morphType);
+        await validators.ValidateAndThrow(morphType);
+        return await _api.CreateMorphType(morphType);
     }
 
     public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
@@ -248,8 +231,6 @@ public partial class MiniLcmApiValidationWrapper(
 
     #region Entry
 
-    // CreateEntry now validates (#2359). Note: sync drives this with FwData reads that can carry empty
-    // MultiString values (EntryValidator.NoEmptyValues rejects them) — see the PR description's risk note.
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions? options = null)
     {
         await validators.ValidateAndThrow(entry);
