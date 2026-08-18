@@ -310,18 +310,20 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException($"Change {changeIndex} not found in commit {commitId}");
 
-        // These three branches are independent read-only lookups that each open their own
+        // These branches are independent read-only lookups that each open their own
         // DbContext (via the repository factories), so run them concurrently.
+        //todo needs optimizing: when a sync pruned this change's snapshot, this replays every commit since the entity's last one (median 22k on a 100k-commit project)
         var snapshotTask = ResolveSnapshot(async () => await dataModel.GetAtCommit<object>(commitId, change.EntityId));
-        var previousSnapshotTask = ResolveSnapshot(() => dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
+        //todo the activity redesign wants this to diff against, but GetBeforeCommit rebuilds it by replaying every commit since the entity's last snapshot (~99k of 100k on a synced project), which leaves the preview blank forever — needs optimizing before it comes back
+        //var previousSnapshotTask = ResolveSnapshot(() => dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
         var affectedEntriesTask = GetAffectedEntryIds(change)
             .Select(async (Guid entryId, CancellationToken _) => await GetCurrentOrLatestEntry(entryId))
             .ToArrayAsync()
             .AsTask();
 
-        await Task.WhenAll(snapshotTask, previousSnapshotTask, affectedEntriesTask);
+        await Task.WhenAll(snapshotTask, affectedEntriesTask);
 
-        return new ChangeContext(change, await snapshotTask, await previousSnapshotTask, await affectedEntriesTask);
+        return new ChangeContext(change, await snapshotTask, null, await affectedEntriesTask);
     }
 
     // Some entity types like RemoteResource don't implement IObjectWithId, so cast safely.
