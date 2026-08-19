@@ -168,7 +168,7 @@ function buildUserSearchFilter(searchParams: URLSearchParams, user: LexAuthUser)
   }
 
   if (onlyUsersICreated) {
-    userFilter.createdById = { eq: user.id as UUID };
+    userFilter.createdById = { eq: user.id };
   }
 
   return userFilter;
