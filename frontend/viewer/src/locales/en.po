@@ -53,6 +53,7 @@ msgstr "{0} activity types"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} ago"
 
@@ -1303,6 +1304,7 @@ msgstr "Import"
 
 #. Future relative date format. {0} = formatted duration string (e.g., "3 hours", "2 days"). Paired with "{0} ago" for past dates.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "in {0}"
 
@@ -1325,6 +1327,11 @@ msgstr "Install Update"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
 msgstr "Installing Update..."
+
+#. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "just now"
+msgstr "just now"
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte

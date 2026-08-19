@@ -58,6 +58,7 @@ msgstr ""
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "il y a {0}"
 
@@ -1308,6 +1309,7 @@ msgstr "Importer"
 
 #. Future relative date format. {0} = formatted duration string (e.g., "3 hours", "2 days"). Paired with "{0} ago" for past dates.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "dans {0}"
 
@@ -1330,6 +1332,10 @@ msgstr "Installer la mise à jour"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
 msgstr "Installation de la mise à jour..."
+
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "just now"
+msgstr ""
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
