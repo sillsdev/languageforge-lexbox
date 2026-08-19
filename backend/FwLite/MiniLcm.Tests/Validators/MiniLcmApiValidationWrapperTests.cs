@@ -6,50 +6,65 @@ namespace MiniLcm.Tests.Validators;
 
 public class MiniLcmApiValidationWrapperTests
 {
-    /// <summary>The wrapper is hand-written, so a forgotten ValidateAndThrow compiles fine.</summary>
+    /// <summary>
+    /// Iterates every parameter of every IMiniLcmWriteApi method
+    /// verifying that we validate it if we HAVE a validator for its type.
+    ///
+    /// Also verifies that the inner api is not called if validation fails.
+    /// </summary>
     [Fact]
-    public async Task EveryWriteValidatesTheTypesWeHaveValidatorsFor()
+    public async Task EveryWriteValidatesItsValidatableParameters()
     {
         var validatable = ValidatableTypes();
         validatable.Should().NotBeEmpty("otherwise no validators were found and this checks nothing");
 
         var inner = new Mock<IMiniLcmApi>();
-        var api = new MiniLcmApiValidationWrapper(inner.Object, RejectingValidators());
 
-        var checkedMethods = new List<string>();
+        var checkedMethods = new HashSet<string>();
         var failures = new List<string>();
         foreach (var method in typeof(IMiniLcmWriteApi).GetMethods())
         {
-            // The parameter the method is expected to validate: "after" for before/after pairs, else the only one.
-            var target = method.GetParameters().Where(p => validatable.Contains(p.ParameterType))
-                .OrderByDescending(p => p.Name == "after").FirstOrDefault();
-            if (target is null) continue;
-            checkedMethods.Add(method.Name);
-
-            inner.Invocations.Clear();
-            var args = method.GetParameters().Select(p => BuildArgument(p.ParameterType)).ToArray();
-            // Only the validators throw this, so it arriving means the method ran the one for target's type.
-            var thrown = await Record.ExceptionAsync(() => (Task)method.Invoke(api, args)!);
-
-            if (thrown is not ValidationException)
+            // One run per validatable parameter, with validators keyed to reject only that parameter
+            foreach (var target in method.GetParameters().Where(p => validatable.Contains(p.ParameterType)))
             {
-                failures.Add($"{method.Name} did not validate its '{target.Name}' parameter " +
-                    $"(got {thrown?.GetType().Name ?? "no exception"})");
-            }
-            else if (inner.Invocations.Any(i => i.Method.Name == method.Name))
-            {
-                failures.Add($"{method.Name} validated but still wrote to the inner api");
+                var args = method.GetParameters().Select(p => BuildArgument(p.ParameterType)).ToArray();
+                var argToValidate = args[target.Position] ?? throw new InvalidOperationException($"couldn't build a {target.ParameterType.Name}");
+                var validator = RejectingValidators(argToValidate);
+                var api = new MiniLcmApiValidationWrapper(inner.Object, validator);
+
+                inner.Invocations.Clear();
+                var thrown = await Record.ExceptionAsync(() => (Task)method.Invoke(api, args)!);
+
+                if (target.Name == "before")
+                {
+                    // The old state may legitimately be invalid; only "after" should get validated.
+                    if (thrown is ValidationException)
+                        failures.Add($"{method.Name} validated its 'before' parameter, which it shouldn't do");
+                    continue;
+                }
+
+                checkedMethods.Add(method.Name);
+
+                if (thrown is not ValidationException)
+                {
+                    failures.Add($"{method.Name} did not validate its '{target.Name}' parameter " +
+                        $"(got {thrown?.GetType().Name ?? "no exception"})");
+                }
+                else if (inner.Invocations.Any(i => i.Method.Name == method.Name))
+                {
+                    failures.Add($"{method.Name} validated its '{target.Name}' parameter but still wrote to the inner api");
+                }
             }
         }
 
         checkedMethods.Should().Contain([nameof(IMiniLcmWriteApi.CreateEntry), nameof(IMiniLcmWriteApi.SubmitCreateSense)],
-            "otherwise this test isn't testing anything");
+            "we just want to make sure we're testing more than nothing");
         // Most validated types are taken by a create, an update and a before/after overload.
         checkedMethods.Should().HaveCountGreaterThan(validatable.Count, "otherwise the reflection stopped matching methods");
         failures.Should().BeEmpty();
     }
 
-    /// <summary>Every T we have an AbstractValidator&lt;T&gt; for.</summary>
+    /// <summary>Every T we have an AbstractValidator for.</summary>
     private static HashSet<Type> ValidatableTypes()
     {
         return [.. typeof(MiniLcmValidators).Assembly.GetTypes()
@@ -58,7 +73,7 @@ public class MiniLcmApiValidationWrapperTests
             .OfType<Type>()];
     }
 
-    /// <summary>The T of the AbstractValidator&lt;T&gt; a type derives from, or null if it isn't one.</summary>
+    /// <summary>The T of the AbstractValidator a type derives from, or null if it isn't one.</summary>
     private static Type? ValidatedTypeOf(Type type)
     {
         for (var t = type.BaseType; t is not null; t = t.BaseType)
@@ -69,25 +84,29 @@ public class MiniLcmApiValidationWrapperTests
     }
 
     /// <summary>
-    /// A MiniLcmValidators whose validators reject everything, so the test turns on whether the validator was
-    /// called rather than on what each one considers invalid.
+    /// A MiniLcmValidators whose validators reject exactly the given instance and pass everything else,
+    /// so the test turns on whether that instance was validated rather than on what each validator considers invalid.
     /// </summary>
-    private static MiniLcmValidators RejectingValidators()
+    private static MiniLcmValidators RejectingValidators(object target)
     {
         var validators = typeof(MiniLcmValidators).GetConstructors().Single().GetParameters()
             .Select(p => Activator.CreateInstance(
-                typeof(RejectingValidator<>).MakeGenericType(p.ParameterType.GetGenericArguments()[0])))
+                typeof(RejectingValidator<>).MakeGenericType(p.ParameterType.GetGenericArguments()[0]), target))
             .ToArray();
         return (MiniLcmValidators)Activator.CreateInstance(typeof(MiniLcmValidators), validators)!;
     }
 
-    private sealed class RejectingValidator<T> : AbstractValidator<T>
+    private sealed class RejectingValidator<T>(object target) : AbstractValidator<T>
     {
         public override Task<FluentValidation.Results.ValidationResult> ValidateAsync(ValidationContext<T> context,
-            CancellationToken cancellation = default) => throw new ValidationException("rejected");
+            CancellationToken cancellation = default)
+        {
+            if (ReferenceEquals(context.InstanceToValidate, target)) throw new ValidationException("rejected");
+            return Task.FromResult(new FluentValidation.Results.ValidationResult());
+        }
     }
 
-    // Only needs to be constructible: the validators reject everything without reading it.
+    // Only needs to be constructible: the validators reject by identity without reading it.
     private static object? BuildArgument(Type type)
     {
         if (type == typeof(Guid)) return Guid.NewGuid();
