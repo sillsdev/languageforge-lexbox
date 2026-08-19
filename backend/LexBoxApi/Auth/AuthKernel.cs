@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Auth.Requirements;
@@ -263,6 +262,9 @@ public static class AuthKernel
                 });
 
                 options.SetAccessTokenLifetime(TimeSpan.FromHours(1));
+                //note, if we want to change this, then we also need to change the certificate lifetime so we don't have tokens that last longer than the certificate
+                //basically this means that the renewBefore should be increased to the token lifetime + 1, just be careful we don't get to close to the
+                //certificate legnth. If the cert is only good for 90 days and we renew too soon then it won't actually be valid for very long.
                 options.SetRefreshTokenLifetime(TimeSpan.FromDays(14));
                 options.AllowAuthorizationCodeFlow()
                     .AllowRefreshTokenFlow();
@@ -274,23 +276,9 @@ public static class AuthKernel
                     options.AddDevelopmentEncryptionCertificate();
                     options.AddDevelopmentSigningCertificate();
                 }
-                else
-                {
-                    //see docs: https://documentation.openiddict.com/configuration/encryption-and-signing-credentials.html
-                    //todo, handle certificate rotation, right now these certs will be replaced 15 days before they expire
-                    //however we need to start signing with the new cert before the old one expires
-                    //this means we need 2 certs for each use case, an old one for tokens that have not expired yet, and a new one to sign all new tokens
-                    var encryptionCert = X509Certificate2.CreateFromPemFile(
-                        "/oauth-certs/encryption/tls.crt",
-                        "/oauth-certs/encryption/tls.key");
-                    options.AddEncryptionCertificate(encryptionCert);
-
-                    var signingCert = X509Certificate2.CreateFromPemFile(
-                        "/oauth-certs/signing/tls.crt",
-                        "/oauth-certs/signing/tls.key");
-
-                    options.AddSigningCertificate(signingCert);
-                }
+                // Non-development PEMs: OauthPemOpenIddictServerConfigurer registers current + optional
+                // last-seen/previous slots. See docs:
+                // https://documentation.openiddict.com/configuration/encryption-and-signing-credentials.html
 
                 var aspnetCoreBuilder = options.UseAspNetCore()
                     .EnableAuthorizationEndpointPassthrough()
@@ -309,6 +297,21 @@ public static class AuthKernel
                 options.AddAudiences(Enum.GetValues<LexboxAudience>().Where(a => a != LexboxAudience.Unknown).Select(a => a.ToString()).ToArray());
                 options.EnableAuthorizationEntryValidation();
             });
+
+        if (!environment.IsDevelopment())
+        {
+            services.AddSingleton<IConfigureOptions<OpenIddictServerOptions>, OauthPemOpenIddictServerConfigurer>();
+
+            // Content-hash poll invalidates server + validation options together so UseLocalServer()
+            // re-imports keys after PEM mount updates (k8s Secret ..data swaps).
+            services.AddSingleton<OauthPemOptionsChangeTokenSource>();
+            services.AddSingleton<IOptionsChangeTokenSource<OpenIddictServerOptions>>(
+                sp => sp.GetRequiredService<OauthPemOptionsChangeTokenSource>());
+            services.AddSingleton<IOptionsChangeTokenSource<OpenIddictValidationOptions>>(
+                sp => sp.GetRequiredService<OauthPemOptionsChangeTokenSource>());
+            services.AddHostedService(sp => sp.GetRequiredService<OauthPemOptionsChangeTokenSource>());
+        }
+
         //ensure that validation happens on startup, not on the first request which requires authentication
         services.AddOptions<OpenIddictCoreOptions>().ValidateOnStart();
         services.AddOptions<OpenIddictServerOptions>().ValidateOnStart();
