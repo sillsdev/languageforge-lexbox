@@ -137,9 +137,6 @@ public static class LcmCrdtKernel
                     ?? throw new InvalidOperationException(
                         "linq2db mapping schema was not registered by UseLinqToDbCrdt; Harmony's Commit UTC conversion would be missing (issue #2092).");
                 new FluentMappingBuilder(mappingSchema)
-                    //tells linq2db to rewrite Sense.SemanticDomains / Entry.PublishIn into
-                    //Json.Query(<column>) during query translation. isColumn: false keeps the
-                    //rewrite out of entity materialization — honored since linq2db 6.4.0 (issue #2291).
                     .Entity<Sense>().Property(s => s.SemanticDomains).IsExpression(SenseSemanticDomainsExpression(), isColumn: false)
                     .Entity<Entry>().Property(e => e.PublishIn).IsExpression(EntryPublishInExpression(), isColumn: false)
                     .Entity<Entry>().Association(e => e.QueryMorphType(), e => e.MorphType, m => m!.Kind)

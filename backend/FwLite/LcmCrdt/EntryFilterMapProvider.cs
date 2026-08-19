@@ -8,7 +8,7 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
 {
     //Sql.Property reaches the raw jsonb column, dodging the Json.Query rewrite: the
     //empty-list check must compare the column (= '[]'), which linq2db can't do through
-    //the json_each table form (see issue #2291, upstream "PR B").
+    //the json_each table form.
     public override Expression<Func<Entry, object?>> EntrySensesSemanticDomains =>
         e => e.Senses.Select(s => Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
     public override Expression<Func<Entry, object?>> EntrySensesSemanticDomainsCode =>
