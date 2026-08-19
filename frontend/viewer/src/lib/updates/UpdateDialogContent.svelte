@@ -7,7 +7,7 @@
   import {getReleaseUrl} from './utils';
 
   type Props = {
-    checkPromise?: Promise<IAvailableUpdate | null>;
+    checkPromise?: Promise<IAvailableUpdate | undefined>;
     installPromise?: Promise<UpdateResult>;
     installUpdate: (update: IAvailableUpdate) => Promise<void>;
     installProgress?: number;

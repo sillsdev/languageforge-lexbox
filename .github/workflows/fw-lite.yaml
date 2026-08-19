@@ -8,6 +8,7 @@ on:
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
+      - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
     branches:
@@ -20,6 +21,7 @@ on:
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
+      - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
     branches:
@@ -146,7 +148,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -236,7 +238,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -370,6 +372,10 @@ jobs:
     needs: [ build-and-test, frontend ]
     timeout-minutes: 30
     runs-on: ubuntu-latest
+    env:
+      # Signing secrets/vars aren't exposed to workflows triggered from a fork PR,
+      # so on those runs we build an unsigned APK instead of failing the job.
+      HAS_SIGNING_KEY: ${{ secrets.FW_LITE_KEYSTORE_BASE64 != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -385,13 +391,15 @@ jobs:
         run: dotnet workload install maui-android
       - name: Decode Android Keystore
         id: decodeKeystore
+        if: env.HAS_SIGNING_KEY == 'true'
         env:
           KEYSTORE_BASE64: ${{ secrets.FW_LITE_KEYSTORE_BASE64 }}
         run: |
           echo "KEYSTORE_PATH=${RUNNER_TEMP}/keystore.jks" >> ${GITHUB_OUTPUT}
           base64 -d <<< "$KEYSTORE_BASE64" > ${RUNNER_TEMP}/keystore.jks
 
-      - name: Publish Android
+      - name: Publish Android (signed)
+        if: env.HAS_SIGNING_KEY == 'true'
         working-directory: backend/FwLite/FwLiteMaui
         env:
           KEYSTORE_PATH: ${{ steps.decodeKeystore.outputs.KEYSTORE_PATH }}
@@ -408,6 +416,18 @@ jobs:
             -p:AndroidSigningStorePass=env:KEYSTORE_PASS \
             -p:AndroidSigningKeyAlias=${KEYSTORE_ALIAS}
           rm ${KEYSTORE_PATH}
+
+      - name: Publish Android (unsigned)
+        # Fork PRs have no access to the signing key; build an unsigned APK so the job still validates the Android build.
+        if: env.HAS_SIGNING_KEY != 'true'
+        working-directory: backend/FwLite/FwLiteMaui
+        run: |
+          echo "::warning::Signing key unavailable (likely a fork PR); building an unsigned Android APK."
+          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
+            -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
+            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
+            -p:AndroidKeyStore=false
 
       - name: Upload FWLite App artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -491,7 +511,7 @@ jobs:
 
       - name: Sign with Trusted Signing
         if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' }}
-        uses: sillsdev/codesign/trusted-signing-action@v3
+        uses: sillsdev/codesign/trusted-signing-action@0485c27c94116d62f80febc468cc1979ed7245de # v3.2.0
         with:
           credentials: ${{ secrets.TRUSTED_SIGNING_CREDENTIALS }}
           files-folder: ${{ github.workspace }}/backend/FwLite/artifacts/sign
@@ -604,7 +624,7 @@ jobs:
         uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0

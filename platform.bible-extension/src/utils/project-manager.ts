@@ -1,7 +1,8 @@
-import { logger, projectDataProviders, webViews } from '@papi/backend';
+import { localization, logger, notifications, projectDataProviders, webViews } from '@papi/backend';
 import type { MandatoryProjectDataTypes } from '@papi/core';
 import type { LexiconWebViewOptions, ProjectWebViewOptions, WebViewIds } from 'lexicon';
 import type { IBaseProjectDataProvider } from 'papi-shared-types';
+import { formatReplacementString, getErrorMessage } from 'platform-bible-utils';
 // eslint-disable-next-line no-restricted-imports
 import type { Layout } from 'shared/models/docking-framework.model';
 import { ProjectSettingKey, WebViewType } from '../types/enums';
@@ -10,13 +11,31 @@ export class ProjectManager {
   readonly projectId: string;
   private dataProvider?: IBaseProjectDataProvider<MandatoryProjectDataTypes>;
   private readonly webViewIds: WebViewIds = {};
+  private readonly isLexiconCodeValid: (lexiconCode: string) => Promise<boolean>;
 
-  constructor(projectId: string) {
+  constructor(projectId: string, isLexiconCodeValid?: (lexiconCode: string) => Promise<boolean>) {
     this.projectId = projectId;
+    this.isLexiconCodeValid = isLexiconCodeValid ?? (async () => true);
   }
 
   static async getLexiconCode(projectId: string): Promise<string | undefined> {
     return await new ProjectManager(projectId).getLexiconCode();
+  }
+
+  /** Tells the user why their lexicon selection was discarded, so the selector isn't unexplained. */
+  private static async notifyLexiconMissing(lexiconCode: string): Promise<void> {
+    try {
+      const template = await localization.getLocalizedString({
+        localizeKey: '%lexicon_error_lexiconMissing%',
+      });
+      await notifications.send({
+        message: formatReplacementString(template, { lexiconCode }),
+        severity: 'error',
+      });
+    } catch (e) {
+      // A failed notification must not stop the selector from opening.
+      logger.warn('Could not notify user of the missing lexicon:', getErrorMessage(e));
+    }
   }
 
   async getAnalysisLanguage(): Promise<string | undefined> {
@@ -36,15 +55,33 @@ export class ProjectManager {
     const lexiconCode = await this.getSetting(ProjectSettingKey.LexiconCode);
     const nameOrId = await this.getNameOrId();
     if (lexiconCode) {
-      logger.info(`Project '${nameOrId}' is using lexicon '${lexiconCode}'`);
-      return lexiconCode;
+      if (await this.isLexiconCodeValid(lexiconCode)) {
+        logger.info(`Project '${nameOrId}' is using lexicon '${lexiconCode}'`);
+        return lexiconCode;
+      }
+      // The stored lexicon no longer resolves (e.g. it was deleted in FW Lite). Clear it so the
+      // project isn't stuck pointing at a missing lexicon (which would cause every action to open a
+      // broken view), then fall through to prompt for a new selection.
+      logger.warn(
+        `Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`,
+      );
+      await this.setLexiconCode('');
+      await ProjectManager.notifyLexiconMissing(lexiconCode);
+    } else {
+      logger.info(`Lexicon not yet selected for project '${nameOrId}'`);
     }
 
-    logger.info(`Lexicon not yet selected for project '${nameOrId}'`);
-    await this.openWebView(WebViewType.SelectLexicon, {
-      floatSize: { height: 500, width: 400 },
-      type: 'float',
-    });
+    await this.openSelector();
+  }
+
+  async openSelector(): Promise<boolean> {
+    const vernacularLanguage = await this.getLanguageTag();
+    const options: LexiconWebViewOptions = { vernacularLanguage };
+    return await this.openWebView(
+      WebViewType.SelectLexicon,
+      { floatSize: { height: 500, width: 400 }, type: 'float' },
+      options,
+    );
   }
 
   async setLexiconCode(lexiconCode: string): Promise<void> {

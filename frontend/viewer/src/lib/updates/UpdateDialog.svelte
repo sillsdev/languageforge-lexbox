@@ -16,7 +16,7 @@
   const config = useFwLiteConfig();
   const updateService = useUpdateService();
 
-  let checkPromise = $state<Promise<IAvailableUpdate | null>>();
+  let checkPromise = $state<Promise<IAvailableUpdate | undefined>>();
   let installPromise = $state<Promise<UpdateResult>>();
 
   const eventBus = useEventBus();

@@ -104,7 +104,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
 - ❌ Do NOT git commit or git push without explicit user approval
 - ❌ Do NOT post project/user identifiers or any real-project data online, and do NOT touch a k8s cluster without explicit permission — see **🔒 Privacy and Production Access** above
-- ⚠️ **Pre-commit hook prettier-formats staged `*.{js,ts,svelte,css,md,json}` files** (yes, incl. `.md`/docs) via `frontend/viewer`. If your commit stages any of those and `frontend/viewer/node_modules` is missing (fresh worktree/clone), run `cd frontend && pnpm install` first (~45s, once per worktree) — don't `--no-verify` to dodge it, that just defers the format failure to CI. If it stages none of those (e.g. backend-only), the hook is a no-op: it passes with no install, and `--no-verify` is fine.
+- ⚠️ **Pre-commit hook prettier-formats staged `*.{js,ts,svelte,css,md,json}` files** (yes, incl. `.md`/docs) via lint-staged; the glob lives in `.husky/pre-commit`. The hook first checks staged names in shell and skips Node when none match (e.g. backend-only). If some match and `frontend/viewer/node_modules` is missing (fresh worktree/clone), the hook runs `pnpm install` itself, so the first such commit takes ~45s — no need to install up front. Don't `--no-verify` to dodge the hook, that just defers the format failure to CI.
 
 ### 🛡️ VIGILANCE
 

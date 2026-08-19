@@ -86,8 +86,20 @@ spec:
         - name: oauth-signing-cert
           mountPath: /oauth-certs/signing
           readOnly: true
+        - name: oauth-signing-cert-last-seen
+          mountPath: /oauth-certs/signing-last-seen
+          readOnly: true
+        - name: oauth-signing-cert-previous
+          mountPath: /oauth-certs/signing-previous
+          readOnly: true
         - name: oauth-encryption-cert
           mountPath: /oauth-certs/encryption
+          readOnly: true
+        - name: oauth-encryption-cert-last-seen
+          mountPath: /oauth-certs/encryption-last-seen
+          readOnly: true
+        - name: oauth-encryption-cert-previous
+          mountPath: /oauth-certs/encryption-previous
           readOnly: true
 
         env:
@@ -263,9 +275,25 @@ spec:
         secret:
           secretName: oauth-signing-cert
           optional: true
+      - name: oauth-signing-cert-last-seen
+        secret:
+          secretName: oauth-signing-cert-last-seen
+          optional: true
+      - name: oauth-signing-cert-previous
+        secret:
+          secretName: oauth-signing-cert-previous
+          optional: true
       - name: oauth-encryption-cert
         secret:
           secretName: oauth-encryption-cert
+          optional: true
+      - name: oauth-encryption-cert-last-seen
+        secret:
+          secretName: oauth-encryption-cert-last-seen
+          optional: true
+      - name: oauth-encryption-cert-previous
+        secret:
+          secretName: oauth-encryption-cert-previous
           optional: true
 
       initContainers:

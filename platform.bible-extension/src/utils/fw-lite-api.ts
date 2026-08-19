@@ -12,7 +12,9 @@ import type {
   IServerStatus,
   LoginResult as GeneratedLoginResult,
 } from '@dotnet-types';
+import { getErrorMessage } from 'platform-bible-utils';
 import { GridifyConditionalOperator } from '../types/enums';
+import { HttpStatusError } from './http-status-error';
 
 // Local aliases for the FW Lite backend's generated API types (type-only via @dotnet-types).
 export type LexboxServer = ILexboxServer;
@@ -34,6 +36,30 @@ function validateUrlComponent(urlComponent?: string): string {
   return urlComponent;
 }
 
+/**
+ * Backend error bodies are JSON: either a bare string or a `ProblemDetails` object with a `detail`
+ * field. Unwrap either shape to plain text so it doesn't reach the user still wrapped in
+ * JSON-string quotes; anything else, including invalid JSON, is returned as-is.
+ */
+function extractErrorMessage(body: string): string {
+  if (!body) return body;
+  try {
+    const parsed: unknown = JSON.parse(body);
+    if (typeof parsed === 'string') return parsed;
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      'detail' in parsed &&
+      typeof parsed.detail === 'string'
+    ) {
+      return parsed.detail;
+    }
+  } catch {
+    // Not JSON — fall through and use the raw text.
+  }
+  return body;
+}
+
 async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   logger.info(`About to fetch: ${input}`);
   if (init) {
@@ -41,18 +67,21 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   }
   const results = await papi.fetch(input, init);
   if (!results.ok) {
-    throw new Error(`Failed to fetch: ${results.status} ${results.statusText}`);
+    const errorBody = await results.text();
+    throw new HttpStatusError(
+      results.status,
+      extractErrorMessage(errorBody) || `Failed to fetch: ${results.status} ${results.statusText}`,
+    );
   }
-  return await results.json();
-}
-
-export function getBrowseUrl(baseUrl: string, lexiconCode: string, entryId?: string): string {
-  let url = `${baseUrl}/paratext/fwdata/${sanitizeUrlComponent(lexiconCode)}`;
-  if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}&entryOpen=true`;
-  return url;
+  const text = await results.text();
+  // eslint-disable-next-line no-type-assertion/no-type-assertion
+  return text ? (JSON.parse(text) as unknown) : undefined;
 }
 
 export class FwLiteApi {
+  // Shared across all instances (EntryService, main) — all talk to the same backend process.
+  private static readonly projectTypeByCode = new Map<string, 'FwData' | 'Harmony'>();
+
   private readonly baseUrl: string;
   private lexiconCode?: string;
   constructor(baseUrl: string, lexiconCode?: string) {
@@ -65,7 +94,7 @@ export class FwLiteApi {
   }
 
   async deleteEntry(id: string, lexiconCode?: string): Promise<void> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry/${id}`;
     await this.fetchPath(path, 'DELETE');
   }
@@ -74,7 +103,7 @@ export class FwLiteApi {
     const tag = langTag.trim().toLocaleLowerCase().split('-')[0];
     if (!code || !tag) return false;
     const writingSystems = await this.getWritingSystems(code);
-    const vernLangTags = Object.keys(writingSystems.vernacular).map((v) => v.toLocaleLowerCase());
+    const vernLangTags = writingSystems.vernacular.map((ws) => ws.wsId.toLocaleLowerCase());
     return vernLangTags.some((v) => v === tag || v.startsWith(`${tag}-`));
   }
 
@@ -85,7 +114,7 @@ export class FwLiteApi {
     semanticDomain?: string,
     lexiconCode?: string,
   ): Promise<IEntry[]> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     let path = `mini-lcm/${type}/${code}/entries`;
     if (search) path += `/${search}`;
     if (semanticDomain) {
@@ -96,47 +125,60 @@ export class FwLiteApi {
   }
 
   async getEntry(id: string, lexiconCode?: string): Promise<IEntry> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry/${id}`;
     return (await this.fetchPath(path)) as IEntry;
   }
 
   async getSense(id: string, lexiconCode?: string): Promise<ISense> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/sense/${id}`;
     return (await this.fetchPath(path)) as ISense;
   }
 
   async getProjects(): Promise<IProjectModel[]> {
-    return (await this.fetchPath('localProjects')) as IProjectModel[];
+    const projects = (await this.fetchPath('localProjects')) as IProjectModel[];
+    projects.forEach((p) => FwLiteApi.projectTypeByCode.set(p.code, p.crdt ? 'Harmony' : 'FwData'));
+    return projects;
   }
 
   async getProjectsMatchingLanguage(langTag?: string): Promise<IProjectModel[]> {
-    const projects = (await this.fetchPath('localProjects')) as IProjectModel[];
+    const projects = await this.getProjects();
     if (!langTag?.trim()) return projects;
 
-    try {
-      const matches = (
-        await Promise.all(
-          projects.map(async (p) =>
-            (await this.doesProjectMatchLangTag(p.code, langTag)) ? p : undefined,
-          ),
-        )
-      ).filter((p) => p) as IProjectModel[];
-      return matches.length ? matches : projects;
-    } catch {
-      return projects;
-    }
+    // Promise.allSettled so one project's failed check (e.g. a broken/deleted project) only
+    // drops that project from consideration.
+    const results = await Promise.allSettled(
+      projects.map(async (p) =>
+        (await this.doesProjectMatchLangTag(p.code, langTag)) ? p : undefined,
+      ),
+    );
+    results.forEach((result, i) => {
+      if (result.status === 'rejected') {
+        logger.warn(
+          `Could not check language match for project '${projects[i].code}':`,
+          getErrorMessage(result.reason),
+        );
+      }
+    });
+    const matches = results
+      .filter(
+        (result): result is PromiseFulfilledResult<IProjectModel | undefined> =>
+          result.status === 'fulfilled',
+      )
+      .map((result) => result.value)
+      .filter((p): p is IProjectModel => Boolean(p));
+    return matches.length ? matches : projects;
   }
 
   async getWritingSystems(lexiconCode?: string): Promise<IWritingSystems> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/writingSystems`;
     return (await this.fetchPath(path)) as IWritingSystems;
   }
 
   async postNewEntry(entry: PartialEntry, lexiconCode?: string): Promise<IEntry> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry`;
     return (await this.fetchPath(path, 'POST', entry)) as IEntry;
   }
@@ -164,9 +206,46 @@ export class FwLiteApi {
 
   /* eslint-enable no-type-assertion/no-type-assertion */
 
-  private checkLexiconCode(lexiconCode?: string): LexiconRef {
-    const code = sanitizeUrlComponent(lexiconCode || this.lexiconCode);
-    return { code, type: 'FwData' };
+  async getBrowseUrl(lexiconCode: string, entryId?: string): Promise<string> {
+    const type = await this.resolveProjectType(lexiconCode);
+    const segment = type === 'Harmony' ? 'project' : 'fwdata';
+    let url = `${this.baseUrl}/paratext/${segment}/${sanitizeUrlComponent(lexiconCode)}`;
+    if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}&entryOpen=true`;
+    return url;
+  }
+
+  async createProject(
+    name: string,
+    code: string,
+    vernacularWs: string,
+    analysisWs?: string,
+  ): Promise<void> {
+    const params = new URLSearchParams({ name, code, vernacularWs });
+    if (analysisWs) params.append('analysisWs', analysisWs);
+    await this.fetchPath(`project/create?${params.toString()}`, 'POST');
+    FwLiteApi.projectTypeByCode.set(code, 'Harmony');
+  }
+
+  private async checkLexiconCode(lexiconCode?: string): Promise<LexiconRef> {
+    const rawCode = lexiconCode || this.lexiconCode;
+    const code = sanitizeUrlComponent(rawCode);
+    const type = await this.resolveProjectType(rawCode ?? '');
+    return { code, type };
+  }
+
+  /**
+   * Looks up a project's API type. The cache is in-memory only and empty after an extension
+   * restart, so on a miss we repopulate it from the backend; else a Harmony/CRDT project could be
+   * misrouted to the FwData endpoints and every operation on it would fail. `getProjects` has no
+   * per-code failure mode (it just enumerates), so if it throws, the type genuinely can't be
+   * determined; propagate the failure instead of guessing 'FwData' and misrouting a Harmony
+   * project. Only defaults to 'FwData' when the backend answered but the code is unrecognized.
+   */
+  private async resolveProjectType(code: string): Promise<'FwData' | 'Harmony'> {
+    const cached = FwLiteApi.projectTypeByCode.get(code);
+    if (cached) return cached;
+    await this.getProjects();
+    return FwLiteApi.projectTypeByCode.get(code) ?? 'FwData';
   }
 
   private getUrl(path: string): string {

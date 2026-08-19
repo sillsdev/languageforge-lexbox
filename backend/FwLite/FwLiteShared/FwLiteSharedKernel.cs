@@ -52,6 +52,7 @@ public static class FwLiteSharedKernel
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<UpdateChecker>());
         services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();
         services.TryAddSingleton<INetworkStatus, NetworkInterfaceNetworkStatus>();
+        services.TryAddSingleton<IPlatformFeaturesService, DummyPlatformFeaturesService>();
         services.AddSingleton<UpdateService>();
         services.AddSingleton<TestingService>();
         services.AddOptions<FwLiteConfig>().BindConfiguration("FwLite");
