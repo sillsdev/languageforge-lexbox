@@ -1,7 +1,6 @@
 using HotChocolate.Types;
+using LexBoxApi.GraphQL.Projections;
 using LexCore.Entities;
-using LexData;
-using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.GraphQL.CustomTypes;
 
@@ -15,6 +14,9 @@ public class ProjectGqlConfiguration : ObjectType<Project>
         descriptor.Field(p => p.Id).IsProjected(); // Needed for jwt refresh
         descriptor.Field(p => p.Type).IsProjected(); // harmonyCommits resolver gates on Type
         descriptor.Field(p => p.Users).Use<ProjectMembersVisibilityMiddleware>();
-        descriptor.Field(p => p.HarmonyCommits).UseSorting().UseFiltering();
+        descriptor.Field(p => p.HarmonyCommits)
+            .UseProjectedSkipTake()
+            .UseSorting()
+            .UseFiltering();
     }
 }

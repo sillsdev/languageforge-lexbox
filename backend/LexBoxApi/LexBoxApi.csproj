@@ -13,6 +13,7 @@
     </PackageReference>
     <PackageReference Include="HotChocolate.AspNetCore" />
     <PackageReference Include="HotChocolate.AspNetCore.Authorization" />
+    <PackageReference Include="HotChocolate.Data" />
     <PackageReference Include="HotChocolate.Data.EntityFramework" />
     <PackageReference Include="HotChocolate.Diagnostics" />
     <PackageReference Include="HotChocolate.Types.OffsetPagination" />

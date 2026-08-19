@@ -23,6 +23,7 @@
     <PackageVersion Include="Gridify.EntityFramework" Version="2.19.1" />
     <PackageVersion Include="HotChocolate.AspNetCore" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="HotChocolate.AspNetCore.Authorization" Version="$(HotChocolateVersion)" />
+    <PackageVersion Include="HotChocolate.Data" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="HotChocolate.Data.EntityFramework" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="HotChocolate.Diagnostics" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="HotChocolate.Types.Analyzers" Version="$(HotChocolateVersion)" />

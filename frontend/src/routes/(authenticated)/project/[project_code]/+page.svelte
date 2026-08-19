@@ -664,7 +664,7 @@
           {#if showHarmonyHistory}
             <div class="max-h-[75vh] overflow-auto border-b border-base-200">
               <HarmonyLogView
-                commits={$harmonyCommitsStore.commits}
+                commits={$harmonyCommitsStore.commits ?? []}
                 loading={$harmonyCommitsStore.fetching}
               />
             </div>
