@@ -61,6 +61,8 @@ jobs:
         run: dotnet build LexBoxOnly.slnf
       - name: Check for pending EF model changes
         run: task api:has-pending-model-changes
+      - name: Check GraphQL schema is up to date
+        run: task api:check-gql-schema
 
       - name: Unit tests
         env:
