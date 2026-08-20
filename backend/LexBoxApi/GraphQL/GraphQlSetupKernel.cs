@@ -1,7 +1,10 @@
 using DataAnnotatedModelValidations;
+using HotChocolate.Data;
+using HotChocolate.Data.Projections.Expressions;
 using HotChocolate.Diagnostics;
 using LexBoxApi.GraphQL.CustomFilters;
 using LexBoxApi.GraphQL.CustomTypes;
+using LexBoxApi.GraphQL.Projections;
 using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
@@ -52,7 +55,11 @@ public static class GraphQlSetupKernel
                 descriptor.AddDefaults();
                 descriptor.AddDeterministicInvariantContainsFilter();
             })
-            .AddProjections()
+            .AddProjections(d => d.Provider(new QueryableProjectionProvider(p =>
+            {
+                p.AddDefaults();
+                p.RegisterFieldInterceptor(new QueryableSkipTakeInterceptor());
+            })))
             .RegisterDbContextFactory<LexBoxDbContext>()
             .ModifyPagingOptions(options =>
             {

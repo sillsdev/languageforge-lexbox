@@ -489,6 +489,7 @@ so we can get this fixed!",
     "confirm_remove_org": "Would you like to remove your project from {orgName}?",
     "confirm_remove": "Would you like to remove {userName} from this project?",
     "history": "History",
+    "history_show": "Show history",
     "project_code": "Project Code",
     "summary": "Summary",
     "repo_size": "Size on disk",
@@ -526,6 +527,15 @@ so we can get this fixed!",
       "date_header": "Date",
       "author_header": "Author",
       "log_header": "Message"
+    },
+    "harmony": {
+      "title": "FieldWorks Lite history",
+      "show": "Show FieldWorks Lite history",
+      "no_history": "No history",
+      "loading": "Loading history...",
+      "date_header": "Date",
+      "author_header": "Author",
+      "unknown_author": "Unknown"
     },
     "add_purpose": {
       "add_button": "Add Purpose",

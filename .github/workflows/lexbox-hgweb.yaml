@@ -33,9 +33,11 @@ env:
 jobs:
   publish-hgweb:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
-      packages: write
+      packages: write # ghcr.io push
+
     outputs:
       version: ${{ inputs.version || steps.setVersion.outputs.VERSION }}
 

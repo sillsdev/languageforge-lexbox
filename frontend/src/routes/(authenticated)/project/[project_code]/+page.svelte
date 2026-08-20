@@ -4,6 +4,7 @@
   import {ProjectTypeBadge} from '$lib/components/ProjectType';
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
   import HgLogView from '$lib/components/HgLogView.svelte';
+  import HarmonyLogView from '$lib/components/HarmonyLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
   import t, {date, number} from '$lib/i18n';
   import {z} from 'zod';
@@ -71,11 +72,22 @@
   let projectStore = $derived(data.project);
   let project = $derived($projectStore);
   let changesetStore = $derived(data.changesets);
-  // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the `$changesetStore.fetching` part
-  // and just let this logic be `project?.lastCommit == null`
-  const isEmpty: boolean = $derived(
-    !$changesetStore.fetching ? $changesetStore.changesets.length === 0 : project?.lastCommit == null,
-  );
+  let harmonyCommitsStore = $derived(data.harmonyCommits);
+  // History is now loaded on demand (changesets no longer fetch on page load), so emptiness is derived
+  // from lastCommit instead of the changeset list.
+  const isEmpty: boolean = $derived(project?.lastCommit == null);
+
+  // The two history sections are collapsed by default; revealing one resumes its (initially paused) store.
+  // Using an $effect keyed on the show flag + store re-applies resume() if the load function reruns and
+  // hands back a fresh paused store while the section is open.
+  let showHgHistory = $state(false);
+  let showHarmonyHistory = $state(false);
+  $effect(() => {
+    if (showHgHistory) changesetStore.resume();
+  });
+  $effect(() => {
+    if (showHarmonyHistory) harmonyCommitsStore.resume();
+  });
   let members = $derived(
     project.users.sort((a, b) => {
       if (a.role !== b.role) {
@@ -231,6 +243,7 @@
     if (!deleteProjectModal) return;
     projectStore.pause();
     changesetStore.pause();
+    harmonyCommitsStore.pause();
     let deleted = false;
     try {
       const result = await deleteProjectModal.open(project.name, async () => {
@@ -245,7 +258,8 @@
     } finally {
       if (!deleted) {
         projectStore.resume();
-        changesetStore.resume();
+        if (showHgHistory) changesetStore.resume();
+        if (showHarmonyHistory) harmonyCommitsStore.resume();
       }
     }
   }
@@ -320,6 +334,7 @@
     if (!leaveModal) return;
     projectStore.pause();
     changesetStore.pause();
+    harmonyCommitsStore.pause();
     let left = false;
     try {
       left = await leaveModal.open(async () => {
@@ -335,7 +350,8 @@
     } finally {
       if (!left) {
         projectStore.resume();
-        changesetStore.resume();
+        if (showHgHistory) changesetStore.resume();
+        if (showHarmonyHistory) harmonyCommitsStore.resume();
       }
     }
   }
@@ -625,14 +641,40 @@
           </a>
         </p>
 
-        <div class="max-h-[75vh] overflow-auto border-b border-base-200">
-          <HgLogView
-            logEntries={$changesetStore.changesets}
-            loading={$changesetStore.fetching}
-            projectCode={project.code}
-          />
-        </div>
+        {#if showHgHistory}
+          <div class="max-h-[75vh] overflow-auto border-b border-base-200">
+            <HgLogView
+              logEntries={$changesetStore.changesets}
+              loading={$changesetStore.fetching}
+              projectCode={project.code}
+            />
+          </div>
+        {:else}
+          <button class="btn btn-sm btn-outline w-fit" onclick={() => (showHgHistory = true)}>
+            {$t('project_page.history_show')}
+          </button>
+        {/if}
       </div>
+
+      {#if project.hasHarmonyCommits}
+        <div class="divider"></div>
+        <div class="space-y-2">
+          <p class="text-2xl mb-4">{$t('project_page.harmony.title')}</p>
+
+          {#if showHarmonyHistory}
+            <div class="max-h-[75vh] overflow-auto border-b border-base-200">
+              <HarmonyLogView
+                commits={$harmonyCommitsStore.commits ?? []}
+                loading={$harmonyCommitsStore.fetching}
+              />
+            </div>
+          {:else}
+            <button class="btn btn-sm btn-outline w-fit" onclick={() => (showHarmonyHistory = true)}>
+              {$t('project_page.harmony.show')}
+            </button>
+          {/if}
+        </div>
+      {/if}
 
       <div class="divider"></div>
 

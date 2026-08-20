@@ -1,3 +1,6 @@
+// The fetches we juggle here are always the arrow-function proxy installed in app.html, never a detached native fetch.
+/* eslint-disable @typescript-eslint/unbound-method */
+
 // Wraps fetch with the provided handler
 export function handleFetch(fetchHandler: (input: {
   fetch: Fetch,

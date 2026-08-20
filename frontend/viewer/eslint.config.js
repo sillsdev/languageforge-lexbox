@@ -46,6 +46,13 @@ export default [
       '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
+  {
+    files: ['**/*.test.ts'],
+    rules: {
+      // `expect(spy).toHaveBeenCalled()` is not an unbound call
+      '@typescript-eslint/unbound-method': 'off',
+    },
+  },
   ...svelte.configs.recommended,
   prettier,
   ...svelte.configs.prettier,

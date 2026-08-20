@@ -21,9 +21,11 @@ jobs:
   publish-fw-headless:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
-      packages: write
+      checks: write # publish-unit-test-result-action
+      packages: write # ghcr.io push
 
     # postgres db is for automated tests
     services:

@@ -55,6 +55,12 @@ tasks:
     cmds:
       - dotnet run generate-gql-schema
 
+  check-gql-schema:
+    desc: "Fails if frontend/schema.graphql is out of date. Fix by committing the regenerated file."
+    cmds:
+      - task: generate-gql-schema
+      - git diff --exit-code -- ../frontend/schema.graphql
+
   build-docker:
     desc: "Builds the docker image for the LexBoxApi"
     dir: .
