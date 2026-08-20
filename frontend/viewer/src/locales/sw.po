@@ -58,6 +58,7 @@ msgstr ""
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} iliyopita"
 
@@ -1308,6 +1309,7 @@ msgstr "Ingiza"
 
 #. Future relative date format. {0} = formatted duration string (e.g., "3 hours", "2 days"). Paired with "{0} ago" for past dates.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "katika {0}"
 
@@ -1330,6 +1332,10 @@ msgstr "Sakinisha Sasisho"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Installing Update..."
 msgstr "Inasakinisha Sasisho..."
+
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "just now"
+msgstr ""
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
