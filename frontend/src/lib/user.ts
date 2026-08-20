@@ -91,7 +91,7 @@ let zxcvbnImport: Promise<ZxcvbnFn> | undefined;
 export function preloadZxcvbn(): Promise<ZxcvbnFn> {
   zxcvbnImport ??= import('zxcvbn').then((mod) => {
     if (typeof mod === 'function') return mod;
-    return (mod as unknown as {default: ZxcvbnFn}).default;
+    return mod.default;
   }).catch((error: unknown) => {
     zxcvbnImport = undefined;
     throw error;
