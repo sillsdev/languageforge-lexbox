@@ -11,9 +11,9 @@ Android that turns into a `dataSync` foreground service plus a partial wake lock
   `FwLiteMauiKernel`. It starts/stops that service and acquires/releases the wake lock. It also asks for
   `POST_NOTIFICATIONS` on API 33+ if we don't have it yet.
 
-`RefCountedKeepAwake` in FwLiteShared decides *when* those calls happen: work items run concurrently and the
-foreground service is reference counted, so it starts when the first item begins and stops when the last one
-finishes. Nothing here queues or serializes work.
+`RefCountedKeepAwake` in FwLiteShared decides *when* those calls happen: a single lock covers only the
+active-work count and the platform start/stop. 0→1 starts Android protection, N→0 stops it. Work always
+runs outside that lock, so overlapping downloads are concurrent. Nothing here queues or serializes work.
 
 If the foreground service or wake lock can't be established the work still runs (fail open), and the user
 gets an error notification with the exception attached, since the download may then die on screen-off.

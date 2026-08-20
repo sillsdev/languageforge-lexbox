@@ -27,7 +27,15 @@ public sealed class AndroidKeepAwakePlatform(ILogger<AndroidKeepAwakePlatform> l
             .PutExtra(KeepAwakeForegroundService.TitleExtra, work.Title)
             .PutExtra(KeepAwakeForegroundService.TextExtra, work.NotificationText);
         ContextCompat.StartForegroundService(context, intent);
-        AcquireWakeLock(context);
+        try
+        {
+            AcquireWakeLock(context);
+        }
+        catch
+        {
+            context.StopService(new Intent(context, typeof(KeepAwakeForegroundService)));
+            throw;
+        }
     }
 
     public void Release()

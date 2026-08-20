@@ -13,6 +13,8 @@ public class RefCountedKeepAwake(
 
     public async Task RunAsync(KeepAwakeWork work, Func<Task> action)
     {
+        ArgumentNullException.ThrowIfNull(work);
+        ArgumentNullException.ThrowIfNull(action);
         Enter(work);
         try
         {
@@ -26,6 +28,8 @@ public class RefCountedKeepAwake(
 
     public async Task<T> RunAsync<T>(KeepAwakeWork work, Func<Task<T>> action)
     {
+        ArgumentNullException.ThrowIfNull(work);
+        ArgumentNullException.ThrowIfNull(action);
         Enter(work);
         try
         {
