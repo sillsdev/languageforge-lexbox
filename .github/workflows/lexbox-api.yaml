@@ -21,6 +21,9 @@ jobs:
   publish-api:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     # postgres db is for automated tests
     services:
@@ -107,7 +110,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Persist build layers across runs via a registry cache image on ghcr.
-          # Only export when we can push (repo, non-fork); import is always safe.
+          # Only export on branch pushes (develop/main) so PR builds can't clobber
+          # the shared buildcache; import is always safe.
           provenance: false
           cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
-          cache-to: ${{ (!env.ACT && github.repository == 'sillsdev/languageforge-lexbox' && github.event.pull_request.head.repo.fork != true) && format('type=registry,ref={0}:buildcache,mode=max', env.IMAGE_NAME) || '' }}
+          cache-to: ${{ (!env.ACT && github.event_name == 'push' && github.repository == 'sillsdev/languageforge-lexbox' && github.event.pull_request.head.repo.fork != true) && format('type=registry,ref={0}:buildcache,mode=max', env.IMAGE_NAME) || '' }}
