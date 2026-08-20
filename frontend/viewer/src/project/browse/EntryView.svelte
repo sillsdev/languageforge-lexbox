@@ -25,8 +25,9 @@
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
-  import CommentDialog from '$lib/entry-editor/CommentDialog.svelte';
+  import CommentDialog from '$lib/entry-editor/comments/CommentDialog.svelte';
   import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
+  import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
   import DevContent from '$lib/layout/DevContent.svelte';
 
   type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
@@ -117,6 +118,23 @@
   let deleted = $state(false);
   let showCommentDialog = $state(false);
 
+  const entryUnreadResource = resource(
+    () => (features.comments ? dedupedEntryId : undefined),
+    async (id): Promise<IUserComment[]> => {
+      if (!id) return [];
+      return miniLcmApi.getUnreadCommentsForSubject(SubjectType.Entry, id);
+    },
+    {initialValue: [] satisfies IUserComment[]},
+  );
+  const entryUnreadCount = $derived(entryUnreadResource.current.length);
+
+  watch(
+    () => showCommentDialog,
+    (isOpen) => {
+      if (isOpen && features.comments) void entryUnreadResource.refetch();
+    },
+  );
+
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
   let editorRef: HTMLElement | null = $state(null);
@@ -150,13 +168,24 @@
         <div class="flex">
           <DevContent>
             {#if features.comments}
-              <Button
-                variant="ghost"
-                size="icon"
-                icon="i-mdi-comment-text-outline"
-                aria-label={$t`Comments`}
-                onclick={() => showCommentDialog = !showCommentDialog}
-              />
+              <div class="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  icon={showCommentDialog ? 'i-mdi-comment-text' : 'i-mdi-comment-text-outline'}
+                  aria-pressed={showCommentDialog}
+                  aria-label={entryUnreadCount > 0
+                    ? $t`Comments, ${entryUnreadCount} unread`
+                    : $t`Comments`}
+                  onclick={() => showCommentDialog = !showCommentDialog}
+                />
+                {#if entryUnreadCount > 0}
+                  <span
+                    class="pointer-events-none absolute top-1.5 right-1.5 size-2 rounded-full bg-primary ring-2 ring-background"
+                    aria-hidden="true"
+                  ></span>
+                {/if}
+              </div>
             {/if}
           </DevContent>
           <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} />
@@ -214,6 +243,8 @@
           subjectType={SubjectType.Entry}
           subjectId={entry.id}
           subjectName={headword}
+          unreadComments={entryUnreadResource.current}
+          onUnreadCommentsChange={(comments) => entryUnreadResource.mutate(comments)}
         />
       {/if}
     </div>
