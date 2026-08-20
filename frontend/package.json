@@ -13,7 +13,7 @@
     "prepare": "svelte-kit sync",
     "build": "vite build",
     "preview": "vite preview",
-    "pretest": "playwright install",
+    "pretest": "playwright install chromium firefox",
     "test": "playwright test",
     "test-flaky": "playwright test --retries=3 -j 30%",
     "test-hard": "playwright test --repeat-each=3 -j 30%",

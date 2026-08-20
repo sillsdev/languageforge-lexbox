@@ -191,15 +191,15 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend
-        run: pnpm exec playwright install --with-deps
+        run: pnpm exec playwright install --with-deps chromium
       - name: Install Playwright system deps
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         working-directory: frontend
-        run: pnpm exec playwright install-deps
+        run: pnpm exec playwright install-deps chromium
       - name: Run UI tests
         working-directory: frontend/viewer
         run: task test:ui-standalone
@@ -256,15 +256,15 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-playwright-chromium-firefox-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend/viewer
-        run: pnpm exec playwright install --with-deps
+        run: pnpm exec playwright install --with-deps chromium firefox
       - name: Install Playwright system deps
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         working-directory: frontend/viewer
-        run: pnpm exec playwright install-deps
+        run: pnpm exec playwright install-deps chromium firefox
       - name: vitest
         working-directory: frontend/viewer
         run: pnpm run test --retry=2 --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
@@ -682,15 +682,15 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend/viewer
-        run: pnpm exec playwright install --with-deps
+        run: pnpm exec playwright install --with-deps chromium
       - name: Install Playwright system deps
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         working-directory: frontend/viewer
-        run: pnpm exec playwright install-deps
+        run: pnpm exec playwright install-deps chromium
 
       - name: Run E2E tests
         working-directory: frontend/viewer
