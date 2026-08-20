@@ -51,6 +51,11 @@ export default [
   ...svelte.configs.prettier,
   {
     rules: {
+      // Disabled for performance: this single type-aware rule accounted for ~60% of
+      // total lint time (~15s of a ~73s run) and flagged nothing in this codebase. It
+      // does expensive type-relation checks on every union/intersection, which blows up
+      // against our large generated dotnet-types unions. See TIMING=25 profiling.
+      '@typescript-eslint/no-duplicate-type-constituents': 'off',
       // https://typescript-eslint.io/rules/
       '@typescript-eslint/naming-convention': [
         'error',

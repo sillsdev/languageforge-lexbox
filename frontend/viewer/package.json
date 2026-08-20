@@ -27,7 +27,7 @@
     "check": "svelte-check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "eslint",
+    "lint": "eslint --cache",
     "lint:report": "eslint-output",
     "i18n:extract": "node extract-i18n-preserve-comments.js",
     "generate-icon-types": "node ./generate-icon-types.js",
