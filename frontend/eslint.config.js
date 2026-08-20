@@ -4,7 +4,6 @@ import js from '@eslint/js';
 import path from 'path';
 import stylistic from '@stylistic/eslint-plugin';
 import svelte from 'eslint-plugin-svelte';
-import svelteConfig from './svelte.config.js';
 import svelteParser from 'svelte-eslint-parser';
 import tsParser from '@typescript-eslint/parser';
 import typescript from 'typescript-eslint';
@@ -48,6 +47,10 @@ export default [
   ...svelte.configs.recommended,
   {
     rules: {
+      // Low-value type-aware rule disabled for lint performance/consistency with the
+      // sibling viewer package, where it dominated lint time. (Here its cost is small;
+      // this package's hot rule is no-misused-promises — see the lint perf notes.)
+      '@typescript-eslint/no-duplicate-type-constituents': 'off',
       // https://typescript-eslint.io/rules/
       '@typescript-eslint/naming-convention': [
         'error',
@@ -123,7 +126,9 @@ export default [
         project: true,
         tsconfigRootDir: __dirname,
         extraFileExtensions: ['.svelte'], // Yes, TS-Parser, relax when you're fed svelte files
-        svelteConfig: svelteConfig,
+        // svelteConfig is intentionally NOT passed here: svelte-eslint-parser auto-loads
+        // svelte.config.js from disk, and passing it inline would embed its warningFilter/
+        // onwarn functions in the ESLint config, breaking --cache (config must serialize).
       },
       globals: {
         ...globals.browser,
