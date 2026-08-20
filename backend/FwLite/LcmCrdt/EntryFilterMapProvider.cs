@@ -1,14 +1,18 @@
 using System.Linq.Expressions;
+using LinqToDB;
 using MiniLcm.Filtering;
 
 namespace LcmCrdt;
 
 public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
 {
-    public override Expression<Func<Entry, object?>> EntrySensesSemanticDomains => e => e.Senses.Select(s => s.SemanticDomains);
+    //Sql.Property reaches the raw jsonb column, dodging the Json.Query rewrite: the
+    //empty-list check must compare the column (= '[]'), which linq2db can't do through
+    //the json_each table form.
+    public override Expression<Func<Entry, object?>> EntrySensesSemanticDomains =>
+        e => e.Senses.Select(s => Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
     public override Expression<Func<Entry, object?>> EntrySensesSemanticDomainsCode =>
-        //SemanticDomainRows is the json_each rewrite target
-        e => e.Senses.SelectMany(s => s.SemanticDomainRows).Select(sd => Json.Value(sd, sd => sd.Code));
+        e => e.Senses.SelectMany(s => s.SemanticDomains).Select(sd => Json.Value(sd, sd => sd.Code));
     public override Func<string, object>? EntrySensesSemanticDomainsConverter =>
         EntryFilter.NormalizeEmptyToEmptyList<SemanticDomain>;
     public override Expression<Func<Entry, object?>> EntrySensesExampleSentences => e => e.Senses.Select(s => s.ExampleSentences);
@@ -28,9 +32,9 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
     public override Expression<Func<Entry, object?>> EntryMorphType => e => e.MorphType;
     public override Expression<Func<Entry, object?>> EntryComplexFormTypes => e => e.ComplexFormTypes;
     public override Func<string, object>? EntryComplexFormTypesConverter => EntryFilter.NormalizeEmptyToEmptyList<ComplexFormType>;
-    public override Expression<Func<Entry, object?>> EntryPublishIn => e => e.PublishIn;
+    public override Expression<Func<Entry, object?>> EntryPublishIn =>
+        e => Sql.Property<List<Publication>>(e, nameof(Entry.PublishIn));
     public override Expression<Func<Entry, object?>> EntryPublishInId =>
-        //PublishInRows is the json_each rewrite target
-        e => e.PublishInRows.Select(p => Json.Value(p, p => p.Id.ToString()));
+        e => e.PublishIn.Select(p => Json.Value(p, p => p.Id.ToString()));
     public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToEmptyList<Publication>;
 }
