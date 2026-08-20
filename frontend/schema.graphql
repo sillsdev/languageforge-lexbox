@@ -198,6 +198,11 @@ type FlexProjectMetadata {
   flexModelVersion: Int
 }
 
+type HybridDateTime {
+  dateTime: DateTime!
+  counter: Long!
+}
+
 type InvalidEmailError implements Error {
   message: String!
   address: String!
@@ -426,7 +431,9 @@ type Project {
   code: String!
   createdDate: DateTime!
   id: UUID!
+  type: ProjectType!
   users: [ProjectUsers!]!
+  harmonyCommits(skip: Int = 0 take: Int = 100 orderBy: [ServerCommitSortInput!] @cost(weight: "10") where: ServerCommitFilterInput @cost(weight: "10")): [ServerCommit!]
   changesets: [Changeset!]! @cost(weight: "10")
   hasAbandonedTransactions: Boolean!
   isLanguageForgeProject: Boolean! @cost(weight: "10")
@@ -435,7 +442,6 @@ type Project {
   name: String!
   description: String
   retentionPolicy: RetentionPolicy!
-  type: ProjectType!
   isConfidential: Boolean
   flexProjectMetadata: FlexProjectMetadata
   organizations: [Organization!]!
@@ -540,6 +546,14 @@ type SendFWLiteBetaRequestEmailPayload {
 type SendNewVerificationEmailByAdminPayload {
   user: User
   errors: [SendNewVerificationEmailByAdminError!]
+}
+
+type ServerCommit {
+  id: UUID!
+  hybridDateTime: HybridDateTime!
+  projectId: UUID!
+  clientId: UUID!
+  metadata: JSON @cost(weight: "10")
 }
 
 type SetOrgMemberRolePayload {
@@ -754,6 +768,15 @@ input BulkAddProjectMembersInput {
   locale: String! = "en"
 }
 
+input ChangeEntityOfServerJsonChangeFilterInput {
+  and: [ChangeEntityOfServerJsonChangeFilterInput!]
+  or: [ChangeEntityOfServerJsonChangeFilterInput!]
+  index: IntOperationFilterInput
+  commitId: UuidOperationFilterInput
+  entityId: UuidOperationFilterInput
+  change: ServerJsonChangeFilterInput
+}
+
 input ChangeOrgMemberRoleInput {
   orgId: UUID!
   userId: UUID!
@@ -796,13 +819,28 @@ input ChangeUserAccountBySelfInput {
   name: String!
 }
 
+input CommitMetadataFilterInput {
+  and: [CommitMetadataFilterInput!]
+  or: [CommitMetadataFilterInput!]
+  authorName: StringOperationFilterInput
+  authorId: StringOperationFilterInput
+  clientVersion: StringOperationFilterInput
+  extraMetadata: ListFilterInputTypeOfKeyValuePairOfStringAndStringFilterInput
+}
+
+input CommitMetadataSortInput {
+  authorName: SortEnumType @cost(weight: "10")
+  authorId: SortEnumType @cost(weight: "10")
+  clientVersion: SortEnumType @cost(weight: "10")
+}
+
 input CreateGuestUserByAdminInput {
   email: String
   name: String!
   username: String
   locale: String!
   passwordHash: String!
-  passwordStrength: Int!
+  passwordStrength: Int
   orgId: UUID
 }
 
@@ -937,6 +975,18 @@ input FlexProjectMetadataSortInput {
   flexModelVersion: SortEnumType @cost(weight: "10")
 }
 
+input HybridDateTimeFilterInput {
+  and: [HybridDateTimeFilterInput!]
+  or: [HybridDateTimeFilterInput!]
+  dateTime: DateTimeOperationFilterInput
+  counter: LongOperationFilterInput
+}
+
+input HybridDateTimeSortInput {
+  dateTime: SortEnumType @cost(weight: "10")
+  counter: SortEnumType @cost(weight: "10")
+}
+
 input IntOperationFilterInput {
   eq: Int @cost(weight: "10")
   neq: Int @cost(weight: "10")
@@ -952,10 +1002,37 @@ input IntOperationFilterInput {
   nlte: Int @cost(weight: "10")
 }
 
+input JsonElementFilterInput {
+  and: [JsonElementFilterInput!]
+  or: [JsonElementFilterInput!]
+  valueKind: JsonValueKindOperationFilterInput
+}
+
+input JsonValueKindOperationFilterInput {
+  eq: JsonValueKind @cost(weight: "10")
+  neq: JsonValueKind @cost(weight: "10")
+  in: [JsonValueKind!] @cost(weight: "10")
+  nin: [JsonValueKind!] @cost(weight: "10")
+}
+
+input KeyValuePairOfStringAndJsonElementFilterInput {
+  and: [KeyValuePairOfStringAndJsonElementFilterInput!]
+  or: [KeyValuePairOfStringAndJsonElementFilterInput!]
+  key: StringOperationFilterInput
+  value: JsonElementFilterInput
+}
+
 input KeyValuePairOfStringAndObjectFilterInput {
   and: [KeyValuePairOfStringAndObjectFilterInput!]
   or: [KeyValuePairOfStringAndObjectFilterInput!]
   key: StringOperationFilterInput
+}
+
+input KeyValuePairOfStringAndStringFilterInput {
+  and: [KeyValuePairOfStringAndStringFilterInput!]
+  or: [KeyValuePairOfStringAndStringFilterInput!]
+  key: StringOperationFilterInput
+  value: StringOperationFilterInput
 }
 
 input LeaveOrgInput {
@@ -973,6 +1050,13 @@ input ListFeatureFlagOperationFilterInput {
   any: Boolean @cost(weight: "10")
 }
 
+input ListFilterInputTypeOfChangeEntityOfServerJsonChangeFilterInput {
+  all: ChangeEntityOfServerJsonChangeFilterInput @cost(weight: "10")
+  none: ChangeEntityOfServerJsonChangeFilterInput @cost(weight: "10")
+  some: ChangeEntityOfServerJsonChangeFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
 input ListFilterInputTypeOfFLExWsIdFilterInput {
   all: FLExWsIdFilterInput @cost(weight: "10")
   none: FLExWsIdFilterInput @cost(weight: "10")
@@ -980,10 +1064,24 @@ input ListFilterInputTypeOfFLExWsIdFilterInput {
   any: Boolean @cost(weight: "10")
 }
 
+input ListFilterInputTypeOfKeyValuePairOfStringAndJsonElementFilterInput {
+  all: KeyValuePairOfStringAndJsonElementFilterInput @cost(weight: "10")
+  none: KeyValuePairOfStringAndJsonElementFilterInput @cost(weight: "10")
+  some: KeyValuePairOfStringAndJsonElementFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
 input ListFilterInputTypeOfKeyValuePairOfStringAndObjectFilterInput {
   all: KeyValuePairOfStringAndObjectFilterInput @cost(weight: "10")
   none: KeyValuePairOfStringAndObjectFilterInput @cost(weight: "10")
   some: KeyValuePairOfStringAndObjectFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input ListFilterInputTypeOfKeyValuePairOfStringAndStringFilterInput {
+  all: KeyValuePairOfStringAndStringFilterInput @cost(weight: "10")
+  none: KeyValuePairOfStringAndStringFilterInput @cost(weight: "10")
+  some: KeyValuePairOfStringAndStringFilterInput @cost(weight: "10")
   any: Boolean @cost(weight: "10")
 }
 
@@ -1012,6 +1110,13 @@ input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput @cost(weight: "10")
   none: ProjectUsersFilterInput @cost(weight: "10")
   some: ProjectUsersFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
+}
+
+input ListFilterInputTypeOfServerCommitFilterInput {
+  all: ServerCommitFilterInput @cost(weight: "10")
+  none: ServerCommitFilterInput @cost(weight: "10")
+  some: ServerCommitFilterInput @cost(weight: "10")
   any: Boolean @cost(weight: "10")
 }
 
@@ -1118,6 +1223,7 @@ input ProjectFilterInput {
   resetStatus: ResetStatusOperationFilterInput
   projectOrigin: ProjectMigrationStatusOperationFilterInput
   migratedDate: DateTimeOperationFilterInput
+  harmonyCommits: ListFilterInputTypeOfServerCommitFilterInput
   userCount: IntOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
@@ -1228,6 +1334,36 @@ input SendNewVerificationEmailByAdminInput {
   userId: UUID!
 }
 
+input ServerCommitFilterInput {
+  and: [ServerCommitFilterInput!]
+  or: [ServerCommitFilterInput!]
+  projectId: UuidOperationFilterInput
+  changeEntities: ListFilterInputTypeOfChangeEntityOfServerJsonChangeFilterInput
+  compareKey: ValueTupleOfDateTimeOffsetAndInt64AndGuidFilterInput
+  id: UuidOperationFilterInput
+  hybridDateTime: HybridDateTimeFilterInput
+  dateTime: DateTimeOperationFilterInput
+  metadata: CommitMetadataFilterInput
+  clientId: UuidOperationFilterInput
+}
+
+input ServerCommitSortInput {
+  projectId: SortEnumType @cost(weight: "10")
+  compareKey: SortEnumType @cost(weight: "10")
+  id: SortEnumType @cost(weight: "10")
+  hybridDateTime: HybridDateTimeSortInput @cost(weight: "10")
+  dateTime: SortEnumType @cost(weight: "10")
+  metadata: CommitMetadataSortInput @cost(weight: "10")
+  clientId: SortEnumType @cost(weight: "10")
+}
+
+input ServerJsonChangeFilterInput {
+  and: [ServerJsonChangeFilterInput!]
+  or: [ServerJsonChangeFilterInput!]
+  type: StringOperationFilterInput
+  extensionData: ListFilterInputTypeOfKeyValuePairOfStringAndJsonElementFilterInput
+}
+
 input SetOrgMemberRoleInput {
   orgId: UUID!
   role: OrgRole!
@@ -1328,6 +1464,11 @@ input UuidOperationFilterInput {
   nlte: UUID @cost(weight: "10")
 }
 
+input ValueTupleOfDateTimeOffsetAndInt64AndGuidFilterInput {
+  and: [ValueTupleOfDateTimeOffsetAndInt64AndGuidFilterInput!]
+  or: [ValueTupleOfDateTimeOffsetAndInt64AndGuidFilterInput!]
+}
+
 "Defines when a policy shall be executed."
 enum ApplyPolicy {
   "Before the resolver was executed."
@@ -1351,6 +1492,17 @@ enum DbErrorCode {
 
 enum FeatureFlag {
   FW_LITE_BETA
+}
+
+enum JsonValueKind {
+  UNDEFINED
+  OBJECT
+  ARRAY
+  STRING
+  NUMBER
+  TRUE
+  FALSE
+  NULL
 }
 
 enum LexboxAudience {
@@ -1451,6 +1603,8 @@ directive @specifiedBy("The specifiedBy URL points to a human-readable specifica
 
 "The `DateTime` scalar represents an ISO-8601 compliant date time type."
 scalar DateTime @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
+
+scalar JSON
 
 "The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1."
 scalar Long

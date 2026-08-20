@@ -112,8 +112,13 @@ export default [
         "patterns": [{
           "group": ["svelte-intl-precompile"],
           "message": "Use $lib/i18n instead."
+        }],
+        "paths": [{
+          "name": "zxcvbn",
+          "message": "Use preloadZxcvbn() from $lib/user instead of a static zxcvbn import.",
+          "allowTypeImports": true
         }]
-      }]
+      }],
     },
   },
   {

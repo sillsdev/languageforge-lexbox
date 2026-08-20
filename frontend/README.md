@@ -31,6 +31,27 @@ You can preview the production build with `pnpm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
+#### Bundle analysis
+
+Set `ANALYZE=1` when building to emit [vite-bundle-analyzer](https://github.com/nonzzz/vite-bundle-analyzer) reports (gzip sizes). Use the Vite plugin in `vite.config.ts`, not `pnpm dlx vite-bundle-analyzer`: SvelteKit builds both client and server, and the CLI report is easy to lose under the Node adapter output.
+
+```bash
+ANALYZE=1 pnpm run build
+```
+
+PowerShell:
+
+```powershell
+$env:ANALYZE='1'; pnpm run build
+```
+
+Open the **client** HTML treemap (or the JSON) — ignore the server reports, which include email/mjml:
+
+- `.svelte-kit/output/client/bundle-stats.html`
+- `.svelte-kit/output/client/bundle-stats.json`
+
+The adapter also copies those files to `build/client/`.
+
 #### Testing
 
 To run an end-to-end test in the frontend folder:

@@ -34,7 +34,7 @@ public class UserMutations
         string? Username,
         string Locale,
         string PasswordHash,
-        int PasswordStrength,
+        int? PasswordStrength,
         Guid? OrgId);
     public record SendFWLiteBetaRequestEmailInput(Guid UserId, string Name);
     public enum SendFWLiteBetaRequestEmailResult
