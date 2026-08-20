@@ -6,8 +6,8 @@ namespace LexBoxApi;
 
 public static class LexboxOpenApi
 {
-    public const string OpenApiPrivateDocumentName = "v1";
-    public const string OpenApiPublicDocumentName = "public";
+    public const string OpenApiPrivateDocumentName = "private";
+    public const string OpenApiPublicDocumentName = "v1";
 
     /// <summary>
     /// Path (relative to the LexBoxApi project/content root) of the committed public OpenAPI schema (YAML, for
@@ -26,6 +26,9 @@ public static class LexboxOpenApi
     /// </summary>
     public static void RemoveInfrastructureHostedServices(IServiceCollection services)
     {
+        //The framework's web host service (which materializes endpoint routing) isn't registered until
+        //builder.Build(), so it's not in this collection to preserve; we just drop the app's own infrastructure
+        //services here. GenerateSchema guards against a resulting empty document if that ever stops holding.
         var toRemove = services
             .Where(d => d.ServiceType == typeof(IHostedService)
                         && d.ImplementationType?.FullName != "Microsoft.AspNetCore.Hosting.GenericWebHostService")
@@ -45,6 +48,11 @@ public static class LexboxOpenApi
         {
             var documentProvider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(OpenApiPublicDocumentName);
             var document = await documentProvider.GetOpenApiDocumentAsync();
+            //A document with no paths means the app didn't start far enough to materialize endpoint routing;
+            //writing it would commit an empty schema and defeat the drift check. Fail instead.
+            if (document.Paths is null or { Count: 0 })
+                throw new InvalidOperationException(
+                    "Generated OpenAPI document has no paths; endpoint routing was not materialized. Refusing to write an empty schema.");
             //Servers reflect the (ephemeral) address the app bound to at generation time; drop them so the
             //committed schema is deterministic and free of environment-specific host URLs.
             document.Servers?.Clear();
@@ -61,7 +69,7 @@ public static class LexboxOpenApi
     }
     extension(IServiceCollection services)
     {
-        public IServiceCollection AddLexboxOpenApi()
+        public IServiceCollection AddLexboxOpenApi(IHostEnvironment environment)
         {
             services.AddOpenApi(LexboxOpenApi.OpenApiPublicDocumentName,
                 options =>
@@ -74,6 +82,20 @@ public static class LexboxOpenApi
                         return Task.CompletedTask;
                     });
                 });
+            //Test users are only seeded outside of production (see SeedingData), so only advertise their
+            //credentials there. In production requests authenticate with the caller's own LexBox login session.
+            var privateDescription = environment.IsProduction()
+                ? """
+                  This is the open api for LexBox, most of the api is in the [graphql endpoint](/api/graphql/ui).
+                  Requests use your existing LexBox login session.
+                  """
+                : """
+                  This is the open api for LexBox, most of the api is in the [graphql endpoint](/api/graphql/ui).
+                  However there are some test users for login here, with the default password of `pass`:
+                  * admin@test.com (site admin)
+                  * manager@test.com (Sena 3 manager)
+                  * editor@test.com (Sena 3 editor)
+                  """;
             services.AddOpenApi(LexboxOpenApi.OpenApiPrivateDocumentName,
                 options =>
                 {
@@ -81,13 +103,7 @@ public static class LexboxOpenApi
                     options.AddDocumentTransformer((document, context, _) =>
                     {
                         document.Info.Title = "Lexbox Api";
-                        document.Info.Description = """
-                                                    This is the open api for LexBox, most of the api is in the [graphql endpoint](/api/graphql/ui).
-                                                    However there are some test users for login here, with the default password of `pass`:
-                                                    * admin@test.com (site admin)
-                                                    * manager@test.com (Sena 3 manager)
-                                                    * editor@test.com (Sena 3 editor)
-                                                    """;
+                        document.Info.Description = privateDescription;
                         return Task.CompletedTask;
                     });
                 });

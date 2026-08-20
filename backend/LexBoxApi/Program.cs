@@ -59,7 +59,7 @@ builder.Services.AddControllers(options =>
 builder.Services.AddSignalR();
 builder.Services.AddSingleton(services =>
     services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
-builder.Services.AddLexboxOpenApi();
+builder.Services.AddLexboxOpenApi(builder.Environment);
 
 #pragma warning disable EXTEXP0018
 builder.Services.AddHybridCache();
