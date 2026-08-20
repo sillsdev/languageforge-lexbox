@@ -3,7 +3,7 @@
 1. Open a terminal and start FwLiteWeb.exe
 1. it should startup on port 49279
 1. settings are configured in appsettings.Production.json
-1. open a browser and go to http://localhost:49279/swagger, to view the swagger docs
+1. open a browser and go to http://localhost:49279/scalar, to view the API docs
 
 ## useful APIs and examples
 

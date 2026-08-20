@@ -230,26 +230,6 @@ public static class AuthKernel
         new OptionsBuilder<CookieAuthenticationOptions>(services, CookieAuthenticationDefaults.AuthenticationScheme)
             .Configure<JwtTicketDataFormat>((options, format) => options.TicketDataFormat = format);
 
-        services.ConfigureSwaggerGen(options =>
-        {
-            options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme,
-                new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Description = "Enter the token from login, prefixed like this `Bearer {token}`",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                });
-            options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecuritySchemeReference("Bearer"),
-                    []
-                }
-            });
-        });
-
         var openIdOptions = configuration.GetSection("Authentication:OpenId").Get<OpenIdOptions>();
         if (openIdOptions?.Enable == true) AddOpenId(services, environment);
         services.AddOptions<AuthenticationOptions>().ValidateOnStart();

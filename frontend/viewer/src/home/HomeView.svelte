@@ -121,7 +121,7 @@
       {/if}
       <DevContent>
         <Button href="/sandbox" variant="ghost" size="icon" icon="i-mdi-test-tube" title="Sandbox"/>
-        <Button href="/swagger" variant="ghost" size="icon" icon="i-mdi-api" target="_blank" title="Swagger"/>
+        <Button href="/scalar" variant="ghost" size="icon" icon="i-mdi-api" target="_blank" title="API docs"/>
       </DevContent>
       <LocalizationPicker/>
       <ThemePicker />

@@ -64,6 +64,9 @@ jobs:
       - name: Check GraphQL schema is up to date
         run: task api:check-gql-schema
 
+      - name: Check public OpenAPI schema is up to date
+        run: task api:check-openapi-schema
+
       - name: Unit tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #used for the FwLiteReleaseServiceTests so they don't get rate limited

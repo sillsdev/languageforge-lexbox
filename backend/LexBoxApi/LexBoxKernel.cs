@@ -1,7 +1,6 @@
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL;
-using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Proxies;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
@@ -9,19 +8,12 @@ using LexBoxApi.Services.FwLiteReleases;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
-using LfClassicData;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
-using Polly;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace LexBoxApi;
 
 public static class LexBoxKernel
 {
-    public const string SwaggerDocumentName = "v1";
-    public const string OpenApiPublicDocumentName = "public";
-
     public static void AddLexBoxApi(this IServiceCollection services,
         ConfigurationManager configuration,
         IWebHostEnvironment environment)
@@ -80,8 +72,6 @@ public static class LexBoxKernel
         services.AddScoped<ILexProxyService, LexProxyService>();
         services.AddSingleton<ISendReceiveService, SendReceiveService>();
         services.AddSingleton<LexboxLinkGenerator>();
-        if (environment.IsDevelopment())
-            services.AddHostedService<SwaggerValidationService>();
         services.AddScheduledTasks(configuration);
         services.AddHealthChecks()
             .AddCheck<HgWebHealthCheck>("hgweb", HealthStatus.Unhealthy, ["hg"], TimeSpan.FromSeconds(5))
@@ -92,15 +82,5 @@ public static class LexBoxKernel
         services.AddFileUploadProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
-    }
-
-    private class SwaggerValidationService(IAsyncSwaggerProvider swaggerProvider): BackgroundService
-    {
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            //this delay is because there's some kind of race condition where minimal apis are not yet registered
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-            await swaggerProvider.GetSwaggerAsync(SwaggerDocumentName);
-        }
     }
 }

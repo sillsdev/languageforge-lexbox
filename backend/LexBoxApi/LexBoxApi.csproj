@@ -48,7 +48,7 @@
     <PackageReference Include="Polly.Extensions" />
     <PackageReference Include="Quartz.AspNetCore" />
     <PackageReference Include="Quartz.Serialization.SystemTextJson" />
-    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="System.Linq.Async" />
     <PackageReference Include="tusdotnet" />
     <PackageReference Include="zxcvbn-core" />
