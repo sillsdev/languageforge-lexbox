@@ -43,4 +43,24 @@ public class BasicApiTests(ProjectLoaderFixture fixture) : BasicApiTestsBase
         //ensure we can still get the entry
         (await Api.GetEntries().ToArrayAsync()).Should().NotBeEmpty();
     }
+
+    [Fact]
+    public async Task GetEntry_EmptyLcmValue_IsNotReturned()
+    {
+        // via BaseApi because the validation wrapper rejects the empty value, but real FLEx projects contain them
+        var entry = await BaseApi.CreateEntry(new Entry
+        {
+            LexemeForm = new MultiString { { "en", "test" } },
+            CitationForm = new MultiString { { "en", "" } }
+        });
+
+        var fwApi = (FwDataMiniLcmApi)BaseApi;
+        var lexEntry = fwApi.EntriesRepository.GetObject(entry.Id);
+        lexEntry.CitationForm.StringCount.Should().Be(1, "otherwise LCM dropped the empty value and there's nothing to test");
+
+        var retrievedEntry = await Api.GetEntry(entry.Id);
+
+        retrievedEntry.Should().NotBeNull();
+        retrievedEntry.CitationForm.Values.Should().BeEmpty();
+    }
 }
