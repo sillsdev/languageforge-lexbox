@@ -1,5 +1,6 @@
 using FluentValidation;
 using LcmCrdt.Data;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
@@ -32,7 +33,7 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
         await fixture.GetService<CurrentProjectService>().RefreshProjectData();
     }
 
-    private static CommentThread NewThread(SubjectType subjectType = SubjectType.Entry, Guid? subjectId = null)
+    internal static CommentThread NewThread(SubjectType subjectType = SubjectType.Entry, Guid? subjectId = null)
     {
         return new CommentThread
         {
@@ -42,7 +43,7 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
         };
     }
 
-    private static UserComment NewComment(string text = "Comment", Guid? id = null)
+    internal static UserComment NewComment(string text = "Comment", Guid? id = null)
     {
         return new UserComment
         {
@@ -476,5 +477,57 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
 
         (await fixture.Api.GetUnreadComments(thread.Id).ToArrayAsync()).Should().BeEmpty();
         (await fixture.Api.CountUnreadComments(thread.Id)).Should().Be(0);
+    }
+
+
+
+    [Fact]
+    public async Task CanQueryThreadUnreadComments()
+    {
+        var (commentThread, firstComment) = await CreateThreadWithComment("test");
+        await fixture.Api.AddUserComment(commentThread.Id, NewComment("Second"));
+
+        await MarkCommentsUnread(firstComment);
+
+        var unreadComments = await fixture.DbContext.CommentThreads
+            .Select(t => EntryQueryHelpers.QueryThreadsUnreadComments(t))
+            .FirstOrDefaultAsyncLinqToDB();
+        unreadComments.Should().NotBeNull();
+        unreadComments.Should().HaveCount(1);
+        var unreadComment = unreadComments.First();
+        unreadComment.CommentId.Should().Be(firstComment.Id);
+        unreadComment.CommentThreadId.Should().Be(commentThread.Id);
+    }
+
+    [Fact]
+    public async Task CanQueryEntryUnreadComments()
+    {
+        var appleId = Guid.NewGuid();
+        await fixture.Api.CreateEntry(new Entry() { Id = appleId, LexemeForm = { { "en", "apple" } } });
+        var (commentThread, firstComment) = await CreateThreadWithComment("test", subjectId:appleId);
+        await MarkCommentsUnread(firstComment);
+
+        var peachId = Guid.NewGuid();
+        await fixture.Api.CreateEntry(new Entry() { Id = peachId, LexemeForm = { { "en", "peach" } } });
+        await CreateThreadWithComment("test", subjectId:peachId);//these comments are read and should not show up
+
+        var entiresUnreadComments = (await fixture.DbContext.Entries
+            .Select(e => new
+            {
+                e,
+                unread = EntryQueryHelpers.QueryEntryUnreadComments(e)
+            })
+            .ToArrayAsyncLinqToDB());
+        entiresUnreadComments.Should().NotBeNull();
+        entiresUnreadComments.Should().HaveCount(2);
+        var peach = entiresUnreadComments.First(e => e.e.Id == peachId);
+        peach.unread.Should().BeEmpty();
+
+        var apple = entiresUnreadComments.First(e => e.e.Id == appleId);
+        apple.unread.Should().HaveCount(1);
+
+        var unreadComment = apple.unread.First();
+        unreadComment.CommentId.Should().Be(firstComment.Id);
+        unreadComment.CommentThreadId.Should().Be(commentThread.Id);
     }
 }
