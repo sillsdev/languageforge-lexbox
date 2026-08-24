@@ -79,6 +79,10 @@ spec:
     spec:
       securityContext:
         fsGroup: 33
+        runAsGroup: 33 #www-data
+        runAsUser: 33
+        runAsNonRoot: true
+
       containers:
       - name: hgweb
         image: ghcr.io/sillsdev/lexbox-hgweb:latest
