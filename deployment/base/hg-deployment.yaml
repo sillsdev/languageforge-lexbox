@@ -164,9 +164,9 @@ spec:
           runAsUser: 33
           runAsNonRoot: true
 
-        - env:
-            - name: URLS
-              value: "http://+:8080"
+        env:
+          - name: URLS
+            value: "http://+:8080"
 
         livenessProbe:
           httpGet:
