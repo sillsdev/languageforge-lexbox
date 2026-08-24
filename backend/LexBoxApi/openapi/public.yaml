@@ -469,6 +469,12 @@ paths:
       responses:
         '200':
           description: OK
+    head:
+      tags:
+        - FwLiteRelease
+      responses:
+        '200':
+          description: OK
   /api/fwlite-release/download-latest:
     get:
       tags:
