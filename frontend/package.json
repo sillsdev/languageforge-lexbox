@@ -23,7 +23,7 @@
     "check": "svelte-kit sync && svelte-check",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test:unit": "vitest",
-    "lint": "svelte-kit sync && eslint .",
+    "lint": "svelte-kit sync && eslint . --cache",
     "lint:report": "svelte-kit sync && eslint-output",
     "format": "eslint . --fix",
     "clean": "pnpm dlx rimraf node_modules .svelte-kit"
