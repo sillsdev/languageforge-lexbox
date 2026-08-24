@@ -122,7 +122,7 @@ profiles:
       - resourceType: Service
         resourceName: hg
         namespace: languagedepot
-        port: 80 # resumable
+        port: 8080 # resumable
         localPort: 8034
       #    maildev
       - resourceType: Service
