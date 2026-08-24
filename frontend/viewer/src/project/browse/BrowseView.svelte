@@ -22,6 +22,9 @@
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
   import UnreadCommentBadge from '$project/browse/filter/UnreadCommentBadge.svelte';
+  import DevContent from '$lib/layout/DevContent.svelte';
+  import {QueryParamStateBool} from '$lib/utils/url.svelte';
+  import {watch} from 'runed';
 
   const projectContext = useProjectContext();
   const viewService = useViewService();
@@ -36,8 +39,22 @@
   let semanticDomain = $state<ISemanticDomain>();
   let partOfSpeech = $state<IPartOfSpeech>();
   let unreadComments = $state(false);
+  // Replace-only, never pushed: on mobile the comment sidebar is a vaul drawer, which
+  // pushes its own history entry so back closes it. Pushing ours too left a stray entry
+  // that re-opened the comments on the second back.
+  const commentsOpen = new QueryParamStateBool({
+    key: BrowseParam.CommentsOpen,
+    allowBack: false,
+    replaceOnDefaultValue: false,
+  }, false);
   let sort = $state<SortConfig>();
   const entryMode: EntryListViewMode = $derived(entryListViewMode.current === 'preview' ? 'preview' : 'simple');
+
+  // Turning the filter on means the comments are what the user came for, so open the
+  // sidebar once. Deliberately only on the transition, so closing it stays closed.
+  watch(() => unreadComments, (filterOn, wasOn) => {
+    if (filterOn && !wasOn) commentsOpen.current = true;
+  });
 
   async function newEntry() {
     const entry = await dialogsService.createNewEntry(undefined, {
@@ -77,7 +94,11 @@
           <div class="my-2 flex items-center gap-2">
             <SortMenu bind:value={sort}
               autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
-            <UnreadCommentBadge bind:unreadComments />
+            {#if features.comments}
+              <DevContent>
+                <UnreadCommentBadge bind:unreadComments/>
+              </DevContent>
+            {/if}
             <div class="ms-auto">
               <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
             </div>
@@ -102,6 +123,7 @@
             entryId={detailSelectedId}
             onClose={close}
             {showClose}
+            bind:showComments={() => commentsOpen.current, (v) => commentsOpen.current = v}
           />
         </div>
       {/if}

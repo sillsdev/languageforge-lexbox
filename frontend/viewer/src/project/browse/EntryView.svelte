@@ -38,14 +38,16 @@
   const features = useFeatures();
   const viewService = useViewService();
   const dictionaryPreviewStorage = useProjectStorage().dictionaryPreview;
-  const {
+  let {
     entryId,
     onClose,
     showClose = false,
+    showComments = $bindable(false),
   }: {
     entryId: string;
     onClose?: () => void;
     showClose?: boolean;
+    showComments?: boolean;
   } = $props();
 
   // Reactive firewall:
@@ -116,7 +118,7 @@
   const sticky = $derived(dictionaryPreview === 'sticky');
 
   let deleted = $state(false);
-  let showCommentDialog = $state(false);
+  const showCommentDialog = $derived(showComments && features.comments);
 
   const entryUnreadResource = resource(
     () => (features.comments ? dedupedEntryId : undefined),
@@ -177,7 +179,7 @@
                   aria-label={entryUnreadCount > 0
                     ? $t`Comments, ${entryUnreadCount} unread`
                     : $t`Comments`}
-                  onclick={() => showCommentDialog = !showCommentDialog}
+                  onclick={() => showComments = !showComments}
                 />
                 {#if entryUnreadCount > 0}
                   <span
@@ -238,7 +240,7 @@
       </div>
       {#if showCommentDialog}
         <CommentDialog
-          bind:open={showCommentDialog}
+          bind:open={() => showCommentDialog, (v) => showComments = v}
           inlineSidebar
           subjectType={SubjectType.Entry}
           subjectId={entry.id}

@@ -24,7 +24,10 @@
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {Button} from '$lib/components/ui/button';
   import Hotkey from '$lib/components/hotkey/hotkey.svelte';
+  import DevContent from '$lib/layout/DevContent.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
 
+  const features = useFeatures();
   const stats = useProjectStats();
   const viewService = useViewService();
   const wsService = useWritingSystemService();
@@ -231,10 +234,14 @@
             <Label class="p-2">{$t`Incomplete entries`}</Label>
             <MissingSelect bind:value={missingField} />
           </div>
-          <div class="flex flex-col">
-            <Switch bind:checked={hasComments} label={$t`Has comments`} />
-            <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
-          </div>
+          {#if features.comments}
+            <DevContent>
+              <div class="flex flex-col">
+                <Switch bind:checked={hasComments} label={$t`Has comments`} />
+                <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
+              </div>
+            </DevContent>
+          {/if}
         </div>
       </ResponsivePopup>
     {/snippet}
