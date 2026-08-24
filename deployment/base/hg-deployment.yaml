@@ -87,9 +87,9 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
-            memory: 400Mi
+            memory: 600Mi
           limits:
-            memory: 400Mi
+            memory: 600Mi
         env:
           - name: CUSTOM_PORT
             value: "8088"
