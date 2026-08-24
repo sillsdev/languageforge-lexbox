@@ -17,7 +17,10 @@ public class FwLiteReleaseController(FwLiteReleaseService releaseService) : Cont
     //.appinstaller: Add-AppxPackage -AppInstallerFile and PackageManager.AddPackageByAppInstallerFileAsync
     //validate the extension on the parsed path (a ?...=.appinstaller query does not satisfy it). This is
     //the canonical manifest URL baked into every installed package as its update source, so keep it stable.
+    //App Installer HEADs this URL and requires Content-Length on HEAD as well as GET. [HttpGet] does not
+    //match HEAD (routing 405s it). File() still sets Content-Length/Content-Type and omits the body.
     [HttpGet("FieldWorksLite.appinstaller")]
+    [HttpHead("FieldWorksLite.appinstaller")]
     [AllowAnonymous]
     public async Task<ActionResult> AppInstaller()
     {
