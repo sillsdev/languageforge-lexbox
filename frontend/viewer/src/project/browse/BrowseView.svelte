@@ -21,6 +21,7 @@
   import EntryListViewOptions from './EntryListViewOptions.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
+  import UnreadCommentBadge from '$project/browse/filter/UnreadCommentBadge.svelte';
 
   const projectContext = useProjectContext();
   const viewService = useViewService();
@@ -34,6 +35,7 @@
   let publication = $state<IPublication>();
   let semanticDomain = $state<ISemanticDomain>();
   let partOfSpeech = $state<IPartOfSpeech>();
+  let unreadComments = $state(false);
   let sort = $state<SortConfig>();
   const entryMode: EntryListViewMode = $derived(entryListViewMode.current === 'preview' ? 'preview' : 'simple');
 
@@ -71,11 +73,14 @@
     {#snippet master({selectedId: masterSelectedId, select})}
       <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
         <div class="md:mr-3">
-          <SearchFilter bind:search bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech />
-          <div class="my-2 flex items-center justify-between">
+          <SearchFilter bind:search bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech bind:unreadComments />
+          <div class="my-2 flex items-center gap-2">
             <SortMenu bind:value={sort}
               autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
-            <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
+            <UnreadCommentBadge bind:unreadComments />
+            <div class="ms-auto">
+              <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
+            </div>
           </div>
         </div>
         <EntriesList bind:this={entriesList}

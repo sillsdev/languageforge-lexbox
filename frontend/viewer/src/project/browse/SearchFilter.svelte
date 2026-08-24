@@ -35,12 +35,14 @@
     semanticDomain = $bindable(),
     partOfSpeech = $bindable(),
     publication = $bindable(),
+    unreadComments = $bindable(false),
   }: {
     search: string;
     gridifyFilter?: string;
     semanticDomain?: ISemanticDomain;
     partOfSpeech?: IPartOfSpeech;
     publication?: IPublication;
+    unreadComments?: boolean;
   } = $props();
 
   let inputRef = $state<HTMLInputElement | null>(null);
@@ -51,6 +53,7 @@
   let filterOp = $state<Op>('contains')
   let includeSubDomains = $state(false);
   let userFilterActive = $state(false);
+  let hasComments = $state(false);
 
   function focusSearch() {
     inputRef?.focus();
@@ -102,6 +105,14 @@
 
     if (publication) {
       newFilter.push(`PublishIn.Id=${publication.id}`);
+    }
+
+    if (hasComments) {
+      newFilter.push('CommentThreads!=null');
+    }
+
+    if (unreadComments) {
+      newFilter.push('UnreadComments!=null');
     }
 
     // all user selected filters should be before this line!
@@ -219,6 +230,10 @@
           <div class="flex flex-col">
             <Label class="p-2">{$t`Incomplete entries`}</Label>
             <MissingSelect bind:value={missingField} />
+          </div>
+          <div class="flex flex-col">
+            <Switch bind:checked={hasComments} label={$t`Has comments`} />
+            <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
           </div>
         </div>
       </ResponsivePopup>
