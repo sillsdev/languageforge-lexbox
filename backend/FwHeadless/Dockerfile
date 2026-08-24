@@ -6,8 +6,23 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
-COPY . .
+# Restore first, using only the project/props files, so this layer is cached and
+# only re-runs when a .csproj or package version changes — not on every source
+# edit. Keep this list in sync with FwHeadless's ProjectReference graph; a missing
+# entry makes the restore below fail loudly at build time.
+COPY *.props ./
+COPY FwHeadless/FwHeadless.csproj FwHeadless/
+COPY FixFwData/FixFwData.csproj FixFwData/
+COPY LexCore/LexCore.csproj LexCore/
+COPY LexData/LexData.csproj LexData/
+COPY WebServiceDefaults/WebServiceDefaults.csproj WebServiceDefaults/
+COPY FwLite/MiniLcm/MiniLcm.csproj FwLite/MiniLcm/
+COPY FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj FwLite/FwDataMiniLcmBridge/
+COPY FwLite/LcmCrdt/LcmCrdt.csproj FwLite/LcmCrdt/
+COPY FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj FwLite/FwLiteProjectSync/
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet restore "FwHeadless/FwHeadless.csproj"
+
+COPY . .
 
 ARG APP_VERSION
 LABEL version=$APP_VERSION
