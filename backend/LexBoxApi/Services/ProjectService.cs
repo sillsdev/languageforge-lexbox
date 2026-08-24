@@ -25,7 +25,7 @@ public class ProjectService(
     IEmailService emailService,
     FwHeadlessClient fwHeadless)
 {
-    public async Task<Guid> CreateProject(CreateProjectInput input)
+    public async Task<Guid> CreateProject(CreateProjectInput input, ProjectMigrationStatus? projectOrigin = null)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var projectId = input.Id ?? Guid.NewGuid();
@@ -41,7 +41,7 @@ public class ProjectService(
                 Id = projectId,
                 Code = input.Code,
                 Name = input.Name,
-                ProjectOrigin = ProjectMigrationStatus.Migrated,
+                ProjectOrigin = projectOrigin ?? ProjectMigrationStatus.Migrated,
                 Description = input.Description,
                 Type = input.Type,
                 LastCommit = null,

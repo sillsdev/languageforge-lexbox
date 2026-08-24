@@ -36,6 +36,7 @@ public class ProjectController(
     /// <param name="wsVernacular">Vernacular writing system id(s); at least one is required. Repeat the query param for multiple.</param>
     /// <param name="wsAnalysis">Analysis writing system id(s); defaults to ["en"] when none are given. Repeat the query param for multiple.</param>
     /// <param name="name">Optional display name; defaults to the code.</param>
+    /// <param name="projectOrigin">Optional <see cref="ProjectMigrationStatus"/> to record as the project's origin; admin-only.</param>
     [HttpPost("initFwDataProject")]
     [AdminRequired]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -48,12 +49,24 @@ public class ProjectController(
         [FromQuery] string[]? wsAnalysis = null,
         string wsUi = "en",
         string? name = null,
+        string? projectOrigin = null,
         CancellationToken cancellationToken = default)
     {
         if (wsVernacular is null || wsVernacular.Length == 0)
             return Problem("At least one vernacular writing system is required", statusCode: StatusCodes.Status400BadRequest);
         if (code is null || code.Length < 4 || !Regex.IsMatch(code, Project.ProjectCodeRegex))
             return Problem($"Invalid project code '{code}'", statusCode: StatusCodes.Status400BadRequest);
+
+        ProjectMigrationStatus? origin = null;
+        if (!string.IsNullOrEmpty(projectOrigin))
+        {
+            // Only admins may say where a project came from. Currently redundant with [AdminRequired],
+            // but this endpoint is expected to open up to non-admins later; this check must stay.
+            permissionService.AssertIsAdmin();
+            if (!TryParseProjectOrigin(projectOrigin, out var parsedOrigin))
+                return Problem($"Invalid project origin '{projectOrigin}'", statusCode: StatusCodes.Status400BadRequest);
+            origin = parsedOrigin;
+        }
         if (await projectService.ProjectExists(code))
             return Problem($"A project with code '{code}' already exists", statusCode: StatusCodes.Status409Conflict);
 
@@ -68,7 +81,8 @@ public class ProjectController(
             RetentionPolicy: RetentionPolicy.Verified,
             IsConfidential: false,
             ProjectManagerId: null,
-            OrgId: null));
+            OrgId: null),
+            projectOrigin: origin);
 
         // Saga: the project row + empty repo now exist. Have FwHeadless populate the repo with the
         // template .fwdata; if that fails, compensate by tearing the project back down. Cleanup runs
@@ -96,6 +110,15 @@ public class ProjectController(
         await projectService.UpdateLastCommit(code);
         return projectId;
     }
+
+    /// <summary>
+    /// Parses a project origin. Enum.TryParse also accepts raw numbers ("1") and comma-separated lists
+    /// ("Migrated,Migrating"), so the parsed value must round-trip to the name that was passed in.
+    /// </summary>
+    public static bool TryParseProjectOrigin(string projectOrigin, out ProjectMigrationStatus origin) =>
+        Enum.TryParse(projectOrigin, ignoreCase: true, out origin)
+        && Enum.IsDefined(origin)
+        && string.Equals(origin.ToString(), projectOrigin, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Analysis writing systems to use, defaulting to English when none are supplied.</summary>
     public static string[] AnalysisWritingSystemsOrDefault(string[]? wsAnalysis) =>
