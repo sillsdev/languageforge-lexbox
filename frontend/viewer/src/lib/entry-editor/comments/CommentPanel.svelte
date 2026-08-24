@@ -37,6 +37,7 @@
     onSaveEdit,
     unreadThreadIds = new Set<string>(),
     onThreadOpen,
+    onMarkUnread,
   }: {
     canComment: boolean;
     loading: boolean;
@@ -57,6 +58,8 @@
     onCancelEdit: (commentId: string) => void;
     onSaveEdit: (commentId: string, text: string) => void;
     onThreadOpen?: (threadId: string) => void | Promise<void>;
+    /** Debug only: puts the thread back in the unread state. */
+    onMarkUnread?: (threadId: string) => void | Promise<void>;
   } = $props();
 
   const projectContext = useProjectContext();
@@ -247,6 +250,7 @@
                 expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                 onToggle={() => toggleExpanded(threadView.thread.id)}
                 onResolve={() => onResolve(threadView)}
+                onMarkUnread={() => void onMarkUnread?.(threadView.thread.id)}
                 onReply={(text) => onReply(threadView, text)}
                 {onStartEdit}
                 {onCancelEdit}
@@ -278,6 +282,7 @@
                       expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                       onToggle={() => toggleExpanded(threadView.thread.id)}
                       onResolve={() => onResolve(threadView)}
+                      onMarkUnread={() => void onMarkUnread?.(threadView.thread.id)}
                       onReply={(text) => onReply(threadView, text)}
                       {onStartEdit}
                       {onCancelEdit}

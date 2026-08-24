@@ -109,6 +109,13 @@
     onUnreadCommentsChange?.(localUnreadComments);
   }
 
+  /** Debug only: puts a thread back in the unread state so unread handling can be re-tested. */
+  async function markThreadUnread(threadId: string): Promise<void> {
+    await api.markCommentThreadUnread(threadId);
+    localUnreadComments = await api.getUnreadCommentsForSubject(subjectType, subjectId);
+    onUnreadCommentsChange?.(localUnreadComments);
+  }
+
   const title = $derived(subjectName ? $t`Comments for ${subjectName}` : $t`Comments`);
   const dockBottom = $derived(!IsExtraLarge.value);
 
@@ -266,6 +273,7 @@
     onCancelEdit={cancelEditing}
     onSaveEdit={saveEdit}
     onThreadOpen={onThreadOpen}
+    onMarkUnread={markThreadUnread}
   />
 {/snippet}
 

@@ -1196,6 +1196,11 @@ public class CrdtMiniLcmApi(
         return commentReadStatusService.MarkCommentRead(commentId);
     }
 
+    public Task MarkCommentThreadUnread(Guid threadId)
+    {
+        return commentReadStatusService.MarkThreadUnread(threadId);
+    }
+
     public Task MarkCommentThreadRead(Guid threadId)
     {
         return commentReadStatusService.MarkThreadRead(threadId);

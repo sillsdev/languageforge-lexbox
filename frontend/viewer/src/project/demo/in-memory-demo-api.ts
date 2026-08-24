@@ -348,6 +348,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve();
   }
 
+  markCommentThreadUnread(_threadId: string): Promise<void> {
+    return Promise.resolve();
+  }
+
   markAllCommentsRead(): Promise<void> {
     return Promise.resolve();
   }
