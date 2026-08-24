@@ -15,7 +15,6 @@ spec:
     - name: hg-resumable
       protocol: TCP
       port: 8080
-      targetPort: 8080
 
     - name: hgweb
       protocol: TCP
