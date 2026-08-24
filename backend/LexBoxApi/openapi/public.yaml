@@ -462,6 +462,13 @@ paths:
       responses:
         '200':
           description: OK
+  /api/fwlite-release/FieldWorksLite.appinstaller:
+    get:
+      tags:
+        - FwLiteRelease
+      responses:
+        '200':
+          description: OK
   /api/fwlite-release/download-latest:
     get:
       tags:
