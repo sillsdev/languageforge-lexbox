@@ -4,7 +4,8 @@ import {SERVICE_NAME, TRACE_EXPORT_URL_PATTERN, traceUserAttributes} from '.';
 import {defaultResource, resourceFromAttributes} from '@opentelemetry/resources';
 
 import {APP_VERSION} from '$lib/util/version';
-import {OTLPTraceExporterBrowserWithXhrRetry} from './trace-exporter-browser-with-xhr-retry';
+// We explicitly reference the browser version so that we have proper types
+import {OTLPTraceExporter} from '@opentelemetry/exporter-trace-otlp-http/build/src/platform/browser';
 import {ZoneContextManager} from '@opentelemetry/context-zone';
 import {getWebAutoInstrumentations} from '@opentelemetry/auto-instrumentations-web';
 import {instrumentGlobalFetch} from '$lib/util/fetch-proxy';
@@ -41,7 +42,7 @@ const resource = defaultResource().merge(
   }),
 )
 
-const exporter = new OTLPTraceExporterBrowserWithXhrRetry({
+const exporter = new OTLPTraceExporter({
   url: '/v1/traces'
 });
 
@@ -58,7 +59,7 @@ const provider = new WebTracerProvider({
     },
     new BatchSpanProcessor(exporter, {
       // max number of spans pulled from the queue and exported in a single batch
-      // 30 is often too big for the sendBeacon() API, but we have a fallback to XHR.
+      // exports go over fetch (keepAlive), so we're not bound by the old sendBeacon() size limit
       maxExportBatchSize: 30,
       // minimum time between exports
       scheduledDelayMillis: 1000,
