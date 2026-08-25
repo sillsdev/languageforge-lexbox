@@ -12,12 +12,6 @@ import {registerInstrumentations} from '@opentelemetry/instrumentation';
 
 export * from '.';
 
-// The trace exporter POSTs batches to this endpoint. Both the fetch and XHR
-// instrumentations must ignore it, otherwise the export request is itself traced,
-// that span gets exported, and we loop. (The exporter falls back to XHR when a batch
-// is too big for sendBeacon, so ignoring only fetch is not enough.)
-const TRACE_EXPORT_URL_PATTERN = /\/v1\/traces$/;
-
 instrumentGlobalFetch(() => {
   registerInstrumentations({
     instrumentations: [getWebAutoInstrumentations({
@@ -27,12 +21,6 @@ instrumentGlobalFetch(() => {
       },
       '@opentelemetry/instrumentation-user-interaction': {
         enabled: false,
-      },
-      '@opentelemetry/instrumentation-fetch': {
-        ignoreUrls: [TRACE_EXPORT_URL_PATTERN],
-      },
-      '@opentelemetry/instrumentation-xml-http-request': {
-        ignoreUrls: [TRACE_EXPORT_URL_PATTERN],
       },
     })],
   });
