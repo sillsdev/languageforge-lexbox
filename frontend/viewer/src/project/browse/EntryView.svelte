@@ -175,8 +175,10 @@
         {#if showClose && onClose}
           <XButton onclick={onClose} size="icon" />
         {/if}
-        <!-- A headword can be a single unbreakable word; truncate it rather than let it push the actions off screen. -->
-        <h2 class="ml-4 text-2xl font-semibold mb-2 min-w-0 flex-1 truncate" title={headword}>{headword}</h2>
+        <!-- flex-1 truncates a long unbreakable headword so it can't push the actions off screen. -->
+        <h2
+          class="ml-4 text-2xl font-semibold mb-2 min-w-0 flex-1 truncate max-md:text-center"
+          title={headword}>{headword}</h2>
         <div class="flex shrink-0">
           <DevContent>
             {#if features.comments}
