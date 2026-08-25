@@ -144,11 +144,6 @@ msgstr "A similar word already exists"
 msgid "a word"
 msgstr "a word"
 
-#. Dialog title
-#: src/lib/about/AboutDialog.svelte
-msgid "About"
-msgstr "About"
-
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -208,6 +203,10 @@ msgstr "Add new word"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Add part of"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Add Picture"
+msgstr "Add Picture"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -473,7 +472,6 @@ msgid "clear"
 msgstr "clear"
 
 #. Button to close popup
-#: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/comments/CommentDialog.svelte

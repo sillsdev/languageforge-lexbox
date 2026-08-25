@@ -149,11 +149,6 @@ msgstr ""
 msgid "a word"
 msgstr "una palabra"
 
-#. Dialog title
-#: src/lib/about/AboutDialog.svelte
-msgid "About"
-msgstr "Acerca de"
-
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -213,6 +208,10 @@ msgstr "Añadir nueva palabra"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Añadir parte de"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Add Picture"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -478,7 +477,6 @@ msgid "clear"
 msgstr "borrar"
 
 #. Button to close popup
-#: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/comments/CommentDialog.svelte
@@ -1333,6 +1331,7 @@ msgstr "Instalar actualización"
 msgid "Installing Update..."
 msgstr "Instalando actualización..."
 
+#. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
 msgstr ""

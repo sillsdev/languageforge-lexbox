@@ -50,6 +50,14 @@ export class ImageService {
     return this.#cache.get(mediaUri);
   }
 
+  /** Registers an in-memory file for preview under a synthetic mediaUri and returns that uri.
+      Used for pictures that have not been uploaded yet; the object URL is revoked at dispose(). */
+  registerLocalPreview(file: File): string {
+    const uri = `local-preview:${crypto.randomUUID()}`;
+    this.#cache.set(uri, {status: 'loaded', url: URL.createObjectURL(file)});
+    return uri;
+  }
+
   async #load(mediaUri: string, downloadIfMissing: boolean): Promise<ImageState> {
     const api = this.#getApi();
     const file = await api.getFileStream(mediaUri, downloadIfMissing);
