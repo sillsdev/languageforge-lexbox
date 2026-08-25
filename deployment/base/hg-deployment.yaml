@@ -80,6 +80,9 @@ spec:
     spec:
       securityContext:
         fsGroup: 33
+        runAsGroup: 33 #www-data
+        runAsUser: 33
+        runAsNonRoot: true
 
       containers:
       - name: hgweb
@@ -158,10 +161,6 @@ spec:
             memory: 400Mi
         ports:
           - containerPort: 8080
-        securityContext:
-          runAsGroup: 33 #www-data
-          runAsUser: 33
-          runAsNonRoot: true
 
         env:
           - name: URLS
