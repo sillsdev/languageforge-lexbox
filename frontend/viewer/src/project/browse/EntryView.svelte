@@ -262,7 +262,7 @@
               leftPane={entryPane}
               rightPane={commentsPane}
               resetTo={commentsLayout}
-              class="my-2 data-[direction=vertical]:mx-2 data-[direction=vertical]:my-0"
+              class="my-2 data-[direction=vertical]:my-0"
             />
             <ResizablePane bind:this={commentsPane} defaultSize={commentsLayout[1]} minSize={20} class="flex min-h-0 min-w-0 flex-col">
               <CommentDialog
@@ -273,6 +273,9 @@
                 subjectName={headword}
                 unreadComments={entryUnreadResource.current}
                 onUnreadCommentsChange={(comments) => entryUnreadResource.mutate(comments)}
+                class={commentsDirection === 'vertical'
+                  ? 'rounded-none border-0 shadow-none'
+                  : undefined}
               />
             </ResizablePane>
           </ResizablePaneGroup>

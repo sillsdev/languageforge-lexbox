@@ -78,7 +78,7 @@
   class={cn(
     'focus-visible:ring-ring relative flex items-center justify-center focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:outline-hidden',
     grabBar
-      ? 'w-4 bg-transparent data-[direction=vertical]:h-6 data-[direction=vertical]:w-full [&[data-direction=vertical]>div]:h-2 [&[data-direction=vertical]>div]:w-24'
+      ? 'border-border z-10 w-4 border-s bg-transparent data-[direction=vertical]:h-0 data-[direction=vertical]:w-full data-[direction=vertical]:border-s-0 data-[direction=vertical]:border-t [&[data-direction=vertical]>div]:absolute [&[data-direction=vertical]>div]:top-6 [&[data-direction=vertical]>div]:left-1/2 [&[data-direction=vertical]>div]:-translate-x-1/2 [&[data-direction=vertical]>div]:h-2 [&[data-direction=vertical]>div]:w-24'
       : 'bg-border w-px after:absolute after:inset-y-0 after:inset-s-1/2 after:w-1 after:-translate-x-1/2 data-[direction=vertical]:h-px data-[direction=vertical]:w-full data-[direction=vertical]:after:inset-s-0 data-[direction=vertical]:after:h-1 data-[direction=vertical]:after:w-full data-[direction=vertical]:after:translate-x-0 data-[direction=vertical]:after:-translate-y-1/2 [&[data-direction=vertical]>div]:rotate-90',
     className,
   )}
@@ -88,7 +88,7 @@
   {#if grabBar}
     <!-- Drawer-style grip: the bar itself is the drag target, sized for a thumb. -->
     <div
-      class="bg-muted-foreground/40 data-[dragging=true]:bg-muted-foreground/70 h-24 w-2 rounded-full transition-colors"
+      class="bg-muted-foreground/40 data-[dragging=true]:bg-muted-foreground/70 relative h-24 w-2 rounded-full transition-colors after:absolute after:-inset-x-2 after:-inset-y-2 after:content-['']"
       data-dragging={dragging}
     ></div>
   {:else if withHandle}

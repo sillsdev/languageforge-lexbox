@@ -110,7 +110,7 @@
 
 <div class="flex h-full min-h-0 flex-col overflow-hidden bg-background">
   {#if !showThreadDetail}
-    <div class="flex shrink-0 items-center justify-between gap-2 border-b border-border px-4 pt-3.5 pb-2.5">
+    <div class="flex shrink-0 items-center justify-between gap-2 border-b border-border px-4 py-2.5">
       <div class="flex items-center gap-2">
         {#if onClose}
           <XButton class="size-6" onclick={onClose} />
