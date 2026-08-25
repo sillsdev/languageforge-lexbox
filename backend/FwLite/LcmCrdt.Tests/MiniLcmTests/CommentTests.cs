@@ -490,6 +490,7 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
         await MarkCommentsUnread(firstComment);
 
         var unreadComments = await fixture.DbContext.CommentThreads
+            .Where(t => t.Id == commentThread.Id)
             .Select(t => EntryQueryHelpers.QueryThreadsUnreadComments(t))
             .FirstOrDefaultAsyncLinqToDB();
         unreadComments.Should().NotBeNull();
@@ -512,6 +513,7 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
         await CreateThreadWithComment("test", subjectId:peachId);//these comments are read and should not show up
 
         var entiresUnreadComments = (await fixture.DbContext.Entries
+            .Where(e => e.Id == appleId || e.Id == peachId)
             .Select(e => new
             {
                 e,

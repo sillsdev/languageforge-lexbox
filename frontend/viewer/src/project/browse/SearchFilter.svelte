@@ -150,6 +150,8 @@
     semanticDomain = undefined;
     partOfSpeech = undefined;
     publication = undefined;
+    hasComments = false;
+    unreadComments = false;
   }
 
   let filtersExpanded = $state(false);
