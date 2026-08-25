@@ -7,4 +7,5 @@ namespace FwLiteShared.Services;
 public enum PreferenceKey
 {
     AppLastUrl,
+    AnalyticsDeviceId,
 }

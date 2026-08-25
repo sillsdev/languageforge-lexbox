@@ -1,3 +1,5 @@
+using FwLiteShared.Auth;
+
 namespace FwLiteShared.Analytics;
 
 public static class MixpanelAnalytics
@@ -9,6 +11,7 @@ public static class MixpanelAnalytics
 
     public const string TrackUrl = "https://api.mixpanel.com/track";
     public const string HttpClientName = "Mixpanel";
+    public const string ProductionLexboxHost = "lexbox.org";
 
     /// <summary>
     /// Debug / UseDevAssets uses the hardcoded debug token. Release uses <paramref name="releaseToken"/>;
@@ -19,5 +22,22 @@ public static class MixpanelAnalytics
         if (isDevelopment || useDevAssets)
             return DebugProjectToken;
         return string.IsNullOrWhiteSpace(releaseToken) ? null : releaseToken;
+    }
+
+    public static bool IsProductionLexbox(LexboxServer server) =>
+        string.Equals(server.Authority.Host, ProductionLexboxHost, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Identify only for production lexbox.org. Logout (null user) resets. Empty <see cref="LexboxUser.Id"/> stays anonymous.
+    /// Non-lexbox.org servers are ignored (no identify, no reset).
+    /// </summary>
+    public static void ApplyAuthChange(IAnalyticsService analytics, LexboxServer server, LexboxUser? user)
+    {
+        if (!IsProductionLexbox(server))
+            return;
+        if (user is null)
+            analytics.Reset();
+        else if (!string.IsNullOrWhiteSpace(user.Id))
+            analytics.Identify(user.Id);
     }
 }

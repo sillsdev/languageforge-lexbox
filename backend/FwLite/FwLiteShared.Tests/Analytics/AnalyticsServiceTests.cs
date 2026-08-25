@@ -2,6 +2,8 @@ using System.Net;
 using System.Text;
 using FwLiteShared;
 using FwLiteShared.Analytics;
+using FwLiteShared.Auth;
+using FwLiteShared.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
@@ -34,7 +36,7 @@ public class AnalyticsServiceTests
     }
 
     [Fact]
-    public void BuildProperties_IncludesSuperPropertiesAndOmitsEmptyHost()
+    public void BuildProperties_IncludesSuperPropertiesDeviceIdAndOmitsEmptyHost()
     {
         var config = new FwLiteConfig
         {
@@ -43,26 +45,151 @@ public class AnalyticsServiceTests
             Edition = LexCore.Entities.FwLiteEdition.Windows,
         };
 
-        var props = AnalyticsService.BuildProperties("tok", config, host: null, extra: null);
+        var props = AnalyticsService.BuildProperties("tok", config, host: null, deviceId: "dev-1", userId: null, extra: null);
 
         props["token"].Should().Be("tok");
+        props["$device_id"].Should().Be("dev-1");
         props["app_version"].Should().Be("1.2.3");
         props["os"].Should().Be("Windows");
         props["edition"].Should().Be("Windows");
         props.Should().NotContainKey("host");
+        props.Should().NotContainKey("$user_id");
         props.Should().NotContainKey("distinct_id");
     }
 
     [Fact]
-    public void BuildProperties_IncludesHostWhenSet()
+    public void BuildProperties_IncludesHostAndUserIdWhenSet()
     {
         var config = new FwLiteConfig { Os = FwLitePlatform.Windows };
         var props = AnalyticsService.BuildProperties("tok",
             config,
             host: "maui",
+            deviceId: "dev-1",
+            userId: "user-9",
             extra: new Dictionary<string, object?> { ["extra"] = 1 });
         props["host"].Should().Be("maui");
+        props["$user_id"].Should().Be("user-9");
         props["extra"].Should().Be(1);
+    }
+
+    [Fact]
+    public void FirstLaunch_GeneratesAndPersistsDeviceId()
+    {
+        var prefs = new MemoryPreferences();
+        var service = CreateService(new CaptureHandler(), prefs: prefs);
+
+        var id = service.GetOrCreateDeviceId();
+
+        Guid.TryParse(id, out _).Should().BeTrue();
+        prefs.Get(nameof(PreferenceKey.AnalyticsDeviceId)).Should().Be(id);
+        service.GetOrCreateDeviceId().Should().Be(id);
+    }
+
+    [Fact]
+    public void Relaunch_ReusesPersistedDeviceId()
+    {
+        var prefs = new MemoryPreferences();
+        prefs.Set(nameof(PreferenceKey.AnalyticsDeviceId), "persisted-device");
+
+        var first = CreateService(new CaptureHandler(), prefs: prefs);
+        var second = CreateService(new CaptureHandler(), prefs: prefs);
+
+        first.GetOrCreateDeviceId().Should().Be("persisted-device");
+        second.GetOrCreateDeviceId().Should().Be("persisted-device");
+    }
+
+    [Fact]
+    public async Task Identify_AttachesDeviceAndUserIdsOnTrack()
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, isDevelopment: true);
+
+        service.Identify("lexbox-user-id");
+        await service.TrackAsync("app_launched");
+
+        handler.LastBody.Should().Contain("\"$device_id\":");
+        handler.LastBody.Should().Contain("\"$user_id\":\"lexbox-user-id\"");
+        handler.LastBody.Should().NotContain("distinct_id");
+    }
+
+    [Fact]
+    public async Task Identify_EmptyId_DoesNotSetUserId()
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, isDevelopment: true);
+
+        service.Identify(" ");
+        await service.TrackAsync("app_launched");
+
+        handler.LastBody.Should().Contain("\"$device_id\":");
+        handler.LastBody.Should().NotContain("$user_id");
+    }
+
+    [Fact]
+    public async Task Reset_RotatesDeviceIdAndDropsUserId()
+    {
+        var handler = new CaptureHandler();
+        var prefs = new MemoryPreferences();
+        var service = CreateService(handler, isDevelopment: true, prefs: prefs);
+
+        var original = service.GetOrCreateDeviceId();
+        service.Identify("lexbox-user-id");
+        service.Reset();
+        await service.TrackAsync("app_launched");
+
+        var rotated = prefs.Get(nameof(PreferenceKey.AnalyticsDeviceId));
+        rotated.Should().NotBeNullOrEmpty();
+        rotated.Should().NotBe(original);
+        handler.LastBody.Should().Contain($"\"$device_id\":\"{rotated}\"");
+        handler.LastBody.Should().NotContain("$user_id");
+    }
+
+    [Fact]
+    public void ApplyAuthChange_LexboxLogin_Identifies()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
+
+        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, new LexboxUser("Ada", "user-1"));
+
+        analytics.Verify(a => a.Identify("user-1"), Times.Once);
+        analytics.Verify(a => a.Reset(), Times.Never);
+    }
+
+    [Fact]
+    public void ApplyAuthChange_LexboxLogout_Resets()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
+
+        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, user: null);
+
+        analytics.Verify(a => a.Reset(), Times.Once);
+        analytics.Verify(a => a.Identify(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public void ApplyAuthChange_EmptyCurrentUser_DoesNotIdentifyOrReset()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
+
+        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, new LexboxUser("Ada", ""));
+
+        analytics.Verify(a => a.Identify(It.IsAny<string>()), Times.Never);
+        analytics.Verify(a => a.Reset(), Times.Never);
+    }
+
+    [Fact]
+    public void ApplyAuthChange_NonLexboxLogin_DoesNotSetUserId()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var server = new LexboxServer(new Uri("https://staging.languagedepot.org"), "Lexbox Staging");
+
+        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, new LexboxUser("Ada", "user-1"));
+
+        analytics.Verify(a => a.Identify(It.IsAny<string>()), Times.Never);
+        analytics.Verify(a => a.Reset(), Times.Never);
     }
 
     [Fact]
@@ -90,6 +217,7 @@ public class AnalyticsServiceTests
         handler.LastBody.Should().Contain("\"event\":\"app_launched\"");
         handler.LastBody.Should().Contain(MixpanelAnalytics.DebugProjectToken);
         handler.LastBody.Should().Contain("\"host\":\"web\"");
+        handler.LastBody.Should().Contain("\"$device_id\":");
         handler.LastBody.Should().NotContain("distinct_id");
     }
 
@@ -105,9 +233,10 @@ public class AnalyticsServiceTests
 
     private static AnalyticsService CreateService(
         CaptureHandler handler,
-        bool isDevelopment,
-        bool useDevAssets,
-        string? host = null)
+        bool isDevelopment = true,
+        bool useDevAssets = false,
+        string? host = null,
+        IPreferencesService? prefs = null)
     {
         var factory = new Mock<IHttpClientFactory>();
         factory.Setup(f => f.CreateClient(MixpanelAnalytics.HttpClientName))
@@ -129,10 +258,20 @@ public class AnalyticsServiceTests
             factory.Object,
             Options.Create(config),
             env,
+            prefs ?? new MemoryPreferences(),
             Mock.Of<ILogger<AnalyticsService>>())
         {
             Host = host
         };
+    }
+
+    private sealed class MemoryPreferences : IPreferencesService
+    {
+        private readonly Dictionary<string, string> _values = new();
+
+        public string? Get(string key) => _values.GetValueOrDefault(key);
+        public void Set(string key, string value) => _values[key] = value;
+        public void Remove(string key) => _values.Remove(key);
     }
 
     private sealed class CaptureHandler : HttpMessageHandler
