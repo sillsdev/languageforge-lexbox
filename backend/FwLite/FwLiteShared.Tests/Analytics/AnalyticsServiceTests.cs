@@ -231,6 +231,30 @@ public class AnalyticsServiceTests
         await act.Should().NotThrowAsync();
     }
 
+    [Fact]
+    public void RecordProcessStart_SetsHostAndTracksAppLaunched()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+
+        MixpanelAnalytics.RecordProcessStart(analytics.Object, MixpanelAnalytics.MauiHost);
+
+        analytics.VerifySet(a => a.Host = MixpanelAnalytics.MauiHost, Times.Once);
+        analytics.Verify(a => a.Track(MixpanelAnalytics.AppLaunchedEvent, It.IsAny<IReadOnlyDictionary<string, object?>>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task AppLaunchTracker_FiresOnceOnStart_NotOnStop()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var tracker = new AppLaunchTracker(analytics.Object, MixpanelAnalytics.WebHost);
+
+        await tracker.StartAsync(CancellationToken.None);
+        await tracker.StopAsync(CancellationToken.None);
+
+        analytics.VerifySet(a => a.Host = MixpanelAnalytics.WebHost, Times.Once);
+        analytics.Verify(a => a.Track(MixpanelAnalytics.AppLaunchedEvent, It.IsAny<IReadOnlyDictionary<string, object?>>()), Times.Once);
+    }
+
     private static AnalyticsService CreateService(
         CaptureHandler handler,
         bool isDevelopment = true,

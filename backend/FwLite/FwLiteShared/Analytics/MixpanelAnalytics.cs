@@ -12,6 +12,18 @@ public static class MixpanelAnalytics
     public const string TrackUrl = "https://api.mixpanel.com/track";
     public const string HttpClientName = "Mixpanel";
     public const string ProductionLexboxHost = "lexbox.org";
+    public const string AppLaunchedEvent = "app_launched";
+    public const string MauiHost = "maui";
+    public const string WebHost = "web";
+
+    /// <summary>
+    /// Fire <see cref="AppLaunchedEvent"/> once per process start. Does not throw.
+    /// </summary>
+    public static void RecordProcessStart(IAnalyticsService analytics, string host)
+    {
+        analytics.Host = host;
+        analytics.Track(AppLaunchedEvent);
+    }
 
     /// <summary>
     /// Debug / UseDevAssets uses the hardcoded debug token. Release uses <paramref name="releaseToken"/>;

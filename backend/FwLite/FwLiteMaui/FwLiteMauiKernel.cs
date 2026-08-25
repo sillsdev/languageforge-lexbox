@@ -1,6 +1,7 @@
 using SIL.Harmony.Config;
 using FwLiteMaui.Services;
 using FwLiteShared;
+using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
 using FwLiteShared.Services;
 using LcmCrdt;
@@ -36,6 +37,8 @@ public static class FwLiteMauiKernel
         services.AddBlazorWebViewDeveloperTools();
         //must be added after blazor as it modifies IJSRuntime in order to intercept it's constructor
         services.AddFwLiteShared(env);
+        services.AddSingleton<IHostedService>(sp =>
+            new AppLaunchTracker(sp.GetRequiredService<IAnalyticsService>(), MixpanelAnalytics.MauiHost));
         services.AddSingleton<HostedServiceAdapter>();
         services.AddSingleton<IMauiInitializeService>(sp => sp.GetRequiredService<HostedServiceAdapter>());
         services.Configure<AuthConfig>(config =>
