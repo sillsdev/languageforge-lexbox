@@ -479,7 +479,6 @@ msgstr "futa"
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
@@ -505,14 +504,9 @@ msgstr "Rangi"
 msgid "Comment"
 msgstr ""
 
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
-msgstr ""
-
-#: src/lib/entry-editor/comments/CommentDialog.svelte
-msgid "Comments for {0}"
 msgstr ""
 
 #: src/project/browse/EntryView.svelte

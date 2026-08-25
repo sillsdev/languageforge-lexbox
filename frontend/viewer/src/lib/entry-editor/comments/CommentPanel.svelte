@@ -71,7 +71,7 @@
     mobileThreadId ? threadViews.find((tv) => tv.thread.id === mobileThreadId) : undefined,
   );
   const mobileResolved = $derived(mobileThreadView?.thread.status === ThreadStatus.Closed);
-  /** Full-area thread detail (mobile + tablet bottom drawer), vs in-place expand on desktop sidebar */
+  /** Full-area thread detail when the panel is narrow (stacked layout), vs in-place expand beside the entry */
   const useThreadDetail = $derived(!IsExtraLarge.value);
   const showThreadDetail = $derived(useThreadDetail && Boolean(mobileThreadView));
 

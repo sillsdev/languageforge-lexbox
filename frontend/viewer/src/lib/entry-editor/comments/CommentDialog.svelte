@@ -1,10 +1,5 @@
 <script lang="ts">
-  import * as Drawer from '$lib/components/ui/drawer';
-  import * as Sheet from '$lib/components/ui/sheet';
-  import {buttonVariants} from '$lib/components/ui/button';
-  import {Icon} from '$lib/components/ui/icon';
   import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useMiniLcmApi} from '$lib/services/service-provider';
   import {useProjectContext} from '$project/project-context.svelte';
   import {cn, randomId} from '$lib/utils';
@@ -13,7 +8,6 @@
   import {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
   import type {ClassValue} from 'clsx';
   import {resource, watch} from 'runed';
-  import {t} from 'svelte-i18n-lingui';
   import CommentPanel from './CommentPanel.svelte';
   import type {ThreadView} from './types';
   import {SvelteSet} from 'svelte/reactivity';
@@ -22,19 +16,15 @@
     open = $bindable(false),
     subjectType,
     subjectId,
-    subjectName,
     unreadComments = null,
-    inlineSidebar = false,
     class: className,
     onUnreadCommentsChange,
   }: {
     open: boolean;
     subjectType: SubjectType;
     subjectId: string;
-    subjectName?: string;
     /** When null, unread comments are fetched for the subject. When set, used as-is (no fetch). */
     unreadComments?: IUserComment[] | null;
-    inlineSidebar?: boolean;
     class?: ClassValue;
     onUnreadCommentsChange?: (comments: IUserComment[]) => void;
   } = $props();
@@ -116,7 +106,6 @@
     onUnreadCommentsChange?.(localUnreadComments);
   }
 
-  const title = $derived(subjectName ? $t`Comments for ${subjectName}` : $t`Comments`);
   // Matches CommentPanel: below xl a thread opens as its own full-panel view.
   const useThreadDetail = $derived(!IsExtraLarge.value);
 
@@ -239,8 +228,13 @@
     }
   }
 </script>
-
-{#snippet panel()}
+{#if open}
+  <aside
+    class={cn(
+      'flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-lg border bg-background shadow-sm',
+      className,
+    )}
+  >
   <CommentPanel
     bind:newThreadText
     bind:addingComment
@@ -263,42 +257,5 @@
     onThreadOpen={onThreadOpen}
     onMarkUnread={markThreadUnread}
   />
-{/snippet}
-
-{#if inlineSidebar && open}
-  <aside
-    class={cn(
-      'flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-lg border bg-background shadow-sm',
-      className,
-    )}
-  >
-    {@render panel()}
   </aside>
-{:else if IsMobile.value}
-  <Drawer.Root bind:open={() => open, onOpenChange}>
-    <Drawer.Content class="max-h-[90dvh] overflow-hidden">
-      <Drawer.Close
-        class={buttonVariants({variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10'})}
-        aria-label={$t`Close`}
-      >
-        <Icon icon="i-mdi-close" />
-      </Drawer.Close>
-
-      <div class="mx-auto flex max-h-[90dvh] w-full max-w-lg flex-1 flex-col overflow-hidden">
-        <Drawer.Header class="px-4 text-left">
-          <Drawer.Title class="max-w-[calc(100%-2rem)] truncate pr-2 text-left" title={title}>{title}</Drawer.Title>
-        </Drawer.Header>
-        {@render panel()}
-      </div>
-    </Drawer.Content>
-  </Drawer.Root>
-{:else}
-  <Sheet.Root bind:open={() => open, onOpenChange}>
-    <Sheet.Content side="right" class="w-full overflow-hidden p-0 sm:max-w-md">
-      <Sheet.Header class="px-4 pb-0">
-        <Sheet.Title class="max-w-[calc(100%-2rem)] truncate pr-2" title={title}>{title}</Sheet.Title>
-      </Sheet.Header>
-      {@render panel()}
-    </Sheet.Content>
-  </Sheet.Root>
 {/if}
