@@ -1349,6 +1349,11 @@ msgstr "Last change: #"
 msgid "Last sync: #"
 msgstr "Last sync: #"
 
+#. Placeholder for the release channel text box. Production has no feature flags.
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Leave empty for production"
+msgstr "Leave empty for production"
+
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
@@ -2096,6 +2101,11 @@ msgstr "Regenerating Harmony snapshots. This may take a long time — do not clo
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr "Regenerating search index. This may take a while — do not close the app."
+
+#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Release channel"
+msgstr "Release channel"
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte

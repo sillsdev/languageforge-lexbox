@@ -24,7 +24,7 @@
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {Button} from '$lib/components/ui/button';
   import Hotkey from '$lib/components/hotkey/hotkey.svelte';
-  import DevContent from '$lib/layout/DevContent.svelte';
+  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
   import {useFeatures} from '$lib/services/feature-service';
 
   const features = useFeatures();
@@ -237,12 +237,12 @@
             <MissingSelect bind:value={missingField} />
           </div>
           {#if features.comments}
-            <DevContent>
+            <FlagContent flag="comments">
               <div class="flex flex-col">
                 <Switch bind:checked={hasComments} label={$t`Has comments`} />
                 <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
               </div>
-            </DevContent>
+            </FlagContent>
           {/if}
         </div>
       </ResponsivePopup>
