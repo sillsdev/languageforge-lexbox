@@ -39,13 +39,13 @@
   let semanticDomain = $state<ISemanticDomain>();
   let partOfSpeech = $state<IPartOfSpeech>();
   let unreadComments = $state(false);
-  // Replace-only, never pushed: on mobile the comment sidebar is a vaul drawer, which
-  // pushes its own history entry so back closes it. Pushing ours too left a stray entry
-  // that re-opened the comments on the second back.
+  // Same history strategy as the master-detail open state: on mobile the comments take
+  // half the screen, so back should close them rather than leave the view. Nothing else
+  // pushes for them now that the panel is a pane rather than a drawer.
   const commentsOpen = new QueryParamStateBool({
     key: BrowseParam.CommentsOpen,
-    allowBack: false,
-    replaceOnDefaultValue: false,
+    allowBack: IsMobile.value,
+    replaceOnDefaultValue: IsMobile.value,
   }, false);
   let sort = $state<SortConfig>();
   const entryMode: EntryListViewMode = $derived(entryListViewMode.current === 'preview' ? 'preview' : 'simple');

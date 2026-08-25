@@ -117,41 +117,29 @@
   }
 
   const title = $derived(subjectName ? $t`Comments for ${subjectName}` : $t`Comments`);
-  const dockBottom = $derived(!IsExtraLarge.value);
-
-  // Bottom-dock: snap points least→most visible. Default open height is the middle stop.
-  const commentSnapPoints = [0.35, 0.55, 0.9] as const;
-  const defaultCommentSnap = commentSnapPoints[1];
-  let activeSnapPoint = $state<number | string | null>(defaultCommentSnap);
+  // Matches CommentPanel: below xl a thread opens as its own full-panel view.
+  const useThreadDetail = $derived(!IsExtraLarge.value);
 
   function setOpen(value: boolean): void {
-    if (value && dockBottom) activeSnapPoint = defaultCommentSnap;
     open = value;
   }
 
   watch(
     () => open,
     (isOpen) => {
-      if (isOpen) {
-        if (dockBottom) activeSnapPoint = defaultCommentSnap;
-        return;
-      }
+      if (isOpen) return;
       addingComment = false;
       newThreadText = '';
       editingCommentId = undefined;
       expandedThreadIds.clear();
       mobileThreadId = null;
-      // Vaul assigns snapPoints[0] after close; restore default for the next open.
-      window.setTimeout(() => {
-        if (!open) activeSnapPoint = defaultCommentSnap;
-      }, 500);
     },
   );
 
   watch(
-    () => dockBottom,
-    (isBottom) => {
-      if (!isBottom) mobileThreadId = null;
+    () => useThreadDetail,
+    (threadDetail) => {
+      if (!threadDetail) mobileThreadId = null;
       else expandedThreadIds.clear();
     },
   );
@@ -277,46 +265,15 @@
   />
 {/snippet}
 
-{#if inlineSidebar && open && !dockBottom}
+{#if inlineSidebar && open}
   <aside
     class={cn(
-      'flex h-full min-h-0 w-[360px] shrink-0 flex-col overflow-hidden rounded-lg border bg-background shadow-sm',
+      'flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-lg border bg-background shadow-sm',
       className,
     )}
   >
     {@render panel()}
   </aside>
-{:else if inlineSidebar && dockBottom}
-  <Drawer.Root
-    bind:open={() => open, onOpenChange}
-    bind:activeSnapPoint
-    modal={false}
-    shouldScaleBackground={false}
-    snapPoints={[...commentSnapPoints]}
-    snapToSequentialPoint
-  >
-    <Drawer.Content
-      handle={false}
-      class="fixed mt-0 h-dvh max-h-dvh overflow-hidden p-0 data-[vaul-drawer-direction=bottom]:mt-0 data-[vaul-drawer-direction=bottom]:h-dvh data-[vaul-drawer-direction=bottom]:max-h-dvh"
-    >
-      <Drawer.Title class="sr-only">{title}</Drawer.Title>
-      <!--
-        Vaul translates a full-viewport sheet for snaps. Keep position:fixed (do not use
-        relative — it overrides fixed) and size the panel to the active snap so the reply
-        footer sits on the visible bottom edge. Custom handle: the default one sits under
-        this absolute panel and would be covered.
-      -->
-      <div
-        class="absolute inset-x-0 top-0 flex flex-col overflow-hidden bg-background"
-        style:height="{(typeof activeSnapPoint === 'number' ? activeSnapPoint : defaultCommentSnap) * 100}dvh"
-      >
-        <div class="bg-muted mx-auto mt-4 h-2 w-[100px] shrink-0 rounded-full" aria-hidden="true"></div>
-        <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
-          {@render panel()}
-        </div>
-      </div>
-    </Drawer.Content>
-  </Drawer.Root>
 {:else if IsMobile.value}
   <Drawer.Root bind:open={() => open, onOpenChange}>
     <Drawer.Content class="max-h-[90dvh] overflow-hidden">

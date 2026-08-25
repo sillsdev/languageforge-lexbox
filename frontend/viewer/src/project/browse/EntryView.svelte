@@ -29,6 +29,8 @@
   import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import {ResizableHandle, ResizablePane, ResizablePaneGroup} from '$lib/components/ui/resizable';
+  import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
 
   type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
 
@@ -137,6 +139,13 @@
     },
   );
 
+  // Entry and comments share the space instead of the comments floating over the entry:
+  // side by side once there's room, stacked below xl.
+  const commentsDirection = $derived(IsExtraLarge.value ? 'horizontal' : 'vertical');
+  const commentsLayout = $derived(IsExtraLarge.value ? [65, 35] as const : [55, 45] as const);
+  let entryPane = $state<ResizablePane>();
+  let commentsPane = $state<ResizablePane>();
+
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
   let editorRef: HTMLElement | null = $state(null);
@@ -213,41 +222,63 @@
         </div>
       {/if}
     </header>
-    <div class="flex min-h-0 grow gap-4">
+    {#snippet entryColumn(currentEntry: IEntry)}
       <div class="flex min-h-0 min-w-0 grow flex-col">
         {#if dictionaryPreview === 'sticky'}
           <div class="shrink-0 md:px-2">
-            {@render preview(entry)}
+            {@render preview(currentEntry)}
           </div>
         {/if}
         <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('min-w-0 grow md:pr-2')}>
           {#if dictionaryPreview === 'show'}
             <div class="md:pl-2">
-              {@render preview(entry)}
+              {@render preview(currentEntry)}
             </div>
           {/if}
           <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
-            {#key entry.id}
+            {#key currentEntry.id}
               <EntryEditor
                 bind:this={editor}
                 bind:ref={editorRef}
-                bind:entry
+                bind:entry={() => currentEntry, (updated) => entry = updated}
                 readonly={!features.write || deleted}
                 {...entryPersistence.entryEditorProps} />
             {/key}
           </div>
         </ScrollArea>
       </div>
+    {/snippet}
+    <div class="flex min-h-0 grow">
       {#if showCommentDialog}
-        <CommentDialog
-          bind:open={() => showCommentDialog, (v) => showComments = v}
-          inlineSidebar
-          subjectType={SubjectType.Entry}
-          subjectId={entry.id}
-          subjectName={headword}
-          unreadComments={entryUnreadResource.current}
-          onUnreadCommentsChange={(comments) => entryUnreadResource.mutate(comments)}
-        />
+        <!-- Re-mount on direction change so the panes pick up the layout for the new axis. -->
+        {#key commentsDirection}
+          <ResizablePaneGroup direction={commentsDirection} class="min-h-0 grow">
+            <ResizablePane bind:this={entryPane} defaultSize={commentsLayout[0]} minSize={25} class="flex min-h-0 min-w-0 flex-col">
+              {@render entryColumn(entry)}
+            </ResizablePane>
+            <ResizableHandle
+              withHandle
+              variant={commentsDirection === 'vertical' ? 'grab-bar' : 'divider'}
+              leftPane={entryPane}
+              rightPane={commentsPane}
+              resetTo={commentsLayout}
+              class="my-2 data-[direction=vertical]:mx-2 data-[direction=vertical]:my-0"
+            />
+            <ResizablePane bind:this={commentsPane} defaultSize={commentsLayout[1]} minSize={20} class="flex min-h-0 min-w-0 flex-col">
+              <CommentDialog
+                bind:open={() => showCommentDialog, (v) => showComments = v}
+                inlineSidebar
+                subjectType={SubjectType.Entry}
+                subjectId={entry.id}
+                subjectName={headword}
+                unreadComments={entryUnreadResource.current}
+                onUnreadCommentsChange={(comments) => entryUnreadResource.mutate(comments)}
+              />
+            </ResizablePane>
+          </ResizablePaneGroup>
+        {/key}
+      {:else}
+        {@render entryColumn(entry)}
       {/if}
     </div>
   {/if}
