@@ -223,68 +223,65 @@
         </div>
       {/if}
     </header>
-    {#snippet entryColumn(currentEntry: IEntry)}
-      <div class="flex min-h-0 min-w-0 grow flex-col">
+    <!-- The entry pane always renders; only the comments pane comes and goes, so opening or
+         closing comments never re-creates the editor (same reason MasterDetailView keeps its
+         master pane mounted while the detail toggles). -->
+    <ResizablePaneGroup direction={commentsDirection} class="flex min-h-0 grow">
+      <ResizablePane
+        bind:this={entryPane}
+        defaultSize={commentsLayout[0]}
+        minSize={25}
+        class="flex min-h-0 min-w-0 flex-col"
+      >
         {#if dictionaryPreview === 'sticky'}
           <div class="shrink-0 md:px-2">
-            {@render preview(currentEntry)}
+            {@render preview(entry)}
           </div>
         {/if}
         <ScrollArea bind:viewportRef={entryScrollViewportRef} class={cn('min-w-0 grow md:pr-2')}>
           {#if dictionaryPreview === 'show'}
             <div class="md:pl-2">
-              {@render preview(currentEntry)}
+              {@render preview(entry)}
             </div>
           {/if}
           <div class="max-md:p-2 md:pt-1 md:pb-2 md:px-2">
-            {#key currentEntry.id}
+            {#key entry.id}
               <EntryEditor
                 bind:this={editor}
                 bind:ref={editorRef}
-                bind:entry={() => currentEntry, (updated) => entry = updated}
+                bind:entry
                 readonly={!features.write || deleted}
                 {...entryPersistence.entryEditorProps} />
             {/key}
           </div>
         </ScrollArea>
-      </div>
-    {/snippet}
-    <div class="flex min-h-0 grow">
+      </ResizablePane>
       {#if showCommentDialog}
-        <!-- Re-mount on direction change so the panes pick up the layout for the new axis. -->
-        {#key commentsDirection}
-          <ResizablePaneGroup direction={commentsDirection} class="min-h-0 grow">
-            <ResizablePane bind:this={entryPane} defaultSize={commentsLayout[0]} minSize={25} class="flex min-h-0 min-w-0 flex-col">
-              {@render entryColumn(entry)}
-            </ResizablePane>
-            <ResizableHandle
-              withHandle
-              variant={commentsDirection === 'vertical' ? 'grab-bar' : 'divider'}
-              leftPane={entryPane}
-              rightPane={commentsPane}
-              resetTo={commentsLayout}
-              class="my-2 data-[direction=vertical]:my-0"
-            />
-            <ResizablePane bind:this={commentsPane} defaultSize={commentsLayout[1]} minSize={20} class="flex min-h-0 min-w-0 flex-col">
-              <CommentDialog
-                bind:open={() => showCommentDialog, (v) => showComments = v}
-                inlineSidebar
-                subjectType={SubjectType.Entry}
-                subjectId={entry.id}
-                subjectName={headword}
-                unreadComments={entryUnreadResource.current}
-                onUnreadCommentsChange={(comments) => entryUnreadResource.mutate(comments)}
-                class={commentsDirection === 'vertical'
-                  ? 'rounded-none border-0 shadow-none'
-                  : undefined}
-              />
-            </ResizablePane>
-          </ResizablePaneGroup>
-        {/key}
-      {:else}
-        {@render entryColumn(entry)}
+        <ResizableHandle
+          withHandle
+          variant={commentsDirection === 'vertical' ? 'grab-bar' : 'divider'}
+          leftPane={entryPane}
+          rightPane={commentsPane}
+          resetTo={commentsLayout}
+          class="my-2 data-[direction=vertical]:my-0"
+        />
+        <ResizablePane
+          bind:this={commentsPane}
+          defaultSize={commentsLayout[1]}
+          minSize={20}
+          class="flex min-h-0 min-w-0 flex-col"
+        >
+          <CommentDialog
+            bind:open={() => showCommentDialog, (v) => showComments = v}
+            subjectType={SubjectType.Entry}
+            subjectId={entry.id}
+            unreadComments={entryUnreadResource.current}
+            onUnreadCommentsChange={(comments) => entryUnreadResource.mutate(comments)}
+            class={commentsDirection === 'vertical' ? 'rounded-none border-0 shadow-none' : undefined}
+          />
+        </ResizablePane>
       {/if}
-    </div>
+    </ResizablePaneGroup>
   {/if}
   {#if loadingDebounced.current && entryResource.current?.id !== entryId}
     <div
