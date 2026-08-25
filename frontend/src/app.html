@@ -16,13 +16,6 @@
             window.lexbox = {};
             window.lexbox.fetchProxy = (...args) => _fetch(...args);
             window.fetch = (...args) => window.lexbox.fetchProxy(...args);
-            // OpenTelemetry's browser OTLP exporter sends trace batches via `globalThis.fetch.__original`
-            // when that property exists, so its own export request bypasses fetch instrumentation.
-            // Without this it would be traced -> exported -> traced, in an endless loop (the exporter
-            // switched from an untraced sendBeacon transport to fetch in @opentelemetry/otlp-exporter-base
-            // >= 0.217). Our proxy replaces the fetch reference the exporter reads, so we re-expose the
-            // native fetch here to preserve that escape hatch. Keep this whenever the proxy is changed.
-            window.fetch.__original = _fetch;
         </script>
 
 		%sveltekit.head%
