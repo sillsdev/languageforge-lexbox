@@ -1,5 +1,6 @@
 using SIL.Harmony.Config;
 using System.Net;
+using FwLiteShared.Analytics;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
@@ -25,6 +26,11 @@ public static class FwLiteSharedKernel
     {
         services.AddMemoryCache();
         services.AddHttpClient();
+        services.AddHttpClient(MixpanelAnalytics.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+        services.AddSingleton<IAnalyticsService, AnalyticsService>();
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();
         services.AddLogging();
