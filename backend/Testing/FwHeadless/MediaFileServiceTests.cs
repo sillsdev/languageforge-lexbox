@@ -325,4 +325,21 @@ public class MediaFileServiceTests : IDisposable
         path.Should().Be(FullFilePath(mediaFile));
         Directory.EnumerateFiles(_cache.LangProject.LinkedFilesRootDir).Should().Contain(path);
     }
+
+    [Fact]
+    public async Task FindMediaFile_MatchesRowWithForeignPathSeparators()
+    {
+        //a db row recorded with backslashes (e.g. written on Windows). Query paths always normalize to
+        //'/', so without normalizing the stored column too this row wouldn't match on a '/'-based host.
+        var backslashRelative = LinkedFileRelativePath("FindSep.txt").Replace('/', '\\');
+        var seeded = new MediaFile { Filename = backslashRelative, ProjectId = _projectId };
+        _lexBoxDbContext.Files.Add(seeded);
+        await _lexBoxDbContext.SaveChangesAsync();
+
+        //...must still be found by its absolute path, which resolves with the host separator
+        var absolutePath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath("FindSep.txt"));
+        var found = _service.FindMediaFile(_projectId, absolutePath);
+
+        found.Id.Should().Be(seeded.Id);
+    }
 }
