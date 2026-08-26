@@ -17,7 +17,6 @@
 
 <script lang="ts">
   import type {Snippet} from 'svelte';
-  import {featureFlags} from '$lib/feature-flags/feature-flags.svelte';
 
   interface Props {
     invisible?: boolean;

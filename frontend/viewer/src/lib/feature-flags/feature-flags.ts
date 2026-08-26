@@ -38,6 +38,7 @@ export function channelHasFlag(
   channelFlags: Readonly<Record<string, readonly string[]>> = CHANNEL_FLAGS,
 ): boolean {
   if (isDevChannel(channel)) return true;
+  if (channel === '') return false;//production channel has no flags
   return flagsForChannel(channel, channelFlags).includes(flag);
 }
 
@@ -47,15 +48,14 @@ export function readStoredChannel(
   try {
     if (!storage) return '';
     const stored = normalizeChannel(storage.getItem(STORAGE_KEY) ?? '');
+    if (stored) return stored;
     const legacyDev = storage.getItem(LEGACY_DEV_MODE_KEY) === 'true';
     if (legacyDev) {
       storage.removeItem(LEGACY_DEV_MODE_KEY);
-      if (!stored) {
-        storage.setItem(STORAGE_KEY, DEV_CHANNEL);
-        return DEV_CHANNEL;
-      }
+      storage.setItem(STORAGE_KEY, DEV_CHANNEL);
+      return DEV_CHANNEL;
     }
-    return stored;
+    return '';
   } catch {
     return '';
   }
@@ -68,8 +68,12 @@ export function persistChannel(
   try {
     if (!storage) return;
     const normalized = normalizeChannel(channel);
-    if (normalized) storage.setItem(STORAGE_KEY, normalized);
-    else storage.removeItem(STORAGE_KEY);
+    if (normalized) {
+      storage.setItem(STORAGE_KEY, normalized);
+    }
+    else {
+      storage.removeItem(STORAGE_KEY);
+    }
     storage.removeItem(LEGACY_DEV_MODE_KEY);
   } catch {
     // ignore quota / private mode
