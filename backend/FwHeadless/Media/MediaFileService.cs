@@ -26,7 +26,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var existingFwFiles = FilesRelativeToHgRepo(cache).ToHashSet();
         await foreach (var mediaFile in existingDbFiles)
         {
-            if (existingFwFiles.Remove(mediaFile.Filename))
+            if (existingFwFiles.Remove(NormalizePathSeparators(mediaFile.Filename)))
             {
                 //nothing to do, the file exists in the db and in the hg repo
                 continue;
@@ -63,9 +63,15 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         if (!Directory.Exists(cache.LangProject.LinkedFilesRootDir)) yield break;
         foreach (var file in Directory.EnumerateFiles(cache.LangProject.LinkedFilesRootDir, "*", SearchOption.AllDirectories))
         {
-            yield return Path.GetRelativePath(cache.ProjectId.ProjectFolder, file);
+            yield return NormalizePathSeparators(Path.GetRelativePath(cache.ProjectId.ProjectFolder, file));
         }
     }
+
+    // Filename is matched against the enumerated repo paths by exact string. Canonicalise to forward
+    // slashes so the match key doesn't depend on the OS that wrote it (fw-headless runs on Linux, dev/test
+    // on Windows). Without this, a row stored under one separator convention fails to match its on-disk
+    // file, gets removed + re-added with a fresh Guid, and churns the Id the CRDT/FwData bridge relies on.
+    private static string NormalizePathSeparators(string path) => path.Replace('\\', '/');
 
     /// <summary>
     /// find a media file based on the path and project

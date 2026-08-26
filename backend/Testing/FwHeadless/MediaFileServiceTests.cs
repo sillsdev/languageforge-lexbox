@@ -68,13 +68,19 @@ public class MediaFileServiceTests : IDisposable
         File.WriteAllText(Path.Join(_cache.LangProject.LinkedFilesRootDir, fileName), "test");
     }
 
+    //the Filename stored in the db for a linked file: its path relative to the project folder
+    private string LinkedFileRelativePath(string fileName)
+    {
+        return Path.Join(
+            Path.GetRelativePath(_cache.ProjectId.ProjectFolder, _cache.LangProject.LinkedFilesRootDir),
+            fileName);
+    }
+
     private async Task<MediaFile> AddDbFile(string fileName)
     {
         var mediaFile = new MediaFile()
         {
-            Filename = Path.Join(
-                Path.GetRelativePath(_cache.ProjectId.ProjectFolder, _cache.LangProject.LinkedFilesRootDir),
-                fileName),
+            Filename = LinkedFileRelativePath(fileName),
             ProjectId = _projectId
         };
         _lexBoxDbContext.Files.Add(mediaFile);
@@ -137,13 +143,65 @@ public class MediaFileServiceTests : IDisposable
     public async Task Sync_PreExistingFilesArePreserved()
     {
         AddFwFile("SomeFile.txt");
-        await AddDbFile("SomeFile.txt");
+        var seeded = await AddDbFile("SomeFile.txt");
+        var seededId = seeded.Id;
 
         var result = await _service.SyncMediaFiles(_cache);
         result.Added.Should().BeEmpty();
         result.Removed.Should().BeEmpty();
 
         await AssertDbFileExists("SomeFile.txt");
+        //the Id must be preserved, not reminted, since it anchors the file in the CRDT/FwData bridge
+        var row = await _lexBoxDbContext.Files.SingleAsync(f => f.ProjectId == _projectId);
+        row.Id.Should().Be(seededId);
+    }
+
+    [Fact]
+    public async Task Sync_AssignsStableId_AcrossReSync()
+    {
+        AddFwFile("StableId.txt");
+
+        var first = await _service.SyncMediaFiles(_cache);
+        first.Added.Should().ContainSingle();
+        var assignedId = first.Added[0].Id;
+
+        //re-read from the db so the second sync doesn't just see the tracked instance
+        _lexBoxDbContext.ChangeTracker.Clear();
+
+        var second = await _service.SyncMediaFiles(_cache);
+        second.Added.Should().BeEmpty();
+        second.Removed.Should().BeEmpty();
+
+        var row = await _lexBoxDbContext.Files.SingleAsync(f => f.ProjectId == _projectId);
+        row.Id.Should().Be(assignedId);
+    }
+
+    [Fact]
+    public async Task Sync_PreservesId_WhenStoredFilenameUsesForeignPathSeparators()
+    {
+        //the file on disk is enumerated with the host separator...
+        AddFwFile("SepTest.txt");
+
+        //...but the db row records the same file using the *other* separator convention, simulating a
+        //row written under a different OS (fw-headless runs on Linux '/', dev/test on Windows '\').
+        var hostRelative = LinkedFileRelativePath("SepTest.txt");
+        var foreignSep = Path.DirectorySeparatorChar == '/' ? '\\' : '/';
+        var foreignRelative = hostRelative.Replace(Path.DirectorySeparatorChar, foreignSep);
+
+        var seeded = new MediaFile { Filename = foreignRelative, ProjectId = _projectId };
+        _lexBoxDbContext.Files.Add(seeded);
+        await _lexBoxDbContext.SaveChangesAsync();
+        var seededId = seeded.Id;
+
+        var result = await _service.SyncMediaFiles(_cache);
+
+        //the file must be recognised as the same one: not removed, not re-added with a fresh guid
+        result.Added.Should().BeEmpty();
+        result.Removed.Should().BeEmpty();
+
+        var rows = await _lexBoxDbContext.Files.Where(f => f.ProjectId == _projectId).ToArrayAsync();
+        rows.Should().ContainSingle();
+        rows[0].Id.Should().Be(seededId);
     }
 
     [Fact]
