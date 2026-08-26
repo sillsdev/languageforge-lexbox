@@ -64,12 +64,18 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         return (fileListing, result);
     }
 
-    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, string? overrideSubfolder = null, string? contentType = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null)
+    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, string? overrideSubfolder = null, string? contentType = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null, Guid? fileId = null)
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
         using (var formData = new MultipartFormDataContent())
         {
+            // When set, the server creates/updates the Files row under this exact id (MediaFileController.CreateOrUpdateMediaFile)
+            // instead of minting a fresh one. Required to heal a specific referenced media id.
+            if (fileId is not null)
+            {
+                formData.Add(new StringContent(fileId.Value.ToString()), name: "fileId");
+            }
             if (overrideFilename is not null)
             {
                 formData.Add(new StringContent(overrideFilename), name: "filename");
