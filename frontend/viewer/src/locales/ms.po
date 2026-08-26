@@ -100,6 +100,10 @@ msgstr "{num, plural, other {# komit FieldWorks Classic baharu}}"
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, other {# komit FieldWorks Lite baharu}}"
 
+#: src/project/browse/filter/UnreadCommentBadge.svelte
+msgid "{num, plural, one {# unread comment} other {# unread comments}}"
+msgstr ""
+
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
@@ -148,11 +152,6 @@ msgstr ""
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "satu perkataan"
-
-#. Dialog title
-#: src/lib/about/AboutDialog.svelte
-msgid "About"
-msgstr "Mengenai"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -478,10 +477,8 @@ msgid "clear"
 msgstr "padam"
 
 #. Button to close popup
-#: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
@@ -507,14 +504,9 @@ msgstr "Warna"
 msgid "Comment"
 msgstr ""
 
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
-msgstr ""
-
-#: src/lib/entry-editor/comments/CommentDialog.svelte
-msgid "Comments for {0}"
 msgstr ""
 
 #: src/project/browse/EntryView.svelte
@@ -1259,6 +1251,14 @@ msgstr "hijau"
 msgid "Harmony snapshots regenerated successfully"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Has comments"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unread comments"
+msgstr ""
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
@@ -1333,6 +1333,7 @@ msgstr "Pasang Kemas Kini"
 msgid "Installing Update..."
 msgstr "Memasang Kemas Kini..."
 
+#. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
 msgstr ""

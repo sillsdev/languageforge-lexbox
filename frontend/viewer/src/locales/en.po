@@ -95,6 +95,10 @@ msgstr "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWo
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 
+#: src/project/browse/filter/UnreadCommentBadge.svelte
+msgid "{num, plural, one {# unread comment} other {# unread comments}}"
+msgstr "{num, plural, one {# unread comment} other {# unread comments}}"
+
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
@@ -143,11 +147,6 @@ msgstr "A similar word already exists"
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "a word"
-
-#. Dialog title
-#: src/lib/about/AboutDialog.svelte
-msgid "About"
-msgstr "About"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -473,10 +472,8 @@ msgid "clear"
 msgstr "clear"
 
 #. Button to close popup
-#: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
@@ -502,15 +499,10 @@ msgstr "Color"
 msgid "Comment"
 msgstr "Comment"
 
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
 msgstr "Comments"
-
-#: src/lib/entry-editor/comments/CommentDialog.svelte
-msgid "Comments for {0}"
-msgstr "Comments for {0}"
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
@@ -1253,6 +1245,14 @@ msgstr "green"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Harmony snapshots regenerated successfully"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has comments"
+msgstr "Has comments"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unread comments"
+msgstr "Has unread comments"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)

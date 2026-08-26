@@ -624,6 +624,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.MarkCommentRead(commentId);
     }
 
+    public Task MarkCommentThreadUnread(Guid threadId)
+    {
+        return _api.MarkCommentThreadUnread(threadId);
+    }
+
     public Task MarkCommentThreadRead(Guid threadId)
     {
         return _api.MarkCommentThreadRead(threadId);

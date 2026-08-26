@@ -40,4 +40,6 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
     public override Expression<Func<ILexEntry, object?>> EntryPublishIn => e => EmptyToNull(e.PublishIn);
     public override Expression<Func<ILexEntry, object?>> EntryPublishInId => e => e.PublishIn.Select(p => p.Guid);
     public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToNull<ICmPossibility>;
+    public override Expression<Func<ILexEntry, object?>> EntryCommentThreads => e => null;
+    public override Expression<Func<ILexEntry, object?>> EntryUnreadComments => e => null;
 }

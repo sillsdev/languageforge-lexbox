@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using LcmCrdt.Data;
 using LinqToDB;
 using MiniLcm.Filtering;
 
@@ -37,4 +38,7 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
     public override Expression<Func<Entry, object?>> EntryPublishInId =>
         e => e.PublishIn.Select(p => Json.Value(p, p => p.Id.ToString()));
     public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToEmptyList<Publication>;
+
+    public override Expression<Func<Entry, object?>> EntryCommentThreads => e => EntryQueryHelpers.QueryCommentThreads(e);
+    public override Expression<Func<Entry, object?>> EntryUnreadComments => e => EntryQueryHelpers.QueryEntryUnreadComments(e);
 }

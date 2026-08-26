@@ -30,6 +30,8 @@ public class EntryFilter
         mapper.AddMap(nameof(Entry.ComplexFormTypes), provider.EntryComplexFormTypes, provider.EntryComplexFormTypesConverter);
         mapper.AddMap(nameof(Entry.PublishIn), provider.EntryPublishIn, provider.EntryPublishInConverter);
         mapper.AddMap($"{nameof(Entry.PublishIn)}.{nameof(Publication.Id)}", provider.EntryPublishInId);
+        mapper.AddMap("CommentThreads", provider.EntryCommentThreads, NormalizeEmptyToNull<CommentThread>);
+        mapper.AddMap("UnreadComments", provider.EntryUnreadComments, NormalizeEmptyToNull<object>);
         return mapper;
     }
 
