@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
 using LexCore.Sync;
+using MiniLcm.Media;
 using SIL.Harmony.Core;
 
 namespace Testing.FwHeadless;
@@ -100,6 +101,26 @@ public class UnresolvedMediaSyncTests : MediaFileTestFixture
           }
           """);
 
+    // SCENARIO 1: an entry whose citation form (audio WS) is the not-found SENTINEL
+    // (MediaUri.NotFoundString == "sil-media://not-found/00000000-0000-0000-0000-000000000000", FileId == Guid.Empty).
+    // Distinct from scenario 2 above, which uses a real, non-empty Guid. Per research 01/03 the sentinel only
+    // originates from a FwData→CRDT import read of an out-of-tree file (no FwLite user action mints it, and the
+    // original path is discarded and unrecoverable — MediaUri.NotFound carries no query/fragment). Injecting the
+    // sentinel value straight into the CreateEntryChange faithfully represents the CRDT state such an import
+    // produces — the sentinel is the only thing that survives that read — and is the scenario-1 analogue of how
+    // the ticket-15 unit repro directly sets the offending string. There is NO Files row and NO Harmony resource
+    // (a sentinel has no id to key on), which is exactly why scenario 1 has no heal phase.
+    private static (Guid entityId, string changeJson) SentinelAudioEntryChange(Guid entryId) => (entryId,
+        $$"""
+          {
+            "$type": "CreateEntryChange",
+            "LexemeForm": { "en": "rambuta" },
+            "CitationForm": { "{{AudioWs}}": "{{MediaUri.NotFoundString}}" },
+            "Note": {},
+            "EntityId": "{{entryId}}"
+          }
+          """);
+
     // A not-yet-uploaded (RemoteId == null) Harmony resource for the same id. Exact JSON shape captured from
     // a real serialized change (LcmCrdt.Tests ChangeDeserializationRegressionData.latest.verified.txt).
     // This is what the thread-B reconcile deletes today, one step before the CRDT→FwData write.
@@ -163,6 +184,42 @@ public class UnresolvedMediaSyncTests : MediaFileTestFixture
             "the unresolved audio reference must be skipped rather than crash the whole sync job " +
             "(RED until the thread-A skip-field fix lands; today this is UnknownError, Error: {0})",
             result.Error);
+    }
+
+    [Fact]
+    public async Task Sync_WithNotFoundSentinelMediaReference_SkipsFieldAndSucceeds()
+    {
+        // SCENARIO 1 (the not-found sentinel). The first (import) sync already ran in InitializeAsync, so a
+        // ProjectSnapshot exists and this second sync takes the CRDT→FwData Sync path. The entry does NOT yet
+        // exist on the FwData side, so sync classifies it as an add and takes CreateEntry's unguarded
+        // UpdateLcmMultiString→SetString→FromMediaUri path — the create path is unguarded, unlike the update
+        // path which ShouldSet already protects, so scenario 1 crashes ONLY on create.
+        var wsId = Guid.NewGuid();
+        var entryId = Guid.NewGuid();
+        // No fileId, no Files row, no Harmony resource: the sentinel is FileId == Guid.Empty and identity-free.
+        await InjectCrdtCommits(ProjectId,
+            AudioWritingSystemChange(wsId),
+            SentinelAudioEntryChange(entryId));
+
+        await FwHeadlessTestHelpers.TriggerSync(HttpClient, ProjectId);
+        var result = await FwHeadlessTestHelpers.AwaitSyncResult(HttpClient, ProjectId);
+        result.Should().NotBeNull();
+
+        // BUG TODAY: on the create path PathFromMediaUri(Guid.Empty) → null → NotFoundException at FromMediaUri
+        // → SyncObjectException, which kills the whole sync job. SyncHostedService reports
+        // result.Status == UnknownError with result.Error containing "File ID:" (Guid.Empty,
+        // 00000000-0000-0000-0000-000000000000).
+        // DESIRED after the ticket-13 fix: the sentinel audio field is skipped and the rest of the entry syncs,
+        // so the whole job succeeds. RED until the fix lands.
+        result!.Status.Should().Be(SyncJobStatusEnum.Success,
+            "the not-found sentinel audio reference must be skipped rather than crash the whole sync job " +
+            "(RED until the skip-field fix lands; today this is UnknownError, Error: {0})",
+            result.Error);
+
+        // NO heal round-trip here — deliberately unlike scenario 2 (HealsAfterBinaryUpload). The sentinel is an
+        // identity-free constant (FileId == Guid.Empty) with no key and no pending binary to heal against, and an
+        // out-of-tree file never reaches the server, so there is nothing to POST to /api/media and nothing to
+        // re-resolve. The audio stays absent; re-attaching it is a manual user action (ticket 13, Q5 = C).
     }
 
     [Fact]

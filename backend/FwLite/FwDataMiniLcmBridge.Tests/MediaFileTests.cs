@@ -199,6 +199,64 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task GetEntry_RootedPathUnderLinkedFilesResolvesNormally()
+    {
+        // Decided handling (ticket 13, normalize-then-classify): a rooted/absolute audio path that
+        // resolves UNDER LinkedFilesRootDir/AudioVisual is a managed file expressed as an absolute
+        // path. It must be relativized and resolved normally -> a real, resolvable MediaUri.
+        // TODAY this instead crashes: ToMediaUri (FwDataMiniLcmApi.cs:896-897) throws
+        // ArgumentException("Media path must be relative") on the FwData->CRDT read, before any
+        // adapter/DB call, so this test is RED (it throws inside GetEntry) until the fix lands.
+        var fileName = "GetEntry_RootedPathUnderLinkedFiles.txt";
+        var fileId = await StoreFileContentsAsync(fileName, "test");
+        var rootedPathUnderTree = Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir,
+            FwDataMiniLcmApi.AudioVisualFolder, fileName);
+        Path.IsPathRooted(rootedPathUnderTree).Should().BeTrue("the test is vacuous unless the stored FwData value is a rooted path");
+        var entryId = await AddFileDirectly(rootedPathUnderTree, contents: null, storeFile: false);
+        // guard: FwData really holds the rooted absolute path, not a relative one
+        GetFwAudioValue(entryId).Should().Be(rootedPathUnderTree);
+
+        var entry = await _api.GetEntry(entryId);
+
+        entry.Should().NotBeNull();
+        entry.CitationForm[_audioWs].Should().Be(new MediaUri(fileId, "localhost").ToString(),
+            "a rooted path under LinkedFilesRootDir/AudioVisual should be relativized and resolved to its managed MediaUri; today ToMediaUri instead throws ArgumentException(\"Media path must be relative\") on read (FwDataMiniLcmApi.cs:896-897)");
+    }
+
+    [Fact]
+    public async Task GetEntry_OutOfTreeRootedPathMapsToNotFoundSentinel()
+    {
+        // Decided handling (ticket 13): a GENUINELY out-of-tree rooted path can't be resolved to a
+        // managed media file, so on the FwData->CRDT read it must become the not-found sentinel
+        // (no throw) - the same value the bare-filename missing-file case already produces
+        // (GetEntry_MissingFileWorks). It then SKIPS on the CRDT->FwData write (ShouldSet guards
+        // MediaUri.NotFoundString), leaving FwData's original reference untouched.
+        // TODAY this crashes instead: ToMediaUri (FwDataMiniLcmApi.cs:896-897) throws
+        // ArgumentException("Media path must be relative") on read, so this test is RED (it throws
+        // inside GetEntry) until the fix lands.
+        var outOfTreeRootedPath = Path.Combine(Path.GetTempPath(),
+            "lexbox-out-of-tree-media", "GetEntry_OutOfTreeRootedPath.wav");
+        Path.IsPathRooted(outOfTreeRootedPath).Should().BeTrue("the test is vacuous unless the stored FwData value is a rooted path");
+        outOfTreeRootedPath.StartsWith(_api.Cache.LangProject.LinkedFilesRootDir).Should()
+            .BeFalse("the test is vacuous unless the rooted path is genuinely outside LinkedFilesRootDir");
+        var entryId = await AddFileDirectly(outOfTreeRootedPath, contents: null, storeFile: false);
+        // guard: FwData really holds the rooted out-of-tree path
+        GetFwAudioValue(entryId).Should().Be(outOfTreeRootedPath);
+
+        // read path: out-of-tree rooted path -> not-found sentinel, no throw
+        var entry = await _api.GetEntry(entryId);
+        entry.Should().NotBeNull();
+        entry.CitationForm[_audioWs].Should().Be(MediaUri.NotFound.ToString(),
+            "a genuinely out-of-tree rooted path should map to the not-found sentinel on read; today ToMediaUri instead throws ArgumentException(\"Media path must be relative\") (FwDataMiniLcmApi.cs:896-897)");
+
+        // write path: the sentinel skips (ShouldSet), so FwData keeps its original out-of-tree reference
+        await _api.UpdateEntry(entryId,
+            new UpdateObjectInput<Entry>().Set(e => e.CitationForm[_audioWs], MediaUri.NotFound.ToString()));
+        GetFwAudioValue(entryId).Should().Be(outOfTreeRootedPath,
+            "writing the not-found sentinel must skip the audio field and leave FwData's original reference untouched");
+    }
+
+    [Fact]
     public async Task SearchEntries_DoesNotMatchAudioWritingSystemValues()
     {
         // The audio writing system's value is a media-file reference, not searchable text.
