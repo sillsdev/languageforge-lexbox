@@ -35,8 +35,8 @@
         "Abbreviation": {},
         "Code": "4.1.9.2.1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
       },
@@ -80,8 +80,8 @@
         "Abbreviation": {},
         "Code": "2.5.3.2",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
       },
@@ -2191,8 +2191,8 @@
             "Abbreviation": {},
             "Code": "Gorgeous",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -2508,8 +2508,8 @@
             "Abbreviation": {},
             "Code": "SSL",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -2731,8 +2731,8 @@
             "Abbreviation": {},
             "Code": "Rand",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -3008,8 +3008,8 @@
             "Abbreviation": {},
             "Code": "orange",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -3432,8 +3432,8 @@
             "Abbreviation": {},
             "Code": "North Korean Won",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -3811,8 +3811,8 @@
             "Abbreviation": {},
             "Code": "auxiliary",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -4095,8 +4095,8 @@
         "Abbreviation": {},
         "Code": "4.1.9.2.1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
       },
@@ -4131,8 +4131,8 @@
         "Abbreviation": {},
         "Code": "Cambridgeshire",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
       },
@@ -4167,8 +4167,8 @@
         "Abbreviation": {},
         "Code": "2.5.3.2",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
       },
@@ -4209,8 +4209,8 @@
         "Abbreviation": {},
         "Code": "Myanmar",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
       },
@@ -4553,8 +4553,8 @@
             "Abbreviation": {},
             "Code": "Gorgeous",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -5069,8 +5069,8 @@
             "Abbreviation": {},
             "Code": "composite",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -5339,8 +5339,8 @@
             "Abbreviation": {},
             "Code": "synthesize",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -5571,8 +5571,8 @@
             "Abbreviation": {},
             "Code": "SSL",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -5839,8 +5839,8 @@
             "Abbreviation": {},
             "Code": "mint green",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -6099,8 +6099,8 @@
             "Abbreviation": {},
             "Code": "Rand",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -6366,8 +6366,8 @@
             "Abbreviation": {},
             "Code": "Auto Loan Account",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -6683,8 +6683,8 @@
             "Abbreviation": {},
             "Code": "Frozen",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -6917,8 +6917,8 @@
             "Abbreviation": {},
             "Code": "orange",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -7346,8 +7346,8 @@
             "Abbreviation": {},
             "Code": "mission-critical",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -7710,8 +7710,8 @@
             "Abbreviation": {},
             "Code": "North Korean Won",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -7994,8 +7994,8 @@
             "Abbreviation": {},
             "Code": "Awesome Fresh Sausages",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -8225,8 +8225,8 @@
             "Abbreviation": {},
             "Code": "Brazilian Real",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -8584,8 +8584,8 @@
             "Abbreviation": {},
             "Code": "auxiliary",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
@@ -8962,8 +8962,8 @@
             "Abbreviation": {},
             "Code": "applications",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": false
           }
