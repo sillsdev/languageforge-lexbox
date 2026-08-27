@@ -55,8 +55,6 @@ public static class AutoFakerDefault
                         domain.Abbreviation = new MultiString { { "en", code } };
                         domain.Code = code;
                         domain.Description ??= new RichMultiString();
-                        domain.OcmCodes ??= string.Empty;
-                        domain.LouwNidaCodes ??= string.Empty;
                     }
                 }, true),
                 new SimpleOverride<Publication>(context =>

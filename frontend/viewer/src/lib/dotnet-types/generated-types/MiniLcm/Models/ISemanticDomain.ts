@@ -14,8 +14,8 @@ export interface ISemanticDomain extends IObjectWithId
 	abbreviation: IMultiString;
 	code: string;
 	description: IRichMultiString;
-	ocmCodes: string;
-	louwNidaCodes: string;
+	ocmCodes?: string;
+	louwNidaCodes?: string;
 	deletedAt?: string;
 	predefined: boolean;
 }

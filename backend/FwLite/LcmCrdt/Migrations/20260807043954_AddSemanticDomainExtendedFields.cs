@@ -28,15 +28,13 @@ namespace LcmCrdt.Migrations
                 name: "LouwNidaCodes",
                 table: "SemanticDomain",
                 type: "TEXT",
-                nullable: false,
-                defaultValue: "");
+                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "OcmCodes",
                 table: "SemanticDomain",
                 type: "TEXT",
-                nullable: false,
-                defaultValue: "");
+                nullable: true);
         }
 
         /// <inheritdoc />

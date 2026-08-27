@@ -147,8 +147,6 @@
         "Abbreviation": {},
         "Code": "1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_16"
@@ -173,8 +171,6 @@
         "Abbreviation": {},
         "Code": "1.1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_19"
@@ -199,8 +195,6 @@
         "Abbreviation": {},
         "Code": "1.2",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_21"
@@ -225,8 +219,6 @@
         "Abbreviation": {},
         "Code": "2",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_23"
@@ -251,8 +243,6 @@
         "Abbreviation": {},
         "Code": "2.1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_25"
@@ -277,8 +267,6 @@
         "Abbreviation": {},
         "Code": "2.1.1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_27"
@@ -303,8 +291,6 @@
         "Abbreviation": {},
         "Code": "2.1.1.1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
         "Predefined": true
       },
       "Id": "Guid_29"

@@ -428,8 +428,8 @@ public class FwDataMiniLcmApi(
             Abbreviation = FromLcmMultiString(semanticDomain.Abbreviation),
             Code = LcmHelpers.GetSemanticDomainCode(semanticDomain),
             Description = FromLcmMultiString(semanticDomain.Description),
-            OcmCodes = semanticDomain.OcmCodes ?? string.Empty,
-            LouwNidaCodes = semanticDomain.LouwNidaCodes ?? string.Empty,
+            OcmCodes = semanticDomain.OcmCodes,
+            LouwNidaCodes = semanticDomain.LouwNidaCodes,
             Predefined = CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(semanticDomain.Guid),
         };
     }

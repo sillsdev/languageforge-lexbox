@@ -878,8 +878,8 @@
         "Abbreviation": {},
         "Code": "2",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
       },
@@ -907,8 +907,8 @@
         "Abbreviation": {},
         "Code": "2.1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
       },
@@ -936,8 +936,8 @@
         "Abbreviation": {},
         "Code": "2.1.1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
       },
@@ -965,8 +965,8 @@
         "Abbreviation": {},
         "Code": "2.1.1.1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
       },
@@ -994,8 +994,8 @@
         "Abbreviation": {},
         "Code": "1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
       },
@@ -1023,8 +1023,8 @@
         "Abbreviation": {},
         "Code": "1.1",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
       },
@@ -1052,8 +1052,8 @@
         "Abbreviation": {},
         "Code": "1.2",
         "Description": {},
-        "OcmCodes": "",
-        "LouwNidaCodes": "",
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
       },
@@ -1383,8 +1383,8 @@
             "Abbreviation": {},
             "Code": "1",
             "Description": {},
-            "OcmCodes": "",
-            "LouwNidaCodes": "",
+            "OcmCodes": null,
+            "LouwNidaCodes": null,
             "DeletedAt": null,
             "Predefined": true
           }

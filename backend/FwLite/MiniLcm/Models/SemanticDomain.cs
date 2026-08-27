@@ -12,8 +12,8 @@ public class SemanticDomain : IPossibility, IObjectWithId<SemanticDomain>
     /// </summary>
     public virtual string Code { get; set; } = string.Empty;
     public virtual RichMultiString Description { get; set; } = new();
-    public virtual string OcmCodes { get; set; } = string.Empty;
-    public virtual string LouwNidaCodes { get; set; } = string.Empty;
+    public virtual string? OcmCodes { get; set; }
+    public virtual string? LouwNidaCodes { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public bool Predefined { get; set; }
 

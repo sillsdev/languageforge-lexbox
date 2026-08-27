@@ -202,7 +202,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         yield return new ChangeWithDependencies(createSensePictureChange, [createSenseChange]);
 
         var semanticDomain = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "test sd" } } };
-        var createSemanticDomainChange = new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, "1.1.1");
+        var createSemanticDomainChange = new CreateSemanticDomainChange(new SemanticDomain { Id = semanticDomain.Id, Name = semanticDomain.Name, Code = "1.1.1" });
         yield return new ChangeWithDependencies(createSemanticDomainChange);
 
         var writingSystem = new WritingSystem { Id = Guid.NewGuid(), WsId = "de", Name = "test ws", Abbreviation = "tws", Font = "Arial", Type = WritingSystemType.Vernacular };
@@ -239,7 +239,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         yield return new ChangeWithDependencies(addSemanticDomainChange, [createSenseChange, createSemanticDomainChange]);
 
         var semanticDomain2 = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "sd 2" } } };
-        var addSemanticDomain2Change = new CreateSemanticDomainChange(semanticDomain2.Id, semanticDomain2.Name, "1.1.2");
+        var addSemanticDomain2Change = new CreateSemanticDomainChange(new SemanticDomain { Id = semanticDomain2.Id, Name = semanticDomain2.Name, Code = "1.1.2" });
         yield return new ChangeWithDependencies(addSemanticDomain2Change);
 
         var replaceSemanticDomainChange = new ReplaceSemanticDomainChange(semanticDomain.Id, semanticDomain2, sense.Id);

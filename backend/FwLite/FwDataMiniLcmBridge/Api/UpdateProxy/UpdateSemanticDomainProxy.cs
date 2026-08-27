@@ -40,15 +40,15 @@ public class UpdateSemanticDomainProxy : SemanticDomain
         set { }
     }
 
-    public override string OcmCodes
+    public override string? OcmCodes
     {
-        get => _lcmSemanticDomain.OcmCodes ?? string.Empty;
+        get => _lcmSemanticDomain.OcmCodes;
         set => _lcmSemanticDomain.OcmCodes = value;
     }
 
-    public override string LouwNidaCodes
+    public override string? LouwNidaCodes
     {
-        get => _lcmSemanticDomain.LouwNidaCodes ?? string.Empty;
+        get => _lcmSemanticDomain.LouwNidaCodes;
         set => _lcmSemanticDomain.LouwNidaCodes = value;
     }
 }

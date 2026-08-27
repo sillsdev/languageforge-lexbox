@@ -21,12 +21,6 @@ public class CreateSemanticDomainChange : CreateChange<SemanticDomain>, ISelfNam
         Code = SemanticDomain.ResolveCode(semanticDomain.Abbreviation, semanticDomain.Code);
     }
 
-    [SetsRequiredMembers]
-    public CreateSemanticDomainChange(Guid entityId, MultiString name, string code, bool predefined = false)
-        : this(new SemanticDomain { Id = entityId, Name = name, Code = code, Predefined = predefined })
-    {
-    }
-
     // must use the name `entityId` to support json deserialization as it must match the name of the property
     [JsonConstructor]
     [SetsRequiredMembers]
@@ -40,8 +34,8 @@ public class CreateSemanticDomainChange : CreateChange<SemanticDomain>, ISelfNam
     public string Code { get; init; } = string.Empty;
     public MultiString Abbreviation { get; init; } = new();
     public RichMultiString Description { get; init; } = new();
-    public string OcmCodes { get; init; } = string.Empty;
-    public string LouwNidaCodes { get; init; } = string.Empty;
+    public string? OcmCodes { get; init; }
+    public string? LouwNidaCodes { get; init; }
 
     public override ValueTask<SemanticDomain> NewEntity(Commit commit, IChangeContext context)
     {

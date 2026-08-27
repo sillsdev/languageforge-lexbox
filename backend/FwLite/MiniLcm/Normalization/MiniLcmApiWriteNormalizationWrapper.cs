@@ -170,8 +170,8 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         copy.Name = StringNormalizer.Normalize(sd.Name);
         copy.Abbreviation = StringNormalizer.Normalize(sd.Abbreviation);
         copy.Description = StringNormalizer.Normalize(sd.Description);
-        copy.OcmCodes = StringNormalizer.Normalize(sd.OcmCodes) ?? string.Empty;
-        copy.LouwNidaCodes = StringNormalizer.Normalize(sd.LouwNidaCodes) ?? string.Empty;
+        copy.OcmCodes = StringNormalizer.Normalize(sd.OcmCodes);
+        copy.LouwNidaCodes = StringNormalizer.Normalize(sd.LouwNidaCodes);
         copy.Code = StringNormalizer.Normalize(SemanticDomain.ResolveCode(copy.Abbreviation, sd.Code)) ?? string.Empty;
         return copy;
     }

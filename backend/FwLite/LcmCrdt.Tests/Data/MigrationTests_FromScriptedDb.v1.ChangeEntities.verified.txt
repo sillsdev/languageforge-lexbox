@@ -101,8 +101,8 @@
       "Code": "1",
       "Abbreviation": {},
       "Description": {},
-      "OcmCodes": "",
-      "LouwNidaCodes": "",
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d0"
     }
   },
@@ -119,8 +119,8 @@
       "Code": "1.1",
       "Abbreviation": {},
       "Description": {},
-      "OcmCodes": "",
-      "LouwNidaCodes": "",
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d1"
     }
   },
@@ -137,8 +137,8 @@
       "Code": "1.2",
       "Abbreviation": {},
       "Description": {},
-      "OcmCodes": "",
-      "LouwNidaCodes": "",
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d2"
     }
   },
@@ -155,8 +155,8 @@
       "Code": "2",
       "Abbreviation": {},
       "Description": {},
-      "OcmCodes": "",
-      "LouwNidaCodes": "",
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d3"
     }
   },
@@ -173,8 +173,8 @@
       "Code": "2.1",
       "Abbreviation": {},
       "Description": {},
-      "OcmCodes": "",
-      "LouwNidaCodes": "",
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4"
     }
   },
@@ -191,8 +191,8 @@
       "Code": "2.1.1",
       "Abbreviation": {},
       "Description": {},
-      "OcmCodes": "",
-      "LouwNidaCodes": "",
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5"
     }
   },
@@ -209,8 +209,8 @@
       "Code": "2.1.1.1",
       "Abbreviation": {},
       "Description": {},
-      "OcmCodes": "",
-      "LouwNidaCodes": "",
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6"
     }
   },

@@ -491,7 +491,6 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<string>("LouwNidaCodes")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -499,7 +498,6 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<string>("OcmCodes")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Predefined")
