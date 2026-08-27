@@ -48,10 +48,12 @@ export function readStoredChannel(
   try {
     if (!storage) return '';
     const stored = normalizeChannel(storage.getItem(STORAGE_KEY) ?? '');
-    if (stored) return stored;
     const legacyDev = storage.getItem(LEGACY_DEV_MODE_KEY) === 'true';
+    // The legacy key is obsolete once we've read it: clear it whether or not a
+    // channel is already set, so it can't linger after migration.
+    if (legacyDev) storage.removeItem(LEGACY_DEV_MODE_KEY);
+    if (stored) return stored;
     if (legacyDev) {
-      storage.removeItem(LEGACY_DEV_MODE_KEY);
       storage.setItem(STORAGE_KEY, DEV_CHANNEL);
       return DEV_CHANNEL;
     }
