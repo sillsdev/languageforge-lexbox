@@ -50,7 +50,14 @@
   let viewerPictureId = $state<string>();
   let viewerOpen = $state(false);
 
+  // Revokes the current draft's preview blob url (if any). Called whenever a draft is superseded or
+  // discarded so previews are freed promptly rather than piling up in the cache until dispose().
+  function releaseDraftPreview() {
+    if (draftPicture) imageService.releaseLocalPreview(draftPicture.mediaUri);
+  }
+
   function openEditor(picture: IPicture) {
+    releaseDraftPreview();
     draftPicture = undefined;
     draftFile = undefined;
     editingPictureId = picture.id;
@@ -59,6 +66,7 @@
 
   // Opens the dialog in "add" mode on an in-memory draft (nothing uploaded/created until Submit).
   function openCreate(file: File) {
+    releaseDraftPreview();
     const mediaUri = imageService.registerLocalPreview(file);
     editingPictureId = undefined;
     draftFile = file;
@@ -111,6 +119,8 @@
 
   // In-memory replace for a draft: swap the buffered File + preview, no upload yet.
   function replaceDraftFile(file: File): string {
+    // The old preview is superseded by this one; free it before registering the replacement.
+    releaseDraftPreview();
     const mediaUri = imageService.registerLocalPreview(file);
     draftFile = file;
     if (draftPicture) draftPicture = {...draftPicture, mediaUri};

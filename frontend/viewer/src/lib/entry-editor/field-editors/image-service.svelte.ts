@@ -16,6 +16,8 @@ export type LoadImageOptions = {
   bypassCache?: boolean;
 };
 
+const LOCAL_PREVIEW_PREFIX = 'local-preview:';
+
 /**
  * Loads picture images and hands back a shared blob object URL per mediaUri. Cached until the
  * entry view is torn down.
@@ -50,12 +52,23 @@ export class ImageService {
     return this.#cache.get(mediaUri);
   }
 
-  /** Registers an in-memory file for preview under a synthetic mediaUri and returns that uri.
-      Used for pictures that have not been uploaded yet; the object URL is revoked at dispose(). */
+  /** Registers an in-memory file for preview under a synthetic mediaUri and returns that uri. Used
+      for pictures that have not been uploaded yet. Release it with releaseLocalPreview once the draft
+      is superseded/discarded; any that remain are revoked at dispose(). */
   registerLocalPreview(file: File): string {
-    const uri = `local-preview:${crypto.randomUUID()}`;
+    const uri = `${LOCAL_PREVIEW_PREFIX}${crypto.randomUUID()}`;
     this.#cache.set(uri, {status: 'loaded', url: URL.createObjectURL(file)});
     return uri;
+  }
+
+  /** Revokes and forgets a preview registered via registerLocalPreview. No-op for a real (uploaded)
+      mediaUri, so callers can pass a draft's uri without risking a shared, still-in-use image. */
+  releaseLocalPreview(uri: string): void {
+    if (!uri.startsWith(LOCAL_PREVIEW_PREFIX)) return;
+    const state = this.#cache.get(uri);
+    if (!state) return;
+    URL.revokeObjectURL(state.url);
+    this.#cache.delete(uri);
   }
 
   async #load(mediaUri: string, downloadIfMissing: boolean): Promise<ImageState> {
