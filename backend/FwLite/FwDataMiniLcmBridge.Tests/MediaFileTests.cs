@@ -257,6 +257,46 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task UpdateEntry_ClearAudioViaRemove_ClearsFwData()
+    {
+        var fileName = "ClearAudioViaRemove.wav";
+        var fileId = await StoreFileContentsAsync(fileName, "test");
+        var mediaUri = new MediaUri(fileId, "localhost");
+        var entry = await _api.CreateEntry(new Entry
+        {
+            LexemeForm = { ["en"] = "test" }, CitationForm = { [_audioWs] = mediaUri.ToString() }
+        });
+        GetFwAudioValue(entry.Id).Should().Be(fileName);
+
+        var before = (await _api.GetEntry(entry.Id))!;
+        var after = before.Copy();
+        after.CitationForm.Remove(_audioWs);
+        await _api.UpdateEntry(before, after);
+
+        var cleared = await _api.GetEntry(entry.Id);
+        cleared!.CitationForm.Values.Should().NotContainKey(_audioWs, "removing the audio WS must clear it in FwData");
+    }
+
+    [Fact]
+    public async Task UpdateEntry_ClearAudioViaEmptyString_ClearsFwData()
+    {
+        var fileName = "ClearAudioViaEmpty.wav";
+        var fileId = await StoreFileContentsAsync(fileName, "test");
+        var mediaUri = new MediaUri(fileId, "localhost");
+        var entry = await _api.CreateEntry(new Entry
+        {
+            LexemeForm = { ["en"] = "test" }, CitationForm = { [_audioWs] = mediaUri.ToString() }
+        });
+        GetFwAudioValue(entry.Id).Should().Be(fileName);
+
+        await _api.UpdateEntry(entry.Id,
+            new UpdateObjectInput<Entry>().Set(e => e.CitationForm[_audioWs], ""));
+
+        var cleared = await _api.GetEntry(entry.Id);
+        cleared!.CitationForm.Values.Should().NotContainKey(_audioWs, "setting the audio WS to empty must clear it in FwData");
+    }
+
+    [Fact]
     public async Task SearchEntries_DoesNotMatchAudioWritingSystemValues()
     {
         // The audio writing system's value is a media-file reference, not searchable text.

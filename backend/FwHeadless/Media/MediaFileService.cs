@@ -127,6 +127,9 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         }
         foreach (var lcmResource in lcmResources.Values)
         {
+            // A resource with no matching Files row that was never uploaded (RemoteId == null / !Remote) is a
+            // pending upload, we only want to delete resources that FLEx has removed.
+            if (!lcmResource.Remote) continue;
             await lcmMediaService.DeleteResource(lcmResource.Id);
         }
     }

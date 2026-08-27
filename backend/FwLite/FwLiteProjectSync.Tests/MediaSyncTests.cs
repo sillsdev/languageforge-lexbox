@@ -1,3 +1,4 @@
+using FluentAssertions.Execution;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Media;
 using FwLiteProjectSync.Tests.Fixtures;
@@ -141,6 +142,77 @@ public class MediaSyncTests
                 .Should().BeFalse("the unresolved audio reference is skipped on update, not written to FwData");
             var crdtEntry = await crdtApi.GetEntry(entryId);
             crdtEntry!.CitationForm[AudioWs].Should().Be(mediaUri.ToString());
+        }
+        finally
+        {
+            fixture.DeleteSyncSnapshot();
+            await fixture.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task Sync_RemoveResolvedAudioInFwData_RemovesItFromCrdt()
+    {
+        // A RESOLVABLE audio reference (file present) that syncs to both sides, then is deleted by a user in
+        // FLEx. That FwData-side removal must propagate to the CRDT. This is the case the snapshot reconciler
+        // can't tell apart from a skipped-pending reference, so it is expected to reveal that our current
+        // reconciler wrongly suppresses (and even reverts) a genuine deletion.
+        var fixture = SyncFixture.Create();
+        await SetupAsync(fixture);
+        try
+        {
+            var crdtApi = fixture.CrdtApi;
+            var fwdataApi = fixture.FwDataApi;
+            await fixture.SyncService.Import(crdtApi, fwdataApi);
+            var snapshot = await fixture.RegenerateAndGetSnapshot();
+
+            // Make the audio resolvable: write the file, then register it so it resolves under the same id.
+            var (fileId, fullPath) = UnresolvableAudioReference(fixture, "remove-in-fw.wav");
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+            await File.WriteAllTextAsync(fullPath, "audio-bytes");
+            var mediaAdapter = fixture.Services.GetRequiredService<IMediaAdapter>();
+            mediaAdapter.MediaUriFromPath(fullPath, fwdataApi.Cache).FileId.Should().Be(fileId);
+            var mediaUri = new MediaUri(fileId, "localhost");
+
+            var entryId = Guid.NewGuid();
+            await crdtApi.CreateEntry(new Entry
+            {
+                Id = entryId,
+                LexemeForm = { ["en"] = "rambuta" },
+                CitationForm = { [AudioWs] = mediaUri.ToString() },
+            });
+
+            // First sync: the resolvable audio syncs to FwData and stays in the CRDT — present on both sides.
+            await fixture.SyncService.Sync(crdtApi, fwdataApi, snapshot);
+            (await fwdataApi.GetEntry(entryId))!.CitationForm[AudioWs].Should().Be(mediaUri.ToString(),
+                "guard: the resolvable audio must actually sync to FwData first");
+            (await crdtApi.GetEntry(entryId))!.CitationForm[AudioWs].Should().Be(mediaUri.ToString(),
+                "guard: the audio must be present in the CRDT before the FwData-side removal");
+
+            // The synced baseline (audio present on both sides) is the ancestor for the next sync.
+            var syncedSnapshot = await fixture.RegenerateAndGetSnapshot();
+
+            // A FLEx user removes the audio reference on the FwData side.
+            var fwBefore = await fwdataApi.GetEntry(entryId);
+            var fwAfter = fwBefore!.Copy();
+            fwAfter.CitationForm.Remove(AudioWs);
+            await fwdataApi.UpdateEntry(fwBefore, fwAfter);
+            (await fwdataApi.GetEntry(entryId))!.CitationForm.Values.ContainsKey(AudioWs)
+                .Should().BeFalse("guard: the audio must actually be removed in FwData before syncing");
+
+            // Sync: the FwData-side removal must propagate to the CRDT.
+            await fixture.SyncService.Sync(crdtApi, fwdataApi, syncedSnapshot);
+
+            using (new AssertionScope())
+            {
+                (await crdtApi.GetEntry(entryId))!.CitationForm.Values.ContainsKey(AudioWs)
+                    .Should().BeFalse("a genuine FwData-side audio removal must be propagated to the CRDT, not suppressed");
+                // Even worse than failing to propagate: because the CRDT still holds the reference, the reverse
+                // direction of the same sync pushes it back to FwData, resurrecting the reference the user deleted.
+                (await fwdataApi.GetEntry(entryId))!.CitationForm.Values.ContainsKey(AudioWs)
+                    .Should().BeFalse("the FwData-side removal must not be resurrected by the sync pushing the CRDT value back");
+            }
         }
         finally
         {
