@@ -183,7 +183,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     {
         var copy = sd.Copy();
         copy.Name = StringNormalizer.Normalize(sd.Name);
-        copy.Code = StringNormalizer.Normalize(sd.Code); // yes, LibLcm normalizes this too
+        copy.Abbreviation = StringNormalizer.Normalize(sd.Abbreviation);
+        copy.Description = StringNormalizer.Normalize(sd.Description);
+        copy.OcmCodes = StringNormalizer.Normalize(sd.OcmCodes);
+        copy.LouwNidaCodes = StringNormalizer.Normalize(sd.LouwNidaCodes);
+        copy.Code = StringNormalizer.Normalize(SemanticDomain.ResolveCode(copy.Abbreviation, sd.Code)) ?? string.Empty;
         return copy;
     }
 

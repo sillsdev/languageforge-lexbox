@@ -45,6 +45,16 @@ public static class AutoFakerDefault
                     if (context.Instance is SemanticDomain domain)
                     {
                         domain.Predefined = false;
+                        // LCM stores hierarchy codes in Abbreviation; keep a single "en" value aligned with Code
+                        // so FwData round-trips match (GetSemanticDomainCode vs multi-WS Abbreviation).
+                        var code = !string.IsNullOrEmpty(domain.Code)
+                            ? domain.Code
+                            : SemanticDomain.CodeFromAbbreviation(domain.Abbreviation);
+                        if (string.IsNullOrEmpty(code))
+                            code = "1";
+                        domain.Abbreviation = new MultiString { { "en", code } };
+                        domain.Code = code;
+                        domain.Description ??= new RichMultiString();
                     }
                 }, true),
                 new SimpleOverride<Publication>(context =>

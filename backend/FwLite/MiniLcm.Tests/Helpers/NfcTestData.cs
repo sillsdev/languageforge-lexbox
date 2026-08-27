@@ -71,6 +71,10 @@ public static class NfcTestData
             Id = Guid.NewGuid(),
             Code = Nfc,
             Name = CreateNfcMultiString(),
+            Abbreviation = CreateNfcMultiString(),
+            Description = CreateNfcRichMultiString(),
+            OcmCodes = Nfc,
+            LouwNidaCodes = Nfc,
             Predefined = true,
         };
     }
