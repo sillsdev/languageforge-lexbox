@@ -1,3 +1,4 @@
+export * from './AuthenticationChangeCause';
 export * from './FwEventType';
 export * from './IAppUpdateEvent';
 export * from './IAppUpdateProgressEvent';

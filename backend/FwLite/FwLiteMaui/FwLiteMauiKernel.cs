@@ -38,6 +38,7 @@ public static class FwLiteMauiKernel
         //must be added after blazor as it modifies IJSRuntime in order to intercept it's constructor
         services.AddFwLiteShared(env);
         services.Configure<AnalyticsConfig>(config => config.Host = MixpanelAnalytics.MauiHost);
+        services.AddSingleton<IAnalyticsEventEnricher, MauiAnalyticsEventEnricher>();
         services.AddSingleton<HostedServiceAdapter>();
         services.AddSingleton<IMauiInitializeService>(sp => sp.GetRequiredService<HostedServiceAdapter>());
         services.Configure<AuthConfig>(config =>

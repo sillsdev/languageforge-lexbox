@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 using FwLiteShared.Services;
 using Microsoft.Extensions.Hosting;
@@ -13,16 +14,25 @@ public class AnalyticsService(
     IOptions<AnalyticsConfig> analyticsConfig,
     IHostEnvironment environment,
     IPreferencesService preferences,
-    ILogger<AnalyticsService> logger) : IAnalyticsService
+    ILogger<AnalyticsService> logger,
+    IEnumerable<IAnalyticsEventEnricher>? enrichers = null,
+    TimeProvider? timeProvider = null) : IAnalyticsService
 {
     private readonly Lock _identityLock = new();
     private bool _identityLoaded;
     private string? _deviceId;
     private string? _userId;
+    private readonly IAnalyticsEventEnricher[] _enrichers = enrichers?.ToArray() ?? [];
+    private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
-    public void Track(string eventName, IReadOnlyDictionary<string, object?>? properties = null)
+    public void Track(
+        string eventName,
+        IReadOnlyDictionary<string, object?>? properties = null,
+        DateTimeOffset? time = null)
     {
-        _ = Task.Run(() => TrackAsync(eventName, properties));
+        var occurredAt = time ?? _clock.GetUtcNow();
+        var insertId = Guid.NewGuid().ToString();
+        _ = Task.Run(() => TrackAsync(eventName, properties, occurredAt, insertId));
     }
 
     public void Identify(string userId)
@@ -69,7 +79,11 @@ public class AnalyticsService(
         }
     }
 
-    internal async Task TrackAsync(string eventName, IReadOnlyDictionary<string, object?>? properties = null)
+    internal async Task TrackAsync(
+        string eventName,
+        IReadOnlyDictionary<string, object?>? properties = null,
+        DateTimeOffset? time = null,
+        string? insertId = null)
     {
         try
         {
@@ -79,14 +93,24 @@ public class AnalyticsService(
             if (token is null)
                 return;
 
+            var eventProperties = BuildProperties(
+                token,
+                fwLite,
+                analytics.Host,
+                GetOrCreateDeviceId(),
+                CurrentUserId,
+                time ?? _clock.GetUtcNow(),
+                insertId ?? Guid.NewGuid().ToString());
+            foreach (var enricher in _enrichers)
+                enricher.Enrich(eventProperties);
+            Merge(eventProperties, properties);
             var payload = new[]
             {
-                new MixpanelTrackEvent(eventName,
-                    BuildProperties(token, fwLite, analytics.Host, GetOrCreateDeviceId(), CurrentUserId, properties))
+                new MixpanelTrackEvent(eventName, eventProperties)
             };
 
             var client = httpClientFactory.CreateClient(MixpanelAnalytics.HttpClientName);
-            using var response = await client.PostAsJsonAsync(MixpanelAnalytics.TrackUrl, payload);
+            using var response = await client.PostAsJsonAsync(MixpanelAnalytics.TrackUrl + "?ip=1", payload);
             if (!response.IsSuccessStatusCode)
             {
                 logger.LogWarning("Mixpanel track returned {Status} for {Event}",
@@ -106,25 +130,33 @@ public class AnalyticsService(
         string? host,
         string deviceId,
         string? userId,
-        IReadOnlyDictionary<string, object?>? extra)
+        DateTimeOffset time,
+        string insertId)
     {
         var properties = new Dictionary<string, object?>
         {
             ["token"] = token,
             ["$device_id"] = deviceId,
-            ["app_version"] = fwLite.AppVersion,
-            ["os"] = fwLite.Os.ToString(),
+            ["$app_version_string"] = fwLite.AppVersion,
+            ["$os"] = fwLite.Os.ToString(),
+            ["$os_version"] = RuntimeInformation.OSDescription,
             ["edition"] = fwLite.Edition.ToString(),
+            ["time"] = time.ToUnixTimeSeconds(),
+            ["$insert_id"] = insertId,
         };
         if (!string.IsNullOrEmpty(userId))
             properties["$user_id"] = userId;
         if (!string.IsNullOrEmpty(host))
             properties["host"] = host;
-        if (extra is null)
-            return properties;
-        foreach (var (key, value) in extra)
-            properties[key] = value;
         return properties;
+    }
+
+    private static void Merge(Dictionary<string, object?> target, IReadOnlyDictionary<string, object?>? source)
+    {
+        if (source is null)
+            return;
+        foreach (var (key, value) in source)
+            target[key] = value;
     }
 
     private void EnsureIdentityLoadedLocked()

@@ -1,5 +1,7 @@
 using System.Net;
 using System.Text;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 using FwLiteShared;
 using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
@@ -15,6 +17,8 @@ namespace FwLiteShared.Tests.Analytics;
 
 public class AnalyticsServiceTests
 {
+    private static readonly DateTimeOffset FixedTime = new(2026, 8, 27, 12, 0, 0, TimeSpan.Zero);
+
     [Theory]
     [InlineData(true, true)]
     [InlineData(false, false)]
@@ -45,20 +49,31 @@ public class AnalyticsServiceTests
             Edition = LexCore.Entities.FwLiteEdition.Windows,
         };
 
-        var props = AnalyticsService.BuildProperties("tok", config, host: null, deviceId: "dev-1", userId: null, extra: null);
+        var props = AnalyticsService.BuildProperties("tok",
+            config,
+            host: null,
+            deviceId: "dev-1",
+            userId: null,
+            time: FixedTime,
+            insertId: "insert-1");
 
         props["token"].Should().Be("tok");
         props["$device_id"].Should().Be("dev-1");
-        props["app_version"].Should().Be("1.2.3");
-        props["os"].Should().Be("Windows");
+        props["$app_version_string"].Should().Be("1.2.3");
+        props["$os"].Should().Be("Windows");
+        props["$os_version"].Should().Be(RuntimeInformation.OSDescription);
         props["edition"].Should().Be("Windows");
+        props["time"].Should().Be(FixedTime.ToUnixTimeSeconds());
+        props["$insert_id"].Should().Be("insert-1");
         props.Should().NotContainKey("host");
         props.Should().NotContainKey("$user_id");
         props.Should().NotContainKey("distinct_id");
+        props.Should().NotContainKey("app_version");
+        props.Should().NotContainKey("os");
     }
 
     [Fact]
-    public void BuildProperties_IncludesHostAndUserIdWhenSet()
+    public void BuildProperties_IncludesHostAndUserId()
     {
         var config = new FwLiteConfig { Os = FwLitePlatform.Windows };
         var props = AnalyticsService.BuildProperties("tok",
@@ -66,10 +81,10 @@ public class AnalyticsServiceTests
             host: "maui",
             deviceId: "dev-1",
             userId: "user-9",
-            extra: new Dictionary<string, object?> { ["extra"] = 1 });
+            time: FixedTime,
+            insertId: "insert-1");
         props["host"].Should().Be("maui");
         props["$user_id"].Should().Be("user-9");
-        props["extra"].Should().Be(1);
     }
 
     [Fact]
@@ -312,16 +327,62 @@ public class AnalyticsServiceTests
         var handler = new CaptureHandler();
         var service = CreateService(handler, isDevelopment: true, host: "web");
 
-        await service.TrackAsync("app_launched");
+        await service.TrackAsync("app_launched", time: FixedTime, insertId: "insert-1");
 
         handler.RequestCount.Should().Be(1);
         handler.LastRequest!.Method.Should().Be(HttpMethod.Post);
-        handler.LastRequest.RequestUri!.ToString().Should().Be(MixpanelAnalytics.TrackUrl);
+        handler.LastRequest.RequestUri!.ToString().Should().Be(MixpanelAnalytics.TrackUrl + "?ip=1");
         handler.LastBody.Should().Contain("\"event\":\"app_launched\"");
         handler.LastBody.Should().Contain(MixpanelAnalytics.DebugProjectToken);
         handler.LastBody.Should().Contain("\"host\":\"web\"");
         handler.LastBody.Should().Contain("\"$device_id\":");
+        handler.LastBody.Should().Contain($"\"time\":{FixedTime.ToUnixTimeSeconds()}");
+        handler.LastBody.Should().Contain("\"$insert_id\":\"insert-1\"");
+        handler.LastBody.Should().Contain("\"$os\":\"Windows\"");
+        handler.LastBody.Should().Contain(JsonSerializer.Serialize(RuntimeInformation.OSDescription));
+        handler.LastBody.Should().Contain("\"$os_version\":");
+        handler.LastBody.Should().Contain("\"$app_version_string\":\"test\"");
         handler.LastBody.Should().NotContain("distinct_id");
+        handler.LastBody.Should().NotContain("\"os\":");
+        handler.LastBody.Should().NotContain("\"app_version\":");
+    }
+
+    [Fact]
+    public async Task TrackAsync_UsesClockWhenTimeOmitted()
+    {
+        var handler = new CaptureHandler();
+        var clock = new FixedTimeProvider(FixedTime);
+        var service = CreateService(handler, isDevelopment: true, timeProvider: clock);
+
+        await service.TrackAsync("app_launched");
+
+        handler.LastBody.Should().Contain($"\"time\":{FixedTime.ToUnixTimeSeconds()}");
+        handler.LastBody.Should().Contain("\"$insert_id\":");
+    }
+
+    [Fact]
+    public async Task TrackAsync_EnricherMutatesEventProperties()
+    {
+        var handler = new CaptureHandler();
+        var enricher = new StubEnricher("$android_os_version", "14");
+        var service = CreateService(handler, isDevelopment: true, enrichers: [enricher]);
+
+        await service.TrackAsync("app_launched");
+
+        handler.LastBody.Should().Contain("\"$android_os_version\":\"14\"");
+    }
+
+    [Fact]
+    public async Task TrackAsync_CallerPropertiesOverrideEnricher()
+    {
+        var handler = new CaptureHandler();
+        var enricher = new StubEnricher("extra", 1);
+        var service = CreateService(handler, isDevelopment: true, enrichers: [enricher]);
+
+        await service.TrackAsync("app_launched", new Dictionary<string, object?> { ["extra"] = 2 });
+
+        handler.LastBody.Should().Contain("\"extra\":2");
+        handler.LastBody.Should().NotContain("\"extra\":1");
     }
 
     [Fact]
@@ -341,7 +402,10 @@ public class AnalyticsServiceTests
 
         MixpanelAnalytics.RecordProcessStart(analytics.Object);
 
-        analytics.Verify(a => a.Track(MixpanelAnalytics.AppLaunchedEvent, It.IsAny<IReadOnlyDictionary<string, object?>>()), Times.Once);
+        analytics.Verify(a => a.Track(
+            MixpanelAnalytics.AppLaunchedEvent,
+            It.IsAny<IReadOnlyDictionary<string, object?>>(),
+            It.IsAny<DateTimeOffset?>()), Times.Once);
     }
 
     [Fact]
@@ -353,14 +417,19 @@ public class AnalyticsServiceTests
         await tracker.StartAsync(CancellationToken.None);
         await tracker.StopAsync(CancellationToken.None);
 
-        analytics.Verify(a => a.Track(MixpanelAnalytics.AppLaunchedEvent, It.IsAny<IReadOnlyDictionary<string, object?>>()), Times.Once);
+        analytics.Verify(a => a.Track(
+            MixpanelAnalytics.AppLaunchedEvent,
+            It.IsAny<IReadOnlyDictionary<string, object?>>(),
+            It.IsAny<DateTimeOffset?>()), Times.Once);
     }
 
     private static AnalyticsService CreateService(
         CaptureHandler handler,
         bool isDevelopment = true,
         string? host = null,
-        IPreferencesService? prefs = null)
+        IPreferencesService? prefs = null,
+        IEnumerable<IAnalyticsEventEnricher>? enrichers = null,
+        TimeProvider? timeProvider = null)
     {
         var factory = new Mock<IHttpClientFactory>();
         factory.Setup(f => f.CreateClient(MixpanelAnalytics.HttpClientName))
@@ -385,7 +454,9 @@ public class AnalyticsServiceTests
             Options.Create(analytics),
             env,
             prefs ?? new MemoryPreferences(),
-            Mock.Of<ILogger<AnalyticsService>>());
+            Mock.Of<ILogger<AnalyticsService>>(),
+            enrichers,
+            timeProvider);
     }
 
     private sealed class MemoryPreferences : IPreferencesService
@@ -419,5 +490,15 @@ public class AnalyticsServiceTests
                 Content = new StringContent("1", Encoding.UTF8)
             };
         }
+    }
+
+    private sealed class StubEnricher(string key, object? value) : IAnalyticsEventEnricher
+    {
+        public void Enrich(Dictionary<string, object?> properties) => properties[key] = value;
+    }
+
+    private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 }
