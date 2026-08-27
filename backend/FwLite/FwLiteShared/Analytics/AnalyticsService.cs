@@ -10,19 +10,19 @@ namespace FwLiteShared.Analytics;
 public class AnalyticsService(
     IHttpClientFactory httpClientFactory,
     IOptions<FwLiteConfig> config,
+    IOptions<AnalyticsConfig> analyticsConfig,
     IHostEnvironment environment,
     IPreferencesService preferences,
     ILogger<AnalyticsService> logger) : IAnalyticsService
 {
     private readonly Lock _identityLock = new();
+    private bool _identityLoaded;
     private string? _deviceId;
     private string? _userId;
 
-    public string? Host { get; set; }
-
     public void Track(string eventName, IReadOnlyDictionary<string, object?>? properties = null)
     {
-        _ = TrackAsync(eventName, properties);
+        _ = Task.Run(() => TrackAsync(eventName, properties));
     }
 
     public void Identify(string userId)
@@ -31,18 +31,20 @@ public class AnalyticsService(
             return;
         lock (_identityLock)
         {
+            EnsureIdentityLoadedLocked();
+            if (!string.IsNullOrEmpty(_userId) && _userId != userId)
+                ResetLocked();
             _userId = userId;
+            preferences.Set(nameof(PreferenceKey.AnalyticsUserId), userId);
         }
     }
 
     public void Reset()
     {
-        var next = Guid.NewGuid().ToString();
         lock (_identityLock)
         {
-            _userId = null;
-            _deviceId = next;
-            preferences.Set(nameof(PreferenceKey.AnalyticsDeviceId), next);
+            EnsureIdentityLoadedLocked();
+            ResetLocked();
         }
     }
 
@@ -50,19 +52,8 @@ public class AnalyticsService(
     {
         lock (_identityLock)
         {
-            if (!string.IsNullOrEmpty(_deviceId))
-                return _deviceId;
-            var stored = preferences.Get(nameof(PreferenceKey.AnalyticsDeviceId));
-            if (!string.IsNullOrEmpty(stored))
-            {
-                _deviceId = stored;
-                return stored;
-            }
-
-            var created = Guid.NewGuid().ToString();
-            preferences.Set(nameof(PreferenceKey.AnalyticsDeviceId), created);
-            _deviceId = created;
-            return created;
+            EnsureIdentityLoadedLocked();
+            return _deviceId!;
         }
     }
 
@@ -72,6 +63,7 @@ public class AnalyticsService(
         {
             lock (_identityLock)
             {
+                EnsureIdentityLoadedLocked();
                 return _userId;
             }
         }
@@ -82,14 +74,15 @@ public class AnalyticsService(
         try
         {
             var fwLite = config.Value;
-            var token = MixpanelAnalytics.SelectToken(environment.IsDevelopment(), fwLite.UseDevAssets);
+            var analytics = analyticsConfig.Value;
+            var token = MixpanelAnalytics.SelectToken(environment.IsDevelopment(), analytics);
             if (token is null)
                 return;
 
             var payload = new[]
             {
                 new MixpanelTrackEvent(eventName,
-                    BuildProperties(token, fwLite, Host, GetOrCreateDeviceId(), CurrentUserId, properties))
+                    BuildProperties(token, fwLite, analytics.Host, GetOrCreateDeviceId(), CurrentUserId, properties))
             };
 
             var client = httpClientFactory.CreateClient(MixpanelAnalytics.HttpClientName);
@@ -132,6 +125,35 @@ public class AnalyticsService(
         foreach (var (key, value) in extra)
             properties[key] = value;
         return properties;
+    }
+
+    private void EnsureIdentityLoadedLocked()
+    {
+        if (_identityLoaded)
+            return;
+
+        var storedDevice = preferences.Get(nameof(PreferenceKey.AnalyticsDeviceId));
+        if (string.IsNullOrEmpty(storedDevice))
+        {
+            storedDevice = Guid.NewGuid().ToString();
+            preferences.Set(nameof(PreferenceKey.AnalyticsDeviceId), storedDevice);
+        }
+
+        _deviceId = storedDevice;
+        _userId = preferences.Get(nameof(PreferenceKey.AnalyticsUserId));
+        if (string.IsNullOrWhiteSpace(_userId))
+            _userId = null;
+        _identityLoaded = true;
+    }
+
+    private void ResetLocked()
+    {
+        _identityLoaded = true;
+        _userId = null;
+        preferences.Remove(nameof(PreferenceKey.AnalyticsUserId));
+        var next = Guid.NewGuid().ToString();
+        _deviceId = next;
+        preferences.Set(nameof(PreferenceKey.AnalyticsDeviceId), next);
     }
 
     private sealed record MixpanelTrackEvent(

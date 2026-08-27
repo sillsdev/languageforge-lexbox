@@ -1,4 +1,5 @@
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 
 namespace FwLiteShared.Analytics;
 
@@ -19,37 +20,45 @@ public static class MixpanelAnalytics
     /// <summary>
     /// Fire <see cref="AppLaunchedEvent"/> once per process start. Does not throw.
     /// </summary>
-    public static void RecordProcessStart(IAnalyticsService analytics, string host)
+    public static void RecordProcessStart(IAnalyticsService analytics)
     {
-        analytics.Host = host;
         analytics.Track(AppLaunchedEvent);
     }
 
     /// <summary>
-    /// Debug / UseDevAssets uses the hardcoded debug token. Release uses <paramref name="releaseToken"/>;
-    /// empty means do not send.
+    /// Development uses <see cref="AnalyticsConfig.DebugProjectToken"/>.
+    /// Release uses <see cref="AnalyticsConfig.ProductionToken"/>; empty means do not send.
     /// </summary>
-    public static string? SelectToken(bool isDevelopment, bool useDevAssets, string? releaseToken = null)
+    public static string? SelectToken(bool isDevelopment, AnalyticsConfig config)
     {
-        if (isDevelopment || useDevAssets)
-            return DebugProjectToken;
-        return string.IsNullOrWhiteSpace(releaseToken) ? null : releaseToken;
+        var token = isDevelopment ? config.DebugProjectToken : config.ProductionToken;
+        return string.IsNullOrWhiteSpace(token) ? null : token;
     }
 
     public static bool IsProductionLexbox(LexboxServer server) =>
         string.Equals(server.Authority.Host, ProductionLexboxHost, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Identify only for production lexbox.org. Logout (null user) resets. Empty <see cref="LexboxUser.Id"/> stays anonymous.
-    /// Non-lexbox.org servers are ignored (no identify, no reset).
+    /// Identify on lexbox.org login (persisted <c>$user_id</c>; a different user rotates <c>$device_id</c>).
+    /// Reset only on explicit logout. Refresh and session expiry leave identity unchanged.
+    /// Empty <see cref="LexboxUser.Id"/> stays anonymous. Non-lexbox.org servers are ignored.
     /// </summary>
-    public static void ApplyAuthChange(IAnalyticsService analytics, LexboxServer server, LexboxUser? user)
+    public static void ApplyAuthChange(
+        IAnalyticsService analytics,
+        LexboxServer server,
+        AuthenticationChangeCause cause,
+        LexboxUser? user)
     {
         if (!IsProductionLexbox(server))
             return;
-        if (user is null)
-            analytics.Reset();
-        else if (!string.IsNullOrWhiteSpace(user.Id))
-            analytics.Identify(user.Id);
+        switch (cause)
+        {
+            case AuthenticationChangeCause.Login when !string.IsNullOrWhiteSpace(user?.Id):
+                analytics.Identify(user.Id);
+                break;
+            case AuthenticationChangeCause.Logout:
+                analytics.Reset();
+                break;
+        }
     }
 }

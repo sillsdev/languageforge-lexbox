@@ -3,6 +3,7 @@ using System.Text;
 using FwLiteShared;
 using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using FwLiteShared.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
@@ -15,13 +16,11 @@ namespace FwLiteShared.Tests.Analytics;
 public class AnalyticsServiceTests
 {
     [Theory]
-    [InlineData(true, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, true, true)]
-    [InlineData(false, false, false)]
-    public void SelectToken_UsesDebugTokenInDevOrDevAssets(bool isDevelopment, bool useDevAssets, bool expectDebug)
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    public void SelectToken_UsesDebugTokenInDevelopment(bool isDevelopment, bool expectDebug)
     {
-        var token = MixpanelAnalytics.SelectToken(isDevelopment, useDevAssets);
+        var token = MixpanelAnalytics.SelectToken(isDevelopment, new AnalyticsConfig());
         if (expectDebug)
             token.Should().Be(MixpanelAnalytics.DebugProjectToken);
         else
@@ -31,8 +30,9 @@ public class AnalyticsServiceTests
     [Fact]
     public void SelectToken_ReleaseTokenUsedWhenNotDev()
     {
-        MixpanelAnalytics.SelectToken(false, false, "prod-token").Should().Be("prod-token");
-        MixpanelAnalytics.SelectToken(false, false, "  ").Should().BeNull();
+        MixpanelAnalytics.SelectToken(false, new AnalyticsConfig { ProductionToken = "prod-token" }).Should().Be("prod-token");
+        MixpanelAnalytics.SelectToken(false, new AnalyticsConfig { ProductionToken = "  " }).Should().BeNull();
+        MixpanelAnalytics.SelectToken(false, new AnalyticsConfig()).Should().BeNull();
     }
 
     [Fact]
@@ -142,6 +142,85 @@ public class AnalyticsServiceTests
         rotated.Should().NotBe(original);
         handler.LastBody.Should().Contain($"\"$device_id\":\"{rotated}\"");
         handler.LastBody.Should().NotContain("$user_id");
+        prefs.Get(nameof(PreferenceKey.AnalyticsUserId)).Should().BeNull();
+    }
+
+    [Fact]
+    public void Identify_PersistsUserId()
+    {
+        var prefs = new MemoryPreferences();
+        var service = CreateService(new CaptureHandler(), prefs: prefs);
+
+        service.Identify("user-1");
+
+        prefs.Get(nameof(PreferenceKey.AnalyticsUserId)).Should().Be("user-1");
+        service.CurrentUserId.Should().Be("user-1");
+    }
+
+    [Fact]
+    public async Task Relaunch_LoadsPersistedUserIdWithoutIdentify()
+    {
+        var handler = new CaptureHandler();
+        var prefs = new MemoryPreferences();
+        prefs.Set(nameof(PreferenceKey.AnalyticsDeviceId), "persisted-device");
+        prefs.Set(nameof(PreferenceKey.AnalyticsUserId), "user-1");
+        var service = CreateService(handler, isDevelopment: true, prefs: prefs);
+
+        await service.TrackAsync(MixpanelAnalytics.AppLaunchedEvent);
+
+        handler.LastBody.Should().Contain("\"$device_id\":\"persisted-device\"");
+        handler.LastBody.Should().Contain("\"$user_id\":\"user-1\"");
+    }
+
+    [Fact]
+    public void Identify_SameUser_KeepsDeviceId()
+    {
+        var prefs = new MemoryPreferences();
+        var service = CreateService(new CaptureHandler(), prefs: prefs);
+
+        service.Identify("user-1");
+        var device = service.GetOrCreateDeviceId();
+        service.Identify("user-1");
+
+        service.GetOrCreateDeviceId().Should().Be(device);
+        prefs.Get(nameof(PreferenceKey.AnalyticsUserId)).Should().Be("user-1");
+    }
+
+    [Fact]
+    public void Identify_DifferentUser_RotatesDeviceId()
+    {
+        var prefs = new MemoryPreferences();
+        var service = CreateService(new CaptureHandler(), prefs: prefs);
+
+        service.Identify("user-1");
+        var originalDevice = service.GetOrCreateDeviceId();
+        service.Identify("user-2");
+
+        var rotated = service.GetOrCreateDeviceId();
+        rotated.Should().NotBe(originalDevice);
+        prefs.Get(nameof(PreferenceKey.AnalyticsDeviceId)).Should().Be(rotated);
+        prefs.Get(nameof(PreferenceKey.AnalyticsUserId)).Should().Be("user-2");
+        service.CurrentUserId.Should().Be("user-2");
+    }
+
+    [Fact]
+    public void SessionExpired_ThenLoginAsDifferentUser_RotatesDevice()
+    {
+        var prefs = new MemoryPreferences();
+        var service = CreateService(new CaptureHandler(), prefs: prefs);
+        var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
+
+        MixpanelAnalytics.ApplyAuthChange(service, server, AuthenticationChangeCause.Login, new LexboxUser("Ada", "user-1"));
+        var originalDevice = service.GetOrCreateDeviceId();
+        MixpanelAnalytics.ApplyAuthChange(service, server, AuthenticationChangeCause.SessionExpired, user: null);
+        service.CurrentUserId.Should().Be("user-1");
+        service.GetOrCreateDeviceId().Should().Be(originalDevice);
+
+        MixpanelAnalytics.ApplyAuthChange(service, server, AuthenticationChangeCause.Login, new LexboxUser("Bob", "user-2"));
+
+        service.CurrentUserId.Should().Be("user-2");
+        service.GetOrCreateDeviceId().Should().NotBe(originalDevice);
+        prefs.Get(nameof(PreferenceKey.AnalyticsUserId)).Should().Be("user-2");
     }
 
     [Fact]
@@ -150,7 +229,7 @@ public class AnalyticsServiceTests
         var analytics = new Mock<IAnalyticsService>();
         var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
 
-        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, new LexboxUser("Ada", "user-1"));
+        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, AuthenticationChangeCause.Login, new LexboxUser("Ada", "user-1"));
 
         analytics.Verify(a => a.Identify("user-1"), Times.Once);
         analytics.Verify(a => a.Reset(), Times.Never);
@@ -162,10 +241,34 @@ public class AnalyticsServiceTests
         var analytics = new Mock<IAnalyticsService>();
         var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
 
-        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, user: null);
+        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, AuthenticationChangeCause.Logout, user: null);
 
         analytics.Verify(a => a.Reset(), Times.Once);
         analytics.Verify(a => a.Identify(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public void ApplyAuthChange_SessionExpired_DoesNotReset()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
+
+        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, AuthenticationChangeCause.SessionExpired, user: null);
+
+        analytics.Verify(a => a.Reset(), Times.Never);
+        analytics.Verify(a => a.Identify(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public void ApplyAuthChange_Refresh_DoesNotIdentifyOrReset()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
+
+        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, AuthenticationChangeCause.Refresh, new LexboxUser("Ada", "user-1"));
+
+        analytics.Verify(a => a.Identify(It.IsAny<string>()), Times.Never);
+        analytics.Verify(a => a.Reset(), Times.Never);
     }
 
     [Fact]
@@ -174,7 +277,7 @@ public class AnalyticsServiceTests
         var analytics = new Mock<IAnalyticsService>();
         var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
 
-        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, new LexboxUser("Ada", ""));
+        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, AuthenticationChangeCause.Login, new LexboxUser("Ada", ""));
 
         analytics.Verify(a => a.Identify(It.IsAny<string>()), Times.Never);
         analytics.Verify(a => a.Reset(), Times.Never);
@@ -186,7 +289,7 @@ public class AnalyticsServiceTests
         var analytics = new Mock<IAnalyticsService>();
         var server = new LexboxServer(new Uri("https://staging.languagedepot.org"), "Lexbox Staging");
 
-        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, new LexboxUser("Ada", "user-1"));
+        MixpanelAnalytics.ApplyAuthChange(analytics.Object, server, AuthenticationChangeCause.Login, new LexboxUser("Ada", "user-1"));
 
         analytics.Verify(a => a.Identify(It.IsAny<string>()), Times.Never);
         analytics.Verify(a => a.Reset(), Times.Never);
@@ -196,7 +299,7 @@ public class AnalyticsServiceTests
     public async Task TrackAsync_DoesNotSend_WhenReleaseTokenEmpty()
     {
         var handler = new CaptureHandler();
-        var service = CreateService(handler, isDevelopment: false, useDevAssets: false);
+        var service = CreateService(handler, isDevelopment: false);
 
         await service.TrackAsync("app_launched");
 
@@ -207,7 +310,7 @@ public class AnalyticsServiceTests
     public async Task TrackAsync_PostsJsonToMixpanel_InDevelopment()
     {
         var handler = new CaptureHandler();
-        var service = CreateService(handler, isDevelopment: true, useDevAssets: false, host: "web");
+        var service = CreateService(handler, isDevelopment: true, host: "web");
 
         await service.TrackAsync("app_launched");
 
@@ -225,20 +328,19 @@ public class AnalyticsServiceTests
     public async Task TrackAsync_DoesNotThrow_WhenHttpFails()
     {
         var handler = new CaptureHandler { ThrowOnSend = true };
-        var service = CreateService(handler, isDevelopment: true, useDevAssets: false);
+        var service = CreateService(handler, isDevelopment: true);
 
         var act = async () => await service.TrackAsync("app_launched");
         await act.Should().NotThrowAsync();
     }
 
     [Fact]
-    public void RecordProcessStart_SetsHostAndTracksAppLaunched()
+    public void RecordProcessStart_TracksAppLaunched()
     {
         var analytics = new Mock<IAnalyticsService>();
 
-        MixpanelAnalytics.RecordProcessStart(analytics.Object, MixpanelAnalytics.MauiHost);
+        MixpanelAnalytics.RecordProcessStart(analytics.Object);
 
-        analytics.VerifySet(a => a.Host = MixpanelAnalytics.MauiHost, Times.Once);
         analytics.Verify(a => a.Track(MixpanelAnalytics.AppLaunchedEvent, It.IsAny<IReadOnlyDictionary<string, object?>>()), Times.Once);
     }
 
@@ -246,19 +348,17 @@ public class AnalyticsServiceTests
     public async Task AppLaunchTracker_FiresOnceOnStart_NotOnStop()
     {
         var analytics = new Mock<IAnalyticsService>();
-        var tracker = new AppLaunchTracker(analytics.Object, MixpanelAnalytics.WebHost);
+        var tracker = new AppLaunchTracker(analytics.Object);
 
         await tracker.StartAsync(CancellationToken.None);
         await tracker.StopAsync(CancellationToken.None);
 
-        analytics.VerifySet(a => a.Host = MixpanelAnalytics.WebHost, Times.Once);
         analytics.Verify(a => a.Track(MixpanelAnalytics.AppLaunchedEvent, It.IsAny<IReadOnlyDictionary<string, object?>>()), Times.Once);
     }
 
     private static AnalyticsService CreateService(
         CaptureHandler handler,
         bool isDevelopment = true,
-        bool useDevAssets = false,
         string? host = null,
         IPreferencesService? prefs = null)
     {
@@ -273,20 +373,19 @@ public class AnalyticsServiceTests
 
         var config = new FwLiteConfig
         {
-            UseDevAssets = useDevAssets,
             AppVersion = "test",
             Os = FwLitePlatform.Windows,
         };
 
+        var analytics = new AnalyticsConfig { Host = host };
+
         return new AnalyticsService(
             factory.Object,
             Options.Create(config),
+            Options.Create(analytics),
             env,
             prefs ?? new MemoryPreferences(),
-            Mock.Of<ILogger<AnalyticsService>>())
-        {
-            Host = host
-        };
+            Mock.Of<ILogger<AnalyticsService>>());
     }
 
     private sealed class MemoryPreferences : IPreferencesService

@@ -27,7 +27,7 @@ public class OAuthService(
         if (options.Value.SystemWebViewLogin)
         {
             await HandleSystemWebViewLogin(application, cancellation);
-            globalEventBus.PublishEvent(new AuthenticationChangedEvent(lexboxServer));
+            globalEventBus.PublishEvent(new AuthenticationChangedEvent(lexboxServer, AuthenticationChangeCause.Login));
             return new(null, true);
         }
 
@@ -68,7 +68,7 @@ public class OAuthService(
             await request.GetAuthenticationResult(applicationLifetime?.ApplicationStopping.Merge(cancellation) ??
                                                   cancellation),
             request.ClientReturnUrl);
-        globalEventBus.PublishEvent(new AuthenticationChangedEvent(request.LexboxServer));
+        globalEventBus.PublishEvent(new AuthenticationChangedEvent(request.LexboxServer, AuthenticationChangeCause.Login));
         return result;
         //step 8
     }

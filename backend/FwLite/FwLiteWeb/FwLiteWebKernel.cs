@@ -27,8 +27,7 @@ public static class FwLiteWebKernel
         services.AddFwLiteProjectSync();
         services.AddMiniLcmRouteServices();
         services.AddFwLiteShared(environment);
-        services.AddSingleton<IHostedService>(sp =>
-            new AppLaunchTracker(sp.GetRequiredService<IAnalyticsService>(), MixpanelAnalytics.WebHost));
+        services.Configure<AnalyticsConfig>(config => config.Host = MixpanelAnalytics.WebHost);
         services.AddSingleton<IPreferencesService, JsonFilePreferencesService>();
 
         services.AddSingleton<ITroubleshootingService, WebTroubleshootingService>();

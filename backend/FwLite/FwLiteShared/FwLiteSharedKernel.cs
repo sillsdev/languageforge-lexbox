@@ -31,7 +31,9 @@ public static class FwLiteSharedKernel
             client.Timeout = TimeSpan.FromSeconds(10);
         });
         services.AddSingleton<IAnalyticsService, AnalyticsService>();
+        services.AddOptions<AnalyticsConfig>().BindConfiguration("Analytics");
         services.AddSingleton<IHostedService, AnalyticsIdentityListener>();
+        services.AddSingleton<IHostedService, AppLaunchTracker>();
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();
         services.AddLogging();

@@ -211,6 +211,7 @@ public static class ReinforcedFwLiteTypingConfig
 
         builder.ExportAsEnum<ActivitySort>().UseString();
         builder.ExportAsEnum<FwEventType>().UseString();
+        builder.ExportAsEnum<AuthenticationChangeCause>().UseString();
         builder.ExportAsEnum<LogLevel>().UseString(false);
         var eventJsAttrs = typeof(IFwEvent).GetCustomAttributes<JsonDerivedTypeAttribute>();
         builder.ExportAsInterfaces(

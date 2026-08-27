@@ -46,10 +46,11 @@ public class AnalyticsIdentityListener(
             if (server is null)
                 return;
             var user = await clientFactory.GetClient(server).GetCurrentUser();
+            // Offline / expired token: keep the persisted AnalyticsUserId already loaded by AnalyticsService.
             // Logged-out at start must not Reset — that would rotate $device_id on every process start.
             if (user is null)
                 return;
-            MixpanelAnalytics.ApplyAuthChange(analytics, server, user);
+            MixpanelAnalytics.ApplyAuthChange(analytics, server, AuthenticationChangeCause.Login, user);
         }
         catch (Exception e)
         {
@@ -63,8 +64,16 @@ public class AnalyticsIdentityListener(
         {
             if (!MixpanelAnalytics.IsProductionLexbox(changed.Server))
                 return;
-            var user = await clientFactory.GetClient(changed.Server).GetCurrentUser();
-            MixpanelAnalytics.ApplyAuthChange(analytics, changed.Server, user);
+            switch (changed.Cause)
+            {
+                case AuthenticationChangeCause.Login:
+                    var user = await clientFactory.GetClient(changed.Server).GetCurrentUser();
+                    MixpanelAnalytics.ApplyAuthChange(analytics, changed.Server, changed.Cause, user);
+                    break;
+                case AuthenticationChangeCause.Logout:
+                    MixpanelAnalytics.ApplyAuthChange(analytics, changed.Server, changed.Cause, user: null);
+                    break;
+            }
         }
         catch (Exception e)
         {
