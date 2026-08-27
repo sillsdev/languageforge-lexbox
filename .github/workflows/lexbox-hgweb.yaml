@@ -33,6 +33,11 @@ env:
 jobs:
   publish-hgweb:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write # ghcr.io push
+
     outputs:
       version: ${{ inputs.version || steps.setVersion.outputs.VERSION }}
 
@@ -63,21 +68,31 @@ jobs:
             type=ref,event=pr
             type=raw,enable=${{ env.PROD_RELEASE }},value=latest
             type=raw,value=${{ env.VERSION }}
-      -
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+      # Fork PR tokens cannot write org packages on ghcr.io
+      - name: ghcr.io login
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        if: ${{ !env.ACT && github.repository == 'sillsdev/languageforge-lexbox' && github.event.pull_request.head.repo.fork != true }}
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
       -
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: hgweb
           build-args: |
             APP_VERSION=${{ env.VERSION }}
-          push: ${{ !env.ACT }}
+          push: ${{ !env.ACT && github.repository == 'sillsdev/languageforge-lexbox' && github.event.pull_request.head.repo.fork != true }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # Persist build layers across runs via a registry cache image on ghcr.
+          # Only export on branch pushes (develop/main) so PR builds can't clobber
+          # the shared buildcache; import is always safe.
+          provenance: false
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
+          cache-to: ${{ (!env.ACT && github.event_name == 'push' && github.repository == 'sillsdev/languageforge-lexbox' && github.event.pull_request.head.repo.fork != true) && format('type=registry,ref={0}:buildcache,mode=max', env.IMAGE_NAME) || '' }}
   deploy-hgweb:
       uses: ./.github/workflows/deploy.yaml
       if: ${{github.ref == 'refs/heads/develop' && github.event_name == 'push'}}

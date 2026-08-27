@@ -86,14 +86,12 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    [TsFunction(Type = "Promise<ICustomView | null>")]
     public Task<CustomView?> GetCustomView(Guid id)
     {
         return _wrappedApi.GetCustomView(id);
     }
 
     [JSInvokable]
-    [TsFunction(Type = "Promise<IComplexFormType | null>")]
     public Task<ComplexFormType?> GetComplexFormType(Guid id)
     {
         return _wrappedApi.GetComplexFormType(id);
@@ -139,35 +137,30 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    [TsFunction(Type = "Promise<IEntry | null>")]
     public Task<Entry?> GetEntry(Guid id)
     {
         return Task.Run(async () => await _wrappedApi.GetEntry(id));
     }
 
     [JSInvokable]
-    [TsFunction(Type = "Promise<ISense | null>")]
     public Task<Sense?> GetSense(Guid entryId, Guid id)
     {
         return _wrappedApi.GetSense(entryId, id);
     }
 
     [JSInvokable]
-    [TsFunction(Type = "Promise<IPartOfSpeech | null>")]
     public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
         return _wrappedApi.GetPartOfSpeech(id);
     }
 
     [JSInvokable]
-    [TsFunction(Type = "Promise<ISemanticDomain | null>")]
     public Task<SemanticDomain?> GetSemanticDomain(Guid id)
     {
         return _wrappedApi.GetSemanticDomain(id);
     }
 
     [JSInvokable]
-    [TsFunction(Type = "Promise<IExampleSentence | null>")]
     public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
         return _wrappedApi.GetExampleSentence(entryId, senseId, id);
@@ -286,7 +279,6 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    [TsFunction(Type = "Promise<ICommentThread | null>")]
     public Task<CommentThread?> GetCommentThread(Guid id)
     {
         return _wrappedApi.GetCommentThread(id);
@@ -299,7 +291,6 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    [TsFunction(Type = "Promise<IUserComment | null>")]
     public Task<UserComment?> GetUserComment(Guid id)
     {
         return _wrappedApi.GetUserComment(id);
@@ -373,6 +364,12 @@ public class MiniLcmJsInvokable(
     public Task MarkCommentRead(Guid commentId)
     {
         return _wrappedApi.MarkCommentRead(commentId);
+    }
+
+    [JSInvokable]
+    public Task MarkCommentThreadUnread(Guid threadId)
+    {
+        return _wrappedApi.MarkCommentThreadUnread(threadId);
     }
 
     [JSInvokable]
@@ -531,7 +528,7 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
-    public async Task<ReadFileResponseJs?> GetFileStream(string mediaUri, bool downloadIfMissing)
+    public async Task<ReadFileResponseJs> GetFileStream(string mediaUri, bool downloadIfMissing)
     {
         var result = await _wrappedApi.GetFileStream(new MediaUri(mediaUri), downloadIfMissing);
         var stream = result.Stream is null ? null : new DotNetStreamReference(result.Stream);

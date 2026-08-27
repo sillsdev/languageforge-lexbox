@@ -8,6 +8,7 @@ on:
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
+      - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
     branches:
@@ -20,6 +21,7 @@ on:
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
+      - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
     branches:
@@ -146,7 +148,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -189,15 +191,15 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend
-        run: pnpm exec playwright install --with-deps
+        run: pnpm exec playwright install --with-deps chromium
       - name: Install Playwright system deps
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         working-directory: frontend
-        run: pnpm exec playwright install-deps
+        run: pnpm exec playwright install-deps chromium
       - name: Run UI tests
         working-directory: frontend/viewer
         run: task test:ui-standalone
@@ -236,7 +238,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -254,15 +256,15 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-playwright-chromium-firefox-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend/viewer
-        run: pnpm exec playwright install --with-deps
+        run: pnpm exec playwright install --with-deps chromium firefox
       - name: Install Playwright system deps
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         working-directory: frontend/viewer
-        run: pnpm exec playwright install-deps
+        run: pnpm exec playwright install-deps chromium firefox
       - name: vitest
         working-directory: frontend/viewer
         run: pnpm run test --retry=2 --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
@@ -509,7 +511,7 @@ jobs:
 
       - name: Sign with Trusted Signing
         if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' }}
-        uses: sillsdev/codesign/trusted-signing-action@v3
+        uses: sillsdev/codesign/trusted-signing-action@0485c27c94116d62f80febc468cc1979ed7245de # v3.2.0
         with:
           credentials: ${{ secrets.TRUSTED_SIGNING_CREDENTIALS }}
           files-folder: ${{ github.workspace }}/backend/FwLite/artifacts/sign
@@ -622,7 +624,7 @@ jobs:
         uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
           package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -680,15 +682,15 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('frontend/pnpm-lock.yaml') }}
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: frontend/viewer
-        run: pnpm exec playwright install --with-deps
+        run: pnpm exec playwright install --with-deps chromium
       - name: Install Playwright system deps
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         working-directory: frontend/viewer
-        run: pnpm exec playwright install-deps
+        run: pnpm exec playwright install-deps chromium
 
       - name: Run E2E tests
         working-directory: frontend/viewer

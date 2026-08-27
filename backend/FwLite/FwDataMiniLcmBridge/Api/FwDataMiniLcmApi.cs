@@ -856,13 +856,14 @@ public class FwDataMiniLcmApi(
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
+            // Text is null if TsStringUtils.MakeString was called with an empty string. Empty means absent
+            // everywhere else in MiniLcm (the json converter drops empties, the validators reject them), so
+            // don't surface one here.
+            if (string.IsNullOrEmpty(tsString.Text)) continue;
             var wsId = GetWritingSystemId(ws);
             if (!wsId.IsAudio)
             {
-                // Text is null if TsStringUtils.MakeString was called with an empty string.
-                // So, we map it back for consistent round-tripping and
-                // so we can continue to assume that MultiStrings never have null values.
-                result.Values.Add(wsId, tsString.Text ?? string.Empty);
+                result.Values.Add(wsId, tsString.Text);
             }
             else
             {
@@ -2007,6 +2008,22 @@ public class FwDataMiniLcmApi(
             return new UploadFileResponse($"Failed to save file: {ex.Message}");
         }
     }
+
+    #region Submit (result-less write variants)
+    // Nothing to skip here: liblcm holds the object already, and a genuinely missing one should still throw.
+    public async Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update) => await UpdateEntry(id, update);
+    public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => await CreateComplexFormComponent(complexFormComponent, position);
+    public async Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => await MoveComplexFormComponent(complexFormComponent, between);
+    public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => await CreateSense(entryId, sense, position);
+    public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => await UpdateSense(entryId, senseId, update);
+    public async Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => await CreateExampleSentence(entryId, senseId, exampleSentence, position);
+    public async Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => await UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
+    public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => await UpdatePartOfSpeech(id, update);
+    public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => await UpdatePicture(entryId, senseId, pictureId, update);
+    public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update) => await UpdatePublication(id, update);
+    public async Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update) => await UpdateSemanticDomain(id, update);
+    public async Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update) => await UpdateComplexFormType(id, update);
+    #endregion
 
     private string TypeToLinkedFolder(string mimeType)
     {

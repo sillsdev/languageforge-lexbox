@@ -1,11 +1,15 @@
 <script lang="ts">
   import {Icon} from '$lib/components/ui/icon';
 
-  export let helpId: string;
+  interface Props {
+    helpId: string;
+  }
+
+  const { helpId }: Props = $props();
 
   const rootHref = 'https://downloads.languagetechnology.org/fieldworks/Documentation/en/index.htm#t=';
 
-  $: href = `${rootHref}${encodeURIComponent(helpId)}`;
+  const href = $derived(`${rootHref}${encodeURIComponent(helpId)}`);
 </script>
 
 {#if href}

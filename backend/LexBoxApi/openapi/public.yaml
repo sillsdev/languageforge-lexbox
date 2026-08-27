@@ -1,0 +1,1523 @@
+openapi: 3.0.4
+info:
+  title: Lexbox Public Api
+  description: This is the public api for LexBox
+  version: 1.0.0
+paths:
+  '/api/lfclassic/{project-code}/writingSystems':
+    get:
+      tags:
+        - MiniLcm
+      parameters:
+        - name: project-code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WritingSystems'
+  '/api/lfclassic/{project-code}/entries':
+    get:
+      tags:
+        - MiniLcm
+      parameters:
+        - name: project-code
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: SortField
+          in: query
+          schema:
+            type: string
+        - name: SortWritingSystem
+          in: query
+          schema:
+            type: string
+        - name: Ascending
+          in: query
+          schema:
+            type: boolean
+        - name: ExemplarValue
+          in: query
+          schema:
+            type: string
+        - name: ExemplarWritingSystem
+          in: query
+          schema:
+            type: string
+        - name: Count
+          in: query
+          schema:
+            pattern: '^-?(?:0|[1-9]\d*)$'
+            anyOf:
+              - type: integer
+              - type: string
+            format: int32
+        - name: Offset
+          in: query
+          schema:
+            pattern: '^-?(?:0|[1-9]\d*)$'
+            anyOf:
+              - type: integer
+              - type: string
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Entry'
+  '/api/lfclassic/{project-code}/entries/{search}':
+    get:
+      tags:
+        - MiniLcm
+      parameters:
+        - name: project-code
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: SortField
+          in: query
+          schema:
+            type: string
+        - name: SortWritingSystem
+          in: query
+          schema:
+            type: string
+        - name: Ascending
+          in: query
+          schema:
+            type: boolean
+        - name: ExemplarValue
+          in: query
+          schema:
+            type: string
+        - name: ExemplarWritingSystem
+          in: query
+          schema:
+            type: string
+        - name: Count
+          in: query
+          schema:
+            pattern: '^-?(?:0|[1-9]\d*)$'
+            anyOf:
+              - type: integer
+              - type: string
+            format: int32
+        - name: Offset
+          in: query
+          schema:
+            pattern: '^-?(?:0|[1-9]\d*)$'
+            anyOf:
+              - type: integer
+              - type: string
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Entry'
+  '/api/lfclassic/{project-code}/entry/{id}':
+    get:
+      tags:
+        - MiniLcm
+      parameters:
+        - name: project-code
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+  '/api/lfclassic/{project-code}/parts-of-speech':
+    get:
+      tags:
+        - MiniLcm
+      parameters:
+        - name: project-code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PartOfSpeech'
+  '/api/lfclassic/{project-code}/semantic-domains':
+    get:
+      tags:
+        - MiniLcm
+      parameters:
+        - name: project-code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SemanticDomain'
+  '/api/crdt/{projectId}/get':
+    get:
+      tags:
+        - Crdt
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/SyncState'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncState'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/SyncState'
+  '/api/crdt/{projectId}/add':
+    post:
+      tags:
+        - Crdt
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: clientId
+          in: query
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServerCommit'
+          text/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServerCommit'
+          application/*+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServerCommit'
+        required: true
+      responses:
+        '200':
+          description: OK
+  '/api/crdt/{projectId}/changes':
+    post:
+      tags:
+        - Crdt
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncState'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/SyncState'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/SyncState'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ChangesResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangesResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ChangesResult'
+  '/api/crdt/{projectId}/countChanges':
+    post:
+      tags:
+        - Crdt
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncState'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/SyncState'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/SyncState'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                pattern: '^-?(?:0|[1-9]\d*)$'
+                anyOf:
+                  - type: integer
+                  - type: string
+                format: int32
+            application/json:
+              schema:
+                pattern: '^-?(?:0|[1-9]\d*)$'
+                anyOf:
+                  - type: integer
+                  - type: string
+                format: int32
+            text/json:
+              schema:
+                pattern: '^-?(?:0|[1-9]\d*)$'
+                anyOf:
+                  - type: integer
+                  - type: string
+                format: int32
+  /api/crdt/listProjects:
+    get:
+      tags:
+        - Crdt
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FieldWorksLiteProject'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FieldWorksLiteProject'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FieldWorksLiteProject'
+  /api/crdt/listProjectsV2:
+    get:
+      tags:
+        - Crdt
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ListProjectsResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListProjectsResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ListProjectsResult'
+  /api/crdt/lookupProjectId:
+    get:
+      tags:
+        - Crdt
+      parameters:
+        - name: code
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: uuid
+            application/json:
+              schema:
+                type: string
+                format: uuid
+            text/json:
+              schema:
+                type: string
+                format: uuid
+        '403':
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '406':
+          description: Not Acceptable
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/crdt/checkConnection:
+    get:
+      tags:
+        - Crdt
+      responses:
+        '200':
+          description: OK
+  /api/fwlite-release/FieldWorksLite.appinstaller:
+    get:
+      tags:
+        - FwLiteRelease
+      responses:
+        '200':
+          description: OK
+    head:
+      tags:
+        - FwLiteRelease
+      responses:
+        '200':
+          description: OK
+  /api/fwlite-release/download-latest:
+    get:
+      tags:
+        - FwLiteRelease
+      parameters:
+        - name: edition
+          in: query
+          schema:
+            $ref: '#/components/schemas/FwLiteEdition'
+      responses:
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/fwlite-release/latest:
+    get:
+      tags:
+        - FwLiteRelease
+      parameters:
+        - name: edition
+          in: query
+          schema:
+            $ref: '#/components/schemas/FwLiteEdition'
+        - name: appVersion
+          in: query
+          schema:
+            type: string
+      responses:
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/FwLiteRelease'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FwLiteRelease'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/FwLiteRelease'
+        default:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/fwlite-release/should-update:
+    get:
+      tags:
+        - FwLiteRelease
+      parameters:
+        - name: appVersion
+          in: query
+          schema:
+            type: string
+        - name: edition
+          in: query
+          schema:
+            $ref: '#/components/schemas/FwLiteEdition'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ShouldUpdateResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShouldUpdateResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ShouldUpdateResponse'
+  /api/fwlite-release/new-release:
+    post:
+      tags:
+        - FwLiteRelease
+      responses:
+        '200':
+          description: OK
+  '/api/fw-lite/sync/status/{projectId}':
+    get:
+      tags:
+        - Sync
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProjectSyncStatus'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSyncStatus'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSyncStatus'
+  '/api/fw-lite/sync/trigger/{projectId}':
+    post:
+      tags:
+        - Sync
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+  '/api/fw-lite/sync/await-sync-finished/{projectId}':
+    get:
+      tags:
+        - Sync
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/SyncJobResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncJobResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/SyncJobResult'
+  '/api/fw-lite/sync/sync-harmony/{projectId}':
+    post:
+      tags:
+        - Sync
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal Server Error
+        '200':
+          description: OK
+  '/api/fw-lite/sync/regenerate-snapshot/{projectId}':
+    post:
+      tags:
+        - Sync
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: commitId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: preserveAllFieldWorksCommits
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal Server Error
+        '200':
+          description: OK
+  /api/fw-lite/sync/block:
+    post:
+      tags:
+        - Sync
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: projectCode
+          in: query
+          schema:
+            type: string
+        - name: reason
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/fw-lite/sync/unblock:
+    post:
+      tags:
+        - Sync
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: projectCode
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/fw-lite/sync/block-status:
+    get:
+      tags:
+        - Sync
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: projectCode
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/SyncBlockStatus'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncBlockStatus'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/SyncBlockStatus'
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+components:
+  schemas:
+    ChangeEntityOfServerJsonChange:
+      required:
+        - index
+        - commitId
+        - entityId
+        - change
+      type: object
+      properties:
+        index:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
+        commitId:
+          type: string
+          format: uuid
+        entityId:
+          type: string
+          format: uuid
+        change:
+          oneOf:
+            - enum:
+                - null
+              nullable: true
+            - $ref: '#/components/schemas/ServerJsonChange'
+    ChangesResult:
+      required:
+        - missingFromClient
+        - serverSyncState
+      type: object
+      properties:
+        missingFromClient:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServerCommit'
+        serverSyncState:
+          $ref: '#/components/schemas/SyncState'
+    CommitMetadata:
+      type: object
+      properties:
+        authorName:
+          type: string
+          nullable: true
+        authorId:
+          type: string
+          nullable: true
+        clientVersion:
+          type: string
+          nullable: true
+        extraMetadata:
+          type: object
+          additionalProperties:
+            type: string
+    ComplexFormComponent:
+      required:
+        - complexFormEntryId
+        - componentEntryId
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        maybeId:
+          type: string
+          format: uuid
+          nullable: true
+        order:
+          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
+          anyOf:
+            - type: number
+            - type: string
+          format: double
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+        complexFormEntryId:
+          type: string
+          format: uuid
+        complexFormHeadword:
+          type: string
+          nullable: true
+        componentEntryId:
+          type: string
+          format: uuid
+        componentSenseId:
+          type: string
+          format: uuid
+          nullable: true
+        componentHeadword:
+          type: string
+          nullable: true
+    ComplexFormType:
+      required:
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          $ref: '#/components/schemas/MultiString'
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+    Entry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+        lexemeForm:
+          $ref: '#/components/schemas/MultiString'
+        citationForm:
+          $ref: '#/components/schemas/MultiString'
+        literalMeaning:
+          $ref: '#/components/schemas/RichMultiString'
+        morphType:
+          $ref: '#/components/schemas/MorphTypeKind'
+        homographNumber:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
+        senses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sense'
+        note:
+          $ref: '#/components/schemas/RichMultiString'
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplexFormComponent'
+        complexForms:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplexFormComponent'
+        complexFormTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplexFormType'
+        publishIn:
+          type: array
+          items:
+            $ref: '#/components/schemas/Publication'
+    ExampleSentence:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        order:
+          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
+          anyOf:
+            - type: number
+            - type: string
+          format: double
+        sentence:
+          $ref: '#/components/schemas/RichMultiString'
+        translations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Translation'
+        reference:
+          oneOf:
+            - enum:
+                - null
+              nullable: true
+            - $ref: '#/components/schemas/RichString'
+        senseId:
+          type: string
+          format: uuid
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+    FieldWorksLiteProject:
+      required:
+        - id
+        - code
+        - name
+        - isFwDataProject
+        - isCrdtProject
+        - role
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        isFwDataProject:
+          type: boolean
+        isCrdtProject:
+          type: boolean
+        role:
+          $ref: '#/components/schemas/ProjectRole'
+    FwLiteEdition:
+      enum:
+        - Windows
+        - Linux
+        - Android
+        - iOS
+        - Mac
+        - WindowsAppInstaller
+    FwLiteRelease:
+      required:
+        - version
+        - url
+      type: object
+      properties:
+        version:
+          type: string
+        url:
+          type: string
+    HybridDateTime:
+      required:
+        - dateTime
+        - counter
+      type: object
+      properties:
+        dateTime:
+          type: string
+          format: date-time
+        counter:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int64
+    ListProjectsResult:
+      required:
+        - projects
+        - canDownloadByCode
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldWorksLiteProject'
+        canDownloadByCode:
+          type: boolean
+    MediaUri: { }
+    MorphTypeKind:
+      enum:
+        - Unknown
+        - BoundRoot
+        - BoundStem
+        - Circumfix
+        - Clitic
+        - Enclitic
+        - Infix
+        - Particle
+        - Prefix
+        - Proclitic
+        - Root
+        - Simulfix
+        - Stem
+        - Suffix
+        - Suprafix
+        - InfixingInterfix
+        - PrefixingInterfix
+        - SuffixingInterfix
+        - Phrase
+        - DiscontiguousPhrase
+    MultiString: { }
+    PartOfSpeech:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          $ref: '#/components/schemas/MultiString'
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+        predefined:
+          type: boolean
+    Picture:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        order:
+          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
+          anyOf:
+            - type: number
+            - type: string
+          format: double
+        mediaUri:
+          $ref: '#/components/schemas/MediaUri'
+        caption:
+          $ref: '#/components/schemas/RichMultiString'
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+            - enum:
+                - null
+              nullable: true
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+    ProjectRole:
+      enum:
+        - Unknown
+        - Manager
+        - Editor
+        - Observer
+    ProjectSyncStatus:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ProjectSyncStatusEnum'
+        pendingCrdtChanges:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
+          default: 0
+        pendingMercurialChanges:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
+          default: 0
+        lastCrdtCommitDate:
+          type: string
+          format: date-time
+          nullable: true
+        lastMercurialCommitDate:
+          type: string
+          format: date-time
+          nullable: true
+        errorCode:
+          oneOf:
+            - enum:
+                - null
+              nullable: true
+            - $ref: '#/components/schemas/ProjectSyncStatusErrorCode'
+        errorMessage:
+          type: string
+          nullable: true
+    ProjectSyncStatusEnum:
+      enum:
+        - NeverSynced
+        - ReadyToSync
+        - Syncing
+        - QueuedToSync
+        - Unknown
+    ProjectSyncStatusErrorCode:
+      enum:
+        - NotLoggedIn
+        - Offline
+        - Unknown
+        - null
+    Publication:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+        isMain:
+          type: boolean
+        name:
+          $ref: '#/components/schemas/MultiString'
+    RichMultiString: { }
+    RichString: { }
+    SemanticDomain:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          $ref: '#/components/schemas/MultiString'
+        code:
+          type: string
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+        predefined:
+          type: boolean
+    Sense:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        order:
+          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
+          anyOf:
+            - type: number
+            - type: string
+          format: double
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+        entryId:
+          type: string
+          format: uuid
+        definition:
+          $ref: '#/components/schemas/RichMultiString'
+        gloss:
+          $ref: '#/components/schemas/MultiString'
+        partOfSpeech:
+          oneOf:
+            - enum:
+                - null
+              nullable: true
+            - $ref: '#/components/schemas/PartOfSpeech'
+        partOfSpeechId:
+          type: string
+          format: uuid
+          nullable: true
+        semanticDomains:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticDomain'
+        exampleSentences:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExampleSentence'
+        pictures:
+          type: array
+          items:
+            $ref: '#/components/schemas/Picture'
+    ServerCommit:
+      required:
+        - id
+        - hybridDateTime
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        changeEntities:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChangeEntityOfServerJsonChange'
+        compareKey:
+          $ref: '#/components/schemas/ValueTupleOfDateTimeOffsetAndlongAndGuid'
+        id:
+          type: string
+          format: uuid
+        hybridDateTime:
+          $ref: '#/components/schemas/HybridDateTime'
+        dateTime:
+          type: string
+          format: date-time
+        metadata:
+          $ref: '#/components/schemas/CommitMetadata'
+        clientId:
+          type: string
+          format: uuid
+    ServerJsonChange:
+      required:
+        - $type
+      type: object
+      properties:
+        $type:
+          type: string
+    ShouldUpdateResponse:
+      required:
+        - release
+      type: object
+      properties:
+        release:
+          oneOf:
+            - enum:
+                - null
+              nullable: true
+            - $ref: '#/components/schemas/FwLiteRelease'
+        update:
+          type: boolean
+    SyncBlockStatus:
+      type: object
+      properties:
+        isBlocked:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+        blockedAt:
+          type: string
+          format: date-time
+          nullable: true
+    SyncJobResult:
+      required:
+        - status
+        - error
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/SyncJobStatusEnum'
+        error:
+          type: string
+          nullable: true
+        syncResult:
+          oneOf:
+            - enum:
+                - null
+              nullable: true
+            - $ref: '#/components/schemas/SyncResult'
+    SyncJobStatusEnum:
+      enum:
+        - Success
+        - SuccessHarmonyOnly
+        - ProjectNotFound
+        - SyncJobNotFound
+        - SyncJobTimedOut
+        - TimedOutAwaitingSyncStatus
+        - UnableToAuthenticate
+        - UnableToSync
+        - ProjectIncompatible
+        - CrdtSyncFailed
+        - SendReceiveFailed
+        - SyncBlocked
+        - UnknownError
+    SyncResult:
+      required:
+        - crdtChanges
+        - fwdataChanges
+      type: object
+      properties:
+        crdtChanges:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
+        fwdataChanges:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
+    SyncState:
+      required:
+        - clientHeads
+      type: object
+      properties:
+        clientHeads:
+          type: object
+          additionalProperties:
+            pattern: '^-?(?:0|[1-9]\d*)$'
+            anyOf:
+              - type: integer
+              - type: string
+            format: int64
+    Translation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        text:
+          $ref: '#/components/schemas/RichMultiString'
+    ValueTupleOfDateTimeOffsetAndlongAndGuid:
+      type: object
+    WritingSystem:
+      required:
+        - id
+        - wsId
+        - name
+        - abbreviation
+        - font
+        - type
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        maybeId:
+          type: string
+          format: uuid
+          nullable: true
+        wsId:
+          $ref: '#/components/schemas/WritingSystemId'
+        isAudio:
+          type: boolean
+        name:
+          type: string
+        abbreviation:
+          type: string
+        font:
+          type: string
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+        type:
+          $ref: '#/components/schemas/WritingSystemType'
+        exemplars:
+          type: array
+          items:
+            type: string
+        order:
+          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
+          anyOf:
+            - type: number
+            - type: string
+          format: double
+    WritingSystemId: { }
+    WritingSystems:
+      type: object
+      properties:
+        analysis:
+          type: array
+          items:
+            $ref: '#/components/schemas/WritingSystem'
+        vernacular:
+          type: array
+          items:
+            $ref: '#/components/schemas/WritingSystem'
+    WritingSystemType:
+      type: integer
+tags:
+  - name: MiniLcm
+  - name: Crdt
+  - name: FwLiteRelease
+  - name: Sync

@@ -56,7 +56,8 @@
   {:else}
     {@render icon?.()}
   {/if}
-  <div class="flex flex-col grow">
+  <!-- min-w-0: let long unbreakable content wrap rather than stretch the item past its container. -->
+  <div class="flex min-w-0 grow flex-col">
     {@render children?.()}
   </div>
   {@render actions?.()}

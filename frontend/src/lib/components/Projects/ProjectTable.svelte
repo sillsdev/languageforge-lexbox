@@ -56,7 +56,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each projects as project (project.id)}
+      {#each projects as project ((project.isDraft ? 'draft-' : '') + project.id)}
         <tr>
           {#if isColumnVisible('name')}
             <td>

@@ -7,8 +7,9 @@ namespace MiniLcm.Tests;
 public abstract class QueryEntryTestsBase : MiniLcmTestBase
 {
     protected readonly Guid appleId = Guid.NewGuid();
-    private readonly string Apple = "Apple";
-    private readonly string Peach = "Peach";
+    protected readonly string Apple = "Apple";
+    protected readonly Guid peachId = Guid.NewGuid();
+    protected readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
     private readonly string Kiwi = "Kiwi";
     private readonly string Null_LexemeForm = string.Empty; // nulls get normalized to empty strings
@@ -36,6 +37,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         }, CreateEntryOptions.AsIs);
         await Api.CreateEntry(new Entry()
         {
+            Id = peachId,
             LexemeForm = { { "en", Peach } },
             ComplexFormTypes = [complexFormType],
             Senses =
@@ -639,8 +641,8 @@ public abstract class NullAndEmptyQueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry() { LexemeForm = { { "en", Apple } } });
         // null / missing key
         await Api.CreateEntry(new Entry());
-        // blank
-        await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = EmptyString } });
+        // blank - via BaseApi, because validation rejects empty values, but existing projects still contain them
+        await BaseApi.CreateEntry(new Entry() { LexemeForm = { ["en"] = EmptyString } });
         // null string
         await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = NullString } });
     }

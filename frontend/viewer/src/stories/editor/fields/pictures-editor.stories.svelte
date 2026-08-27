@@ -11,7 +11,9 @@
   const sense = allWsEntry.senses[0];
   const entryId = sense.entryId;
   const senseId = sense.id;
-  const demoPictures = () => structuredClone(sense.pictures ?? []);
+  function demoPictures() {
+    return structuredClone(sense.pictures ?? []);
+  }
 
   // Per-story bindable copies so edits don't mutate shared demo module data.
   let withPictures = $state(demoPictures());

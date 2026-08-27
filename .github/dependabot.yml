@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/dependabot.json
 # Dependabot for languageforge-lexbox
 # Target: develop | Schedule: weekly Monday | No ignore rules
 # platform.bible-extension is intentionally excluded (separate npm tree).
@@ -72,6 +73,8 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    ignore:
+      - dependency-name: MatteoH2O1999/setup-python # MatteoH2O1999/setup-python is intentionally excluded, newer version's don't support Python 2.7.18
     groups:
       github-actions:
         patterns:
@@ -129,6 +132,11 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    ignore:
+      # The dotnet8 stage is pinned for ChorusMerge; dependabot "bumps" it by deleting the stage.
+      - dependency-name: mcr.microsoft.com/dotnet/runtime
+        update-types:
+          - version-update:semver-major
     groups:
       docker:
         patterns:

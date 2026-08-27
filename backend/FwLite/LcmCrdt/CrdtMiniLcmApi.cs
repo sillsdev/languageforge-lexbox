@@ -1079,7 +1079,7 @@ public class CrdtMiniLcmApi(
             threads = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(threads, t => t.Comments!.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id));
         }
 
-        threads = threads.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id);
+        threads = threads.OrderByDescending(t => t.CreatedAt).ThenByDescending(t => t.Id);
         await foreach (var thread in threads.AsAsyncEnumerable())
         {
             yield return thread;
@@ -1194,6 +1194,11 @@ public class CrdtMiniLcmApi(
     public Task MarkCommentRead(Guid commentId)
     {
         return commentReadStatusService.MarkCommentRead(commentId);
+    }
+
+    public Task MarkCommentThreadUnread(Guid threadId)
+    {
+        return commentReadStatusService.MarkThreadUnread(threadId);
     }
 
     public Task MarkCommentThreadRead(Guid threadId)

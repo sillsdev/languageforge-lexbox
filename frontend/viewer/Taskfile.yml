@@ -35,7 +35,6 @@ tasks:
       - ../pnpm-lock.yaml
       - ../pnpm-workspace.yaml
     cmds:
-      - corepack enable || true
       - pnpm install
   test:
     cmd: pnpm test

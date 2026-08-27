@@ -19,6 +19,10 @@
     <Project Path="backend/FwLite/MiniLcm/MiniLcm.csproj" />
     <Project Path="backend/LfClassicData/LfClassicData.csproj" />
   </Folder>
+  <Folder Name="/Analyzers/">
+    <Project Path="backend/Analyzers/LexboxAnalyzers/LexboxAnalyzers.csproj" />
+    <Project Path="backend/Analyzers/LexboxAnalyzers.Tests/LexboxAnalyzers.Tests.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".dockerignore" />
     <File Path=".env" />

@@ -12,6 +12,7 @@ public record MiniLcmValidators(
     IValidator<Entry> EntryValidator,
     IValidator<Sense> SenseValidator,
     IValidator<ExampleSentence> ExampleSentenceValidator,
+    IValidator<Translation> TranslationValidator,
     IValidator<WritingSystem> WritingSystemValidator,
     IValidator<PartOfSpeech> PartOfSpeechValidator,
     IValidator<SemanticDomain> SemanticDomainValidator,
@@ -43,6 +44,11 @@ public record MiniLcmValidators(
     public async Task ValidateAndThrow(ExampleSentence value)
     {
         await ExampleSentenceValidator.ValidateAndThrowAsync(value);
+    }
+
+    public async Task ValidateAndThrow(Translation value)
+    {
+        await TranslationValidator.ValidateAndThrowAsync(value);
     }
 
     public async Task ValidateAndThrow(WritingSystem value)
@@ -92,6 +98,7 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<IValidator<Entry>, EntryValidator>();
         services.AddTransient<IValidator<Sense>, SenseValidator>();
         services.AddTransient<IValidator<ExampleSentence>, ExampleSentenceValidator>();
+        services.AddTransient<IValidator<Translation>, ExampleSentenceTranslationValidator>();
         services.AddTransient<IValidator<WritingSystem>, WritingSystemValidator>();
         services.AddTransient<IValidator<PartOfSpeech>, PartOfSpeechValidator>();
         services.AddTransient<IValidator<SemanticDomain>, SemanticDomainValidator>();
