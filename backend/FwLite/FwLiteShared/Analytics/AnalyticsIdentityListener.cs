@@ -15,7 +15,8 @@ public class AnalyticsIdentityListener(
     OAuthClientFactory clientFactory,
     IOptions<AuthConfig> authConfig,
     GlobalEventBus eventBus,
-    ILogger<AnalyticsIdentityListener> logger) : IHostedService, IDisposable
+    ILogger<AnalyticsIdentityListener> logger,
+    IHostApplicationLifetime? applicationLifetime = null) : IHostedService, IDisposable
 {
     private IDisposable? _subscription;
 
@@ -42,6 +43,9 @@ public class AnalyticsIdentityListener(
     {
         try
         {
+            // Web: OAuthClient needs the listening address (IRedirectUrlProvider / UrlContext).
+            // That is only available after ApplicationStarted. MAUI has no IHostApplicationLifetime.
+            await WaitUntilStarted(cancellationToken);
             var server = authConfig.Value.LexboxServers.FirstOrDefault(MixpanelAnalytics.IsProductionLexbox);
             if (server is null)
                 return;
@@ -51,6 +55,10 @@ public class AnalyticsIdentityListener(
             if (user is null)
                 return;
             MixpanelAnalytics.ApplyAuthChange(analytics, server, AuthenticationChangeCause.Login, user);
+        }
+        catch (OperationCanceledException)
+        {
+            // Shutdown before identify completed.
         }
         catch (Exception e)
         {
@@ -79,5 +87,16 @@ public class AnalyticsIdentityListener(
         {
             logger.LogWarning(e, "Failed to apply Mixpanel identity after authentication change");
         }
+    }
+
+    private Task WaitUntilStarted(CancellationToken cancellationToken)
+    {
+        if (applicationLifetime is null)
+            return Task.CompletedTask;
+        var tcs = new TaskCompletionSource();
+        applicationLifetime.ApplicationStarted.Register(() => tcs.TrySetResult());
+        cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken));
+        applicationLifetime.ApplicationStopping.Register(() => tcs.TrySetCanceled());
+        return tcs.Task;
     }
 }
