@@ -43,18 +43,25 @@ export function channelHasFlag(
 }
 
 export function readStoredChannel(
-  storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | undefined = globalThis.localStorage,
+  storage?: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>,
 ): string {
   try {
-    if (!storage) return '';
-    const stored = normalizeChannel(storage.getItem(STORAGE_KEY) ?? '');
-    const legacyDev = storage.getItem(LEGACY_DEV_MODE_KEY) === 'true';
-    // The legacy key is obsolete once we've read it: clear it whether or not a
-    // channel is already set, so it can't linger after migration.
-    if (legacyDev) storage.removeItem(LEGACY_DEV_MODE_KEY);
-    if (stored) return stored;
+    // Resolve inside the try: reading globalThis.localStorage can itself throw
+    // (sandboxed iframes, blocked storage), which the catch turns into ''.
+    const store = storage ?? globalThis.localStorage;
+    if (!store) return '';
+    const stored = normalizeChannel(store.getItem(STORAGE_KEY) ?? '');
+    if (stored) {
+      // The legacy key is obsolete once a channel is set; clear it so it can't linger.
+      store.removeItem(LEGACY_DEV_MODE_KEY);
+      return stored;
+    }
+    const legacyDev = store.getItem(LEGACY_DEV_MODE_KEY) === 'true';
     if (legacyDev) {
-      storage.setItem(STORAGE_KEY, DEV_CHANNEL);
+      // Drop the legacy key only after the new channel is written, so a failed
+      // write doesn't lose the migration intent.
+      store.setItem(STORAGE_KEY, DEV_CHANNEL);
+      store.removeItem(LEGACY_DEV_MODE_KEY);
       return DEV_CHANNEL;
     }
     return '';
@@ -65,18 +72,19 @@ export function readStoredChannel(
 
 export function persistChannel(
   channel: string,
-  storage: Pick<Storage, 'setItem' | 'removeItem'> | undefined = globalThis.localStorage,
+  storage?: Pick<Storage, 'setItem' | 'removeItem'>,
 ): void {
   try {
-    if (!storage) return;
+    const store = storage ?? globalThis.localStorage;
+    if (!store) return;
     const normalized = normalizeChannel(channel);
     if (normalized) {
-      storage.setItem(STORAGE_KEY, normalized);
+      store.setItem(STORAGE_KEY, normalized);
     }
     else {
-      storage.removeItem(STORAGE_KEY);
+      store.removeItem(STORAGE_KEY);
     }
-    storage.removeItem(LEGACY_DEV_MODE_KEY);
+    store.removeItem(LEGACY_DEV_MODE_KEY);
   } catch {
     // ignore quota / private mode
   }
