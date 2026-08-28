@@ -119,6 +119,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
     {
         var lcmResources = (await lcmMediaService.AllResources()).ToDictionary(r => r.Id);
         var existingDbFiles = dbContext.Files.Where(p => p.ProjectId == projectId).AsAsyncEnumerable();
+        var dbChanged = false;
         await foreach (var existingDbFile in existingDbFiles)
         {
             if (lcmResources.Remove(existingDbFile.Id, out var lcmResource))
@@ -130,9 +131,20 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
                 continue;
             }
 
+            // No live Harmony resource matches this Files row.
+            if (existingDbFile.Revision == 0)
+            {
+                // A pending row reserves the anticipated path for a resource that is now gone. Reclaim it — and
+                // skip AddExistingRemoteResource below, which would throw FileNotFoundException (a pending row has
+                // no binary on disk). Only reached when the resource is absent, so there is no reserve->delete loop.
+                dbContext.Files.Remove(existingDbFile);
+                dbChanged = true;
+                continue;
+            }
+
+            // A backed (uploaded) file lexbox knows about but Harmony doesn't yet — track it.
             await lcmMediaService.AddExistingRemoteResource(existingDbFile.Id, FilePath(existingDbFile), ToLcmFileMetadata(existingDbFile));
         }
-        var addedPendingRow = false;
         foreach (var lcmResource in lcmResources.Values)
         {
             // A resource with no matching Files row that was never uploaded (RemoteId == null / !Remote) is a
@@ -159,13 +171,13 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
                     Revision = 0, // pending: no binary uploaded yet
                 };
                 dbContext.Files.Add(pendingRow);
-                addedPendingRow = true;
+                dbChanged = true;
                 continue;
             }
             await lcmMediaService.DeleteResource(lcmResource.Id);
         }
 
-        if (addedPendingRow) await dbContext.SaveChangesAsync();
+        if (dbChanged) await dbContext.SaveChangesAsync();
     }
 
     private static FileMetadata FromLcmFileMetadata(LcmFileMetadata metadata)

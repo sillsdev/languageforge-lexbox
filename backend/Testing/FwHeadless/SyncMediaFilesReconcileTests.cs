@@ -218,6 +218,36 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
         _dbContext.Files.Any(f => f.Id == orphanId).Should().BeFalse("the orphan never had a Files row and none is created");
     }
 
+    [Fact]
+    public async Task SyncMediaFiles_ReclaimsPendingRowWhoseResourceIsGone()
+    {
+        // A pending Files row (Revision == 0) reserves the anticipated path of a not-yet-uploaded resource.
+        // If that resource later disappears, the row is orphaned: the pre-guard reconcile would hit
+        // AddExistingRemoteResource and throw FileNotFoundException (a pending row has no binary on disk).
+        // The guard instead reclaims the orphaned row, tying the reserved row's lifetime to its resource.
+        var id = await SeedPendingResource();
+
+        // First reconcile creates the pending reservation via the real create path.
+        await _service.SyncMediaFiles(_projectId, _lcmMediaService);
+        var pendingRow = _dbContext.Files.SingleOrDefault(f => f.Id == id);
+        pendingRow.Should().NotBeNull("the reconcile reserves a pending Files row for the not-yet-uploaded resource");
+        pendingRow!.Revision.Should().Be(0, "the reserved row is pending until its binary is uploaded");
+
+        // Step 3 simulates a resource deletion that NO current production path performs — it is what issue
+        // #2607's future media GC will do. We delete the Harmony resource ourselves to orphan the pending row.
+        await _lcmMediaService.DeleteResource(id);
+        (await CurrentResources()).Select(r => r.Id).Should().NotContain(id,
+            "we deleted the Harmony resource ourselves to orphan the pending row");
+
+        // Second reconcile must NOT throw: on the pre-guard code the orphaned pending row hits
+        // AddExistingRemoteResource -> FileNotFoundException. The guard reclaims it instead (deferring true
+        // entry-abandonment GC to #2607).
+        await _service.SyncMediaFiles(_projectId, _lcmMediaService);
+
+        _dbContext.Files.Any(f => f.Id == id).Should().BeFalse(
+            "the orphaned pending row is reclaimed once its reserving resource is gone");
+    }
+
     private sealed class OfflineHttpClientProvider : IServerHttpClientProvider
     {
         public ValueTask<HttpClient> GetHttpClient() => throw new NotImplementedException();
