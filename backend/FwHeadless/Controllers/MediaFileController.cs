@@ -294,7 +294,7 @@ public static class MediaFileController
         await mediaFileService.SaveMediaFile(mediaFile, readStream);
     }
 
-    private static string? GuessSubfolderFromMimeType(string? mimeType)
+    internal static string? GuessSubfolderFromMimeType(string? mimeType)
     {
         if (mimeType is null) return null;
         if (mimeType.StartsWith("image/")) return "Pictures";

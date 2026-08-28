@@ -16,6 +16,17 @@ public class MediaFile : EntityBase
     public Guid ProjectId { get; set; }
     public FileMetadata? Metadata { get; set; } = new FileMetadata();
 
+    /// <summary>
+    /// How many times a binary has been uploaded for this file. <c>0</c> means pending: the row was created to
+    /// reserve the anticipated path of a media resource whose binary hasn't been uploaded yet (a reference
+    /// FLEx/CRDT holds but no file backs). The reserved row lets the media URI resolve so sync writes the
+    /// anticipated path into FwData; the first upload sets this to <c>1</c> and the row becomes a normal, backed
+    /// file, and each subsequent replacement increments it (2, 3, …). A pending (revision 0) row is exempt from
+    /// the hg-reconcile deletion that removes rows lacking a physical file, because it legitimately has no file
+    /// on disk yet.
+    /// </summary>
+    public int Revision { get; set; }
+
     [MemberNotNull(nameof(Metadata))]
     public void InitializeMetadataIfNeeded(string filePath)
     {

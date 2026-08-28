@@ -20,27 +20,27 @@ namespace Testing.FwHeadless;
 /// Reconcile-delete regression tests for <see cref="MediaFileService.SyncMediaFiles(System.Guid, LcmMediaService)"/>.
 ///
 /// The reconcile loop deletes every Harmony CRDT resource that has no matching lexbox <c>Files</c> row.
-/// A file created in FwLite but not yet uploaded also has no <c>Files</c> row, so today the reconcile
-/// destroys that pending resource. Because <see cref="LcmMediaService.DeleteResource"/> emits a *synced*
-/// <c>DeleteRemoteResourceChange</c>, the deletion propagates back to the client that still physically
-/// holds the un-uploaded bytes and permanently removes it from the client's automatic re-upload set —
-/// silent, effectively-permanent data loss.
+/// A file created in FwLite but not yet uploaded also has no <c>Files</c> row. Deleting that pending
+/// resource is data loss: <see cref="LcmMediaService.DeleteResource"/> emits a *synced*
+/// <c>DeleteRemoteResourceChange</c> that propagates back to the client still physically holding the
+/// un-uploaded bytes and permanently removes it from the client's automatic re-upload set.
 ///
-/// The decided fix (ticket 09) guards the delete with <c>if (!lcmResource.Remote) continue;</c> so that:
-///   - a resource with <c>RemoteId == null</c> (<c>Remote == false</c>, never uploaded / pending) SURVIVES, and
+/// Under Option D the reconcile no longer merely skips a pending (<c>Remote == false</c>) resource — when
+/// the resource carries usable metadata (a non-empty filename) it CREATES a pending <c>Files</c> row that
+/// reserves the anticipated path (<c>Revision == 0</c>), so the media reference resolves and the
+/// normal sync writes the anticipated path into FwData. So:
+///   - a pending resource WITH metadata → a pending <c>Files</c> row is created and the resource SURVIVES, and
 ///   - a resource with <c>RemoteId != null</c> (<c>Remote == true</c>) but no <c>Files</c> row (a genuine
 ///     orphan left behind after the file was removed on the server) is STILL deleted.
 ///
-/// <see cref="SyncMediaFiles_PreservesResourceThatWasNeverUploaded"/> and
-/// <see cref="SyncMediaFiles_PreservesPendingButStillDeletesOrphan"/> encode the DESIRED post-fix behavior
-/// and are therefore RED until the guard lands (they demonstrate the bug today). These are RequiresDb /
-/// CI-only tests; do not run them locally without the lexbox stack.
+/// These are RequiresDb / CI-only tests; do not run them locally without the lexbox stack.
 /// </summary>
 [Collection(nameof(TestingServicesFixture))]
 [Trait("Category", "RequiresDb")]
 public class SyncMediaFilesReconcileTests : IAsyncLifetime
 {
     private readonly MediaFileService _service;
+    private readonly LexBoxDbContext _dbContext;
     private readonly Guid _projectId = Guid.NewGuid();
     private readonly string _crdtProjectPath;
     private ServiceProvider _crdtServices = null!;
@@ -64,7 +64,8 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
         // The reconcile overload only reads the lexbox Files table and the Harmony resources; we use a
         // fresh project id so there are no Files rows for the seeded resources (that absence is exactly
         // the condition that triggers the reconcile-delete under test).
-        _service = new MediaFileService(services.GetDbContext(), config, services.GetRequiredService<ISendReceiveService>());
+        _dbContext = services.GetDbContext();
+        _service = new MediaFileService(_dbContext, config, services.GetRequiredService<ISendReceiveService>());
 
         _crdtProjectPath = Path.GetFullPath(Path.Combine(".", $"SyncMediaFilesReconcileTests-crdt-{Guid.NewGuid():N}"));
         Directory.CreateDirectory(_crdtProjectPath);
@@ -107,11 +108,20 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
         try { if (Directory.Exists(path)) Directory.Delete(path, true); } catch { /* best effort cleanup */ }
     }
 
-    /// <summary>Seed a not-yet-uploaded (pending) resource: RemoteId == null, so Remote == false.</summary>
-    private async Task<Guid> SeedPendingResource()
+    /// <summary>
+    /// Seed a not-yet-uploaded (pending) resource: RemoteId == null, so Remote == false. When
+    /// <paramref name="filename"/> is provided the resource also carries metadata (a filename), which is
+    /// what lets the Option D reconcile create a pending Files row for it.
+    /// </summary>
+    private async Task<Guid> SeedPendingResource(string? filename = "pending-upload.wav")
     {
         var id = Guid.NewGuid();
         await _dataModel.AddChange(_clientId, new CreateRemoteResourcePendingUploadChange<LcmFileMetadata>(id));
+        if (filename is not null)
+        {
+            await _dataModel.AddChange(_clientId,
+                new SetRemoteResourceMetadataChange<LcmFileMetadata>(id, new LcmFileMetadata(filename, "audio/wav")));
+        }
         return id;
     }
 
@@ -129,21 +139,43 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task SyncMediaFiles_PreservesResourceThatWasNeverUploaded()
+    public async Task SyncMediaFiles_CreatesPendingFilesRowForNeverUploadedResource()
     {
-        // RED until the ticket 09 fix lands: today the reconcile deletes this pending resource.
+        // Option D: a not-yet-uploaded resource with usable metadata gets a pending Files row (so its media
+        // reference resolves) and the resource itself survives reconcile.
         var pendingId = await SeedPendingResource();
 
         var before = await CurrentResources();
         before.Should().ContainSingle(r => r.Id == pendingId)
             .Which.Remote.Should().BeFalse("a not-yet-uploaded resource has a null RemoteId");
+        _dbContext.Files.Any(f => f.Id == pendingId).Should().BeFalse("guard: no Files row exists before reconcile");
 
         await _service.SyncMediaFiles(_projectId, _lcmMediaService);
 
         var after = await CurrentResources();
         after.Select(r => r.Id).Should().Contain(pendingId,
-            "a not-yet-uploaded resource (RemoteId == null) has no Files row yet, but deleting it emits a synced " +
-            "DeleteRemoteResourceChange that permanently kills the client's automatic re-upload; it must survive reconcile");
+            "the not-yet-uploaded resource must survive reconcile so its reference can heal after a later upload");
+
+        var pendingRow = _dbContext.Files.SingleOrDefault(f => f.Id == pendingId);
+        pendingRow.Should().NotBeNull("Option D creates a pending Files row that reserves the anticipated path");
+        pendingRow!.Revision.Should().Be(0, "revision 0 marks a reservation for a binary that hasn't been uploaded yet");
+        pendingRow.ProjectId.Should().Be(_projectId);
+        pendingRow.Filename.Should().EndWith("pending-upload.wav", "the anticipated path embeds the resource's filename");
+    }
+
+    [Fact]
+    public async Task SyncMediaFiles_LeavesResourceWithoutMetadataUntouched()
+    {
+        // Without usable metadata (no filename) we can't reserve a path, so the resource is left as-is: no
+        // Files row is created and the resource still survives (the old skip behavior).
+        var pendingId = await SeedPendingResource(filename: null);
+
+        await _service.SyncMediaFiles(_projectId, _lcmMediaService);
+
+        var after = await CurrentResources();
+        after.Select(r => r.Id).Should().Contain(pendingId, "a pending resource is never deleted by reconcile");
+        _dbContext.Files.Any(f => f.Id == pendingId).Should().BeFalse(
+            "without a filename there is no anticipated path to reserve, so no pending Files row is created");
     }
 
     [Fact]
@@ -164,10 +196,10 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task SyncMediaFiles_PreservesPendingButStillDeletesOrphan()
+    public async Task SyncMediaFiles_CreatesPendingRowButStillDeletesOrphan()
     {
-        // RED until the fix: proves the guard is selective — it preserves pending resources without
-        // disabling orphan cleanup wholesale, both observed in a single reconcile pass.
+        // Proves the reconcile is selective in a single pass: it reserves a pending Files row for the
+        // not-yet-uploaded resource (which survives) without disabling orphan cleanup wholesale.
         var pendingId = await SeedPendingResource();
         var orphanId = await SeedUploadedResource();
 
@@ -179,6 +211,11 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
         var after = (await CurrentResources()).Select(r => r.Id).ToArray();
         after.Should().NotContain(orphanId, "the uploaded resource with no Files row is a genuine orphan and is cleaned up");
         after.Should().Contain(pendingId, "the not-yet-uploaded resource must survive so its reference can heal after a later upload");
+
+        var pendingRow = _dbContext.Files.SingleOrDefault(f => f.Id == pendingId);
+        pendingRow.Should().NotBeNull("the pending resource gets a reserved Files row");
+        pendingRow!.Revision.Should().Be(0);
+        _dbContext.Files.Any(f => f.Id == orphanId).Should().BeFalse("the orphan never had a Files row and none is created");
     }
 
     private sealed class OfflineHttpClientProvider : IServerHttpClientProvider

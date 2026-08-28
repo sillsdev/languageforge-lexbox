@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using System.Security.Cryptography;
+using FwHeadless.Controllers;
 using FwHeadless.Services;
 using LcmCrdt.MediaServer;
 using LexCore.Entities;
@@ -31,6 +32,10 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
                 //nothing to do, the file exists in the db and in the hg repo
                 continue;
             }
+
+            //a pending row (revision 0) legitimately has no physical hg file yet (it reserves the anticipated
+            //path for a binary that hasn't been uploaded), so don't mistake it for a hg-side deletion and remove it.
+            if (mediaFile.Revision == 0) continue;
 
             //file has been deleted from hg, so remove it from the db
             dbContext.Files.Remove(mediaFile);
@@ -68,29 +73,31 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
     }
 
     /// <summary>
-    /// find a media file based on the path and project
+    /// Non-throwing lookup of a media file by its absolute path within the project. Returns null when no row
+    /// matches (including a path outside the project storage root), so callers can resolve a path that may or
+    /// may not have a Files row — including a pending row whose binary isn't on disk yet. Use
+    /// <see cref="GetMediaFile(Guid, string)"/> when a missing row should be an error.
     /// </summary>
     /// <param name="projectId"></param>
-    /// <param name="path">full file path to find the file at</param>
-    /// <returns></returns>
-    /// <exception cref="NotFoundException">Throws when it can't find the file</exception>
-    public MediaFile FindMediaFile(Guid projectId, string path)
+    /// <param name="path">absolute path within the project storage root</param>
+    public MediaFile? FindMediaFile(Guid projectId, string path)
     {
-        if (!Path.IsPathRooted(path))
-        {
-            throw new ArgumentException("Path must be absolute", nameof(path));
-        }
+        if (!Path.IsPathRooted(path)) throw new ArgumentException("Path must be absolute", nameof(path));
         var fwDataFolder = config.Value.GetFwDataFolder(config.Value.GetProjectFolder(projectId));
-        if (!path.StartsWith(fwDataFolder))
-        {
-            throw new ArgumentException("Path must be in the project storage root", nameof(path));
-        }
-
+        if (!path.StartsWith(fwDataFolder)) return null;
         path = Path.GetRelativePath(fwDataFolder, path);
-        return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename == path) ??
-               throw new NotFoundException(
-                   $"Unable to find file {path}, in project {projectId}.",
-                   nameof(MediaFile));
+        return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename == path);
+    }
+
+    /// <summary>
+    /// Look up a media file by its absolute path, throwing when none exists. Thin throwing wrapper over
+    /// <see cref="FindMediaFile(Guid, string)"/>.
+    /// </summary>
+    /// <exception cref="NotFoundException">Thrown when no matching file is found.</exception>
+    public MediaFile GetMediaFile(Guid projectId, string path)
+    {
+        return FindMediaFile(projectId, path) ??
+               throw new NotFoundException($"Unable to find file {path}, in project {projectId}.", nameof(MediaFile));
     }
 
     public MediaFile? FindMediaFile(Guid fileId)
@@ -125,13 +132,52 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
 
             await lcmMediaService.AddExistingRemoteResource(existingDbFile.Id, FilePath(existingDbFile), ToLcmFileMetadata(existingDbFile));
         }
+        var addedPendingRow = false;
         foreach (var lcmResource in lcmResources.Values)
         {
             // A resource with no matching Files row that was never uploaded (RemoteId == null / !Remote) is a
-            // pending upload, we only want to delete resources that FLEx has removed.
-            if (!lcmResource.Remote) continue;
+            // pending upload: its binary referenced by an entry but not yet on the server. Instead of skipping
+            // (which leaves the media unresolvable and forces the sync layer to compensate), create a *pending*
+            // Files row that reserves the anticipated path. The row makes the media URI resolve, so the normal
+            // CRDT->FwData write records the anticipated path in FwData; once the binary is uploaded to that
+            // same path (PutFile keeps a pre-existing row's Filename), the revision advances to 1 and the link
+            // self-heals. Next sync the resource matches this row in the loop above and is removed from the
+            // leftovers, so there is no risk of creating a second pending row.
+            if (!lcmResource.Remote)
+            {
+                var metadata = lcmResource.Metadata;
+                // Without a filename we can't reserve a path, so leave the resource untouched (old behavior).
+                if (string.IsNullOrEmpty(metadata?.Filename)) continue;
+
+                var subfolder = MediaFileController.GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
+                var pendingRow = new MediaFile
+                {
+                    Id = lcmResource.Id,
+                    ProjectId = projectId,
+                    Filename = Path.Join(MediaFileController.LinkedFiles, subfolder, lcmResource.Id.ToString(), metadata.Filename),
+                    Metadata = FromLcmFileMetadata(metadata),
+                    Revision = 0, // pending: no binary uploaded yet
+                };
+                dbContext.Files.Add(pendingRow);
+                addedPendingRow = true;
+                continue;
+            }
             await lcmMediaService.DeleteResource(lcmResource.Id);
         }
+
+        if (addedPendingRow) await dbContext.SaveChangesAsync();
+    }
+
+    private static FileMetadata FromLcmFileMetadata(LcmFileMetadata metadata)
+    {
+        return new FileMetadata
+        {
+            MimeType = metadata.MimeType,
+            Author = metadata.Author,
+            UploadDate = metadata.UploadDate,
+            SizeInBytes = metadata.SizeInBytes,
+            ExtraFields = metadata.ExtraFields.ToDictionary(),
+        };
     }
 
     private static LcmFileMetadata ToLcmFileMetadata(MediaFile existingDbFile)
@@ -189,6 +235,10 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         mediaFile.InitializeMetadataIfNeeded(filePath);
         mediaFile.Metadata.SizeInBytes = fileLength;
         mediaFile.Metadata.Sha256Hash = await Sha256OfFile(filePath);
+
+        //the binary is now on disk (and committed to hg): advance the revision. A pending row (0) becomes 1 on
+        //its first upload and a normal, backed file; a replacement of an existing file bumps it again (2, 3, …).
+        mediaFile.Revision++;
 
         mediaFile.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();

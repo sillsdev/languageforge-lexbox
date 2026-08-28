@@ -154,12 +154,6 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
         fwdataChanges += await MorphTypeSync.Sync(currentFwDataMorphTypes, await crdtApi.GetMorphTypes().ToArrayAsync(), fwdataApi);
 
         var currentFwDataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        // The snapshot is regenerated from the CRDT (#1912), so it still carries any audio reference the
-        // CRDT→FwData write skipped as unresolvable (tickets 04/13). Neutralize audio FwData can't resolve
-        // (absent or the not-found sentinel) on both sides before diffing, so this FwData→CRDT diff neither
-        // removes a still-pending reference nor overwrites a real CRDT reference with the sentinel. The reverse
-        // direction below reads the live CRDT, so it still re-attempts the write and heals once resolvable.
-        AudioSnapshotReconciler.NeutralizeUnresolvableAudio(projectSnapshot.Entries, currentFwDataEntries);
         crdtChanges += await EntrySync.SyncFull(projectSnapshot.Entries, currentFwDataEntries, crdtApi);
         fwdataChanges += await EntrySync.SyncFull(currentFwDataEntries, await crdtApi.GetAllEntries().ToArrayAsync(), fwdataApi);
 

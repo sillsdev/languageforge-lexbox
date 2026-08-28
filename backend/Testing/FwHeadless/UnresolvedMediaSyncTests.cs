@@ -12,20 +12,20 @@ namespace Testing.FwHeadless;
 /// (wayfinder map "Reproduce the media file-not-found sync crash", ticket 12 — scenario 2: a media id
 /// referenced from a CRDT entry whose binary was never uploaded, so no lexbox <c>Files</c> row exists).
 ///
-/// Unlike the in-process <c>MediaSyncTests</c> (ticket 06, which drives <c>LocalMediaAdapter</c>), this runs
-/// through the REAL server path: <c>SyncHostedService</c>/<c>SyncWorker</c> orchestration →
-/// <c>CrdtFwdataProjectSyncService</c> → <c>LexboxFwDataMediaAdapter</c>, which resolves media purely by
-/// <c>FileId</c> against the lexbox <c>Files</c> DB (authority is ignored server-side). Today the CRDT→FwData
-/// write hits <c>FromMediaUri</c> for the unresolved id → <c>NotFoundException</c> → <c>SyncObjectException</c>,
-/// which <c>SyncHostedService</c> catches and reports as a <see cref="SyncJobStatusEnum.UnknownError"/>
-/// <see cref="SyncJobResult"/> (Error contains "File ID:").
+/// Unlike the in-process <c>MediaSyncTests</c> (which drives <c>LocalMediaAdapter</c>), this runs through the
+/// REAL server path: <c>SyncHostedService</c>/<c>SyncWorker</c> orchestration → <c>CrdtFwdataProjectSyncService</c>
+/// → <c>LexboxFwDataMediaAdapter</c>, which resolves media purely by <c>FileId</c> against the lexbox
+/// <c>Files</c> DB (authority is ignored server-side).
 ///
-/// The assertions below encode the DECIDED post-fix behaviour, so they are RED until BOTH fix threads land:
-///   - thread A (tickets 04/06): skip the unresolved field instead of crashing, and don't let the snapshot
-///     round-trip revert the still-pending reference; and
-///   - thread B (tickets 08/09): the reconcile in <c>MediaFileService.SyncMediaFiles(projectId, ...)</c> must
-///     not delete a not-yet-uploaded (RemoteId == null) Harmony resource before the write.
-/// Each assertion is commented "BUG TODAY" (current observed behaviour) vs "DESIRED" (asserted, red until fix).
+/// Under Option D the root-cause fix lives at the media layer: when the harmony reconcile
+/// (<c>MediaFileService.SyncMediaFiles(projectId, ...)</c>) meets a not-yet-uploaded Harmony resource that
+/// carries usable metadata, it CREATES a pending <c>Files</c> row reserving the anticipated path. The media
+/// reference then RESOLVES, so the CRDT→FwData write records the anticipated path into FwData (FieldWorks
+/// tolerates the dangling link), and uploading the binary to that same path later self-heals it — no
+/// sync-layer special-casing. A bare unresolved reference with no Harmony resource (nothing to reserve a row
+/// from) is still skipped on write by the retained <c>FromMediaUri</c>/<c>SetString</c> guard rather than
+/// crashing. Either way the sync job reports <see cref="SyncJobStatusEnum.Success"/> instead of a
+/// <see cref="SyncJobStatusEnum.UnknownError"/> <see cref="SyncJobResult"/> (Error containing "File ID:").
 ///
 /// CI-only: <c>[Trait("Category","Integration")]</c> needs the full lexbox stack (LexBoxApi + FwHeadless + hg
 /// + Postgres) and does not run locally. <c>[Collection("FwHeadless Sync")]</c> serialises it against the
@@ -166,7 +166,9 @@ public class UnresolvedMediaSyncTests : MediaFileTestFixture
         // sync takes the CRDT→FwData Sync path (not Import) — the path the reported crash occurs on.
         var wsId = Guid.NewGuid();
         var entryId = Guid.NewGuid();
-        var fileId = Guid.NewGuid(); // real, non-empty id with NO Files row -> unresolvable when writing to FwData
+        // Real, non-empty id with NO Files row AND no Harmony resource: nothing for the reconcile to reserve a
+        // pending row from, so this reference stays unresolvable when writing to FwData.
+        var fileId = Guid.NewGuid();
         await InjectCrdtCommits(ProjectId,
             AudioWritingSystemChange(wsId),
             UnresolvedAudioEntryChange(entryId, fileId));
@@ -175,14 +177,13 @@ public class UnresolvedMediaSyncTests : MediaFileTestFixture
         var result = await FwHeadlessTestHelpers.AwaitSyncResult(HttpClient, ProjectId);
         result.Should().NotBeNull();
 
-        // BUG TODAY: the CRDT→FwData write applies the entry, SetString hits the audio WS value, FromMediaUri
-        // resolves the id against the Files DB -> null -> NotFoundException -> SyncObjectException. SyncHostedService
-        // reports result.Status == UnknownError with result.Error containing "File ID: {fileId}".
-        // DESIRED after the thread-A fix (tickets 04/06): the unresolved audio field is skipped and the rest of the
-        // entry syncs, so the whole job succeeds. RED until the fix lands.
+        // With no Harmony resource there is no metadata to reserve a pending Files row from, so Option D's
+        // media-layer heal doesn't apply here. The retained FromMediaUri/SetString guard still resolves the id
+        // against the Files DB -> null -> skips the audio field rather than throwing, so the rest of the entry
+        // syncs and the whole job succeeds (instead of the pre-fix UnknownError / "File ID: {fileId}" crash).
         result!.Status.Should().Be(SyncJobStatusEnum.Success,
-            "the unresolved audio reference must be skipped rather than crash the whole sync job " +
-            "(RED until the thread-A skip-field fix lands; today this is UnknownError, Error: {0})",
+            "an unresolved audio reference with no resource must be skipped rather than crash the whole sync job " +
+            "(today Error: {0})",
             result.Error);
     }
 
@@ -205,15 +206,13 @@ public class UnresolvedMediaSyncTests : MediaFileTestFixture
         var result = await FwHeadlessTestHelpers.AwaitSyncResult(HttpClient, ProjectId);
         result.Should().NotBeNull();
 
-        // BUG TODAY: on the create path PathFromMediaUri(Guid.Empty) → null → NotFoundException at FromMediaUri
-        // → SyncObjectException, which kills the whole sync job. SyncHostedService reports
-        // result.Status == UnknownError with result.Error containing "File ID:" (Guid.Empty,
-        // 00000000-0000-0000-0000-000000000000).
-        // DESIRED after the ticket-13 fix: the sentinel audio field is skipped and the rest of the entry syncs,
-        // so the whole job succeeds. RED until the fix lands.
+        // The sentinel is identity-free (FileId == Guid.Empty) and has no Harmony resource, so Option D's
+        // media-layer heal cannot apply. On the create path FromMediaUri short-circuits the sentinel to null
+        // and SetString skips the audio field rather than throwing, so the rest of the entry syncs and the job
+        // succeeds (instead of the pre-fix UnknownError / "File ID: 00000000-..." crash).
         result!.Status.Should().Be(SyncJobStatusEnum.Success,
             "the not-found sentinel audio reference must be skipped rather than crash the whole sync job " +
-            "(RED until the skip-field fix lands; today this is UnknownError, Error: {0})",
+            "(today Error: {0})",
             result.Error);
 
         // NO heal round-trip here — deliberately unlike scenario 2 (HealsAfterBinaryUpload). The sentinel is an
@@ -226,11 +225,11 @@ public class UnresolvedMediaSyncTests : MediaFileTestFixture
     public async Task Sync_UnresolvedMediaReference_HealsAfterBinaryUpload()
     {
         // Inject the full, faithful scenario: audio WS + entry referencing the id + the matching not-yet-uploaded
-        // Harmony resource (RemoteId == null). The pending resource is what makes the scenario production-faithful
-        // and exercises the thread-B reconcile that deletes it before the write. NOTE (ticket 11 gap 4): the direct
-        // "pending resource survived reconcile" assertion is owned by MediaFileServiceTests (RequiresDb, ticket 10),
-        // not here — over HTTP there is no way to observe Harmony resource survival, so this test asserts thread-A/B
-        // convergence only indirectly, via the end-to-end heal round-trip below.
+        // Harmony resource (RemoteId == null) WITH metadata (a filename). Under Option D that metadata is what
+        // lets the harmony reconcile reserve a pending Files row for the resource, so the reference resolves.
+        // NOTE: the direct "pending Files row was created / survived reconcile" assertion is owned by
+        // SyncMediaFilesReconcileTests (RequiresDb) — over HTTP there is no way to observe the Files table, so
+        // this test asserts Option D's convergence only indirectly, via the end-to-end heal round-trip below.
         var wsId = Guid.NewGuid();
         var entryId = Guid.NewGuid();
         var fileId = Guid.NewGuid();
@@ -239,30 +238,31 @@ public class UnresolvedMediaSyncTests : MediaFileTestFixture
             UnresolvedAudioEntryChange(entryId, fileId),
             PendingUploadResourceChange(fileId));
 
-        // Second sync: BUG TODAY it crashes (UnknownError, "File ID:"); DESIRED after thread-A it skips + succeeds,
-        // leaving the reference pending in the CRDT so a later sync can heal it. RED until the fix lands.
+        // Second sync: Option D's reconcile creates a pending Files row for the resource, so FromMediaUri now
+        // resolves the id to the anticipated path and the CRDT→FwData write records that (dangling) path in
+        // FwData rather than skipping or crashing. The job succeeds.
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, ProjectId);
         var skipResult = await FwHeadlessTestHelpers.AwaitSyncResult(HttpClient, ProjectId);
         skipResult.Should().NotBeNull();
         skipResult!.Status.Should().Be(SyncJobStatusEnum.Success,
-            "the unresolved audio reference must be skipped, not crash the sync " +
-            "(RED until the thread-A skip-field fix; today this is UnknownError, Error: {0})",
+            "the reference resolves via the reserved pending Files row and writes the anticipated path, not crash " +
+            "(today Error: {0})",
             skipResult.Error);
 
-        // Heal: upload the binary for the exact referenced id (creates the Files row under AudioVisual).
+        // Heal: upload the binary for the exact referenced id. The upload finds the pending row, keeps its
+        // reserved path, writes the binary there and advances its revision to 1 — self-healing the link.
         var healUpload = await HealUploadAudio(fileId);
         healUpload.IsSuccessStatusCode.Should().BeTrue("uploading the referenced media binary must succeed");
 
-        // Re-sync: DESIRED the previously-skipped reference now resolves and the audio writes to FwData, so the
-        // job succeeds. This end-to-end heal is the indirect proxy for thread-A/B convergence: it requires the
-        // thread-A fix (skip + don't revert the pending reference via the snapshot round-trip) AND a live heal
-        // path preserved through reconcile (thread B). RED until both fixes land.
+        // Re-sync: the binary now exists at the anticipated path, so the reference is fully resolvable on both
+        // sides and the job continues to succeed. This end-to-end heal is the indirect proxy for Option D's
+        // media-layer fix: it requires the pending-row reservation AND the upload landing at that reserved path.
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, ProjectId);
         var healResult = await FwHeadlessTestHelpers.AwaitSyncResult(HttpClient, ProjectId);
         healResult.Should().NotBeNull();
         healResult!.Status.Should().Be(SyncJobStatusEnum.Success,
-            "once the binary is uploaded the previously-skipped audio reference must heal and the sync succeed " +
-            "(RED until both fix threads land; today Error: {0})",
+            "once the binary is uploaded to the reserved path the audio reference is fully resolvable and the sync succeeds " +
+            "(today Error: {0})",
             healResult.Error);
     }
 }
