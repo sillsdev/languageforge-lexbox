@@ -49,6 +49,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
                 Id = Guid.NewGuid(),
                 Filename = newFwFile,
                 ProjectId = projectId,
+                Revision = 1, // a file discovered in hg is a real backed file, not a pending (0) reservation
                 Metadata = new FileMetadata
                 {
                     MimeType = MimeMapping.MimeUtility.GetMimeMapping(newFwFile),

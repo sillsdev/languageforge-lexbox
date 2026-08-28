@@ -3,6 +3,7 @@ using FwHeadless.Media;
 using FwHeadless.Services;
 using LcmCrdt;
 using LcmCrdt.MediaServer;
+using LexCore.Entities;
 using LexData;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -94,10 +95,32 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
         _dataModel = _crdtScope.ServiceProvider.GetRequiredService<DataModel>();
         _lcmMediaService = _crdtScope.ServiceProvider.GetRequiredService<LcmMediaService>();
         _clientId = _crdtScope.ServiceProvider.GetRequiredService<CurrentProjectService>().ProjectData.ClientId;
+
+        // A pending Files row references the lexbox Projects table, so seed a project row for _projectId
+        // (the reconcile creating that row is exactly what this suite exercises).
+        _dbContext.Projects.Add(new Project
+        {
+            Id = _projectId,
+            Name = "Reconcile Test",
+            Code = "rct-" + _projectId.ToString("N")[..10],
+            Type = ProjectType.FLEx,
+            RetentionPolicy = RetentionPolicy.Test,
+            IsConfidential = false,
+            LastCommit = null,
+            Organizations = [],
+            Users = [],
+        });
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task DisposeAsync()
     {
+        // Clean up the lexbox rows this test created (Files first, then the project they reference).
+        _dbContext.Files.RemoveRange(_dbContext.Files.Where(f => f.ProjectId == _projectId));
+        var project = await _dbContext.Projects.FindAsync(_projectId);
+        if (project is not null) _dbContext.Projects.Remove(project);
+        await _dbContext.SaveChangesAsync();
+
         await _crdtScope.DisposeAsync();
         await _crdtServices.DisposeAsync();
         SafeDeleteDirectory(_crdtProjectPath);

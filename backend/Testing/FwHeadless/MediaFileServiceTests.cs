@@ -75,7 +75,8 @@ public class MediaFileServiceTests : IDisposable
             Filename = Path.Join(
                 Path.GetRelativePath(_cache.ProjectId.ProjectFolder, _cache.LangProject.LinkedFilesRootDir),
                 fileName),
-            ProjectId = _projectId
+            ProjectId = _projectId,
+            Revision = 1 // a backed file (revision 0 is reserved for a pending reservation with no binary)
         };
         _lexBoxDbContext.Files.Add(mediaFile);
         await _lexBoxDbContext.SaveChangesAsync();
