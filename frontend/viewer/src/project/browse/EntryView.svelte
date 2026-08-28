@@ -28,7 +28,8 @@
   import CommentDialog from '$lib/entry-editor/comments/CommentDialog.svelte';
   import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
-  import DevContent from '$lib/layout/DevContent.svelte';
+  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
+  import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
   import {ResizableHandle, ResizablePane, ResizablePaneGroup} from '$lib/components/ui/resizable';
   import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
 
@@ -120,7 +121,7 @@
   const sticky = $derived(dictionaryPreview === 'sticky');
 
   let deleted = $state(false);
-  const showCommentDialog = $derived(showComments && features.comments);
+  const showCommentDialog = $derived(showComments && features.comments && hasFlag('comments'));
 
   const entryUnreadResource = resource(
     () => (features.comments ? dedupedEntryId : undefined),
@@ -180,8 +181,8 @@
           class="ml-4 text-2xl font-semibold mb-2 min-w-0 flex-1 truncate max-md:text-center"
           title={headword}>{headword}</h2>
         <div class="flex shrink-0">
-          <DevContent>
-            {#if features.comments}
+          {#if features.comments}
+            <FlagContent flag="comments">
               <div class="relative">
                 <Button
                   variant="ghost"
@@ -200,8 +201,8 @@
                   ></span>
                 {/if}
               </div>
-            {/if}
-          </DevContent>
+            </FlagContent>
+          {/if}
           <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} />
           <EntryMenu {entry} />
         </div>

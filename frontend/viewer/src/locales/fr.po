@@ -1358,6 +1358,10 @@ msgstr "Dernier changement : #"
 msgid "Last sync: #"
 msgstr "Synchronisation la plus récente : #"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Leave empty for production"
+msgstr ""
+
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
@@ -2104,6 +2108,10 @@ msgstr ""
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Release channel"
 msgstr ""
 
 #. Link label to open release notes

@@ -24,7 +24,8 @@
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {Button} from '$lib/components/ui/button';
   import Hotkey from '$lib/components/hotkey/hotkey.svelte';
-  import DevContent from '$lib/layout/DevContent.svelte';
+  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
+  import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
   import {useFeatures} from '$lib/services/feature-service';
 
   const features = useFeatures();
@@ -57,6 +58,16 @@
   let includeSubDomains = $state(false);
   let userFilterActive = $state(false);
   let hasComments = $state(false);
+
+  // Comment filters only exist on channels with the comments flag. FlagContent
+  // hides the controls, so clear their state when the flag turns off (e.g.
+  // switching back to production) or they'd keep constraining the query while hidden.
+  $effect(() => {
+    if (!hasFlag('comments')) {
+      hasComments = false;
+      unreadComments = false;
+    }
+  });
 
   function focusSearch() {
     inputRef?.focus();
@@ -237,12 +248,12 @@
             <MissingSelect bind:value={missingField} />
           </div>
           {#if features.comments}
-            <DevContent>
+            <FlagContent flag="comments">
               <div class="flex flex-col">
                 <Switch bind:checked={hasComments} label={$t`Has comments`} />
                 <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
               </div>
-            </DevContent>
+            </FlagContent>
           {/if}
         </div>
       </ResponsivePopup>

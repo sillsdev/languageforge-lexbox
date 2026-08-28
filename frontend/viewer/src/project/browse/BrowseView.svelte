@@ -22,7 +22,7 @@
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
   import UnreadCommentBadge from '$project/browse/filter/UnreadCommentBadge.svelte';
-  import DevContent from '$lib/layout/DevContent.svelte';
+  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
   import {watch} from 'runed';
 
@@ -95,9 +95,9 @@
             <SortMenu bind:value={sort}
               autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
             {#if features.comments}
-              <DevContent>
+              <FlagContent flag="comments">
                 <UnreadCommentBadge bind:unreadComments/>
-              </DevContent>
+              </FlagContent>
             {/if}
             <div class="ms-auto">
               <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
