@@ -213,6 +213,10 @@ msgstr "Añadir nueva palabra"
 msgid "Add part of"
 msgstr "Añadir parte de"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Add Picture"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
 #. Small button to add another sense/meaning for a word

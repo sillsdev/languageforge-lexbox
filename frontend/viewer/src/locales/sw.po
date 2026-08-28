@@ -213,6 +213,10 @@ msgstr "Ongeza neno jipya"
 msgid "Add part of"
 msgstr "Ongeza sehemu ya"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Add Picture"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
 #. Small button to add another sense/meaning for a word

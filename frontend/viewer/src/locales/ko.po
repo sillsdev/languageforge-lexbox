@@ -213,6 +213,10 @@ msgstr "새 단어 추가"
 msgid "Add part of"
 msgstr "의 일부를 추가합니다."
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Add Picture"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
 #. Small button to add another sense/meaning for a word
