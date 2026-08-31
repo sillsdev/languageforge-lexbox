@@ -90,17 +90,6 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename == path);
     }
 
-    /// <summary>
-    /// Look up a media file by its absolute path, throwing when none exists. Thin throwing wrapper over
-    /// <see cref="FindMediaFile(Guid, string)"/>.
-    /// </summary>
-    /// <exception cref="NotFoundException">Thrown when no matching file is found.</exception>
-    public MediaFile GetMediaFile(Guid projectId, string path)
-    {
-        return FindMediaFile(projectId, path) ??
-               throw new NotFoundException($"Unable to find file {path}, in project {projectId}.", nameof(MediaFile));
-    }
-
     public MediaFile? FindMediaFile(Guid fileId)
     {
         return dbContext.Files.Find(fileId);
@@ -159,7 +148,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
             if (!lcmResource.Remote)
             {
                 var metadata = lcmResource.Metadata;
-                // Without a filename we can't reserve a path, so leave the resource untouched (old behavior).
+                // Without a filename we can't reserve a path, so map the file to a not found when mapping to FLEx
                 if (string.IsNullOrEmpty(metadata?.Filename)) continue;
 
                 var subfolder = MediaFileController.GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
