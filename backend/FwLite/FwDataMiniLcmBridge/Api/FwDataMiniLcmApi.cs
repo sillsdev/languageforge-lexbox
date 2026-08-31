@@ -223,7 +223,7 @@ public class FwDataMiniLcmApi(
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
         WritingSystem after,
-        IMiniLcmWritingSystemApi? api)
+        IMiniLcmApi? api)
     {
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",

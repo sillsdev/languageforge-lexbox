@@ -67,7 +67,7 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
         WritingSystem after,
-        IMiniLcmWritingSystemApi? api)
+        IMiniLcmApi? api)
     {
         return _api.UpdateWritingSystem(before, after, api);
     }

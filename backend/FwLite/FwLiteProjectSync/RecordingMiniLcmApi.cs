@@ -48,7 +48,7 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
         WritingSystem after,
-        IMiniLcmWritingSystemApi? api)
+        IMiniLcmApi? api)
     {
         RunRecords.Add(new RunRecord(nameof(UpdateWritingSystem), $"Update {after.Type} writing system {after.WsId}"));
         return await _api.UpdateWritingSystem(before, after, api);

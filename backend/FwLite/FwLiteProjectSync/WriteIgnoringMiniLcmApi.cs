@@ -34,7 +34,7 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
         WritingSystem after,
-        IMiniLcmWritingSystemApi? api)
+        IMiniLcmApi? api)
     {
         return Task.FromResult(after);
     }
