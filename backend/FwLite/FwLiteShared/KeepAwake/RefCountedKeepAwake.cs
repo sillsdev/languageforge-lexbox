@@ -1,4 +1,5 @@
 using FwLiteShared.Events;
+using LexCore.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace FwLiteShared.KeepAwake;
@@ -81,12 +82,12 @@ public class RefCountedKeepAwake(
         }
 
         if (releaseFailure is not null)
-            logger.LogError(releaseFailure, "Failed to stop keeping the device awake after {WorkTitle}", work.Title);
+            logger.LogError(releaseFailure, "Failed to stop keeping the device awake after {WorkTitle}", work.Title.SanitizeForLog());
     }
 
     private void ReportAcquireFailure(KeepAwakeWork work, Exception exception)
     {
-        logger.LogError(exception, "Failed to keep the device awake for {WorkTitle}", work.Title);
+        logger.LogError(exception, "Failed to keep the device awake for {WorkTitle}", work.Title.SanitizeForLog());
         try
         {
             globalEventBus.PublishEvent(new UserNotificationEvent("Background work protection failed",
