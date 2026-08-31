@@ -7,6 +7,7 @@
   import PictureViewerDialog from './PictureViewerDialog.svelte';
   import {ACCEPTED_PICTURE_TYPES, isLosslessImage, isSupportedImageType} from './picture-formats';
   import {downloadPictureFile} from './picture-actions';
+  import {useImageService} from './image-service.svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useLexboxApi} from '$lib/services/service-provider';
   import {useDialogsService} from '$lib/services/dialogs-service';
@@ -25,25 +26,51 @@
   const api = useLexboxApi();
   const dialogsService = useDialogsService();
   const platformFeatures = usePlatformFeaturesService();
+  const imageService = useImageService();
 
   let fileInputElement = $state<HTMLInputElement>();
   let busyAction = $state<'add' | 'edit' | null>(null);
 
   let editingPictureId = $state<string>();
   const editingPicture = $derived(editingPictureId ? pictures.find((p) => p.id === editingPictureId) : undefined);
+  // A not-yet-uploaded draft picture (in-memory preview) shown in the dialog in "add" mode.
+  let draftPicture = $state<IPicture>();
+  let draftFile = $state<File>();
   let editDialogOpen = $state(false);
+  const dialogPicture = $derived(draftPicture ?? editingPicture);
   // Retain the last picture the dialog showed so it stays mounted for its close animation even after
-  // that picture is removed from `pictures` (e.g. deleted from within the dialog).
-  let lastEditedPicture = $state<IPicture>();
+  // that picture is removed from `pictures` (e.g. deleted from within the dialog). The draft is
+  // intentionally NOT cleared on close (only overwritten on the next open) so dialogPicture/isNew
+  // stay stable through the fade-out.
+  let lastDialogPicture = $state<IPicture>();
   $effect(() => {
-    if (editingPicture) lastEditedPicture = editingPicture;
+    if (dialogPicture) lastDialogPicture = dialogPicture;
   });
 
   let viewerPictureId = $state<string>();
   let viewerOpen = $state(false);
 
+  // Revokes the current draft's preview blob url (if any). Called whenever a draft is superseded or
+  // discarded so previews are freed promptly rather than piling up in the cache until dispose().
+  function releaseDraftPreview() {
+    if (draftPicture) imageService.releaseLocalPreview(draftPicture.mediaUri);
+  }
+
   function openEditor(picture: IPicture) {
+    releaseDraftPreview();
+    draftPicture = undefined;
+    draftFile = undefined;
     editingPictureId = picture.id;
+    editDialogOpen = true;
+  }
+
+  // Opens the dialog in "add" mode on an in-memory draft (nothing uploaded/created until Submit).
+  function openCreate(file: File) {
+    releaseDraftPreview();
+    const mediaUri = imageService.registerLocalPreview(file);
+    editingPictureId = undefined;
+    draftFile = file;
+    draftPicture = {id: randomId(), order: pictures.length, mediaUri, caption: {}};
     editDialogOpen = true;
   }
 
@@ -58,7 +85,14 @@
     // Reset the input so selecting the same file again re-triggers `change`.
     target.value = '';
     if (!file) return;
-    await addPicture(await convertPicture(file));
+    busyAction = 'add';
+    try {
+      openCreate(await convertPicture(file));
+    } catch {
+      // convertPicture already shows a notification on failure
+    } finally {
+      busyAction = null;
+    }
   }
 
   async function uploadFile(file: File): Promise<string | null> {
@@ -83,14 +117,27 @@
     return response.mediaUri;
   }
 
-  async function addPicture(file: File): Promise<void> {
+  // In-memory replace for a draft: swap the buffered File + preview, no upload yet.
+  function replaceDraftFile(file: File): string {
+    // The old preview is superseded by this one; free it before registering the replacement.
+    releaseDraftPreview();
+    const mediaUri = imageService.registerLocalPreview(file);
+    draftFile = file;
+    if (draftPicture) draftPicture = {...draftPicture, mediaUri};
+    return mediaUri;
+  }
+
+  // Upload + create only now. Returns false (dialog stays open) if the upload was rejected.
+  async function submitNewPicture(after: IPicture): Promise<boolean> {
+    const file = draftFile; // capture before any await; draft state may change later
+    if (!file) return false;
     busyAction = 'add';
     try {
       const mediaUri = await uploadFile(file);
-      if (!mediaUri) return;
-      const picture: IPicture = {id: randomId(), order: pictures.length, mediaUri, caption: {}};
-      const newPicture = await api.createPicture(entryId, senseId, picture);
-      pictures = [...pictures, newPicture];
+      if (!mediaUri) return false; // uploadFile already showed the error notification
+      const created = await api.createPicture(entryId, senseId, {...after, mediaUri});
+      pictures = [...pictures, created];
+      return true;
     } finally {
       busyAction = null;
     }
@@ -162,7 +209,9 @@
       let file = await convertPicture(
         new File([await result.image.arrayBuffer()], result.fileName, {type: result.contentType}),
       );
-      await addPicture(file);
+      openCreate(file);
+    } catch {
+      // convertPicture already shows a notification on failure
     } finally {
       busyAction = null;
     }
@@ -249,13 +298,14 @@
   {/if}
 </div>
 
-{#if lastEditedPicture}
+{#if lastDialogPicture}
   <EditPictureDialog
     bind:open={editDialogOpen}
-    picture={editingPicture ?? lastEditedPicture}
-    onUploadReplacement={(file) => uploadReplacement(file)}
-    onSubmit={(after) => void submitEdits(after)}
-    onDelete={() => deleteEditingPicture()}
+    picture={dialogPicture ?? lastDialogPicture}
+    isNew={!!draftPicture}
+    onUploadReplacement={(file) => (draftPicture ? Promise.resolve(replaceDraftFile(file)) : uploadReplacement(file))}
+    onSubmit={(after) => (draftPicture ? submitNewPicture(after) : (void submitEdits(after), true))}
+    onDelete={() => (draftPicture ? Promise.resolve() : deleteEditingPicture())}
   />
 {/if}
 

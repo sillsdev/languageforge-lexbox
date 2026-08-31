@@ -151,23 +151,23 @@ public interface IMiniLcmWriteApi : IMiniLcmWritingSystemApi
 
     #region Submit (fire-and-forget write variants for sync)
     // Result-less write variants the sync uses instead of the returning Update/Create methods above. The CRDT
-    // overrides them to submit the change without fetching the result, so applying to an object the other side
-    // deleted leaves it deleted (delete wins) rather than throwing. The defaults forward to the returning
-    // method (correct for FwData, which still surfaces a genuinely-missing object).
-    Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update) => UpdateEntry(id, update);
-    Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => CreateComplexFormComponent(complexFormComponent, position);
-    Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => MoveComplexFormComponent(complexFormComponent, between);
-    Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => CreateSense(entryId, sense, position);
-    Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => UpdateSense(entryId, senseId, update);
-    Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => CreateExampleSentence(entryId, senseId, exampleSentence, position);
-    Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
+    // implements them to submit the change without fetching the result, so applying to an object the other side
+    // deleted leaves it deleted (delete wins) rather than throwing.
+    // No defaults on purpose: a wrapper that has to see every write can't then inherit one silently.
+    Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update);
+    Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null);
+    Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between);
+    Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null);
+    Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
+    Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null);
+    Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update);
     // Dependency types too (they sync before entries, outside EntrySync's try/catch). WritingSystem is omitted
     // (its update resolves the entity id, so it can't be a blind submit); MorphType is omitted (not deletable).
-    Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => UpdatePartOfSpeech(id, update);
-    Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => UpdatePicture(entryId, senseId, pictureId, update);
-    Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update) => UpdatePublication(id, update);
-    Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update) => UpdateSemanticDomain(id, update);
-    Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update) => UpdateComplexFormType(id, update);
+    Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update);
+    Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update);
+    Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update);
+    Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update);
+    Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update);
     #endregion
 
     #region CustomView
@@ -211,6 +211,13 @@ public interface IMiniLcmWriteApi : IMiniLcmWritingSystemApi
         throw new NotSupportedException("Comments are only supported by CRDT projects");
     }
     Task MarkCommentRead(Guid commentId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    /// <summary>
+    /// Debug helper: marks every comment in the thread unread again.
+    /// </summary>
+    Task MarkCommentThreadUnread(Guid threadId)
     {
         throw new NotSupportedException("Comments are only supported by CRDT projects");
     }

@@ -24,6 +24,7 @@ public static class WindowsKernel
         if (!FwLiteMauiKernel.IsPortableApp)
         {
             services.AddSingleton<IMauiInitializeService, WindowsShortcutService>();
+            services.AddSingleton<IMauiInitializeService, PackageUpdateLogger>();
         }
 
         services.Configure<AuthConfig>(config =>

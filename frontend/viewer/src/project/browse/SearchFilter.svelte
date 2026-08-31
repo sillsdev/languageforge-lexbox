@@ -24,7 +24,11 @@
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {Button} from '$lib/components/ui/button';
   import Hotkey from '$lib/components/hotkey/hotkey.svelte';
+  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
+  import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
 
+  const features = useFeatures();
   const stats = useProjectStats();
   const viewService = useViewService();
   const wsService = useWritingSystemService();
@@ -35,12 +39,14 @@
     semanticDomain = $bindable(),
     partOfSpeech = $bindable(),
     publication = $bindable(),
+    unreadComments = $bindable(false),
   }: {
     search: string;
     gridifyFilter?: string;
     semanticDomain?: ISemanticDomain;
     partOfSpeech?: IPartOfSpeech;
     publication?: IPublication;
+    unreadComments?: boolean;
   } = $props();
 
   let inputRef = $state<HTMLInputElement | null>(null);
@@ -51,6 +57,17 @@
   let filterOp = $state<Op>('contains')
   let includeSubDomains = $state(false);
   let userFilterActive = $state(false);
+  let hasComments = $state(false);
+
+  // Comment filters only exist on channels with the comments flag. FlagContent
+  // hides the controls, so clear their state when the flag turns off (e.g.
+  // switching back to production) or they'd keep constraining the query while hidden.
+  $effect(() => {
+    if (!hasFlag('comments')) {
+      hasComments = false;
+      unreadComments = false;
+    }
+  });
 
   function focusSearch() {
     inputRef?.focus();
@@ -104,6 +121,14 @@
       newFilter.push(`PublishIn.Id=${publication.id}`);
     }
 
+    if (hasComments) {
+      newFilter.push('CommentThreads!=null');
+    }
+
+    if (unreadComments) {
+      newFilter.push('UnreadComments!=null');
+    }
+
     // all user selected filters should be before this line!
     userFilterActive = newFilter.length > 0;
 
@@ -136,6 +161,8 @@
     semanticDomain = undefined;
     partOfSpeech = undefined;
     publication = undefined;
+    hasComments = false;
+    unreadComments = false;
   }
 
   let filtersExpanded = $state(false);
@@ -220,6 +247,14 @@
             <Label class="p-2">{$t`Incomplete entries`}</Label>
             <MissingSelect bind:value={missingField} />
           </div>
+          {#if features.comments}
+            <FlagContent flag="comments">
+              <div class="flex flex-col">
+                <Switch bind:checked={hasComments} label={$t`Has comments`} />
+                <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
+              </div>
+            </FlagContent>
+          {/if}
         </div>
       </ResponsivePopup>
     {/snippet}

@@ -1,12 +1,8 @@
 #!/bin/bash
 
-# cwd while running script is inside the hg repo. ChorusMerge finds its FieldWorks merge
-# handlers by scanning the cwd for *-ChorusPlugin.dll (MEF DirectoryCatalog(".")), so cd to
-# where they sit next to ChorusMerge.dll, else merges silently fall back to "keep ours".
-# hg passes absolute file paths to the merge tool, so changing cwd is safe.
+# cwd while running script is inside the hg repo. ChorusMerge (SIL.Chorus >= 6.0.0-beta0074)
+# discovers *-ChorusPlugin.dll from AppContext.BaseDirectory (sillsdev/chorus#393), so plugins
+# are found even when hg's cwd is the repo. Resolve ChorusMerge.dll next to this script.
 SCRIPT_DIR=$(dirname $(readlink -f "$0"))
-# Fail loudly rather than merge from the wrong cwd: a merge without the handlers silently
-# keeps "ours" (the #2508 data loss); a non-zero exit makes Chorus roll back and throw.
-cd "$SCRIPT_DIR" || { echo "chorusmerge: cannot cd to $SCRIPT_DIR; refusing to merge without the FieldWorks handlers" >&2; exit 1; }
 
 exec dotnet "${SCRIPT_DIR}/ChorusMerge.dll" "$@"

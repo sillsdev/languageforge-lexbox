@@ -203,8 +203,26 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   getSemanticDomains(): Promise<ISemanticDomain[]> {
     return Promise.resolve([
-      {id: '36e8f1df-1798-4ae6-904d-600ca6eb4145', name: {en: 'Fruit'}, code: '1', predefined: false},
-      {id: 'Animal', name: {en: 'Animal'}, code: '2', predefined: false},
+      {
+        id: '36e8f1df-1798-4ae6-904d-600ca6eb4145',
+        name: {en: 'Fruit'},
+        abbreviation: {en: '1'},
+        code: '1',
+        description: {},
+        ocmCodes: '',
+        louwNidaCodes: '',
+        predefined: false,
+      },
+      {
+        id: 'Animal',
+        name: {en: 'Animal'},
+        abbreviation: {en: '2'},
+        code: '2',
+        description: {},
+        ocmCodes: '',
+        louwNidaCodes: '',
+        predefined: false,
+      },
     ]);
   }
 
@@ -348,6 +366,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve();
   }
 
+  markCommentThreadUnread(_threadId: string): Promise<void> {
+    return Promise.resolve();
+  }
+
   markAllCommentsRead(): Promise<void> {
     return Promise.resolve();
   }
@@ -406,7 +428,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }
 
   getWritingSystems(): Promise<IWritingSystems> {
-    return Promise.resolve(writingSystems as unknown as IWritingSystems);
+    return Promise.resolve(writingSystems);
   }
 
   async searchEntries(query: string, options: IQueryOptions | undefined): Promise<IEntry[]> {

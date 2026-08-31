@@ -25,8 +25,12 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "- ({0}개 변경)"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+msgid "(edited)"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
 msgstr ""
 
@@ -54,6 +58,7 @@ msgstr ""
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} 전"
 
@@ -65,6 +70,14 @@ msgstr ""
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
+
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "{0} replies"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "{0} resolved"
+msgstr ""
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -87,6 +100,10 @@ msgstr "{num, plural, other {# 새 FieldWorks Classic 커밋}}"
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, other {# 새 FieldWorks Lite 커밋}}"
 
+#: src/project/browse/filter/UnreadCommentBadge.svelte
+msgid "{num, plural, one {# unread comment} other {# unread comments}}"
+msgstr ""
+
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
@@ -106,6 +123,10 @@ msgstr "**형태소 유형 감소** (*뿌리*, *결합된 뿌리*, *줄기*, *�
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**간단한 용어 사용** (예: *어휘 형태* 대신 *단어*, *의미* 대신 *의미*)"
+
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "1 reply"
+msgstr ""
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -131,11 +152,6 @@ msgstr ""
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "한 마디"
-
-#. Dialog title
-#: src/lib/about/AboutDialog.svelte
-msgid "About"
-msgstr "정보"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -196,6 +212,10 @@ msgstr "새 단어 추가"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "의 일부를 추가합니다."
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Add Picture"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -342,6 +362,10 @@ msgstr "자동"
 msgid "Auto syncing"
 msgstr "자동 동기화"
 
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Back"
+msgstr ""
+
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -386,9 +410,11 @@ msgstr ""
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -455,11 +481,8 @@ msgid "clear"
 msgstr "clear"
 
 #. Button to close popup
-#: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
@@ -471,10 +494,6 @@ msgstr "닫기"
 msgid "Close Dictionary"
 msgstr "사전 닫기"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Closed"
-msgstr ""
-
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 msgid "Code"
@@ -485,13 +504,17 @@ msgstr ""
 msgid "Color"
 msgstr "색상"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Comment"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Comments for {0}"
+#: src/project/browse/EntryView.svelte
+msgid "Comments, {0} unread"
 msgstr ""
 
 #. Field label
@@ -545,6 +568,10 @@ msgstr "구성 요소"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "포함 사항"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Conversation"
+msgstr ""
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
@@ -817,12 +844,12 @@ msgstr "다운로드 중..."
 msgid "e.g. th, sw"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
 msgstr ""
 
@@ -840,7 +867,7 @@ msgstr ""
 msgid "Editor"
 msgstr "편집기"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
 msgstr ""
 
@@ -1228,6 +1255,14 @@ msgstr "녹색"
 msgid "Harmony snapshots regenerated successfully"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Has comments"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unread comments"
+msgstr ""
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
@@ -1278,6 +1313,7 @@ msgstr "가져오기"
 
 #. Future relative date format. {0} = formatted duration string (e.g., "3 hours", "2 days"). Paired with "{0} ago" for past dates.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "in {0}"
 
@@ -1301,6 +1337,11 @@ msgstr "업데이트 설치"
 msgid "Installing Update..."
 msgstr "업데이트 설치 중..."
 
+#. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "just now"
+msgstr ""
+
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
@@ -1316,6 +1357,10 @@ msgstr "마지막 변경 사항: #"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Last sync: #"
 msgstr "마지막 동기화: #"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Leave empty for production"
+msgstr ""
 
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
@@ -1394,7 +1439,7 @@ msgstr ""
 msgid "Loading activity"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
 msgstr ""
 
@@ -1653,10 +1698,6 @@ msgstr "오디오 없음"
 msgid "No authors"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "No comment threads yet."
-msgstr ""
-
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
@@ -1695,6 +1736,11 @@ msgstr ""
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "새 데이터 없음"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "No open conversations"
+msgstr ""
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
@@ -1824,7 +1870,6 @@ msgstr "하나의 FieldWorks Classic 커밋은 여러 항목 또는 필드에 �
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 msgid "Open"
 msgstr "열기"
 
@@ -2065,6 +2110,10 @@ msgstr ""
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Release channel"
+msgstr ""
+
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
@@ -2086,6 +2135,9 @@ msgstr "오디오 제거"
 
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Reopen"
 msgstr "다시 열기"
 
@@ -2098,6 +2150,15 @@ msgstr "오디오 교체"
 msgid "Replace Picture"
 msgstr ""
 
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+msgid "Reply"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+msgid "Reply…"
+msgstr ""
+
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
@@ -2105,6 +2166,12 @@ msgstr "기술 문제 신고하기"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Resolve"
 msgstr ""
 
 #. Button label to restore a deleted Entry or Word inside EntryView
@@ -2144,7 +2211,7 @@ msgstr ""
 msgid "Same word"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
 msgstr ""
 
@@ -2293,7 +2360,7 @@ msgstr "보기 {0} 더보기..."
 msgid "Show or hide captions"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr ""
 
@@ -2367,8 +2434,12 @@ msgstr ""
 msgid "Specific field"
 msgstr "특정 필드"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Start a new thread"
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation…"
 msgstr ""
 
 #. Filter operator
@@ -2592,10 +2663,6 @@ msgstr "이렇게 하면 렉스박스에서 프로젝트의 FieldWorks Lite 및 
 msgid "This word may already exist"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Thread"
-msgstr ""
-
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -2733,6 +2800,11 @@ msgstr "알 수 없는 서버"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Unknown update result"
 msgstr "알 수 없는 업데이트 결과"
+
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Unread"
+msgstr ""
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -2900,14 +2972,6 @@ msgstr "단어 또는 표시 이름은 필수 입력 사항입니다."
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "단어 또는 의미:"
-
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Write a reply..."
-msgstr ""
-
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Write the first comment..."
-msgstr ""
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Bogus;
+using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
 using LinqToDB;
 using LinqToDB.Data;
@@ -110,6 +111,41 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
 
         // FTS path (>= 3 chars): "lexbox" only appears in the audio media URI
         (await Api.SearchEntries("lexbox").ToArrayAsync()).Should().NotContain(e => e.Id == id);
+    }
+
+    private async Task SetCurrentUser(string userId, string? name = null)
+    {
+        var projectService = _fixture.GetService<CurrentProjectService>();
+        await projectService.UpdateLastUser(name ?? userId, userId);
+        await projectService.UpdateUserRole(UserProjectRole.Editor);
+    }
+
+    [Fact]
+    public async Task CanFilterEntriesWithComments()
+    {
+        await SetCurrentUser("user1");
+        await Api.CreateCommentThread(CommentTests.NewThread(subjectId:appleId), CommentTests.NewComment());
+
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "CommentThreads!=null" }))
+            .ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
+    }
+
+    [Fact]
+    public async Task CanFilterEntriesWithUnreadComments()
+    {
+        await SetCurrentUser("user1");
+        var firstComment = CommentTests.NewComment();
+        var commentThread = await Api.CreateCommentThread(CommentTests.NewThread(subjectId:appleId), firstComment);
+        _fixture.DbContext.UnreadComments.Add(new() { CommentThreadId = commentThread.Id, CommentId = firstComment.Id });
+        await _fixture.DbContext.SaveChangesAsync();
+
+        await Api.CreateCommentThread(CommentTests.NewThread(subjectId:peachId), CommentTests.NewComment());
+        //comments are created read, this one should not show up
+
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "UnreadComments!=null" }))
+            .ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
     }
 
     public override async Task DisposeAsync()

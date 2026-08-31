@@ -84,13 +84,15 @@ public class ResumableTests : IAsyncLifetime
             }]));
         mockFrom.Setup(f => f.GetMorphTypes())
             .Returns(MockAsyncEnumerable(expectedMorphTypes));
+        var expectedSemanticDomain = new SemanticDomain()
+        {
+            Id = Guid.NewGuid(),
+            Name = new() { ["en"] = "Test Semantic Domain" },
+            Abbreviation = new() { ["en"] = "TSD" },
+            Code = "TSD"
+        };
         mockFrom.Setup(f => f.GetSemanticDomains())
-            .Returns(MockAsyncEnumerable([new SemanticDomain()
-            {
-                Id = Guid.NewGuid(),
-                Name = new() { ["en"] = "Test Semantic Domain" },
-                Code = "TSD"
-            }]));
+            .Returns(MockAsyncEnumerable([expectedSemanticDomain]));
 
         var import = new MiniLcmImport(
             logger: NullLogger<MiniLcmImport>.Instance,
@@ -117,12 +119,18 @@ public class ResumableTests : IAsyncLifetime
         var createdEntries = await mockTo.GetAllEntries().ToArrayAsync();
         var createdPartsOfSpeech = await mockTo.GetPartsOfSpeech().ToArrayAsync();
         var createdMorphTypes = await mockTo.GetMorphTypes().ToArrayAsync();
+        var createdSemanticDomains = await mockTo.GetSemanticDomains().ToArrayAsync();
 
         // Assert
         createdPartsOfSpeech.Select(pos => pos.Name["en"]).Should().BeEquivalentTo(expectedPartsOfSpeech.Select(p => p.Name["en"]));
         createdEntries.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(expectedEntries.Select(e => e.LexemeForm["en"]));
         createdMorphTypes.Select(e => e.Name["en"]).Should().BeEquivalentTo(expectedMorphTypes.Select(e => e.Name["en"]));
         createdMorphTypes.Select(e => e.Kind).Should().BeEquivalentTo(expectedMorphTypes.Select(e => e.Kind));
+
+        // The semantic domain (with its Abbreviation) must survive the resumable import across retries.
+        var createdSemanticDomain = createdSemanticDomains.Should().ContainSingle(sd => sd.Id == expectedSemanticDomain.Id).Subject;
+        createdSemanticDomain.Code.Should().Be("TSD");
+        createdSemanticDomain.Abbreviation["en"].Should().Be("TSD");
     }
 
 

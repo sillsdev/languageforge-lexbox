@@ -201,7 +201,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
-        await harmonyChangeWriter.AddChange(new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code, semanticDomain.Predefined));
+        await harmonyChangeWriter.AddChange(new CreateSemanticDomainChange(semanticDomain));
         return await GetSemanticDomain(semanticDomain.Id) ?? throw NotFoundException.ForType<SemanticDomain>(semanticDomain.Id);
     }
 
@@ -229,7 +229,7 @@ public class CrdtMiniLcmApi(
 
     public async Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
     {
-        await harmonyChangeWriter.AddChanges(await semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code, sd.Predefined)).ToArrayAsync());
+        await harmonyChangeWriter.AddChanges(await semanticDomains.Select(sd => new CreateSemanticDomainChange(sd)).ToArrayAsync());
     }
 
     public async IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
@@ -1023,7 +1023,7 @@ public class CrdtMiniLcmApi(
             threads = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(threads, t => t.Comments!.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id));
         }
 
-        threads = threads.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id);
+        threads = threads.OrderByDescending(t => t.CreatedAt).ThenByDescending(t => t.Id);
         await foreach (var thread in threads.AsAsyncEnumerable())
         {
             yield return thread;
@@ -1138,6 +1138,11 @@ public class CrdtMiniLcmApi(
     public Task MarkCommentRead(Guid commentId)
     {
         return commentReadStatusService.MarkCommentRead(commentId);
+    }
+
+    public Task MarkCommentThreadUnread(Guid threadId)
+    {
+        return commentReadStatusService.MarkThreadUnread(threadId);
     }
 
     public Task MarkCommentThreadRead(Guid threadId)

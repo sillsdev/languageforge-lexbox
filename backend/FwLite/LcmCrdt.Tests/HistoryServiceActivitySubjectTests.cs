@@ -161,7 +161,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
     public async Task ProjectActivity_ChangeInfo_NamesSemanticDomainSubject_EvenAfterDelete()
     {
         var id = Guid.NewGuid();
-        await DataModel.AddChange(ClientId, new CreateSemanticDomainChange(id, new MultiString { ["en"] = "Food" }, "5.2"), Meta());
+        await DataModel.AddChange(ClientId, new CreateSemanticDomainChange(new SemanticDomain { Id = id, Name = new MultiString { ["en"] = "Food" }, Code = "5.2" }), Meta());
 
         var live = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // A domain shows as "code name".
@@ -339,7 +339,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var entryId = await CreateEntry("run");
         var senseId = await CreateSense(entryId, gloss: "to run", order: 1.0);
         var domainId = Guid.NewGuid();
-        await DataModel.AddChange(ClientId, new CreateSemanticDomainChange(domainId, new MultiString { ["en"] = "Food" }, "5.2"), Meta());
+        await DataModel.AddChange(ClientId, new CreateSemanticDomainChange(new SemanticDomain { Id = domainId, Name = new MultiString { ["en"] = "Food" }, Code = "5.2" }), Meta());
         var domain = await DataModel.GetLatest<SemanticDomain>(domainId);
         await DataModel.AddChange(ClientId, new AddSemanticDomainChange(domain!, senseId), Meta());
 
@@ -355,7 +355,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
     {
         var entryId = await CreateEntry("run");
         var domainId = Guid.NewGuid();
-        await DataModel.AddChange(ClientId, new CreateSemanticDomainChange(domainId, new MultiString { ["en"] = "Food" }, "5.2"), Meta());
+        await DataModel.AddChange(ClientId, new CreateSemanticDomainChange(new SemanticDomain { Id = domainId, Name = new MultiString { ["en"] = "Food" }, Code = "5.2" }), Meta());
         var domain = await DataModel.GetLatest<SemanticDomain>(domainId);
         var senseId = await CreateSense(entryId, gloss: "to run", order: 1.0, semanticDomains: [domain!]);
         await DataModel.AddChange(ClientId, new RemoveSemanticDomainChange(domainId, senseId), Meta());

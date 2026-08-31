@@ -28,7 +28,8 @@
   });
 </script>
 
-<strong class={cn(className)} {...restProps}>
+<!-- wrap-break-word: a headword can be one long unbreakable word, which otherwise overflows its container. -->
+<strong class={cn('wrap-break-word', className)} {...restProps}>
   {#each headwords as headword, i (headword.wsId)}
     <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it preserves whitespace -->
     {#if i > 0}{' / '}{/if}
