@@ -10,14 +10,7 @@ namespace FwLiteProjectSync.Tests;
 
 /// <summary>
 /// Media sync tests that run through <see cref="LocalMediaAdapter"/> (the filesystem-backed adapter the
-/// FwLite tests use). Under Option D the fix for a not-yet-uploaded binary (scenario 2) lives on the
-/// PRODUCTION path — the FwHeadless <c>LexboxFwDataMediaAdapter</c> plus a pending <c>Files</c> DB row —
-/// which LocalMediaAdapter has no equivalent for (there is no Files DB, so no pending-row concept). The
-/// former scenario-2 proxy tests here depended on the removed <c>AudioSnapshotReconciler</c>'s
-/// skip/heal/revert behavior and no longer describe intended behavior, so they were dropped (see
-/// UnresolvedMediaSyncTests / SyncMediaFilesReconcileTests in backend/Testing for the production-path
-/// coverage). What remains is the genuine FwData-side removal case, which the old reconciler wrongly
-/// suppressed and which — with the reconciler gone — now propagates as an ordinary diff.
+/// FwLite tests use). For FwHeadless tests see SyncMediaFilesReconcileTests.
 /// </summary>
 public class MediaSyncTests
 {
@@ -57,10 +50,7 @@ public class MediaSyncTests
     public async Task Sync_RemoveResolvedAudioInFwData_RemovesItFromCrdt()
     {
         // A RESOLVABLE audio reference (file present) that syncs to both sides, then is deleted by a user in
-        // FLEx. That FwData-side removal must propagate to the CRDT. The old AudioSnapshotReconciler could not
-        // tell this genuine deletion apart from a skipped-pending reference and wrongly suppressed it (and the
-        // reverse direction even resurrected it). With the reconciler removed under Option D this is an
-        // ordinary snapshot-vs-fwdata diff and the removal propagates correctly.
+        // FLEx. That FwData-side removal must propagate to the CRDT.
         var fixture = SyncFixture.Create();
         await SetupAsync(fixture);
         try
@@ -101,20 +91,17 @@ public class MediaSyncTests
             var fwAfter = fwBefore!.Copy();
             fwAfter.CitationForm.Remove(AudioWs);
             await fwdataApi.UpdateEntry(fwBefore, fwAfter);
-            (await fwdataApi.GetEntry(entryId))!.CitationForm.Values.ContainsKey(AudioWs)
-                .Should().BeFalse("guard: the audio must actually be removed in FwData before syncing");
+            (await fwdataApi.GetEntry(entryId))!.CitationForm.Values.Should().NotContainKey(AudioWs, "guard: the audio must actually be removed in FwData before syncing");
 
             // Sync: the FwData-side removal must propagate to the CRDT.
             await fixture.SyncService.Sync(crdtApi, fwdataApi, syncedSnapshot);
 
             using (new AssertionScope())
             {
-                (await crdtApi.GetEntry(entryId))!.CitationForm.Values.ContainsKey(AudioWs)
-                    .Should().BeFalse("a genuine FwData-side audio removal must be propagated to the CRDT, not suppressed");
+                (await crdtApi.GetEntry(entryId))!.CitationForm.Values.Should().NotContainKey(AudioWs, "a genuine FwData-side audio removal must be propagated to the CRDT, not suppressed");
                 // Even worse than failing to propagate: if the CRDT still held the reference, the reverse
                 // direction of the same sync would push it back to FwData, resurrecting the deleted reference.
-                (await fwdataApi.GetEntry(entryId))!.CitationForm.Values.ContainsKey(AudioWs)
-                    .Should().BeFalse("the FwData-side removal must not be resurrected by the sync pushing the CRDT value back");
+                (await fwdataApi.GetEntry(entryId))!.CitationForm.Values.Should().NotContainKey(AudioWs, "the FwData-side removal must not be resurrected by the sync pushing the CRDT value back");
             }
         }
         finally

@@ -36,7 +36,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         await Utils.AddMemberToProject(ProjectId, this, "editor", ProjectRole.Editor);
         // Project folder needs to exist in order for file uploads to be allowed, so trigger first sync including S/R
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, ProjectId);
-        await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, ProjectId);
+        await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, ProjectId);
     }
 
     public async Task DisposeAsync()

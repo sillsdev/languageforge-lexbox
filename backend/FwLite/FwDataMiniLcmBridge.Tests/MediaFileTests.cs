@@ -201,17 +201,11 @@ public class MediaFileTests : IAsyncLifetime
     [Fact]
     public async Task GetEntry_RootedPathUnderLinkedFilesResolvesNormally()
     {
-        // Decided handling (ticket 13, normalize-then-classify): a rooted/absolute audio path that
-        // resolves UNDER LinkedFilesRootDir/AudioVisual is a managed file expressed as an absolute
-        // path. It must be relativized and resolved normally -> a real, resolvable MediaUri.
-        // TODAY this instead crashes: ToMediaUri (FwDataMiniLcmApi.cs:896-897) throws
-        // ArgumentException("Media path must be relative") on the FwData->CRDT read, before any
-        // adapter/DB call, so this test is RED (it throws inside GetEntry) until the fix lands.
         var fileName = "GetEntry_RootedPathUnderLinkedFiles.txt";
         var fileId = await StoreFileContentsAsync(fileName, "test");
         var rootedPathUnderTree = Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir,
             FwDataMiniLcmApi.AudioVisualFolder, fileName);
-        Path.IsPathRooted(rootedPathUnderTree).Should().BeTrue("the test is vacuous unless the stored FwData value is a rooted path");
+        Path.IsPathRooted(rootedPathUnderTree).Should().BeTrue("the stored FwData value must be a rooted path");
         var entryId = await AddFileDirectly(rootedPathUnderTree, contents: null, storeFile: false);
         // guard: FwData really holds the rooted absolute path, not a relative one
         GetFwAudioValue(entryId).Should().Be(rootedPathUnderTree);
@@ -226,19 +220,11 @@ public class MediaFileTests : IAsyncLifetime
     [Fact]
     public async Task GetEntry_OutOfTreeRootedPathMapsToNotFoundSentinel()
     {
-        // Decided handling (ticket 13): a GENUINELY out-of-tree rooted path can't be resolved to a
-        // managed media file, so on the FwData->CRDT read it must become the not-found sentinel
-        // (no throw) - the same value the bare-filename missing-file case already produces
-        // (GetEntry_MissingFileWorks). It then SKIPS on the CRDT->FwData write (ShouldSet guards
-        // MediaUri.NotFoundString), leaving FwData's original reference untouched.
-        // TODAY this crashes instead: ToMediaUri (FwDataMiniLcmApi.cs:896-897) throws
-        // ArgumentException("Media path must be relative") on read, so this test is RED (it throws
-        // inside GetEntry) until the fix lands.
         var outOfTreeRootedPath = Path.Combine(Path.GetTempPath(),
             "lexbox-out-of-tree-media", "GetEntry_OutOfTreeRootedPath.wav");
         Path.IsPathRooted(outOfTreeRootedPath).Should().BeTrue("the test is vacuous unless the stored FwData value is a rooted path");
-        outOfTreeRootedPath.StartsWith(_api.Cache.LangProject.LinkedFilesRootDir).Should()
-            .BeFalse("the test is vacuous unless the rooted path is genuinely outside LinkedFilesRootDir");
+        outOfTreeRootedPath.Should().NotStartWith(_api.Cache.LangProject.LinkedFilesRootDir,
+            "the rooted path must be outside LinkedFilesRootDir");
         var entryId = await AddFileDirectly(outOfTreeRootedPath, contents: null, storeFile: false);
         // guard: FwData really holds the rooted out-of-tree path
         GetFwAudioValue(entryId).Should().Be(outOfTreeRootedPath);
@@ -260,8 +246,7 @@ public class MediaFileTests : IAsyncLifetime
     public async Task GetEntry_RootedPathWhoseFilenameStartsWithDotsResolves()
     {
         // Regression: the out-of-tree check must match a parent-directory ".." SEGMENT, not a raw ".." prefix.
-        // A managed file whose name merely begins with ".." (e.g. "..name.wav") must still resolve, not be
-        // misclassified as out-of-tree and turned into the not-found sentinel (data loss).
+        // A managed file whose name merely begins with ".." (e.g. "..name.wav") must still resolve.
         var fileName = "..leadingdots.wav";
         var fileId = await StoreFileContentsAsync(fileName, "test");
         var rootedPathUnderTree = Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir,
@@ -284,7 +269,8 @@ public class MediaFileTests : IAsyncLifetime
         var mediaUri = new MediaUri(fileId, "localhost");
         var entry = await _api.CreateEntry(new Entry
         {
-            LexemeForm = { ["en"] = "test" }, CitationForm = { [_audioWs] = mediaUri.ToString() }
+            LexemeForm = { ["en"] = "test" },
+            CitationForm = { [_audioWs] = mediaUri.ToString() }
         });
         GetFwAudioValue(entry.Id).Should().Be(fileName);
 
@@ -305,7 +291,8 @@ public class MediaFileTests : IAsyncLifetime
         var mediaUri = new MediaUri(fileId, "localhost");
         var entry = await _api.CreateEntry(new Entry
         {
-            LexemeForm = { ["en"] = "test" }, CitationForm = { [_audioWs] = mediaUri.ToString() }
+            LexemeForm = { ["en"] = "test" },
+            CitationForm = { [_audioWs] = mediaUri.ToString() }
         });
         GetFwAudioValue(entry.Id).Should().Be(fileName);
 

@@ -29,7 +29,7 @@ public static class FwHeadlessTestHelpers
         result.ShouldBeSuccessful();
     }
 
-    public static async Task<SyncJobResult?> AwaitSyncFinished(HttpClient httpClient, Guid projectId)
+    public static async Task<SyncJobResult?> AwaitSyncSuccess(HttpClient httpClient, Guid projectId)
     {
         var syncResult = await AwaitSyncResult(httpClient, projectId);
         if (syncResult?.Status != SyncJobStatusEnum.Success)
@@ -39,7 +39,7 @@ public static class FwHeadlessTestHelpers
 
     /// <summary>
     /// Awaits sync completion and returns the <see cref="SyncJobResult"/> regardless of status, unlike
-    /// <see cref="AwaitSyncFinished"/> which <c>Assert.Fail</c>s on any non-success status. A repro that
+    /// <see cref="AwaitSyncSuccess"/> which <c>Assert.Fail</c>s on any non-success status. A repro that
     /// asserts the desired post-fix status itself (so the FluentAssertions failure can surface the actual
     /// error while the fix is still pending) must use this instead of the asserting helper.
     /// </summary>
