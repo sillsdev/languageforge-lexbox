@@ -6,8 +6,23 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:11.0-preview AS build
 
-COPY . .
+# Restore first, using only the project/props files, so this layer is cached and
+# only re-runs when a .csproj or package version changes — not on every source
+# edit. Keep this list in sync with FwHeadless's ProjectReference graph; a missing
+# entry makes the restore below fail loudly at build time.
+COPY *.props ./
+COPY FwHeadless/FwHeadless.csproj FwHeadless/
+COPY FixFwData/FixFwData.csproj FixFwData/
+COPY LexCore/LexCore.csproj LexCore/
+COPY LexData/LexData.csproj LexData/
+COPY WebServiceDefaults/WebServiceDefaults.csproj WebServiceDefaults/
+COPY FwLite/MiniLcm/MiniLcm.csproj FwLite/MiniLcm/
+COPY FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj FwLite/FwDataMiniLcmBridge/
+COPY FwLite/LcmCrdt/LcmCrdt.csproj FwLite/LcmCrdt/
+COPY FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj FwLite/FwLiteProjectSync/
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet restore "FwHeadless/FwHeadless.csproj"
+
+COPY . .
 
 ARG APP_VERSION
 LABEL version=$APP_VERSION
@@ -17,6 +32,7 @@ RUN --mount=type=cache,target=/root/.nuget/packages dotnet build /p:Informationa
 FROM build AS publish
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:InformationalVersion=$APP_VERSION "FwHeadless/FwHeadless.csproj" -c Release -o /app/publish
 
+# ChorusMerge needs dotnet 8.
 FROM mcr.microsoft.com/dotnet/runtime:8.0 AS dotnet8
 
 # Chorus Mercurial 6.5 needs Python 3.12. aspnet:11.0-preview is Ubuntu 26.04
@@ -73,6 +89,9 @@ RUN test -f FixFwData \
     && python3.12 -c "import zipfile; open('/tmp/smoke.fwdata','wb').write(zipfile.ZipFile('/tmp/test-template-repo.zip').read('kevin-test-01.fwdata'))" \
     && ./FixFwData /tmp/smoke.fwdata; ec=$?; rm -f /tmp/test-template-repo.zip /tmp/smoke.fwdata; \
     if [ $ec -gt 1 ]; then echo "FixFwData smoke test failed with exit $ec"; exit 1; fi
+# Fail loudly if ChorusMerge finds no *-ChorusPlugin.dll (sillsdev/chorus#393 / #392); must be set
+# before the chorusmerge smoke-test RUN below.
+ENV ChorusRequirePlugins=1
 # Smoke-test: chorusmerge must engage the FieldWorks merge handler, not silently keep one
 # whole file (#2508). Runs the real wrapper from a non-/app cwd, exactly as hg does.
 # Bind-mount rather than COPY so the fixture/script don't ship in the runtime image.

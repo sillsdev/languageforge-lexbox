@@ -20,8 +20,12 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} changes)"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+msgid "(edited)"
+msgstr "(edited)"
+
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
 msgstr "(unknown)"
 
@@ -49,6 +53,7 @@ msgstr "{0} activity types"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} ago"
 
@@ -60,6 +65,14 @@ msgstr "{0} authors"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
+
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "{0} replies"
+msgstr "{0} replies"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "{0} resolved"
+msgstr "{0} resolved"
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -82,6 +95,10 @@ msgstr "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWo
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 
+#: src/project/browse/filter/UnreadCommentBadge.svelte
+msgid "{num, plural, one {# unread comment} other {# unread comments}}"
+msgstr "{num, plural, one {# unread comment} other {# unread comments}}"
+
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
@@ -101,6 +118,10 @@ msgstr "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
+
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "1 reply"
+msgstr "1 reply"
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -126,11 +147,6 @@ msgstr "A similar word already exists"
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "a word"
-
-#. Dialog title
-#: src/lib/about/AboutDialog.svelte
-msgid "About"
-msgstr "About"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -191,6 +207,10 @@ msgstr "Add new word"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Add part of"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Add Picture"
+msgstr "Add Picture"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -337,6 +357,10 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Auto syncing"
 
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Back"
+msgstr "Back"
+
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -381,9 +405,11 @@ msgstr "Camera"
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -450,11 +476,8 @@ msgid "clear"
 msgstr "clear"
 
 #. Button to close popup
-#: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
@@ -466,10 +489,6 @@ msgstr "Close"
 msgid "Close Dictionary"
 msgstr "Close Dictionary"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Closed"
-msgstr "Closed"
-
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 msgid "Code"
@@ -480,14 +499,18 @@ msgstr "Code"
 msgid "Color"
 msgstr "Color"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Comment"
+msgstr "Comment"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
 msgstr "Comments"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Comments for {0}"
-msgstr "Comments for {0}"
+#: src/project/browse/EntryView.svelte
+msgid "Comments, {0} unread"
+msgstr "Comments, {0} unread"
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -540,6 +563,10 @@ msgstr "Components"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "Contains"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Conversation"
+msgstr "Conversation"
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
@@ -812,12 +839,12 @@ msgstr "Downloading..."
 msgid "e.g. th, sw"
 msgstr "e.g. th, sw"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
 msgstr "Edit"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
 msgstr "Edit comment"
 
@@ -835,7 +862,7 @@ msgstr "Edit Picture"
 msgid "Editor"
 msgstr "Editor"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
 msgstr "Empty comment"
 
@@ -1223,6 +1250,14 @@ msgstr "green"
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Harmony snapshots regenerated successfully"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Has comments"
+msgstr "Has comments"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unread comments"
+msgstr "Has unread comments"
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
@@ -1273,6 +1308,7 @@ msgstr "Import"
 
 #. Future relative date format. {0} = formatted duration string (e.g., "3 hours", "2 days"). Paired with "{0} ago" for past dates.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "in {0}"
 
@@ -1296,6 +1332,11 @@ msgstr "Install Update"
 msgid "Installing Update..."
 msgstr "Installing Update..."
 
+#. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "just now"
+msgstr "just now"
+
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
@@ -1311,6 +1352,11 @@ msgstr "Last change: #"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Last sync: #"
 msgstr "Last sync: #"
+
+#. Placeholder for the release channel text box. Production has no feature flags.
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Leave empty for production"
+msgstr "Leave empty for production"
 
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
@@ -1389,7 +1435,7 @@ msgstr "Loaded file"
 msgid "Loading activity"
 msgstr "Loading activity"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
 msgstr "Loading comments..."
 
@@ -1648,10 +1694,6 @@ msgstr "No audio"
 msgid "No authors"
 msgstr "No authors"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "No comment threads yet."
-msgstr "No comment threads yet."
-
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
@@ -1690,6 +1732,11 @@ msgstr "No media files found"
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "No new data"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "No open conversations"
+msgstr "No open conversations"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
@@ -1819,7 +1866,6 @@ msgstr "One FieldWorks Classic commit may consist of changes to multiple entries
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 msgid "Open"
 msgstr "Open"
 
@@ -2060,6 +2106,11 @@ msgstr "Regenerating Harmony snapshots. This may take a long time — do not clo
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr "Regenerating search index. This may take a while — do not close the app."
 
+#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Release channel"
+msgstr "Release channel"
+
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
@@ -2081,6 +2132,9 @@ msgstr "Remove audio"
 
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Reopen"
 msgstr "Reopen"
 
@@ -2093,6 +2147,15 @@ msgstr "Replace audio"
 msgid "Replace Picture"
 msgstr "Replace Picture"
 
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+msgid "Reply"
+msgstr "Reply"
+
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+msgid "Reply…"
+msgstr "Reply…"
+
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
@@ -2101,6 +2164,12 @@ msgstr "Report a technical problem"
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
 msgstr "Reset"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Resolve"
+msgstr "Resolve"
 
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
@@ -2139,7 +2208,7 @@ msgstr "Same lexeme form"
 msgid "Same word"
 msgstr "Same word"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
 msgstr "Save"
 
@@ -2288,7 +2357,7 @@ msgstr "Show {0} more..."
 msgid "Show or hide captions"
 msgstr "Show or hide captions"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Sign in to add comments."
 
@@ -2362,9 +2431,13 @@ msgstr "Something went wrong"
 msgid "Specific field"
 msgstr "Specific field"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Start a new thread"
-msgstr "Start a new thread"
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation"
+msgstr "Start a conversation"
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation…"
+msgstr "Start a conversation…"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2587,10 +2660,6 @@ msgstr "This will synchronize the FieldWorks Lite and FieldWorks Classic copies 
 msgid "This word may already exist"
 msgstr "This word may already exist"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Thread"
-msgstr "Thread"
-
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
 msgid "Toggle filters"
@@ -2728,6 +2797,11 @@ msgstr "Unknown server"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Unknown update result"
 msgstr "Unknown update result"
+
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Unread"
+msgstr "Unread"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -2895,14 +2969,6 @@ msgstr "Word or Display as is required"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Word or meaning:"
-
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Write a reply..."
-msgstr "Write a reply..."
-
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Write the first comment..."
-msgstr "Write the first comment..."
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte

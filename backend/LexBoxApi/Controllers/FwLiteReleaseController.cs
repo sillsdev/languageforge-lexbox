@@ -10,9 +10,26 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/fwlite-release")]
-[ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
+[ApiExplorerSettings(GroupName = LexboxOpenApi.OpenApiPublicDocumentName)]
 public class FwLiteReleaseController(FwLiteReleaseService releaseService) : ControllerBase
 {
+    //The App Installer track requires the manifest to be served from a URL whose path ends in
+    //.appinstaller: Add-AppxPackage -AppInstallerFile and PackageManager.AddPackageByAppInstallerFileAsync
+    //validate the extension on the parsed path (a ?...=.appinstaller query does not satisfy it). This is
+    //the canonical manifest URL baked into every installed package as its update source, so keep it stable.
+    //App Installer HEADs this URL and requires Content-Length on HEAD as well as GET. [HttpGet] does not
+    //match HEAD (routing 405s it). File() still sets Content-Length/Content-Type and omits the body.
+    [HttpGet("FieldWorksLite.appinstaller")]
+    [HttpHead("FieldWorksLite.appinstaller")]
+    [AllowAnonymous]
+    public async Task<ActionResult> AppInstaller()
+    {
+        using var activity = LexBoxActivitySource.Get().StartActivity();
+        activity?.AddTag(FwLiteReleaseService.FwLiteEditionTag, FwLiteEdition.WindowsAppInstaller.ToString());
+        var appInstallerContent = await releaseService.GenerateAppInstaller();
+        return File(Encoding.UTF8.GetBytes(appInstallerContent), "application/appinstaller", "FieldWorksLite.appinstaller");
+    }
+
     [HttpGet("download-latest")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -22,8 +39,9 @@ public class FwLiteReleaseController(FwLiteReleaseService releaseService) : Cont
         activity?.AddTag(FwLiteReleaseService.FwLiteEditionTag, edition.ToString());
         if (edition == FwLiteEdition.WindowsAppInstaller)
         {
-            var appInstallerContent = await releaseService.GenerateAppInstaller();
-            return File(Encoding.UTF8.GetBytes(appInstallerContent), "application/appinstaller", "FieldWorksLite.appinstaller");
+            //Redirect to the canonical .appinstaller path; the App Installer APIs reject a URL that
+            //doesn't end in .appinstaller, so that path (not this query URL) must be the update source.
+            return RedirectToAction(nameof(AppInstaller));
         }
         var latestRelease = await releaseService.GetLatestRelease(edition);
         if (latestRelease is null)

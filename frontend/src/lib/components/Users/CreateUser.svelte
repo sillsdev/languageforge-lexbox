@@ -25,7 +25,6 @@
     submitButtonText?: string;
     handleSubmit: (
       password: string,
-      passwordStrength: number,
       name: string,
       email: string,
       locale: string,
@@ -70,14 +69,12 @@
       .refine((value) => !validateAsEmail(value) || isEmail(value), { error: $t('form.invalid_email') })
       .refine((value) => validateAsEmail(value) || usernameRe.test(value), { error: $t('register.invalid_username') }),
     password: passwordFormRules($t),
-    score: z.number(),
     locale: z.string().trim().min(2).default(userLocale),
   });
 
   let { form, errors, message, enhance, submitting, tainted } = lexSuperForm(formSchema, async () => {
     const { user, error } = await handleSubmit(
       $form.password,
-      $form.score,
       $form.name,
       $form.email,
       $form.locale,
@@ -144,7 +141,7 @@
     error={$errors.password}
     autocomplete="new-password"
   />
-  <PasswordStrengthMeter onScoreUpdated={(score) => ($form.score = score)} password={$form.password} />
+  <PasswordStrengthMeter password={$form.password} />
   <DisplayLanguageSelect bind:value={$form.locale} />
   <FormError error={$message} />
   <SubmitButton loading={$submitting}>{submitButtonText}</SubmitButton>

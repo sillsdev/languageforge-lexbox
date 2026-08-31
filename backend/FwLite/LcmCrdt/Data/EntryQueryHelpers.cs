@@ -42,6 +42,9 @@ public static class EntryQueryHelpers
     public static Entry? QueryComponentEntry(ComplexFormComponent c) => throw new NotSupportedException();
     public static Sense? QueryComponentSense(ComplexFormComponent c) => throw new NotSupportedException();
     public static Entry? QueryComplexFormEntry(ComplexFormComponent c) => throw new NotSupportedException();
+    public static List<CommentThread> QueryCommentThreads(Entry e) => throw new NotSupportedException();
+    public static List<UnreadComment> QueryThreadsUnreadComments(CommentThread ct) => throw new NotSupportedException();
+    public static List<UnreadComment> QueryEntryUnreadComments(Entry e) => throw new NotSupportedException();
 
     [Sql.Expression("""
                     (select WsId

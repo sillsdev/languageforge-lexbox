@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Xml.Linq;
 using FluentAssertions;
 using LexBoxApi;
 using LexBoxApi.Config;
@@ -91,6 +92,17 @@ public class FwLiteReleaseServiceTests
     {
         var actual = FwLiteReleaseService.ShouldUpdateToRelease(appVersion, latestVersion);
         actual.Should().Be(expected, reason);
+    }
+
+    [Fact]
+    public async Task AppInstallerSelfReferencingUriEndsInAppinstaller()
+    {
+        //The App Installer APIs (Add-AppxPackage -AppInstallerFile, AddPackageByAppInstallerFileAsync)
+        //validate that the update source URL's path ends in .appinstaller. This root Uri is baked into
+        //every install as its update source, so if it stops ending in .appinstaller auto-update breaks.
+        var appInstaller = await _fwLiteReleaseService.GenerateAppInstaller();
+        var uri = XDocument.Parse(appInstaller).Root!.Attribute("Uri")!.Value;
+        new Uri(uri).AbsolutePath.Should().EndWith(".appinstaller");
     }
 
     [Theory]

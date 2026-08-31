@@ -186,7 +186,7 @@ spec:
           - name: HgConfig__HgCommandServer
             value: http://hg:8088/command/
           - name: HgConfig__HgResumableUrl
-            value: http://hg:80/
+            value: http://hg:8080/
           - name: HgConfig__AutoUpdateLexEntryCountOnSendReceive
             value: "true"
           - name: CloudFlare__TurnstileKey

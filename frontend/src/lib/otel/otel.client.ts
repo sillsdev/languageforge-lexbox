@@ -1,6 +1,6 @@
 import {ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION} from '@opentelemetry/semantic-conventions';
 import {BatchSpanProcessor, WebTracerProvider} from '@opentelemetry/sdk-trace-web';
-import {SERVICE_NAME, traceUserAttributes} from '.';
+import {SERVICE_NAME, TRACE_EXPORT_URL_PATTERN, traceUserAttributes} from '.';
 import {defaultResource, resourceFromAttributes} from '@opentelemetry/resources';
 
 import {APP_VERSION} from '$lib/util/version';
@@ -21,6 +21,14 @@ instrumentGlobalFetch(() => {
       },
       '@opentelemetry/instrumentation-user-interaction': {
         enabled: false,
+      },
+      // Don't trace the exporter's own POSTs to the collector (see TRACE_EXPORT_URL_PATTERN).
+      // traceFetch skips them too; both span-creating layers must, or we loop.
+      '@opentelemetry/instrumentation-fetch': {
+        ignoreUrls: [TRACE_EXPORT_URL_PATTERN],
+      },
+      '@opentelemetry/instrumentation-xml-http-request': {
+        ignoreUrls: [TRACE_EXPORT_URL_PATTERN],
       },
     })],
   });

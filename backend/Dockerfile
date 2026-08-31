@@ -6,16 +6,20 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:11.0-preview AS build
 
-COPY . .
-# WORKDIR /src
-# Copy the main source project files
-# COPY */*.csproj ./
-#
-# move them into the proper sub folders, based on the name of the project
-# RUN for file in $(ls *.csproj); do mkdir -p ${file%.*}/ && mv $file ${file%.*}/; done
+# Restore first, using only the project/props files, so this layer is cached and
+# only re-runs when a .csproj or package version changes — not on every source
+# edit. Keep this list in sync with LexBoxApi's ProjectReference graph; a missing
+# entry makes the restore below fail loudly at build time.
+COPY *.props ./
+COPY LexBoxApi/LexBoxApi.csproj LexBoxApi/
+COPY LexCore/LexCore.csproj LexCore/
+COPY LexData/LexData.csproj LexData/
+COPY LfClassicData/LfClassicData.csproj LfClassicData/
+COPY SyncReverseProxy/SyncReverseProxy.csproj SyncReverseProxy/
+COPY FwLite/MiniLcm/MiniLcm.csproj FwLite/MiniLcm/
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet restore "LexBoxApi/LexBoxApi.csproj"
-# COPY . .
-# WORKDIR "/LexBoxApi"
+
+COPY . .
 
 ARG APP_VERSION
 LABEL version=$APP_VERSION

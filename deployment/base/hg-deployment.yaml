@@ -14,7 +14,8 @@ spec:
   ports:
     - name: hg-resumable
       protocol: TCP
-      port: 80
+      port: 8080
+
     - name: hgweb
       protocol: TCP
       port: 8088
@@ -79,15 +80,19 @@ spec:
     spec:
       securityContext:
         fsGroup: 33
+        runAsGroup: 33 #www-data
+        runAsUser: 33
+        runAsNonRoot: true
+
       containers:
       - name: hgweb
         image: ghcr.io/sillsdev/lexbox-hgweb:latest
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
-            memory: 400Mi
+            memory: 600Mi
           limits:
-            memory: 400Mi
+            memory: 600Mi
         env:
           - name: CUSTOM_PORT
             value: "8088"
@@ -155,12 +160,25 @@ spec:
           limits:
             memory: 400Mi
         ports:
-          - containerPort: 80
+          - containerPort: 8080
+
+        env:
+          - name: URLS
+            value: "http://+:8080"
+
+        startupProbe:
+          httpGet:
+            path: /api/v03/isAvailable
+            port: 8080
+          failureThreshold: 10
+          periodSeconds: 10
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
 
         livenessProbe:
           httpGet:
             path: /api/v03/isAvailable
-            port: 80
+            port: 8080
           failureThreshold: 5
           periodSeconds: 60
           initialDelaySeconds: 300

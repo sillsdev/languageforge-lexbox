@@ -11,13 +11,24 @@
   const sense = allWsEntry.senses[0];
   const entryId = sense.entryId;
   const senseId = sense.id;
-  const demoPictures = () => structuredClone(sense.pictures ?? []);
+  function demoPictures() {
+    return structuredClone(sense.pictures ?? []);
+  }
 
   // Per-story bindable copies so edits don't mutate shared demo module data.
   let withPictures = $state(demoPictures());
   let emptyPictures = $state([] as IPicture[]);
+  let bufferPictures = $state([] as IPicture[]);
   let readonlyWithPictures = $state(demoPictures());
   let readonlyEmptyPictures = $state([] as IPicture[]);
+
+  // Minimal valid 1x1 PNG (the demo API round-trips the bytes; a PNG type also skips conversion).
+  const PNG_BYTES = Uint8Array.from(
+    atob(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    ),
+    (c) => c.charCodeAt(0),
+  );
 
   const {Story} = defineMeta({
     component: PicturesEditor,
@@ -90,6 +101,38 @@
         senseId={args.senseId}
         readonly={args.readonly}
       />
+    </PicturesEditorHarness>
+  {/snippet}
+</Story>
+
+<Story
+  name="Buffers new picture until submit"
+  play={async ({canvasElement}) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryAllByRole('img')).toHaveLength(0);
+
+    // The file input is visually hidden (pointer-events: none), so drive it directly instead of
+    // through userEvent.upload's click: assign files via a DataTransfer and dispatch `change`.
+    const input = canvasElement.querySelector('input[type=file]') as HTMLInputElement;
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(new File([PNG_BYTES], 'test.png', {type: 'image/png'}));
+    input.files = dataTransfer.files;
+    input.dispatchEvent(new Event('change', {bubbles: true}));
+
+    // Dialog opens in "add" mode; the draft preview lives in the portalled dialog, not the field.
+    const doc = within(document.documentElement);
+    await doc.findByRole('heading', {name: 'Add Picture'});
+    await expect(canvas.queryAllByRole('img')).toHaveLength(0);
+
+    // Nothing is uploaded/created until Submit.
+    await userEvent.click(await doc.findByRole('button', {name: 'Submit'}));
+    const img = await canvas.findByRole('img');
+    await expect(img).toHaveAttribute('src', expect.stringMatching(/^blob:/));
+  }}
+>
+  {#snippet template(args: PicturesArgs)}
+    <PicturesEditorHarness>
+      <PicturesEditor bind:pictures={bufferPictures} entryId={args.entryId} senseId={args.senseId} readonly={false} />
     </PicturesEditorHarness>
   {/snippet}
 </Story>

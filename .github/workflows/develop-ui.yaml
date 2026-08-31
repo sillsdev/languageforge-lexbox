@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'frontend/**'
+      - '.github/workflows/develop-ui.yaml'
       - '.github/workflows/lexbox-ui.yaml'
       - '.github/workflows/deploy.yaml'
     branches:
@@ -10,6 +11,7 @@ on:
   pull_request:
     paths:
       - 'frontend/**'
+      - '.github/workflows/develop-ui.yaml'
       - '.github/workflows/lexbox-ui.yaml'
       - '.github/workflows/deploy.yaml'
     branches:
@@ -30,6 +32,10 @@ jobs:
   build-ui:
     name: Build UI
     needs: set-version
+    permissions:
+      contents: read
+      checks: write # publish-unit-test-result-action
+      packages: write # ghcr.io push
     uses: ./.github/workflows/lexbox-ui.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -47,6 +53,9 @@ jobs:
 
   check-and-lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write # eslint-annotate-action
     defaults:
       run:
         working-directory: ./frontend
@@ -71,7 +80,7 @@ jobs:
       - run: pnpm run -r --no-bail --parallel --aggregate-output lint:report
         if: ${{ always() && steps.svelte_check.outcome != 'cancelled' }}
       - name: Annotate Code Linting Results
-        uses: ataylorme/eslint-annotate-action@d57a1193d4c59cbfbf3f86c271f42612f9dbd9e9 # 3.0.0
+        uses: ataylorme/eslint-annotate-action@5a8d8ab89a57679e90c32750e0f382e9d8570750 # 4.0.0
         if: always()
         with:
           only-pr-files: false
