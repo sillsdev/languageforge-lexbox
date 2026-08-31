@@ -20,7 +20,7 @@ public static class WritingSystemSync
         return await writingSystemsDiffApi.Diff(beforeWritingSystems, afterWritingSystems);
     }
 
-    public static async Task<int> Sync(WritingSystem beforeWs, WritingSystem afterWs, IMiniLcmWritingSystemApi api)
+    public static async Task<int> Sync(WritingSystem beforeWs, WritingSystem afterWs, IMiniLcmApi api)
     {
         var updateObjectInput = WritingSystemDiffToUpdate(beforeWs, afterWs);
         if (updateObjectInput is not null) await api.UpdateWritingSystem(afterWs.WsId, afterWs.Type, updateObjectInput);

@@ -7,10 +7,7 @@ using MiniLcm.SyncHelpers;
 
 namespace LcmCrdt.MiniLcmImp;
 
-public class CrdtWritingSystemApi(
-    MiniLcmRepositoryFactory repoFactory,
-    HarmonyChangeWriter harmonyChangeWriter
-) : IMiniLcmWritingSystemApi, IMiniLcmReadWritingSystemApi
+public class CrdtWritingSystemApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeWriter harmonyChangeWriter)
 {
     public async Task<WritingSystems> GetWritingSystems()
     {
@@ -51,11 +48,9 @@ public class CrdtWritingSystemApi(
         return await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
-        WritingSystem after,
-        IMiniLcmWritingSystemApi? api = null)
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi api)
     {
-        await WritingSystemSync.Sync(before, after, api ?? this);
+        await WritingSystemSync.Sync(before, after, api);
         return await GetWritingSystem(after.WsId, after.Type) ?? throw NotFoundException.ForWs(after);
     }
 
@@ -65,6 +60,6 @@ public class CrdtWritingSystemApi(
         var ws = await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
         var betweenIds = await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, type))?.Id);
         var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(s => s.Type == type), betweenIds);
-        await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<WritingSystem>(ws.Id, order));
+        await harmonyChangeWriter.AddChange(new SetOrderChange<WritingSystem>(ws.Id, order));
     }
 }

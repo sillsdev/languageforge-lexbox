@@ -1,5 +1,4 @@
 using FluentValidation;
-using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Comments;
@@ -55,7 +54,7 @@ public class CrdtMiniLcmApi(
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
         WritingSystem after,
-        IMiniLcmWritingSystemApi? api = null)
+        IMiniLcmApi? api = null)
     {
         return writingSystemApi.UpdateWritingSystem(before, after, api ?? this);
     }

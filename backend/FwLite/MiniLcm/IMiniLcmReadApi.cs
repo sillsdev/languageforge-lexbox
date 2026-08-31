@@ -7,14 +7,10 @@ using MiniLcm.Models;
 
 namespace MiniLcm;
 
-public interface IMiniLcmReadWritingSystemApi
+public interface IMiniLcmReadApi
 {
     Task<WritingSystems> GetWritingSystems();
     Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type);
-}
-
-public interface IMiniLcmReadApi : IMiniLcmReadWritingSystemApi
-{
     IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech();
     IAsyncEnumerable<Publication> GetPublications();
     IAsyncEnumerable<SemanticDomain> GetSemanticDomains();

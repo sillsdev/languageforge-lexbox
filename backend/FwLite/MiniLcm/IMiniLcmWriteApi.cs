@@ -6,9 +6,12 @@ using SystemTextJsonPatch;
 
 namespace MiniLcm;
 
-// Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
-public interface IMiniLcmWritingSystemApi
+public interface IMiniLcmWriteApi
 {
+    #region WritingSystem
+
+    // Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
+
     Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null);
 
     Task<WritingSystem> UpdateWritingSystem(
@@ -20,13 +23,11 @@ public interface IMiniLcmWritingSystemApi
     Task<WritingSystem> UpdateWritingSystem(
         WritingSystem before,
         WritingSystem after,
-        IMiniLcmWritingSystemApi? api = null
+        IMiniLcmApi? api = null
     );
-    Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between);
-}
 
-public interface IMiniLcmWriteApi : IMiniLcmWritingSystemApi
-{
+    Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between);
+    #endregion
 
     #region PartOfSpeech
     Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
