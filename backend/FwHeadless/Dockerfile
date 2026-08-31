@@ -33,7 +33,7 @@ FROM build AS publish
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:InformationalVersion=$APP_VERSION "FwHeadless/FwHeadless.csproj" -c Release -o /app/publish
 
 # ChorusMerge needs dotnet 8.
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS dotnet8
+FROM mcr.microsoft.com/dotnet/runtime:10.0 AS dotnet8
 
 FROM base AS final
 RUN mkdir -p /var/lib/fw-headless /var/www/.local/share && chown -R www-data:www-data /var/lib/fw-headless /var/www/.local/share
