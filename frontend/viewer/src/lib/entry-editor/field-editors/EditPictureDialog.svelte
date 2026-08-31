@@ -8,7 +8,7 @@
   import {ACCEPTED_PICTURE_TYPES} from './picture-formats';
   import {downloadPictureFile} from './picture-actions';
   import {t} from 'svelte-i18n-lingui';
-  import {useLexboxApi} from '$lib/services/service-provider';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
   import {AppNotification} from '$lib/notifications/notifications';
   import {useWritingSystemService} from '$project/data';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
@@ -34,7 +34,7 @@
 
   useBackHandler({addToStack: () => open, onBack: () => (open = false), key: 'edit-picture-dialog'});
   const writingSystemService = useWritingSystemService();
-  const api = useLexboxApi();
+  const api = useMiniLcmApi();
 
   // Buffered, local edits. Nothing here reaches the model until Submit; Cancel just closes and the
   // next open re-seeds these from the picture, discarding whatever was typed/replaced.

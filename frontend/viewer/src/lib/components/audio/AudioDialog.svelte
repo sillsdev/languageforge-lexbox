@@ -6,7 +6,7 @@
   import {watch} from 'runed';
   import AudioProvider from './audio-provider.svelte';
   import AudioEditor from './audio-editor.svelte';
-  import {useLexboxApi} from '$lib/services/service-provider';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
   import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {Snippet} from 'svelte';
@@ -24,7 +24,7 @@
     children?: Snippet;
   } = $props();
   useBackHandler({addToStack: () => open, onBack: () => (open = false), key: 'audio-dialog'});
-  const lexboxApi = useLexboxApi();
+  const api = useMiniLcmApi();
 
   let submitting = $state(false);
   let selectedFile = $state<File>();
@@ -74,7 +74,7 @@
 
   async function uploadAudio() {
     if (!finalAudio) throw new Error($t`No file to upload`);
-    const response = await lexboxApi.saveFile(finalAudio, {
+    const response = await api.saveFile(finalAudio, {
       filename: finalAudio.name,
       mimeType: finalAudio.type,
       extraFields: {},
