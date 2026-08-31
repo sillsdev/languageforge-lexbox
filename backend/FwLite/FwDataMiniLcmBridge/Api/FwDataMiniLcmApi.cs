@@ -926,7 +926,7 @@ public class FwDataMiniLcmApi(
         // not found, return null
         if (mediaUri == MediaUri.NotFound) return null;
         var path = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
-        // An unresolvable reference (no Files row / not on disk) is skipped on write, not a crash (ticket 04):
+        // An unresolvable reference (no Files row / not on disk) is skipped on write, not a crash
         // the entry otherwise syncs and the field heals on a later sync once the binary is resolvable.
         if (path is null) return null;
         return Path.GetRelativePath(Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder), path);

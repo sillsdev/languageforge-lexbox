@@ -27,7 +27,7 @@ public class MediaFile : EntityBase
     /// the hg-reconcile deletion that removes rows lacking a physical file, because it legitimately has no file
     /// on disk yet.
     /// </summary>
-    public int Revision { get; set; }
+    public int Revision { get; set; } = 1;
 
     [MemberNotNull(nameof(Metadata))]
     public void InitializeMetadataIfNeeded(string filePath)
