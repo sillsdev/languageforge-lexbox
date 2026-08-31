@@ -176,7 +176,12 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         await LoginIfNeeded(loginAs);
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/media/metadata/{fileId}");
         var result = await HttpClient.SendAsync(request);
-        return (await result.Content.ReadFromJsonAsync<ApiMetadataEndpointResult>(), result);
+        // Only a success response carries an ApiMetadataEndpointResult; a 404 body isn't that shape (its
+        // required 'filename' is absent), so deserializing it would throw instead of reporting "not found".
+        var metadata = result.IsSuccessStatusCode
+            ? await result.Content.ReadFromJsonAsync<ApiMetadataEndpointResult>()
+            : null;
+        return (metadata, result);
     }
 
     public void CreateDummyFile(string filename, long length)
