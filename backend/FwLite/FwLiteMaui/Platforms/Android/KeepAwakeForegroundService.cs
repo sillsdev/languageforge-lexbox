@@ -11,7 +11,6 @@ public sealed class KeepAwakeForegroundService : Service
 {
     public const string ServiceName = "org.sil.FwLiteMaui.KeepAwakeForegroundService";
     public const string TitleExtra = $"{ServiceName}.Title";
-    public const string TextExtra = $"{ServiceName}.Text";
     private const string ChannelId = "fw-lite-keep-awake";
     private const int NotificationId = 2030;
 
@@ -19,10 +18,9 @@ public sealed class KeepAwakeForegroundService : Service
 
     public override StartCommandResult OnStartCommand(Intent? intent, StartCommandFlags flags, int startId)
     {
-        var title = intent?.GetStringExtra(TitleExtra) ?? "FieldWorks Lite is working";
-        var text = intent?.GetStringExtra(TextExtra) ?? "FieldWorks Lite is finishing some work";
+        var title = intent?.GetStringExtra(TitleExtra) ?? "Working in the background";
         EnsureNotificationChannel();
-        var notification = BuildNotification(title, text);
+        var notification = BuildNotification(title);
         if (OperatingSystem.IsAndroidVersionAtLeast(29))
         {
             StartForeground(NotificationId, notification, ForegroundService.TypeDataSync);
@@ -46,8 +44,8 @@ public sealed class KeepAwakeForegroundService : Service
     {
         if (!OperatingSystem.IsAndroidVersionAtLeast(26)) return;
         var notificationManager = (NotificationManager?)GetSystemService(NotificationService);
-        if (notificationManager is null || notificationManager.GetNotificationChannel(ChannelId) is not null) return;
-        notificationManager.CreateNotificationChannel(new NotificationChannel(ChannelId,
+        // CreateNotificationChannel is create-or-update, so no exists-check; importance is locked in on first creation
+        notificationManager?.CreateNotificationChannel(new NotificationChannel(ChannelId,
             "Background work",
             NotificationImportance.Low)
         {
@@ -55,13 +53,13 @@ public sealed class KeepAwakeForegroundService : Service
         });
     }
 
-    private Notification BuildNotification(string title, string text)
+    private Notification BuildNotification(string title)
     {
         // the builder's fluent methods are nullable in the Android bindings, so call them as statements
         var builder = new NotificationCompat.Builder(this, ChannelId);
         builder.SetSmallIcon(Resource.Drawable.ic_notification);
         builder.SetContentTitle(title);
-        builder.SetContentText(text);
+        builder.SetProgress(0, 0, true);
         builder.SetOngoing(true);
         builder.SetOnlyAlertOnce(true);
         builder.SetCategory(NotificationCompat.CategoryStatus);

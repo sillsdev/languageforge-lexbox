@@ -196,7 +196,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project {project.Code}");
         var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
         await keepAwake.RunAsync(
-            new($"Downloading project {project.Code}", "FieldWorks Lite is downloading a project"),
+            new($"Downloading project {project.Name}"),
             async () => await Task.Run(async () => await crdtProjectsService.CreateProject(new(project.Name,
                 project.Code,
                 projectId,

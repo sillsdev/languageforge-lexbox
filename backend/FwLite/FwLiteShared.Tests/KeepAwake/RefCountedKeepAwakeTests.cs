@@ -7,8 +7,8 @@ namespace FwLiteShared.Tests.KeepAwake;
 
 public class RefCountedKeepAwakeTests
 {
-    private static readonly KeepAwakeWork Download = new("Downloading project test-proj", "FieldWorks Lite is downloading a project");
-    private static readonly KeepAwakeWork Sync = new("Syncing project test-proj", "FieldWorks Lite is syncing a project");
+    private static readonly KeepAwakeWork Download = new("Downloading project test-proj");
+    private static readonly KeepAwakeWork Sync = new("Syncing project test-proj");
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
 
     private readonly GlobalEventBus _globalEventBus = new(NullLogger<GlobalEventBus>.Instance);

@@ -1,6 +1,6 @@
 namespace FwLiteShared.KeepAwake;
 
-public record KeepAwakeWork(string Title, string NotificationText);
+public record KeepAwakeWork(string Title);
 
 public interface IKeepAwake
 {

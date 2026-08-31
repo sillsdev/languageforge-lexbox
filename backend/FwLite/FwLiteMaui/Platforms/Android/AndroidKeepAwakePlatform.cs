@@ -24,8 +24,7 @@ public sealed class AndroidKeepAwakePlatform(ILogger<AndroidKeepAwakePlatform> l
         var context = Platform.AppContext;
         RequestNotificationPermissionIfNeeded(context);
         var intent = new Intent(context, typeof(KeepAwakeForegroundService))
-            .PutExtra(KeepAwakeForegroundService.TitleExtra, work.Title)
-            .PutExtra(KeepAwakeForegroundService.TextExtra, work.NotificationText);
+            .PutExtra(KeepAwakeForegroundService.TitleExtra, work.Title);
         ContextCompat.StartForegroundService(context, intent);
         try
         {
