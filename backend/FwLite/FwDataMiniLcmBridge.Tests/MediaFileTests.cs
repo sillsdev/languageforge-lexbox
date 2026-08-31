@@ -257,6 +257,26 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task GetEntry_RootedPathWhoseFilenameStartsWithDotsResolves()
+    {
+        // Regression: the out-of-tree check must match a parent-directory ".." SEGMENT, not a raw ".." prefix.
+        // A managed file whose name merely begins with ".." (e.g. "..name.wav") must still resolve, not be
+        // misclassified as out-of-tree and turned into the not-found sentinel (data loss).
+        var fileName = "..leadingdots.wav";
+        var fileId = await StoreFileContentsAsync(fileName, "test");
+        var rootedPathUnderTree = Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir,
+            FwDataMiniLcmApi.AudioVisualFolder, fileName);
+        var entryId = await AddFileDirectly(rootedPathUnderTree, contents: null, storeFile: false);
+        GetFwAudioValue(entryId).Should().Be(rootedPathUnderTree);
+
+        var entry = await _api.GetEntry(entryId);
+
+        entry.Should().NotBeNull();
+        entry.CitationForm[_audioWs].Should().Be(new MediaUri(fileId, "localhost").ToString(),
+            "a managed file whose name starts with '..' must resolve, not map to the not-found sentinel");
+    }
+
+    [Fact]
     public async Task UpdateEntry_ClearAudioViaRemove_ClearsFwData()
     {
         var fileName = "ClearAudioViaRemove.wav";

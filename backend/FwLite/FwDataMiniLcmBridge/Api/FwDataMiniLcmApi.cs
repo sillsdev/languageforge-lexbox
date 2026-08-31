@@ -900,10 +900,15 @@ public class FwDataMiniLcmApi(
             // expressed absolutely — resolve it normally. A genuinely out-of-tree path can't be resolved
             // to a managed media file, so it becomes the not-found sentinel (never crash on read).
             // GetRelativePath is case-insensitive on Windows and separator-aware, so it won't misclassify a
-            // managed file (which would turn a real reference into the sentinel = data loss); a "..\" or a
-            // rooted result means the path escapes AudioVisual.
+            // managed file (which would turn a real reference into the sentinel = data loss). The path escapes
+            // AudioVisual only when the relative result begins with a parent-directory (..) SEGMENT or is rooted
+            // (a different drive). Match the segment, not a raw ".." prefix, so a filename that merely starts
+            // with ".." (e.g. "..foo.wav") stays resolvable.
             var relative = Path.GetRelativePath(audioVisualRoot, tsString);
-            if (relative.StartsWith("..", StringComparison.Ordinal) || Path.IsPathRooted(relative))
+            if (relative == ".."
+                || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+                || relative.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal)
+                || Path.IsPathRooted(relative))
                 return MediaUri.NotFound.ToString();
             fullFilePath = tsString;
         }
