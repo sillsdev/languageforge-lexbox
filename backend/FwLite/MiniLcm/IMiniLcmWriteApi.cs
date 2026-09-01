@@ -203,6 +203,13 @@ public interface IMiniLcmWriteApi
     {
         throw new NotSupportedException("Comments are only supported by CRDT projects");
     }
+    /// <summary>
+    /// Debug helper: marks every comment in the thread unread again.
+    /// </summary>
+    Task MarkCommentThreadUnread(Guid threadId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
     Task MarkCommentThreadRead(Guid threadId)
     {
         throw new NotSupportedException("Comments are only supported by CRDT projects");

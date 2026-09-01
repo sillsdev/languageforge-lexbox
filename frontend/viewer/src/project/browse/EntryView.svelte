@@ -28,7 +28,10 @@
   import CommentDialog from '$lib/entry-editor/comments/CommentDialog.svelte';
   import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
-  import DevContent from '$lib/layout/DevContent.svelte';
+  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
+  import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
+  import {ResizableHandle, ResizablePane, ResizablePaneGroup} from '$lib/components/ui/resizable';
+  import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
 
   type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
 
@@ -38,14 +41,16 @@
   const features = useFeatures();
   const viewService = useViewService();
   const dictionaryPreviewStorage = useProjectStorage().dictionaryPreview;
-  const {
+  let {
     entryId,
     onClose,
     showClose = false,
+    showComments = $bindable(false),
   }: {
     entryId: string;
     onClose?: () => void;
     showClose?: boolean;
+    showComments?: boolean;
   } = $props();
 
   // Reactive firewall:
@@ -116,7 +121,7 @@
   const sticky = $derived(dictionaryPreview === 'sticky');
 
   let deleted = $state(false);
-  let showCommentDialog = $state(false);
+  const showCommentDialog = $derived(showComments && features.comments && hasFlag('comments'));
 
   const entryUnreadResource = resource(
     () => (features.comments ? dedupedEntryId : undefined),
@@ -134,6 +139,13 @@
       if (isOpen && features.comments) void entryUnreadResource.refetch();
     },
   );
+
+  // Entry and comments share the space instead of the comments floating over the entry:
+  // side by side once there's room, stacked below xl.
+  const commentsDirection = $derived(IsExtraLarge.value ? 'horizontal' : 'vertical');
+  const commentsLayout = $derived(IsExtraLarge.value ? [65, 35] as const : [55, 45] as const);
+  let entryPane = $state<ResizablePane>();
+  let commentsPane = $state<ResizablePane>();
 
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
@@ -164,10 +176,13 @@
         {#if showClose && onClose}
           <XButton onclick={onClose} size="icon" />
         {/if}
-        <h2 class="ml-4 text-2xl font-semibold mb-2 inline">{headword}</h2>
-        <div class="flex">
-          <DevContent>
-            {#if features.comments}
+        <!-- flex-1 truncates a long unbreakable headword so it can't push the actions off screen. -->
+        <h2
+          class="ml-4 text-2xl font-semibold mb-2 min-w-0 flex-1 truncate max-md:text-center"
+          title={headword}>{headword}</h2>
+        <div class="flex shrink-0">
+          {#if features.comments}
+            <FlagContent flag="comments">
               <div class="relative">
                 <Button
                   variant="ghost"
@@ -177,7 +192,7 @@
                   aria-label={entryUnreadCount > 0
                     ? $t`Comments, ${entryUnreadCount} unread`
                     : $t`Comments`}
-                  onclick={() => showCommentDialog = !showCommentDialog}
+                  onclick={() => showComments = !showComments}
                 />
                 {#if entryUnreadCount > 0}
                   <span
@@ -186,8 +201,8 @@
                   ></span>
                 {/if}
               </div>
-            {/if}
-          </DevContent>
+            </FlagContent>
+          {/if}
           <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} />
           <EntryMenu {entry} />
         </div>
@@ -211,8 +226,16 @@
         </div>
       {/if}
     </header>
-    <div class="flex min-h-0 grow gap-4">
-      <div class="flex min-h-0 min-w-0 grow flex-col">
+    <!-- The entry pane always renders; only the comments pane comes and goes, so opening or
+         closing comments never re-creates the editor (same reason MasterDetailView keeps its
+         master pane mounted while the detail toggles). -->
+    <ResizablePaneGroup direction={commentsDirection} class="flex min-h-0 grow">
+      <ResizablePane
+        bind:this={entryPane}
+        defaultSize={commentsLayout[0]}
+        minSize={25}
+        class="flex min-h-0 min-w-0 flex-col"
+      >
         {#if dictionaryPreview === 'sticky'}
           <div class="shrink-0 md:px-2">
             {@render preview(entry)}
@@ -235,19 +258,33 @@
             {/key}
           </div>
         </ScrollArea>
-      </div>
+      </ResizablePane>
       {#if showCommentDialog}
-        <CommentDialog
-          bind:open={showCommentDialog}
-          inlineSidebar
-          subjectType={SubjectType.Entry}
-          subjectId={entry.id}
-          subjectName={headword}
-          unreadComments={entryUnreadResource.current}
-          onUnreadCommentsChange={(comments) => entryUnreadResource.mutate(comments)}
+        <ResizableHandle
+          withHandle
+          variant={commentsDirection === 'vertical' ? 'grab-bar' : 'divider'}
+          leftPane={entryPane}
+          rightPane={commentsPane}
+          resetTo={commentsLayout}
+          class="my-2 data-[direction=vertical]:my-0"
         />
+        <ResizablePane
+          bind:this={commentsPane}
+          defaultSize={commentsLayout[1]}
+          minSize={20}
+          class="flex min-h-0 min-w-0 flex-col"
+        >
+          <CommentDialog
+            bind:open={() => showCommentDialog, (v) => showComments = v}
+            subjectType={SubjectType.Entry}
+            subjectId={entry.id}
+            unreadComments={entryUnreadResource.current}
+            onUnreadCommentsChange={(comments) => entryUnreadResource.mutate(comments)}
+            class={commentsDirection === 'vertical' ? 'rounded-none border-0 shadow-none' : undefined}
+          />
+        </ResizablePane>
       {/if}
-    </div>
+    </ResizablePaneGroup>
   {/if}
   {#if loadingDebounced.current && entryResource.current?.id !== entryId}
     <div

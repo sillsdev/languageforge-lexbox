@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using MiniLcm.Models;
 
 namespace MiniLcm.Filtering;
 
@@ -25,4 +26,7 @@ public abstract class EntryFilterMapProvider<T>
     public abstract Expression<Func<T, object?>> EntryPublishIn { get; }
     public abstract Expression<Func<T, object?>> EntryPublishInId { get; }
     public virtual Func<string, object>? EntryPublishInConverter { get; } = null;
+    public abstract Expression<Func<T, object?>> EntryCommentThreads { get; }
+    public abstract Expression<Func<T, object?>> EntryUnreadComments { get; }
+
 }

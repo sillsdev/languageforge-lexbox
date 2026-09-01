@@ -88,4 +88,18 @@ public class UpdateDiffTests
             .Excluding(x => x.Id)
             .Excluding(x => x.DeletedAt));
     }
+
+    [Fact]
+    public void SemanticDomainDiffShouldUpdateAllFields()
+    {
+        var before = new SemanticDomain();
+        var after = AutoFaker.Generate<SemanticDomain>();
+        var semanticDomainDiffToUpdate = SemanticDomainSync.SemanticDomainDiffToUpdate(before, after);
+        ArgumentNullException.ThrowIfNull(semanticDomainDiffToUpdate);
+        semanticDomainDiffToUpdate.Apply(before);
+        before.Should().BeEquivalentTo(after, options => options
+            .Excluding(x => x.Id)
+            .Excluding(x => x.DeletedAt)
+            .Excluding(x => x.Predefined));
+    }
 }

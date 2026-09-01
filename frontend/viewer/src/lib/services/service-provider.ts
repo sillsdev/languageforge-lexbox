@@ -95,10 +95,6 @@ export function setupServiceProvider() {
   }
 }
 
-export function useLexboxApi(): IMiniLcmJsInvokable {
-  return useMiniLcmApi();
-}
-
 export function useMiniLcmApi(): IMiniLcmJsInvokable {
   return useProjectContext().api;
 }

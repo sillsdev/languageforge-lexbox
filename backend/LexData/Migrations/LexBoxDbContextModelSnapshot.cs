@@ -564,6 +564,9 @@ namespace LexData.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("Revision")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset>("UpdatedDate")
                         .HasColumnType("timestamp with time zone");
 

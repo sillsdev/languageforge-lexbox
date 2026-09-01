@@ -37,6 +37,7 @@
     onSaveEdit,
     unreadThreadIds = new Set<string>(),
     onThreadOpen,
+    onMarkUnread,
   }: {
     canComment: boolean;
     loading: boolean;
@@ -57,6 +58,8 @@
     onCancelEdit: (commentId: string) => void;
     onSaveEdit: (commentId: string, text: string) => void;
     onThreadOpen?: (threadId: string) => void | Promise<void>;
+    /** Debug only: puts the thread back in the unread state. */
+    onMarkUnread?: (threadId: string) => void | Promise<void>;
   } = $props();
 
   const projectContext = useProjectContext();
@@ -68,7 +71,7 @@
     mobileThreadId ? threadViews.find((tv) => tv.thread.id === mobileThreadId) : undefined,
   );
   const mobileResolved = $derived(mobileThreadView?.thread.status === ThreadStatus.Closed);
-  /** Full-area thread detail (mobile + tablet bottom drawer), vs in-place expand on desktop sidebar */
+  /** Full-area thread detail when the panel is narrow (stacked layout), vs in-place expand beside the entry */
   const useThreadDetail = $derived(!IsExtraLarge.value);
   const showThreadDetail = $derived(useThreadDetail && Boolean(mobileThreadView));
 
@@ -107,7 +110,7 @@
 
 <div class="flex h-full min-h-0 flex-col overflow-hidden bg-background">
   {#if !showThreadDetail}
-    <div class="flex shrink-0 items-center justify-between gap-2 border-b border-border px-4 pt-3.5 pb-2.5">
+    <div class="flex shrink-0 items-center justify-between gap-2 border-b border-border px-4 py-2.5">
       <div class="flex items-center gap-2">
         {#if onClose}
           <XButton class="size-6" onclick={onClose} />
@@ -247,6 +250,7 @@
                 expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                 onToggle={() => toggleExpanded(threadView.thread.id)}
                 onResolve={() => onResolve(threadView)}
+                onMarkUnread={() => void onMarkUnread?.(threadView.thread.id)}
                 onReply={(text) => onReply(threadView, text)}
                 {onStartEdit}
                 {onCancelEdit}
@@ -278,6 +282,7 @@
                       expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                       onToggle={() => toggleExpanded(threadView.thread.id)}
                       onResolve={() => onResolve(threadView)}
+                      onMarkUnread={() => void onMarkUnread?.(threadView.thread.id)}
                       onReply={(text) => onReply(threadView, text)}
                       {onStartEdit}
                       {onCancelEdit}

@@ -270,6 +270,7 @@ type MediaFile {
   filename: String!
   projectId: UUID!
   metadata: FileMetadata
+  revision: Int!
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -1141,6 +1142,7 @@ input MediaFileFilterInput {
   filename: StringOperationFilterInput
   projectId: UuidOperationFilterInput
   metadata: FileMetadataFilterInput
+  revision: IntOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -1150,6 +1152,7 @@ input MediaFileSortInput {
   filename: SortEnumType @cost(weight: "10")
   projectId: SortEnumType @cost(weight: "10")
   metadata: FileMetadataSortInput @cost(weight: "10")
+  revision: SortEnumType @cost(weight: "10")
   id: SortEnumType @cost(weight: "10")
   createdDate: SortEnumType @cost(weight: "10")
   updatedDate: SortEnumType @cost(weight: "10")

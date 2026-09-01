@@ -534,6 +534,11 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.MarkCommentRead(commentId);
     }
 
+    public Task MarkCommentThreadUnread(Guid threadId)
+    {
+        return _api.MarkCommentThreadUnread(threadId);
+    }
+
     public Task MarkCommentThreadRead(Guid threadId)
     {
         return _api.MarkCommentThreadRead(threadId);
@@ -548,9 +553,10 @@ public partial class MiniLcmApiValidationWrapper(
 
     #region File Operations
 
-    public Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
+    public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
-        return _api.SaveFile(stream, metadata);
+        await validators.ValidateAndThrow(metadata);
+        return await _api.SaveFile(stream, metadata);
     }
 
     #endregion

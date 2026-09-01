@@ -8,3 +8,6 @@ export * from './IFwEvent';
 export * from './IJsEventListener';
 export * from './IProjectEvent';
 export * from './ISyncEvent';
+export * from './IUserNotificationEvent';
+export * from './UserNotificationDuration';
+export * from './UserNotificationType';

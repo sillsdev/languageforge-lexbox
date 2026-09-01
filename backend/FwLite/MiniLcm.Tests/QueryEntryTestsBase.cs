@@ -7,8 +7,9 @@ namespace MiniLcm.Tests;
 public abstract class QueryEntryTestsBase : MiniLcmTestBase
 {
     protected readonly Guid appleId = Guid.NewGuid();
-    private readonly string Apple = "Apple";
-    private readonly string Peach = "Peach";
+    protected readonly string Apple = "Apple";
+    protected readonly Guid peachId = Guid.NewGuid();
+    protected readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
     private readonly string Kiwi = "Kiwi";
     private readonly string Null_LexemeForm = string.Empty; // nulls get normalized to empty strings
@@ -21,7 +22,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await base.InitializeAsync();
         var nounPos = new PartOfSpeech() { Id = Guid.NewGuid(), Name = { { "en", "Noun" } } };
         await Api.CreatePartOfSpeech(nounPos);
-        var semanticDomain = new SemanticDomain() { Id = Guid.NewGuid(), Name = { { "en", "Fruit" } }, Code = "1. Fruit" };
+        var semanticDomain = new SemanticDomain() { Id = Guid.NewGuid(), Name = { { "en", "Fruit" } }, Abbreviation = { { "en", "1. Fruit" } } };
         await Api.CreateSemanticDomain(semanticDomain);
         var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "Very complex" } } };
         await Api.CreateComplexFormType(complexFormType);
@@ -36,6 +37,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         }, CreateEntryOptions.AsIs);
         await Api.CreateEntry(new Entry()
         {
+            Id = peachId,
             LexemeForm = { { "en", Peach } },
             ComplexFormTypes = [complexFormType],
             Senses =

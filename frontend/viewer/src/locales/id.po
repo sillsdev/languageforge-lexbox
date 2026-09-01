@@ -100,6 +100,10 @@ msgstr "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWo
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 
+#: src/project/browse/filter/UnreadCommentBadge.svelte
+msgid "{num, plural, one {# unread comment} other {# unread comments}}"
+msgstr ""
+
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
@@ -208,6 +212,10 @@ msgstr "Tambahkan kata baru"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Add part of"
 msgstr "Tambahkan bagian dari"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Add Picture"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -479,7 +487,6 @@ msgstr "jelas"
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
@@ -505,14 +512,9 @@ msgstr "Warna"
 msgid "Comment"
 msgstr ""
 
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
-msgstr ""
-
-#: src/lib/entry-editor/comments/CommentDialog.svelte
-msgid "Comments for {0}"
 msgstr ""
 
 #: src/project/browse/EntryView.svelte
@@ -1261,6 +1263,14 @@ msgstr "hijau"
 msgid "Harmony snapshots regenerated successfully"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Has comments"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unread comments"
+msgstr ""
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
@@ -1358,6 +1368,11 @@ msgstr "Sinkronisasi terakhir: #"
 
 #: src/home/HomeView.svelte
 msgid "Learn more"
+msgstr ""
+
+#. Placeholder for the release channel text box. Production has no feature flags.
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Leave empty for production"
 msgstr ""
 
 #. Field label in the audio editor showing the duration of the audio file.
@@ -2116,6 +2131,11 @@ msgstr ""
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
+msgstr ""
+
+#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Release channel"
 msgstr ""
 
 #. Link label to open release notes

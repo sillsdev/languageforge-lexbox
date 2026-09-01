@@ -1273,8 +1273,18 @@ components:
           format: uuid
         name:
           $ref: '#/components/schemas/MultiString'
+        abbreviation:
+          $ref: '#/components/schemas/MultiString'
         code:
           type: string
+        description:
+          $ref: '#/components/schemas/RichMultiString'
+        ocmCodes:
+          type: string
+          nullable: true
+        louwNidaCodes:
+          type: string
+          nullable: true
         deletedAt:
           type: string
           format: date-time

@@ -30,7 +30,7 @@
   import {Button} from '$lib/components/ui/button';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
   import Loading from '$lib/components/Loading.svelte';
-  import {useLexboxApi} from '$lib/services/service-provider';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
   import {useWritingSystemService} from '$project/data';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
@@ -57,7 +57,7 @@
 
   let {entry, sense, onNavigateToEntry, summary = $bindable()}: Props = $props();
 
-  const lexboxApi = useLexboxApi();
+  const api = useMiniLcmApi();
   const writingSystemService = useWritingSystemService();
   const viewService = useViewService();
   const {base} = useRouter();
@@ -77,7 +77,7 @@
     const key = `${writingSystem}:${text}`;
     let result = searchCache.get(key);
     if (!result) {
-      result = lexboxApi.searchEntries(text, {
+      result = api.searchEntries(text, {
         offset: 0,
         count: FETCH_COUNT,
         order: {field: SortField.SearchRelevance, writingSystem, ascending: true},

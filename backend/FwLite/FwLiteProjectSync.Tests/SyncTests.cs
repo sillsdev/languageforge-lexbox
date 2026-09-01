@@ -391,6 +391,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Id = new Guid("f4491f9b-3c5e-42ab-afc0-f22e19d0fff5"),
             Name = new MultiString() { { "en", "Language and thought" } },
+            Abbreviation = new MultiString() { { "en", "3" } },
             Code = "3",
             Predefined = true,
         };
@@ -400,6 +401,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Id = new Guid("62b4ae33-f3c2-447a-9ef7-7e41805b6a02"),
             Name = new MultiString() { { "en", "Social behavior" } },
+            Abbreviation = new MultiString() { { "en", "4" } },
             Code = "4",
             Predefined = true,
         };
@@ -430,6 +432,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Id = new Guid("f4491f9b-3c5e-42ab-afc0-f22e19d0fff5"),
             Name = new MultiString() { { "en", "Language and thought" } },
+            Abbreviation = new MultiString() { { "en", "3" } },
             Code = "3",
             Predefined = true,
         };

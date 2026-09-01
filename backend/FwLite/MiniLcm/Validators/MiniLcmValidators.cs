@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.Normalization;
 using MiniLcm.Wrappers;
@@ -19,7 +20,8 @@ public record MiniLcmValidators(
     IValidator<Publication> PublicationValidator,
     IValidator<UpdateObjectInput<MorphType>> MorphTypeUpdateValidator,
     IValidator<UpdateObjectInput<WritingSystem>> WritingSystemUpdateValidator,
-    IValidator<UpdateObjectInput<Publication>> PublicationUpdateValidator)
+    IValidator<UpdateObjectInput<Publication>> PublicationUpdateValidator,
+    IValidator<LcmFileMetadata> FileMetadataValidator)
 {
     public async Task ValidateAndThrow(ComplexFormType value)
     {
@@ -85,6 +87,11 @@ public record MiniLcmValidators(
     {
         await PublicationUpdateValidator.ValidateAndThrowAsync(update);
     }
+
+    public async Task ValidateAndThrow(LcmFileMetadata value)
+    {
+        await FileMetadataValidator.ValidateAndThrowAsync(value);
+    }
 }
 
 public static class MiniLcmValidatorsExtensions
@@ -106,6 +113,7 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<IValidator<UpdateObjectInput<MorphType>>, MorphTypeUpdateValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<WritingSystem>>, WritingSystemUpdateValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<Publication>>, PublicationUpdateValidator>();
+        services.AddTransient<IValidator<LcmFileMetadata>, LcmFileMetadataValidator>();
         services.AddTransient<MiniLcmApiQueryNormalizationWrapperFactory>();
         services.AddTransient<MiniLcmApiWriteNormalizationWrapperFactory>();
         services.AddTransient<MiniLcmApiUserFacingWrappers>();

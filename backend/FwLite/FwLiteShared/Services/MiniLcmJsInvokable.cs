@@ -367,6 +367,12 @@ public class MiniLcmJsInvokable(
     }
 
     [JSInvokable]
+    public Task MarkCommentThreadUnread(Guid threadId)
+    {
+        return _wrappedApi.MarkCommentThreadUnread(threadId);
+    }
+
+    [JSInvokable]
     public Task MarkCommentThreadRead(Guid threadId)
     {
         return _wrappedApi.MarkCommentThreadRead(threadId);

@@ -31,6 +31,8 @@ export default defineConfig({
           // $effect.root requires a dom.
           // We can add a node environment test project later if needed.
           environment: 'jsdom',
+          // jsdom doesn't provide a working `localStorage` here; the setup polyfills it.
+          setupFiles: ['./src/test-setup/local-storage.ts'],
           exclude: [
             browserTestPattern,
             ...e2eTestPatterns,
