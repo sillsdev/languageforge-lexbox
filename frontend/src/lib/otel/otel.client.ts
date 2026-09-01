@@ -59,7 +59,9 @@ const provider = new WebTracerProvider({
     },
     new BatchSpanProcessor(exporter, {
       // max number of spans pulled from the queue and exported in a single batch
-      // exports go over fetch (keepAlive), so we're not bound by the old sendBeacon() size limit
+      // keep this small: exports go over fetch with keepalive, and browsers cap in-flight
+      // keepalive bodies at 64KiB *total*. Over ~60KB the transport silently drops
+      // keepalive, so those exports can die with the page on a pagehide flush.
       maxExportBatchSize: 30,
       // minimum time between exports
       scheduledDelayMillis: 1000,
