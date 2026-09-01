@@ -24,6 +24,9 @@ import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-ty
 import type {
   IPlatformFeaturesService
 } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IPlatformFeaturesService';
+import type {
+  IAnalyticsService
+} from '$lib/dotnet-types/generated-types/FwLiteShared/Analytics/IAnalyticsService';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
@@ -45,6 +48,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.UpdateService]: IUpdateService,
   [DotnetService.PreferencesService]: IPreferencesService,
   [DotnetService.PlatformFeaturesService]: IPlatformFeaturesService,
+  [DotnetService.AnalyticsService]: IAnalyticsService,
 };
 
 export const SERVICE_KEYS = Object.values(DotnetService);
@@ -123,6 +127,10 @@ export function useUpdateService(): IUpdateService {
 
 export function usePreferencesService(): IPreferencesService {
   return window.lexbox.ServiceProvider.getService(DotnetService.PreferencesService);
+}
+
+export function useAnalyticsService(): IAnalyticsService | undefined {
+  return window.lexbox.ServiceProvider.tryGetService(DotnetService.AnalyticsService);
 }
 
 export function useService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {

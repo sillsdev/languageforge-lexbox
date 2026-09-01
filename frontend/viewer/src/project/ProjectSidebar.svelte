@@ -16,6 +16,7 @@
   import DevContent, {devModeToggle} from '$lib/layout/DevContent.svelte';
   import TroubleshootDialog from '$lib/troubleshoot/TroubleshootDialog.svelte';
   import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
+  import PrivacyDialog from '$lib/about/PrivacyDialog.svelte';
   import SyncDialog from './SyncDialog.svelte';
   import {useFeatures} from '$lib/services/feature-service';
   import {useProjectStats} from '$project/data';
@@ -59,6 +60,7 @@
   let syncDialog = $state<SyncDialog>();
   let updateDialogOpen = $state(false);
   let feedbackOpen = $state(false);
+  let privacyOpen = $state(false);
 
   const helpOpen = new PersistedState('fw-lite-sidebar-help-open', false);
 </script>
@@ -214,6 +216,12 @@
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
               <Sidebar.MenuItem>
+                <Sidebar.MenuButton onclick={() => privacyOpen = true}>
+                  <Icon icon="i-mdi-shield-account-outline" />
+                  <span>{$t`Privacy`}</span>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
                 <Sidebar.MenuButton onclick={() => troubleshootDialog?.open(projectContext.projectCode)}>
                   <Icon icon="i-mdi-help-circle" />
                   <span>{$t`Troubleshoot`}</span>
@@ -247,3 +255,4 @@ e.g. when transitioning to mobile
   <SyncDialog bind:this={syncDialog} {syncStatus} />
 {/if}
 <FeedbackDialog bind:open={feedbackOpen} />
+<PrivacyDialog bind:open={privacyOpen} />

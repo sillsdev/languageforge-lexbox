@@ -283,6 +283,10 @@ msgstr ""
 msgid "Analysis writing systems"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Analytics are turned off."
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
 #. Filter option: clear grammatical info filter
@@ -1060,6 +1064,10 @@ msgstr "Các trường"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
+#: src/home/HomeView.svelte
+msgid "FieldWorks Lite collects usage data to help us improve it."
+msgstr ""
+
 #. Success notification shown after FieldWorks Lite auto-updates. "FieldWorks Lite" is a product name — do not translate.
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
@@ -1358,6 +1366,11 @@ msgstr "Thay đổi cuối: #"
 msgid "Last sync: #"
 msgstr "Lần đồng bộ cuối: #"
 
+#: src/home/HomeView.svelte
+msgid "Learn more"
+msgstr ""
+
+#. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
 msgstr ""
@@ -1905,6 +1918,10 @@ msgstr "Mở tệp nhật ký"
 msgid "Opening in FieldWorks…"
 msgstr "Mở trong FieldWorks…"
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Opt out of analytics"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
@@ -2010,6 +2027,12 @@ msgstr ""
 msgid "Previous picture"
 msgstr ""
 
+#: src/home/HomeView.svelte
+#: src/lib/about/PrivacyDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Privacy"
+msgstr ""
+
 #. Label in project card
 #: src/home/HomeView.svelte
 msgid "Project"
@@ -2110,6 +2133,7 @@ msgstr ""
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr ""
 
+#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Release channel"
 msgstr ""
@@ -2703,6 +2727,10 @@ msgstr "Khắc phục sự cố"
 msgid "Try again"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Turn analytics back on"
+msgstr ""
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
 msgstr ""
@@ -2914,10 +2942,18 @@ msgstr "Xem"
 msgid "View Picture"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "View the SIL privacy policy"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "tím"
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
+msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"

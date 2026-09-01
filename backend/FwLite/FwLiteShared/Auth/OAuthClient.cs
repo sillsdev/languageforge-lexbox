@@ -174,7 +174,7 @@ public class OAuthClient
             _authSemaphore.Release();
         }
         //publish outside the lock to avoid deadlocks
-        _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
+        _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer, AuthenticationChangeCause.Logout));
     }
 
     /// <summary>
@@ -261,7 +261,7 @@ public class OAuthClient
         }
 
         //publish outside the lock to avoid deadlocks
-        if (accountRemoved) _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer));
+        if (accountRemoved) _globalEventBus.PublishEvent(new AuthenticationChangedEvent(_lexboxServer, AuthenticationChangeCause.SessionExpired));
         return result;
     }
 
