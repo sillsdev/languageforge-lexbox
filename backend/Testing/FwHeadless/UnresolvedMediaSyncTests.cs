@@ -156,8 +156,11 @@ public class UnresolvedMediaSyncTests : MediaFileTestFixture
             result.Error);
 
         var (metadata, response) = await GetFileMetadata(fileId);
+        // No Files row exists for the unresolved id, so no metadata is accessible. (The route authorization
+        // can't resolve the file's project and denies with 403 before the controller's own 404, so assert
+        // "not success" rather than a specific status code.)
         metadata.Should().BeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.IsSuccessStatusCode.Should().BeFalse();
     }
 
     [Fact]

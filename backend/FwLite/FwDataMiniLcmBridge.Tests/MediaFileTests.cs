@@ -214,7 +214,7 @@ public class MediaFileTests : IAsyncLifetime
 
         entry.Should().NotBeNull();
         entry.CitationForm[_audioWs].Should().Be(new MediaUri(fileId, "localhost").ToString(),
-            "a rooted path under LinkedFilesRootDir/AudioVisual should be relativized and resolved to its managed MediaUri; today ToMediaUri instead throws ArgumentException(\"Media path must be relative\") on read (FwDataMiniLcmApi.cs:896-897)");
+            "a rooted path under LinkedFilesRootDir/AudioVisual is relativized and resolved to its managed MediaUri");
     }
 
     [Fact]
@@ -233,9 +233,10 @@ public class MediaFileTests : IAsyncLifetime
         var entry = await _api.GetEntry(entryId);
         entry.Should().NotBeNull();
         entry.CitationForm[_audioWs].Should().Be(MediaUri.NotFound.ToString(),
-            "a genuinely out-of-tree rooted path should map to the not-found sentinel on read; today ToMediaUri instead throws ArgumentException(\"Media path must be relative\") (FwDataMiniLcmApi.cs:896-897)");
+            "a genuinely out-of-tree rooted path maps to the not-found sentinel on read");
 
-        // write path: the sentinel skips (ShouldSet), so FwData keeps its original out-of-tree reference
+        // write path: the sentinel resolves to null on write, so the audio field is skipped and FwData keeps
+        // its original out-of-tree reference
         await _api.UpdateEntry(entryId,
             new UpdateObjectInput<Entry>().Set(e => e.CitationForm[_audioWs], MediaUri.NotFound.ToString()));
         GetFwAudioValue(entryId).Should().Be(outOfTreeRootedPath,

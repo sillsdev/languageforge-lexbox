@@ -167,7 +167,7 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
         await _lexboxMediaService.SyncMediaFiles(_projectId, _lcmMediaService);
 
         var after = await CurrentCrdtResources();
-        after.Select(r => r.Id).Should().Contain(pendingId,
+        after.Should().ContainSingle(r => r.Id == pendingId,
             "the not-yet-uploaded resource must survive reconcile so its reference can heal after a later upload");
 
         var pendingRow = _dbContext.Files.SingleOrDefault(f => f.Id == pendingId);
