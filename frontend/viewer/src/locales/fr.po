@@ -149,11 +149,6 @@ msgstr ""
 msgid "a word"
 msgstr "un mot"
 
-#. Dialog title
-#: src/lib/about/AboutDialog.svelte
-msgid "About"
-msgstr "A propos de"
-
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -278,6 +273,10 @@ msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
+msgstr ""
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Analytics are turned off."
 msgstr ""
 
 #. Relevant view: Classic
@@ -478,7 +477,6 @@ msgid "clear"
 msgstr "effacer"
 
 #. Button to close popup
-#: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/comments/CommentDialog.svelte
@@ -1064,6 +1062,10 @@ msgstr "Champs"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
+#: src/home/HomeView.svelte
+msgid "FieldWorks Lite collects anonymous usage data to help us improve it."
+msgstr ""
+
 #. Success notification shown after FieldWorks Lite auto-updates. "FieldWorks Lite" is a product name — do not translate.
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
@@ -1333,6 +1335,7 @@ msgstr "Installer la mise à jour"
 msgid "Installing Update..."
 msgstr "Installation de la mise à jour..."
 
+#. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
 msgstr ""
@@ -1352,6 +1355,10 @@ msgstr "Dernier changement : #"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Last sync: #"
 msgstr "Synchronisation la plus récente : #"
+
+#: src/home/HomeView.svelte
+msgid "Learn more"
+msgstr ""
 
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
@@ -1896,6 +1903,10 @@ msgstr "Ouvrir le fichier journal"
 msgid "Opening in FieldWorks…"
 msgstr "Ouverture dans FieldWorks…"
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Opt out of analytics"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
@@ -1999,6 +2010,12 @@ msgstr ""
 #. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Previous picture"
+msgstr ""
+
+#: src/home/HomeView.svelte
+#: src/lib/about/PrivacyDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Privacy"
 msgstr ""
 
 #. Label in project card
@@ -2690,6 +2707,10 @@ msgstr "Dépannage"
 msgid "Try again"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Turn analytics back on"
+msgstr ""
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
 msgstr ""
@@ -2901,10 +2922,18 @@ msgstr "Voir"
 msgid "View Picture"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "View the SIL privacy policy"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "violet"
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "We collect anonymous usage data to understand how FieldWorks Lite is used and where to improve it. This never includes your dictionary content."
+msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
