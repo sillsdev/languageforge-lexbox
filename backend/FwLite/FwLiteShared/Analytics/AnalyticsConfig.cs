@@ -6,10 +6,13 @@ public class AnalyticsConfig
     public string? Host { get; set; }
 
     /// <summary>
-    /// Mixpanel debug/test project token. Not a secret; hardcoded by design for this MVP.
+    /// Mixpanel debug/test project token. Not a secret; encoded in source and decoded at runtime.
     /// </summary>
     public string DebugProjectToken { get; set; } = MixpanelAnalytics.DebugProjectToken;
 
-    /// <summary>Release Mixpanel token. Null/empty means do not send.</summary>
-    public string? ProductionToken { get; set; }
+    /// <summary>
+    /// Release Mixpanel token. Defaults to the production project token (encoded in source).
+    /// Null/empty means do not send.
+    /// </summary>
+    public string? ProductionToken { get; set; } = MixpanelAnalytics.ProductionProjectToken;
 }

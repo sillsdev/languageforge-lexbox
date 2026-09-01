@@ -1,3 +1,4 @@
+using System.Text;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 
@@ -5,10 +6,19 @@ namespace FwLiteShared.Analytics;
 
 public static class MixpanelAnalytics
 {
-    /// <summary>
-    /// Mixpanel debug/test project token. Not a secret; hardcoded by design for this MVP.
-    /// </summary>
-    public const string DebugProjectToken = "5b901726cd330cf6fa1d270fe3c705e8";
+    // Base64-encoded Mixpanel project tokens. These are write-only ingestion tokens, not secrets
+    // (they're exposed in every client request), but they're encoded here so a plaintext token
+    // string can't be trivially scraped from the public repo. Decoded once at runtime below.
+    private const string DebugProjectTokenEncoded = "NWI5MDE3MjZjZDMzMGNmNmZhMWQyNzBmZTNjNzA1ZTg=";
+    private const string ProductionProjectTokenEncoded = "YzA5ZDZhYmVjZWQ1MTE0YjBjM2YzMGY2ZjU1YmE3NjI=";
+
+    /// <summary>Mixpanel debug/test project token. Decoded at runtime; not a secret.</summary>
+    public static string DebugProjectToken { get; } = DecodeToken(DebugProjectTokenEncoded);
+
+    /// <summary>Mixpanel release/production project token. Decoded at runtime; not a secret.</summary>
+    public static string ProductionProjectToken { get; } = DecodeToken(ProductionProjectTokenEncoded);
+
+    private static string DecodeToken(string encoded) => Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
 
     public const string TrackUrl = "https://api.mixpanel.com/track";
     public const string HttpClientName = "Mixpanel";

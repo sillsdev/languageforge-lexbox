@@ -19,24 +19,28 @@ public class AnalyticsServiceTests
 {
     private static readonly DateTimeOffset FixedTime = new(2026, 8, 27, 12, 0, 0, TimeSpan.Zero);
 
-    [Theory]
-    [InlineData(true, true)]
-    [InlineData(false, false)]
-    public void SelectToken_UsesDebugTokenInDevelopment(bool isDevelopment, bool expectDebug)
+    [Fact]
+    public void SelectToken_DevUsesDebugToken()
     {
-        var token = MixpanelAnalytics.SelectToken(isDevelopment, new AnalyticsConfig());
-        if (expectDebug)
-            token.Should().Be(MixpanelAnalytics.DebugProjectToken);
-        else
-            token.Should().BeNull();
+        MixpanelAnalytics.SelectToken(true, new AnalyticsConfig()).Should().Be(MixpanelAnalytics.DebugProjectToken);
     }
 
     [Fact]
-    public void SelectToken_ReleaseTokenUsedWhenNotDev()
+    public void SelectToken_ReleaseUsesProductionToken()
     {
+        // Default config carries the production token, so release builds send by default.
+        MixpanelAnalytics.SelectToken(false, new AnalyticsConfig()).Should().Be(MixpanelAnalytics.ProductionProjectToken);
         MixpanelAnalytics.SelectToken(false, new AnalyticsConfig { ProductionToken = "prod-token" }).Should().Be("prod-token");
         MixpanelAnalytics.SelectToken(false, new AnalyticsConfig { ProductionToken = "  " }).Should().BeNull();
-        MixpanelAnalytics.SelectToken(false, new AnalyticsConfig()).Should().BeNull();
+        MixpanelAnalytics.SelectToken(false, new AnalyticsConfig { ProductionToken = null }).Should().BeNull();
+    }
+
+    [Fact]
+    public void ProjectTokens_DecodeToNonEmptyDistinctValues()
+    {
+        MixpanelAnalytics.DebugProjectToken.Should().NotBeNullOrWhiteSpace();
+        MixpanelAnalytics.ProductionProjectToken.Should().NotBeNullOrWhiteSpace();
+        MixpanelAnalytics.ProductionProjectToken.Should().NotBe(MixpanelAnalytics.DebugProjectToken);
     }
 
     [Fact]
@@ -332,7 +336,7 @@ public class AnalyticsServiceTests
     public async Task TrackAsync_DoesNotSend_WhenReleaseTokenEmpty()
     {
         var handler = new CaptureHandler();
-        var service = CreateService(handler, isDevelopment: false);
+        var service = CreateService(handler, isDevelopment: false, productionToken: "");
 
         await service.TrackAsync("app_launched");
 
@@ -490,7 +494,8 @@ public class AnalyticsServiceTests
         string? host = null,
         IPreferencesService? prefs = null,
         IEnumerable<IAnalyticsEventEnricher>? enrichers = null,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        string? productionToken = null)
     {
         var factory = new Mock<IHttpClientFactory>();
         factory.Setup(f => f.CreateClient(MixpanelAnalytics.HttpClientName))
@@ -508,6 +513,8 @@ public class AnalyticsServiceTests
         };
 
         var analytics = new AnalyticsConfig { Host = host };
+        if (productionToken is not null)
+            analytics.ProductionToken = productionToken;
 
         return new AnalyticsService(
             factory.Object,
