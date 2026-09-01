@@ -450,8 +450,16 @@ public class AnalyticsServiceTests
         var tracker = new AppLaunchTracker(analytics.Object);
 
         await tracker.StartAsync(CancellationToken.None);
+
+        // Start fired it exactly once.
+        analytics.Verify(a => a.Track(
+            MixpanelAnalytics.AppLaunchedEvent,
+            It.IsAny<IReadOnlyDictionary<string, object?>>(),
+            It.IsAny<DateTimeOffset?>()), Times.Once);
+
         await tracker.StopAsync(CancellationToken.None);
 
+        // Stop added nothing: still exactly the one Start fired.
         analytics.Verify(a => a.Track(
             MixpanelAnalytics.AppLaunchedEvent,
             It.IsAny<IReadOnlyDictionary<string, object?>>(),
