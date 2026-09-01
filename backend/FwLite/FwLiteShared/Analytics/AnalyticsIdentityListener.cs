@@ -20,6 +20,10 @@ public class AnalyticsIdentityListener(
 {
     private IDisposable? _subscription;
 
+    // Serializes identity mutations so a logout can't be overwritten by an in-flight
+    // startup/login GetCurrentUser that resolves with a now-stale account.
+    private readonly SemaphoreSlim _identityGate = new(1, 1);
+
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _subscription = eventBus.OnAuthenticationChanged.Subscribe(changed => _ = OnAuthenticationChanged(changed));
@@ -37,6 +41,30 @@ public class AnalyticsIdentityListener(
     public void Dispose()
     {
         _subscription?.Dispose();
+        _identityGate.Dispose();
+    }
+
+    /// <summary>
+    /// Applies one identity change under <see cref="_identityGate"/> so login and logout can't interleave.
+    /// The <paramref name="getCurrentUser"/> lookup runs inside the gate (login only) so a logout waiting on
+    /// the gate always wins over a startup/login lookup that resolves with a stale account.
+    /// </summary>
+    internal async Task RunIdentityOperation(
+        LexboxServer server,
+        AuthenticationChangeCause cause,
+        Func<Task<LexboxUser?>> getCurrentUser,
+        CancellationToken cancellationToken = default)
+    {
+        await _identityGate.WaitAsync(cancellationToken);
+        try
+        {
+            var user = cause == AuthenticationChangeCause.Login ? await getCurrentUser() : null;
+            MixpanelAnalytics.ApplyAuthChange(analytics, server, cause, user);
+        }
+        finally
+        {
+            _identityGate.Release();
+        }
     }
 
     internal async Task IdentifyAtStart(CancellationToken cancellationToken = default)
@@ -49,12 +77,12 @@ public class AnalyticsIdentityListener(
             var server = authConfig.Value.LexboxServers.FirstOrDefault(MixpanelAnalytics.IsProductionLexbox);
             if (server is null)
                 return;
-            var user = await clientFactory.GetClient(server).GetCurrentUser();
-            // Offline / expired token: keep the persisted AnalyticsUserId already loaded by AnalyticsService.
-            // Logged-out at start must not Reset — that would rotate $device_id on every process start.
-            if (user is null)
-                return;
-            MixpanelAnalytics.ApplyAuthChange(analytics, server, AuthenticationChangeCause.Login, user);
+            // Offline / expired token yields a null user: ApplyAuthChange(Login, null) is a no-op, so the
+            // persisted AnalyticsUserId is kept and $device_id is not rotated on every process start.
+            await RunIdentityOperation(server,
+                AuthenticationChangeCause.Login,
+                () => clientFactory.GetClient(server).GetCurrentUser(),
+                cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -75,11 +103,10 @@ public class AnalyticsIdentityListener(
             switch (changed.Cause)
             {
                 case AuthenticationChangeCause.Login:
-                    var user = await clientFactory.GetClient(changed.Server).GetCurrentUser();
-                    MixpanelAnalytics.ApplyAuthChange(analytics, changed.Server, changed.Cause, user);
-                    break;
                 case AuthenticationChangeCause.Logout:
-                    MixpanelAnalytics.ApplyAuthChange(analytics, changed.Server, changed.Cause, user: null);
+                    await RunIdentityOperation(changed.Server,
+                        changed.Cause,
+                        () => clientFactory.GetClient(changed.Server).GetCurrentUser());
                     break;
             }
         }

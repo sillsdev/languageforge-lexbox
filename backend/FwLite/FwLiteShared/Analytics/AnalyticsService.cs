@@ -97,6 +97,19 @@ public class AnalyticsService(
         }
     }
 
+    /// <summary>
+    /// Reads the device and user ids together under one lock so a concurrent <see cref="Identify"/>
+    /// (which rotates the device id on a user switch) can't tear a track event into a mismatched pair.
+    /// </summary>
+    internal (string DeviceId, string? UserId) GetIdentitySnapshot()
+    {
+        lock (_identityLock)
+        {
+            EnsureIdentityLoadedLocked();
+            return (_deviceId!, _userId);
+        }
+    }
+
     internal async Task TrackAsync(
         string eventName,
         IReadOnlyDictionary<string, object?>? properties = null,
@@ -113,12 +126,13 @@ public class AnalyticsService(
             if (token is null)
                 return;
 
+            var identity = GetIdentitySnapshot();
             var eventProperties = BuildProperties(
                 token,
                 fwLite,
                 analytics.Host,
-                GetOrCreateDeviceId(),
-                CurrentUserId,
+                identity.DeviceId,
+                identity.UserId,
                 time ?? _clock.GetUtcNow(),
                 insertId ?? Guid.NewGuid().ToString());
             foreach (var enricher in _enrichers)

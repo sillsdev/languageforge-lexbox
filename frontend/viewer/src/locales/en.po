@@ -1058,8 +1058,8 @@ msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
 #: src/home/HomeView.svelte
-msgid "FieldWorks Lite collects anonymous usage data to help us improve it."
-msgstr "FieldWorks Lite collects anonymous usage data to help us improve it."
+msgid "FieldWorks Lite collects usage data to help us improve it."
+msgstr "FieldWorks Lite collects usage data to help us improve it."
 
 #. Success notification shown after FieldWorks Lite auto-updates. "FieldWorks Lite" is a product name — do not translate.
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -2927,8 +2927,8 @@ msgid "violet"
 msgstr "violet"
 
 #: src/lib/about/PrivacyDialog.svelte
-msgid "We collect anonymous usage data to understand how FieldWorks Lite is used and where to improve it. This never includes your dictionary content."
-msgstr "We collect anonymous usage data to understand how FieldWorks Lite is used and where to improve it. This never includes your dictionary content."
+msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
+msgstr "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"

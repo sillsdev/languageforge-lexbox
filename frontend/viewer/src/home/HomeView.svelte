@@ -273,7 +273,7 @@
   <div class="md:grow-2"></div>
 
   <p class="text-center text-xs text-muted-foreground px-4 py-6">
-    {$t`FieldWorks Lite collects anonymous usage data to help us improve it.`}
+    {$t`FieldWorks Lite collects usage data to help us improve it.`}
     <button class="text-primary underline underline-offset-4 hover:no-underline" onclick={() => privacyOpen = true}>
       {$t`Learn more`}
     </button>

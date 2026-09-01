@@ -35,7 +35,7 @@
 <ResponsiveDialog bind:open title={$t`Privacy`}>
   <div class="flex flex-col gap-4">
     <p class="text-muted-foreground">
-      {$t`We collect anonymous usage data to understand how FieldWorks Lite is used and where to improve it. This never includes your dictionary content.`}
+      {$t`We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content.`}
     </p>
     {#if enabled}
       <Button variant="outline" icon="i-mdi-cancel" loading={busy} disabled={!analyticsService} onclick={() => setEnabled(false)}>

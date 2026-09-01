@@ -188,6 +188,24 @@ public class AnalyticsServiceTests
     }
 
     [Fact]
+    public void GetIdentitySnapshot_PairsDeviceAndUserFromSameState()
+    {
+        var prefs = new MemoryPreferences();
+        var service = CreateService(new CaptureHandler(), prefs: prefs);
+
+        service.Identify("user-1");
+        var first = service.GetIdentitySnapshot();
+        first.UserId.Should().Be("user-1");
+        first.DeviceId.Should().Be(prefs.Get(nameof(PreferenceKey.AnalyticsDeviceId)));
+
+        service.Identify("user-2"); // a different user rotates the device id
+        var second = service.GetIdentitySnapshot();
+        second.UserId.Should().Be("user-2");
+        second.DeviceId.Should().Be(prefs.Get(nameof(PreferenceKey.AnalyticsDeviceId)));
+        second.DeviceId.Should().NotBe(first.DeviceId);
+    }
+
+    [Fact]
     public void Identify_SameUser_KeepsDeviceId()
     {
         var prefs = new MemoryPreferences();
