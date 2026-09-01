@@ -3,7 +3,7 @@ export function resumableSendReceiveOrigin(pageHost: string, isDev: boolean): { 
     return { protocol: 'http', hostname: `resumable.${pageHost.split(':')[0]}` };
   }
   if (pageHost.includes('develop') || pageHost.includes('.dev')) {
-    return { protocol: 'https', hostname: 'resumable-develop.lexbox.org' };
+    return { protocol: 'https', hostname: 'resumable.lexbox.dev.languagetechnology.org' };
   }
   if (pageHost.includes('staging')) {
     return { protocol: 'https', hostname: 'resumable-staging.languagedepot.org' };

@@ -10,8 +10,8 @@ describe('resumableSendReceiveOrigin', () => {
   });
 
   test('maps develop, staging, and production hosts', () => {
-    expect(resumableSendReceiveOrigin('develop.lexbox.org', false).hostname).toBe('resumable-develop.lexbox.org');
-    expect(resumableSendReceiveOrigin('lexbox.dev', false).hostname).toBe('resumable-develop.lexbox.org');
+    expect(resumableSendReceiveOrigin('develop.lexbox.org', false).hostname).toBe('resumable.lexbox.dev.languagetechnology.org');
+    expect(resumableSendReceiveOrigin('lexbox.dev', false).hostname).toBe('resumable.lexbox.dev.languagetechnology.org');
     expect(resumableSendReceiveOrigin('staging.languagedepot.org', false).hostname).toBe('resumable-staging.languagedepot.org');
     expect(resumableSendReceiveOrigin('languageforge.org', false).hostname).toBe('resumable.languageforge.org');
   });
