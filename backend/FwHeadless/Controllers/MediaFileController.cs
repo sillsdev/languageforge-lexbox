@@ -260,7 +260,7 @@ public static class MediaFileController
             mediaFile = new MediaFile()
             {
                 Id = fileId.Value,
-                Filename = Path.Join(LinkedFiles, subfolder, fileId.ToString(), filename),
+                Filename = MediaFilePath.Normalize(Path.Join(LinkedFiles, subfolder, fileId.ToString(), filename)),
                 ProjectId = projectId,
                 Metadata = metadata,
             };
@@ -272,7 +272,7 @@ public static class MediaFileController
             {
                 throw new UploadedFilesCannotBeMovedToNewProjects();
             }
-            if (subfolderOverride is not null && !mediaFile.Filename.StartsWith(Path.Join(LinkedFiles, subfolderOverride)))
+            if (subfolderOverride is not null && !MediaFilePath.Normalize(mediaFile.Filename).StartsWith(MediaFilePath.Normalize(Path.Join(LinkedFiles, subfolderOverride))))
             {
                 throw new UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders();
             }

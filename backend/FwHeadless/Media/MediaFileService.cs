@@ -27,7 +27,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var existingFwFiles = FilesRelativeToHgRepo(cache).ToHashSet();
         await foreach (var mediaFile in existingDbFiles)
         {
-            if (existingFwFiles.Remove(mediaFile.Filename))
+            if (existingFwFiles.Remove(MediaFilePath.Normalize(mediaFile.Filename)))
             {
                 //nothing to do, the file exists in the db and in the hg repo
                 continue;
@@ -69,7 +69,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         if (!Directory.Exists(cache.LangProject.LinkedFilesRootDir)) yield break;
         foreach (var file in Directory.EnumerateFiles(cache.LangProject.LinkedFilesRootDir, "*", SearchOption.AllDirectories))
         {
-            yield return Path.GetRelativePath(cache.ProjectId.ProjectFolder, file);
+            yield return MediaFilePath.Normalize(Path.GetRelativePath(cache.ProjectId.ProjectFolder, file));
         }
     }
 
@@ -86,8 +86,20 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         if (!Path.IsPathRooted(path)) throw new ArgumentException("Path must be absolute", nameof(path));
         var fwDataFolder = config.Value.GetFwDataFolder(config.Value.GetProjectFolder(projectId));
         if (!path.StartsWith(fwDataFolder)) return null;
-        path = Path.GetRelativePath(fwDataFolder, path);
-        return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename == path);
+        var relativePath = MediaFilePath.Normalize(Path.GetRelativePath(fwDataFolder, path));
+        //normalize the stored column too: legacy rows may have been written under a different OS's separators
+        return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename.Replace("\\", "/") == relativePath);
+    }
+
+    /// <summary>
+    /// Look up a media file by its absolute path, throwing when none exists. Thin throwing wrapper over
+    /// <see cref="FindMediaFile(Guid, string)"/>.
+    /// </summary>
+    /// <exception cref="NotFoundException">Thrown when no matching file is found.</exception>
+    public MediaFile GetMediaFile(Guid projectId, string path)
+    {
+        return FindMediaFile(projectId, path) ??
+               throw new NotFoundException($"Unable to find file {path}, in project {projectId}.", nameof(MediaFile));
     }
 
     public MediaFile? FindMediaFile(Guid fileId)

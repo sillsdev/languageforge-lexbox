@@ -43,6 +43,7 @@
     'hover:bg-primary/15 aria-selected:bg-primary/15',
     'dark:hover:bg-primary/25 aria-selected:dark:bg-primary/25',
     'disabled:pointer-events-none disabled:contrast-[0.8]',
+    'transition-transform active:scale-97',
     loading && 'animate-pulse',
     skeleton && 'cursor-default hover:bg-transparent pointer-events-none shadow-none',
     className,
@@ -56,7 +57,8 @@
   {:else}
     {@render icon?.()}
   {/if}
-  <div class="flex flex-col grow">
+  <!-- min-w-0: let long unbreakable content wrap rather than stretch the item past its container. -->
+  <div class="flex min-w-0 grow flex-col">
     {@render children?.()}
   </div>
   {@render actions?.()}

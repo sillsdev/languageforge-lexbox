@@ -21,6 +21,10 @@
   import EntryListViewOptions from './EntryListViewOptions.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
+  import UnreadCommentBadge from '$project/browse/filter/UnreadCommentBadge.svelte';
+  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
+  import {QueryParamStateBool} from '$lib/utils/url.svelte';
+  import {watch} from 'runed';
 
   const projectContext = useProjectContext();
   const viewService = useViewService();
@@ -34,8 +38,23 @@
   let publication = $state<IPublication>();
   let semanticDomain = $state<ISemanticDomain>();
   let partOfSpeech = $state<IPartOfSpeech>();
+  let unreadComments = $state(false);
+  // Same history strategy as the master-detail open state: on mobile the comments take
+  // half the screen, so back should close them rather than leave the view. Nothing else
+  // pushes for them now that the panel is a pane rather than a drawer.
+  const commentsOpen = new QueryParamStateBool({
+    key: BrowseParam.CommentsOpen,
+    allowBack: IsMobile.value,
+    replaceOnDefaultValue: IsMobile.value,
+  }, false);
   let sort = $state<SortConfig>();
   const entryMode: EntryListViewMode = $derived(entryListViewMode.current === 'preview' ? 'preview' : 'simple');
+
+  // Turning the filter on means the comments are what the user came for, so open the
+  // sidebar once. Deliberately only on the transition, so closing it stays closed.
+  watch(() => unreadComments, (filterOn, wasOn) => {
+    if (filterOn && !wasOn) commentsOpen.current = true;
+  });
 
   async function newEntry() {
     const entry = await dialogsService.createNewEntry(undefined, {
@@ -71,11 +90,18 @@
     {#snippet master({selectedId: masterSelectedId, select})}
       <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
         <div class="md:mr-3">
-          <SearchFilter bind:search bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech />
-          <div class="my-2 flex items-center justify-between">
+          <SearchFilter bind:search bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech bind:unreadComments />
+          <div class="my-2 flex items-center gap-2">
             <SortMenu bind:value={sort}
               autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
-            <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
+            {#if features.comments}
+              <FlagContent flag="comments">
+                <UnreadCommentBadge bind:unreadComments/>
+              </FlagContent>
+            {/if}
+            <div class="ms-auto">
+              <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
+            </div>
           </div>
         </div>
         <EntriesList bind:this={entriesList}
@@ -97,6 +123,7 @@
             entryId={detailSelectedId}
             onClose={close}
             {showClose}
+            bind:showComments={() => commentsOpen.current, (v) => commentsOpen.current = v}
           />
         </div>
       {/if}

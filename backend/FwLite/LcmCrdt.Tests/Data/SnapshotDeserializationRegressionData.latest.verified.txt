@@ -7,7 +7,11 @@
       "Name": {
         "en": "Husband, wife"
       },
+      "Abbreviation": {},
       "Code": "4.1.9.2.1",
+      "Description": {},
+      "OcmCodes": "",
+      "LouwNidaCodes": "",
       "DeletedAt": null,
       "Predefined": false
     },
@@ -18,11 +22,75 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "SemanticDomain",
+      "Id": "fc2a0b61-797c-7d91-c737-ead87d4a2e94",
+      "Name": {
+        "cbn": "invoice"
+      },
+      "Abbreviation": {
+        "iyo": "Diverse",
+        "xrg": "Handmade",
+        "fla": "Fresh",
+        "mh": "Berkshire"
+      },
+      "Code": "Diverse",
+      "Description": {
+        "omk": {
+          "Spans": [
+            {
+              "Text": "Unbranded",
+              "Ws": "omk",
+              "Tags": [
+                "384ab5df-675c-4949-942e-a28efd40ae25"
+              ]
+            },
+            {
+              "Text": "interface",
+              "Ws": "tyi",
+              "Bold": "Off",
+              "FontSize": -757754559,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "0c2304f9-66ba-0820-3984-90cbb121e0cf"
+              ]
+            }
+          ]
+        },
+        "jms": {
+          "Spans": [
+            {
+              "Text": "supply-chains",
+              "Ws": "xnj",
+              "Bold": "Invert",
+              "FontSize": -616207712,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "c727c902-aa8a-facf-d017-413bb82406b0"
+              ]
+            }
+          ]
+        }
+      },
+      "OcmCodes": "Licensed Granite Tuna",
+      "LouwNidaCodes": "Handcrafted Steel Chips",
+      "DeletedAt": null,
+      "Predefined": false
+    },
+    "Id": "fc2a0b61-797c-7d91-c737-ead87d4a2e94",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "SemanticDomain",
       "Id": "9fd83240-7fdb-6d68-8c5d-cd2793d4eb4b",
       "Name": {
         "mxj": "Chief"
       },
+      "Abbreviation": {},
       "Code": "Cambridgeshire",
+      "Description": {},
+      "OcmCodes": "",
+      "LouwNidaCodes": "",
       "DeletedAt": null,
       "Predefined": false
     },
@@ -33,15 +101,222 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "SemanticDomain",
+      "Id": "a0984b79-7e88-f875-d4c7-29d3a6f38949",
+      "Name": {
+        "mvm": "Awesome Concrete Bacon",
+        "dby": "Regional",
+        "ubu": "alarm"
+      },
+      "Abbreviation": {
+        "mrw": "Pennsylvania",
+        "tgv": "Handcrafted"
+      },
+      "Code": "Pennsylvania",
+      "Description": {
+        "zgn": {
+          "Spans": [
+            {
+              "Text": "Shoes",
+              "Ws": "zgn",
+              "Tags": [
+                "b749042f-a701-4b23-91a8-c80c763b2439"
+              ]
+            },
+            {
+              "Text": "Bedfordshire",
+              "Ws": "yky",
+              "Bold": "Invert",
+              "FontSize": -685314353,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "68b9b959-83e8-ba7d-9519-dd1d4478dd9c"
+              ]
+            },
+            {
+              "Text": "portals",
+              "Ws": "ekg",
+              "Bold": "Off",
+              "FontSize": -472235811,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "10b9180d-2a9a-8a93-92ad-ef09898092ab"
+              ]
+            }
+          ]
+        },
+        "pur": {
+          "Spans": [
+            {
+              "Text": "convergence",
+              "Ws": "nxe",
+              "Bold": "Off",
+              "FontSize": 1866281189,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "f2fa8737-ea48-b1c8-7ba3-afe638f4c76e"
+              ]
+            },
+            {
+              "Text": "Analyst",
+              "Ws": "vmz",
+              "Bold": "On",
+              "FontSize": 579238591,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "35a17805-1f2a-e266-b066-5d1543fc4697"
+              ]
+            },
+            {
+              "Text": "deposit",
+              "Ws": "pur",
+              "Tags": [
+                "88c12736-91cb-4169-99e6-7683691774c7"
+              ]
+            },
+            {
+              "Text": "eyeballs",
+              "Ws": "pur",
+              "Tags": [
+                "59b364b3-c82d-40e6-ab80-08aeb11c5c65"
+              ]
+            }
+          ]
+        },
+        "has": {
+          "Spans": [
+            {
+              "Text": "AGP",
+              "Ws": "gft",
+              "Bold": "Invert",
+              "FontSize": 1357451558,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "84ec7299-cd10-260b-a00b-3866d5b92ec9"
+              ]
+            },
+            {
+              "Text": "calculate",
+              "Ws": "has",
+              "Tags": [
+                "513cc9df-fdd1-49d9-8b6d-05b7290ac92b"
+              ]
+            },
+            {
+              "Text": "Liaison",
+              "Ws": "rmb",
+              "Bold": "Off",
+              "FontSize": -1514627812,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "772176d8-8757-4a59-51f7-7f32609816c8"
+              ]
+            },
+            {
+              "Text": "indexing",
+              "Ws": "gas",
+              "Bold": "Invert",
+              "FontSize": -1537258743,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "870231b9-7e48-ecb4-f1c2-afb5daa8efde"
+              ]
+            }
+          ]
+        },
+        "mho": {
+          "Spans": [
+            {
+              "Text": "Directives",
+              "Ws": "ldo",
+              "Bold": "Off",
+              "FontSize": 1926797000,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "dbc81e08-0379-7306-59ae-f4b618661083"
+              ]
+            },
+            {
+              "Text": "bandwidth",
+              "Ws": "dbv",
+              "Bold": "Invert",
+              "FontSize": 1508239382,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "9d8cf3ee-d1e0-62ff-76be-32077f887fb8"
+              ]
+            },
+            {
+              "Text": "card",
+              "Ws": "mho",
+              "Tags": [
+                "009725b1-4a04-4e27-afeb-9eeda028af13"
+              ]
+            }
+          ]
+        }
+      },
+      "OcmCodes": "Avon",
+      "LouwNidaCodes": "metrics",
+      "DeletedAt": null,
+      "Predefined": false
+    },
+    "Id": "a0984b79-7e88-f875-d4c7-29d3a6f38949",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "SemanticDomain",
       "Id": "962941b2-66bd-437f-aadc-b1921bcae5b4",
       "Name": {
         "en": "Poison"
       },
+      "Abbreviation": {},
       "Code": "2.5.3.2",
+      "Description": {},
+      "OcmCodes": "",
+      "LouwNidaCodes": "",
       "DeletedAt": null,
       "Predefined": false
     },
     "Id": "962941b2-66bd-437f-aadc-b1921bcae5b4",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "SemanticDomain",
+      "Id": "ef5cb328-6aab-ec0a-2b7f-d7b25e54e359",
+      "Name": {
+        "ttv": "Clothing, Beauty \u0026 Toys",
+        "aia": "Officer",
+        "plh": "Nicaragua"
+      },
+      "Abbreviation": {
+        "llh": "Parkways",
+        "bxp": "Multi-lateral",
+        "az": "EXE"
+      },
+      "Code": "Parkways",
+      "Description": {
+        "nyb": {
+          "Spans": [
+            {
+              "Text": "support",
+              "Ws": "nyb",
+              "Tags": [
+                "a5e5f6c1-d720-4b6e-b0a5-cd5beca7081b"
+              ]
+            }
+          ]
+        }
+      },
+      "OcmCodes": "Rustic",
+      "LouwNidaCodes": "Handcrafted",
+      "DeletedAt": null,
+      "Predefined": false
+    },
+    "Id": "ef5cb328-6aab-ec0a-2b7f-d7b25e54e359",
     "DeletedAt": null
   },
   {
@@ -55,11 +330,51 @@
         "wku": "Small Frozen Pants",
         "tvw": "Terrace"
       },
+      "Abbreviation": {},
       "Code": "Myanmar",
+      "Description": {},
+      "OcmCodes": "",
+      "LouwNidaCodes": "",
       "DeletedAt": null,
       "Predefined": false
     },
     "Id": "6c54b75f-23fb-bbf2-a6a0-33418f0f311b",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "SemanticDomain",
+      "Id": "793be15c-a6c9-6f1f-0484-41b1c39077cf",
+      "Name": {
+        "aih": "synthesize"
+      },
+      "Abbreviation": {
+        "atb": "Nebraska",
+        "oki": "Generic Soft Bacon",
+        "bla": "New Jersey",
+        "jay": "Generic"
+      },
+      "Code": "Nebraska",
+      "Description": {
+        "sta": {
+          "Spans": [
+            {
+              "Text": "Consultant",
+              "Ws": "sta",
+              "Tags": [
+                "55428614-884a-4dcf-866b-d73cbcdef3b0"
+              ]
+            }
+          ]
+        }
+      },
+      "OcmCodes": "orchid",
+      "LouwNidaCodes": "backing up",
+      "DeletedAt": null,
+      "Predefined": false
+    },
+    "Id": "793be15c-a6c9-6f1f-0484-41b1c39077cf",
     "DeletedAt": null
   },
   {
@@ -1101,7 +1416,11 @@
             "tay": "Borders",
             "hle": "1080p"
           },
+          "Abbreviation": {},
           "Code": "Gorgeous",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -1194,6 +1513,191 @@
       ]
     },
     "Id": "a7d178a9-1815-9673-a50e-12f1e9f2e88c",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
+      "Id": "4acef8a6-3390-be78-52a4-63a5562e7978",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "44150472-5e8d-d06f-fc10-3ee18551069b",
+      "Definition": {
+        "kuj": {
+          "Spans": [
+            {
+              "Text": "Tools",
+              "Ws": "kuj",
+              "Tags": [
+                "9399e2e7-31bb-479a-a66f-1649375b3ad9"
+              ]
+            },
+            {
+              "Text": "Balboa",
+              "Ws": "kuj",
+              "Tags": [
+                "6c8807b5-c844-48e0-84c1-8ae53c892303"
+              ]
+            },
+            {
+              "Text": "Outdoors, Music \u0026 Electronics",
+              "Ws": "ceg",
+              "Bold": "Off",
+              "FontSize": 217582781,
+              "ForeColor": "#ADFF2F",
+              "Tags": [
+                "aa1099da-319b-838f-2d3e-1ecc1d24b2ca"
+              ]
+            },
+            {
+              "Text": "Secured",
+              "Ws": "kvg",
+              "Bold": "Off",
+              "FontSize": -266126621,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "29046057-4c51-55be-e8da-86d86f249f98"
+              ]
+            }
+          ]
+        },
+        "fuh": {
+          "Spans": [
+            {
+              "Text": "Falls",
+              "Ws": "fuh",
+              "Tags": [
+                "070f7432-939f-46d7-875e-8008c6252c92"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "agt": "regional",
+        "yi": "interfaces"
+      },
+      "PartOfSpeech": {
+        "Id": "738707a7-b472-87ae-cd0a-2f81269f7551",
+        "Name": {
+          "dln": "Bridge",
+          "woc": "platforms",
+          "jmi": "infomediaries",
+          "yai": "Baby \u0026 Clothing"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "3335d9bb-2f1d-17f9-e305-65042a0e0ecc",
+      "SemanticDomains": [
+        {
+          "Id": "a12f6f21-35a4-93b8-a89a-4532575bf9f9",
+          "Name": {
+            "rol": "invoice",
+            "jac": "enhance"
+          },
+          "Abbreviation": {
+            "djj": "Berkshire",
+            "zsm": "Personal Loan Account",
+            "hud": "cohesive",
+            "gei": "connect"
+          },
+          "Code": "Berkshire",
+          "Description": {
+            "kev": {
+              "Spans": [
+                {
+                  "Text": "deposit",
+                  "Ws": "mgk",
+                  "Bold": "Invert",
+                  "FontSize": 1103445087,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "04346e65-80ac-bdd3-7e6e-3e5e2ede3a3b"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "input",
+          "LouwNidaCodes": "calculating",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "11bfd273-1474-9357-1a0b-c7ed1c6941c8",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "xki": {
+              "Spans": [
+                {
+                  "Text": "Cape Verde Escudo",
+                  "Ws": "xki",
+                  "Tags": [
+                    "af847938-787b-47a1-8225-299868326beb"
+                  ]
+                },
+                {
+                  "Text": "Mission",
+                  "Ws": "kls",
+                  "Bold": "Off",
+                  "FontSize": 1673299871,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "12973378-ba39-ed39-2e47-5f0b9f7a6dab"
+                  ]
+                }
+              ]
+            },
+            "ipo": {
+              "Spans": [
+                {
+                  "Text": "enhance",
+                  "Ws": "ipo",
+                  "Tags": [
+                    "6b682dd7-f7df-4622-a1c8-7b6a89fdffd8"
+                  ]
+                },
+                {
+                  "Text": "Ergonomic Plastic Tuna",
+                  "Ws": "mdr",
+                  "Bold": "Off",
+                  "FontSize": 839302435,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "bf7353a7-3130-645e-3fbe-7b3c25ee9419"
+                  ]
+                },
+                {
+                  "Text": "Maine",
+                  "Ws": "ipo",
+                  "Tags": [
+                    "f2af176f-a0bf-4200-b4b4-ed3dd8e0ce82"
+                  ]
+                }
+              ]
+            },
+            "mos": {
+              "Spans": [
+                {
+                  "Text": "Oregon",
+                  "Ws": "mos",
+                  "Tags": [
+                    "00c856ec-89dd-4edd-8ec6-96955e75ec5b"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "4acef8a6-3390-be78-52a4-63a5562e7978",
     "DeletedAt": null
   },
   {
@@ -1347,7 +1851,11 @@
           "Name": {
             "gmg": "Berkshire"
           },
+          "Abbreviation": {},
           "Code": "composite",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -1464,6 +1972,285 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "Sense",
+      "Id": "8dfeab87-ff97-7007-4ceb-76404c80ed14",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "ea59be1d-41a1-e378-ded3-5d0c8b348fbb",
+      "Definition": {
+        "xwk": {
+          "Spans": [
+            {
+              "Text": "plug-and-play",
+              "Ws": "xwk",
+              "Tags": [
+                "cfdc09ef-b615-4731-aae4-a329bc629ea1"
+              ]
+            },
+            {
+              "Text": "Refined Steel Ball",
+              "Ws": "xwk",
+              "Tags": [
+                "04a2a7bb-d022-44da-a2b4-00e022b8bc2b"
+              ]
+            },
+            {
+              "Text": "Guarani",
+              "Ws": "xwk",
+              "Tags": [
+                "0190f301-3f75-4ef7-962e-f148e2d76b85"
+              ]
+            }
+          ]
+        },
+        "mwb": {
+          "Spans": [
+            {
+              "Text": "optical",
+              "Ws": "bxw",
+              "Bold": "Invert",
+              "FontSize": -35905699,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "e2c68927-59df-2641-511f-3ef907c0dc58"
+              ]
+            }
+          ]
+        },
+        "dww": {
+          "Spans": [
+            {
+              "Text": "IB",
+              "Ws": "jle",
+              "Bold": "Off",
+              "FontSize": -351116943,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "eb322d72-3748-34e8-e736-551e1697d233"
+              ]
+            },
+            {
+              "Text": "Executive",
+              "Ws": "dww",
+              "Tags": [
+                "1c295ec2-cedf-4697-a48e-a5c6a9afc88d"
+              ]
+            },
+            {
+              "Text": "transmitting",
+              "Ws": "dww",
+              "Tags": [
+                "70eed390-42de-494a-bd7f-657fd1a84902"
+              ]
+            },
+            {
+              "Text": "Summit",
+              "Ws": "dgi",
+              "Bold": "Invert",
+              "FontSize": -99063725,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "187ab699-0530-4d91-4e08-874f6c999310"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "sbi": "Accountability",
+        "ndb": "Handmade"
+      },
+      "PartOfSpeech": {
+        "Id": "84f5e9d2-cb08-6250-69e8-845c41439b0e",
+        "Name": {
+          "lsr": "Turkey",
+          "ro": "SDD",
+          "bkp": "SDD",
+          "mfn": "copy"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "deed6a41-c73d-5b85-59ac-ce36ac0ff0e7",
+      "SemanticDomains": [
+        {
+          "Id": "11c24540-ca87-73a0-a0c4-cc4bb80e2352",
+          "Name": {
+            "gnd": "Communications",
+            "bgj": "Avon",
+            "adb": "Borders"
+          },
+          "Abbreviation": {
+            "puq": "Throughway"
+          },
+          "Code": "Throughway",
+          "Description": {
+            "omo": {
+              "Spans": [
+                {
+                  "Text": "hack",
+                  "Ws": "omo",
+                  "Tags": [
+                    "42554592-f3bc-4cab-bf46-e5a15c731fb0"
+                  ]
+                },
+                {
+                  "Text": "Chief",
+                  "Ws": "omo",
+                  "Tags": [
+                    "e6242199-e101-4b92-9d62-73c1bc3b213e"
+                  ]
+                },
+                {
+                  "Text": "action-items",
+                  "Ws": "bbd",
+                  "Bold": "Off",
+                  "FontSize": 719527583,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "df4bb2a6-aeae-8f8d-af39-c756b7a92fb7"
+                  ]
+                }
+              ]
+            },
+            "hrr": {
+              "Spans": [
+                {
+                  "Text": "Representative",
+                  "Ws": "azo",
+                  "Bold": "Invert",
+                  "FontSize": -1934064208,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "20789a87-37d0-92e5-906d-e0f718a7018f"
+                  ]
+                },
+                {
+                  "Text": "sensor",
+                  "Ws": "hrr",
+                  "Tags": [
+                    "55cfa2ec-6c8a-4a66-b726-e6dfce7642b3"
+                  ]
+                },
+                {
+                  "Text": "Web",
+                  "Ws": "law",
+                  "Bold": "On",
+                  "FontSize": 1771904306,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "350feaec-9003-939f-331b-756622795059"
+                  ]
+                }
+              ]
+            },
+            "pug": {
+              "Spans": [
+                {
+                  "Text": "bypass",
+                  "Ws": "pug",
+                  "Tags": [
+                    "21d8ae11-9084-432e-b2a6-28006e545c9d"
+                  ]
+                },
+                {
+                  "Text": "Direct",
+                  "Ws": "bwm",
+                  "Bold": "Off",
+                  "FontSize": -1759606016,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "665274f8-e702-5b7d-fede-0dc7cec9512e"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "Liaison",
+          "LouwNidaCodes": "Yemeni Rial",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "bf5b5048-bab1-6e88-832f-3cfdcf3370f1",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "mjz": {
+              "Spans": [
+                {
+                  "Text": "feed",
+                  "Ws": "bug",
+                  "Bold": "Off",
+                  "FontSize": -2058183479,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "00f19ea3-8e80-447b-57de-f85c615439f2"
+                  ]
+                },
+                {
+                  "Text": "transparent",
+                  "Ws": "mjz",
+                  "Tags": [
+                    "25630eb3-f623-42ff-8f84-cc8fb508e0d4"
+                  ]
+                },
+                {
+                  "Text": "24/7",
+                  "Ws": "cnh",
+                  "Bold": "Off",
+                  "FontSize": 1290751029,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "8ea627c1-d17e-66f5-2a41-f45147ad1369"
+                  ]
+                },
+                {
+                  "Text": "generating",
+                  "Ws": "mjz",
+                  "Tags": [
+                    "e3d265a0-9986-402d-b0be-a41102e4fa0f"
+                  ]
+                }
+              ]
+            },
+            "guo": {
+              "Spans": [
+                {
+                  "Text": "leading-edge",
+                  "Ws": "fni",
+                  "Bold": "On",
+                  "FontSize": -1750118627,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "97b2158a-77c9-f7fc-d115-4e3c1f571d1b"
+                  ]
+                },
+                {
+                  "Text": "Manat",
+                  "Ws": "mym",
+                  "Bold": "Invert",
+                  "FontSize": -520651277,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "8e195108-ae8d-ee57-a212-1e68406bf1ee"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "8dfeab87-ff97-7007-4ceb-76404c80ed14",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
       "Id": "11c4d394-1e03-603c-95a0-86a482d278c5",
       "Order": 0,
       "DeletedAt": null,
@@ -1530,7 +2317,11 @@
             "bje": "copying",
             "owl": "Savings Account"
           },
+          "Abbreviation": {},
           "Code": "synthesize",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -1539,6 +2330,302 @@
       "Pictures": []
     },
     "Id": "11c4d394-1e03-603c-95a0-86a482d278c5",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
+      "Id": "2307e687-a4d0-fb10-067f-9eaa7cf392ff",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "ba4355d9-1462-d0d5-339b-15e15808bae8",
+      "Definition": {
+        "udg": {
+          "Spans": [
+            {
+              "Text": "Senior",
+              "Ws": "udg",
+              "Tags": [
+                "4d81d896-c279-4d9a-ab24-d509954c2ae8"
+              ]
+            },
+            {
+              "Text": "Cambridgeshire",
+              "Ws": "udg",
+              "Tags": [
+                "f9e7d913-3123-4ef8-83ca-11b8a57394e4"
+              ]
+            }
+          ]
+        },
+        "xap": {
+          "Spans": [
+            {
+              "Text": "Unbranded",
+              "Ws": "wry",
+              "Bold": "Invert",
+              "FontSize": 807836057,
+              "ForeColor": "#ADFF2F",
+              "Tags": [
+                "8e449a3c-3ec7-e998-1294-21fd77b739a8"
+              ]
+            },
+            {
+              "Text": "parse",
+              "Ws": "cav",
+              "Bold": "Invert",
+              "FontSize": 387972884,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "5ba9cbb7-d566-946b-2d76-a4fd0240c718"
+              ]
+            },
+            {
+              "Text": "Cambridgeshire",
+              "Ws": "xap",
+              "Tags": [
+                "a53a3216-d2af-464b-a99c-dfd655de7329"
+              ]
+            },
+            {
+              "Text": "TCP",
+              "Ws": "xap",
+              "Tags": [
+                "956b815a-32c0-4701-b32a-35a027308083"
+              ]
+            }
+          ]
+        },
+        "bfu": {
+          "Spans": [
+            {
+              "Text": "Profound",
+              "Ws": "bfu",
+              "Tags": [
+                "2e7543b3-8c59-45da-b236-80193191a8da"
+              ]
+            },
+            {
+              "Text": "maroon",
+              "Ws": "bfu",
+              "Tags": [
+                "312bd3b9-ce92-429f-8f87-02789f7ec90c"
+              ]
+            },
+            {
+              "Text": "Awesome",
+              "Ws": "bfu",
+              "Tags": [
+                "dc31af5e-97f5-4866-b4e9-87972b1b8f1d"
+              ]
+            },
+            {
+              "Text": "Visionary",
+              "Ws": "ium",
+              "Bold": "On",
+              "FontSize": 549924641,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "6e892739-13a1-7e8d-70b3-180acd1e9ae0"
+              ]
+            }
+          ]
+        },
+        "kno": {
+          "Spans": [
+            {
+              "Text": "THX",
+              "Ws": "kno",
+              "Tags": [
+                "a8297c6d-3895-4c2a-9c99-d45e06cd57b1"
+              ]
+            },
+            {
+              "Text": "holistic",
+              "Ws": "kno",
+              "Tags": [
+                "74e10c0e-6a92-477d-8a2a-2998e030c810"
+              ]
+            },
+            {
+              "Text": "Monaco",
+              "Ws": "rna",
+              "Bold": "Off",
+              "FontSize": 1087947093,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "e7348bd7-a1f3-86fd-ebc7-b0b5d45deacf"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "csz": "Focused",
+        "pav": "Islands",
+        "duf": "ivory"
+      },
+      "PartOfSpeech": {
+        "Id": "ebd2b158-1b24-282f-fd54-cab09fc25dd0",
+        "Name": {
+          "krz": "disintermediate",
+          "oni": "Pre-emptive",
+          "kyf": "Dynamic",
+          "irn": "generating"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "5b6b5072-65e2-2260-9d71-93e726b91ea4",
+      "SemanticDomains": [
+        {
+          "Id": "0c290595-f817-eb75-89b9-4ec357600130",
+          "Name": {
+            "ykr": "Research"
+          },
+          "Abbreviation": {
+            "sdm": "Texas",
+            "mck": "Concrete"
+          },
+          "Code": "Texas",
+          "Description": {
+            "akk": {
+              "Spans": [
+                {
+                  "Text": "Exclusive",
+                  "Ws": "yae",
+                  "Bold": "Off",
+                  "FontSize": -505026221,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "71731c48-d6f6-c68e-09d1-578ce24276f3"
+                  ]
+                },
+                {
+                  "Text": "Director",
+                  "Ws": "fiw",
+                  "Bold": "Off",
+                  "FontSize": -364188074,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "256015e2-e50d-0764-ed2f-b8ceff2e24d6"
+                  ]
+                },
+                {
+                  "Text": "technologies",
+                  "Ws": "akk",
+                  "Tags": [
+                    "763923cc-52b6-491b-b7ec-7e3f5f731344"
+                  ]
+                },
+                {
+                  "Text": "Passage",
+                  "Ws": "ywt",
+                  "Bold": "On",
+                  "FontSize": -1242425888,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "dd441779-c048-27f6-1487-8b92c686cf2f"
+                  ]
+                }
+              ]
+            },
+            "nys": {
+              "Spans": [
+                {
+                  "Text": "invoice",
+                  "Ws": "tbv",
+                  "Bold": "On",
+                  "FontSize": 1032091183,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "922ecaf7-e43c-6e20-06e3-bea1e8bde6c7"
+                  ]
+                },
+                {
+                  "Text": "optical",
+                  "Ws": "wut",
+                  "Bold": "Invert",
+                  "FontSize": -667286982,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "24d7f3a1-d4ae-160b-d01c-c7ed9deb7ac3"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "1080p",
+          "LouwNidaCodes": "Home Loan Account",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "dc1a409f-859f-62b3-1fed-2d3520dad02f",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "apx": {
+              "Spans": [
+                {
+                  "Text": "connect",
+                  "Ws": "apx",
+                  "Tags": [
+                    "bec665a5-55b2-446d-9cb5-a24e2fed1b47"
+                  ]
+                },
+                {
+                  "Text": "Optimization",
+                  "Ws": "bfx",
+                  "Bold": "Off",
+                  "FontSize": 992638610,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "0251d68f-51f5-6e0b-3589-e3c37f206c0a"
+                  ]
+                }
+              ]
+            },
+            "gwm": {
+              "Spans": [
+                {
+                  "Text": "Auto Loan Account",
+                  "Ws": "gwm",
+                  "Tags": [
+                    "67af5791-ec97-40f3-9a6d-a646a4d9c3c8"
+                  ]
+                },
+                {
+                  "Text": "Cross-group",
+                  "Ws": "jbk",
+                  "Bold": "Off",
+                  "FontSize": -69254604,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "107da833-f2cb-5410-3701-14f962573b5d"
+                  ]
+                },
+                {
+                  "Text": "back-end",
+                  "Ws": "sgy",
+                  "Bold": "Off",
+                  "FontSize": -79398159,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "81a9ca1c-7822-fa91-8dad-bb7fe5675fb9"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "2307e687-a4d0-fb10-067f-9eaa7cf392ff",
     "DeletedAt": null
   },
   {
@@ -1625,7 +2712,11 @@
           "Name": {
             "ulk": "white"
           },
+          "Abbreviation": {},
           "Code": "SSL",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -1670,6 +2761,354 @@
       ]
     },
     "Id": "4f3be7d1-5e3d-ae3d-e207-c429480617d6",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
+      "Id": "542f78a0-a689-1af5-e51a-0fc4e5d2410d",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "93448ec5-1028-2656-af10-d4c603f7c13f",
+      "Definition": {
+        "tms": {
+          "Spans": [
+            {
+              "Text": "connect",
+              "Ws": "kye",
+              "Bold": "Off",
+              "FontSize": -773507619,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "6a671dfa-7fff-ec9d-c4d8-dcfe1b0b72db"
+              ]
+            }
+          ]
+        },
+        "tda": {
+          "Spans": [
+            {
+              "Text": "Rustic Soft Cheese",
+              "Ws": "bzi",
+              "Bold": "Off",
+              "FontSize": -1187734877,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "c005deff-94ee-ff12-c0e5-b61540a58e87"
+              ]
+            },
+            {
+              "Text": "6th generation",
+              "Ws": "tda",
+              "Tags": [
+                "8a5201b7-434e-4653-a24a-6728e941afad"
+              ]
+            },
+            {
+              "Text": "synergies",
+              "Ws": "tda",
+              "Tags": [
+                "94c6ccdb-9138-440a-b259-5ff132d083e7"
+              ]
+            },
+            {
+              "Text": "Customizable",
+              "Ws": "jdg",
+              "Bold": "Off",
+              "FontSize": -1501015841,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "cc992579-b071-419a-f90e-f14e0934437e"
+              ]
+            }
+          ]
+        },
+        "ssz": {
+          "Spans": [
+            {
+              "Text": "Borders",
+              "Ws": "smv",
+              "Bold": "On",
+              "FontSize": 1494634100,
+              "ForeColor": "#ADFF2F",
+              "Tags": [
+                "4b9aec83-ee67-061e-f598-42fb865344e9"
+              ]
+            },
+            {
+              "Text": "Quality",
+              "Ws": "smr",
+              "Bold": "On",
+              "FontSize": 1028159201,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "692a5499-a2ac-f9f1-ab22-0d9c866e84a9"
+              ]
+            },
+            {
+              "Text": "bandwidth",
+              "Ws": "ssz",
+              "Tags": [
+                "a94bde12-e5f7-496e-a927-91e2149104f2"
+              ]
+            },
+            {
+              "Text": "Home Loan Account",
+              "Ws": "fui",
+              "Bold": "On",
+              "FontSize": -1258777637,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "a5e509ac-0466-150f-6755-df37119b6255"
+              ]
+            }
+          ]
+        },
+        "laz": {
+          "Spans": [
+            {
+              "Text": "cross-platform",
+              "Ws": "laz",
+              "Tags": [
+                "f6730030-73b8-4d14-a5a7-51fdfcf9e800"
+              ]
+            },
+            {
+              "Text": "transform",
+              "Ws": "vmm",
+              "Bold": "Invert",
+              "FontSize": 1441194191,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "96f215a6-5701-a8bf-734b-284844d22d68"
+              ]
+            },
+            {
+              "Text": "benchmark",
+              "Ws": "gbn",
+              "Bold": "Off",
+              "FontSize": 1694409672,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "764ae70b-1601-3f49-589d-94d41ce25973"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "xpm": "pixel",
+        "pbm": "Dominican Republic",
+        "umu": "lavender",
+        "urp": "Colorado"
+      },
+      "PartOfSpeech": {
+        "Id": "3fae0688-a597-1647-c727-bd4882aaa535",
+        "Name": {
+          "eud": "GB",
+          "dnw": "West Virginia",
+          "bhy": "array",
+          "bub": "bottom-line"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "6bb7d9aa-a54e-2293-9dfe-894a5d3f3a2a",
+      "SemanticDomains": [
+        {
+          "Id": "450c689b-010a-861d-9fa6-c8eda32efc65",
+          "Name": {
+            "mdk": "next generation",
+            "sq": "deposit",
+            "nct": "Oregon",
+            "mak": "maximized"
+          },
+          "Abbreviation": {
+            "zoo": "Computers \u0026 Baby",
+            "bbi": "circuit",
+            "osx": "Intranet",
+            "yba": "Intranet"
+          },
+          "Code": "Computers \u0026 Baby",
+          "Description": {
+            "lmk": {
+              "Spans": [
+                {
+                  "Text": "parsing",
+                  "Ws": "cow",
+                  "Bold": "On",
+                  "FontSize": 1505962195,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "b5a06730-4efe-9133-1b15-1be9f68639c1"
+                  ]
+                },
+                {
+                  "Text": "demand-driven",
+                  "Ws": "lmk",
+                  "Tags": [
+                    "12d76865-390e-4e01-97a5-94e5a5c054eb"
+                  ]
+                },
+                {
+                  "Text": "circuit",
+                  "Ws": "lmk",
+                  "Tags": [
+                    "ba438d42-4b70-449d-a830-df0cb32fbce7"
+                  ]
+                },
+                {
+                  "Text": "web-readiness",
+                  "Ws": "max",
+                  "Bold": "Invert",
+                  "FontSize": 1000674404,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "f25d420d-e83e-5580-0c0a-700174de62c5"
+                  ]
+                }
+              ]
+            },
+            "dac": {
+              "Spans": [
+                {
+                  "Text": "Sleek",
+                  "Ws": "dac",
+                  "Tags": [
+                    "01d7a6e8-2b1c-4be2-a9ba-9e4129e74b0d"
+                  ]
+                },
+                {
+                  "Text": "gold",
+                  "Ws": "dac",
+                  "Tags": [
+                    "44755518-d3a4-49c0-be18-c72f3f8c1a32"
+                  ]
+                },
+                {
+                  "Text": "Executive",
+                  "Ws": "onj",
+                  "Bold": "Off",
+                  "FontSize": 1417861021,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "ed70f70f-57fe-4443-cbc2-efc3e04c58d2"
+                  ]
+                },
+                {
+                  "Text": "Bulgarian Lev",
+                  "Ws": "dac",
+                  "Tags": [
+                    "a27dc093-d3ae-436a-aebe-b44f43ca7a15"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "Underpass",
+          "LouwNidaCodes": "XML",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "01989924-50f2-4f02-6efa-5b263514ff9e",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "nxu": {
+              "Spans": [
+                {
+                  "Text": "teal",
+                  "Ws": "nxu",
+                  "Tags": [
+                    "8c71f820-fd5c-482b-a3cd-d3f2afe97da3"
+                  ]
+                },
+                {
+                  "Text": "facilitate",
+                  "Ws": "nxu",
+                  "Tags": [
+                    "a4d57d33-d3cd-4ea6-9b04-d2283d28ea9c"
+                  ]
+                }
+              ]
+            },
+            "xgr": {
+              "Spans": [
+                {
+                  "Text": "circuit",
+                  "Ws": "xgr",
+                  "Tags": [
+                    "0ac87bf0-685e-4908-b14e-97c4e4bcdfa0"
+                  ]
+                },
+                {
+                  "Text": "SDD",
+                  "Ws": "xgr",
+                  "Tags": [
+                    "077d6d81-bbbd-4ee7-ac73-b26f511d8eb6"
+                  ]
+                },
+                {
+                  "Text": "Managed",
+                  "Ws": "xgr",
+                  "Tags": [
+                    "7659180c-bcad-4ee5-9e41-6221458ace9d"
+                  ]
+                },
+                {
+                  "Text": "Programmable",
+                  "Ws": "xgr",
+                  "Tags": [
+                    "06e9a074-8fb3-4196-95b5-c9c1a6519ee7"
+                  ]
+                }
+              ]
+            },
+            "myy": {
+              "Spans": [
+                {
+                  "Text": "Analyst",
+                  "Ws": "onu",
+                  "Bold": "On",
+                  "FontSize": -1730171590,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "bc2713d7-5e3f-bca1-24b3-1e2d721dd7de"
+                  ]
+                },
+                {
+                  "Text": "Rubber",
+                  "Ws": "myy",
+                  "Tags": [
+                    "fe6bc95e-41f1-458f-a862-2730da4053f8"
+                  ]
+                }
+              ]
+            },
+            "ymp": {
+              "Spans": [
+                {
+                  "Text": "Checking Account",
+                  "Ws": "cui",
+                  "Bold": "On",
+                  "FontSize": -1669951459,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "d8d2bdff-74c8-6114-ce8b-87afbfc30f4d"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "542f78a0-a689-1af5-e51a-0fc4e5d2410d",
     "DeletedAt": null
   },
   {
@@ -1737,7 +3176,11 @@
             "etn": "Configurable",
             "xco": "Borders"
           },
+          "Abbreviation": {},
           "Code": "mint green",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -1820,6 +3263,284 @@
       ]
     },
     "Id": "e9d2b767-d15c-620d-fef9-498eca4c15df",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
+      "Id": "8adba1c4-4855-3623-9b16-426b8ec858c4",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "469f5d12-a983-f936-0352-05fb55f43f7c",
+      "Definition": {
+        "tlj": {
+          "Spans": [
+            {
+              "Text": "Handcrafted Steel Computer",
+              "Ws": "tlj",
+              "Tags": [
+                "9f247918-9fa9-4389-901a-035cbf05a7e9"
+              ]
+            },
+            {
+              "Text": "Center",
+              "Ws": "dgg",
+              "Bold": "Invert",
+              "FontSize": 1199318758,
+              "ForeColor": "#ADFF2F",
+              "Tags": [
+                "b79d188e-c179-c039-fcdf-72b13c0f939b"
+              ]
+            },
+            {
+              "Text": "withdrawal",
+              "Ws": "tlj",
+              "Tags": [
+                "f130e4a1-cba9-470e-baba-b77f8a7890fe"
+              ]
+            },
+            {
+              "Text": "cultivate",
+              "Ws": "tlj",
+              "Tags": [
+                "ed46e6cc-e80c-4159-8fdc-eeceefe647db"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "irn": "Plastic",
+        "tnu": "Small Cotton Chips",
+        "tik": "Equatorial Guinea"
+      },
+      "PartOfSpeech": {
+        "Id": "eb6d35ce-fc4a-9416-12bd-62ca09e37ae1",
+        "Name": {
+          "baa": "Configurable",
+          "bgl": "Legacy",
+          "tsd": "Personal Loan Account",
+          "wja": "deploy"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "5c74fbcb-593f-75ac-5ae0-882be49b07d8",
+      "SemanticDomains": [
+        {
+          "Id": "285e0219-d7aa-457c-4bf1-15d8e5a27798",
+          "Name": {
+            "gyi": "interface",
+            "kwg": "District",
+            "ncj": "web-enabled",
+            "ttn": "Berkshire"
+          },
+          "Abbreviation": {
+            "bqw": "Rustic Plastic Chicken",
+            "fir": "Oregon"
+          },
+          "Code": "Rustic Plastic Chicken",
+          "Description": {
+            "mgw": {
+              "Spans": [
+                {
+                  "Text": "Brand",
+                  "Ws": "rmf",
+                  "Bold": "On",
+                  "FontSize": -715091195,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "273c8ba3-27af-8246-cb8b-90b49697afac"
+                  ]
+                },
+                {
+                  "Text": "array",
+                  "Ws": "emz",
+                  "Bold": "On",
+                  "FontSize": 361479725,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "0d3feff7-c30a-335d-a654-d2f345d9afe3"
+                  ]
+                },
+                {
+                  "Text": "Credit Card Account",
+                  "Ws": "mgw",
+                  "Tags": [
+                    "0f2c3279-de07-407c-adbd-d72e207b581a"
+                  ]
+                }
+              ]
+            },
+            "kjq": {
+              "Spans": [
+                {
+                  "Text": "navigating",
+                  "Ws": "mvo",
+                  "Bold": "Off",
+                  "FontSize": 1217233905,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "6bde95bd-167e-0f0e-b2da-98db738c6faa"
+                  ]
+                },
+                {
+                  "Text": "alarm",
+                  "Ws": "kjq",
+                  "Tags": [
+                    "2ebbad68-f178-4e2e-ae65-2db77a03c99a"
+                  ]
+                },
+                {
+                  "Text": "Nevada",
+                  "Ws": "odt",
+                  "Bold": "On",
+                  "FontSize": -1524448779,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "cfd43ead-f37f-c5b8-ac25-6339565a21a5"
+                  ]
+                },
+                {
+                  "Text": "Christmas Island",
+                  "Ws": "kjq",
+                  "Tags": [
+                    "83802de7-9df8-4968-9875-b1b89269b3e0"
+                  ]
+                }
+              ]
+            },
+            "ghh": {
+              "Spans": [
+                {
+                  "Text": "programming",
+                  "Ws": "gic",
+                  "Bold": "On",
+                  "FontSize": 1890366517,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "91e5dbd7-6fa7-dc78-0755-f87a53c4384b"
+                  ]
+                },
+                {
+                  "Text": "deposit",
+                  "Ws": "fvr",
+                  "Bold": "Off",
+                  "FontSize": -485037510,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "985ec042-90aa-797b-05d0-19eaf6397521"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "Fresh",
+          "LouwNidaCodes": "Tasty Cotton Chips",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "d960df65-90b9-f278-f19f-eca49bab9409",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "stp": {
+              "Spans": [
+                {
+                  "Text": "Re-engineered",
+                  "Ws": "ffi",
+                  "Bold": "On",
+                  "FontSize": -635937948,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "3022da6f-7fc1-db91-515e-59c6a8574b2f"
+                  ]
+                }
+              ]
+            },
+            "zmb": {
+              "Spans": [
+                {
+                  "Text": "Ergonomic",
+                  "Ws": "ahl",
+                  "Bold": "Off",
+                  "FontSize": -489984917,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "49e955f0-e805-a1eb-808c-97e115537b4c"
+                  ]
+                }
+              ]
+            },
+            "mfp": {
+              "Spans": [
+                {
+                  "Text": "matrix",
+                  "Ws": "raz",
+                  "Bold": "Invert",
+                  "FontSize": 694152729,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "d5575ef5-1625-5df7-c067-df36940e0ef6"
+                  ]
+                },
+                {
+                  "Text": "Coordinator",
+                  "Ws": "mfp",
+                  "Tags": [
+                    "ea633c47-1f59-452a-a260-704c00614f7a"
+                  ]
+                },
+                {
+                  "Text": "collaborative",
+                  "Ws": "slp",
+                  "Bold": "On",
+                  "FontSize": -1205849755,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "061dd525-2c62-96ae-e632-84b0a039fe90"
+                  ]
+                },
+                {
+                  "Text": "paradigms",
+                  "Ws": "mfp",
+                  "Tags": [
+                    "1155932e-35cb-47bb-8901-797f28969f9e"
+                  ]
+                }
+              ]
+            },
+            "krz": {
+              "Spans": [
+                {
+                  "Text": "Rial Omani",
+                  "Ws": "krz",
+                  "Tags": [
+                    "17e16744-40bc-473e-972f-a21d8525aed0"
+                  ]
+                },
+                {
+                  "Text": "District",
+                  "Ws": "kzw",
+                  "Bold": "Off",
+                  "FontSize": -75115026,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "fe8e3cbb-6ef5-d54c-a46f-f0ad3b967504"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "8adba1c4-4855-3623-9b16-426b8ec858c4",
     "DeletedAt": null
   },
   {
@@ -1910,7 +3631,11 @@
             "bjy": "Montana",
             "ga": "neural-net"
           },
+          "Abbreviation": {},
           "Code": "Rand",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -1967,6 +3692,258 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "Sense",
+      "Id": "17cda451-798e-29dd-ee49-7c04dc66719e",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "970edb2e-613f-a4bf-c7ff-5f60d4fa7af1",
+      "Definition": {
+        "dei": {
+          "Spans": [
+            {
+              "Text": "Taka",
+              "Ws": "dei",
+              "Tags": [
+                "e52fbe5a-b92b-449d-b90d-cabb520e7286"
+              ]
+            }
+          ]
+        },
+        "mlx": {
+          "Spans": [
+            {
+              "Text": "Multi-tiered",
+              "Ws": "mlx",
+              "Tags": [
+                "bd534283-3e0a-42ff-890b-efdcf1e5b701"
+              ]
+            },
+            {
+              "Text": "Frozen",
+              "Ws": "mlx",
+              "Tags": [
+                "deb68d62-2420-474a-a226-49c62dc4529d"
+              ]
+            },
+            {
+              "Text": "customer loyalty",
+              "Ws": "mlx",
+              "Tags": [
+                "7bbf713c-ffae-455e-945e-16d373063bfe"
+              ]
+            },
+            {
+              "Text": "Credit Card Account",
+              "Ws": "mlx",
+              "Tags": [
+                "2a3d2a3d-7d10-4db0-9d2d-bc56d341382b"
+              ]
+            }
+          ]
+        },
+        "kzs": {
+          "Spans": [
+            {
+              "Text": "Computers",
+              "Ws": "kpz",
+              "Bold": "On",
+              "FontSize": 1422606478,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "3931a8f1-b402-da2d-7497-cdc3d7a98dba"
+              ]
+            },
+            {
+              "Text": "redundant",
+              "Ws": "kzs",
+              "Tags": [
+                "f4151f70-12f4-44ee-a61f-0adf13f37141"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "kdm": "tertiary"
+      },
+      "PartOfSpeech": {
+        "Id": "54b5b83d-dc19-96d6-5725-48a64d3a9381",
+        "Name": {
+          "lhs": "connect",
+          "tdo": "open-source",
+          "mwp": "Synergistic",
+          "wir": "open-source"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "46286523-ba3f-22f0-70a5-e2dc01460add",
+      "SemanticDomains": [
+        {
+          "Id": "c6ab16cb-6e98-e691-619e-1253b284542f",
+          "Name": {
+            "yeu": "Wooden"
+          },
+          "Abbreviation": {
+            "aly": "COM",
+            "mvz": "Refined Cotton Shirt",
+            "kuu": "seize"
+          },
+          "Code": "COM",
+          "Description": {
+            "wyy": {
+              "Spans": [
+                {
+                  "Text": "Buckinghamshire",
+                  "Ws": "zad",
+                  "Bold": "On",
+                  "FontSize": 377665266,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "eadc9533-7d9e-3a31-ae5c-e6b576e756cc"
+                  ]
+                },
+                {
+                  "Text": "Applications",
+                  "Ws": "wyy",
+                  "Tags": [
+                    "0ddb1590-302b-423f-a755-8bb1fe8317e6"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "Garden \u0026 Garden",
+          "LouwNidaCodes": "Administrator",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "ae7c2715-7ef3-6618-32e8-8b8a6501897d",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "mjw": {
+              "Spans": [
+                {
+                  "Text": "Cove",
+                  "Ws": "rmu",
+                  "Bold": "Off",
+                  "FontSize": -2061268859,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "0010f14f-74f0-1e1c-2b66-26f11401396a"
+                  ]
+                },
+                {
+                  "Text": "Borders",
+                  "Ws": "mjw",
+                  "Tags": [
+                    "46af774c-9ea7-43fd-9fbd-0e6c8ae622b4"
+                  ]
+                },
+                {
+                  "Text": "azure",
+                  "Ws": "mjw",
+                  "Tags": [
+                    "f0a0cf89-0b88-4503-ba52-94b7d44729a1"
+                  ]
+                }
+              ]
+            },
+            "mes": {
+              "Spans": [
+                {
+                  "Text": "interface",
+                  "Ws": "mes",
+                  "Tags": [
+                    "42eb20d3-11e2-4ec6-b83d-c0a2e09f6a9c"
+                  ]
+                },
+                {
+                  "Text": "Puerto Rico",
+                  "Ws": "nex",
+                  "Bold": "Invert",
+                  "FontSize": -297251575,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "dcc1bcc9-9b75-e2ca-c2bf-9381d4c1be7c"
+                  ]
+                },
+                {
+                  "Text": "Tasty Wooden Pizza",
+                  "Ws": "mes",
+                  "Tags": [
+                    "d2f36bc9-9727-4dc6-a66f-4d17ca72ae76"
+                  ]
+                }
+              ]
+            },
+            "nrc": {
+              "Spans": [
+                {
+                  "Text": "web-readiness",
+                  "Ws": "aoj",
+                  "Bold": "On",
+                  "FontSize": -1690951831,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "45598c40-a419-f9ce-499f-2241d78fe65a"
+                  ]
+                },
+                {
+                  "Text": "engineer",
+                  "Ws": "plk",
+                  "Bold": "On",
+                  "FontSize": 1178646207,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "8392b830-77af-2860-9b0e-be685d78890c"
+                  ]
+                },
+                {
+                  "Text": "Handmade Soft Hat",
+                  "Ws": "kyy",
+                  "Bold": "On",
+                  "FontSize": 1524161787,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "a30633b6-40f4-8e5c-70db-ec69ba326d3e"
+                  ]
+                },
+                {
+                  "Text": "didactic",
+                  "Ws": "nrc",
+                  "Tags": [
+                    "a24d58f0-4814-4064-b730-dd9b79901343"
+                  ]
+                }
+              ]
+            },
+            "nmi": {
+              "Spans": [
+                {
+                  "Text": "green",
+                  "Ws": "nmi",
+                  "Tags": [
+                    "d3bda030-ff87-495f-a809-df9a8a27e901"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "17cda451-798e-29dd-ee49-7c04dc66719e",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
       "Id": "7db9365a-9981-f773-9889-2ab959719212",
       "Order": 0,
       "DeletedAt": null,
@@ -2005,7 +3982,11 @@
             "leb": "Analyst",
             "kxm": "Avon"
           },
+          "Abbreviation": {},
           "Code": "Auto Loan Account",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -2133,6 +4114,356 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "Sense",
+      "Id": "cddb9fca-60b5-96a4-c428-280da1e3e0e6",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "049e9e5a-b905-1af6-4608-712a69c3957a",
+      "Definition": {
+        "crd": {
+          "Spans": [
+            {
+              "Text": "Zimbabwe Dollar",
+              "Ws": "nyn",
+              "Bold": "On",
+              "FontSize": 563429843,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "d5ffbe8d-b9d2-9ce9-7ac8-0abaca9bbe97"
+              ]
+            },
+            {
+              "Text": "Steel",
+              "Ws": "dhn",
+              "Bold": "On",
+              "FontSize": -282165959,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "7ff12ecf-c550-e73e-bf6e-2e7a83c40e40"
+              ]
+            },
+            {
+              "Text": "grow",
+              "Ws": "crd",
+              "Tags": [
+                "80f4a3b9-8d88-481e-a8da-a54655f544ec"
+              ]
+            },
+            {
+              "Text": "connecting",
+              "Ws": "crd",
+              "Tags": [
+                "6a29af14-5d9d-44bf-8fe2-69b8375b0f14"
+              ]
+            }
+          ]
+        },
+        "nuz": {
+          "Spans": [
+            {
+              "Text": "Delaware",
+              "Ws": "nuz",
+              "Tags": [
+                "d10527d5-fe7f-4618-99a5-8a1f59803b8e"
+              ]
+            }
+          ]
+        },
+        "mbh": {
+          "Spans": [
+            {
+              "Text": "Belize Dollar",
+              "Ws": "mbh",
+              "Tags": [
+                "df0639cb-446f-4fc1-b3e2-020a8519f4b6"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "mws": "Guadeloupe",
+        "duz": "scalable",
+        "azg": "Ergonomic",
+        "slu": "Illinois"
+      },
+      "PartOfSpeech": {
+        "Id": "e2ea913b-888b-1ccb-593e-eb8d34f0bcfd",
+        "Name": {
+          "xul": "Sleek Wooden Chicken",
+          "uan": "Health \u0026 Toys",
+          "krp": "Buckinghamshire"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "76b290e6-eb7b-0fa8-67b3-0abd6a769539",
+      "SemanticDomains": [
+        {
+          "Id": "22da75e3-0c8e-0a58-d8f6-ae9bfee05f4f",
+          "Name": {
+            "xyt": "intuitive"
+          },
+          "Abbreviation": {
+            "fag": "Plaza"
+          },
+          "Code": "Plaza",
+          "Description": {
+            "aft": {
+              "Spans": [
+                {
+                  "Text": "cyan",
+                  "Ws": "aft",
+                  "Tags": [
+                    "0f43d7f2-ec15-43b1-a46b-520d81dfd3f5"
+                  ]
+                },
+                {
+                  "Text": "intermediate",
+                  "Ws": "efi",
+                  "Bold": "Invert",
+                  "FontSize": -654768324,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "80b04350-1569-b50f-3d13-3da43ddaf54e"
+                  ]
+                },
+                {
+                  "Text": "Regional",
+                  "Ws": "aft",
+                  "Tags": [
+                    "67164806-875b-47df-bdfb-fd420155e81b"
+                  ]
+                }
+              ]
+            },
+            "gyg": {
+              "Spans": [
+                {
+                  "Text": "Slovenia",
+                  "Ws": "gyg",
+                  "Tags": [
+                    "73079ad8-f52d-4313-b9e1-32c42def2a24"
+                  ]
+                },
+                {
+                  "Text": "regional",
+                  "Ws": "zmx",
+                  "Bold": "Invert",
+                  "FontSize": 1618562448,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "d1da51af-31a2-132f-dd02-6e70ad4ad1ce"
+                  ]
+                }
+              ]
+            },
+            "kuv": {
+              "Spans": [
+                {
+                  "Text": "Fresh",
+                  "Ws": "kuv",
+                  "Tags": [
+                    "4d9949d7-fe21-457b-bec4-2131524751dd"
+                  ]
+                },
+                {
+                  "Text": "Consultant",
+                  "Ws": "tmd",
+                  "Bold": "Off",
+                  "FontSize": -1532719218,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "fcc04ea0-073b-9e9a-bb71-dfd1cb1402a1"
+                  ]
+                },
+                {
+                  "Text": "Fantastic Concrete Keyboard",
+                  "Ws": "kuv",
+                  "Tags": [
+                    "44deff03-6c63-4ca0-9775-7d3670c08b7c"
+                  ]
+                }
+              ]
+            },
+            "quk": {
+              "Spans": [
+                {
+                  "Text": "wireless",
+                  "Ws": "quk",
+                  "Tags": [
+                    "99ac9108-c013-473d-afff-62ca1783ed24"
+                  ]
+                },
+                {
+                  "Text": "Views",
+                  "Ws": "kkw",
+                  "Bold": "On",
+                  "FontSize": 559960546,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "84809f01-5d32-e266-8299-a95e8216de64"
+                  ]
+                },
+                {
+                  "Text": "Burgs",
+                  "Ws": "oj",
+                  "Bold": "Off",
+                  "FontSize": -1913635525,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "4911a153-f088-919f-1f77-d2cbde53a065"
+                  ]
+                },
+                {
+                  "Text": "scale",
+                  "Ws": "quk",
+                  "Tags": [
+                    "97368e81-42c3-4ad1-8521-1297673093ff"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "communities",
+          "LouwNidaCodes": "Netherlands Antilles",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "f0eed46f-1dba-9dbe-7c77-e6c1e2e55165",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "ljw": {
+              "Spans": [
+                {
+                  "Text": "open-source",
+                  "Ws": "ljw",
+                  "Tags": [
+                    "2233f82a-27ba-42f3-85b2-b26e81e25e8b"
+                  ]
+                },
+                {
+                  "Text": "Bedfordshire",
+                  "Ws": "ljw",
+                  "Tags": [
+                    "f8a31de3-c0a9-4546-b046-b4e44daab594"
+                  ]
+                },
+                {
+                  "Text": "circuit",
+                  "Ws": "ljw",
+                  "Tags": [
+                    "94073930-ad39-454e-aacc-4218c9b55252"
+                  ]
+                },
+                {
+                  "Text": "New Hampshire",
+                  "Ws": "ljw",
+                  "Tags": [
+                    "7b6ca1af-9007-45c2-9104-75430691f083"
+                  ]
+                }
+              ]
+            },
+            "mxo": {
+              "Spans": [
+                {
+                  "Text": "Auto Loan Account",
+                  "Ws": "mxf",
+                  "Bold": "Off",
+                  "FontSize": 1281929758,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "3121c0bc-de8e-f392-59fa-1438deaa79c3"
+                  ]
+                },
+                {
+                  "Text": "supply-chains",
+                  "Ws": "syc",
+                  "Bold": "Invert",
+                  "FontSize": -1922551935,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "b28129b2-9649-c8bb-38b8-0c951f63a799"
+                  ]
+                },
+                {
+                  "Text": "withdrawal",
+                  "Ws": "mxo",
+                  "Tags": [
+                    "3d6f5c75-d4df-4425-bd80-761711495f18"
+                  ]
+                },
+                {
+                  "Text": "cyan",
+                  "Ws": "mxo",
+                  "Tags": [
+                    "410a038d-15b8-4da5-8299-16f54cdda350"
+                  ]
+                }
+              ]
+            },
+            "bgz": {
+              "Spans": [
+                {
+                  "Text": "invoice",
+                  "Ws": "bgz",
+                  "Tags": [
+                    "8d86e3b8-7bdb-4d65-b1a0-52183c136059"
+                  ]
+                },
+                {
+                  "Text": "Garden",
+                  "Ws": "bgz",
+                  "Tags": [
+                    "f9819392-681c-4d77-9d69-d4bfce591ae9"
+                  ]
+                }
+              ]
+            },
+            "thi": {
+              "Spans": [
+                {
+                  "Text": "index",
+                  "Ws": "thi",
+                  "Tags": [
+                    "e203471e-657c-431a-b404-24c8e98e6dde"
+                  ]
+                },
+                {
+                  "Text": "generating",
+                  "Ws": "ktz",
+                  "Bold": "On",
+                  "FontSize": -440623568,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "8d221739-7b47-8cba-fb00-390eb4fbddc2"
+                  ]
+                },
+                {
+                  "Text": "Plastic",
+                  "Ws": "thi",
+                  "Tags": [
+                    "3bfbf8bf-b2a8-481f-8b10-172ff9df72a7"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "cddb9fca-60b5-96a4-c428-280da1e3e0e6",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
       "Id": "2a23a9ba-a548-a602-29c0-954512e3912b",
       "Order": 0,
       "DeletedAt": null,
@@ -2217,7 +4548,11 @@
             "llx": "digital",
             "ait": "Court"
           },
+          "Abbreviation": {},
           "Code": "Frozen",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -2226,6 +4561,207 @@
       "Pictures": []
     },
     "Id": "2a23a9ba-a548-a602-29c0-954512e3912b",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
+      "Id": "a7b785ec-18ff-fb73-2dfb-05415e5fc622",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "012c2c71-92fa-6dfb-5851-64f8a0a8ba88",
+      "Definition": {
+        "bhm": {
+          "Spans": [
+            {
+              "Text": "product",
+              "Ws": "bhm",
+              "Tags": [
+                "325ed432-2e1a-4296-942f-85adfcd364ed"
+              ]
+            }
+          ]
+        },
+        "ity": {
+          "Spans": [
+            {
+              "Text": "mindshare",
+              "Ws": "bhm",
+              "Bold": "Off",
+              "FontSize": -1336198038,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "6bcc1222-a41c-c8e9-d2b7-b155a70e94f8"
+              ]
+            },
+            {
+              "Text": "leading-edge",
+              "Ws": "gbl",
+              "Bold": "Invert",
+              "FontSize": -368014789,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "0cd2d375-a9a8-1198-3467-64e6f72d0ce7"
+              ]
+            },
+            {
+              "Text": "bypass",
+              "Ws": "ity",
+              "Tags": [
+                "5910751a-6d76-46db-ae0f-1e4e2b1d01ef"
+              ]
+            }
+          ]
+        },
+        "ota": {
+          "Spans": [
+            {
+              "Text": "program",
+              "Ws": "ota",
+              "Tags": [
+                "8d686481-7383-43e3-97e0-b591c0d30ec4"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "snx": "Stravenue",
+        "nsu": "Radial",
+        "bvc": "PCI",
+        "cnb": "cyan"
+      },
+      "PartOfSpeech": {
+        "Id": "fe18aa5d-86a9-4965-21ed-bb94556e2949",
+        "Name": {
+          "kok": "Plastic",
+          "ggb": "virtual"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "4fdaedfd-6192-40f8-070e-6566f170f3a9",
+      "SemanticDomains": [
+        {
+          "Id": "8973d4ab-6b0f-9e17-40ec-68e46f1a5adc",
+          "Name": {
+            "yiq": "Park",
+            "taw": "Personal Loan Account",
+            "abr": "hub",
+            "yes": "Global"
+          },
+          "Abbreviation": {
+            "trt": "pink",
+            "bpv": "Avon",
+            "sja": "system",
+            "kgw": "olive"
+          },
+          "Code": "pink",
+          "Description": {
+            "nmx": {
+              "Spans": [
+                {
+                  "Text": "impactful",
+                  "Ws": "jac",
+                  "Bold": "On",
+                  "FontSize": 737387577,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "b970f9af-7dd1-be7b-35d9-d6c62c82717e"
+                  ]
+                }
+              ]
+            },
+            "tau": {
+              "Spans": [
+                {
+                  "Text": "Metal",
+                  "Ws": "kdk",
+                  "Bold": "Invert",
+                  "FontSize": 1465945655,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "e75dd5ae-cf24-c97a-ff5c-0291ca329291"
+                  ]
+                }
+              ]
+            },
+            "xpg": {
+              "Spans": [
+                {
+                  "Text": "orange",
+                  "Ws": "wgw",
+                  "Bold": "Invert",
+                  "FontSize": 1376931620,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "b8886634-c188-1720-42d6-686a0d0e10ac"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "viral",
+          "LouwNidaCodes": "Sao Tome and Principe",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "1d3f19d4-df1a-a641-bc37-2badaa3f0273",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "kjl": {
+              "Spans": [
+                {
+                  "Text": "Hills",
+                  "Ws": "kjl",
+                  "Tags": [
+                    "eec936f2-f201-42b7-acbe-06e23e0282a7"
+                  ]
+                },
+                {
+                  "Text": "calculate",
+                  "Ws": "str",
+                  "Bold": "On",
+                  "FontSize": -1334491667,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "7ae3b71e-e2e3-a83c-e00d-513542397775"
+                  ]
+                }
+              ]
+            },
+            "sbh": {
+              "Spans": [
+                {
+                  "Text": "Borders",
+                  "Ws": "sbh",
+                  "Tags": [
+                    "bbd61a59-3c5c-41c2-8a6a-13efc8f57095"
+                  ]
+                },
+                {
+                  "Text": "transmit",
+                  "Ws": "gpe",
+                  "Bold": "On",
+                  "FontSize": 1286153016,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "8993187b-a1fc-9e53-e535-03c0f313b224"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "a7b785ec-18ff-fb73-2dfb-05415e5fc622",
     "DeletedAt": null
   },
   {
@@ -2273,7 +4809,11 @@
             "aif": "Bypass",
             "hms": "Future"
           },
+          "Abbreviation": {},
           "Code": "orange",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -2404,6 +4944,211 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "Sense",
+      "Id": "3d4dcd7c-647f-d0d6-f685-be073236df56",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "c83f3845-7695-9933-d020-3747df947039",
+      "Definition": {
+        "bhi": {
+          "Spans": [
+            {
+              "Text": "Response",
+              "Ws": "bhi",
+              "Tags": [
+                "08c6fdc3-964c-496b-b75d-e46297587f95"
+              ]
+            }
+          ]
+        },
+        "ity": {
+          "Spans": [
+            {
+              "Text": "Gorgeous Wooden Tuna",
+              "Ws": "jei",
+              "Bold": "On",
+              "FontSize": -837557161,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "097027c9-b644-6735-a95a-6c26c481dd62"
+              ]
+            },
+            {
+              "Text": "Principal",
+              "Ws": "ity",
+              "Tags": [
+                "076b4ecd-68e1-4b0d-9538-17d67218243f"
+              ]
+            },
+            {
+              "Text": "Generic Metal Gloves",
+              "Ws": "ity",
+              "Tags": [
+                "f6dc7eeb-fbf0-4441-a0e9-26e04013bd74"
+              ]
+            },
+            {
+              "Text": "Georgia",
+              "Ws": "ity",
+              "Tags": [
+                "2492457f-c9ac-46a9-903e-0db30de1627f"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "vkl": "Bedfordshire",
+        "kud": "Libyan Dinar"
+      },
+      "PartOfSpeech": {
+        "Id": "6cc41380-f27b-f55e-b7e9-9b8fa3a7ba78",
+        "Name": {
+          "lbv": "Mountain",
+          "sro": "Granite",
+          "klj": "North Dakota"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "101fe849-208c-101f-0824-ad384c8a5ff4",
+      "SemanticDomains": [
+        {
+          "Id": "ac40762b-71cf-74cf-00d9-82dd42777f99",
+          "Name": {
+            "kew": "Graphical User Interface",
+            "byy": "UAE Dirham",
+            "sri": "port",
+            "kk": "circuit"
+          },
+          "Abbreviation": {
+            "hur": "Enterprise-wide",
+            "khs": "Credit Card Account",
+            "egm": "collaborative",
+            "nuq": "Ohio"
+          },
+          "Code": "Enterprise-wide",
+          "Description": {
+            "tro": {
+              "Spans": [
+                {
+                  "Text": "alarm",
+                  "Ws": "ggn",
+                  "Bold": "Invert",
+                  "FontSize": 1949214216,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "64041640-cf99-0679-87ff-89bf857502ea"
+                  ]
+                },
+                {
+                  "Text": "Credit Card Account",
+                  "Ws": "tro",
+                  "Tags": [
+                    "160c2218-1987-49a1-b1da-8cbc7f55c0d9"
+                  ]
+                },
+                {
+                  "Text": "parallelism",
+                  "Ws": "wer",
+                  "Bold": "Off",
+                  "FontSize": 1872611792,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "7b715a01-83b7-6887-c166-4f11110cf0ad"
+                  ]
+                }
+              ]
+            },
+            "awv": {
+              "Spans": [
+                {
+                  "Text": "Officer",
+                  "Ws": "awv",
+                  "Tags": [
+                    "0b1a3d57-6375-4a7b-81f1-5d930a8492d7"
+                  ]
+                },
+                {
+                  "Text": "SSL",
+                  "Ws": "rap",
+                  "Bold": "Off",
+                  "FontSize": 1856990796,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "ef4011eb-2ff0-4b84-5e25-81ee052bb854"
+                  ]
+                },
+                {
+                  "Text": "bricks-and-clicks",
+                  "Ws": "pak",
+                  "Bold": "Off",
+                  "FontSize": 1161149316,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "31f23830-1535-4aaf-3bee-61de38456726"
+                  ]
+                },
+                {
+                  "Text": "plum",
+                  "Ws": "jam",
+                  "Bold": "Off",
+                  "FontSize": 2124602390,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "e9793042-3c80-67a8-30a1-867c3babb145"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "Horizontal",
+          "LouwNidaCodes": "Representative",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "48e82e62-dec8-3f8b-5aff-2d50e5bd9b46",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "bax": {
+              "Spans": [
+                {
+                  "Text": "Games",
+                  "Ws": "mgy",
+                  "Bold": "Invert",
+                  "FontSize": -2124732464,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "21bb2125-d951-2411-c8b0-a38ca5ea2226"
+                  ]
+                },
+                {
+                  "Text": "Frozen",
+                  "Ws": "kxh",
+                  "Bold": "On",
+                  "FontSize": 730863433,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "f7262a6a-d5c9-5f8c-b26c-0730b8be02fa"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "3d4dcd7c-647f-d0d6-f685-be073236df56",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
       "Id": "f39ffe3c-94a1-557f-cf6c-c3a5d62eb118",
       "Order": 0,
       "DeletedAt": null,
@@ -2514,7 +5259,11 @@
           "Name": {
             "kmu": "Wooden"
           },
+          "Abbreviation": {},
           "Code": "mission-critical",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -2580,6 +5329,308 @@
       ]
     },
     "Id": "f39ffe3c-94a1-557f-cf6c-c3a5d62eb118",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
+      "Id": "73d3f969-1f75-ad5e-c5dc-79868da67ff9",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "7e7bcef9-a69d-f57b-e3c8-ac2fd189841a",
+      "Definition": {
+        "tfr": {
+          "Spans": [
+            {
+              "Text": "Checking Account",
+              "Ws": "agi",
+              "Bold": "On",
+              "FontSize": -1763743294,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "a8533c89-d97b-164a-41e3-d6b2aeaec874"
+              ]
+            }
+          ]
+        },
+        "han": {
+          "Spans": [
+            {
+              "Text": "mesh",
+              "Ws": "piz",
+              "Bold": "Invert",
+              "FontSize": -954505539,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "e106247d-303d-2a31-64b0-c00d09b3501c"
+              ]
+            }
+          ]
+        },
+        "lsv": {
+          "Spans": [
+            {
+              "Text": "Tasty",
+              "Ws": "mle",
+              "Bold": "Off",
+              "FontSize": -696683679,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "ee49f772-5c96-99a3-a78c-797690eb1694"
+              ]
+            },
+            {
+              "Text": "Savings Account",
+              "Ws": "lsv",
+              "Tags": [
+                "01fd5926-2a16-4474-a495-66e6614eee52"
+              ]
+            },
+            {
+              "Text": "Ergonomic Steel Towels",
+              "Ws": "lsv",
+              "Tags": [
+                "a375b968-9804-40b5-a473-c471bf900747"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "ifu": "red"
+      },
+      "PartOfSpeech": {
+        "Id": "123301d4-c4a5-5d7a-f8bc-d4b1e845fa3c",
+        "Name": {
+          "dme": "Unbranded",
+          "lxm": "Licensed Steel Soap",
+          "ghs": "invoice"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "0e85c0c7-2778-1353-16eb-427e67c1f8c1",
+      "SemanticDomains": [
+        {
+          "Id": "50872e6f-6c56-cfaa-cc9b-f63f43466ab5",
+          "Name": {
+            "eli": "Coves",
+            "enb": "Electronics",
+            "max": "Team-oriented"
+          },
+          "Abbreviation": {
+            "lts": "Gateway",
+            "xhv": "firewall"
+          },
+          "Code": "Gateway",
+          "Description": {
+            "akr": {
+              "Spans": [
+                {
+                  "Text": "envisioneer",
+                  "Ws": "akr",
+                  "Tags": [
+                    "8b1a6db8-8704-4b07-812e-f53c56c79b97"
+                  ]
+                },
+                {
+                  "Text": "portals",
+                  "Ws": "akr",
+                  "Tags": [
+                    "468b91ad-9375-4dd6-8eca-8647cc432304"
+                  ]
+                },
+                {
+                  "Text": "Frozen",
+                  "Ws": "akr",
+                  "Tags": [
+                    "85c2faef-b53a-424c-8c0e-05d89df031c4"
+                  ]
+                },
+                {
+                  "Text": "internet solution",
+                  "Ws": "sko",
+                  "Bold": "On",
+                  "FontSize": 664348779,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "f87f7118-1b01-2aec-e38b-32638d1d9257"
+                  ]
+                }
+              ]
+            },
+            "wog": {
+              "Spans": [
+                {
+                  "Text": "SMTP",
+                  "Ws": "wog",
+                  "Tags": [
+                    "59681441-bb0e-4b8f-86ea-78074c020c5c"
+                  ]
+                },
+                {
+                  "Text": "transmit",
+                  "Ws": "ktu",
+                  "Bold": "Invert",
+                  "FontSize": -321352707,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "a459bc92-6397-34b9-fc50-13124846ef3a"
+                  ]
+                }
+              ]
+            },
+            "pnb": {
+              "Spans": [
+                {
+                  "Text": "Auto Loan Account",
+                  "Ws": "ikx",
+                  "Bold": "On",
+                  "FontSize": 96912473,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "edbcdd49-2bb8-78a5-67da-ed18a6c8eb88"
+                  ]
+                },
+                {
+                  "Text": "SDD",
+                  "Ws": "okj",
+                  "Bold": "On",
+                  "FontSize": -1572110185,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "652d0f6b-54eb-ddf8-7436-9318b7c57a72"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "Home Loan Account",
+          "LouwNidaCodes": "deposit",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "46151dcf-fb70-2494-6f5b-62744902c910",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "saa": {
+              "Spans": [
+                {
+                  "Text": "Glens",
+                  "Ws": "num",
+                  "Bold": "Invert",
+                  "FontSize": -1418578850,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "5587e64a-c812-de77-cd8f-c2dba25fabfd"
+                  ]
+                },
+                {
+                  "Text": "El Salvador Colon",
+                  "Ws": "mxx",
+                  "Bold": "On",
+                  "FontSize": 1811001467,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "16d361ec-b819-8262-5d56-c8b8ddfdd6f2"
+                  ]
+                }
+              ]
+            },
+            "pdn": {
+              "Spans": [
+                {
+                  "Text": "SQL",
+                  "Ws": "sdz",
+                  "Bold": "Invert",
+                  "FontSize": 933602729,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "29dcd18d-badc-4d10-661c-729157f70cde"
+                  ]
+                },
+                {
+                  "Text": "Avon",
+                  "Ws": "zxx",
+                  "Bold": "Invert",
+                  "FontSize": -656681001,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "7afbfddb-8f29-9ef8-3c53-226f4f487325"
+                  ]
+                },
+                {
+                  "Text": "Open-architected",
+                  "Ws": "sys",
+                  "Bold": "On",
+                  "FontSize": -1490891110,
+                  "ForeColor": "#FF0000",
+                  "Tags": [
+                    "f568471e-8f4e-4b06-e3c6-25f2297af7ef"
+                  ]
+                }
+              ]
+            },
+            "mwa": {
+              "Spans": [
+                {
+                  "Text": "Indian Rupee",
+                  "Ws": "hne",
+                  "Bold": "On",
+                  "FontSize": -1674043705,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "3ca926bb-ec12-60ea-c820-f4b0cc11a849"
+                  ]
+                },
+                {
+                  "Text": "hierarchy",
+                  "Ws": "mwa",
+                  "Tags": [
+                    "b76fe7e1-d8b3-4c48-acea-049590fc749e"
+                  ]
+                }
+              ]
+            },
+            "hom": {
+              "Spans": [
+                {
+                  "Text": "Kentucky",
+                  "Ws": "hom",
+                  "Tags": [
+                    "ea742821-0ec1-4d7f-8436-bb05fdf08881"
+                  ]
+                },
+                {
+                  "Text": "leverage",
+                  "Ws": "hom",
+                  "Tags": [
+                    "8b109c0e-6f87-4d0a-b534-fcce7f0b2c6f"
+                  ]
+                },
+                {
+                  "Text": "Consultant",
+                  "Ws": "mui",
+                  "Bold": "Invert",
+                  "FontSize": -675864152,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "374499bb-7e42-352e-40dd-520e04ce3da6"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "73d3f969-1f75-ad5e-c5dc-79868da67ff9",
     "DeletedAt": null
   },
   {
@@ -2742,7 +5793,11 @@
             "ktg": "card",
             "zaf": "Tasty"
           },
+          "Abbreviation": {},
           "Code": "North Korean Won",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -2770,6 +5825,211 @@
       ]
     },
     "Id": "f359f97f-4c1e-48f7-9d28-5c137d46fb28",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
+      "Id": "d222b429-9ba1-6ed7-bfc2-6639f2166299",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "abb5e1ac-dddf-906e-5cbf-f583a55ff6a2",
+      "Definition": {
+        "aij": {
+          "Spans": [
+            {
+              "Text": "Gorgeous Frozen Hat",
+              "Ws": "aij",
+              "Tags": [
+                "ead56a14-6963-4e50-b236-f162ba1c6b2d"
+              ]
+            }
+          ]
+        },
+        "esg": {
+          "Spans": [
+            {
+              "Text": "Rustic",
+              "Ws": "brv",
+              "Bold": "Off",
+              "FontSize": 1574434618,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "5c4f628f-b31b-64ef-8950-300be6969e24"
+              ]
+            },
+            {
+              "Text": "Internal",
+              "Ws": "esg",
+              "Tags": [
+                "bae05315-b515-43d6-97d8-a447d81b0aec"
+              ]
+            },
+            {
+              "Text": "Garden",
+              "Ws": "kkb",
+              "Bold": "On",
+              "FontSize": 1827697047,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "44464e89-9468-a0bc-104e-71f806a94f2b"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "asi": "fuchsia",
+        "gwt": "calculating",
+        "onb": "Corporate",
+        "bmn": "empower"
+      },
+      "PartOfSpeech": {
+        "Id": "904b6904-c0af-b142-c10b-f97408899d62",
+        "Name": {
+          "osi": "Jordanian Dinar",
+          "tnh": "Bedfordshire",
+          "iap": "Monaco"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "5ebb11ee-10b6-1ea4-a196-a36b9582b463",
+      "SemanticDomains": [
+        {
+          "Id": "3f434dc5-a3ec-c538-1054-2a8f9974f4da",
+          "Name": {
+            "ght": "Oregon"
+          },
+          "Abbreviation": {
+            "gcr": "Applications",
+            "dzl": "Handmade",
+            "xip": "cross-platform"
+          },
+          "Code": "Applications",
+          "Description": {
+            "tkd": {
+              "Spans": [
+                {
+                  "Text": "Parkway",
+                  "Ws": "tkd",
+                  "Tags": [
+                    "9ebf12a4-a19e-4b4e-8bd6-c538a2d3802f"
+                  ]
+                },
+                {
+                  "Text": "driver",
+                  "Ws": "tkd",
+                  "Tags": [
+                    "2ffc6d9e-5729-465f-b708-79d0970f2c4b"
+                  ]
+                }
+              ]
+            },
+            "ssk": {
+              "Spans": [
+                {
+                  "Text": "Research",
+                  "Ws": "ssk",
+                  "Tags": [
+                    "4cb64df1-4034-40c5-b798-e0f42a005218"
+                  ]
+                },
+                {
+                  "Text": "Aruba",
+                  "Ws": "ssk",
+                  "Tags": [
+                    "c16d2771-7ece-456f-b58d-fafca456e0ef"
+                  ]
+                },
+                {
+                  "Text": "Sleek Rubber Soap",
+                  "Ws": "dwk",
+                  "Bold": "On",
+                  "FontSize": -992065607,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "4b40ffbd-cee5-66a0-d6dc-acfe47784265"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "mesh",
+          "LouwNidaCodes": "Strategist",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "1324c42d-e17a-7bba-5df3-466c0cda378d",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "lbc": {
+              "Spans": [
+                {
+                  "Text": "Intelligent Plastic Car",
+                  "Ws": "lbc",
+                  "Tags": [
+                    "76acb8cf-cf70-4765-92aa-129c17584235"
+                  ]
+                },
+                {
+                  "Text": "Supervisor",
+                  "Ws": "aif",
+                  "Bold": "On",
+                  "FontSize": -2091693930,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "949f7859-9ad0-db6b-fd66-678cd002fa49"
+                  ]
+                }
+              ]
+            },
+            "qxo": {
+              "Spans": [
+                {
+                  "Text": "optical",
+                  "Ws": "qxo",
+                  "Tags": [
+                    "4d4ce85f-500b-4543-a6c5-4c835783cd8a"
+                  ]
+                },
+                {
+                  "Text": "Place",
+                  "Ws": "rkw",
+                  "Bold": "Off",
+                  "FontSize": -1732991511,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "b9ece84a-ac30-21ae-04a1-36c943f6337f"
+                  ]
+                },
+                {
+                  "Text": "Beauty \u0026 Health",
+                  "Ws": "qxo",
+                  "Tags": [
+                    "c4f761c9-0a96-4e64-a23f-5ac2af97d137"
+                  ]
+                },
+                {
+                  "Text": "Via",
+                  "Ws": "qxo",
+                  "Tags": [
+                    "506b5d89-0c36-476a-a645-e53e3920524c"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "d222b429-9ba1-6ed7-bfc2-6639f2166299",
     "DeletedAt": null
   },
   {
@@ -2846,7 +6106,11 @@
             "osc": "Consultant",
             "bpe": "Ferry"
           },
+          "Abbreviation": {},
           "Code": "Awesome Fresh Sausages",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -2950,6 +6214,150 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "Sense",
+      "Id": "ea4e49c5-de1e-27d1-8ce2-e7494428ff27",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "e8855961-bc23-fb79-4440-fd7fa1606edd",
+      "Definition": {
+        "akv": {
+          "Spans": [
+            {
+              "Text": "even-keeled",
+              "Ws": "jbn",
+              "Bold": "On",
+              "FontSize": 1015493185,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "ff9425f8-ea6a-0d5b-78f2-fd571c6b75c2"
+              ]
+            },
+            {
+              "Text": "Computers, Books \u0026 Baby",
+              "Ws": "akv",
+              "Tags": [
+                "0ad02744-506e-4b3d-b921-c180868ab121"
+              ]
+            }
+          ]
+        },
+        "xkg": {
+          "Spans": [
+            {
+              "Text": "system",
+              "Ws": "xkg",
+              "Tags": [
+                "90cd4802-2a15-44d3-8aec-b9c56448f11b"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "abq": "compelling",
+        "spg": "Intelligent Soft Pants",
+        "isd": "Incredible Soft Shoes",
+        "la": "Small"
+      },
+      "PartOfSpeech": {
+        "Id": "b5145e0f-d337-3640-1004-1edfac65009c",
+        "Name": {
+          "aif": "hybrid",
+          "bdz": "budgetary management",
+          "atn": "Lek"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "b19ca12f-af3d-e0f6-7059-9df47d9819e4",
+      "SemanticDomains": [
+        {
+          "Id": "8724ac0b-464e-e891-6532-8306f9ca82ba",
+          "Name": {
+            "vra": "Metal"
+          },
+          "Abbreviation": {
+            "nwb": "Aruban Guilder",
+            "cog": "Investor",
+            "esm": "Savings Account",
+            "dkk": "Innovative"
+          },
+          "Code": "Aruban Guilder",
+          "Description": {
+            "fpe": {
+              "Spans": [
+                {
+                  "Text": "Avenue",
+                  "Ws": "fpe",
+                  "Tags": [
+                    "1591a234-be56-44bb-95d5-3865a27f8378"
+                  ]
+                },
+                {
+                  "Text": "solid state",
+                  "Ws": "fpe",
+                  "Tags": [
+                    "5b12b016-55b7-4a8b-8eab-b6a3902b3846"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "models",
+          "LouwNidaCodes": "intermediate",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "cf54f9d8-8063-6879-a212-6608e1e5c29a",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "lij": {
+              "Spans": [
+                {
+                  "Text": "PCI",
+                  "Ws": "lij",
+                  "Tags": [
+                    "6994e2fb-e20b-4d15-91dc-962bc8bb48c7"
+                  ]
+                }
+              ]
+            },
+            "nuy": {
+              "Spans": [
+                {
+                  "Text": "engage",
+                  "Ws": "nuy",
+                  "Tags": [
+                    "99b3dfd3-a4a1-4bb0-bd3b-4e9fa47262a1"
+                  ]
+                },
+                {
+                  "Text": "Sharable",
+                  "Ws": "msp",
+                  "Bold": "Off",
+                  "FontSize": -627564696,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "7181886c-fd5f-99db-de56-eb11693611fd"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "ea4e49c5-de1e-27d1-8ce2-e7494428ff27",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
       "Id": "ff45c347-1da5-f492-d4e6-f65a04d6ad79",
       "Order": 0,
       "DeletedAt": null,
@@ -3003,7 +6411,11 @@
             "hnj": "Consultant",
             "dtn": "encompassing"
           },
+          "Abbreviation": {},
           "Code": "Brazilian Real",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -3012,6 +6424,306 @@
       "Pictures": []
     },
     "Id": "ff45c347-1da5-f492-d4e6-f65a04d6ad79",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
+      "Id": "53a2e1a5-1c61-00b8-1faf-c499918103a9",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "d09d826d-d8d5-a90f-8f15-c8775aaaf6d8",
+      "Definition": {
+        "gcc": {
+          "Spans": [
+            {
+              "Text": "mission-critical",
+              "Ws": "drh",
+              "Bold": "Off",
+              "FontSize": -564255989,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "0376bd20-08d8-cbb9-b9e3-0c58fe78a2be"
+              ]
+            }
+          ]
+        },
+        "lmm": {
+          "Spans": [
+            {
+              "Text": "payment",
+              "Ws": "bld",
+              "Bold": "Invert",
+              "FontSize": 1830445787,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "30ad2679-a858-5955-ce91-336d1d0f03fe"
+              ]
+            },
+            {
+              "Text": "Turnpike",
+              "Ws": "bwf",
+              "Bold": "Invert",
+              "FontSize": 978985541,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "cf9d4aae-389e-23c2-9823-0b0bc8fd4592"
+              ]
+            }
+          ]
+        },
+        "hit": {
+          "Spans": [
+            {
+              "Text": "Buckinghamshire",
+              "Ws": "kqf",
+              "Bold": "Invert",
+              "FontSize": 796113316,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "8be0f9d9-fdb0-ced8-e044-342f9fb55f99"
+              ]
+            },
+            {
+              "Text": "Avon",
+              "Ws": "nhx",
+              "Bold": "On",
+              "FontSize": 425522533,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "3a89a32b-becf-4c78-7bba-8bcf570f5a33"
+              ]
+            },
+            {
+              "Text": "e-tailers",
+              "Ws": "hit",
+              "Tags": [
+                "3123094f-d7bd-490b-978f-2c961b5e8ab7"
+              ]
+            }
+          ]
+        },
+        "phh": {
+          "Spans": [
+            {
+              "Text": "Fantastic Plastic Computer",
+              "Ws": "nhp",
+              "Bold": "On",
+              "FontSize": -1927919622,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "7504d057-5138-7345-4c2f-677ba6e05ab3"
+              ]
+            },
+            {
+              "Text": "Unbranded Fresh Shirt",
+              "Ws": "phh",
+              "Tags": [
+                "0259cc60-9848-422b-9ad3-45ab52e63892"
+              ]
+            },
+            {
+              "Text": "Advanced",
+              "Ws": "phh",
+              "Tags": [
+                "c7576c75-f2b5-4a6a-ba59-73f2079d3a52"
+              ]
+            },
+            {
+              "Text": "parsing",
+              "Ws": "phh",
+              "Tags": [
+                "efc93f91-f963-49e4-9f7f-a66850dfdb27"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "syn": "seize"
+      },
+      "PartOfSpeech": {
+        "Id": "503f66f5-49c1-a052-123f-0ee81df9b79a",
+        "Name": {
+          "vmd": "backing up"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "01dda8f2-fd70-1376-a275-6c81d3296d66",
+      "SemanticDomains": [
+        {
+          "Id": "b8c715d4-e4c9-f38f-10ab-8ec282b88c70",
+          "Name": {
+            "njj": "Unbranded Frozen Soap",
+            "aun": "streamline",
+            "ges": "vortals",
+            "etn": "seize"
+          },
+          "Abbreviation": {
+            "tgz": "data-warehouse",
+            "aki": "Savings Account",
+            "css": "Rubber",
+            "six": "tangible"
+          },
+          "Code": "data-warehouse",
+          "Description": {
+            "pel": {
+              "Spans": [
+                {
+                  "Text": "Data",
+                  "Ws": "pel",
+                  "Tags": [
+                    "5c6ce46b-d744-40b3-b007-6afb8439f871"
+                  ]
+                },
+                {
+                  "Text": "Plastic",
+                  "Ws": "oaa",
+                  "Bold": "Invert",
+                  "FontSize": 1257756986,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "879a0e1a-c27b-a4d5-8f6b-13a61aa221e0"
+                  ]
+                }
+              ]
+            },
+            "gyg": {
+              "Spans": [
+                {
+                  "Text": "hard drive",
+                  "Ws": "gyg",
+                  "Tags": [
+                    "42a88855-54fb-4ea0-b0c4-92f6c220b43e"
+                  ]
+                },
+                {
+                  "Text": "Credit Card Account",
+                  "Ws": "ubl",
+                  "Bold": "Invert",
+                  "FontSize": -13587113,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "45fc7511-c5f5-c498-5ed2-4f1790ed2bdd"
+                  ]
+                },
+                {
+                  "Text": "Clothing",
+                  "Ws": "gyg",
+                  "Tags": [
+                    "c2733a98-24f0-4c25-aa73-d2aade7024ce"
+                  ]
+                }
+              ]
+            },
+            "cek": {
+              "Spans": [
+                {
+                  "Text": "Arizona",
+                  "Ws": "cek",
+                  "Tags": [
+                    "6ab22c2e-8fcc-446d-a4f5-2d4d9f418efb"
+                  ]
+                },
+                {
+                  "Text": "hard drive",
+                  "Ws": "kho",
+                  "Bold": "Off",
+                  "FontSize": -344035793,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "d76d5ded-d004-2d31-78cf-7c83e12e2fb9"
+                  ]
+                },
+                {
+                  "Text": "Awesome Cotton Cheese",
+                  "Ws": "siq",
+                  "Bold": "On",
+                  "FontSize": 894591392,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "2da36dff-8c22-7ca7-ad45-0c674834e061"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "strategy",
+          "LouwNidaCodes": "Investment Account",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "5f7caa62-c047-bd33-0b86-1e23aac5a9a8",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "coz": {
+              "Spans": [
+                {
+                  "Text": "invoice",
+                  "Ws": "mwx",
+                  "Bold": "Invert",
+                  "FontSize": -753086641,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "178fd76e-fb28-2773-758e-caba87e6d5cb"
+                  ]
+                },
+                {
+                  "Text": "Direct",
+                  "Ws": "coz",
+                  "Tags": [
+                    "52b53ceb-16ee-470b-99b2-d23340eb3bab"
+                  ]
+                }
+              ]
+            },
+            "buk": {
+              "Spans": [
+                {
+                  "Text": "Fantastic",
+                  "Ws": "maf",
+                  "Bold": "Off",
+                  "FontSize": 1234589298,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "0b58e111-afa5-ab64-b470-626b07a54521"
+                  ]
+                },
+                {
+                  "Text": "Senior",
+                  "Ws": "krw",
+                  "Bold": "Invert",
+                  "FontSize": 307695393,
+                  "ForeColor": "#A52A2A",
+                  "Tags": [
+                    "88328761-0729-b2e3-4500-f806147aa3db"
+                  ]
+                }
+              ]
+            },
+            "nrm": {
+              "Spans": [
+                {
+                  "Text": "Sleek Granite Chips",
+                  "Ws": "nrm",
+                  "Tags": [
+                    "b43c9ae9-f047-4c8d-9287-a6d47f5c4182"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "53a2e1a5-1c61-00b8-1faf-c499918103a9",
     "DeletedAt": null
   },
   {
@@ -3125,7 +6837,11 @@
           "Name": {
             "idt": "Persevering"
           },
+          "Abbreviation": {},
           "Code": "auxiliary",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -3249,6 +6965,333 @@
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
       "$type": "Sense",
+      "Id": "abb21571-4fe4-caa6-4244-0964b3a90276",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "08b124bb-d5ec-5604-c72a-2730b4e32347",
+      "Definition": {
+        "enn": {
+          "Spans": [
+            {
+              "Text": "synthesize",
+              "Ws": "aiw",
+              "Bold": "Off",
+              "FontSize": 907613377,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "23a7ac4a-a844-976a-59f2-e8be2f338899"
+              ]
+            }
+          ]
+        },
+        "kec": {
+          "Spans": [
+            {
+              "Text": "transmit",
+              "Ws": "kec",
+              "Tags": [
+                "4c074d7f-6744-4041-b51e-6366205140d1"
+              ]
+            },
+            {
+              "Text": "Via",
+              "Ws": "kec",
+              "Tags": [
+                "3ff4afbb-3a8c-4d60-8075-f348b3187c2d"
+              ]
+            }
+          ]
+        },
+        "zmy": {
+          "Spans": [
+            {
+              "Text": "port",
+              "Ws": "zmy",
+              "Tags": [
+                "a1bb95b6-e007-41fc-b2be-8504432ba36c"
+              ]
+            },
+            {
+              "Text": "reboot",
+              "Ws": "zmy",
+              "Tags": [
+                "4a7ecc97-e4bc-4868-aea6-f17804f3b190"
+              ]
+            },
+            {
+              "Text": "Division",
+              "Ws": "zmy",
+              "Tags": [
+                "178d4672-9740-40ad-a324-07be34c70120"
+              ]
+            },
+            {
+              "Text": "system",
+              "Ws": "clc",
+              "Bold": "On",
+              "FontSize": -1186623699,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "7dbc14d0-fb09-3809-8bf5-7ab56512f32c"
+              ]
+            }
+          ]
+        },
+        "tar": {
+          "Spans": [
+            {
+              "Text": "back-end",
+              "Ws": "lnw",
+              "Bold": "On",
+              "FontSize": -1902850153,
+              "ForeColor": "#ADFF2F",
+              "Tags": [
+                "a1c23430-e054-d74d-3569-a04f70c8cb5f"
+              ]
+            },
+            {
+              "Text": "plum",
+              "Ws": "wnu",
+              "Bold": "On",
+              "FontSize": 1701319424,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "86495502-470e-2fc5-baaf-813f0358a7c7"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "anr": "viral",
+        "ywg": "embrace",
+        "aot": "Assistant"
+      },
+      "PartOfSpeech": {
+        "Id": "8b634600-1cf6-6a9c-08e9-cfa396b6a2e9",
+        "Name": {
+          "pmt": "Unbranded",
+          "dee": "Route",
+          "tan": "Heights",
+          "pbc": "Direct"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "7f139baa-ac87-23a0-2f94-0832d9f5ce59",
+      "SemanticDomains": [
+        {
+          "Id": "6b3cd4f9-ae2e-84ee-f6b0-c2c8a9023fa4",
+          "Name": {
+            "pns": "COM",
+            "pgd": "Tools",
+            "bxp": "SQL",
+            "adx": "Rustic Soft Cheese"
+          },
+          "Abbreviation": {
+            "lwh": "redundant"
+          },
+          "Code": "redundant",
+          "Description": {
+            "lsy": {
+              "Spans": [
+                {
+                  "Text": "Auto Loan Account",
+                  "Ws": "srg",
+                  "Bold": "Invert",
+                  "FontSize": -882936255,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "c0a91c91-23bf-6bff-37b7-c1c53024d58d"
+                  ]
+                },
+                {
+                  "Text": "client-driven",
+                  "Ws": "lsy",
+                  "Tags": [
+                    "986f5ac0-c79a-4373-a955-6027b5ca88b8"
+                  ]
+                }
+              ]
+            },
+            "bpx": {
+              "Spans": [
+                {
+                  "Text": "Metal",
+                  "Ws": "mdw",
+                  "Bold": "On",
+                  "FontSize": 1059852460,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "9958ba18-840e-50d7-d141-71d9b9a94a2c"
+                  ]
+                },
+                {
+                  "Text": "synergize",
+                  "Ws": "twh",
+                  "Bold": "Invert",
+                  "FontSize": 1457562429,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "5dcd4f1d-c02d-3f7f-d1ad-9513cd45ef22"
+                  ]
+                }
+              ]
+            },
+            "ggg": {
+              "Spans": [
+                {
+                  "Text": "Route",
+                  "Ws": "ggg",
+                  "Tags": [
+                    "9a3ddd4c-8d48-4aab-93b6-595ff03ad305"
+                  ]
+                },
+                {
+                  "Text": "Engineer",
+                  "Ws": "ggg",
+                  "Tags": [
+                    "b955e299-feb5-41c0-9ee1-afacbc8b0134"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "Dam",
+          "LouwNidaCodes": "Checking Account",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "821dae0b-1889-e362-5466-5536a785364c",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "zpi": {
+              "Spans": [
+                {
+                  "Text": "Cotton",
+                  "Ws": "zpi",
+                  "Tags": [
+                    "45480789-2dd4-4b54-88df-2cfdbc0c8103"
+                  ]
+                },
+                {
+                  "Text": "Markets",
+                  "Ws": "zpi",
+                  "Tags": [
+                    "884caa15-f003-4d95-bbbf-7e9c4fa42133"
+                  ]
+                }
+              ]
+            },
+            "ntj": {
+              "Spans": [
+                {
+                  "Text": "Tanzanian Shilling",
+                  "Ws": "ntj",
+                  "Tags": [
+                    "8cae2496-4dc9-40d1-b878-ce663ab9429c"
+                  ]
+                },
+                {
+                  "Text": "Unbranded Steel Soap",
+                  "Ws": "kqp",
+                  "Bold": "Invert",
+                  "FontSize": 627871112,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "020e8483-05a9-d50b-b243-b31537147c90"
+                  ]
+                },
+                {
+                  "Text": "empowering",
+                  "Ws": "ntj",
+                  "Tags": [
+                    "900d80d9-4af0-400a-8ca0-e6a5495895f8"
+                  ]
+                },
+                {
+                  "Text": "Movies, Clothing \u0026 Baby",
+                  "Ws": "maj",
+                  "Bold": "On",
+                  "FontSize": -1566080239,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "cca13cd7-76e8-8591-e2e4-7e2123b47a7f"
+                  ]
+                }
+              ]
+            },
+            "nui": {
+              "Spans": [
+                {
+                  "Text": "envisioneer",
+                  "Ws": "nui",
+                  "Tags": [
+                    "bc409b2c-7948-4f43-9f87-dc51b0eb19c0"
+                  ]
+                },
+                {
+                  "Text": "Gorgeous",
+                  "Ws": "nyf",
+                  "Bold": "Off",
+                  "FontSize": 1580940377,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "c227b511-7502-d7f2-5f56-0c6091da3da3"
+                  ]
+                },
+                {
+                  "Text": "transmit",
+                  "Ws": "thl",
+                  "Bold": "On",
+                  "FontSize": -686508656,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "c6356535-bada-5775-3c81-47cf4bac682a"
+                  ]
+                },
+                {
+                  "Text": "input",
+                  "Ws": "dek",
+                  "Bold": "Off",
+                  "FontSize": -717436892,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "f3c3a5a6-6352-831b-7170-520b96610f62"
+                  ]
+                }
+              ]
+            },
+            "dtt": {
+              "Spans": [
+                {
+                  "Text": "platforms",
+                  "Ws": "qvc",
+                  "Bold": "On",
+                  "FontSize": -521527559,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "a7a87ada-e795-b3fc-5a14-cd9f8062fb40"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "abb21571-4fe4-caa6-4244-0964b3a90276",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
       "Id": "3ad5077d-175e-bf42-60ec-df0e3cf1d2bb",
       "Order": 0,
       "DeletedAt": null,
@@ -3289,7 +7332,11 @@
             "mrx": "Money Market Account",
             "btb": "silver"
           },
+          "Abbreviation": {},
           "Code": "applications",
+          "Description": {},
+          "OcmCodes": "",
+          "LouwNidaCodes": "",
           "DeletedAt": null,
           "Predefined": false
         }
@@ -3451,6 +7498,222 @@
       ]
     },
     "Id": "3ad5077d-175e-bf42-60ec-df0e3cf1d2bb",
+    "DeletedAt": null
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Sense",
+      "Id": "6c3b9fe2-2bc3-9c43-b22c-abbb5c112196",
+      "Order": 0,
+      "DeletedAt": null,
+      "EntryId": "e6b038b5-d965-b191-4bed-33adc752f7a0",
+      "Definition": {
+        "mbv": {
+          "Spans": [
+            {
+              "Text": "mint green",
+              "Ws": "kmz",
+              "Bold": "On",
+              "FontSize": 278979374,
+              "ForeColor": "#ADFF2F",
+              "Tags": [
+                "94043eaa-eb85-7333-afc3-56639b189285"
+              ]
+            },
+            {
+              "Text": "bifurcated",
+              "Ws": "wig",
+              "Bold": "Invert",
+              "FontSize": 766210614,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "11333603-deb3-5c02-1043-a3772ab877eb"
+              ]
+            }
+          ]
+        },
+        "dbp": {
+          "Spans": [
+            {
+              "Text": "functionalities",
+              "Ws": "myj",
+              "Bold": "Off",
+              "FontSize": -1969770109,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "0e270618-4b5e-f305-07de-965e6b86cc23"
+              ]
+            }
+          ]
+        }
+      },
+      "Gloss": {
+        "miw": "protocol",
+        "gah": "parsing",
+        "zaa": "payment",
+        "bdk": "index"
+      },
+      "PartOfSpeech": {
+        "Id": "c0e6eb49-882c-f898-5d1a-337333e2a8ca",
+        "Name": {
+          "li": "Ford",
+          "ztm": "Comoro Franc"
+        },
+        "DeletedAt": null,
+        "Predefined": false
+      },
+      "PartOfSpeechId": "b85a321f-157e-d434-9d89-f92f37078d5a",
+      "SemanticDomains": [
+        {
+          "Id": "012b3b05-dbf8-dffd-f032-8bb8caee035e",
+          "Name": {
+            "tli": "withdrawal",
+            "gmx": "Usability"
+          },
+          "Abbreviation": {
+            "wnn": "firmware"
+          },
+          "Code": "firmware",
+          "Description": {
+            "ikz": {
+              "Spans": [
+                {
+                  "Text": "plum",
+                  "Ws": "vrt",
+                  "Bold": "On",
+                  "FontSize": 951040278,
+                  "ForeColor": "#ADFF2F",
+                  "Tags": [
+                    "2d397e88-7c88-ca85-727e-4d8da196fb5b"
+                  ]
+                },
+                {
+                  "Text": "functionalities",
+                  "Ws": "ikz",
+                  "Tags": [
+                    "184ddb52-d37a-4627-96a8-90c80fe58eae"
+                  ]
+                }
+              ]
+            },
+            "teo": {
+              "Spans": [
+                {
+                  "Text": "Metal",
+                  "Ws": "teo",
+                  "Tags": [
+                    "a67e0be6-0688-41fd-8632-ff02ef9fafc3"
+                  ]
+                },
+                {
+                  "Text": "Avon",
+                  "Ws": "teo",
+                  "Tags": [
+                    "6476906d-7949-4b0d-9cd0-2b9bdf1ef1c7"
+                  ]
+                },
+                {
+                  "Text": "technologies",
+                  "Ws": "gol",
+                  "Bold": "Invert",
+                  "FontSize": -157529230,
+                  "ForeColor": "#00000000",
+                  "Tags": [
+                    "94c9ec1e-8a82-15e5-a70a-1ccb156692e1"
+                  ]
+                }
+              ]
+            },
+            "ikt": {
+              "Spans": [
+                {
+                  "Text": "Netherlands",
+                  "Ws": "ikt",
+                  "Tags": [
+                    "71ea987c-be89-4ae9-a820-c17797ddd750"
+                  ]
+                }
+              ]
+            },
+            "tkn": {
+              "Spans": [
+                {
+                  "Text": "Handcrafted Rubber Fish",
+                  "Ws": "tkn",
+                  "Tags": [
+                    "5f6d72af-eee4-4bb1-8b69-116d283d0672"
+                  ]
+                },
+                {
+                  "Text": "EXE",
+                  "Ws": "tkn",
+                  "Tags": [
+                    "5ae70e39-27fd-4d9f-b146-2b611c536ebb"
+                  ]
+                },
+                {
+                  "Text": "index",
+                  "Ws": "pcl",
+                  "Bold": "Invert",
+                  "FontSize": -2090480748,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "6c4e98b0-a3d2-48a6-8f51-495429e86923"
+                  ]
+                }
+              ]
+            }
+          },
+          "OcmCodes": "maroon",
+          "LouwNidaCodes": "panel",
+          "DeletedAt": null,
+          "Predefined": false
+        }
+      ],
+      "ExampleSentences": [],
+      "Pictures": [
+        {
+          "Id": "1a2332ed-d906-f526-e31d-c63a0c3aa9e7",
+          "Order": 0,
+          "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+          "Caption": {
+            "pcd": {
+              "Spans": [
+                {
+                  "Text": "Neck",
+                  "Ws": "nql",
+                  "Bold": "Invert",
+                  "FontSize": -762984356,
+                  "ForeColor": "#00FFFF",
+                  "Tags": [
+                    "b7ce36e4-86ad-ea63-2c5e-b254174c37f5"
+                  ]
+                },
+                {
+                  "Text": "XSS",
+                  "Ws": "gnb",
+                  "Bold": "Invert",
+                  "FontSize": -1303854833,
+                  "ForeColor": "#0000FF",
+                  "Tags": [
+                    "81acb385-10d1-c763-c398-19fde9b36d8c"
+                  ]
+                },
+                {
+                  "Text": "transmit",
+                  "Ws": "pcd",
+                  "Tags": [
+                    "159a4779-17fb-40ac-9e19-74cbc1fd414c"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Id": "6c3b9fe2-2bc3-9c43-b22c-abbb5c112196",
     "DeletedAt": null
   },
   {

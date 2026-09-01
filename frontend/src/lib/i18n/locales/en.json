@@ -706,6 +706,7 @@ You are not currently a project manager. Only project managers can request early
     "error_code": "Error code",
     "not_found": "404 - Woops, we can't find that page. Sorry!",
     "go_home": "Go home",
+    "retry": "Retry",
   },
   "modal": {
     "dismiss": "Dismiss"

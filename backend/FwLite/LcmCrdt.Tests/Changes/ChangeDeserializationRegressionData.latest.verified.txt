@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "$type": "jsonPatch:Entry",
     "PatchDocument": [],
@@ -81,11 +81,146 @@
         "txr": "Zambia",
         "sxm": "Buckinghamshire"
       },
+      "Abbreviation": {},
       "Code": "Clothing, Industrial \u0026 Health",
+      "Description": {},
+      "OcmCodes": "",
+      "LouwNidaCodes": "",
       "DeletedAt": "2025-01-19T21:09:19.0427134+07:00",
       "Predefined": true
     },
     "EntityId": "f60faeb5-4d22-a8b0-a806-89347f2b7843"
+  },
+  {
+    "$type": "AddSemanticDomainChange",
+    "SemanticDomain": {
+      "Id": "7b92c4bf-1823-28ab-86b2-32f1487c2477",
+      "Name": {
+        "rem": "Pennsylvania",
+        "bbb": "leading-edge",
+        "bdg": "impactful",
+        "lva": "Serbia"
+      },
+      "Abbreviation": {
+        "oso": "Customer"
+      },
+      "Code": "Customer",
+      "Description": {
+        "bif": {
+          "Spans": [
+            {
+              "Text": "Visionary",
+              "Ws": "bif",
+              "Tags": [
+                "f19714b1-263f-4c97-958e-ca9b8860937d"
+              ]
+            },
+            {
+              "Text": "extranet",
+              "Ws": "bif",
+              "Tags": [
+                "7bab51a0-6f3c-4afc-9ca5-4452f395dc41"
+              ]
+            },
+            {
+              "Text": "Trail",
+              "Ws": "bif",
+              "Tags": [
+                "806beb3c-362b-47fd-9c48-15e81c2e23d0"
+              ]
+            },
+            {
+              "Text": "Advanced",
+              "Ws": "isr",
+              "Bold": "Invert",
+              "FontSize": -444416600,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "948bba8a-ef0a-eb63-4d62-e3550f3c5511"
+              ]
+            }
+          ]
+        },
+        "yab": {
+          "Spans": [
+            {
+              "Text": "Rue",
+              "Ws": "knn",
+              "Bold": "On",
+              "FontSize": 1040313889,
+              "ForeColor": "#FF0000",
+              "Tags": [
+                "6b8d851f-e872-68dc-47bf-801453303667"
+              ]
+            },
+            {
+              "Text": "Delaware",
+              "Ws": "yab",
+              "Tags": [
+                "35b43906-c7c0-41cd-b260-e517bcee48f9"
+              ]
+            }
+          ]
+        },
+        "nyr": {
+          "Spans": [
+            {
+              "Text": "Agent",
+              "Ws": "nyr",
+              "Tags": [
+                "0ea9e56b-a498-41f7-9b80-f1e16c1d13a5"
+              ]
+            },
+            {
+              "Text": "Sleek Rubber Mouse",
+              "Ws": "nyr",
+              "Tags": [
+                "9215c307-f6cb-40c0-b733-dea7e11d4d78"
+              ]
+            },
+            {
+              "Text": "SCSI",
+              "Ws": "zca",
+              "Bold": "Invert",
+              "FontSize": -1556622377,
+              "ForeColor": "#A52A2A",
+              "Tags": [
+                "a8f246ef-5cc9-00ae-7062-e9ce4eef1431"
+              ]
+            },
+            {
+              "Text": "magenta",
+              "Ws": "obl",
+              "Bold": "On",
+              "FontSize": -1663528980,
+              "ForeColor": "#00000000",
+              "Tags": [
+                "81c2ca3d-2dc9-85e2-4484-fde778737bd7"
+              ]
+            }
+          ]
+        },
+        "bmq": {
+          "Spans": [
+            {
+              "Text": "Automotive, Industrial \u0026 Health",
+              "Ws": "otk",
+              "Bold": "Invert",
+              "FontSize": 605799507,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "487affb0-ff84-2ca5-4e72-dea2dea9417e"
+              ]
+            }
+          ]
+        }
+      },
+      "OcmCodes": "Handcrafted Concrete Computer",
+      "LouwNidaCodes": "revolutionize",
+      "DeletedAt": null,
+      "Predefined": false
+    },
+    "EntityId": "3e189261-e98f-d243-5e4d-3d74e1bc8cbb"
   },
   {
     "$type": "RemoveSemanticDomainChange",
@@ -103,11 +238,94 @@
         "cco": "Implementation",
         "rrt": "card"
       },
+      "Abbreviation": {},
       "Code": "transition",
+      "Description": {},
+      "OcmCodes": "",
+      "LouwNidaCodes": "",
       "DeletedAt": "2025-01-19T21:18:49.3256836+07:00",
       "Predefined": false
     },
     "EntityId": "8291cde2-0fd2-3ebc-765b-c00c6c489c3a"
+  },
+  {
+    "$type": "ReplaceSemanticDomainChange",
+    "OldSemanticDomainId": "5d966099-e3a3-27e8-4db3-da3dd0ed1d69",
+    "SemanticDomain": {
+      "Id": "50830979-c520-d4fa-ef2c-b61da4ee33d1",
+      "Name": {
+        "abm": "Configuration",
+        "xmr": "copy",
+        "kzb": "Adaptive",
+        "lad": "Clothing \u0026 Baby"
+      },
+      "Abbreviation": {
+        "stg": "Licensed",
+        "nbc": "Program",
+        "icl": "Crossroad",
+        "kpa": "exploit"
+      },
+      "Code": "Licensed",
+      "Description": {
+        "pep": {
+          "Spans": [
+            {
+              "Text": "paradigms",
+              "Ws": "gby",
+              "Bold": "Off",
+              "FontSize": 2023362756,
+              "ForeColor": "#0000FF",
+              "Tags": [
+                "cff65ef0-392b-19e5-c378-ebd5d6856ac6"
+              ]
+            },
+            {
+              "Text": "turquoise",
+              "Ws": "pep",
+              "Tags": [
+                "176d56a8-9da2-40c5-97d1-457a4cbb905d"
+              ]
+            },
+            {
+              "Text": "indigo",
+              "Ws": "cni",
+              "Bold": "Off",
+              "FontSize": -1830519423,
+              "ForeColor": "#00FFFF",
+              "Tags": [
+                "1d1a48fa-64e7-48cb-fdaa-b39c784e76ff"
+              ]
+            },
+            {
+              "Text": "Handmade",
+              "Ws": "pep",
+              "Tags": [
+                "80c7fd08-99c9-44c5-a5cd-1b8866dd8fb9"
+              ]
+            }
+          ]
+        },
+        "bbd": {
+          "Spans": [
+            {
+              "Text": "interactive",
+              "Ws": "dnw",
+              "Bold": "Off",
+              "FontSize": -1596996828,
+              "ForeColor": "#ADFF2F",
+              "Tags": [
+                "fc90d5e0-26ef-7ca5-3830-159fe40c587b"
+              ]
+            }
+          ]
+        }
+      },
+      "OcmCodes": "Incredible Cotton Pizza",
+      "LouwNidaCodes": "e-business",
+      "DeletedAt": null,
+      "Predefined": false
+    },
+    "EntityId": "6f1900e9-47c0-1ab4-fbcb-15d2365c94ba"
   },
   {
     "$type": "CreateEntryChange",
@@ -258,13 +476,178 @@
         "Name": {
           "ajs": "disintermediate"
         },
+        "Abbreviation": {},
         "Code": "Open-architected",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "DeletedAt": "2025-01-20T05:49:30.5251959+07:00",
         "Predefined": false
       }
     ],
     "Pictures": null,
     "EntityId": "fb918ba0-ba5e-7977-312e-3028d1295dd8"
+  },
+  {
+    "$type": "CreateSenseChange",
+    "EntryId": "8aaba18a-78f4-a901-6817-04096cc5281e",
+    "Order": 0.4477150344384605,
+    "Definition": {
+      "xmd": {
+        "Spans": [
+          {
+            "Text": "Faroe Islands",
+            "Ws": "xmd",
+            "Tags": [
+              "966980a0-cff6-49fe-8147-dd9370401393"
+            ]
+          }
+        ]
+      },
+      "mlw": {
+        "Spans": [
+          {
+            "Text": "Comoro Franc",
+            "Ws": "mlw",
+            "Tags": [
+              "c76d55ba-35e7-42c9-9b6d-688f82dbdc53"
+            ]
+          }
+        ]
+      },
+      "gmd": {
+        "Spans": [
+          {
+            "Text": "Savings Account",
+            "Ws": "gmd",
+            "Tags": [
+              "7180534f-06fb-47c2-87d9-249d49bea5bb"
+            ]
+          },
+          {
+            "Text": "Awesome Concrete Shirt",
+            "Ws": "mre",
+            "Bold": "Invert",
+            "FontSize": -199834178,
+            "ForeColor": "#ADFF2F",
+            "Tags": [
+              "380dbd52-f3e8-f2c1-ac88-30865eab7927"
+            ]
+          },
+          {
+            "Text": "quantify",
+            "Ws": "gmd",
+            "Tags": [
+              "8b4d6a82-b98f-4c28-9c0b-ef3c0984fde5"
+            ]
+          },
+          {
+            "Text": "Money Market Account",
+            "Ws": "gmd",
+            "Tags": [
+              "79494be6-36d1-4a80-aaea-017701ef7ac7"
+            ]
+          }
+        ]
+      }
+    },
+    "Gloss": {
+      "crc": "haptic"
+    },
+    "PartOfSpeechId": "3edb3668-fb40-ff10-768b-e7a306ea3e10",
+    "SemanticDomains": [
+      {
+        "Id": "b0cd5357-5e3c-98a7-90a2-dcfb9ae4842d",
+        "Name": {
+          "klj": "cross-platform",
+          "byj": "reciprocal"
+        },
+        "Abbreviation": {
+          "and": "Assurance",
+          "ruc": "circuit",
+          "awa": "proactive"
+        },
+        "Code": "Assurance",
+        "Description": {
+          "hbb": {
+            "Spans": [
+              {
+                "Text": "initiatives",
+                "Ws": "hbb",
+                "Tags": [
+                  "95da1a0e-21d2-4820-a2a8-57dc5e6f3cb6"
+                ]
+              },
+              {
+                "Text": "seamless",
+                "Ws": "hbb",
+                "Tags": [
+                  "1646d6f3-188f-4108-800f-210f74fda69e"
+                ]
+              },
+              {
+                "Text": "dot-com",
+                "Ws": "gmr",
+                "Bold": "On",
+                "FontSize": 1416042677,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "0c1d4924-c1e4-2e08-725c-d9ec26080abf"
+                ]
+              }
+            ]
+          }
+        },
+        "OcmCodes": "Handmade Soft Chair",
+        "LouwNidaCodes": "Grocery, Outdoors \u0026 Toys",
+        "DeletedAt": null,
+        "Predefined": false
+      }
+    ],
+    "Pictures": [
+      {
+        "Id": "29194d5c-2642-f17b-769f-130a3616f679",
+        "Order": 0,
+        "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+        "Caption": {
+          "ote": {
+            "Spans": [
+              {
+                "Text": "sky blue",
+                "Ws": "lbo",
+                "Bold": "Invert",
+                "FontSize": -439410848,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "44ae8fb3-bab4-6c73-2583-b8f4c9048195"
+                ]
+              },
+              {
+                "Text": "Cuban Peso Convertible",
+                "Ws": "tkn",
+                "Bold": "Off",
+                "FontSize": -805968476,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "1fa7172e-e440-0ec8-3f49-22fd61fc6764"
+                ]
+              },
+              {
+                "Text": "payment",
+                "Ws": "jan",
+                "Bold": "Invert",
+                "FontSize": 2019354407,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "77d262f6-1d0d-9c18-a022-27d429ffcb51"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "EntityId": "7e489533-d9ef-e3ef-09b9-ba2c315ac4ea"
   },
   {
     "$type": "CreateSenseChange",
@@ -359,7 +742,11 @@
         "Name": {
           "ljw": "Path"
         },
+        "Abbreviation": {},
         "Code": "Handmade Fresh Towels",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "DeletedAt": null,
         "Predefined": false
       }
@@ -409,6 +796,272 @@
       }
     ],
     "EntityId": "f27a032b-e0f6-f389-b466-959bdb17086d"
+  },
+  {
+    "$type": "CreateSenseChange",
+    "EntryId": "8f2cf98a-8552-c963-60ba-cf14c1c2ef5d",
+    "Order": 0.9970128374637487,
+    "Definition": {
+      "cbe": {
+        "Spans": [
+          {
+            "Text": "copying",
+            "Ws": "cbe",
+            "Tags": [
+              "efa572a4-d435-4815-ab6f-73cd56ec7215"
+            ]
+          }
+        ]
+      },
+      "doe": {
+        "Spans": [
+          {
+            "Text": "monitoring",
+            "Ws": "doe",
+            "Tags": [
+              "87271ee2-081b-4b8e-96ee-60f4e0aa36ff"
+            ]
+          },
+          {
+            "Text": "New Mexico",
+            "Ws": "sw",
+            "Bold": "Invert",
+            "FontSize": 2070325132,
+            "ForeColor": "#A52A2A",
+            "Tags": [
+              "14cc1a53-a0a2-cfd8-a616-422697a072ea"
+            ]
+          }
+        ]
+      },
+      "yag": {
+        "Spans": [
+          {
+            "Text": "recontextualize",
+            "Ws": "yag",
+            "Tags": [
+              "c17cc0ec-552c-48bd-9335-fbdc876fab61"
+            ]
+          },
+          {
+            "Text": "Computers",
+            "Ws": "kid",
+            "Bold": "On",
+            "FontSize": -1955335690,
+            "ForeColor": "#00FFFF",
+            "Tags": [
+              "58a9ca0e-0daf-69d8-73c4-3d61d07e7643"
+            ]
+          },
+          {
+            "Text": "pricing structure",
+            "Ws": "yag",
+            "Tags": [
+              "158ea03c-6258-43d9-ba94-45ce2a1a4e61"
+            ]
+          }
+        ]
+      },
+      "eme": {
+        "Spans": [
+          {
+            "Text": "tertiary",
+            "Ws": "srx",
+            "Bold": "Invert",
+            "FontSize": 1812613861,
+            "ForeColor": "#0000FF",
+            "Tags": [
+              "c653df5e-d11d-f502-89fc-ea78313fcf1c"
+            ]
+          },
+          {
+            "Text": "Public-key",
+            "Ws": "eme",
+            "Tags": [
+              "aff1ee5b-55bd-41f2-b7da-8c376e69b1ac"
+            ]
+          },
+          {
+            "Text": "neural",
+            "Ws": "eme",
+            "Tags": [
+              "4828e899-3805-43a0-837b-215e4788563e"
+            ]
+          }
+        ]
+      }
+    },
+    "Gloss": {
+      "lsh": "parsing"
+    },
+    "PartOfSpeechId": "94d31d7a-b33a-aa2f-08c6-7c48320f5fb9",
+    "SemanticDomains": [
+      {
+        "Id": "9574254b-ef6c-d55a-6f93-4abe559b236f",
+        "Name": {
+          "kla": "Refined Frozen Car",
+          "pac": "zero tolerance",
+          "ils": "Fantastic"
+        },
+        "Abbreviation": {
+          "okr": "Sleek Wooden Pants",
+          "szc": "neural"
+        },
+        "Code": "Sleek Wooden Pants",
+        "Description": {
+          "igb": {
+            "Spans": [
+              {
+                "Text": "Unbranded Metal Shoes",
+                "Ws": "igb",
+                "Tags": [
+                  "2b4802b5-5184-4887-b060-cf95c90d4b9f"
+                ]
+              },
+              {
+                "Text": "reboot",
+                "Ws": "igb",
+                "Tags": [
+                  "19484d91-bbaa-428e-bdc4-cb5ee86d32c3"
+                ]
+              },
+              {
+                "Text": "transmit",
+                "Ws": "sbn",
+                "Bold": "On",
+                "FontSize": 986050042,
+                "ForeColor": "#00000000",
+                "Tags": [
+                  "1205a4ee-783c-bafd-68bd-eb9c6a722f4e"
+                ]
+              }
+            ]
+          },
+          "cla": {
+            "Spans": [
+              {
+                "Text": "Neck",
+                "Ws": "nmc",
+                "Bold": "Invert",
+                "FontSize": 765977089,
+                "ForeColor": "#ADFF2F",
+                "Tags": [
+                  "ef5f6605-1800-3482-2b24-98fd5b1428b7"
+                ]
+              },
+              {
+                "Text": "Faroe Islands",
+                "Ws": "cla",
+                "Tags": [
+                  "dafccd33-436b-42c9-8884-b5df30360170"
+                ]
+              }
+            ]
+          },
+          "bwo": {
+            "Spans": [
+              {
+                "Text": "national",
+                "Ws": "bwo",
+                "Tags": [
+                  "daeb3ce0-bc66-414d-a58e-7e5b560a19e7"
+                ]
+              },
+              {
+                "Text": "matrix",
+                "Ws": "csi",
+                "Bold": "On",
+                "FontSize": 1207986786,
+                "ForeColor": "#ADFF2F",
+                "Tags": [
+                  "93433d4e-2961-d196-36b8-7be8eb327772"
+                ]
+              },
+              {
+                "Text": "Intranet",
+                "Ws": "bwo",
+                "Tags": [
+                  "b540962f-80c4-4657-a10d-ca4030bb5e24"
+                ]
+              },
+              {
+                "Text": "value-added",
+                "Ws": "bwo",
+                "Tags": [
+                  "b23e60fc-1680-47e8-bb3e-32268ccd64fa"
+                ]
+              }
+            ]
+          },
+          "bzt": {
+            "Spans": [
+              {
+                "Text": "primary",
+                "Ws": "bzt",
+                "Tags": [
+                  "5598b5a2-c1ae-4b64-a348-eddd129025d9"
+                ]
+              }
+            ]
+          }
+        },
+        "OcmCodes": "Massachusetts",
+        "LouwNidaCodes": "Metal",
+        "DeletedAt": null,
+        "Predefined": false
+      }
+    ],
+    "Pictures": [
+      {
+        "Id": "42211010-7db4-3c0b-5779-c5c2be237e39",
+        "Order": 0,
+        "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+        "Caption": {
+          "kvb": {
+            "Spans": [
+              {
+                "Text": "iterate",
+                "Ws": "suj",
+                "Bold": "On",
+                "FontSize": -1627120735,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "2fc52bd1-9aa8-c87d-14e3-7c49bd9249b1"
+                ]
+              },
+              {
+                "Text": "Licensed Granite Bike",
+                "Ws": "rmy",
+                "Bold": "Invert",
+                "FontSize": -1589619741,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "9463ddd6-c8fd-2133-a064-4fe54b3b180c"
+                ]
+              },
+              {
+                "Text": "technologies",
+                "Ws": "kvb",
+                "Tags": [
+                  "ad81bab2-0c8e-491b-b35a-6b1427356e11"
+                ]
+              },
+              {
+                "Text": "Fork",
+                "Ws": "gvo",
+                "Bold": "On",
+                "FontSize": -1963053740,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "49ce3c8d-cc1f-c6a8-5ae5-3bc30a45aff0"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "EntityId": "d124b131-0aaf-ed3b-6ce2-27865367ccc5"
   },
   {
     "$type": "CreateSenseChange",
@@ -476,7 +1129,11 @@
           "zu": "Parkway",
           "jjr": "connecting"
         },
+        "Abbreviation": {},
         "Code": "Inlet",
+        "Description": {},
+        "OcmCodes": "",
+        "LouwNidaCodes": "",
         "DeletedAt": null,
         "Predefined": false
       }
@@ -540,6 +1197,321 @@
       }
     ],
     "EntityId": "f18d4c1d-00e2-afa1-166b-a8f75a2d43de"
+  },
+  {
+    "$type": "CreateSenseChange",
+    "EntryId": "0351510f-489f-7b12-787e-c92cdd80ba58",
+    "Order": 0.28235810738322176,
+    "Definition": {
+      "zpr": {
+        "Spans": [
+          {
+            "Text": "deposit",
+            "Ws": "prs",
+            "Bold": "Off",
+            "FontSize": 1103105468,
+            "ForeColor": "#A52A2A",
+            "Tags": [
+              "552182fc-fdfa-ab32-857a-1ecf3077e00c"
+            ]
+          },
+          {
+            "Text": "Frozen",
+            "Ws": "uba",
+            "Bold": "Invert",
+            "FontSize": 33335237,
+            "ForeColor": "#00000000",
+            "Tags": [
+              "592bea52-5ecd-8e8f-26c0-d1aaa696c5a0"
+            ]
+          },
+          {
+            "Text": "convergence",
+            "Ws": "zpr",
+            "Tags": [
+              "dd1d7bc8-d706-4f7c-9d91-56fb27c4dabb"
+            ]
+          }
+        ]
+      },
+      "dir": {
+        "Spans": [
+          {
+            "Text": "Forks",
+            "Ws": "su",
+            "Bold": "Off",
+            "FontSize": -1878506817,
+            "ForeColor": "#00FFFF",
+            "Tags": [
+              "9ae1273c-beb1-cb6a-6f11-93f15f401c40"
+            ]
+          },
+          {
+            "Text": "Strategist",
+            "Ws": "vnm",
+            "Bold": "Off",
+            "FontSize": 58153094,
+            "ForeColor": "#00000000",
+            "Tags": [
+              "3873775d-c730-ef0e-c3c6-0e68faa0f3cd"
+            ]
+          },
+          {
+            "Text": "Plastic",
+            "Ws": "trs",
+            "Bold": "Off",
+            "FontSize": -266160974,
+            "ForeColor": "#ADFF2F",
+            "Tags": [
+              "f4168fea-36c4-48ab-9fc3-deab1f9a74cb"
+            ]
+          }
+        ]
+      },
+      "dad": {
+        "Spans": [
+          {
+            "Text": "Games",
+            "Ws": "ida",
+            "Bold": "Invert",
+            "FontSize": -1691693952,
+            "ForeColor": "#FF0000",
+            "Tags": [
+              "acf027b7-f95c-d133-c721-ae5414ab90a5"
+            ]
+          },
+          {
+            "Text": "Refined Soft Ball",
+            "Ws": "dad",
+            "Tags": [
+              "d17d087f-aa57-4748-9be6-4b2994fec775"
+            ]
+          }
+        ]
+      },
+      "xkt": {
+        "Spans": [
+          {
+            "Text": "Generic Wooden Bike",
+            "Ws": "xmc",
+            "Bold": "Invert",
+            "FontSize": -241536031,
+            "ForeColor": "#00FFFF",
+            "Tags": [
+              "30a6f4c3-c650-0d8e-3aed-adcdd933b721"
+            ]
+          },
+          {
+            "Text": "application",
+            "Ws": "xkt",
+            "Tags": [
+              "2c839661-2eab-4d3c-bd40-7a2c2e16130d"
+            ]
+          }
+        ]
+      }
+    },
+    "Gloss": {
+      "nhb": "Toys",
+      "ady": "Crest"
+    },
+    "PartOfSpeechId": "56259ce6-4050-36d3-4b2f-edee2c9ddf6d",
+    "SemanticDomains": [
+      {
+        "Id": "2db7fd53-fd6d-b30d-2588-5c92ddab9d5a",
+        "Name": {
+          "xaw": "Refined Metal Tuna",
+          "kjf": "Soft",
+          "knd": "Flat"
+        },
+        "Abbreviation": {
+          "baj": "Mongolia",
+          "xrt": "recontextualize",
+          "yab": "Soft"
+        },
+        "Code": "Mongolia",
+        "Description": {
+          "jkm": {
+            "Spans": [
+              {
+                "Text": "Architect",
+                "Ws": "jkm",
+                "Tags": [
+                  "8e64bb8b-1bbd-4d86-9942-8321bb22bb38"
+                ]
+              },
+              {
+                "Text": "South Dakota",
+                "Ws": "saa",
+                "Bold": "On",
+                "FontSize": -1924455850,
+                "ForeColor": "#ADFF2F",
+                "Tags": [
+                  "3e435a80-5aa4-b41b-cabf-46bf8d1b7de8"
+                ]
+              }
+            ]
+          },
+          "tkz": {
+            "Spans": [
+              {
+                "Text": "SAS",
+                "Ws": "tkz",
+                "Tags": [
+                  "22a3ba9b-b37e-46e6-986c-5b5c6d78d15d"
+                ]
+              },
+              {
+                "Text": "next-generation",
+                "Ws": "tkz",
+                "Tags": [
+                  "9fc4595d-de55-4c3a-acc9-81a19e635d5e"
+                ]
+              }
+            ]
+          },
+          "dsb": {
+            "Spans": [
+              {
+                "Text": "Rhode Island",
+                "Ws": "dsb",
+                "Tags": [
+                  "d94a5f58-e569-49b1-95d9-ebb55a20e530"
+                ]
+              },
+              {
+                "Text": "Configurable",
+                "Ws": "dsb",
+                "Tags": [
+                  "5c098dbe-d13e-4230-b066-6eeebc8c7140"
+                ]
+              },
+              {
+                "Text": "Investment Account",
+                "Ws": "dsb",
+                "Tags": [
+                  "5ae3cad0-6d45-44d0-870c-d33d856377e5"
+                ]
+              }
+            ]
+          }
+        },
+        "OcmCodes": "Books",
+        "LouwNidaCodes": "partnerships",
+        "DeletedAt": null,
+        "Predefined": false
+      }
+    ],
+    "Pictures": [
+      {
+        "Id": "a1bab71f-24bd-acfb-bbaa-3f6f6de9e903",
+        "Order": 0,
+        "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+        "Caption": {
+          "qwt": {
+            "Spans": [
+              {
+                "Text": "bottom-line",
+                "Ws": "ppq",
+                "Bold": "Off",
+                "FontSize": 1872569772,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "5c54df50-cc48-aeb1-8a9d-e2441502133c"
+                ]
+              },
+              {
+                "Text": "Kids",
+                "Ws": "caf",
+                "Bold": "Off",
+                "FontSize": -2083734455,
+                "ForeColor": "#0000FF",
+                "Tags": [
+                  "c9cece00-977e-4261-4a19-45a7d6fa8f23"
+                ]
+              },
+              {
+                "Text": "Soft",
+                "Ws": "pne",
+                "Bold": "Off",
+                "FontSize": -1704242258,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "b7ce0ed2-44e1-ece4-c431-43eac4b7ae15"
+                ]
+              },
+              {
+                "Text": "rich",
+                "Ws": "tdt",
+                "Bold": "Off",
+                "FontSize": -982140480,
+                "ForeColor": "#A52A2A",
+                "Tags": [
+                  "81b4723e-39ae-c73b-239c-55b8050893f3"
+                ]
+              }
+            ]
+          },
+          "gge": {
+            "Spans": [
+              {
+                "Text": "quantify",
+                "Ws": "tnp",
+                "Bold": "Off",
+                "FontSize": -1557000445,
+                "ForeColor": "#FF0000",
+                "Tags": [
+                  "8683f3f9-d74a-530a-4772-e0d77eeaf0fb"
+                ]
+              },
+              {
+                "Text": "Coordinator",
+                "Ws": "gge",
+                "Tags": [
+                  "2bbca9e9-f593-4752-b584-a6b050e7c875"
+                ]
+              },
+              {
+                "Text": "New Mexico",
+                "Ws": "gge",
+                "Tags": [
+                  "a2db1a49-aa3e-4936-a53c-61e71ee6fdab"
+                ]
+              }
+            ]
+          },
+          "bgk": {
+            "Spans": [
+              {
+                "Text": "synthesize",
+                "Ws": "nix",
+                "Bold": "Invert",
+                "FontSize": 399672687,
+                "ForeColor": "#00FFFF",
+                "Tags": [
+                  "3e970a95-9131-0996-e7f7-4acd3dee0828"
+                ]
+              }
+            ]
+          },
+          "ebr": {
+            "Spans": [
+              {
+                "Text": "Security",
+                "Ws": "cib",
+                "Bold": "On",
+                "FontSize": -624958186,
+                "ForeColor": "#00000000",
+                "Tags": [
+                  "6b2e4bf0-17c5-c01e-c8e3-60fd0eee0785"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "EntityId": "6fdf3fda-9819-1f83-b53a-441929a533f3"
   },
   {
     "$type": "CreateExampleSentenceChange",
@@ -745,7 +1717,58 @@
     },
     "Predefined": false,
     "Code": "port",
+    "Abbreviation": {},
+    "Description": {},
+    "OcmCodes": "",
+    "LouwNidaCodes": "",
     "EntityId": "61d1a336-fe39-18b5-452a-4b192946cc51"
+  },
+  {
+    "$type": "CreateSemanticDomainChange",
+    "Name": {
+      "ili": "Savings Account",
+      "aag": "impactful"
+    },
+    "Predefined": false,
+    "Code": "leverage",
+    "Abbreviation": {
+      "mng": "Madagascar",
+      "tda": "Bahamian Dollar"
+    },
+    "Description": {
+      "ndx": {
+        "Spans": [
+          {
+            "Text": "green",
+            "Ws": "ndx",
+            "Tags": [
+              "5ba21ced-0c02-4ea7-bcc2-cc2c9696311d"
+            ]
+          }
+        ]
+      },
+      "bzu": {
+        "Spans": [
+          {
+            "Text": "Walk",
+            "Ws": "bzu",
+            "Tags": [
+              "6f9b0dae-f199-4b4c-96aa-6a7c59e5c6ab"
+            ]
+          },
+          {
+            "Text": "payment",
+            "Ws": "bzu",
+            "Tags": [
+              "9dc80b74-a1de-4ea5-8880-ab96bba14db0"
+            ]
+          }
+        ]
+      }
+    },
+    "OcmCodes": "e-markets",
+    "LouwNidaCodes": "Court",
+    "EntityId": "83854dd5-2b69-bbd8-8172-181036df378f"
   },
   {
     "$type": "CreateWritingSystemChange",
