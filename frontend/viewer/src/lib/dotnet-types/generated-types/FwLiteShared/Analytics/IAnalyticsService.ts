@@ -3,10 +3,9 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export enum PreferenceKey {
-	AppLastUrl = "AppLastUrl",
-	AnalyticsDeviceId = "AnalyticsDeviceId",
-	AnalyticsUserId = "AnalyticsUserId",
-	AnalyticsOptOut = "AnalyticsOptOut"
+export interface IAnalyticsService
+{
+	getAnalyticsEnabled() : Promise<boolean>;
+	setAnalyticsEnabled(enabled: boolean) : Promise<void>;
 }
 /* eslint-enable */

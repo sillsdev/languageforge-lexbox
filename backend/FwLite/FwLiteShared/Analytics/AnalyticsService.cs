@@ -5,6 +5,7 @@ using FwLiteShared.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
 
 namespace FwLiteShared.Analytics;
 
@@ -25,11 +26,28 @@ public class AnalyticsService(
     private readonly IAnalyticsEventEnricher[] _enrichers = enrichers?.ToArray() ?? [];
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
+    [JSInvokable]
+    public bool GetAnalyticsEnabled()
+    {
+        return preferences.Get(nameof(PreferenceKey.AnalyticsOptOut)) != "true";
+    }
+
+    [JSInvokable]
+    public void SetAnalyticsEnabled(bool enabled)
+    {
+        if (enabled)
+            preferences.Remove(nameof(PreferenceKey.AnalyticsOptOut));
+        else
+            preferences.Set(nameof(PreferenceKey.AnalyticsOptOut), "true");
+    }
+
     public void Track(
         string eventName,
         IReadOnlyDictionary<string, object?>? properties = null,
         DateTimeOffset? time = null)
     {
+        if (!GetAnalyticsEnabled())
+            return;
         var occurredAt = time ?? _clock.GetUtcNow();
         var insertId = Guid.NewGuid().ToString();
         _ = Task.Run(() => TrackAsync(eventName, properties, occurredAt, insertId));
@@ -87,6 +105,8 @@ public class AnalyticsService(
     {
         try
         {
+            if (!GetAnalyticsEnabled())
+                return;
             var fwLite = config.Value;
             var analytics = analyticsConfig.Value;
             var token = MixpanelAnalytics.SelectToken(environment.IsDevelopment(), analytics);

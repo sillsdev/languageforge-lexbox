@@ -322,6 +322,41 @@ public class AnalyticsServiceTests
     }
 
     [Fact]
+    public async Task TrackAsync_DoesNotSend_WhenOptedOut()
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, isDevelopment: true);
+
+        service.SetAnalyticsEnabled(false);
+        await service.TrackAsync("app_launched");
+
+        handler.RequestCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void GetAnalyticsEnabled_DefaultsToEnabled()
+    {
+        var service = CreateService(new CaptureHandler());
+
+        service.GetAnalyticsEnabled().Should().BeTrue();
+    }
+
+    [Fact]
+    public void SetAnalyticsEnabled_PersistsOptOutAndBack()
+    {
+        var prefs = new MemoryPreferences();
+        var service = CreateService(new CaptureHandler(), prefs: prefs);
+
+        service.SetAnalyticsEnabled(false);
+        service.GetAnalyticsEnabled().Should().BeFalse();
+        prefs.Get(nameof(PreferenceKey.AnalyticsOptOut)).Should().Be("true");
+
+        service.SetAnalyticsEnabled(true);
+        service.GetAnalyticsEnabled().Should().BeTrue();
+        prefs.Get(nameof(PreferenceKey.AnalyticsOptOut)).Should().BeNull();
+    }
+
+    [Fact]
     public async Task TrackAsync_PostsJsonToMixpanel_InDevelopment()
     {
         var handler = new CaptureHandler();
