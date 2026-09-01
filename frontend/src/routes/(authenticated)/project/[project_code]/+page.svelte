@@ -432,7 +432,7 @@
                       />
                     {/if}
                   </div>
-                  <SendReceiveUrlField projectCode={project.code}/>
+                  <SendReceiveUrlField projectCode={project.code} login={user.emailOrUsername}/>
                 </div>
               </div>
             {/snippet}

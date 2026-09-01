@@ -41,7 +41,7 @@
       <div class="collapse-content p-0">
         <div class="divider mt-0"></div>
         <Markdown md={$t('project_page.get_project.instructions_flex', { code: project.code, login, name: project.name })} />
-        <SendReceiveUrlField projectCode={project.code} />
+        <SendReceiveUrlField projectCode={project.code} {login} />
       </div>
     </div>
   </div>

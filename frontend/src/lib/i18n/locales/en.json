@@ -578,6 +578,8 @@ so we can get this fixed!",
 1. Click on \"Internet\". This will initiate the first Send/Receive.",
       "label": "{isEmpty, select, true { Set up } other { Get } } project",
       "send_receive_url": "Send/Receive URL",
+      "send_receive_password": "Password",
+      "send_receive_password_description": "Used only to build the URL below. It is not sent to Lexbox.",
     },
     "promote_project": {
       "label": "Promote to real project",
