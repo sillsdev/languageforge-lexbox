@@ -897,19 +897,43 @@ public class FwDataMiniLcmApi(
 
     private string ToMediaUri(string tsString)
     {
-        //rooted media paths aren't supported
+        var audioVisualRoot = Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder);
+        string fullFilePath;
         if (Path.IsPathRooted(tsString))
-            throw new ArgumentException("Media path must be relative", nameof(tsString));
-        var fullFilePath = Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder, tsString);
+        {
+            // Normalize-then-classify (ticket 13): a rooted path under AudioVisual is a managed file
+            // expressed absolutely — resolve it normally. A genuinely out-of-tree path can't be resolved
+            // to a managed media file, so it becomes the not-found sentinel (never crash on read).
+            // GetRelativePath is case-insensitive on Windows and separator-aware, so it won't misclassify a
+            // managed file (which would turn a real reference into the sentinel = data loss). The path escapes
+            // AudioVisual only when the relative result begins with a parent-directory (..) SEGMENT or is rooted
+            // (a different drive). Match the segment, not a raw ".." prefix, so a filename that merely starts
+            // with ".." (e.g. "..foo.wav") stays resolvable.
+            var relative = Path.GetRelativePath(audioVisualRoot, tsString);
+            if (relative == ".."
+                || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+                || relative.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal)
+                || Path.IsPathRooted(relative))
+                return MediaUri.NotFound.ToString();
+            fullFilePath = tsString;
+        }
+        else
+        {
+            fullFilePath = Path.Join(audioVisualRoot, tsString);
+        }
         return mediaAdapter.MediaUriFromPath(fullFilePath, Cache).ToString();
     }
 
-    internal string FromMediaUri(string mediaUriString)
+    internal string? FromMediaUri(string mediaUriString)
     {
         //path includes `AudioVisual` currently
         var mediaUri = new MediaUri(mediaUriString);
+        // not found, return null
+        if (mediaUri == MediaUri.NotFound) return null;
         var path = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
-        if (path is null) throw new NotFoundException($"File ID: {mediaUri.FileId}.", nameof(MediaFile));
+        // An unresolvable reference (no Files row / not on disk) is skipped on write, not a crash
+        // the entry otherwise syncs and the field heals on a later sync once the binary is resolvable.
+        if (path is null) return null;
         return Path.GetRelativePath(Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder), path);
     }
 

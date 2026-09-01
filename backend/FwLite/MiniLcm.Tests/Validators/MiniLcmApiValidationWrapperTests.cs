@@ -110,7 +110,17 @@ public class MiniLcmApiValidationWrapperTests
     private static object? BuildArgument(Type type)
     {
         if (type == typeof(Guid)) return Guid.NewGuid();
+        if (type == typeof(string)) return string.Empty;
         if (type.IsValueType) return Activator.CreateInstance(type);
-        return type.GetConstructor(Type.EmptyTypes) is null ? null : Activator.CreateInstance(type);
+        if (type.GetConstructor(Type.EmptyTypes) is not null) return Activator.CreateInstance(type);
+        // Types without a parameterless constructor (e.g. LcmFileMetadata) are built via their fewest-arg
+        // constructor, filling each parameter (defaults where available, otherwise recursively). Values don't
+        // matter because the validators reject by reference identity, not by reading the instance.
+        var ctor = type.GetConstructors().OrderBy(c => c.GetParameters().Length).FirstOrDefault();
+        if (ctor is null) return null;
+        var args = ctor.GetParameters()
+            .Select(p => p.HasDefaultValue ? p.DefaultValue : BuildArgument(p.ParameterType))
+            .ToArray();
+        return ctor.Invoke(args);
     }
 }

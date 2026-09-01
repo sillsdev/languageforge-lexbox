@@ -81,7 +81,8 @@ public class MediaFileServiceTests : IDisposable
         var mediaFile = new MediaFile()
         {
             Filename = LinkedFileRelativePath(fileName),
-            ProjectId = _projectId
+            ProjectId = _projectId,
+            Revision = 1 // a backed file (revision 0 is reserved for a pending reservation with no binary)
         };
         _lexBoxDbContext.Files.Add(mediaFile);
         await _lexBoxDbContext.SaveChangesAsync();
@@ -340,6 +341,7 @@ public class MediaFileServiceTests : IDisposable
         var absolutePath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath("FindSep.txt"));
         var found = _service.FindMediaFile(_projectId, absolutePath);
 
-        found.Id.Should().Be(seeded.Id);
+        found.Should().NotBeNull();
+        found!.Id.Should().Be(seeded.Id);
     }
 }
