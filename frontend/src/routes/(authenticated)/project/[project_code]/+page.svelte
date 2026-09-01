@@ -402,7 +402,6 @@
                           md={$t('project_page.get_project.instructions_wesay_empty', {
                               code: project.code,
                               login: encodeURIComponent(user.emailOrUsername),
-                              name: project.name,
                             })}
                         />
                       {:else}
@@ -410,7 +409,6 @@
                           md={$t('project_page.get_project.instructions_wesay', {
                               code: project.code,
                               login: encodeURIComponent(user.emailOrUsername),
-                              name: project.name,
                             })}
                         />
                       {/if}
@@ -419,7 +417,6 @@
                         md={$t('project_page.get_project.instructions_flex_empty', {
                             code: project.code,
                             login: user.emailOrUsername,
-                            name: project.name,
                           })}
                       />
                     {:else}
@@ -427,7 +424,6 @@
                         md={$t('project_page.get_project.instructions_flex', {
                             code: project.code,
                             login: user.emailOrUsername,
-                            name: project.name,
                           })}
                       />
                     {/if}

@@ -548,28 +548,29 @@ so we can get this fixed!",
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
 1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" ({login}) and \"Password\" for Lexbox and click \"Log in\"\n\
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
-1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")\n\
+1. Enter a \"Name for the folder on your computer\" (e.g. \"{code}\")\n\
 \n\
-If you're having trouble, try switching the server to \"Custom Location...\", then type your password in the field below, copy the Send/Receive URL, and paste it into the URL text box.",
+If you're having trouble, check the \"URL\" checkbox, then type your password in the field below, copy the Send/Receive URL, and paste it into the URL text box.",
       "instructions_flex_empty": "1. [Download FieldWorks](https://software.sil.org/fieldworks/download/) onto your computer.\n\
 1. Open the FieldWorks application and select \"Create a new project...\".\n\
-1. Fill in the required information: name of project, name for the folder (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
+1. Fill in the required information: name of project, name for the folder (e.g. \"{code}\"), etc. Then click \"Finish\".\n\
 1. After the new project opens, click on \"Send/Receive\" -> \"Send this Project for the first time\".\n\
 1. Click on \"OK (I have the master project)\".\n\
-1. Click on \"Settings...\".\n\
-1. In the \"Server\" dropdown, select \"Custom Location...\".\n\
-1. Type your password in the field below, copy the Send/Receive URL, and paste it into the URL text box.\n\
+1. Click on \"Settings...\" and enter your Lexbox \"Login\" ({login}) and \"Password\".\n\
+1. Click Log in, then select the Project ID ({code}) from the drop-down menu.\n\
 1. Click on \"OK\" to close the \"Settings...\" dialog.\n\
-1. Click on Internet. This will initiate the first Send/Receive.",
+1. Click on Internet. This will initiate the first Send/Receive.\n\
+\n\
+If you're having trouble, check the \"URL\" checkbox, then type your password in the field below, copy the Send/Receive URL, and paste it into the URL text box.",
       "instructions_wesay": "1. Launch 'WeSay Configuration Tool'\n\
 1. Click 'Get from Internet'\n\
 1. In the \"Server\" dropdown, select \"Custom Location...\".\n\
 1. Type your password in the field below, copy the Send/Receive URL, and paste it into the URL text box.\n\
-1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")\n\
+1. Enter a \"Name for the folder on your computer\" (e.g. \"{code}\")\n\
 1. Click 'Download'",
       "instructions_wesay_empty": "1. [Download WeSay](https://software.sil.org/wesay/download/) onto your computer.\n\
 1. Open WeSay and select \"Create a new blank project...\".\n\
-1. Fill in the required information: project language and name of project (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
+1. Fill in the required information: project language and name of project (e.g. \"{code}\"), etc. Then click \"Finish\".\n\
 1. Add some words if you want\n\
 1. Click \"Send/Receive\"\n\
 1. Click on \"Settings...\"\n\
