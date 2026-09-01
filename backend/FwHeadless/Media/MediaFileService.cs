@@ -26,7 +26,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var existingFwFiles = FilesRelativeToHgRepo(cache).ToHashSet();
         await foreach (var mediaFile in existingDbFiles)
         {
-            if (existingFwFiles.Remove(mediaFile.Filename))
+            if (existingFwFiles.Remove(MediaFilePath.Normalize(mediaFile.Filename)))
             {
                 //nothing to do, the file exists in the db and in the hg repo
                 continue;
@@ -63,7 +63,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         if (!Directory.Exists(cache.LangProject.LinkedFilesRootDir)) yield break;
         foreach (var file in Directory.EnumerateFiles(cache.LangProject.LinkedFilesRootDir, "*", SearchOption.AllDirectories))
         {
-            yield return Path.GetRelativePath(cache.ProjectId.ProjectFolder, file);
+            yield return MediaFilePath.Normalize(Path.GetRelativePath(cache.ProjectId.ProjectFolder, file));
         }
     }
 
@@ -86,10 +86,11 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
             throw new ArgumentException("Path must be in the project storage root", nameof(path));
         }
 
-        path = Path.GetRelativePath(fwDataFolder, path);
-        return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename == path) ??
+        var relativePath = MediaFilePath.Normalize(Path.GetRelativePath(fwDataFolder, path));
+        //normalize the stored column too: legacy rows may have been written under a different OS's separators
+        return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename.Replace("\\", "/") == relativePath) ??
                throw new NotFoundException(
-                   $"Unable to find file {path}, in project {projectId}.",
+                   $"Unable to find file {relativePath}, in project {projectId}.",
                    nameof(MediaFile));
     }
 
