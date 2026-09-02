@@ -91,12 +91,14 @@ jobs:
           for f in whatsnew-en-US forum.md; do
             if [ -f "$f" ]; then tr -d '\000-\010\013-\037' < "$f" > "$f.tmp" && mv "$f.tmp" "$f"; fi
           done
-          # Prints every link destination (URL, protocol-relative, www., markdown target) whose host isn't allowed; fails closed on anything odd.
+          # Prints every link destination (URL, protocol-relative, www., markdown target) whose host isn't allowed, and any
+          # raw HTML (the notes are markdown; HTML only adds ways to hide a link). Fails closed on anything odd.
           cat > check-links.py <<'PY'
-          import re, sys
-          text = open(sys.argv[1], encoding="utf-8").read()
+          import html, re, sys
+          text = html.unescape(open(sys.argv[1], encoding="utf-8").read())
           allowed = re.compile(sys.argv[2] or r"(?!)")
-          dests = (re.findall(r"(?:https?:)?//[^\s)>\"'\]]+", text, re.I)
+          dests = (re.findall(r"<(?!https?://)[a-zA-Z/!?][^\n]{0,40}", text)
+                   + re.findall(r"(?:https?:)?//[^\s)>\"'\]]+", text, re.I)
                    + re.findall(r"(?<![\w.-])www\.[^\s)>\"'\]]+", text, re.I)
                    + re.findall(r"\]\(([^)]*)\)", text))
           bad = [d for d in dests if not allowed.fullmatch(re.sub(r"^(https?:)?//", "", d, flags=re.I).split("/")[0].split("?")[0].split("#")[0].lower())]
