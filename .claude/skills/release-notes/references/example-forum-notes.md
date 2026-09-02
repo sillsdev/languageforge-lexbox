@@ -2,7 +2,7 @@
 
 Real release notes posted to the SIL community forum (Discourse), in the format generated for this project: `##` version headers, `####` section headers with emoji, `*` bullets. Kept as a reference for format, tone, and filtering.
 
-These are historical posts, preserved as posted — some older ones deviate from the current contract (section order varies, and v2025-12-12 has a one-off 🧰 Maintenance section). Where they conflict, SKILL.md wins.
+These are historical posts, preserved as posted. v2026-04-08 and v2026-04-09 lead with Bug Fixes — deliberate uses of SKILL.md's priority exception (the fix was the headline; the improvements were filler). v2025-12-12's 🧰 Maintenance section is a one-off not in the current contract. On any other conflict, SKILL.md wins.
 
 ---
 

@@ -153,6 +153,7 @@ Live/CRDT sync via the Lexbox server (SignalR reconnection, live update notifica
 
 - The forum `## Version:` header uses the **date only** — the commit hash appears only in the version-tag block of your chat reply, not in the forum header.
 - Only include sections that have items; order New Features → Improvements → Bug Fixes; biggest impact first within each.
+- **Priority exception:** reorder sections when an item's importance clearly trumps the standard order — e.g. a headline bug fix leads a release whose other items are filler (real precedent: v2026-04-08/09 in the examples). Use sparingly, and whenever you do, say so in one line at the end of your chat output (after the three blocks) so the reviewer sees a deliberate call, not a formatting error. The same exception applies to the Android emoji-group order.
 
 **Language style:**
 
@@ -186,7 +187,7 @@ A tightened, platform-filtered subset of the forum notes — same research, not 
 **Format** — plain text; Play Store renders no Markdown, only emoji and literal line breaks:
 
 - One emoji per item: ✨ new feature, 🚀 improvement, 🐛 bug fix; one item per line
-- Blank line between emoji groups; groups ordered ✨ → 🚀 → 🐛, biggest first within each
+- Blank line between emoji groups; groups ordered ✨ → 🚀 → 🐛, biggest first within each (Step 5's priority exception applies here too)
 - Disclosures that are none of the three (e.g. an analytics/telemetry notice) go last as an ℹ️ line
 - Wording tighter than the forum version; "Fixed" past tense, consistent within the batch; keep essential parentheticals but trim them hard
 
