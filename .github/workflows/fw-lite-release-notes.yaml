@@ -64,12 +64,12 @@ jobs:
           prompt: |
             Run the release-notes skill (.claude/skills/release-notes/SKILL.md) in pre-release mode with file output, for the FieldWorks Lite release this CI run is publishing.
 
-            Release tag: ${{ steps.tag.outputs.TAG }}, built from commit ${{ github.sha }}. The tag is definite, not predicted. Use that commit as the endpoint of every comparison (not origin/main, which may have moved on). The baseline is the newest release tag that is an ancestor of that commit, never the tag itself (on a re-run the release may already exist, and newer releases may too).
+            Release tag: ${{ steps.tag.outputs.TAG }}, built from commit ${{ github.sha }}. The tag is definite, not predicted. Use that commit as the endpoint of every comparison (not origin/main, which may have moved on). The baseline is the previous release tag on that commit's history: `git describe --tags --abbrev=0 --exclude ${{ steps.tag.outputs.TAG }} ${{ github.sha }}` (never the tag itself; on a re-run this release, and newer ones, may already exist).
 
             Write the two files described in the skill's "File output" section into the directory release-notes/. Do not write any other files, and do not create comments, issues, or PRs.
           claude_args: |
             --max-turns 60
-            --allowedTools "Skill,Agent,Read,Glob,Grep,Write,WebFetch,Bash(gh api:*),Bash(gh release:*),Bash(gh pr:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git tag:*),Bash(git rev-parse:*)"
+            --allowedTools "Skill,Agent,Read,Glob,Grep,Write,WebFetch,Bash(gh api:*),Bash(gh release:*),Bash(gh pr:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git tag:*),Bash(git describe:*),Bash(git merge-base:*),Bash(git rev-parse:*),Bash(ls:*),Bash(mkdir:*),Bash(cat:*),Bash(wc:*),Bash(grep:*),Bash(head:*),Bash(jq:*)"
       - name: Check the notes
         if: env.HAS_CLAUDE_TOKEN == 'true'
         continue-on-error: true

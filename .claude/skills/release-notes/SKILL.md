@@ -3,7 +3,7 @@ name: release-notes
 description: Generate user-facing FieldWorks Lite release notes in two formats at once — SIL community forum (Discourse markdown) and Google Play "What's new" (plain text, ≤500 chars). Use whenever the user asks for release notes, forum notes, Android/Play Store notes, "what's new", or notes for an upcoming release. Released mode reads the latest GitHub release; pre-release mode ("upcoming release", "I just pushed to main") reconstructs the changes from PRs merged since the last tag.
 when_to_use: User asks for "release notes", "forum notes", "Android notes", "Play Store notes", "what's new for this release", or wants notes for a build just pushed to main before the GitHub release exists.
 argument-hint: "[released | upcoming]"
-allowed-tools: Bash(gh api:*) Bash(gh release:*) Bash(gh pr:*) Bash(git fetch:*) Bash(git log:*) Bash(git show:*) Bash(git tag:*) Bash(git rev-parse:*) Read Glob Grep WebFetch Agent Write
+allowed-tools: Bash(gh api:*) Bash(gh release:*) Bash(gh pr:*) Bash(git fetch:*) Bash(git log:*) Bash(git show:*) Bash(git tag:*) Bash(git describe:*) Bash(git merge-base:*) Bash(git rev-parse:*) Read Glob Grep WebFetch Agent Write
 ---
 
 # FieldWorks Lite release notes
