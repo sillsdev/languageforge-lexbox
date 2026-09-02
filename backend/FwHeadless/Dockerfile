@@ -61,6 +61,12 @@ CMD ["dotnet", "FwHeadless.dll"]
 # (via the marker COPY below), so buildkit must build it — and a failing smoke test fails the build.
 FROM runtime AS smoketest
 USER root
+# Smoke-test: the bundled Mercurial actually runs. The Linux `hg` is a python3 script that loads
+# native modules (zstd, etc.), so this catches a missing python3 or a broken native asset — the
+# foundation of every Send/Receive — before the image ships.
+RUN cd /app \
+    && ./Mercurial/hg version | grep -q "Mercurial Distributed SCM" \
+    && echo "hg smoke OK: $(./Mercurial/hg version | head -1)"
 # Smoke-test FixFwData: FwHeadless runs under dotnet (AspNetCore shared framework) but FixFwData is a
 # standalone apphost (Core only). Web publish does not copy the extra assemblies FixFwData needs
 # (e.g. Logging.Abstractions); the csproj PublishFixFwData target must publish it into the same
