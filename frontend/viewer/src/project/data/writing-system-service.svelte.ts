@@ -139,6 +139,16 @@ export class WritingSystemService {
     return firstTruthy(this.vernacularNoAudio, ws => this.#decorated(entry, ws.wsId)) || '';
   }
 
+  /**
+   * Headword to show in the entry list when sorting by writing system `ws`. Prefers `ws` so the
+   * shown headword matches the sort key, but falls back to the first available vernacular value
+   * (like {@link headword}) so rows aren't left blank when an entry has no form in `ws`.
+   */
+  sortedHeadword(entry: ReadonlyDeep<IEntry>, ws?: string): string {
+    if (!ws) return this.headword(entry);
+    return this.#decorated(entry, ws) || this.headword(entry);
+  }
+
   #decorated(entry: ReadonlyDeep<IEntry>, ws: string): string | undefined {
     // Citation forms should not be decorated with prefix/postfix tokens, only lexeme forms get decorated
     return entry.citationForm[ws] || this.#morphTypesService.decorate(entry.lexemeForm[ws], entry.morphType);

@@ -12,6 +12,8 @@
     entry?: IEntry;
     badge?: Snippet;
     previewDictionary?: boolean;
+    /** Writing system being sorted by; the shown headword prefers it. Undefined = default vernacular. */
+    sortWs?: string;
   };
 
   let {
@@ -19,6 +21,7 @@
     ref = $bindable(null),
     badge,
     previewDictionary = false,
+    sortWs,
     ...rest
   }: Props = $props();
 
@@ -53,7 +56,7 @@
     <DictionaryEntry {entry}/>
   {:else}
     <h2 class="font-medium text-2xl flex min-w-0 justify-between items-center gap-2">
-      <span class="min-w-0 wrap-break-word">{writingSystemService.headword(entry) || $t`Untitled`}</span>
+      <span class="min-w-0 wrap-break-word">{writingSystemService.sortedHeadword(entry, sortWs) || $t`Untitled`}</span>
       {@render badge?.()}
     </h2>
     {#if entry.senses.length}
