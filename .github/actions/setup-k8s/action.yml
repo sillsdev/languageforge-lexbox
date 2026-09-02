@@ -65,7 +65,19 @@ runs:
       run: |
         kubectl create namespace languagedepot
         kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
-        kubectl wait --for=condition=Ready --timeout=90s pod -l 'app in (cert-manager, webhook)' -n cert-manager
+        kubectl wait --for=condition=Available --timeout=180s \
+          deployment/cert-manager \
+          deployment/cert-manager-cainjector \
+          deployment/cert-manager-webhook \
+          -n cert-manager
+        # Pod Available is not enough: cainjector still has to write a CA
+        # that matches the webhook serving cert. cmctl dry-runs a
+        # CertificateRequest through both admission webhooks until TLS works.
+        curl -fsSL -o /tmp/cmctl \
+          https://github.com/cert-manager/cmctl/releases/download/v2.5.0/cmctl_linux_amd64
+        chmod +x /tmp/cmctl
+        sudo mv /tmp/cmctl /usr/local/bin/cmctl
+        cmctl check api --wait=2m
         kubectl apply -k ./deployment/gha
         kubectl wait --for=condition=Ready --timeout=120s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
         kubectl wait --for=condition=Ready --timeout=120s pod -l 'app in (lexbox, ui, hg, db, fw-headless)' -n languagedepot
