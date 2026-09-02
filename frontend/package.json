@@ -73,6 +73,7 @@
     "postcss": "catalog:",
     "rimraf": "^6.1.2",
     "runed": "catalog:",
+    "set-cookie-parser": "^3.1.2",
     "svelte": "catalog:",
     "svelte-check": "catalog:",
     "svelte-eslint-parser": "catalog:",
@@ -106,7 +107,6 @@
     "js-cookie": "^3.0.7",
     "just-order-by": "^1.0.0",
     "mjml": "^4.17.1",
-    "set-cookie-parser": "^3.1.2",
     "svelte-intl-precompile": "^0.12.3",
     "tus-js-client": "^4.3.1"
   },
