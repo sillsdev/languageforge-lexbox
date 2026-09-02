@@ -390,40 +390,45 @@
     },
     "get_project": {
       "instructions_header": "이 프로젝트를 {isEmpty, select, true { 설정 } other { 얻기 }}하려면 {type, select, FL_EX { FieldWorks } WE_SAY { WeSay } other { (예: FieldWorks) }} {mode, select, manual { 수동으로} other { }}",
-      "instructions_flex": "1. \"송수신\" 메뉴에서 \"동료로부터 프로젝트 가져오기...\"를 클릭하십시오\n\
-1. \"프로젝트 받기\" 대화 상자에서 \"인터넷\"을 클릭하십시오\n\
-1. \"인터넷을 통한 프로젝트 가져오기\" 대화 상자에서 Language Depot의 \"로그인\" ({login})과(와) \"비밀번호\"를 입력하고 \"로그인\"을 클릭하십시오\n\
-1. 나타나는 \"프로젝트 ID\" 필드에서 \"{code}\"를 선택하십시오\n\
-1. 컴퓨터에 폴더 이름을 입력하십시오 (예: \"{name}\")",
-      "instructions_flex_empty": "1. [FieldWorks 다운로드](https://software.sil.org/fieldworks/download/)\n\
-1. FieldWorks 응용 프로그램을 열고 \"새 프로젝트 생성...\"을 선택하십시오.\n\
-1. 필수 정보를 입력하십시오: 프로젝트 이름, 폴더 이름 (예: \"{name}\"), 등을 입력한 후 \"완료\"를 클릭하십시오.\n\
-1. 새 프로젝트가 열리면 \"송수신\" -> \"처음으로 이 프로젝트 전송\"을 클릭하십시오.\n\
-1. \"확인 (주 프로젝트가 있습니다)\"을 클릭하십시오.\n\
-1. \"설정...\"을 클릭하고 Language Depot \"로그인\" ({login})과(와) \"비밀번호\"를 입력하십시오.\n\
-1. 로그인하고 드롭다운 메뉴에서 프로젝트 ID ({code})를 선택하십시오.\n\
-1. 인터넷을 클릭하십시오. 이렇게 하면 첫 번째 송수신이 시작됩니다.",
-      "instructions_wesay": "1. 'WeSay 구성 도구'를 실행하십시오\n\
-1. '인터넷에서 가져오기'를 클릭하십시오\n\
-1. '프로젝트 ID' 필드에 \"{code}\"를 입력하십시오\n\
-1. '로그인' 필드에 \"{login}\"을 입력하십시오.\ 참고: WeSay의 버그로 인해 이메일의 @ 기호를 입력할 수 없습니다. 해결 방법은 @ 대신 %40을 입력하는 것입니다.\n\
-1. '비밀번호' 필드에 비밀번호를 입력하십시오\n\
-1. 컴퓨터에 폴더 이름을 입력하십시오 (예: \"{name}\")\n\
-1. '다운로드'를 클릭하십시오",
+      "instructions_flex": "1. \"Send/Receive\" 메뉴에서 \"Get Project from colleague…\"를 클릭하십시오\n\
+1. \"Receive project\" 대화 상자에서 \"Internet\"을 클릭하십시오\n\
+1. \"Get Project From Internet\" 대화 상자에서 Lexbox의 \"Login\" ({login})과 \"Password\"를 입력하고 \"Log in\"을 클릭하십시오\n\
+1. 표시되는 \"Project ID\" 필드에서 \"{code}\"를 선택하십시오\n\
+1. \"Name for the folder on your computer\"를 입력하십시오 (예: \"{code}\")\n\
+\n\
+문제가 발생하면 \"URL\" 체크박스를 선택한 다음, 아래 필드에 비밀번호를 입력하고 송수신 URL을 복사하여 URL 텍스트 상자에 붙여넣으십시오.",
+      "instructions_flex_empty": "1. 컴퓨터에 [FieldWorks 다운로드](https://software.sil.org/fieldworks/download/)\n\
+1. FieldWorks 응용 프로그램을 열고 \"Create a new project...\"를 선택하십시오.\n\
+1. 프로젝트 이름, 폴더 이름 (예: \"{code}\") 등 필수 정보를 입력한 후 \"Finish\"를 클릭하십시오.\n\
+1. 새 프로젝트가 열리면 \"Send/Receive\" -> \"Send this Project for the first time\"을 클릭하십시오.\n\
+1. \"OK (I have the master project)\"를 클릭하십시오.\n\
+1. \"Settings...\"를 클릭하고 Lexbox의 \"Login\" ({login})과 \"Password\"를 입력하십시오.\n\
+1. \"Log in\"을 클릭한 후 드롭다운 메뉴에서 \"Project ID\" ({code})를 선택하십시오.\n\
+1. \"Settings...\" 대화 상자를 닫으려면 \"OK\"를 클릭하십시오.\n\
+1. \"Internet\"을 클릭하십시오. 이렇게 하면 첫 번째 Send/Receive가 시작됩니다.\n\
+\n\
+문제가 발생하면 \"URL\" 체크박스를 선택한 다음, 아래 필드에 비밀번호를 입력하고 송수신 URL을 복사하여 URL 텍스트 상자에 붙여넣으십시오.",
+      "instructions_wesay": "1. 'WeSay Configuration Tool'을 실행하십시오\n\
+1. 'Get from Internet'을 클릭하십시오\n\
+1. \"Server\" 드롭다운에서 \"Custom Location...\"을 선택하십시오.\n\
+1. 아래 필드에 비밀번호를 입력하고 송수신 URL을 복사하여 URL 텍스트 상자에 붙여넣으십시오.\n\
+1. \"Name for the folder on your computer\"를 입력하십시오 (예: \"{code}\")\n\
+1. 'Download'를 클릭하십시오",
       "instructions_wesay_empty": "1. 컴퓨터에 [WeSay 다운로드](https://software.sil.org/wesay/download/)\n\
-1. WeSay를 열고 \"새 빈 프로젝트 생성...\"을 선택하십시오.\n\
-1. 필수 정보를 입력하십시오: 프로젝트 언어 및 프로젝트 이름 (예: \"{name}\"), 등을 입력한 후 \"완료\"를 클릭하십시오.\n\
-1. 단어를 추가할 수 있습니다\n\
-1. '송수신'을 클릭하십시오\n\
-1. '설정...'을 클릭하십시오\n\
-1. 변경 내역에 표시할 이름 필드에 이름이 올바르게 입력되었는지 확인하십시오\n\
-1. '프로젝트 ID' 필드에 \"{code}\"를 입력하십시오\n\
-1. '로그인' 필드에 \"{login}\"을 입력하십시오.\ 참고: WeSay의 버그로 인해 이메일의 @ 기호를 입력할 수 없습니다. 해결 방법은 @ 대신 %40을 입력하는 것입니다.\n\
-1. '비밀번호' 필드에 비밀번호를 입력하십시오\n\
-1. '설정...' 대화 상자를 닫으려면 '확인'을 클릭하십시오\n\
-1. '인터넷'을 클릭하십시오. 이렇게 하면 첫 번째 송수신이 시작됩니다.",
+1. WeSay를 열고 \"Create a new blank project...\"를 선택하십시오.\n\
+1. 프로젝트 언어, 프로젝트 이름 (예: \"{code}\") 등 필수 정보를 입력한 후 \"Finish\"를 클릭하십시오.\n\
+1. 원하시면 단어를 추가하십시오\n\
+1. \"Send/Receive\"를 클릭하십시오\n\
+1. \"Settings...\"를 클릭하십시오\n\
+1. \"Name to show in change history\" 필드에 본인 이름이 올바르게 입력되어 있는지 확인하십시오\n\
+1. \"Server\" 드롭다운에서 \"Custom Location...\"을 선택하십시오.\n\
+1. 아래 필드에 비밀번호를 입력하고 송수신 URL을 복사하여 URL 텍스트 상자에 붙여넣으십시오.\n\
+1. \"Settings...\" 대화 상자를 닫으려면 \"OK\"를 클릭하십시오\n\
+1. \"Internet\"을 클릭하십시오. 이렇게 하면 첫 번째 Send/Receive가 시작됩니다.",
       "label": "{isEmpty, select, true { 프로젝트 설정 } other { 프로젝트 획득 }}",
       "send_receive_url": "송수신 URL",
+      "send_receive_password": "비밀번호",
+      "send_receive_password_description": "아래 URL을 만드는 데만 사용됩니다. Lexbox로 전송되지 않습니다.",
     },
     "promote_project": {
       "label": "실제 프로젝트로 승격",

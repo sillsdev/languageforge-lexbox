@@ -16,7 +16,7 @@
     placeholder?: string;
     // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
     // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
-    autocomplete?: 'new-password' | 'current-password';
+    autocomplete?: 'new-password' | 'current-password' | 'off';
   }
 
   let {
