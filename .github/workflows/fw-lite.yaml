@@ -8,6 +8,7 @@ on:
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
+      - '.github/workflows/fw-lite-release-notes.yaml'
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
@@ -21,6 +22,7 @@ on:
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
+      - '.github/workflows/fw-lite-release-notes.yaml'
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
@@ -596,6 +598,17 @@ jobs:
         run: |
           mv fw-lite-msix/FwLiteMaui.msixbundle fw-lite-msix/FieldWorksLiteInstaller.msixbundle
 
+      - name: Decide whether to generate release notes
+        id: release-body
+        # A re-run without a draft keeps the existing body, which already holds the generated notes; generating again would append a second copy.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.build-and-test.outputs.version }}
+        run: |
+          generate=true
+          if [ ! -s fw-lite-release-notes/release-body.md ] && gh release view "$TAG" >/dev/null 2>&1; then generate=false; fi
+          echo "generate=$generate" >> "$GITHUB_OUTPUT"
       - name: Create Release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
@@ -603,7 +616,7 @@ jobs:
           target_commitish: ${{ github.sha }}
           # Claude's forum-notes draft (missing file = keep any existing body); the generated notes are appended after it.
           body_path: fw-lite-release-notes/release-body.md
-          generate_release_notes: true
+          generate_release_notes: ${{ steps.release-body.outputs.generate }}
           files: |
             fw-lite-msix/*
             fw-lite-portable.zip
@@ -617,11 +630,13 @@ jobs:
         run: |
           mkdir -p whatsnew
           if [ -s fw-lite-release-notes/whatsnew-en-US ]; then
-            cp fw-lite-release-notes/whatsnew-en-US whatsnew/whatsnew-en-US
-            # Add the forum link when it fits Play's 500-UTF-16-unit budget (the drafting job leaves room).
-            linked=$(printf '%s\n\n%s' "$(cat whatsnew/whatsnew-en-US)" "Full release notes: https://community.software.sil.org/t/10807")
-            units=$(printf '%s' "$linked" | python3 -c 'import sys; print(len(sys.stdin.read().encode("utf-16-le")) // 2)') || units=501
-            if [ "$units" -le 500 ]; then printf '%s\n' "$linked" > whatsnew/whatsnew-en-US; fi
+            # Add the forum link when the file still fits Play's 500-UTF-16-unit budget (the drafting job leaves room).
+            printf '%s\n\n%s\n' "$(cat fw-lite-release-notes/whatsnew-en-US)" "Full release notes: https://community.software.sil.org/t/10807" > whatsnew/whatsnew-en-US
+            units=$(python3 -c 'import sys; print(len(sys.stdin.read().encode("utf-16-le")) // 2)' < whatsnew/whatsnew-en-US) || units=501
+            if [ "$units" -gt 500 ]; then
+              echo "::warning::Play Store notes with the forum link are $units UTF-16 units (limit 500); shipping them without the link."
+              cp fw-lite-release-notes/whatsnew-en-US whatsnew/whatsnew-en-US
+            fi
           else
             echo "::warning::No Claude-drafted release notes found; using the generic Play Store text."
             cat > whatsnew/whatsnew-en-US <<'EOF'

@@ -30,6 +30,8 @@ jobs:
     timeout-minutes: 20
     env:
       HAS_CLAUDE_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+      # Keeps the Claude and GitHub tokens out of the env of Claude's shell commands, so injected PR text can't read them.
+      CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: 1
     steps:
       - name: Resolve tag
         id: tag
@@ -64,12 +66,13 @@ jobs:
           prompt: |
             Run the release-notes skill (.claude/skills/release-notes/SKILL.md) in pre-release mode with file output, for the FieldWorks Lite release this CI run is publishing.
 
-            Release tag: ${{ steps.tag.outputs.TAG }}, built from commit ${{ github.sha }}. The tag is definite, not predicted. Use that commit as the endpoint of every comparison (not origin/main, which may have moved on). The baseline is the previous release tag on that commit's history: `git describe --tags --abbrev=0 --exclude ${{ steps.tag.outputs.TAG }} ${{ github.sha }}` (never the tag itself; on a re-run this release, and newer ones, may already exist).
+            Release tag: ${{ steps.tag.outputs.TAG }}, built from commit ${{ github.sha }}. The tag is definite, not predicted. Use that commit as the endpoint of every comparison (not origin/main, which may have moved on). The baseline is the previous release tag on that commit's history: `git describe --tags --abbrev=0 --match 'v20*' --exclude ${{ steps.tag.outputs.TAG }} ${{ github.sha }}` (never the tag itself; on a re-run this release, and newer ones, may already exist). All tags and history are already fetched; if that command finds no tag, write nothing and stop.
 
             Write the two files described in the skill's "File output" section into the directory release-notes/. Do not write any other files, and do not create comments, issues, or PRs.
+          # No WebFetch or git fetch: nothing here may reach hosts other than GitHub.
           claude_args: |
             --max-turns 60
-            --allowedTools "Skill,Agent,Read,Glob,Grep,Write,WebFetch,Bash(gh api:*),Bash(gh release:*),Bash(gh pr:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git tag:*),Bash(git describe:*),Bash(git merge-base:*),Bash(git rev-parse:*),Bash(ls:*),Bash(mkdir:*),Bash(cat:*),Bash(wc:*),Bash(grep:*),Bash(head:*),Bash(jq:*)"
+            --allowedTools "Skill,Agent,Read,Glob,Grep,Write,Bash(gh api:*),Bash(gh release:*),Bash(gh pr:*),Bash(git log:*),Bash(git show:*),Bash(git tag:*),Bash(git describe:*),Bash(git merge-base:*),Bash(git rev-parse:*),Bash(ls:*),Bash(mkdir:*),Bash(wc:*),Bash(grep:*),Bash(head:*)"
       - name: Check the notes
         if: env.HAS_CLAUDE_TOKEN == 'true'
         continue-on-error: true
@@ -86,6 +89,7 @@ jobs:
               rm whatsnew-en-US
             fi
           fi
+          rm -f release-body.md # only this step may write the release body
           if [ -s forum.md ]; then
             {
               echo "<details>"
@@ -106,5 +110,8 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: fw-lite-release-notes
-          path: release-notes
+          path: |
+            release-notes/forum.md
+            release-notes/whatsnew-en-US
+            release-notes/release-body.md
           if-no-files-found: ignore

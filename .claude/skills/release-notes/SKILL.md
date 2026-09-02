@@ -3,7 +3,7 @@ name: release-notes
 description: Generate user-facing FieldWorks Lite release notes in two formats at once — SIL community forum (Discourse markdown) and Google Play "What's new" (plain text, ≤500 chars). Use whenever the user asks for release notes, forum notes, Android/Play Store notes, "what's new", or notes for an upcoming release. Released mode reads the latest GitHub release; pre-release mode ("upcoming release", "I just pushed to main") reconstructs the changes from PRs merged since the last tag.
 when_to_use: User asks for "release notes", "forum notes", "Android notes", "Play Store notes", "what's new for this release", or wants notes for a build just pushed to main before the GitHub release exists.
 argument-hint: "[released | upcoming]"
-allowed-tools: Bash(gh api:*) Bash(gh release:*) Bash(gh pr:*) Bash(git fetch:*) Bash(git log:*) Bash(git show:*) Bash(git tag:*) Bash(git describe:*) Bash(git merge-base:*) Bash(git rev-parse:*) Read Glob Grep WebFetch Agent Write
+allowed-tools: Bash(gh api:*) Bash(gh release:*) Bash(gh pr:*) Bash(git log:*) Bash(git show:*) Bash(git tag:*) Bash(git describe:*) Bash(git merge-base:*) Bash(git rev-parse:*) Read Glob Grep Agent Write
 ---
 
 # FieldWorks Lite release notes
@@ -20,10 +20,10 @@ The hard part is the filter: include everything a user would care about, and not
 
 ## File output (CI)
 
-The `android-release-notes` job in `.github/workflows/fw-lite.yaml` runs this skill in pre-release mode and asks for files instead of chat. Then write, into the directory the prompt names:
+`.github/workflows/fw-lite-release-notes.yaml` (called by the `release-notes` job in `fw-lite.yaml`) runs this skill in pre-release mode and asks for files instead of chat. Then write, into the directory the prompt names:
 
-- `forum.md` — the forum notes block only (Step 5 markdown, starting at the `## Version:` header). It lands in the GitHub release body for a human to review and paste to the forum.
-- `whatsnew-en-US` — the Android notes block only (Step 6 plain text). Google Play counts UTF-16 units, so emoji cost 2; CI drops the file if it's over 500, and appends a "Full release notes" forum link only when that still fits, so stay under ~430. If nothing applies to Android, write exactly `Bug fixes and improvements.`
+- `forum.md`: the forum notes block only (Step 5 markdown, starting at the `## Version:` header). It lands in the GitHub release body for a human to review and paste to the forum.
+- `whatsnew-en-US`: the Android notes block only (Step 6 plain text). Google Play counts UTF-16 units, so emoji cost 2; CI drops the file if it's over 500, and appends a "Full release notes" forum link only when that still fits, so stay under 430. If nothing applies to Android, write exactly `Bug fixes and improvements.`
 
 Nothing else: no version-tag block, no commentary, no other files. The tag is given in the prompt, so don't predict it.
 
@@ -187,7 +187,7 @@ Full worked examples: [references/example-forum-notes.md](references/example-for
 
 A tightened, platform-filtered subset of the forum notes — same research, not a separate effort. Target style: [references/example-android-notes.md](references/example-android-notes.md).
 
-- **Hard cap 500 characters** (Google Play limit). Real posted notes are often just 1–5 short lines.
+- **Hard cap 500 UTF-16 units** (Google Play limit; emoji count 2), and under 430 in [file output](#file-output-ci). Real posted notes are often just 1–5 short lines.
 - Keep only **headline** items; fold the long tail into one line ("Numerous small bug fixes"). Drop secondary improvements that earned a forum bullet but aren't headline-worthy on mobile.
 - Drop everything platform-marked in the forum notes (Windows-only, FW Lite & FW sync). Tag Android-specific fixes "(Android only)".
 - Pure-maintenance releases (package bumps) get no Android note at all. When a release is thin, a couple of lines is fine — don't pad.
@@ -200,4 +200,4 @@ A tightened, platform-filtered subset of the forum notes — same research, not 
 - Disclosures that are none of the three (e.g. an analytics/telemetry notice) go last as an ℹ️ line
 - Wording tighter than the forum version; "Fixed" past tense, consistent within the batch; keep essential parentheticals but trim them hard
 
-**Checklist before delivering:** every item applies to Android · Android-only fixes tagged · under 500 characters (count it) · long tail folded · headline items first · tense/phrasing consistent.
+**Checklist before delivering:** every item applies to Android · Android-only fixes tagged · under the cap (count it) · long tail folded · headline items first · tense/phrasing consistent.
