@@ -50,7 +50,7 @@ public class OAuthService(
     {
         var result = await application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
             .WithUseEmbeddedWebView(false)
-            .WithParentActivityOrWindow(options.Value.ParentActivityOrWindow)
+            .WithParentActivityOrWindow(options.Value.GetParentActivityOrWindow?.Invoke())
             .WithSystemWebViewOptions(new() { })
             .ExecuteAsync(cancellation);
     }

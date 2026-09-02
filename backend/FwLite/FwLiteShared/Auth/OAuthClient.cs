@@ -60,7 +60,7 @@ public class OAuthClient
             .WithExperimentalFeatures()
             .WithLogging(loggerAdapter, hostEnvironment?.IsDevelopment() ?? false)
             .WithHttpClientFactory(new HttpClientFactoryAdapter(httpMessageHandlerFactory))
-            .WithParentActivityOrWindow(() => options.Value.ParentActivityOrWindow)
+            .WithParentActivityOrWindow(() => options.Value.GetParentActivityOrWindow?.Invoke())
             .WithOidcAuthority(lexboxServer.Authority.ToString());
         if (!options.Value.SystemWebViewLogin)
         {

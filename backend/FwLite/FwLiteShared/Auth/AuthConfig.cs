@@ -13,7 +13,13 @@ public class AuthConfig
     public required string ClientId { get; set; } = DefaultClientId;
     public string CacheFileName { get; set; } = Path.GetFullPath("msal.json");
     public bool SystemWebViewLogin { get; set; } = false;
-    public object? ParentActivityOrWindow { get; set; }
+    /// <summary>
+    /// Android MSAL requires the current Activity at login time via
+    /// <c>WithParentActivityOrWindow</c>. Must be a factory: <c>IOptions&lt;AuthConfig&gt;</c>
+    /// is snapshotted at first resolve, which now happens at Maui startup (Mixpanel identity)
+    /// before <c>Platform.OnResume</c> sets <c>CurrentActivity</c>.
+    /// </summary>
+    public Func<object?>? GetParentActivityOrWindow { get; set; }
     public Action? AfterLoginWebView { get; set; }
 
     public LexboxServer GetServerByAuthority(string authority)
