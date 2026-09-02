@@ -1563,6 +1563,10 @@ msgstr "Media file details"
 msgid "Media Manager"
 msgstr "Media Manager"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Citation form {0}"
+msgstr "Missing Citation form {0}"
+
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
@@ -1578,10 +1582,18 @@ msgstr "Missing Example sentence {0}"
 msgid "Missing Gloss {0}"
 msgstr "Missing Gloss {0}"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Lexeme form {0}"
+msgstr "Missing Lexeme form {0}"
+
 #. Task subject label in the task list. Identifies senses/meanings that have no part-of-speech (grammatical category) assigned.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of Speech"
 msgstr "Missing Part of Speech"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Semantic domain"
+msgstr "Missing Semantic domain"
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1961,6 +1973,10 @@ msgstr "Pending"
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
 msgstr "Pick a Part of Speech"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick one or more Semantic domains"
+msgstr "Pick one or more Semantic domains"
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
@@ -2730,6 +2746,10 @@ msgstr "Turn analytics back on"
 msgid "Type"
 msgstr "Type"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Citation form"
+msgstr "Type a Citation form"
+
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
@@ -2739,6 +2759,10 @@ msgstr "Type a Definition"
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
 msgstr "Type a Gloss"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form"
+msgstr "Type a Lexeme form"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts

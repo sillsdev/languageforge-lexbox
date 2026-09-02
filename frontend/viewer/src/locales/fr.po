@@ -1568,6 +1568,10 @@ msgstr ""
 msgid "Media Manager"
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Citation form {0}"
+msgstr ""
+
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
@@ -1583,10 +1587,18 @@ msgstr "Phrase exemplaire {0} manquante"
 msgid "Missing Gloss {0}"
 msgstr "Glose {0} manquante"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Lexeme form {0}"
+msgstr ""
+
 #. Task subject label in the task list. Identifies senses/meanings that have no part-of-speech (grammatical category) assigned.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of Speech"
 msgstr "Partie du discours manquante"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Semantic domain"
+msgstr ""
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1966,6 +1978,10 @@ msgstr "En attente"
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
 msgstr "Choisir une partie du discours"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick one or more Semantic domains"
+msgstr ""
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
@@ -2735,6 +2751,10 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Citation form"
+msgstr ""
+
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Definition"
@@ -2744,6 +2764,10 @@ msgstr "Saisir une définition"
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
 msgstr "Saisir une Glose"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form"
+msgstr ""
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
