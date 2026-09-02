@@ -41,6 +41,9 @@ public static class FwLiteMauiKernel
         services.AddFwLiteShared(env);
         services.Configure<AnalyticsConfig>(config => config.Host = MixpanelAnalytics.MauiHost);
         services.AddSingleton<IAnalyticsEventEnricher, MauiAnalyticsEventEnricher>();
+#if ANDROID
+        services.AddSingleton<IAnalyticsSuppressor, FirebaseTestLabAnalyticsSuppressor>();
+#endif
         services.AddSingleton<HostedServiceAdapter>();
         services.AddSingleton<IMauiInitializeService>(sp => sp.GetRequiredService<HostedServiceAdapter>());
         services.Configure<AuthConfig>(config =>

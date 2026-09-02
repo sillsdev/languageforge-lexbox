@@ -17,6 +17,7 @@ public class AnalyticsService(
     IPreferencesService preferences,
     ILogger<AnalyticsService> logger,
     IEnumerable<IAnalyticsEventEnricher>? enrichers = null,
+    IEnumerable<IAnalyticsSuppressor>? suppressors = null,
     TimeProvider? timeProvider = null) : IAnalyticsService
 {
     private readonly Lock _identityLock = new();
@@ -24,11 +25,19 @@ public class AnalyticsService(
     private string? _deviceId;
     private string? _userId;
     private readonly IAnalyticsEventEnricher[] _enrichers = enrichers?.ToArray() ?? [];
+    private readonly IAnalyticsSuppressor[] _suppressors = suppressors?.ToArray() ?? [];
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
     [JSInvokable]
     public bool GetAnalyticsEnabled()
     {
+        if (!analyticsConfig.Value.Enabled)
+            return false;
+        foreach (var suppressor in _suppressors)
+        {
+            if (suppressor.ShouldSuppress())
+                return false;
+        }
         return preferences.Get(nameof(PreferenceKey.AnalyticsOptOut)) != "true";
     }
 
@@ -126,13 +135,13 @@ public class AnalyticsService(
             if (token is null)
                 return;
 
-            var identity = GetIdentitySnapshot();
+            var (deviceId, userId) = GetIdentitySnapshot();
             var eventProperties = BuildProperties(
                 token,
                 fwLite,
                 analytics.Host,
-                identity.DeviceId,
-                identity.UserId,
+                deviceId,
+                userId,
                 time ?? _clock.GetUtcNow(),
                 insertId ?? Guid.NewGuid().ToString());
             foreach (var enricher in _enrichers)
