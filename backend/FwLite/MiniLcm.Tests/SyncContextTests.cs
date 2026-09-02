@@ -115,17 +115,18 @@ public class SyncContextTests
     }
 
     [Fact]
-    public void EmptyContext_TreatsEverythingAsGenuineAndDeletesImmediately()
+    public async Task EmptyContext_TreatsEverythingAsGenuineAndDeletesImmediately()
     {
         var context = SyncContext.Empty;
         context.Senses.IsActuallyADelete(Guid.NewGuid()).Should().BeTrue();
         context.Examples.IsActuallyAMove(Guid.NewGuid(), out _).Should().BeFalse();
         var deleted = false;
-        context.Pictures.Delete(() =>
+        var changes = await context.Pictures.Delete(() =>
         {
             deleted = true;
             return Task.FromResult(1);
-        }).Result.Should().Be(1);
+        });
+        changes.Should().Be(1);
         deleted.Should().BeTrue();
     }
 }
