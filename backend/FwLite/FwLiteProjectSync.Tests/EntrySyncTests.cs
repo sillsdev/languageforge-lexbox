@@ -1178,10 +1178,105 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         actualCreatedSense.ExampleSentences.Select(e => e.Id).Should().Equal(exampleId);
     }
 
+    [Fact]
+    public async Task CanSyncSenseWithExampleAndTranslationMovedToCreatedEntry()
+    {
+        var sourceEntry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "source-entry" } },
+            Senses =
+            [
+                new Sense
+                {
+                    Id = Guid.NewGuid(),
+                    Gloss = { { "en", "moving sense" } },
+                    ExampleSentences =
+                    [
+                        new ExampleSentence
+                        {
+                            Id = Guid.NewGuid(),
+                            Sentence = { { "en", new RichString("example") } },
+                            Translations = [new Translation { Id = Guid.NewGuid(), Text = { { "en", new RichString("translation") } } }]
+                        }
+                    ]
+                }
+            ]
+        });
+
+        // the moved sense brings its example and translation along; they must not be mistaken for their own moves
+        var sourceEntryAfter = sourceEntry.Copy();
+        var movedSense = sourceEntryAfter.Senses[0];
+        sourceEntryAfter.Senses.Clear();
+        var createdEntry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "created-entry" } },
+            Senses = [movedSense]
+        };
+
+        await EntrySync.SyncFull([sourceEntry], [sourceEntryAfter, createdEntry], Api);
+
+        var actualCreatedEntry = await Api.GetEntry(createdEntry.Id);
+        actualCreatedEntry.Should().NotBeNull();
+        actualCreatedEntry.Senses.Select(s => s.Id).Should().Equal(movedSense.Id);
+        var actualExample = actualCreatedEntry.Senses[0].ExampleSentences.Should().ContainSingle().Which;
+        actualExample.Id.Should().Be(movedSense.ExampleSentences[0].Id);
+        actualExample.Translations.Should().ContainSingle()
+            .Which.Id.Should().Be(movedSense.ExampleSentences[0].Translations[0].Id);
+        (await Api.GetEntry(sourceEntry.Id))!.Senses.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CanSyncExampleSentenceWithTranslationMovedToCreatedSense()
+    {
+        var exampleId = Guid.NewGuid();
+        var translationId = Guid.NewGuid();
+        var entry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "entry" } },
+            Senses =
+            [
+                new Sense
+                {
+                    Id = Guid.NewGuid(),
+                    Gloss = { { "en", "source" } },
+                    ExampleSentences =
+                    [
+                        new ExampleSentence
+                        {
+                            Id = exampleId,
+                            Sentence = { { "en", new RichString("example") } },
+                            Translations = [new Translation { Id = translationId, Text = { { "en", new RichString("translation") } } }]
+                        }
+                    ]
+                }
+            ]
+        });
+
+        // the moved example brings its translation along; it must not be mistaken for its own move
+        var after = entry.Copy();
+        var movedExample = after.Senses[0].ExampleSentences[0];
+        after.Senses[0].ExampleSentences.Clear();
+        var createdSense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "created target" } } };
+        movedExample.SenseId = createdSense.Id;
+        createdSense.ExampleSentences.Add(movedExample);
+        after.Senses.Add(createdSense);
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        var actualCreatedSense = await Api.GetSense(entry.Id, createdSense.Id);
+        actualCreatedSense.Should().NotBeNull();
+        actualCreatedSense.ExampleSentences.Select(e => e.Id).Should().Equal(exampleId);
+        actualCreatedSense.ExampleSentences[0].Translations.Should().ContainSingle()
+            .Which.Id.Should().Be(translationId);
+    }
+
     // Pictures and translations can also be re-parented in FieldWorks, but syncing those moves isn't
     // supported yet: the sync must throw rather than apply a move as delete+create, which would
-    // silently destroy the item on the CRDT side. Moves are detected before any api write, so these
-    // tests need no arranged api state.
+    // silently destroy the item on the CRDT side. SyncContext's constructor rejects the move before
+    // anything is written.
 
     [Fact]
     public async Task SyncThrows_PictureMovedToDifferentSense()
@@ -1209,7 +1304,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         after.Senses[1].Pictures.Add(movedPicture);
 
         var act = () => EntrySync.SyncFull(entry, after, Api);
-        (await act.Should().ThrowAsync<SyncObjectException>()).WithInnerException<MoveNotSupportedException>();
+        await act.Should().ThrowAsync<MoveNotSupportedException>().WithMessage($"*{picture.Id}*");
     }
 
     [Fact]
@@ -1234,39 +1329,55 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         after.Senses.Add(new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "created target" } }, Pictures = [movedPicture] });
 
         var act = () => EntrySync.SyncFull(entry, after, Api);
-        (await act.Should().ThrowAsync<SyncObjectException>()).WithInnerException<MoveNotSupportedException>();
+        await act.Should().ThrowAsync<MoveNotSupportedException>().WithMessage($"*{movedPicture.Id}*");
     }
 
     [Fact]
-    public async Task SyncThrows_TranslationMovedToDifferentExampleSentence()
+    public async Task SyncThrows_TranslationMovedToDifferentExampleSentence_AndWritesNothing()
     {
-        var translation = new Translation { Id = Guid.NewGuid(), Text = { { "en", new RichString("translation") } } };
-        var entry = new Entry
+        var translationId = Guid.NewGuid();
+        var example1Id = Guid.NewGuid();
+        var example2Id = Guid.NewGuid();
+        var sense = new Sense
+        {
+            Id = Guid.NewGuid(),
+            Gloss = { { "en", "gloss" } },
+            ExampleSentences =
+            [
+                new ExampleSentence
+                {
+                    Id = example1Id,
+                    Sentence = { { "en", new RichString("one") } },
+                    Translations = [new Translation { Id = translationId, Text = { { "en", new RichString("translation") } } }]
+                },
+                new ExampleSentence { Id = example2Id, Sentence = { { "en", new RichString("two") } } }
+            ]
+        };
+        var entry = await Api.CreateEntry(new()
         {
             Id = Guid.NewGuid(),
             LexemeForm = { { "en", "entry" } },
-            Senses =
-            [
-                new Sense
-                {
-                    Id = Guid.NewGuid(),
-                    Gloss = { { "en", "gloss" } },
-                    ExampleSentences =
-                    [
-                        new ExampleSentence { Id = Guid.NewGuid(), Sentence = { { "en", new RichString("one") } }, Translations = [translation] },
-                        new ExampleSentence { Id = Guid.NewGuid(), Sentence = { { "en", new RichString("two") } } }
-                    ]
-                }
-            ]
-        };
+            Senses = [sense]
+        });
 
         var after = entry.Copy();
-        var movedTranslation = after.Senses[0].ExampleSentences[0].Translations[0];
-        after.Senses[0].ExampleSentences[0].Translations.Clear();
-        after.Senses[0].ExampleSentences[1].Translations.Add(movedTranslation);
+        var afterExample1 = after.Senses[0].ExampleSentences.Single(e => e.Id == example1Id);
+        var movedTranslation = afterExample1.Translations.Single(t => t.Id == translationId);
+        afterExample1.Translations.Clear();
+        after.Senses[0].ExampleSentences.Single(e => e.Id == example2Id).Translations.Add(movedTranslation);
+        // an edit that would be applied if the sync got past the move check
+        after.LexemeForm["en"] = "edited";
 
         var act = () => EntrySync.SyncFull(entry, after, Api);
-        (await act.Should().ThrowAsync<SyncObjectException>()).WithInnerException<MoveNotSupportedException>();
+        await act.Should().ThrowAsync<MoveNotSupportedException>().WithMessage($"*{translationId}*");
+
+        // all-or-nothing: nothing was written, the translation is still on its original example
+        var actualEntry = await Api.GetEntry(entry.Id);
+        actualEntry.Should().NotBeNull();
+        actualEntry.LexemeForm["en"].Should().Be("entry");
+        var actualExample1 = await Api.GetExampleSentence(entry.Id, sense.Id, example1Id);
+        actualExample1!.Translations.Select(t => t.Id).Should().Equal(translationId);
+        (await Api.GetExampleSentence(entry.Id, sense.Id, example2Id))!.Translations.Should().BeEmpty();
     }
 
     [Theory]

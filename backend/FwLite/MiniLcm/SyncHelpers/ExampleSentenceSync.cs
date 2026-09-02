@@ -101,7 +101,6 @@ public static class ExampleSentenceSync
 
         public async Task<int> Add(ExampleSentence afterExampleSentence, BetweenPosition<ExampleSentence> between)
         {
-            context.ThrowIfCreatingMovedChildren(afterExampleSentence);
             await api.SubmitCreateExampleSentence(entryId, senseId, afterExampleSentence, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }

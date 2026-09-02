@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 
 namespace MiniLcm.Tests;
@@ -254,56 +253,6 @@ public class DiffCollectionTests
         changes.Should().Be(1);
         diffApi.DiffOperations.Should().BeEquivalentTo([Remove(gone)]);
         diffApi.Current.Should().BeEquivalentTo([stay]);
-    }
-
-    [Fact]
-    public async Task DiffOrderable_MovesUnsupported_AddOfBeforeExistingId_Throws()
-    {
-        var stay = new TestOrderable(1, Guid.NewGuid());
-        var movedFrom = new TestOrderable(2, Guid.NewGuid());
-        var movedTo = new TestOrderable(3, movedFrom.Id);
-        var moves = MoveContext<TestOrderable, Guid>.MovesUnsupported(
-            new Dictionary<Guid, TestOrderable> { [movedFrom.Id] = movedFrom },
-            new Dictionary<Guid, TestOrderable> { [stay.Id] = stay, [movedTo.Id] = movedTo });
-        var diffApi = new TestOrderableDiffApi([stay]);
-
-        var act = () => DiffCollection.DiffOrderable([stay], [stay, movedTo], diffApi, moves);
-
-        await act.Should().ThrowAsync<MoveNotSupportedException>();
-        diffApi.DiffOperations.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task DiffOrderable_MovesUnsupported_RemoveOfIdStillInAfterState_Throws()
-    {
-        var stay = new TestOrderable(1, Guid.NewGuid());
-        var moving = new TestOrderable(2, Guid.NewGuid());
-        var moves = MoveContext<TestOrderable, Guid>.MovesUnsupported(
-            new Dictionary<Guid, TestOrderable> { [stay.Id] = stay, [moving.Id] = moving },
-            new Dictionary<Guid, TestOrderable> { [stay.Id] = stay, [moving.Id] = moving });
-        var diffApi = new TestOrderableDiffApi([stay, moving]);
-
-        var act = () => DiffCollection.DiffOrderable([stay, moving], [stay], diffApi, moves);
-
-        await act.Should().ThrowAsync<MoveNotSupportedException>();
-        diffApi.DiffOperations.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task DiffOrderable_MovesUnsupported_GenuineCreateAndDelete_Work()
-    {
-        var stay = new TestOrderable(1, Guid.NewGuid());
-        var gone = new TestOrderable(2, Guid.NewGuid());
-        var added = new TestOrderable(3, Guid.NewGuid());
-        var moves = MoveContext<TestOrderable, Guid>.MovesUnsupported(
-            new Dictionary<Guid, TestOrderable> { [stay.Id] = stay, [gone.Id] = gone },
-            new Dictionary<Guid, TestOrderable> { [stay.Id] = stay, [added.Id] = added });
-        var diffApi = new TestOrderableDiffApi([stay, gone]);
-
-        var changes = await DiffCollection.DiffOrderable([stay, gone], [stay, added], diffApi, moves);
-
-        changes.Should().Be(2);
-        diffApi.Current.Should().BeEquivalentTo([stay, added], options => options.WithStrictOrdering());
     }
 
     public record Entry(Guid Id, string Word);

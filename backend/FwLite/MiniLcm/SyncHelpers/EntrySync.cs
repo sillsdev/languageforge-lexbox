@@ -68,7 +68,7 @@ public static class EntrySync
         }
         catch (Exception e)
         {
-            throw new SyncObjectException($"Failed to sync entry {afterEntry}", e);
+            throw new SyncObjectException($"Failed to sync entry {afterEntry.Id}", e);
         }
     }
 
@@ -83,7 +83,7 @@ public static class EntrySync
         }
         catch (Exception e)
         {
-            throw new SyncObjectException($"Failed to sync complex forms and components of entry {afterEntry}", e);
+            throw new SyncObjectException($"Failed to sync complex forms and components of entry {afterEntry.Id}", e);
         }
     }
 
@@ -159,7 +159,6 @@ public static class EntrySync
     {
         public override async Task<(int, Entry)> AddAndGet(Entry afterEntry)
         {
-            context.ThrowIfCreatingMovedChildren(afterEntry);
             Entry addedEntry;
             if (context.HasChildMovingIn(afterEntry))
             {
@@ -305,7 +304,6 @@ public static class EntrySync
 
         public async Task<int> Add(Sense sense, BetweenPosition<Sense> between)
         {
-            context.ThrowIfCreatingMovedChildren(sense);
             if (context.HasChildMovingIn(sense))
             {
                 var senseWithoutExamples = sense.Copy();
