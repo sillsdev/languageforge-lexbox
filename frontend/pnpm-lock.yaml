@@ -131,9 +131,6 @@ importers:
       mjml:
         specifier: ^4.17.1
         version: 4.18.0
-      runed:
-        specifier: 'catalog:'
-        version: 0.37.1(@sveltejs/kit@2.60.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.2.0(svelte@5.56.8(@typescript-eslint/types@8.66.0))(vite@8.2.1(@types/node@24.10.1)(esbuild@0.27.3)(jiti@1.21.7)(yaml@2.9.0)))(svelte@5.56.8(@typescript-eslint/types@8.66.0))(typescript@5.9.3)(vite@8.2.1(@types/node@24.10.1)(esbuild@0.27.3)(jiti@1.21.7)(yaml@2.9.0)))(svelte@5.56.8(@typescript-eslint/types@8.66.0))(zod@4.1.13)
       set-cookie-parser:
         specifier: ^3.1.2
         version: 3.1.2
@@ -273,6 +270,9 @@ importers:
       rimraf:
         specifier: ^6.1.2
         version: 6.1.2
+      runed:
+        specifier: 'catalog:'
+        version: 0.37.1(@sveltejs/kit@2.60.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.2.0(svelte@5.56.8(@typescript-eslint/types@8.66.0))(vite@8.2.1(@types/node@24.10.1)(esbuild@0.27.3)(jiti@1.21.7)(yaml@2.9.0)))(svelte@5.56.8(@typescript-eslint/types@8.66.0))(typescript@5.9.3)(vite@8.2.1(@types/node@24.10.1)(esbuild@0.27.3)(jiti@1.21.7)(yaml@2.9.0)))(svelte@5.56.8(@typescript-eslint/types@8.66.0))(zod@4.1.13)
       svelte:
         specifier: 'catalog:'
         version: 5.56.8(@typescript-eslint/types@8.66.0)
