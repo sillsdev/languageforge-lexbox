@@ -609,7 +609,7 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.FW_LITE_PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: org.sil.FwLiteMaui
           releaseFiles: fw-lite-android/org.sil.FwLiteMaui-Signed.aab
-          track: beta
+          tracks: beta
           status: completed
           releaseName: ${{ needs.build-and-test.outputs.version }}
           whatsNewDirectory: whatsnew
