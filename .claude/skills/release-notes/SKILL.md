@@ -27,7 +27,7 @@ The hard part is the filter: include everything a user would care about, and not
 
 ### Released mode
 
-```
+```bash
 gh release view --repo sillsdev/languageforge-lexbox --json tagName,publishedAt,body
 ```
 
@@ -40,7 +40,7 @@ Sanity-check `publishedAt` against today — you want the genuinely newest relea
 1. Get the baseline: the latest release tag (as above).
 2. List PRs merged since that tag. PRs squash-merge to `develop` and `main` mirrors it, so PR numbers appear as `(#NNNN)` in commit subjects:
 
-   ```
+   ```bash
    git fetch origin main
    git log <TAG>..origin/main --oneline
    ```
@@ -48,7 +48,7 @@ Sanity-check `publishedAt` against today — you want the genuinely newest relea
    (or `gh api repos/sillsdev/languageforge-lexbox/compare/<TAG>...main` when the local clone is inconvenient).
 3. Categorize each PR the way GitHub release notes would, per `.github/release.yml`: label `💻 FW Lite` → **FieldWorks Lite**; `📦 Lexbox` → Lexbox; everything else (incl. dependabot) → Other Stuff. First category wins, so a PR with both FW Lite and Lexbox labels counts as FieldWorks Lite. Batch the label lookups:
 
-   ```
+   ```bash
    gh pr view <N> --repo sillsdev/languageforge-lexbox --json number,title,labels
    ```
 4. Predict the version tag as `v<YYYY-MM-DD>-<sha8>` from the expected release date and `git rev-parse --short=8 origin/main`. Caveats to state with the prediction: tag dates are UTC, so a build kicked off late in the day (Europe) may tag the next day; and if anything else lands on main before CI runs, the hash changes.
@@ -59,7 +59,7 @@ From here both modes are identical.
 
 Many PR titles are self-explanatory ("Add activity filters to the activity view"). Only look up a PR when the title genuinely doesn't tell you what changed for the user (e.g. "Comments") — aim for ~3–5 lookups, not all of them. Skip obvious non-starters (package bumps, CI, tests) without fetching.
 
-```
+```bash
 gh pr view <N> --repo sillsdev/languageforge-lexbox --json title,body,labels
 ```
 
@@ -69,9 +69,9 @@ The body usually has a plain-English summary; don't judge from the title alone w
 
 A merged PR is not the same as a shipped feature. FieldWorks Lite gates unreleased UI behind release-channel feature flags; the registry is `CHANNEL_FLAGS` in `frontend/viewer/src/lib/feature-flags/feature-flags.ts` (production is the empty channel and has no flags; features ship by *deleting* their flag). Read it at both ends of the release:
 
-```
-git show <TAG>:frontend/viewer/src/lib/feature-flags/feature-flags.ts        # this release (origin/main in pre-release mode)
-git show <PREV_TAG>:frontend/viewer/src/lib/feature-flags/feature-flags.ts   # previous release
+```bash
+git show <TAG>:frontend/viewer/src/lib/feature-flags/feature-flags.ts        # released mode; pre-release mode uses origin/main (the tag doesn't exist yet)
+git show <PREV_TAG>:frontend/viewer/src/lib/feature-flags/feature-flags.ts   # previous release (the baseline tag from Step 1)
 ```
 
 - **Flag present at `<TAG>`** → that feature is invisible to users. Exclude every PR whose user-facing surface is behind it — including satellite items like fixes or panels that only exist inside the flagged UI. When unsure whether a PR's UI is gated, grep it for `hasFlag(` / `<FlagContent`.
@@ -130,7 +130,7 @@ Include only items a typical user would notice, or that fix something a user cou
 
 ## Platform marking — drives the Android subset
 
-Some items only apply to certain platforms. Mark them inline in the **forum** notes; anything marked is dropped from the **Android** notes:
+Some items only apply to certain platforms. Mark them inline in the **forum** notes; items carrying either of these two markers are dropped from the **Android** notes (the "(Android only)" tag from Step 6 is the opposite — those stay):
 
 - **Desktop / Windows-only** items (somewhat rare): mark " (Windows only)".
 - **fw-headless items — the FieldWorks Lite ↔ FieldWorks Classic (FwData) sync**: mark " (FW Lite & FW sync)". That sync runs server-side/desktop via fw-headless, so Android users don't run it.
@@ -139,7 +139,7 @@ Live/CRDT sync via the Lexbox server (SignalR reconnection, live update notifica
 
 ## Step 5: Forum notes
 
-```
+```markdown
 ## Version: vYYYY-MM-DD
 #### ✨ New Features
 * item

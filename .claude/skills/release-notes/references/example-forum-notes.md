@@ -2,6 +2,8 @@
 
 Real release notes posted to the SIL community forum (Discourse), in the format generated for this project: `##` version headers, `####` section headers with emoji, `*` bullets. Kept as a reference for format, tone, and filtering.
 
+These are historical posts, preserved as posted — some older ones deviate from the current contract (section order varies, and v2025-12-12 has a one-off 🧰 Maintenance section). Where they conflict, SKILL.md wins.
+
 ---
 
 ## Version: v2026-06-12
