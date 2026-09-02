@@ -88,17 +88,29 @@ jobs:
             echo "::warning::The release notes contain a credential; dropping them."
             cd .. && rm -rf release-notes && exit 0
           fi
-          if [ -f whatsnew-en-US ] && grep -q '://' whatsnew-en-US; then
-            echo "::warning::Play Store notes contain a link (CI adds the only one); dropping them."
-            rm whatsnew-en-US
-          fi
-          if [ -f forum.md ] && grep -oE 'https?://[^/[:space:])>"]+' forum.md | grep -vE '^https?://([a-z0-9-]+\.)*(sil\.org|github\.com|lexbox\.org)$'; then
-            echo "::warning::Forum notes link outside our sites; dropping them."
-            rm forum.md
-          fi
           for f in whatsnew-en-US forum.md; do
             if [ -f "$f" ]; then tr -d '\000-\010\013-\037' < "$f" > "$f.tmp" && mv "$f.tmp" "$f"; fi
           done
+          # Prints every link destination (URL, protocol-relative, www., markdown target) whose host isn't allowed; fails closed on anything odd.
+          cat > check-links.py <<'PY'
+          import re, sys
+          text = open(sys.argv[1], encoding="utf-8").read()
+          allowed = re.compile(sys.argv[2] or r"(?!)")
+          dests = (re.findall(r"(?:https?:)?//[^\s)>\"'\]]+", text, re.I)
+                   + re.findall(r"(?<![\w.-])www\.[^\s)>\"'\]]+", text, re.I)
+                   + re.findall(r"\]\(([^)]*)\)", text))
+          bad = [d for d in dests if not allowed.fullmatch(re.sub(r"^(https?:)?//", "", d, flags=re.I).split("/")[0].split("?")[0].split("#")[0].lower())]
+          if bad: print("\n".join(bad)); sys.exit(1)
+          PY
+          if [ -f whatsnew-en-US ] && ! python3 check-links.py whatsnew-en-US ""; then
+            echo "::warning::Play Store notes contain a link (CI adds the only one); dropping them."
+            rm whatsnew-en-US
+          fi
+          if [ -f forum.md ] && ! python3 check-links.py forum.md '([a-z0-9-]+\.)*(sil\.org|github\.com|lexbox\.org)'; then
+            echo "::warning::Forum notes link outside our sites; dropping them."
+            rm forum.md
+          fi
+          rm check-links.py
           if [ -s whatsnew-en-US ]; then
             # Google Play counts UTF-16 code units (emoji are 2 each), so don't trust wc -m.
             units=$(python3 -c 'import sys; print(len(sys.stdin.read().encode("utf-16-le")) // 2)' < whatsnew-en-US) || units=501
