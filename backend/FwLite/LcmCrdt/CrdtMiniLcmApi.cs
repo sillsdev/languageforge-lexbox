@@ -793,7 +793,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
-        await SenseSync.Sync(entryId, before, after, api ?? this);
+        await SenseSync.Sync(entryId, before, after, api ?? this, SyncContext.Empty);
         var sense = await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
         VerifySenseBelongsToEntry(entryId, sense);
         return sense;
@@ -882,7 +882,7 @@ public class CrdtMiniLcmApi(
         ExampleSentence after,
         IMiniLcmApi? api = null)
     {
-        await ExampleSentenceSync.Sync(entryId, senseId, before, after, api ?? this);
+        await ExampleSentenceSync.Sync(entryId, senseId, before, after, api ?? this, SyncContext.Empty);
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw NotFoundException.ForType<ExampleSentence>(after.Id);
     }
 

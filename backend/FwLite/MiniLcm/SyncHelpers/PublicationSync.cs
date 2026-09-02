@@ -12,7 +12,8 @@ public static class PublicationSync
         return await DiffCollection.Diff(
             beforePublications,
             afterPublications,
-            new PublicationsDiffApi(api));
+            new PublicationsDiffApi(api),
+            MoveContext<Publication, Guid>.Empty);
     }
 
     public static async Task<int> Sync(

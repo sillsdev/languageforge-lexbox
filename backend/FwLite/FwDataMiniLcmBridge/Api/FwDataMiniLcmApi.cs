@@ -1584,7 +1584,7 @@ public class FwDataMiniLcmApi(
             "Revert Sense",
             async () =>
             {
-                await SenseSync.Sync(entryId, before, after, api ?? this);
+                await SenseSync.Sync(entryId, before, after, api ?? this, SyncContext.Empty);
             });
         return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
     }
@@ -1749,7 +1749,7 @@ public class FwDataMiniLcmApi(
             "Revert Example Sentence",
             async () =>
             {
-                await ExampleSentenceSync.Sync(entryId, senseId, before, after, api ?? this);
+                await ExampleSentenceSync.Sync(entryId, senseId, before, after, api ?? this, SyncContext.Empty);
             });
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find example sentence with id " + after.Id);
     }

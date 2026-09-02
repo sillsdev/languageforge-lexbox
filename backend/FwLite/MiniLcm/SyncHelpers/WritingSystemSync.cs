@@ -56,7 +56,8 @@ public static class WritingSystemSync
             return await DiffCollection.DiffOrderable(
                 [.. beforeWritingSystems.OrderBy(ws => ws.Order)],
                 [.. afterWritingSystems.OrderBy(ws => ws.Order)],
-                this
+                this,
+                MoveContext<WritingSystem, WritingSystemId>.Empty
             );
         }
 

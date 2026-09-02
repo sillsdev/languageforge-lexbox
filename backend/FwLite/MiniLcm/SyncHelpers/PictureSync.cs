@@ -9,12 +9,14 @@ public static class PictureSync
         Guid senseId,
         IList<Picture> beforePictures,
         IList<Picture> afterPictures,
-        IMiniLcmApi api)
+        IMiniLcmApi api,
+        MoveContext<Picture, Guid> moves)
     {
         return await DiffCollection.DiffOrderable(
             beforePictures,
             afterPictures,
-            new PicturesDiffApi(api, entryId, senseId));
+            new PicturesDiffApi(api, entryId, senseId),
+            moves);
     }
 
     public static async Task<int> Sync(Guid entryId,

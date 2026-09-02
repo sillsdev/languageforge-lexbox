@@ -4,6 +4,7 @@ using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using MiniLcm;
 using MiniLcm.Exceptions;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests;
@@ -1175,6 +1176,97 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
         var actualCreatedSense = await Api.GetSense(createdEntry.Id, createdSense.Id);
         actualCreatedSense.Should().NotBeNull();
         actualCreatedSense.ExampleSentences.Select(e => e.Id).Should().Equal(exampleId);
+    }
+
+    // Pictures and translations can also be re-parented in FieldWorks, but syncing those moves isn't
+    // supported yet: the sync must throw rather than apply a move as delete+create, which would
+    // silently destroy the item on the CRDT side. Moves are detected before any api write, so these
+    // tests need no arranged api state.
+
+    [Fact]
+    public async Task SyncThrows_PictureMovedToDifferentSense()
+    {
+        var picture = new Picture
+        {
+            Id = Guid.NewGuid(),
+            MediaUri = new MediaUri(Guid.NewGuid(), "test"),
+            Caption = new RichMultiString { { "en", new RichString("caption") } }
+        };
+        var entry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "entry" } },
+            Senses =
+            [
+                new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "source" } }, Pictures = [picture] },
+                new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "target" } } }
+            ]
+        };
+
+        var after = entry.Copy();
+        var movedPicture = after.Senses[0].Pictures[0];
+        after.Senses[0].Pictures.Clear();
+        after.Senses[1].Pictures.Add(movedPicture);
+
+        var act = () => EntrySync.SyncFull(entry, after, Api);
+        (await act.Should().ThrowAsync<SyncObjectException>()).WithInnerException<MoveNotSupportedException>();
+    }
+
+    [Fact]
+    public async Task SyncThrows_PictureMovedIntoCreatedSense()
+    {
+        var picture = new Picture
+        {
+            Id = Guid.NewGuid(),
+            MediaUri = new MediaUri(Guid.NewGuid(), "test"),
+            Caption = new RichMultiString { { "en", new RichString("caption") } }
+        };
+        var entry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "entry" } },
+            Senses = [new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "source" } }, Pictures = [picture] }]
+        };
+
+        var after = entry.Copy();
+        var movedPicture = after.Senses[0].Pictures[0];
+        after.Senses[0].Pictures.Clear();
+        after.Senses.Add(new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "created target" } }, Pictures = [movedPicture] });
+
+        var act = () => EntrySync.SyncFull(entry, after, Api);
+        (await act.Should().ThrowAsync<SyncObjectException>()).WithInnerException<MoveNotSupportedException>();
+    }
+
+    [Fact]
+    public async Task SyncThrows_TranslationMovedToDifferentExampleSentence()
+    {
+        var translation = new Translation { Id = Guid.NewGuid(), Text = { { "en", new RichString("translation") } } };
+        var entry = new Entry
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "entry" } },
+            Senses =
+            [
+                new Sense
+                {
+                    Id = Guid.NewGuid(),
+                    Gloss = { { "en", "gloss" } },
+                    ExampleSentences =
+                    [
+                        new ExampleSentence { Id = Guid.NewGuid(), Sentence = { { "en", new RichString("one") } }, Translations = [translation] },
+                        new ExampleSentence { Id = Guid.NewGuid(), Sentence = { { "en", new RichString("two") } } }
+                    ]
+                }
+            ]
+        };
+
+        var after = entry.Copy();
+        var movedTranslation = after.Senses[0].ExampleSentences[0].Translations[0];
+        after.Senses[0].ExampleSentences[0].Translations.Clear();
+        after.Senses[0].ExampleSentences[1].Translations.Add(movedTranslation);
+
+        var act = () => EntrySync.SyncFull(entry, after, Api);
+        (await act.Should().ThrowAsync<SyncObjectException>()).WithInnerException<MoveNotSupportedException>();
     }
 
     [Theory]

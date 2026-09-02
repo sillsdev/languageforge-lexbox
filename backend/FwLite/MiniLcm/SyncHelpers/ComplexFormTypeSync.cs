@@ -12,7 +12,8 @@ public static class ComplexFormTypeSync
         return await DiffCollection.Diff(
             beforeComplexFormTypes,
             afterComplexFormTypes,
-            new ComplexFormTypesDiffApi(api));
+            new ComplexFormTypesDiffApi(api),
+            MoveContext<ComplexFormType, Guid>.Empty);
     }
 
     public static async Task<int> Sync(ComplexFormType before,

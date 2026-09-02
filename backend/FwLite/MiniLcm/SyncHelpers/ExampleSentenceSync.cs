@@ -10,27 +10,29 @@ public static class ExampleSentenceSync
         IList<ExampleSentence> beforeExampleSentences,
         IList<ExampleSentence> afterExampleSentences,
         IMiniLcmApi api,
-        MoveContext<ExampleSentence, Guid>? moves)
+        SyncContext context)
     {
         return await DiffCollection.DiffOrderable(
             beforeExampleSentences,
             afterExampleSentences,
-            new ExampleSentencesDiffApi(api, entryId, senseId),
-            moves);
+            new ExampleSentencesDiffApi(api, entryId, senseId, context),
+            context.Examples);
     }
 
     public static async Task<int> Sync(Guid entryId,
         Guid senseId,
         ExampleSentence beforeExampleSentence,
         ExampleSentence afterExampleSentence,
-        IMiniLcmApi api)
+        IMiniLcmApi api,
+        SyncContext context)
     {
         var updateObjectInput = DiffToUpdate(beforeExampleSentence, afterExampleSentence);
         if (updateObjectInput is not null)
             await api.SubmitUpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
         var translationChanges = await DiffCollection.Diff(beforeExampleSentence.Translations,
             afterExampleSentence.Translations,
-            new TranslationDiffApi(api, entryId, senseId, beforeExampleSentence.Id));
+            new TranslationDiffApi(api, entryId, senseId, beforeExampleSentence.Id),
+            context.Translations);
         return (updateObjectInput is not null ? 1 : 0) + translationChanges;
     }
 
@@ -90,7 +92,7 @@ public static class ExampleSentenceSync
         }
     }
 
-    private class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : IOrderableCollectionDiffApi<ExampleSentence, Guid>
+    private class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId, SyncContext context) : IOrderableCollectionDiffApi<ExampleSentence, Guid>
     {
         public Guid GetId(ExampleSentence value)
         {
@@ -99,6 +101,7 @@ public static class ExampleSentenceSync
 
         public async Task<int> Add(ExampleSentence afterExampleSentence, BetweenPosition<ExampleSentence> between)
         {
+            context.ThrowIfCreatingMovedChildren(afterExampleSentence);
             await api.SubmitCreateExampleSentence(entryId, senseId, afterExampleSentence, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
@@ -117,7 +120,7 @@ public static class ExampleSentenceSync
 
         public Task<int> Replace(ExampleSentence beforeExampleSentence, ExampleSentence afterExampleSentence)
         {
-            return Sync(entryId, senseId, beforeExampleSentence, afterExampleSentence, api);
+            return Sync(entryId, senseId, beforeExampleSentence, afterExampleSentence, api, context);
         }
     }
 }

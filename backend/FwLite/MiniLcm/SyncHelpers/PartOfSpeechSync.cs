@@ -12,7 +12,8 @@ public static class PartOfSpeechSync
         return await DiffCollection.Diff(
             beforePartsOfSpeech,
             afterPartsOfSpeech,
-            new PartsOfSpeechDiffApi(api));
+            new PartsOfSpeechDiffApi(api),
+            MoveContext<PartOfSpeech, Guid>.Empty);
     }
 
     public static async Task<int> Sync(PartOfSpeech before,
