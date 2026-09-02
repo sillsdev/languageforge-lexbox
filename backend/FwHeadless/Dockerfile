@@ -32,18 +32,14 @@ RUN --mount=type=cache,target=/root/.nuget/packages dotnet build /p:Informationa
 FROM build AS publish
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:InformationalVersion=$APP_VERSION "FwHeadless/FwHeadless.csproj" -c Release -o /app/publish
 
-# ChorusMerge needs dotnet 8.
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS dotnet8
-
 FROM base AS final
 RUN mkdir -p /var/lib/fw-headless /var/www/.local/share && chown -R www-data:www-data /var/lib/fw-headless /var/www/.local/share
 RUN apt-get update \
 	&& apt-get install --yes --no-install-recommends tini iputils-ping python3 \
 	&& rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-# dotnet 8 runtime is for ChorusMerge
-COPY --from=dotnet8 /usr/share/dotnet/host/fxr/ /usr/share/dotnet/host/fxr/
-COPY --from=dotnet8 /usr/share/dotnet/shared/Microsoft.NETCore.App/ /usr/share/dotnet/shared/Microsoft.NETCore.App/
+# ChorusMerge ships a net8.0 build; the `chorusmerge` wrapper sets DOTNET_ROLL_FORWARD=Major so it
+# runs on the .NET 10 shared framework already in this base image — no separate net8 runtime needed.
 COPY --from=publish /app/publish .
 # Ensure Chorus and Mercurial exec bits were not stripped by dotnet CLI tools
 RUN chmod +x chorusmerge && chmod +x Mercurial/hg && chmod +x Mercurial/chg 2>/dev/null || true
