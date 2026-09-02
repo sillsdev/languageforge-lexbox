@@ -30,7 +30,9 @@ LABEL version=$APP_VERSION
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet build /p:InformationalVersion=$APP_VERSION "FwHeadless/FwHeadless.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:InformationalVersion=$APP_VERSION "FwHeadless/FwHeadless.csproj" -c Release -o /app/publish
+# Publish RID-specific but framework-dependent (--no-self-contained relies on the shared framework
+# in the base image), so NuGet copies only linux-x64 native assets instead of every RID's.
+RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish -r linux-x64 --no-self-contained /p:InformationalVersion=$APP_VERSION "FwHeadless/FwHeadless.csproj" -c Release -o /app/publish
 
 FROM base AS runtime
 RUN mkdir -p /var/lib/fw-headless /var/www/.local/share && chown -R www-data:www-data /var/lib/fw-headless /var/www/.local/share
