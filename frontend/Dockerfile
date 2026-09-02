@@ -16,6 +16,7 @@ ARG APP_VERSION
 ENV VITE_APP_VERSION=$APP_VERSION
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build
+RUN node scripts/check-runtime-deps.mjs
 
 # Drop devDependencies from node_modules so the runtime image ships only prod deps.
 # adapter-node bundles devDeps (svelte, kit, vite, etc.) into build/; the packages it leaves
