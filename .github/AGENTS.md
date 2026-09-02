@@ -256,7 +256,7 @@ The workflow produces:
 
 ### Release notes (main only)
 
-`android-release-notes` calls `fw-lite-release-notes.yaml`, which runs `anthropics/claude-code-action` with the repo's `release-notes` skill and uploads `whatsnew-en-US` (Play Store, ≤500 UTF-16 units) plus a forum draft (also in the job summary). `create-release` puts the forum draft in the GitHub release body (collapsed, ahead of the generated notes) and uses the Play Store text for the Google Play beta upload, falling back to generic text if the job produced nothing. Auth is the `CLAUDE_CODE_OAUTH_TOKEN` secret (from `claude setup-token`); without it the job is a no-op. Test the drafting alone with `gh workflow run fw-lite-release-notes.yaml` (manual runs release nothing).
+`release-notes` calls `fw-lite-release-notes.yaml`, which runs `anthropics/claude-code-action` with the repo's `release-notes` skill and uploads `whatsnew-en-US` (Play Store, ≤500 UTF-16 units) plus a forum draft (also in the job summary). `create-release` puts the forum draft in the GitHub release body (collapsed; release-pipeline.yaml appends the generated notes later) and uses the Play Store text for the Google Play beta upload, falling back to generic text if the job produced nothing. Auth is the `CLAUDE_CODE_OAUTH_TOKEN` secret (from `claude setup-token`); without it the job is a no-op. Test the drafting alone with `gh workflow run fw-lite-release-notes.yaml` (manual runs release nothing; dispatch only works once the file is on develop, so pre-merge testing goes through the sandbox fork's `fork-release-notes.yaml`).
 
 ---
 
