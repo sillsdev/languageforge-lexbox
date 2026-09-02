@@ -22,6 +22,7 @@
     "env": "dotenvx run --env-file=.env.local -- pnpm",
     "check": "svelte-kit sync && svelte-check",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "check:deps": "node scripts/check-runtime-deps.mjs",
     "test:unit": "vitest",
     "lint": "svelte-kit sync && eslint . --cache",
     "lint:report": "svelte-kit sync && eslint-output",
