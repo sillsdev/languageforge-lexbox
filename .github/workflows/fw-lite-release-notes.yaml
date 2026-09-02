@@ -30,7 +30,8 @@ jobs:
     timeout-minutes: 20
     env:
       HAS_CLAUDE_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
-      # Keeps the Claude and GitHub tokens out of the env of Claude's shell commands, so injected PR text can't read them.
+      # Keeps the tokens out of the env of Claude's shell commands. Claude's own process still holds them, so the real
+      # guards are the allowlist below (no tool reaches any host but GitHub) and the credential scan in "Check the notes".
       CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: 1
     steps:
       - name: Resolve tag
@@ -76,8 +77,25 @@ jobs:
       - name: Check the notes
         if: env.HAS_CLAUDE_TOKEN == 'true'
         continue-on-error: true
+        env:
+          CLAUDE_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd release-notes 2>/dev/null || { echo "::warning::Claude wrote no release notes."; exit 0; }
+          # The notes go public unreviewed (Play Store) or lightly reviewed (release body), and Claude drafted them from
+          # PR text anyone could have written, so: no credentials, no links except to our own sites.
+          if grep -rqF -e "$CLAUDE_TOKEN" -e "$GH_TOKEN" .; then
+            echo "::warning::The release notes contain a credential; dropping them."
+            cd .. && rm -rf release-notes && exit 0
+          fi
+          if [ -f whatsnew-en-US ] && grep -q '://' whatsnew-en-US; then
+            echo "::warning::Play Store notes contain a link (CI adds the only one); dropping them."
+            rm whatsnew-en-US
+          fi
+          if [ -f forum.md ] && grep -oE 'https?://[^/[:space:])>"]+' forum.md | grep -vE '^https?://([a-z0-9-]+\.)*(sil\.org|github\.com|lexbox\.org)$'; then
+            echo "::warning::Forum notes link outside our sites; dropping them."
+            rm forum.md
+          fi
           for f in whatsnew-en-US forum.md; do
             if [ -f "$f" ]; then tr -d '\000-\010\013-\037' < "$f" > "$f.tmp" && mv "$f.tmp" "$f"; fi
           done
