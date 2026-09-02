@@ -44,7 +44,17 @@ RUN apt-get update \
 WORKDIR /app
 # ChorusMerge ships a net8.0 build; the `chorusmerge` wrapper sets DOTNET_ROLL_FORWARD=Major so it
 # runs on the .NET 10 shared framework already in this base image — no separate net8 runtime needed.
-COPY --from=publish /app/publish .
+#
+# Copy the published app in, and in the SAME layer drop the compiled Mercurial extension modules
+# (zstd et al.) built for Python versions other than this image's python3 — the package ships them
+# for 3.8–3.13, but hg only ever loads the set matching /usr/bin/python3. Pruning during the copy
+# (not after) actually reclaims the space instead of hiding it under a whiteout. Keyed to the live
+# python3 so a base-image Python bump keeps the right set by construction; the hg debuginstall
+# smoke-test below fails the build if the wrong set were ever kept.
+RUN --mount=type=bind,from=publish,source=/app/publish,target=/publish \
+    cp -a /publish/. /app/ \
+    && pyabi="cpython-$(python3 -c 'import sys; print(f"{sys.version_info.major}{sys.version_info.minor}")')" \
+    && find /app/Mercurial -name '*.cpython-3*-x86_64-linux-gnu.so' ! -name "*.${pyabi}-x86_64-linux-gnu.so" -delete
 # Ensure exec bits were not stripped by dotnet CLI tools. FixFwData is a standalone apphost that
 # liblcm shells out to at runtime for FwData repair, so it must be executable in the shipped image.
 RUN chmod +x chorusmerge FixFwData && chmod +x Mercurial/hg && chmod +x Mercurial/chg 2>/dev/null || true
@@ -63,11 +73,13 @@ CMD ["dotnet", "FwHeadless.dll"]
 # (via the marker COPY below), so buildkit must build it — and a failing smoke test fails the build.
 FROM runtime AS smoketest
 USER root
-# Smoke-test: the bundled Mercurial actually runs. The Linux `hg` is a python3 script that loads
-# native modules (zstd, etc.), so this catches a missing python3 or a broken native asset — the
-# foundation of every Send/Receive — before the image ships.
+# Smoke-test: the bundled Mercurial is soundly installed. `hg debuginstall` loads the compiled
+# extension modules and verifies the compression engines (zstd, zlib, ...), so it catches a missing
+# python3, a broken native asset, or a mis-pruned python-ABI module set (see the prune above) — the
+# foundation of every Send/Receive — before the image ships. (ui.username is set only so debuginstall
+# doesn't flag its absence as a problem.)
 RUN cd /app \
-    && ./Mercurial/hg version | grep -q "Mercurial Distributed SCM" \
+    && ./Mercurial/hg debuginstall --config ui.username=smoke@ci | grep -q "no problems detected" \
     && echo "hg smoke OK: $(./Mercurial/hg version | head -1)"
 # Smoke-test FixFwData: FwHeadless runs under dotnet (AspNetCore shared framework) but FixFwData is a
 # standalone apphost (Core only). Web publish does not copy the extra assemblies FixFwData needs
