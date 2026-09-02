@@ -545,6 +545,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      # secrets aren't allowed directly in step `if:`, so surface presence as an env var (mirrors HAS_SIGNING_KEY above).
+      HAS_PLAY_SERVICE_ACCOUNT: ${{ secrets.FW_LITE_PLAY_SERVICE_ACCOUNT_JSON != '' }}
 
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -585,6 +588,31 @@ jobs:
             fw-lite-web-linux.zip
             fw-lite-android/*.apk
             fw-lite-android/*.aab
+
+      - name: Write Play Store release notes
+        # The upload action reads notes from files (whatsnew-<locale>, max 500 chars); write it inline here.
+        if: env.HAS_PLAY_SERVICE_ACCOUNT == 'true'
+        run: |
+          mkdir -p whatsnew
+          cat > whatsnew/whatsnew-en-US <<'EOF'
+          Bug fixes and improvements.
+
+          Full release notes: https://community.software.sil.org/t/10807
+          EOF
+
+      - name: Upload to Play Store (beta)
+        # Uploads the upload-key-signed AAB (Play App Signing re-signs with the app key).
+        # Guarded on the secret so the release job stays green if the service account isn't configured.
+        if: env.HAS_PLAY_SERVICE_ACCOUNT == 'true'
+        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.FW_LITE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: org.sil.FwLiteMaui
+          releaseFiles: fw-lite-android/org.sil.FwLiteMaui-Signed.aab
+          track: beta
+          status: completed
+          releaseName: ${{ needs.build-and-test.outputs.version }}
+          whatsNewDirectory: whatsnew
 
       - name: Invalidate Lexbox Release endpoint
         continue-on-error: true
