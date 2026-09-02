@@ -96,7 +96,8 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                     [
                         new ExampleSentence()
                         {
-                            Sentence = { { "en", new RichString("I like eating Kiwis, they taste good") } }
+                            Sentence = { { "en", new RichString("I like eating Kiwis, they taste good") } },
+                            Translations = [new Translation() { Text = { { "en", new RichString("Kiwi translation") } } }]
                         },
                     ]
                 }
@@ -204,6 +205,37 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         //Senses.ExampleSentences=null matches entries which have senses but no examples
         //it does not include Apple because it has no senses, to include it a filter Senses=null is needed
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingTranslations()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations=null" })).ToArrayAsync();
+        //matches entries which have an example sentence with no translations
+        //Kiwi is excluded because its only example sentence has a translation
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingTranslations_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingTranslationsWithEmptyArray()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations=[]" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToNotMissingTranslations()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations!=null" })).ToArrayAsync();
+        //matches entries which have an example sentence with a translation; only Kiwi's example has one
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Kiwi);
     }
 
     [Fact]
