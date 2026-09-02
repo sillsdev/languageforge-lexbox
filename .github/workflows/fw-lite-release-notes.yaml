@@ -64,7 +64,7 @@ jobs:
           prompt: |
             Run the release-notes skill (.claude/skills/release-notes/SKILL.md) in pre-release mode with file output, for the FieldWorks Lite release this CI run is publishing.
 
-            Release tag: ${{ steps.tag.outputs.TAG }}, built from commit ${{ github.sha }}. The tag is definite, not predicted, and the GitHub release does not exist yet. Use that commit as the endpoint of every comparison (not origin/main, which may have moved on). The baseline is the newest existing release tag.
+            Release tag: ${{ steps.tag.outputs.TAG }}, built from commit ${{ github.sha }}. The tag is definite, not predicted. Use that commit as the endpoint of every comparison (not origin/main, which may have moved on). The baseline is the newest release tag other than this one (on a re-run the release may already exist; never compare the tag with itself).
 
             Write the two files described in the skill's "File output" section into the directory release-notes/. Do not write any other files, and do not create comments, issues, or PRs.
           claude_args: |
