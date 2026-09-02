@@ -1,0 +1,98 @@
+name: FW Lite release notes
+# Drafts the FieldWorks Lite release notes (forum markdown + Google Play text) with Claude.
+# Called by fw-lite.yaml on main; dispatch it by hand to test the drafting without releasing anything.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag the notes are for
+        required: true
+        type: string
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN:
+        required: false
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag the notes are for (default is the tag a release of this commit would get today)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  draft:
+    name: Draft release notes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HAS_CLAUDE_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+    steps:
+      - name: Resolve tag
+        id: tag
+        run: |
+          tag='${{ inputs.tag }}'
+          [ -n "$tag" ] || tag="v$(date --rfc-3339=date)-$(echo ${{ github.sha }} | cut -c1-8)" # same format as fw-lite.yaml's Set Version
+          echo "TAG=$tag" >> "$GITHUB_OUTPUT"
+      - name: Checkout
+        if: env.HAS_CLAUDE_TOKEN == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # the skill diffs against the previous release tag
+      - name: Draft release notes with Claude
+        if: env.HAS_CLAUDE_TOKEN == 'true'
+        continue-on-error: true # best effort; must never turn a release run red
+        uses: anthropics/claude-code-action@8251c103ac8c1d761882c86aba1412c7f583c844 # v1.0.213
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Run the release-notes skill (.claude/skills/release-notes/SKILL.md) in pre-release mode with file output, for the FieldWorks Lite release this CI run is publishing.
+
+            Release tag: ${{ steps.tag.outputs.TAG }}, built from commit ${{ github.sha }}. The tag is definite, not predicted, and the GitHub release does not exist yet. Use that commit as the endpoint of every comparison (not origin/main, which may have moved on). The baseline is the newest existing release tag.
+
+            Write the two files described in the skill's "File output" section into the directory release-notes/. Do not write any other files, and do not create comments, issues, or PRs.
+          claude_args: |
+            --max-turns 60
+            --allowedTools "Skill,Agent,Read,Glob,Grep,Write,WebFetch,Bash(gh api:*),Bash(gh release:*),Bash(gh pr:*),Bash(git fetch:*),Bash(git log:*),Bash(git show:*),Bash(git tag:*),Bash(git rev-parse:*)"
+      - name: Check the notes
+        if: env.HAS_CLAUDE_TOKEN == 'true'
+        run: |
+          cd release-notes 2>/dev/null || { echo "::warning::Claude wrote no release notes."; exit 0; }
+          for f in whatsnew-en-US forum.md; do
+            if [ -f "$f" ]; then tr -d '\000-\010\013-\037' < "$f" > "$f.tmp" && mv "$f.tmp" "$f"; fi
+          done
+          if [ -s whatsnew-en-US ]; then
+            # Google Play counts UTF-16 code units (emoji are 2 each), so don't trust wc -m.
+            units=$(python3 -c 'import sys; print(len(sys.stdin.read().encode("utf-16-le")) // 2)' < whatsnew-en-US)
+            if [ "$units" -gt 500 ]; then
+              echo "::warning::Play Store notes are $units UTF-16 units (limit 500); dropping them."
+              rm whatsnew-en-US
+            fi
+          fi
+          if [ -s forum.md ]; then
+            {
+              echo "<details>"
+              echo "<summary>FieldWorks Lite release notes (AI draft, review before posting to the forum)</summary>"
+              echo
+              cat forum.md
+              echo
+              echo "</details>"
+            } > release-body.md
+          fi
+          {
+            if [ -s whatsnew-en-US ]; then echo "## Play Store notes"; echo; echo '```'; cat whatsnew-en-US; echo; echo '```'; fi
+            if [ -s forum.md ]; then echo "## Forum notes"; echo; cat forum.md; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload release notes
+        if: env.HAS_CLAUDE_TOKEN == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fw-lite-release-notes
+          path: release-notes
+          if-no-files-found: ignore
+

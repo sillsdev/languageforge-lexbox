@@ -3,12 +3,12 @@ name: release-notes
 description: Generate user-facing FieldWorks Lite release notes in two formats at once — SIL community forum (Discourse markdown) and Google Play "What's new" (plain text, ≤500 chars). Use whenever the user asks for release notes, forum notes, Android/Play Store notes, "what's new", or notes for an upcoming release. Released mode reads the latest GitHub release; pre-release mode ("upcoming release", "I just pushed to main") reconstructs the changes from PRs merged since the last tag.
 when_to_use: User asks for "release notes", "forum notes", "Android notes", "Play Store notes", "what's new for this release", or wants notes for a build just pushed to main before the GitHub release exists.
 argument-hint: "[released | upcoming]"
-allowed-tools: Bash(gh api:*) Bash(gh release:*) Bash(gh pr:*) Bash(git fetch:*) Bash(git log:*) Bash(git show:*) Bash(git tag:*) Bash(git rev-parse:*) Read Glob Grep WebFetch Agent
+allowed-tools: Bash(gh api:*) Bash(gh release:*) Bash(gh pr:*) Bash(git fetch:*) Bash(git log:*) Bash(git show:*) Bash(git tag:*) Bash(git rev-parse:*) Read Glob Grep WebFetch Agent Write
 ---
 
 # FieldWorks Lite release notes
 
-Produce user-facing release notes for a FieldWorks Lite release and deliver **three copy/paste-ready blocks directly in chat** (never a .md file):
+Produce user-facing release notes for a FieldWorks Lite release and deliver **three copy/paste-ready blocks directly in chat** (never a .md file, unless asked for [file output](#file-output-ci)):
 
 1. **Version tag** — the full tag including the commit hash (e.g. `v2026-06-24-8cfbce9c`). In pre-release mode this is predicted; label it clearly as *predicted*.
 2. **Forum release notes** — Discourse markdown (format below), pasted into the SIL community forum topic (https://community.software.sil.org/t/10807 — id-only URL; the slugged form embeds a version and goes stale).
@@ -17,6 +17,15 @@ Produce user-facing release notes for a FieldWorks Lite release and deliver **th
 Produce both note sets in the same pass while the PR list is in context — platform filtering for Android needs the PR details, not just the forum wording.
 
 The hard part is the filter: include everything a user would care about, and nothing else. A release with ~25 PRs often yields only ~6–8 posted bullets. A human reviews the draft, so aim for a good draft fast, not a perfect one at high cost.
+
+## File output (CI)
+
+The `android-release-notes` job in `.github/workflows/fw-lite.yaml` runs this skill in pre-release mode and asks for files instead of chat. Then write, into the directory the prompt names:
+
+- `forum.md` — the forum notes block only (Step 5 markdown, starting at the `## Version:` header). It lands in the GitHub release body for a human to review and paste to the forum.
+- `whatsnew-en-US` — the Android notes block only (Step 6 plain text). Google Play counts UTF-16 units, so emoji cost 2; CI drops the file if it's over 500, and appends a "Full release notes" forum link only when that still fits, so stay under ~430. If nothing applies to Android, write exactly `Bug fixes and improvements.`
+
+Nothing else: no version-tag block, no commentary, no other files. The tag is given in the prompt, so don't predict it.
 
 ## Two modes
 
