@@ -73,7 +73,7 @@ public static class FwLiteMauiKernel
         services.AddFwLiteWindows(env);
 #endif
 #if ANDROID
-        services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
+        services.Configure<AuthConfig>(config => config.GetParentActivityOrWindow = () => Platform.CurrentActivity);
         services.Replace(ServiceDescriptor.Singleton<IKeepAwakePlatform, AndroidKeepAwakePlatform>());
 #endif
         services.AddSingleton<IAppLauncher, AppLauncher>();
