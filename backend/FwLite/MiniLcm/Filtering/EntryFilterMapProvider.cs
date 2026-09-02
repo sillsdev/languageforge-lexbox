@@ -10,6 +10,8 @@ public abstract class EntryFilterMapProvider<T>
     public virtual Func<string, object>? EntrySensesSemanticDomainsConverter { get; } = null;
     public abstract Expression<Func<T, object?>> EntrySensesExampleSentences { get; }
     public abstract Expression<Func<T, string, object>> EntrySensesExampleSentencesSentence { get; }
+    public abstract Expression<Func<T, object?>> EntrySensesExampleSentencesTranslations { get; }
+    public virtual Func<string, object>? EntrySensesExampleSentencesTranslationsConverter { get; } = null;
     public abstract Expression<Func<T, object?>> EntrySensesPartOfSpeechId { get; }
     public abstract Expression<Func<T, object?>> EntrySenses { get; }
     public abstract Expression<Func<T, string, object>> EntrySensesGloss { get; }
