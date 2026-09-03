@@ -72,7 +72,7 @@ CMD ["dotnet", "FwHeadless.dll"]
 # fixtures and temp churn never land in the shipped `final` image. `final` depends on this stage
 # (via the marker COPY below), so buildkit must build it — and a failing smoke test fails the build.
 FROM runtime AS smoketest
-USER root
+
 # Smoke-test: the bundled Mercurial is soundly installed. `hg debuginstall` loads the compiled
 # extension modules and verifies the compression engines (zstd, zlib, ...), so it catches a missing
 # python3, a broken native asset, or a mis-pruned python-ABI module set (see the prune above) — the
