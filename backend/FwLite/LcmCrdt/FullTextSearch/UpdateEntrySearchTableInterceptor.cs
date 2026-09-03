@@ -128,19 +128,21 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
                     continue;
                 }
 
-                fullEntry = await dbContext.Set<Entry>()
-                    .Include(e => e.Senses)
-                    .FirstAsync(e => e.Id == entryId);
+                fullEntry = await LoadEntry(entryId, dbContext);
                 fullEntry.LexemeForm = entry.LexemeForm;
                 fullEntry.CitationForm = entry.CitationForm;
             }
         }
 
-        fullEntry ??= await dbContext.Set<Entry>()
-            .Include(e => e.Senses)
-            .FirstAsync(e => e.Id == entryId);
+        fullEntry ??= await LoadEntry(entryId, dbContext);
         fullEntry.Senses = [..fullEntry.Senses.Where(s => !sensesToRemove.Contains(s.Id) && sensesToReplace.All(sr => sr.Id != s.Id)), ..sensesToReplace];
 
         return (fullEntry, null);
+    }
+
+    private static async Task<Entry> LoadEntry(Guid entryId, DbContext dbContext)
+    {
+        return await dbContext.Set<Entry>().Include(e => e.Senses).FirstOrDefaultAsync(e => e.Id == entryId)
+            ?? throw new InvalidOperationException($"Entry {entryId} not found while updating the search table for its senses");
     }
 }
