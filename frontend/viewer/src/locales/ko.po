@@ -1588,6 +1588,10 @@ msgid "Missing Gloss {0}"
 msgstr "누락된 광택 {0}"
 
 #: src/project/tasks/tasks-service.ts
+msgid "Missing Headword {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
 msgid "Missing Lexeme form {0}"
 msgstr ""
 
@@ -2767,6 +2771,10 @@ msgstr "광택 입력"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form or Citation form"
 msgstr ""
 
 #. Task instruction

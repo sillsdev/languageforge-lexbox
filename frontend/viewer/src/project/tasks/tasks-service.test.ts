@@ -57,6 +57,7 @@ const analysisWs = ws(WritingSystemType.Analysis);
 const exampleTask = [...TasksService.makeExampleSentenceTasks([vernacularWs])].find(t => t.id === 'example-sentence-en')!;
 const senseTask = [...TasksService.makeSenseTasks([analysisWs])].find(t => t.id === 'sense-no-gloss-en')!;
 const semanticDomainTask = [...TasksService.makeSenseTasks([analysisWs])].find(t => t.id === 'missing-semantic-domain')!;
+const headwordTask = [...TasksService.makeEntryTasks([vernacularWs])].find(t => t.id === 'entry-no-headword-en')!;
 const citationFormTask = [...TasksService.makeEntryTasks([vernacularWs])].find(t => t.id === 'entry-no-citation-form-en')!;
 const lexemeFormTask = [...TasksService.makeEntryTasks([vernacularWs])].find(t => t.id === 'entry-no-lexeme-form-en')!;
 
@@ -240,6 +241,33 @@ describe('tasks service', () => {
         const [subject] = TasksService.subjects(lexemeFormTask, entry);
         subject.entry.lexemeForm['en'] = 'world';
         expect(subject.subject).toStrictEqual('world');
+      });
+
+      it('headword: should return the entry when both forms are empty', () => {
+        const entry = newEntry({lexemeForm: {}, citationForm: {}});
+        const [subject] = TasksService.subjects(headwordTask, entry);
+        expect(subject.entry).toStrictEqual(entry);
+      });
+
+      it('headword: is satisfied by a lexeme form', () => {
+        const entry = newEntry({lexemeForm: {en: 'lex'}, citationForm: {}});
+        expect(headwordTask.isComplete(entry)).toBe(true);
+      });
+
+      it('headword: is satisfied by a citation form', () => {
+        const entry = newEntry({lexemeForm: {}, citationForm: {en: 'cite'}});
+        expect(headwordTask.isComplete(entry)).toBe(true);
+      });
+
+      it('headword: prefers the citation form for the subject value', () => {
+        const entry = newEntry({lexemeForm: {en: 'lex'}, citationForm: {en: 'cite'}});
+        const [subject] = TasksService.subjects(headwordTask, entry);
+        expect(subject.subject).toStrictEqual('cite');
+      });
+
+      it('headword: is incomplete when both forms are empty', () => {
+        const entry = newEntry({lexemeForm: {}, citationForm: {}});
+        expect(headwordTask.isComplete(entry)).toBe(false);
       });
     });
 

@@ -1583,6 +1583,10 @@ msgid "Missing Gloss {0}"
 msgstr "Missing Gloss {0}"
 
 #: src/project/tasks/tasks-service.ts
+msgid "Missing Headword {0}"
+msgstr "Missing Headword {0}"
+
+#: src/project/tasks/tasks-service.ts
 msgid "Missing Lexeme form {0}"
 msgstr "Missing Lexeme form {0}"
 
@@ -2763,6 +2767,10 @@ msgstr "Type a Gloss"
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form"
 msgstr "Type a Lexeme form"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form or Citation form"
+msgstr "Type a Lexeme form or Citation form"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts

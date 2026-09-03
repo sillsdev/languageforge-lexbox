@@ -116,6 +116,21 @@ export class TasksService {
 
   public static *makeEntryTasks(vernacular: IWritingSystem[]) {
     for (const writingSystem of vernacular) {
+      const taskHeadword: Task = {
+        id: `entry-no-headword-${writingSystem.wsId}`,
+        contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
+        subject: gt`Missing Headword ${writingSystem.abbreviation}`,
+        subjectType: 'entry',
+        subjectFields: ['lexemeForm', 'citationForm'],
+        subjectWritingSystemId: writingSystem.wsId,
+        subjectWritingSystemType: writingSystem.type,
+        prompt: gt`Type a Lexeme form or Citation form`,
+        taskKind: 'provide-missing',
+        gridifyFilter: `LexemeForm[${writingSystem.wsId}]=,CitationForm[${writingSystem.wsId}]=`,
+        getSubjectValue: s => TasksService.getHeadwordValue(s as IEntry, writingSystem.wsId),
+        isComplete: s => !!TasksService.getHeadwordValue(s as IEntry, writingSystem.wsId)
+      };
+      yield taskHeadword;
       const taskCitationForm: Task = {
         id: `entry-no-citation-form-${writingSystem.wsId}`,
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
@@ -172,6 +187,11 @@ export class TasksService {
       };
       yield taskExample;
     }
+  }
+
+  private static getHeadwordValue(entry: IEntry, wsId: string): string | undefined {
+    //matches the headword convention: citation form wins, else lexeme form
+    return asString(entry.citationForm[wsId]) || asString(entry.lexemeForm[wsId]);
   }
 
   private static getSemanticDomainsValue(sense: ISense): string | undefined {
