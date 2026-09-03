@@ -2453,6 +2453,10 @@ msgstr "Langkau"
 msgid "Something went wrong"
 msgstr ""
 
+#: src/project/browse/sort/SortWritingSystemMenu.svelte
+msgid "Sort writing system"
+msgstr ""
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"

@@ -2448,6 +2448,10 @@ msgstr "Skip"
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+#: src/project/browse/sort/SortWritingSystemMenu.svelte
+msgid "Sort writing system"
+msgstr "Sort writing system"
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
