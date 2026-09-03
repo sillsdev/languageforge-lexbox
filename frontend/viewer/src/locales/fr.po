@@ -280,7 +280,6 @@ msgid "Analysis writing system code"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/TaskList.svelte
 msgid "Analysis writing systems"
 msgstr ""
 
@@ -315,11 +314,6 @@ msgstr "Toute publication"
 #: src/project/browse/filter/SemanticDomainSelect.svelte
 msgid "Any semantic domain"
 msgstr "N'importe quel domaine sémantique"
-
-#. Heading over tasks that apply regardless of writing system (part of speech, semantic domain)
-#: src/project/tasks/TaskList.svelte
-msgid "Any writing system"
-msgstr ""
 
 #. Filter dropdown option
 #. Clears writing system filter; "Ws" = writing system abbreviation
@@ -480,6 +474,7 @@ msgstr "Choisir un thème"
 #. Field label: form for citing in dictionary
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Citation form"
 msgstr "Autonyme"
 
@@ -712,6 +707,7 @@ msgstr "Répertoire de données"
 #. Appears under each Sense/Meaning in entry editor
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Definition"
 msgstr "Définition"
 
@@ -973,6 +969,7 @@ msgstr "Exemple"
 #. Sentence/phrase showing usage of a word
 #. Appears under each Sense/Meaning; can have multiple examples per meaning
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Example sentence"
 msgstr "Phrase exemplaire"
 
@@ -1230,6 +1227,7 @@ msgstr "Obtenir de l'aide"
 #. Appears under each sense/meaning; concise translation
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Gloss"
 msgstr "Glose"
 
@@ -1286,6 +1284,7 @@ msgstr ""
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
 #: src/project/browse/sort/SortMenu.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Headword"
 msgstr "Entrée de dictionnaire"
 
@@ -1406,6 +1405,7 @@ msgstr "Logo Lexbox"
 #. Field label: the main headword/base form
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Lexeme form"
 msgstr "Forme de lexème"
 
@@ -1980,6 +1980,7 @@ msgstr "Une partie de"
 #. Field label: grammatical category (noun, verb, adjective, etc.)
 #: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Part of speech"
 msgstr "Partie du discours"
 
@@ -2369,6 +2370,7 @@ msgstr "Domaine sémantique"
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
 #. Appears under each Sense/Meaning; usually multiple selection allowed
 #: src/lib/views/entity-config.ts
+#: src/project/tasks/tasks-service.ts
 msgid "Semantic domains"
 msgstr "Domaines sémantiques"
 
@@ -2987,7 +2989,6 @@ msgid "Vernacular writing system is required"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/TaskList.svelte
 msgid "Vernacular writing systems"
 msgstr ""
 

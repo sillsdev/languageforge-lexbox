@@ -19,6 +19,7 @@ export interface Task {
   id: string;
   contextFields: FieldId[];
   subject: string;
+  fieldLabel: string;
   subjectType: 'entry' | 'sense' | 'example-sentence';
   subjectFields: FieldId[];
   subjectWritingSystemId?: string;
@@ -49,35 +50,10 @@ export class TasksService {
   }
 
   public static *makeSenseTasks(analysis: IWritingSystem[]) {
-    const taskMissingPartOfSpeech: Task = {
-      id: 'missing-part-of-speech',
-      contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
-      subject: gt`Missing Part of Speech`,
-      subjectType: 'sense',
-      subjectFields: ['partOfSpeechId'],
-      prompt: gt`Pick a Part of Speech`,
-      taskKind: 'provide-missing',
-      gridifyFilter: 'Senses.PartOfSpeechId=',
-      getSubjectValue: s => firstTruthy(analysis, ws => asString((s as ISense).partOfSpeech?.name[ws.wsId])) ,
-      isComplete: s => !!(s as ISense).partOfSpeechId
-    };
-    yield taskMissingPartOfSpeech;
-    const taskMissingSemanticDomain: Task = {
-      id: 'missing-semantic-domain',
-      contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
-      subject: gt`Missing Semantic domain`,
-      subjectType: 'sense',
-      subjectFields: ['semanticDomains'],
-      prompt: gt`Pick one or more Semantic domains`,
-      taskKind: 'provide-missing',
-      gridifyFilter: 'Senses=null|Senses.SemanticDomains=null',
-      getSubjectValue: s => TasksService.getSemanticDomainsValue(s as ISense),
-      isComplete: s => !!(s as ISense).semanticDomains?.length
-    };
-    yield taskMissingSemanticDomain;
     for (const writingSystem of analysis) {
       const taskSenseGloss: Task = {
         id: `sense-no-gloss-${writingSystem.wsId}`,
+        fieldLabel: gt`Gloss`,
         contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
         subject: gt`Missing Gloss ${writingSystem.abbreviation}`,
         subjectType: 'sense',
@@ -93,6 +69,7 @@ export class TasksService {
       yield taskSenseGloss;
       const taskSenseDefinition: Task = {
         id: `sense-no-definition-${writingSystem.wsId}`,
+        fieldLabel: gt`Definition`,
         contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
         subject: gt`Missing Definition ${writingSystem.abbreviation}`,
         subjectType: 'sense',
@@ -107,6 +84,34 @@ export class TasksService {
       };
       yield taskSenseDefinition;
     }
+    const taskMissingPartOfSpeech: Task = {
+      id: 'missing-part-of-speech',
+      fieldLabel: gt`Part of speech`,
+      contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
+      subject: gt`Missing Part of Speech`,
+      subjectType: 'sense',
+      subjectFields: ['partOfSpeechId'],
+      prompt: gt`Pick a Part of Speech`,
+      taskKind: 'provide-missing',
+      gridifyFilter: 'Senses.PartOfSpeechId=',
+      getSubjectValue: s => firstTruthy(analysis, ws => asString((s as ISense).partOfSpeech?.name[ws.wsId])) ,
+      isComplete: s => !!(s as ISense).partOfSpeechId
+    };
+    yield taskMissingPartOfSpeech;
+    const taskMissingSemanticDomain: Task = {
+      id: 'missing-semantic-domain',
+      fieldLabel: gt`Semantic domains`,
+      contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
+      subject: gt`Missing Semantic domain`,
+      subjectType: 'sense',
+      subjectFields: ['semanticDomains'],
+      prompt: gt`Pick one or more Semantic domains`,
+      taskKind: 'provide-missing',
+      gridifyFilter: 'Senses=null|Senses.SemanticDomains=null',
+      getSubjectValue: s => TasksService.getSemanticDomainsValue(s as ISense),
+      isComplete: s => !!(s as ISense).semanticDomains?.length
+    };
+    yield taskMissingSemanticDomain;
   }
 
   public entryTasks() {
@@ -118,6 +123,7 @@ export class TasksService {
     for (const writingSystem of vernacular) {
       const taskHeadword: Task = {
         id: `entry-no-headword-${writingSystem.wsId}`,
+        fieldLabel: gt`Headword`,
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: gt`Missing Headword ${writingSystem.abbreviation}`,
         subjectType: 'entry',
@@ -133,6 +139,7 @@ export class TasksService {
       yield taskHeadword;
       const taskLexemeForm: Task = {
         id: `entry-no-lexeme-form-${writingSystem.wsId}`,
+        fieldLabel: gt`Lexeme form`,
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: gt`Missing Lexeme form ${writingSystem.abbreviation}`,
         subjectType: 'entry',
@@ -148,6 +155,7 @@ export class TasksService {
       yield taskLexemeForm;
       const taskCitationForm: Task = {
         id: `entry-no-citation-form-${writingSystem.wsId}`,
+        fieldLabel: gt`Citation form`,
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: gt`Missing Citation form ${writingSystem.abbreviation}`,
         subjectType: 'entry',
@@ -173,6 +181,7 @@ export class TasksService {
     for (const writingSystem of vernacular) {
       const taskExample: Task = {
         id: `example-sentence-${writingSystem.wsId}`,
+        fieldLabel: gt`Example sentence`,
         contextFields: ['gloss', 'definition'],
         subject: gt`Missing Example sentence ${writingSystem.abbreviation}`,
         subjectType: 'example-sentence',
