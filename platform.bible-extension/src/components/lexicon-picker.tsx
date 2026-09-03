@@ -1,28 +1,19 @@
 import { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
 import type { IProjectModel } from 'lexicon';
-import { Check, Trash2 } from 'lucide-react';
+import { Check } from 'lucide-react';
 import {
   Alert,
   AlertDescription,
-  Badge,
   Button,
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
-  CommandItem,
   CommandList,
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
   Label,
   Spinner,
-  Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from 'platform-bible-react';
 import {
   type KeyboardEvent,
@@ -36,6 +27,8 @@ import {
 import { formatReplacementString, getErrorMessage } from 'platform-bible-utils';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 import type { DownloadResult } from '../utils/fw-lite-api';
+import DeleteConfirm from './delete-confirm';
+import LexiconRow from './lexicon-row';
 
 /** PAPI rejections read "JSON-RPC Request error (0): <real message>"; show only the real message. */
 function userFacingError(e: unknown): string {
@@ -304,95 +297,25 @@ export default function LexiconPicker({
 
   const renderItem = (project: IProjectModel, local: boolean): ReactElement => {
     const key = keyFor(project, local);
-    const name = project.name || project.code;
-    const isChosen = key === selectedKey;
-    // The applied (current) lexicon, marked persistently so it stays legible when the pending
-    // pick (the check) moves to another row. Remote rows are never the applied lexicon.
-    const isApplied = local && project.code === initialCode;
-    const isFieldWorks = !!(local && project.fwdata && !project.crdt);
-    // Case-insensitive so "Happy"/"happy" doesn't show a pointless code line.
-    const showCode = project.code.toLowerCase() !== name.toLowerCase();
-    const item = (
-      <CommandItem
+    return (
+      <LexiconRow
         key={key}
-        // Scroll the applied lexicon into view on open (replaces pinning it to the top).
-        ref={isApplied ? currentRowRef : undefined}
-        // cmdk filters on this value; include the key so items stay unique when names collide.
-        value={`${name} ${project.code} ${key}`}
+        project={project}
+        local={local}
+        itemKey={key}
+        isChosen={key === selectedKey}
+        isApplied={local && project.code === initialCode}
+        deletability={deletability(project, local)}
+        currentRowRef={currentRowRef}
         onSelect={() => {
           setError('');
           setNotice('');
           onClearSaved?.();
           setSelectedKey(key);
         }}
-        // items-center so the check and the right-rail badges vertically center across the row,
-        // including when a second (code) line is present.
-        className="tw:flex tw:items-center tw:gap-2"
-      >
-        <Check
-          aria-hidden
-          className={`tw:h-4 tw:w-4 tw:shrink-0 ${isChosen ? '' : 'tw:invisible'}`}
-        />
-        <div className="tw:flex-1 tw:min-w-0">
-          <span className="tw:block tw:truncate" title={name}>
-            {name}
-          </span>
-          {isChosen && (
-            // cmdk's aria-selected tracks the highlighted item, not the checked one.
-            <span className="tw:sr-only">
-              {localizedStrings['%lexicon_selectLexicon_selectedIndicator%']}
-            </span>
-          )}
-          {showCode && (
-            <div className="tw:text-xs tw:text-muted-foreground tw:truncate" title={project.code}>
-              {project.code}
-            </div>
-          )}
-        </div>
-        {(isApplied || isFieldWorks) && (
-          <div className="tw:ms-auto tw:flex tw:items-center tw:gap-1 tw:shrink-0">
-            {isApplied && (
-              // Outline, not a filled variant: the theme collapses secondary/muted/accent to one
-              // color, so a filled badge would vanish into the row-hover background. font-medium +
-              // foreground text keeps it more prominent than the muted FieldWorks badge.
-              <Badge className="tw:font-medium" variant="outline">
-                {localizedStrings['%lexicon_selectLexicon_badgeCurrent%']}
-              </Badge>
-            )}
-            {isFieldWorks && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge className="tw:font-normal tw:text-muted-foreground" variant="outline">
-                    {localizedStrings['%lexicon_selectLexicon_badgeFieldWorks%']}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {localizedStrings['%lexicon_selectLexicon_badgeFieldWorksTip%']}
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-        )}
-      </CommandItem>
-    );
-    const del = deletability(project, local);
-    if (del === 'no') return item;
-    return (
-      <ContextMenu key={key}>
-        <ContextMenuTrigger asChild>{item}</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem disabled={del === 'current'} onSelect={() => beginDelete(project)}>
-            <Trash2 aria-hidden className="tw:h-4 tw:w-4 tw:me-2" />
-            {localizedStrings['%lexicon_selectLexicon_deleteLocalCopy%']}
-          </ContextMenuItem>
-          {del === 'current' && (
-            // Not a tooltip: disabled Radix items are unreachable by pointer and keyboard.
-            <div className="tw:max-w-60 tw:px-2 tw:pb-1.5 tw:text-xs tw:text-muted-foreground">
-              {localizedStrings['%lexicon_selectLexicon_deleteDisabledCurrent%']}
-            </div>
-          )}
-        </ContextMenuContent>
-      </ContextMenu>
+        onBeginDelete={() => beginDelete(project)}
+        strings={localizedStrings}
+      />
     );
   };
 
@@ -514,36 +437,13 @@ export default function LexiconPicker({
         </Command>
 
         {pendingDelete ? (
-          <Alert
-            className="tw:shrink-0"
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') setPendingDelete(undefined);
-            }}
-          >
-            <AlertDescription>
-              {formatReplacementString(localizedStrings['%lexicon_selectLexicon_deleteConfirm%'], {
-                name: pendingDelete.name || pendingDelete.code,
-                server: pendingDelete.server?.displayName ?? '',
-              })}
-            </AlertDescription>
-            <div className="tw:mt-2 tw:flex tw:gap-2">
-              <Button disabled={deleting} onClick={doDelete} type="button" variant="destructive">
-                {deleting && <Spinner className="tw:h-4 tw:w-4 tw:me-2" />}
-                {localizedStrings['%lexicon_selectLexicon_deleteConfirmAction%']}
-              </Button>
-              <Button
-                // Focus the safe choice; Esc (handled above) also cancels.
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-                disabled={deleting}
-                onClick={() => setPendingDelete(undefined)}
-                type="button"
-                variant="outline"
-              >
-                {localizedStrings['%lexicon_button_cancel%']}
-              </Button>
-            </div>
-          </Alert>
+          <DeleteConfirm
+            project={pendingDelete}
+            deleting={deleting}
+            onConfirm={doDelete}
+            onCancel={() => setPendingDelete(undefined)}
+            strings={localizedStrings}
+          />
         ) : (
           <>
             {!!error && (
