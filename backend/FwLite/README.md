@@ -34,7 +34,7 @@ dotnet test FwLiteOnly.slnf
 
 ### Building for a specific framework
 ```bash
-dotnet build -f net10.0-ios
+dotnet build -f net11.0-ios
 ```
 You can choose which framework to build for with the `-f` flag.
 
