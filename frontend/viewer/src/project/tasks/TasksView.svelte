@@ -1,48 +1,35 @@
 <script lang="ts">
-  import * as Select from '$lib/components/ui/select';
   import {useTasksService} from './tasks-service';
   import {t} from 'svelte-i18n-lingui';
   import {useProjectStorage} from '$lib/storage';
   import TaskView from './TaskView.svelte';
-  import {untrack} from 'svelte';
+  import TaskList from './TaskList.svelte';
+  import {Button} from '$lib/components/ui/button';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
 
   const selectedTaskId = useProjectStorage().selectedTaskId;
   const tasksService = useTasksService();
-  const tasks = $derived(tasksService.listTasks());
-  const selectedTask = $derived(tasks.find(task => task.id === selectedTaskId.current));
+  const selectedTask = $derived(tasksService.listTasks().find(task => task.id === selectedTaskId.current));
 
-  let open = $state(false);
-  $effect(() => {
-    if (untrack(() => !selectedTaskId.loading)) {
-      untrack(() => open = !selectedTaskId.current);
-      return;
-    }
-    // stay subscribed until loading is complete
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    selectedTaskId.loading;
-  });
+  function closeTask() {
+    void selectedTaskId.set('');
+  }
 </script>
 
 <div class="flex flex-col h-full p-4 gap-4">
-  <div class="flex flex-row items-center">
-    <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0 mr-2" />
-
-    <Select.Root bind:open type="single" value={selectedTaskId.current} onValueChange={(v) => selectedTaskId.set(v ?? '')}>
-      <Select.Trigger>{$t`Task ${selectedTask?.subject ?? ''}`}</Select.Trigger>
-      <Select.Content>
-        {#each tasks as task (task.id)}
-          <Select.Item value={task.id}>{task.subject}</Select.Item>
-        {/each}
-      </Select.Content>
-    </Select.Root>
+  <div class="flex flex-row items-center gap-2">
+    <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0" />
+    {#if selectedTaskId.current}
+      <Button variant="ghost" size="icon" icon="i-mdi-arrow-left" onclick={closeTask} aria-label={$t`Back to tasks`} />
+    {/if}
+    <h1 class="text-xl font-semibold truncate min-w-0">{selectedTask?.subject ?? $t`Tasks`}</h1>
   </div>
   <ViewErrorBoundary class="flex-1 min-h-0 overflow-auto" title={$t`Task view failed`}>
     {#if selectedTaskId.current}
-      <TaskView taskId={selectedTaskId.current} onClose={() => selectedTaskId.set('')}/>
-    {:else}
-      <h1 class="text-xl p-4 mx-auto">{$t`Select a new task to work on`}</h1>
+      <TaskView taskId={selectedTaskId.current} onClose={closeTask}/>
+    {:else if !selectedTaskId.loading}
+      <TaskList onSelect={taskId => selectedTaskId.set(taskId)} />
     {/if}
   </ViewErrorBoundary>
 </div>

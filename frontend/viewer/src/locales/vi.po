@@ -315,6 +315,10 @@ msgstr "Bất kỳ ấn phẩm nào"
 msgid "Any semantic domain"
 msgstr "Bất kỳ miền ngữ nghĩa nào"
 
+#: src/project/tasks/TaskList.svelte
+msgid "Any writing system"
+msgstr ""
+
 #. Filter dropdown option
 #. Clears writing system filter; "Ws" = writing system abbreviation
 #. Writing system = script/language variant
@@ -368,6 +372,10 @@ msgstr "Đang đồng bộ tự động"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Back"
+msgstr ""
+
+#: src/project/tasks/TasksView.svelte
+msgid "Back to tasks"
 msgstr ""
 
 #. Section label in custom view form.
@@ -2327,11 +2335,6 @@ msgstr "Chọn {0}"
 msgid "Select {0} to view details"
 msgstr "Chọn {0} để xem chi tiết"
 
-#. Empty state message
-#: src/project/tasks/TasksView.svelte
-msgid "Select a new task to work on"
-msgstr "Chọn nhiệm vụ mới để thực hiện"
-
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
@@ -2606,11 +2609,6 @@ msgstr "Đang đồng bộ..."
 msgid "System"
 msgstr "Hệ thống"
 
-#. Page title with task name
-#: src/project/tasks/TasksView.svelte
-msgid "Task {0}"
-msgstr "Nhiệm vụ {0}"
-
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -2622,6 +2620,7 @@ msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "Nhiệm vụ"
 

@@ -315,6 +315,10 @@ msgstr "Cualquier publicación"
 msgid "Any semantic domain"
 msgstr "Cualquier dominio semántico"
 
+#: src/project/tasks/TaskList.svelte
+msgid "Any writing system"
+msgstr ""
+
 #. Filter dropdown option
 #. Clears writing system filter; "Ws" = writing system abbreviation
 #. Writing system = script/language variant
@@ -368,6 +372,10 @@ msgstr "Sincronización automática"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Back"
+msgstr ""
+
+#: src/project/tasks/TasksView.svelte
+msgid "Back to tasks"
 msgstr ""
 
 #. Section label in custom view form.
@@ -2327,11 +2335,6 @@ msgstr "Seleccionar {0}"
 msgid "Select {0} to view details"
 msgstr "Seleccione {0} para ver los detalles"
 
-#. Empty state message
-#: src/project/tasks/TasksView.svelte
-msgid "Select a new task to work on"
-msgstr "Seleccione una nueva tarea en la que trabajar"
-
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
@@ -2606,11 +2609,6 @@ msgstr "Sincronizando..."
 msgid "System"
 msgstr "Sistema"
 
-#. Page title with task name
-#: src/project/tasks/TasksView.svelte
-msgid "Task {0}"
-msgstr "Tarea {0}"
-
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -2622,6 +2620,7 @@ msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "Tareas"
 

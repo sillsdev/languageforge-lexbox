@@ -310,6 +310,11 @@ msgstr "Any publication"
 msgid "Any semantic domain"
 msgstr "Any semantic domain"
 
+#. Heading over tasks that apply regardless of writing system (part of speech, semantic domain)
+#: src/project/tasks/TaskList.svelte
+msgid "Any writing system"
+msgstr "Any writing system"
+
 #. Filter dropdown option
 #. Clears writing system filter; "Ws" = writing system abbreviation
 #. Writing system = script/language variant
@@ -364,6 +369,11 @@ msgstr "Auto syncing"
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Back"
 msgstr "Back"
+
+#. Accessible label of the back-arrow button that returns from a task to the task list
+#: src/project/tasks/TasksView.svelte
+msgid "Back to tasks"
+msgstr "Back to tasks"
 
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
@@ -2322,11 +2332,6 @@ msgstr "Select {0}"
 msgid "Select {0} to view details"
 msgstr "Select {0} to view details"
 
-#. Empty state message
-#: src/project/tasks/TasksView.svelte
-msgid "Select a new task to work on"
-msgstr "Select a new task to work on"
-
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
@@ -2601,11 +2606,6 @@ msgstr "Syncing..."
 msgid "System"
 msgstr "System"
 
-#. Page title with task name
-#: src/project/tasks/TasksView.svelte
-msgid "Task {0}"
-msgstr "Task {0}"
-
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -2617,6 +2617,7 @@ msgstr "Task view failed"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "Tasks"
 

@@ -315,6 +315,10 @@ msgstr "모든 출판물"
 msgid "Any semantic domain"
 msgstr "모든 시맨틱 도메인"
 
+#: src/project/tasks/TaskList.svelte
+msgid "Any writing system"
+msgstr ""
+
 #. Filter dropdown option
 #. Clears writing system filter; "Ws" = writing system abbreviation
 #. Writing system = script/language variant
@@ -368,6 +372,10 @@ msgstr "자동 동기화"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Back"
+msgstr ""
+
+#: src/project/tasks/TasksView.svelte
+msgid "Back to tasks"
 msgstr ""
 
 #. Section label in custom view form.
@@ -2327,11 +2335,6 @@ msgstr "{0} 선택"
 msgid "Select {0} to view details"
 msgstr "자세한 내용을 보려면 {0} 을 선택하세요."
 
-#. Empty state message
-#: src/project/tasks/TasksView.svelte
-msgid "Select a new task to work on"
-msgstr "작업할 새 작업 선택"
-
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
@@ -2606,11 +2609,6 @@ msgstr "동기화..."
 msgid "System"
 msgstr "시스템"
 
-#. Page title with task name
-#: src/project/tasks/TasksView.svelte
-msgid "Task {0}"
-msgstr "작업 {0}"
-
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -2622,6 +2620,7 @@ msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "작업"
 
