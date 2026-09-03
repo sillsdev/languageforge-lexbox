@@ -42,10 +42,9 @@ export class ProjectManagers {
   }
 
   /**
-   * Resolves the project manager for the project a WebView is scoped to. When the WebView has no
-   * associated project — e.g. the Scripture Editor is open with no project selected — the user is
-   * prompted with the core project selector and their choice is used instead. Returns `undefined`
-   * only when the user dismisses the selector without choosing a project.
+   * Resolves the project manager for the project a WebView is scoped to; when it has none (e.g. the
+   * Scripture Editor with no project selected) the user is prompted with the core project selector.
+   * Returns `undefined` only if the user dismisses without choosing.
    */
   async getProjectManagerFromWebViewIdOrSelectProject(
     webViewId: string,

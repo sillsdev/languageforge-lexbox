@@ -111,19 +111,18 @@ declare module 'papi-shared-types' {
       analysisWs?: string,
     ) => Promise<SuccessHolder>;
     /**
-     * Deletes the local copy of a downloaded (server-synced) lexicon. Refuses local-only lexicons —
-     * those aren't re-downloadable, so deleting one would destroy data.
+     * Deletes a CRDT lexicon on this computer — a downloaded copy, or a local-only one (permanent,
+     * since it isn't re-downloadable). Refuses FwData projects, which FieldWorks manages.
      */
     'lexicon.deleteDownloadedLexicon': (lexiconCode: string) => Promise<SuccessHolder>;
     'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     /**
-     * Local lexicons, filtered to the project's language when a real subset matches (`filtered`
-     * reports whether that happened; `noMatch` is true when a language was given but nothing
-     * matched it; `langTag` is that language, set for either case). Pass `all` to skip the language
-     * filter. `keepCodes` are lexicon codes to keep regardless of language (the ones the caller
-     * applied this session), on top of the project's current lexicon.
+     * Local lexicons, filtered to the project's language when a real subset matches. `filtered`
+     * reports whether that happened; `noMatch` is true when a language matched nothing; `langTag`
+     * is that language either way. `all` skips the filter. `keepCodes` are codes to keep regardless
+     * of language (applied this session), on top of the project's current lexicon.
      */
     'lexicon.lexicons': (
       projectId?: string,
@@ -140,10 +139,10 @@ declare module 'papi-shared-types' {
     /** Remote (Lexbox server) CRDT projects the signed-in user can download. */
     'lexicon.remoteProjects': () => Promise<IProjectModel[] | undefined>;
     /**
-     * Downloads a remote project (blocking until its initial sync finishes) and, on success,
-     * selects it for the Paratext project. `success` is true only when both steps completed; when
-     * false, `result` says why the download ended (or is a success value if the download was fine
-     * but selection failed).
+     * Downloads a remote project (its promise resolves only once the initial sync finishes) and, on
+     * success, selects it for the Paratext project. `success` is true only when both steps
+     * completed; when false, `result` says why the download ended (or is a success value if the
+     * download was fine but selection failed).
      */
     'lexicon.downloadAndSelectLexicon': (
       projectId: string,
@@ -151,11 +150,10 @@ declare module 'papi-shared-types' {
       lexiconCode: string,
     ) => Promise<{ result: DownloadResult; success: boolean }>;
     /**
-     * Resolves the Paratext project a WebView is scoped to, prompting the user with the core
-     * project picker when it has none (e.g. a selector tab restored from a saved layout).
-     * `projectId` is undefined when the user dismisses the prompt. Kept separate from the commands
-     * that act on the project so their timeouts don't tick while the picker waits on the user.
-     * `projectName` is the resolved project's short name, for labelling the view.
+     * Resolves the Paratext project a WebView is scoped to, prompting with the core project picker
+     * when it has none (e.g. a selector tab restored from a saved layout); `projectId` is undefined
+     * if the user dismisses. Kept separate from the acting commands so their timeouts don't tick
+     * while the picker waits. `projectName` is the resolved project's short name.
      */
     'lexicon.resolveProject': (
       webViewId: string,

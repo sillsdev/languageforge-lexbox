@@ -60,6 +60,7 @@
       "%lexicon_selectLexicon_badgeFieldWorksTip%": "A FieldWorks (FLEx) project on this computer. If it syncs, that happens through FieldWorks Send/Receive, not through this tool.",
       "%lexicon_selectLexicon_deleteConfirm%": "Delete the local copy of {name}? You can download it again, but changes not yet synced to {server} will be lost.",
       "%lexicon_selectLexicon_deleteConfirmAction%": "Delete local copy",
+      "%lexicon_selectLexicon_deleteConfirmLocal%": "Delete {name}? It isn't synced to a server, so this permanently deletes it and can't be undone.",
       "%lexicon_selectLexicon_deleteDisabledCurrent%": "This is the project's current lexicon. Choose a different lexicon first.",
       "%lexicon_selectLexicon_deletedStatus%": "Local copy of {name} deleted.",
       "%lexicon_selectLexicon_deleteLocalCopy%": "Delete local copy...",

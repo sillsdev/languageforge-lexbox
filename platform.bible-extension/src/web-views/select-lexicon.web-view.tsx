@@ -60,9 +60,8 @@ globalThis.webViewComponent = function LexiconSelect({
       .catch((e) => logger.error('Error fetching remote projects:', getErrorMessage(e)));
   }, []);
 
-  // A save just landed: remember the lexicon for the confirmation line, track it as current so the
-  // picker shows it checked, keep it visible for the rest of the session, and refresh the lists (a
-  // just-downloaded remote now appears as local).
+  // A save just landed: remember it for the confirmation line, mark it current so the picker shows
+  // it checked, keep it visible this session, and refresh the lists (a downloaded remote now shows as local).
   const handleSaved = useCallback(
     (name: string, code: string) => {
       sessionKeptCodes.current.add(code);

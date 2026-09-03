@@ -14,18 +14,17 @@ import * as webViewProviders from './web-views';
 
 let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.Readable>;
 
-// Signing in can easily take longer than 30s, set increase to 5min. The stack of timeouts seems to be:
-//  5 min - papi command (this one)
-//  5 min - undici/node fetch (has gone back and forth; 300s today, see https://github.com/nodejs/undici/pull/5467)
-//  inf.  - FW Lite
+// Signing in can easily take longer than 30s. Timeout stack: this papi command (5 min) -> undici/
+// node fetch (5 min, see https://github.com/nodejs/undici/pull/5467) -> FW Lite (no timeout).
 const SIGN_IN_TIMEOUT_MS = 5 * 60 * 1000;
 
 // Downloading a project runs its full initial sync inline, which for a large project is minutes.
 // Same timeout stack as sign-in (see above).
 const DOWNLOAD_TIMEOUT_MS = 5 * 60 * 1000;
 
-// Resolving a project can open the core project picker and wait for the user to decide.
-const RESOLVE_PROJECT_TIMEOUT_MS = 10 * 60 * 1000;
+// Resolving a project can open the core project picker and wait on the user. Same 5-min budget as
+// sign-in/download — arbitrary, since it only caps an abandoned command; a present user picks in seconds.
+const RESOLVE_PROJECT_TIMEOUT_MS = 5 * 60 * 1000;
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('Lexicon extension activating!');
@@ -71,13 +70,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   // A lexicon code is valid only if the backend resolves it to a project with a vernacular writing
-  // system. Used both to validate the project setting on write and to re-check a stored code before
-  // acting on it, since a lexicon can be deleted in FW Lite after it was selected.
+  // system. Used to validate the setting on write and to re-check a stored code before acting on it
+  // (a lexicon can be deleted in FW Lite after it was selected).
   //
-  // Only the backend's definitive answers about the code itself count as "invalid" here — 404 (no
-  // such lexicon) and 400 (a code that can never resolve, e.g. all whitespace). A wrong answer
-  // discards the user's stored lexicon choice, so every other failure (FW Lite still starting up
-  // when the first command fires, a transient backend fault) is treated as "still valid".
+  // Only 404 (no such lexicon) and 400 (a code that can never resolve) count as "invalid" here —
+  // since a wrong answer discards the user's stored choice, every other failure (FW Lite still
+  // starting up, a transient backend fault) is treated as "still valid".
   const isLexiconCodeValid = async (lexiconCode: string): Promise<boolean> => {
     try {
       return (await fwLiteApi.getWritingSystems(lexiconCode)).vernacular.length > 0;
@@ -279,10 +277,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     lexiconCode: string,
   ): Promise<void> => {
     await projectManager.setLexiconCode(lexiconCode);
+    // An empty code is a valid "clear" — it still gets persisted above, but there's no lexicon left
+    // to look up an analysis language for.
     if (!lexiconCode) return;
+    // Best-effort: the code was already validated by setLexiconCode, so a failure here is transient;
+    // fall back to no analysis language rather than failing the (already-stored) selection.
     const langs = await fwLiteApi
       .getWritingSystems(lexiconCode)
-      .catch((e) => logger.error('Error fetching writing systems:', JSON.stringify(e)));
+      .catch((e) => logger.error('Error fetching writing systems:', getErrorMessage(e)));
     const analysisLang = langs?.analysis[0]?.wsId ?? '';
     if (analysisLang) {
       logger.info(`Storing lexicon analysis language '${analysisLang}'`);
@@ -291,7 +293,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     }
     await projectManager
       .setAnalysisLanguage(analysisLang)
-      .catch((e) => logger.error('Error setting analysis language:', JSON.stringify(e)));
+      .catch((e) => logger.error('Error setting analysis language:', getErrorMessage(e)));
   };
 
   // Resolving may open the core project picker and wait on the user, so it lives in its own
@@ -399,12 +401,13 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'lexicon.deleteDownloadedLexicon',
     async (lexiconCode: string) => {
       try {
-        // Only a synced copy may be deleted; a local-only lexicon isn't re-downloadable.
+        // A CRDT lexicon can be deleted here, downloaded or local-only; FwData projects are managed
+        // by FieldWorks, so refuse those.
         const project = (await fwLiteApi.getProjects()).find((p) => p.code === lexiconCode);
-        if (!project?.crdt || !project.server) {
-          return { success: false, error: `Lexicon '${lexiconCode}' is not a downloaded copy` };
+        if (!project?.crdt) {
+          return { success: false, error: `Lexicon '${lexiconCode}' can't be deleted here` };
         }
-        logger.info(`Deleting downloaded lexicon '${lexiconCode}'`);
+        logger.info(`Deleting lexicon '${lexiconCode}'`);
         await fwLiteApi.deleteProject(lexiconCode);
         return { success: true };
       } catch (e) {
@@ -443,9 +446,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         logger.warn(`Could not get language tag for project '${projectId}':`, getErrorMessage(e));
         return undefined;
       });
-      // Keep the current lexicon plus any the caller applied earlier this session (keepCodes) in the
-      // list even when their language doesn't match, so what's in use — and what was just replaced —
-      // stays visible.
+      // Keep the current lexicon plus any applied earlier this session (keepCodes) even when their
+      // language doesn't match, so what's in use — and what was just replaced — stays visible.
       const currentCode = await projectManager?.getLexiconCode().catch((e) => {
         logger.warn(
           `Could not get current lexicon for project '${projectId}':`,
@@ -504,15 +506,13 @@ export async function deactivate(): Promise<boolean> {
 }
 
 /**
- * Returns a stable per-user directory for FW Lite data (projects, auth cache), in its own
- * subdirectory so it doesn't collide with Platform.Bible's own `papi.storage` data for this
- * extension (`.../extensions/lexicon/user-data/`). Mirrors Platform.Bible's own `app://` scheme
- * (paranext-core's `getAppDir()`): the real per-user location when packaged, the repo-local
- * dev-appdata directory in development, so `npm start` doesn't read/write production user data.
+ * Per-user directory for FW Lite data (projects, auth cache), separate from Platform.Bible's own
+ * `papi.storage` data for this extension. Mirrors paranext-core's `app://`/`getAppDir()` scheme:
+ * the real per-user location when packaged, repo-local dev-appdata in development, so `npm start`
+ * doesn't touch production user data.
  *
- * Uses process.env/globalThis instead of require('os'/'path') because Platform.Bible blocks
- * non-papi requires, so paths are assembled by hand with the platform-appropriate separator
- * (backslash on Windows, forward slash on Linux/Mac, which .NET requires there).
+ * Builds paths by hand (no require('os'/'path') — Platform.Bible blocks non-papi requires), using
+ * the platform separator: backslash on Windows, forward slash elsewhere (which .NET requires).
  */
 function getFwLiteDataDir(platform: string): string {
   const isWindows = platform === 'win32';

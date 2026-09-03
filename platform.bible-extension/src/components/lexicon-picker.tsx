@@ -30,11 +30,6 @@ import type { DownloadResult } from '../utils/fw-lite-api';
 import DeleteConfirm from './delete-confirm';
 import LexiconRow from './lexicon-row';
 
-/** PAPI rejections read "JSON-RPC Request error (0): <real message>"; show only the real message. */
-function userFacingError(e: unknown): string {
-  return getErrorMessage(e).replace(/^JSON-RPC Request error \(\d+\): /, '');
-}
-
 /** Props for the LexiconPicker component */
 interface LexiconPickerProps {
   loading?: boolean;
@@ -176,10 +171,11 @@ export default function LexiconPicker({
 
   const selected = entries.get(selectedKey);
 
-  // Only a synced copy may be deleted (re-downloadable); the project's current lexicon is blocked
-  // (but gets a disabled menu item with the reason, rather than silently no menu).
+  // A CRDT lexicon on this computer can be deleted: a downloaded copy is re-downloadable, a
+  // local-only one is a permanent delete (the confirm warns which). The project's current lexicon is
+  // blocked (a disabled menu item with the reason). FwData projects are managed by FieldWorks, not here.
   const deletability = (project: IProjectModel, local: boolean): 'yes' | 'current' | 'no' => {
-    if (!(local && project.crdt && project.server)) return 'no';
+    if (!(local && project.crdt)) return 'no';
     return project.code === initialCode ? 'current' : 'yes';
   };
 
@@ -215,7 +211,7 @@ export default function LexiconPicker({
         })
         .catch((e) => {
           logger.error(localizedStrings['%lexicon_selectLexicon_saveError%'], getErrorMessage(e));
-          setError(userFacingError(e));
+          setError(getErrorMessage(e));
         })
         .finally(() => setBusy('none'));
       return;
@@ -269,7 +265,7 @@ export default function LexiconPicker({
       })
       .catch((e) => {
         logger.error('Error deleting local copy:', getErrorMessage(e));
-        setError(userFacingError(e));
+        setError(getErrorMessage(e));
       })
       .finally(() => {
         setPendingDelete(undefined);

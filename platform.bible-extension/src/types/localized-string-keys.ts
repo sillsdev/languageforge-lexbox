@@ -49,6 +49,7 @@ export const LOCALIZED_STRING_KEYS: LocalizeKey[] = [
   '%lexicon_selectLexicon_badgeFieldWorksTip%',
   '%lexicon_selectLexicon_deleteConfirm%',
   '%lexicon_selectLexicon_deleteConfirmAction%',
+  '%lexicon_selectLexicon_deleteConfirmLocal%',
   '%lexicon_selectLexicon_deleteDisabledCurrent%',
   '%lexicon_selectLexicon_deletedStatus%',
   '%lexicon_selectLexicon_deleteLocalCopy%',

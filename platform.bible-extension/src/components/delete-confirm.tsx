@@ -28,10 +28,16 @@ export default function DeleteConfirm({
       }}
     >
       <AlertDescription>
-        {formatReplacementString(strings['%lexicon_selectLexicon_deleteConfirm%'], {
-          name: project.name || project.code,
-          server: project.server?.displayName ?? '',
-        })}
+        {project.server
+          ? // Downloaded copy: re-downloadable, only unsynced changes are at risk.
+            formatReplacementString(strings['%lexicon_selectLexicon_deleteConfirm%'], {
+              name: project.name || project.code,
+              server: project.server.displayName ?? '',
+            })
+          : // Local-only: no copy anywhere, so this is permanent.
+            formatReplacementString(strings['%lexicon_selectLexicon_deleteConfirmLocal%'], {
+              name: project.name || project.code,
+            })}
       </AlertDescription>
       <div className="tw:mt-2 tw:flex tw:gap-2">
         <Button disabled={deleting} onClick={onConfirm} type="button" variant="destructive">
