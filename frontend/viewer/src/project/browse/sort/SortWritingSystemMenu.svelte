@@ -41,7 +41,7 @@
           class={cn(selectedWsId === ws.wsId && 'bg-muted')}
           >
           {ws.name}
-          <span class="text-muted-foreground ml-auto text-xs">{ws.wsId}</span>
+          <span class="text-muted-foreground ml-auto text-xs">{ws.abbreviation || ws.wsId}</span>
         </ResponsiveMenu.Item>
       {/each}
     </ResponsiveMenu.Content>
