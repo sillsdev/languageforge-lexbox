@@ -84,8 +84,9 @@ function extractTarFile() {
   console.log("Extracting tar file...");
   fs.mkdirSync(localExtractDir, { recursive: true });
 
-  // Use system tar command (available on Windows 10+ and Linux)
-  execFileSync("tar", ["-xzf", localTar, "-C", localExtractDir], { stdio: "inherit" });
+  // Relative posix path: GNU tar (e.g. Git Bash on PATH) reads the colon in "D:\..." as host:path and rejects backslashes
+  const extractDir = path.relative(process.cwd(), localExtractDir).split(path.sep).join("/");
+  execFileSync("tar", ["-xzf", localTar, "-C", extractDir], { stdio: "inherit" });
 
   console.log(`Project extracted to ${localExtractDir}`);
 }
@@ -93,7 +94,7 @@ function extractTarFile() {
 // ============================
 // 5️⃣ Cleanup pod and local files
 // ============================
-function cleanup(pod) {
+function cleanup(pod, keepLocalTar) {
   console.log("Cleaning up...");
 
   // Remove tar file from pod
@@ -108,8 +109,10 @@ function cleanup(pod) {
 
   // Remove local tar file
   try {
-    if (fs.existsSync(localTar)) {
+    if (!keepLocalTar && fs.existsSync(localTar)) {
       fs.unlinkSync(localTar);
+    } else if (keepLocalTar) {
+      console.log(`Kept ${localTar} so the extract can be retried without another download`);
     }
   } catch (error) {
     console.error("Failed to remove local tar file:", error.message);
@@ -123,15 +126,17 @@ function main() {
   const pod = findPod();
   if (!pod) throw new Error("No pod found.");
 
+  let extracted = false;
   try {
     tarProjectInPod(pod);
     copyTarFromPod(pod);
     extractTarFile();
+    extracted = true;
     console.log("✅ Done!");
   } catch (err) {
     console.error("❌ Error:", err);
   } finally {
-    cleanup(pod);
+    cleanup(pod, !extracted && fs.existsSync(localTar));
   }
 }
 
