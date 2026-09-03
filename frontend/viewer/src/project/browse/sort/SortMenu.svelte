@@ -42,7 +42,7 @@
   const autoSort = $derived(autoSelector());
   const sortField = $derived(selectedSortField ?? autoSort);
   watch(() => ({ sortField, direction }), ({ sortField, direction }) => {
-    value = { field: sortField, dir: direction } as SortConfig;
+    value = { field: sortField, dir: direction };
   });
 </script>
 

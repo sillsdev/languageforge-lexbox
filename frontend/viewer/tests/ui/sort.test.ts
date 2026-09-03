@@ -10,8 +10,12 @@ test.describe('Sort by writing system', () => {
     await projectPage.goto();
   });
 
-  const sortTrigger = () => projectPage.page.getByTestId('sort-menu-trigger');
-  const wsTrigger = () => projectPage.page.getByTestId('sort-ws-trigger');
+  function sortTrigger() {
+    return projectPage.page.getByTestId('sort-menu-trigger');
+  }
+  function wsTrigger() {
+    return projectPage.page.getByTestId('sort-ws-trigger');
+  }
 
   test('sort menu keeps only headword/relevance; writing systems live in the pill and exclude audio', async () => {
     const {page} = projectPage;
