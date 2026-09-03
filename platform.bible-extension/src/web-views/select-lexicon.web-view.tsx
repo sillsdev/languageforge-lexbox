@@ -30,19 +30,24 @@ globalThis.webViewComponent = function LexiconSelect({
 
   // When the language filter kicked in, the user can flip to the full list (per-panel choice).
   const [showAll, setShowAll] = useState(false);
-  const [languageFiltered, setLanguageFiltered] = useState(false);
-  // A language was known but no local lexicon matched it, so the full list is shown with a note.
-  const [languageNoMatch, setLanguageNoMatch] = useState(false);
-  const [filterLangTag, setFilterLangTag] = useState<string | undefined>();
+  // How the local list is currently filtered by the project's language (all set together from one
+  // lexicons response): filtered = a real subset; noMatch = a language was known but nothing matched.
+  const [langFilter, setLangFilter] = useState<{
+    filtered: boolean;
+    noMatch: boolean;
+    langTag?: string;
+  }>({ filtered: false, noMatch: false });
 
   const fetchLexicons = useCallback(() => {
     commands
       .sendCommand('lexicon.lexicons', projectId, showAll, [...sessionKeptCodes.current])
       .then((result) => {
         setLexicons(result?.projects);
-        setLanguageFiltered(!!result?.filtered);
-        setLanguageNoMatch(!!result?.noMatch);
-        setFilterLangTag(result?.langTag);
+        setLangFilter({
+          filtered: !!result?.filtered,
+          noMatch: !!result?.noMatch,
+          langTag: result?.langTag,
+        });
         return undefined;
       })
       .catch((e) => logger.error('Error fetching lexicons:', getErrorMessage(e)));
@@ -69,11 +74,18 @@ globalThis.webViewComponent = function LexiconSelect({
     [fetchLexicons, fetchRemoteProjects],
   );
 
+  // The remote (server) list doesn't depend on the language filter, so fetch it — and log the open —
+  // once per project, not again every time the local list refetches (e.g. on "show all").
   useEffect(() => {
     logger.info(`This WebView was opened for project '${projectId}'`);
-    fetchLexicons();
     fetchRemoteProjects();
-  }, [fetchLexicons, fetchRemoteProjects, projectId]);
+  }, [fetchRemoteProjects, projectId]);
+
+  // The local list refetches on mount and whenever the show-all toggle changes (fetchLexicons closes
+  // over showAll).
+  useEffect(() => {
+    fetchLexicons();
+  }, [fetchLexicons]);
 
   // Keeps the last-known list when a refresh returns nothing, so the section doesn't vanish.
   const applyServers = useCallback(
@@ -253,9 +265,9 @@ globalThis.webViewComponent = function LexiconSelect({
           projectName={currentProjectName}
           savedName={savedName}
           onClearSaved={() => setSavedName(undefined)}
-          languageFiltered={languageFiltered}
-          languageNoMatch={languageNoMatch}
-          filterLangTag={filterLangTag}
+          languageFiltered={langFilter.filtered}
+          languageNoMatch={langFilter.noMatch}
+          filterLangTag={langFilter.langTag}
           onShowAll={() => setShowAll(true)}
           onCreateNew={() => setShowCreate(true)}
           selectLexicon={selectLexicon}
