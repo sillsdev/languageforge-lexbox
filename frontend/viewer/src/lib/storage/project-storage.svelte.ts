@@ -34,12 +34,16 @@ class ProjectStorageProp extends StorageProp {
 
 export class ProjectStorage {
   readonly selectedTaskId: ProjectStorageProp;
+  readonly taskVernacularWsId: ProjectStorageProp;
+  readonly taskAnalysisWsId: ProjectStorageProp;
   readonly currentView: ProjectStorageProp;
   readonly entryListViewMode: ProjectStorageProp;
   readonly dictionaryPreview: ProjectStorageProp;
 
   constructor(projectCode: string, backend: IPreferencesService) {
     this.selectedTaskId = new ProjectStorageProp(projectCode, 'selectedTaskId', backend);
+    this.taskVernacularWsId = new ProjectStorageProp(projectCode, 'taskVernacularWsId', backend);
+    this.taskAnalysisWsId = new ProjectStorageProp(projectCode, 'taskAnalysisWsId', backend);
     this.currentView = new ProjectStorageProp(projectCode, 'currentView', backend);
     this.entryListViewMode = new ProjectStorageProp(projectCode, 'entryListViewMode', backend);
     this.dictionaryPreview = new ProjectStorageProp(projectCode, 'dictionaryPreview', backend);
