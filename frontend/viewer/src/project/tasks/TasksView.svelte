@@ -23,7 +23,7 @@
     {#if selectedTaskId.current}
       <Button variant="ghost" size="icon" icon="i-mdi-arrow-left" onclick={closeTask} aria-label={$t`Back to tasks`} />
     {/if}
-    <h1 class="text-xl font-semibold truncate min-w-0">{selectedTask?.subject ?? $t`Tasks`}</h1>
+    <h1 class="text-xl font-semibold truncate min-w-0">{selectedTask?.fieldLabel ?? $t`Tasks`}</h1>
   </div>
   <ViewErrorBoundary class="flex-1 min-h-0 overflow-auto" title={$t`Task view failed`}>
     {#if selectedTaskId.current}

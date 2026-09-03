@@ -79,6 +79,11 @@ msgstr "{0} resolved"
 msgid "{0} Server"
 msgstr "{0} Server"
 
+#. Remaining entries for a task in the task list. {0} = a number.
+#: src/project/tasks/TaskList.svelte
+msgid "{0} to go"
+msgstr "{0} to go"
+
 #. Number of changes in sync operation
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
@@ -118,11 +123,6 @@ msgstr "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
-
-#. Count of writing systems not shown on a task row, e.g. "+2". {0} = how many more.
-#: src/project/tasks/TaskList.svelte
-msgid "+{0}"
-msgstr "+{0}"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
@@ -237,6 +237,7 @@ msgid "Add Word"
 msgstr "Add Word"
 
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
 
@@ -261,6 +262,11 @@ msgstr "All activity types"
 msgid "All authors"
 msgstr "All authors"
 
+#. Shown in place of a task's progress when nothing is left to do
+#: src/project/tasks/TaskList.svelte
+msgid "All done"
+msgstr "All done"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
@@ -271,6 +277,7 @@ msgstr "an entry"
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Analysis"
 msgstr "Analysis"
 
@@ -966,6 +973,11 @@ msgstr "Error getting sync status"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "Error getting sync status."
+
+#. Shown instead of the task list when no task has any work left
+#: src/project/tasks/TaskList.svelte
+msgid "Every task is complete"
+msgstr "Every task is complete"
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1873,6 +1885,11 @@ msgstr "Not synced"
 #: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "Note"
+
+#. Expandable heading over the tasks that have no work left
+#: src/project/tasks/TaskList.svelte
+msgid "Nothing left to do"
+msgstr "Nothing left to do"
 
 #. Error tooltip/message on the copy button when there is no text content available to copy to the clipboard.
 #: src/lib/components/ui/button/copy-button.svelte
@@ -2986,6 +3003,7 @@ msgstr "Uses components as"
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Vernacular"
 msgstr "Vernacular"
 
@@ -3135,5 +3153,6 @@ msgid "You've passed every milestone. What an achievement!"
 msgstr "You've passed every milestone. What an achievement!"
 
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Your dictionary starts here"
 msgstr "Your dictionary starts here"

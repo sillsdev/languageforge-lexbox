@@ -84,6 +84,10 @@ msgstr ""
 msgid "{0} Server"
 msgstr "{0} Serveur"
 
+#: src/project/tasks/TaskList.svelte
+msgid "{0} to go"
+msgstr ""
+
 #. Number of changes in sync operation
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
@@ -123,10 +127,6 @@ msgstr "**Moins de types de morphèmes** (seulement *Racine*, *Racines liées*, 
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**terminologie plus simple** (par exemple *Mot* au lieu de *forme de lexème*, *Signification* au lieu de *Sense*)"
-
-#: src/project/tasks/TaskList.svelte
-msgid "+{0}"
-msgstr ""
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
@@ -241,6 +241,7 @@ msgid "Add Word"
 msgstr "Ajouter un mot"
 
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Add your first entry to start building your dictionary."
 msgstr ""
 
@@ -265,6 +266,10 @@ msgstr ""
 msgid "All authors"
 msgstr ""
 
+#: src/project/tasks/TaskList.svelte
+msgid "All done"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
@@ -275,6 +280,7 @@ msgstr "une entrée"
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Analysis"
 msgstr "Analyse"
 
@@ -336,6 +342,7 @@ msgstr "Êtes-vous sûr de vouloir supprimer {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Posez des questions et obtenez de l'aide sur notre forum communautaire."
 
+#. Screen-reader-only marker on a task row for an audio writing system (shown as a microphone)
 #: src/project/tasks/TaskList.svelte
 msgid "Audio"
 msgstr ""
@@ -472,6 +479,7 @@ msgstr ""
 msgid "Checking for updates..."
 msgstr "Vérification des mises à jour..."
 
+#. Heading of the menu that picks which writing system to do a task in
 #: src/project/tasks/TaskList.svelte
 msgid "Choose a language"
 msgstr ""
@@ -968,6 +976,10 @@ msgstr "Erreur dans l'obtention de l'état de la synchronisation"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "Erreur dans l'obtention de l'état de la synchronisation."
+
+#: src/project/tasks/TaskList.svelte
+msgid "Every task is complete"
+msgstr ""
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1875,6 +1887,10 @@ msgstr "Non synchronisé"
 #: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "Note"
+
+#: src/project/tasks/TaskList.svelte
+msgid "Nothing left to do"
+msgstr ""
 
 #. Error tooltip/message on the copy button when there is no text content available to copy to the clipboard.
 #: src/lib/components/ui/button/copy-button.svelte
@@ -2988,6 +3004,7 @@ msgstr "Utilise des composants comme"
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Vernacular"
 msgstr "Vernaculaire"
 
@@ -3137,5 +3154,6 @@ msgid "You've passed every milestone. What an achievement!"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Your dictionary starts here"
 msgstr ""
