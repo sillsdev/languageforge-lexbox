@@ -62,7 +62,7 @@
   {/if}
 {/snippet}
 
-<div class="flex flex-col gap-2 w-full max-w-2xl" role="list">
+<div class="grid gap-2 lg:grid-cols-2" role="list">
   {#each fields as {label, targets} (label)}
     {#if targets.length === 1}
       {@const {task, ws} = targets[0]}
