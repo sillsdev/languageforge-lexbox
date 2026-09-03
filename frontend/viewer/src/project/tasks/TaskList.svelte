@@ -1,70 +1,86 @@
 <script lang="ts">
   import ListItem from '$lib/components/ListItem.svelte';
+  import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
-  import * as Card from '$lib/components/ui/card';
   import {useWritingSystemService} from '$project/data';
-  import type {IWritingSystem} from '$lib/dotnet-types';
-  import type {Snippet} from 'svelte';
-  import {t} from 'svelte-i18n-lingui';
+  import {useFeatures} from '$lib/services/feature-service';
+  import {type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
   import {useTasksService, type Task} from './tasks-service';
 
   let {onSelect}: {onSelect: (taskId: string) => void} = $props();
 
   const tasksService = useTasksService();
   const writingSystemService = useWritingSystemService();
-  const tasks = $derived(tasksService.listTasks());
+  const features = useFeatures();
 
-  function wsGroups(writingSystems: IWritingSystem[], type: 'vernacular' | 'analysis') {
-    return writingSystems
-      .map(ws => ({ws, tasks: tasks.filter(task => task.subjectWritingSystemId === ws.wsId && task.subjectWritingSystemType === ws.type)}))
-      .filter(group => group.tasks.length > 0)
-      .map(group => ({...group, color: writingSystemService.wsColor(group.ws.wsId, type)}));
+  type Target = {task: Task, ws?: IWritingSystem};
+
+  function writingSystemOf(task: Task): IWritingSystem | undefined {
+    if (!task.subjectWritingSystemId) return undefined;
+    const writingSystems = task.subjectWritingSystemType === WritingSystemType.Vernacular
+      ? writingSystemService.vernacular
+      : writingSystemService.analysis;
+    return writingSystems.find(ws => ws.wsId === task.subjectWritingSystemId);
   }
-  const vernacularGroups = $derived(wsGroups(writingSystemService.vernacular, 'vernacular'));
-  const analysisGroups = $derived(wsGroups(writingSystemService.analysis, 'analysis'));
-  const wsIndependentTasks = $derived(tasks.filter(task => !task.subjectWritingSystemId));
+
+  // One row per field, with a target per writing system, so the row count stays the same
+  // no matter how many writing systems the project has.
+  const fields = $derived.by(() => {
+    const groups: {label: string, targets: Target[]}[] = [];
+    for (const task of tasksService.listTasks()) {
+      const ws = writingSystemOf(task);
+      // The editors hide audio writing systems when the feature is off, so those tasks
+      // would open with nothing to fill in.
+      if (ws?.isAudio && !features.audio) continue;
+      let group = groups.find(g => g.label === task.fieldLabel);
+      if (!group) {
+        group = {label: task.fieldLabel, targets: []};
+        groups.push(group);
+      }
+      group.targets.push({task, ws});
+    }
+    for (const group of groups) {
+      group.targets.sort((a, b) => Number(a.ws?.isAudio ?? false) - Number(b.ws?.isAudio ?? false));
+    }
+    return groups;
+  });
+
+  function wsColor(ws: IWritingSystem): string {
+    return writingSystemService.wsColor(ws.wsId, ws.type === WritingSystemType.Vernacular ? 'vernacular' : 'analysis');
+  }
 </script>
 
-{#snippet taskCard(tasks: Task[], title: Snippet)}
-  <Card.Root>
-    <Card.Header>
-      <Card.Title>{@render title()}</Card.Title>
-    </Card.Header>
-    <Card.Content class="flex flex-col gap-2">
-      {#each tasks as task (task.id)}
-        <ListItem class="py-2" onclick={() => onSelect(task.id)}>
-          <span class="truncate">{task.subject}</span>
-          {#snippet actions()}
-            <Icon icon="i-mdi-chevron-right" class="text-muted-foreground" />
-          {/snippet}
-        </ListItem>
-      {/each}
-    </Card.Content>
-  </Card.Root>
-{/snippet}
-
-{#snippet wsSection(heading: string, groups: ReturnType<typeof wsGroups>)}
-  {#if groups.length > 0}
-    <section class="space-y-4">
-      <h2 class="text-lg font-semibold">{heading}</h2>
-      <div class="grid gap-4 lg:grid-cols-2">
-        {#each groups as {ws, tasks, color} (ws.wsId)}
-          {#snippet wsTitle()}
-            <span class={color}>{ws.abbreviation}</span>
-            <span class="text-sm font-normal text-muted-foreground ml-2">{ws.name}</span>
-          {/snippet}
-          {@render taskCard(tasks, wsTitle)}
-        {/each}
-      </div>
-    </section>
+{#snippet writingSystemLabel(ws: IWritingSystem)}
+  {#if ws.isAudio}
+    <Icon icon="i-mdi-microphone" class="size-4" />
   {/if}
+  <span class={wsColor(ws)}>{ws.abbreviation}</span>
 {/snippet}
 
-<div class="flex flex-col gap-6 pb-4">
-  {@render wsSection($t`Vernacular writing systems`, vernacularGroups)}
-  {@render wsSection($t`Analysis writing systems`, analysisGroups)}
-  <div class="grid gap-4 lg:grid-cols-2">
-    {#snippet anyWsTitle()}{$t`Any writing system`}{/snippet}
-    {@render taskCard(wsIndependentTasks, anyWsTitle)}
-  </div>
+<div class="flex flex-col gap-2 w-full max-w-3xl mx-auto" role="list">
+  {#each fields as {label, targets} (label)}
+    {#if targets.length === 1}
+      {@const {task, ws} = targets[0]}
+      <ListItem role="listitem" onclick={() => onSelect(task.id)}>
+        <span class="truncate">{label}</span>
+        {#snippet actions()}
+          {#if ws}
+            <span class="flex items-center gap-1 text-sm" title={ws.name}>{@render writingSystemLabel(ws)}</span>
+          {/if}
+          <Icon icon="i-mdi-chevron-right" class="text-muted-foreground" />
+        {/snippet}
+      </ListItem>
+    {:else}
+      <div role="listitem" class="bg-muted rounded shadow-sm px-4 py-2 flex items-center gap-4 flex-wrap">
+        <span class="grow truncate">{label}</span>
+        <div class="flex flex-wrap gap-2">
+          {#each targets as {task, ws} (task.id)}
+            <Button variant="outline" size="sm" onclick={() => onSelect(task.id)} title={ws?.name} aria-label={task.subject}>
+              {@render writingSystemLabel(ws!)}
+            </Button>
+          {/each}
+        </div>
+      </div>
+    {/if}
+  {/each}
 </div>
