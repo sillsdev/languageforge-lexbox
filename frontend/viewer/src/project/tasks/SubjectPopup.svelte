@@ -123,7 +123,7 @@
     <Drawer.Header class="relative flex flex-nowrap items-center">
       <Progress value={progress * 100} class="h-8" />
 <!--      <Drawer.Title class="text-3xl text-center">{entry ? writingSystemService.headword(entry) : ''}</Drawer.Title>-->
-      <XButton onclick={() => entry = undefined} />
+      <XButton onclick={() => entry = undefined} class="absolute right-2 top-2" />
     </Drawer.Header>
     <div class="mx-2 md:mx-4 shadow-inner rounded-md p-4">
       {#if entry}
