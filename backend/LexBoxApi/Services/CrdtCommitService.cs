@@ -72,4 +72,43 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
     {
         return await dbContext.CrdtCommits(projectId).GetSyncState();
     }
+
+    public record SnapshotRebuildCommit(Guid CommitId, Guid ClientId, DateTimeOffset DateTime, int CommitsToReplay);
+
+    /// <summary>
+    /// Adds an empty commit dated before the project's oldest commit. A client that receives a commit
+    /// predating its history rolls its snapshots back past the start of history and replays every commit in
+    /// one batch, rebuilding its snapshots from scratch. That recovers a project whose sync fails because a
+    /// rollback resumed from a stale snapshot, see sillsdev/harmony#105.
+    /// Repeatable: each call adds another commit, and each one triggers another rebuild.
+    /// </summary>
+    /// <returns>the commit that was added, or null if the project has no commits to replay</returns>
+    public async Task<SnapshotRebuildCommit?> AddSnapshotRebuildCommit(Guid projectId,
+        string? note = null,
+        CancellationToken token = default)
+    {
+        var linqToDbContext = dbContext.CreateLinqToDBContext();
+        var commits = linqToDbContext.GetTable<ServerCommit>().Where(c => c.ProjectId == projectId);
+        var oldest = await commits.MinAsync(c => (DateTimeOffset?)c.HybridDateTime.DateTime, token);
+        if (oldest is null) return null;
+        var commitsToReplay = await commits.CountAsync(token);
+
+        var reason = "Forces a full snapshot rebuild on all clients (sillsdev/harmony#105)";
+        var commit = new ServerCommit(Guid.NewGuid())
+        {
+            ProjectId = projectId,
+            // a client id nobody has seen: every existing client's sync position is already past this
+            // commit's date, so under any of their ids it would never be sent to them
+            ClientId = Guid.NewGuid(),
+            HybridDateTime = new HybridDateTime(oldest.Value.AddDays(-1), 0),
+            Metadata = new CommitMetadata
+            {
+                AuthorName = "Lexbox maintenance",
+                ExtraMetadata = { ["reason"] = note is null ? reason : $"{reason}. {note}" },
+            },
+        };
+        dbContext.Add(commit);
+        await dbContext.SaveChangesAsync(token);
+        return new SnapshotRebuildCommit(commit.Id, commit.ClientId, commit.DateTime, commitsToReplay);
+    }
 }
