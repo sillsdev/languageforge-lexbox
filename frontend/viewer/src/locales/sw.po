@@ -124,6 +124,10 @@ msgstr "**Aina chache za morifemi** (tu *Root*, *Bound Root*, *Stem*, *Bound Ste
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Istilahi rahisi** (kwa mfano *Neno* badala ya *Lexeme form*, *Maana* badala ya *Sense*)"
 
+#: src/project/tasks/TaskList.svelte
+msgid "+{0}"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
 msgstr ""
@@ -332,6 +336,10 @@ msgstr "Je, una uhakika kuwa unataka kufuta {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Uliza maswali na upate msaada kwenye jukwaa letu la jamii."
 
+#: src/project/tasks/TaskList.svelte
+msgid "Audio"
+msgstr ""
+
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
@@ -463,6 +471,10 @@ msgstr ""
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Inakagua masasisho..."
+
+#: src/project/tasks/TaskList.svelte
+msgid "Choose a language"
+msgstr ""
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte

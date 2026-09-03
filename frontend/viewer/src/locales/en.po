@@ -119,6 +119,11 @@ msgstr "**Fewer morpheme types** (only *Root*, *Bound Root*, *Stem*, *Bound Stem
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 
+#. Count of writing systems not shown on a task row, e.g. "+2". {0} = how many more.
+#: src/project/tasks/TaskList.svelte
+msgid "+{0}"
+msgstr "+{0}"
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
 msgstr "1 reply"
@@ -327,6 +332,11 @@ msgstr "Are you sure you want to delete {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Ask questions and get help on our community forum."
 
+#. Screen-reader-only marker on a task row for an audio writing system (shown as a microphone)
+#: src/project/tasks/TaskList.svelte
+msgid "Audio"
+msgstr "Audio"
+
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
@@ -458,6 +468,11 @@ msgstr "Checking for similar words…"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Checking for updates..."
+
+#. Heading of the menu that picks which writing system to do a task in
+#: src/project/tasks/TaskList.svelte
+msgid "Choose a language"
+msgstr "Choose a language"
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
