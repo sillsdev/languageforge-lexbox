@@ -2089,6 +2089,30 @@ msgstr "Publish Word in"
 msgid "Read-only"
 msgstr "Read-only"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Citation form"
+msgstr "Record a Citation form"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Definition"
+msgstr "Record a Definition"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Gloss"
+msgstr "Record a Gloss"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form"
+msgstr "Record a Lexeme form"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form or Citation form"
+msgstr "Record a Lexeme form or Citation form"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record an example sentence"
+msgstr "Record an example sentence"
+
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited

@@ -271,6 +271,25 @@ describe('tasks service', () => {
       });
     });
 
+    describe('audio prompts', () => {
+      const audioWs: IWritingSystem = {...ws(WritingSystemType.Vernacular), isAudio: true};
+
+      it('entry tasks say "Record" for an audio writing system', () => {
+        const prompts = [...TasksService.makeEntryTasks([audioWs])].map(t => t.prompt);
+        expect(prompts.every(p => p.startsWith('Record'))).toBe(true);
+      });
+
+      it('entry tasks say "Type" for a text writing system', () => {
+        const prompts = [...TasksService.makeEntryTasks([vernacularWs])].map(t => t.prompt);
+        expect(prompts.every(p => p.startsWith('Type'))).toBe(true);
+      });
+
+      it('example sentence task says "Record" for an audio writing system', () => {
+        const [task] = [...TasksService.makeExampleSentenceTasks([audioWs])];
+        expect(task.prompt).toStrictEqual('Record an example sentence');
+      });
+    });
+
 
   });
 });

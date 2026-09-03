@@ -2094,6 +2094,30 @@ msgstr "단어를 다음 위치에 게시"
 msgid "Read-only"
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Definition"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Gloss"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form or Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record an example sentence"
+msgstr ""
+
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
