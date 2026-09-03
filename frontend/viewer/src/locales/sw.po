@@ -280,6 +280,7 @@ msgid "Analysis writing system code"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Analysis writing systems"
 msgstr ""
 
@@ -315,6 +316,7 @@ msgstr "Uchapishaji wowote"
 msgid "Any semantic domain"
 msgstr "Kikoa chochote cha kumkutania"
 
+#. Heading over tasks that apply regardless of writing system (part of speech, semantic domain)
 #: src/project/tasks/TaskList.svelte
 msgid "Any writing system"
 msgstr ""
@@ -374,6 +376,7 @@ msgstr "Kuoanisha otomatiki"
 msgid "Back"
 msgstr ""
 
+#. Accessible label of the back-arrow button that returns from a task to the task list
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
 msgstr ""
@@ -2984,6 +2987,7 @@ msgid "Vernacular writing system is required"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Vernacular writing systems"
 msgstr ""
 

@@ -275,6 +275,7 @@ msgid "Analysis writing system code"
 msgstr "Analysis writing system code"
 
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Analysis writing systems"
 msgstr "Analysis writing systems"
 
@@ -2981,6 +2982,7 @@ msgid "Vernacular writing system is required"
 msgstr "Vernacular writing system is required"
 
 #: src/project/dashboard/DashboardView.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Vernacular writing systems"
 msgstr "Vernacular writing systems"
 
