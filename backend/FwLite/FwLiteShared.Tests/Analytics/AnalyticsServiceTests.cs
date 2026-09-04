@@ -372,29 +372,10 @@ public class AnalyticsServiceTests
     }
 
     [Fact]
-    public void GetAnalyticsEnabled_FalseWhenSuppressorSaysSo()
-    {
-        var service = CreateService(new CaptureHandler(), suppressors: [new StubSuppressor(true)]);
-
-        service.GetAnalyticsEnabled().Should().BeFalse();
-    }
-
-    [Fact]
     public async Task TrackAsync_DoesNotSend_WhenConfigDisabled()
     {
         var handler = new CaptureHandler();
         var service = CreateService(handler, isDevelopment: true, enabled: false);
-
-        await service.TrackAsync("app_launched");
-
-        handler.RequestCount.Should().Be(0);
-    }
-
-    [Fact]
-    public async Task TrackAsync_DoesNotSend_WhenSuppressed()
-    {
-        var handler = new CaptureHandler();
-        var service = CreateService(handler, isDevelopment: true, suppressors: [new StubSuppressor(true)]);
 
         await service.TrackAsync("app_launched");
 
@@ -563,7 +544,6 @@ public class AnalyticsServiceTests
         string? host = null,
         IPreferencesService? prefs = null,
         IEnumerable<IAnalyticsEventEnricher>? enrichers = null,
-        IEnumerable<IAnalyticsSuppressor>? suppressors = null,
         TimeProvider? timeProvider = null,
         string? productionToken = null,
         bool enabled = true)
@@ -595,7 +575,6 @@ public class AnalyticsServiceTests
             prefs ?? new MemoryPreferences(),
             Mock.Of<ILogger<AnalyticsService>>(),
             enrichers,
-            suppressors,
             timeProvider);
     }
 
@@ -635,11 +614,6 @@ public class AnalyticsServiceTests
     private sealed class StubEnricher(string key, object? value) : IAnalyticsEventEnricher
     {
         public void Enrich(Dictionary<string, object?> properties) => properties[key] = value;
-    }
-
-    private sealed class StubSuppressor(bool suppress) : IAnalyticsSuppressor
-    {
-        public bool ShouldSuppress() => suppress;
     }
 
     private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider

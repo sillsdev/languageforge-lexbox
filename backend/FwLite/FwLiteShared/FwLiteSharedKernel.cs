@@ -32,8 +32,15 @@ public static class FwLiteSharedKernel
             client.Timeout = TimeSpan.FromSeconds(10);
         });
         services.AddSingleton<IAnalyticsService, AnalyticsService>();
-        services.AddSingleton<IAnalyticsSuppressor, CiAnalyticsSuppressor>();
-        services.AddOptions<AnalyticsConfig>().BindConfiguration("Analytics");
+        services.AddOptions<AnalyticsConfig>()
+            .BindConfiguration("Analytics")
+            // CI is a static, start-of-process signal, so fold it into the config switch rather than
+            // re-checking it on every event. PostConfigure runs after binding, so CI always wins.
+            .PostConfigure(config =>
+            {
+                if (MixpanelAnalytics.IsCiEnvironment())
+                    config.Enabled = false;
+            });
         services.AddSingleton<IHostedService, AnalyticsIdentityListener>();
         services.AddSingleton<IHostedService, AppLaunchTracker>();
         services.AddAuthHelpers(environment);
