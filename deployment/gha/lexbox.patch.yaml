@@ -35,8 +35,6 @@ spec:
                   pipelines:
                     traces:
                       exporters: [otlp/aspire]
-                    metrics:
-                      exporters: [otlp/aspire]
                     logs:
                       exporters: [otlp/aspire]
       volumes:
