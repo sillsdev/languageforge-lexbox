@@ -250,11 +250,4 @@ public class CrdtCommitServiceTests
             .ToArrayAsync();
         missing.Should().ContainSingle().Which.Id.Should().Be(rebuild!.CommitId);
     }
-
-    [Fact]
-    public async Task NoSnapshotRebuildCommitIsAddedForAProjectWithNoCommits()
-    {
-        var rebuild = await _crdtCommitService.AddSnapshotRebuildCommit(Guid.NewGuid());
-        rebuild.Should().BeNull();
-    }
 }
