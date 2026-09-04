@@ -12,6 +12,7 @@ import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 globalThis.webViewComponent = function LexiconFindWord({
   analysisLanguage,
+  lexiconCode,
   projectId,
   vernacularLanguage,
   word,
@@ -38,9 +39,9 @@ globalThis.webViewComponent = function LexiconFindWord({
 
   const fetchEntries = useCallback(
     async (untrimmedSurfaceForm: string) => {
-      if (!projectId || !lexiconNetworkObject) {
+      if (!lexiconCode || !lexiconNetworkObject) {
         const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
-        if (!projectId) logger.warn(`${errMissingParam}projectId`);
+        if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
         if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
         return;
       }
@@ -53,11 +54,11 @@ globalThis.webViewComponent = function LexiconFindWord({
 
       logger.info(`Fetching entries for ${surfaceForm}`);
       setIsFetching(true);
-      const entries = await lexiconNetworkObject.getEntries(projectId, { surfaceForm });
+      const entries = await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm });
       setIsFetching(false);
       setMatchingEntries(entries ?? []);
     },
-    [lexiconNetworkObject, localizedStrings, projectId],
+    [lexiconCode, lexiconNetworkObject, localizedStrings],
   );
 
   const debouncedFetchEntries = useMemo(() => debounce(fetchEntries, 500), [fetchEntries]);
@@ -72,15 +73,16 @@ globalThis.webViewComponent = function LexiconFindWord({
 
   const addEntry = useCallback(
     async (entry: PartialEntry) => {
-      if (!projectId || !lexiconNetworkObject) {
+      if (!lexiconCode || !projectId || !lexiconNetworkObject) {
         const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
+        if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
         if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
         return;
       }
 
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const addedEntry = await lexiconNetworkObject.addEntry(projectId, entry);
+      const addedEntry = await lexiconNetworkObject.addEntry(lexiconCode, entry);
       if (addedEntry) {
         onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
         await papi.commands.sendCommand('lexicon.displayEntry', projectId, addedEntry.id);
@@ -88,7 +90,7 @@ globalThis.webViewComponent = function LexiconFindWord({
         logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
       }
     },
-    [lexiconNetworkObject, localizedStrings, onSearch, projectId],
+    [lexiconCode, lexiconNetworkObject, localizedStrings, onSearch, projectId],
   );
 
   return (
