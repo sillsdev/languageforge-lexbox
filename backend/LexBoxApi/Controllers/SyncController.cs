@@ -1,10 +1,13 @@
 using LexBoxApi.Auth.Attributes;
+using LexBoxApi.Hub;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexCore.Sync;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using MiniLcm.Push;
 
 namespace LexBoxApi.Controllers;
 
@@ -14,7 +17,9 @@ namespace LexBoxApi.Controllers;
 public class SyncController(
     IPermissionService permissionService,
     FwHeadlessClient fwHeadlessClient,
-    ProjectService projectService) : ControllerBase
+    ProjectService projectService,
+    CrdtCommitService crdtCommitService,
+    IHubContext<CrdtProjectChangeHub, IProjectChangeHubClient> hubContext) : ControllerBase
 {
     [HttpGet("status/{projectId}")]
     [RequireScope(LexboxAuthScope.SendAndReceive)]
@@ -121,6 +126,24 @@ public class SyncController(
         {
             return Problem(e.Message);
         }
+    }
+
+    /// <summary>
+    /// Makes every client of a project rebuild its CRDT snapshots on its next sync. Each one replays its
+    /// whole history, which is slow on a large project.
+    /// </summary>
+    /// <param name="projectId">The project ID</param>
+    /// <param name="note">Optional. Recorded in the commit's metadata, e.g. why the rebuild was needed.</param>
+    [HttpPost("rebuild-crdt-snapshots/{projectId}")]
+    [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<SnapshotRebuildCommit>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<SnapshotRebuildCommit>> RebuildCrdtSnapshots(Guid projectId, [FromQuery] string? note = null)
+    {
+        var rebuild = await crdtCommitService.AddSnapshotRebuildCommit(projectId, note);
+        if (rebuild is null) return NotFound("Project has no CRDT commits");
+        await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId, null);
+        return rebuild;
     }
 
     [HttpPost("block")]
