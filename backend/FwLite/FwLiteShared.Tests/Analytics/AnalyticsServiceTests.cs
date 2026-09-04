@@ -364,6 +364,56 @@ public class AnalyticsServiceTests
     }
 
     [Fact]
+    public void GetAnalyticsEnabled_FalseWhenConfigDisabled()
+    {
+        var service = CreateService(new CaptureHandler(), enabled: false);
+
+        service.GetAnalyticsEnabled().Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task TrackAsync_DoesNotSend_WhenConfigDisabled()
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, isDevelopment: true, enabled: false);
+
+        await service.TrackAsync("app_launched");
+
+        handler.RequestCount.Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData("true", null, true)]
+    [InlineData("TRUE", null, true)]
+    [InlineData("1", null, true)]
+    [InlineData("yes", null, true)]
+    [InlineData(null, "true", true)]
+    [InlineData("false", null, false)]
+    [InlineData("", "false", false)]
+    [InlineData(null, null, false)]
+    public void IsCiEnvironment_ReadsCiAndGithubActions(string? ci, string? githubActions, bool expected)
+    {
+        MixpanelAnalytics.IsCiEnvironment(new Dictionary<string, string?>
+        {
+            ["CI"] = ci,
+            ["GITHUB_ACTIONS"] = githubActions,
+        }).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("true", true)]
+    [InlineData("TRUE", true)]
+    [InlineData("1", true)]
+    [InlineData("yes", true)]
+    [InlineData("false", false)]
+    [InlineData("", false)]
+    [InlineData(null, false)]
+    public void IsFirebaseTestLabSetting_TreatsTruthyAsTestLab(string? value, bool expected)
+    {
+        MixpanelAnalytics.IsFirebaseTestLabSetting(value).Should().Be(expected);
+    }
+
+    [Fact]
     public void SetAnalyticsEnabled_PersistsOptOutAndBack()
     {
         var prefs = new MemoryPreferences();
@@ -495,7 +545,8 @@ public class AnalyticsServiceTests
         IPreferencesService? prefs = null,
         IEnumerable<IAnalyticsEventEnricher>? enrichers = null,
         TimeProvider? timeProvider = null,
-        string? productionToken = null)
+        string? productionToken = null,
+        bool enabled = true)
     {
         var factory = new Mock<IHttpClientFactory>();
         factory.Setup(f => f.CreateClient(MixpanelAnalytics.HttpClientName))
@@ -512,7 +563,7 @@ public class AnalyticsServiceTests
             Os = FwLitePlatform.Windows,
         };
 
-        var analytics = new AnalyticsConfig { Host = host };
+        var analytics = new AnalyticsConfig { Host = host, Enabled = enabled };
         if (productionToken is not null)
             analytics.ProductionToken = productionToken;
 

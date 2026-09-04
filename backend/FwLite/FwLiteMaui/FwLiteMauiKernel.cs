@@ -41,6 +41,15 @@ public static class FwLiteMauiKernel
         services.AddFwLiteShared(env);
         services.Configure<AnalyticsConfig>(config => config.Host = MixpanelAnalytics.MauiHost);
         services.AddSingleton<IAnalyticsEventEnricher, MauiAnalyticsEventEnricher>();
+#if ANDROID
+        // Firebase Test Lab / Play pre-launch is a static, start-of-process signal, so fold it into
+        // the config switch at startup rather than re-checking it on every event.
+        services.PostConfigure<AnalyticsConfig>(config =>
+        {
+            if (MixpanelAnalytics.IsFirebaseTestLabSetting(ReadFirebaseTestLab()))
+                config.Enabled = false;
+        });
+#endif
         services.AddSingleton<HostedServiceAdapter>();
         services.AddSingleton<IMauiInitializeService>(sp => sp.GetRequiredService<HostedServiceAdapter>());
         services.Configure<AuthConfig>(config =>
@@ -155,6 +164,26 @@ public static class FwLiteMauiKernel
         logging.AddDebug();
 #endif
     }
+
+#if ANDROID
+    // Firebase Test Lab / Play pre-launch devices set the Android setting firebase.test.lab.
+    // Fresh Play installs by real users do not.
+    private static string? ReadFirebaseTestLab()
+    {
+        try
+        {
+            var resolver = Android.App.Application.Context.ContentResolver;
+            var system = Android.Provider.Settings.System.GetString(resolver, "firebase.test.lab");
+            if (!string.IsNullOrEmpty(system))
+                return system;
+            return Android.Provider.Settings.Global.GetString(resolver, "firebase.test.lab");
+        }
+        catch
+        {
+            return null;
+        }
+    }
+#endif
 
 #if WINDOWS
     private static readonly Lazy<bool> IsPackagedAppLazy = new(static () =>

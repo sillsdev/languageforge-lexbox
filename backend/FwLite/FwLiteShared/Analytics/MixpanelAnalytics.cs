@@ -49,6 +49,37 @@ public static class MixpanelAnalytics
         string.Equals(server.Authority.Host, ProductionLexboxHost, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
+    /// True when the process is running under CI. GitHub Actions sets <c>CI</c> and <c>GITHUB_ACTIONS</c>.
+    /// </summary>
+    public static bool IsCiEnvironment(
+        IReadOnlyDictionary<string, string?>? environmentVariables = null)
+    {
+        return IsTruthyEnv(ReadEnv(environmentVariables, "CI"))
+            || IsTruthyEnv(ReadEnv(environmentVariables, "GITHUB_ACTIONS"));
+    }
+
+    /// <summary>
+    /// Play pre-launch / Firebase Test Lab set Android setting <c>firebase.test.lab</c> to <c>true</c>.
+    /// </summary>
+    public static bool IsFirebaseTestLabSetting(string? value) => IsTruthyEnv(value);
+
+    private static string? ReadEnv(IReadOnlyDictionary<string, string?>? environmentVariables, string key)
+    {
+        if (environmentVariables is not null)
+            return environmentVariables.TryGetValue(key, out var value) ? value : null;
+        return Environment.GetEnvironmentVariable(key);
+    }
+
+    private static bool IsTruthyEnv(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+        return value.Equals("true", StringComparison.OrdinalIgnoreCase)
+            || value.Equals("1", StringComparison.OrdinalIgnoreCase)
+            || value.Equals("yes", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     /// Identify on lexbox.org login (persisted <c>$user_id</c>; a different user rotates <c>$device_id</c>).
     /// Reset only on explicit logout. Refresh and session expiry leave identity unchanged.
     /// Empty <see cref="LexboxUser.Id"/> stays anonymous. Non-lexbox.org servers are ignored.
@@ -68,6 +99,10 @@ public static class MixpanelAnalytics
                 break;
             case AuthenticationChangeCause.Logout:
                 analytics.Reset();
+                break;
+            case AuthenticationChangeCause.Refresh:
+            case AuthenticationChangeCause.SessionExpired:
+            case AuthenticationChangeCause.Login:
                 break;
         }
     }
