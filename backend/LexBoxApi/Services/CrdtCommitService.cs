@@ -76,13 +76,10 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
     public record SnapshotRebuildCommit(Guid CommitId, Guid ClientId, DateTimeOffset DateTime, int CommitsToReplay);
 
     /// <summary>
-    /// Adds an empty commit dated before the project's oldest commit. A client that receives a commit
-    /// predating its history rolls its snapshots back past the start of history and replays every commit in
-    /// one batch, rebuilding its snapshots from scratch. That recovers a project whose sync fails because a
-    /// rollback resumed from a stale snapshot, see sillsdev/harmony#105.
-    /// Repeatable: each call adds another commit, and each one triggers another rebuild.
+    /// Adds an empty commit dated before the project's oldest, which makes clients replay their whole
+    /// history and rebuild their snapshots from scratch. Repeatable: each call adds another commit.
     /// </summary>
-    /// <returns>the commit that was added, or null if the project has no commits to replay</returns>
+    /// <returns>the commit added, or null if the project has no commits</returns>
     public async Task<SnapshotRebuildCommit?> AddSnapshotRebuildCommit(Guid projectId,
         string? note = null,
         CancellationToken token = default)
@@ -93,12 +90,11 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         if (oldest is null) return null;
         var commitsToReplay = await commits.CountAsync(token);
 
-        var reason = "Forces a full snapshot rebuild on all clients (sillsdev/harmony#105)";
+        var reason = "Forces a full snapshot rebuild on all clients";
         var commit = new ServerCommit(Guid.NewGuid())
         {
             ProjectId = projectId,
-            // a client id nobody has seen: every existing client's sync position is already past this
-            // commit's date, so under any of their ids it would never be sent to them
+            //must be unique, otherwise clients already past this date won't be sent it
             ClientId = Guid.NewGuid(),
             HybridDateTime = new HybridDateTime(oldest.Value.AddDays(-1), 0),
             Metadata = new CommitMetadata
