@@ -12,7 +12,9 @@
   const tasksService = useTasksService();
   const selectedTask = $derived(tasksService.listTasks().find(task => task.id === selectedTaskId.current));
 
+  let lastTaskId = $state('');
   function closeTask() {
+    lastTaskId = selectedTaskId.current;
     void selectedTaskId.set('');
   }
 </script>
@@ -29,7 +31,7 @@
     {#if selectedTaskId.current}
       <TaskView taskId={selectedTaskId.current} onClose={closeTask}/>
     {:else if !selectedTaskId.loading}
-      <TaskList onSelect={taskId => selectedTaskId.set(taskId)} />
+      <TaskList {lastTaskId} onSelect={taskId => selectedTaskId.set(taskId)} />
     {/if}
   </ViewErrorBoundary>
 </div>
