@@ -1,13 +1,10 @@
 using LexBoxApi.Auth.Attributes;
-using LexBoxApi.Hub;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexCore.Sync;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using MiniLcm.Push;
 
 namespace LexBoxApi.Controllers;
 
@@ -18,8 +15,7 @@ public class SyncController(
     IPermissionService permissionService,
     FwHeadlessClient fwHeadlessClient,
     ProjectService projectService,
-    CrdtCommitService crdtCommitService,
-    IHubContext<CrdtProjectChangeHub, IProjectChangeHubClient> hubContext) : ControllerBase
+    CrdtCommitService crdtCommitService) : ControllerBase
 {
     [HttpGet("status/{projectId}")]
     [RequireScope(LexboxAuthScope.SendAndReceive)]
@@ -143,7 +139,6 @@ public class SyncController(
     {
         var rebuild = await crdtCommitService.AddSnapshotRebuildCommit(projectId, note);
         if (rebuild is null) return NotFound("Project has no CRDT commits");
-        await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId, null);
         return rebuild;
     }
 
