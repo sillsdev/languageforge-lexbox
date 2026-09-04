@@ -84,7 +84,8 @@ function extractTarFile() {
   console.log("Extracting tar file...");
   fs.mkdirSync(localExtractDir, { recursive: true });
 
-  // Relative posix path: GNU tar (e.g. Git Bash on PATH) reads the colon in "D:\..." as host:path and rejects backslashes
+  // Use system tar command (available on Windows 10+ and Linux)
+  // relative posix path, because GNU tar (Git Bash) reads the colon in "D:\..." as host:path
   const extractDir = path.relative(process.cwd(), localExtractDir).split(path.sep).join("/");
   execFileSync("tar", ["-xzf", localTar, "-C", extractDir], { stdio: "inherit" });
 
@@ -94,27 +95,23 @@ function extractTarFile() {
 // ============================
 // 5️⃣ Cleanup pod and local files
 // ============================
-function cleanup(pod, keepLocalTar) {
+function cleanup(pod) {
   console.log("Cleaning up...");
 
   // Remove tar file from pod
-  if (pod) {
-    try {
-      runKubectl([
-        "exec", "--context", context, "-n", namespace, "-c", "fw-headless", pod, "--",
-        "rm", "-f", remoteTar
-      ]);
-    } catch (error) {
-      console.error("Failed to remove tar file from pod:", error.message);
-    }
+  try {
+    runKubectl([
+      "exec", "--context", context, "-n", namespace, "-c", "fw-headless", pod, "--",
+      "rm", "-f", remoteTar
+    ]);
+  } catch (error) {
+    console.error("Failed to remove tar file from pod:", error.message);
   }
 
   // Remove local tar file
   try {
-    if (!keepLocalTar && fs.existsSync(localTar)) {
+    if (fs.existsSync(localTar)) {
       fs.unlinkSync(localTar);
-    } else if (keepLocalTar) {
-      console.log(`Kept ${localTar} so the extract can be retried without another download`);
     }
   } catch (error) {
     console.error("Failed to remove local tar file:", error.message);
@@ -125,27 +122,18 @@ function cleanup(pod, keepLocalTar) {
 // Main sequence
 // ============================
 function main() {
-  // A leftover tar means a previous run downloaded it but failed to extract, so reuse it
-  const reusingTar = fs.existsSync(localTar);
-  if (reusingTar) console.log(`Reusing ${localTar} from a previous run`);
-  const pod = reusingTar ? null : findPod();
-  if (!reusingTar && !pod) throw new Error("No pod found.");
+  const pod = findPod();
+  if (!pod) throw new Error("No pod found.");
 
-  let extracted = false;
   try {
-    if (pod) {
-      tarProjectInPod(pod);
-      copyTarFromPod(pod);
-    }
+    tarProjectInPod(pod);
+    copyTarFromPod(pod);
     extractTarFile();
-    extracted = true;
     console.log("✅ Done!");
   } catch (err) {
     console.error("❌ Error:", err);
   } finally {
-    // Only keep a freshly downloaded tar. A reused one that still won't extract is probably
-    // truncated, so drop it and let the next run download again.
-    cleanup(pod, !extracted && !reusingTar && fs.existsSync(localTar));
+    cleanup(pod);
   }
 }
 
