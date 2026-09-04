@@ -98,13 +98,15 @@ function cleanup(pod, keepLocalTar) {
   console.log("Cleaning up...");
 
   // Remove tar file from pod
-  try {
-    runKubectl([
-      "exec", "--context", context, "-n", namespace, "-c", "fw-headless", pod, "--",
-      "rm", "-f", remoteTar
-    ]);
-  } catch (error) {
-    console.error("Failed to remove tar file from pod:", error.message);
+  if (pod) {
+    try {
+      runKubectl([
+        "exec", "--context", context, "-n", namespace, "-c", "fw-headless", pod, "--",
+        "rm", "-f", remoteTar
+      ]);
+    } catch (error) {
+      console.error("Failed to remove tar file from pod:", error.message);
+    }
   }
 
   // Remove local tar file
@@ -123,20 +125,27 @@ function cleanup(pod, keepLocalTar) {
 // Main sequence
 // ============================
 function main() {
-  const pod = findPod();
-  if (!pod) throw new Error("No pod found.");
+  // A leftover tar means a previous run downloaded it but failed to extract, so reuse it
+  const reusingTar = fs.existsSync(localTar);
+  if (reusingTar) console.log(`Reusing ${localTar} from a previous run`);
+  const pod = reusingTar ? null : findPod();
+  if (!reusingTar && !pod) throw new Error("No pod found.");
 
   let extracted = false;
   try {
-    tarProjectInPod(pod);
-    copyTarFromPod(pod);
+    if (pod) {
+      tarProjectInPod(pod);
+      copyTarFromPod(pod);
+    }
     extractTarFile();
     extracted = true;
     console.log("✅ Done!");
   } catch (err) {
     console.error("❌ Error:", err);
   } finally {
-    cleanup(pod, !extracted && fs.existsSync(localTar));
+    // Only keep a freshly downloaded tar. A reused one that still won't extract is probably
+    // truncated, so drop it and let the next run download again.
+    cleanup(pod, !extracted && !reusingTar && fs.existsSync(localTar));
   }
 }
 
