@@ -5,6 +5,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -93,7 +94,9 @@ public static class Extensions
 
         if (useOtlpExporter)
         {
-            builder.Services.AddOpenTelemetry().UseOtlpExporter();
+            // Signal-specific, because UseOtlpExporter() would also stand up a metrics pipeline.
+            builder.Logging.AddOpenTelemetry(logging => logging.AddOtlpExporter());
+            builder.Services.AddOpenTelemetry().WithTracing(tracing => tracing.AddOtlpExporter());
         }
 
         return builder;
