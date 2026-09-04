@@ -37,6 +37,7 @@ export class TasksService {
 
   public listTasks(): Task[] {
     return [
+      ...this.entryTasks(),
       ...this.senseTasks(),
       ...this.exampleSentenceTasks()
     ];
@@ -61,6 +62,19 @@ export class TasksService {
       isComplete: s => !!(s as ISense).partOfSpeechId
     };
     yield taskMissingPartOfSpeech;
+    const taskMissingSemanticDomain: Task = {
+      id: 'missing-semantic-domain',
+      contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
+      subject: gt`Missing Semantic domain`,
+      subjectType: 'sense',
+      subjectFields: ['semanticDomains'],
+      prompt: gt`Pick one or more Semantic domains`,
+      taskKind: 'provide-missing',
+      gridifyFilter: 'Senses=null|Senses.SemanticDomains=null',
+      getSubjectValue: s => TasksService.getSemanticDomainsValue(s as ISense),
+      isComplete: s => !!(s as ISense).semanticDomains?.length
+    };
+    yield taskMissingSemanticDomain;
     for (const writingSystem of analysis) {
       const taskSenseGloss: Task = {
         id: `sense-no-gloss-${writingSystem.wsId}`,
@@ -71,7 +85,7 @@ export class TasksService {
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
         taskKind: 'provide-missing',
-        prompt: gt`Type a Gloss`,
+        prompt: writingSystem.isAudio ? gt`Record a Gloss` : gt`Type a Gloss`,
         gridifyFilter: `Senses=null|Senses.Gloss[${writingSystem.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskSenseGloss, s),
         isComplete: s => !!TasksService.getSubjectValue(taskSenseGloss, s)
@@ -86,12 +100,67 @@ export class TasksService {
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
         taskKind: 'provide-missing',
-        prompt: gt`Type a Definition`,
+        prompt: writingSystem.isAudio ? gt`Record a Definition` : gt`Type a Definition`,
         gridifyFilter: `Senses=null|Senses.Definition[${writingSystem.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskSenseDefinition, s),
         isComplete: s => !!TasksService.getSubjectValue(taskSenseDefinition, s)
       };
       yield taskSenseDefinition;
+    }
+  }
+
+  public entryTasks() {
+    subscribeLanguageChange();
+    return TasksService.makeEntryTasks(this.writingSystemService.vernacular);
+  }
+
+  public static *makeEntryTasks(vernacular: IWritingSystem[]) {
+    for (const writingSystem of vernacular) {
+      const taskHeadword: Task = {
+        id: `entry-no-headword-${writingSystem.wsId}`,
+        contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
+        subject: gt`Missing Headword ${writingSystem.abbreviation}`,
+        subjectType: 'entry',
+        subjectFields: ['lexemeForm', 'citationForm'],
+        subjectWritingSystemId: writingSystem.wsId,
+        subjectWritingSystemType: writingSystem.type,
+        prompt: writingSystem.isAudio ? gt`Record a Lexeme form or Citation form` : gt`Type a Lexeme form or Citation form`,
+        taskKind: 'provide-missing',
+        gridifyFilter: `LexemeForm[${writingSystem.wsId}]=,CitationForm[${writingSystem.wsId}]=`,
+        getSubjectValue: s => TasksService.getHeadwordValue(s as IEntry, writingSystem.wsId),
+        isComplete: s => !!TasksService.getHeadwordValue(s as IEntry, writingSystem.wsId)
+      };
+      yield taskHeadword;
+      const taskLexemeForm: Task = {
+        id: `entry-no-lexeme-form-${writingSystem.wsId}`,
+        contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
+        subject: gt`Missing Lexeme form ${writingSystem.abbreviation}`,
+        subjectType: 'entry',
+        subjectFields: ['lexemeForm'],
+        subjectWritingSystemId: writingSystem.wsId,
+        subjectWritingSystemType: writingSystem.type,
+        prompt: writingSystem.isAudio ? gt`Record a Lexeme form` : gt`Type a Lexeme form`,
+        taskKind: 'provide-missing',
+        gridifyFilter: `LexemeForm[${writingSystem.wsId}]=`,
+        getSubjectValue: s => TasksService.getSubjectValue(taskLexemeForm, s),
+        isComplete: s => !!TasksService.getSubjectValue(taskLexemeForm, s)
+      };
+      yield taskLexemeForm;
+      const taskCitationForm: Task = {
+        id: `entry-no-citation-form-${writingSystem.wsId}`,
+        contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
+        subject: gt`Missing Citation form ${writingSystem.abbreviation}`,
+        subjectType: 'entry',
+        subjectFields: ['citationForm'],
+        subjectWritingSystemId: writingSystem.wsId,
+        subjectWritingSystemType: writingSystem.type,
+        prompt: writingSystem.isAudio ? gt`Record a Citation form` : gt`Type a Citation form`,
+        taskKind: 'provide-missing',
+        gridifyFilter: `CitationForm[${writingSystem.wsId}]=`,
+        getSubjectValue: s => TasksService.getSubjectValue(taskCitationForm, s),
+        isComplete: s => !!TasksService.getSubjectValue(taskCitationForm, s)
+      };
+      yield taskCitationForm;
     }
   }
 
@@ -110,7 +179,7 @@ export class TasksService {
         subjectFields: ['sentence'],
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
-        prompt: gt`Type an example sentence`,
+        prompt: writingSystem.isAudio ? gt`Record an example sentence` : gt`Type an example sentence`,
         taskKind: 'provide-missing',
         gridifyFilter: `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${writingSystem.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskExample, s),
@@ -118,6 +187,17 @@ export class TasksService {
       };
       yield taskExample;
     }
+  }
+
+  private static getHeadwordValue(entry: IEntry, wsId: string): string | undefined {
+    //matches the headword convention: citation form wins, else lexeme form
+    return asString(entry.citationForm[wsId]) || asString(entry.lexemeForm[wsId]);
+  }
+
+  private static getSemanticDomainsValue(sense: ISense): string | undefined {
+    const domains = sense.semanticDomains;
+    if (!domains?.length) return undefined;
+    return domains.map(d => d.code).join(', ');
   }
 
   private static verifyHasValue(task: Task, subject: IEntry | ISense | IExampleSentence | undefined): boolean {
