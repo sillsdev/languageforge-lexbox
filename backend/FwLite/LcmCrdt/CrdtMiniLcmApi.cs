@@ -1,6 +1,4 @@
-using System.Data;
 using FluentValidation;
-using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Comments;
@@ -9,121 +7,66 @@ using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
 using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
+using LcmCrdt.Harmony;
 using LcmCrdt.MediaServer;
+using LcmCrdt.MiniLcmImp;
 using LcmCrdt.Objects;
-using LinqToDB;
 using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
-using SIL.Harmony.Core;
-using MiniLcm.Culture;
 using MiniLcm.Media;
 using SystemTextJsonPatch;
 
 namespace LcmCrdt;
 
 public class CrdtMiniLcmApi(
-    DataModel dataModel,
+    HarmonyChangeWriter harmonyChangeWriter,
     CurrentProjectService projectService,
     MiniLcmRepositoryFactory repoFactory,
-    IOptions<LcmCrdtConfig> config,
     ILogger<CrdtMiniLcmApi> logger,
     LcmMediaService lcmMediaService,
     LocalCommentReadStatusService commentReadStatusService,
-    CommitMetadataInterceptor commitMetadataInterceptor,
+    CrdtWritingSystemApi writingSystemApi,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
-    private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
     public CrdtProject Project => projectService.Project;
-    private LcmCrdtConfig LcmConfig => config.Value;
 
-    private CommitMetadata NewMetadata()
+    public Task<WritingSystems> GetWritingSystems()
     {
-        var metadata = new CommitMetadata
-        {
-            ClientVersion = AppVersion.Version,
-            //todo, if a user logs out and in with another account, this will be out of date until the next sync
-            AuthorName = ProjectData.LastUserName ?? config.Value.DefaultAuthorForCommits,
-            AuthorId = ProjectData.LastUserId
-        };
-        commitMetadataInterceptor.Apply(metadata);
-        return metadata;
-    }
-    private async Task<Commit> AddChange(IChange change)
-    {
-        AssertWritable();
-        var commit = await dataModel.AddChange(ClientId, change, commitMetadata: NewMetadata());
-        return commit;
+        return writingSystemApi.GetWritingSystems();
     }
 
-    private async Task AddChanges(IEnumerable<IChange> changes)
+    public Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem,
+        BetweenPosition<WritingSystemId?>? between = null)
     {
-        AssertWritable();
-        await dataModel.AddManyChanges(ClientId, changes, commitMetadata: NewMetadata);
+        return writingSystemApi.CreateWritingSystem(writingSystem, between);
     }
 
-    private void AssertWritable()
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
+        WritingSystemType type,
+        UpdateObjectInput<WritingSystem> update)
     {
-        if (ProjectData.IsReadonly)
-            throw new ReadOnlyException($"project is readonly because you are logged in with the {ProjectData.Role} role. If your role recently changed, try refreshing the server project list on the home page.");
+        return writingSystemApi.UpdateWritingSystem(id, type, update);
     }
 
-    public async Task<WritingSystems> GetWritingSystems()
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
+        WritingSystem after,
+        IMiniLcmApi? api = null)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var systems = await repo.WritingSystemsOrdered.ToArrayAsync();
-        return new WritingSystems
-        {
-            Analysis = [.. systems.Where(ws => ws.Type == WritingSystemType.Analysis)],
-            Vernacular = [.. systems.Where(ws => ws.Type == WritingSystemType.Vernacular)]
-        };
+        return writingSystemApi.UpdateWritingSystem(before, after, api ?? this);
     }
 
-    public async Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null)
+    public Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var entityId = writingSystem.MaybeId ?? Guid.NewGuid();
-        var wsType = writingSystem.Type;
-        var exists = await repo.WritingSystems.AnyAsync(ws => ws.WsId == writingSystem.WsId && ws.Type == wsType);
-        if (exists) throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} ({wsType}) already exists");
-        var betweenIds = between is null ? null : await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, wsType))?.Id);
-        var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(ws => ws.Type == wsType), betweenIds);
-        await AddChange(new CreateWritingSystemChange(writingSystem, entityId, order));
-        return await repo.GetWritingSystem(writingSystem.WsId, wsType) ?? throw NotFoundException.ForWs(writingSystem);
+        return writingSystemApi.MoveWritingSystem(id, type, between);
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
+    public Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var ws = await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
-        var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch);
-        await AddChange(patchChange);
-        return await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
-    }
-
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
-    {
-        await WritingSystemSync.Sync(before, after, api ?? this);
-        return await GetWritingSystem(after.WsId, after.Type) ?? throw NotFoundException.ForWs(after);
-    }
-
-    public async Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var ws = await repo.GetWritingSystem(id, type) ?? throw NotFoundException.ForWs(id, type);
-        var betweenIds = await between.MapAsync(async wsId => wsId is null ? null : (await repo.GetWritingSystem(wsId.Value, type))?.Id);
-        var order = await OrderPicker.PickOrder(repo.WritingSystems.Where(s => s.Type == type), betweenIds);
-        await AddChange(new Changes.SetOrderChange<WritingSystem>(ws.Id, order));
-    }
-
-    public async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetWritingSystem(id, type);
+        return writingSystemApi.GetWritingSystem(id, type);
     }
 
     public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
@@ -144,13 +87,13 @@ public class CrdtMiniLcmApi(
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         if (partOfSpeech.Id == Guid.Empty) partOfSpeech.Id = Guid.NewGuid();
-        await AddChange(new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
+        await harmonyChangeWriter.AddChange(new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
         return await GetPartOfSpeech(partOfSpeech.Id) ?? throw NotFoundException.ForType<PartOfSpeech>(partOfSpeech.Id);
     }
 
     public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
-        await AddChanges(update.Patch.ToChanges(id));
+        await harmonyChangeWriter.AddChanges(update.Patch.ToChanges(id));
     }
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
@@ -167,7 +110,7 @@ public class CrdtMiniLcmApi(
 
     public async Task DeletePartOfSpeech(Guid id)
     {
-        await AddChange(new DeleteChange<PartOfSpeech>(id));
+        await harmonyChangeWriter.AddChange(new DeleteChange<PartOfSpeech>(id));
     }
 
     public async IAsyncEnumerable<Publication> GetPublications()
@@ -187,7 +130,7 @@ public class CrdtMiniLcmApi(
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
-        await AddChange(new CreatePublicationChange(pub.Id, pub.Name, pub.IsMain));
+        await harmonyChangeWriter.AddChange(new CreatePublicationChange(pub.Id, pub.Name, pub.IsMain));
         return await GetPublication(pub.Id) ?? throw NotFoundException.ForType<Publication>(pub.Id);
     }
 
@@ -202,11 +145,11 @@ public class CrdtMiniLcmApi(
                 !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
             var changes = patch.ToChanges(id).ToList();
             if (isMain) changes.Add(new SetMainPublicationChange(id));
-            if (changes.Count > 0) await AddChanges(changes);
+            if (changes.Count > 0) await harmonyChangeWriter.AddChanges(changes);
         }
         else if (update.Patch.Operations.Count > 0)
         {
-            await AddChanges(update.Patch.ToChanges(id));
+            await harmonyChangeWriter.AddChanges(update.Patch.ToChanges(id));
         }
     }
 
@@ -226,18 +169,18 @@ public class CrdtMiniLcmApi(
 
     public async Task DeletePublication(Guid id)
     {
-        await AddChange(new DeleteChange<Publication>(id));
+        await harmonyChangeWriter.AddChange(new DeleteChange<Publication>(id));
     }
 
     public async Task AddPublication(Guid entryId, Guid publicationId)
     {
         var pub = await GetPublication(publicationId) ?? throw NotFoundException.ForType<Publication>(publicationId);
-        await AddChange(new AddPublicationChange(entryId, pub));
+        await harmonyChangeWriter.AddChange(new AddPublicationChange(entryId, pub));
     }
 
     public async Task RemovePublication(Guid entryId, Guid publicationId)
     {
-        await AddChange(new RemovePublicationChange(entryId, publicationId));
+        await harmonyChangeWriter.AddChange(new RemovePublicationChange(entryId, publicationId));
     }
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
@@ -257,13 +200,13 @@ public class CrdtMiniLcmApi(
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
-        await AddChange(new CreateSemanticDomainChange(semanticDomain));
+        await harmonyChangeWriter.AddChange(new CreateSemanticDomainChange(semanticDomain));
         return await GetSemanticDomain(semanticDomain.Id) ?? throw NotFoundException.ForType<SemanticDomain>(semanticDomain.Id);
     }
 
     public async Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        await AddChanges(update.Patch.ToChanges(id));
+        await harmonyChangeWriter.AddChanges(update.Patch.ToChanges(id));
     }
 
     public async Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
@@ -280,12 +223,12 @@ public class CrdtMiniLcmApi(
 
     public async Task DeleteSemanticDomain(Guid id)
     {
-        await AddChange(new DeleteChange<SemanticDomain>(id));
+        await harmonyChangeWriter.AddChange(new DeleteChange<SemanticDomain>(id));
     }
 
     public async Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
     {
-        await AddChanges(await semanticDomains.Select(sd => new CreateSemanticDomainChange(sd)).ToArrayAsync());
+        await harmonyChangeWriter.AddChanges(await semanticDomains.Select(sd => new CreateSemanticDomainChange(sd)).ToArrayAsync());
     }
 
     public async IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
@@ -307,13 +250,13 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
-        await AddChange(new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
+        await harmonyChangeWriter.AddChange(new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
         return await repo.ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
     }
 
     public async Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
     {
-        await AddChange(new JsonPatchChange<ComplexFormType>(id, update.Patch));
+        await harmonyChangeWriter.AddChange(new JsonPatchChange<ComplexFormType>(id, update.Patch));
     }
 
     public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
@@ -330,7 +273,7 @@ public class CrdtMiniLcmApi(
 
     public async Task DeleteComplexFormType(Guid id)
     {
-        await AddChange(new DeleteChange<ComplexFormType>(id));
+        await harmonyChangeWriter.AddChange(new DeleteChange<ComplexFormType>(id));
     }
 
     public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
@@ -345,7 +288,7 @@ public class CrdtMiniLcmApi(
             // Harmony duplicate-ID pitfalls during sync.
             complexFormComponent.Id = Guid.NewGuid();
             var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
-            await AddChange(addEntryComponentChange);
+            await harmonyChangeWriter.AddChange(addEntryComponentChange);
             return;
         }
 
@@ -386,7 +329,7 @@ public class CrdtMiniLcmApi(
         }
         var betweenIds = await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
         var order = await OrderPicker.PickOrder(repo.ComplexFormComponents.Where(s => s.ComplexFormEntryId == component.ComplexFormEntryId), betweenIds);
-        await AddChange(new Changes.SetOrderChange<ComplexFormComponent>(id.Value, order));
+        await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ComplexFormComponent>(id.Value, order));
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -394,18 +337,18 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var existing = await repo.FindComplexFormComponent(complexFormComponent);
         if (existing is null) return;
-        await AddChange(new DeleteChange<ComplexFormComponent>(existing.Id));
+        await harmonyChangeWriter.AddChange(new DeleteChange<ComplexFormComponent>(existing.Id));
     }
 
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        await AddChange(new AddComplexFormTypeChange(entryId, await repo.ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
+        await harmonyChangeWriter.AddChange(new AddComplexFormTypeChange(entryId, await repo.ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
     }
 
     public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
+        await harmonyChangeWriter.AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
     }
 
     public async IAsyncEnumerable<MorphType> GetMorphTypes()
@@ -433,13 +376,13 @@ public class CrdtMiniLcmApi(
     {
         //I don't like returning a different object than what the user requested, it feels very unexpected, however this is pretty much what happens in the change anyway and that can't be avoided
         if (await GetMorphType(morphType.Kind) is {} actualMorphType) return actualMorphType;
-        await AddChange(new CreateMorphTypeChange(morphType));
+        await harmonyChangeWriter.AddChange(new CreateMorphTypeChange(morphType));
         return await GetMorphType(morphType.Id) ?? throw NotFoundException.ForType<MorphType>(morphType.Id);
     }
 
     public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
-        await AddChange(new JsonPatchChange<MorphType>(id, update.Patch));
+        await harmonyChangeWriter.AddChange(new JsonPatchChange<MorphType>(id, update.Patch));
         return await GetMorphType(id) ?? throw NotFoundException.ForType<MorphType>(id);
     }
 
@@ -497,14 +440,14 @@ public class CrdtMiniLcmApi(
             createdEntryIds.Add(entry.Id);
             if (changeList.Count > 1000)
             {
-                await AddChanges(changeList);
+                await harmonyChangeWriter.AddChanges(changeList);
                 changeList.Clear();
                 logger.LogInformation("Added {Count} entries so far", entryCount);
             }
         }
         if (changeList.Count > 0)
         {
-            await AddChanges(changeList);
+            await harmonyChangeWriter.AddChanges(changeList);
         }
 
         await (entrySearchService?.RegenerateEntrySearchTable() ?? Task.CompletedTask);
@@ -589,7 +532,7 @@ public class CrdtMiniLcmApi(
                 entry.PublishIn.Add(mainPublication);
             }
         }
-        await AddChanges([
+        await harmonyChangeWriter.AddChanges((IEnumerable<IChange>)[
             new CreateEntryChange(entry),
             ..homographPromotionChange is null ? [] : new[] { homographPromotionChange },
             ..await entry.Senses.ToAsyncEnumerable()
@@ -696,7 +639,7 @@ public class CrdtMiniLcmApi(
 
     public async Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
-        await AddChanges(update.Patch.ToChanges(id));
+        await harmonyChangeWriter.AddChanges(update.Patch.ToChanges(id));
     }
 
     public async Task<Entry> UpdateEntry(Guid id,
@@ -716,7 +659,7 @@ public class CrdtMiniLcmApi(
 
     public async Task DeleteEntry(Guid id)
     {
-        await AddChange(new DeleteChange<Entry>(id));
+        await harmonyChangeWriter.AddChange(new DeleteChange<Entry>(id));
     }
 
     private async IAsyncEnumerable<IChange> CreateSenseChanges(Guid entryId,
@@ -760,7 +703,7 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         sense.Order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
-        await AddChanges(await CreateSenseChanges(entryId, sense, repo.SemanticDomains).ToArrayAsync());
+        await harmonyChangeWriter.AddChanges(await CreateSenseChanges(entryId, sense, repo.SemanticDomains).ToArrayAsync());
     }
 
     public async Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
@@ -777,7 +720,7 @@ public class CrdtMiniLcmApi(
 
     public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
-        await AddChanges(update.Patch.ToChanges(senseId));
+        await harmonyChangeWriter.AddChanges(update.Patch.ToChanges(senseId));
     }
 
     public async Task<Sense> UpdateSense(Guid entryId,
@@ -806,32 +749,32 @@ public class CrdtMiniLcmApi(
         var currentEntryId = await repo.Senses.Where(s => s.Id == senseId).Select(s => s.EntryId).FirstOrDefaultAsync();
         if (currentEntryId != default && currentEntryId != entryId)
         {
-            await AddChange(new MoveSenseToEntryChange(senseId, entryId, order));
+            await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, order));
         }
         else
         {
-            await AddChange(new Changes.SetOrderChange<Sense>(senseId, order));
+            await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<Sense>(senseId, order));
         }
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)
     {
-        await AddChange(new DeleteChange<Sense>(senseId));
+        await harmonyChangeWriter.AddChange(new DeleteChange<Sense>(senseId));
     }
 
     public async Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
     {
-        await AddChange(new AddSemanticDomainChange(semanticDomain, senseId));
+        await harmonyChangeWriter.AddChange(new AddSemanticDomainChange(semanticDomain, senseId));
     }
 
     public async Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
     {
-        await AddChange(new RemoveSemanticDomainChange(semanticDomainId, senseId));
+        await harmonyChangeWriter.AddChange(new RemoveSemanticDomainChange(semanticDomainId, senseId));
     }
 
     public async Task SetSensePartOfSpeech(Guid senseId, Guid? partOfSpeechId)
     {
-        await AddChange(new SetPartOfSpeechChange(senseId, partOfSpeechId));
+        await harmonyChangeWriter.AddChange(new SetPartOfSpeechChange(senseId, partOfSpeechId));
     }
 
     public async Task SubmitCreateExampleSentence(Guid entryId,
@@ -841,7 +784,7 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         exampleSentence.Order = await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);
-        await AddChange(new CreateExampleSentenceChange(exampleSentence, senseId));
+        await harmonyChangeWriter.AddChange(new CreateExampleSentenceChange(exampleSentence, senseId));
     }
 
     public async Task<ExampleSentence> CreateExampleSentence(Guid entryId,
@@ -864,7 +807,7 @@ public class CrdtMiniLcmApi(
         Guid exampleSentenceId,
         UpdateObjectInput<ExampleSentence> update)
     {
-        await AddChange(new JsonPatchExampleSentenceChange(exampleSentenceId, update.Patch));
+        await harmonyChangeWriter.AddChange(new JsonPatchExampleSentenceChange(exampleSentenceId, update.Patch));
     }
 
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
@@ -890,23 +833,23 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var order = await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);
-        await AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, order));
+        await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, order));
     }
 
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
-        await AddChange(new DeleteChange<ExampleSentence>(exampleSentenceId));
+        await harmonyChangeWriter.AddChange(new DeleteChange<ExampleSentence>(exampleSentenceId));
     }
 
     public async Task AddTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Translation translation)
     {
         if (translation.Id == Guid.Empty) translation.Id = Guid.NewGuid();
-        await AddChange(new AddTranslationChange(exampleSentenceId, translation));
+        await harmonyChangeWriter.AddChange(new AddTranslationChange(exampleSentenceId, translation));
     }
 
     public async Task RemoveTranslation(Guid entryId, Guid senseId, Guid exampleSentenceId, Guid translationId)
     {
-        await AddChange(new RemoveTranslationChange(exampleSentenceId, translationId));
+        await harmonyChangeWriter.AddChange(new RemoveTranslationChange(exampleSentenceId, translationId));
     }
 
     public async Task UpdateTranslation(Guid entryId,
@@ -916,7 +859,7 @@ public class CrdtMiniLcmApi(
         UpdateObjectInput<Translation> update)
     {
         var jsonPatch = update.Patch;
-        await AddChange(new UpdateTranslationChange(exampleSentenceId, translationId, jsonPatch));
+        await harmonyChangeWriter.AddChange(new UpdateTranslationChange(exampleSentenceId, translationId, jsonPatch));
     }
 
     [Obsolete($"Use {nameof(AddTranslation)} instead")]
@@ -924,7 +867,7 @@ public class CrdtMiniLcmApi(
     {
         var changes = exampleSentenceIdToTranslationId
             .Select(kv => GetSetFirstTranslationIdChange(kv.Key, kv.Value));
-        await AddChanges(changes);
+        await harmonyChangeWriter.AddChanges(changes);
 
         static SetFirstTranslationIdChange GetSetFirstTranslationIdChange(Guid exampleSentenceId, Guid translationId)
         {
@@ -945,7 +888,7 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var change = new CreateSensePictureChange(picture, senseId, between);
-        await AddChange(change);
+        await harmonyChangeWriter.AddChange(change);
         return await GetPicture(entryId, senseId, change.PictureId) ?? throw NotFoundException.ForType<Picture>(change.PictureId);
     }
 
@@ -963,7 +906,7 @@ public class CrdtMiniLcmApi(
     {
         var jsonPatch = update.Patch;
         var patchChange = new UpdateSensePictureChange(pictureId, senseId, jsonPatch);
-        await AddChange(patchChange);
+        await harmonyChangeWriter.AddChange(patchChange);
     }
 
     public async Task<Picture> UpdatePicture(Guid entryId,
@@ -991,12 +934,12 @@ public class CrdtMiniLcmApi(
         var sense = await repo.GetSense(senseId);
         if (sense is null) throw NotFoundException.ForType<Sense>(senseId);
         var order = OrderPicker.PickOrder(sense.Pictures, between);
-        await AddChange(new ReorderSensePictureChange(pictureId, senseId, order));
+        await harmonyChangeWriter.AddChange(new ReorderSensePictureChange(pictureId, senseId, order));
     }
 
     public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
     {
-        await AddChange(new RemoveSensePictureChange(pictureId, senseId));
+        await harmonyChangeWriter.AddChange(new RemoveSensePictureChange(pictureId, senseId));
     }
 
     public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri, bool downloadIfMissing = true)
@@ -1040,7 +983,7 @@ public class CrdtMiniLcmApi(
     {
         AssertManagerRoleForCustomViewWrite();
         if (customView.Id == Guid.Empty) customView.Id = Guid.NewGuid();
-        await AddChange(new CreateCustomViewChange(customView.Id, customView));
+        await harmonyChangeWriter.AddChange(new CreateCustomViewChange(customView.Id, customView));
         return await GetCustomView(customView.Id) ?? throw NotFoundException.ForType<CustomView>(customView.Id);
     }
 
@@ -1050,7 +993,7 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var id = customView.Id;
         var _ = await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
-        await AddChange(new EditCustomViewChange(id, customView));
+        await harmonyChangeWriter.AddChange(new EditCustomViewChange(id, customView));
         return await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
     }
 
@@ -1059,7 +1002,7 @@ public class CrdtMiniLcmApi(
         AssertManagerRoleForCustomViewWrite();
         await using var repo = await repoFactory.CreateRepoAsync();
         _ = await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
-        await AddChange(new DeleteChange<CustomView>(id));
+        await harmonyChangeWriter.AddChange(new DeleteChange<CustomView>(id));
     }
 
     private void AssertManagerRoleForCustomViewWrite()
@@ -1139,7 +1082,7 @@ public class CrdtMiniLcmApi(
         firstComment.CommentThreadId = thread.Id;
         StampCommentAuthor(firstComment, now);
 
-        await AddChanges([
+        await harmonyChangeWriter.AddChanges((IEnumerable<IChange>)[
             new CreateCommentThreadChange(thread),
             new CreateUserCommentChange(firstComment)
         ]);
@@ -1153,7 +1096,7 @@ public class CrdtMiniLcmApi(
         comment.CommentThreadId = threadId;
         StampCommentAuthor(comment, DateTimeOffset.UtcNow);
 
-        await AddChange(new CreateUserCommentChange(comment));
+        await harmonyChangeWriter.AddChange(new CreateUserCommentChange(comment));
         return await repo.GetUserComment(comment.Id) ?? throw NotFoundException.ForType<UserComment>(comment.Id);
     }
 
@@ -1162,7 +1105,7 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
         AssertCurrentUserCanChangeComment(comment);
-        await AddChange(new EditUserCommentChange(commentId, text, DateTimeOffset.UtcNow));
+        await harmonyChangeWriter.AddChange(new EditUserCommentChange(commentId, text, DateTimeOffset.UtcNow));
         return await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
     }
 
@@ -1170,7 +1113,7 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
-        await AddChange(new SetCommentThreadStatusChange(threadId, status, DateTimeOffset.UtcNow));
+        await harmonyChangeWriter.AddChange(new SetCommentThreadStatusChange(threadId, status, DateTimeOffset.UtcNow));
         return await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
     }
 
@@ -1179,7 +1122,7 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
         AssertCurrentUserCanChangeComment(comment);
-        await AddChange(new DeleteChange<UserComment>(commentId));
+        await harmonyChangeWriter.AddChange(new DeleteChange<UserComment>(commentId));
         await commentReadStatusService.RemoveUnreadComments([commentId]);
     }
 
@@ -1187,7 +1130,7 @@ public class CrdtMiniLcmApi(
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
-        await AddChange(new DeleteChange<CommentThread>(threadId));
+        await harmonyChangeWriter.AddChange(new DeleteChange<CommentThread>(threadId));
         await commentReadStatusService.MarkThreadRead(threadId);
     }
 

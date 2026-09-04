@@ -32,7 +32,9 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         }).First(w => w.WsId == id);
     }
 
-    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api)
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
+        WritingSystem after,
+        IMiniLcmApi? api)
     {
         return Task.FromResult(after);
     }
