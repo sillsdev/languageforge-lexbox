@@ -219,4 +219,35 @@ public class CrdtCommitServiceTests
         var commits = await _crdtCommitService.GetMissingCommits(commit.ProjectId, syncState, new SyncState([])).ToArrayAsync();
         commits.Should().Contain(c => c.Id == commit.Id);
     }
+
+    [Fact]
+    public async Task NoCommitIsOlderThanTheSnapshotRebuildCommitAndItCarriesNoChanges()
+    {
+        var existing = await AddTestCommit();
+
+        var rebuild = await _crdtCommitService.AddSnapshotRebuildCommit(existing.ProjectId);
+
+        rebuild.Should().NotBeNull();
+        var commits = await _lexBoxDbContext.CrdtCommits(existing.ProjectId).ToArrayAsync();
+        var added = commits.Should().ContainSingle(c => c.Id == rebuild!.CommitId).Subject;
+        //an empty commit can't change any data, it only forces the replay
+        added.ChangeEntities.Should().BeEmpty();
+        commits.Should().NotContain(c => c.DateTime < added.DateTime);
+        rebuild!.CommitsToReplay.Should().Be(commits.Length - 1);
+    }
+
+    //the point of the rebuild commit: clients with nothing left to sync must still be sent it
+    [Fact]
+    public async Task SnapshotRebuildCommitIsSentToAClientThatIsAlreadyUpToDate()
+    {
+        var existing = await AddTestCommit();
+        var upToDateClient = await _crdtCommitService.GetSyncState(existing.ProjectId);
+
+        var rebuild = await _crdtCommitService.AddSnapshotRebuildCommit(existing.ProjectId);
+
+        var serverState = await _crdtCommitService.GetSyncState(existing.ProjectId);
+        var missing = await _crdtCommitService.GetMissingCommits(existing.ProjectId, serverState, upToDateClient)
+            .ToArrayAsync();
+        missing.Should().ContainSingle().Which.Id.Should().Be(rebuild!.CommitId);
+    }
 }
