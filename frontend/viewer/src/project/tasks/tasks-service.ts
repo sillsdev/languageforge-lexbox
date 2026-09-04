@@ -131,21 +131,6 @@ export class TasksService {
         isComplete: s => !!TasksService.getHeadwordValue(s as IEntry, writingSystem.wsId)
       };
       yield taskHeadword;
-      const taskCitationForm: Task = {
-        id: `entry-no-citation-form-${writingSystem.wsId}`,
-        contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
-        subject: gt`Missing Citation form ${writingSystem.abbreviation}`,
-        subjectType: 'entry',
-        subjectFields: ['citationForm'],
-        subjectWritingSystemId: writingSystem.wsId,
-        subjectWritingSystemType: writingSystem.type,
-        prompt: writingSystem.isAudio ? gt`Record a Citation form` : gt`Type a Citation form`,
-        taskKind: 'provide-missing',
-        gridifyFilter: `CitationForm[${writingSystem.wsId}]=`,
-        getSubjectValue: s => TasksService.getSubjectValue(taskCitationForm, s),
-        isComplete: s => !!TasksService.getSubjectValue(taskCitationForm, s)
-      };
-      yield taskCitationForm;
       const taskLexemeForm: Task = {
         id: `entry-no-lexeme-form-${writingSystem.wsId}`,
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
@@ -161,6 +146,21 @@ export class TasksService {
         isComplete: s => !!TasksService.getSubjectValue(taskLexemeForm, s)
       };
       yield taskLexemeForm;
+      const taskCitationForm: Task = {
+        id: `entry-no-citation-form-${writingSystem.wsId}`,
+        contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
+        subject: gt`Missing Citation form ${writingSystem.abbreviation}`,
+        subjectType: 'entry',
+        subjectFields: ['citationForm'],
+        subjectWritingSystemId: writingSystem.wsId,
+        subjectWritingSystemType: writingSystem.type,
+        prompt: writingSystem.isAudio ? gt`Record a Citation form` : gt`Type a Citation form`,
+        taskKind: 'provide-missing',
+        gridifyFilter: `CitationForm[${writingSystem.wsId}]=`,
+        getSubjectValue: s => TasksService.getSubjectValue(taskCitationForm, s),
+        isComplete: s => !!TasksService.getSubjectValue(taskCitationForm, s)
+      };
+      yield taskCitationForm;
     }
   }
 
