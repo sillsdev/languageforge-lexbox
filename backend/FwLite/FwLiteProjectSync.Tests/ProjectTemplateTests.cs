@@ -110,6 +110,26 @@ public class ProjectTemplateTests : IAsyncLifetime
         actual.Should().BeEquivalentTo(expected);
     }
 
+    [Fact]
+    public async Task NewProjectAddsEveryRequestedWritingSystemToTheCorrectList()
+    {
+        var fwDataBridgeConfig = Services.GetRequiredService<IOptions<FwDataBridgeConfig>>().Value;
+        // The SIL.LCModel template ships next to the test assembly; point liblcm at it (this project,
+        // unlike FwDataMiniLcmBridge.Tests, doesn't otherwise configure TemplatesFolder).
+        fwDataBridgeConfig.TemplatesFolder = Path.Combine(AppContext.BaseDirectory, "Templates");
+        var fwDataProject = new FwDataProject("multi-ws-source", fwDataBridgeConfig.ProjectsFolder);
+        // First of each list is the default; the rest go through CreateNewLangProj's additional-WS sets.
+        // Distinct codes per type so a swapped analysis/vernacular argument would fail this test.
+        string[] analysis = ["en", "de"];
+        string[] vernacular = ["fr", "es"];
+        Services.GetRequiredService<IProjectLoader>().NewProject(fwDataProject, analysis, vernacular, uiWs: "en").Dispose();
+
+        using var api = Services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwDataProject, false);
+        var writingSystems = await api.GetWritingSystems();
+        writingSystems.Analysis.Select(ws => ws.WsId).Should().Contain(["en", "de"]);
+        writingSystems.Vernacular.Select(ws => ws.WsId).Should().Contain(["fr", "es"]);
+    }
+
     private static ProjectSnapshot DeserializeTemplate()
     {
         using var stream = File.OpenRead(TemplatePath);

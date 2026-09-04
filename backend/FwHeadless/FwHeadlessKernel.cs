@@ -25,6 +25,7 @@ public static class FwHeadlessKernel
         services.AddScoped<ISendReceiveService, SendReceiveService>();
         services.AddScoped<IProjectLookupService, ProjectLookupService>();
         services.AddScoped<ProjectDeletionService>();
+        services.AddScoped<ProjectCreationService>();
         services.AddScoped<LogSanitizerService>();
         services.AddScoped<SafeLoggingProgress>();
         services.AddScoped<IProjectMetadataService, ProjectMetadataService>();
@@ -32,6 +33,14 @@ public static class FwHeadlessKernel
             .AddLcmCrdtClientCore()
             .AddFwDataBridge(ServiceLifetime.Scoped)
             .AddFwLiteProjectSync();
+        // The LCM project templates (NewLangProj.fwdata etc.) ship in our output (see FwHeadless.csproj).
+        // FwDataBridgeConfig's default TemplatesFolder points at the FieldWorks user-data dir, which
+        // doesn't exist in the container; point it at the shipped templates unless overridden in config.
+        services.Configure<FwDataBridgeConfig>(config =>
+        {
+            if (config.TemplatesFolder == new FwDataBridgeConfig().TemplatesFolder)
+                config.TemplatesFolder = Path.Combine(AppContext.BaseDirectory, "Templates");
+        });
         services.RemoveAll(typeof(IMediaAdapter));
         services.AddScoped<IMediaAdapter, LexboxFwDataMediaAdapter>();
         services.AddScoped<MediaFileService>();
