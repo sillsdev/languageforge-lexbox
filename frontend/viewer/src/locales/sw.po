@@ -66,6 +66,10 @@ msgstr "{0} iliyopita"
 msgid "{0} authors"
 msgstr ""
 
+#: src/project/tasks/TaskList.svelte
+msgid "{0} in {1}: {2} to go"
+msgstr ""
+
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -84,8 +88,13 @@ msgstr ""
 msgid "{0} Server"
 msgstr "Seva ya {0}"
 
+#. Remaining entries for a task in the task list. {0} = a number.
 #: src/project/tasks/TaskList.svelte
 msgid "{0} to go"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "{0}: {1} to go"
 msgstr ""
 
 #. Number of changes in sync operation
@@ -266,8 +275,13 @@ msgstr ""
 msgid "All authors"
 msgstr ""
 
+#. Shown in place of a task's progress when nothing is left to do
 #: src/project/tasks/TaskList.svelte
 msgid "All done"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "All done in {0}"
 msgstr ""
 
 #. Relevant view: Classic
@@ -280,7 +294,6 @@ msgstr "ingizo"
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
-#: src/project/tasks/TaskList.svelte
 msgid "Analysis"
 msgstr "Uchambuzi"
 
@@ -977,6 +990,7 @@ msgstr "Hitilafu katika kupata hali ya kuoanisha"
 msgid "Error getting sync status."
 msgstr "Hitilafu katika kupata hali ya kuoanisha."
 
+#. Shown instead of the task list when no task has any work left
 #: src/project/tasks/TaskList.svelte
 msgid "Every task is complete"
 msgstr ""
@@ -1888,6 +1902,7 @@ msgstr "Haijaoanishwa"
 msgid "Note"
 msgstr "Tanbihi"
 
+#. Expandable heading over the tasks that have no work left
 #: src/project/tasks/TaskList.svelte
 msgid "Nothing left to do"
 msgstr ""
@@ -2302,6 +2317,10 @@ msgstr "waridi"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "Same in every language"
 msgstr ""
 
 #. Relevant view: Classic
@@ -3004,7 +3023,6 @@ msgstr "Inatumia sehemu kama"
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
-#: src/project/tasks/TaskList.svelte
 msgid "Vernacular"
 msgstr "Lugha ya kienyeji"
 
