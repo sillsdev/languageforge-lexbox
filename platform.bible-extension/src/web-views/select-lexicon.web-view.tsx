@@ -1,6 +1,6 @@
 import { commands, logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
-import type { IProjectModel, LexiconWebViewProps } from 'lexicon';
+import type { IProjectModel, LexiconWebViewProps, SuccessHolder } from 'lexicon';
 import { useCallback, useEffect, useState } from 'react';
 import AuthStatus from '../components/auth-status';
 import CreateLexicon from '../components/create-lexicon';
@@ -8,8 +8,28 @@ import LexiconComboBox from '../components/lexicon-combo-box';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 import type { AuthServerStatus, LoginResult } from '../utils/fw-lite-api';
 
+/**
+ * Reports a chosen lexicon to a command the caller named. The name arrives at runtime, so it cannot
+ * be checked against the declared command types; its arguments are those of
+ * `lexicon.selectLexicon`, the command it stands in for.
+ */
+function reportLexicon(
+  resultCommand: string,
+  projectId: string,
+  lexiconCode: string,
+): Promise<SuccessHolder> {
+  // eslint-disable-next-line no-type-assertion/no-type-assertion
+  const sendUntypedCommand = commands.sendCommand as unknown as (
+    commandName: string,
+    project: string,
+    code: string,
+  ) => Promise<SuccessHolder>;
+  return sendUntypedCommand(resultCommand, projectId, lexiconCode);
+}
+
 globalThis.webViewComponent = function LexiconSelect({
   projectId,
+  resultCommand,
   vernacularLanguage,
 }: LexiconWebViewProps) {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
@@ -75,12 +95,16 @@ globalThis.webViewComponent = function LexiconSelect({
     [applyServers, refreshAuthServers],
   );
 
+  // In report mode the caller owns the project-to-lexicon link, so the choice goes to the command
+  // it named instead of into this extension's own project setting.
   const selectLexicon = useCallback(
     async (code: string): Promise<void> => {
-      const result = await commands.sendCommand('lexicon.selectLexicon', projectId ?? '', code);
+      const result = resultCommand
+        ? await reportLexicon(resultCommand, projectId ?? '', code)
+        : await commands.sendCommand('lexicon.selectLexicon', projectId ?? '', code);
       if (!result?.success) throw new Error(result?.error || 'Failed to select lexicon');
     },
-    [projectId],
+    [projectId, resultCommand],
   );
 
   const createLexicon = useCallback(

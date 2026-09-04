@@ -20,6 +20,7 @@ import { domainText } from '../utils/entry-display-text';
 
 globalThis.webViewComponent = function LexiconFindRelatedWords({
   analysisLanguage,
+  lexiconCode,
   projectId,
   vernacularLanguage,
   word,
@@ -55,9 +56,9 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
 
   const fetchEntries = useCallback(
     async (untrimmedSurfaceForm: string) => {
-      if (!projectId || !lexiconNetworkObject) {
+      if (!lexiconCode || !lexiconNetworkObject) {
         const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
-        if (!projectId) logger.warn(`${errMissingParam}projectId`);
+        if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
         if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
         return;
       }
@@ -70,7 +71,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
 
       logger.info(`Fetching entries for ${surfaceForm}`);
       setIsFetching(true);
-      let entries = (await lexiconNetworkObject.getEntries(projectId, { surfaceForm })) ?? [];
+      let entries = (await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm })) ?? [];
       // Only consider entries and senses with at least one semantic domain.
       entries = entries
         .map((e) => ({ ...e, senses: e.senses.filter((s) => s.semanticDomains.length) }))
@@ -78,25 +79,25 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       setIsFetching(false);
       setMatchingEntries(entries);
     },
-    [lexiconNetworkObject, localizedStrings, projectId],
+    [lexiconCode, lexiconNetworkObject, localizedStrings],
   );
 
   const fetchRelatedEntries = useCallback(
     async (semanticDomain: string) => {
-      if (!projectId || !lexiconNetworkObject) {
+      if (!lexiconCode || !lexiconNetworkObject) {
         const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
-        if (!projectId) logger.warn(`${errMissingParam}projectId`);
+        if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
         if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
         return;
       }
 
       logger.info(`Fetching entries in semantic domain ${semanticDomain}`);
       setIsFetching(true);
-      const entries = await lexiconNetworkObject.getEntries(projectId, { semanticDomain });
+      const entries = await lexiconNetworkObject.getEntries(lexiconCode, { semanticDomain });
       setIsFetching(false);
       setRelatedEntries(entries ?? []);
     },
-    [lexiconNetworkObject, localizedStrings, projectId],
+    [lexiconCode, lexiconNetworkObject, localizedStrings],
   );
 
   useEffect(() => {
@@ -115,8 +116,15 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
 
   const addEntryInDomain = useCallback(
     async (entry: PartialEntry) => {
-      if (!lexiconNetworkObject || !projectId || !selectedDomain || !entry.senses?.length) {
+      if (
+        !lexiconCode ||
+        !lexiconNetworkObject ||
+        !projectId ||
+        !selectedDomain ||
+        !entry.senses?.length
+      ) {
         const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
+        if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
         if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
         if (!selectedDomain) logger.warn(`${errMissingParam}selectedDomain`);
@@ -127,7 +135,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       if (!entry.senses[0].semanticDomains) entry.senses[0].semanticDomains = [];
       entry.senses[0].semanticDomains.push(selectedDomain);
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const addedEntry = await lexiconNetworkObject.addEntry(projectId, entry);
+      const addedEntry = await lexiconNetworkObject.addEntry(lexiconCode, entry);
       if (addedEntry) {
         onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
         await papi.commands.sendCommand('lexicon.displayEntry', projectId, addedEntry.id);
@@ -135,7 +143,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
         logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
       }
     },
-    [lexiconNetworkObject, localizedStrings, onSearch, projectId, selectedDomain],
+    [lexiconCode, lexiconNetworkObject, localizedStrings, onSearch, projectId, selectedDomain],
   );
 
   return (

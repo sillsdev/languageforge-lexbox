@@ -18,10 +18,6 @@ export class ProjectManager {
     this.isLexiconCodeValid = isLexiconCodeValid ?? (async () => true);
   }
 
-  static async getLexiconCode(projectId: string): Promise<string | undefined> {
-    return await new ProjectManager(projectId).getLexiconCode();
-  }
-
   /** Tells the user why their lexicon selection was discarded, so the selector isn't unexplained. */
   private static async notifyLexiconMissing(lexiconCode: string): Promise<void> {
     try {
@@ -74,9 +70,17 @@ export class ProjectManager {
     await this.openSelector();
   }
 
-  async openSelector(): Promise<boolean> {
+  /**
+   * Opens the lexicon selector for this project.
+   *
+   * @param resultCommand - Names a command the selector reports the chosen lexicon to instead of
+   *   recording it in `lexicon.lexiconCode`, for a caller that keeps the project-to-lexicon link
+   *   elsewhere. Absent for this extension's own selections, which the selector records.
+   * @returns Whether the selector opened, which is not whether a lexicon was chosen.
+   */
+  async openSelector(resultCommand?: string): Promise<boolean> {
     const vernacularLanguage = await this.getLanguageTag();
-    const options: LexiconWebViewOptions = { vernacularLanguage };
+    const options: LexiconWebViewOptions = { resultCommand, vernacularLanguage };
     return await this.openWebView(
       WebViewType.SelectLexicon,
       { floatSize: { height: 500, width: 400 }, type: 'float' },
