@@ -221,7 +221,7 @@ public class CrdtCommitServiceTests
     }
 
     [Fact]
-    public async Task SnapshotRebuildCommitPredatesEveryOtherCommitAndCarriesNoChanges()
+    public async Task NoCommitIsOlderThanTheSnapshotRebuildCommitAndItCarriesNoChanges()
     {
         var existing = await AddTestCommit();
 
@@ -232,7 +232,7 @@ public class CrdtCommitServiceTests
         var added = commits.Should().ContainSingle(c => c.Id == rebuild!.CommitId).Subject;
         //an empty commit can't change any data, it only forces the replay
         added.ChangeEntities.Should().BeEmpty();
-        added.DateTime.Should().BeBefore(commits.Where(c => c.Id != added.Id).Min(c => c.DateTime));
+        commits.Should().NotContain(c => c.DateTime < added.DateTime);
         rebuild!.CommitsToReplay.Should().Be(commits.Length - 1);
     }
 
