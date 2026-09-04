@@ -23,6 +23,14 @@ export type AuthServerStatus = IServerStatus;
 /** The generated `LoginResult` enum as a string union, which keeps the import type-only. */
 export type LoginResult = `${GeneratedLoginResult}`;
 
+/**
+ * Outcome of downloading a remote project. The REST route flattens the backend's
+ * DownloadProjectByCodeResult to HTTP status codes, so we map those back to a union here rather
+ * than reusing the generated enum. 'NotFound'/'Forbidden' can't happen for a project we just
+ * listed, but a project's access can change between listing and download, so they're handled.
+ */
+export type DownloadResult = 'Success' | 'AlreadyDownloaded' | 'Forbidden' | 'NotFound' | 'Error';
+
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
 function sanitizeUrlComponent(urlComponent?: string): string {
   if (!urlComponent) throw new Error(`Empty URL component`);
@@ -142,9 +150,18 @@ export class FwLiteApi {
     return projects;
   }
 
-  async getProjectsMatchingLanguage(langTag?: string): Promise<IProjectModel[]> {
+  /**
+   * Local projects filtered to `langTag`. `filtered` = a real subset came back; `noMatch` = a
+   * language was given but nothing matched (so all are returned). `keepCodes` are kept regardless
+   * of language (the current lexicon + any applied this session) so a just-replaced one doesn't
+   * vanish.
+   */
+  async getProjectsMatchingLanguage(
+    langTag?: string,
+    keepCodes?: string[],
+  ): Promise<{ projects: IProjectModel[]; filtered: boolean; noMatch: boolean }> {
     const projects = await this.getProjects();
-    if (!langTag?.trim()) return projects;
+    if (!langTag?.trim()) return { projects, filtered: false, noMatch: false };
 
     // Promise.allSettled so one project's failed check (e.g. a broken/deleted project) only
     // drops that project from consideration.
@@ -168,7 +185,14 @@ export class FwLiteApi {
       )
       .map((result) => result.value)
       .filter((p): p is IProjectModel => Boolean(p));
-    return matches.length ? matches : projects;
+    if (!matches.length) return { projects, filtered: false, noMatch: true };
+
+    // Retain the kept lexicons regardless of language, keeping original order and no duplicate.
+    const keep = new Set(matches.map((p) => p.code));
+    keepCodes?.forEach((c) => keep.add(c));
+    const kept = projects.filter((p) => keep.has(p.code));
+    if (kept.length === projects.length) return { projects, filtered: false, noMatch: false };
+    return { projects: kept, filtered: true, noMatch: false };
   }
 
   async getWritingSystems(lexiconCode?: string): Promise<IWritingSystems> {
@@ -185,6 +209,50 @@ export class FwLiteApi {
 
   async getAuthServers(): Promise<AuthServerStatus[]> {
     return (await this.fetchPath('auth/servers')) as AuthServerStatus[];
+  }
+
+  /**
+   * Remote (Lexbox server) projects the signed-in user can download, across all configured servers,
+   * flattened into one list (each carries its own `server`; signed-out servers return nothing).
+   * Filtered to CRDT projects — the `crdt` flag is the backend's "has Harmony commits" signal.
+   */
+  async getRemoteProjects(): Promise<IProjectModel[]> {
+    const byServer = (await this.fetchPath('remoteProjects')) as Record<string, IProjectModel[]>;
+    return Object.values(byServer)
+      .flat()
+      .filter((p) => p.crdt);
+  }
+
+  /**
+   * Downloads a remote CRDT project; its promise resolves only once the initial sync completes (can
+   * take minutes).
+   */
+  async downloadProject(
+    authority: string,
+    code: string,
+    signal?: AbortSignal,
+  ): Promise<DownloadResult> {
+    const path = `download/crdt/${sanitizeUrlComponent(authority)}/${sanitizeUrlComponent(code)}`;
+    const response = await papi.fetch(this.getUrl(path), { method: 'POST', signal });
+    switch (response.status) {
+      case 200:
+        FwLiteApi.projectTypeByCode.set(code, 'Harmony');
+        return 'Success';
+      case 204:
+        return 'AlreadyDownloaded';
+      case 403:
+        return 'Forbidden';
+      case 404:
+        return 'NotFound';
+      default:
+        return 'Error';
+    }
+  }
+
+  /** Deletes a local CRDT project. Callers must ensure all changes are backed up. */
+  async deleteProject(code: string): Promise<void> {
+    await this.fetchPath(`crdt/${sanitizeUrlComponent(code)}`, 'DELETE');
+    FwLiteApi.projectTypeByCode.delete(code);
   }
 
   /**
@@ -234,12 +302,11 @@ export class FwLiteApi {
   }
 
   /**
-   * Looks up a project's API type. The cache is in-memory only and empty after an extension
-   * restart, so on a miss we repopulate it from the backend; else a Harmony/CRDT project could be
-   * misrouted to the FwData endpoints and every operation on it would fail. `getProjects` has no
-   * per-code failure mode (it just enumerates), so if it throws, the type genuinely can't be
-   * determined; propagate the failure instead of guessing 'FwData' and misrouting a Harmony
-   * project. Only defaults to 'FwData' when the backend answered but the code is unrecognized.
+   * Looks up a project's API type. The cache is in-memory only (empty after a restart), so a miss
+   * repopulates it from the backend rather than guessing — a wrong guess could misroute a Harmony
+   * project to the FwData endpoints and break every operation on it. If `getProjects` itself
+   * throws, propagate rather than default; only default to 'FwData' when the backend answered but
+   * the code was unrecognized.
    */
   private async resolveProjectType(code: string): Promise<'FwData' | 'Harmony'> {
     const cached = FwLiteApi.projectTypeByCode.get(code);
