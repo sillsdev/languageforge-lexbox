@@ -183,10 +183,25 @@ useEffect(() => {
 }, []);
 ```
 
-- The current PT project id (which the example WebViews get via their props).
+- The FW Lite lexicon code of the lexicon to act on (which the example WebViews get via their
+  `lexiconCode` prop). Every `IEntryService` method takes it as its first argument; the service
+  itself holds no notion of a Paratext project, so mapping a project to a lexicon is the caller's
+  own business.
 - Call any method defined in [entry-service.ts](src/services/entry-service.ts)
   - To use `lexiconService.addEntry`, also import types `IEntry` and `PartialEntry` from `'lexicon'`.
   - To use `lexiconService.getEntries`, also import types `IEntryQuery` and `PartialEntry` from `'lexicon'`.
+
+4. To let the user pick the lexicon without this extension recording the choice in its own
+   `lexicon.lexiconCode` project setting, register a command with the signature of
+   `lexicon.selectLexicon` — `(projectId, lexiconCode)` answering whether you recorded the link (a
+   `LexiconResultCommand`) — then name it when opening the selector:
+
+```ts
+await commands.sendCommand('lexicon.chooseLexicon', projectId, 'myExtension.lexiconChosen');
+```
+
+The selector calls that command once, on choose-or-create. A user who dismisses it without choosing
+leaves it uncalled, so treat no call as "no lexicon chosen" rather than waiting for an answer.
 
 ## Sync template updates into this extension
 
