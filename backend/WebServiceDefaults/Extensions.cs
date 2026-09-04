@@ -5,7 +5,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
-using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -52,10 +51,6 @@ public static class Extensions
                     new("service.version", appVersion),
                     new("service.instance.id", Guid.NewGuid().ToString())
                 ]);
-            })
-            .WithMetrics(metrics =>
-            {
-                metrics.AddRuntimeInstrumentation().AddProcessInstrumentation();
             })
             .WithTracing(tracing =>
             {

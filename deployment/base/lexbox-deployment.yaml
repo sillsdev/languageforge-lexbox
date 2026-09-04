@@ -110,8 +110,6 @@ spec:
               configMapKeyRef:
                 name: app-config
                 key: environment-name
-          - name: OTEL_METRIC_EXPORT_INTERVAL
-            value: '60000' # 60s
           - name: K8S_NODE_NAME
             valueFrom:
               fieldRef:

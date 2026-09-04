@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Security.Claims;
 using LexCore.Auth;
-using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
