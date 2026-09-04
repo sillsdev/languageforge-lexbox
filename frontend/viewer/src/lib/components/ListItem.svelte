@@ -11,6 +11,8 @@
     loading?: boolean;
     icon?: Snippet | IconClass;
     actions?: Snippet;
+    /** 'div' for a row that isn't clickable itself, because the things you click sit inside it. */
+    element?: 'button' | 'div';
   };
 </script>
 
@@ -27,28 +29,35 @@
     skeleton = false,
     disabled = false,
     loading = false,
+    element = 'button',
     ...restProps
   }: ListItemProps = $props();
+
+  const interactive = $derived(element === 'button');
 </script>
 
-<button
+<svelte:element
+  this={element}
   aria-selected={selected && !skeleton && !disabled}
-  disabled={disabled || loading}
+  disabled={interactive ? disabled || loading : undefined}
   data-skeleton={skeleton || undefined}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',
-    'bg-muted rounded outline-none shadow-sm hover:shadow-md hover:z-10',
-    'focus-visible:ring-[3px] focus-visible:ring-ring/50',
+    'bg-muted rounded outline-none shadow-sm',
     'border-l-5 border-l-transparent aria-selected:border-l-primary',
-    'hover:bg-primary/15 aria-selected:bg-primary/15',
-    'dark:hover:bg-primary/25 aria-selected:dark:bg-primary/25',
-    'disabled:pointer-events-none disabled:contrast-[0.8]',
-    'transition-transform active:scale-97',
+    'aria-selected:bg-primary/15 aria-selected:dark:bg-primary/25',
+    interactive && [
+      'hover:shadow-md hover:z-10',
+      'focus-visible:ring-[3px] focus-visible:ring-ring/50',
+      'hover:bg-primary/15 dark:hover:bg-primary/25',
+      'disabled:pointer-events-none disabled:contrast-[0.8]',
+      'transition-transform active:scale-97',
+    ],
     loading && 'animate-pulse',
     skeleton && 'cursor-default hover:bg-transparent pointer-events-none shadow-none',
     className,
   )}
-  role="row"
+  role={interactive ? 'row' : undefined}
   bind:this={ref}
   {...restProps}
 >
@@ -62,4 +71,4 @@
     {@render children?.()}
   </div>
   {@render actions?.()}
-</button>
+</svelte:element>

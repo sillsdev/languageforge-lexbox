@@ -83,7 +83,6 @@ msgstr "{0} Server"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskList.svelte
-#: src/project/tasks/TaskList.svelte
 msgid "{0} to go"
 msgstr "{0} to go"
 
@@ -407,6 +406,7 @@ msgstr "blue"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Browse"
 msgstr "Browse"
 
@@ -471,11 +471,6 @@ msgstr "Checking for similar words…"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Checking for updates..."
-
-#. Heading of the menu that picks which writing system to do a task in
-#: src/project/tasks/TaskList.svelte
-msgid "Choose a language"
-msgstr "Choose a language"
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -1829,6 +1824,11 @@ msgstr "No similar words found"
 msgid "No subject, unable to create a new {0}"
 msgstr "No subject, unable to create a new {0}"
 
+#. Empty state of the task list, shown when the project has entries but no field is missing data
+#: src/project/tasks/TaskList.svelte
+msgid "No tasks right now."
+msgstr "No tasks right now."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "No vernacular writing systems configured."
@@ -2641,6 +2641,11 @@ msgstr "Task view failed"
 #: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "Tasks"
+
+#. Empty state of the task list, shown when the dictionary has no entries yet
+#: src/project/tasks/TaskList.svelte
+msgid "Tasks help you fill in what's missing, so add some entries first."
+msgstr "Tasks help you fill in what's missing, so add some entries first."
 
 #. Short description under the "Report a technical problem" button in the Feedback & Support dialog.
 #: src/lib/about/FeedbackDialog.svelte

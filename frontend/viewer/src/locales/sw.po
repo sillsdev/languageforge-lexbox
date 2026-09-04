@@ -88,7 +88,6 @@ msgstr "Seva ya {0}"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskList.svelte
-#: src/project/tasks/TaskList.svelte
 msgid "{0} to go"
 msgstr ""
 
@@ -412,6 +411,7 @@ msgstr "buluu"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Browse"
 msgstr "Angalia"
 
@@ -476,11 +476,6 @@ msgstr ""
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Inakagua masasisho..."
-
-#. Heading of the menu that picks which writing system to do a task in
-#: src/project/tasks/TaskList.svelte
-msgid "Choose a language"
-msgstr ""
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -1834,6 +1829,11 @@ msgstr ""
 msgid "No subject, unable to create a new {0}"
 msgstr "Hakuna kigezo, haiwezi kutengeneza {0} mpya"
 
+#. Empty state of the task list, shown when the project has entries but no field is missing data
+#: src/project/tasks/TaskList.svelte
+msgid "No tasks right now."
+msgstr ""
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr ""
@@ -2646,6 +2646,11 @@ msgstr ""
 #: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "Jukumu"
+
+#. Empty state of the task list, shown when the dictionary has no entries yet
+#: src/project/tasks/TaskList.svelte
+msgid "Tasks help you fill in what's missing, so add some entries first."
+msgstr ""
 
 #. Short description under the "Report a technical problem" button in the Feedback & Support dialog.
 #: src/lib/about/FeedbackDialog.svelte
