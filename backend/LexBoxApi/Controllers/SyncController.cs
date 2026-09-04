@@ -129,16 +129,17 @@ public class SyncController(
     }
 
     /// <summary>
-    /// Makes every client of a project rebuild its CRDT snapshots on its next sync. Each one replays its
-    /// whole history, which is slow on a large project.
+    /// Adds a commit that makes each client of a project rebuild its CRDT snapshots the next time it syncs.
+    /// Nothing is rebuilt here, and a client that never syncs never rebuilds. A rebuild replays the whole
+    /// history, which is slow on a large project.
     /// </summary>
     /// <param name="projectId">The project ID</param>
     /// <param name="note">Optional. Recorded in the commit's metadata, e.g. why the rebuild was needed.</param>
-    [HttpPost("rebuild-crdt-snapshots/{projectId}")]
+    [HttpPost("request-crdt-snapshot-rebuild/{projectId}")]
     [AdminRequired]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType<SnapshotRebuildCommit>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<SnapshotRebuildCommit>> RebuildCrdtSnapshots(Guid projectId, [FromQuery] string? note = null)
+    public async Task<ActionResult<SnapshotRebuildCommit>> RequestCrdtSnapshotRebuild(Guid projectId, [FromQuery] string? note = null)
     {
         var rebuild = await crdtCommitService.AddSnapshotRebuildCommit(projectId, note);
         if (rebuild is null) return NotFound("Project has no CRDT commits");
