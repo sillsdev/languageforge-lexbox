@@ -73,8 +73,6 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         return await dbContext.CrdtCommits(projectId).GetSyncState();
     }
 
-    public record SnapshotRebuildCommit(Guid CommitId, Guid ClientId, DateTimeOffset DateTime, int CommitsToReplay);
-
     /// <summary>
     /// Adds an empty commit dated before the project's oldest, which makes clients replay their whole
     /// history and rebuild their snapshots from scratch. Repeatable: each call adds another commit.
@@ -94,7 +92,6 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         var commit = new ServerCommit(Guid.NewGuid())
         {
             ProjectId = projectId,
-            //must be unique, otherwise clients already past this date won't be sent it
             ClientId = Guid.NewGuid(),
             HybridDateTime = new HybridDateTime(oldest.Value.AddDays(-1), 0),
             Metadata = new CommitMetadata
@@ -108,3 +105,5 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         return new SnapshotRebuildCommit(commit.Id, commit.ClientId, commit.DateTime, commitsToReplay);
     }
 }
+
+public record SnapshotRebuildCommit(Guid CommitId, Guid ClientId, DateTimeOffset DateTime, int CommitsToReplay);
