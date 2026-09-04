@@ -8,6 +8,7 @@ import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 globalThis.webViewComponent = function LexiconAddWord({
   analysisLanguage,
+  lexiconCode,
   projectId,
   vernacularLanguage,
   word,
@@ -33,8 +34,9 @@ globalThis.webViewComponent = function LexiconAddWord({
 
   const addEntry = useCallback(
     async (entry: PartialEntry) => {
-      if (!projectId || !lexiconNetworkObject) {
+      if (!lexiconCode || !projectId || !lexiconNetworkObject) {
         const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
+        if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
         if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
         return;
@@ -43,16 +45,16 @@ globalThis.webViewComponent = function LexiconAddWord({
       setIsSubmitted(false);
       setIsSubmitting(true);
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const entryId = (await lexiconNetworkObject.addEntry(projectId, entry))?.id;
+      const entryId = (await lexiconNetworkObject.addEntry(lexiconCode, entry))?.id;
       setIsSubmitting(false);
       if (entryId) {
         setIsSubmitted(true);
-        await papi.commands.sendCommand('lexicon.displayEntry', projectId, entryId);
+        await papi.commands.sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId);
       } else {
         logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
       }
     },
-    [lexiconNetworkObject, localizedStrings, projectId],
+    [lexiconCode, lexiconNetworkObject, localizedStrings, projectId],
   );
 
   return (

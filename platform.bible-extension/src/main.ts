@@ -165,16 +165,42 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  // The lexicon selector for a caller that keeps the project-to-lexicon link somewhere this
+  // extension does not own: the chosen lexicon goes to the caller's command rather than into
+  // `lexicon.lexiconCode`, so the two never describe the same project differently.
+  const chooseLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.chooseLexicon',
+    async (projectId: string, resultCommand: string) => {
+      if (!resultCommand) {
+        const error = 'Cannot choose a lexicon without a command to report the choice to';
+        logger.error(error);
+        return { error, success: false };
+      }
+
+      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      if (!projectManager) return { success: false };
+
+      logger.info(`Opening lexicon selector for project '${projectId}' in report mode`);
+      const success = await projectManager.openSelector(resultCommand);
+      return { success };
+    },
+  );
+
   const displayEntryCommandPromise = papi.commands.registerCommand(
     'lexicon.displayEntry',
-    async (projectId: string, entryId: string) => {
+    async (projectId: string, lexiconCode: string, entryId: string) => {
       let success = false;
 
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success };
 
-      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
-      if (!lexiconCode) return { success };
+      // The caller names the lexicon, so this never re-reads the project setting: an entry written
+      // to the lexicon a WebView holds must be shown from that same lexicon, even if the project
+      // has since been pointed at another one.
+      if (!lexiconCode) {
+        logger.warn(`Cannot display entry '${entryId}' without the lexicon holding it`);
+        return { success };
+      }
 
       logger.info(`Displaying entry '${entryId}' in lexicon '${lexiconCode}'`);
       let url: string;
@@ -352,6 +378,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await authServersCommandPromise,
     await browseLexiconCommandPromise,
     await changeLexiconCommandPromise, // DEV-ONLY: remove before release (see registration above)
+    await chooseLexiconCommandPromise,
     await createLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
