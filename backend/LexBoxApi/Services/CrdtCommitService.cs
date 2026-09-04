@@ -74,7 +74,7 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
     }
 
     /// <summary>
-    /// Adds an empty commit dated before the project's oldest, which makes clients replay their whole
+    /// Adds an empty commit dated before every other commit, which makes clients replay their whole
     /// history and rebuild their snapshots from scratch. Repeatable: each call adds another commit.
     /// </summary>
     /// <returns>the commit added, or null if the project has no commits</returns>
@@ -84,16 +84,16 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
     {
         var linqToDbContext = dbContext.CreateLinqToDBContext();
         var commits = linqToDbContext.GetTable<ServerCommit>().Where(c => c.ProjectId == projectId);
-        var oldest = await commits.MinAsync(c => (DateTimeOffset?)c.HybridDateTime.DateTime, token);
-        if (oldest is null) return null;
         var commitsToReplay = await commits.CountAsync(token);
+        if (commitsToReplay == 0) return null;
 
         var reason = "Forces a full snapshot rebuild on all clients";
         var commit = new ServerCommit(Guid.NewGuid())
         {
             ProjectId = projectId,
             ClientId = Guid.NewGuid(),
-            HybridDateTime = new HybridDateTime(oldest.Value.AddDays(-1), 0),
+            //the floor, so a commit arriving later can't sort before it and leave history unreplayed
+            HybridDateTime = new HybridDateTime(DateTimeOffset.MinValue, 0),
             Metadata = new CommitMetadata
             {
                 AuthorName = "Lexbox maintenance",
