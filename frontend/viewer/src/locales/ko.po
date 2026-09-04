@@ -66,10 +66,6 @@ msgstr "{0} 전"
 msgid "{0} authors"
 msgstr ""
 
-#: src/project/tasks/TaskList.svelte
-msgid "{0} in {1}: {2} to go"
-msgstr ""
-
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -90,11 +86,10 @@ msgstr "{0} 서버"
 
 #. Remaining entries for a task in the task list. {0} = a number.
 #: src/project/tasks/TaskList.svelte
-msgid "{0} to go"
-msgstr ""
-
 #: src/project/tasks/TaskList.svelte
-msgid "{0}: {1} to go"
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TaskList.svelte
+msgid "{0} to go"
 msgstr ""
 
 #. Number of changes in sync operation
@@ -250,7 +245,6 @@ msgid "Add Word"
 msgstr "단어 추가"
 
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/TaskList.svelte
 msgid "Add your first entry to start building your dictionary."
 msgstr ""
 
@@ -273,15 +267,6 @@ msgstr ""
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
-msgstr ""
-
-#. Shown in place of a task's progress when nothing is left to do
-#: src/project/tasks/TaskList.svelte
-msgid "All done"
-msgstr ""
-
-#: src/project/tasks/TaskList.svelte
-msgid "All done in {0}"
 msgstr ""
 
 #. Relevant view: Classic
@@ -989,11 +974,6 @@ msgstr "동기화 상태 가져오기 오류"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "동기화 상태를 가져오는 중 오류가 발생했습니다."
-
-#. Shown instead of the task list when no task has any work left
-#: src/project/tasks/TaskList.svelte
-msgid "Every task is complete"
-msgstr ""
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1902,11 +1882,6 @@ msgstr "동기화되지 않음"
 msgid "Note"
 msgstr "참고"
 
-#. Expandable heading over the tasks that have no work left
-#: src/project/tasks/TaskList.svelte
-msgid "Nothing left to do"
-msgstr ""
-
 #. Error tooltip/message on the copy button when there is no text content available to copy to the clipboard.
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
@@ -2317,10 +2292,6 @@ msgstr "rose"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
-msgstr ""
-
-#: src/project/tasks/TaskList.svelte
-msgid "Same in every language"
 msgstr ""
 
 #. Relevant view: Classic
@@ -3172,6 +3143,5 @@ msgid "You've passed every milestone. What an achievement!"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/TaskList.svelte
 msgid "Your dictionary starts here"
 msgstr ""

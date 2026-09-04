@@ -61,11 +61,6 @@ msgstr "{0} ago"
 msgid "{0} authors"
 msgstr "{0} authors"
 
-#. Screen reader label of a task row. {0} = field name, {1} = language name, {2} = entries left.
-#: src/project/tasks/TaskList.svelte
-msgid "{0} in {1}: {2} to go"
-msgstr "{0} in {1}: {2} to go"
-
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -86,13 +81,11 @@ msgstr "{0} Server"
 
 #. Remaining entries for a task in the task list. {0} = a number.
 #: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "{0} to go"
 msgstr "{0} to go"
-
-#. Screen reader label of a task row with no language. {0} = field name, {1} = entries left.
-#: src/project/tasks/TaskList.svelte
-msgid "{0}: {1} to go"
-msgstr "{0}: {1} to go"
 
 #. Number of changes in sync operation
 #: src/project/SyncDialog.svelte
@@ -247,7 +240,6 @@ msgid "Add Word"
 msgstr "Add Word"
 
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/TaskList.svelte
 msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
 
@@ -271,16 +263,6 @@ msgstr "All activity types"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
 msgstr "All authors"
-
-#. Shown in place of a task's progress when nothing is left to do
-#: src/project/tasks/TaskList.svelte
-msgid "All done"
-msgstr "All done"
-
-#. Shown under a language heading whose tasks are all finished. {0} = language name.
-#: src/project/tasks/TaskList.svelte
-msgid "All done in {0}"
-msgstr "All done in {0}"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -987,11 +969,6 @@ msgstr "Error getting sync status"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "Error getting sync status."
-
-#. Shown instead of the task list when no task has any work left
-#: src/project/tasks/TaskList.svelte
-msgid "Every task is complete"
-msgstr "Every task is complete"
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1900,11 +1877,6 @@ msgstr "Not synced"
 msgid "Note"
 msgstr "Note"
 
-#. Expandable heading over the tasks that have no work left
-#: src/project/tasks/TaskList.svelte
-msgid "Nothing left to do"
-msgstr "Nothing left to do"
-
 #. Error tooltip/message on the copy button when there is no text content available to copy to the clipboard.
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
@@ -2316,11 +2288,6 @@ msgstr "rose"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
 msgstr "Same headword"
-
-#. Heading over the tasks whose value is not written in a language (part of speech, semantic domains)
-#: src/project/tasks/TaskList.svelte
-msgid "Same in every language"
-msgstr "Same in every language"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
@@ -3171,6 +3138,5 @@ msgid "You've passed every milestone. What an achievement!"
 msgstr "You've passed every milestone. What an achievement!"
 
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/TaskList.svelte
 msgid "Your dictionary starts here"
 msgstr "Your dictionary starts here"
