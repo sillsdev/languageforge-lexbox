@@ -188,14 +188,19 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   const displayEntryCommandPromise = papi.commands.registerCommand(
     'lexicon.displayEntry',
-    async (projectId: string, entryId: string) => {
+    async (projectId: string, lexiconCode: string, entryId: string) => {
       let success = false;
 
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success };
 
-      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
-      if (!lexiconCode) return { success };
+      // The caller names the lexicon, so this never re-reads the project setting: an entry written
+      // to the lexicon a WebView holds must be shown from that same lexicon, even if the project
+      // has since been pointed at another one.
+      if (!lexiconCode) {
+        logger.warn(`Cannot display entry '${entryId}' without the lexicon holding it`);
+        return { success };
+      }
 
       logger.info(`Displaying entry '${entryId}' in lexicon '${lexiconCode}'`);
       let url: string;
