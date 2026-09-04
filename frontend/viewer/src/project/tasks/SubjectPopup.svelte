@@ -15,6 +15,7 @@
   import type {TaskSubject} from './subject.svelte';
   import type {Overrides} from '$lib/views/view-data';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
+  import {useWritingSystemService} from '$project/data';
 
   let {
     entry = $bindable(),
@@ -32,9 +33,15 @@
     onNextEntry?: () => void,
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
+  const writingSystemService = useWritingSystemService();
+  const shownFields = $derived([...task.subjectFields, ...task.optionalFields ?? []]);
   const overrides = $derived.by((): Overrides => {
     if (!task.subjectWritingSystemId) return {};
     const ws = {wsId: task.subjectWritingSystemId};
+    // An optional field of the other writing system type would otherwise render no inputs
+    // at all, since the type the task isn't about is emptied.
+    const analysis = writingSystemService.defaultAnalysis;
+    const otherType = task.optionalFields?.length && analysis ? [{wsId: analysis.wsId}] : [];
     if (task.subjectWritingSystemType === WritingSystemType.Analysis) {
       return {
         analysis: [ws],
@@ -42,7 +49,7 @@
       };
     } else {
       return {
-        analysis: [],
+        analysis: otherType,
         vernacular: [ws],
       };
     }
@@ -52,6 +59,9 @@
   let subjects = $derived(TasksService.subjects(task, $state.snapshot(entry)));
   let subjectIndex = $state(0);
   let subject = $derived(subjects.at(subjectIndex));
+  // Editing the entry rebuilds the snapshot above, so keying the form on the subject object
+  // would tear the editor down on every keystroke. The ids identify the same subject.
+  const subjectKey = $derived(subject && [subject.entry.id, subject.sense?.id, subject.exampleSentence?.id].join('|'));
   $effect(() => {
     if (entry && subjects.length === 0) {
       onNextEntry();
@@ -63,7 +73,7 @@
 
   async function onNext(skip: boolean = false) {
     if (!skip) {
-      if (!subject || !isSubjectComplete()) return;
+      if (!subject || !canContinue) return;
 
       await editor?.commit();
 
@@ -91,25 +101,36 @@
     }
   }
 
+  // Anything the user typed is worth keeping, and Next is the only thing that saves it, so
+  // an optional field alone has to be enough to continue. The editors' change handlers only
+  // fire on blur, so this tracks the form's input events instead.
+  let edited = $state(false);
+  const canContinue = $derived(!!subject && (edited || isSubjectComplete()));
+
+  function subjectEntity() {
+    const entity = task.subjectType === 'example-sentence' ? subject?.exampleSentence :
+                   task.subjectType === 'entry' ? subject?.entry :
+                   subject?.sense;
+    if (!entity) throw new Error('Subject entity is undefined');
+    return entity;
+  }
+
   function isSubjectComplete() {
     if (!subject) return false;
 
-    var subjectEntity = task.subjectType === 'example-sentence' ? subject.exampleSentence :
-                        task.subjectType === 'entry' ? subject.entry :
-                        task.subjectType === 'sense' ? subject.sense : null;
-
-    if (!subjectEntity) throw new Error('Subject entity is undefined');
-
-    return task.isComplete(subjectEntity);
+    return task.isComplete(subjectEntity());
   }
 
   let form = $state<HTMLFormElement>();
+  let focusedSubject: string | undefined;
+  // Once per subject: re-focusing on every render would pull the caret out of any other
+  // field the user moved to.
   $effect(() => {
-    if (!form) return;
-    let inputs = form?.querySelectorAll<HTMLElement>('input, .ProseMirror');
-
-    if (!inputs || inputs.length < 0) return;
-    for (let input of inputs) {
+    if (!form || !subjectKey || focusedSubject === subjectKey) return;
+    focusedSubject = subjectKey;
+    edited = false;
+    const inputs = form.querySelectorAll<HTMLElement>('input, .ProseMirror');
+    for (const input of inputs) {
       if (input.checkVisibility()) {
         input.focus();
         return;
@@ -136,13 +157,13 @@
         {task.prompt}
       </p>
       {#if subject}
-        {#key subject}
-          <form bind:this={form} onsubmit={(e) => {e.preventDefault(); void onNext()}}>
+        {#key subjectKey}
+          <form bind:this={form} oninput={() => edited = true} onsubmit={(e) => {e.preventDefault(); void onNext()}}>
             <!--        lets us submit by pressing enter on any field-->
             <input type="submit" style="display: none;"/>
             <Editor.Root bind:this={editor}>
               <Editor.Grid>
-                <OverrideFields shownFields={task.subjectFields} {overrides}>
+                <OverrideFields {shownFields} {overrides}>
                   {#if task.subjectType === 'entry' && subject.entry}
                     <EntryEditorPrimitive autofocus modalMode bind:entry={subject.entry}/>
                   {:else if task.subjectType === 'sense' && subject.sense}
@@ -167,7 +188,7 @@
           {/snippet}
         </Drawer.Close>
         <Button variant="secondary" onclick={() => onNext(true)}>{$t`Skip`}</Button>
-        <Button onclick={() => onNext()} disabled={!isSubjectComplete()}>{$t`Next`}</Button>
+        <Button onclick={() => onNext()} disabled={!canContinue}>{$t`Next`}</Button>
       </div>
     </Drawer.Footer>
   </Drawer.Content>

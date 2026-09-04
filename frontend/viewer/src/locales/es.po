@@ -2144,8 +2144,9 @@ msgstr ""
 msgid "Record a Lexeme form or Citation form"
 msgstr ""
 
+#. Task instruction. The translation is optional
 #: src/project/tasks/tasks-service.ts
-msgid "Record an example sentence"
+msgid "Record an example sentence, and type a translation if you can"
 msgstr ""
 
 #. Field label for citation source
@@ -2828,10 +2829,10 @@ msgstr ""
 msgid "Type a Lexeme form or Citation form"
 msgstr ""
 
-#. Task instruction
+#. Task instruction. The translation is optional
 #: src/project/tasks/tasks-service.ts
-msgid "Type an example sentence"
-msgstr "Escriba una frase de ejemplo"
+msgid "Type an example sentence, and a translation if you can"
+msgstr ""
 
 #. Label for audio file type
 #: src/lib/components/audio/audio-editor.svelte

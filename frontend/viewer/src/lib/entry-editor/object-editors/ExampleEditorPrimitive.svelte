@@ -35,6 +35,9 @@
   }
 
   const exampleFields = $derived(viewService.currentView.exampleFields);
+  // Held in one place: building the draft inline re-keyed the {#each} on every render,
+  // destroying the input mid-keystroke.
+  const translations = $derived(example.translations.length ? example.translations : [draftTranslation(example)]);
   const fields = $derived(fieldRecord(exampleFields));
 </script>
 
@@ -51,7 +54,7 @@
   </Editor.Field.Root>
 
   <Editor.Field.Root fieldId="translations" class={cn(fields.translations?.show || 'hidden', 'space-y-2 items-center')}>
-    {#each (example.translations.length ? example.translations : [draftTranslation(example)]) as translation, i (translation.id)}
+    {#each translations as translation, i (translation.id)}
       {@const title = example.translations.length > 1 ? $t`Translation ${i + 1}` : $t`Translation`}
       <Editor.SubGrid class="items-baseline">
         <Editor.Field.Title name={title} helpId={entityConfig.example.translations.helpId}/>
