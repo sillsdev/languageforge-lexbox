@@ -165,7 +165,16 @@ declare module 'papi-shared-types' {
       vernacularWs: string,
       analysisWs?: string,
     ) => Promise<SuccessHolder>;
-    'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
+    /**
+     * Opens the browse view on one entry of the lexicon named, rather than of whichever lexicon the
+     * project's setting holds by then — so an entry just written to one lexicon is never shown from
+     * another. `projectId` scopes the browse tab, which a later entry of the same project reuses.
+     */
+    'lexicon.displayEntry': (
+      projectId: string,
+      lexiconCode: string,
+      entryId: string,
+    ) => Promise<SuccessHolder>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.lexicons': (projectId?: string) => Promise<IProjectModel[] | undefined>;

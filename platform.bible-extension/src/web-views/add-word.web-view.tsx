@@ -49,7 +49,7 @@ globalThis.webViewComponent = function LexiconAddWord({
       setIsSubmitting(false);
       if (entryId) {
         setIsSubmitted(true);
-        await papi.commands.sendCommand('lexicon.displayEntry', projectId, entryId);
+        await papi.commands.sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId);
       } else {
         logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
       }

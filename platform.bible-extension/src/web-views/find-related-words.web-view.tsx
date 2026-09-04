@@ -138,7 +138,12 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       const addedEntry = await lexiconNetworkObject.addEntry(lexiconCode, entry);
       if (addedEntry) {
         onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
-        await papi.commands.sendCommand('lexicon.displayEntry', projectId, addedEntry.id);
+        await papi.commands.sendCommand(
+          'lexicon.displayEntry',
+          projectId,
+          lexiconCode,
+          addedEntry.id,
+        );
       } else {
         logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
       }
