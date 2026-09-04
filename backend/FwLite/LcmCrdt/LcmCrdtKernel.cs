@@ -141,6 +141,7 @@ public static class LcmCrdtKernel
                     .Entity<Entry>().Property(e => e.PublishIn).IsExpression(EntryPublishInExpression(), isColumn: false)
                     .Entity<Entry>().Association(e => e.QueryMorphType(), e => e.MorphType, m => m!.Kind)
                     .Entity<Entry>().Association(e => EntryQueryHelpers.QueryCommentThreads(e), (e, ct) => e.Id == ct.SubjectId && ct.SubjectType == SubjectType.Entry)
+                    .Entity<Entry>().Association(e => EntryQueryHelpers.QueryOpenCommentThreads(e), (e, ct) => e.Id == ct.SubjectId && ct.SubjectType == SubjectType.Entry && ct.Status == ThreadStatus.Open)
                     //QueryEntryUnreadComments is needed because otherwise we need to chain QueryCommentThreads and QueryThreadsUnreadComments, which doesn't work in Gridify
                     .Entity<Entry>().Association(e => EntryQueryHelpers.QueryEntryUnreadComments(e), (e, context) => context.GetTable<CommentThread>().Where(ct => ct.SubjectType == SubjectType.Entry && ct.SubjectId == e.Id)
                         .SelectMany(ct => EntryQueryHelpers.QueryThreadsUnreadComments(ct)))

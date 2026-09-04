@@ -58,6 +58,7 @@
   let includeSubDomains = $state(false);
   let userFilterActive = $state(false);
   let hasComments = $state(false);
+  let openComments = $state(false);
 
   // Comment filters only exist on channels with the comments flag. FlagContent
   // hides the controls, so clear their state when the flag turns off (e.g.
@@ -66,6 +67,7 @@
     if (!hasFlag('comments')) {
       hasComments = false;
       unreadComments = false;
+      openComments = false;
     }
   });
 
@@ -130,6 +132,10 @@
       newFilter.push('UnreadComments!=null');
     }
 
+    if (openComments) {
+      newFilter.push('OpenCommentThreads!=null');
+    }
+
     // all user selected filters should be before this line!
     userFilterActive = newFilter.length > 0;
 
@@ -164,6 +170,7 @@
     publication = undefined;
     hasComments = false;
     unreadComments = false;
+    openComments = false;
   }
 
   let filtersExpanded = $state(false);
@@ -253,6 +260,7 @@
               <div class="flex flex-col">
                 <Switch bind:checked={hasComments} label={$t`Has comments`} />
                 <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
+                <Switch class="mt-1.5" bind:checked={openComments} label={$t`Has unresolved comments`} />
               </div>
             </FlagContent>
           {/if}
