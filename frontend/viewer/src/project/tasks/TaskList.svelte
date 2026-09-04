@@ -75,13 +75,13 @@
     return writingSystemService.wsColor(ws.wsId, ws.type === WritingSystemType.Vernacular ? 'vernacular' : 'analysis');
   }
 
-  const languageButtons: Record<string, HTMLElement> = {};
+  let list = $state<HTMLElement>();
   let restoredFocus = false;
   // Coming back from a task should leave you where you were, not at the top of the page.
   $effect(() => {
-    if (restoredFocus || !lastTaskId || fields.length === 0) return;
+    if (restoredFocus || !lastTaskId || !list) return;
     restoredFocus = true;
-    languageButtons[lastTaskId]?.focus();
+    list.querySelector<HTMLElement>(`[data-task-id="${lastTaskId}"]`)?.focus();
   });
 </script>
 
@@ -127,7 +127,7 @@
           class="{classes} bg-background/60 hover:bg-primary/15 focus-visible:ring-ring/50 dark:hover:bg-primary/25 px-2.5 shadow-sm transition-colors outline-none focus-visible:ring-[3px]"
           {title}
           onclick={() => onSelect(target.task.id)}
-          bind:this={languageButtons[target.task.id]}
+          data-task-id={target.task.id}
         >
           {@render progressAndName(label, target)}
         </button>
@@ -140,7 +140,7 @@
   <div class="flex flex-col gap-2">
     {#each rows as {label, targets} (label)}
       {#if targets.length === 1}
-        <ListItem onclick={() => onSelect(targets[0].task.id)} bind:ref={languageButtons[targets[0].task.id]}>
+        <ListItem onclick={() => onSelect(targets[0].task.id)} data-task-id={targets[0].task.id}>
           {@render rowContent(label, targets, true)}
           {#snippet actions()}
             <Icon icon="i-mdi-chevron-right" class="text-muted-foreground shrink-0" />
@@ -163,7 +163,7 @@
 {:else if entities.length === 0}
   <p class="text-muted-foreground px-4">{$t`No tasks right now.`}</p>
 {:else}
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-6" bind:this={list}>
     {#each entities as {entity, label, fields: rows} (entity)}
       <!-- With one entity there is nothing to tell its heading apart from, so drop it. -->
       {#if entities.length > 1}
