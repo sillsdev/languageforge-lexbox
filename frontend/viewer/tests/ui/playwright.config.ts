@@ -56,6 +56,7 @@ export default defineConfig({
   webServer: [
     {
       command: 'pnpm run dev',
+      cwd: '../../', // resolved relative to this config file → frontend/viewer (pnpm 12 no longer walks up for the manifest)
       url: 'http://localhost:5173',
       reuseExistingServer: true
     }
