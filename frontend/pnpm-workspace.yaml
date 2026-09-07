@@ -7,7 +7,7 @@ minimumReleaseAge: 1440
 
 # https://pnpm.io/global-virtual-store
 # Why use it now with AI https://pnpm.io/git-worktrees#why-this-matters-even-more-with-ai-agents
-enableGlobalVirtualStore: true
+virtualStoreType: global
 
 overrides:
   "cookie": "^0.7.0"
@@ -43,8 +43,8 @@ catalog:
   vite: ^8.2.1
   vitest: ^4.1.10
 
-onlyBuiltDependencies:
-  - esbuild
-  - protobufjs
-  - sharp
-  - svelte-preprocess
+allowBuilds:
+  esbuild: true
+  protobufjs: true
+  sharp: true
+  svelte-preprocess: true

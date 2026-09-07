@@ -2,7 +2,7 @@
 # TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.
 FROM node:26 AS builder
 
-RUN npm install -g pnpm@10.24.0
+RUN npm install -g pnpm@12.3.4
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
