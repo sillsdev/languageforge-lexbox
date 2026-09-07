@@ -7,18 +7,13 @@ import type {Task} from './tasks-service';
 const tasksStatsSymbol = Symbol.for('fw-lite-tasks-stats');
 
 export type TaskProgress = {
-  /** Entries still matching the task's filter. */
   remaining: number;
   percentDone: number;
 };
 
 /**
- * How much of each task is left, so the list can show where the work is instead of
- * making people open a task to find out it's already done.
- *
- * These are entry counts, not sense or example counts, because that's what countEntries
- * gives us: an entry with three senses missing a gloss counts once. Good enough to tell
- * tasks apart, so don't present the number as anything but entries.
+ * Entry counts, not sense or example counts: an entry with three senses missing a gloss
+ * counts once. Don't present the number as anything else.
  */
 export class TasksStats {
   totalEntries = $state<number>();

@@ -11,7 +11,6 @@
     loading?: boolean;
     icon?: Snippet | IconClass;
     actions?: Snippet;
-    /** 'div' for a row that isn't clickable itself, because the things you click sit inside it. */
     element?: 'button' | 'div';
   };
 </script>
