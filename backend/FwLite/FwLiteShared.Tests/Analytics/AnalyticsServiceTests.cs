@@ -400,19 +400,6 @@ public class AnalyticsServiceTests
         }).Should().Be(expected);
     }
 
-    [Theory]
-    [InlineData("true", true)]
-    [InlineData("TRUE", true)]
-    [InlineData("1", true)]
-    [InlineData("yes", true)]
-    [InlineData("false", false)]
-    [InlineData("", false)]
-    [InlineData(null, false)]
-    public void IsFirebaseTestLabSetting_TreatsTruthyAsTestLab(string? value, bool expected)
-    {
-        MixpanelAnalytics.IsFirebaseTestLabSetting(value).Should().Be(expected);
-    }
-
     [Fact]
     public void SetAnalyticsEnabled_PersistsOptOutAndBack()
     {

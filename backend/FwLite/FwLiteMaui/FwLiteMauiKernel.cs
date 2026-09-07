@@ -46,7 +46,7 @@ public static class FwLiteMauiKernel
         // the config switch at startup rather than re-checking it on every event.
         services.PostConfigure<AnalyticsConfig>(config =>
         {
-            if (MixpanelAnalytics.IsFirebaseTestLabSetting(ReadFirebaseTestLab()))
+            if (MixpanelAnalytics.IsTruthyEnv(ReadFirebaseTestLab()))
                 config.Enabled = false;
         });
 #endif
