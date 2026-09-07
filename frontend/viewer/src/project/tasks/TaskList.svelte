@@ -35,14 +35,12 @@
     return writingSystems.find(ws => ws.wsId === task.subjectWritingSystemId);
   }
 
-  // One row per field, with a target per writing system, so the row count stays the same
-  // no matter how many writing systems the project has.
+  // Grouped by field so the row count doesn't grow with the writing systems.
   const fields = $derived.by(() => {
     const groups: {label: string, entity: EntityType, targets: Target[]}[] = [];
     for (const task of tasksService.listTasks()) {
       const ws = writingSystemOf(task);
-      // The editors hide audio writing systems when the feature is off, so those tasks
-      // would open with nothing to fill in.
+      // The editors hide audio writing systems when the feature is off, so there'd be nothing to fill in.
       if (ws?.isAudio && !features.audio) continue;
       let group = groups.find(g => g.label === task.fieldLabel);
       if (!group) {
@@ -65,8 +63,7 @@
     }))
     .filter(group => group.fields.length > 0));
 
-  // Hooks must run while the component initialises, so the resource takes a getter and
-  // reads the fields later, on load.
+  // Hooks must run during init, so the resource reads the fields lazily.
   const statsResource = useTasksStats(() => fields.flatMap(field => field.targets.map(target => target.task)));
   const stats = $derived(statsResource.current);
   watch(() => fields.flatMap(f => f.targets.map(t => t.task.id)).join(), () => void statsResource.refetch());
@@ -77,7 +74,6 @@
 
   let list = $state<HTMLElement>();
   let restoredFocus = false;
-  // Coming back from a task should leave you where you were, not at the top of the page.
   $effect(() => {
     if (restoredFocus || !lastTaskId || !list) return;
     restoredFocus = true;
@@ -85,7 +81,7 @@
   });
 </script>
 
-{#snippet progressAndName(fieldLabel: string, {task, ws}: Target)}
+{#snippet progressAndName({task, ws}: Target, fieldLabel?: string)}
   {@const progress = stats.progress[task.id]}
   {@const remaining = progress ? formatNumber(progress.remaining) : ''}
   {#if !progress}
@@ -101,27 +97,25 @@
   {#if ws}
     <span aria-hidden="true">{ws.abbreviation}</span>
   {:else if progress}
-    <!-- Nothing to name a language-free task by, so say how much of it is left. -->
-    <span class="tabular-nums">{$t`${remaining} to go`}</span>
+    <!-- No language to name it by, so show the count instead. -->
+    <span class="text-muted-foreground tabular-nums">{$t`${remaining} to go`}</span>
   {/if}
   <span class="sr-only">
-    {fieldLabel}{#if ws}, {ws.name}{/if}{#if ws?.isAudio}, {$t`Audio`}{/if}{#if progress}, {$t`${remaining} to go`}{/if}
+    {#if fieldLabel}{fieldLabel}, {/if}{#if ws}{ws.name}{#if ws.isAudio}, {$t`Audio`}{/if}{#if progress}, {$t`${remaining} to go`}{/if}{/if}
   </span>
 {/snippet}
 
 {#snippet rowContent(label: string, targets: Target[], single: boolean)}
   <span class="truncate font-medium">{label}</span>
-  <!-- Second line so every language stays visible, even on a phone. -->
   <span class="mt-1 flex flex-wrap items-center gap-2">
     {#each targets as target (target.task.id)}
       {@const progress = stats.progress[target.task.id]}
       {@const remaining = progress ? formatNumber(progress.remaining) : ''}
       {@const title = target.ws && (progress ? `${target.ws.name}: ${$t`${remaining} to go`}` : target.ws.name)}
-      {@const classes = `flex min-h-8 items-center gap-1 rounded-full text-sm ${target.ws ? wsColor(target.ws) : 'text-muted-foreground'}`}
+      {@const classes = `flex min-h-8 items-center gap-1 rounded-full text-sm ${target.ws ? wsColor(target.ws) : ''}`}
       {#if single}
-        <span class={classes} {title}>{@render progressAndName(label, target)}</span>
+        <span class={classes} {title}>{@render progressAndName(target)}</span>
       {:else}
-        <!-- Every language is already on screen, so pick one here rather than through a menu. -->
         <button
           type="button"
           class="{classes} bg-background/60 hover:bg-primary/15 focus-visible:ring-ring/50 dark:hover:bg-primary/25 px-2.5 shadow-sm transition-colors outline-none focus-visible:ring-[3px]"
@@ -129,7 +123,7 @@
           onclick={() => onSelect(target.task.id)}
           data-task-id={target.task.id}
         >
-          {@render progressAndName(label, target)}
+          {@render progressAndName(target, label)}
         </button>
       {/if}
     {/each}
@@ -165,7 +159,6 @@
 {:else}
   <div class="flex flex-col gap-6" bind:this={list}>
     {#each entities as {entity, label, fields: rows} (entity)}
-      <!-- With one entity there is nothing to tell its heading apart from, so drop it. -->
       {#if entities.length > 1}
         <section class="flex flex-col gap-2" aria-labelledby="task-entity-{entity}">
           <h2 id="task-entity-{entity}" class="text-muted-foreground px-4 text-sm font-medium">{label}</h2>
