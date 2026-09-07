@@ -15,6 +15,14 @@ overrides:
   "minimatch@9": "^9.0.7"
   "immutable@3": "^3.8.3"
 
+# vaul-svelte@1.0.0-next.7 imports bits-ui but forgot to declare it. The old
+# hoisted virtual store exposed it anyway; the global virtual store isolates
+# vaul-svelte to its declared deps, so declare the missing peer here.
+packageExtensions:
+  vaul-svelte:
+    peerDependencies:
+      bits-ui: "^2.0.0"
+
 catalog:
   '@playwright/test': ^1.62.1
   '@stylistic/eslint-plugin': ^5.10.0
