@@ -16,11 +16,6 @@ receivers:
 # https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/README.md#recommended-processors
 # The recommended core processors. The memory limiter probably won't do much, but it certainly doesn't hurt.
 processors:
-  filter/drop-metrics:
-    error_mode: ignore
-    metrics:
-      metric:
-        - HasAttrKeyOnDatapoint("http.route") or HasAttrKeyOnDatapoint("http.connection.state")
   # Drops the self-referential spans the browser produces when it POSTs trace batches
   # to the collector. The web fetch/XHR auto-instrumentation traces the export request
   # itself, which then gets exported, creating a feedback loop. error_mode: ignore makes
@@ -54,13 +49,6 @@ exporters:
     endpoint: api.honeycomb.io:443
     headers:
       "x-honeycomb-team": ${HONEYCOMB_API_KEY}
-  otlp/metrics:
-    endpoint: api.honeycomb.io:443
-    headers:
-      "x-honeycomb-team": ${HONEYCOMB_API_KEY}
-      # https://docs.honeycomb.io/getting-data-in/otel-collector/#metrics-and-logs-signals
-      # "Metrics require a dataset in the exporter."
-      "x-honeycomb-dataset": LexBox-Metrics
 
 # extensions:
 #   health_check:
@@ -72,10 +60,6 @@ service:
       receivers: [otlp]
       processors: [memory_limiter, filter/drop-trace-export, transform/squash_cookie_array, redaction, batch]
       exporters: [otlp]
-    metrics:
-      receivers: [otlp]
-      processors: [memory_limiter, batch, filter/drop-metrics]
-      exporters: [otlp/metrics]
     logs:
       receivers: [otlp]
       processors: [memory_limiter, batch]
