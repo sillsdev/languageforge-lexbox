@@ -5,8 +5,8 @@ namespace FwLiteShared.Analytics;
 public interface IAnalyticsService
 {
     /// <summary>
-    /// Whether analytics is currently enabled. Enabled by default; users may opt out.
-    /// Exposed to the frontend via JSInterop.
+    /// Whether analytics is currently enabled. Enabled by default for real users; they may opt out.
+    /// Off in CI and Play pre-launch / Firebase Test Lab. Exposed to the frontend via JSInterop.
     /// </summary>
     [JSInvokable]
     bool GetAnalyticsEnabled();

@@ -29,6 +29,8 @@ public class AnalyticsService(
     [JSInvokable]
     public bool GetAnalyticsEnabled()
     {
+        if (!analyticsConfig.Value.Enabled)
+            return false;
         return preferences.Get(nameof(PreferenceKey.AnalyticsOptOut)) != "true";
     }
 
@@ -126,13 +128,13 @@ public class AnalyticsService(
             if (token is null)
                 return;
 
-            var identity = GetIdentitySnapshot();
+            var (deviceId, userId) = GetIdentitySnapshot();
             var eventProperties = BuildProperties(
                 token,
                 fwLite,
                 analytics.Host,
-                identity.DeviceId,
-                identity.UserId,
+                deviceId,
+                userId,
                 time ?? _clock.GetUtcNow(),
                 insertId ?? Guid.NewGuid().ToString());
             foreach (var enricher in _enrichers)
