@@ -1,4 +1,3 @@
-
 using LcmCrdt.Changes;
 using LcmCrdt.Data;
 using LcmCrdt.Harmony;

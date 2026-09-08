@@ -1,9 +1,5 @@
-using LcmCrdt.Changes;
-using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
 using LcmCrdt.Harmony;
-using LcmCrdt.Objects;
-using LinqToDB.Async;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Changes;
