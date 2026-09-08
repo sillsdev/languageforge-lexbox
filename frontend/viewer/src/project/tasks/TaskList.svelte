@@ -69,6 +69,13 @@
   const stats = $derived(statsResource.current);
   watch(() => fields.flatMap(f => f.targets.map(t => t.task.id)).join(), () => void statsResource.refetch());
 
+  function remainingText(remaining: number): string {
+    return pt(
+      $plural(remaining, {one: '# entry to go', other: '# entries to go'}),
+      $plural(remaining, {one: '# word to go', other: '# words to go'}),
+      viewService.currentView);
+  }
+
   function wsColor(ws: IWritingSystem): string {
     return writingSystemService.wsColor(ws.wsId, ws.type === WritingSystemType.Vernacular ? 'vernacular' : 'analysis');
   }
@@ -84,7 +91,7 @@
 
 {#snippet progressAndName({task, ws}: Target, fieldLabel?: string)}
   {@const progress = stats.progress[task.id]}
-  {@const remaining = progress ? $plural(progress.remaining, {one: '# entry to go', other: '# entries to go'}) : ''}
+  {@const remaining = progress ? remainingText(progress.remaining) : ''}
   {#if fieldLabel}<span class="sr-only">{fieldLabel},</span>{/if}
   {#if !progress}
     <Skeleton class="size-4 shrink-0 rounded-full" />
@@ -118,7 +125,7 @@
     {#each targets as target (target.task.id)}
       {@const progress = stats.progress[target.task.id]}
       {@const name = target.ws && `${target.ws.name} (${target.ws.wsId})`}
-      {@const title = name && (progress ? `${name}: ${$plural(progress.remaining, {one: '# entry to go', other: '# entries to go'})}` : name)}
+      {@const title = name && (progress ? `${name}: ${remainingText(progress.remaining)}` : name)}
       {@const classes = `flex min-h-8 items-center gap-1.5 rounded-full text-sm ${target.ws ? wsColor(target.ws) : ''}`}
       {#if single}
         <span class={classes} {title}>{@render progressAndName(target)}</span>
@@ -158,7 +165,7 @@
 
 {#if stats.totalEntries === 0}
   <div class="flex flex-col items-start gap-3 px-4">
-    <p class="text-muted-foreground">{$t`Add some entries first.`}</p>
+    <p class="text-muted-foreground">{pt($t`Add some entries first.`, $t`Add some words first.`, viewService.currentView)}</p>
     <Button variant="outline" icon="i-mdi-book-alphabet" onclick={() => navigate(`${$base.uri}/browse`)}>{$t`Browse`}</Button>
   </div>
 {:else if entities.length === 0}

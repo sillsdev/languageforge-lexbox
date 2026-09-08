@@ -5,6 +5,8 @@
   import {type TaskSubject} from './subject.svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useWritingSystemService} from '$project/data';
+  import {pt} from '$lib/views/view-text';
+  import {useViewService} from '$lib/views/view-service.svelte';
 
   let {
     subjects,
@@ -45,11 +47,12 @@
   });
   let review = $state(false);
   const writingSystemService = useWritingSystemService();
+  const viewService = useViewService();
 </script>
 {#if !review}
   <div class="flex flex-col items-center justify-center">
     <h1 class="text-8xl pb-2">🎊</h1>
-    <h2 class="text-lg">{$t`You completed ${subjects.length} ${task.subject}`}</h2>
+    <h2 class="text-lg">{$t`You completed ${subjects.length} ${pt(task.subject, viewService.currentView)}`}</h2>
     <div class="flex flex-wrap gap-2 justify-center mt-4 max-w-2xl">
       {#each subjects as subject, index (subject)}
         <span class="px-2 py-1 bg-primary text-primary-foreground rounded text-center min-w-max"

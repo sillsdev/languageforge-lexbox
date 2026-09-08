@@ -1,7 +1,12 @@
 import {describe, it, expect} from 'vitest';
-import {type IEntry, type IExampleSentence, type ISemanticDomain, type ISense, type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
+import {type IEntry, type IExampleSentence, type ISemanticDomain, type ISense, type IWritingSystem, ViewBase, WritingSystemType} from '$lib/dotnet-types';
 import {defaultEntry, defaultExampleSentence, defaultSense} from '$lib/utils';
 import {TasksService} from './tasks-service';
+import {pt, type ViewText} from '$lib/views/view-text';
+
+function bothViews(text: ViewText): string[] {
+  return [pt(text, ViewBase.FieldWorks), pt(text, ViewBase.FwLite)];
+}
 
 function newEntry(e: Partial<IEntry>): IEntry {
   const entry = {
@@ -274,14 +279,14 @@ describe('tasks service', () => {
     describe('audio prompts', () => {
       const audioWs: IWritingSystem = {...ws(WritingSystemType.Vernacular), isAudio: true};
 
-      it('entry tasks say "Record" for an audio writing system', () => {
-        const prompts = [...TasksService.makeEntryTasks([audioWs])].map(t => t.prompt);
+      it('entry tasks say "Record" for an audio writing system, in both views', () => {
+        const prompts = [...TasksService.makeEntryTasks([audioWs])].flatMap(t => bothViews(t.prompt));
         expect(prompts.every(p => p.startsWith('Record'))).toBe(true);
       });
 
-      it('entry tasks say "Type" for a text writing system', () => {
-        const prompts = [...TasksService.makeEntryTasks([vernacularWs])].map(t => t.prompt);
-        expect(prompts.every(p => p.startsWith('Type'))).toBe(true);
+      it('entry tasks never say "Record" for a text writing system', () => {
+        const prompts = [...TasksService.makeEntryTasks([vernacularWs])].flatMap(t => bothViews(t.prompt));
+        expect(prompts.some(p => p.includes('Record'))).toBe(false);
       });
 
       it('example sentence task says "Record" for an audio writing system', () => {

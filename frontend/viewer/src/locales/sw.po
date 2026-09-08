@@ -90,7 +90,9 @@ msgstr "Seva ya {0}"
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# mabadiliko}}"
 
-#: src/project/tasks/TaskList.svelte
+#. Relevant view: Classic
+#. Lite view equivalent: "# word to go"
+#. Number of entries still missing the field, on a task list row
 #: src/project/tasks/TaskList.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
 msgstr ""
@@ -107,6 +109,13 @@ msgstr "{num, plural, one {# kumbuka mpya ya FieldWorks Lite} other {# kumbukas 
 
 #: src/project/browse/filter/UnreadCommentBadge.svelte
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "# entry to go"
+#. Number of words still missing the field, on a task list row
+#: src/project/tasks/TaskList.svelte
+msgid "{num, plural, one {# word to go} other {# words to go}}"
 msgstr ""
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
@@ -230,9 +239,18 @@ msgstr ""
 msgid "Add Sense"
 msgstr "Ongeza Maana"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Add some words first."
 #. Empty state of the task list when the dictionary has no entries yet
 #: src/project/tasks/TaskList.svelte
 msgid "Add some entries first."
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Add some entries first."
+#. Empty state of the task list when the dictionary has no words yet
+#: src/project/tasks/TaskList.svelte
+msgid "Add some words first."
 msgstr ""
 
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
@@ -1152,9 +1170,32 @@ msgstr "Faili kubwa sana"
 msgid "Filename"
 msgstr ""
 
-#. One line under the Tasks page heading, explaining what the tasks are for
+#. Relevant view: Lite
+#. Classic view equivalent: "Type a Citation form"
+#. Task instruction; "Display as" is a field label, so keep it recognizable
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Display as"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Fill in what's missing, one word at a time."
+#. Subtitle of the task list page
 #: src/project/tasks/TasksView.svelte
 msgid "Fill in what's missing, one entry at a time."
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Fill in what's missing, one entry at a time."
+#. Subtitle of the task list page
+#: src/project/tasks/TasksView.svelte
+msgid "Fill in what's missing, one word at a time."
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Type a Lexeme form or Citation form"
+#. Task instruction; "Word" and "Display as" are field labels, either one is enough
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Word or Display as"
 msgstr ""
 
 #. Accessible label for the browse search input that filters entries or words
@@ -1589,6 +1630,7 @@ msgstr "Sasisho la mwongozo linahitajika. Tafadhali fuata maelekezo yaliyotolewa
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Meaning"
 msgstr "Maana"
 
@@ -1601,40 +1643,72 @@ msgstr ""
 msgid "Media Manager"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Missing Display as {0}"
+#. Task name, shown in the task completion message. {0} = writing system abbreviation (e.g., "en", "fr")
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
 msgstr ""
 
-#. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
+#. Task name, shown in the task completion message. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
 msgstr "Maana yenye kushindwa {0}"
 
-#. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
+#. Relevant view: Lite
+#. Classic view equivalent: "Missing Citation form {0}"
+#. Task name, shown in the task completion message. {0} = writing system abbreviation (e.g., "en", "fr")
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Display as {0}"
+msgstr ""
+
+#. Task name, shown in the task completion message. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Example sentence {0}"
 msgstr "Sentensi ya mfano yenye kushindwa {0}"
 
-#. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a gloss (brief translation) in that writing system.
+#. Task name, shown in the task completion message. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a gloss (brief translation) in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Gloss {0}"
 msgstr "Glosi yenye kushindwa {0}"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Missing Part of speech"
+#. Task name, shown in the task completion message
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Grammatical info."
+msgstr ""
+
+#. Task name, shown in the task completion message. {0} = writing system abbreviation (e.g., "en", "fr")
+#. A headword is the citation form, or the lexeme form when there is none
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Headword {0}"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Missing Word {0}"
+#. Task name, shown in the task completion message. {0} = writing system abbreviation (e.g., "en", "fr")
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Lexeme form {0}"
 msgstr ""
 
-#. Task subject label in the task list. Identifies senses/meanings that have no part-of-speech (grammatical category) assigned.
+#. Relevant view: Lite
+#. Classic view equivalent: "Missing Grammatical info."
+#. Task name, shown in the task completion message
 #: src/project/tasks/tasks-service.ts
-msgid "Missing Part of Speech"
-msgstr "Sehemu ya mazungumzo yenye kushindwa"
+msgid "Missing Part of speech"
+msgstr ""
 
+#. Task name, shown in the task completion message
 #: src/project/tasks/tasks-service.ts
-msgid "Missing Semantic domain"
+msgid "Missing Semantic domains"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Missing Lexeme form {0}"
+#. Task name, shown in the task completion message. {0} = writing system abbreviation (e.g., "en", "fr")
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Word {0}"
 msgstr ""
 
 #. Filter result label
@@ -2016,11 +2090,21 @@ msgstr "Sehemu za mazungumzo"
 msgid "Pending"
 msgstr "Inasubiri"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "Pick Grammatical info."
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
-msgid "Pick a Part of Speech"
-msgstr "Chagua Sehemu ya Mazungumzo"
+msgid "Pick a Part of speech"
+msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Pick a Part of speech"
+#. Task instruction
+#: src/project/tasks/tasks-service.ts
+msgid "Pick Grammatical info."
+msgstr ""
+
+#. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Pick one or more Semantic domains"
 msgstr ""
@@ -2132,29 +2216,61 @@ msgstr "Chapisha Neno katika"
 msgid "Read-only"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Record Display as"
+#. Task instruction for an audio writing system
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
 msgstr ""
 
+#. Task instruction for an audio writing system
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Definition"
 msgstr ""
 
+#. Task instruction for an audio writing system
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Gloss"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Record a Word"
+#. Task instruction for an audio writing system
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Record Word or Display as"
+#. Task instruction for an audio writing system; either field is enough
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form or Citation form"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Record a Lexeme form"
+#. Task instruction for an audio writing system
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Word"
 msgstr ""
 
 #. Task instruction. The translation is optional
 #: src/project/tasks/tasks-service.ts
 msgid "Record an example sentence, and type a translation if you can"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Record a Citation form"
+#. Task instruction for an audio writing system; "Display as" is a field label
+#: src/project/tasks/tasks-service.ts
+msgid "Record Display as"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Record a Lexeme form or Citation form"
+#. Task instruction for an audio writing system; either field is enough
+#: src/project/tasks/tasks-service.ts
+msgid "Record Word or Display as"
 msgstr ""
 
 #. Field label for citation source
@@ -2809,6 +2925,9 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Fill in Display as"
+#. Task instruction; "Display as" is the Lite name of the Citation form field
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Citation form"
 msgstr ""
@@ -2823,12 +2942,25 @@ msgstr "Andika Maana"
 msgid "Type a Gloss"
 msgstr "Andika Fasihi"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Type a Word"
+#. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form"
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Fill in Word or Display as"
+#. Task instruction; either of the two fields is enough to give the entry a headword
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form or Citation form"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Type a Lexeme form"
+#. Task instruction
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Word"
 msgstr ""
 
 #. Task instruction. The translation is optional

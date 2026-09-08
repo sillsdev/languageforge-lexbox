@@ -31,7 +31,7 @@
     <div class="min-w-0">
       <h1 class="text-xl font-semibold truncate">{selectedTask ? pt($tvt(taskLabel(selectedTask)), viewService.currentView) : $t`Tasks`}</h1>
       {#if !selectedTaskId.current && !selectedTaskId.loading}
-        <p class="text-muted-foreground text-sm">{$t`Fill in what's missing, one entry at a time.`}</p>
+        <p class="text-muted-foreground text-sm">{pt($t`Fill in what's missing, one entry at a time.`, $t`Fill in what's missing, one word at a time.`, viewService.currentView)}</p>
       {/if}
     </div>
   </div>
