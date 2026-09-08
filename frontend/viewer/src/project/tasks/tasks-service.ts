@@ -1,6 +1,7 @@
 import {asString, useWritingSystemService, type WritingSystemService} from '$project/data';
 import {useProjectContext} from '$project/project-context.svelte';
-import type {FieldId} from '$lib/views/entity-config';
+import {getEntityConfig, type FieldId} from '$lib/views/entity-config';
+import type {ViewText} from '$lib/views/view-text';
 import {gt} from 'svelte-i18n-lingui';
 import type {IEntry, IExampleSentence, IRichString, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
 import {defaultExampleSentence, defaultSense, firstTruthy, isEntry, isSense} from '$lib/utils';
@@ -19,7 +20,9 @@ export interface Task {
   id: string;
   contextFields: FieldId[];
   subject: string;
-  fieldLabel: string;
+  /** Overrides the field's own label when the task isn't quite the field, e.g. Headword. */
+  fieldLabel?: string;
+  description?: string;
   subjectType: 'entry' | 'sense' | 'example-sentence';
   subjectFields: FieldId[];
   subjectWritingSystemId?: string;
@@ -29,6 +32,12 @@ export interface Task {
   gridifyFilter?: string;
   getSubjectValue: (subject: IEntry | ISense | IExampleSentence) => string | undefined;
   isComplete: (subject: IEntry | ISense | IExampleSentence) => boolean;
+}
+
+export function taskLabel(task: Task): ViewText {
+  if (task.fieldLabel) return task.fieldLabel;
+  const entity = task.subjectType === 'example-sentence' ? 'example' : task.subjectType;
+  return (getEntityConfig(entity) as Record<string, {label: ViewText}>)[task.subjectFields[0]].label;
 }
 
 export class TasksService {
@@ -53,7 +62,6 @@ export class TasksService {
     for (const writingSystem of analysis) {
       const taskSenseGloss: Task = {
         id: `sense-no-gloss-${writingSystem.wsId}`,
-        fieldLabel: gt`Gloss`,
         contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
         subject: gt`Missing Gloss ${writingSystem.abbreviation}`,
         subjectType: 'sense',
@@ -69,7 +77,6 @@ export class TasksService {
       yield taskSenseGloss;
       const taskSenseDefinition: Task = {
         id: `sense-no-definition-${writingSystem.wsId}`,
-        fieldLabel: gt`Definition`,
         contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
         subject: gt`Missing Definition ${writingSystem.abbreviation}`,
         subjectType: 'sense',
@@ -86,7 +93,6 @@ export class TasksService {
     }
     const taskMissingPartOfSpeech: Task = {
       id: 'missing-part-of-speech',
-      fieldLabel: gt`Part of speech`,
       contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
       subject: gt`Missing Part of Speech`,
       subjectType: 'sense',
@@ -100,7 +106,6 @@ export class TasksService {
     yield taskMissingPartOfSpeech;
     const taskMissingSemanticDomain: Task = {
       id: 'missing-semantic-domain',
-      fieldLabel: gt`Semantic domains`,
       contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
       subject: gt`Missing Semantic domain`,
       subjectType: 'sense',
@@ -124,6 +129,7 @@ export class TasksService {
       const taskHeadword: Task = {
         id: `entry-no-headword-${writingSystem.wsId}`,
         fieldLabel: gt`Headword`,
+        description: gt`Entries with no lexeme form or citation form yet`,
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: gt`Missing Headword ${writingSystem.abbreviation}`,
         subjectType: 'entry',
@@ -139,7 +145,6 @@ export class TasksService {
       yield taskHeadword;
       const taskLexemeForm: Task = {
         id: `entry-no-lexeme-form-${writingSystem.wsId}`,
-        fieldLabel: gt`Lexeme form`,
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: gt`Missing Lexeme form ${writingSystem.abbreviation}`,
         subjectType: 'entry',
@@ -155,7 +160,6 @@ export class TasksService {
       yield taskLexemeForm;
       const taskCitationForm: Task = {
         id: `entry-no-citation-form-${writingSystem.wsId}`,
-        fieldLabel: gt`Citation form`,
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: gt`Missing Citation form ${writingSystem.abbreviation}`,
         subjectType: 'entry',

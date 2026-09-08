@@ -1,5 +1,7 @@
 <script lang="ts">
-  import {useTasksService} from './tasks-service';
+  import {taskLabel, useTasksService} from './tasks-service';
+  import {pt, tvt} from '$lib/views/view-text';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {t} from 'svelte-i18n-lingui';
   import {useProjectStorage} from '$lib/storage';
   import TaskView from './TaskView.svelte';
@@ -10,6 +12,7 @@
 
   const selectedTaskId = useProjectStorage().selectedTaskId;
   const tasksService = useTasksService();
+  const viewService = useViewService();
   const selectedTask = $derived(tasksService.listTasks().find(task => task.id === selectedTaskId.current));
 
   let lastTaskId = $state('');
@@ -25,7 +28,7 @@
     {#if selectedTaskId.current}
       <Button variant="ghost" size="icon" icon="i-mdi-arrow-left" onclick={closeTask} aria-label={$t`Back to tasks`} />
     {/if}
-    <h1 class="text-xl font-semibold truncate min-w-0">{selectedTask?.fieldLabel ?? $t`Tasks`}</h1>
+    <h1 class="text-xl font-semibold truncate min-w-0">{selectedTask ? pt($tvt(taskLabel(selectedTask)), viewService.currentView) : $t`Tasks`}</h1>
   </div>
   <ViewErrorBoundary class="flex-1 min-h-0 overflow-auto" title={$t`Task view failed`}>
     {#if selectedTaskId.current}
