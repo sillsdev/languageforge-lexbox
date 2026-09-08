@@ -3095,6 +3095,11 @@ msgstr "Neno au Onyesha kulingana na inavyohitajika"
 msgid "Word or meaning:"
 msgstr "Neno au maana:"
 
+#. Shown under "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
+#: src/project/tasks/tasks-service.ts
+msgid "Words with no word or display form yet"
+msgstr ""
+
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"

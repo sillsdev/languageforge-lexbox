@@ -3090,6 +3090,11 @@ msgstr "Word or Display as is required"
 msgid "Word or meaning:"
 msgstr "Word or meaning:"
 
+#. Shown under "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
+#: src/project/tasks/tasks-service.ts
+msgid "Words with no word or display form yet"
+msgstr "Words with no word or display form yet"
+
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"

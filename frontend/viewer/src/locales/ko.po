@@ -3095,6 +3095,11 @@ msgstr "단어 또는 표시 이름은 필수 입력 사항입니다."
 msgid "Word or meaning:"
 msgstr "단어 또는 의미:"
 
+#. Shown under "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
+#: src/project/tasks/tasks-service.ts
+msgid "Words with no word or display form yet"
+msgstr ""
+
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"

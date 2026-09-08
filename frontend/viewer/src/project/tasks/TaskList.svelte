@@ -45,7 +45,7 @@
       const key = `${entity}:${task.subjectFields.join()}`;
       let group = groups.find(g => g.key === key);
       if (!group) {
-        group = {key, label: pt($tvt(taskLabel(task)), viewService.currentView), description: task.description, entity, targets: []};
+        group = {key, label: pt($tvt(taskLabel(task)), viewService.currentView), description: task.description && pt($tvt(task.description), viewService.currentView), entity, targets: []};
         groups.push(group);
       }
       group.targets.push({task, ws});
