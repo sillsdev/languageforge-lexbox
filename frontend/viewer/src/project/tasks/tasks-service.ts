@@ -129,7 +129,7 @@ export class TasksService {
       const taskHeadword: Task = {
         id: `entry-no-headword-${writingSystem.wsId}`,
         fieldLabel: msg`Headword`,
-        description: vt(msg`Entries with no lexeme form or citation form yet`, msg`Words with nothing to display yet`),
+        description: vt(msg`Entries missing both Lexeme form and Citation form`, msg`Words missing both Word and Display as`),
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: gt`Missing Headword ${writingSystem.abbreviation}`,
         subjectType: 'entry',
