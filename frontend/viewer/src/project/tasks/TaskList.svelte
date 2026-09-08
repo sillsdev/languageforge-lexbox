@@ -95,7 +95,7 @@
     <Icon icon="i-mdi-microphone" class="size-4" />
   {/if}
   {#if ws}
-    <span aria-hidden="true">{ws.abbreviation}</span>
+    <span aria-hidden="true">{ws.abbreviation || ws.name}</span>
   {:else if progress}
     <!-- No language to name it by, so show the count instead. -->
     <span class="text-muted-foreground tabular-nums">{$t`${remaining} to go`}</span>
