@@ -81,6 +81,7 @@ public interface IMiniLcmWriteApi
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null);
     Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position);
+    Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition position);
     Task DeleteSense(Guid entryId, Guid senseId);
     Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain);
     Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId);
@@ -106,8 +107,8 @@ public interface IMiniLcmWriteApi
         ExampleSentence before,
         ExampleSentence after,
         IMiniLcmApi? api = null);
-    /// <summary>Positions the example within the given sense, re-parenting it first if it currently belongs to a different sense (like <see cref="MoveSense"/>).</summary>
     Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
+    Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
 

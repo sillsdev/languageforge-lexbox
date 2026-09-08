@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.JsonDiffPatch;
 using System.Text.Json.JsonDiffPatch.Diffs;
 using System.Text.Json.JsonDiffPatch.Diffs.Formatters;
@@ -52,15 +51,21 @@ public class ObjectWithIdCollectionReplaceDiffApi<T>(Func<T, T, Task<int>> Repla
     }
 }
 
-public interface IOrderableCollectionDiffApi<T, TId> where T : IOrderableNoId where TId : notnull
+public abstract class OrderableCollectionDiffApi<T, TId> where T : IOrderableNoId where TId : notnull
 {
-    Task<int> Add(T value, BetweenPosition<T> between);
-    /// <summary>Deletes unconditionally; the moved-vs-deleted decision is the walk's (DiffOrderable with a MoveContext), not the implementation's.</summary>
-    Task<int> Remove(T value);
-    /// <summary>Positions the item in this api's own collection; implementations re-parent it first when it currently lives under a different parent (like MoveSense).</summary>
-    Task<int> Move(T value, BetweenPosition<T> between);
-    Task<int> Replace(T before, T after);
-    TId GetId(T value);
+    /// <summary>Creates the whole payload unconditionally; keeping a moved-in child out of the create is <see cref="MovedInChildrenDiffApi{T,TId}"/>'s job.</summary>
+    public abstract Task<int> Add(T value, BetweenPosition<T> between);
+    /// <summary>Deletes unconditionally; moved-vs-deleted and deferral are <see cref="MoveAwareOrderableDiffApi{T,TId}"/>'s and <see cref="DeferringDeletesOrderableDiffApi{T,TId}"/>'s job.</summary>
+    public abstract Task<int> Remove(T value);
+    /// <summary>Repositions an item this api's own collection already owns.</summary>
+    public abstract Task<int> Move(T value, BetweenPosition<T> between);
+    /// <summary>Takes an item from a different parent into this collection. Throws by default; override only where the api method actually re-parents.</summary>
+    public virtual Task<int> Reparent(T value, BetweenPosition<T> between)
+    {
+        throw new MoveNotSupportedException(typeof(T).Name, GetId(value));
+    }
+    public abstract Task<int> Replace(T before, T after);
+    public abstract TId GetId(T value);
 }
 
 public static class DiffCollection
@@ -68,8 +73,7 @@ public static class DiffCollection
     public static async Task<(int Changes, ICollection<T> Added)> DiffAndGetAdded<T, TId>(
         IList<T> before,
         IList<T> after,
-        CollectionDiffApi<T, TId> diffApi,
-        MoveContext<T, TId> moves) where TId : notnull
+        CollectionDiffApi<T, TId> diffApi) where TId : notnull
     {
         var changes = 0;
         var afterEntriesDict = after.ToDictionary(diffApi.GetId);
@@ -91,23 +95,18 @@ public static class DiffCollection
 
         foreach (var (id, value) in afterEntriesDict)
         {
-            if (moves.IsActuallyAMove(id, out _))
-                throw new InvalidOperationException($"{typeof(T).Name} {id} is moving between parents; only an orderable diff can apply moves");
             var (addChanges, added) = await diffApi.AddAndGet(value);
             changes += addChanges;
             afterEntriesDict[id] = added;
         }
 
-        // removes are done last (or deferred until after the whole walk) to prevent cascading deletes
-        // to entities that are being moved (e.g. senses being moved from a deleted entry to a new or updated entry)
+        // removes are done last to prevent cascading deletes to entities that are being moved
+        // (e.g. senses being moved from a deleted entry to a new or updated entry)
+        // see also the DeferringDeletes Diff Apis, which actually handle this globally for an entire entity hierarchy.
         if (toRemove is not null)
         {
             foreach (var beforeEntry in toRemove)
-            {
-                if (moves.IsActuallyADelete(diffApi.GetId(beforeEntry)))
-                    changes += await moves.Delete(() => diffApi.Remove(beforeEntry));
-                // else it still exists in the after state: it's moving to a different parent, not being deleted
-            }
+                changes += await diffApi.Remove(beforeEntry);
         }
 
         return (changes, afterEntriesDict.Values);
@@ -117,18 +116,16 @@ public static class DiffCollection
     public static async Task<int> Diff<T, TId>(
         IList<T> before,
         IList<T> after,
-        CollectionDiffApi<T, TId> diffApi,
-        MoveContext<T, TId> moves) where TId : notnull
+        CollectionDiffApi<T, TId> diffApi) where TId : notnull
     {
-        var (changes, _) = await DiffAndGetAdded(before, after, diffApi, moves);
+        var (changes, _) = await DiffAndGetAdded(before, after, diffApi);
         return changes;
     }
 
     public static async Task<int> DiffOrderable<T, TId>(
         IList<T> before,
         IList<T> after,
-        IOrderableCollectionDiffApi<T, TId> diffApi,
-        MoveContext<T, TId> moves) where T : IOrderableNoId where TId : notnull
+        OrderableCollectionDiffApi<T, TId> diffApi) where T : IOrderableNoId where TId : notnull
     {
         var changes = 0;
 
@@ -152,26 +149,12 @@ public static class DiffCollection
                         stableIds.Add(diffApi.GetId(movedEntry));
                         break;
                     case PositionDiffKind.Remove:
-                        var removedEntry = before[diff.Index];
-                        if (moves.IsActuallyADelete(diffApi.GetId(removedEntry)))
-                        {
-                            changes += await moves.Delete(() => diffApi.Remove(removedEntry));
-                        }
-                        // else it still exists in the after state: it's moving to a different parent, not being deleted
+                        changes += await diffApi.Remove(before[diff.Index]);
                         break;
                     case PositionDiffKind.Add:
                         var addedEntry = after[diff.Index];
                         between = GetStableBetween(diff.Index, after, stableIds, diffApi.GetId);
-                        if (moves.IsActuallyAMove(diffApi.GetId(addedEntry), out var movedFrom))
-                        {
-                            // not a create: it existed in the before state under a different parent, so move it here
-                            changes += await diffApi.Move(addedEntry, between);
-                            changes += await diffApi.Replace(movedFrom, addedEntry);
-                        }
-                        else
-                        {
-                            changes += await diffApi.Add(addedEntry, between);
-                        }
+                        changes += await diffApi.Add(addedEntry, between);
                         stableIds.Add(diffApi.GetId(addedEntry));
                         break;
                     default:
@@ -281,98 +264,6 @@ public record PositionDiff(int Index, PositionDiffKind Kind)
     // - Deletes happens first
     // - Adds and moves are then ordered by the new index (i.e. we work from front to back)
     public int SortIndex => Kind == PositionDiffKind.Remove ? -Index - 1 : Index;
-}
-
-/// <summary>
-/// Context about what exists globally, in the whole before and after states, so a collection diff
-/// can tell moves between parents apart from creates and deletes.
-/// </summary>
-public class MoveContext<T, TId> where TId : notnull
-{
-    private readonly IReadOnlyDictionary<TId, T>? _allBefore;
-    private readonly IReadOnlyDictionary<TId, T>? _allAfter;
-    private readonly DeferredDeletes? _deferredDeletes;
-
-    private MoveContext(IReadOnlyDictionary<TId, T>? allBefore,
-        IReadOnlyDictionary<TId, T>? allAfter,
-        DeferredDeletes? deferredDeletes)
-    {
-        _allBefore = allBefore;
-        _allAfter = allAfter;
-        _deferredDeletes = deferredDeletes;
-    }
-
-    /// <summary>
-    /// No move detection and deletes run immediately — for reference collections and root lists
-    /// (where an id present on both sides is a Replace, never a move), and for child types whose
-    /// moves the SyncContext constructor already rejected up front.
-    /// </summary>
-    public static readonly MoveContext<T, TId> Empty = new(null, null, null);
-
-    public static MoveContext<T, TId> MovesSupported(IReadOnlyDictionary<TId, T> allBefore,
-        IReadOnlyDictionary<TId, T> allAfter,
-        DeferredDeletes deferredDeletes)
-    {
-        return new(allBefore, allAfter, deferredDeletes);
-    }
-
-    /// <summary>No move detection (root entities don't move), but deletes are deferred so their cascades run after all moves.</summary>
-    public static MoveContext<T, TId> DeferredDeletesOnly(DeferredDeletes deferredDeletes)
-    {
-        return new(null, null, deferredDeletes);
-    }
-
-    /// <summary>False when the id still exists in the after state: it's moving somewhere else, not being deleted.</summary>
-    public bool IsActuallyADelete(TId id)
-    {
-        return _allAfter is null || !_allAfter.ContainsKey(id);
-    }
-
-    /// <summary>
-    /// True when the id already existed in the before state: the add is a move from a different parent.
-    /// Only consults the in-memory before state; if moving children ever becomes a FieldWorks Lite
-    /// client feature this would need an api-lookup fallback, but today that would just be wasteful.
-    /// </summary>
-    public bool IsActuallyAMove(TId id, [MaybeNullWhen(false)] out T movedFrom)
-    {
-        movedFrom = default;
-        return _allBefore is not null && _allBefore.TryGetValue(id, out movedFrom);
-    }
-
-    /// <summary>Runs the delete now, or queues it when this context defers deletes (counted when the queue is drained).</summary>
-    public async Task<int> Delete(Func<Task<int>> delete)
-    {
-        if (_deferredDeletes is null) return await delete();
-        _deferredDeletes.Defer(delete);
-        return 0;
-    }
-}
-
-/// <summary>
-/// Genuine deletes queued during a diff walk and run after it, so a parent's cascading delete
-/// can never destroy a child that was moved out (all moves have already executed by then).
-/// DiffAndGetAdded's removes-last ordering isn't enough for that: DiffOrderable runs removes first,
-/// and one entry's nested deletes would run before a later entry's diff gets to move the child out.
-/// The walk's owner must call DeleteAll after the walk completes; when the walk throws, the queued
-/// deletes never run (the sync is aborted and re-diffed next time anyway).
-/// </summary>
-public class DeferredDeletes
-{
-    private readonly List<Func<Task<int>>> _deletes = [];
-
-    public void Defer(Func<Task<int>> delete) => _deletes.Add(delete);
-
-    public async Task<int> DeleteAll()
-    {
-        var changes = 0;
-        // by index so a delete that defers another delete extends the drain instead of throwing
-        for (var i = 0; i < _deletes.Count; i++)
-        {
-            changes += await _deletes[i]();
-        }
-        _deletes.Clear();
-        return changes;
-    }
 }
 
 public record BetweenPosition<T>(T? Previous, T? Next)

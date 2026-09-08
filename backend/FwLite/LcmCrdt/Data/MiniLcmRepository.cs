@@ -271,7 +271,7 @@ public class MiniLcmRepository(
         return sense;
     }
 
-    public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
+    public async Task<ExampleSentence?> GetExampleSentence(Guid id)
     {
         var exampleSentence = await AsyncExtensions.SingleOrDefaultAsync(ExampleSentences
                 .AsQueryable(), e => e.Id == id);

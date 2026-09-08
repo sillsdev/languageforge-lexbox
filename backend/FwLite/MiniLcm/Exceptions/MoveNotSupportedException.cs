@@ -1,11 +1,20 @@
 namespace MiniLcm.Exceptions;
 
 /// <summary>
-/// The sync found an item under different parents in the before and after states — a move —
-/// for an item type the sync can't move yet. Throwing beats applying the move as an unrelated
-/// delete and create, which silently destroys the item on the CRDT side.
+/// We only support reparenting some entity types.
 /// </summary>
-public class MoveNotSupportedException(string typeName, Guid id, Guid beforeParentId, Guid afterParentId)
-    : NotSupportedException($"{typeName} {id} was moved from parent {beforeParentId} to {afterParentId}; syncing {typeName} moves is not supported")
+public class MoveNotSupportedException : NotSupportedException
 {
+    public MoveNotSupportedException(string typeName, object id, object beforeParentId, object afterParentId)
+        : base($"{typeName} {id} was moved from parent {beforeParentId} to {afterParentId}; {Unsupported(typeName)}")
+    {
+    }
+
+    /// <summary>For the diff walk, which knows the item arrived from elsewhere but not from where.</summary>
+    public MoveNotSupportedException(string typeName, object id)
+        : base($"{typeName} {id} was moved to a different parent; {Unsupported(typeName)}")
+    {
+    }
+
+    private static string Unsupported(string typeName) => $"syncing {typeName} moves is not supported";
 }

@@ -27,13 +27,11 @@ public static class SenseSync
             beforeSense.Id,
             beforeSense.Pictures,
             afterSense.Pictures,
-            api,
-            context.Pictures);
+            api);
         changes += await DiffCollection.Diff(
             beforeSense.SemanticDomains,
             afterSense.SemanticDomains,
-            new SenseSemanticDomainsDiffApi(api, beforeSense.Id),
-            MoveContext<SemanticDomain, Guid>.Empty);
+            new SenseSemanticDomainsDiffApi(api, beforeSense.Id));
         return changes + (updateObjectInput is null ? 0 : 1);
     }
 

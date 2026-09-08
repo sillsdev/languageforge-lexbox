@@ -9,14 +9,12 @@ public static class PictureSync
         Guid senseId,
         IList<Picture> beforePictures,
         IList<Picture> afterPictures,
-        IMiniLcmApi api,
-        MoveContext<Picture, Guid> moves)
+        IMiniLcmApi api)
     {
         return await DiffCollection.DiffOrderable(
             beforePictures,
             afterPictures,
-            new PicturesDiffApi(api, entryId, senseId),
-            moves);
+            new PicturesDiffApi(api, entryId, senseId));
     }
 
     public static async Task<int> Sync(Guid entryId,
@@ -48,32 +46,32 @@ public static class PictureSync
         return new UpdateObjectInput<Picture>(patchDocument);
     }
 
-    private class PicturesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : IOrderableCollectionDiffApi<Picture, Guid>
+    private class PicturesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : OrderableCollectionDiffApi<Picture, Guid>
     {
-        public Guid GetId(Picture value)
+        public override Guid GetId(Picture value)
         {
             return value.Id;
         }
 
-        public async Task<int> Add(Picture afterPicture, BetweenPosition<Picture> between)
+        public override async Task<int> Add(Picture afterPicture, BetweenPosition<Picture> between)
         {
             await api.CreatePicture(entryId, senseId, afterPicture, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
-        public async Task<int> Move(Picture picture, BetweenPosition<Picture> between)
+        public override async Task<int> Move(Picture picture, BetweenPosition<Picture> between)
         {
             await api.MovePicture(entryId, senseId, picture.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
-        public async Task<int> Remove(Picture beforePicture)
+        public override async Task<int> Remove(Picture beforePicture)
         {
             await api.DeletePicture(entryId, senseId, beforePicture.Id);
             return 1;
         }
 
-        public Task<int> Replace(Picture beforePicture, Picture afterPicture)
+        public override Task<int> Replace(Picture beforePicture, Picture afterPicture)
         {
             return Sync(entryId, senseId, beforePicture, afterPicture, api);
         }

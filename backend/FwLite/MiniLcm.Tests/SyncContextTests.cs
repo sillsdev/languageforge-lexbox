@@ -33,9 +33,11 @@ public class SyncContextTests
         after.Senses[0].Pictures.Clear();
         after.Senses[1].Pictures.Add(picture.Copy());
 
-        var act = () => new SyncContext([before], [after]);
+        var act = () => SyncContext.ForEntrySync(before, after);
         act.Should().Throw<MoveNotSupportedException>()
             .WithMessage($"*{picture.Id}*{sourceSense.Id}*{targetSense.Id}*");
+        act = () => SyncContext.ForProjectSync([before], [after]);
+        act.Should().Throw<MoveNotSupportedException>();
     }
 
     [Fact]
@@ -50,7 +52,7 @@ public class SyncContextTests
         after.Senses.RemoveAt(0);
         after.Senses[0].Pictures.Add(picture.Copy());
 
-        var act = () => new SyncContext([before], [after]);
+        var act = () => SyncContext.ForEntrySync(before, after);
         act.Should().Throw<MoveNotSupportedException>();
     }
 
@@ -76,7 +78,7 @@ public class SyncContextTests
         sourceEntryAfter.Senses.Clear();
         var createdEntry = NewEntry(movedSense);
 
-        var act = () => new SyncContext([sourceEntry], [sourceEntryAfter, createdEntry]);
+        var act = () => SyncContext.ForProjectSync([sourceEntry], [sourceEntryAfter, createdEntry]);
         act.Should().NotThrow();
     }
 
@@ -88,7 +90,7 @@ public class SyncContextTests
         after.Senses[0].Pictures.Clear();
         after.Senses[1].Pictures.Add(NewPicture());
 
-        var act = () => new SyncContext([before], [after]);
+        var act = () => SyncContext.ForEntrySync(before, after);
         act.Should().NotThrow();
     }
 
@@ -110,23 +112,37 @@ public class SyncContextTests
         var after = before.Copy();
         after.Senses[0].ExampleSentences[0].Translations.Clear();
 
-        var act = () => new SyncContext([before], [after]);
+        var act = () => SyncContext.ForEntrySync(before, after);
         act.Should().NotThrow();
     }
 
     [Fact]
-    public async Task EmptyContext_TreatsEverythingAsGenuineAndDeletesImmediately()
+    public void ProjectSync_WrapsEverything()
     {
-        var context = SyncContext.Empty;
-        context.Senses.IsActuallyADelete(Guid.NewGuid()).Should().BeTrue();
-        context.Examples.IsActuallyAMove(Guid.NewGuid(), out _).Should().BeFalse();
-        var deleted = false;
-        var changes = await context.Pictures.Delete(() =>
-        {
-            deleted = true;
-            return Task.FromResult(1);
-        });
-        changes.Should().Be(1);
-        deleted.Should().BeTrue();
+        var context = SyncContext.ForProjectSync([NewEntry(NewSense())], [NewEntry(NewSense())]);
+        context.EntriesDiffApi(NullApi).Should().BeOfType<DeferringDeletesCollectionDiffApi<Entry, Guid>>();
+        context.SensesDiffApi(NullApi, Guid.NewGuid()).Should().BeOfType<MoveAwareOrderableDiffApi<Sense, Guid>>();
+        context.ExampleSentencesDiffApi(NullApi, Guid.NewGuid(), Guid.NewGuid()).Should().BeOfType<MoveAwareOrderableDiffApi<ExampleSentence, Guid>>();
     }
+
+    [Fact]
+    public void EntrySync_DetectsOnlyExampleMoves()
+    {
+        var entry = NewEntry(NewSense());
+        var context = SyncContext.ForEntrySync(entry, entry.Copy());
+        // senses still defer deletes and create without children, for examples moving out of a deleted or into a created sense
+        context.SensesDiffApi(NullApi, Guid.NewGuid()).Should().BeOfType<DeferringDeletesOrderableDiffApi<Sense, Guid>>();
+        context.ExampleSentencesDiffApi(NullApi, Guid.NewGuid(), Guid.NewGuid()).Should().BeOfType<MoveAwareOrderableDiffApi<ExampleSentence, Guid>>();
+    }
+
+    [Fact]
+    public async Task EmptyContext_HandsOutUnwrappedDiffApis()
+    {
+        SyncContext.Empty.SensesDiffApi(NullApi, Guid.NewGuid()).Should().BeOfType<EntrySync.SensesDiffApi>();
+        SyncContext.Empty.ExampleSentencesDiffApi(NullApi, Guid.NewGuid(), Guid.NewGuid()).Should().BeOfType<ExampleSentenceSync.ExampleSentencesDiffApi>();
+        (await SyncContext.Empty.DeferredDeletes.DeleteAll()).Should().Be(0);
+    }
+
+    // the diff apis only store the api; nothing here runs a diff
+    private static IMiniLcmApi NullApi => null!;
 }

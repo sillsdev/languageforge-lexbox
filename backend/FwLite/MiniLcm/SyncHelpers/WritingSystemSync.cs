@@ -49,24 +49,23 @@ public static class WritingSystemSync
         return new UpdateObjectInput<WritingSystem>(patchDocument);
     }
 
-    private class WritingSystemsDiffApi(IMiniLcmApi api) : IOrderableCollectionDiffApi<WritingSystem, WritingSystemId>
+    private class WritingSystemsDiffApi(IMiniLcmApi api) : OrderableCollectionDiffApi<WritingSystem, WritingSystemId>
     {
         public async Task<int> Diff(WritingSystem[] beforeWritingSystems, WritingSystem[] afterWritingSystems)
         {
             return await DiffCollection.DiffOrderable(
                 [.. beforeWritingSystems.OrderBy(ws => ws.Order)],
                 [.. afterWritingSystems.OrderBy(ws => ws.Order)],
-                this,
-                MoveContext<WritingSystem, WritingSystemId>.Empty
+                this
             );
         }
 
-        public WritingSystemId GetId(WritingSystem value)
+        public override WritingSystemId GetId(WritingSystem value)
         {
             return value.WsId;
         }
 
-        public async Task<int> Add(WritingSystem value, BetweenPosition<WritingSystem> between)
+        public override async Task<int> Add(WritingSystem value, BetweenPosition<WritingSystem> between)
         {
             var betweenWsId = new BetweenPosition<WritingSystemId?>(
                 between.Previous is null ? new WritingSystemId?() : between.Previous.WsId,
@@ -76,14 +75,14 @@ public static class WritingSystemSync
             return 1;
         }
 
-        public Task<int> Remove(WritingSystem value)
+        public override Task<int> Remove(WritingSystem value)
         {
             // await api.DeleteWritingSystem(beforeWs.Id); // Deleting writing systems is dangerous as it causes cascading data deletion. Needs careful thought.
             // TODO: should we throw an exception?
             return Task.FromResult(0);
         }
 
-        public async Task<int> Move(WritingSystem value, BetweenPosition<WritingSystem> between)
+        public override async Task<int> Move(WritingSystem value, BetweenPosition<WritingSystem> between)
         {
             var betweenWsId = new BetweenPosition<WritingSystemId?>(
                 between.Previous is null ? new WritingSystemId?() : between.Previous.WsId,
@@ -93,7 +92,7 @@ public static class WritingSystemSync
             return 1;
         }
 
-        public Task<int> Replace(WritingSystem before, WritingSystem after)
+        public override Task<int> Replace(WritingSystem before, WritingSystem after)
         {
             return Sync(before, after, api);
         }

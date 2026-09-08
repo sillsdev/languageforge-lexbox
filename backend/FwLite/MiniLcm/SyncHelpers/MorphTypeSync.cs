@@ -12,8 +12,7 @@ public static class MorphTypeSync
         return await DiffCollection.Diff(
             beforeMorphTypes,
             afterMorphTypes,
-            new MorphTypeDiffApi(api),
-            MoveContext<MorphType, Guid>.Empty);
+            new MorphTypeDiffApi(api));
     }
 
     public static async Task<int> Sync(MorphType before,

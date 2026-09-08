@@ -3,57 +3,105 @@ using MiniLcm.Models;
 
 namespace MiniLcm.SyncHelpers;
 
-/// <summary>
-/// State for one sync walk over whole before/after entry sets: the global before/after context that
-/// lets child-collection diffs recognize moves between parents, and the queue of genuine deletes
-/// that runs after the walk. Child types that can't be moved yet (pictures, translations) are
-/// rejected up front by the constructor — before anything is written — so a move of those is a
-/// loud, all-or-nothing sync failure instead of a silent delete+create.
-/// </summary>
 public class SyncContext
 {
-    /// <summary>
-    /// For syncing objects without whole-project context (e.g. single-object update APIs): no move
-    /// detection — every add is a create, every remove is a delete, and deletes run immediately.
-    /// </summary>
-    public static readonly SyncContext Empty = new();
+    public static readonly SyncContext Empty = new(null, null);
 
-    private readonly DeferredDeletes? _deferredDeletes;
-    public DeferredDeletes DeferredDeletes => _deferredDeletes ?? throw new InvalidOperationException("SyncContext.Empty has no delete queue");
-    public MoveContext<Entry, Guid> Entries { get; }
-    public MoveContext<Sense, Guid> Senses { get; }
-    public MoveContext<ExampleSentence, Guid> Examples { get; }
-    // moves of these types are rejected up front (see ThrowIfMoved), so their diffs treat every add/remove as genuine
-    public MoveContext<Picture, Guid> Pictures => MoveContext<Picture, Guid>.Empty;
-    public MoveContext<Translation, Guid> Translations => MoveContext<Translation, Guid>.Empty;
+    /// <summary>Stays empty (DeleteAll is a no-op) for <see cref="Empty"/>.</summary>
+    public DeferredDeletes DeferredDeletes { get; } = new();
 
-    private SyncContext()
+    private readonly MoveDetection<Sense, Guid>? _senses;
+    private readonly MoveDetection<ExampleSentence, Guid>? _examples;
+
+    private SyncContext(MoveDetection<Sense, Guid>? senses, MoveDetection<ExampleSentence, Guid>? examples)
     {
-        Entries = MoveContext<Entry, Guid>.Empty;
-        Senses = MoveContext<Sense, Guid>.Empty;
-        Examples = MoveContext<ExampleSentence, Guid>.Empty;
+        _senses = senses;
+        _examples = examples;
     }
 
-    public SyncContext(Entry[] beforeEntries, Entry[] afterEntries)
+    public static SyncContext ForProjectSync(Entry[] beforeEntries, Entry[] afterEntries)
     {
-        _deferredDeletes = new DeferredDeletes();
-        Entries = MoveContext<Entry, Guid>.DeferredDeletesOnly(_deferredDeletes);
-        Senses = MoveContext<Sense, Guid>.MovesSupported(AllSenses(beforeEntries), AllSenses(afterEntries), _deferredDeletes);
-        Examples = MoveContext<ExampleSentence, Guid>.MovesSupported(AllExamples(beforeEntries), AllExamples(afterEntries), _deferredDeletes);
-        ThrowIfMoved(nameof(Picture), PictureParents(beforeEntries), PictureParents(afterEntries));
-        ThrowIfMoved(nameof(Translation), TranslationParents(beforeEntries), TranslationParents(afterEntries));
+        VerifyNoUnsupportedMoves(beforeEntries, afterEntries);
+        return new(
+            new MoveDetection<Sense, Guid>(AllSenses(beforeEntries), AllSenses(afterEntries)),
+            new MoveDetection<ExampleSentence, Guid>(AllExamples(beforeEntries), AllExamples(afterEntries)));
     }
 
-    // Create APIs assume every child in the payload is new; a payload containing a moved-in child
-    // must be created empty instead and filled in by the child diff, which knows how to move.
-    public bool HasChildMovingIn(Entry entry) => entry.Senses.Any(s => Senses.IsActuallyAMove(s.Id, out _) || HasChildMovingIn(s));
-    public bool HasChildMovingIn(Sense sense) => sense.ExampleSentences.Any(e => Examples.IsActuallyAMove(e.Id, out _));
+    /// <summary>Senses can't leave the entry, so only examples get move detection; the entry list is never diffed.</summary>
+    public static SyncContext ForEntrySync(Entry beforeEntry, Entry afterEntry)
+    {
+        if (beforeEntry.Id != afterEntry.Id) throw new ArgumentException("Entry ids must match", nameof(afterEntry));
+        VerifyNoUnsupportedMoves([beforeEntry], [afterEntry]);
+        return new(null, // We're diffing a single entry, so senses don't need move detection.
+         new MoveDetection<ExampleSentence, Guid>(AllExamples([beforeEntry]), AllExamples([afterEntry])));
+    }
+
+    // Decorator stack, outermost first. Each layer only sees what the layers above let through:
+    //  1. MoveAware: an add/remove that is really a move becomes a reparent,
+    //      so the layers below only ever see genuine creates and deletes.
+    //  2. DeferringDeletes: queues those genuine deletes to run after the walk.
+    //  3. MovedInChildren: a genuine create whose payload holds a moved-in child.
+    //      Ensures that child is handled by move-aware sync code, rather than submitting
+    //      the whole tree to the MiniLcmApi (which could throw on the live/duplicate guid).
+    //  4. The real diff api.
+
+    /// <summary>Entries don't move, but their deletes defer so a deleted entry's cascade runs after any sense is moved out of it.</summary>
+    public CollectionDiffApi<Entry, Guid> EntriesDiffApi(IMiniLcmApi api)
+    {
+        var inner = new EntrySync.EntriesDiffApi(api, this);
+        if (_senses is null) return inner;
+        return new DeferringDeletesCollectionDiffApi<Entry, Guid>(
+            new MovedInChildrenCollectionDiffApi<Entry, Guid>(inner,
+                HasDescendantMovingIn,
+                entry => entry with { Senses = [] },
+                (created, entry) => created with { Senses = entry.Senses }),
+            DeferredDeletes);
+    }
+
+    /// <summary>Deferred deletes and childless creates are for examples moving out of a deleted or into a created sense, so an entry sync needs them without sense move detection.</summary>
+    public OrderableCollectionDiffApi<Sense, Guid> SensesDiffApi(IMiniLcmApi api, Guid entryId)
+    {
+        var inner = new EntrySync.SensesDiffApi(api, entryId, this);
+        if (_examples is null) return inner;
+        OrderableCollectionDiffApi<Sense, Guid> diffApi = new DeferringDeletesOrderableDiffApi<Sense, Guid>(
+            new MovedInChildrenDiffApi<Sense, Guid>(inner, HasDescendantMovingIn, WithoutExamples),
+            DeferredDeletes);
+        if (_senses is null) return diffApi;
+        return new MoveAwareOrderableDiffApi<Sense, Guid>(diffApi, _senses);
+    }
+
+    private static Sense WithoutExamples(Sense sense)
+    {
+        var copy = sense.Copy();
+        copy.ExampleSentences = [];
+        return copy;
+    }
+
+    /// <summary>Examples own no movable children, so no MovedInChildren layer.</summary>
+    public OrderableCollectionDiffApi<ExampleSentence, Guid> ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId)
+    {
+        var inner = new ExampleSentenceSync.ExampleSentencesDiffApi(api, entryId, senseId);
+        if (_examples is null) return inner;
+        return new MoveAwareOrderableDiffApi<ExampleSentence, Guid>(
+            new DeferringDeletesOrderableDiffApi<ExampleSentence, Guid>(inner, DeferredDeletes),
+            _examples);
+    }
+
+    private bool HasDescendantMovingIn(Entry entry) => entry.Senses.Any(s => ExistedBefore(_senses, s.Id) || HasDescendantMovingIn(s));
+    private bool HasDescendantMovingIn(Sense sense) => sense.ExampleSentences.Any(e => ExistedBefore(_examples, e.Id));
+    private static bool ExistedBefore<T>(MoveDetection<T, Guid>? moves, Guid id) => moves is not null && moves.ExistedBefore(id, out _);
+
+    private static void VerifyNoUnsupportedMoves(Entry[] beforeEntries, Entry[] afterEntries)
+    {
+        ThrowIfContainsMoves(nameof(Picture), PictureParents(beforeEntries), PictureParents(afterEntries));
+        ThrowIfContainsMoves(nameof(Translation), TranslationParents(beforeEntries), TranslationParents(afterEntries));
+    }
 
     /// <summary>
     /// An id whose parent differs between the states is a move. The parent is the DIRECT parent, so a
     /// child riding along inside a moved sense or example is not itself a move.
     /// </summary>
-    private static void ThrowIfMoved(string typeName, Dictionary<Guid, Guid> beforeParents, Dictionary<Guid, Guid> afterParents)
+    private static void ThrowIfContainsMoves(string typeName, Dictionary<Guid, Guid> beforeParents, Dictionary<Guid, Guid> afterParents)
     {
         foreach (var (id, beforeParent) in beforeParents)
         {

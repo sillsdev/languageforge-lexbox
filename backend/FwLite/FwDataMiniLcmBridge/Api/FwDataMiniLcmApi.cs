@@ -1591,6 +1591,17 @@ public class FwDataMiniLcmApi(
 
     public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
     {
+        if (!SenseRepository.TryGetObject(senseId, out var lexSense))
+            throw new InvalidOperationException("Sense not found");
+        // the insert re-parents, so without this guard a mismatched entryId would silently move the sense
+        VerifySenseBelongsToEntry(entryId, lexSense);
+        return MoveSenseToEntry(entryId, senseId, between);
+    }
+
+    // repositioning and re-parenting are the same operation here: inserting into an LCM owning
+    // sequence moves the sense out of whatever entry currently owns it
+    public Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
+    {
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
@@ -1680,8 +1691,16 @@ public class FwDataMiniLcmApi(
 
     public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
-        ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence);
-        return Task.FromResult(lcmExampleSentence is null ? null : FromLexExampleSentence(senseId, lcmExampleSentence));
+        if (!ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence))
+            return Task.FromResult<ExampleSentence?>(null);
+        VerifyExampleSentenceBelongsToSense(senseId, lcmExampleSentence);
+        return Task.FromResult<ExampleSentence?>(FromLexExampleSentence(senseId, lcmExampleSentence));
+    }
+
+    private static void VerifyExampleSentenceBelongsToSense(Guid senseId, ILexExampleSentence exampleSentence)
+    {
+        if (exampleSentence.Owner is not ILexSense sense || sense.Guid != senseId)
+            throw new NotFoundException($"Example sentence {exampleSentence.Guid} does not belong to the expected sense, expected Id {senseId}, actual owner {exampleSentence.Owner.Guid}", nameof(ExampleSentence));
     }
 
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence, BetweenPosition? between = null)
@@ -1749,18 +1768,27 @@ public class FwDataMiniLcmApi(
             "Revert Example Sentence",
             async () =>
             {
-                await ExampleSentenceSync.Sync(entryId, senseId, before, after, api ?? this, SyncContext.Empty);
+                await ExampleSentenceSync.Sync(entryId, senseId, before, after, api ?? this);
             });
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find example sentence with id " + after.Id);
     }
 
     public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between)
     {
+        if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
+            throw new InvalidOperationException("Example sentence not found");
+        // see MoveSense
+        VerifyExampleSentenceBelongsToSense(senseId, lexExample);
+        return MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, between);
+    }
+
+    // see MoveSenseToEntry: the insert re-parents
+    public Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between)
+    {
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
         if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
             throw new InvalidOperationException("Example sentence not found");
-        VerifySenseBelongsToEntry(entryId, lexSense);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Example sentence",
             "Move Example sentence back",

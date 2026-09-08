@@ -15,24 +15,21 @@ public static class ExampleSentenceSync
         return await DiffCollection.DiffOrderable(
             beforeExampleSentences,
             afterExampleSentences,
-            new ExampleSentencesDiffApi(api, entryId, senseId, context),
-            context.Examples);
+            context.ExampleSentencesDiffApi(api, entryId, senseId));
     }
 
     public static async Task<int> Sync(Guid entryId,
         Guid senseId,
         ExampleSentence beforeExampleSentence,
         ExampleSentence afterExampleSentence,
-        IMiniLcmApi api,
-        SyncContext context)
+        IMiniLcmApi api)
     {
         var updateObjectInput = DiffToUpdate(beforeExampleSentence, afterExampleSentence);
         if (updateObjectInput is not null)
             await api.SubmitUpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
         var translationChanges = await DiffCollection.Diff(beforeExampleSentence.Translations,
             afterExampleSentence.Translations,
-            new TranslationDiffApi(api, entryId, senseId, beforeExampleSentence.Id),
-            context.Translations);
+            new TranslationDiffApi(api, entryId, senseId, beforeExampleSentence.Id));
         return (updateObjectInput is not null ? 1 : 0) + translationChanges;
     }
 
@@ -92,34 +89,40 @@ public static class ExampleSentenceSync
         }
     }
 
-    private class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId, SyncContext context) : IOrderableCollectionDiffApi<ExampleSentence, Guid>
+    internal class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : OrderableCollectionDiffApi<ExampleSentence, Guid>
     {
-        public Guid GetId(ExampleSentence value)
+        public override Guid GetId(ExampleSentence value)
         {
             return value.Id;
         }
 
-        public async Task<int> Add(ExampleSentence afterExampleSentence, BetweenPosition<ExampleSentence> between)
+        public override async Task<int> Add(ExampleSentence afterExampleSentence, BetweenPosition<ExampleSentence> between)
         {
             await api.SubmitCreateExampleSentence(entryId, senseId, afterExampleSentence, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
-        public async Task<int> Move(ExampleSentence example, BetweenPosition<ExampleSentence> between)
+        public override async Task<int> Move(ExampleSentence example, BetweenPosition<ExampleSentence> between)
         {
             await api.MoveExampleSentence(entryId, senseId, example.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
-        public async Task<int> Remove(ExampleSentence beforeExampleSentence)
+        public override async Task<int> Reparent(ExampleSentence example, BetweenPosition<ExampleSentence> between)
+        {
+            await api.MoveExampleSentenceToSense(entryId, senseId, example.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
+            return 1;
+        }
+
+        public override async Task<int> Remove(ExampleSentence beforeExampleSentence)
         {
             await api.DeleteExampleSentence(entryId, senseId, beforeExampleSentence.Id);
             return 1;
         }
 
-        public Task<int> Replace(ExampleSentence beforeExampleSentence, ExampleSentence afterExampleSentence)
+        public override Task<int> Replace(ExampleSentence beforeExampleSentence, ExampleSentence afterExampleSentence)
         {
-            return Sync(entryId, senseId, beforeExampleSentence, afterExampleSentence, api, context);
+            return Sync(entryId, senseId, beforeExampleSentence, afterExampleSentence, api);
         }
     }
 }

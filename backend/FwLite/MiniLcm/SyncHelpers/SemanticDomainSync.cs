@@ -12,8 +12,7 @@ public static class SemanticDomainSync
         return await DiffCollection.Diff(
             beforeSemanticDomains,
             afterSemanticDomains,
-            new SemanticDomainsDiffApi(api),
-            MoveContext<SemanticDomain, Guid>.Empty);
+            new SemanticDomainsDiffApi(api));
     }
 
     public static async Task<int> Sync(SemanticDomain before,
