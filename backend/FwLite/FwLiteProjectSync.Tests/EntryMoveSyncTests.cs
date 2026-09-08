@@ -527,6 +527,56 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         (await Api.GetEntry(sourceEntry.Id))!.Senses.Should().BeEmpty();
     }
 
+    [Theory]
+    // (sourceEntryFirst, targetEntryCreated); sourceEntryFirst decides whether the example's old sense (a remove) or the moved sense (an add) is diffed first
+    [InlineData(true, false)]
+    [InlineData(false, false)]
+    [InlineData(true, true)]
+    [InlineData(false, true)]
+    public async Task CanSyncExampleSentenceMovedIntoSenseThatMovedToDifferentEntry(bool sourceEntryFirst, bool targetEntryCreated)
+    {
+        var exampleId = Guid.NewGuid();
+        var movingSense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "moving" } } };
+        var stayingSense = new Sense
+        {
+            Id = Guid.NewGuid(),
+            Gloss = { { "en", "staying" } },
+            ExampleSentences = [new ExampleSentence { Id = exampleId, Sentence = { { "en", new RichString("example") } } }]
+        };
+        var sourceEntry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "source-entry" } },
+            Senses = [movingSense, stayingSense]
+        });
+        var targetEntry = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "target-entry" } } };
+        if (!targetEntryCreated)
+            targetEntry = await Api.CreateEntry(targetEntry);
+
+        var sourceEntryAfter = sourceEntry.Copy();
+        var targetEntryAfter = targetEntry.Copy();
+        var movedSense = sourceEntryAfter.Senses.Single(s => s.Id == movingSense.Id);
+        sourceEntryAfter.Senses.Remove(movedSense);
+        var movedExample = sourceEntryAfter.Senses.Single().ExampleSentences.Single();
+        sourceEntryAfter.Senses.Single().ExampleSentences.Clear();
+        movedSense.EntryId = targetEntry.Id;
+        movedExample.SenseId = movedSense.Id;
+        movedSense.ExampleSentences.Add(movedExample);
+        targetEntryAfter.Senses.Add(movedSense);
+
+        Entry[] before = targetEntryCreated ? [sourceEntry] : sourceEntryFirst ? [sourceEntry, targetEntry] : [targetEntry, sourceEntry];
+        Entry[] after = sourceEntryFirst ? [sourceEntryAfter, targetEntryAfter] : [targetEntryAfter, sourceEntryAfter];
+        await EntrySync.SyncFull(before, after, Api);
+
+        var actualMovedSense = await Api.GetSense(targetEntry.Id, movingSense.Id);
+        actualMovedSense.Should().NotBeNull();
+        actualMovedSense.ExampleSentences.Select(e => e.Id).Should().Equal(exampleId);
+        var actualSourceEntry = await Api.GetEntry(sourceEntry.Id);
+        actualSourceEntry.Should().NotBeNull();
+        actualSourceEntry.Senses.Select(s => s.Id).Should().Equal(stayingSense.Id);
+        actualSourceEntry.Senses[0].ExampleSentences.Should().BeEmpty();
+    }
+
     [Fact]
     public async Task CanSyncExampleSentenceWithTranslationMovedToCreatedSense()
     {
