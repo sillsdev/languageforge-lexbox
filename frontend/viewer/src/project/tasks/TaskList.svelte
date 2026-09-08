@@ -111,7 +111,8 @@
     {#each targets as target (target.task.id)}
       {@const progress = stats.progress[target.task.id]}
       {@const remaining = progress ? formatNumber(progress.remaining) : ''}
-      {@const title = target.ws && (progress ? `${target.ws.name}: ${$t`${remaining} to go`}` : target.ws.name)}
+      {@const name = target.ws && `${target.ws.name} (${target.ws.wsId})`}
+      {@const title = name && (progress ? `${name}: ${$t`${remaining} to go`}` : name)}
       {@const classes = `flex min-h-8 items-center gap-1 rounded-full text-sm ${target.ws ? wsColor(target.ws) : ''}`}
       {#if single}
         <span class={classes} {title}>{@render progressAndName(target)}</span>
