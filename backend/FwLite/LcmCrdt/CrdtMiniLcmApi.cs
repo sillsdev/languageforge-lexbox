@@ -29,6 +29,8 @@ public class CrdtMiniLcmApi(
     LcmMediaService lcmMediaService,
     LocalCommentReadStatusService commentReadStatusService,
     CrdtWritingSystemApi writingSystemApi,
+    CrdtSemanticDomainsApi semanticDomainsApi,
+    CrdtPublicationApi publicationApi,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     public ProjectData ProjectData => projectService.ProjectData;
@@ -113,122 +115,89 @@ public class CrdtMiniLcmApi(
         await harmonyChangeWriter.AddChange(new DeleteChange<PartOfSpeech>(id));
     }
 
-    public async IAsyncEnumerable<Publication> GetPublications()
+    public IAsyncEnumerable<Publication> GetPublications()
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var publication in repo.Publications.AsAsyncEnumerable())
-        {
-            yield return publication;
-        }
+        return publicationApi.GetPublications();
     }
 
     public async Task<Publication?> GetPublication(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetPublication(id);
+        return await publicationApi.GetPublication(id);
     }
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
-        await harmonyChangeWriter.AddChange(new CreatePublicationChange(pub.Id, pub.Name, pub.IsMain));
-        return await GetPublication(pub.Id) ?? throw NotFoundException.ForType<Publication>(pub.Id);
+        return await publicationApi.CreatePublication(pub);
     }
 
     public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        // IsMain is applied via SetMainPublicationChange (which converges across replicas), not as a plain patch op,
-        // so it's stripped here. Validation rejects setting IsMain to false on every update/submit path, so isMain is always true.
-        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain))
-        {
-            var patch = new JsonPatchDocument<Publication>();
-            patch.Operations.AddRange(update.Patch.Operations.Where(op =>
-                !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
-            var changes = patch.ToChanges(id).ToList();
-            if (isMain) changes.Add(new SetMainPublicationChange(id));
-            if (changes.Count > 0) await harmonyChangeWriter.AddChanges(changes);
-        }
-        else if (update.Patch.Operations.Count > 0)
-        {
-            await harmonyChangeWriter.AddChanges(update.Patch.ToChanges(id));
-        }
+        await publicationApi.SubmitUpdatePublication(id, update);
     }
 
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        await SubmitUpdatePublication(id, update);
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>($"{id} (invalid patching to a new id?)");
+        return await publicationApi.UpdatePublication(id, update);
     }
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        await PublicationSync.Sync(before, after, api ?? this);
-        var updatedPublication = await GetPublication(after.Id) ?? throw NotFoundException.ForType<Publication>(after.Id);
-        return updatedPublication;
+        return await publicationApi.UpdatePublication(before, after, api ?? this);
     }
 
     public async Task DeletePublication(Guid id)
     {
-        await harmonyChangeWriter.AddChange(new DeleteChange<Publication>(id));
+        await publicationApi.DeletePublication(id);
     }
 
     public async Task AddPublication(Guid entryId, Guid publicationId)
     {
-        var pub = await GetPublication(publicationId) ?? throw NotFoundException.ForType<Publication>(publicationId);
-        await harmonyChangeWriter.AddChange(new AddPublicationChange(entryId, pub));
+        await publicationApi.AddPublication(entryId, publicationId);
     }
 
     public async Task RemovePublication(Guid entryId, Guid publicationId)
     {
-        await harmonyChangeWriter.AddChange(new RemovePublicationChange(entryId, publicationId));
+        await publicationApi.RemovePublication(entryId, publicationId);
     }
 
-    public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var semanticDomain in repo.SemanticDomains.AsAsyncEnumerable())
-        {
-            yield return semanticDomain;
-        }
+        return semanticDomainsApi.GetSemanticDomains();
     }
 
     public async Task<SemanticDomain?> GetSemanticDomain(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.SemanticDomains.FirstOrDefaultAsync(semdom => semdom.Id == id);
+        return await semanticDomainsApi.GetSemanticDomain(id);
     }
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
-        await harmonyChangeWriter.AddChange(new CreateSemanticDomainChange(semanticDomain));
-        return await GetSemanticDomain(semanticDomain.Id) ?? throw NotFoundException.ForType<SemanticDomain>(semanticDomain.Id);
+        return await semanticDomainsApi.CreateSemanticDomain(semanticDomain);
     }
 
     public async Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        await harmonyChangeWriter.AddChanges(update.Patch.ToChanges(id));
+        await semanticDomainsApi.SubmitUpdateSemanticDomain(id, update);
     }
 
     public async Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        await SubmitUpdateSemanticDomain(id, update);
-        return await GetSemanticDomain(id) ?? throw NotFoundException.ForType<SemanticDomain>(id);
+        return await semanticDomainsApi.UpdateSemanticDomain(id, update);
     }
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null)
     {
-        await SemanticDomainSync.Sync(before, after, api ?? this);
-        return await GetSemanticDomain(after.Id) ?? throw NotFoundException.ForType<SemanticDomain>(after.Id);
+        return await semanticDomainsApi.UpdateSemanticDomain(before, after, api ?? this);
     }
 
     public async Task DeleteSemanticDomain(Guid id)
     {
-        await harmonyChangeWriter.AddChange(new DeleteChange<SemanticDomain>(id));
+        await semanticDomainsApi.DeleteSemanticDomain(id);
     }
 
     public async Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
     {
-        await harmonyChangeWriter.AddChanges(await semanticDomains.Select(sd => new CreateSemanticDomainChange(sd)).ToArrayAsync());
+        await semanticDomainsApi.BulkImportSemanticDomains(semanticDomains);
     }
 
     public async IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()

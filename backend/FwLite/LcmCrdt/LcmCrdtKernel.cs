@@ -76,6 +76,8 @@ public static class LcmCrdtKernel
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<HarmonyChangeWriter>();
         services.AddScoped<CrdtWritingSystemApi>();
+        services.AddScoped<CrdtSemanticDomainsApi>();
+        services.AddScoped<CrdtPublicationApi>();
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
