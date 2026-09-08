@@ -909,7 +909,7 @@ msgstr "Các mục còn thiếu..."
 msgid "Entries with examples"
 msgstr ""
 
-#. Shown under "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
+#. Shown next to "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
 #: src/project/tasks/tasks-service.ts
 msgid "Entries with no lexeme form or citation form yet"
 msgstr ""
@@ -3095,9 +3095,9 @@ msgstr "Từ hoặc Hiển thị như là bắt buộc."
 msgid "Word or meaning:"
 msgstr "Từ hoặc ý nghĩa:"
 
-#. Shown under "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
+#. Shown next to "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
 #: src/project/tasks/tasks-service.ts
-msgid "Words with no word or display form yet"
+msgid "Words with nothing to display yet"
 msgstr ""
 
 #. Column header

@@ -110,8 +110,10 @@
 {/snippet}
 
 {#snippet rowContent(label: string, description: string | undefined, targets: Target[], single: boolean)}
-  <span class="truncate font-medium">{label}</span>
-  {#if description}<span class="text-muted-foreground text-sm">{description}</span>{/if}
+  <span class="flex flex-wrap items-baseline gap-x-2">
+    <span class="font-medium">{label}</span>
+    {#if description}<span class="text-muted-foreground text-sm">{description}</span>{/if}
+  </span>
   <span class="mt-1 flex flex-wrap items-center gap-2">
     {#each targets as target (target.task.id)}
       {@const progress = stats.progress[target.task.id]}
