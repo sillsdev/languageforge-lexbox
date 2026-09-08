@@ -1,8 +1,8 @@
 import {asString, useWritingSystemService, type WritingSystemService} from '$project/data';
 import {useProjectContext} from '$project/project-context.svelte';
 import {getEntityConfig, type FieldId} from '$lib/views/entity-config';
-import type {ViewText} from '$lib/views/view-text';
-import {gt} from 'svelte-i18n-lingui';
+import {vt, type ViewText} from '$lib/views/view-text';
+import {gt, msg} from 'svelte-i18n-lingui';
 import type {IEntry, IExampleSentence, IRichString, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
 import {defaultExampleSentence, defaultSense, firstTruthy, isEntry, isSense} from '$lib/utils';
 import {TaskSubject} from './subject.svelte';
@@ -21,8 +21,8 @@ export interface Task {
   contextFields: FieldId[];
   subject: string;
   /** Overrides the field's own label when the task isn't quite the field, e.g. Headword. */
-  fieldLabel?: string;
-  description?: string;
+  fieldLabel?: ViewText;
+  description?: ViewText;
   subjectType: 'entry' | 'sense' | 'example-sentence';
   subjectFields: FieldId[];
   subjectWritingSystemId?: string;
@@ -128,8 +128,8 @@ export class TasksService {
     for (const writingSystem of vernacular) {
       const taskHeadword: Task = {
         id: `entry-no-headword-${writingSystem.wsId}`,
-        fieldLabel: gt`Headword`,
-        description: gt`Entries with no lexeme form or citation form yet`,
+        fieldLabel: msg`Headword`,
+        description: vt(msg`Entries with no lexeme form or citation form yet`, msg`Words with no word or display form yet`),
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: gt`Missing Headword ${writingSystem.abbreviation}`,
         subjectType: 'entry',
@@ -185,7 +185,7 @@ export class TasksService {
     for (const writingSystem of vernacular) {
       const taskExample: Task = {
         id: `example-sentence-${writingSystem.wsId}`,
-        fieldLabel: gt`Example sentence`,
+        fieldLabel: msg`Example sentence`,
         contextFields: ['gloss', 'definition'],
         subject: gt`Missing Example sentence ${writingSystem.abbreviation}`,
         subjectType: 'example-sentence',
