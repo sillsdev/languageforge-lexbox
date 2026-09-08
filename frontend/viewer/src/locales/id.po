@@ -903,6 +903,11 @@ msgstr ""
 msgid "Ends with"
 msgstr "Diakhiri dengan"
 
+#. Shown next to "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
+#: src/project/tasks/tasks-service.ts
+msgid "Entries missing both Lexeme form and Citation form"
+msgstr ""
+
 #. Filter option label
 #. Dropdown to filter entries by missing fields
 #. Example: "Entries missing Definition" shows words without definitions
@@ -912,11 +917,6 @@ msgstr "Entri yang hilang..."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
-msgstr ""
-
-#. Shown next to "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
-#: src/project/tasks/tasks-service.ts
-msgid "Entries with no lexeme form or citation form yet"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
@@ -3097,7 +3097,7 @@ msgstr "Kata atau makna:"
 
 #. Shown next to "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
 #: src/project/tasks/tasks-service.ts
-msgid "Words with nothing to display yet"
+msgid "Words missing both Word and Display as"
 msgstr ""
 
 #. Column header

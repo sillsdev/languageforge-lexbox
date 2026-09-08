@@ -898,6 +898,11 @@ msgstr "Empty comment"
 msgid "Ends with"
 msgstr "Ends with"
 
+#. Shown next to "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
+#: src/project/tasks/tasks-service.ts
+msgid "Entries missing both Lexeme form and Citation form"
+msgstr "Entries missing both Lexeme form and Citation form"
+
 #. Filter option label
 #. Dropdown to filter entries by missing fields
 #. Example: "Entries missing Definition" shows words without definitions
@@ -908,11 +913,6 @@ msgstr "Entries missing..."
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
 msgstr "Entries with examples"
-
-#. Shown next to "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
-#: src/project/tasks/tasks-service.ts
-msgid "Entries with no lexeme form or citation form yet"
-msgstr "Entries with no lexeme form or citation form yet"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
@@ -3092,8 +3092,8 @@ msgstr "Word or meaning:"
 
 #. Shown next to "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
 #: src/project/tasks/tasks-service.ts
-msgid "Words with nothing to display yet"
-msgstr "Words with nothing to display yet"
+msgid "Words missing both Word and Display as"
+msgstr "Words missing both Word and Display as"
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
