@@ -97,8 +97,10 @@
     <span class="sr-only">{$t`Audio`},</span>
   {/if}
   {#if ws}
-    <span>{ws.name}</span>
-    {#if ws.abbreviation}<span class="text-muted-foreground text-xs">{ws.abbreviation}</span>{/if}
+    <span class="flex items-baseline gap-1.5">
+      {ws.name}
+      {#if ws.abbreviation}<span class="text-muted-foreground text-xs">{ws.abbreviation}</span>{/if}
+    </span>
     {#if progress}<span class="sr-only">, {$t`${remaining} to go`}</span>{/if}
   {:else if progress}
     <!-- No language to name it by, so show the count instead. -->
