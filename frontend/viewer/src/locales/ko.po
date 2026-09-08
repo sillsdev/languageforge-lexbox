@@ -230,6 +230,11 @@ msgstr ""
 msgid "Add Sense"
 msgstr "센스 추가"
 
+#. Empty state of the task list when the dictionary has no entries yet
+#: src/project/tasks/TaskList.svelte
+msgid "Add some entries first."
+msgstr ""
+
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
 #: src/project/browse/EntriesList.svelte
@@ -1148,7 +1153,7 @@ msgid "Filename"
 msgstr ""
 
 #. One line under the Tasks page heading, explaining what the tasks are for
-#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Fill in what's missing, one entry at a time."
 msgstr ""
 
@@ -2649,11 +2654,6 @@ msgstr ""
 #: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "작업"
-
-#. Empty state of the task list, shown when the dictionary has no entries yet
-#: src/project/tasks/TaskList.svelte
-msgid "Tasks help you fill in what's missing, so add some entries first."
-msgstr ""
 
 #. Short description under the "Report a technical problem" button in the Feedback & Support dialog.
 #: src/lib/about/FeedbackDialog.svelte
