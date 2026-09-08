@@ -5,6 +5,13 @@ packages:
 # explicitly prevent using packages that are too new
 minimumReleaseAge: 1440
 
+# pnpm 12 no longer reads these from .npmrc; they must live here.
+# include the root (frontend) project in recursive runs, e.g. `pnpm run -r build`
+includeWorkspaceRoot: true
+# we commonly add packages to the root package.json (aka frontend/package.json)
+ignoreWorkspaceRootCheck: true
+engineStrict: true
+
 # https://pnpm.io/global-virtual-store
 # Why use it now with AI https://pnpm.io/git-worktrees#why-this-matters-even-more-with-ai-agents
 virtualStoreType: global
