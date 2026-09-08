@@ -251,7 +251,7 @@ export class EntryLoaderService {
       filter: this.#buildFilterOptions().filter,
       order: {
         field: sort?.field ?? SortField.SearchRelevance,
-        writingSystem: 'default',
+        writingSystem: sort?.writingSystem ?? 'default',
         ascending: sort?.dir !== 'desc',
       },
     };

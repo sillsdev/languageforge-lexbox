@@ -15,6 +15,7 @@
   import {useViewService} from '$lib/views/view-service.svelte';
   import {SortField, type IPartOfSpeech, type IPublication, type ISemanticDomain} from '$lib/dotnet-types';
   import SortMenu from './sort/SortMenu.svelte';
+  import SortWritingSystemMenu from './sort/SortWritingSystemMenu.svelte';
   import type {SortConfig} from './sort/options';
   import {useProjectContext} from '$project/project-context.svelte';
   import type {EntryListViewMode} from './EntryListViewOptions.svelte';
@@ -48,6 +49,10 @@
     replaceOnDefaultValue: IsMobile.value,
   }, false);
   let sort = $state<SortConfig>();
+  // Writing system to sort/display by, chosen separately from the sort field/direction.
+  // Undefined = the default vernacular (how it works today).
+  let sortWs = $state<string>();
+  const sortWithWs = $derived<SortConfig | undefined>(sort ? {...sort, writingSystem: sortWs} : undefined);
   const entryMode: EntryListViewMode = $derived(entryListViewMode.current === 'preview' ? 'preview' : 'simple');
 
   // Turning the filter on means the comments are what the user came for, so open the
@@ -94,6 +99,7 @@
           <div class="my-2 flex items-center gap-2">
             <SortMenu bind:value={sort}
               autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
+            <SortWritingSystemMenu bind:value={sortWs} />
             {#if features.comments}
               <FlagContent flag="comments">
                 <UnreadCommentBadge bind:unreadComments/>
@@ -107,7 +113,7 @@
         <EntriesList bind:this={entriesList}
                      {search}
                      selectedEntryId={masterSelectedId}
-                     {sort}
+                     sort={sortWithWs}
                      {gridifyFilter}
                      {publication}
                      {partOfSpeech}
