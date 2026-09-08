@@ -84,18 +84,16 @@ msgstr ""
 msgid "{0} Server"
 msgstr "Máy chủ {0}"
 
-#. Remaining entries for a task in the task list. {0} = a number.
-#: src/project/tasks/TaskList.svelte
-#: src/project/tasks/TaskList.svelte
-#: src/project/tasks/TaskList.svelte
-msgid "{0} to go"
-msgstr ""
-
 #. Number of changes in sync operation
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# thay đổi}}"
+
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TaskList.svelte
+msgid "{num, plural, one {# entry to go} other {# entries to go}}"
+msgstr ""
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -487,7 +485,6 @@ msgstr "Chọn chủ đề"
 #. Field label: form for citing in dictionary
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/tasks-service.ts
 msgid "Citation form"
 msgstr "Hình thức trích dẫn"
 
@@ -720,7 +717,6 @@ msgstr "Thư mục dữ liệu"
 #. Appears under each Sense/Meaning in entry editor
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/tasks-service.ts
 msgid "Definition"
 msgstr "Định nghĩa"
 
@@ -911,6 +907,11 @@ msgstr "Các mục còn thiếu..."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
+msgstr ""
+
+#. Shown under "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
+#: src/project/tasks/tasks-service.ts
+msgid "Entries with no lexeme form or citation form yet"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
@@ -1146,6 +1147,11 @@ msgstr "Tệp quá lớn"
 msgid "Filename"
 msgstr ""
 
+#. One line under the Tasks page heading, explaining what the tasks are for
+#: src/project/tasks/TaskList.svelte
+msgid "Fill in what's missing, one entry at a time."
+msgstr ""
+
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter"
@@ -1240,7 +1246,6 @@ msgstr "Nhận hỗ trợ"
 #. Appears under each sense/meaning; concise translation
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/tasks-service.ts
 msgid "Gloss"
 msgstr "Ghi chú"
 
@@ -1418,7 +1423,6 @@ msgstr "Logo Lexbox"
 #. Field label: the main headword/base form
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/tasks-service.ts
 msgid "Lexeme form"
 msgstr "Hình thức lexeme"
 
@@ -1998,7 +2002,6 @@ msgstr "Một phần của"
 #. Field label: grammatical category (noun, verb, adjective, etc.)
 #: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
-#: src/project/tasks/tasks-service.ts
 msgid "Part of speech"
 msgstr "Loại từ"
 
@@ -2389,7 +2392,6 @@ msgstr "Miền ngữ nghĩa"
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
 #. Appears under each Sense/Meaning; usually multiple selection allowed
 #: src/lib/views/entity-config.ts
-#: src/project/tasks/tasks-service.ts
 msgid "Semantic domains"
 msgstr "Các miền ngữ nghĩa"
 

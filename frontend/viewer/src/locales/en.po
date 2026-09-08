@@ -79,18 +79,16 @@ msgstr "{0} resolved"
 msgid "{0} Server"
 msgstr "{0} Server"
 
-#. Remaining entries for a task in the task list. {0} = a number.
-#: src/project/tasks/TaskList.svelte
-#: src/project/tasks/TaskList.svelte
-#: src/project/tasks/TaskList.svelte
-msgid "{0} to go"
-msgstr "{0} to go"
-
 #. Number of changes in sync operation
 #: src/project/SyncDialog.svelte
 #: src/project/SyncDialog.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {# change} other {# changes}}"
+
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TaskList.svelte
+msgid "{num, plural, one {# entry to go} other {# entries to go}}"
+msgstr "{num, plural, one {# entry to go} other {# entries to go}}"
 
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -482,7 +480,6 @@ msgstr "Choose theme"
 #. Field label: form for citing in dictionary
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/tasks-service.ts
 msgid "Citation form"
 msgstr "Citation form"
 
@@ -715,7 +712,6 @@ msgstr "Data Directory"
 #. Appears under each Sense/Meaning in entry editor
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/tasks-service.ts
 msgid "Definition"
 msgstr "Definition"
 
@@ -907,6 +903,11 @@ msgstr "Entries missing..."
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
 msgstr "Entries with examples"
+
+#. Shown under "Headword" in the task list; a headword is the citation form, or the lexeme form when there is none
+#: src/project/tasks/tasks-service.ts
+msgid "Entries with no lexeme form or citation form yet"
+msgstr "Entries with no lexeme form or citation form yet"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
@@ -1141,6 +1142,11 @@ msgstr "File too big"
 msgid "Filename"
 msgstr "Filename"
 
+#. One line under the Tasks page heading, explaining what the tasks are for
+#: src/project/tasks/TaskList.svelte
+msgid "Fill in what's missing, one entry at a time."
+msgstr "Fill in what's missing, one entry at a time."
+
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter"
@@ -1235,7 +1241,6 @@ msgstr "Get support"
 #. Appears under each sense/meaning; concise translation
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/tasks-service.ts
 msgid "Gloss"
 msgstr "Gloss"
 
@@ -1413,7 +1418,6 @@ msgstr "Lexbox logo"
 #. Field label: the main headword/base form
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
-#: src/project/tasks/tasks-service.ts
 msgid "Lexeme form"
 msgstr "Lexeme form"
 
@@ -1993,7 +1997,6 @@ msgstr "Part of"
 #. Field label: grammatical category (noun, verb, adjective, etc.)
 #: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
-#: src/project/tasks/tasks-service.ts
 msgid "Part of speech"
 msgstr "Part of speech"
 
@@ -2384,7 +2387,6 @@ msgstr "Semantic domain"
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
 #. Appears under each Sense/Meaning; usually multiple selection allowed
 #: src/lib/views/entity-config.ts
-#: src/project/tasks/tasks-service.ts
 msgid "Semantic domains"
 msgstr "Semantic domains"
 

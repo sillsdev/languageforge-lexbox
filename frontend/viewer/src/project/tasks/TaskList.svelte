@@ -4,14 +4,13 @@
   import {Icon} from '$lib/components/ui/icon';
   import {Button} from '$lib/components/ui/button';
   import {Skeleton} from '$lib/components/ui/skeleton';
-  import {formatNumber} from '$lib/components/ui/format';
   import {useWritingSystemService} from '$project/data';
   import {useFeatures} from '$lib/services/feature-service';
   import {type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
-  import {t} from 'svelte-i18n-lingui';
+  import {plural, t} from 'svelte-i18n-lingui';
   import {watch} from 'runed';
   import {navigate, useRouter} from 'svelte-routing';
-  import {useTasksService, type Task} from './tasks-service';
+  import {taskLabel, useTasksService, type Task} from './tasks-service';
   import {getEntityConfig, type EntityType} from '$lib/views/entity-config';
   import {pt, tvt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
@@ -37,14 +36,16 @@
 
   // Grouped by field so the row count doesn't grow with the writing systems.
   const fields = $derived.by(() => {
-    const groups: {label: string, entity: EntityType, targets: Target[]}[] = [];
+    const groups: {key: string, label: string, description?: string, entity: EntityType, targets: Target[]}[] = [];
     for (const task of tasksService.listTasks()) {
       const ws = writingSystemOf(task);
       // The editors hide audio writing systems when the feature is off, so there'd be nothing to fill in.
       if (ws?.isAudio && !features.audio) continue;
-      let group = groups.find(g => g.label === task.fieldLabel);
+      const entity = task.subjectType === 'example-sentence' ? 'example' : task.subjectType;
+      const key = `${entity}:${task.subjectFields.join()}`;
+      let group = groups.find(g => g.key === key);
       if (!group) {
-        group = {label: task.fieldLabel, entity: task.subjectType === 'example-sentence' ? 'example' : task.subjectType, targets: []};
+        group = {key, label: pt($tvt(taskLabel(task)), viewService.currentView), description: task.description, entity, targets: []};
         groups.push(group);
       }
       group.targets.push({task, ws});
@@ -83,7 +84,7 @@
 
 {#snippet progressAndName({task, ws}: Target, fieldLabel?: string)}
   {@const progress = stats.progress[task.id]}
-  {@const remaining = progress ? formatNumber(progress.remaining) : ''}
+  {@const remaining = progress ? $plural(progress.remaining, {one: '# entry to go', other: '# entries to go'}) : ''}
   {#if fieldLabel}<span class="sr-only">{fieldLabel},</span>{/if}
   {#if !progress}
     <Skeleton class="size-4 shrink-0 rounded-full" />
@@ -101,21 +102,21 @@
       {ws.name}
       {#if ws.abbreviation}<span class="text-muted-foreground text-xs">{ws.abbreviation}</span>{/if}
     </span>
-    {#if progress}<span class="sr-only">, {$t`${remaining} to go`}</span>{/if}
+    {#if progress}<span class="sr-only">, {remaining}</span>{/if}
   {:else if progress}
     <!-- No language to name it by, so show the count instead. -->
-    <span class="text-muted-foreground tabular-nums">{$t`${remaining} to go`}</span>
+    <span class="text-muted-foreground tabular-nums">{remaining}</span>
   {/if}
 {/snippet}
 
-{#snippet rowContent(label: string, targets: Target[], single: boolean)}
+{#snippet rowContent(label: string, description: string | undefined, targets: Target[], single: boolean)}
   <span class="truncate font-medium">{label}</span>
+  {#if description}<span class="text-muted-foreground text-sm">{description}</span>{/if}
   <span class="mt-1 flex flex-wrap items-center gap-2">
     {#each targets as target (target.task.id)}
       {@const progress = stats.progress[target.task.id]}
-      {@const remaining = progress ? formatNumber(progress.remaining) : ''}
       {@const name = target.ws && `${target.ws.name} (${target.ws.wsId})`}
-      {@const title = name && (progress ? `${name}: ${$t`${remaining} to go`}` : name)}
+      {@const title = name && (progress ? `${name}: ${$plural(progress.remaining, {one: '# entry to go', other: '# entries to go'})}` : name)}
       {@const classes = `flex min-h-8 items-center gap-1.5 rounded-full text-sm ${target.ws ? wsColor(target.ws) : ''}`}
       {#if single}
         <span class={classes} {title}>{@render progressAndName(target)}</span>
@@ -136,17 +137,17 @@
 
 {#snippet fieldRows(rows: typeof fields)}
   <div class="flex flex-col gap-2">
-    {#each rows as {label, targets} (label)}
+    {#each rows as {key, label, description, targets} (key)}
       {#if targets.length === 1}
         <ListItem onclick={() => onSelect(targets[0].task.id)} data-task-id={targets[0].task.id}>
-          {@render rowContent(label, targets, true)}
+          {@render rowContent(label, description, targets, true)}
           {#snippet actions()}
             <Icon icon="i-mdi-chevron-right" class="text-muted-foreground shrink-0" />
           {/snippet}
         </ListItem>
       {:else}
         <ListItem element="div">
-          {@render rowContent(label, targets, false)}
+          {@render rowContent(label, description, targets, false)}
         </ListItem>
       {/if}
     {/each}
@@ -162,6 +163,7 @@
   <p class="text-muted-foreground px-4">{$t`No tasks right now.`}</p>
 {:else}
   <div class="flex flex-col gap-6" bind:this={list}>
+    <p class="text-muted-foreground -mb-2 px-4 text-sm">{$t`Fill in what's missing, one entry at a time.`}</p>
     {#each entities as {entity, label, fields: rows} (entity)}
       {#if entities.length > 1}
         <section class="flex flex-col gap-2" aria-labelledby="task-entity-{entity}">
