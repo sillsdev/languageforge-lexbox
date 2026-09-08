@@ -21,8 +21,8 @@ spec:
             - name: Email__SmtpPort
               value: '587'
             - name: Email__From
-              value: "Lexbox <no-reply@languagedepot.org>"
+              value: "Lexbox <no-reply@lexbox.org>"
             - name: Email__CreateProjectEmailDestination
-              value: "admin@languagedepot.org"
+              value: "admin@lexbox.org"
             - name: Email__BaseUrl
-              value: "https://languagedepot.org"
+              value: "https://lexbox.org"
