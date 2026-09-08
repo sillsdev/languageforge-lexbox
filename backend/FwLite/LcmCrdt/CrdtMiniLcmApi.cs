@@ -17,7 +17,6 @@ using Microsoft.Extensions.Logging;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Media;
-using SystemTextJsonPatch;
 
 namespace LcmCrdt;
 
@@ -36,6 +35,7 @@ public class CrdtMiniLcmApi(
     public ProjectData ProjectData => projectService.ProjectData;
     public CrdtProject Project => projectService.Project;
 
+    #region WritingSystemApi
     public Task<WritingSystems> GetWritingSystems()
     {
         return writingSystemApi.GetWritingSystems();
@@ -70,6 +70,7 @@ public class CrdtMiniLcmApi(
     {
         return writingSystemApi.GetWritingSystem(id, type);
     }
+    #endregion
 
     public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
@@ -115,6 +116,7 @@ public class CrdtMiniLcmApi(
         await harmonyChangeWriter.AddChange(new DeleteChange<PartOfSpeech>(id));
     }
 
+    #region PublicationApi
     public IAsyncEnumerable<Publication> GetPublications()
     {
         return publicationApi.GetPublications();
@@ -159,7 +161,9 @@ public class CrdtMiniLcmApi(
     {
         await publicationApi.RemovePublication(entryId, publicationId);
     }
+    #endregion
 
+    #region SemanticDomainApi
     public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
         return semanticDomainsApi.GetSemanticDomains();
@@ -199,6 +203,7 @@ public class CrdtMiniLcmApi(
     {
         await semanticDomainsApi.BulkImportSemanticDomains(semanticDomains);
     }
+    #endregion
 
     public async IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
     {
