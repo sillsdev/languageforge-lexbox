@@ -17,7 +17,9 @@
 </script>
 
 <ActionBadge {actionIcon} {variant} disabled={!canManage} {onAction}>
-  <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-x-clip" title={member.name}>
+  <!-- x-ellipsis, not overflow-x-clip: `overflow: hidden` is what lets the name shrink below its own
+  width, so a long name truncates instead of shoving the role badge and ⋮ menu out of the badge -->
+  <span class="pr-3 whitespace-nowrap x-ellipsis" title={member.name}>
     {member.name}
   </span>
 
