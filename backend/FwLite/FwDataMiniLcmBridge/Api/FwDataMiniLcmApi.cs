@@ -1693,14 +1693,15 @@ public class FwDataMiniLcmApi(
     {
         if (!ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence))
             return Task.FromResult<ExampleSentence?>(null);
-        VerifyExampleSentenceBelongsToSense(senseId, lcmExampleSentence);
+        VerifyExampleSentenceBelongsToSense(entryId, senseId, lcmExampleSentence);
         return Task.FromResult<ExampleSentence?>(FromLexExampleSentence(senseId, lcmExampleSentence));
     }
 
-    private static void VerifyExampleSentenceBelongsToSense(Guid senseId, ILexExampleSentence exampleSentence)
+    private void VerifyExampleSentenceBelongsToSense(Guid entryId, Guid senseId, ILexExampleSentence exampleSentence)
     {
         if (exampleSentence.Owner is not ILexSense sense || sense.Guid != senseId)
             throw new NotFoundException($"Example sentence {exampleSentence.Guid} does not belong to the expected sense, expected Id {senseId}, actual owner {exampleSentence.Owner.Guid}", nameof(ExampleSentence));
+        VerifySenseBelongsToEntry(entryId, sense);
     }
 
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence, BetweenPosition? between = null)
@@ -1778,7 +1779,7 @@ public class FwDataMiniLcmApi(
         if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
             throw new InvalidOperationException("Example sentence not found");
         // see MoveSense
-        VerifyExampleSentenceBelongsToSense(senseId, lexExample);
+        VerifyExampleSentenceBelongsToSense(entryId, senseId, lexExample);
         return MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, between);
     }
 
