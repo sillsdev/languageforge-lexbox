@@ -41,6 +41,7 @@ public class MiniLcmRepository(
     LcmCrdtDbContext dbContext,
     IMiniLcmCultureProvider cultureProvider,
     IOptions<LcmCrdtConfig> config,
+    SetupCollationInterceptor collationSetup,
     EntrySearchService? entrySearchService = null
 ) : IAsyncDisposable, IDisposable
 {
@@ -48,8 +49,11 @@ public class MiniLcmRepository(
 
     private async ValueTask EnsureConnectionOpen()
     {
-        if (dbContext.Database.GetDbConnection().State == ConnectionState.Open) return;
-        await RelationalDatabaseFacadeExtensions.OpenConnectionAsync(dbContext.Database);
+        // Registers the writing-system collations on this query's connection (opening it if needed).
+        // A connection can be opened before writing systems exist and then reused, so relying on the
+        // connection-opened interceptor alone can leave the collations unregistered — see
+        // SetupCollationInterceptor.EnsureCollationsSetup.
+        await collationSetup.EnsureCollationsSetup(dbContext);
     }
 
     public ValueTask DisposeAsync()
