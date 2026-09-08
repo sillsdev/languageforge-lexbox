@@ -5,6 +5,12 @@ FROM node:26 AS builder
 RUN npm install -g pnpm@12.3.4
 WORKDIR /app
 
+# Project-local virtual store so node_modules/.pnpm lands in the image
+# (global store is cache-mount-only and would dangle at runtime).
+# PNPM_CONFIG_* is required: virtualStoreType is an enum and is validated
+# before ${...} interpolation in pnpm-workspace.yaml.
+ENV PNPM_CONFIG_VIRTUAL_STORE_TYPE=project
+
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install

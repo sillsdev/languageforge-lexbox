@@ -12,6 +12,10 @@ includeWorkspaceRoot: true
 ignoreWorkspaceRootCheck: true
 engineStrict: true
 
+# Host/worktrees: global. Docker sets PNPM_CONFIG_VIRTUAL_STORE_TYPE=project
+# so node_modules/.pnpm is materialized inside /app and COPY works.
+# (pnpm validates this enum before ${...} expansion, so interpolation cannot
+# be used here — https://pnpm.io/settings#virtualstoretype)
 # https://pnpm.io/global-virtual-store
 # Why use it now with AI https://pnpm.io/git-worktrees#why-this-matters-even-more-with-ai-agents
 virtualStoreType: global
