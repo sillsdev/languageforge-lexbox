@@ -144,7 +144,7 @@ export class WritingSystemService {
    * shown headword matches the sort key, but falls back to the first available vernacular value
    * (like {@link headword}) so rows aren't left blank when an entry has no form in `ws`.
    */
-  sortedHeadword(entry: ReadonlyDeep<IEntry>, ws?: string): string {
+  bestHeadword(entry: ReadonlyDeep<IEntry>, ws?: string): string {
     if (!ws) return this.headword(entry);
     return this.#decorated(entry, ws) || this.headword(entry);
   }
