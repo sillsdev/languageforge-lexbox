@@ -84,6 +84,7 @@
 {#snippet progressAndName({task, ws}: Target, fieldLabel?: string)}
   {@const progress = stats.progress[task.id]}
   {@const remaining = progress ? formatNumber(progress.remaining) : ''}
+  {#if fieldLabel}<span class="sr-only">{fieldLabel},</span>{/if}
   {#if !progress}
     <Skeleton class="size-4 shrink-0 rounded-full" />
   {:else if progress.remaining === 0}
@@ -93,16 +94,16 @@
   {/if}
   {#if ws?.isAudio}
     <Icon icon="i-mdi-microphone" class="size-4" />
+    <span class="sr-only">{$t`Audio`},</span>
   {/if}
   {#if ws}
-    <span aria-hidden="true">{ws.abbreviation || ws.name}</span>
+    <span>{ws.name}</span>
+    {#if ws.abbreviation}<span class="text-muted-foreground text-xs">{ws.abbreviation}</span>{/if}
+    {#if progress}<span class="sr-only">, {$t`${remaining} to go`}</span>{/if}
   {:else if progress}
     <!-- No language to name it by, so show the count instead. -->
     <span class="text-muted-foreground tabular-nums">{$t`${remaining} to go`}</span>
   {/if}
-  <span class="sr-only">
-    {#if fieldLabel}{fieldLabel}, {/if}{#if ws}{ws.name}{#if ws.isAudio}, {$t`Audio`}{/if}{#if progress}, {$t`${remaining} to go`}{/if}{/if}
-  </span>
 {/snippet}
 
 {#snippet rowContent(label: string, targets: Target[], single: boolean)}
@@ -113,7 +114,7 @@
       {@const remaining = progress ? formatNumber(progress.remaining) : ''}
       {@const name = target.ws && `${target.ws.name} (${target.ws.wsId})`}
       {@const title = name && (progress ? `${name}: ${$t`${remaining} to go`}` : name)}
-      {@const classes = `flex min-h-8 items-center gap-1 rounded-full text-sm ${target.ws ? wsColor(target.ws) : ''}`}
+      {@const classes = `flex min-h-8 items-center gap-1.5 rounded-full text-sm ${target.ws ? wsColor(target.ws) : ''}`}
       {#if single}
         <span class={classes} {title}>{@render progressAndName(target)}</span>
       {:else}
