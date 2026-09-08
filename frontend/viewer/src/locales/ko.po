@@ -90,6 +90,10 @@ msgstr "{0} 서버"
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {#개 변경}}"
 
+#: src/project/tasks/TaskList.svelte
+msgid "{num, plural, one {# entry to go} other {# entries to go}}"
+msgstr ""
+
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
@@ -102,6 +106,10 @@ msgstr "{num, plural, other {# 새 FieldWorks Lite 커밋}}"
 
 #: src/project/browse/filter/UnreadCommentBadge.svelte
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "{num, plural, one {# word to go} other {# words to go}}"
 msgstr ""
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
@@ -225,6 +233,14 @@ msgstr ""
 msgid "Add Sense"
 msgstr "센스 추가"
 
+#: src/project/tasks/TaskList.svelte
+msgid "Add some entries first."
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "Add some words first."
+msgstr ""
+
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
 #: src/project/browse/EntriesList.svelte
@@ -332,6 +348,10 @@ msgstr "{0}을 삭제하시겠습니까?"
 msgid "Ask questions and get help on our community forum."
 msgstr "커뮤니티 포럼에서 질문하고 도움을 받으세요."
 
+#: src/project/tasks/TaskList.svelte
+msgid "Audio"
+msgstr ""
+
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
@@ -370,6 +390,10 @@ msgstr "자동 동기화"
 msgid "Back"
 msgstr ""
 
+#: src/project/tasks/TasksView.svelte
+msgid "Back to tasks"
+msgstr ""
+
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -394,6 +418,7 @@ msgstr "파란색"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Browse"
 msgstr "찾아보기"
 
@@ -882,6 +907,10 @@ msgstr ""
 msgid "Ends with"
 msgstr "로 끝납니다."
 
+#: src/project/tasks/tasks-service.ts
+msgid "Entries missing both Lexeme form and Citation form"
+msgstr ""
+
 #. Filter option label
 #. Dropdown to filter entries by missing fields
 #. Example: "Entries missing Definition" shows words without definitions
@@ -962,6 +991,7 @@ msgstr "예"
 #. Sentence/phrase showing usage of a word
 #. Appears under each Sense/Meaning; can have multiple examples per meaning
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Example sentence"
 msgstr "문장 예시"
 
@@ -1125,6 +1155,22 @@ msgstr "파일이 너무 큼"
 msgid "Filename"
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Display as"
+msgstr ""
+
+#: src/project/tasks/TasksView.svelte
+msgid "Fill in what's missing, one entry at a time."
+msgstr ""
+
+#: src/project/tasks/TasksView.svelte
+msgid "Fill in what's missing, one word at a time."
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Word or Display as"
+msgstr ""
+
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter"
@@ -1275,6 +1321,7 @@ msgstr ""
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
 #: src/project/browse/sort/SortMenu.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Headword"
 msgstr "헤드워드"
 
@@ -1556,6 +1603,7 @@ msgstr "수동 업데이트가 필요합니다. 제공된 지침을 따르세요
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Meaning"
 msgstr "의미"
 
@@ -1577,6 +1625,10 @@ msgstr ""
 msgid "Missing Definition {0}"
 msgstr "정의 누락 {0}"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Display as {0}"
+msgstr ""
+
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Example sentence {0}"
@@ -1588,6 +1640,10 @@ msgid "Missing Gloss {0}"
 msgstr "누락된 광택 {0}"
 
 #: src/project/tasks/tasks-service.ts
+msgid "Missing Grammatical info."
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
 msgid "Missing Headword {0}"
 msgstr ""
 
@@ -1595,13 +1651,16 @@ msgstr ""
 msgid "Missing Lexeme form {0}"
 msgstr ""
 
-#. Task subject label in the task list. Identifies senses/meanings that have no part-of-speech (grammatical category) assigned.
 #: src/project/tasks/tasks-service.ts
-msgid "Missing Part of Speech"
-msgstr "누락된 품사"
+msgid "Missing Part of speech"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
-msgid "Missing Semantic domain"
+msgid "Missing Semantic domains"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Word {0}"
 msgstr ""
 
 #. Filter result label
@@ -1805,6 +1864,10 @@ msgstr ""
 msgid "No subject, unable to create a new {0}"
 msgstr "제목이 없습니다, 새로 만들 수 없습니다 {0}"
 
+#: src/project/tasks/TaskList.svelte
+msgid "No tasks right now."
+msgstr ""
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr ""
@@ -1978,10 +2041,13 @@ msgstr "품사"
 msgid "Pending"
 msgstr "보류 중"
 
-#. Task instruction
 #: src/project/tasks/tasks-service.ts
-msgid "Pick a Part of Speech"
-msgstr "품사 선택"
+msgid "Pick a Part of speech"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick Grammatical info."
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick one or more Semantic domains"
@@ -2115,7 +2181,19 @@ msgid "Record a Lexeme form or Citation form"
 msgstr ""
 
 #: src/project/tasks/tasks-service.ts
+msgid "Record a Word"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
 msgid "Record an example sentence"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record Display as"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record Word or Display as"
 msgstr ""
 
 #. Field label for citation source
@@ -2326,11 +2404,6 @@ msgstr "{0} 선택"
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "자세한 내용을 보려면 {0} 을 선택하세요."
-
-#. Empty state message
-#: src/project/tasks/TasksView.svelte
-msgid "Select a new task to work on"
-msgstr "작업할 새 작업 선택"
 
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
@@ -2610,11 +2683,6 @@ msgstr "동기화..."
 msgid "System"
 msgstr "시스템"
 
-#. Page title with task name
-#: src/project/tasks/TasksView.svelte
-msgid "Task {0}"
-msgstr "작업 {0}"
-
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -2626,6 +2694,7 @@ msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "작업"
 
@@ -2803,6 +2872,10 @@ msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form or Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Word"
 msgstr ""
 
 #. Task instruction
@@ -3068,6 +3141,10 @@ msgstr "단어 또는 표시 이름은 필수 입력 사항입니다."
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "단어 또는 의미:"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Words missing both Word and Display as"
+msgstr ""
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
