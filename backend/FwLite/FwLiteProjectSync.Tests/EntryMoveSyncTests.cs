@@ -477,7 +477,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
     }
 
     [Fact]
-    public async Task CanSyncSenseWithExampleAndTranslationMovedToCreatedEntry()
+    public async Task CanSyncSenseWithChildrenMovedToCreatedEntry()
     {
         var sourceEntry = await Api.CreateEntry(new()
         {
@@ -489,6 +489,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
                 {
                     Id = Guid.NewGuid(),
                     Gloss = { { "en", "moving sense" } },
+                    Pictures = [new Picture { Id = Guid.NewGuid(), MediaUri = new MediaUri(Guid.NewGuid(), "localhost") }],
                     ExampleSentences =
                     [
                         new ExampleSentence
@@ -502,7 +503,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
             ]
         });
 
-        // the moved sense brings its example and translation along; they must not be mistaken for their own moves
+        // the moved sense brings its picture, example and translation along; they must not be mistaken for their own moves
         var sourceEntryAfter = sourceEntry.Copy();
         var movedSense = sourceEntryAfter.Senses[0];
         sourceEntryAfter.Senses.Clear();
@@ -518,6 +519,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var actualCreatedEntry = await Api.GetEntry(createdEntry.Id);
         actualCreatedEntry.Should().NotBeNull();
         actualCreatedEntry.Senses.Select(s => s.Id).Should().Equal(movedSense.Id);
+        actualCreatedEntry.Senses[0].Pictures.Select(p => p.Id).Should().Equal(movedSense.Pictures[0].Id);
         var actualExample = actualCreatedEntry.Senses[0].ExampleSentences.Should().ContainSingle().Which;
         actualExample.Id.Should().Be(movedSense.ExampleSentences[0].Id);
         actualExample.Translations.Should().ContainSingle()
