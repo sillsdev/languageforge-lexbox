@@ -281,12 +281,20 @@ describe('tasks service', () => {
 
       it('entry tasks say "Record" for an audio writing system, in both views', () => {
         const prompts = [...TasksService.makeEntryTasks([audioWs])].flatMap(t => bothViews(t.prompt));
-        expect(prompts.every(p => p.startsWith('Record'))).toBe(true);
+        expect(prompts).toStrictEqual([
+          'Record a Lexeme form or Citation form', 'Record Word or Display as',
+          'Record a Lexeme form', 'Record a Word',
+          'Record a Citation form', 'Record Display as',
+        ]);
       });
 
-      it('entry tasks never say "Record" for a text writing system', () => {
+      it('entry tasks say "Type" or "Fill in" for a text writing system, in both views', () => {
         const prompts = [...TasksService.makeEntryTasks([vernacularWs])].flatMap(t => bothViews(t.prompt));
-        expect(prompts.some(p => p.includes('Record'))).toBe(false);
+        expect(prompts).toStrictEqual([
+          'Type a Lexeme form or Citation form', 'Fill in Word or Display as',
+          'Type a Lexeme form', 'Type a Word',
+          'Type a Citation form', 'Fill in Display as',
+        ]);
       });
 
       it('example sentence task says "Record" for an audio writing system', () => {

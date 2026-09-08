@@ -64,10 +64,9 @@
     }))
     .filter(group => group.fields.length > 0));
 
-  // Hooks must run during init, so the resource reads the fields lazily.
-  const statsResource = useTasksStats(() => fields.flatMap(field => field.targets.map(target => target.task)));
+  const statsResource = useTasksStats();
   const stats = $derived(statsResource.current);
-  watch(() => fields.flatMap(f => f.targets.map(t => t.task.id)).join(), () => void statsResource.refetch());
+  watch(() => tasksService.listTasks().map(t => t.id).join(), () => void statsResource.refetch());
 
   function remainingText(remaining: number): string {
     return pt(

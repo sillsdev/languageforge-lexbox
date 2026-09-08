@@ -2,7 +2,7 @@ import {useDebounce} from 'runed';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import {useProjectEventBus} from '$lib/services/event-bus';
 import {useProjectContext} from '$project/project-context.svelte';
-import type {Task} from './tasks-service';
+import {useTasksService, type Task} from './tasks-service';
 
 const tasksStatsSymbol = Symbol.for('fw-lite-tasks-stats');
 
@@ -47,12 +47,13 @@ export class TasksStats {
   }
 }
 
-export function useTasksStats(tasks: () => Task[]) {
+export function useTasksStats() {
   const projectContext = useProjectContext();
   const projectEventBus = useProjectEventBus();
+  const tasksService = useTasksService();
 
   return projectContext.getOrAdd(tasksStatsSymbol, () => {
-    const stats = new TasksStats(tasks);
+    const stats = new TasksStats(() => tasksService.listTasks());
     const resource = projectContext.apiResource(stats, async (api) => {
       await stats.load(api);
       return stats;
