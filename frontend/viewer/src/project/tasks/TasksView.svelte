@@ -23,12 +23,17 @@
 </script>
 
 <div class="flex flex-col h-full p-4 gap-4">
-  <div class="flex flex-row items-center gap-2">
+  <div class="flex flex-row items-start gap-2">
     <SidebarTrigger icon="i-mdi-menu" class="aspect-square p-0" />
     {#if selectedTaskId.current}
       <Button variant="ghost" size="icon" icon="i-mdi-arrow-left" onclick={closeTask} aria-label={$t`Back to tasks`} />
     {/if}
-    <h1 class="text-xl font-semibold truncate min-w-0">{selectedTask ? pt($tvt(taskLabel(selectedTask)), viewService.currentView) : $t`Tasks`}</h1>
+    <div class="min-w-0">
+      <h1 class="text-xl font-semibold truncate">{selectedTask ? pt($tvt(taskLabel(selectedTask)), viewService.currentView) : $t`Tasks`}</h1>
+      {#if !selectedTaskId.current && !selectedTaskId.loading}
+        <p class="text-muted-foreground text-sm">{$t`Fill in what's missing, one entry at a time.`}</p>
+      {/if}
+    </div>
   </div>
   <ViewErrorBoundary class="flex-1 min-h-0 overflow-auto" title={$t`Task view failed`}>
     {#if selectedTaskId.current}

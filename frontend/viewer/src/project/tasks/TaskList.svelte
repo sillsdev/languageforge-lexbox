@@ -158,14 +158,13 @@
 
 {#if stats.totalEntries === 0}
   <div class="flex flex-col items-start gap-3 px-4">
-    <p class="text-muted-foreground">{$t`Tasks help you fill in what's missing, so add some entries first.`}</p>
+    <p class="text-muted-foreground">{$t`Add some entries first.`}</p>
     <Button variant="outline" icon="i-mdi-book-alphabet" onclick={() => navigate(`${$base.uri}/browse`)}>{$t`Browse`}</Button>
   </div>
 {:else if entities.length === 0}
   <p class="text-muted-foreground px-4">{$t`No tasks right now.`}</p>
 {:else}
   <div class="flex flex-col gap-6" bind:this={list}>
-    <p class="text-muted-foreground -mb-2 px-4 text-sm">{$t`Fill in what's missing, one entry at a time.`}</p>
     {#each entities as {entity, label, fields: rows} (entity)}
       {#if entities.length > 1}
         <section class="flex flex-col gap-2" aria-labelledby="task-entity-{entity}">
