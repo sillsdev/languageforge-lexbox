@@ -79,6 +79,7 @@ public static class LcmCrdtKernel
         services.AddScoped<CrdtSemanticDomainsApi>();
         services.AddScoped<CrdtPublicationApi>();
         services.AddScoped<CrdtComplexFormComponentApi>();
+        services.AddScoped<CrdtMorphTypeApi>();
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();

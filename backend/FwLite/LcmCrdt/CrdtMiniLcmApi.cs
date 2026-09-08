@@ -31,6 +31,7 @@ public class CrdtMiniLcmApi(
     CrdtSemanticDomainsApi semanticDomainsApi,
     CrdtPublicationApi publicationApi,
     CrdtComplexFormComponentApi complexFormComponentApi,
+    CrdtMorphTypeApi morphTypeApi,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     public ProjectData ProjectData => projectService.ProjectData;
@@ -289,46 +290,37 @@ public class CrdtMiniLcmApi(
     }
     #endregion
 
-    public async IAsyncEnumerable<MorphType> GetMorphTypes()
+    #region MorphTypeApi
+    public IAsyncEnumerable<MorphType> GetMorphTypes()
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var morphType in repo.MorphTypes.AsAsyncEnumerable())
-        {
-            yield return morphType;
-        }
+        return morphTypeApi.GetMorphTypes();
     }
 
     public async Task<MorphType?> GetMorphType(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Id == id);
+        return await morphTypeApi.GetMorphType(id);
     }
 
     public async Task<MorphType?> GetMorphType(MorphTypeKind kind)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Kind == kind);
+        return await morphTypeApi.GetMorphType(kind);
     }
 
     public async Task<MorphType> CreateMorphType(MorphType morphType)
     {
-        //I don't like returning a different object than what the user requested, it feels very unexpected, however this is pretty much what happens in the change anyway and that can't be avoided
-        if (await GetMorphType(morphType.Kind) is {} actualMorphType) return actualMorphType;
-        await harmonyChangeWriter.AddChange(new CreateMorphTypeChange(morphType));
-        return await GetMorphType(morphType.Id) ?? throw NotFoundException.ForType<MorphType>(morphType.Id);
+        return await morphTypeApi.CreateMorphType(morphType);
     }
 
     public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
-        await harmonyChangeWriter.AddChange(new JsonPatchChange<MorphType>(id, update.Patch));
-        return await GetMorphType(id) ?? throw NotFoundException.ForType<MorphType>(id);
+        return await morphTypeApi.UpdateMorphType(id, update);
     }
 
     public async Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null)
     {
-        await MorphTypeSync.Sync(before, after, api ?? this);
-        return await GetMorphType(after.Id) ?? throw NotFoundException.ForType<MorphType>(after.Id);
+        return await morphTypeApi.UpdateMorphType(before, after, api ?? this);
     }
+    #endregion
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
     {
