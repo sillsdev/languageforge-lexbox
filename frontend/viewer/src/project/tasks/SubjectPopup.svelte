@@ -15,6 +15,8 @@
   import type {TaskSubject} from './subject.svelte';
   import type {Overrides} from '$lib/views/view-data';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
+  import {pt} from '$lib/views/view-text';
+  import {useViewService} from '$lib/views/view-service.svelte';
 
   let {
     entry = $bindable(),
@@ -32,6 +34,7 @@
     onNextEntry?: () => void,
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
+  const viewService = useViewService();
   const overrides = $derived.by((): Overrides => {
     if (!task.subjectWritingSystemId) return {};
     const ws = {wsId: task.subjectWritingSystemId};
@@ -133,7 +136,7 @@
     <Drawer.Footer class="gap-4">
       <Separator/>
       <p class="text-lg">
-        {task.prompt}
+        {pt(task.prompt, viewService.currentView)}
       </p>
       {#if subject}
         {#key subject}

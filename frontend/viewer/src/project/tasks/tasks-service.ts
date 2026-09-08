@@ -19,7 +19,8 @@ export function useTasksService() {
 export interface Task {
   id: string;
   contextFields: FieldId[];
-  subject: string;
+  /** Already translated, unlike fieldLabel and description: tasks are rebuilt on language change. */
+  subject: ViewText;
   /** Overrides the field's own label when the task isn't quite the field, e.g. Headword. */
   fieldLabel?: ViewText;
   description?: ViewText;
@@ -27,7 +28,8 @@ export interface Task {
   subjectFields: FieldId[];
   subjectWritingSystemId?: string;
   subjectWritingSystemType?: WritingSystemType;
-  prompt: string;
+  /** Already translated, see subject. */
+  prompt: ViewText;
   taskKind: 'provide-missing';
   gridifyFilter?: string;
   getSubjectValue: (subject: IEntry | ISense | IExampleSentence) => string | undefined;
@@ -94,10 +96,10 @@ export class TasksService {
     const taskMissingPartOfSpeech: Task = {
       id: 'missing-part-of-speech',
       contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
-      subject: gt`Missing Part of Speech`,
+      subject: vt(gt`Missing Grammatical info.`, gt`Missing Part of speech`),
       subjectType: 'sense',
       subjectFields: ['partOfSpeechId'],
-      prompt: gt`Pick a Part of Speech`,
+      prompt: vt(gt`Pick Grammatical info.`, gt`Pick a Part of speech`),
       taskKind: 'provide-missing',
       gridifyFilter: 'Senses.PartOfSpeechId=',
       getSubjectValue: s => firstTruthy(analysis, ws => asString((s as ISense).partOfSpeech?.name[ws.wsId])) ,
@@ -107,7 +109,7 @@ export class TasksService {
     const taskMissingSemanticDomain: Task = {
       id: 'missing-semantic-domain',
       contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
-      subject: gt`Missing Semantic domain`,
+      subject: gt`Missing Semantic domains`,
       subjectType: 'sense',
       subjectFields: ['semanticDomains'],
       prompt: gt`Pick one or more Semantic domains`,
@@ -136,7 +138,9 @@ export class TasksService {
         subjectFields: ['lexemeForm', 'citationForm'],
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
-        prompt: writingSystem.isAudio ? gt`Record a Lexeme form or Citation form` : gt`Type a Lexeme form or Citation form`,
+        prompt: writingSystem.isAudio
+          ? vt(gt`Record a Lexeme form or Citation form`, gt`Record Word or Display as`)
+          : vt(gt`Type a Lexeme form or Citation form`, gt`Fill in Word or Display as`),
         taskKind: 'provide-missing',
         gridifyFilter: `LexemeForm[${writingSystem.wsId}]=,CitationForm[${writingSystem.wsId}]=`,
         getSubjectValue: s => TasksService.getHeadwordValue(s as IEntry, writingSystem.wsId),
@@ -146,12 +150,14 @@ export class TasksService {
       const taskLexemeForm: Task = {
         id: `entry-no-lexeme-form-${writingSystem.wsId}`,
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
-        subject: gt`Missing Lexeme form ${writingSystem.abbreviation}`,
+        subject: vt(gt`Missing Lexeme form ${writingSystem.abbreviation}`, gt`Missing Word ${writingSystem.abbreviation}`),
         subjectType: 'entry',
         subjectFields: ['lexemeForm'],
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
-        prompt: writingSystem.isAudio ? gt`Record a Lexeme form` : gt`Type a Lexeme form`,
+        prompt: writingSystem.isAudio
+          ? vt(gt`Record a Lexeme form`, gt`Record a Word`)
+          : vt(gt`Type a Lexeme form`, gt`Type a Word`),
         taskKind: 'provide-missing',
         gridifyFilter: `LexemeForm[${writingSystem.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskLexemeForm, s),
@@ -161,12 +167,14 @@ export class TasksService {
       const taskCitationForm: Task = {
         id: `entry-no-citation-form-${writingSystem.wsId}`,
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
-        subject: gt`Missing Citation form ${writingSystem.abbreviation}`,
+        subject: vt(gt`Missing Citation form ${writingSystem.abbreviation}`, gt`Missing Display as ${writingSystem.abbreviation}`),
         subjectType: 'entry',
         subjectFields: ['citationForm'],
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
-        prompt: writingSystem.isAudio ? gt`Record a Citation form` : gt`Type a Citation form`,
+        prompt: writingSystem.isAudio
+          ? vt(gt`Record a Citation form`, gt`Record Display as`)
+          : vt(gt`Type a Citation form`, gt`Fill in Display as`),
         taskKind: 'provide-missing',
         gridifyFilter: `CitationForm[${writingSystem.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskCitationForm, s),
