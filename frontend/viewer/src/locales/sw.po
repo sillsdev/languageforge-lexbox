@@ -546,6 +546,10 @@ msgstr ""
 msgid "Comments, {0} unread"
 msgstr ""
 
+#: src/project/tasks/TaskList.svelte
+msgid "Complete"
+msgstr ""
+
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte

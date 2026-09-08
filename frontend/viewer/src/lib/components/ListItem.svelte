@@ -42,7 +42,7 @@
   data-skeleton={skeleton || undefined}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',
-    'bg-muted rounded outline-none shadow-sm',
+    'bg-muted rounded outline-hidden shadow-sm',
     'border-l-5 border-l-transparent aria-selected:border-l-primary',
     'aria-selected:bg-primary/15 aria-selected:dark:bg-primary/25',
     interactive && [

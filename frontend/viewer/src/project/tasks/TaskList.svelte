@@ -96,6 +96,7 @@
     <Skeleton class="size-4 shrink-0 rounded-full" />
   {:else if progress.remaining === 0}
     <Icon icon="i-mdi-check-circle" class="size-4" />
+    <span class="sr-only">{$t`Complete`},</span>
   {:else}
     <CircularProgress value={progress.percentDone} size={16} strokeWidth={2.5} />
   {/if}
@@ -131,7 +132,7 @@
       {:else}
         <button
           type="button"
-          class="{classes} bg-background/60 hover:bg-primary/15 focus-visible:ring-ring/50 dark:hover:bg-primary/25 px-2.5 shadow-sm transition-colors outline-none focus-visible:ring-[3px]"
+          class="{classes} bg-background/60 hover:bg-primary/15 focus-visible:ring-ring/50 dark:hover:bg-primary/25 px-2.5 shadow-sm transition-colors outline-hidden focus-visible:ring-[3px]"
           {title}
           onclick={() => onSelect(target.task.id)}
           data-task-id={target.task.id}
