@@ -2,9 +2,22 @@
 FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 EXPOSE 80
 EXPOSE 443
+# Mercurial's bundled `hg` is a `#!/usr/bin/env python3` script, but this base (sdk:11.0, Ubuntu
+# 26.04) ships python3 = 3.14 and Mercurial 6.5's demandimport breaks on 3.12+. Install python3.12
+# from deadsnakes and alias it as python3 (nothing else in this dev image needs python), mirroring
+# what the production Dockerfile does with a dedicated python3.12 stage.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  apt update && apt-get --no-install-recommends install -y tini iputils-ping python3
+  apt-get update && apt-get --no-install-recommends install -y tini iputils-ping ca-certificates curl gnupg \
+  && curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF23C5A6CF475977595C89F51BA6932366A755776' \
+    | gpg --dearmor -o /etc/apt/keyrings/deadsnakes.gpg \
+  && echo "deb [signed-by=/etc/apt/keyrings/deadsnakes.gpg] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") main" \
+    > /etc/apt/sources.list.d/deadsnakes.list \
+  && apt-get update && apt-get --no-install-recommends install -y python3.12 \
+  && ln -sf /usr/bin/python3.12 /usr/local/bin/python3
+# Mercurial 6.5's demandimport breaks on 3.12+ (circular import of threading.RLock). Chorus spawns
+# hg as a child, so this must be in the image env.
+ENV HGDEMANDIMPORT=disable
 RUN mkdir -p /var/lib/fw-headless /var/www/.local/share && chown -R www-data:www-data /var/lib/fw-headless /var/www/
 USER www-data:www-data
 WORKDIR /src/backend
