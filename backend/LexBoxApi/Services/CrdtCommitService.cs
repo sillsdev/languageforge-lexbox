@@ -88,12 +88,13 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         if (oldest is null) return null;
         var commitsToReplay = await commits.CountAsync(token);
 
+        var startOfDayBeforeOldest = new DateTimeOffset(oldest.HybridDateTime.DateTime.UtcDateTime.Date, TimeSpan.Zero).AddDays(-1);
         var reason = "Forces a full snapshot rebuild on all clients";
         var commit = new ServerCommit(Guid.NewGuid())
         {
             ProjectId = projectId,
             ClientId = Guid.NewGuid(),
-            HybridDateTime = new HybridDateTime(oldest.HybridDateTime.DateTime.AddSeconds(-1), 0),
+            HybridDateTime = new HybridDateTime(startOfDayBeforeOldest, 0),
             Metadata = new CommitMetadata
             {
                 AuthorName = "Lexbox maintenance",
