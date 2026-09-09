@@ -107,7 +107,6 @@
 {/snippet}
 
 {#snippet field({label, description, targets}: Field)}
-  <!-- Label and chips share a row; the chips wrap under it only when they run out of width. -->
   <div class="flex flex-col gap-x-3 gap-y-2">
     <span class="flex flex-wrap items-baseline gap-x-2">
       <span class="text-sm font-medium">{label}</span>
