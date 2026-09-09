@@ -19,6 +19,11 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
     public override Expression<Func<Entry, object?>> EntrySensesExampleSentences => e => e.Senses.Select(s => s.ExampleSentences);
     public override Expression<Func<Entry, string, object>> EntrySensesExampleSentencesSentence =>
         (e, ws) => e.Senses.SelectMany(s => s.ExampleSentences).Select(example => Json.Value(example.Sentence, ms => ms[ws])!.GetPlainText());
+    //Sql.Property reaches the raw jsonb column (like SemanticDomains) so the empty-list check compares the column (= '[]').
+    public override Expression<Func<Entry, object?>> EntrySensesExampleSentencesTranslations =>
+        e => e.Senses.SelectMany(s => s.ExampleSentences).Select(example => Sql.Property<IList<Translation>>(example, nameof(ExampleSentence.Translations)));
+    public override Func<string, object>? EntrySensesExampleSentencesTranslationsConverter =>
+        EntryFilter.NormalizeEmptyToEmptyList<Translation>;
     public override Expression<Func<Entry, object?>> EntrySensesPartOfSpeechId => e => e.Senses.Select(s => s.PartOfSpeechId);
     public override Expression<Func<Entry, object?>> EntrySenses => e => e.Senses;
 

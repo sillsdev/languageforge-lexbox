@@ -34,6 +34,8 @@ using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Text.Json.Serialization.Metadata;
+using LcmCrdt.Harmony;
+using LcmCrdt.MiniLcmImp;
 using MiniLcm.Media;
 
 namespace LcmCrdt;
@@ -72,6 +74,8 @@ public static class LcmCrdtKernel
             harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
+        services.AddScoped<HarmonyChangeWriter>();
+        services.AddScoped<CrdtWritingSystemApi>();
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();

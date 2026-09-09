@@ -21,6 +21,7 @@ public class EntryFilter
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition!);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}", provider.EntrySensesExampleSentences, NormalizeEmptyToNull<ExampleSentence>);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}.{nameof(ExampleSentence.Sentence)}", provider.EntrySensesExampleSentencesSentence!);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}.{nameof(ExampleSentence.Translations)}", provider.EntrySensesExampleSentencesTranslations, provider.EntrySensesExampleSentencesTranslationsConverter);
 
         mapper.AddMap(nameof(Entry.Note), provider.EntryNote!);
         mapper.AddMap(nameof(Entry.LexemeForm), provider.EntryLexemeForm!);

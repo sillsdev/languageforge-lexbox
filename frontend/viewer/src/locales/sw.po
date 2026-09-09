@@ -283,6 +283,10 @@ msgstr ""
 msgid "Analysis writing systems"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Analytics are turned off."
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
 #. Filter option: clear grammatical info filter
@@ -1060,6 +1064,10 @@ msgstr "Maeneo"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
+#: src/home/HomeView.svelte
+msgid "FieldWorks Lite collects usage data to help us improve it."
+msgstr ""
+
 #. Success notification shown after FieldWorks Lite auto-updates. "FieldWorks Lite" is a product name — do not translate.
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
@@ -1358,6 +1366,11 @@ msgstr "Badiliko la mwisho: #"
 msgid "Last sync: #"
 msgstr "Kuoanisha kwa mwisho: #"
 
+#: src/home/HomeView.svelte
+msgid "Learn more"
+msgstr ""
+
+#. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
 msgstr ""
@@ -1555,6 +1568,10 @@ msgstr ""
 msgid "Media Manager"
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Citation form {0}"
+msgstr ""
+
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
@@ -1570,10 +1587,22 @@ msgstr "Sentensi ya mfano yenye kushindwa {0}"
 msgid "Missing Gloss {0}"
 msgstr "Glosi yenye kushindwa {0}"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Headword {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Lexeme form {0}"
+msgstr ""
+
 #. Task subject label in the task list. Identifies senses/meanings that have no part-of-speech (grammatical category) assigned.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of Speech"
 msgstr "Sehemu ya mazungumzo yenye kushindwa"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Semantic domain"
+msgstr ""
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1905,6 +1934,10 @@ msgstr "Fungua faili la logi"
 msgid "Opening in FieldWorks…"
 msgstr "Kufungua katika FieldWorks…"
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Opt out of analytics"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
@@ -1949,6 +1982,10 @@ msgstr "Inasubiri"
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
 msgstr "Chagua Sehemu ya Mazungumzo"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick one or more Semantic domains"
+msgstr ""
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
@@ -2010,6 +2047,12 @@ msgstr ""
 msgid "Previous picture"
 msgstr ""
 
+#: src/home/HomeView.svelte
+#: src/lib/about/PrivacyDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Privacy"
+msgstr ""
+
 #. Label in project card
 #: src/home/HomeView.svelte
 msgid "Project"
@@ -2049,6 +2092,30 @@ msgstr "Chapisha Neno katika"
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Definition"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Gloss"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form or Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record an example sentence"
 msgstr ""
 
 #. Field label for citation source
@@ -2110,6 +2177,7 @@ msgstr ""
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr ""
 
+#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Release channel"
 msgstr ""
@@ -2429,6 +2497,10 @@ msgstr "Ruka"
 msgid "Something went wrong"
 msgstr ""
 
+#: src/project/browse/sort/SortWritingSystemMenu.svelte
+msgid "Sort writing system"
+msgstr ""
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
@@ -2703,8 +2775,16 @@ msgstr "Tatanua"
 msgid "Try again"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Turn analytics back on"
+msgstr ""
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Citation form"
 msgstr ""
 
 #. Task instruction
@@ -2716,6 +2796,14 @@ msgstr "Andika Maana"
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
 msgstr "Andika Fasihi"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form or Citation form"
+msgstr ""
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2914,10 +3002,18 @@ msgstr "Muonekano"
 msgid "View Picture"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "View the SIL privacy policy"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "zambarau"
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
+msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"

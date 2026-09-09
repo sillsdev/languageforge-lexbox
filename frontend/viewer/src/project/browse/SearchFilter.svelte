@@ -85,6 +85,7 @@
     let newFilter: string[] = [];
     switch (missingField?.id) {
       case 'examples': newFilter.push('Senses.ExampleSentences=null'); break;
+      case 'translations': newFilter.push('Senses.ExampleSentences.Translations=null'); break;
       case 'senses': newFilter.push('Senses=null'); break;
       case 'partOfSpeech': newFilter.push('Senses.PartOfSpeechId='); break;
       case 'semanticDomains': newFilter.push('Senses.SemanticDomains=null'); break;

@@ -199,6 +199,112 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task GetEntry_RootedPathUnderLinkedFilesResolvesNormally()
+    {
+        var fileName = "GetEntry_RootedPathUnderLinkedFiles.txt";
+        var fileId = await StoreFileContentsAsync(fileName, "test");
+        var rootedPathUnderTree = Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir,
+            FwDataMiniLcmApi.AudioVisualFolder, fileName);
+        Path.IsPathRooted(rootedPathUnderTree).Should().BeTrue("the stored FwData value must be a rooted path");
+        var entryId = await AddFileDirectly(rootedPathUnderTree, contents: null, storeFile: false);
+        // guard: FwData really holds the rooted absolute path, not a relative one
+        GetFwAudioValue(entryId).Should().Be(rootedPathUnderTree);
+
+        var entry = await _api.GetEntry(entryId);
+
+        entry.Should().NotBeNull();
+        entry.CitationForm[_audioWs].Should().Be(new MediaUri(fileId, "localhost").ToString(),
+            "a rooted path under LinkedFilesRootDir/AudioVisual is relativized and resolved to its managed MediaUri");
+    }
+
+    [Fact]
+    public async Task GetEntry_OutOfTreeRootedPathMapsToNotFoundSentinel()
+    {
+        var outOfTreeRootedPath = Path.Combine(Path.GetTempPath(),
+            "lexbox-out-of-tree-media", "GetEntry_OutOfTreeRootedPath.wav");
+        Path.IsPathRooted(outOfTreeRootedPath).Should().BeTrue("the test is vacuous unless the stored FwData value is a rooted path");
+        outOfTreeRootedPath.Should().NotStartWith(_api.Cache.LangProject.LinkedFilesRootDir,
+            "the rooted path must be outside LinkedFilesRootDir");
+        var entryId = await AddFileDirectly(outOfTreeRootedPath, contents: null, storeFile: false);
+        // guard: FwData really holds the rooted out-of-tree path
+        GetFwAudioValue(entryId).Should().Be(outOfTreeRootedPath);
+
+        // read path: out-of-tree rooted path -> not-found sentinel, no throw
+        var entry = await _api.GetEntry(entryId);
+        entry.Should().NotBeNull();
+        entry.CitationForm[_audioWs].Should().Be(MediaUri.NotFound.ToString(),
+            "a genuinely out-of-tree rooted path maps to the not-found sentinel on read");
+
+        // write path: the sentinel resolves to null on write, so the audio field is skipped and FwData keeps
+        // its original out-of-tree reference
+        await _api.UpdateEntry(entryId,
+            new UpdateObjectInput<Entry>().Set(e => e.CitationForm[_audioWs], MediaUri.NotFound.ToString()));
+        GetFwAudioValue(entryId).Should().Be(outOfTreeRootedPath,
+            "writing the not-found sentinel must skip the audio field and leave FwData's original reference untouched");
+    }
+
+    [Fact]
+    public async Task GetEntry_RootedPathWhoseFilenameStartsWithDotsResolves()
+    {
+        // Regression: the out-of-tree check must match a parent-directory ".." SEGMENT, not a raw ".." prefix.
+        // A managed file whose name merely begins with ".." (e.g. "..name.wav") must still resolve.
+        var fileName = "..leadingdots.wav";
+        var fileId = await StoreFileContentsAsync(fileName, "test");
+        var rootedPathUnderTree = Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir,
+            FwDataMiniLcmApi.AudioVisualFolder, fileName);
+        var entryId = await AddFileDirectly(rootedPathUnderTree, contents: null, storeFile: false);
+        GetFwAudioValue(entryId).Should().Be(rootedPathUnderTree);
+
+        var entry = await _api.GetEntry(entryId);
+
+        entry.Should().NotBeNull();
+        entry.CitationForm[_audioWs].Should().Be(new MediaUri(fileId, "localhost").ToString(),
+            "a managed file whose name starts with '..' must resolve, not map to the not-found sentinel");
+    }
+
+    [Fact]
+    public async Task UpdateEntry_ClearAudioViaRemove_ClearsFwData()
+    {
+        var fileName = "ClearAudioViaRemove.wav";
+        var fileId = await StoreFileContentsAsync(fileName, "test");
+        var mediaUri = new MediaUri(fileId, "localhost");
+        var entry = await _api.CreateEntry(new Entry
+        {
+            LexemeForm = { ["en"] = "test" },
+            CitationForm = { [_audioWs] = mediaUri.ToString() }
+        });
+        GetFwAudioValue(entry.Id).Should().Be(fileName);
+
+        var before = (await _api.GetEntry(entry.Id))!;
+        var after = before.Copy();
+        after.CitationForm.Remove(_audioWs);
+        await _api.UpdateEntry(before, after);
+
+        var cleared = await _api.GetEntry(entry.Id);
+        cleared!.CitationForm.Values.Should().NotContainKey(_audioWs, "removing the audio WS must clear it in FwData");
+    }
+
+    [Fact]
+    public async Task UpdateEntry_ClearAudioViaEmptyString_ClearsFwData()
+    {
+        var fileName = "ClearAudioViaEmpty.wav";
+        var fileId = await StoreFileContentsAsync(fileName, "test");
+        var mediaUri = new MediaUri(fileId, "localhost");
+        var entry = await _api.CreateEntry(new Entry
+        {
+            LexemeForm = { ["en"] = "test" },
+            CitationForm = { [_audioWs] = mediaUri.ToString() }
+        });
+        GetFwAudioValue(entry.Id).Should().Be(fileName);
+
+        await _api.UpdateEntry(entry.Id,
+            new UpdateObjectInput<Entry>().Set(e => e.CitationForm[_audioWs], ""));
+
+        var cleared = await _api.GetEntry(entry.Id);
+        cleared!.CitationForm.Values.Should().NotContainKey(_audioWs, "setting the audio WS to empty must clear it in FwData");
+    }
+
+    [Fact]
     public async Task SearchEntries_DoesNotMatchAudioWritingSystemValues()
     {
         // The audio writing system's value is a media-file reference, not searchable text.

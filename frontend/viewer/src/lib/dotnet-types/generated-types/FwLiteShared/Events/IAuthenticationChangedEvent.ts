@@ -5,11 +5,13 @@
 
 import type {IFwEvent} from './IFwEvent';
 import type {ILexboxServer} from '../Auth/ILexboxServer';
+import type {AuthenticationChangeCause} from './AuthenticationChangeCause';
 import type {FwEventType} from './FwEventType';
 
 export interface IAuthenticationChangedEvent extends IFwEvent
 {
 	server: ILexboxServer;
+	cause: AuthenticationChangeCause;
 	type: FwEventType;
 	isGlobal: boolean;
 }

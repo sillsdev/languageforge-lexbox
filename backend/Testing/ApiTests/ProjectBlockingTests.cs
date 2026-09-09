@@ -27,7 +27,7 @@ public class SyncedProjectFixture : IAsyncLifetime
         ProjectCode = Utils.NewProjectCode();
         ProjectId = await FwHeadlessTestHelpers.CopyProjectToNewProject(_httpClient, ProjectCode, "sena-3");
         await FwHeadlessTestHelpers.TriggerSync(_httpClient, ProjectId);
-        await FwHeadlessTestHelpers.AwaitSyncFinished(_httpClient, ProjectId);
+        await FwHeadlessTestHelpers.AwaitSyncSuccess(_httpClient, ProjectId);
     }
 
     public async Task DisposeAsync()

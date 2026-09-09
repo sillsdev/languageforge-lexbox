@@ -43,6 +43,7 @@
     'hover:bg-primary/15 aria-selected:bg-primary/15',
     'dark:hover:bg-primary/25 aria-selected:dark:bg-primary/25',
     'disabled:pointer-events-none disabled:contrast-[0.8]',
+    'transition-transform active:scale-97',
     loading && 'animate-pulse',
     skeleton && 'cursor-default hover:bg-transparent pointer-events-none shadow-none',
     className,

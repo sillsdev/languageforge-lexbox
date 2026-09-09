@@ -26,6 +26,7 @@
   import {transitionContext} from './transitions';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
   import FeedbackDialog from '$lib/about/FeedbackDialog.svelte';
+  import PrivacyDialog from '$lib/about/PrivacyDialog.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import CreateProjectDialog from './CreateProjectDialog.svelte';
   import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
@@ -98,6 +99,7 @@
 
   let feedbackOpen = $state(false);
   let updateDialogOpen = $state(false);
+  let privacyOpen = $state(false);
 
   let deleteDialog = $state<DeleteDialog>();
 </script>
@@ -134,6 +136,9 @@
           <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-message">
             {$t`Feedback & Support`}
           </ResponsiveMenu.Item>
+          <ResponsiveMenu.Item onSelect={() => privacyOpen = true} icon="i-mdi-shield-account-outline">
+            {$t`Privacy`}
+          </ResponsiveMenu.Item>
           <ResponsiveMenu.Item
             icon="i-mdi-help-circle"
             onSelect={() => troubleshootDialog?.open()}>
@@ -143,6 +148,7 @@
       </ResponsiveMenu.Root>
       <UpdateDialog bind:open={updateDialogOpen}/>
       <FeedbackDialog bind:open={feedbackOpen}/>
+      <PrivacyDialog bind:open={privacyOpen}/>
       <TroubleshootDialog bind:this={troubleshootDialog}/>
     </div>
     {/snippet}
@@ -265,6 +271,13 @@
   </div>
 
   <div class="md:grow-2"></div>
+
+  <p class="text-center text-xs text-muted-foreground px-4 py-6">
+    {$t`FieldWorks Lite collects usage data to help us improve it.`}
+    <button class="text-primary underline underline-offset-4 hover:no-underline" onclick={() => privacyOpen = true}>
+      {$t`Learn more`}
+    </button>
+  </p>
 </div>
 
 <style lang="postcss">

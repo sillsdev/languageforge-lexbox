@@ -4,6 +4,9 @@
 //     the code is regenerated.
 
 export enum PreferenceKey {
-	AppLastUrl = "AppLastUrl"
+	AppLastUrl = "AppLastUrl",
+	AnalyticsDeviceId = "AnalyticsDeviceId",
+	AnalyticsUserId = "AnalyticsUserId",
+	AnalyticsOptOut = "AnalyticsOptOut"
 }
 /* eslint-enable */

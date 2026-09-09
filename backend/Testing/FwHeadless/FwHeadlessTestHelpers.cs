@@ -29,7 +29,21 @@ public static class FwHeadlessTestHelpers
         result.ShouldBeSuccessful();
     }
 
-    public static async Task<SyncJobResult?> AwaitSyncFinished(HttpClient httpClient, Guid projectId)
+    public static async Task<SyncJobResult?> AwaitSyncSuccess(HttpClient httpClient, Guid projectId)
+    {
+        var syncResult = await AwaitSyncResult(httpClient, projectId);
+        if (syncResult?.Status != SyncJobStatusEnum.Success)
+            Assert.Fail($"Sync failed with status: {syncResult?.Status}, Error: {syncResult?.Error}");
+        return syncResult;
+    }
+
+    /// <summary>
+    /// Awaits sync completion and returns the <see cref="SyncJobResult"/> regardless of status, unlike
+    /// <see cref="AwaitSyncSuccess"/> which <c>Assert.Fail</c>s on any non-success status. A repro that
+    /// asserts the desired post-fix status itself (so the FluentAssertions failure can surface the actual
+    /// error while the fix is still pending) must use this instead of the asserting helper.
+    /// </summary>
+    public static async Task<SyncJobResult?> AwaitSyncResult(HttpClient httpClient, Guid projectId)
     {
         var giveUpAt = DateTime.UtcNow + TimeSpan.FromMinutes(4);
         while (giveUpAt > DateTime.UtcNow)
@@ -38,12 +52,7 @@ public static class FwHeadlessTestHelpers
             {
                 var result = await httpClient.GetAsync($"api/fw-lite/sync/await-sync-finished/{projectId}", new CancellationTokenSource(TimeSpan.FromSeconds(25)).Token);
                 result.EnsureSuccessStatusCode();
-                var syncResult = await result.Content.ReadFromJsonAsync<SyncJobResult>();
-
-                if (syncResult?.Status != SyncJobStatusEnum.Success)
-                    Assert.Fail($"Sync failed with status: {syncResult?.Status}, Error: {syncResult?.Error}");
-
-                return syncResult;
+                return await result.Content.ReadFromJsonAsync<SyncJobResult>();
             }
             catch (OperationCanceledException)
             {

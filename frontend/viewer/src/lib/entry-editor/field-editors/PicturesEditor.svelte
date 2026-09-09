@@ -9,7 +9,7 @@
   import {downloadPictureFile} from './picture-actions';
   import {useImageService} from './image-service.svelte';
   import {t} from 'svelte-i18n-lingui';
-  import {useLexboxApi} from '$lib/services/service-provider';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {AppNotification} from '$lib/notifications/notifications';
   import {randomId} from '$lib/utils';
@@ -23,7 +23,7 @@
   };
   let {pictures = $bindable(), entryId, senseId, readonly = false}: Props = $props();
 
-  const api = useLexboxApi();
+  const api = useMiniLcmApi();
   const dialogsService = useDialogsService();
   const platformFeatures = usePlatformFeaturesService();
   const imageService = useImageService();

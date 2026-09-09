@@ -278,6 +278,10 @@ msgstr "Analysis writing system code"
 msgid "Analysis writing systems"
 msgstr "Analysis writing systems"
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Analytics are turned off."
+msgstr "Analytics are turned off."
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
 #. Filter option: clear grammatical info filter
@@ -1055,6 +1059,10 @@ msgstr "Fields"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
+#: src/home/HomeView.svelte
+msgid "FieldWorks Lite collects usage data to help us improve it."
+msgstr "FieldWorks Lite collects usage data to help us improve it."
+
 #. Success notification shown after FieldWorks Lite auto-updates. "FieldWorks Lite" is a product name — do not translate.
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
@@ -1353,6 +1361,10 @@ msgstr "Last change: #"
 msgid "Last sync: #"
 msgstr "Last sync: #"
 
+#: src/home/HomeView.svelte
+msgid "Learn more"
+msgstr "Learn more"
+
 #. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
@@ -1551,6 +1563,10 @@ msgstr "Media file details"
 msgid "Media Manager"
 msgstr "Media Manager"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Citation form {0}"
+msgstr "Missing Citation form {0}"
+
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
@@ -1566,10 +1582,22 @@ msgstr "Missing Example sentence {0}"
 msgid "Missing Gloss {0}"
 msgstr "Missing Gloss {0}"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Headword {0}"
+msgstr "Missing Headword {0}"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Lexeme form {0}"
+msgstr "Missing Lexeme form {0}"
+
 #. Task subject label in the task list. Identifies senses/meanings that have no part-of-speech (grammatical category) assigned.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of Speech"
 msgstr "Missing Part of Speech"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Semantic domain"
+msgstr "Missing Semantic domain"
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1901,6 +1929,10 @@ msgstr "Open Log file"
 msgid "Opening in FieldWorks…"
 msgstr "Opening in FieldWorks…"
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Opt out of analytics"
+msgstr "Opt out of analytics"
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
@@ -1945,6 +1977,10 @@ msgstr "Pending"
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of Speech"
 msgstr "Pick a Part of Speech"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick one or more Semantic domains"
+msgstr "Pick one or more Semantic domains"
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
@@ -2006,6 +2042,12 @@ msgstr "Preview not supported"
 msgid "Previous picture"
 msgstr "Previous picture"
 
+#: src/home/HomeView.svelte
+#: src/lib/about/PrivacyDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Privacy"
+msgstr "Privacy"
+
 #. Label in project card
 #: src/home/HomeView.svelte
 msgid "Project"
@@ -2046,6 +2088,30 @@ msgstr "Publish Word in"
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
 msgstr "Read-only"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Citation form"
+msgstr "Record a Citation form"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Definition"
+msgstr "Record a Definition"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Gloss"
+msgstr "Record a Gloss"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form"
+msgstr "Record a Lexeme form"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form or Citation form"
+msgstr "Record a Lexeme form or Citation form"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record an example sentence"
+msgstr "Record an example sentence"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2426,6 +2492,10 @@ msgstr "Skip"
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+#: src/project/browse/sort/SortWritingSystemMenu.svelte
+msgid "Sort writing system"
+msgstr "Sort writing system"
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
@@ -2700,9 +2770,17 @@ msgstr "Troubleshoot"
 msgid "Try again"
 msgstr "Try again"
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Turn analytics back on"
+msgstr "Turn analytics back on"
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
 msgstr "Type"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Citation form"
+msgstr "Type a Citation form"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2713,6 +2791,14 @@ msgstr "Type a Definition"
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
 msgstr "Type a Gloss"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form"
+msgstr "Type a Lexeme form"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form or Citation form"
+msgstr "Type a Lexeme form or Citation form"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2911,10 +2997,18 @@ msgstr "View"
 msgid "View Picture"
 msgstr "View Picture"
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "View the SIL privacy policy"
+msgstr "View the SIL privacy policy"
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "violet"
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
+msgstr "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"

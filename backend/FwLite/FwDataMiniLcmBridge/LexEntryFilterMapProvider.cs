@@ -20,6 +20,9 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
     public override Expression<Func<ILexEntry, object?>> EntrySensesExampleSentences => e => e.AllSenses.Select(s => EmptyToNull(s.ExamplesOS));
     public override Expression<Func<ILexEntry, string, object>> EntrySensesExampleSentencesSentence => (entry, ws) =>
         entry.AllSenses.SelectMany(s => s.ExamplesOS).Select(example => example.PickText(example.Example, ws));
+    public override Expression<Func<ILexEntry, object?>> EntrySensesExampleSentencesTranslations =>
+        e => e.AllSenses.SelectMany(s => s.ExamplesOS).Select(example => EmptyToNull(example.TranslationsOC));
+    public override Func<string, object>? EntrySensesExampleSentencesTranslationsConverter => EntryFilter.NormalizeEmptyToNull<ICmTranslation>;
 
     public override Expression<Func<ILexEntry, object?>> EntrySensesPartOfSpeechId =>
         e => e.AllSenses.Select(s =>
