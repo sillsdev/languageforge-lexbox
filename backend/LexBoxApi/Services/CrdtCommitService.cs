@@ -93,7 +93,6 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         {
             ProjectId = projectId,
             ClientId = Guid.NewGuid(),
-            //safe to date relative to the oldest: no normal path adds a commit before the project's first
             HybridDateTime = new HybridDateTime(oldest.HybridDateTime.DateTime.AddSeconds(-1), 0),
             Metadata = new CommitMetadata
             {
