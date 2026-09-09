@@ -225,7 +225,7 @@ public class CrdtCommitServiceTests
     {
         var existing = await AddTestCommit();
 
-        var rebuild = await _crdtCommitService.AddSnapshotRebuildCommit(existing.ProjectId);
+        var rebuild = await _crdtCommitService.AddSnapshotRebuildCommit(existing.ProjectId, "test");
 
         rebuild.Should().NotBeNull();
         var commits = await _lexBoxDbContext.CrdtCommits(existing.ProjectId).ToArrayAsync();
@@ -243,7 +243,7 @@ public class CrdtCommitServiceTests
         var existing = await AddTestCommit();
         var upToDateClient = await _crdtCommitService.GetSyncState(existing.ProjectId);
 
-        var rebuild = await _crdtCommitService.AddSnapshotRebuildCommit(existing.ProjectId);
+        var rebuild = await _crdtCommitService.AddSnapshotRebuildCommit(existing.ProjectId, "test");
 
         var serverState = await _crdtCommitService.GetSyncState(existing.ProjectId);
         var missing = await _crdtCommitService.GetMissingCommits(existing.ProjectId, serverState, upToDateClient)
