@@ -79,25 +79,28 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
     /// </summary>
     /// <returns>the commit added, or null if the project has no commits</returns>
     public async Task<SnapshotRebuildCommit?> AddSnapshotRebuildCommit(Guid projectId,
-        string? note = null,
+        string note,
         CancellationToken token = default)
     {
         var linqToDbContext = dbContext.CreateLinqToDBContext();
         var commits = linqToDbContext.GetTable<ServerCommit>().Where(c => c.ProjectId == projectId);
+        var oldest = await commits.DefaultOrder().FirstOrDefaultAsync(token);
+        if (oldest is null) return null;
         var commitsToReplay = await commits.CountAsync(token);
-        if (commitsToReplay == 0) return null;
 
         var reason = "Forces a full snapshot rebuild on all clients";
         var commit = new ServerCommit(Guid.NewGuid())
         {
             ProjectId = projectId,
             ClientId = Guid.NewGuid(),
-            //the floor, so a commit arriving later can't sort before it and leave history unreplayed
-            HybridDateTime = new HybridDateTime(DateTimeOffset.MinValue, 0),
+            //just before the oldest commit: no normal path adds a commit before the project's first,
+            //so nothing sorts ahead of this and leaves history unreplayed. A second call dates itself
+            //before this one, so it repeats.
+            HybridDateTime = new HybridDateTime(oldest.HybridDateTime.DateTime.AddSeconds(-1), 0),
             Metadata = new CommitMetadata
             {
                 AuthorName = "Lexbox maintenance",
-                ExtraMetadata = { ["reason"] = note is null ? reason : $"{reason}. {note}" },
+                ExtraMetadata = { ["reason"] = $"{reason}. {note}" },
             },
         };
         dbContext.Add(commit);
