@@ -28,8 +28,6 @@
   import CommentDialog from '$lib/entry-editor/comments/CommentDialog.svelte';
   import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
-  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
-  import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
   import {ResizableHandle, ResizablePane, ResizablePaneGroup} from '$lib/components/ui/resizable';
   import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
 
@@ -121,7 +119,7 @@
   const sticky = $derived(dictionaryPreview === 'sticky');
 
   let deleted = $state(false);
-  const showCommentDialog = $derived(showComments && features.comments && hasFlag('comments'));
+  const showCommentDialog = $derived(showComments && features.comments);
 
   const entryUnreadResource = resource(
     () => (features.comments ? dedupedEntryId : undefined),
@@ -182,26 +180,24 @@
           title={headword}>{headword}</h2>
         <div class="flex shrink-0">
           {#if features.comments}
-            <FlagContent flag="comments">
-              <div class="relative">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  icon={showCommentDialog ? 'i-mdi-comment-text' : 'i-mdi-comment-text-outline'}
-                  aria-pressed={showCommentDialog}
-                  aria-label={entryUnreadCount > 0
-                    ? $t`Comments, ${entryUnreadCount} unread`
-                    : $t`Comments`}
-                  onclick={() => showComments = !showComments}
-                />
-                {#if entryUnreadCount > 0}
-                  <span
-                    class="pointer-events-none absolute top-1.5 right-1.5 size-2 rounded-full bg-primary ring-2 ring-background"
-                    aria-hidden="true"
-                  ></span>
-                {/if}
-              </div>
-            </FlagContent>
+            <div class="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                icon={showCommentDialog ? 'i-mdi-comment-text' : 'i-mdi-comment-text-outline'}
+                aria-pressed={showCommentDialog}
+                aria-label={entryUnreadCount > 0
+                  ? $t`Comments, ${entryUnreadCount} unread`
+                  : $t`Comments`}
+                onclick={() => showComments = !showComments}
+              />
+              {#if entryUnreadCount > 0}
+                <span
+                  class="pointer-events-none absolute top-1.5 right-1.5 size-2 rounded-full bg-primary ring-2 ring-background"
+                  aria-hidden="true"
+                ></span>
+              {/if}
+            </div>
           {/if}
           <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} />
           <EntryMenu {entry} />

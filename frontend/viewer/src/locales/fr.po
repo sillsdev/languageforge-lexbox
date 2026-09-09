@@ -1271,6 +1271,10 @@ msgstr ""
 msgid "Has unread comments"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unresolved comments"
+msgstr ""
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
