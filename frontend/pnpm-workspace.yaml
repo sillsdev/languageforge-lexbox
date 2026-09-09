@@ -5,6 +5,34 @@ packages:
 # explicitly prevent using packages that are too new
 minimumReleaseAge: 1440
 
+# pnpm 12 no longer reads these from .npmrc; they must live here.
+# include the root (frontend) project in recursive runs, e.g. `pnpm run -r build`
+includeWorkspaceRoot: true
+# we commonly add packages to the root package.json (aka frontend/package.json)
+ignoreWorkspaceRootCheck: true
+engineStrict: true
+
+# Host/worktrees: global. Docker sets PNPM_CONFIG_VIRTUAL_STORE_TYPE=project
+# so node_modules/.pnpm is materialized inside /app and COPY works.
+# (pnpm validates this enum before ${...} expansion, so interpolation cannot
+# be used here — https://pnpm.io/settings#virtualstoretype)
+# https://pnpm.io/global-virtual-store
+# Why use it now with AI https://pnpm.io/git-worktrees#why-this-matters-even-more-with-ai-agents
+virtualStoreType: global
+
+overrides:
+  "cookie": "^0.7.0"
+  "@types/mjml-core": "^4.15.2"
+  "minimatch@9": "^9.0.7"
+  "immutable@3": "^3.8.3"
+
+# vaul-svelte@1.0.0-next.7 imports bits-ui but forgot to declare it. The old
+# hoisted virtual store exposed it anyway; the global virtual store isolates
+# vaul-svelte to its declared deps, so declare the missing peer here.
+packageExtensions:
+  vaul-svelte:
+    peerDependencies:
+      bits-ui: "^2.0.0"
 
 catalog:
   '@playwright/test': ^1.62.1
@@ -34,8 +62,8 @@ catalog:
   vite: ^8.2.1
   vitest: ^4.1.10
 
-onlyBuiltDependencies:
-  - esbuild
-  - protobufjs
-  - sharp
-  - svelte-preprocess
+allowBuilds:
+  esbuild: true
+  protobufjs: true
+  sharp: true
+  svelte-preprocess: true
