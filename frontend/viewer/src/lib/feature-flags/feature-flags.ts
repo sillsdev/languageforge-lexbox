@@ -6,7 +6,7 @@
  * Usage: `if (hasFlag('flag-name')) { ... }` or `<FlagContent flag="flag-name">`.
  */
 export const CHANNEL_FLAGS = {
-  beta: ['comments'],
+  beta: [],//add flags here for beta channel
 } as const satisfies Record<string, readonly string[]>;
 
 export type FeatureFlag = (typeof CHANNEL_FLAGS)[keyof typeof CHANNEL_FLAGS][number];
