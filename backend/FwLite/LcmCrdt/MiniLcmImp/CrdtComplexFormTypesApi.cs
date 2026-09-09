@@ -59,8 +59,8 @@ public class CrdtComplexFormTypesApi(MiniLcmRepositoryFactory repoFactory, Harmo
 
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await harmonyChangeWriter.AddChange(new AddComplexFormTypeChange(entryId, await repo.ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
+        var complexFormType = await GetComplexFormType(complexFormTypeId) ?? throw NotFoundException.ForType<ComplexFormType>(complexFormTypeId);
+        await harmonyChangeWriter.AddChange(new AddComplexFormTypeChange(entryId, complexFormType));
     }
 
     public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
