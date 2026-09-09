@@ -1,6 +1,5 @@
 <script lang="ts">
-  import ListItem from '$lib/components/ListItem.svelte';
-  import * as ResponsiveMenu from '$lib/components/responsive-menu';
+  import * as Card from '$lib/components/ui/card';
   import {CircularProgress} from '$lib/components/ui/circular-progress';
   import {Icon} from '$lib/components/ui/icon';
   import {Button} from '$lib/components/ui/button';
@@ -9,14 +8,14 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
   import {plural, t} from 'svelte-i18n-lingui';
-  import {watch} from 'runed';
   import {navigate, useRouter} from 'svelte-routing';
   import {taskLabel, useTasksService, type Task} from './tasks-service';
+  import {getEntityConfig, type EntityType} from '$lib/views/entity-config';
   import {pt, tvt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useTasksStats} from './tasks-stats.svelte';
 
-  let {onSelect, lastTaskId}: {onSelect: (taskId: string) => void, lastTaskId?: string} = $props();
+  let {onSelect}: {onSelect: (taskId: string) => void} = $props();
 
   const tasksService = useTasksService();
   const writingSystemService = useWritingSystemService();
@@ -25,7 +24,7 @@
   const {base} = useRouter();
 
   type Target = {task: Task, ws?: IWritingSystem};
-  type Field = {key: string, label: string, targets: Target[]};
+  type Field = {key: string, label: string, description?: string, entity: EntityType, targets: Target[]};
 
   function writingSystemOf(task: Task): IWritingSystem | undefined {
     if (!task.subjectWritingSystemId) return undefined;
@@ -35,33 +34,37 @@
     return writingSystems.find(ws => ws.wsId === task.subjectWritingSystemId);
   }
 
-  // One row per field, with a target per writing system, so the row count stays the same
-  // no matter how many writing systems the project has. Ordered by entity (entry, sense, example).
+  // Grouped by field so the chip count grows with the writing systems, not the row count.
   const fields = $derived.by(() => {
-    const order = {entry: 0, sense: 1, 'example-sentence': 2};
-    const byKey: Record<string, Field & {sort: number}> = {};
-    const list: (Field & {sort: number})[] = [];
+    const groups: Field[] = [];
     for (const task of tasksService.listTasks()) {
       const ws = writingSystemOf(task);
-      // The editors hide audio writing systems when the feature is off, so those tasks
-      // would open with nothing to fill in.
+      // The editors hide audio writing systems when the feature is off, so there'd be nothing to fill in.
       if (ws?.isAudio && !features.audio) continue;
-      const key = `${task.subjectType}:${task.subjectFields.join()}`;
-      let field = byKey[key];
-      if (!field) {
-        field = {key, sort: order[task.subjectType], label: pt($tvt(taskLabel(task)), viewService.currentView), targets: []};
-        byKey[key] = field;
-        list.push(field);
+      const entity = task.subjectType === 'example-sentence' ? 'example' : task.subjectType;
+      const key = `${entity}:${task.subjectFields.join()}`;
+      let group = groups.find(g => g.key === key);
+      if (!group) {
+        group = {key, label: pt($tvt(taskLabel(task)), viewService.currentView), description: task.description && pt($tvt(task.description), viewService.currentView), entity, targets: []};
+        groups.push(group);
       }
-      field.targets.push({task, ws});
+      group.targets.push({task, ws});
     }
-    for (const field of list) field.targets.sort((a, b) => Number(a.ws?.isAudio ?? false) - Number(b.ws?.isAudio ?? false));
-    return list.filter(f => f.targets.length).sort((a, b) => a.sort - b.sort);
+    for (const group of groups) {
+      group.targets.sort((a, b) => Number(a.ws?.isAudio ?? false) - Number(b.ws?.isAudio ?? false));
+    }
+    return groups.filter(group => group.targets.length > 0);
   });
 
-  const statsResource = useTasksStats();
-  const stats = $derived(statsResource.current);
-  watch(() => tasksService.listTasks().map(t => t.id).join(), () => void statsResource.refetch());
+  const entities = $derived((['entry', 'sense', 'example'] as const)
+    .map(entity => ({
+      entity,
+      label: pt($tvt(getEntityConfig(entity).$label), viewService.currentView),
+      fields: fields.filter(field => field.entity === entity),
+    }))
+    .filter(group => group.fields.length > 0));
+
+  const stats = $derived(useTasksStats().current);
 
   function remainingText(remaining: number): string {
     return pt(
@@ -73,58 +76,59 @@
   function wsColor(ws: IWritingSystem): string {
     return writingSystemService.wsColor(ws.wsId, ws.type === WritingSystemType.Vernacular ? 'vernacular' : 'analysis');
   }
-
-  function containsLast(field: Field): boolean {
-    return !!lastTaskId && field.targets.some(target => target.task.id === lastTaskId);
-  }
-
-  let list = $state<HTMLElement>();
-  let restoredFocus = false;
-  $effect(() => {
-    if (restoredFocus || !lastTaskId || !list) return;
-    restoredFocus = true;
-    list.querySelector<HTMLElement>('[data-contains-last]')?.focus();
-  });
 </script>
 
-{#snippet writingSystemProgress({task, ws}: Target)}
-  {@const p = stats.progress[task.id]}
-  <span class="flex items-center gap-1 text-sm {ws ? wsColor(ws) : 'text-muted-foreground'}">
-    {#if !p}
-      <Skeleton class="size-4 shrink-0 rounded-full" />
-    {:else}
-      <span aria-hidden="true" class="flex">
-        {#if p.remaining === 0}
-          <Icon icon="i-mdi-check-circle" class="size-4" />
-        {:else}
-          <CircularProgress value={p.percentDone} size={16} strokeWidth={2.5} />
-        {/if}
-      </span>
-    {/if}
-    {#if ws?.isAudio}<Icon icon="i-mdi-microphone" class="size-4" /><span class="sr-only">{$t`Audio`}</span>{/if}
-    {#if ws}
-      <span>{ws.abbreviation || ws.name}</span>
-      {#if p}<span class="sr-only">, {remainingText(p.remaining)}</span>{/if}
-    {:else if p}
-      <!-- Nothing to name a language-free task by, so say how much of it is left. -->
-      <span class="tabular-nums">{remainingText(p.remaining)}</span>
-    {/if}
-  </span>
+{#snippet progressAndName({task, ws}: Target, fieldLabel: string)}
+  {@const progress = stats.progress[task.id]}
+  {@const remaining = progress ? remainingText(progress.remaining) : ''}
+  <span class="sr-only">{fieldLabel},</span>
+  {#if !progress}
+    <Skeleton class="size-4 shrink-0 rounded-full" />
+  {:else if progress.remaining === 0}
+    <Icon icon="i-mdi-check-circle-outline" class="size-5" />
+    <span class="sr-only">{$t`Complete`},</span>
+  {:else}
+    <CircularProgress value={progress.percentDone} size={16} strokeWidth={2.5} />
+  {/if}
+  {#if ws?.isAudio}
+    <Icon icon="i-mdi-microphone" class="size-4" />
+    <span class="sr-only">{$t`Audio`},</span>
+  {/if}
+  {#if ws}
+    <span class="flex items-baseline gap-1.5">
+      {ws.name}
+      {#if ws.abbreviation}<span class="text-muted-foreground text-xs">{ws.abbreviation}</span>{/if}
+    </span>
+    {#if progress}<span class="sr-only">, {remaining}</span>{/if}
+  {:else if progress}
+    <!-- No language to name it by, so show the count instead. -->
+    <span class="text-muted-foreground tabular-nums">{remaining}</span>
+  {/if}
 {/snippet}
 
-{#snippet fieldRow(field: Field, props?: Record<string, unknown>)}
-  <ListItem {...props} role="listitem" data-contains-last={containsLast(field) || undefined} aria-current={containsLast(field) || undefined}>
-    <span class="font-medium">{field.label}</span>
-    <!-- Second line so every writing system stays visible, even on a phone. -->
-    <span class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-      {#each field.targets as target (target.task.id)}
-        {@render writingSystemProgress(target)}
+{#snippet field({label, description, targets}: Field)}
+  <!-- Label and chips share a row; the chips wrap under it only when they run out of width. -->
+  <div class="flex flex-col gap-x-3 gap-y-2">
+    <span class="flex flex-wrap items-baseline gap-x-2">
+      <span class="text-sm font-medium">{label}</span>
+      {#if description}<span class="text-muted-foreground text-sm">{description}</span>{/if}
+    </span>
+    <span class="flex flex-wrap items-center gap-2">
+      {#each targets as target (target.task.id)}
+        {@const progress = stats.progress[target.task.id]}
+        {@const name = target.ws && `${target.ws.name} (${target.ws.wsId})`}
+        {@const title = name && (progress ? `${name}: ${remainingText(progress.remaining)}` : name)}
+        <button
+          type="button"
+          class="bg-secondary hover:bg-secondary/80 focus-visible:ring-ring/50 inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium shadow-sm transition-colors outline-hidden focus-visible:ring-[3px] {progress?.remaining === 0 ? 'opacity-60' : ''} {target.ws ? wsColor(target.ws) : ''}"
+          {title}
+          onclick={() => onSelect(target.task.id)}
+        >
+          {@render progressAndName(target, label)}
+        </button>
       {/each}
     </span>
-    {#snippet actions()}
-      <Icon icon={field.targets.length === 1 ? 'i-mdi-chevron-right' : 'i-mdi-chevron-down'} class="text-muted-foreground shrink-0" />
-    {/snippet}
-  </ListItem>
+  </div>
 {/snippet}
 
 {#if stats.totalEntries === 0}
@@ -132,36 +136,19 @@
     <p class="text-muted-foreground">{pt($t`Add some entries first.`, $t`Add some words first.`, viewService.currentView)}</p>
     <Button variant="outline" icon="i-mdi-book-alphabet" onclick={() => navigate(`${$base.uri}/browse`)}>{$t`Browse`}</Button>
   </div>
-{:else if fields.length === 0}
-  <p class="text-muted-foreground px-4">{$t`No tasks right now.`}</p>
 {:else}
-  <div class="flex max-w-2xl flex-col gap-2" role="list" bind:this={list}>
-    {#each fields as field (field.key)}
-      {#if field.targets.length === 1}
-        {@render fieldRow(field, {onclick: () => onSelect(field.targets[0].task.id)})}
-      {:else}
-        <ResponsiveMenu.Root>
-          <ResponsiveMenu.Trigger>
-            {#snippet child({props})}
-              {@render fieldRow(field, props)}
-            {/snippet}
-          </ResponsiveMenu.Trigger>
-          <ResponsiveMenu.Content>
-            <div class="text-muted-foreground px-2 py-1.5 text-sm">{$t`Choose a language`}</div>
-            {#each field.targets as {task, ws} (task.id)}
-              {@const p = stats.progress[task.id]}
-              <ResponsiveMenu.Item onSelect={() => onSelect(task.id)}>
-                <span aria-hidden="true" class="flex {wsColor(ws!)}">
-                  {#if p?.remaining === 0}<Icon icon="i-mdi-check-circle" class="size-4" />{:else}<CircularProgress value={p?.percentDone ?? 0} size={16} strokeWidth={2.5} />{/if}
-                </span>
-                {#if ws!.isAudio}<Icon icon="i-mdi-microphone" class="size-4 {wsColor(ws!)}" />{/if}
-                <span class="truncate">{ws!.name}</span>
-                {#if p}<span class="text-muted-foreground ms-auto ps-2 text-xs tabular-nums">{remainingText(p.remaining)}</span>{/if}
-              </ResponsiveMenu.Item>
-            {/each}
-          </ResponsiveMenu.Content>
-        </ResponsiveMenu.Root>
-      {/if}
+  <div class="flex w-fit flex-col gap-4">
+    {#each entities as {entity, label, fields: rows} (entity)}
+      <Card.Root class="gap-y-3 py-4">
+        <Card.Header>
+          <Card.Title>{label}</Card.Title>
+        </Card.Header>
+        <Card.Content class="flex flex-col gap-3">
+          {#each rows as row (row.key)}
+            {@render field(row)}
+          {/each}
+        </Card.Content>
+      </Card.Root>
     {/each}
   </div>
 {/if}

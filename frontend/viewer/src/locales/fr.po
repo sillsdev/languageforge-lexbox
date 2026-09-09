@@ -351,6 +351,7 @@ msgid "Ask questions and get help on our community forum."
 msgstr "Posez des questions et obtenez de l'aide sur notre forum communautaire."
 
 #: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Audio"
 msgstr ""
 
@@ -392,6 +393,7 @@ msgstr "Synchronisation automatique"
 msgid "Back"
 msgstr ""
 
+#: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
 msgstr ""
@@ -486,10 +488,6 @@ msgstr ""
 msgid "Checking for updates..."
 msgstr "Vérification des mises à jour..."
 
-#: src/project/tasks/TaskList.svelte
-msgid "Choose a language"
-msgstr ""
-
 #. Button label
 #: src/lib/components/ThemePicker.svelte
 msgid "Choose theme"
@@ -550,6 +548,10 @@ msgstr ""
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "Complete"
 msgstr ""
 
 #. Field label
@@ -984,6 +986,14 @@ msgstr "Erreur dans l'obtention de l'état de la synchronisation"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Error getting sync status."
 msgstr "Erreur dans l'obtention de l'état de la synchronisation."
+
+#: src/project/tasks/TaskView.svelte
+msgid "Every entry already has this field filled in."
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "Every word already has this field filled in."
+msgstr ""
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1869,10 +1879,6 @@ msgstr ""
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
 msgstr "Aucun sujet, impossible de créer un nouveau {0}"
-
-#: src/project/tasks/TaskList.svelte
-msgid "No tasks right now."
-msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
