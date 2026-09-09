@@ -91,6 +91,7 @@ msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# perubahan}}"
 
 #: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
 msgstr ""
 
@@ -109,6 +110,7 @@ msgid "{num, plural, one {# unread comment} other {# unread comments}}"
 msgstr ""
 
 #: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
 msgstr ""
 
@@ -484,6 +486,10 @@ msgstr ""
 msgid "Checking for updates..."
 msgstr "Memeriksa pembaruan..."
 
+#: src/project/tasks/TaskList.svelte
+msgid "Choose a language"
+msgstr ""
+
 #. Button label
 #: src/lib/components/ThemePicker.svelte
 msgid "Choose theme"
@@ -544,10 +550,6 @@ msgstr ""
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
-msgstr ""
-
-#: src/project/tasks/TaskList.svelte
-msgid "Complete"
 msgstr ""
 
 #. Field label
