@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
-FROM mcr.microsoft.com/dotnet/aspnet:11.0-preview AS base
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:11.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 
 # Restore first, using only the project/props files, so this layer is cached and
 # only re-runs when a .csproj or package version changes — not on every source
@@ -35,7 +35,7 @@ RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:Informatio
 # ChorusMerge needs dotnet 8.
 FROM mcr.microsoft.com/dotnet/runtime:8.0 AS dotnet8
 
-# Chorus Mercurial 6.5 needs Python 3.12. aspnet:11.0-preview is Ubuntu 26.04
+# Chorus Mercurial 6.5 needs Python 3.12. aspnet:11.0 is Ubuntu 26.04
 # (python3 is 3.14). Build 3.12 in a throwaway stage (same base, so glibc/ssl match);
 # curl/gnupg/deadsnakes never enter the runtime image.
 FROM base AS python312
