@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 
 namespace MiniLcm.Tests;
@@ -177,116 +176,19 @@ public class DiffCollectionTests
 
     private static CollectionDiffOperation Move(TestOrderable value, BetweenPosition<TestOrderable> between)
     {
-        return new CollectionDiffOperation(value, DiffOperationKind.Move, between);
+        return new CollectionDiffOperation(value, PositionDiffKind.Move, between);
     }
 
     private static CollectionDiffOperation Add(TestOrderable value, BetweenPosition<TestOrderable> between)
     {
-        return new CollectionDiffOperation(value, DiffOperationKind.Add, between);
+        return new CollectionDiffOperation(value, PositionDiffKind.Add, between);
     }
 
     private static CollectionDiffOperation Remove(TestOrderable value)
     {
-        return new CollectionDiffOperation(value, DiffOperationKind.Remove);
+        return new CollectionDiffOperation(value, PositionDiffKind.Remove);
     }
 
-    private static CollectionDiffOperation Reparent(TestOrderable value, BetweenPosition<TestOrderable> between)
-    {
-        return new CollectionDiffOperation(value, DiffOperationKind.Reparent, between);
-    }
-
-    private static MoveDetection<TestOrderable, Guid> MoveDetection(TestOrderable[] allBefore, TestOrderable[] allAfter)
-    {
-        return new MoveDetection<TestOrderable, Guid>(allBefore.ToDictionary(v => v.Id), allAfter.ToDictionary(v => v.Id));
-    }
-
-    // the sense/example policy: detect moves, and defer genuine deletes to the queue
-    private static OrderableCollectionDiffApi<TestOrderable, Guid> MoveAwareAndDeferring(
-        TestOrderableDiffApi inner, MoveDetection<TestOrderable, Guid> moves, DeferredDeletes deferred)
-    {
-        return new MoveAwareOrderableDiffApi<TestOrderable, Guid>(new DeferringDeletesOrderableDiffApi<TestOrderable, Guid>(inner, deferred), moves);
-    }
-
-    [Fact]
-    public async Task MoveAware_AddOfBeforeExistingId_BecomesReparentAndReplace()
-    {
-        var stay = new TestOrderable(1, Guid.NewGuid());
-        var movedFrom = new TestOrderable(2, Guid.NewGuid());
-        var movedTo = new TestOrderable(3, movedFrom.Id); // same id arriving in this collection: a move, not a create
-        var inner = new TestOrderableDiffApi([stay]);
-        var diffApi = new MoveAwareOrderableDiffApi<TestOrderable, Guid>(inner, MoveDetection([movedFrom], [stay, movedTo]));
-
-        await DiffCollection.DiffOrderable([stay], [stay, movedTo], diffApi);
-
-        inner.DiffOperations.Should().BeEquivalentTo([Reparent(movedTo, Between(stay, null))]);
-        inner.Replacements.Should().Contain((movedFrom, movedTo));
-        inner.Current.Should().BeEquivalentTo([stay, movedTo], options => options.WithStrictOrdering());
-    }
-
-    [Fact]
-    public async Task MoveAware_ReparentIntoACollectionThatDoesNotSupportIt_Throws()
-    {
-        var stay = new TestOrderable(1, Guid.NewGuid());
-        var movedFrom = new TestOrderable(2, Guid.NewGuid());
-        var movedTo = new TestOrderable(3, movedFrom.Id);
-        var inner = new TestOrderableDiffApi([stay]);
-        var diffApi = new MoveAwareOrderableDiffApi<TestOrderable, Guid>(new NoReparentDiffApi(inner), MoveDetection([movedFrom], [stay, movedTo]));
-
-        var act = () => DiffCollection.DiffOrderable([stay], [stay, movedTo], diffApi);
-
-        (await act.Should().ThrowAsync<MoveNotSupportedException>()).WithMessage($"*{movedTo.Id}*");
-        inner.DiffOperations.Should().BeEmpty();
-    }
-
-    // forwards everything except Reparent, so the base default (throw) is what's under test
-    private class NoReparentDiffApi(TestOrderableDiffApi inner) : OrderableCollectionDiffApi<TestOrderable, Guid>
-    {
-        public override Guid GetId(TestOrderable value) => inner.GetId(value);
-        public override Task<int> Add(TestOrderable value, BetweenPosition<TestOrderable> between) => inner.Add(value, between);
-        public override Task<int> Remove(TestOrderable value) => inner.Remove(value);
-        public override Task<int> Move(TestOrderable value, BetweenPosition<TestOrderable> between) => inner.Move(value, between);
-        public override Task<int> Replace(TestOrderable before, TestOrderable after) => inner.Replace(before, after);
-    }
-
-    [Fact]
-    public async Task MoveAware_RemoveOfIdStillInAfterState_IsSkipped()
-    {
-        var stay = new TestOrderable(1, Guid.NewGuid());
-        var moving = new TestOrderable(2, Guid.NewGuid());
-        var deferredDeletes = new DeferredDeletes();
-        var inner = new TestOrderableDiffApi([stay, moving]);
-        // The move detection sees that moving is STILL in the after list, so...
-        var diffApi = MoveAwareAndDeferring(inner, MoveDetection([stay, moving], [stay, moving]), deferredDeletes);
-        // even though moving is missing in this specific collection diff, it should not be deleted, because it actually still exists (somewhere else)
-        var changes = await DiffCollection.DiffOrderable([stay, moving], [stay], diffApi);
-        changes += await deferredDeletes.DeleteAll();
-
-        // the id still exists in the after state: another parent's diff owns the move, nothing is deleted here
-        changes.Should().Be(0);
-        inner.DiffOperations.Should().BeEmpty();
-        inner.Current.Should().BeEquivalentTo([stay, moving]);
-    }
-
-    [Fact]
-    public async Task DeferringDeletes_GenuineDeleteRunsOnlyWhenTheQueueIsDrained()
-    {
-        var stay = new TestOrderable(1, Guid.NewGuid());
-        var gone = new TestOrderable(2, Guid.NewGuid());
-        var deferredDeletes = new DeferredDeletes();
-        var inner = new TestOrderableDiffApi([stay, gone]);
-        var diffApi = MoveAwareAndDeferring(inner, MoveDetection([stay, gone], [stay]), deferredDeletes);
-
-        var changes = await DiffCollection.DiffOrderable([stay, gone], [stay], diffApi);
-
-        inner.DiffOperations.Should().BeEmpty();
-        inner.Current.Should().BeEquivalentTo([stay, gone]);
-
-        changes += await deferredDeletes.DeleteAll();
-
-        changes.Should().Be(1);
-        inner.DiffOperations.Should().BeEquivalentTo([Remove(gone)]);
-        inner.Current.Should().BeEquivalentTo([stay]);
-    }
 
     public record Entry(Guid Id, string Word);
 
@@ -305,20 +207,6 @@ public class DiffCollectionTests
     {
         var entry = new Entry(Guid.NewGuid(), "test");
         await DiffCollection.Diff([entry], [], _fakeApi);
-        _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.Remove)));
-    }
-
-    [Fact]
-    public async Task Diff_RemovesAreDeferredWhenWrappedInADeferringApi()
-    {
-        var entry = new Entry(Guid.NewGuid(), "test");
-        var deferredDeletes = new DeferredDeletes();
-        var diffApi = new DeferringDeletesCollectionDiffApi<Entry, Guid>(_fakeApi, deferredDeletes);
-
-        await DiffCollection.DiffAndGetAdded([entry], [], diffApi);
-        _fakeApi.VerifyCalls();
-
-        await deferredDeletes.DeleteAll();
         _fakeApi.VerifyCalls(new FakeDiffApi.MethodCall(entry, nameof(FakeDiffApi.Remove)));
     }
 

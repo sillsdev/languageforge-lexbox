@@ -16,10 +16,192 @@ public class SyncContextTests
         return new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "gloss" } }, Pictures = [.. pictures] };
     }
 
+    private static ExampleSentence NewExample()
+    {
+        return new ExampleSentence { Id = Guid.NewGuid(), Sentence = { { "en", new RichString("example") } } };
+    }
+
     private static Picture NewPicture()
     {
         return new Picture { Id = Guid.NewGuid(), MediaUri = new MediaUri(Guid.NewGuid(), "test") };
     }
+
+    #region Move indexes
+
+    [Fact]
+    public void MovedInAndStillExists_TrackSenseReparentingAcrossEntries()
+    {
+        var moving = NewSense();
+        var doomed = NewSense();
+        var source = NewEntry(moving, doomed);
+        var target = NewEntry();
+
+        var sourceAfter = source.Copy();
+        var movedSense = sourceAfter.Senses[0];
+        sourceAfter.Senses.Clear();
+        var targetAfter = target.Copy();
+        targetAfter.Senses.Add(movedSense);
+
+        var context = SyncContext.For([source, target], [sourceAfter, targetAfter]);
+
+        context.MovedIn(movedSense).Should().NotBeNull().And.Subject.As<Sense>().Id.Should().Be(moving.Id);
+        context.StillExists(moving).Should().BeTrue("it moved to the target entry rather than being deleted");
+        context.StillExists(doomed).Should().BeFalse("it exists nowhere after");
+        context.MovedIn(NewSense()).Should().BeNull("a genuinely new sense has no before-version");
+    }
+
+    [Fact]
+    public void MovedInAndStillExists_TrackExampleReparentingBetweenSenses()
+    {
+        var example = NewExample();
+        var sourceSense = NewSense();
+        sourceSense.ExampleSentences = [example];
+        var targetSense = NewSense();
+        var entry = NewEntry(sourceSense, targetSense);
+
+        var after = entry.Copy();
+        var movedExample = after.Senses[0].ExampleSentences[0];
+        after.Senses[0].ExampleSentences.Clear();
+        after.Senses[1].ExampleSentences.Add(movedExample);
+
+        var context = SyncContext.For(entry, after);
+
+        context.MovedIn(movedExample).Should().NotBeNull().And.Subject.As<ExampleSentence>().Id.Should().Be(example.Id);
+        context.StillExists(example).Should().BeTrue();
+        context.MovedIn(NewExample()).Should().BeNull();
+    }
+
+    #endregion
+
+    #region Stripping moved-in descendants out of a create payload
+
+    [Fact]
+    public void WithoutMovedInDescendants_Entry_DropsMovedInSensesAndExamples_KeepsNewOnes()
+    {
+        var movedInSense = NewSense();
+        var movedInExample = NewExample();
+        var newSenseHoldingAMovedInExample = NewSense();
+        newSenseHoldingAMovedInExample.ExampleSentences = [movedInExample];
+        var newSenseWithNewExample = NewSense();
+        newSenseWithNewExample.ExampleSentences = [NewExample()];
+
+        // before: the sense lives under some other entry, the example under some other sense
+        var otherSense = NewSense();
+        otherSense.ExampleSentences = [movedInExample.Copy()];
+        var otherEntry = NewEntry(movedInSense.Copy(), otherSense);
+        var created = NewEntry(movedInSense, newSenseHoldingAMovedInExample, newSenseWithNewExample);
+
+        // after: the moved items have left otherEntry, so each id lives in exactly one place
+        var otherEntryAfter = otherEntry.Copy();
+        otherEntryAfter.Senses.Clear();
+        var context = SyncContext.For([otherEntry], [otherEntryAfter, created]);
+
+        context.HasMovedInDescendants(created).Should().BeTrue();
+        var payload = context.WithoutMovedInDescendants(created);
+
+        // the moved-in sense is left out; the two genuinely new senses stay
+        payload.Senses.Select(s => s.Id)
+            .Should().Equal(newSenseHoldingAMovedInExample.Id, newSenseWithNewExample.Id);
+        payload.Senses[0].ExampleSentences.Should().BeEmpty("the moved-in example is left out of the kept sense");
+        payload.Senses[1].ExampleSentences.Should().ContainSingle("a genuinely new example stays in the payload");
+
+        created.Senses.Should().HaveCount(3, "the strip returns a copy and does not mutate the original");
+        created.Senses[1].ExampleSentences.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void WithoutMovedInDescendants_Sense_DropsMovedInExamples_KeepsNewOnes()
+    {
+        var movedInExample = NewExample();
+        var newExample = NewExample();
+        var sourceSense = NewSense();
+        sourceSense.ExampleSentences = [movedInExample.Copy()];
+        var before = NewEntry(sourceSense);
+
+        var createdSense = NewSense();
+        createdSense.ExampleSentences = [movedInExample, newExample];
+        // after: the example has left sourceSense, so its id lives in exactly one place
+        var sourceSenseAfter = sourceSense.Copy();
+        sourceSenseAfter.ExampleSentences.Clear();
+        var after = NewEntry(sourceSenseAfter, createdSense);
+
+        var context = SyncContext.For([before], [after]);
+
+        context.HasMovedInDescendants(createdSense).Should().BeTrue();
+        var payload = context.WithoutMovedInDescendants(createdSense);
+
+        payload.ExampleSentences.Select(e => e.Id).Should().Equal(newExample.Id);
+        createdSense.ExampleSentences.Should().HaveCount(2, "the strip returns a copy");
+    }
+
+    [Fact]
+    public void HasMovedInDescendants_IsFalse_WhenEverythingIsNew()
+    {
+        var newSense = NewSense();
+        newSense.ExampleSentences = [NewExample()];
+        var created = NewEntry(newSense);
+
+        var context = SyncContext.For([NewEntry()], [NewEntry(), created]);
+
+        context.HasMovedInDescendants(created).Should().BeFalse();
+        context.HasMovedInDescendants(newSense).Should().BeFalse();
+    }
+
+    #endregion
+
+    #region Deferred deletes
+
+    [Fact]
+    public async Task DeferredDeletes_DrainInOrder_IncludingADeleteThatQueuesAnother()
+    {
+        var order = new List<int>();
+        var deferred = new DeferredDeletes();
+
+        (await deferred.Defer(() => { order.Add(1); return Task.FromResult(1); }))
+            .Should().Be(0, "deferring counts the change only when the queue is drained");
+        await deferred.Defer(async () =>
+        {
+            order.Add(2);
+            await deferred.Defer(() => { order.Add(3); return Task.FromResult(1); });
+            return 1;
+        });
+
+        order.Should().BeEmpty("nothing runs until the drain");
+        var changes = await deferred.DeleteAll();
+
+        order.Should().Equal(1, 2, 3);
+        changes.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task For_DefersDeletes_UntilDeleteAll()
+    {
+        var context = SyncContext.For([NewEntry()], [NewEntry()]);
+        var deleted = false;
+
+        (await context.DeferDelete(() => { deleted = true; return Task.FromResult(1); })).Should().Be(0);
+        deleted.Should().BeFalse("a project sync defers deletes to the end of the walk");
+
+        (await context.DeleteAll()).Should().Be(1);
+        deleted.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Empty_RunsDeletesImmediately_AndDetectsNoMoves()
+    {
+        SyncContext.Empty.MovedIn(NewSense()).Should().BeNull();
+        SyncContext.Empty.StillExists(NewSense()).Should().BeFalse();
+
+        var deleted = false;
+        (await SyncContext.Empty.DeferDelete(() => { deleted = true; return Task.FromResult(1); }))
+            .Should().Be(1, "nothing drains a queue on the Empty path, so the delete must run now");
+        deleted.Should().BeTrue();
+        (await SyncContext.Empty.DeleteAll()).Should().Be(0);
+    }
+
+    #endregion
+
+    #region Unsupported moves are refused before anything is written
 
     [Fact]
     public void PictureMovedToDifferentSense_Throws()
@@ -33,10 +215,10 @@ public class SyncContextTests
         after.Senses[0].Pictures.Clear();
         after.Senses[1].Pictures.Add(picture.Copy());
 
-        var act = () => SyncContext.ForEntrySync(before, after);
+        var act = () => SyncContext.For(before, after);
         act.Should().Throw<MoveNotSupportedException>()
             .WithMessage($"*{picture.Id}*{sourceSense.Id}*{targetSense.Id}*");
-        act = () => SyncContext.ForProjectSync([before], [after]);
+        act = () => SyncContext.For([before], [after]);
         act.Should().Throw<MoveNotSupportedException>();
     }
 
@@ -52,7 +234,7 @@ public class SyncContextTests
         after.Senses.RemoveAt(0);
         after.Senses[0].Pictures.Add(picture.Copy());
 
-        var act = () => SyncContext.ForEntrySync(before, after);
+        var act = () => SyncContext.For(before, after);
         act.Should().Throw<MoveNotSupportedException>();
     }
 
@@ -78,7 +260,7 @@ public class SyncContextTests
         sourceEntryAfter.Senses.Clear();
         var createdEntry = NewEntry(movedSense);
 
-        var act = () => SyncContext.ForProjectSync([sourceEntry], [sourceEntryAfter, createdEntry]);
+        var act = () => SyncContext.For([sourceEntry], [sourceEntryAfter, createdEntry]);
         act.Should().NotThrow();
     }
 
@@ -90,7 +272,7 @@ public class SyncContextTests
         after.Senses[0].Pictures.Clear();
         after.Senses[1].Pictures.Add(NewPicture());
 
-        var act = () => SyncContext.ForEntrySync(before, after);
+        var act = () => SyncContext.For(before, after);
         act.Should().NotThrow();
     }
 
@@ -112,37 +294,9 @@ public class SyncContextTests
         var after = before.Copy();
         after.Senses[0].ExampleSentences[0].Translations.Clear();
 
-        var act = () => SyncContext.ForEntrySync(before, after);
+        var act = () => SyncContext.For(before, after);
         act.Should().NotThrow();
     }
 
-    [Fact]
-    public void ProjectSync_WrapsEverything()
-    {
-        var context = SyncContext.ForProjectSync([NewEntry(NewSense())], [NewEntry(NewSense())]);
-        context.EntriesDiffApi(NullApi).Should().BeOfType<DeferringDeletesCollectionDiffApi<Entry, Guid>>();
-        context.SensesDiffApi(NullApi, Guid.NewGuid()).Should().BeOfType<MoveAwareOrderableDiffApi<Sense, Guid>>();
-        context.ExampleSentencesDiffApi(NullApi, Guid.NewGuid(), Guid.NewGuid()).Should().BeOfType<MoveAwareOrderableDiffApi<ExampleSentence, Guid>>();
-    }
-
-    [Fact]
-    public void EntrySync_DetectsOnlyExampleMoves()
-    {
-        var entry = NewEntry(NewSense());
-        var context = SyncContext.ForEntrySync(entry, entry.Copy());
-        // senses still defer deletes and create without children, for examples moving out of a deleted or into a created sense
-        context.SensesDiffApi(NullApi, Guid.NewGuid()).Should().BeOfType<DeferringDeletesOrderableDiffApi<Sense, Guid>>();
-        context.ExampleSentencesDiffApi(NullApi, Guid.NewGuid(), Guid.NewGuid()).Should().BeOfType<MoveAwareOrderableDiffApi<ExampleSentence, Guid>>();
-    }
-
-    [Fact]
-    public async Task EmptyContext_HandsOutUnwrappedDiffApis()
-    {
-        SyncContext.Empty.SensesDiffApi(NullApi, Guid.NewGuid()).Should().BeOfType<EntrySync.SensesDiffApi>();
-        SyncContext.Empty.ExampleSentencesDiffApi(NullApi, Guid.NewGuid(), Guid.NewGuid()).Should().BeOfType<ExampleSentenceSync.ExampleSentencesDiffApi>();
-        (await SyncContext.Empty.DeferredDeletes.DeleteAll()).Should().Be(0);
-    }
-
-    // the diff apis only store the api; nothing here runs a diff
-    private static IMiniLcmApi NullApi => null!;
+    #endregion
 }

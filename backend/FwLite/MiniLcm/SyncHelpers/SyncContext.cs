@@ -3,93 +3,92 @@ using MiniLcm.Models;
 
 namespace MiniLcm.SyncHelpers;
 
+/// <summary>
+/// The project-wide before/after view that lets the diff apis apply FLEx re-parenting of senses and
+/// example sentences as moves instead of delete+create. Two non-local facts a reader needs:
+/// a <c>Remove</c> may do nothing (the item still lives under another parent, whose Add owns the move),
+/// and genuine deletes are deferred (<see cref="DeferDelete"/>) and only run when <see cref="DeleteAll"/>
+/// drains them after the whole walk, so a child is always moved out before its old parent's cascade delete.
+/// </summary>
 public class SyncContext
 {
-    public static readonly SyncContext Empty = new(null, null);
+    /// <summary>No move detection: every add is a create and every delete runs immediately. For syncing a subtree on its own.</summary>
+    public static readonly SyncContext Empty = new(deferDeletes: false,
+        new Dictionary<Guid, Sense>(), new Dictionary<Guid, Sense>(),
+        new Dictionary<Guid, ExampleSentence>(), new Dictionary<Guid, ExampleSentence>());
 
-    /// <summary>Stays empty (DeleteAll is a no-op) for <see cref="Empty"/>.</summary>
-    public DeferredDeletes DeferredDeletes { get; } = new();
+    private readonly bool _deferDeletes;
+    private readonly DeferredDeletes _deferredDeletes = new();
+    private readonly IReadOnlyDictionary<Guid, Sense> _sensesBefore;
+    private readonly IReadOnlyDictionary<Guid, Sense> _sensesAfter;
+    private readonly IReadOnlyDictionary<Guid, ExampleSentence> _examplesBefore;
+    private readonly IReadOnlyDictionary<Guid, ExampleSentence> _examplesAfter;
 
-    private readonly MoveDetection<Sense, Guid>? _senses;
-    private readonly MoveDetection<ExampleSentence, Guid>? _examples;
-
-    private SyncContext(MoveDetection<Sense, Guid>? senses, MoveDetection<ExampleSentence, Guid>? examples)
+    private SyncContext(bool deferDeletes,
+        IReadOnlyDictionary<Guid, Sense> sensesBefore,
+        IReadOnlyDictionary<Guid, Sense> sensesAfter,
+        IReadOnlyDictionary<Guid, ExampleSentence> examplesBefore,
+        IReadOnlyDictionary<Guid, ExampleSentence> examplesAfter)
     {
-        _senses = senses;
-        _examples = examples;
+        _deferDeletes = deferDeletes;
+        _sensesBefore = sensesBefore;
+        _sensesAfter = sensesAfter;
+        _examplesBefore = examplesBefore;
+        _examplesAfter = examplesAfter;
     }
 
-    public static SyncContext ForProjectSync(Entry[] beforeEntries, Entry[] afterEntries)
+    public static SyncContext For(Entry[] beforeEntries, Entry[] afterEntries)
     {
         VerifyNoUnsupportedMoves(beforeEntries, afterEntries);
-        return new(
-            new MoveDetection<Sense, Guid>(AllSenses(beforeEntries), AllSenses(afterEntries)),
-            new MoveDetection<ExampleSentence, Guid>(AllExamples(beforeEntries), AllExamples(afterEntries)));
+        return new SyncContext(deferDeletes: true,
+            AllSenses(beforeEntries), AllSenses(afterEntries),
+            AllExamples(beforeEntries), AllExamples(afterEntries));
     }
 
-    /// <summary>Senses can't leave the entry, so only examples get move detection; the entry list is never diffed.</summary>
-    public static SyncContext ForEntrySync(Entry beforeEntry, Entry afterEntry)
+    public static SyncContext For(Entry beforeEntry, Entry afterEntry)
     {
         if (beforeEntry.Id != afterEntry.Id) throw new ArgumentException("Entry ids must match", nameof(afterEntry));
-        VerifyNoUnsupportedMoves([beforeEntry], [afterEntry]);
-        return new(null, // We're diffing a single entry, so senses don't need move detection.
-         new MoveDetection<ExampleSentence, Guid>(AllExamples([beforeEntry]), AllExamples([afterEntry])));
+        return For([beforeEntry], [afterEntry]);
     }
 
-    // Decorator stack, outermost first. Each layer only sees what the layers above let through:
-    //  1. MoveAware: an add/remove that is really a move becomes a reparent,
-    //      so the layers below only ever see genuine creates and deletes.
-    //  2. DeferringDeletes: queues those genuine deletes to run after the walk.
-    //  3. MovedInChildren: a genuine create whose payload holds a moved-in child.
-    //      Ensures that child is handled by move-aware sync code, rather than submitting
-    //      the whole tree to the MiniLcmApi (which could throw on the live/duplicate guid).
-    //  4. The real diff api.
+    /// <summary>The before-version to diff a move against, or null if the id is new here (a genuine create).</summary>
+    public Sense? MovedIn(Sense sense) => _sensesBefore.GetValueOrDefault(sense.Id);
+    public ExampleSentence? MovedIn(ExampleSentence example) => _examplesBefore.GetValueOrDefault(example.Id);
 
-    /// <summary>Entries don't move, but their deletes defer so a deleted entry's cascade runs after any sense is moved out of it.</summary>
-    public CollectionDiffApi<Entry, Guid> EntriesDiffApi(IMiniLcmApi api)
+    /// <summary>The id still exists somewhere after, so a remove here is a move another parent's Add owns.</summary>
+    public bool StillExists(Sense sense) => _sensesAfter.ContainsKey(sense.Id);
+    public bool StillExists(ExampleSentence example) => _examplesAfter.ContainsKey(example.Id);
+
+    public Task<int> DeferDelete(Func<Task<int>> delete) => _deferDeletes ? _deferredDeletes.Defer(delete) : delete();
+    public Task<int> DeleteAll() => _deferredDeletes.DeleteAll();
+
+    public bool HasMovedInDescendants(Entry entry) => entry.Senses.Any(s => MovedIn(s) is not null || HasMovedInDescendants(s));
+    public bool HasMovedInDescendants(Sense sense) => sense.ExampleSentences.Any(e => MovedIn(e) is not null);
+
+    /// <summary>A copy with moved-in descendants stripped (they still live under their old parent), genuinely new children kept.</summary>
+    public Entry WithoutMovedInDescendants(Entry entry) => entry with
     {
-        var inner = new EntrySync.EntriesDiffApi(api, this);
-        if (_senses is null) return inner;
-        return new DeferringDeletesCollectionDiffApi<Entry, Guid>(
-            new MovedInChildrenCollectionDiffApi<Entry, Guid>(inner,
-                HasDescendantMovingIn,
-                entry => entry with { Senses = [] },
-                (created, entry) => created with { Senses = entry.Senses }),
-            DeferredDeletes);
-    }
+        Senses = [.. entry.Senses
+            .Where(s => MovedIn(s) is null)
+            .Select(s => HasMovedInDescendants(s) ? WithoutMovedInDescendants(s) : s)]
+    };
 
-    /// <summary>Deferred deletes and childless creates are for examples moving out of a deleted or into a created sense, so an entry sync needs them without sense move detection.</summary>
-    public OrderableCollectionDiffApi<Sense, Guid> SensesDiffApi(IMiniLcmApi api, Guid entryId)
-    {
-        var inner = new EntrySync.SensesDiffApi(api, entryId, this);
-        if (_examples is null) return inner;
-        OrderableCollectionDiffApi<Sense, Guid> diffApi = new DeferringDeletesOrderableDiffApi<Sense, Guid>(
-            new MovedInChildrenDiffApi<Sense, Guid>(inner, HasDescendantMovingIn, WithoutExamples),
-            DeferredDeletes);
-        if (_senses is null) return diffApi;
-        return new MoveAwareOrderableDiffApi<Sense, Guid>(diffApi, _senses);
-    }
-
-    private static Sense WithoutExamples(Sense sense)
+    public Sense WithoutMovedInDescendants(Sense sense)
     {
         var copy = sense.Copy();
-        copy.ExampleSentences = [];
+        copy.ExampleSentences = [.. sense.ExampleSentences.Where(e => MovedIn(e) is null)];
         return copy;
     }
 
-    /// <summary>Examples own no movable children, so no MovedInChildren layer.</summary>
-    public OrderableCollectionDiffApi<ExampleSentence, Guid> ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId)
+    private static Dictionary<Guid, Sense> AllSenses(Entry[] entries)
     {
-        var inner = new ExampleSentenceSync.ExampleSentencesDiffApi(api, entryId, senseId);
-        if (_examples is null) return inner;
-        return new MoveAwareOrderableDiffApi<ExampleSentence, Guid>(
-            new DeferringDeletesOrderableDiffApi<ExampleSentence, Guid>(inner, DeferredDeletes),
-            _examples);
+        return entries.SelectMany(e => e.Senses).ToDictionary(s => s.Id);
     }
 
-    private bool HasDescendantMovingIn(Entry entry) => entry.Senses.Any(s => ExistedBefore(_senses, s.Id) || HasDescendantMovingIn(s));
-    private bool HasDescendantMovingIn(Sense sense) => sense.ExampleSentences.Any(e => ExistedBefore(_examples, e.Id));
-    private static bool ExistedBefore<T>(MoveDetection<T, Guid>? moves, Guid id) => moves is not null && moves.ExistedBefore(id, out _);
+    private static Dictionary<Guid, ExampleSentence> AllExamples(Entry[] entries)
+    {
+        return entries.SelectMany(e => e.Senses).SelectMany(s => s.ExampleSentences).ToDictionary(e => e.Id);
+    }
 
     private static void VerifyNoUnsupportedMoves(Entry[] beforeEntries, Entry[] afterEntries)
     {
@@ -108,16 +107,6 @@ public class SyncContext
             if (afterParents.TryGetValue(id, out var afterParent) && afterParent != beforeParent)
                 throw new MoveNotSupportedException(typeName, id, beforeParent, afterParent);
         }
-    }
-
-    private static Dictionary<Guid, Sense> AllSenses(Entry[] entries)
-    {
-        return entries.SelectMany(e => e.Senses).ToDictionary(s => s.Id);
-    }
-
-    private static Dictionary<Guid, ExampleSentence> AllExamples(Entry[] entries)
-    {
-        return entries.SelectMany(e => e.Senses).SelectMany(s => s.ExampleSentences).ToDictionary(e => e.Id);
     }
 
     // parent maps tolerate duplicate ids (First wins): a duplicated child is corrupt data the sync
@@ -140,5 +129,28 @@ public class SyncContext
             .GroupBy(t => t.ChildId)
             .ToDictionary(g => g.Key, g => g.First().ParentId);
 #pragma warning restore CS0618
+    }
+}
+
+/// <summary>Queues deletes so a subtree's children can be moved out before their old parent is deleted.</summary>
+public class DeferredDeletes
+{
+    private readonly List<Func<Task<int>>> _deletes = [];
+
+    /// <summary>Queues the delete; returns 0 changes now (they're counted when the queue is drained).</summary>
+    public Task<int> Defer(Func<Task<int>> delete)
+    {
+        _deletes.Add(delete);
+        return Task.FromResult(0);
+    }
+
+    public async Task<int> DeleteAll()
+    {
+        var changes = 0;
+        // by index so a delete that queues another extends the drain instead of throwing
+        for (var i = 0; i < _deletes.Count; i++)
+            changes += await _deletes[i]();
+        _deletes.Clear();
+        return changes;
     }
 }

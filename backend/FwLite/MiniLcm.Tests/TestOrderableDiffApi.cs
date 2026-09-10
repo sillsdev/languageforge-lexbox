@@ -18,7 +18,7 @@ public class TestOrderableDiffApiTests
 
         // assert
         diffApi.DiffOperations.Should().BeEquivalentTo([
-            new CollectionDiffOperation(value2, DiffOperationKind.Add, position)
+            new CollectionDiffOperation(value2, PositionDiffKind.Add, position)
         ]);
         diffApi.Replacements.Should().BeEquivalentTo(Array.Empty<(TestOrderable, TestOrderable)>());
         diffApi.Current.Should().BeEquivalentTo([value1, value2]);
@@ -37,7 +37,7 @@ public class TestOrderableDiffApiTests
 
         // assert
         diffApi.DiffOperations.Should().BeEquivalentTo([
-            new CollectionDiffOperation(value1, DiffOperationKind.Remove)
+            new CollectionDiffOperation(value1, PositionDiffKind.Remove)
         ]);
         diffApi.Replacements.Should().BeEquivalentTo(Array.Empty<(TestOrderable, TestOrderable)>());
         diffApi.Current.Should().BeEquivalentTo([value2]);
@@ -58,7 +58,7 @@ public class TestOrderableDiffApiTests
 
         // assert
         diffApi.DiffOperations.Should().BeEquivalentTo([
-            new CollectionDiffOperation(value3, DiffOperationKind.Move, position)
+            new CollectionDiffOperation(value3, PositionDiffKind.Move, position)
         ]);
         diffApi.Replacements.Should().BeEquivalentTo(Array.Empty<(TestOrderable, TestOrderable)>());
         diffApi.Current.Should().BeEquivalentTo([value1, value3, value2]);
@@ -82,20 +82,20 @@ public class TestOrderableDiffApiTests
     }
 }
 
-public class TestOrderableDiffApi(TestOrderable[] before) : OrderableCollectionDiffApi<TestOrderable, Guid>
+public class TestOrderableDiffApi(TestOrderable[] before) : IOrderableCollectionDiffApi<TestOrderable, Guid>
 {
     public List<TestOrderable> Current { get; } = [.. before];
     public List<CollectionDiffOperation> DiffOperations = [];
     public List<(TestOrderable before, TestOrderable after)> Replacements = [];
 
-    public override Guid GetId(TestOrderable value)
+    public Guid GetId(TestOrderable value)
     {
         return value.Id;
     }
 
-    public override Task<int> Add(TestOrderable value, BetweenPosition<TestOrderable> between)
+    public Task<int> Add(TestOrderable value, BetweenPosition<TestOrderable> between)
     {
-        DiffOperations.Add(new CollectionDiffOperation(value, DiffOperationKind.Add, between));
+        DiffOperations.Add(new CollectionDiffOperation(value, PositionDiffKind.Add, between));
         return AddInternal(value, between);
     }
 
@@ -118,9 +118,9 @@ public class TestOrderableDiffApi(TestOrderable[] before) : OrderableCollectionD
         return Task.FromResult(1);
     }
 
-    public override Task<int> Remove(TestOrderable value)
+    public Task<int> Remove(TestOrderable value)
     {
-        DiffOperations.Add(new CollectionDiffOperation(value, DiffOperationKind.Remove));
+        DiffOperations.Add(new CollectionDiffOperation(value, PositionDiffKind.Remove));
         return RemoveInternal(value);
     }
 
@@ -131,23 +131,15 @@ public class TestOrderableDiffApi(TestOrderable[] before) : OrderableCollectionD
         return Task.FromResult(1);
     }
 
-    public override async Task<int> Move(TestOrderable value, BetweenPosition<TestOrderable> between)
+    public async Task<int> Move(TestOrderable value, BetweenPosition<TestOrderable> between)
     {
-        DiffOperations.Add(new CollectionDiffOperation(value, DiffOperationKind.Move, between));
+        DiffOperations.Add(new CollectionDiffOperation(value, PositionDiffKind.Move, between));
         await RemoveInternal(value);
         await AddInternal(value, between);
         return 1;
     }
 
-    public override async Task<int> Reparent(TestOrderable value, BetweenPosition<TestOrderable> between)
-    {
-        DiffOperations.Add(new CollectionDiffOperation(value, DiffOperationKind.Reparent, between));
-        // the value arrives from another parent, so it isn't in this collection to remove first
-        await AddInternal(value, between);
-        return 1;
-    }
-
-    public override Task<int> Replace(TestOrderable before, TestOrderable after)
+    public Task<int> Replace(TestOrderable before, TestOrderable after)
     {
         Replacements.Add((before, after));
         before.Id.Should().Be(after.Id);
@@ -164,9 +156,7 @@ public class TestOrderableDiffApi(TestOrderable[] before) : OrderableCollectionD
     }
 }
 
-public enum DiffOperationKind { Add, Remove, Move, Reparent }
-
-public record CollectionDiffOperation(TestOrderable Value, DiffOperationKind Kind, BetweenPosition<TestOrderable>? Between = null);
+public record CollectionDiffOperation(TestOrderable Value, PositionDiffKind Kind, BetweenPosition<TestOrderable>? Between = null);
 
 public class TestOrderable(double order, Guid id) : IOrderable
 {

@@ -3,7 +3,6 @@ using System.Text.Json.JsonDiffPatch;
 using System.Text.Json.JsonDiffPatch.Diffs;
 using System.Text.Json.JsonDiffPatch.Diffs.Formatters;
 using System.Text.Json.Nodes;
-using MiniLcm.Exceptions;
 using MiniLcm.Models;
 
 namespace MiniLcm.SyncHelpers;
@@ -51,21 +50,13 @@ public class ObjectWithIdCollectionReplaceDiffApi<T>(Func<T, T, Task<int>> Repla
     }
 }
 
-public abstract class OrderableCollectionDiffApi<T, TId> where T : IOrderableNoId where TId : notnull
+public interface IOrderableCollectionDiffApi<T, TId> where T : IOrderableNoId where TId : notnull
 {
-    /// <summary>Creates the whole payload unconditionally; keeping a moved-in child out of the create is <see cref="MovedInChildrenDiffApi{T,TId}"/>'s job.</summary>
-    public abstract Task<int> Add(T value, BetweenPosition<T> between);
-    /// <summary>Deletes unconditionally; moved-vs-deleted and deferral are <see cref="MoveAwareOrderableDiffApi{T,TId}"/>'s and <see cref="DeferringDeletesOrderableDiffApi{T,TId}"/>'s job.</summary>
-    public abstract Task<int> Remove(T value);
-    /// <summary>Repositions an item this api's own collection already owns.</summary>
-    public abstract Task<int> Move(T value, BetweenPosition<T> between);
-    /// <summary>Takes an item from a different parent into this collection. Throws by default; override only where the api method actually re-parents.</summary>
-    public virtual Task<int> Reparent(T value, BetweenPosition<T> between)
-    {
-        throw new MoveNotSupportedException(typeof(T).Name, GetId(value));
-    }
-    public abstract Task<int> Replace(T before, T after);
-    public abstract TId GetId(T value);
+    Task<int> Add(T value, BetweenPosition<T> between);
+    Task<int> Remove(T value);
+    Task<int> Move(T value, BetweenPosition<T> between);
+    Task<int> Replace(T before, T after);
+    TId GetId(T value);
 }
 
 public static class DiffCollection
@@ -102,11 +93,12 @@ public static class DiffCollection
 
         // removes are done last to prevent cascading deletes to entities that are being moved
         // (e.g. senses being moved from a deleted entry to a new or updated entry)
-        // see also the DeferringDeletes Diff Apis, which actually handle this globally for an entire entity hierarchy.
         if (toRemove is not null)
         {
             foreach (var beforeEntry in toRemove)
+            {
                 changes += await diffApi.Remove(beforeEntry);
+            }
         }
 
         return (changes, afterEntriesDict.Values);
@@ -125,7 +117,7 @@ public static class DiffCollection
     public static async Task<int> DiffOrderable<T, TId>(
         IList<T> before,
         IList<T> after,
-        OrderableCollectionDiffApi<T, TId> diffApi) where T : IOrderableNoId where TId : notnull
+        IOrderableCollectionDiffApi<T, TId> diffApi) where T : IOrderableNoId where TId : notnull
     {
         var changes = 0;
 

@@ -310,6 +310,16 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         await _api.SubmitMoveComplexFormComponent(complexFormComponent, between);
     }
 
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    {
+        return _api.SubmitMoveSense(entryId, senseId, position);
+    }
+
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    {
+        return _api.SubmitMoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+    }
+
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
         return _api.DeleteComplexFormComponent(complexFormComponent);

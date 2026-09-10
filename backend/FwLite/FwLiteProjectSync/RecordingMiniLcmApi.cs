@@ -208,6 +208,12 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         await _api.MoveSense(entryId, senseId, between);
     }
 
+    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    {
+        RunRecords.Add(new RunRecord(nameof(SubmitMoveSense), $"Move sense {senseId} in entry {entryId} {Position(between)}"));
+        await _api.SubmitMoveSense(entryId, senseId, between);
+    }
+
     public async Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
     {
         RunRecords.Add(new RunRecord(nameof(MoveSenseToEntry), $"Move sense {senseId} to entry {entryId} {Position(between)}"));
@@ -274,6 +280,13 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         RunRecords.Add(new RunRecord(nameof(MoveExampleSentence),
             $"Move example sentence {exampleId} in sense {senseId} {Position(between)}"));
         await _api.MoveExampleSentence(entryId, senseId, exampleId, between);
+    }
+
+    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    {
+        RunRecords.Add(new RunRecord(nameof(SubmitMoveExampleSentence),
+            $"Move example sentence {exampleId} in sense {senseId} {Position(between)}"));
+        await _api.SubmitMoveExampleSentence(entryId, senseId, exampleId, between);
     }
 
     public async Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)

@@ -1598,6 +1598,14 @@ public class FwDataMiniLcmApi(
         return MoveSenseToEntry(entryId, senseId, between);
     }
 
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    {
+        // skip if the sense is gone or reparented elsewhere on this side; the reorder is then moot
+        if (!SenseRepository.TryGetObject(senseId, out var lexSense) || lexSense.Entry.Guid != entryId)
+            return Task.CompletedTask;
+        return MoveSenseToEntry(entryId, senseId, position);
+    }
+
     // repositioning and re-parenting are the same operation here: inserting into an LCM owning
     // sequence moves the sense out of whatever entry currently owns it
     public Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
@@ -1781,6 +1789,15 @@ public class FwDataMiniLcmApi(
         // see MoveSense
         VerifyExampleSentenceBelongsToSense(entryId, senseId, lexExample);
         return MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, between);
+    }
+
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    {
+        // skip if the example is gone or reparented to another sense on this side; the reorder is then moot
+        if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample)
+            || lexExample.Owner is not ILexSense sense || sense.Guid != senseId)
+            return Task.CompletedTask;
+        return MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
     }
 
     // see MoveSenseToEntry: the insert re-parents

@@ -21,9 +21,9 @@ public static class EntrySync
         Entry[] afterEntries,
         IMiniLcmApi api)
     {
-        var context = SyncContext.ForProjectSync(beforeEntries, afterEntries);
-        var (changes, added) = await DiffCollection.DiffAndGetAdded(beforeEntries, afterEntries, context.EntriesDiffApi(api));
-        changes += await context.DeferredDeletes.DeleteAll();
+        var context = SyncContext.For(beforeEntries, afterEntries);
+        var (changes, added) = await DiffCollection.DiffAndGetAdded(beforeEntries, afterEntries, new EntriesDiffApi(api, context));
+        changes += await context.DeleteAll();
         return (changes, added);
     }
 
@@ -40,11 +40,15 @@ public static class EntrySync
                 (before, after) => SyncComplexFormsAndComponents(before, after, api)));
     }
 
+    /// <summary>
+    /// The viewer's updateEntry path. Re-parenting a picture or translation between this entry's own senses
+    /// is refused with <see cref="MoveNotSupportedException"/> and nothing is written (develop did delete+create).
+    /// </summary>
     public static async Task<int> SyncFull(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
     {
-        var context = SyncContext.ForEntrySync(beforeEntry, afterEntry);
+        var context = SyncContext.For(beforeEntry, afterEntry);
         var changes = await SyncWithoutComplexFormsAndComponents(beforeEntry, afterEntry, api, context);
-        changes += await context.DeferredDeletes.DeleteAll();
+        changes += await context.DeleteAll();
         changes += await SyncComplexFormsAndComponents(beforeEntry, afterEntry, api);
         return changes;
     }
@@ -127,7 +131,7 @@ public static class EntrySync
         IMiniLcmApi api,
         SyncContext context)
     {
-        return await DiffCollection.DiffOrderable(beforeSenses, afterSenses, context.SensesDiffApi(api, entryId));
+        return await DiffCollection.DiffOrderable(beforeSenses, afterSenses, new SensesDiffApi(api, entryId, context));
     }
 
     public static UpdateObjectInput<Entry>? EntryDiffToUpdate(Entry beforeEntry, Entry afterEntry)
@@ -149,10 +153,20 @@ public static class EntrySync
     {
         public override async Task<(int, Entry)> AddAndGet(Entry afterEntry)
         {
-            return (1, await api.CreateEntry(afterEntry, CreateEntryOptions.WithoutComplexFormsAndComponents));
+            // a moved-in descendant still lives under its old parent, so it can't ride along in the create;
+            // create the entry without it, then let the recursive sync move it in.
+            if (!context.HasMovedInDescendants(afterEntry))
+                return (1, await api.CreateEntry(afterEntry, CreateEntryOptions.WithoutComplexFormsAndComponents));
+            var payload = context.WithoutMovedInDescendants(afterEntry);
+            var created = await api.CreateEntry(payload, CreateEntryOptions.WithoutComplexFormsAndComponents);
+            var changes = 1 + await SyncWithoutComplexFormsAndComponents(payload, afterEntry, api, context);
+            return (changes, created with { Senses = afterEntry.Senses });
         }
 
-        public override async Task<int> Remove(Entry entry)
+        // entries never move, but their delete defers so a sense can be moved out before the cascade
+        public override Task<int> Remove(Entry entry) => context.DeferDelete(() => DeleteEntry(entry));
+
+        private async Task<int> DeleteEntry(Entry entry)
         {
             await api.DeleteEntry(entry.Id);
             return 1;
@@ -236,33 +250,33 @@ public static class EntrySync
         }
     }
 
-    private class ComplexFormComponentsDiffApi(IMiniLcmApi api) : OrderableCollectionDiffApi<ComplexFormComponent, (Guid, Guid, Guid?)>
+    private class ComplexFormComponentsDiffApi(IMiniLcmApi api) : IOrderableCollectionDiffApi<ComplexFormComponent, (Guid, Guid, Guid?)>
     {
-        public override (Guid, Guid, Guid?) GetId(ComplexFormComponent component)
+        public (Guid, Guid, Guid?) GetId(ComplexFormComponent component)
         {
             // we can't use the ID as there's none defined by Fw so it won't work as a sync key
             return (component.ComplexFormEntryId, component.ComponentEntryId, component.ComponentSenseId);
         }
 
-        public override async Task<int> Add(ComplexFormComponent after, BetweenPosition<ComplexFormComponent> between)
+        public async Task<int> Add(ComplexFormComponent after, BetweenPosition<ComplexFormComponent> between)
         {
             await api.SubmitCreateComplexFormComponent(after, between);
             return 1;
         }
 
-        public override async Task<int> Move(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
+        public async Task<int> Move(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
         {
             await api.SubmitMoveComplexFormComponent(component, between);
             return 1;
         }
 
-        public override async Task<int> Remove(ComplexFormComponent before)
+        public async Task<int> Remove(ComplexFormComponent before)
         {
             await api.DeleteComplexFormComponent(before);
             return 1;
         }
 
-        public override Task<int> Replace(ComplexFormComponent beforeComponent, ComplexFormComponent afterComponent)
+        public Task<int> Replace(ComplexFormComponent beforeComponent, ComplexFormComponent afterComponent)
         {
             if (beforeComponent.ComplexFormEntryId == afterComponent.ComplexFormEntryId &&
                 beforeComponent.ComponentEntryId == afterComponent.ComponentEntryId &&
@@ -274,38 +288,53 @@ public static class EntrySync
         }
     }
 
-    internal class SensesDiffApi(IMiniLcmApi api, Guid entryId, SyncContext context) : OrderableCollectionDiffApi<Sense, Guid>
+    internal class SensesDiffApi(IMiniLcmApi api, Guid entryId, SyncContext context) : IOrderableCollectionDiffApi<Sense, Guid>
     {
-        public override Guid GetId(Sense sense)
+        public Guid GetId(Sense sense)
         {
             return sense.Id;
         }
 
-        public override async Task<int> Add(Sense sense, BetweenPosition<Sense> between)
+        public async Task<int> Add(Sense sense, BetweenPosition<Sense> between)
         {
-            await api.SubmitCreateSense(entryId, sense, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
+            var position = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
+            // a known id arriving here is a move; its new parent's Add owns it, then a three-way sync applies edits
+            if (context.MovedIn(sense) is { } before)
+            {
+                await api.MoveSenseToEntry(entryId, sense.Id, position);
+                return 1 + await SenseSync.Sync(entryId, before, sense, api, context);
+            }
+            // a genuinely new sense whose payload holds a moved-in example: create it without the example, then move it in
+            if (context.HasMovedInDescendants(sense))
+            {
+                var payload = context.WithoutMovedInDescendants(sense);
+                await api.SubmitCreateSense(entryId, payload, position);
+                return 1 + await SenseSync.Sync(entryId, payload, sense, api, context);
+            }
+            await api.SubmitCreateSense(entryId, sense, position);
             return 1;
         }
 
-        public override async Task<int> Move(Sense sense, BetweenPosition<Sense> between)
+        public async Task<int> Move(Sense sense, BetweenPosition<Sense> between)
         {
-            await api.MoveSense(entryId, sense.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
+            // tolerant: the sense may have been deleted on the side we're applying to, making the reorder moot
+            await api.SubmitMoveSense(entryId, sense.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
-        public override async Task<int> Reparent(Sense sense, BetweenPosition<Sense> between)
+        public Task<int> Remove(Sense sense)
         {
-            await api.MoveSenseToEntry(entryId, sense.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
-            return 1;
+            // still exists elsewhere after => it moved out; its new parent's Add owns the move, nothing to delete here
+            return context.StillExists(sense) ? Task.FromResult(0) : context.DeferDelete(() => DeleteSense(sense));
         }
 
-        public override async Task<int> Remove(Sense sense)
+        private async Task<int> DeleteSense(Sense sense)
         {
             await api.DeleteSense(entryId, sense.Id);
             return 1;
         }
 
-        public override Task<int> Replace(Sense before, Sense after)
+        public Task<int> Replace(Sense before, Sense after)
         {
             return SenseSync.Sync(entryId, before, after, api, context);
         }

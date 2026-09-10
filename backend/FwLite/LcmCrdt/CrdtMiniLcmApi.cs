@@ -800,6 +800,15 @@ public class CrdtMiniLcmApi(
         await AddChange(new Changes.SetOrderChange<Sense>(senseId, await PickSenseOrder(repo, entryId, between)));
     }
 
+    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        // skip if the sense is gone or reparented elsewhere on this side; the reorder is then moot
+        var sense = await repo.GetSense(senseId);
+        if (sense is null || sense.EntryId != entryId) return;
+        await AddChange(new Changes.SetOrderChange<Sense>(senseId, await PickSenseOrder(repo, entryId, position)));
+    }
+
     public async Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
@@ -898,6 +907,15 @@ public class CrdtMiniLcmApi(
         var exampleSentence = await repo.GetExampleSentence(exampleId) ?? throw NotFoundException.ForType<ExampleSentence>(exampleId);
         VerifyExampleSentenceBelongsToSense(senseId, exampleSentence);
         await AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, await PickExampleOrder(repo, senseId, between)));
+    }
+
+    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        // skip if the example is gone or reparented to another sense on this side; the reorder is then moot
+        var example = await repo.GetExampleSentence(exampleSentenceId);
+        if (example is null || example.SenseId != senseId) return;
+        await AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleSentenceId, await PickExampleOrder(repo, senseId, position)));
     }
 
     public async Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
