@@ -83,6 +83,8 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
             //                               <CurVernWss><Uni>fr es</Uni></CurVernWss> ... </LangProject>
             var langProject = XDocument.Parse(langprojXml).Root?.Element("LangProject");
             langProject.Should().NotBeNull("LanguageProject.langproj should contain a LangProject element");
+            var allAnalysisWss = SpaceSeparatedUni(langProject!, "AnalysisWss");
+            var allVernWss = SpaceSeparatedUni(langProject!, "VernWss");
             var curAnalysisWss = SpaceSeparatedUni(langProject!, "CurAnalysisWss");
             var curVernWss = SpaceSeparatedUni(langProject!, "CurVernWss");
 
@@ -95,8 +97,10 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
 
             // The requested writing systems should *also* be in the correct order. Any writing systems added
             // by FieldWorks should come last.
-            curAnalysisWss.Take(analysis.Length).Should().Equal(analysis, "analysis writing systems were in the wrong order");
-            curVernWss.Take(vernacular.Length).Should().Equal(vernacular, "vernacular writing systems were in the wrong order");
+            allAnalysisWss.Take(analysis.Length).Should().Equal(analysis, "analysis writing systems were in the wrong order");
+            allVernWss.Take(vernacular.Length).Should().Equal(vernacular, "vernacular writing systems were in the wrong order");
+            curAnalysisWss.Should().Equal(analysis, "current analysis writing systems should not contain any extras");
+            curVernWss.Should().Equal(vernacular, "current vernacular writing systems should not contain any extras");
         }
         finally
         {

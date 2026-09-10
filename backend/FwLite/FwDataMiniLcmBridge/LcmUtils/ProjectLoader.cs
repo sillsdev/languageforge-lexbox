@@ -158,16 +158,15 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         return result;
     }
 
-    private static void ReorderWritingSystems(ICollection<CoreWritingSystemDefinition> lcmList,
-        IEnumerable<CoreWritingSystemDefinition> preferredOrder)
+    private static void CorrectWritingSystemsList(ICollection<CoreWritingSystemDefinition> lcmList,
+        IEnumerable<CoreWritingSystemDefinition> preferredOrder,
+        bool includeNonPreferred = true)
     {
-        var reordered = CorrectlyOrderedWritingSystems(lcmList, preferredOrder);
-        // TODO: Perhaps the ones added by Lcm, if any, should be considered NON-current? If so,
-        // then we should add a boolean param and the line above should change to:
-        // var reordered =
-        //     includeNonPreferred ?
-        //         CorrectlyOrderedWritingSystems(lcmList, preferredOrder) :
-        //         preferredOrder.ToList();
+        // TODO: Don't like these names, let's find more self-explanatory ones
+        var reordered =
+            includeNonPreferred ?
+                CorrectlyOrderedWritingSystems(lcmList, preferredOrder) :
+                preferredOrder.ToList();
 
         // Guard against making liblcm fire WritingSystemListChanged if it doesn't need to
         if (reordered.Select(ws => ws.Id).SequenceEqual(lcmList.Select(ws => ws.Id)))
@@ -188,10 +187,10 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
             // Have to do both the "Current" and "All" lists, because liblcm doesn't automatically
             // keep their order in sync. If a ws is added to Current them it's also added to All,
             // but that's it. A reorder wouldn't be automatically synced up, we must do so here.
-            ReorderWritingSystems(wsContainer.CurrentAnalysisWritingSystems, preferredOrderAnalysis);
-            ReorderWritingSystems(wsContainer.AnalysisWritingSystems, preferredOrderAnalysis);
-            ReorderWritingSystems(wsContainer.CurrentVernacularWritingSystems, preferredOrderVernacular);
-            ReorderWritingSystems(wsContainer.VernacularWritingSystems, preferredOrderVernacular);
+            CorrectWritingSystemsList(wsContainer.AnalysisWritingSystems, preferredOrderAnalysis);
+            CorrectWritingSystemsList(wsContainer.VernacularWritingSystems, preferredOrderVernacular);
+            CorrectWritingSystemsList(wsContainer.CurrentAnalysisWritingSystems, preferredOrderAnalysis, includeNonPreferred: false);
+            CorrectWritingSystemsList(wsContainer.CurrentVernacularWritingSystems, preferredOrderVernacular, includeNonPreferred: false);
         });
     }
 }
