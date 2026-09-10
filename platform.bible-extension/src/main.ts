@@ -397,27 +397,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  const deleteDownloadedLexiconCommandPromise = papi.commands.registerCommand(
-    'lexicon.deleteDownloadedLexicon',
-    async (lexiconCode: string) => {
-      try {
-        // A CRDT lexicon can be deleted here, downloaded or local-only; FwData projects are managed
-        // by FieldWorks, so refuse those.
-        const project = (await fwLiteApi.getProjects()).find((p) => p.code === lexiconCode);
-        if (!project?.crdt) {
-          return { success: false, error: `Lexicon '${lexiconCode}' can't be deleted here` };
-        }
-        logger.info(`Deleting lexicon '${lexiconCode}'`);
-        await fwLiteApi.deleteProject(lexiconCode);
-        return { success: true };
-      } catch (e) {
-        const error = getErrorMessage(e);
-        logger.error('Error deleting downloaded lexicon:', error);
-        return { success: false, error };
-      }
-    },
-  );
-
   const createLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.createLexicon',
     async (name: string, code: string, vernacularWs: string, analysisWs?: string) => {
@@ -482,7 +461,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await browseLexiconCommandPromise,
     await changeLexiconCommandPromise, // DEV-ONLY: remove before release (see registration above)
     await createLexiconCommandPromise,
-    await deleteDownloadedLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,

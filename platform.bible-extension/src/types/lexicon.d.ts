@@ -110,11 +110,6 @@ declare module 'papi-shared-types' {
       vernacularWs: string,
       analysisWs?: string,
     ) => Promise<SuccessHolder>;
-    /**
-     * Deletes a CRDT lexicon on this computer — a downloaded copy, or a local-only one (permanent,
-     * since it isn't re-downloadable). Refuses FwData projects, which FieldWorks manages.
-     */
-    'lexicon.deleteDownloadedLexicon': (lexiconCode: string) => Promise<SuccessHolder>;
     'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;

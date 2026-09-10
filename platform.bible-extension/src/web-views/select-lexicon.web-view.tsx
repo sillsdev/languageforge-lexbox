@@ -183,17 +183,6 @@ globalThis.webViewComponent = function LexiconSelect({
     [resolveProjectId],
   );
 
-  const deleteLexicon = useCallback(
-    async (code: string): Promise<void> => {
-      const result = await commands.sendCommand('lexicon.deleteDownloadedLexicon', code);
-      if (!result?.success) throw new Error(result?.error || 'Failed to delete the local copy');
-      // The deleted project is now downloadable again; refresh both lists.
-      fetchLexicons();
-      fetchRemoteProjects();
-    },
-    [fetchLexicons, fetchRemoteProjects],
-  );
-
   const createLexicon = useCallback(
     async (
       name: string,
@@ -247,9 +236,6 @@ globalThis.webViewComponent = function LexiconSelect({
   }
 
   return (
-    // Only the picker's list scrolls; the outer scrollbar exists solely as a fallback for windows
-    // too short to fit the fixed chrome at all. The width cap keeps a docked full-width tab from
-    // producing absurdly wide rows while still letting a widened float un-truncate long codes.
     <div className="tw:flex tw:flex-col tw:h-screen tw:overflow-y-auto">
       <div className="tw:flex tw:flex-col tw:flex-1 tw:min-h-0 tw:w-full tw:max-w-3xl tw:mx-auto">
         <div className="tw:shrink-0">
@@ -271,7 +257,6 @@ globalThis.webViewComponent = function LexiconSelect({
           onCreateNew={() => setShowCreate(true)}
           selectLexicon={selectLexicon}
           downloadAndSelect={downloadAndSelect}
-          deleteLexicon={deleteLexicon}
           onSaved={handleSaved}
         />
       </div>

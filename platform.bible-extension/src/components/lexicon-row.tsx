@@ -1,16 +1,6 @@
 import type { IProjectModel } from 'lexicon';
-import { Check, Trash2 } from 'lucide-react';
-import {
-  Badge,
-  CommandItem,
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from 'platform-bible-react';
+import { Check } from 'lucide-react';
+import { Badge, CommandItem, Tooltip, TooltipContent, TooltipTrigger } from 'platform-bible-react';
 import type { ReactElement } from 'react';
 
 /** Props for one lexicon row. The picker computes identity/selection; this component just draws. */
@@ -23,39 +13,26 @@ interface LexiconRowProps {
   isChosen: boolean;
   /** The project's applied lexicon — shows the persistent "Current" badge. */
   isApplied: boolean;
-  /** Whether this row can be deleted: 'yes', 'no', or 'current' (blocked, with a reason). */
-  deletability: 'yes' | 'current' | 'no';
-  /** Attached only to the applied row so the picker can scroll it into view on open. */
-  currentRowRef: (node: HTMLDivElement | null) => void;
   onSelect: () => void;
-  onBeginDelete: () => void;
   strings: Record<string, string>;
 }
 
-/**
- * One row in the lexicon list: check (pending), name/code, "Current"/"FieldWorks" badges, delete
- * menu.
- */
+/** One row in the lexicon list: check (pending), name/code, "Current"/"FieldWorks" badges. */
 export default function LexiconRow({
   project,
   local,
   itemKey,
   isChosen,
   isApplied,
-  deletability,
-  currentRowRef,
   onSelect,
-  onBeginDelete,
   strings,
 }: LexiconRowProps): ReactElement {
   const name = project.name || project.code;
   const isFieldWorks = !!(local && project.fwdata && !project.crdt);
   // Case-insensitive so "Happy"/"happy" doesn't show a pointless code line.
   const showCode = project.code.toLowerCase() !== name.toLowerCase();
-  const item = (
+  return (
     <CommandItem
-      // Scroll the applied lexicon into view on open (replaces pinning it to the top).
-      ref={isApplied ? currentRowRef : undefined}
       // cmdk filters on this value; include the key so items stay unique when names collide.
       value={`${name} ${project.code} ${itemKey}`}
       onSelect={onSelect}
@@ -106,23 +83,5 @@ export default function LexiconRow({
         </div>
       )}
     </CommandItem>
-  );
-  if (deletability === 'no') return item;
-  return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>{item}</ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem disabled={deletability === 'current'} onSelect={onBeginDelete}>
-          <Trash2 aria-hidden className="tw:h-4 tw:w-4 tw:me-2" />
-          {strings['%lexicon_selectLexicon_deleteLocalCopy%']}
-        </ContextMenuItem>
-        {deletability === 'current' && (
-          // Not a tooltip: disabled Radix items are unreachable by pointer and keyboard.
-          <div className="tw:max-w-60 tw:px-2 tw:pb-1.5 tw:text-xs tw:text-muted-foreground">
-            {strings['%lexicon_selectLexicon_deleteDisabledCurrent%']}
-          </div>
-        )}
-      </ContextMenuContent>
-    </ContextMenu>
   );
 }

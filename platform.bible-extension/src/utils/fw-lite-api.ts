@@ -249,12 +249,6 @@ export class FwLiteApi {
     }
   }
 
-  /** Deletes a local CRDT project. Callers must ensure all changes are backed up. */
-  async deleteProject(code: string): Promise<void> {
-    await this.fetchPath(`crdt/${sanitizeUrlComponent(code)}`, 'DELETE');
-    FwLiteApi.projectTypeByCode.delete(code);
-  }
-
   /**
    * Triggers a system-browser sign-in. Doesn't resolve until the user finishes in their browser,
    * cancels, or MSAL gives up. Pass `signal` to abort an abandoned sign-in, which the backend
