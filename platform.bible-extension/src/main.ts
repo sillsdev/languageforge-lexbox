@@ -329,12 +329,14 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
           fwLiteApi.getRemoteProjects(),
           fwLiteApi.getProjects(),
         ]);
-        // Hide a remote project when a local CRDT project already has its code. FW Lite stores CRDT
-        // projects by code and refuses a second with the same code, so downloading such a "remote"
-        // returns AlreadyDownloaded and silently resolves to the local one. Guard on `l.crdt`: a
-        // local FwData project sharing a code doesn't collide (it's separate storage), so the remote
-        // must stay downloadable. Dedupe against ALL local projects, not the language-filtered list.
-        return remote.filter((r) => !local.some((l) => l.crdt && l.code === r.code));
+        // Suppress a remote project when ANY local project already has its code. FW Lite collapses a
+        // same-code CRDT and FwData project into one local record (one type per code), and a lexicon
+        // selection stores only the code — so downloading a remote whose code matches a local project
+        // creates an ambiguous identity that would redirect a FieldWorks project's reads/edits to the
+        // downloaded CRDT copy. Until lexicon identity carries the data format (see issue #2647),
+        // suppressing same-code remotes is the safe choice. Dedupe against ALL local projects, not the
+        // web view's language-filtered list.
+        return remote.filter((r) => !local.some((l) => l.code === r.code));
       } catch (e) {
         logger.error('Error fetching remote projects:', getErrorMessage(e));
         return undefined;
