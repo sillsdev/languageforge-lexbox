@@ -34,8 +34,8 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
     {
         // Valid code (lowercase/digits/hyphen, doesn't start with a hyphen), unique per run.
         var code = $"tmpl-{Guid.NewGuid():N}"[..12];
-        var vernacular = new[] { "fr", "es" };
-        var analysis = new[] { "de", "pt" };
+        var vernacular = new[] { "fr", "es", "ko", "ru", "my" };
+        var analysis = new[] { "de", "pt", "th", "id", "he", "el" };
         var query = $"?code={code}"
                     + string.Concat(vernacular.Select(ws => $"&wsVernacular={ws}"))
                     + string.Concat(analysis.Select(ws => $"&wsAnalysis={ws}"));
@@ -92,6 +92,11 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
                 curAnalysisWss.Should().Contain(ws, "analysis writing system {0} should be current in the project", ws);
             foreach (var ws in vernacular)
                 curVernWss.Should().Contain(ws, "vernacular writing system {0} should be current in the project", ws);
+
+            // The requested writing systems should *also* be in the correct order. Any writing systems added
+            // by FieldWorks should come last.
+            curAnalysisWss.Take(analysis.Length).Should().Equal(analysis, "analysis writing systems were in the wrong order");
+            curVernWss.Take(vernacular.Length).Should().Equal(vernacular, "vernacular writing systems were in the wrong order");
         }
         finally
         {

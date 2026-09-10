@@ -112,6 +112,7 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         // them correctly if needed.
         var lcmCache = LoadCache(project);
         ReorderWritingSystems(lcmCache, analysisDefinitions, vernacularDefinitions);
+        lcmCache.ActionHandlerAccessor.Commit(); // Ensure changes are written out
         return lcmCache;
     }
 
@@ -161,6 +162,13 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         IEnumerable<CoreWritingSystemDefinition> preferredOrder)
     {
         var reordered = CorrectlyOrderedWritingSystems(lcmList, preferredOrder);
+        // TODO: Perhaps the ones added by Lcm, if any, should be considered NON-current? If so,
+        // then we should add a boolean param and the line above should change to:
+        // var reordered =
+        //     includeNonPreferred ?
+        //         CorrectlyOrderedWritingSystems(lcmList, preferredOrder) :
+        //         preferredOrder.ToList();
+
         // Guard against making liblcm fire WritingSystemListChanged if it doesn't need to
         if (reordered.Select(ws => ws.Id).SequenceEqual(lcmList.Select(ws => ws.Id)))
         {
