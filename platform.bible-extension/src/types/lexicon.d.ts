@@ -51,11 +51,18 @@ declare module 'lexicon' {
    * which lexicon it is using reaches that lexicon and no other. Mapping a Paratext project to a
    * lexicon is the caller's own business; this service holds no notion of a project.
    *
-   * Absence resolves and faults reject. A lexicon that is not there, and a record it does not hold,
-   * both answer `undefined` — so a caller reading a record it recorded a reference to earlier
-   * handles a lexicon that has since been deleted the same way it handles a deleted record, without
-   * a `catch`. A rejection means the answer is unknown rather than "no": the backend is
-   * unreachable, or it answered with a fault.
+   * Absence resolves and faults reject, for every method that answers with a record. A lexicon that
+   * is not there, and a record it does not hold, both answer `undefined` — so a caller reading a
+   * record it recorded a reference to earlier handles a lexicon that has since been deleted the
+   * same way it handles a deleted record, without a `catch`. A rejection means the answer is
+   * unknown rather than "no": the backend is unreachable, or it answered with a fault.
+   *
+   * `deleteEntry` is outside that rule and rejects for a lexicon that is not there, since it has no
+   * value to answer absence with. Whether a delete against a vanished lexicon should instead read
+   * as done is open.
+   *
+   * A record `id` is one the lexicon minted, a GUID. An id in any other shape names no record the
+   * lexicon could hold, so it reads as absence rather than as a fault.
    */
   export interface IEntryService {
     /**
