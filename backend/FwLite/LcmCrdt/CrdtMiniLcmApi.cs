@@ -864,6 +864,8 @@ public class CrdtMiniLcmApi(
     public async Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
+        // a deleted target sense is allowed: the move change then deletes the example (delete wins)
+        if (await repo.GetSense(senseId) is { } targetSense) VerifySenseBelongsToEntry(entryId, targetSense);
         await harmonyChangeWriter.AddChange(new MoveExampleSentenceToSenseChange(exampleId, senseId, await PickExampleOrder(repo, senseId, between)));
     }
 
