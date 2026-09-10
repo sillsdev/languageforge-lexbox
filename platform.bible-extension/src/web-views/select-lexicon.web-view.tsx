@@ -27,6 +27,8 @@ globalThis.webViewComponent = function LexiconSelect({
   const [lexicons, setLexicons] = useState<IProjectModel[] | undefined>();
   const [remoteProjects, setRemoteProjects] = useState<IProjectModel[] | undefined>();
   const [showCreate, setShowCreate] = useState(false);
+  // A remote download is in flight; lock the account controls until it finishes.
+  const [downloading, setDownloading] = useState(false);
 
   // When the language filter kicked in, the user can flip to the full list (per-panel choice).
   const [showAll, setShowAll] = useState(false);
@@ -239,7 +241,7 @@ globalThis.webViewComponent = function LexiconSelect({
     <div className="tw:flex tw:flex-col tw:h-screen tw:overflow-y-auto">
       <div className="tw:flex tw:flex-col tw:flex-1 tw:min-h-0 tw:w-full tw:max-w-3xl tw:mx-auto">
         <div className="tw:shrink-0">
-          <AuthStatus login={login} logout={logout} servers={authServers} />
+          <AuthStatus busy={downloading} login={login} logout={logout} servers={authServers} />
         </div>
         <LexiconPicker
           loading={!lexicons}
@@ -258,6 +260,7 @@ globalThis.webViewComponent = function LexiconSelect({
           selectLexicon={selectLexicon}
           downloadAndSelect={downloadAndSelect}
           onSaved={handleSaved}
+          onDownloadingChange={setDownloading}
         />
       </div>
     </div>

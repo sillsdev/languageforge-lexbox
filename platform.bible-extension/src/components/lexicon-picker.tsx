@@ -53,6 +53,8 @@ interface LexiconPickerProps {
   ) => Promise<{ result: DownloadResult; success: boolean; cancelled?: boolean }>;
   /** The chosen lexicon was stored for the project; the parent tracks it and triggers the banner. */
   onSaved: (name: string, code: string) => void;
+  /** Called when a download starts/ends so the parent can lock account controls while it runs. */
+  onDownloadingChange?: (downloading: boolean) => void;
 }
 
 // Codes can collide across servers, so key options by server (or "local") plus code.
@@ -89,6 +91,7 @@ export default function LexiconPicker({
   selectLexicon,
   downloadAndSelect,
   onSaved,
+  onDownloadingChange,
 }: LexiconPickerProps): ReactElement {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
@@ -102,6 +105,12 @@ export default function LexiconPicker({
   useEffect(() => {
     if (savedName && initialCode) setSelectedKey(`local/${initialCode}`);
   }, [savedName, initialCode]);
+
+  // Let the parent lock the account controls while a download runs: logging out mid-download would
+  // abort it and disturb the auth state.
+  useEffect(() => {
+    onDownloadingChange?.(busy === 'downloading');
+  }, [busy, onDownloadingChange]);
 
   // Human-readable name for the language the list was filtered by.
   const languageLabel = useMemo(() => {

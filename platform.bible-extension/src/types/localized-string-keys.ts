@@ -4,6 +4,7 @@ export const LOCALIZED_STRING_KEYS: LocalizeKey[] = [
   '%lexicon_addWord_buttonAdd%',
   '%lexicon_addWord_buttonSubmit%',
   '%lexicon_addWord_title%',
+  '%lexicon_auth_busyDownloading%',
   '%lexicon_auth_loggingIn%',
   '%lexicon_auth_login%',
   '%lexicon_auth_loginError%',
