@@ -212,7 +212,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         CancellationToken cancellationToken = default)
     {
         var input = new InitFwDataProjectInput(wsVernacular, wsAnalysis, wsUi);
-        var response = await httpClient.PostAsJsonAsync($"/api/project/init-fwdata-project?projectId={projectId}",
+        var response = await httpClient.PostAsJsonAsync($"/api/project/initFwDataProject?projectId={projectId}",
             input,
             cancellationToken);
         if (response.IsSuccessStatusCode) return (response.StatusCode, null);

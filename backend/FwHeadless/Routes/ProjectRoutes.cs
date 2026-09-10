@@ -10,7 +10,7 @@ public static class ProjectRoutes
     public static IEndpointConventionBuilder MapProjectRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api/project");
-        group.MapPost("/init-fwdata-project", InitFwDataProject);
+        group.MapPost("/initFwDataProject", InitFwDataProject);
         return group;
     }
 
@@ -42,7 +42,7 @@ public static class ProjectRoutes
         var projectCode = await projectLookupService.GetProjectCode(projectId);
         if (projectCode is null)
         {
-            logger.LogError("Init-fwdata-project request for non-existent project {ProjectId}", projectId);
+            logger.LogError("initFwDataProject request for non-existent project {ProjectId}", projectId);
             return TypedResults.Problem("Project not found", statusCode: StatusCodes.Status404NotFound);
         }
 
