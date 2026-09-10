@@ -11,7 +11,6 @@
     loading?: boolean;
     icon?: Snippet | IconClass;
     actions?: Snippet;
-    element?: 'button' | 'div';
   };
 </script>
 
@@ -28,35 +27,28 @@
     skeleton = false,
     disabled = false,
     loading = false,
-    element = 'button',
     ...restProps
   }: ListItemProps = $props();
-
-  const interactive = $derived(element === 'button');
 </script>
 
-<svelte:element
-  this={element}
+<button
   aria-selected={selected && !skeleton && !disabled}
-  disabled={interactive ? disabled || loading : undefined}
+  disabled={disabled || loading}
   data-skeleton={skeleton || undefined}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',
-    'bg-muted rounded outline-hidden shadow-sm',
+    'bg-muted rounded outline-hidden shadow-sm hover:shadow-md hover:z-10',
+    'focus-visible:ring-[3px] focus-visible:ring-ring/50',
     'border-l-5 border-l-transparent aria-selected:border-l-primary',
-    'aria-selected:bg-primary/15 aria-selected:dark:bg-primary/25',
-    interactive && [
-      'hover:shadow-md hover:z-10',
-      'focus-visible:ring-[3px] focus-visible:ring-ring/50',
-      'hover:bg-primary/15 dark:hover:bg-primary/25',
-      'disabled:pointer-events-none disabled:contrast-[0.8]',
-      'transition-transform active:scale-97',
-    ],
+    'hover:bg-primary/15 aria-selected:bg-primary/15',
+    'dark:hover:bg-primary/25 aria-selected:dark:bg-primary/25',
+    'disabled:pointer-events-none disabled:contrast-[0.8]',
+    'transition-transform active:scale-97',
     loading && 'animate-pulse',
     skeleton && 'cursor-default hover:bg-transparent pointer-events-none shadow-none',
     className,
   )}
-  role={interactive ? 'row' : undefined}
+  role="row"
   bind:this={ref}
   {...restProps}
 >
@@ -70,4 +62,4 @@
     {@render children?.()}
   </div>
   {@render actions?.()}
-</svelte:element>
+</button>
