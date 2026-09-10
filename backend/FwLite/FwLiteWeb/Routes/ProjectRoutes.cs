@@ -69,7 +69,8 @@ public static class ProjectRoutes
                 return TypedResults.Ok();
             });
         group.MapPost("/download/crdt/{serverAuthority}/{code}",
-            async (IOptions<AuthConfig> options,
+            async (ILoggerFactory loggerFactory,
+                IOptions<AuthConfig> options,
                 CombinedProjectsService combinedProjectsService,
                 string code,
                 string serverAuthority,
@@ -77,7 +78,21 @@ public static class ProjectRoutes
             ) =>
             {
                 var server = options.Value.GetServerByAuthority(serverAuthority);
-                var result = await combinedProjectsService.DownloadProjectByCode(code, server, role);
+                DownloadProjectByCodeResult result;
+                try
+                {
+                    result = await combinedProjectsService.DownloadProjectByCode(code, server, role);
+                }
+                catch (Exception e)
+                {
+                    // Surface the reason (e.g. a sync failure) to REST callers such as the
+                    // Platform.Bible extension; the in-process (Blazor) path already shows it. Log
+                    // here too, since catching bypasses the default 500 handler's logging.
+                    loggerFactory.CreateLogger(typeof(ProjectRoutes)).LogError(e,
+                        "Failed to download project {Code} from {Server}", code, serverAuthority);
+                    return Results.Problem(detail: e.Message,
+                        statusCode: StatusCodes.Status500InternalServerError);
+                }
                 return result switch
                 {
                     DownloadProjectByCodeResult.Success => Results.Ok(),
