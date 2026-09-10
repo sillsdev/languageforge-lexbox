@@ -165,27 +165,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
-  // The lexicon selector for a caller that keeps the project-to-lexicon link somewhere this
-  // extension does not own: the chosen lexicon goes to the caller's command rather than into
-  // `lexicon.lexiconCode`, so the two never describe the same project differently.
-  const chooseLexiconCommandPromise = papi.commands.registerCommand(
-    'lexicon.chooseLexicon',
-    async (projectId: string, resultCommand: string) => {
-      if (!resultCommand) {
-        const error = 'Cannot choose a lexicon without a command to report the choice to';
-        logger.error(error);
-        return { error, success: false };
-      }
-
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
-      if (!projectManager) return { success: false };
-
-      logger.info(`Opening lexicon selector for project '${projectId}' in report mode`);
-      const success = await projectManager.openSelector(resultCommand);
-      return { success };
-    },
-  );
-
   const displayEntryCommandPromise = papi.commands.registerCommand(
     'lexicon.displayEntry',
     async (projectId: string, lexiconCode: string, entryId: string) => {
@@ -317,7 +296,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   // DEV-ONLY: a quick lexicon switcher. Lexicon selection is intentionally sticky — once a project
   // has one, the only supported way to change it is clearing `lexicon.lexiconCode` in the project
-  // settings (the next lexicon action then reopens the selector). This menu command is a
+  // settings (the next lexicon action then reopens the selector). That setting is the one record of
+  // which lexicon a project uses, so other extensions read it too and clearing it unlinks them all. This menu command is a
   // development convenience to be removed before release, along with:
   //   - its entry in the `context.registrations.add(...)` list below,
   //   - the `lexicon.changeLexicon` handler type in `src/types/lexicon.d.ts`,
@@ -378,7 +358,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await authServersCommandPromise,
     await browseLexiconCommandPromise,
     await changeLexiconCommandPromise, // DEV-ONLY: remove before release (see registration above)
-    await chooseLexiconCommandPromise,
     await createLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
