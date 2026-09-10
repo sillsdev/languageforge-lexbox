@@ -30,7 +30,7 @@ export const entityConfig = {
     },
     complexForms: {
       label: vt(msg`Complex forms`, msg`Part of`),
-      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Complex_Forms.htm',
+      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Complex_Forms_entry.htm',
     },
     complexFormTypes: {
       label: vt(msg`Complex form types`, msg`Uses components as`),
