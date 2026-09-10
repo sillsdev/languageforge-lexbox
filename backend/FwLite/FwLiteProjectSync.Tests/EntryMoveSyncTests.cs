@@ -52,6 +52,104 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         SenseIds(actual).Should().Equal(sourceSense.Id);
         ExampleIds(actual.Senses[0]).Should().BeEmpty();
     }
+
+    // Only CRDT can diverge from the diff's "before": sync diffs the snapshot against FwData and applies to CRDT,
+    // whereas the FwData pass diffs FwData's own current state. A reorder of an item CRDT deleted or reparented
+    // since the snapshot is moot and must be skipped, not throw and wedge the whole sync.
+
+    [Fact]
+    public async Task ReorderingASenseDeletedInCrdt_DoesNotWedge()
+    {
+        var deleted = NewSense("deleted");
+        var keep1 = NewSense("keep1");
+        var keep2 = NewSense("keep2");
+        var keep3 = NewSense("keep3");
+        var entry = await CreateEntry("entry", deleted, keep1, keep2, keep3);
+        await Api.DeleteSense(entry.Id, deleted.Id);
+
+        // three senses keep their order, so the diff reorders exactly the (now-deleted) one
+        var after = entry.Copy();
+        var moved = after.Senses[0];
+        after.Senses.RemoveAt(0);
+        after.Senses.Add(moved);
+
+        var sync = () => Sync([entry], [after]);
+        await sync.Should().NotThrowAsync();
+
+        SenseIds(await GetEntry(entry.Id)).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
+    }
+
+    [Fact]
+    public async Task ReorderingAnExampleSentenceDeletedInCrdt_DoesNotWedge()
+    {
+        var deleted = NewExample("deleted");
+        var keep1 = NewExample("keep1");
+        var keep2 = NewExample("keep2");
+        var keep3 = NewExample("keep3");
+        var sense = NewSense("sense", deleted, keep1, keep2, keep3);
+        var entry = await CreateEntry("entry", sense);
+        await Api.DeleteExampleSentence(entry.Id, sense.Id, deleted.Id);
+
+        var after = entry.Copy();
+        var moved = after.Senses[0].ExampleSentences[0];
+        after.Senses[0].ExampleSentences.RemoveAt(0);
+        after.Senses[0].ExampleSentences.Add(moved);
+
+        var sync = () => Sync([entry], [after]);
+        await sync.Should().NotThrowAsync();
+
+        ExampleIds((await GetEntry(entry.Id)).Senses[0]).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
+    }
+
+    [Fact]
+    public async Task ReorderingASenseReparentedInCrdt_DoesNotWedge()
+    {
+        var moved = NewSense("moved");
+        var keep1 = NewSense("keep1");
+        var keep2 = NewSense("keep2");
+        var keep3 = NewSense("keep3");
+        var sourceEntry = await CreateEntry("source", moved, keep1, keep2, keep3);
+        var targetEntry = await CreateEntry("target");
+        await Api.MoveSenseToEntry(targetEntry.Id, moved.Id, new BetweenPosition(null, null));
+
+        // the other side merely reordered the sense within its original entry
+        var sourceAfter = sourceEntry.Copy();
+        var reordered = sourceAfter.Senses[0];
+        sourceAfter.Senses.RemoveAt(0);
+        sourceAfter.Senses.Add(reordered);
+
+        var sync = () => Sync([sourceEntry, targetEntry], [sourceAfter, targetEntry.Copy()]);
+        await sync.Should().NotThrowAsync();
+
+        SenseIds(await GetEntry(sourceEntry.Id)).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
+        SenseIds(await GetEntry(targetEntry.Id)).Should().Equal(moved.Id);
+    }
+
+    [Fact]
+    public async Task ReorderingAnExampleSentenceReparentedInCrdt_DoesNotWedge()
+    {
+        var moved = NewExample("moved");
+        var keep1 = NewExample("keep1");
+        var keep2 = NewExample("keep2");
+        var keep3 = NewExample("keep3");
+        var sourceSense = NewSense("source", moved, keep1, keep2, keep3);
+        var targetSense = NewSense("target");
+        var entry = await CreateEntry("entry", sourceSense, targetSense);
+        await Api.MoveExampleSentenceToSense(entry.Id, targetSense.Id, moved.Id, new BetweenPosition(null, null));
+
+        // the other side merely reordered the example within its original sense
+        var after = entry.Copy();
+        var reordered = after.Senses[0].ExampleSentences[0];
+        after.Senses[0].ExampleSentences.RemoveAt(0);
+        after.Senses[0].ExampleSentences.Add(reordered);
+
+        var sync = () => Sync([entry], [after]);
+        await sync.Should().NotThrowAsync();
+
+        var actual = await GetEntry(entry.Id);
+        ExampleIds(actual.Senses[0]).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
+        ExampleIds(actual.Senses[1]).Should().Equal(moved.Id);
+    }
 }
 
 public class FwDataEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryMoveSyncTestsBase(fixture)
@@ -560,114 +658,6 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var actualNewComponentEntry = await GetEntry(newComponentEntry.Id);
         SenseIds(actualNewComponentEntry).Should().Equal(sense.Id);
         actualNewComponentEntry.ComplexForms.Should().ContainSingle().Which.ComplexFormEntryId.Should().Be(complexForm.Id);
-    }
-
-    #endregion
-
-    #region Reorder of an item deleted on the other side
-
-    // A reorder is diffed from the snapshot, but the item can be gone on the side we apply to (deleted there
-    // since the snapshot). The reorder is then moot and must be skipped, not throw and wedge the whole sync.
-
-    [Fact]
-    public async Task ReorderingASenseDeletedOnTheOtherSide_DoesNotWedge()
-    {
-        var deleted = NewSense("deleted");
-        var keep1 = NewSense("keep1");
-        var keep2 = NewSense("keep2");
-        var keep3 = NewSense("keep3");
-        var entry = await CreateEntry("entry", deleted, keep1, keep2, keep3);
-        await Api.DeleteSense(entry.Id, deleted.Id);
-
-        // three senses keep their order, so the diff reorders exactly the (now-deleted) one
-        var after = entry.Copy();
-        var moved = after.Senses[0];
-        after.Senses.RemoveAt(0);
-        after.Senses.Add(moved);
-
-        var sync = () => Sync([entry], [after]);
-        await sync.Should().NotThrowAsync();
-
-        SenseIds(await GetEntry(entry.Id)).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
-    }
-
-    [Fact]
-    public async Task ReorderingAnExampleSentenceDeletedOnTheOtherSide_DoesNotWedge()
-    {
-        var deleted = NewExample("deleted");
-        var keep1 = NewExample("keep1");
-        var keep2 = NewExample("keep2");
-        var keep3 = NewExample("keep3");
-        var sense = NewSense("sense", deleted, keep1, keep2, keep3);
-        var entry = await CreateEntry("entry", sense);
-        await Api.DeleteExampleSentence(entry.Id, sense.Id, deleted.Id);
-
-        var after = entry.Copy();
-        var moved = after.Senses[0].ExampleSentences[0];
-        after.Senses[0].ExampleSentences.RemoveAt(0);
-        after.Senses[0].ExampleSentences.Add(moved);
-
-        var sync = () => Sync([entry], [after]);
-        await sync.Should().NotThrowAsync();
-
-        ExampleIds((await GetEntry(entry.Id)).Senses[0]).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
-    }
-
-    #endregion
-
-    #region Reorder of an item reparented on the other side
-
-    // Same as above, but the item was reparented (not deleted) on the side we apply to. The reorder within its
-    // old parent is then moot and must be skipped, not throw "belongs to a different parent" and wedge the sync.
-
-    [Fact]
-    public async Task ReorderingASenseReparentedOnTheOtherSide_DoesNotWedge()
-    {
-        var moved = NewSense("moved");
-        var keep1 = NewSense("keep1");
-        var keep2 = NewSense("keep2");
-        var keep3 = NewSense("keep3");
-        var sourceEntry = await CreateEntry("source", moved, keep1, keep2, keep3);
-        var targetEntry = await CreateEntry("target");
-        await Api.MoveSenseToEntry(targetEntry.Id, moved.Id, new BetweenPosition(null, null));
-
-        // the other side merely reordered the sense within its original entry
-        var sourceAfter = sourceEntry.Copy();
-        var reordered = sourceAfter.Senses[0];
-        sourceAfter.Senses.RemoveAt(0);
-        sourceAfter.Senses.Add(reordered);
-
-        var sync = () => Sync([sourceEntry, targetEntry], [sourceAfter, targetEntry.Copy()]);
-        await sync.Should().NotThrowAsync();
-
-        SenseIds(await GetEntry(sourceEntry.Id)).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
-        SenseIds(await GetEntry(targetEntry.Id)).Should().Equal(moved.Id);
-    }
-
-    [Fact]
-    public async Task ReorderingAnExampleSentenceReparentedOnTheOtherSide_DoesNotWedge()
-    {
-        var moved = NewExample("moved");
-        var keep1 = NewExample("keep1");
-        var keep2 = NewExample("keep2");
-        var keep3 = NewExample("keep3");
-        var sourceSense = NewSense("source", moved, keep1, keep2, keep3);
-        var targetSense = NewSense("target");
-        var entry = await CreateEntry("entry", sourceSense, targetSense);
-        await Api.MoveExampleSentenceToSense(entry.Id, targetSense.Id, moved.Id, new BetweenPosition(null, null));
-
-        // the other side merely reordered the example within its original sense
-        var after = entry.Copy();
-        var reordered = after.Senses[0].ExampleSentences[0];
-        after.Senses[0].ExampleSentences.RemoveAt(0);
-        after.Senses[0].ExampleSentences.Add(reordered);
-
-        var sync = () => Sync([entry], [after]);
-        await sync.Should().NotThrowAsync();
-
-        var actual = await GetEntry(entry.Id);
-        ExampleIds(actual.Senses[0]).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
-        ExampleIds(actual.Senses[1]).Should().Equal(moved.Id);
     }
 
     #endregion

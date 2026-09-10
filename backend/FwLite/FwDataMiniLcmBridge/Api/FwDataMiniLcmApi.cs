@@ -1598,14 +1598,6 @@ public class FwDataMiniLcmApi(
         return MoveSenseToEntry(entryId, senseId, between);
     }
 
-    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position)
-    {
-        // skip if the sense is gone or reparented elsewhere on this side; the reorder is then moot
-        if (!SenseRepository.TryGetObject(senseId, out var lexSense) || lexSense.Entry.Guid != entryId)
-            return Task.CompletedTask;
-        return MoveSenseToEntry(entryId, senseId, position);
-    }
-
     // repositioning and re-parenting are the same operation here: inserting into an LCM owning
     // sequence moves the sense out of whatever entry currently owns it
     public Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
@@ -1789,15 +1781,6 @@ public class FwDataMiniLcmApi(
         // see MoveSense
         ValidateOwnership(entryId, senseId, lexExample);
         return MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, between);
-    }
-
-    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
-    {
-        // skip if the example is gone or reparented to another sense on this side; the reorder is then moot
-        if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample)
-            || lexExample.Owner is not ILexSense sense || sense.Guid != senseId)
-            return Task.CompletedTask;
-        return MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
     }
 
     // see MoveSenseToEntry: the insert re-parents
@@ -2084,8 +2067,10 @@ public class FwDataMiniLcmApi(
     public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => await CreateComplexFormComponent(complexFormComponent, position);
     public async Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => await MoveComplexFormComponent(complexFormComponent, between);
     public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => await CreateSense(entryId, sense, position);
+    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position) => await MoveSense(entryId, senseId, position);
     public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => await UpdateSense(entryId, senseId, update);
     public async Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => await CreateExampleSentence(entryId, senseId, exampleSentence, position);
+    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position) => await MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
     public async Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => await UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
     public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => await UpdatePartOfSpeech(id, update);
     public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => await UpdatePicture(entryId, senseId, pictureId, update);
