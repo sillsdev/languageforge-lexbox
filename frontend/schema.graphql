@@ -1546,6 +1546,7 @@ enum ProjectMigrationStatus {
   MIGRATING
   PRIVATE_REDMINE
   PUBLIC_REDMINE
+  LANGUAGE_FORGE_NON_SR
 }
 
 enum ProjectRole {
