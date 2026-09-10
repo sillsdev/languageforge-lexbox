@@ -1,6 +1,16 @@
 import type { IProjectModel } from 'lexicon';
-import { Check } from 'lucide-react';
-import { Badge, CommandItem, Tooltip, TooltipContent, TooltipTrigger } from 'platform-bible-react';
+import { Check, Trash2 } from 'lucide-react';
+import {
+  Badge,
+  CommandItem,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from 'platform-bible-react';
 import type { ReactElement } from 'react';
 
 /** Props for one lexicon row. The picker computes identity/selection; this component just draws. */
@@ -13,7 +23,10 @@ interface LexiconRowProps {
   isChosen: boolean;
   /** The project's applied lexicon — shows the persistent "Current" badge. */
   isApplied: boolean;
+  /** When true, right-click offers a delete (any local CRDT lexicon). */
+  deletable: boolean;
   onSelect: () => void;
+  onBeginDelete: () => void;
   strings: Record<string, string>;
 }
 
@@ -24,14 +37,16 @@ export default function LexiconRow({
   itemKey,
   isChosen,
   isApplied,
+  deletable,
   onSelect,
+  onBeginDelete,
   strings,
 }: LexiconRowProps): ReactElement {
   const name = project.name || project.code;
   const isFieldWorks = !!(local && project.fwdata && !project.crdt);
   // Case-insensitive so "Happy"/"happy" doesn't show a pointless code line.
   const showCode = project.code.toLowerCase() !== name.toLowerCase();
-  return (
+  const item = (
     <CommandItem
       // cmdk filters on this value; include the key so items stay unique when names collide.
       value={`${name} ${project.code} ${itemKey}`}
@@ -83,5 +98,17 @@ export default function LexiconRow({
         </div>
       )}
     </CommandItem>
+  );
+  if (!deletable) return item;
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>{item}</ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem onSelect={onBeginDelete}>
+          <Trash2 aria-hidden className="tw:h-4 tw:w-4 tw:me-2" />
+          {strings['%lexicon_selectLexicon_delete%']}
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }

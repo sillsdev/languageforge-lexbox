@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import AuthStatus from '../components/auth-status';
 import CreateLexicon from '../components/create-lexicon';
 import LexiconPicker from '../components/lexicon-picker';
-import type { AuthServerStatus, DownloadResult, LoginResult } from '../utils/fw-lite-api';
+import type { AuthServerStatus, DownloadAndSelectResult, LoginResult } from '../utils/fw-lite-api';
 
 globalThis.webViewComponent = function LexiconSelect({
   id: webViewId,
@@ -169,15 +169,7 @@ globalThis.webViewComponent = function LexiconSelect({
   );
 
   const downloadAndSelect = useCallback(
-    async (
-      authority: string,
-      code: string,
-    ): Promise<{
-      result: DownloadResult;
-      success: boolean;
-      cancelled?: boolean;
-      error?: string;
-    }> => {
+    async (authority: string, code: string): Promise<DownloadAndSelectResult> => {
       const targetProjectId = await resolveProjectId();
       if (!targetProjectId) return { result: 'Error', success: false, cancelled: true };
       return commands.sendCommand(
@@ -188,6 +180,17 @@ globalThis.webViewComponent = function LexiconSelect({
       );
     },
     [resolveProjectId],
+  );
+
+  const deleteLexicon = useCallback(
+    async (code: string): Promise<void> => {
+      const result = await commands.sendCommand('lexicon.deleteDownloadedLexicon', code);
+      if (!result?.success) throw new Error(result?.error || 'Failed to delete the lexicon');
+      // The deleted project may be downloadable again; refresh both lists.
+      fetchLexicons();
+      fetchRemoteProjects();
+    },
+    [fetchLexicons, fetchRemoteProjects],
   );
 
   const createLexicon = useCallback(
@@ -264,6 +267,7 @@ globalThis.webViewComponent = function LexiconSelect({
           onCreateNew={() => setShowCreate(true)}
           selectLexicon={selectLexicon}
           downloadAndSelect={downloadAndSelect}
+          deleteLexicon={deleteLexicon}
           onSaved={handleSaved}
           onDownloadingChange={setDownloading}
         />

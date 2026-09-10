@@ -31,6 +31,26 @@ export type LoginResult = `${GeneratedLoginResult}`;
  */
 export type DownloadResult = 'Success' | 'AlreadyDownloaded' | 'Forbidden' | 'NotFound' | 'Error';
 
+/**
+ * Downloading a remote lexicon and selecting it for the project. `success` is true only when both
+ * the download and the selection completed. `error` carries the backend's reason when a failure
+ * sent one; `cancelled` means the user dismissed the project prompt.
+ */
+export interface DownloadAndSelectResult {
+  result: DownloadResult;
+  success: boolean;
+  cancelled?: boolean;
+  error?: string;
+}
+
+/** The local lexicon list plus how it was language-filtered (see `getProjectsMatchingLanguage`). */
+export interface LocalLexiconsResult {
+  projects: IProjectModel[];
+  filtered: boolean;
+  noMatch: boolean;
+  langTag?: string;
+}
+
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
 function sanitizeUrlComponent(urlComponent?: string): string {
   if (!urlComponent) throw new Error(`Empty URL component`);
@@ -251,6 +271,12 @@ export class FwLiteApi {
         return { result: 'Error', error: error || undefined };
       }
     }
+  }
+
+  /** Deletes a local CRDT project (downloaded or local-only). */
+  async deleteProject(code: string): Promise<void> {
+    await this.fetchPath(`crdt/${sanitizeUrlComponent(code)}`, 'DELETE');
+    FwLiteApi.projectTypeByCode.delete(code);
   }
 
   /**

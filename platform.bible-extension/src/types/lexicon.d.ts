@@ -1,6 +1,11 @@
 import type { OpenWebViewOptions, WebViewProps } from '@papi/core';
 import type { IEntryService, IProjectModel, SuccessHolder } from 'lexicon';
-import type { AuthServerStatus, DownloadResult, LoginResult } from '../utils/fw-lite-api';
+import type {
+  AuthServerStatus,
+  DownloadAndSelectResult,
+  LocalLexiconsResult,
+  LoginResult,
+} from '../utils/fw-lite-api';
 
 // TODO: Sort out internal types and those that need to be exposed for other extensions.
 
@@ -110,6 +115,8 @@ declare module 'papi-shared-types' {
       vernacularWs: string,
       analysisWs?: string,
     ) => Promise<SuccessHolder>;
+    /** Deletes any local CRDT lexicon (downloaded or local-only). Refuses FwData projects. */
+    'lexicon.deleteDownloadedLexicon': (lexiconCode: string) => Promise<SuccessHolder>;
     'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
@@ -123,27 +130,19 @@ declare module 'papi-shared-types' {
       projectId?: string,
       all?: boolean,
       keepCodes?: string[],
-    ) => Promise<
-      | { projects: IProjectModel[]; filtered: boolean; noMatch: boolean; langTag?: string }
-      | undefined
-    >;
+    ) => Promise<LocalLexiconsResult | undefined>;
     'lexicon.login': (
       authority: string,
     ) => Promise<{ result?: LoginResult; servers?: AuthServerStatus[] }>;
     'lexicon.logout': (authority: string) => Promise<AuthServerStatus[] | undefined>;
     /** Remote (Lexbox server) CRDT projects the signed-in user can download. */
     'lexicon.remoteProjects': () => Promise<IProjectModel[] | undefined>;
-    /**
-     * Downloads a remote project (its promise resolves only once the initial sync finishes) and, on
-     * success, selects it for the Paratext project. `success` is true only when both steps
-     * completed; when false, `result` says why the download ended (or is a success value if the
-     * download was fine but selection failed).
-     */
+    /** Downloads a remote project (resolves once its initial sync finishes) and selects it. */
     'lexicon.downloadAndSelectLexicon': (
       projectId: string,
       authority: string,
       lexiconCode: string,
-    ) => Promise<{ result: DownloadResult; success: boolean; error?: string }>;
+    ) => Promise<DownloadAndSelectResult>;
     /**
      * Resolves the Paratext project a WebView is scoped to, prompting with the core project picker
      * when it has none (e.g. a selector tab restored from a saved layout); `projectId` is undefined

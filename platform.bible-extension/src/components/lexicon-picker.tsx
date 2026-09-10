@@ -18,7 +18,8 @@ import {
 import { type ReactElement, useEffect, useMemo, useState } from 'react';
 import { formatReplacementString, getErrorMessage } from 'platform-bible-utils';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
-import type { DownloadResult } from '../utils/fw-lite-api';
+import type { DownloadAndSelectResult, DownloadResult } from '../utils/fw-lite-api';
+import DeleteConfirm from './delete-confirm';
 import LexiconRow from './lexicon-row';
 
 /** Props for the LexiconPicker component */
@@ -47,10 +48,9 @@ interface LexiconPickerProps {
   onShowAll?: () => void;
   onCreateNew?: () => void;
   selectLexicon: (lexiconCode: string) => Promise<{ cancelled?: boolean }>;
-  downloadAndSelect: (
-    authority: string,
-    lexiconCode: string,
-  ) => Promise<{ result: DownloadResult; success: boolean; cancelled?: boolean; error?: string }>;
+  downloadAndSelect: (authority: string, lexiconCode: string) => Promise<DownloadAndSelectResult>;
+  /** Deletes a local CRDT lexicon; the caller refreshes the lists. */
+  deleteLexicon: (lexiconCode: string) => Promise<void>;
   /** The chosen lexicon was stored for the project; the parent tracks it and triggers the banner. */
   onSaved: (name: string, code: string) => void;
   /** Called when a download starts/ends so the parent can lock account controls while it runs. */
@@ -90,6 +90,7 @@ export default function LexiconPicker({
   onCreateNew,
   selectLexicon,
   downloadAndSelect,
+  deleteLexicon,
   onSaved,
   onDownloadingChange,
 }: LexiconPickerProps): ReactElement {
@@ -98,6 +99,10 @@ export default function LexiconPicker({
   const [error, setError] = useState('');
   const [selectedKey, setSelectedKey] = useState(initialCode ? `local/${initialCode}` : '');
   const [busy, setBusy] = useState<'none' | 'saving' | 'downloading'>('none');
+  const [pendingDelete, setPendingDelete] = useState<IProjectModel | undefined>();
+  const [deleting, setDeleting] = useState(false);
+  // Informational line under the button (deletion outcome).
+  const [notice, setNotice] = useState('');
 
   // After a save, the just-chosen lexicon is the project's current one: point the selection at its
   // (now local) row so it shows checked with the primary button disabled. Handles the remote case,
@@ -171,11 +176,48 @@ export default function LexiconPicker({
     }
   };
 
+  // Any local CRDT lexicon can be deleted (downloaded or local-only); FwData projects are managed by
+  // FieldWorks. No extra guard even for the current one — deleting it just clears the selection.
+  const deletability = (project: IProjectModel, local: boolean): boolean => local && !!project.crdt;
+
+  const beginDelete = (project: IProjectModel) => {
+    setError('');
+    setNotice('');
+    setPendingDelete(project);
+  };
+
+  const doDelete = () => {
+    if (!pendingDelete) return;
+    const name = pendingDelete.name || pendingDelete.code;
+    const key = keyFor(pendingDelete, true);
+    setDeleting(true);
+    // eslint-disable-next-line promise/catch-or-return
+    deleteLexicon(pendingDelete.code)
+      .then(() => {
+        setNotice(
+          formatReplacementString(localizedStrings['%lexicon_selectLexicon_deletedStatus%'], {
+            name,
+          }),
+        );
+        setSelectedKey((prev) => (prev === key ? '' : prev));
+        return undefined;
+      })
+      .catch((e) => {
+        logger.error('Error deleting lexicon:', getErrorMessage(e));
+        setError(getErrorMessage(e));
+      })
+      .finally(() => {
+        setPendingDelete(undefined);
+        setDeleting(false);
+      });
+  };
+
   const confirm = () => {
     if (!selected) return;
     const { project, needsDownload } = selected;
     const name = project.name || project.code;
     setError('');
+    setNotice('');
 
     if (!needsDownload) {
       setBusy('saving');
@@ -228,11 +270,14 @@ export default function LexiconPicker({
         itemKey={key}
         isChosen={key === selectedKey}
         isApplied={local && project.code === initialCode}
+        deletable={deletability(project, local)}
         onSelect={() => {
           setError('');
+          setNotice('');
           onClearSaved?.();
           setSelectedKey(key);
         }}
+        onBeginDelete={() => beginDelete(project)}
         strings={localizedStrings}
       />
     );
@@ -352,56 +397,77 @@ export default function LexiconPicker({
           </CommandList>
         </Command>
 
-        {!!error && (
-          <Alert className="tw:shrink-0" variant="destructive">
-            <AlertDescription role="alert">{error}</AlertDescription>
-          </Alert>
-        )}
+        {pendingDelete ? (
+          <DeleteConfirm
+            project={pendingDelete}
+            deleting={deleting}
+            onConfirm={doDelete}
+            onCancel={() => setPendingDelete(undefined)}
+            strings={localizedStrings}
+          />
+        ) : (
+          <>
+            {!!error && (
+              <Alert className="tw:shrink-0" variant="destructive">
+                <AlertDescription role="alert">{error}</AlertDescription>
+              </Alert>
+            )}
 
-        <Button
-          className="tw:shrink-0"
-          disabled={!selected || busy !== 'none' || isCurrentSelection}
-          onClick={confirm}
-          type="button"
-        >
-          {busy === 'saving' && <Spinner className="tw:h-4 tw:w-4 tw:me-2" />}
-          {confirmLabel}
-        </Button>
+            <Button
+              className="tw:shrink-0"
+              disabled={!selected || busy !== 'none' || isCurrentSelection}
+              onClick={confirm}
+              type="button"
+            >
+              {busy === 'saving' && <Spinner className="tw:h-4 tw:w-4 tw:me-2" />}
+              {confirmLabel}
+            </Button>
 
-        {/* One-time "it worked" line at the point of action; reverts to the steady-state helper
+            {/* One-time "it worked" line at the point of action; reverts to the steady-state helper
             below on the next interaction (the in-list "Current" badge carries the lasting truth). */}
-        {savedName && !error && (
-          <p
-            className="tw:flex tw:items-center tw:gap-1.5 tw:text-xs tw:text-muted-foreground tw:shrink-0"
-            role="status"
-          >
-            <Check aria-hidden className="tw:h-3.5 tw:w-3.5 tw:shrink-0" />
-            {projectName
-              ? formatReplacementString(
-                  localizedStrings['%lexicon_selectLexicon_savedTitleForProject%'],
-                  { name: savedName, project: projectName },
-                )
-              : formatReplacementString(localizedStrings['%lexicon_selectLexicon_savedTitle%'], {
-                  name: savedName,
-                })}
-          </p>
-        )}
+            {savedName && !error && (
+              <p
+                className="tw:flex tw:items-center tw:gap-1.5 tw:text-xs tw:text-muted-foreground tw:shrink-0"
+                role="status"
+              >
+                <Check aria-hidden className="tw:h-3.5 tw:w-3.5 tw:shrink-0" />
+                {projectName
+                  ? formatReplacementString(
+                      localizedStrings['%lexicon_selectLexicon_savedTitleForProject%'],
+                      { name: savedName, project: projectName },
+                    )
+                  : formatReplacementString(
+                      localizedStrings['%lexicon_selectLexicon_savedTitle%'],
+                      {
+                        name: savedName,
+                      },
+                    )}
+              </p>
+            )}
 
-        {isCurrentSelection && !error && !savedName && (
-          <p className="tw:text-xs tw:text-muted-foreground tw:shrink-0">
-            {projectName
-              ? formatReplacementString(
-                  localizedStrings['%lexicon_selectLexicon_alreadyCurrentForProject%'],
-                  { project: projectName },
-                )
-              : localizedStrings['%lexicon_selectLexicon_alreadyCurrent%']}
-          </p>
-        )}
+            {isCurrentSelection && !error && !savedName && (
+              <p className="tw:text-xs tw:text-muted-foreground tw:shrink-0">
+                {projectName
+                  ? formatReplacementString(
+                      localizedStrings['%lexicon_selectLexicon_alreadyCurrentForProject%'],
+                      { project: projectName },
+                    )
+                  : localizedStrings['%lexicon_selectLexicon_alreadyCurrent%']}
+              </p>
+            )}
 
-        {!!selected?.needsDownload && !error && (
-          <p className="tw:text-xs tw:text-muted-foreground tw:shrink-0">
-            {localizedStrings['%lexicon_selectLexicon_remoteHelper%']}
-          </p>
+            {!!selected?.needsDownload && !error && (
+              <p className="tw:text-xs tw:text-muted-foreground tw:shrink-0">
+                {localizedStrings['%lexicon_selectLexicon_remoteHelper%']}
+              </p>
+            )}
+
+            {!!notice && (
+              <p className="tw:text-xs tw:text-muted-foreground tw:shrink-0" role="status">
+                {notice}
+              </p>
+            )}
+          </>
         )}
 
         {!!onCreateNew && (

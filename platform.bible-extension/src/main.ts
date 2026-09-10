@@ -26,6 +26,11 @@ const DOWNLOAD_TIMEOUT_MS = 5 * 60 * 1000;
 // sign-in/download — arbitrary, since it only caps an abandoned command; a present user picks in seconds.
 const RESOLVE_PROJECT_TIMEOUT_MS = 5 * 60 * 1000;
 
+// The PAPI command timeout must outlast our own internal abort so the command doesn't reject while
+// the aborted work is still unwinding — otherwise a download/sign-in finishing right at the deadline
+// can persist its result while the web view already saw a rejection.
+const COMMAND_TIMEOUT_BUFFER_MS = 30 * 1000;
+
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('Lexicon extension activating!');
 
@@ -253,7 +258,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       return { result, servers: await getAuthServers() };
     },
     undefined,
-    { timeoutMilliseconds: SIGN_IN_TIMEOUT_MS },
+    { timeoutMilliseconds: SIGN_IN_TIMEOUT_MS + COMMAND_TIMEOUT_BUFFER_MS },
   );
 
   const logoutCommandPromise = papi.commands.registerCommand(
@@ -330,16 +335,38 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
           fwLiteApi.getProjects(),
         ]);
         // Suppress a remote project when ANY local project already has its code. FW Lite collapses a
-        // same-code CRDT and FwData project into one local record (one type per code), and a lexicon
-        // selection stores only the code — so downloading a remote whose code matches a local project
-        // creates an ambiguous identity that would redirect a FieldWorks project's reads/edits to the
-        // downloaded CRDT copy. Until lexicon identity carries the data format (see issue #2647),
-        // suppressing same-code remotes is the safe choice. Dedupe against ALL local projects, not the
-        // web view's language-filtered list.
+        // same-code CRDT and FwData project into one record, and a selection stores only the code, so
+        // downloading such a remote would resolve that code to the wrong project. #2647 tracks the
+        // format-aware fix that would let same-code projects coexist. Dedupe against ALL local
+        // projects, not the web view's language-filtered list.
         return remote.filter((r) => !local.some((l) => l.code === r.code));
       } catch (e) {
         logger.error('Error fetching remote projects:', getErrorMessage(e));
         return undefined;
+      }
+    },
+  );
+
+  const deleteDownloadedLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.deleteDownloadedLexicon',
+    async (lexiconCode: string) => {
+      try {
+        // Any local CRDT lexicon can be deleted (downloaded or local-only). FwData projects are
+        // managed by FieldWorks, so refuse them (the picker also hides delete for those).
+        const project = (await fwLiteApi.getProjects()).find((p) => p.code === lexiconCode);
+        if (!project) {
+          return { success: false, error: `Lexicon '${lexiconCode}' wasn't found.` };
+        }
+        if (!project.crdt) {
+          return { success: false, error: `FieldWorks projects can't be deleted here.` };
+        }
+        logger.info(`Deleting lexicon '${lexiconCode}'`);
+        await fwLiteApi.deleteProject(lexiconCode);
+        return { success: true };
+      } catch (e) {
+        const error = getErrorMessage(e);
+        logger.error('Error deleting lexicon:', error);
+        return { success: false, error };
       }
     },
   );
@@ -379,7 +406,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       }
     },
     undefined,
-    { timeoutMilliseconds: DOWNLOAD_TIMEOUT_MS },
+    { timeoutMilliseconds: DOWNLOAD_TIMEOUT_MS + COMMAND_TIMEOUT_BUFFER_MS },
   );
 
   // DEV-ONLY: a quick lexicon switcher. Lexicon selection is intentionally sticky — once a project
@@ -466,6 +493,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await browseLexiconCommandPromise,
     await changeLexiconCommandPromise, // DEV-ONLY: remove before release (see registration above)
     await createLexiconCommandPromise,
+    await deleteDownloadedLexiconCommandPromise,
     await displayEntryCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
