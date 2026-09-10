@@ -1,5 +1,6 @@
 <script lang="ts">
   import {Icon} from '$lib/components/ui/icon';
+  import {helpBaseUrl} from '$lib/views/entity-config';
 
   interface Props {
     helpId: string;
@@ -7,9 +8,7 @@
 
   const { helpId }: Props = $props();
 
-  const rootHref = 'https://downloads.languagetechnology.org/fieldworks/Documentation/en/index.htm#t=';
-
-  const href = $derived(`${rootHref}${encodeURIComponent(helpId)}`);
+  const href = $derived(`${helpBaseUrl}${encodeURIComponent(helpId)}`);
 </script>
 
 {#if href}

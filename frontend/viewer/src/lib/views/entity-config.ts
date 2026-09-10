@@ -11,6 +11,12 @@ interface EntityData {
   [key: string]: FieldData | ViewText;
 }
 
+// Topic pages live directly under this root. `helpBaseUrl` points at the RoboHelp shell instead, so
+// only this root is fetchable — see check-all-helps.manual.test.ts.
+export const helpDocRoot = 'https://downloads.languagetechnology.org/fieldworks/Documentation/en/';
+
+export const helpBaseUrl = `${helpDocRoot}index.htm#t=`;
+
 export const entityConfig = {
   entry: {
     $label: vt(msg`Entry`, msg`Word`),
