@@ -45,5 +45,6 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
     public override Func<string, object>? EntryPublishInConverter => EntryFilter.NormalizeEmptyToEmptyList<Publication>;
 
     public override Expression<Func<Entry, object?>> EntryCommentThreads => e => EntryQueryHelpers.QueryCommentThreads(e);
+    public override Expression<Func<Entry, object?>> EntryOpenCommentThreads => e => EntryQueryHelpers.QueryOpenCommentThreads(e);
     public override Expression<Func<Entry, object?>> EntryUnreadComments => e => EntryQueryHelpers.QueryEntryUnreadComments(e);
 }

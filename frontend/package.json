@@ -2,10 +2,10 @@
   "name": "frontend",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@12.3.4",
   "engines": {
     "node": ">=26",
-    "pnpm": ">=10"
+    "pnpm": ">=12"
   },
   "scripts": {
     "dev": "vite dev",
@@ -110,13 +110,5 @@
     "set-cookie-parser": "^3.1.2",
     "svelte-intl-precompile": "^0.12.3",
     "tus-js-client": "^4.3.1"
-  },
-  "pnpm": {
-    "overrides": {
-      "cookie": "^0.7.0",
-      "@types/mjml-core": "^4.15.2",
-      "minimatch@9": "^9.0.7",
-      "immutable@3": "^3.8.3"
-    }
   }
 }

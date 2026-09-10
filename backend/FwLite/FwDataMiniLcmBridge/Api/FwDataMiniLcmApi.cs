@@ -221,7 +221,9 @@ public class FwDataMiniLcmApi(
         return await GetWritingSystem(id, type) ?? throw new NullReferenceException($"unable to find writing system with id {id}");
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
+        WritingSystem after,
+        IMiniLcmApi? api)
     {
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",

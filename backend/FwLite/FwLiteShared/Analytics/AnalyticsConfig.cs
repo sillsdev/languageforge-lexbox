@@ -6,6 +6,12 @@ public class AnalyticsConfig
     public string? Host { get; set; }
 
     /// <summary>
+    /// Master switch. When false, nothing is sent and <c>GetAnalyticsEnabled</c> is false
+    /// regardless of the user's opt-out preference. Override with <c>Analytics__Enabled</c>.
+    /// </summary>
+    public bool Enabled { get; set; } = true;
+
+    /// <summary>
     /// Mixpanel debug/test project token. Not a secret; encoded in source and decoded at runtime.
     /// </summary>
     public string DebugProjectToken { get; set; } = MixpanelAnalytics.DebugProjectToken;

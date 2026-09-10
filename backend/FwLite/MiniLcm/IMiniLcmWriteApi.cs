@@ -8,14 +8,26 @@ namespace MiniLcm;
 
 public interface IMiniLcmWriteApi
 {
+    #region WritingSystem
+
+    // Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
+
     Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null);
 
-    Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
+    Task<WritingSystem> UpdateWritingSystem(
+        WritingSystemId id,
         WritingSystemType type,
-        UpdateObjectInput<WritingSystem> update);
-    Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null);
-    // Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
+        UpdateObjectInput<WritingSystem> update
+    );
+
+    Task<WritingSystem> UpdateWritingSystem(
+        WritingSystem before,
+        WritingSystem after,
+        IMiniLcmApi? api = null
+    );
+
     Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between);
+    #endregion
 
     #region PartOfSpeech
     Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
