@@ -2,8 +2,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Options;
+using SIL.Extensions;
 using SIL.LCModel;
 using SIL.LCModel.Core.WritingSystems;
+using SIL.LCModel.Infrastructure;
 using SIL.LCModel.Utils;
 using SIL.WritingSystems;
 
@@ -105,7 +107,12 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
             uiWs,
             AdditionalWritingSystems(analysisDefinitions),
             AdditionalWritingSystems(vernacularDefinitions));
-        return LoadCache(project);
+        // LcmCache.CreateNewLangProj takes additional writing systems as a HashSet, so it might have added
+        // them in the wrong order. Right now before anyone else does anything with this project, order
+        // them correctly if needed.
+        var lcmCache = LoadCache(project);
+        ReorderWritingSystems(lcmCache, analysisDefinitions, vernacularDefinitions);
+        return lcmCache;
     }
 
     private static CoreWritingSystemDefinition CreateWritingSystemDefinition(string ws) => new(ws) { Id = ws };
@@ -133,5 +140,50 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         // CreateNewLangProj takes the additional analysis then additional vernacular writing systems.
         LcmCache.CreateNewLangProj(progress,
             [projectName, lcmDirectories, syncInvoke, analysisWs, vernacularWs, uiWs, additionalAnalysisWss, additionalVernacularWss]);
+    }
+
+    private static IList<CoreWritingSystemDefinition> CorrectlyOrderedWritingSystems(ICollection<CoreWritingSystemDefinition> lcmList,
+        IEnumerable<CoreWritingSystemDefinition> preferredOrder)
+    {
+        var result = preferredOrder.ToList(); // Defensive copy
+        var preferredIds = result.Select(ws => ws.Id).ToHashSet();
+        foreach (var ws in lcmList)
+        {
+            if (!preferredIds.Contains(ws.Id))
+            {
+                result.Add(ws);
+            }
+        }
+        return result;
+    }
+
+    private static void ReorderWritingSystems(ICollection<CoreWritingSystemDefinition> lcmList,
+        IEnumerable<CoreWritingSystemDefinition> preferredOrder)
+    {
+        var reordered = CorrectlyOrderedWritingSystems(lcmList, preferredOrder);
+        // Guard against making liblcm fire WritingSystemListChanged if it doesn't need to
+        if (reordered.Select(ws => ws.Id).SequenceEqual(lcmList.Select(ws => ws.Id)))
+        {
+            return;
+        }
+        lcmList.Clear();
+        lcmList.AddRange(reordered);
+    }
+
+    private static void ReorderWritingSystems(LcmCache lcmCache,
+        IEnumerable<CoreWritingSystemDefinition> preferredOrderAnalysis,
+        IEnumerable<CoreWritingSystemDefinition> preferredOrderVernacular)
+    {
+        var wsContainer = lcmCache.LangProject;
+        NonUndoableUnitOfWorkHelper.Do(lcmCache.ActionHandlerAccessor, () =>
+        {
+            // Have to do both the "Current" and "All" lists, because liblcm doesn't automatically
+            // keep their order in sync. If a ws is added to Current them it's also added to All,
+            // but that's it. A reorder wouldn't be automatically synced up, we must do so here.
+            ReorderWritingSystems(wsContainer.CurrentAnalysisWritingSystems, preferredOrderAnalysis);
+            ReorderWritingSystems(wsContainer.AnalysisWritingSystems, preferredOrderAnalysis);
+            ReorderWritingSystems(wsContainer.CurrentVernacularWritingSystems, preferredOrderVernacular);
+            ReorderWritingSystems(wsContainer.VernacularWritingSystems, preferredOrderVernacular);
+        });
     }
 }
