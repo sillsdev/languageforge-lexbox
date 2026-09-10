@@ -29,7 +29,7 @@ internal static class ExampleProjectData
             Type = WritingSystemType.Vernacular,
             WsId = "de-Zxxx-x-audio",
             Name = "German (A)",
-            Abbreviation = "Deu 🔊",
+            Abbreviation = "Deu",
             Font = "Arial",
             Exemplars = WritingSystem.LatinExemplars
         });

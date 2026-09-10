@@ -37,7 +37,7 @@
   data-skeleton={skeleton || undefined}
   class={cn(
     'w-full max-w-full px-4 py-3 flex text-left overflow-hidden items-center gap-4',
-    'bg-muted rounded outline-none shadow-sm hover:shadow-md hover:z-10',
+    'bg-muted rounded outline-hidden shadow-sm hover:shadow-md hover:z-10',
     'focus-visible:ring-[3px] focus-visible:ring-ring/50',
     'border-l-5 border-l-transparent aria-selected:border-l-primary',
     'hover:bg-primary/15 aria-selected:bg-primary/15',

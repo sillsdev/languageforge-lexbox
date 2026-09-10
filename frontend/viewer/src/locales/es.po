@@ -90,6 +90,11 @@ msgstr "{0} Servidor"
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {# cambio} other {# cambios}}"
 
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "{num, plural, one {# entry to go} other {# entries to go}}"
+msgstr ""
+
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
@@ -102,6 +107,11 @@ msgstr "{num, plural, one {# nuevo commit de FieldWorks Lite} other {# nuevos co
 
 #: src/project/browse/filter/UnreadCommentBadge.svelte
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "{num, plural, one {# word to go} other {# words to go}}"
 msgstr ""
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
@@ -225,6 +235,14 @@ msgstr ""
 msgid "Add Sense"
 msgstr "Añadir acepción"
 
+#: src/project/tasks/TaskList.svelte
+msgid "Add some entries first."
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "Add some words first."
+msgstr ""
+
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
 #: src/project/browse/EntriesList.svelte
@@ -332,6 +350,11 @@ msgstr "¿Estás seguro de que quieres borrar {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Haz preguntas y recibe ayuda en nuestro foro de la comunidad."
 
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "Audio"
+msgstr ""
+
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
@@ -370,6 +393,11 @@ msgstr "Sincronización automática"
 msgid "Back"
 msgstr ""
 
+#: src/project/tasks/TaskView.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "Back to tasks"
+msgstr ""
+
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -394,6 +422,7 @@ msgstr "azul"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Browse"
 msgstr "Visite"
 
@@ -519,6 +548,10 @@ msgstr ""
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "Complete"
 msgstr ""
 
 #. Field label
@@ -882,6 +915,10 @@ msgstr ""
 msgid "Ends with"
 msgstr "Termina con"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Entries missing both Lexeme form and Citation form"
+msgstr ""
+
 #. Filter option label
 #. Dropdown to filter entries by missing fields
 #. Example: "Entries missing Definition" shows words without definitions
@@ -950,6 +987,14 @@ msgstr "Error al obtener el estado de sincronización"
 msgid "Error getting sync status."
 msgstr "Error al obtener el estado de sincronización."
 
+#: src/project/tasks/TaskView.svelte
+msgid "Every entry already has this field filled in."
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "Every word already has this field filled in."
+msgstr ""
+
 #. Section header
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
@@ -962,6 +1007,7 @@ msgstr "Ejemplo"
 #. Sentence/phrase showing usage of a word
 #. Appears under each Sense/Meaning; can have multiple examples per meaning
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Example sentence"
 msgstr "Ejemplo de frase"
 
@@ -1125,6 +1171,14 @@ msgstr "Archivo demasiado grande"
 msgid "Filename"
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Display as"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Word or Display as"
+msgstr ""
+
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter"
@@ -1279,6 +1333,7 @@ msgstr ""
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
 #: src/project/browse/sort/SortMenu.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Headword"
 msgstr "Palabra clave"
 
@@ -1560,6 +1615,7 @@ msgstr "Se requiere una actualización manual. Siga las instrucciones proporcion
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Meaning"
 msgstr "Significado"
 
@@ -1581,6 +1637,10 @@ msgstr ""
 msgid "Missing Definition {0}"
 msgstr "Definición {0} perdida"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Display as {0}"
+msgstr ""
+
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Example sentence {0}"
@@ -1592,6 +1652,10 @@ msgid "Missing Gloss {0}"
 msgstr "Glosa {0} perdida"
 
 #: src/project/tasks/tasks-service.ts
+msgid "Missing Grammatical info."
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
 msgid "Missing Headword {0}"
 msgstr ""
 
@@ -1599,13 +1663,16 @@ msgstr ""
 msgid "Missing Lexeme form {0}"
 msgstr ""
 
-#. Task subject label in the task list. Identifies senses/meanings that have no part-of-speech (grammatical category) assigned.
 #: src/project/tasks/tasks-service.ts
-msgid "Missing Part of Speech"
-msgstr "Parte de la oración perdido"
+msgid "Missing Part of speech"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
-msgid "Missing Semantic domain"
+msgid "Missing Semantic domains"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Word {0}"
 msgstr ""
 
 #. Filter result label
@@ -1982,10 +2049,13 @@ msgstr "Parte de la oración"
 msgid "Pending"
 msgstr "Pendiente"
 
-#. Task instruction
 #: src/project/tasks/tasks-service.ts
-msgid "Pick a Part of Speech"
-msgstr "Escoge una parte de la voz"
+msgid "Pick a Part of speech"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick Grammatical info."
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick one or more Semantic domains"
@@ -2119,7 +2189,19 @@ msgid "Record a Lexeme form or Citation form"
 msgstr ""
 
 #: src/project/tasks/tasks-service.ts
+msgid "Record a Word"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
 msgid "Record an example sentence"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record Display as"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record Word or Display as"
 msgstr ""
 
 #. Field label for citation source
@@ -2330,11 +2412,6 @@ msgstr "Seleccionar {0}"
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "Seleccione {0} para ver los detalles"
-
-#. Empty state message
-#: src/project/tasks/TasksView.svelte
-msgid "Select a new task to work on"
-msgstr "Seleccione una nueva tarea en la que trabajar"
 
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
@@ -2614,11 +2691,6 @@ msgstr "Sincronizando..."
 msgid "System"
 msgstr "Sistema"
 
-#. Page title with task name
-#: src/project/tasks/TasksView.svelte
-msgid "Task {0}"
-msgstr "Tarea {0}"
-
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -2630,6 +2702,7 @@ msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "Tareas"
 
@@ -2807,6 +2880,10 @@ msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form or Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Word"
 msgstr ""
 
 #. Task instruction
@@ -3072,6 +3149,10 @@ msgstr "Se requiere Palabra o Mostrar como"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Palabra o significado:"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Words missing both Word and Display as"
+msgstr ""
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte

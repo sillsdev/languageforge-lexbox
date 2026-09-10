@@ -48,7 +48,7 @@ export const entityConfig = {
     },
   },
   sense: {
-    $label: msg`Sense`,
+    $label: vt(msg`Sense`, msg`Meaning`),
     gloss: {
       label: msg`Gloss`,
       helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Gloss_field_Sense.htm',
