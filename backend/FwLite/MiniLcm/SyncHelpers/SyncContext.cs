@@ -3,13 +3,6 @@ using MiniLcm.Models;
 
 namespace MiniLcm.SyncHelpers;
 
-/// <summary>
-/// The project-wide before/after view that lets the diff apis apply FLEx re-parenting of senses and
-/// example sentences as moves instead of delete+create. Two non-local facts a reader needs:
-/// a <c>Remove</c> may do nothing (the item still lives under another parent, whose Add owns the move),
-/// and genuine deletes are deferred (<see cref="DeferDelete"/>) and only run when <see cref="DeleteAll"/>
-/// drains them after the whole walk, so a child is always moved out before its old parent's cascade delete.
-/// </summary>
 public class SyncContext
 {
     /// <summary>No move detection: every add is a create and every delete runs immediately. For syncing a subtree on its own.</summary>
@@ -51,32 +44,35 @@ public class SyncContext
         return For([beforeEntry], [afterEntry]);
     }
 
-    /// <summary>The before-version to diff a move against, or null if the id is new here (a genuine create).</summary>
-    public Sense? MovedIn(Sense sense) => _sensesBefore.GetValueOrDefault(sense.Id);
-    public ExampleSentence? MovedIn(ExampleSentence example) => _examplesBefore.GetValueOrDefault(example.Id);
+    /// <summary>Used to differentiate an add/create from what is actually a reparent</summary>
+    public Sense? ExistedBefore(Sense sense) => _sensesBefore.GetValueOrDefault(sense.Id);
+    public ExampleSentence? ExistedBefore(ExampleSentence example) => _examplesBefore.GetValueOrDefault(example.Id);
 
-    /// <summary>The id still exists somewhere after, so a remove here is a move another parent's Add owns.</summary>
+    /// <summary>Used to differentiate a delete from what is actually a reparent</summary>
     public bool StillExists(Sense sense) => _sensesAfter.ContainsKey(sense.Id);
     public bool StillExists(ExampleSentence example) => _examplesAfter.ContainsKey(example.Id);
 
-    public Task<int> DeferDelete(Func<Task<int>> delete) => _deferDeletes ? _deferredDeletes.Defer(delete) : delete();
+    // Empty tracks no moves, so nothing drains its queue; a caller reaching here would silently drop the delete.
+    public Task<int> DeferDelete(Func<Task<int>> delete) => _deferDeletes
+        ? _deferredDeletes.Defer(delete)
+        : throw new InvalidOperationException("this SyncContext tracks no moves, so deferred deletes are never drained; delete inline instead");
     public Task<int> DeleteAll() => _deferredDeletes.DeleteAll();
 
-    public bool HasMovedInDescendants(Entry entry) => entry.Senses.Any(s => MovedIn(s) is not null || HasMovedInDescendants(s));
-    public bool HasMovedInDescendants(Sense sense) => sense.ExampleSentences.Any(e => MovedIn(e) is not null);
+    public bool HasMovedInDescendants(Entry entry) => entry.Senses.Any(s => ExistedBefore(s) is not null || HasMovedInDescendants(s));
+    public bool HasMovedInDescendants(Sense sense) => sense.ExampleSentences.Any(e => ExistedBefore(e) is not null);
 
-    /// <summary>A copy with moved-in descendants stripped (they still live under their old parent), genuinely new children kept.</summary>
+    /// <summary>A copy with moved-in descendants stripped. Genuinely new descendants are kept.</summary>
     public Entry WithoutMovedInDescendants(Entry entry) => entry with
     {
         Senses = [.. entry.Senses
-            .Where(s => MovedIn(s) is null)
+            .Where(s => ExistedBefore(s) is null)
             .Select(s => HasMovedInDescendants(s) ? WithoutMovedInDescendants(s) : s)]
     };
 
     public Sense WithoutMovedInDescendants(Sense sense)
     {
         var copy = sense.Copy();
-        copy.ExampleSentences = [.. sense.ExampleSentences.Where(e => MovedIn(e) is null)];
+        copy.ExampleSentences = [.. sense.ExampleSentences.Where(e => ExistedBefore(e) is null)];
         return copy;
     }
 

@@ -1540,11 +1540,11 @@ public class FwDataMiniLcmApi(
     public Task<Sense?> GetSense(Guid entryId, Guid id)
     {
         SenseRepository.TryGetObject(id, out var lcmSense);
-        if (lcmSense is not null) VerifySenseBelongsToEntry(entryId, lcmSense);
+        if (lcmSense is not null) ValidateOwnership(entryId, lcmSense);
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
     }
 
-    private void VerifySenseBelongsToEntry(Guid entryId, ILexSense sense)
+    private void ValidateOwnership(Guid entryId, ILexSense sense)
     {
         if (sense.Entry.Guid != entryId) throw new NotFoundException($"Sense {sense.Guid} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.Entry.Guid}", nameof(Sense));
     }
@@ -1564,7 +1564,7 @@ public class FwDataMiniLcmApi(
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert sense",
             Cache.ServiceLocator.ActionHandler,
@@ -1579,7 +1579,7 @@ public class FwDataMiniLcmApi(
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
         var lexSense = SenseRepository.GetObject(after.Id);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         await Cache.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert Sense",
             async () =>
@@ -1594,7 +1594,7 @@ public class FwDataMiniLcmApi(
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
         // the insert re-parents, so without this guard a mismatched entryId would silently move the sense
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         return MoveSenseToEntry(entryId, senseId, between);
     }
 
@@ -1689,7 +1689,7 @@ public class FwDataMiniLcmApi(
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Sense",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
@@ -1701,15 +1701,15 @@ public class FwDataMiniLcmApi(
     {
         if (!ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence))
             return Task.FromResult<ExampleSentence?>(null);
-        VerifyExampleSentenceBelongsToSense(entryId, senseId, lcmExampleSentence);
+        ValidateOwnership(entryId, senseId, lcmExampleSentence);
         return Task.FromResult<ExampleSentence?>(FromLexExampleSentence(senseId, lcmExampleSentence));
     }
 
-    private void VerifyExampleSentenceBelongsToSense(Guid entryId, Guid senseId, ILexExampleSentence exampleSentence)
+    private void ValidateOwnership(Guid entryId, Guid senseId, ILexExampleSentence exampleSentence)
     {
         if (exampleSentence.Owner is not ILexSense sense || sense.Guid != senseId)
             throw new NotFoundException($"Example sentence {exampleSentence.Guid} does not belong to the expected sense, expected Id {senseId}, actual owner {exampleSentence.Owner.Guid}", nameof(ExampleSentence));
-        VerifySenseBelongsToEntry(entryId, sense);
+        ValidateOwnership(entryId, sense);
     }
 
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence, BetweenPosition? between = null)
@@ -1787,7 +1787,7 @@ public class FwDataMiniLcmApi(
         if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
             throw new InvalidOperationException("Example sentence not found");
         // see MoveSense
-        VerifyExampleSentenceBelongsToSense(entryId, senseId, lexExample);
+        ValidateOwnership(entryId, senseId, lexExample);
         return MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, between);
     }
 
@@ -1807,7 +1807,7 @@ public class FwDataMiniLcmApi(
             throw new InvalidOperationException("Sense not found");
         if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
             throw new InvalidOperationException("Example sentence not found");
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Example sentence",
             "Move Example sentence back",

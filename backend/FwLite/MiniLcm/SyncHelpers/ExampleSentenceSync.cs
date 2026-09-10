@@ -100,7 +100,7 @@ public static class ExampleSentenceSync
         {
             var position = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
             // a known id arriving here is a move; its new parent's Add owns it, then a three-way sync applies edits
-            if (context.MovedIn(example) is { } before)
+            if (context.ExistedBefore(example) is { } before)
             {
                 await api.MoveExampleSentenceToSense(entryId, senseId, example.Id, position);
                 return 1 + await Sync(entryId, senseId, before, example, api);
@@ -118,9 +118,8 @@ public static class ExampleSentenceSync
 
         public async Task<int> Remove(ExampleSentence example)
         {
-            // still exists elsewhere after => it moved out; its new parent's Add owns the move, nothing to delete here
+            // it was moved. Add will handle it.
             if (context.StillExists(example)) return 0;
-            // examples are leaves (translations can't move), so a genuine delete strands nothing and needn't defer
             await api.DeleteExampleSentence(entryId, senseId, example.Id);
             return 1;
         }

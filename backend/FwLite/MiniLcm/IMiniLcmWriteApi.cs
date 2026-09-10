@@ -81,11 +81,6 @@ public interface IMiniLcmWriteApi
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null);
     Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position);
-    /// <summary>
-    /// Reorders a sense like <see cref="MoveSense"/>, but skips silently if the sense is gone or no longer lives
-    /// under this entry. Sync diffs a reorder against the snapshot, yet the sense may have been deleted or
-    /// reparented on the side being applied to; the reorder is then moot and must not throw and wedge the sync.
-    /// </summary>
     Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position);
     Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition position);
     Task DeleteSense(Guid entryId, Guid senseId);
@@ -114,7 +109,6 @@ public interface IMiniLcmWriteApi
         ExampleSentence after,
         IMiniLcmApi? api = null);
     Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
-    /// <summary>Reorders an example like <see cref="MoveExampleSentence"/>, skipping silently if it is gone or reparented to another sense (see <see cref="SubmitMoveSense"/>).</summary>
     Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
     Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
 

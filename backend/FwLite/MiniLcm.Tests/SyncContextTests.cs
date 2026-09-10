@@ -44,18 +44,19 @@ public class SyncContextTests
 
         var context = SyncContext.For([source, target], [sourceAfter, targetAfter]);
 
-        context.MovedIn(movedSense).Should().NotBeNull().And.Subject.As<Sense>().Id.Should().Be(moving.Id);
+        context.ExistedBefore(movedSense).Should().NotBeNull().And.Subject.As<Sense>().Id.Should().Be(moving.Id);
         context.StillExists(moving).Should().BeTrue("it moved to the target entry rather than being deleted");
         context.StillExists(doomed).Should().BeFalse("it exists nowhere after");
-        context.MovedIn(NewSense()).Should().BeNull("a genuinely new sense has no before-version");
+        context.ExistedBefore(NewSense()).Should().BeNull("a genuinely new sense has no before-version");
     }
 
     [Fact]
     public void MovedInAndStillExists_TrackExampleReparentingBetweenSenses()
     {
         var example = NewExample();
+        var doomed = NewExample();
         var sourceSense = NewSense();
-        sourceSense.ExampleSentences = [example];
+        sourceSense.ExampleSentences = [example, doomed];
         var targetSense = NewSense();
         var entry = NewEntry(sourceSense, targetSense);
 
@@ -66,9 +67,10 @@ public class SyncContextTests
 
         var context = SyncContext.For(entry, after);
 
-        context.MovedIn(movedExample).Should().NotBeNull().And.Subject.As<ExampleSentence>().Id.Should().Be(example.Id);
+        context.ExistedBefore(movedExample).Should().NotBeNull().And.Subject.As<ExampleSentence>().Id.Should().Be(example.Id);
         context.StillExists(example).Should().BeTrue();
-        context.MovedIn(NewExample()).Should().BeNull();
+        context.StillExists(doomed).Should().BeFalse("it exists nowhere after");
+        context.ExistedBefore(NewExample()).Should().BeNull();
     }
 
     #endregion
@@ -89,7 +91,7 @@ public class SyncContextTests
         var otherSense = NewSense();
         otherSense.ExampleSentences = [movedInExample.Copy()];
         var otherEntry = NewEntry(movedInSense.Copy(), otherSense);
-        var created = NewEntry(movedInSense, newSenseHoldingAMovedInExample, newSenseWithNewExample);
+        var created = NewEntry(newSenseHoldingAMovedInExample, newSenseWithNewExample, movedInSense);
 
         // after: the moved items have left otherEntry, so each id lives in exactly one place
         var otherEntryAfter = otherEntry.Copy();
@@ -106,7 +108,7 @@ public class SyncContextTests
         payload.Senses[1].ExampleSentences.Should().ContainSingle("a genuinely new example stays in the payload");
 
         created.Senses.Should().HaveCount(3, "the strip returns a copy and does not mutate the original");
-        created.Senses[1].ExampleSentences.Should().ContainSingle();
+        created.Senses[0].ExampleSentences.Should().ContainSingle();
     }
 
     [Fact]
@@ -187,15 +189,16 @@ public class SyncContextTests
     }
 
     [Fact]
-    public async Task Empty_RunsDeletesImmediately_AndDetectsNoMoves()
+    public async Task Empty_RejectsDeferredDeletes_AndDetectsNoMoves()
     {
-        SyncContext.Empty.MovedIn(NewSense()).Should().BeNull();
+        SyncContext.Empty.ExistedBefore(NewSense()).Should().BeNull();
         SyncContext.Empty.StillExists(NewSense()).Should().BeFalse();
 
+        // Empty tracks no moves, so nothing drains its queue; deferring here would silently drop the delete.
         var deleted = false;
-        (await SyncContext.Empty.DeferDelete(() => { deleted = true; return Task.FromResult(1); }))
-            .Should().Be(1, "nothing drains a queue on the Empty path, so the delete must run now");
-        deleted.Should().BeTrue();
+        await FluentActions.Awaiting(() => SyncContext.Empty.DeferDelete(() => { deleted = true; return Task.FromResult(1); }))
+            .Should().ThrowAsync<InvalidOperationException>();
+        deleted.Should().BeFalse();
         (await SyncContext.Empty.DeleteAll()).Should().Be(0);
     }
 
@@ -244,15 +247,7 @@ public class SyncContextTests
         // the picture and translation travel with their moved parents; their direct parents don't change
         var picture = NewPicture();
         var movingSense = NewSense(picture);
-        movingSense.ExampleSentences =
-        [
-            new ExampleSentence
-            {
-                Id = Guid.NewGuid(),
-                Sentence = { { "en", new RichString("example") } },
-                Translations = [new Translation { Id = Guid.NewGuid(), Text = { { "en", new RichString("translation") } } }]
-            }
-        ];
+        movingSense.ExampleSentences = [NewExample()];
         var sourceEntry = NewEntry(movingSense);
 
         var sourceEntryAfter = sourceEntry.Copy();

@@ -15,8 +15,8 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         return fixture.CrdtApi;
     }
 
-    // Another CRDT client can delete the move's target before this sync lands. The moved item must then be
-    // gone too, not orphaned under a dead parent.
+    // These delete-win cases live only in the CRDT subclass: the CRDT deletion must win when an object it
+    // deleted becomes a move's target from the other side, whereas FwData intentionally still throws on a missing target.
 
     [Fact]
     public async Task SenseMovedToEntryDeletedInCrdt_IsDeleted()
@@ -27,7 +27,7 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         await Api.DeleteEntry(targetEntry.Id);
 
         var after = Copy(sourceEntry, targetEntry);
-        MoveSense(after, sense.Id, targetEntry.Id);
+        MoveSense(after, sense, targetEntry.Id);
         await Sync([sourceEntry, targetEntry], after);
 
         (await Api.GetEntry(targetEntry.Id)).Should().BeNull();
@@ -45,7 +45,7 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         await Api.DeleteSense(entry.Id, targetSense.Id);
 
         var after = Copy(entry);
-        MoveExample(after, example.Id, targetSense.Id);
+        MoveExample(after, example, targetSense.Id);
         await Sync([entry], after);
 
         var actual = await GetEntry(entry.Id);
@@ -60,13 +60,6 @@ public class FwDataEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : 
     {
         return fixture.FwDataApi;
     }
-}
-
-// The whole move suite again with the entry walk order reversed: the rules must not depend on which entry is visited first.
-public class ShuffledCrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryMoveSyncTestsBase(fixture)
-{
-    protected override IMiniLcmApi GetApi(SyncFixture fixture) => fixture.CrdtApi;
-    protected override bool ReverseWalkOrder => true;
 }
 
 /// <summary>
@@ -96,32 +89,21 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
     #region Sense moves
 
     [Theory]
-    // (sourceEntryDeleted, targetEntryCreated, targetEntryFirst); entry order only matters when both entries are updated
-    [InlineData(false, false, false)]
-    [InlineData(false, false, true)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, true, false)]
-    public async Task CanSyncSenseMovedToDifferentEntry(bool sourceEntryDeleted, bool targetEntryCreated, bool targetEntryFirst)
+    // sourceEntryFirst decides whether the remove (source entry) or the add (target entry) is diffed first
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task CanSyncSenseMovedToDifferentEntry(bool sourceEntryFirst)
     {
         var sense = NewSense("original");
         var sourceEntry = await CreateEntry("source-entry", sense);
-        var targetEntry = NewEntry("target-entry");
-        if (!targetEntryCreated) targetEntry = await Api.CreateEntry(targetEntry);
+        var targetEntry = await CreateEntry("target-entry");
 
-        List<Entry> before = targetEntryCreated ? [sourceEntry] : targetEntryFirst ? [targetEntry, sourceEntry] : [sourceEntry, targetEntry];
-        var after = Copy(before);
-        if (targetEntryCreated) after.Add(targetEntry);
+        var after = Copy(sourceEntry, targetEntry);
         // moved AND edited in the same sync: the move must be followed by the field diff
-        MoveSense(after, sense.Id, targetEntry.Id).Gloss["en"] = "edited";
-        if (sourceEntryDeleted) after.RemoveAll(e => e.Id == sourceEntry.Id);
-        await Sync(before, after);
+        MoveSense(after, sense, targetEntry.Id).Gloss["en"] = "edited";
+        await Sync([sourceEntry, targetEntry], after, reverseWalk: !sourceEntryFirst);
 
-        if (sourceEntryDeleted)
-            (await Api.GetEntry(sourceEntry.Id)).Should().BeNull();
-        else
-            SenseIds(await GetEntry(sourceEntry.Id)).Should().BeEmpty();
-
+        SenseIds(await GetEntry(sourceEntry.Id)).Should().BeEmpty();
         SenseIds(await GetEntry(targetEntry.Id)).Should().Equal(sense.Id);
         var actualSense = await GetSense(targetEntry.Id, sense.Id);
         actualSense.EntryId.Should().Be(targetEntry.Id);
@@ -142,8 +124,8 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var target = await CreateEntry("target", first, last);
 
         var after = Copy(source1, source2, target);
-        MoveSense(after, moved1.Id, target.Id, index: 1);
-        MoveSense(after, moved2.Id, target.Id, index: 2);
+        MoveSense(after, moved1, target.Id, index: 1);
+        MoveSense(after, moved2, target.Id, index: 2);
         await Sync([source1, source2, target], after);
 
         SenseIds(await GetEntry(target.Id)).Should().Equal(first.Id, moved1.Id, moved2.Id, last.Id);
@@ -160,8 +142,8 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var entryB = await CreateEntry("entry-b", senseB);
 
         var after = Copy(entryA, entryB);
-        MoveSense(after, senseA.Id, entryB.Id);
-        MoveSense(after, senseB.Id, entryA.Id);
+        MoveSense(after, senseA, entryB.Id);
+        MoveSense(after, senseB, entryA.Id);
         await Sync([entryA, entryB], after);
 
         SenseIds(await GetEntry(entryA.Id)).Should().Equal(senseB.Id);
@@ -169,7 +151,24 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
     }
 
     [Fact]
-    public async Task CanSyncSenseWithChildrenMovedToCreatedEntry()
+    public async Task CanSyncSenseMovedOutOfDeletedEntry()
+    {
+        var sense = NewSense("moving");
+        var sourceEntry = await CreateEntry("source-entry", sense);
+        var targetEntry = await CreateEntry("target-entry");
+
+        var after = Copy(targetEntry);
+        MoveSense(after, sense, targetEntry.Id);
+        await Sync([sourceEntry, targetEntry], after);
+
+        (await Api.GetEntry(sourceEntry.Id)).Should().BeNull();
+        SenseIds(await GetEntry(targetEntry.Id)).Should().Equal(sense.Id);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CanSyncSenseMovedToCreatedEntry(bool sourceEntryDeleted)
     {
         var translation = NewTranslation("translation");
         var example = NewExample("example", translation);
@@ -179,18 +178,21 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var createdEntry = NewEntry("created-entry");
 
         // the children ride along inside the moved sense; they must not be mistaken for moves of their own
-        var after = Copy(sourceEntry);
-        after.Add(createdEntry);
-        MoveSense(after, sense.Id, createdEntry.Id);
+        var after = Copy(sourceEntryDeleted ? [createdEntry] : [sourceEntry, createdEntry]);
+        MoveSense(after, sense, createdEntry.Id);
         await Sync([sourceEntry], after);
 
+        // the entry is created without its moved-in sense and filled in afterward; its own fields must survive that split
         var actualCreatedEntry = await GetEntry(createdEntry.Id);
         actualCreatedEntry.LexemeForm["en"].Should().Be("created-entry");
         SenseIds(actualCreatedEntry).Should().Equal(sense.Id);
         actualCreatedEntry.Senses[0].Pictures.Select(p => p.Id).Should().Equal(sense.Pictures[0].Id);
         ExampleIds(actualCreatedEntry.Senses[0]).Should().Equal(example.Id);
         actualCreatedEntry.Senses[0].ExampleSentences[0].Translations.Select(t => t.Id).Should().Equal(translation.Id);
-        SenseIds(await GetEntry(sourceEntry.Id)).Should().BeEmpty();
+        if (sourceEntryDeleted)
+            (await Api.GetEntry(sourceEntry.Id)).Should().BeNull();
+        else
+            SenseIds(await GetEntry(sourceEntry.Id)).Should().BeEmpty();
     }
 
     #endregion
@@ -198,7 +200,6 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
     #region Example sentence moves
 
     [Theory]
-    // (sameEntry, sourceSenseFirst); sourceSenseFirst decides whether the remove (source sense) or the add (target sense) is diffed first
     [InlineData(true, true)]
     [InlineData(true, false)]
     [InlineData(false, true)]
@@ -217,9 +218,9 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var sourceEntryId = EntryOf(before, sourceSense.Id).Id;
         var targetEntryId = EntryOf(before, targetSense.Id).Id;
 
-        var after = Copy(before);
+        var after = Copy([.. before]);
         // moved AND edited in the same sync: the move must be followed by the field diff
-        var movedExample = MoveExample(after, example.Id, targetSense.Id);
+        var movedExample = MoveExample(after, example, targetSense.Id);
         movedExample.Sentence["en"] = new RichString("edited example", "en");
         movedExample.Translations[0].Text["en"] = new RichString("edited translation", "en");
         if (sameEntry)
@@ -249,8 +250,8 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var entry = await CreateEntry("entry", source1, source2, target);
 
         var after = Copy(entry);
-        MoveExample(after, moved1.Id, target.Id, index: 1);
-        MoveExample(after, moved2.Id, target.Id, index: 2);
+        MoveExample(after, moved1, target.Id, index: 1);
+        MoveExample(after, moved2, target.Id, index: 2);
         await Sync([entry], after);
 
         ExampleIds(await GetSense(entry.Id, target.Id)).Should().Equal(first.Id, moved1.Id, moved2.Id, last.Id);
@@ -268,8 +269,8 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var entry = await CreateEntry("entry", senseA, senseB);
 
         var after = Copy(entry);
-        MoveExample(after, exampleA.Id, senseB.Id);
-        MoveExample(after, exampleB.Id, senseA.Id);
+        MoveExample(after, exampleA, senseB.Id);
+        MoveExample(after, exampleB, senseA.Id);
         await Sync([entry], after);
 
         ExampleIds(await GetSense(entry.Id, senseA.Id)).Should().Equal(exampleB.Id);
@@ -288,12 +289,8 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var sourceEntry = await CreateEntry("source-entry", sourceSense);
         var targetEntry = await CreateEntry("target-entry", targetSense);
 
-        var after = Copy(sourceEntry, targetEntry);
-        MoveExample(after, example.Id, targetSense.Id);
-        if (wholeEntryDeleted)
-            after.RemoveAll(e => e.Id == sourceEntry.Id);
-        else
-            after.Single(e => e.Id == sourceEntry.Id).Senses.Clear();
+        var after = Copy(wholeEntryDeleted ? [targetEntry] : [WithoutSense(sourceEntry, sourceSense), targetEntry]);
+        MoveExample(after, example, targetSense.Id);
         await Sync([sourceEntry, targetEntry], after);
 
         ExampleIds(await GetSense(targetEntry.Id, targetSense.Id)).Should().Equal(example.Id);
@@ -316,10 +313,9 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var createdSense = NewSense("created");
 
         // the translation rides along inside the moved example; it must not be mistaken for a move of its own
-        var after = Copy(entry);
+        var after = Copy(sourceSenseDeleted ? WithoutSense(entry, sourceSense) : entry);
         after[0].Senses.Add(createdSense);
-        MoveExample(after, example.Id, createdSense.Id);
-        if (sourceSenseDeleted) after[0].Senses.RemoveAll(s => s.Id == sourceSense.Id);
+        MoveExample(after, example, createdSense.Id);
         await Sync([entry], after);
 
         var actualEntry = await GetEntry(entry.Id);
@@ -328,7 +324,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var actualCreatedSense = actualEntry.Senses.Single(s => s.Id == createdSense.Id);
         actualCreatedSense.Gloss["en"].Should().Be("created");
         ExampleIds(actualCreatedSense).Should().Equal(example.Id);
-        actualCreatedSense.ExampleSentences[0].Sentence["en"]!.Spans.Should().ContainSingle().Which.Text.Should().Be("example");
+        actualCreatedSense.ExampleSentences[0].Sentence["en"].Spans.Should().ContainSingle().Which.Text.Should().Be("example");
         actualCreatedSense.ExampleSentences[0].Translations.Select(t => t.Id).Should().Equal(translation.Id);
         if (!sourceSenseDeleted) ExampleIds(await GetSense(entry.Id, sourceSense.Id)).Should().BeEmpty();
     }
@@ -344,10 +340,8 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var createdSense = NewSense("created");
         var createdEntry = NewEntry("created-entry", createdSense);
 
-        var after = Copy(sourceEntry);
-        after.Add(createdEntry);
-        MoveExample(after, example.Id, createdSense.Id);
-        if (sourceEntryDeleted) after.RemoveAll(e => e.Id == sourceEntry.Id);
+        var after = Copy(sourceEntryDeleted ? [createdEntry] : [sourceEntry, createdEntry]);
+        MoveExample(after, example, createdSense.Id).Sentence["en"] = new RichString("moved and edited", "en");
         await Sync([sourceEntry], after);
 
         // the entry is created without its moved-in example and filled in afterward; its own fields must survive that split
@@ -355,7 +349,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         actualCreatedEntry.LexemeForm["en"].Should().Be("created-entry");
         SenseIds(actualCreatedEntry).Should().Equal(createdSense.Id);
         ExampleIds(actualCreatedEntry.Senses[0]).Should().Equal(example.Id);
-        actualCreatedEntry.Senses[0].ExampleSentences[0].Sentence["en"]!.Spans.Should().ContainSingle().Which.Text.Should().Be("example");
+        actualCreatedEntry.Senses[0].ExampleSentences[0].Sentence["en"].Spans.Should().ContainSingle().Which.Text.Should().Be("moved and edited");
         if (sourceEntryDeleted)
             (await Api.GetEntry(sourceEntry.Id)).Should().BeNull();
         else
@@ -367,8 +361,6 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
     #region Sense and example sentence moves in the same sync
 
     [Theory]
-    // (sourceEntryFirst, targetEntryCreated); sourceEntryFirst decides whether the example's old sense (a remove) or the moved sense (an add)
-    // is diffed first, which only matters when both entries are updated
     [InlineData(true, false)]
     [InlineData(false, false)]
     [InlineData(true, true)]
@@ -378,15 +370,13 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var movingSense = NewSense("moving");
         var stayingSense = NewSense("staying", example);
         var sourceEntry = await CreateEntry("source-entry", movingSense, stayingSense);
-        var targetEntry = NewEntry("target-entry");
-        if (!targetEntryCreated) targetEntry = await Api.CreateEntry(targetEntry);
+        var targetEntry = targetEntryCreated ? NewEntry("target-entry") : await CreateEntry("target-entry");
 
-        List<Entry> before = targetEntryCreated ? [sourceEntry] : sourceEntryFirst ? [sourceEntry, targetEntry] : [targetEntry, sourceEntry];
-        var after = Copy(before);
-        if (targetEntryCreated) after.Add(targetEntry);
-        MoveSense(after, movingSense.Id, targetEntry.Id);
-        MoveExample(after, example.Id, movingSense.Id);
-        await Sync(before, after);
+        List<Entry> before = targetEntryCreated ? [sourceEntry] : [sourceEntry, targetEntry];
+        var after = Copy(sourceEntry, targetEntry);
+        MoveSense(after, movingSense, targetEntry.Id);
+        MoveExample(after, example, movingSense.Id);
+        await Sync(before, after, reverseWalk: !sourceEntryFirst);
 
         ExampleIds(await GetSense(targetEntry.Id, movingSense.Id)).Should().Equal(example.Id);
         var actualSourceEntry = await GetEntry(sourceEntry.Id);
@@ -405,11 +395,10 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var sourceEntry = await CreateEntry("source-entry", movingSense, stayingSense);
         var targetEntry = await CreateEntry("target-entry");
 
-        List<Entry> before = sourceEntryFirst ? [sourceEntry, targetEntry] : [targetEntry, sourceEntry];
-        var after = Copy(before);
-        MoveSense(after, movingSense.Id, targetEntry.Id);
-        MoveExample(after, example.Id, stayingSense.Id);
-        await Sync(before, after);
+        var after = Copy(sourceEntry, targetEntry);
+        MoveSense(after, movingSense, targetEntry.Id);
+        MoveExample(after, example, stayingSense.Id);
+        await Sync([sourceEntry, targetEntry], after, reverseWalk: !sourceEntryFirst);
 
         ExampleIds(await GetSense(targetEntry.Id, movingSense.Id)).Should().BeEmpty();
         ExampleIds(await GetSense(sourceEntry.Id, stayingSense.Id)).Should().Equal(example.Id);
@@ -427,12 +416,10 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var deletedEntry = await CreateEntry("deleted-entry", rescuedSense, dyingSense);
         var survivingEntry = await CreateEntry("surviving-entry");
 
-        List<Entry> before = deletedEntryFirst ? [deletedEntry, survivingEntry] : [survivingEntry, deletedEntry];
-        var after = Copy(before);
-        MoveSense(after, rescuedSense.Id, survivingEntry.Id);
-        MoveExample(after, example.Id, rescuedSense.Id);
-        after.RemoveAll(e => e.Id == deletedEntry.Id);
-        await Sync(before, after);
+        var after = Copy(survivingEntry);
+        MoveSense(after, rescuedSense, survivingEntry.Id);
+        MoveExample(after, example, rescuedSense.Id);
+        await Sync([deletedEntry, survivingEntry], after, reverseWalk: !deletedEntryFirst);
 
         (await Api.GetEntry(deletedEntry.Id)).Should().BeNull();
         var actualSurvivingEntry = await GetEntry(survivingEntry.Id);
@@ -456,7 +443,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var sourceSense = NewSense("source");
         sourceSense.Pictures = [picture];
         var targetSense = NewSense("target");
-        var entry = NewEntry("entry", targetSenseCreated ? [sourceSense] : [sourceSense, targetSense]);
+        var entry = await CreateEntry("entry", targetSenseCreated ? [sourceSense] : [sourceSense, targetSense]);
 
         var after = entry.Copy();
         if (targetSenseCreated) after.Senses.Add(targetSense);
@@ -464,34 +451,32 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         after.Senses[0].Pictures.Clear();
         after.Senses.Single(s => s.Id == targetSense.Id).Pictures.Add(movedPicture);
 
-        var act = () => Sync(entry, after);
-        await act.Should().ThrowAsync<MoveNotSupportedException>().WithMessage($"*{picture.Id}*");
+        await SyncShouldRejectMove(entry, after, picture.Id);
     }
 
     [Fact]
-    public async Task SyncThrows_TranslationMovedToDifferentExampleSentence_AndWritesNothing()
+    public async Task SyncThrows_TranslationMovedToDifferentExampleSentence()
     {
         var translation = NewTranslation("translation");
         var example1 = NewExample("one", translation);
         var example2 = NewExample("two");
-        var sense = NewSense("gloss", example1, example2);
-        var entry = await CreateEntry("entry", sense);
+        var entry = await CreateEntry("entry", NewSense("gloss", example1, example2));
 
         var after = entry.Copy();
         var afterExample1 = after.Senses[0].ExampleSentences.Single(e => e.Id == example1.Id);
         var movedTranslation = afterExample1.Translations.Single();
         afterExample1.Translations.Clear();
         after.Senses[0].ExampleSentences.Single(e => e.Id == example2.Id).Translations.Add(movedTranslation);
-        // an edit that would be applied if the sync got past the move check
-        after.LexemeForm["en"] = "edited";
 
-        var act = () => Sync(entry, after);
-        await act.Should().ThrowAsync<MoveNotSupportedException>().WithMessage($"*{translation.Id}*");
+        await SyncShouldRejectMove(entry, after, translation.Id);
+    }
 
-        // all-or-nothing: nothing was written, the translation is still on its original example
-        (await GetEntry(entry.Id)).LexemeForm["en"].Should().Be("entry");
-        (await Api.GetExampleSentence(entry.Id, sense.Id, example1.Id))!.Translations.Select(t => t.Id).Should().Equal(translation.Id);
-        (await Api.GetExampleSentence(entry.Id, sense.Id, example2.Id))!.Translations.Should().BeEmpty();
+    private async Task SyncShouldRejectMove(Entry before, Entry after, Guid movedId)
+    {
+        after.LexemeForm["en"] = "edited"; // would land if the sync got past the move check
+        var act = () => Sync(before, after);
+        await act.Should().ThrowAsync<MoveNotSupportedException>().WithMessage($"*{movedId}*");
+        (await GetEntry(before.Id)).Should().BeEquivalentTo(before);
     }
 
     #endregion
@@ -542,7 +527,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
 
         var oldComponentEntryAfter = oldComponentEntry.Copy();
         var newComponentEntryAfter = newComponentEntry.Copy();
-        MoveSense([oldComponentEntryAfter, newComponentEntryAfter], sense.Id, newComponentEntry.Id);
+        MoveSense([oldComponentEntryAfter, newComponentEntryAfter], sense, newComponentEntry.Id);
         var complexFormAfter = complexForm.Copy();
         complexFormAfter.Components = [ComplexFormComponent.FromEntries(complexForm, newComponentEntry, sense.Id)];
 
@@ -715,31 +700,41 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
     }
 
     /// <summary>Deep copies, as the starting point for the after state.</summary>
-    protected static List<Entry> Copy(IEnumerable<Entry> entries) => [.. entries.Select(e => e.Copy())];
-    protected static List<Entry> Copy(params Entry[] entries) => Copy(entries.AsEnumerable());
+    protected static List<Entry> Copy(params Entry[] entries) => [.. entries.Select(e => e.Copy())];
 
-    /// <summary>Re-parents the sense the way FLEx does: same guid, new owner (at the end unless an index is given).</summary>
-    protected static Sense MoveSense(IList<Entry> entries, Guid senseId, Guid toEntryId, int? index = null)
+    protected static Entry WithoutSense(Entry entry, Sense sense)
     {
-        var fromEntry = EntryOf(entries, senseId);
-        var sense = fromEntry.Senses.Single(s => s.Id == senseId);
-        fromEntry.Senses.Remove(sense);
-        sense.EntryId = toEntryId;
-        var toSenses = entries.Single(e => e.Id == toEntryId).Senses;
-        toSenses.Insert(index ?? toSenses.Count, sense);
-        return sense;
+        var copy = entry.Copy();
+        copy.Senses.RemoveAll(s => s.Id == sense.Id);
+        return copy;
     }
 
-    /// <summary>Re-parents the example the way FLEx does: same guid, new owner (at the end unless an index is given).</summary>
-    protected static ExampleSentence MoveExample(IList<Entry> entries, Guid exampleId, Guid toSenseId, int? index = null)
+    /// <summary>
+    /// Re-parents the sense the way FLEx does: same guid, new owner (at the end unless an index is given).
+    /// The source entry need not be in <paramref name="entries"/> (it may have been deleted).
+    /// </summary>
+    protected static Sense MoveSense(IList<Entry> entries, Sense sense, Guid toEntryId, int? index = null)
     {
-        var fromSense = entries.SelectMany(e => e.Senses).Single(s => s.ExampleSentences.Any(x => x.Id == exampleId));
-        var example = fromSense.ExampleSentences.Single(x => x.Id == exampleId);
-        fromSense.ExampleSentences.Remove(example);
-        example.SenseId = toSenseId;
+        foreach (var entry in entries) entry.Senses.RemoveAll(s => s.Id == sense.Id);
+        var moved = sense.Copy();
+        moved.EntryId = toEntryId;
+        var toSenses = entries.Single(e => e.Id == toEntryId).Senses;
+        toSenses.Insert(index ?? toSenses.Count, moved);
+        return moved;
+    }
+
+    /// <summary>
+    /// Re-parents the example the way FLEx does: same guid, new owner (at the end unless an index is given).
+    /// The source sense need not be in <paramref name="entries"/> (it may have been deleted).
+    /// </summary>
+    protected static ExampleSentence MoveExample(IList<Entry> entries, ExampleSentence example, Guid toSenseId, int? index = null)
+    {
+        foreach (var sense in entries.SelectMany(e => e.Senses)) sense.ExampleSentences.RemoveAll(x => x.Id == example.Id);
+        var moved = example.Copy();
+        moved.SenseId = toSenseId;
         var toExamples = entries.SelectMany(e => e.Senses).Single(s => s.Id == toSenseId).ExampleSentences;
-        toExamples.Insert(index ?? toExamples.Count, example);
-        return example;
+        toExamples.Insert(index ?? toExamples.Count, moved);
+        return moved;
     }
 
     protected static Entry EntryOf(IEnumerable<Entry> entries, Guid senseId)
@@ -747,14 +742,11 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         return entries.Single(e => e.Senses.Any(s => s.Id == senseId));
     }
 
-    /// <summary>Reversed by the shuffled subclass to prove the rules don't depend on which entry the walk visits first.</summary>
-    protected virtual bool ReverseWalkOrder => false;
-
-    /// <summary>The whole-project sync (fw-headless).</summary>
-    protected Task<int> Sync(IList<Entry> before, IList<Entry> after)
+    /// <summary>The whole-project sync (fw-headless). <paramref name="reverseWalk"/> flips which entry is diffed first.</summary>
+    protected Task<int> Sync(IList<Entry> before, IList<Entry> after, bool reverseWalk = false)
     {
-        Entry[] beforeEntries = ReverseWalkOrder ? [.. before.Reverse()] : [.. before];
-        Entry[] afterEntries = ReverseWalkOrder ? [.. after.Reverse()] : [.. after];
+        Entry[] beforeEntries = reverseWalk ? [.. before.Reverse()] : [.. before];
+        Entry[] afterEntries = reverseWalk ? [.. after.Reverse()] : [.. after];
         return EntrySync.SyncFull(beforeEntries, afterEntries, Api);
     }
 

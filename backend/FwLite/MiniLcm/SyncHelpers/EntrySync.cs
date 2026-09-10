@@ -163,13 +163,14 @@ public static class EntrySync
             return (changes, created with { Senses = afterEntry.Senses });
         }
 
-        // entries never move, but their delete defers so a sense can be moved out before the cascade
-        public override Task<int> Remove(Entry entry) => context.DeferDelete(() => DeleteEntry(entry));
-
-        private async Task<int> DeleteEntry(Entry entry)
+        public override Task<int> Remove(Entry entry)
         {
-            await api.DeleteEntry(entry.Id);
-            return 1;
+            // defer, so senses can be moved out before being cascade-deleted
+            return context.DeferDelete(async () =>
+            {
+                await api.DeleteEntry(entry.Id);
+                return 1;
+            });
         }
 
         public override Task<int> Replace(Entry before, Entry after)
@@ -299,7 +300,7 @@ public static class EntrySync
         {
             var position = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
             // a known id arriving here is a move; its new parent's Add owns it, then a three-way sync applies edits
-            if (context.MovedIn(sense) is { } before)
+            if (context.ExistedBefore(sense) is { } before)
             {
                 await api.MoveSenseToEntry(entryId, sense.Id, position);
                 return 1 + await SenseSync.Sync(entryId, before, sense, api, context);
@@ -324,14 +325,18 @@ public static class EntrySync
 
         public Task<int> Remove(Sense sense)
         {
-            // still exists elsewhere after => it moved out; its new parent's Add owns the move, nothing to delete here
-            return context.StillExists(sense) ? Task.FromResult(0) : context.DeferDelete(() => DeleteSense(sense));
-        }
+            if (context.StillExists(sense))
+            {
+                // it was moved. Add will handle it.
+                return Task.FromResult(0);
+            }
 
-        private async Task<int> DeleteSense(Sense sense)
-        {
-            await api.DeleteSense(entryId, sense.Id);
-            return 1;
+            // defer, so example-sentences can be moved out before being cascade-deleted
+            return context.DeferDelete(async () =>
+            {
+                await api.DeleteSense(entryId, sense.Id);
+                return 1;
+            });
         }
 
         public Task<int> Replace(Sense before, Sense after)
