@@ -355,8 +355,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const abort = new AbortController();
       const timeout = setTimeout(() => abort.abort(), DOWNLOAD_TIMEOUT_MS);
       let result: DownloadResult;
+      let error: string | undefined;
       try {
-        result = await fwLiteApi.downloadProject(authority, lexiconCode, abort.signal);
+        ({ result, error } = await fwLiteApi.downloadProject(authority, lexiconCode, abort.signal));
       } catch (e) {
         logger.error('Error downloading project:', getErrorMessage(e));
         return { result: 'Error' as const, success: false };
@@ -364,7 +365,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         clearTimeout(timeout);
       }
       // AlreadyDownloaded is fine — the project is local, so go ahead and select it.
-      if (result !== 'Success' && result !== 'AlreadyDownloaded') return { result, success: false };
+      if (result !== 'Success' && result !== 'AlreadyDownloaded')
+        return { result, success: false, error };
 
       try {
         await applyLexiconSelection(projectManager, lexiconCode);

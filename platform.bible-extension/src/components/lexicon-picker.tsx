@@ -50,7 +50,7 @@ interface LexiconPickerProps {
   downloadAndSelect: (
     authority: string,
     lexiconCode: string,
-  ) => Promise<{ result: DownloadResult; success: boolean; cancelled?: boolean }>;
+  ) => Promise<{ result: DownloadResult; success: boolean; cancelled?: boolean; error?: string }>;
   /** The chosen lexicon was stored for the project; the parent tracks it and triggers the banner. */
   onSaved: (name: string, code: string) => void;
   /** Called when a download starts/ends so the parent can lock account controls while it runs. */
@@ -201,10 +201,11 @@ export default function LexiconPicker({
     setBusy('downloading');
     // eslint-disable-next-line promise/catch-or-return
     downloadAndSelect(authority, project.code)
-      .then(({ result, success, cancelled }) => {
+      .then(({ result, success, cancelled, error: failureError }) => {
         if (cancelled) return undefined;
         if (success) onSaved(name, project.code);
-        else setError(messageForFailure(result));
+        // Prefer the backend's own reason (e.g. a sync failure) when it sent one.
+        else setError(failureError || messageForFailure(result));
         return undefined;
       })
       .catch((e) => {

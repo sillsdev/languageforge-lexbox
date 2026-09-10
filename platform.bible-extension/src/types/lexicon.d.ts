@@ -143,7 +143,7 @@ declare module 'papi-shared-types' {
       projectId: string,
       authority: string,
       lexiconCode: string,
-    ) => Promise<{ result: DownloadResult; success: boolean }>;
+    ) => Promise<{ result: DownloadResult; success: boolean; error?: string }>;
     /**
      * Resolves the Paratext project a WebView is scoped to, prompting with the core project picker
      * when it has none (e.g. a selector tab restored from a saved layout); `projectId` is undefined

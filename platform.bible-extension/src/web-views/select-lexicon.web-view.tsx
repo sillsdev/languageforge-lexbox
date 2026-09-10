@@ -172,7 +172,12 @@ globalThis.webViewComponent = function LexiconSelect({
     async (
       authority: string,
       code: string,
-    ): Promise<{ result: DownloadResult; success: boolean; cancelled?: boolean }> => {
+    ): Promise<{
+      result: DownloadResult;
+      success: boolean;
+      cancelled?: boolean;
+      error?: string;
+    }> => {
       const targetProjectId = await resolveProjectId();
       if (!targetProjectId) return { result: 'Error', success: false, cancelled: true };
       return commands.sendCommand(

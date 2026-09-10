@@ -231,21 +231,25 @@ export class FwLiteApi {
     authority: string,
     code: string,
     signal?: AbortSignal,
-  ): Promise<DownloadResult> {
+  ): Promise<{ result: DownloadResult; error?: string }> {
     const path = `download/crdt/${sanitizeUrlComponent(authority)}/${sanitizeUrlComponent(code)}`;
     const response = await papi.fetch(this.getUrl(path), { method: 'POST', signal });
     switch (response.status) {
       case 200:
         FwLiteApi.projectTypeByCode.set(code, 'Harmony');
-        return 'Success';
+        return { result: 'Success' };
       case 204:
-        return 'AlreadyDownloaded';
+        return { result: 'AlreadyDownloaded' };
       case 403:
-        return 'Forbidden';
+        return { result: 'Forbidden' };
       case 404:
-        return 'NotFound';
-      default:
-        return 'Error';
+        return { result: 'NotFound' };
+      default: {
+        // Surface the backend's own reason when it sends one (e.g. a sync failure); some errors are
+        // a bare status with no body, so callers fall back to a generic message when it's empty.
+        const error = extractErrorMessage(await response.text().catch(() => '')).trim();
+        return { result: 'Error', error: error || undefined };
+      }
     }
   }
 
