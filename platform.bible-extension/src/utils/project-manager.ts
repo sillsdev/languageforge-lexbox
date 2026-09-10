@@ -74,17 +74,13 @@ export class ProjectManager {
    * Opens the lexicon selector for this project.
    *
    * One selector serves a project, so opening it again re-aims the one already open rather than
-   * adding a second: the user makes one choice, and it reaches whoever asked for it last. An
-   * earlier asker simply never hears back, which is the same state as a dismissed selector.
+   * adding a second.
    *
-   * @param resultCommand - Names a command the selector reports the chosen lexicon to instead of
-   *   recording it in `lexicon.lexiconCode`, for a caller that keeps the project-to-lexicon link
-   *   elsewhere. Absent for this extension's own selections, which the selector records.
    * @returns Whether the selector opened, which is not whether a lexicon was chosen.
    */
-  async openSelector(resultCommand?: string): Promise<boolean> {
+  async openSelector(): Promise<boolean> {
     const vernacularLanguage = await this.getLanguageTag();
-    const options: LexiconWebViewOptions = { resultCommand, vernacularLanguage };
+    const options: LexiconWebViewOptions = { vernacularLanguage };
     return await this.openWebView(
       WebViewType.SelectLexicon,
       { floatSize: { height: 500, width: 400 }, type: 'float' },

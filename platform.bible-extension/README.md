@@ -191,18 +191,6 @@ useEffect(() => {
   - To use `lexiconService.addEntry`, also import types `IEntry` and `PartialEntry` from `'lexicon'`.
   - To use `lexiconService.getEntries`, also import types `IEntryQuery` and `PartialEntry` from `'lexicon'`.
 
-4. To let the user pick the lexicon without this extension recording the choice in its own
-   `lexicon.lexiconCode` project setting, register a command with the signature of
-   `lexicon.selectLexicon` — `(projectId, lexiconCode)` answering whether you recorded the link (a
-   `LexiconResultCommand`) — then name it when opening the selector:
-
-```ts
-await commands.sendCommand('lexicon.chooseLexicon', projectId, 'myExtension.lexiconChosen');
-```
-
-The selector calls that command once, on choose-or-create. A user who dismisses it without choosing
-leaves it uncalled, so treat no call as "no lexicon chosen" rather than waiting for an answer.
-
 ## Sync template updates into this extension
 
 This extension is based on [`paranext-extension-template`](https://github.com/paranext/paranext-extension-template). Tooling updates (linting, formatting, build config, etc.) can be pulled in interactively using the sync script.

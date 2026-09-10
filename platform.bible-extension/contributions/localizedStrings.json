@@ -51,7 +51,7 @@
       "%lexicon_menu_selectLexicon%": "Select lexicon...",
       "%lexicon_projectSettings_analysisLanguage%": "Analysis language",
       "%lexicon_projectSettings_lexicon%": "Lexicon",
-      "%lexicon_projectSettings_lexiconDescription%": "The lexicon to use with this project",
+      "%lexicon_projectSettings_lexiconDescription%": "The lexicon this project uses. Other extensions that work with this project's lexicon use the same one; clearing this unlinks all of them, and the next lexicon action asks you to choose again",
       "%lexicon_projectSettings_title%": "Lexicon settings",
       "%lexicon_selectLexicon_clear%": "Clear selection",
       "%lexicon_selectLexicon_confirm%": "Confirm selection",

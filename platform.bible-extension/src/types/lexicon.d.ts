@@ -101,31 +101,9 @@ declare module 'lexicon' {
     vernacularLanguage: string;
   }
 
-  /**
-   * What a command named by {@link LexiconOptions.resultCommand} is handed and must answer: the
-   * project and the lexicon the user chose or created for it, and whether the caller recorded the
-   * link, so a caller that could not record it says so instead of leaving the selector reporting
-   * success.
-   *
-   * Deliberately the signature of `lexicon.selectLexicon`, the command it stands in for, so a
-   * caller records the link where that one would have written this extension's project setting.
-   */
-  export type LexiconResultCommand = (
-    projectId: string,
-    lexiconCode: string,
-  ) => Promise<SuccessHolder>;
-
   /** Additions for options/props of WebViews that interact with a lexicon via the FwLiteApi. */
   interface LexiconOptions extends Partial<LexiconLanguages> {
     lexiconCode?: string;
-    /**
-     * Names the command the lexicon selector reports its result to, in place of recording the
-     * selection in `lexicon.lexiconCode` itself. For a caller that keeps the project-to-lexicon
-     * link somewhere this extension does not own; when absent, the selector records the selection
-     * as it does for this extension's own commands. Must name a command matching
-     * {@link LexiconResultCommand}.
-     */
-    resultCommand?: string;
     word?: string;
   }
 
@@ -145,20 +123,6 @@ declare module 'papi-shared-types' {
     'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
     /** DEV-ONLY lexicon switcher; remove before release (see src/main.ts changeLexiconCommand). */
     'lexicon.changeLexicon': (webViewId: string) => Promise<SuccessHolder>;
-    /**
-     * Opens the lexicon selector for a project and reports what the user chose or created to
-     * `resultCommand` instead of recording it in `lexicon.lexiconCode`. For a caller that keeps the
-     * project-to-lexicon link somewhere this extension does not own.
-     *
-     * @param projectId - Project whose vernacular language seeds the create form; the selection is
-     *   not recorded against it.
-     * @param resultCommand - Name of a registered command taking the project and the chosen
-     *   lexicon's code and answering whether the link was recorded (a `LexiconResultCommand`). It
-     *   is called once, on choose-or-create; a user who dismisses the selector without choosing
-     *   leaves it uncalled, so a caller cannot treat it as an answer bound to arrive.
-     * @returns Whether the selector opened, which is not whether a lexicon was chosen.
-     */
-    'lexicon.chooseLexicon': (projectId: string, resultCommand: string) => Promise<SuccessHolder>;
     'lexicon.createLexicon': (
       name: string,
       code: string,

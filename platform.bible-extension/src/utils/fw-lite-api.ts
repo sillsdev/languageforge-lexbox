@@ -83,13 +83,16 @@ export class FwLiteApi {
   private static readonly projectTypeByCode = new Map<string, 'FwData' | 'Harmony'>();
 
   private readonly baseUrl: string;
-  private lexiconCode?: string;
+
+  /**
+   * The lexicon this instance is bound to, standing in wherever a method is called without one. Set
+   * once at construction: a client whose lexicon could change under an in-flight caller is how a
+   * write lands in one lexicon while the view that opened on it reads another.
+   */
+  private readonly lexiconCode?: string;
+
   constructor(baseUrl: string, lexiconCode?: string) {
     this.baseUrl = baseUrl;
-    this.setLexiconCode(lexiconCode);
-  }
-
-  setLexiconCode(lexiconCode?: string): void {
     this.lexiconCode = lexiconCode;
   }
 
