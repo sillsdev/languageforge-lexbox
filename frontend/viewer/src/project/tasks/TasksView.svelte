@@ -41,8 +41,6 @@
   }
   const selectedWs = $derived(selectedTask && writingSystemOf(selectedTask));
 
-  const tagline = $derived(pt($t`Fill in what's missing, one entry at a time.`, $t`Fill in what's missing, one word at a time.`, viewService.currentView));
-
   // Same value the list's "N to go" chip shows; ticks down as entries get filled.
   const stats = $derived(statsResource.current);
   const remaining = $derived(selectedTask ? stats.progress[selectedTask.id]?.remaining : undefined);
@@ -56,31 +54,33 @@
 </script>
 
 <div class="flex flex-col h-full p-4 gap-4">
-  <div class="flex flex-col gap-0.5 min-w-0">
-    <div class="flex flex-row items-center gap-1 min-w-0">
-      <SidebarTrigger icon="i-mdi-menu" class="aspect-square shrink-0 p-0" />
-      {#if openTask.current}
-        <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" onclick={closeTask} aria-label={$t`Back to tasks`} />
-      {/if}
-      <h1 class="ms-1 flex min-w-0 items-baseline gap-x-2 text-xl font-semibold">
-        <span class="truncate">{selectedTask ? pt($tvt(taskLabel(selectedTask)), viewService.currentView) : $t`Tasks`}</span>
-        {#if selectedWs}
-          <span class="text-muted-foreground font-normal">—</span>
+  <div class="flex flex-row items-center gap-1 min-w-0">
+    <SidebarTrigger icon="i-mdi-menu" class="aspect-square shrink-0 p-0" />
+    {#if openTask.current}
+      <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" onclick={closeTask} aria-label={$t`Back to tasks`} />
+    {/if}
+    <!-- One line at every width. The header queries its OWN width (not the viewport — the sidebar makes viewport
+         a poor proxy) and drops the least-important parts as it narrows, in order: full name + dash, then the
+         count. Field name and writing-system abbreviation always stay; the field name ellipsis-truncates last. -->
+    <div class="@container flex min-w-0 flex-1 items-baseline gap-x-2">
+      <h1 class="min-w-0 truncate text-xl font-semibold">{selectedTask ? pt($tvt(taskLabel(selectedTask)), viewService.currentView) : $t`Tasks`}</h1>
+      {#if selectedWs}
+        <span class="flex shrink-0 items-baseline gap-x-2 text-xl font-normal">
+          <!-- Dash and full name only when the header is wide enough; otherwise the abbreviation is the label. -->
+          <span class="text-muted-foreground hidden @md:inline">—</span>
           <!-- items-baseline so the name and abbreviation share a baseline; the audio icon is centered out of it. -->
-          <span class="flex shrink-0 items-baseline gap-1.5 font-normal {writingSystemService.wsColor(selectedWs.wsId, selectedWs.type === WritingSystemType.Vernacular ? 'vernacular' : 'analysis')}">
+          <span class="flex items-baseline gap-1.5 {writingSystemService.wsColor(selectedWs.wsId, selectedWs.type === WritingSystemType.Vernacular ? 'vernacular' : 'analysis')}">
+            <span class="@md:hidden">{selectedWs.abbreviation || selectedWs.name}</span>
+            <span class="hidden @md:inline">{selectedWs.name}</span>
+            {#if selectedWs.abbreviation}<span class="text-muted-foreground hidden text-sm @md:inline">{selectedWs.abbreviation}</span>{/if}
+            <!-- Audio marker trails the language like a tag; the mic matches the app's record/audio icon. -->
             {#if selectedWs.isAudio}<Icon icon="i-mdi-microphone" class="size-5 self-center" /><span class="sr-only">{$t`Audio`}</span>{/if}
-            {selectedWs.name}
-            {#if selectedWs.abbreviation}<span class="text-muted-foreground text-sm">{selectedWs.abbreviation}</span>{/if}
           </span>
-        {/if}
-        {#if !selectedTask}
-          <!-- On the list, the tagline shares the heading's line instead of taking its own. -->
-          <span class="text-muted-foreground min-w-0 truncate text-sm font-normal">{tagline}</span>
-        {/if}
-      </h1>
+        </span>
+      {/if}
       {#if selectedTask && remaining}
-        <!-- shrink-0 + ms-auto: stays pinned right while the title truncates. Hidden at 0 (the page already says "complete"). -->
-        <span class="text-muted-foreground ms-auto shrink-0 ps-2 text-sm tabular-nums">{remainingText(remaining)}</span>
+        <!-- Pinned to the right; dropped on the narrowest headers (field name + abbreviation take priority). Hidden at 0. -->
+        <span class="text-muted-foreground hidden shrink-0 text-sm tabular-nums @xs:block @xs:ms-auto">{remainingText(remaining)}</span>
       {/if}
     </div>
   </div>

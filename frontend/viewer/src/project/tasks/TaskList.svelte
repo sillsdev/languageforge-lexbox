@@ -90,15 +90,13 @@
   {:else}
     <CircularProgress value={progress.percentDone} size={16} strokeWidth={2.5} />
   {/if}
-  {#if ws?.isAudio}
-    <Icon icon="i-mdi-microphone" class="size-4" />
-    <span class="sr-only">{$t`Audio`},</span>
-  {/if}
   {#if ws}
     <span class="flex items-baseline gap-1.5">
       {ws.name}
       {#if ws.abbreviation}<span class="text-muted-foreground text-xs">{ws.abbreviation}</span>{/if}
     </span>
+    <!-- Audio marker trails the language, matching the task header. -->
+    {#if ws.isAudio}<Icon icon="i-mdi-microphone" class="size-4" /><span class="sr-only">{$t`Audio`},</span>{/if}
     {#if progress}<span class="sr-only">, {remaining}</span>{/if}
   {:else if progress}
     <!-- No language to name it by, so show the count instead. -->

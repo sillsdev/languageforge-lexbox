@@ -1170,14 +1170,6 @@ msgstr "Filename"
 msgid "Fill in Display as"
 msgstr "Fill in Display as"
 
-#: src/project/tasks/TasksView.svelte
-msgid "Fill in what's missing, one entry at a time."
-msgstr "Fill in what's missing, one entry at a time."
-
-#: src/project/tasks/TasksView.svelte
-msgid "Fill in what's missing, one word at a time."
-msgstr "Fill in what's missing, one word at a time."
-
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
 msgstr "Fill in Word or Display as"
