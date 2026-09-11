@@ -175,7 +175,10 @@ public partial class CrdtProjectsService(
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
         string? AuthenticatedUserId = null,
-        UserProjectRole? Role = null);
+        UserProjectRole? Role = null,
+        // Exact db path to create the project at, used verbatim instead of computing "{Path}/{Code}.sqlite".
+        // May be a sqlite URI (tests use an in-memory shared-cache db). Mutually exclusive with Path.
+        string? DbPath = null);
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
@@ -233,9 +236,16 @@ public partial class CrdtProjectsService(
             throw new InvalidOperationException(nameIsInvalid);
         }
 
+        if (request is { DbPath: not null, Path: not null })
+        {
+            var conflictingPaths = $"Only one of {nameof(request.DbPath)} and {nameof(request.Path)} may be specified";
+            activity?.SetStatus(ActivityStatusCode.Error, conflictingPaths);
+            throw new ArgumentException(conflictingPaths, nameof(request));
+        }
+
         //poor man's sanitation
         var code = Path.GetFileName(request.Code);
-        var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{code}.sqlite");
+        var sqliteFile = request.DbPath ?? Path.Combine(request.Path ?? config.Value.ProjectPath, $"{code}.sqlite");
         if (File.Exists(sqliteFile))
         {
             var alreadyExists = $"Project already exists at '{sqliteFile}'";
@@ -381,7 +391,7 @@ public partial class CrdtProjectsService(
         await EnsureDeleteProject(project.DbPath);
     }
 
-    internal static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)
+    private static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)
     {
         await db.Database.MigrateAsync();
         db.ProjectData.Add(data);
