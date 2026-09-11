@@ -210,12 +210,14 @@ Sync builds each side's changes by diffing, and the two directions are not symme
 
 That asymmetry is the point of the technology, not an accident. A CRDT exists to merge concurrent, possibly-conflicting intent (delete-wins, etc.), so it can honestly record a move or reorder even once invalid. FwData has no conflict resolution and must not fake one.
 
-So every move/delete reachable from the diff has two forms:
+That's what the `Submit*` write variants are for. Sync uses a `Submit*` variant wherever the plain method would throw on a state a concurrent edit can produce, and calls the plain method directly where it's already tolerant. The plain method throws two ways:
 
-- **public method** (e.g. `MoveExampleSentenceToSense`): strict — validates parent ownership/existence and throws. For direct/UI callers.
-- **`Submit*` variant** (e.g. `SubmitMoveExampleSentenceToSense`): what sync calls. On CRDT it drops the validation and records the intent (merge resolves the invalidity); on FwData it just forwards to the strict method — nothing to forgive.
+- **it returns the object** (`Create*`/`Update*` return `Task<T>`, so they read it back). Applying to a concurrently-deleted target makes that read-back throw. The `Submit*` variant is result-less (`Task`), so it just submits the change and delete-wins takes over.
+- **it has an explicit guard** — e.g. `MoveExampleSentenceToSense` validates the target sense's parent. The `Submit*` variant (`SubmitMoveExampleSentenceToSense`) drops the guard and records the move regardless of which entry now owns the sense.
 
-Adding a sync-reachable operation: give it a `Submit*` variant, route sync through it, keep the public one strict. Never stop a sync wedge by weakening the strict method or making FwData forgiving.
+On FwData every `Submit*` just forwards to the strict method: its side of the diff is against FwData's own live state, so there's nothing stale to forgive.
+
+Not everything needs one. Deletes have no `Submit*` (deleting a gone object is already a no-op), and `MoveSenseToEntry` has none (no guard to trip); sync calls those directly. So: add a `Submit*` variant only when the plain path would throw on a concurrency-produced state, route sync through it, keep the plain method strict for direct/UI callers. Never stop a sync wedge by weakening a strict method or making FwData forgiving.
 
 ### Testing Sync
 
