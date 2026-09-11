@@ -5,6 +5,7 @@ using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using FwLiteShared.Sync;
 using LcmCrdt;
+using LexCore.Utils;
 using FwLiteWeb.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -89,7 +90,8 @@ public static class ProjectRoutes
                     // Platform.Bible extension; the in-process (Blazor) path already shows it. Log
                     // here too, since catching bypasses the default 500 handler's logging.
                     loggerFactory.CreateLogger(typeof(ProjectRoutes)).LogError(e,
-                        "Failed to download project {Code} from {Server}", code, serverAuthority);
+                        "Failed to download project {Code} from {Server}",
+                        code.SanitizeForLog(), serverAuthority.SanitizeForLog());
                     return Results.Problem(detail: e.Message,
                         statusCode: StatusCodes.Status500InternalServerError);
                 }
