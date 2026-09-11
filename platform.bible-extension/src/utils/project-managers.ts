@@ -18,6 +18,18 @@ export class ProjectManagers {
       logger.debug(`No projectId found for WebView '${webViewId}'`);
       return;
     }
+    // A restored layout can reference a project that no longer exists; using such an id makes
+    // every project-settings call fail, so treat it as "no project" (callers then prompt).
+    const exists = await papi.projectLookup
+      .getMetadataForProject(webViewDef.projectId)
+      .then(() => true)
+      .catch(() => false);
+    if (!exists) {
+      logger.warn(
+        `Project '${webViewDef.projectId}' for WebView '${webViewId}' no longer resolves; ignoring it`,
+      );
+      return;
+    }
     return webViewDef.projectId;
   }
 
@@ -30,10 +42,9 @@ export class ProjectManagers {
   }
 
   /**
-   * Resolves the project manager for the project a WebView is scoped to. When the WebView has no
-   * associated project — e.g. the Scripture Editor is open with no project selected — the user is
-   * prompted with the core project selector and their choice is used instead. Returns `undefined`
-   * only when the user dismisses the selector without choosing a project.
+   * Resolves the project manager for the project a WebView is scoped to; when it has none (e.g. the
+   * Scripture Editor with no project selected) the user is prompted with the core project selector.
+   * Returns `undefined` only if the user dismisses without choosing.
    */
   async getProjectManagerFromWebViewIdOrSelectProject(
     webViewId: string,

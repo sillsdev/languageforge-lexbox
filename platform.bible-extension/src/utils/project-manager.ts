@@ -59,9 +59,8 @@ export class ProjectManager {
         logger.info(`Project '${nameOrId}' is using lexicon '${lexiconCode}'`);
         return lexiconCode;
       }
-      // The stored lexicon no longer resolves (e.g. it was deleted in FW Lite). Clear it so the
-      // project isn't stuck pointing at a missing lexicon (which would cause every action to open a
-      // broken view), then fall through to prompt for a new selection.
+      // The stored lexicon no longer resolves (e.g. deleted in FW Lite). Clear it — otherwise every
+      // action opens a broken view — then fall through to prompt for a new selection.
       logger.warn(
         `Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`,
       );
@@ -76,10 +75,14 @@ export class ProjectManager {
 
   async openSelector(): Promise<boolean> {
     const vernacularLanguage = await this.getLanguageTag();
-    const options: LexiconWebViewOptions = { vernacularLanguage };
+    // Current lexicon (if any) so the selector can pre-select it.
+    const lexiconCode = await this.getLexiconCode();
+    const projectName = await this.getName();
+    const options: LexiconWebViewOptions = { vernacularLanguage, lexiconCode, projectName };
     return await this.openWebView(
       WebViewType.SelectLexicon,
-      { floatSize: { height: 500, width: 400 }, type: 'float' },
+      // Tall enough for the account section plus a useful slice of the list (see LexiconPicker).
+      { floatSize: { height: 640, width: 440 }, type: 'float' },
       options,
     );
   }
