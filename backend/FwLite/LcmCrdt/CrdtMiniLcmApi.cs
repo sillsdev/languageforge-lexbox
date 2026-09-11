@@ -869,6 +869,13 @@ public class CrdtMiniLcmApi(
         await harmonyChangeWriter.AddChange(new MoveExampleSentenceToSenseChange(exampleId, senseId, await PickExampleOrder(repo, senseId, between)));
     }
 
+    public async Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    {
+        // no entry check: sync may have reparented the target sense to another entry; the example still follows it
+        await using var repo = await repoFactory.CreateRepoAsync();
+        await harmonyChangeWriter.AddChange(new MoveExampleSentenceToSenseChange(exampleId, senseId, await PickExampleOrder(repo, senseId, between)));
+    }
+
     private static async Task<double> PickExampleOrder(MiniLcmRepository repo, Guid senseId, BetweenPosition between)
     {
         return await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);

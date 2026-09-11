@@ -482,6 +482,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
     }
 
+    public Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    {
+        return _api.SubmitMoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
+    }
+
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
         return _api.DeleteExampleSentence(entryId, senseId, exampleSentenceId);

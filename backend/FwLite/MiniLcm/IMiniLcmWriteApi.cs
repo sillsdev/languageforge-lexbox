@@ -123,6 +123,12 @@ public interface IMiniLcmWriteApi
     Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
     Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
     Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
+    /// <summary>
+    /// Re-parents an example like <see cref="MoveExampleSentenceToSense"/>, but tolerates a target sense the
+    /// applied-to side reparented to another entry since the snapshot: it moves to the sense regardless of which
+    /// entry now owns it, instead of throwing and wedging the sync (see <see cref="SubmitMoveSense"/>).
+    /// </summary>
+    Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
 

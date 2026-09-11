@@ -2073,6 +2073,7 @@ public class FwDataMiniLcmApi(
     public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => await UpdateSense(entryId, senseId, update);
     public async Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => await CreateExampleSentence(entryId, senseId, exampleSentence, position);
     public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position) => await MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+    public async Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position) => await MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
     public async Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => await UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
     public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => await UpdatePartOfSpeech(id, update);
     public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => await UpdatePicture(entryId, senseId, pictureId, update);

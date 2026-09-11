@@ -240,6 +240,11 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    {
+        return Task.CompletedTask;
+    }
+
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
         return Task.CompletedTask;

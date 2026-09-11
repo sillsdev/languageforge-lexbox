@@ -53,6 +53,28 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         ExampleIds(actual.Senses[0]).Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task ExampleMovedIntoSenseReparentedInCrdt_DoesNotWedge()
+    {
+        var example = NewExample("example");
+        var sourceSense = NewSense("source", example);
+        var targetSense = NewSense("target");
+        var entry = await CreateEntry("entry", sourceSense, targetSense);
+        var otherEntry = await CreateEntry("other");
+
+        // CRDT reparented the target sense to another entry after the snapshot
+        await Api.MoveSenseToEntry(otherEntry.Id, targetSense.Id, new BetweenPosition(null, null));
+
+        // FLEx moved the example into the target sense (still under the original entry in FLEx's view)
+        var after = Copy(entry, otherEntry);
+        MoveExample(after, example, targetSense.Id);
+        await Sync([entry, otherEntry], after);
+
+        // the move still applies: the example follows the sense to its CRDT parent, sync doesn't wedge
+        var movedTarget = (await GetEntry(otherEntry.Id)).Senses.Single(s => s.Id == targetSense.Id);
+        ExampleIds(movedTarget).Should().Equal(example.Id);
+    }
+
     // Only CRDT can diverge from the diff's "before": sync diffs the snapshot against FwData and applies to CRDT,
     // whereas the FwData pass diffs FwData's own current state. A reorder of an item CRDT deleted or reparented
     // since the snapshot is moot and must be skipped, not throw and wedge the whole sync.

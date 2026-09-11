@@ -102,7 +102,7 @@ public static class ExampleSentenceSync
             // a known id arriving here is a move; its new parent's Add owns it, then a three-way sync applies edits
             if (context.ExistedBefore(example) is { } before)
             {
-                await api.MoveExampleSentenceToSense(entryId, senseId, example.Id, position);
+                await api.SubmitMoveExampleSentenceToSense(entryId, senseId, example.Id, position);
                 return 1 + await Sync(entryId, senseId, before, example, api);
             }
             await api.SubmitCreateExampleSentence(entryId, senseId, example, position);
