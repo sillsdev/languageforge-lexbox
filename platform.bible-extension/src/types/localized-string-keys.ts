@@ -28,6 +28,7 @@ export const LOCALIZED_STRING_KEYS: LocalizeKey[] = [
   '%lexicon_createLexicon_title%',
   '%lexicon_createLexicon_vernacularWs%',
   '%lexicon_entryList_backToList%',
+  '%lexicon_entryList_error%',
   '%lexicon_entryList_loading%',
   '%lexicon_entryList_noResults%',
   '%lexicon_entryDisplay_definition%',

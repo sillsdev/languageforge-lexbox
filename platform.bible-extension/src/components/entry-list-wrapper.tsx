@@ -7,14 +7,16 @@ import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 type EntryListWrapperProps = {
   elementHeader: ReactNode;
   elementList: ReactNode;
+  hasError: boolean;
   isLoading: boolean;
   hasItems: boolean;
 };
 
-/** A wrapper layout with a sticky header and a loading/no-results/list body. */
+/** A wrapper layout with a sticky header and a loading/error/no-results/list body. */
 export default function EntryListWrapper({
   elementHeader,
   elementList,
+  hasError,
   hasItems,
   isLoading,
 }: EntryListWrapperProps) {
@@ -32,12 +34,17 @@ export default function EntryListWrapper({
           <Label>{localizedStrings['%lexicon_entryList_loading%']}</Label>
         </div>
       )}
-      {!hasItems && !isLoading && (
+      {hasError && !isLoading && (
+        <div className="tw:m-4 tw:flex tw:justify-center">
+          <Label>{localizedStrings['%lexicon_entryList_error%']}</Label>
+        </div>
+      )}
+      {!hasItems && !isLoading && !hasError && (
         <div className="tw:m-4 tw:flex tw:justify-center">
           <Label>{localizedStrings['%lexicon_entryList_noResults%']}</Label>
         </div>
       )}
-      {hasItems && elementList}
+      {hasItems && !hasError && elementList}
     </div>
   );
 }
