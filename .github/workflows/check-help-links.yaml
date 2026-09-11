@@ -27,18 +27,23 @@ jobs:
       - name: install
         working-directory: frontend
         run: pnpm install
-      - name: check help links
+      # Split into first-attempt / wait / retry so the retry is visible as its own step in CI.
+      # On a scheduled run, a broken link is retried after a delay so a brief docs-site outage
+      # doesn't cry wolf: the job goes red only if it's still broken hours later. A manual run
+      # fails fast instead, so you get an answer without the wait.
+      - name: check help links (first attempt)
+        id: first
+        continue-on-error: true
         working-directory: frontend/viewer
-        # On a scheduled run, retry once after a delay so a brief docs-site outage doesn't cry
-        # wolf: the job goes red (and notifies) only if a link is still broken hours later.
-        # A manual run fails immediately so you get an answer without the wait.
-        run: |
-          if pnpm run test:manual; then
-            exit 0
-          fi
-          if [ "${{ github.event_name }}" != "schedule" ]; then
-            exit 1
-          fi
-          echo "::warning::Help-link check failed; retrying in 3h in case the docs site was briefly down."
-          sleep 3h
-          pnpm run test:manual
+        run: pnpm run test:manual
+      - name: wait 3h before retry
+        if: steps.first.outcome == 'failure' && github.event_name == 'schedule'
+        run: sleep 3h
+      - name: check help links (retry)
+        if: steps.first.outcome == 'failure' && github.event_name == 'schedule'
+        working-directory: frontend/viewer
+        run: pnpm run test:manual
+      # continue-on-error hid a first-attempt failure, so fail explicitly when we won't retry.
+      - name: fail if broken and not retrying
+        if: steps.first.outcome == 'failure' && github.event_name != 'schedule'
+        run: exit 1
