@@ -201,6 +201,22 @@ This orchestrates the bidirectional sync:
    - `fwdataApi.Save()` must be called after changes
    - Missing this = data loss
 
+### Concurrency model: CRDT forgives, FwData doesn't
+
+Sync builds each side's changes by diffing, and the two directions are not symmetric:
+
+- **applied to CRDT:** the stale last-synced snapshot vs current FwData. The snapshot is out of date, so a change can arrive invalid — another client deleted or reparented its target since the snapshot.
+- **applied to FwData:** current FwData vs current CRDT. Computed against FwData's own live state, so a change is never stale.
+
+That asymmetry is the point of the technology, not an accident. A CRDT exists to merge concurrent, possibly-conflicting intent (delete-wins, etc.), so it can honestly record a move or reorder even once invalid. FwData has no conflict resolution and must not fake one.
+
+So every move/delete reachable from the diff has two forms:
+
+- **public method** (e.g. `MoveExampleSentenceToSense`): strict — validates parent ownership/existence and throws. For direct/UI callers.
+- **`Submit*` variant** (e.g. `SubmitMoveExampleSentenceToSense`): what sync calls. On CRDT it drops the validation and records the intent (merge resolves the invalidity); on FwData it just forwards to the strict method — nothing to forgive.
+
+Adding a sync-reachable operation: give it a `Submit*` variant, route sync through it, keep the public one strict. Never stop a sync wedge by weakening the strict method or making FwData forgiving.
+
 ### Testing Sync
 
 The gold standard is `FwLiteProjectSync.Tests/Sena3SyncTests.cs` which uses a real FwData project.
