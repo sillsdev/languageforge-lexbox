@@ -36,6 +36,7 @@ The generated files are located in `src/lib/dotnet-types/generated-types/`.
 | UI | `tests/ui/` | ✅ Yes — auto-starts a dev server with in-memory demo; no infra needed |
 | E2E | `tests/e2e/` | ❌ Needs a Lexbox kind cluster + published FwLiteWeb binary |
 | Launcher | `tests/launcher/` | ❌ Needs a published FwLiteWeb binary |
+| Manual | `**/*.manual.test.ts` | ⚠️ Opt-in — `pnpm test:manual`. Hits the network, so it is excluded from `pnpm test` and CI |
 
 **Don't run E2E or Launcher tests unless you've explicitly set up that infrastructure** — they fail loudly without it and the setup isn't part of normal dev.
 
