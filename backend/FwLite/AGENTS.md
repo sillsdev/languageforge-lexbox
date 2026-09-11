@@ -203,21 +203,11 @@ This orchestrates the bidirectional sync:
 
 ### Concurrency model: CRDT forgives, FwData doesn't
 
-Sync builds each side's changes by diffing, and the two directions are not symmetric:
+Sync applies a diff of the stale last-synced snapshot vs current FwData onto CRDT, but a diff of live FwData vs live CRDT onto FwData. So a change reaching CRDT can be invalid (another client deleted or reparented its target since the snapshot), while a change reaching FwData is never stale. That's the point of a CRDT: it merges conflicting intent (delete-wins, etc.); FwData has no conflict resolution and must not fake one.
 
-- **applied to CRDT:** the stale last-synced snapshot vs current FwData. The snapshot is out of date, so a change can arrive invalid — another client deleted or reparented its target since the snapshot.
-- **applied to FwData:** current FwData vs current CRDT. Computed against FwData's own live state, so a change is never stale.
+Hence the `Submit*` write variants. Sync calls a `Submit*` where the plain method would throw on a concurrency-produced state — a `Create*`/`Update*` that reads back a deleted target, or a guard like `MoveExampleSentenceToSense`'s parent check. On CRDT the `Submit*` drops that and records the intent (delete-wins resolves it); on FwData it forwards to the strict method. Where the plain method is already tolerant (deletes, `MoveSenseToEntry`), sync calls it directly — no variant.
 
-That asymmetry is the point of the technology, not an accident. A CRDT exists to merge concurrent, possibly-conflicting intent (delete-wins, etc.), so it can honestly record a move or reorder even once invalid. FwData has no conflict resolution and must not fake one.
-
-That's what the `Submit*` write variants are for. Sync uses a `Submit*` variant wherever the plain method would throw on a state a concurrent edit can produce, and calls the plain method directly where it's already tolerant. The plain method throws two ways:
-
-- **it returns the object** (`Create*`/`Update*` return `Task<T>`, so they read it back). Applying to a concurrently-deleted target makes that read-back throw. The `Submit*` variant is result-less (`Task`), so it just submits the change and delete-wins takes over.
-- **it has an explicit guard** — e.g. `MoveExampleSentenceToSense` validates the target sense's parent. The `Submit*` variant (`SubmitMoveExampleSentenceToSense`) drops the guard and records the move regardless of which entry now owns the sense.
-
-On FwData every `Submit*` just forwards to the strict method: its side of the diff is against FwData's own live state, so there's nothing stale to forgive.
-
-Not everything needs one. Deletes have no `Submit*` (deleting a gone object is already a no-op), and `MoveSenseToEntry` has none (no guard to trip); sync calls those directly. So: add a `Submit*` variant only when the plain path would throw on a concurrency-produced state, route sync through it, keep the plain method strict for direct/UI callers. Never stop a sync wedge by weakening a strict method or making FwData forgiving.
+So: add a `Submit*` only when the plain path throws on concurrency, route sync through it, keep the plain method strict. Never fix a sync wedge by weakening a strict method or making FwData forgiving.
 
 ### Testing Sync
 
