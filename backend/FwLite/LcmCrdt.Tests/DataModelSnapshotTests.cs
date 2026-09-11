@@ -20,36 +20,31 @@ public class DataModelSnapshotTests : IAsyncLifetime
     private static readonly AutoFaker Faker = new(AutoFakerDefault.Config);
 
     protected readonly AsyncServiceScope _services;
-    private readonly LcmCrdtDbContext _crdtDbContext;
+    private LcmCrdtDbContext _crdtDbContext = null!;
     private HarmonyConfig _crdtConfig;
-    private CrdtProject _crdtProject;
     private readonly JsonSerializerOptions _jsonSerializerOptions = TestJsonOptions.Harmony();
 
     public DataModelSnapshotTests()
     {
-        _crdtProject = new CrdtProject("sena-3", $"sena-3-{Guid.NewGuid()}.sqlite");
         var services = new ServiceCollection()
-            .AddTestLcmCrdtClient(_crdtProject)
+            .AddTestLcmCrdtClient()
             .AddLogging(builder => builder.AddDebug())
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
-        _crdtDbContext = _services.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContext();
         _crdtConfig = _services.ServiceProvider.GetRequiredService<IOptions<HarmonyConfig>>().Value;
     }
 
     public async Task InitializeAsync()
     {
-        await _crdtDbContext.Database.OpenConnectionAsync();
-        //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
-        var projectData = new ProjectData("Sena 3", "sena-3", Guid.NewGuid(), null, Guid.NewGuid());
-        await CrdtProjectsService.InitProjectDb(_crdtDbContext, projectData);
-        _crdtProject.Data = projectData;
-        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(_crdtProject);
+        //unique db path per instance, so CurrentProjectService doesn't think a db has already run migrations
+        var crdtProject = await _services.ServiceProvider.GetRequiredService<CrdtProjectsService>()
+            .CreateProject(new("Sena 3", "sena-3", DbPath: $"sena-3-{Guid.NewGuid()}.sqlite"));
+        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(crdtProject);
+        _crdtDbContext = await _services.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
     }
 
     public async Task DisposeAsync()
     {
-        await _crdtDbContext.Database.CloseConnectionAsync();
         await _crdtDbContext.Database.EnsureDeletedAsync();
         await _crdtDbContext.DisposeAsync();
         await _services.DisposeAsync();

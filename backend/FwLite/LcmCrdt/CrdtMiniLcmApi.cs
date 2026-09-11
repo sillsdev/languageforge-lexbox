@@ -17,7 +17,6 @@ using Microsoft.Extensions.Logging;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Media;
-using SystemTextJsonPatch;
 
 namespace LcmCrdt;
 
@@ -29,11 +28,18 @@ public class CrdtMiniLcmApi(
     LcmMediaService lcmMediaService,
     LocalCommentReadStatusService commentReadStatusService,
     CrdtWritingSystemApi writingSystemApi,
+    CrdtSemanticDomainsApi semanticDomainsApi,
+    CrdtPublicationApi publicationApi,
+    CrdtComplexFormComponentApi complexFormComponentApi,
+    CrdtMorphTypeApi morphTypeApi,
+    CrdtPartsOfSpeechApi partsOfSpeechApi,
+    CrdtComplexFormTypesApi complexFormTypesApi,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     public ProjectData ProjectData => projectService.ProjectData;
     public CrdtProject Project => projectService.Project;
 
+    #region WritingSystemApi
     public Task<WritingSystems> GetWritingSystems()
     {
         return writingSystemApi.GetWritingSystems();
@@ -68,329 +74,239 @@ public class CrdtMiniLcmApi(
     {
         return writingSystemApi.GetWritingSystem(id, type);
     }
+    #endregion
 
-    public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    #region PartsOfSpeechApi
+    public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var partOfSpeech in repo.PartsOfSpeech.AsAsyncEnumerable())
-        {
-            yield return partOfSpeech;
-        }
+        return partsOfSpeechApi.GetPartsOfSpeech();
     }
 
     public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.PartsOfSpeech.SingleOrDefaultAsync(pos => pos.Id == id);
+        return await partsOfSpeechApi.GetPartOfSpeech(id);
     }
 
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        if (partOfSpeech.Id == Guid.Empty) partOfSpeech.Id = Guid.NewGuid();
-        await harmonyChangeWriter.AddChange(new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
-        return await GetPartOfSpeech(partOfSpeech.Id) ?? throw NotFoundException.ForType<PartOfSpeech>(partOfSpeech.Id);
+        return await partsOfSpeechApi.CreatePartOfSpeech(partOfSpeech);
     }
 
     public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
-        await harmonyChangeWriter.AddChanges(update.Patch.ToChanges(id));
+        await partsOfSpeechApi.SubmitUpdatePartOfSpeech(id, update);
     }
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
-        await SubmitUpdatePartOfSpeech(id, update);
-        return await GetPartOfSpeech(id) ?? throw NotFoundException.ForType<PartOfSpeech>(id);
+        return await partsOfSpeechApi.UpdatePartOfSpeech(id, update);
     }
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(PartOfSpeech before, PartOfSpeech after, IMiniLcmApi? api)
     {
-        await PartOfSpeechSync.Sync(before, after, api ?? this);
-        return await GetPartOfSpeech(after.Id) ?? throw NotFoundException.ForType<PartOfSpeech>(after.Id);
+        return await partsOfSpeechApi.UpdatePartOfSpeech(before, after, api ?? this);
     }
 
     public async Task DeletePartOfSpeech(Guid id)
     {
-        await harmonyChangeWriter.AddChange(new DeleteChange<PartOfSpeech>(id));
+        await partsOfSpeechApi.DeletePartOfSpeech(id);
     }
+    #endregion
 
-    public async IAsyncEnumerable<Publication> GetPublications()
+    #region PublicationApi
+    public IAsyncEnumerable<Publication> GetPublications()
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var publication in repo.Publications.AsAsyncEnumerable())
-        {
-            yield return publication;
-        }
+        return publicationApi.GetPublications();
     }
 
     public async Task<Publication?> GetPublication(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetPublication(id);
+        return await publicationApi.GetPublication(id);
     }
 
     public async Task<Publication> CreatePublication(Publication pub)
     {
-        await harmonyChangeWriter.AddChange(new CreatePublicationChange(pub.Id, pub.Name, pub.IsMain));
-        return await GetPublication(pub.Id) ?? throw NotFoundException.ForType<Publication>(pub.Id);
+        return await publicationApi.CreatePublication(pub);
     }
 
     public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        // IsMain is applied via SetMainPublicationChange (which converges across replicas), not as a plain patch op,
-        // so it's stripped here. Validation rejects setting IsMain to false on every update/submit path, so isMain is always true.
-        if (update.TryGetPropertyChange<Publication, bool>(nameof(Publication.IsMain), out var isMain))
-        {
-            var patch = new JsonPatchDocument<Publication>();
-            patch.Operations.AddRange(update.Patch.Operations.Where(op =>
-                !string.Equals(op.Path, $"/{nameof(Publication.IsMain)}", StringComparison.OrdinalIgnoreCase)));
-            var changes = patch.ToChanges(id).ToList();
-            if (isMain) changes.Add(new SetMainPublicationChange(id));
-            if (changes.Count > 0) await harmonyChangeWriter.AddChanges(changes);
-        }
-        else if (update.Patch.Operations.Count > 0)
-        {
-            await harmonyChangeWriter.AddChanges(update.Patch.ToChanges(id));
-        }
+        await publicationApi.SubmitUpdatePublication(id, update);
     }
 
     public async Task<Publication> UpdatePublication(Guid id, UpdateObjectInput<Publication> update)
     {
-        await SubmitUpdatePublication(id, update);
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetPublication(id) ?? throw NotFoundException.ForType<Publication>($"{id} (invalid patching to a new id?)");
+        return await publicationApi.UpdatePublication(id, update);
     }
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
-        await PublicationSync.Sync(before, after, api ?? this);
-        var updatedPublication = await GetPublication(after.Id) ?? throw NotFoundException.ForType<Publication>(after.Id);
-        return updatedPublication;
+        return await publicationApi.UpdatePublication(before, after, api ?? this);
     }
 
     public async Task DeletePublication(Guid id)
     {
-        await harmonyChangeWriter.AddChange(new DeleteChange<Publication>(id));
+        await publicationApi.DeletePublication(id);
     }
 
     public async Task AddPublication(Guid entryId, Guid publicationId)
     {
-        var pub = await GetPublication(publicationId) ?? throw NotFoundException.ForType<Publication>(publicationId);
-        await harmonyChangeWriter.AddChange(new AddPublicationChange(entryId, pub));
+        await publicationApi.AddPublication(entryId, publicationId);
     }
 
     public async Task RemovePublication(Guid entryId, Guid publicationId)
     {
-        await harmonyChangeWriter.AddChange(new RemovePublicationChange(entryId, publicationId));
+        await publicationApi.RemovePublication(entryId, publicationId);
     }
+    #endregion
 
-    public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    #region SemanticDomainApi
+    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var semanticDomain in repo.SemanticDomains.AsAsyncEnumerable())
-        {
-            yield return semanticDomain;
-        }
+        return semanticDomainsApi.GetSemanticDomains();
     }
 
     public async Task<SemanticDomain?> GetSemanticDomain(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.SemanticDomains.FirstOrDefaultAsync(semdom => semdom.Id == id);
+        return await semanticDomainsApi.GetSemanticDomain(id);
     }
 
     public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
-        await harmonyChangeWriter.AddChange(new CreateSemanticDomainChange(semanticDomain));
-        return await GetSemanticDomain(semanticDomain.Id) ?? throw NotFoundException.ForType<SemanticDomain>(semanticDomain.Id);
+        return await semanticDomainsApi.CreateSemanticDomain(semanticDomain);
     }
 
     public async Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        await harmonyChangeWriter.AddChanges(update.Patch.ToChanges(id));
+        await semanticDomainsApi.SubmitUpdateSemanticDomain(id, update);
     }
 
     public async Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
     {
-        await SubmitUpdateSemanticDomain(id, update);
-        return await GetSemanticDomain(id) ?? throw NotFoundException.ForType<SemanticDomain>(id);
+        return await semanticDomainsApi.UpdateSemanticDomain(id, update);
     }
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null)
     {
-        await SemanticDomainSync.Sync(before, after, api ?? this);
-        return await GetSemanticDomain(after.Id) ?? throw NotFoundException.ForType<SemanticDomain>(after.Id);
+        return await semanticDomainsApi.UpdateSemanticDomain(before, after, api ?? this);
     }
 
     public async Task DeleteSemanticDomain(Guid id)
     {
-        await harmonyChangeWriter.AddChange(new DeleteChange<SemanticDomain>(id));
+        await semanticDomainsApi.DeleteSemanticDomain(id);
     }
 
     public async Task BulkImportSemanticDomains(IAsyncEnumerable<SemanticDomain> semanticDomains)
     {
-        await harmonyChangeWriter.AddChanges(await semanticDomains.Select(sd => new CreateSemanticDomainChange(sd)).ToArrayAsync());
+        await semanticDomainsApi.BulkImportSemanticDomains(semanticDomains);
     }
+    #endregion
 
-    public async IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    #region ComplexFormTypeApi
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var complexFormType in repo.ComplexFormTypes.AsAsyncEnumerable())
-        {
-            yield return complexFormType;
-        }
+        return complexFormTypesApi.GetComplexFormTypes();
     }
 
     public async Task<ComplexFormType?> GetComplexFormType(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.ComplexFormTypes.SingleOrDefaultAsync(c => c.Id == id);
+        return await complexFormTypesApi.GetComplexFormType(id);
     }
 
     public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
-        await harmonyChangeWriter.AddChange(new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
-        return await repo.ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
+        return await complexFormTypesApi.CreateComplexFormType(complexFormType);
     }
 
     public async Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
     {
-        await harmonyChangeWriter.AddChange(new JsonPatchChange<ComplexFormType>(id, update.Patch));
+        await complexFormTypesApi.SubmitUpdateComplexFormType(id, update);
     }
 
     public async Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
     {
-        await SubmitUpdateComplexFormType(id, update);
-        return await GetComplexFormType(id) ?? throw NotFoundException.ForType<ComplexFormType>(id);
+        return await complexFormTypesApi.UpdateComplexFormType(id, update);
     }
 
     public async Task<ComplexFormType> UpdateComplexFormType(ComplexFormType before, ComplexFormType after, IMiniLcmApi? api = null)
     {
-        await ComplexFormTypeSync.Sync(before, after, api ?? this);
-        return await GetComplexFormType(after.Id) ?? throw NotFoundException.ForType<ComplexFormType>(after.Id);
+        return await complexFormTypesApi.UpdateComplexFormType(before, after, api ?? this);
     }
 
     public async Task DeleteComplexFormType(Guid id)
     {
-        await harmonyChangeWriter.AddChange(new DeleteChange<ComplexFormType>(id));
-    }
-
-    public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var existing = await repo.FindComplexFormComponent(complexFormComponent);
-        if (existing is null)
-        {
-            var betweenIds = between is null ? null : await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
-            // Always generate a new entity ID — the caller's ID is never used.
-            // This aligns with FwData (which ignores the ID entirely) and prevents
-            // Harmony duplicate-ID pitfalls during sync.
-            complexFormComponent.Id = Guid.NewGuid();
-            var addEntryComponentChange = await repo.CreateComplexFormComponentChange(complexFormComponent, betweenIds);
-            await harmonyChangeWriter.AddChange(addEntryComponentChange);
-            return;
-        }
-
-        // The orderable diff sends (null, null) for singletons; skip the move so
-        // revisits in one sync don't bump Order via PickOrder.
-        if (between is { Previous: not null } or { Next: not null })
-        {
-            await MoveComplexFormComponent(existing, between);
-        }
-    }
-
-    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
-    {
-        await SubmitCreateComplexFormComponent(complexFormComponent, between);
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.FindComplexFormComponent(complexFormComponent) ?? throw NotFoundException.ForType<ComplexFormComponent>(complexFormComponent.ComplexFormEntryId);
-    }
-
-    public async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
-    {
-        await MoveComplexFormComponent(component, between, tolerateMissing: false);
-    }
-
-    public async Task SubmitMoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
-    {
-        await MoveComplexFormComponent(component, between, tolerateMissing: true);
-    }
-
-    private async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between, bool tolerateMissing)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        // FwData components carry no stable Id, so the move target is resolved by its references rather than MaybeId.
-        var id = component.MaybeId ?? (await repo.FindComplexFormComponent(component))?.Id;
-        if (id is null)
-        {
-            if (tolerateMissing) return; // we can't submit the change, because we don't have an ID to refer to
-            throw NotFoundException.ForType<ComplexFormComponent>("missing ID");
-        }
-        var betweenIds = await between.MapAsync(async c => (await repo.FindComplexFormComponent(c))?.Id);
-        var order = await OrderPicker.PickOrder(repo.ComplexFormComponents.Where(s => s.ComplexFormEntryId == component.ComplexFormEntryId), betweenIds);
-        await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ComplexFormComponent>(id.Value, order));
-    }
-
-    public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var existing = await repo.FindComplexFormComponent(complexFormComponent);
-        if (existing is null) return;
-        await harmonyChangeWriter.AddChange(new DeleteChange<ComplexFormComponent>(existing.Id));
+        await complexFormTypesApi.DeleteComplexFormType(id);
     }
 
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await harmonyChangeWriter.AddChange(new AddComplexFormTypeChange(entryId, await repo.ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
+        await complexFormTypesApi.AddComplexFormType(entryId, complexFormTypeId);
     }
 
     public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        await harmonyChangeWriter.AddChange(new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
+        await complexFormTypesApi.RemoveComplexFormType(entryId, complexFormTypeId);
+    }
+    #endregion
+
+    #region ComplexFormComponentApi
+    public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
+    {
+        await complexFormComponentApi.SubmitCreateComplexFormComponent(complexFormComponent, between);
     }
 
-    public async IAsyncEnumerable<MorphType> GetMorphTypes()
+    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? between = null)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var morphType in repo.MorphTypes.AsAsyncEnumerable())
-        {
-            yield return morphType;
-        }
+        return await complexFormComponentApi.CreateComplexFormComponent(complexFormComponent, between);
+    }
+
+    public async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
+    {
+        await complexFormComponentApi.MoveComplexFormComponent(component, between);
+    }
+
+    public async Task SubmitMoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)
+    {
+        await complexFormComponentApi.SubmitMoveComplexFormComponent(component, between);
+    }
+
+    public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        await complexFormComponentApi.DeleteComplexFormComponent(complexFormComponent);
+    }
+    #endregion
+
+    #region MorphTypeApi
+    public IAsyncEnumerable<MorphType> GetMorphTypes()
+    {
+        return morphTypeApi.GetMorphTypes();
     }
 
     public async Task<MorphType?> GetMorphType(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Id == id);
+        return await morphTypeApi.GetMorphType(id);
     }
 
     public async Task<MorphType?> GetMorphType(MorphTypeKind kind)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.MorphTypes.SingleOrDefaultAsync(m => m.Kind == kind);
+        return await morphTypeApi.GetMorphType(kind);
     }
 
     public async Task<MorphType> CreateMorphType(MorphType morphType)
     {
-        //I don't like returning a different object than what the user requested, it feels very unexpected, however this is pretty much what happens in the change anyway and that can't be avoided
-        if (await GetMorphType(morphType.Kind) is {} actualMorphType) return actualMorphType;
-        await harmonyChangeWriter.AddChange(new CreateMorphTypeChange(morphType));
-        return await GetMorphType(morphType.Id) ?? throw NotFoundException.ForType<MorphType>(morphType.Id);
+        return await morphTypeApi.CreateMorphType(morphType);
     }
 
     public async Task<MorphType> UpdateMorphType(Guid id, UpdateObjectInput<MorphType> update)
     {
-        await harmonyChangeWriter.AddChange(new JsonPatchChange<MorphType>(id, update.Patch));
-        return await GetMorphType(id) ?? throw NotFoundException.ForType<MorphType>(id);
+        return await morphTypeApi.UpdateMorphType(id, update);
     }
 
     public async Task<MorphType> UpdateMorphType(MorphType before, MorphType after, IMiniLcmApi? api = null)
     {
-        await MorphTypeSync.Sync(before, after, api ?? this);
-        return await GetMorphType(after.Id) ?? throw NotFoundException.ForType<MorphType>(after.Id);
+        return await morphTypeApi.UpdateMorphType(before, after, api ?? this);
     }
+    #endregion
 
     public async Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
     {

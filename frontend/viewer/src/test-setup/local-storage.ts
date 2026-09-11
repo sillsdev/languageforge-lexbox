@@ -31,7 +31,11 @@ class InMemoryStorage implements Storage {
   }
 }
 
-if (typeof globalThis.localStorage === 'undefined') {
+// Reading `globalThis.localStorage` would itself trip Node's "localStorage is not available
+// because --localstorage-file was not provided" ExperimentalWarning, so probe the property
+// descriptor instead: Node installs a lazy accessor, a real implementation is a data property.
+const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+if (!descriptor || descriptor.get) {
   Object.defineProperty(globalThis, 'localStorage', {
     configurable: true,
     value: new InMemoryStorage(),
