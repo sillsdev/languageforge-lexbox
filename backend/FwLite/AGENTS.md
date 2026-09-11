@@ -27,7 +27,7 @@ task fw-lite-web   # from repo root
 dotnet test FwLiteOnly.slnf
 
 # Build MAUI app (Windows)
-dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0.19041.0
+dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net11.0-windows10.0.19041.0
 ```
 
 ## Testing on Android (agents)
@@ -47,6 +47,8 @@ task fw-lite:has-stale-generated-types
 ```
 
 The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`.
+
+> **.NET 11 preview note:** Reinforced.Typings 1.6.7 has no net11 tool, so `FwLiteShared.csproj` forces its net10 `rtcli` and patches the tool's runtimeconfig to run on the net11 runtime (`_RtPatchToolRuntimeConfig` target). It's self-contained — no env vars needed. Delete `RtForceTargetFramework` + that target once the package ships a net11 tool.
 
 ⚠️ **`[JSInvokable]` methods must not have optional/defaulted parameters (nor a `CancellationToken`).** The generated TS marks them optional (`arg?`), but that's a lie: Blazor JSInterop requires JS to pass every parameter, and can't marshal a `CancellationToken` — so JS callers break at runtime. If a server-side (REST) caller needs cancellation or an extra arg, add a separate **non-`[JSInvokable]`** overload for it (see `AuthService.SignInWebView`).
 
