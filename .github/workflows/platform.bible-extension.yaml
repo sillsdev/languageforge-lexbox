@@ -47,16 +47,13 @@ jobs:
             paranext-core/package-lock.json
           node-version-file: lexbox/platform.bible-extension/package.json
 
-      # Core must install first. The extension declares local-path dependencies on
-      # paranext-core/lib/*, so installing it first leaves nested node_modules in those
-      # directories, which can make core's own `npm ci` re-resolve against the registry.
-      - name: Install core dependencies
-        working-directory: paranext-core
-        run: npm ci --ignore-scripts
-
       - name: Install extension dependencies
         working-directory: lexbox/platform.bible-extension
         run: npm ci
+
+      - name: Install core dependencies
+        working-directory: paranext-core
+        run: npm ci --ignore-scripts
 
       - name: Run format checking
         working-directory: lexbox/platform.bible-extension
