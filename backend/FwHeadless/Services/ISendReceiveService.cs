@@ -10,7 +10,6 @@ public interface ISendReceiveService
     Task<int> PendingCommitCountOutgoing(FwDataProject project, string? projectCode);
     Task<int> PendingCommitCountBothWays(FwDataProject project, string? projectCode);
     Task CommitFile(string filePath, string commitMessage);
-    Task CommitEmpty(string folder, string commitMessage);
     Task InitRepo(string folder);
-    Task SetBranch(string folder, string branchName);
+    Task SwitchBranch(string folder, string branchName, bool createBranch = true, string commitMessage = "");
 }

@@ -71,18 +71,13 @@ public class SendReceiveService(IOptions<FwHeadlessConfig> config, SafeLoggingPr
         await SendReceiveHelpers.CommitFile(filePath, commitMessage, progress);
     }
 
-    public async Task CommitEmpty(string folder, string commitMessage)
-    {
-        await SendReceiveHelpers.CommitEmpty(folder, commitMessage, progress);
-    }
-
     public async Task InitRepo(string folder)
     {
         await SendReceiveHelpers.InitRepo(folder, progress);
     }
 
-    public async Task SetBranch(string folder, string branchName)
+    public async Task SwitchBranch(string folder, string branchName, bool createBranch = true, string commitMessage = "")
     {
-        await SendReceiveHelpers.SetBranch(folder, branchName, progress);
+        await SendReceiveHelpers.SwitchBranch(folder, branchName, createBranch, commitMessage, progress);
     }
 }

@@ -49,8 +49,8 @@ public class ProjectCreationService(
             // FLExBridge create a repo, since Clone can't establish an empty remote and
             // Language_Forge_Send_Receive refuses to make the *first* commit itself:
             //   1. hg init the local fw/ folder (no clone -- the empty remote has nothing to clone).
-            //   2. Build fw.fwdata into that folder from the SIL.LCModel template, configured with all
-            //      of the requested writing systems.
+            //   2. Build fw.fwdata into that folder from the SIL.LCModel NewLangProj template,
+            //      configured with all of the requested writing systems.
             //   3. Commit a minimal FLExProject.CustomProperties file on hg's *default* branch -- the same
             //      genesis file, on the same branch, FieldWorks commits first. The fwdata itself is NOT
             //      committed; Send/Receive splits it into the nested files Mercurial actually tracks
@@ -68,13 +68,7 @@ public class ProjectCreationService(
             var customPropertiesFile = WriteInitialCustomPropertiesFile(fwDataProject);
             await srService.CommitFile(customPropertiesFile, InitialCommitMessage);
 
-            await srService.SetBranch(fwDataProject.ProjectFolder, config.Value.SendReceiveBranchName);
-            // BUG WORKAROUND (remove once the LanguageForgeSendReceiveActionHandler bug is fixed): that
-            // handler refuses to commit when doing so "could possibly create a new branch", so it won't
-            // establish the model-version branch itself. This empty commit (no file changes -- it only
-            // records the branch change from SetBranch above) creates a head on the branch so Send/Receive
-            // will proceed.
-            await srService.CommitEmpty(fwDataProject.ProjectFolder, InitialCommitMessage);
+            await srService.SwitchBranch(fwDataProject.ProjectFolder, config.Value.SendReceiveBranchName);
             var pushResult = await srService.SendReceive(fwDataProject, projectCode, InitialCommitMessage);
             if (!pushResult.Success)
                 throw new SendReceiveException("Pushing the new project to the repo failed", pushResult);
