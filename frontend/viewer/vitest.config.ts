@@ -1,14 +1,10 @@
 import {configDefaults, defineConfig} from 'vitest/config';
 
-import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {playwright} from '@vitest/browser-playwright';
 import {storybookTest} from '@storybook/addon-vitest/vitest-plugin';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
-
-const dirname =
-  typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 const browserTestPattern = '**/*.browser.{test,spec}.?(c|m)[jt]s?(x)';
 const launcherTestPattern = './tests/launcher/**/*.{test,spec}.?(c|m)[jt]s?(x)';
@@ -75,7 +71,7 @@ export default defineConfig({
           svelte(),
           // seems to cause this project to only include storybook tests
           storybookTest({
-            configDir: path.join(dirname, '.storybook'),
+            configDir: path.join(import.meta.dirname, '.storybook'),
           }),
         ],
         test: {
