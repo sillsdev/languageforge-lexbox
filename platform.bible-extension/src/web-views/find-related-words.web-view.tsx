@@ -31,6 +31,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
     NetworkObject<IEntryService> | undefined
   >();
   const [isFetching, setIsFetching] = useState(false);
+  const [fetchFailed, setFetchFailed] = useState(false);
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();
   const [relatedEntries, setRelatedEntries] = useState<IEntry[] | undefined>();
   const [searchTerm, setSearchTerm] = useState(word ?? '');
@@ -70,6 +71,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       }
 
       logger.info(`Fetching entries for ${surfaceForm}`);
+      setFetchFailed(false);
       setIsFetching(true);
       try {
         let entries = (await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm })) ?? [];
@@ -80,6 +82,11 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
         setMatchingEntries(entries);
       } catch (e) {
         logger.error('Error fetching entries:', e);
+        // Drop what the last query found: kept, it would sit under the new search term as though
+        // it answered it, and the domain derived from it would file a new entry under that domain.
+        setMatchingEntries(undefined);
+        setRelatedEntries(undefined);
+        setFetchFailed(true);
       } finally {
         setIsFetching(false);
       }
@@ -97,12 +104,15 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       }
 
       logger.info(`Fetching entries in semantic domain ${semanticDomain}`);
+      setFetchFailed(false);
       setIsFetching(true);
       try {
         const entries = await lexiconNetworkObject.getEntries(lexiconCode, { semanticDomain });
         setRelatedEntries(entries ?? []);
       } catch (e) {
         logger.error('Error fetching related entries:', e);
+        setRelatedEntries(undefined);
+        setFetchFailed(true);
       } finally {
         setIsFetching(false);
       }
@@ -222,6 +232,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
           />
         )
       }
+      hasError={fetchFailed}
       isLoading={isFetching}
       hasItems={!!matchingEntries?.length}
     />

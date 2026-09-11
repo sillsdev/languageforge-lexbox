@@ -24,6 +24,7 @@ globalThis.webViewComponent = function LexiconFindWord({
     NetworkObject<IEntryService> | undefined
   >();
   const [isFetching, setIsFetching] = useState(false);
+  const [fetchFailed, setFetchFailed] = useState(false);
   const [searchTerm, setSearchTerm] = useState(word ?? '');
 
   useEffect(() => {
@@ -53,12 +54,17 @@ globalThis.webViewComponent = function LexiconFindWord({
       }
 
       logger.info(`Fetching entries for ${surfaceForm}`);
+      setFetchFailed(false);
       setIsFetching(true);
       try {
         const entries = await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm });
         setMatchingEntries(entries ?? []);
       } catch (e) {
         logger.error('Error fetching entries:', e);
+        // Drop the last query's entries: kept, they would sit under the new search term as
+        // though they answered it.
+        setMatchingEntries(undefined);
+        setFetchFailed(true);
       } finally {
         setIsFetching(false);
       }
@@ -135,6 +141,7 @@ globalThis.webViewComponent = function LexiconFindWord({
           />
         ) : undefined
       }
+      hasError={fetchFailed}
       isLoading={isFetching}
       hasItems={!!matchingEntries?.length}
     />
