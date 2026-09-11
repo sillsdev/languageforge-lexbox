@@ -4,7 +4,7 @@ import { useLocalizedStrings } from '@papi/frontend/react';
 import type { IEntry, IEntryService, LexiconWebViewProps, PartialEntry } from 'lexicon';
 import { SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
 import EntryList from '../components/entry-list';
 import EntryListWrapper from '../components/entry-list-wrapper';
@@ -26,6 +26,9 @@ globalThis.webViewComponent = function LexiconFindWord({
   const [isFetching, setIsFetching] = useState(false);
   const [fetchFailed, setFetchFailed] = useState(false);
   const [searchTerm, setSearchTerm] = useState(word ?? '');
+  // Which search the view's state belongs to. Debouncing spaces requests out but does not stop one
+  // from outliving the next, so a reply lands only while its request is still the current one.
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     papi.networkObjects
@@ -54,19 +57,23 @@ globalThis.webViewComponent = function LexiconFindWord({
       }
 
       logger.info(`Fetching entries for ${surfaceForm}`);
+      requestIdRef.current += 1;
+      const requestId = requestIdRef.current;
       setFetchFailed(false);
       setIsFetching(true);
       try {
         const entries = await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm });
+        if (requestId !== requestIdRef.current) return;
         setMatchingEntries(entries ?? []);
       } catch (e) {
         logger.error('Error fetching entries:', e);
+        if (requestId !== requestIdRef.current) return;
         // Drop the last query's entries: kept, they would sit under the new search term as
         // though they answered it.
         setMatchingEntries(undefined);
         setFetchFailed(true);
       } finally {
-        setIsFetching(false);
+        if (requestId === requestIdRef.current) setIsFetching(false);
       }
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings],

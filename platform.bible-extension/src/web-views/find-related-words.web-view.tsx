@@ -11,7 +11,7 @@ import type {
 import { Network } from 'lucide-react';
 import { Label, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
 import EntryList from '../components/entry-list';
 import EntryListWrapper from '../components/entry-list-wrapper';
@@ -36,6 +36,9 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
   const [relatedEntries, setRelatedEntries] = useState<IEntry[] | undefined>();
   const [searchTerm, setSearchTerm] = useState(word ?? '');
   const [selectedDomain, setSelectedDomain] = useState<ISemanticDomain | undefined>();
+  // Which request the view's state belongs to. A search and a domain lookup share it: either can
+  // outlive the next, so a reply lands only while its request is the current one.
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     papi.networkObjects
@@ -71,6 +74,8 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       }
 
       logger.info(`Fetching entries for ${surfaceForm}`);
+      requestIdRef.current += 1;
+      const requestId = requestIdRef.current;
       setFetchFailed(false);
       setIsFetching(true);
       try {
@@ -79,16 +84,18 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
         entries = entries
           .map((e) => ({ ...e, senses: e.senses.filter((s) => s.semanticDomains.length) }))
           .filter((e) => e.senses.length);
+        if (requestId !== requestIdRef.current) return;
         setMatchingEntries(entries);
       } catch (e) {
         logger.error('Error fetching entries:', e);
+        if (requestId !== requestIdRef.current) return;
         // Drop what the last query found: kept, it would sit under the new search term as though
         // it answered it, and the domain derived from it would file a new entry under that domain.
         setMatchingEntries(undefined);
         setRelatedEntries(undefined);
         setFetchFailed(true);
       } finally {
-        setIsFetching(false);
+        if (requestId === requestIdRef.current) setIsFetching(false);
       }
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings],
@@ -104,17 +111,21 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       }
 
       logger.info(`Fetching entries in semantic domain ${semanticDomain}`);
+      requestIdRef.current += 1;
+      const requestId = requestIdRef.current;
       setFetchFailed(false);
       setIsFetching(true);
       try {
         const entries = await lexiconNetworkObject.getEntries(lexiconCode, { semanticDomain });
+        if (requestId !== requestIdRef.current) return;
         setRelatedEntries(entries ?? []);
       } catch (e) {
         logger.error('Error fetching related entries:', e);
+        if (requestId !== requestIdRef.current) return;
         setRelatedEntries(undefined);
         setFetchFailed(true);
       } finally {
-        setIsFetching(false);
+        if (requestId === requestIdRef.current) setIsFetching(false);
       }
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings],
