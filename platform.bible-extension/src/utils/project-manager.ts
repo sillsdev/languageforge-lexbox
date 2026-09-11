@@ -105,6 +105,12 @@ export class ProjectManager {
     return (await this.getName()) || this.projectId;
   }
 
+  /**
+   * Options for a WebView scoped to one lexicon.
+   *
+   * These are a snapshot: an open view keeps the values it was given until a command reopens it,
+   * even after the project's lexicon selection changes.
+   */
   async getLexiconWebViewOptions(word?: string): Promise<LexiconWebViewOptions> {
     return {
       analysisLanguage: await this.getAnalysisLanguage(),

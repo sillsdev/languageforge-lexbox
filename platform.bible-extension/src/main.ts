@@ -173,9 +173,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success };
 
-      // The caller names the lexicon, so this never re-reads the project setting: an entry written
-      // to the lexicon a WebView holds must be shown from that same lexicon, even if the project
-      // has since been pointed at another one.
+      // An entry id resolves only in the lexicon it was written to, and the calling WebView is the
+      // only thing that knows which that was.
       if (!lexiconCode) {
         logger.warn(`Cannot display entry '${entryId}' without the lexicon holding it`);
         return { success };
@@ -296,9 +295,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   // DEV-ONLY: a quick lexicon switcher. Lexicon selection is intentionally sticky — once a project
   // has one, the only supported way to change it is clearing `lexicon.lexiconCode` in the project
-  // settings (the next lexicon action then reopens the selector). That setting is the one record of
-  // which lexicon a project uses, so other extensions read it too and clearing it unlinks them all. This menu command is a
-  // development convenience to be removed before release, along with:
+  // settings, which unlinks the project and makes the next lexicon action reopen the selector. This
+  // menu command is a development convenience to be removed before release, along with:
   //   - its entry in the `context.registrations.add(...)` list below,
   //   - the `lexicon.changeLexicon` handler type in `src/types/lexicon.d.ts`,
   //   - the `%lexicon_menu_selectLexicon%` menu item in `contributions/menus.json`, and
