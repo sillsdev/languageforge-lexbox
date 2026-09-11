@@ -71,13 +71,18 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
 
       logger.info(`Fetching entries for ${surfaceForm}`);
       setIsFetching(true);
-      let entries = (await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm })) ?? [];
-      // Only consider entries and senses with at least one semantic domain.
-      entries = entries
-        .map((e) => ({ ...e, senses: e.senses.filter((s) => s.semanticDomains.length) }))
-        .filter((e) => e.senses.length);
-      setIsFetching(false);
-      setMatchingEntries(entries);
+      try {
+        let entries = (await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm })) ?? [];
+        // Only consider entries and senses with at least one semantic domain.
+        entries = entries
+          .map((e) => ({ ...e, senses: e.senses.filter((s) => s.semanticDomains.length) }))
+          .filter((e) => e.senses.length);
+        setMatchingEntries(entries);
+      } catch (e) {
+        logger.error('Error fetching entries:', e);
+      } finally {
+        setIsFetching(false);
+      }
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings],
   );
@@ -93,9 +98,14 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
 
       logger.info(`Fetching entries in semantic domain ${semanticDomain}`);
       setIsFetching(true);
-      const entries = await lexiconNetworkObject.getEntries(lexiconCode, { semanticDomain });
-      setIsFetching(false);
-      setRelatedEntries(entries ?? []);
+      try {
+        const entries = await lexiconNetworkObject.getEntries(lexiconCode, { semanticDomain });
+        setRelatedEntries(entries ?? []);
+      } catch (e) {
+        logger.error('Error fetching related entries:', e);
+      } finally {
+        setIsFetching(false);
+      }
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings],
   );

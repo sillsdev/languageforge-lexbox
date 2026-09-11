@@ -45,8 +45,12 @@ globalThis.webViewComponent = function LexiconAddWord({
       setIsSubmitted(false);
       setIsSubmitting(true);
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const entryId = (await lexiconNetworkObject.addEntry(lexiconCode, entry))?.id;
-      setIsSubmitting(false);
+      let entryId: string | undefined;
+      try {
+        entryId = (await lexiconNetworkObject.addEntry(lexiconCode, entry))?.id;
+      } finally {
+        setIsSubmitting(false);
+      }
       if (entryId) {
         setIsSubmitted(true);
         await papi.commands.sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId);
