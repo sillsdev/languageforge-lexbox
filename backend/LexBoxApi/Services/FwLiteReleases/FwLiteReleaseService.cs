@@ -113,7 +113,7 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
 <AppInstaller
  Uri="https://lexbox.org/api/fwlite-release/FieldWorksLite.appinstaller"
  Version="{version}"
- xmlns="http://schemas.microsoft.com/appx/appinstaller/2021">
+ xmlns="http://schemas.microsoft.com/appx/appinstaller/2018">
  <MainBundle
    Name="FwLiteDesktop"
    Publisher="CN=&quot;Summer Institute of Linguistics, Inc.&quot;, O=&quot;Summer Institute of Linguistics, Inc.&quot;, L=Dallas, S=Texas, C=US"
