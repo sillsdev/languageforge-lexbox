@@ -31,6 +31,7 @@ The CI/CD setup is:
 | Workflow | Triggers | What it does | Time |
 |----------|----------|--------------|------|
 | `fw-lite.yaml` | FwLite code changes | Build .NET, run tests, build viewer, publish apps | ~40 min |
+| `fw-lite-release-notes.yaml` | Called by fw-lite / manual | Draft FW Lite release notes with Claude | ~5 min |
 | `lexbox-api.yaml` | Called by others | Build API, run unit tests, build Docker image | ~15 min |
 | `lexbox-ui.yaml` | Called by others | Build SvelteKit UI, build Docker image | ~10 min |
 | `lexbox-fw-headless.yaml` | Called by others | Build FwHeadless Docker image | ~10 min |
@@ -251,6 +252,11 @@ The workflow produces:
 - `fw-lite-web-linux` - Linux binaries
 - `fw-lite-windows-exe` - Windows binaries
 - `fw-lite-maui-msix` - MAUI installer
+- `fw-lite-release-notes` - Claude-drafted Play Store + forum notes (main only)
+
+### Release notes (main only)
+
+`release-notes` calls `fw-lite-release-notes.yaml`, which runs `anthropics/claude-code-action` with the repo's `release-notes` skill and uploads `whatsnew-en-US` (Play Store, ≤500 UTF-16 units) plus a forum draft (also in the job summary). `create-release` puts the forum draft in the GitHub release body (collapsed, ahead of the generated notes) and uses the Play Store text, unreviewed, for the Google Play beta upload, falling back to generic text if the job produced nothing. Claude reads PR text anyone could have written, so its tools can reach nothing but GitHub, read-only, and the drafting job drops notes that contain a credential or link outside our sites. The `production` environment approval on `create-release` is the human gate: read the draft in the drafting job's summary before approving. Auth is the `CLAUDE_CODE_OAUTH_TOKEN` secret (from `claude setup-token`); without it the job is a no-op. Test the drafting alone with `gh workflow run fw-lite-release-notes.yaml` (manual runs release nothing; dispatch only works once the file is on develop, so pre-merge testing goes through the sandbox fork's `fork-release-notes.yaml`).
 
 ---
 
