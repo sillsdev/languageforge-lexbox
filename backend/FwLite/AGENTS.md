@@ -201,6 +201,14 @@ This orchestrates the bidirectional sync:
    - `fwdataApi.Save()` must be called after changes
    - Missing this = data loss
 
+### Concurrency model: CRDT forgives, FwData doesn't
+
+Sync applies a diff of the stale last-synced snapshot vs current FwData onto CRDT, but a diff of live FwData vs live CRDT onto FwData. So a change reaching CRDT can be invalid (another client deleted or reparented its target since the snapshot), while a change reaching FwData is never stale. That's the point of a CRDT: it merges conflicting intent (delete-wins, etc.); FwData has no conflict resolution and must not fake one.
+
+Hence the `Submit*` write variants. Sync calls a `Submit*` where the plain method would throw on a concurrency-produced state — a `Create*`/`Update*` that reads back a deleted target, or a guard like `MoveExampleSentenceToSense`'s parent check. On CRDT the `Submit*` drops that and records the intent (delete-wins resolves it); on FwData it forwards to the strict method. Where the plain method is already tolerant (deletes, `MoveSenseToEntry`), sync calls it directly — no variant.
+
+So: add a `Submit*` only when the plain path throws on concurrency, route sync through it, keep the plain method strict. Never fix a sync wedge by weakening a strict method or making FwData forgiving.
+
 ### Testing Sync
 
 The gold standard is `FwLiteProjectSync.Tests/Sena3SyncTests.cs` which uses a real FwData project.

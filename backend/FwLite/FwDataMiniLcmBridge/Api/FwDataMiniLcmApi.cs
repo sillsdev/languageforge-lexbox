@@ -1479,6 +1479,7 @@ public class FwDataMiniLcmApi(
         lexEntry.SensesOS.Add(lexSense);
     }
 
+    // inserting/adding also re-parents an example currently owned by a different sense (LCM owning sequences move on insert)
     internal void InsertExampleSentence(ILexSense lexSense, ILexExampleSentence lexExample, BetweenPosition? between = null)
     {
         var previousExampleId = between?.Previous;
@@ -1541,11 +1542,11 @@ public class FwDataMiniLcmApi(
     public Task<Sense?> GetSense(Guid entryId, Guid id)
     {
         SenseRepository.TryGetObject(id, out var lcmSense);
-        if (lcmSense is not null) VerifySenseBelongsToEntry(entryId, lcmSense);
+        if (lcmSense is not null) ValidateOwnership(entryId, lcmSense);
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
     }
 
-    private void VerifySenseBelongsToEntry(Guid entryId, ILexSense sense)
+    private void ValidateOwnership(Guid entryId, ILexSense sense)
     {
         if (sense.Entry.Guid != entryId) throw new NotFoundException($"Sense {sense.Guid} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.Entry.Guid}", nameof(Sense));
     }
@@ -1565,7 +1566,7 @@ public class FwDataMiniLcmApi(
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert sense",
             Cache.ServiceLocator.ActionHandler,
@@ -1580,17 +1581,28 @@ public class FwDataMiniLcmApi(
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
         var lexSense = SenseRepository.GetObject(after.Id);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         await Cache.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert Sense",
             async () =>
             {
-                await SenseSync.Sync(entryId, before, after, api ?? this);
+                await SenseSync.Sync(entryId, before, after, api ?? this, SyncContext.Empty);
             });
         return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
     }
 
     public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    {
+        if (!SenseRepository.TryGetObject(senseId, out var lexSense))
+            throw new InvalidOperationException("Sense not found");
+        // the insert re-parents, so without this guard a mismatched entryId would silently move the sense
+        ValidateOwnership(entryId, lexSense);
+        return MoveSenseToEntry(entryId, senseId, between);
+    }
+
+    // repositioning and re-parenting are the same operation here: inserting into an LCM owning
+    // sequence moves the sense out of whatever entry currently owns it
+    public Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
     {
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
@@ -1671,7 +1683,7 @@ public class FwDataMiniLcmApi(
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Sense",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
@@ -1681,8 +1693,17 @@ public class FwDataMiniLcmApi(
 
     public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
-        ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence);
-        return Task.FromResult(lcmExampleSentence is null ? null : FromLexExampleSentence(senseId, lcmExampleSentence));
+        if (!ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence))
+            return Task.FromResult<ExampleSentence?>(null);
+        ValidateOwnership(entryId, senseId, lcmExampleSentence);
+        return Task.FromResult<ExampleSentence?>(FromLexExampleSentence(senseId, lcmExampleSentence));
+    }
+
+    private void ValidateOwnership(Guid entryId, Guid senseId, ILexExampleSentence exampleSentence)
+    {
+        if (exampleSentence.Owner is not ILexSense sense || sense.Guid != senseId)
+            throw new NotFoundException($"Example sentence {exampleSentence.Guid} does not belong to the expected sense, expected Id {senseId}, actual owner {exampleSentence.Owner.Guid}", nameof(ExampleSentence));
+        ValidateOwnership(entryId, sense);
     }
 
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence, BetweenPosition? between = null)
@@ -1757,14 +1778,21 @@ public class FwDataMiniLcmApi(
 
     public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between)
     {
-        if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
-            throw new InvalidOperationException("Entry not found");
+        if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
+            throw new InvalidOperationException("Example sentence not found");
+        // see MoveSense
+        ValidateOwnership(entryId, senseId, lexExample);
+        return MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, between);
+    }
+
+    // see MoveSenseToEntry: the insert re-parents
+    public Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between)
+    {
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
         if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
             throw new InvalidOperationException("Example sentence not found");
-
-        ValidateOwnership(lexExample, entryId, senseId);
+        ValidateOwnership(entryId, lexSense);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Example sentence",
             "Move Example sentence back",
@@ -2041,8 +2069,11 @@ public class FwDataMiniLcmApi(
     public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => await CreateComplexFormComponent(complexFormComponent, position);
     public async Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => await MoveComplexFormComponent(complexFormComponent, between);
     public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => await CreateSense(entryId, sense, position);
+    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position) => await MoveSense(entryId, senseId, position);
     public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => await UpdateSense(entryId, senseId, update);
     public async Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => await CreateExampleSentence(entryId, senseId, exampleSentence, position);
+    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position) => await MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+    public async Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position) => await MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
     public async Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => await UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
     public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => await UpdatePartOfSpeech(id, update);
     public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => await UpdatePicture(entryId, senseId, pictureId, update);

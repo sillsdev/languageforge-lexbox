@@ -1,5 +1,6 @@
 using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
+using MiniLcm.Exceptions;
 using MiniLcm.Models;
 
 namespace FwLiteProjectSync;
@@ -38,7 +39,16 @@ public static class CrdtRepairs
                     // because the API returns the Default ID and thus needs to anticipate it being passed back in.
                     snapshotTranslation.Id = exampleSentence.DefaultFirstTranslationId;
 
-                    var fwDataExampleSentence = await fwDataApi.GetExampleSentence(entry.Id, sense.Id, exampleSentence.Id);
+                    ExampleSentence? fwDataExampleSentence;
+                    try
+                    {
+                        fwDataExampleSentence = await fwDataApi.GetExampleSentence(entry.Id, sense.Id, exampleSentence.Id);
+                    }
+                    catch (NotFoundException)
+                    {
+                        // moved to another sense in FLEx; the move sync recreates the translation under fwdata's ID
+                        continue;
+                    }
                     if (fwDataExampleSentence is null)
                     {
                         // example sentence was deleted, so all translations will be deleted via cascade

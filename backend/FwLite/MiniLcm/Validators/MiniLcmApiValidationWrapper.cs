@@ -278,6 +278,16 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.SubmitMoveComplexFormComponent(complexFormComponent, between);
     }
 
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    {
+        return _api.SubmitMoveSense(entryId, senseId, position);
+    }
+
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    {
+        return _api.SubmitMoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+    }
+
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
         return _api.DeleteComplexFormComponent(complexFormComponent);
@@ -338,6 +348,11 @@ public partial class MiniLcmApiValidationWrapper(
     public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position)
     {
         return _api.MoveSense(entryId, senseId, position);
+    }
+
+    public Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition position)
+    {
+        return _api.MoveSenseToEntry(entryId, senseId, position);
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)
@@ -403,6 +418,16 @@ public partial class MiniLcmApiValidationWrapper(
     public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
     {
         return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+    }
+
+    public Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    {
+        return _api.MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
+    }
+
+    public Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    {
+        return _api.SubmitMoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)

@@ -9,12 +9,13 @@ public static class ExampleSentenceSync
         Guid senseId,
         IList<ExampleSentence> beforeExampleSentences,
         IList<ExampleSentence> afterExampleSentences,
-        IMiniLcmApi api)
+        IMiniLcmApi api,
+        SyncContext context)
     {
         return await DiffCollection.DiffOrderable(
             beforeExampleSentences,
             afterExampleSentences,
-            new ExampleSentencesDiffApi(api, entryId, senseId));
+            new ExampleSentencesDiffApi(api, entryId, senseId, context));
     }
 
     public static async Task<int> Sync(Guid entryId,
@@ -88,28 +89,38 @@ public static class ExampleSentenceSync
         }
     }
 
-    private class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : IOrderableCollectionDiffApi<ExampleSentence, Guid>
+    internal class ExampleSentencesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId, SyncContext context) : IOrderableCollectionDiffApi<ExampleSentence, Guid>
     {
         public Guid GetId(ExampleSentence value)
         {
             return value.Id;
         }
 
-        public async Task<int> Add(ExampleSentence afterExampleSentence, BetweenPosition<ExampleSentence> between)
+        public async Task<int> Add(ExampleSentence example, BetweenPosition<ExampleSentence> between)
         {
-            await api.SubmitCreateExampleSentence(entryId, senseId, afterExampleSentence, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
+            var position = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
+            // a known id arriving here is a move; its new parent's Add owns it, then a three-way sync applies edits
+            if (context.ExistedBefore(example) is { } before)
+            {
+                await api.SubmitMoveExampleSentenceToSense(entryId, senseId, example.Id, position);
+                return 1 + await Sync(entryId, senseId, before, example, api);
+            }
+            await api.SubmitCreateExampleSentence(entryId, senseId, example, position);
             return 1;
         }
 
         public async Task<int> Move(ExampleSentence example, BetweenPosition<ExampleSentence> between)
         {
-            await api.MoveExampleSentence(entryId, senseId, example.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
+            // tolerant: the example may have been deleted on the side we're applying to, making the reorder moot
+            await api.SubmitMoveExampleSentence(entryId, senseId, example.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
-        public async Task<int> Remove(ExampleSentence beforeExampleSentence)
+        public async Task<int> Remove(ExampleSentence example)
         {
-            await api.DeleteExampleSentence(entryId, senseId, beforeExampleSentence.Id);
+            // it was moved. Add will handle it.
+            if (context.StillExists(example)) return 0;
+            await api.DeleteExampleSentence(entryId, senseId, example.Id);
             return 1;
         }
 

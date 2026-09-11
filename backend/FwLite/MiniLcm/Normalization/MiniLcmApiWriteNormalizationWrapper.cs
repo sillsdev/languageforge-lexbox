@@ -312,6 +312,16 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         await _api.SubmitMoveComplexFormComponent(complexFormComponent, between);
     }
 
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    {
+        return _api.SubmitMoveSense(entryId, senseId, position);
+    }
+
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    {
+        return _api.SubmitMoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+    }
+
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
         return _api.DeleteComplexFormComponent(complexFormComponent);
@@ -395,6 +405,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.MoveSense(entryId, senseId, position);
     }
 
+    public Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition position)
+    {
+        return _api.MoveSenseToEntry(entryId, senseId, position);
+    }
+
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         return _api.DeleteSense(entryId, senseId);
@@ -460,6 +475,16 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
     {
         return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+    }
+
+    public Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    {
+        return _api.MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
+    }
+
+    public Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    {
+        return _api.SubmitMoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)

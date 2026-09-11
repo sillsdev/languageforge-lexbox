@@ -172,6 +172,16 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
+    {
+        return Task.CompletedTask;
+    }
+
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         return Task.CompletedTask;
@@ -216,6 +226,21 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
     }
 
     public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition position)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
     {
         return Task.CompletedTask;
     }
