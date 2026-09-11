@@ -54,9 +54,14 @@ globalThis.webViewComponent = function LexiconFindWord({
 
       logger.info(`Fetching entries for ${surfaceForm}`);
       setIsFetching(true);
-      const entries = await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm });
-      setIsFetching(false);
-      setMatchingEntries(entries ?? []);
+      try {
+        const entries = await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm });
+        setMatchingEntries(entries ?? []);
+      } catch (e) {
+        logger.error('Error fetching entries:', e);
+      } finally {
+        setIsFetching(false);
+      }
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings],
   );
