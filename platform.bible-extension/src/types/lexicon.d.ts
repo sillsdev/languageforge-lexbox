@@ -44,13 +44,47 @@ declare module 'lexicon' {
     readonly semanticDomain?: string;
   }
 
+  /**
+   * Reads and writes the lexical data of one lexicon at a time.
+   *
+   * Every method names the lexicon it acts on by its FW Lite lexicon code, so a caller that records
+   * which lexicon it is using reaches that lexicon and no other. Mapping a Paratext project to a
+   * lexicon is the caller's own business; this service holds no notion of a project.
+   *
+   * Absence resolves and faults reject, for every method that answers with a record. A lexicon that
+   * is not there, and a record it does not hold, both answer `undefined` — so a caller reading a
+   * record it recorded a reference to earlier handles a lexicon that has since been deleted the
+   * same way it handles a deleted record, without a `catch`. A rejection means the answer is
+   * unknown rather than "no": the backend is unreachable, or it answered with a fault.
+   *
+   * `deleteEntry` is outside that rule and rejects for a lexicon that is not there, since it has no
+   * value to answer absence with. Whether a delete against a vanished lexicon should instead read
+   * as done is open.
+   *
+   * A record `id` is one the lexicon minted, a GUID. An id in any other shape names no record the
+   * lexicon could hold, so it reads as absence rather than as a fault.
+   */
   export interface IEntryService {
-    getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined>;
-    getEntry(projectId: string, id: string): Promise<IEntry | undefined>;
-    getSense(projectId: string, id: string): Promise<ISense | undefined>;
-    addEntry(projectId: string, reference: PartialEntry): Promise<IEntry | undefined>;
-    updateEntry(projectId: string, reference: IEntry): Promise<void>;
-    deleteEntry(projectId: string, id: string): Promise<void>;
+    /**
+     * @param query - Ignored unless it narrows by surface form or semantic domain; a query that
+     *   narrows by neither matches nothing rather than everything.
+     * @returns The matching entries, or `undefined` when the query narrows by nothing or the
+     *   lexicon is not there. Empty when the lexicon holds no match.
+     */
+    getEntries(lexiconCode: string, query: IEntryQuery): Promise<IEntry[] | undefined>;
+    /** @returns The entry, or `undefined` when neither it nor its lexicon is there. */
+    getEntry(lexiconCode: string, id: string): Promise<IEntry | undefined>;
+    /** @returns The sense, or `undefined` when neither it nor its lexicon is there. */
+    getSense(lexiconCode: string, id: string): Promise<ISense | undefined>;
+    /**
+     * Adds an entry to the lexicon.
+     *
+     * @returns The created entry, carrying the ids the lexicon minted for it, or `undefined` when
+     *   the lexicon is not there. Rejects when the entry was refused.
+     */
+    addEntry(lexiconCode: string, entry: PartialEntry): Promise<IEntry | undefined>;
+    updateEntry(lexiconCode: string, entry: IEntry): Promise<void>;
+    deleteEntry(lexiconCode: string, id: string): Promise<void>;
   }
 
   /** Additions for options/props of project-specific WebViews. */
@@ -108,7 +142,16 @@ declare module 'papi-shared-types' {
       vernacularWs: string,
       analysisWs?: string,
     ) => Promise<SuccessHolder>;
-    'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
+    /**
+     * Opens the browse view on one entry of the lexicon named, rather than of whichever lexicon the
+     * project's setting holds by then — so an entry just written to one lexicon is never shown from
+     * another. `projectId` scopes the browse tab, which a later entry of the same project reuses.
+     */
+    'lexicon.displayEntry': (
+      projectId: string,
+      lexiconCode: string,
+      entryId: string,
+    ) => Promise<SuccessHolder>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.lexicons': (projectId?: string) => Promise<IProjectModel[] | undefined>;
