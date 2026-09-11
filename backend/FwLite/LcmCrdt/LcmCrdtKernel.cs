@@ -75,7 +75,15 @@ public static class LcmCrdtKernel
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<HarmonyChangeWriter>();
+
         services.AddScoped<CrdtWritingSystemApi>();
+        services.AddScoped<CrdtSemanticDomainsApi>();
+        services.AddScoped<CrdtPublicationApi>();
+        services.AddScoped<CrdtComplexFormComponentApi>();
+        services.AddScoped<CrdtMorphTypeApi>();
+        services.AddScoped<CrdtPartsOfSpeechApi>();
+        services.AddScoped<CrdtComplexFormTypesApi>();
+
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
