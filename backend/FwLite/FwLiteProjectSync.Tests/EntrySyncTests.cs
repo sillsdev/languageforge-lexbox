@@ -18,8 +18,15 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
         return fixture.CrdtApi;
     }
 
-    // These delete-win cases live only in the CRDT subclass: the CRDT deletion must win when an object it
-    // deleted is still edited from the other side, whereas FwData intentionally still throws on a missing target.
+    // Only CRDT can diverge from the diff's "before": sync diffs the snapshot against FwData and applies to CRDT,
+    // whereas the FwData pass diffs FwData's own current state. So these cases live only in the CRDT subclass.
+
+    // CRDT as a technology has to handle these cases anyway, which is why we sync in the order we do.
+
+    #region Edit of an object deleted in CRDT
+
+    // The CRDT deletion wins when the object it deleted is still edited from the other side
+    // (FwData intentionally still throws on a missing target).
 
     [Fact]
     public async Task SyncFull_EntryEditedButDeletedInCrdt_DoesNotThrow()
@@ -96,6 +103,12 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
         actual.Senses[0].ExampleSentences.Should().BeEmpty();
     }
 
+    #endregion
+
+    #region Complex form component referencing an entry deleted in CRDT
+
+    // Component adds and reorders touching an entry CRDT deleted are moot and must be skipped, not throw and wedge the whole sync.
+
     [Fact]
     public async Task SyncFull_ComplexFormComponentReferencingEntryDeletedInCrdt_DoesNotThrow()
     {
@@ -137,6 +150,8 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
 
         (await Api.GetEntry(before.Id)).Should().BeNull();
     }
+
+    #endregion
 }
 
 public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntrySyncTestsBase(fixture)

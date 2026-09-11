@@ -15,8 +15,15 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         return fixture.CrdtApi;
     }
 
-    // These delete-win cases live only in the CRDT subclass: the CRDT deletion must win when an object it
-    // deleted becomes a move's target from the other side, whereas FwData intentionally still throws on a missing target.
+    // Only CRDT can diverge from the diff's "before": sync diffs the snapshot against FwData and applies to CRDT,
+    // whereas the FwData pass diffs FwData's own current state. So these cases live only in the CRDT subclass.
+
+    // CRDT as a technology has to handle these cases anyway, which is why we sync in the order we do.
+
+    #region Move target deleted or reparented in CRDT
+
+    // The CRDT deletion wins when the object it deleted becomes a move's target from the other side
+    // (FwData intentionally still throws on a missing target).
 
     [Fact]
     public async Task SenseMovedToEntryDeletedInCrdt_IsDeleted()
@@ -53,8 +60,10 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         ExampleIds(actual.Senses[0]).Should().BeEmpty();
     }
 
+    // A target sense CRDT reparented since the snapshot is still a valid target: the example follows it to its new entry.
+
     [Fact]
-    public async Task ExampleMovedIntoSenseReparentedInCrdt_DoesNotWedge()
+    public async Task ExampleSentenceMovedToSenseReparentedInCrdt_FollowsSense()
     {
         var example = NewExample("example");
         var sourceSense = NewSense("source", example);
@@ -70,14 +79,15 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         MoveExample(after, example, targetSense.Id);
         await Sync([entry, otherEntry], after);
 
-        // the move still applies: the example follows the sense to its CRDT parent, sync doesn't wedge
         var movedTarget = (await GetEntry(otherEntry.Id)).Senses.Single(s => s.Id == targetSense.Id);
         ExampleIds(movedTarget).Should().Equal(example.Id);
     }
 
-    // Only CRDT can diverge from the diff's "before": sync diffs the snapshot against FwData and applies to CRDT,
-    // whereas the FwData pass diffs FwData's own current state. A reorder of an item CRDT deleted or reparented
-    // since the snapshot is moot and must be skipped, not throw and wedge the whole sync.
+    #endregion
+
+    #region Reorder of an item deleted or reparented in CRDT
+
+    // Such a reorder is moot and must be skipped, not throw and wedge the whole sync.
 
     [Fact]
     public async Task ReorderingASenseDeletedInCrdt_DoesNotWedge()
@@ -172,6 +182,8 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         ExampleIds(actual.Senses[0]).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
         ExampleIds(actual.Senses[1]).Should().Equal(moved.Id);
     }
+
+    #endregion
 }
 
 public class FwDataEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryMoveSyncTestsBase(fixture)
