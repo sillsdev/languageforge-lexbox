@@ -25,7 +25,7 @@ public class ProjectService(
     IEmailService emailService,
     FwHeadlessClient fwHeadless)
 {
-    public async Task<Guid> CreateProject(CreateProjectInput input)
+    public async Task<Guid> CreateProject(CreateProjectInput input, ProjectMigrationStatus? projectOrigin = null)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var projectId = input.Id ?? Guid.NewGuid();
@@ -41,7 +41,7 @@ public class ProjectService(
                 Id = projectId,
                 Code = input.Code,
                 Name = input.Name,
-                ProjectOrigin = ProjectMigrationStatus.Migrated,
+                ProjectOrigin = projectOrigin ?? ProjectMigrationStatus.Migrated,
                 Description = input.Description,
                 Type = input.Type,
                 LastCommit = null,
@@ -230,6 +230,31 @@ public class ProjectService(
         InvalidateProjectOrgIdsCache(projectId);
         await dbContext.SaveChangesAsync();
         return project;
+    }
+
+    /// <summary>
+    /// Compensating cleanup for a project whose template population failed after CreateProject:
+    /// deletes FwHeadless's local project state, then removes the repo and the project row and
+    /// invalidates the same caches as a permanent delete.
+    /// Unlike DeleteProjectPermanently this is not gated on retention policy, because it only undoes a
+    /// project this same request just created.
+    /// </summary>
+    public async Task CleanupFailedProjectCreation(Guid projectId, string code)
+    {
+        // do this first, because it throws if a creation or sync is in progress, which stops us from
+        // tearing down an active or already-completed creation (mirrors DeleteProjectPermanently)
+        await fwHeadless.DeleteProject(projectId);
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project is not null)
+        {
+            dbContext.Projects.Remove(project);
+            await dbContext.SaveChangesAsync();
+        }
+        await hgService.DeleteRepoIfExists(code);
+        // Don't forget to add more Invalidate calls here if we add new caches
+        InvalidateProjectCodeCache(code);
+        InvalidateProjectConfidentialityCache(projectId);
+        InvalidateProjectOrgIdsCache(projectId);
     }
 
     public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
