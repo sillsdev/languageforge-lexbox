@@ -1,0 +1,44 @@
+name: Check help links
+
+# Field help icons link to FieldWorks doc pages hosted off-site. Those links rot when the
+# docs site changes, not when we change code, so this runs on a timer instead of per-PR
+# (which would also make PR CI hostage to an external site's availability).
+on:
+  schedule:
+    - cron: '17 8 * * 1' # Mondays 08:17 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: check-help-links
+  cancel-in-progress: false
+
+jobs:
+  check-help-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240 # allows the on-failure retry to sleep for hours and stay under the 6h job cap
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: install
+        working-directory: frontend
+        run: pnpm install
+      - name: check help links
+        working-directory: frontend/viewer
+        # On a scheduled run, retry once after a delay so a brief docs-site outage doesn't cry
+        # wolf: the job goes red (and notifies) only if a link is still broken hours later.
+        # A manual run fails immediately so you get an answer without the wait.
+        run: |
+          if pnpm run test:manual; then
+            exit 0
+          fi
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            exit 1
+          fi
+          echo "::warning::Help-link check failed; retrying in 3h in case the docs site was briefly down."
+          sleep 3h
+          pnpm run test:manual
