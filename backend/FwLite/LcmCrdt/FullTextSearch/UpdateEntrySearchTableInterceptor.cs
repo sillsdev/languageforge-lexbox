@@ -2,11 +2,66 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Caching.Memory;
+using SIL.Harmony.Db;
 
 namespace LcmCrdt.FullTextSearch;
 
-public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor
+// Keeps the FTS entry-search table in sync with entry/sense/morph-type changes.
+//
+// Two entry points are needed because there are two ways the projected tables are written:
+//   * IProjectedEntityInterceptor — Harmony projects CRDT entities to the SQL tables with raw SQL
+//     (bypassing EF change tracking), so this is the path exercised by the normal API (AddChange).
+//   * ISaveChangesInterceptor — direct EF writes to the projected tables (e.g. tests, and any code
+//     that edits the projected DbSets and calls SaveChanges) still go through EF change tracking.
+// A given write goes through exactly one of these paths, so there is no double processing.
+public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor, IProjectedEntityInterceptor
 {
+    public async ValueTask OnProjectedEntitiesChanged(ProjectedEntityBatch batch)
+    {
+        if (batch.DbContext is not LcmCrdtDbContext dbContext) return;
+
+        // A morph type's prefix/postfix tokens feed into every entry's headword, so any morph-type
+        // change invalidates the whole search table. Morph types are seeded and only ever modified
+        // (never added or deleted) in normal use, so this is rare.
+        var morphTypeChanged = batch.Changes.Any(c => c.ClrType == typeof(MorphType));
+        if (morphTypeChanged)
+        {
+            await EntrySearchService.RegenerateEntrySearchTable(dbContext);
+            return;
+        }
+
+        var entryIdsToRemove = new List<Guid>();
+        var entryIdsToUpdate = new HashSet<Guid>();
+        foreach (var change in batch.Changes)
+        {
+            if (change.ClrType == typeof(Entry))
+            {
+                if (change.Kind == ProjectedChangeKind.Delete) entryIdsToRemove.Add(change.EntityId);
+                else entryIdsToUpdate.Add(change.EntityId);
+            }
+            else if (change.Entity is Sense sense)
+            {
+                // A sense change (including deletion) updates its parent entry's search record.
+                entryIdsToUpdate.Add(sense.EntryId);
+            }
+        }
+        // A deleted entry is removed, not re-indexed, even if one of its senses also changed.
+        entryIdsToUpdate.ExceptWith(entryIdsToRemove);
+
+        if (entryIdsToUpdate.Count == 0 && entryIdsToRemove.Count == 0) return;
+
+        Entry[] toUpdate = entryIdsToUpdate.Count == 0
+            ? []
+            : await dbContext.Set<Entry>()
+                .Include(e => e.Senses)
+                .Where(e => entryIdsToUpdate.Contains(e.Id))
+                .ToArrayAsync();
+        // The projection SQL has already run, so dbContext.WritingSystems reflects any writing systems
+        // added in this batch; no separate newWritingSystems list is needed (unlike the EF path below,
+        // which runs before SaveChanges commits).
+        await EntrySearchService.UpdateEntrySearchTable(toUpdate, entryIdsToRemove, [], dbContext);
+    }
+
     private bool EntryTableNeedsRegeneration { get; set; } = false;
     public InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {

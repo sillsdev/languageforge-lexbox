@@ -2,6 +2,12 @@
   <PropertyGroup>
     <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
   </PropertyGroup>
+  <!-- TEMPORARY: when building against the published SIL.Harmony package (which lacks
+       IProjectedEntityInterceptor), compile the local shim in HarmonyProjectedEntityInterceptorShim.cs.
+       Remove this along with the shim once the Harmony PR is released and the package version is bumped. -->
+  <PropertyGroup Condition="'$(UseHarmonySource)' != 'true'">
+    <DefineConstants>$(DefineConstants);HARMONY_PACKAGE_SHIM</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="LcmCrdt.Tests" />
     <InternalsVisibleTo Include="FwLiteProjectSync.Tests" />

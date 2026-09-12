@@ -9,53 +9,94 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using MiniLcm.Culture;
 using SIL.Harmony;
+using SIL.Harmony.Db;
 
 namespace LcmCrdt.Data;
 
-public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider, IOptions<HarmonyConfig> harmonyConfig) : IDbConnectionInterceptor, ISaveChangesInterceptor, IConnectionInterceptor
+public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider, IOptions<HarmonyConfig> harmonyConfig)
+    : IDbConnectionInterceptor, ISaveChangesInterceptor, IConnectionInterceptor, IProjectedEntityInterceptor
 {
     private static string? WsTableName = null;
+
+    // Cached writing-system lists are tied to this token so they can all be dropped at once whenever a
+    // writing system is added or changed — otherwise a connection that cached the list before the change
+    // (its cache key includes the connection string, so it isn't cleared by a per-connection invalidation
+    // on the writing connection) would keep registering a stale set of collations.
+    private CancellationTokenSource _writingSystemsCacheReset = new();
     private WritingSystem[] GetWritingSystems(DbConnection connection, LcmCrdtDbContext? dbContext = null)
     {
-        return cache.GetOrCreate(CacheKey(connection),
-            entry =>
+        var cacheKey = CacheKey(connection);
+        if (cache.TryGetValue<WritingSystem[]>(cacheKey, out var cached) && cached is { Length: > 0 })
+            return cached;
+
+        try
+        {
+            var localContext = dbContext;
+            if (localContext is null)
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                try
-                {
-                    var localContext = dbContext;
-                    if (localContext is null)
-                    {
-                        var optionsBuilder = new DbContextOptionsBuilder<LcmCrdtDbContext>();
-                        optionsBuilder.UseSqlite(connection);
-                        localContext = new LcmCrdtDbContext(optionsBuilder.Options, harmonyConfig);
-                    }
+                var optionsBuilder = new DbContextOptionsBuilder<LcmCrdtDbContext>();
+                optionsBuilder.UseSqlite(connection);
+                localContext = new LcmCrdtDbContext(optionsBuilder.Options, harmonyConfig);
+            }
 
-                    try
-                    {
-                        WsTableName ??= localContext.Model.FindRuntimeEntityType(typeof(WritingSystem))?.GetTableName() ?? "WritingSystem";
-                        if (!HasTable(localContext, WsTableName))
-                        {
-                            return [];
-                        }
-
-                        return localContext.WritingSystems.ToArray();
-                    }
-                    finally
-                    {
-                        if (dbContext is null)
-                        {
-                            localContext.Dispose();
-                        }
-                    }
-                }
-                catch (SqliteException)
+            try
+            {
+                WsTableName ??= localContext.Model.FindRuntimeEntityType(typeof(WritingSystem))?.GetTableName() ?? "WritingSystem";
+                if (!HasTable(localContext, WsTableName))
                 {
                     return [];
                 }
-            }) ?? [];
+
+                var writingSystems = localContext.WritingSystems.ToArray();
+                // Only cache a non-empty result. Caching an empty list would poison the cache: a
+                // connection that opens before writing systems are populated (e.g. during database
+                // initialization) would otherwise pin an empty result for the sliding-expiration window,
+                // so writing-system collations would never get registered once the rows exist — leading
+                // to "no such collation sequence" errors on later queries. An empty result is cheap to
+                // recompute and means there are no writing-system collations to register anyway.
+                if (writingSystems.Length > 0)
+                {
+                    var options = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(30) };
+                    options.AddExpirationToken(new CancellationChangeToken(_writingSystemsCacheReset.Token));
+                    cache.Set(cacheKey, writingSystems, options);
+                }
+                return writingSystems;
+            }
+            finally
+            {
+                if (dbContext is null)
+                {
+                    localContext.Dispose();
+                }
+            }
+        }
+        catch (SqliteException)
+        {
+            return [];
+        }
+    }
+
+    /// <summary>
+    /// Ensures the general-use and writing-system-specific collations are registered on the given
+    /// context's connection. Call this immediately before running a query that relies on a
+    /// writing-system collation (e.g. sorting/filtering headwords).
+    /// </summary>
+    /// <remarks>
+    /// The connection-opened interceptors register collations when a connection opens, but that is not
+    /// enough on its own: a connection can be opened before the writing systems (or even the schema)
+    /// exist, and it is then reused for later queries without the interceptor firing again. Registering
+    /// collations here — on the connection that is about to run the query — makes collation availability
+    /// independent of when the connection happened to open.
+    /// </remarks>
+    public async ValueTask EnsureCollationsSetup(LcmCrdtDbContext dbContext)
+    {
+        var connection = (SqliteConnection)dbContext.Database.GetDbConnection();
+        if (connection.State != ConnectionState.Open)
+            await dbContext.Database.OpenConnectionAsync();
+        SetupCommonCollations(connection, GetWritingSystems(connection, dbContext));
     }
 
     private bool HasTable(DbContext context, string tableName)
@@ -70,9 +111,28 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         return $"writingSystems|{connection.ConnectionString}";
     }
 
-    private void InvalidateWritingSystemsCache(DbConnection connection)
+    /// <summary>
+    /// Drops every cached writing-system list (across all connections) so the next query re-reads the
+    /// current set and registers any newly added writing-system collation.
+    /// </summary>
+    private void InvalidateAllWritingSystemsCaches()
     {
-        cache.Remove(CacheKey(connection));
+        var previous = Interlocked.Exchange(ref _writingSystemsCacheReset, new CancellationTokenSource());
+        // Cancelling evicts every cache entry linked to this token. Deliberately not disposed: a
+        // concurrent GetWritingSystems may still read its Token, and a cancelled source with no
+        // registrations left is cheap and collected once unreferenced.
+        previous.Cancel();
+    }
+
+    // Harmony projects writing-system changes with raw SQL, bypassing EF change tracking, so the
+    // ISaveChangesInterceptor path below never sees them for API-driven writes. React to the projected
+    // change here instead: invalidate the cached writing-system lists so later queries pick up the new
+    // writing system and register its collation.
+    public ValueTask OnProjectedEntitiesChanged(ProjectedEntityBatch batch)
+    {
+        if (batch.Changes.Any(c => c.ClrType == typeof(WritingSystem)))
+            InvalidateAllWritingSystemsCaches();
+        return ValueTask.CompletedTask;
     }
 
     private void SetupCommonCollations(SqliteConnection sqliteConnection, WritingSystem[]? writingSystems = null)
@@ -127,9 +187,8 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
     {
         if (connection is not SqliteConnection sqliteConnection) return;
 
-        // Only setup basic collation - writing system collations come from EF Core path
-        // Note: Collations persist on the connection, so if EF already opened this connection,
-        // this is redundant but harmless. SQLite allows re-registering collations.
+        // Collations persist on the connection, so if EF already opened this connection, this is
+        // redundant but harmless. SQLite allows re-registering collations.
         SetupCommonCollations(sqliteConnection, GetWritingSystems(connection));
     }
 
@@ -173,7 +232,9 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
 
         if (updateWs)
         {
-            InvalidateWritingSystemsCache(connection);
+            // Drop every connection's cached list, not just this one's, so reads on other connections
+            // re-read the new writing system and register its collation.
+            InvalidateAllWritingSystemsCaches();
         }
     }
 
