@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
+using FwLiteProjectSync.Pipeline;
 using LcmCrdt;
 using LexCore.Sync;
 using Microsoft.Extensions.Logging;
@@ -129,35 +130,7 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
 
     private async Task<SyncResult> SyncInternal(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, ProjectSnapshot projectSnapshot)
     {
-        var currentFwDataWritingSystems = await fwdataApi.GetWritingSystems();
-        var crdtChanges = await WritingSystemSync.Sync(projectSnapshot.WritingSystems, currentFwDataWritingSystems, crdtApi);
-        var fwdataChanges = await WritingSystemSync.Sync(currentFwDataWritingSystems, await crdtApi.GetWritingSystems(), fwdataApi);
-
-        var currentFwDataPublications = await fwdataApi.GetPublications().ToArrayAsync();
-        crdtChanges += await PublicationSync.Sync(projectSnapshot.Publications, currentFwDataPublications, crdtApi);
-        fwdataChanges += await PublicationSync.Sync(currentFwDataPublications, await crdtApi.GetPublications().ToArrayAsync(), fwdataApi);
-
-        var currentFwDataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
-        crdtChanges += await PartOfSpeechSync.Sync(projectSnapshot.PartsOfSpeech, currentFwDataPartsOfSpeech, crdtApi);
-        fwdataChanges += await PartOfSpeechSync.Sync(currentFwDataPartsOfSpeech, await crdtApi.GetPartsOfSpeech().ToArrayAsync(), fwdataApi);
-
-        var currentFwDataSemanticDomains = await fwdataApi.GetSemanticDomains().ToArrayAsync();
-        crdtChanges += await SemanticDomainSync.Sync(projectSnapshot.SemanticDomains, currentFwDataSemanticDomains, crdtApi);
-        fwdataChanges += await SemanticDomainSync.Sync(currentFwDataSemanticDomains, await crdtApi.GetSemanticDomains().ToArrayAsync(), fwdataApi);
-
-        var currentFwDataComplexFormTypes = await fwdataApi.GetComplexFormTypes().ToArrayAsync();
-        crdtChanges += await ComplexFormTypeSync.Sync(projectSnapshot.ComplexFormTypes, currentFwDataComplexFormTypes, crdtApi);
-        fwdataChanges += await ComplexFormTypeSync.Sync(currentFwDataComplexFormTypes, await crdtApi.GetComplexFormTypes().ToArrayAsync(), fwdataApi);
-
-        var currentFwDataMorphTypes = await fwdataApi.GetMorphTypes().ToArrayAsync();
-        crdtChanges += await MorphTypeSync.Sync(projectSnapshot.MorphTypes, currentFwDataMorphTypes, crdtApi);
-        fwdataChanges += await MorphTypeSync.Sync(currentFwDataMorphTypes, await crdtApi.GetMorphTypes().ToArrayAsync(), fwdataApi);
-
-        var currentFwDataEntries = await fwdataApi.GetAllEntries().ToArrayAsync();
-        crdtChanges += await EntrySync.SyncFull(projectSnapshot.Entries, currentFwDataEntries, crdtApi);
-        fwdataChanges += await EntrySync.SyncFull(currentFwDataEntries, await crdtApi.GetAllEntries().ToArrayAsync(), fwdataApi);
-
-        return new SyncResult(crdtChanges, fwdataChanges);
+        return await SyncPipeline.Execute(SyncSteps.CreateInitialSteps(), crdtApi, fwdataApi, projectSnapshot);
     }
 
     private void LogRecordedRun(IMiniLcmApi api, string type)
