@@ -1586,7 +1586,8 @@ public class FwDataMiniLcmApi(
             "Revert Sense",
             async () =>
             {
-                await SenseSync.Sync(entryId, before, after, api ?? this, SyncContext.Empty);
+                await SenseSync.Sync(entryId, before, after, api ?? this,
+                    SyncContext.For(before, after, deferDeletes: false));
             });
         return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
     }

@@ -11,19 +11,39 @@ public class SyncContextTests
         return new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "entry" } }, Senses = [.. senses] };
     }
 
+    private static Sense NewSense()
+    {
+        return new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "gloss" } } };
+    }
+
+    private static Sense NewSense(params ExampleSentence[] examples)
+    {
+        return new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "gloss" } }, ExampleSentences = [.. examples] };
+    }
+
     private static Sense NewSense(params Picture[] pictures)
     {
         return new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "gloss" } }, Pictures = [.. pictures] };
     }
 
-    private static ExampleSentence NewExample()
+    private static ExampleSentence NewExample(params Translation[] translations)
     {
-        return new ExampleSentence { Id = Guid.NewGuid(), Sentence = { { "en", new RichString("example") } } };
+        return new ExampleSentence
+        {
+            Id = Guid.NewGuid(),
+            Sentence = { { "en", new RichString("example") } },
+            Translations = [.. translations],
+        };
     }
 
     private static Picture NewPicture()
     {
         return new Picture { Id = Guid.NewGuid(), MediaUri = new MediaUri(Guid.NewGuid(), "test") };
+    }
+
+    private static Translation NewTranslation()
+    {
+        return new Translation { Id = Guid.NewGuid(), Text = { { "en", new RichString("translation") } } };
     }
 
     #region Move indexes
@@ -55,8 +75,7 @@ public class SyncContextTests
     {
         var example = NewExample();
         var doomed = NewExample();
-        var sourceSense = NewSense();
-        sourceSense.ExampleSentences = [example, doomed];
+        var sourceSense = NewSense(example, doomed);
         var targetSense = NewSense();
         var entry = NewEntry(sourceSense, targetSense);
 
@@ -82,14 +101,11 @@ public class SyncContextTests
     {
         var movedInSense = NewSense();
         var movedInExample = NewExample();
-        var newSenseHoldingAMovedInExample = NewSense();
-        newSenseHoldingAMovedInExample.ExampleSentences = [movedInExample];
-        var newSenseWithNewExample = NewSense();
-        newSenseWithNewExample.ExampleSentences = [NewExample()];
+        var newSenseHoldingAMovedInExample = NewSense(movedInExample);
+        var newSenseWithNewExample = NewSense(NewExample());
 
         // before: the sense lives under some other entry, the example under some other sense
-        var otherSense = NewSense();
-        otherSense.ExampleSentences = [movedInExample.Copy()];
+        var otherSense = NewSense(movedInExample.Copy());
         var otherEntry = NewEntry(movedInSense.Copy(), otherSense);
         var created = NewEntry(newSenseHoldingAMovedInExample, newSenseWithNewExample, movedInSense);
 
@@ -116,12 +132,10 @@ public class SyncContextTests
     {
         var movedInExample = NewExample();
         var newExample = NewExample();
-        var sourceSense = NewSense();
-        sourceSense.ExampleSentences = [movedInExample.Copy()];
+        var sourceSense = NewSense(movedInExample.Copy());
         var before = NewEntry(sourceSense);
 
-        var createdSense = NewSense();
-        createdSense.ExampleSentences = [movedInExample, newExample];
+        var createdSense = NewSense(movedInExample, newExample);
         // after: the example has left sourceSense, so its id lives in exactly one place
         var sourceSenseAfter = sourceSense.Copy();
         sourceSenseAfter.ExampleSentences.Clear();
@@ -139,8 +153,7 @@ public class SyncContextTests
     [Fact]
     public void HasMovedInDescendants_IsFalse_WhenEverythingIsNew()
     {
-        var newSense = NewSense();
-        newSense.ExampleSentences = [NewExample()];
+        var newSense = NewSense(NewExample());
         var created = NewEntry(newSense);
 
         var context = SyncContext.For([NewEntry()], [NewEntry(), created]);
@@ -176,30 +189,28 @@ public class SyncContextTests
     }
 
     [Fact]
-    public async Task For_DefersDeletes_UntilDeleteAll()
+    public async Task WithDeferDeletes_DeferUntilDeleteAll()
     {
-        var context = SyncContext.For([NewEntry()], [NewEntry()]);
+        var context = SyncContext.For([NewEntry()], [NewEntry()], deferDeletes: true);
         var deleted = false;
 
-        (await context.DeferDelete(() => { deleted = true; return Task.FromResult(1); })).Should().Be(0);
-        deleted.Should().BeFalse("a project sync defers deletes to the end of the walk");
+        (await context.HandleDelete(() => { deleted = true; return Task.FromResult(1); })).Should().Be(0);
+        deleted.Should().BeFalse("deletes should be deferred");
 
-        (await context.DeleteAll()).Should().Be(1);
+        (await context.FlushDeletes()).Should().Be(1);
         deleted.Should().BeTrue();
     }
 
     [Fact]
-    public async Task Empty_RejectsDeferredDeletes_AndDetectsNoMoves()
+    public async Task WithoutDeferDeletes_DoNotDefer()
     {
-        SyncContext.Empty.ExistedBefore(NewSense()).Should().BeNull();
-        SyncContext.Empty.StillExists(NewSense()).Should().BeFalse();
-
-        // Empty tracks no moves, so nothing drains its queue; deferring here would silently drop the delete.
+        var context = SyncContext.For([NewEntry()], [NewEntry()], deferDeletes: false);
         var deleted = false;
-        await FluentActions.Awaiting(() => SyncContext.Empty.DeferDelete(() => { deleted = true; return Task.FromResult(1); }))
-            .Should().ThrowAsync<InvalidOperationException>();
-        deleted.Should().BeFalse();
-        (await SyncContext.Empty.DeleteAll()).Should().Be(0);
+
+        (await context.HandleDelete(() => { deleted = true; return Task.FromResult(1); })).Should().Be(1);
+        deleted.Should().BeTrue("deletes should not be deferred");
+
+        (await context.FlushDeletes()).Should().Be(0);
     }
 
     #endregion
@@ -221,6 +232,26 @@ public class SyncContextTests
         var act = () => SyncContext.For(before, after);
         act.Should().Throw<MoveNotSupportedException>()
             .WithMessage($"*{picture.Id}*{sourceSense.Id}*{targetSense.Id}*");
+        act = () => SyncContext.For([before], [after]);
+        act.Should().Throw<MoveNotSupportedException>();
+    }
+
+    [Fact]
+    public void TranslationMovedToDifferentExampleSentence_Throws()
+    {
+        var translation = NewTranslation();
+        var sourceExample = NewExample(translation);
+        var targetExample = NewExample();
+        var sense = NewSense(sourceExample, targetExample);
+        var before = NewEntry(sense);
+
+        var after = before.Copy();
+        after.Senses.Single().ExampleSentences[0].Translations.Clear();
+        after.Senses.Single().ExampleSentences[1].Translations.Add(translation.Copy());
+
+        var act = () => SyncContext.For(before, after);
+        act.Should().Throw<MoveNotSupportedException>()
+            .WithMessage($"*{translation.Id}*{sourceExample.Id}*{targetExample.Id}*");
         act = () => SyncContext.For([before], [after]);
         act.Should().Throw<MoveNotSupportedException>();
     }

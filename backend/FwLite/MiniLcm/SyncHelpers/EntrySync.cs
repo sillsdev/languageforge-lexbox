@@ -23,7 +23,7 @@ public static class EntrySync
     {
         var context = SyncContext.For(beforeEntries, afterEntries);
         var (changes, added) = await DiffCollection.DiffAndGetAdded(beforeEntries, afterEntries, new EntriesDiffApi(api, context));
-        changes += await context.DeleteAll();
+        changes += await context.FlushDeletes();
         return (changes, added);
     }
 
@@ -48,7 +48,7 @@ public static class EntrySync
     {
         var context = SyncContext.For(beforeEntry, afterEntry);
         var changes = await SyncWithoutComplexFormsAndComponents(beforeEntry, afterEntry, api, context);
-        changes += await context.DeleteAll();
+        changes += await context.FlushDeletes();
         changes += await SyncComplexFormsAndComponents(beforeEntry, afterEntry, api);
         return changes;
     }
@@ -154,7 +154,7 @@ public static class EntrySync
         public override async Task<(int, Entry)> AddAndGet(Entry afterEntry)
         {
             // a moved-in descendant still lives under its old parent, so it can't ride along in the create;
-            // create the entry without it, then let the recursive sync move it in.
+            // create the entry without it, then let the entry sync move it in.
             if (!context.HasMovedInDescendants(afterEntry))
                 return (1, await api.CreateEntry(afterEntry, CreateEntryOptions.WithoutComplexFormsAndComponents));
             var payload = context.WithoutMovedInDescendants(afterEntry);
@@ -166,7 +166,7 @@ public static class EntrySync
         public override Task<int> Remove(Entry entry)
         {
             // defer, so senses can be moved out before being cascade-deleted
-            return context.DeferDelete(async () =>
+            return context.HandleDelete(async () =>
             {
                 await api.DeleteEntry(entry.Id);
                 return 1;
@@ -332,7 +332,7 @@ public static class EntrySync
             }
 
             // defer, so example-sentences can be moved out before being cascade-deleted
-            return context.DeferDelete(async () =>
+            return context.HandleDelete(async () =>
             {
                 await api.DeleteSense(entryId, sense.Id);
                 return 1;

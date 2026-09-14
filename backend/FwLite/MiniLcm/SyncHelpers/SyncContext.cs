@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using MiniLcm.Exceptions;
 using MiniLcm.Models;
 
@@ -5,11 +6,6 @@ namespace MiniLcm.SyncHelpers;
 
 public class SyncContext
 {
-    /// <summary>No move detection: every add is a create and every delete runs immediately. For syncing a subtree on its own.</summary>
-    public static readonly SyncContext Empty = new(deferDeletes: false,
-        new Dictionary<Guid, Sense>(), new Dictionary<Guid, Sense>(),
-        new Dictionary<Guid, ExampleSentence>(), new Dictionary<Guid, ExampleSentence>());
-
     private readonly bool _deferDeletes;
     private readonly DeferredDeletes _deferredDeletes = new();
     private readonly IReadOnlyDictionary<Guid, Sense> _sensesBefore;
@@ -37,16 +33,24 @@ public class SyncContext
     {
     }
 
-    public static SyncContext For(Entry[] beforeEntries, Entry[] afterEntries)
+    public static SyncContext For(Entry[] beforeEntries, Entry[] afterEntries, bool deferDeletes = true)
     {
         VerifyNoUnsupportedMoves(beforeEntries, afterEntries);
-        return new SyncContext(deferDeletes: true, All(beforeEntries), All(afterEntries));
+        return new SyncContext(deferDeletes, All(beforeEntries), All(afterEntries));
     }
 
-    public static SyncContext For(Entry beforeEntry, Entry afterEntry)
+    public static SyncContext For(Entry beforeEntry, Entry afterEntry, bool deferDeletes = true)
     {
         if (beforeEntry.Id != afterEntry.Id) throw new ArgumentException("Entry ids must match", nameof(afterEntry));
-        return For([beforeEntry], [afterEntry]);
+        return For([beforeEntry], [afterEntry], deferDeletes);
+    }
+
+    public static SyncContext For(Sense beforeSense, Sense afterSense, bool deferDeletes = false)
+    {
+        if (beforeSense.Id != afterSense.Id) throw new ArgumentException("Sense ids must match", nameof(afterSense));
+        return new SyncContext(deferDeletes,
+            (new Dictionary<Guid, Sense>() { { beforeSense.Id, beforeSense } }, beforeSense.ExampleSentences.ToDictionary(e => e.Id)),
+            (new Dictionary<Guid, Sense>() { { afterSense.Id, afterSense } }, afterSense.ExampleSentences.ToDictionary(e => e.Id)));
     }
 
     /// <summary>Used to differentiate an add/create from what is actually a reparent</summary>
@@ -57,11 +61,10 @@ public class SyncContext
     public bool StillExists(Sense sense) => _sensesAfter.ContainsKey(sense.Id);
     public bool StillExists(ExampleSentence example) => _examplesAfter.ContainsKey(example.Id);
 
-    // Empty tracks no moves, so nothing drains its queue; a caller reaching here would silently drop the delete.
-    public Task<int> DeferDelete(Func<Task<int>> delete) => _deferDeletes
+    public Task<int> HandleDelete(Func<Task<int>> delete) => _deferDeletes
         ? _deferredDeletes.Defer(delete)
-        : throw new InvalidOperationException("this SyncContext tracks no moves, so deferred deletes are never drained; delete inline instead");
-    public Task<int> DeleteAll() => _deferredDeletes.DeleteAll();
+        : delete.Invoke();
+    public Task<int> FlushDeletes() => _deferredDeletes.DeleteAll();
 
     public bool HasMovedInDescendants(Entry entry) => entry.Senses.Any(s => ExistedBefore(s) is not null || HasMovedInDescendants(s));
     public bool HasMovedInDescendants(Sense sense) => sense.ExampleSentences.Any(e => ExistedBefore(e) is not null);
@@ -144,22 +147,21 @@ public class SyncContext
 /// <summary>Queues deletes so a subtree's children can be moved out before their old parent is deleted.</summary>
 public class DeferredDeletes
 {
-    private readonly List<Func<Task<int>>> _deletes = [];
+    private readonly ConcurrentQueue<Func<Task<int>>> _deletes = new();
 
     /// <summary>Queues the delete; returns 0 changes now (they're counted when the queue is drained).</summary>
     public Task<int> Defer(Func<Task<int>> delete)
     {
-        _deletes.Add(delete);
+        _deletes.Enqueue(delete);
         return Task.FromResult(0);
     }
 
     public async Task<int> DeleteAll()
     {
         var changes = 0;
-        // by index so a delete that queues another extends the drain instead of throwing
-        for (var i = 0; i < _deletes.Count; i++)
-            changes += await _deletes[i]();
-        _deletes.Clear();
+        // dequeue as we go so a delete that queues another extends the drain
+        while (_deletes.TryDequeue(out var delete))
+            changes += await delete();
         return changes;
     }
 }

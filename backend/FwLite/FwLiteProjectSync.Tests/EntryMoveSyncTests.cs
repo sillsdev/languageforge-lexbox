@@ -1,4 +1,4 @@
-using FwLiteProjectSync.Tests.Fixtures;
+﻿using FwLiteProjectSync.Tests.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Exceptions;
@@ -15,11 +15,6 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
     protected override IMiniLcmApi GetApi(SyncFixture fixture)
     {
         return fixture.CrdtApi;
-    }
-
-    private async Task<T?> GetCrdtSnapshot<T>(Guid entityId) where T : class, IObjectWithId
-    {
-        return await _fixture.Services.GetRequiredService<DataModel>().GetLatest<T>(entityId);
     }
 
     // Only CRDT can diverge from the diff's "before": sync diffs the snapshot against FwData and applies to CRDT,
@@ -46,11 +41,7 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
 
         (await Api.GetEntry(targetEntry.Id)).Should().BeNull();
         SenseIds(await GetEntry(sourceEntry.Id)).Should().BeEmpty();
-        (await Api.GetSense(targetEntry.Id, sense.Id)).Should().BeNull();
-        var senseSnapshot = await GetCrdtSnapshot<Sense>(sense.Id);
-        senseSnapshot.Should().NotBeNull("marked as deleted");
-        senseSnapshot.DeletedAt.Should().NotBeNull();
-        senseSnapshot.EntryId.Should().Be(targetEntry.Id, "the move was applied before the deletion");
+        (await Api.GetSense(sense.Id)).Should().BeNull();
     }
 
     [Fact]
@@ -193,6 +184,31 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         var actual = await GetEntry(entry.Id);
         ExampleIds(actual.Senses[0]).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
         ExampleIds(actual.Senses[1]).Should().Equal(moved.Id);
+    }
+
+    [Fact]
+    public async Task ReorderingWithinASenseReparentedInCrdt_StillApplies()
+    {
+        var example1 = NewExample("example1");
+        var example2 = NewExample("example2");
+        var example3 = NewExample("example3");
+        var sense = NewSense("sense", example1, example2, example3);
+        var sourceEntry = await CreateEntry("source", sense);
+        var targetEntry = await CreateEntry("target");
+        await Api.MoveSenseToEntry(targetEntry.Id, sense.Id, new BetweenPosition(null, null));
+
+        // the other side reordered the examples, with the sense still under its original entry
+        Entry[] before = [sourceEntry, targetEntry];
+        var after = Copy(before);
+        var sourceAfter = after[0];
+        var reordered = sourceAfter.Senses[0].ExampleSentences[0];
+        sourceAfter.Senses[0].ExampleSentences.RemoveAt(0);
+        sourceAfter.Senses[0].ExampleSentences.Add(reordered);
+
+        await Sync(before, after);
+
+        var movedSense = (await GetEntry(targetEntry.Id)).Senses.Single(s => s.Id == sense.Id);
+        ExampleIds(movedSense).Should().Equal(example2.Id, example3.Id, example1.Id);
     }
 
     #endregion

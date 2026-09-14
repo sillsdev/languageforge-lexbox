@@ -646,7 +646,8 @@ public class CrdtMiniLcmApi(
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
-        await SenseSync.Sync(entryId, before, after, api ?? this, SyncContext.Empty);
+        await SenseSync.Sync(entryId, before, after, api ?? this,
+            SyncContext.For(before, after, deferDeletes: false));
         return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
     }
 
