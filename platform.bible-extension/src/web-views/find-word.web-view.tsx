@@ -82,28 +82,30 @@ globalThis.webViewComponent = function LexiconFindWord({
   );
 
   const addEntry = useCallback(
-    async (entry: PartialEntry) => {
+    async (entry: PartialEntry): Promise<boolean> => {
       if (!lexiconCode || !projectId || !lexiconNetworkObject) {
         const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
         if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
         if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
-        return;
+        return false;
       }
 
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
       const addedEntry = await lexiconNetworkObject.addEntry(lexiconCode, entry);
-      if (addedEntry) {
-        onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
-        await papi.commands.sendCommand(
-          'lexicon.displayEntry',
-          projectId,
-          lexiconCode,
-          addedEntry.id,
-        );
-      } else {
+      if (!addedEntry) {
         logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
+        return false;
       }
+
+      onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
+      await papi.commands.sendCommand(
+        'lexicon.displayEntry',
+        projectId,
+        lexiconCode,
+        addedEntry.id,
+      );
+      return true;
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings, onSearch, projectId],
   );

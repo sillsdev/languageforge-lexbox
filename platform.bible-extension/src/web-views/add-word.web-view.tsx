@@ -33,13 +33,13 @@ globalThis.webViewComponent = function LexiconAddWord({
   }, [localizedStrings]);
 
   const addEntry = useCallback(
-    async (entry: PartialEntry) => {
+    async (entry: PartialEntry): Promise<boolean> => {
       if (!lexiconCode || !projectId || !lexiconNetworkObject) {
         const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
         if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
         if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
-        return;
+        return false;
       }
 
       setIsSubmitted(false);
@@ -51,12 +51,14 @@ globalThis.webViewComponent = function LexiconAddWord({
       } finally {
         setIsSubmitting(false);
       }
-      if (entryId) {
-        setIsSubmitted(true);
-        await papi.commands.sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId);
-      } else {
+      if (!entryId) {
         logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
+        return false;
       }
+
+      setIsSubmitted(true);
+      await papi.commands.sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId);
+      return true;
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings, projectId],
   );

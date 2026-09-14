@@ -134,7 +134,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
   );
 
   const addEntryInDomain = useCallback(
-    async (entry: PartialEntry) => {
+    async (entry: PartialEntry): Promise<boolean> => {
       if (
         !lexiconCode ||
         !lexiconNetworkObject ||
@@ -148,24 +148,26 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
         if (!projectId) logger.warn(`${errMissingParam}projectId`);
         if (!selectedDomain) logger.warn(`${errMissingParam}selectedDomain`);
         if (!entry.senses?.length) logger.warn('Cannot add entry without senses');
-        return;
+        return false;
       }
 
       if (!entry.senses[0].semanticDomains) entry.senses[0].semanticDomains = [];
       entry.senses[0].semanticDomains.push(selectedDomain);
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
       const addedEntry = await lexiconNetworkObject.addEntry(lexiconCode, entry);
-      if (addedEntry) {
-        onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
-        await papi.commands.sendCommand(
-          'lexicon.displayEntry',
-          projectId,
-          lexiconCode,
-          addedEntry.id,
-        );
-      } else {
+      if (!addedEntry) {
         logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
+        return false;
       }
+
+      onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
+      await papi.commands.sendCommand(
+        'lexicon.displayEntry',
+        projectId,
+        lexiconCode,
+        addedEntry.id,
+      );
+      return true;
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings, onSearch, projectId, selectedDomain],
   );
