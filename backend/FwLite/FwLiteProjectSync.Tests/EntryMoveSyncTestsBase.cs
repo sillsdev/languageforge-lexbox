@@ -1,12 +1,10 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
-using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Exceptions;
 using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests;
-using SIL.Harmony;
 
 namespace FwLiteProjectSync.Tests;
 /// <summary>

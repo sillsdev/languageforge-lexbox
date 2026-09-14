@@ -92,7 +92,6 @@ public interface IMiniLcmWriteApi
     Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? position = null);
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null);
-    /// <param name="entryId">The entry the sense should end up in. With <see cref="MoveKind.Reorder"/> it must already be the sense's entry.</param>
     Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
     Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
     Task DeleteSense(Guid entryId, Guid senseId);
@@ -120,7 +119,6 @@ public interface IMiniLcmWriteApi
         ExampleSentence before,
         ExampleSentence after,
         IMiniLcmApi? api = null);
-    /// <param name="senseId">The sense the example should end up in. With <see cref="MoveKind.Reorder"/> it must already be the example's sense.</param>
     Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
     Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
 
