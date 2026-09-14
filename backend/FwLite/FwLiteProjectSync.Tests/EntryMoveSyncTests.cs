@@ -1,10 +1,12 @@
 using FwLiteProjectSync.Tests.Fixtures;
+using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Exceptions;
 using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests;
+using SIL.Harmony;
 
 namespace FwLiteProjectSync.Tests;
 
@@ -13,6 +15,11 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
     protected override IMiniLcmApi GetApi(SyncFixture fixture)
     {
         return fixture.CrdtApi;
+    }
+
+    private async Task<T?> GetCrdtSnapshot<T>(Guid entityId) where T : class, IObjectWithId
+    {
+        return await _fixture.Services.GetRequiredService<DataModel>().GetLatest<T>(entityId);
     }
 
     // Only CRDT can diverge from the diff's "before": sync diffs the snapshot against FwData and applies to CRDT,
@@ -40,6 +47,10 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         (await Api.GetEntry(targetEntry.Id)).Should().BeNull();
         SenseIds(await GetEntry(sourceEntry.Id)).Should().BeEmpty();
         (await Api.GetSense(targetEntry.Id, sense.Id)).Should().BeNull();
+        var senseSnapshot = await GetCrdtSnapshot<Sense>(sense.Id);
+        senseSnapshot.Should().NotBeNull("marked as deleted");
+        senseSnapshot.DeletedAt.Should().NotBeNull();
+        senseSnapshot.EntryId.Should().Be(targetEntry.Id, "the move was applied before the deletion");
     }
 
     [Fact]
@@ -216,7 +227,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
 
     protected abstract IMiniLcmApi GetApi(SyncFixture fixture);
 
-    private readonly SyncFixture _fixture = fixture;
+    protected readonly SyncFixture _fixture = fixture;
     protected IMiniLcmApi Api = null!;
 
     #region Sense moves
