@@ -4,11 +4,12 @@ import { useLocalizedStrings } from '@papi/frontend/react';
 import type { IEntry, IEntryService, LexiconWebViewProps, PartialEntry } from 'lexicon';
 import { SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
 import EntryList from '../components/entry-list';
 import EntryListWrapper from '../components/entry-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
+import useEntryLookup from '../utils/use-entry-lookup';
 
 globalThis.webViewComponent = function LexiconFindWord({
   analysisLanguage,
@@ -23,12 +24,8 @@ globalThis.webViewComponent = function LexiconFindWord({
   const [lexiconNetworkObject, setLexiconNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
-  const [isFetching, setIsFetching] = useState(false);
-  const [fetchFailed, setFetchFailed] = useState(false);
   const [searchTerm, setSearchTerm] = useState(word ?? '');
-  // Which search the view's state belongs to. Debouncing spaces requests out but does not stop one
-  // from outliving the next, so a reply lands only while its request is still the current one.
-  const requestIdRef = useRef(0);
+  const { didFail, isPending, lookup } = useEntryLookup();
 
   useEffect(() => {
     papi.networkObjects
@@ -57,26 +54,16 @@ globalThis.webViewComponent = function LexiconFindWord({
       }
 
       logger.info(`Fetching entries for ${surfaceForm}`);
-      requestIdRef.current += 1;
-      const requestId = requestIdRef.current;
-      setFetchFailed(false);
-      setIsFetching(true);
-      try {
-        const entries = await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm });
-        if (requestId !== requestIdRef.current) return;
-        setMatchingEntries(entries ?? []);
-      } catch (e) {
-        logger.error('Error fetching entries:', e);
-        if (requestId !== requestIdRef.current) return;
-        // Drop the last query's entries: kept, they would sit under the new search term as
-        // though they answered it.
-        setMatchingEntries(undefined);
-        setFetchFailed(true);
-      } finally {
-        if (requestId === requestIdRef.current) setIsFetching(false);
-      }
+      await lookup.run({
+        failureMessage: 'Error fetching entries:',
+        // Drop the last query's entries: kept, they would sit under the new search term as though
+        // they answered it.
+        onFailure: () => setMatchingEntries(undefined),
+        onResult: (entries) => setMatchingEntries(entries ?? []),
+        request: () => lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm }),
+      });
     },
-    [lexiconCode, lexiconNetworkObject, localizedStrings],
+    [lexiconCode, lexiconNetworkObject, localizedStrings, lookup],
   );
 
   const debouncedFetchEntries = useMemo(() => debounce(fetchEntries, 500), [fetchEntries]);
@@ -84,9 +71,19 @@ globalThis.webViewComponent = function LexiconFindWord({
   const onSearch = useCallback(
     (searchQuery: string) => {
       setSearchTerm(searchQuery);
+      if (!searchQuery.trim()) {
+        // The query is withdrawn, so nothing is coming to answer it and what is on screen answers
+        // a query that is gone.
+        lookup.reset();
+        setMatchingEntries(undefined);
+        return;
+      }
+      // The query moved on before the debounced search starts, so anything in flight is already
+      // answering the wrong one.
+      lookup.supersede();
       debouncedFetchEntries(searchQuery);
     },
-    [debouncedFetchEntries],
+    [debouncedFetchEntries, lookup],
   );
 
   const addEntry = useCallback(
@@ -148,8 +145,8 @@ globalThis.webViewComponent = function LexiconFindWord({
           />
         ) : undefined
       }
-      hasError={fetchFailed}
-      isLoading={isFetching}
+      hasError={didFail}
+      isLoading={isPending}
       hasItems={!!matchingEntries?.length}
     />
   );

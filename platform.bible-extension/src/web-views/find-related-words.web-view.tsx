@@ -11,11 +11,12 @@ import type {
 import { Network } from 'lucide-react';
 import { Label, SearchBar } from 'platform-bible-react';
 import { debounce } from 'platform-bible-utils';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
 import EntryList from '../components/entry-list';
 import EntryListWrapper from '../components/entry-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
+import useEntryLookup from '../utils/use-entry-lookup';
 import { domainText } from '../utils/entry-display-text';
 
 globalThis.webViewComponent = function LexiconFindRelatedWords({
@@ -30,15 +31,12 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
   const [lexiconNetworkObject, setLexiconNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
-  const [isFetching, setIsFetching] = useState(false);
-  const [fetchFailed, setFetchFailed] = useState(false);
   const [matchingEntries, setMatchingEntries] = useState<IEntry[] | undefined>();
   const [relatedEntries, setRelatedEntries] = useState<IEntry[] | undefined>();
   const [searchTerm, setSearchTerm] = useState(word ?? '');
   const [selectedDomain, setSelectedDomain] = useState<ISemanticDomain | undefined>();
-  // Which request the view's state belongs to. A search and a domain lookup share it: either can
-  // outlive the next, so a reply lands only while its request is the current one.
-  const requestIdRef = useRef(0);
+  // One count for both lookups: either one starting means the user has moved on from the other.
+  const { didFail, isPending, lookup } = useEntryLookup();
 
   useEffect(() => {
     papi.networkObjects
@@ -74,31 +72,25 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       }
 
       logger.info(`Fetching entries for ${surfaceForm}`);
-      requestIdRef.current += 1;
-      const requestId = requestIdRef.current;
-      setFetchFailed(false);
-      setIsFetching(true);
-      try {
-        let entries = (await lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm })) ?? [];
-        // Only consider entries and senses with at least one semantic domain.
-        entries = entries
-          .map((e) => ({ ...e, senses: e.senses.filter((s) => s.semanticDomains.length) }))
-          .filter((e) => e.senses.length);
-        if (requestId !== requestIdRef.current) return;
-        setMatchingEntries(entries);
-      } catch (e) {
-        logger.error('Error fetching entries:', e);
-        if (requestId !== requestIdRef.current) return;
+      await lookup.run({
+        failureMessage: 'Error fetching entries:',
         // Drop what the last query found: kept, it would sit under the new search term as though
         // it answered it, and the domain derived from it would file a new entry under that domain.
-        setMatchingEntries(undefined);
-        setRelatedEntries(undefined);
-        setFetchFailed(true);
-      } finally {
-        if (requestId === requestIdRef.current) setIsFetching(false);
-      }
+        onFailure: () => {
+          setMatchingEntries(undefined);
+          setRelatedEntries(undefined);
+        },
+        // Only entries and senses carrying a semantic domain can be related to anything.
+        onResult: (entries) =>
+          setMatchingEntries(
+            (entries ?? [])
+              .map((e) => ({ ...e, senses: e.senses.filter((s) => s.semanticDomains.length) }))
+              .filter((e) => e.senses.length),
+          ),
+        request: () => lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm }),
+      });
     },
-    [lexiconCode, lexiconNetworkObject, localizedStrings],
+    [lexiconCode, lexiconNetworkObject, localizedStrings, lookup],
   );
 
   const fetchRelatedEntries = useCallback(
@@ -111,24 +103,14 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       }
 
       logger.info(`Fetching entries in semantic domain ${semanticDomain}`);
-      requestIdRef.current += 1;
-      const requestId = requestIdRef.current;
-      setFetchFailed(false);
-      setIsFetching(true);
-      try {
-        const entries = await lexiconNetworkObject.getEntries(lexiconCode, { semanticDomain });
-        if (requestId !== requestIdRef.current) return;
-        setRelatedEntries(entries ?? []);
-      } catch (e) {
-        logger.error('Error fetching related entries:', e);
-        if (requestId !== requestIdRef.current) return;
-        setRelatedEntries(undefined);
-        setFetchFailed(true);
-      } finally {
-        if (requestId === requestIdRef.current) setIsFetching(false);
-      }
+      await lookup.run({
+        failureMessage: 'Error fetching related entries:',
+        onFailure: () => setRelatedEntries(undefined),
+        onResult: (entries) => setRelatedEntries(entries ?? []),
+        request: () => lexiconNetworkObject.getEntries(lexiconCode, { semanticDomain }),
+      });
     },
-    [lexiconCode, lexiconNetworkObject, localizedStrings],
+    [lexiconCode, lexiconNetworkObject, localizedStrings, lookup],
   );
 
   useEffect(() => {
@@ -140,9 +122,20 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
   const onSearch = useCallback(
     (searchQuery: string) => {
       setSearchTerm(searchQuery);
+      if (!searchQuery.trim()) {
+        // The query is withdrawn, so nothing is coming to answer it and what is on screen answers
+        // a query that is gone.
+        lookup.reset();
+        setMatchingEntries(undefined);
+        setRelatedEntries(undefined);
+        return;
+      }
+      // The query moved on before the debounced search starts, so anything in flight is already
+      // answering the wrong one.
+      lookup.supersede();
       debouncedFetchEntries(searchQuery);
     },
-    [debouncedFetchEntries],
+    [debouncedFetchEntries, lookup],
   );
 
   const addEntryInDomain = useCallback(
@@ -243,8 +236,8 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
           />
         )
       }
-      hasError={fetchFailed}
-      isLoading={isFetching}
+      hasError={didFail}
+      isLoading={isPending}
       hasItems={!!matchingEntries?.length}
     />
   );
