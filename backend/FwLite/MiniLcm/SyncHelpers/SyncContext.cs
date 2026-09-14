@@ -125,7 +125,7 @@ public class SyncContext
     private static IEnumerable<(Guid ChildId, Guid ParentId)> PictureParents(Entry[] entries)
     {
         return entries.SelectMany(e => e.Senses)
-            .SelectMany(s => s.Pictures, (p, s) => (ChildId: p.Id, ParentId: s.Id))
+            .SelectMany(s => s.Pictures, (s, p) => (ChildId: p.Id, ParentId: s.Id))
             .GroupBy(p => p.ChildId)
             .Select(g => (ChildId: g.Key, ParentId: g.First().ParentId));
     }
