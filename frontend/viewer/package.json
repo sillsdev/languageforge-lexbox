@@ -14,7 +14,7 @@
     "pretest:e2e": "playwright install chromium",
     "test:e2e": "playwright test -c ./tests/e2e/playwright.config.ts",
     "test": "vitest run --project unit --project browser --project storybook",
-    "test:watch": "vitest",
+    "test:watch": "vitest --project=!manual",
     "test:storybook": "vitest --project=storybook",
     "test:unit": "vitest --project=unit",
     "test:browser": "vitest --project=browser",
