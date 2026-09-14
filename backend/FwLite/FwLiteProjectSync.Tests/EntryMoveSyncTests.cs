@@ -326,10 +326,13 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var sourceEntry = await CreateEntry("source-entry", sense);
         var createdEntry = NewEntry("created-entry");
 
-        // the children ride along inside the moved sense; they must not be mistaken for moves of their own
-        var after = Copy(sourceEntryDeleted ? [createdEntry] : [sourceEntry, createdEntry]);
+        Entry[] before = [sourceEntry];
+        var after = Copy(before);
+        after.Add(createdEntry);
         MoveSense(after, sense, createdEntry.Id);
-        await Sync([sourceEntry], after);
+        if (sourceEntryDeleted)
+            after.RemoveAll(e => e.Id == sourceEntry.Id);
+        await Sync(before, after);
 
         // the entry is created without its moved-in sense and filled in afterward; its own fields must survive that split
         var actualCreatedEntry = await GetEntry(createdEntry.Id);
@@ -367,7 +370,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var sourceEntryId = EntryOf(before, sourceSense.Id).Id;
         var targetEntryId = EntryOf(before, targetSense.Id).Id;
 
-        var after = Copy([.. before]);
+        var after = Copy(before);
         // moved AND edited in the same sync: the move must be followed by the field diff
         var movedExample = MoveExample(after, example, targetSense.Id);
         movedExample.Sentence["en"] = new RichString("edited example", "en");
@@ -438,9 +441,20 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         var sourceEntry = await CreateEntry("source-entry", sourceSense);
         var targetEntry = await CreateEntry("target-entry", targetSense);
 
-        var after = Copy(wholeEntryDeleted ? [targetEntry] : [WithoutSense(sourceEntry, sourceSense), targetEntry]);
+        Entry[] before = [sourceEntry, targetEntry];
+        var after = Copy(before);
         MoveExample(after, example, targetSense.Id);
-        await Sync([sourceEntry, targetEntry], after);
+        if (wholeEntryDeleted)
+        {
+            // the source entry is deleted, but the example is still moved into the target sense
+            after.RemoveAll(e => e.Id == sourceEntry.Id);
+        }
+        else
+        {
+            // the source sense is removed from the entry, but the example is still moved into the target sense
+            after[0].Senses.RemoveAll(s => s.Id == sourceSense.Id);
+        }
+        await Sync(before, after);
 
         ExampleIds(await GetSense(targetEntry.Id, targetSense.Id)).Should().Equal(example.Id);
         if (wholeEntryDeleted)
