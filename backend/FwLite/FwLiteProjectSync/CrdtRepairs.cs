@@ -28,7 +28,7 @@ public static class CrdtRepairs
                         continue;
                     }
 
-                    if (snapshotTranslation.Id != Translation.MissingTranslationId)
+                    if (!Translation.IsMissingTranslationId(snapshotTranslation.Id))
                     {
                         // already has a valid ID
                         continue;

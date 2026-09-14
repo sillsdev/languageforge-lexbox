@@ -117,14 +117,12 @@ public class SyncContext
 
     private static Dictionary<Guid, Guid> TranslationParents(Entry[] entries)
     {
-#pragma warning disable CS0618 // the legacy placeholder id recurs across examples, so it can never identify a move
         return entries.SelectMany(e => e.Senses)
             .SelectMany(s => s.ExampleSentences)
             .SelectMany(x => x.Translations.Select(t => (ChildId: t.Id, ParentId: x.Id)))
-            .Where(t => t.ChildId != Translation.MissingTranslationId)
+            .Where(t => !Translation.IsMissingTranslationId(t.ChildId))// the legacy placeholder id recurs across examples, so it can never identify a move
             .GroupBy(t => t.ChildId)
             .ToDictionary(g => g.Key, g => g.First().ParentId);
-#pragma warning restore CS0618
     }
 }
 
