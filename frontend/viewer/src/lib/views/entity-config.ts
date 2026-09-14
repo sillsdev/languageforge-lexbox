@@ -11,6 +11,12 @@ interface EntityData {
   [key: string]: FieldData | ViewText;
 }
 
+// Topic pages live directly under this root. `helpBaseUrl` points at the RoboHelp shell instead, so
+// only this root is fetchable — see check-all-helps.manual.test.ts.
+export const helpDocRoot = 'https://downloads.languagetechnology.org/fieldworks/Documentation/en/';
+
+export const helpBaseUrl = `${helpDocRoot}index.htm#t=`;
+
 export const entityConfig = {
   entry: {
     $label: vt(msg`Entry`, msg`Word`),
@@ -24,7 +30,7 @@ export const entityConfig = {
     },
     complexForms: {
       label: vt(msg`Complex forms`, msg`Part of`),
-      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Complex_Forms.htm',
+      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Complex_Forms_entry.htm',
     },
     complexFormTypes: {
       label: vt(msg`Complex form types`, msg`Uses components as`),

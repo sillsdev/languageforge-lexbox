@@ -8,6 +8,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 const browserTestPattern = '**/*.browser.{test,spec}.?(c|m)[jt]s?(x)';
 const launcherTestPattern = './tests/launcher/**/*.{test,spec}.?(c|m)[jt]s?(x)';
+// Opt-in only: these hit the network, so they're never part of `pnpm test` or CI.
+const manualTestPattern = '**/*.manual.{test,spec}.?(c|m)[jt]s?(x)';
 const e2eTestPatterns = ['./tests/**'];
 
 const sharedAlias = [
@@ -31,9 +33,23 @@ export default defineConfig({
           setupFiles: ['./src/test-setup/local-storage.ts'],
           exclude: [
             browserTestPattern,
+            manualTestPattern,
             ...e2eTestPatterns,
             ...configDefaults.exclude,
           ],
+        },
+        resolve: {alias: sharedAlias},
+      },
+      {
+        plugins: [
+          svelte(),
+        ],
+        test: {
+          name: 'manual',
+          // Only fetch() against the FieldWorks docs site; no DOM needed.
+          environment: 'node',
+          include: [manualTestPattern],
+          exclude: [...e2eTestPatterns, ...configDefaults.exclude],
         },
         resolve: {alias: sharedAlias},
       },
