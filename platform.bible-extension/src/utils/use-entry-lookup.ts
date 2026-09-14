@@ -1,8 +1,12 @@
 import { logger } from '@papi/frontend';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { DEBOUNCE_CANCELED_ERROR_MESSAGE, debounce, getErrorMessage } from 'platform-bible-utils';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+/** How long a scheduled lookup waits, so typing does not query the backend per keystroke. */
+const SCHEDULED_LOOKUP_DELAY_MS = 500;
 
 /** One lookup to run, and what to do with its answer. */
-type EntryLookupRequest<T> = {
+export type EntryLookupRequest<T> = {
   /** Prefixes the logged error when the request rejects. */
   failureMessage: string;
   /** Clears whatever the answer would have filled. Runs only for the newest lookup. */
@@ -14,30 +18,43 @@ type EntryLookupRequest<T> = {
 
 /** The lookups a view can start. */
 type EntryLookupActions = {
-  /** Discards the answers of lookups in flight and returns to idle, for when none is coming. */
+  /** Stands every lookup down, scheduled or in flight, and returns to idle. */
   reset: () => void;
-  /** Runs one lookup, letting its answer reach the view only while it is the newest. */
-  run: <T>(lookup: EntryLookupRequest<T>) => Promise<void>;
-  /** Discards the answers of lookups in flight, staying pending for the one that follows. */
-  supersede: () => void;
+  /** Starts a lookup now, in place of anything scheduled or in flight. */
+  run: <T>(lookup: EntryLookupRequest<T>) => void;
+  /**
+   * Waits out {@link SCHEDULED_LOOKUP_DELAY_MS} and then starts the lookup `resolve` returns,
+   * discarding whatever was scheduled or in flight before. `resolve` runs when the wait is over, so
+   * it reads the state of that moment, and returning `undefined` starts nothing.
+   */
+  schedule: <T>(resolve: () => EntryLookupRequest<T> | undefined) => void;
 };
 
 type EntryLookup = {
   didFail: boolean;
   isPending: boolean;
-  /**
-   * Stable across renders, so a callback that depends on it is not remade on each one — which would
-   * also remake any debounced wrapper around that callback, dropping the call it holds.
-   */
+  /** Stable across renders, so a callback that depends on it is not remade on each one. */
   lookup: EntryLookupActions;
 };
+
+/** Reports a lookup answer that a view could not take, which only a bug in its handlers causes. */
+function logUnexpected(e: unknown): void {
+  logger.error('Error handling a lookup answer:', e);
+}
+
+/** Swallows the rejection `cancel` raises, since standing a lookup down is not a failure. */
+function ignoreCancellation(e: unknown): void {
+  if (getErrorMessage(e) !== DEBOUNCE_CANCELED_ERROR_MESSAGE)
+    logger.error('Scheduled lookup failed:', e);
+}
 
 /**
  * Keeps a view's pending and failure state tied to the newest of its entry lookups.
  *
- * Several lookups can be in flight at once, since debouncing spaces them out rather than
- * serializing them, and a query can change before the lookup answering it has even started. Each
- * lookup is numbered as it starts, and only the newest one's answer reaches the view.
+ * A query can change while a lookup for the previous one is waiting to start or already in flight,
+ * and an emptied query means none should run at all. Scheduling and numbering live together here so
+ * that standing a lookup down reaches it at either stage, and only the newest one's answer ever
+ * reaches the view.
  */
 export default function useEntryLookup(): EntryLookup {
   const [didFail, setDidFail] = useState(false);
@@ -49,17 +66,7 @@ export default function useEntryLookup(): EntryLookup {
     return newestRef.current;
   }, []);
 
-  const supersede = useCallback((): void => {
-    nextId();
-  }, [nextId]);
-
-  const reset = useCallback((): void => {
-    nextId();
-    setDidFail(false);
-    setIsPending(false);
-  }, [nextId]);
-
-  const run = useCallback(
+  const perform = useCallback(
     async <T>({ failureMessage, onFailure, onResult, request }: EntryLookupRequest<T>) => {
       const id = nextId();
       setDidFail(false);
@@ -80,7 +87,43 @@ export default function useEntryLookup(): EntryLookup {
     [nextId],
   );
 
-  const lookup = useMemo(() => ({ reset, run, supersede }), [reset, run, supersede]);
+  // One waiting slot for the whole view: scheduling again replaces what was waiting.
+  const waitThenStart = useMemo(
+    () => debounce((start: () => void) => start(), SCHEDULED_LOOKUP_DELAY_MS),
+    [],
+  );
+
+  // A lookup left waiting would otherwise start against a view that has moved on or gone away.
+  useEffect(() => () => waitThenStart.cancel(), [waitThenStart]);
+
+  const reset = useCallback((): void => {
+    nextId();
+    waitThenStart.cancel();
+    setDidFail(false);
+    setIsPending(false);
+  }, [nextId, waitThenStart]);
+
+  const run = useCallback(
+    <T>(lookup: EntryLookupRequest<T>): void => {
+      waitThenStart.cancel();
+      perform(lookup).catch(logUnexpected);
+    },
+    [perform, waitThenStart],
+  );
+
+  const schedule = useCallback(
+    <T>(resolve: () => EntryLookupRequest<T> | undefined): void => {
+      // Answers owed to the query being replaced are no longer wanted, even before this starts.
+      nextId();
+      waitThenStart(() => {
+        const lookup = resolve();
+        if (lookup) perform(lookup).catch(logUnexpected);
+      }).catch(ignoreCancellation);
+    },
+    [nextId, perform, waitThenStart],
+  );
+
+  const lookup = useMemo(() => ({ reset, run, schedule }), [reset, run, schedule]);
 
   return { didFail, isPending, lookup };
 }

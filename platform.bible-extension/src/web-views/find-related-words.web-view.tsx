@@ -10,12 +10,12 @@ import type {
 } from 'lexicon';
 import { Network } from 'lucide-react';
 import { Label, SearchBar } from 'platform-bible-react';
-import { debounce } from 'platform-bible-utils';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
 import EntryList from '../components/entry-list';
 import EntryListWrapper from '../components/entry-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
+import type { EntryLookupRequest } from '../utils/use-entry-lookup';
 import useEntryLookup from '../utils/use-entry-lookup';
 import { domainText } from '../utils/entry-display-text';
 
@@ -56,23 +56,23 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
     if (domains.every((d) => d.code === domains[0].code)) setSelectedDomain(domains[0]);
   }, [matchingEntries]);
 
-  const fetchEntries = useCallback(
-    async (untrimmedSurfaceForm: string) => {
+  const entriesLookup = useCallback(
+    (untrimmedSurfaceForm: string): EntryLookupRequest<IEntry[] | undefined> | undefined => {
       if (!lexiconCode || !lexiconNetworkObject) {
         const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
         if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
         if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
-        return;
+        return undefined;
       }
 
       const surfaceForm = untrimmedSurfaceForm.trim();
       if (!surfaceForm) {
         logger.warn('No word provided for search');
-        return;
+        return undefined;
       }
 
       logger.info(`Fetching entries for ${surfaceForm}`);
-      await lookup.run({
+      return {
         failureMessage: 'Error fetching entries:',
         // Drop what the last query found: kept, it would sit under the new search term as though
         // it answered it, and the domain derived from it would file a new entry under that domain.
@@ -88,13 +88,13 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
               .filter((e) => e.senses.length),
           ),
         request: () => lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm }),
-      });
+      };
     },
-    [lexiconCode, lexiconNetworkObject, localizedStrings, lookup],
+    [lexiconCode, lexiconNetworkObject, localizedStrings],
   );
 
   const fetchRelatedEntries = useCallback(
-    async (semanticDomain: string) => {
+    (semanticDomain: string) => {
       if (!lexiconCode || !lexiconNetworkObject) {
         const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
         if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
@@ -103,7 +103,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       }
 
       logger.info(`Fetching entries in semantic domain ${semanticDomain}`);
-      await lookup.run({
+      lookup.run({
         failureMessage: 'Error fetching related entries:',
         onFailure: () => setRelatedEntries(undefined),
         onResult: (entries) => setRelatedEntries(entries ?? []),
@@ -117,25 +117,20 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
     if (selectedDomain) fetchRelatedEntries(selectedDomain.code);
   }, [fetchRelatedEntries, selectedDomain]);
 
-  const debouncedFetchEntries = useMemo(() => debounce(fetchEntries, 500), [fetchEntries]);
-
   const onSearch = useCallback(
     (searchQuery: string) => {
       setSearchTerm(searchQuery);
       if (!searchQuery.trim()) {
-        // The query is withdrawn, so nothing is coming to answer it and what is on screen answers
-        // a query that is gone.
+        // The query is withdrawn, so nothing should answer it and what is on screen answers a
+        // query that is gone.
         lookup.reset();
         setMatchingEntries(undefined);
         setRelatedEntries(undefined);
         return;
       }
-      // The query moved on before the debounced search starts, so anything in flight is already
-      // answering the wrong one.
-      lookup.supersede();
-      debouncedFetchEntries(searchQuery);
+      lookup.schedule(() => entriesLookup(searchQuery));
     },
-    [debouncedFetchEntries, lookup],
+    [entriesLookup, lookup],
   );
 
   const addEntryInDomain = useCallback(
