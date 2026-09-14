@@ -221,8 +221,8 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var example = sourceSense.ExampleSentences[0];
 
         // FieldWorks moves the example to the other sense while FieldWorks Lite moves its old sense to the other entry
-        await fwdataApi.MoveExampleSentenceToSense(_testEntry.Id, targetSense.Id, example.Id, new BetweenPosition(null, null));
-        await crdtApi.MoveSenseToEntry(targetEntry.Id, sourceSense.Id, new BetweenPosition(null, null));
+        await fwdataApi.MoveExampleSentence(_testEntry.Id, targetSense.Id, example.Id, new BetweenPosition(null, null), MoveKind.Reparent);
+        await crdtApi.MoveSense(targetEntry.Id, sourceSense.Id, new BetweenPosition(null, null), MoveKind.Reparent);
 
         await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
 

@@ -84,8 +84,8 @@ public abstract class SenseTestsBase : MiniLcmTestBase
         var otherEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "other" } } });
 
         var act = () => Api.MoveSense(otherEntry.Id, _senseId, new BetweenPosition(null, null));
-        await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage($"*Sense {_senseId} does not belong to the expected entry*{otherEntry.Id}*");
+        await act.Should().ThrowAsync<ParentMismatchException>()
+            .WithMessage($"*Sense {_senseId}*{otherEntry.Id}*");
 
         // a plain move must never re-parent
         var sense = await Api.GetSense(_entryId, _senseId);
@@ -93,20 +93,20 @@ public abstract class SenseTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task MoveSenseToEntry_ReparentsToDifferentEntry()
+    public async Task MoveSense_Reparent_ReparentsToDifferentEntry()
     {
         var sourceEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "source" } } });
         var destEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "dest" } } });
         var sense = await Api.CreateSense(sourceEntry.Id, new() { Id = Guid.NewGuid(), Gloss = { { "en", "moving" } } });
 
-        await Api.MoveSenseToEntry(destEntry.Id, sense.Id, new BetweenPosition(null, null));
+        await Api.MoveSense(destEntry.Id, sense.Id, new BetweenPosition(null, null), MoveKind.Reparent);
 
         var senseAfter = await Api.GetSense(destEntry.Id, sense.Id);
         senseAfter.Should().NotBeNull();
         senseAfter.EntryId.Should().Be(destEntry.Id);
 
         var act = () => Api.GetSense(sourceEntry.Id, sense.Id);
-        await act.Should().ThrowAsync<NotFoundException>();
+        await act.Should().ThrowAsync<ParentMismatchException>();
 
         var sourceAfter = await Api.GetEntry(sourceEntry.Id);
         sourceAfter.Should().NotBeNull();

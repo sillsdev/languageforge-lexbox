@@ -1548,7 +1548,7 @@ public class FwDataMiniLcmApi(
 
     private void ValidateOwnership(Guid entryId, ILexSense sense)
     {
-        if (sense.Entry.Guid != entryId) throw new NotFoundException($"Sense {sense.Guid} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.Entry.Guid}", nameof(Sense));
+        if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
     }
 
     public Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
@@ -1592,23 +1592,15 @@ public class FwDataMiniLcmApi(
         return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
     }
 
-    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
-    {
-        if (!SenseRepository.TryGetObject(senseId, out var lexSense))
-            throw new InvalidOperationException("Sense not found");
-        // the insert re-parents, so without this guard a mismatched entryId would silently move the sense
-        ValidateOwnership(entryId, lexSense);
-        return MoveSenseToEntry(entryId, senseId, between);
-    }
-
     // repositioning and re-parenting are the same operation here: inserting into an LCM owning
-    // sequence moves the sense out of whatever entry currently owns it
-    public Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
+    // sequence moves the sense out of whatever entry currently owns it, so a plain reorder needs the ownership guard
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
+        if (kind == MoveKind.Reorder) ValidateOwnership(entryId, lexSense);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Sense",
             "Move Sense back",
@@ -1703,7 +1695,7 @@ public class FwDataMiniLcmApi(
     private void ValidateOwnership(Guid entryId, Guid senseId, ILexExampleSentence exampleSentence)
     {
         if (exampleSentence.Owner is not ILexSense sense || sense.Guid != senseId)
-            throw new NotFoundException($"Example sentence {exampleSentence.Guid} does not belong to the expected sense, expected Id {senseId}, actual owner {exampleSentence.Owner.Guid}", nameof(ExampleSentence));
+            throw ParentMismatchException.ForType<ExampleSentence>(exampleSentence.Guid, senseId, exampleSentence.Owner.Guid);
         ValidateOwnership(entryId, sense);
     }
 
@@ -1777,23 +1769,15 @@ public class FwDataMiniLcmApi(
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find example sentence with id " + after.Id);
     }
 
-    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between)
-    {
-        if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
-            throw new InvalidOperationException("Example sentence not found");
-        // see MoveSense
-        ValidateOwnership(entryId, senseId, lexExample);
-        return MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, between);
-    }
-
-    // see MoveSenseToEntry: the insert re-parents
-    public Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between)
+    // see MoveSense: the insert re-parents
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
         if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
             throw new InvalidOperationException("Example sentence not found");
         ValidateOwnership(entryId, lexSense);
+        if (kind == MoveKind.Reorder) ValidateOwnership(entryId, senseId, lexExample);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Example sentence",
             "Move Example sentence back",
@@ -1867,9 +1851,8 @@ public class FwDataMiniLcmApi(
         //todo the owner many not be a sense, but could be something owned by the sense.
         if (lexExampleSentence.Owner is ILexSense sense)
         {
-            if (sense.Guid != senseId) throw new InvalidOperationException("Example sentence does not belong to sense");
-            if (sense.Entry.Guid != entryId)
-                throw new InvalidOperationException("Example sentence does not belong to entry");
+            if (sense.Guid != senseId) throw ParentMismatchException.ForType<ExampleSentence>(lexExampleSentence.Guid, senseId, sense.Guid);
+            if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
         }
         else
         {
@@ -1882,7 +1865,7 @@ public class FwDataMiniLcmApi(
     {
         if (lcmPicture.Owner is ILexSense sense)
         {
-            if (sense.Guid != senseId) throw new InvalidOperationException("Picture does not belong to sense");
+            if (sense.Guid != senseId) throw ParentMismatchException.ForType<Picture>(lcmPicture.Guid, senseId, sense.Guid);
         }
         else
         {
@@ -2070,11 +2053,10 @@ public class FwDataMiniLcmApi(
     public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => await CreateComplexFormComponent(complexFormComponent, position);
     public async Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => await MoveComplexFormComponent(complexFormComponent, between);
     public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => await CreateSense(entryId, sense, position);
-    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position) => await MoveSense(entryId, senseId, position);
+    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder) => await MoveSense(entryId, senseId, position, kind);
     public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => await UpdateSense(entryId, senseId, update);
     public async Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => await CreateExampleSentence(entryId, senseId, exampleSentence, position);
-    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position) => await MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
-    public async Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position) => await MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
+    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder) => await MoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
     public async Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => await UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
     public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => await UpdatePartOfSpeech(id, update);
     public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => await UpdatePicture(entryId, senseId, pictureId, update);

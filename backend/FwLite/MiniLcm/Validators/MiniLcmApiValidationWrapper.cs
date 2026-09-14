@@ -278,14 +278,14 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.SubmitMoveComplexFormComponent(complexFormComponent, between);
     }
 
-    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.SubmitMoveSense(entryId, senseId, position);
+        return _api.SubmitMoveSense(entryId, senseId, position, kind);
     }
 
-    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.SubmitMoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+        return _api.SubmitMoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
     }
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -345,14 +345,9 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdateSense(entryId, before, after, api ?? this);
     }
 
-    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MoveSense(entryId, senseId, position);
-    }
-
-    public Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition position)
-    {
-        return _api.MoveSenseToEntry(entryId, senseId, position);
+        return _api.MoveSense(entryId, senseId, position, kind);
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)
@@ -415,19 +410,9 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdateExampleSentence(entryId, senseId, before, after, api ?? this);
     }
 
-    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
-    }
-
-    public Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
-    {
-        return _api.MoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
-    }
-
-    public Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
-    {
-        return _api.SubmitMoveExampleSentenceToSense(entryId, senseId, exampleSentenceId, position);
+        return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)

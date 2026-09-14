@@ -275,7 +275,7 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         var targetSense = await FwDataApi.CreateSense(entryId, new() { Gloss = { { "en", "target" } } });
 
         // act
-        await FwDataApi.MoveExampleSentenceToSense(entryId, targetSense.Id, exampleSentenceId, new BetweenPosition(null, null));
+        await FwDataApi.MoveExampleSentence(entryId, targetSense.Id, exampleSentenceId, new BetweenPosition(null, null), MoveKind.Reparent);
         var projectSnapshot = await GetSnapshot();
         await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
 

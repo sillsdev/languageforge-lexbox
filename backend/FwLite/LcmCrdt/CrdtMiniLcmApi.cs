@@ -612,7 +612,7 @@ public class CrdtMiniLcmApi(
 
     private static void VerifySenseBelongsToEntry(Guid entryId, Sense sense)
     {
-        if (sense.EntryId != entryId) throw new NotFoundException($"Sense {sense.Id} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.EntryId}", nameof(Sense));
+        if (sense.EntryId != entryId) throw ParentMismatchException.ForType<Sense>(sense.Id, entryId, sense.EntryId);
     }
 
     public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
@@ -651,28 +651,34 @@ public class CrdtMiniLcmApi(
         return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
     }
 
-    public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        // SetOrder doesn't re-parent, so an order picked against another entry's senses would be silently wrong
         var sense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
-        VerifySenseBelongsToEntry(entryId, sense);
-        await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<Sense>(senseId, await PickSenseOrder(repo, entryId, between)));
-    }
-
-    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        // skip if the sense is gone or reparented elsewhere on this side; the reorder is then moot
-        var sense = await repo.GetSense(senseId);
-        if (sense is null || sense.EntryId != entryId) return;
-        await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<Sense>(senseId, await PickSenseOrder(repo, entryId, position)));
-    }
-
-    public async Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
+        if (kind == MoveKind.Reorder)
+        {
+            // SetOrder doesn't re-parent, so an order picked against another entry's senses would be silently wrong
+            VerifySenseBelongsToEntry(entryId, sense);
+            await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<Sense>(senseId, await PickSenseOrder(repo, entryId, between)));
+            return;
+        }
+        if (!await repo.Entries.AnyAsyncEF(e => e.Id == entryId)) throw NotFoundException.ForType<Entry>(entryId);
         await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, await PickSenseOrder(repo, entryId, between)));
+    }
+
+    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        if (kind == MoveKind.Reorder)
+        {
+            // skip if the sense is gone or reparented elsewhere on this side; the reorder is then moot
+            var sense = await repo.GetSense(senseId);
+            if (sense is null || sense.EntryId != entryId) return;
+            await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<Sense>(senseId, await PickSenseOrder(repo, entryId, position)));
+            return;
+        }
+        // a deleted target entry is allowed: the move change then deletes the sense (delete wins)
+        await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, await PickSenseOrder(repo, entryId, position)));
     }
 
     private static async Task<double> PickSenseOrder(MiniLcmRepository repo, Guid entryId, BetweenPosition between)
@@ -730,7 +736,7 @@ public class CrdtMiniLcmApi(
 
     private static void VerifyExampleSentenceBelongsToSense(Guid senseId, ExampleSentence exampleSentence)
     {
-        if (exampleSentence.SenseId != senseId) throw new NotFoundException($"Example sentence {exampleSentence.Id} does not belong to the expected sense, expected Id {senseId}, actual Id {exampleSentence.SenseId}", nameof(ExampleSentence));
+        if (exampleSentence.SenseId != senseId) throw ParentMismatchException.ForType<ExampleSentence>(exampleSentence.Id, senseId, exampleSentence.SenseId);
     }
 
     public async Task SubmitUpdateExampleSentence(Guid entryId,
@@ -760,37 +766,36 @@ public class CrdtMiniLcmApi(
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw NotFoundException.ForType<ExampleSentence>(after.Id);
     }
 
-    public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        // see MoveSense
         var exampleSentence = await repo.GetExampleSentence(exampleId) ?? throw NotFoundException.ForType<ExampleSentence>(exampleId);
-        VerifyExampleSentenceBelongsToSense(senseId, exampleSentence);
-        await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, await PickExampleOrder(repo, senseId, between)));
-    }
-
-    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        // skip if the example is gone or reparented to another sense on this side; the reorder is then moot
-        var example = await repo.GetExampleSentence(exampleSentenceId);
-        if (example is null || example.SenseId != senseId) return;
-        await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleSentenceId, await PickExampleOrder(repo, senseId, position)));
-    }
-
-    public async Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        // a deleted target sense is allowed: the move change then deletes the example (delete wins)
-        if (await repo.GetSense(senseId) is { } targetSense) VerifySenseBelongsToEntry(entryId, targetSense);
+        if (kind == MoveKind.Reorder)
+        {
+            // see MoveSense
+            VerifyExampleSentenceBelongsToSense(senseId, exampleSentence);
+            await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, await PickExampleOrder(repo, senseId, between)));
+            return;
+        }
+        var targetSense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        VerifySenseBelongsToEntry(entryId, targetSense);
         await harmonyChangeWriter.AddChange(new MoveExampleSentenceToSenseChange(exampleId, senseId, await PickExampleOrder(repo, senseId, between)));
     }
 
-    public async Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        // no entry check: sync may have reparented the target sense to another entry; the example still follows it
         await using var repo = await repoFactory.CreateRepoAsync();
-        await harmonyChangeWriter.AddChange(new MoveExampleSentenceToSenseChange(exampleId, senseId, await PickExampleOrder(repo, senseId, between)));
+        if (kind == MoveKind.Reorder)
+        {
+            // skip if the example is gone or reparented to another sense on this side; the reorder is then moot
+            var example = await repo.GetExampleSentence(exampleSentenceId);
+            if (example is null || example.SenseId != senseId) return;
+            await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleSentenceId, await PickExampleOrder(repo, senseId, position)));
+            return;
+        }
+        // no target checks: sync may have reparented the target sense to another entry (the example still follows it)
+        // or deleted it (the move change then deletes the example, delete wins)
+        await harmonyChangeWriter.AddChange(new MoveExampleSentenceToSenseChange(exampleSentenceId, senseId, await PickExampleOrder(repo, senseId, position)));
     }
 
     private static async Task<double> PickExampleOrder(MiniLcmRepository repo, Guid senseId, BetweenPosition between)

@@ -74,7 +74,7 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         var otherEntry = await CreateEntry("other");
 
         // CRDT reparented the target sense to another entry after the snapshot
-        await Api.MoveSenseToEntry(otherEntry.Id, targetSense.Id, new BetweenPosition(null, null));
+        await Api.MoveSense(otherEntry.Id, targetSense.Id, new BetweenPosition(null, null), MoveKind.Reparent);
 
         // FLEx moved the example into the target sense (still under the original entry in FLEx's view)
         Entry[] before = [entry, otherEntry];
@@ -145,7 +145,7 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         var keep3 = NewSense("keep3");
         var sourceEntry = await CreateEntry("source", moved, keep1, keep2, keep3);
         var targetEntry = await CreateEntry("target");
-        await Api.MoveSenseToEntry(targetEntry.Id, moved.Id, new BetweenPosition(null, null));
+        await Api.MoveSense(targetEntry.Id, moved.Id, new BetweenPosition(null, null), MoveKind.Reparent);
 
         // the other side merely reordered the sense within its original entry
         var sourceAfter = sourceEntry.Copy();
@@ -170,7 +170,7 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         var sourceSense = NewSense("source", moved, keep1, keep2, keep3);
         var targetSense = NewSense("target");
         var entry = await CreateEntry("entry", sourceSense, targetSense);
-        await Api.MoveExampleSentenceToSense(entry.Id, targetSense.Id, moved.Id, new BetweenPosition(null, null));
+        await Api.MoveExampleSentence(entry.Id, targetSense.Id, moved.Id, new BetweenPosition(null, null), MoveKind.Reparent);
 
         // the other side merely reordered the example within its original sense
         var after = entry.Copy();
@@ -195,7 +195,7 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         var sense = NewSense("sense", example1, example2, example3);
         var sourceEntry = await CreateEntry("source", sense);
         var targetEntry = await CreateEntry("target");
-        await Api.MoveSenseToEntry(targetEntry.Id, sense.Id, new BetweenPosition(null, null));
+        await Api.MoveSense(targetEntry.Id, sense.Id, new BetweenPosition(null, null), MoveKind.Reparent);
 
         // the other side reordered the examples, with the sense still under its original entry
         Entry[] before = [sourceEntry, targetEntry];
@@ -270,7 +270,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         actualSense.EntryId.Should().Be(targetEntry.Id);
         actualSense.Gloss["en"].Should().Be("edited");
         var tryGetSenseFromSource = () => Api.GetSense(sourceEntry.Id, sense.Id);
-        await tryGetSenseFromSource.Should().ThrowAsync<NotFoundException>().WithMessage("*does not belong to the expected entry*");
+        await tryGetSenseFromSource.Should().ThrowAsync<ParentMismatchException>();
     }
 
     [Fact]

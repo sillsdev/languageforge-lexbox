@@ -44,7 +44,7 @@ public static class CrdtRepairs
                     {
                         fwDataExampleSentence = await fwDataApi.GetExampleSentence(entry.Id, sense.Id, exampleSentence.Id);
                     }
-                    catch (NotFoundException)
+                    catch (ParentMismatchException)
                     {
                         // moved to another sense in FLEx; the move sync recreates the translation under fwdata's ID
                         continue;

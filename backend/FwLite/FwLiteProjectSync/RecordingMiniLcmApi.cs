@@ -204,22 +204,16 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return await _api.UpdateSense(entryId, before, after, api);
     }
 
-    public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
-        RunRecords.Add(new RunRecord(nameof(MoveSense), $"Move sense {senseId} in entry {entryId} {Position(between)}"));
-        await _api.MoveSense(entryId, senseId, between);
+        RunRecords.Add(new RunRecord(nameof(MoveSense), $"Move sense {senseId} in entry {entryId} {Position(between)} ({kind})"));
+        await _api.MoveSense(entryId, senseId, between, kind);
     }
 
-    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
-        RunRecords.Add(new RunRecord(nameof(SubmitMoveSense), $"Move sense {senseId} in entry {entryId} {Position(between)}"));
-        await _api.SubmitMoveSense(entryId, senseId, between);
-    }
-
-    public async Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
-    {
-        RunRecords.Add(new RunRecord(nameof(MoveSenseToEntry), $"Move sense {senseId} to entry {entryId} {Position(between)}"));
-        await _api.MoveSenseToEntry(entryId, senseId, between);
+        RunRecords.Add(new RunRecord(nameof(SubmitMoveSense), $"Move sense {senseId} in entry {entryId} {Position(between)} ({kind})"));
+        await _api.SubmitMoveSense(entryId, senseId, between, kind);
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)
@@ -277,32 +271,18 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return await _api.UpdateExampleSentence(entryId, senseId, before, after, api);
     }
 
-    public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         RunRecords.Add(new RunRecord(nameof(MoveExampleSentence),
-            $"Move example sentence {exampleId} in sense {senseId} {Position(between)}"));
-        await _api.MoveExampleSentence(entryId, senseId, exampleId, between);
+            $"Move example sentence {exampleId} in sense {senseId} {Position(between)} ({kind})"));
+        await _api.MoveExampleSentence(entryId, senseId, exampleId, between, kind);
     }
 
-    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         RunRecords.Add(new RunRecord(nameof(SubmitMoveExampleSentence),
-            $"Move example sentence {exampleId} in sense {senseId} {Position(between)}"));
-        await _api.SubmitMoveExampleSentence(entryId, senseId, exampleId, between);
-    }
-
-    public async Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
-    {
-        RunRecords.Add(new RunRecord(nameof(MoveExampleSentenceToSense),
-            $"Move example sentence {exampleId} to sense {senseId} {Position(between)}"));
-        await _api.MoveExampleSentenceToSense(entryId, senseId, exampleId, between);
-    }
-
-    public async Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
-    {
-        RunRecords.Add(new RunRecord(nameof(SubmitMoveExampleSentenceToSense),
-            $"Move example sentence {exampleId} to sense {senseId} {Position(between)}"));
-        await _api.SubmitMoveExampleSentenceToSense(entryId, senseId, exampleId, between);
+            $"Move example sentence {exampleId} in sense {senseId} {Position(between)} ({kind})"));
+        await _api.SubmitMoveExampleSentence(entryId, senseId, exampleId, between, kind);
     }
 
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)

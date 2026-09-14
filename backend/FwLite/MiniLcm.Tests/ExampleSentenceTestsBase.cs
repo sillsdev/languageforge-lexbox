@@ -55,7 +55,7 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
         await Api.CreateSense(_entryId, new Sense { Id = otherSenseId, Gloss = { { "en", "other" } } });
 
         var act = () => Api.GetExampleSentence(_entryId, otherSenseId, _exampleSentenceId);
-        await act.Should().ThrowAsync<NotFoundException>();
+        await act.Should().ThrowAsync<ParentMismatchException>();
     }
 
     [Fact]
@@ -103,8 +103,8 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
         await Api.CreateSense(_entryId, new Sense { Id = otherSenseId, Gloss = { { "en", "other" } } });
 
         var act = () => Api.MoveExampleSentence(_entryId, otherSenseId, _exampleSentenceId, new BetweenPosition(null, null));
-        await act.Should().ThrowAsync<NotFoundException>()
-            .WithMessage($"*Example sentence {_exampleSentenceId} does not belong to the expected sense*{otherSenseId}*");
+        await act.Should().ThrowAsync<ParentMismatchException>()
+            .WithMessage($"*ExampleSentence {_exampleSentenceId}*{otherSenseId}*");
 
         // a plain move must never re-parent
         var example = await Api.GetExampleSentence(_entryId, _senseId, _exampleSentenceId);
@@ -112,19 +112,19 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task MoveExampleSentenceToSense_ReparentsToDifferentSense()
+    public async Task MoveExampleSentence_Reparent_ReparentsToDifferentSense()
     {
         var targetSenseId = Guid.NewGuid();
         await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
 
-        await Api.MoveExampleSentenceToSense(_entryId, targetSenseId, _exampleSentenceId, new BetweenPosition(null, null));
+        await Api.MoveExampleSentence(_entryId, targetSenseId, _exampleSentenceId, new BetweenPosition(null, null), MoveKind.Reparent);
 
         var moved = await Api.GetExampleSentence(_entryId, targetSenseId, _exampleSentenceId);
         moved.Should().NotBeNull();
         moved.SenseId.Should().Be(targetSenseId);
 
         var getFromSourceSense = () => Api.GetExampleSentence(_entryId, _senseId, _exampleSentenceId);
-        await getFromSourceSense.Should().ThrowAsync<NotFoundException>();
+        await getFromSourceSense.Should().ThrowAsync<ParentMismatchException>();
 
         var targetSense = await Api.GetSense(_entryId, targetSenseId);
         targetSense.Should().NotBeNull();

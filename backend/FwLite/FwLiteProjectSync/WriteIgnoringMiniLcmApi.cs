@@ -167,17 +167,12 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         return await ReadApi.GetSense(entryId, after.Id) ?? throw new NullReferenceException($"unable to find sense with id {after.Id}");
     }
 
-    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         return Task.CompletedTask;
     }
 
-    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task MoveSenseToEntry(Guid entryId, Guid senseId, BetweenPosition between)
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
         return Task.CompletedTask;
     }
@@ -225,22 +220,12 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         return Task.FromResult(after);
     }
 
-    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         return Task.CompletedTask;
     }
 
-    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition position)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task MoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task SubmitMoveExampleSentenceToSense(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
         return Task.CompletedTask;
     }

@@ -302,7 +302,7 @@ public static class EntrySync
             // a known id arriving here is a move; its new parent's Add owns it, then a three-way sync applies edits
             if (context.ExistedBefore(sense) is { } before)
             {
-                await api.MoveSenseToEntry(entryId, sense.Id, position);
+                await api.SubmitMoveSense(entryId, sense.Id, position, MoveKind.Reparent);
                 return 1 + await SenseSync.Sync(entryId, before, sense, api, context);
             }
             // a genuinely new sense whose payload holds a moved-in example: create it without the example, then move it in
