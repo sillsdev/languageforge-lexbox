@@ -671,13 +671,13 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         if (kind == MoveKind.Reorder)
         {
-            // skip if the sense is gone or reparented elsewhere on this side; the reorder is then moot
+            // the sense is gone or was reparented on this side: the reorder is moot, skip it
             var sense = await repo.GetSense(senseId);
             if (sense is null || sense.EntryId != entryId) return;
             await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<Sense>(senseId, await PickSenseOrder(repo, entryId, position)));
             return;
         }
-        // a deleted target entry is allowed: the move change then deletes the sense (delete wins)
+        // no target check: a deleted target entry is fine, the move change then deletes the sense (delete wins)
         await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, await PickSenseOrder(repo, entryId, position)));
     }
 
@@ -795,14 +795,14 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         if (kind == MoveKind.Reorder)
         {
-            // skip if the example is gone or reparented to another sense on this side; the reorder is then moot
+            // the example is gone or was reparented on this side: the reorder is moot, skip it
             var example = await repo.GetExampleSentence(exampleSentenceId);
             if (example is null || example.SenseId != senseId) return;
             await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleSentenceId, await PickExampleOrder(repo, senseId, position)));
             return;
         }
-        // no target checks: sync may have reparented the target sense to another entry (the example still follows it)
-        // or deleted it (the move change then deletes the example, delete wins)
+        // no target checks: a reparented target sense is fine (the example follows it), and so is a deleted one
+        // (the move change then deletes the example, delete wins)
         await harmonyChangeWriter.AddChange(new MoveExampleSentenceToSenseChange(exampleSentenceId, senseId, await PickExampleOrder(repo, senseId, position)));
     }
 
