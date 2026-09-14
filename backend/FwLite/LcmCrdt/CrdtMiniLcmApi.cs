@@ -730,13 +730,15 @@ public class CrdtMiniLcmApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var exampleSentence = await repo.GetExampleSentence(id);
         if (exampleSentence is null) return null;
-        VerifyExampleSentenceBelongsToSense(senseId, exampleSentence);
+        await VerifyExampleSentenceBelongsTo(repo, entryId, senseId, exampleSentence);
         return exampleSentence;
     }
 
-    private static void VerifyExampleSentenceBelongsToSense(Guid senseId, ExampleSentence exampleSentence)
+    private static async Task VerifyExampleSentenceBelongsTo(MiniLcmRepository repo, Guid entryId, Guid senseId, ExampleSentence exampleSentence)
     {
         if (exampleSentence.SenseId != senseId) throw ParentMismatchException.ForType<ExampleSentence>(exampleSentence.Id, senseId, exampleSentence.SenseId);
+        var sense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        VerifySenseBelongsToEntry(entryId, sense);
     }
 
     public async Task SubmitUpdateExampleSentence(Guid entryId,
@@ -773,7 +775,7 @@ public class CrdtMiniLcmApi(
         if (kind == MoveKind.Reorder)
         {
             // see MoveSense
-            VerifyExampleSentenceBelongsToSense(senseId, exampleSentence);
+            await VerifyExampleSentenceBelongsTo(repo, entryId, senseId, exampleSentence);
             await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, await PickExampleOrder(repo, senseId, between)));
             return;
         }

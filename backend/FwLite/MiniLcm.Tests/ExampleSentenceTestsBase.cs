@@ -59,6 +59,16 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task Get_ExampleSentenceFromWrongEntry_Throws()
+    {
+        var otherEntryId = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = otherEntryId, LexemeForm = { { "en", "other" } } });
+
+        var act = () => Api.GetExampleSentence(otherEntryId, _senseId, _exampleSentenceId);
+        await act.Should().ThrowAsync<ParentMismatchException>();
+    }
+
+    [Fact]
     public async Task CanCreateExampleSentence()
     {
         var expectedExampleSentence = new ExampleSentence()
@@ -109,6 +119,16 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
         // a plain move must never re-parent
         var example = await Api.GetExampleSentence(_entryId, _senseId, _exampleSentenceId);
         example.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task MoveExampleSentence_WrongEntry_Throws()
+    {
+        var otherEntryId = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = otherEntryId, LexemeForm = { { "en", "other" } } });
+
+        var act = () => Api.MoveExampleSentence(otherEntryId, _senseId, _exampleSentenceId, new BetweenPosition(null, null));
+        await act.Should().ThrowAsync<ParentMismatchException>();
     }
 
     [Fact]
