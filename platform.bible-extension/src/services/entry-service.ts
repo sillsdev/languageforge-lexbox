@@ -51,12 +51,12 @@ export class EntryService implements IEntryService {
   }
 
   async getEntry(lexiconCode: string, id: string): Promise<IEntry | undefined> {
-    if (!lexiconCode) return;
+    if (!lexiconCode || !id) return;
     return readingLexicon(() => this.fwLiteApi.getEntry(id, lexiconCode));
   }
 
   async getSense(lexiconCode: string, id: string): Promise<ISense | undefined> {
-    if (!lexiconCode) return;
+    if (!lexiconCode || !id) return;
     return readingLexicon(() => this.fwLiteApi.getSense(id, lexiconCode));
   }
 
@@ -71,7 +71,7 @@ export class EntryService implements IEntryService {
   }
 
   async deleteEntry(lexiconCode: string, id: string): Promise<undefined> {
-    if (!lexiconCode) return;
+    if (!lexiconCode || !id) return;
     await this.fwLiteApi.deleteEntry(id, lexiconCode);
   }
 }

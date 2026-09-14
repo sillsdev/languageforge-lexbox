@@ -98,7 +98,7 @@ export class FwLiteApi {
 
   async deleteEntry(id: string, lexiconCode?: string): Promise<void> {
     const { code, type } = await this.checkLexiconCode(lexiconCode);
-    const path = `mini-lcm/${type}/${code}/entry/${id}`;
+    const path = `mini-lcm/${type}/${code}/entry/${sanitizeUrlComponent(id)}`;
     await this.fetchPath(path, 'DELETE');
   }
 
@@ -129,13 +129,13 @@ export class FwLiteApi {
 
   async getEntry(id: string, lexiconCode?: string): Promise<IEntry> {
     const { code, type } = await this.checkLexiconCode(lexiconCode);
-    const path = `mini-lcm/${type}/${code}/entry/${id}`;
+    const path = `mini-lcm/${type}/${code}/entry/${sanitizeUrlComponent(id)}`;
     return (await this.fetchPath(path)) as IEntry;
   }
 
   async getSense(id: string, lexiconCode?: string): Promise<ISense> {
     const { code, type } = await this.checkLexiconCode(lexiconCode);
-    const path = `mini-lcm/${type}/${code}/sense/${id}`;
+    const path = `mini-lcm/${type}/${code}/sense/${sanitizeUrlComponent(id)}`;
     return (await this.fetchPath(path)) as ISense;
   }
 
