@@ -728,17 +728,23 @@ public class CrdtMiniLcmApi(
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var exampleSentence = await repo.GetExampleSentence(id);
-        if (exampleSentence is null) return null;
-        await VerifyExampleSentenceBelongsTo(repo, entryId, senseId, exampleSentence);
-        return exampleSentence;
+        return await GetExampleSentence(repo, entryId, senseId, id);
     }
 
-    private static async Task VerifyExampleSentenceBelongsTo(MiniLcmRepository repo, Guid entryId, Guid senseId, ExampleSentence exampleSentence)
+    // sense first: loading it brings its examples along, so the second query only runs when the example isn't there
+    private static async Task<ExampleSentence?> GetExampleSentence(MiniLcmRepository repo, Guid entryId, Guid senseId, Guid id)
     {
-        if (exampleSentence.SenseId != senseId) throw ParentMismatchException.ForType<ExampleSentence>(exampleSentence.Id, senseId, exampleSentence.SenseId);
-        var sense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
-        VerifySenseBelongsToEntry(entryId, sense);
+        var sense = await repo.GetSense(senseId);
+        if (sense is not null)
+        {
+            VerifySenseBelongsToEntry(entryId, sense);
+            var owned = sense.ExampleSentences.FirstOrDefault(e => e.Id == id);
+            if (owned is not null) return owned;
+        }
+        var exampleSentence = await repo.GetExampleSentence(id);
+        if (exampleSentence is null) return null;
+        if (exampleSentence.SenseId != senseId) throw ParentMismatchException.ForType<ExampleSentence>(id, senseId, exampleSentence.SenseId);
+        return exampleSentence;
     }
 
     public async Task SubmitUpdateExampleSentence(Guid entryId,
@@ -771,14 +777,14 @@ public class CrdtMiniLcmApi(
     public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var exampleSentence = await repo.GetExampleSentence(exampleId) ?? throw NotFoundException.ForType<ExampleSentence>(exampleId);
         if (kind == MoveKind.Reorder)
         {
             // see MoveSense
-            await VerifyExampleSentenceBelongsTo(repo, entryId, senseId, exampleSentence);
+            _ = await GetExampleSentence(repo, entryId, senseId, exampleId) ?? throw NotFoundException.ForType<ExampleSentence>(exampleId);
             await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, await PickExampleOrder(repo, senseId, between)));
             return;
         }
+        if (!await repo.ExampleSentences.AnyAsyncEF(e => e.Id == exampleId)) throw NotFoundException.ForType<ExampleSentence>(exampleId);
         var targetSense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
         VerifySenseBelongsToEntry(entryId, targetSense);
         await harmonyChangeWriter.AddChange(new MoveExampleSentenceToSenseChange(exampleId, senseId, await PickExampleOrder(repo, senseId, between)));
