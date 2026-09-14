@@ -8,9 +8,8 @@ import { HttpStatusError } from '../utils/http-status-error';
  * which is what this service promises for it.
  *
  * Only a 404 is absence: the backend answers that for a lexicon code it does not hold. Anything
- * else is left to reject — a 400 means the request itself was malformed, a 500 or an unreachable
- * backend means the answer is unknown rather than "no", and swallowing either would report an empty
- * lexicon where there is a fault.
+ * else is left to reject, since the answer is then unknown rather than "no", and swallowing it
+ * would report an empty lexicon where there is a fault.
  *
  * The backend also answers a missing entry or sense with `null` rather than a 404, so a nullish
  * result becomes `undefined` too and callers can trust the one absent value the types declare.

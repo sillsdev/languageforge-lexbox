@@ -86,8 +86,7 @@ export class FwLiteApi {
 
   /**
    * The lexicon this instance is bound to, standing in wherever a method is called without one. Set
-   * once at construction: a client whose lexicon could change under an in-flight caller is how a
-   * write lands in one lexicon while the view that opened on it reads another.
+   * once at construction, so a caller already in flight cannot have the lexicon changed under it.
    */
   private readonly lexiconCode?: string;
 

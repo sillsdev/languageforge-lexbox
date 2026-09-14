@@ -75,7 +75,8 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       return {
         failureMessage: 'Error fetching entries:',
         // Drop what the last query found: kept, it would sit under the new search term as though
-        // it answered it, and the domain derived from it would file a new entry under that domain.
+        // it answered it. The domain derived from it would also file a new entry under a domain
+        // belonging to a search the user has left.
         onFailure: () => {
           setMatchingEntries(undefined);
           setRelatedEntries(undefined);

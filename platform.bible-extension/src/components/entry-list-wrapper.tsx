@@ -12,7 +12,7 @@ type EntryListWrapperProps = {
   hasItems: boolean;
 };
 
-/** A wrapper layout with a sticky header and a loading/error/no-results/list body. */
+/** A wrapper layout with a sticky header and a body that follows the lookup. */
 export default function EntryListWrapper({
   elementHeader,
   elementList,
