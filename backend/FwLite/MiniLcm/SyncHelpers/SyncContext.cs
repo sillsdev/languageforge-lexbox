@@ -30,12 +30,17 @@ public class SyncContext
         _examplesAfter = examplesAfter;
     }
 
+    private SyncContext(bool deferDeletes,
+        (IReadOnlyDictionary<Guid, Sense> senses, IReadOnlyDictionary<Guid, ExampleSentence> examples) before,
+        (IReadOnlyDictionary<Guid, Sense> senses, IReadOnlyDictionary<Guid, ExampleSentence> examples) after
+        ) : this(deferDeletes, before.senses, after.senses, before.examples, after.examples)
+    {
+    }
+
     public static SyncContext For(Entry[] beforeEntries, Entry[] afterEntries)
     {
         VerifyNoUnsupportedMoves(beforeEntries, afterEntries);
-        return new SyncContext(deferDeletes: true,
-            AllSenses(beforeEntries), AllSenses(afterEntries),
-            AllExamples(beforeEntries), AllExamples(afterEntries));
+        return new SyncContext(deferDeletes: true, All(beforeEntries), All(afterEntries));
     }
 
     public static SyncContext For(Entry beforeEntry, Entry afterEntry)
@@ -76,14 +81,23 @@ public class SyncContext
         return copy;
     }
 
-    private static Dictionary<Guid, Sense> AllSenses(Entry[] entries)
+    private static (IReadOnlyDictionary<Guid, Sense> senses, IReadOnlyDictionary<Guid, ExampleSentence> examples) All(Entry[] entries)
     {
-        return entries.SelectMany(e => e.Senses).ToDictionary(s => s.Id);
-    }
-
-    private static Dictionary<Guid, ExampleSentence> AllExamples(Entry[] entries)
-    {
-        return entries.SelectMany(e => e.Senses).SelectMany(s => s.ExampleSentences).ToDictionary(e => e.Id);
+        var senseCount = entries.Sum(e => e.Senses.Count);
+        var exampleCount = entries.SelectMany(e => e.Senses).Sum(s => s.ExampleSentences.Count);
+        //by using the counts to preallocate, we avoid the cost of resizing the dictionary as it grows, it requires counting all the entries first, but that is cheap compared to the cost of resizing the dictionary
+        Dictionary<Guid, Sense> senses = new(senseCount);
+        Dictionary<Guid, ExampleSentence> examples = new(exampleCount);
+        foreach (var entry in entries)
+        {
+            foreach (var sense in entry.Senses)
+            {
+                senses[sense.Id] = sense;
+                foreach (var example in sense.ExampleSentences)
+                    examples[example.Id] = example;
+            }
+        }
+        return (senses, examples);
     }
 
     private static void VerifyNoUnsupportedMoves(Entry[] beforeEntries, Entry[] afterEntries)
@@ -96,33 +110,34 @@ public class SyncContext
     /// An id whose parent differs between the states is a move. The parent is the DIRECT parent, so a
     /// child riding along inside a moved sense or example is not itself a move.
     /// </summary>
-    private static void ThrowIfContainsMoves(string typeName, Dictionary<Guid, Guid> beforeParents, Dictionary<Guid, Guid> afterParents)
+    private static void ThrowIfContainsMoves(string typeName, IEnumerable<(Guid ChildId, Guid ParentId)> beforeParents, IEnumerable<(Guid ChildId, Guid ParentId)> afterParents)
     {
+        var afterParentsLookup = afterParents.ToDictionary(p => p.ChildId, p => p.ParentId);
         foreach (var (id, beforeParent) in beforeParents)
         {
-            if (afterParents.TryGetValue(id, out var afterParent) && afterParent != beforeParent)
+            if (afterParentsLookup.TryGetValue(id, out var afterParent) && afterParent != beforeParent)
                 throw new MoveNotSupportedException(typeName, id, beforeParent, afterParent);
         }
     }
 
     // parent maps tolerate duplicate ids (First wins): a duplicated child is corrupt data the sync
     // otherwise handles, not something detection should turn into a hard failure
-    private static Dictionary<Guid, Guid> PictureParents(Entry[] entries)
+    private static IEnumerable<(Guid ChildId, Guid ParentId)> PictureParents(Entry[] entries)
     {
         return entries.SelectMany(e => e.Senses)
-            .SelectMany(s => s.Pictures.Select(p => (ChildId: p.Id, ParentId: s.Id)))
+            .SelectMany(s => s.Pictures, (p, s) => (ChildId: p.Id, ParentId: s.Id))
             .GroupBy(p => p.ChildId)
-            .ToDictionary(g => g.Key, g => g.First().ParentId);
+            .Select(g => (ChildId: g.Key, ParentId: g.First().ParentId));
     }
 
-    private static Dictionary<Guid, Guid> TranslationParents(Entry[] entries)
+    private static IEnumerable<(Guid ChildId, Guid ParentId)> TranslationParents(Entry[] entries)
     {
         return entries.SelectMany(e => e.Senses)
             .SelectMany(s => s.ExampleSentences)
-            .SelectMany(x => x.Translations.Select(t => (ChildId: t.Id, ParentId: x.Id)))
+            .SelectMany(x => x.Translations, (x, t) => (ChildId: t.Id, ParentId: x.Id))
             .Where(t => !Translation.IsMissingTranslationId(t.ChildId))// the legacy placeholder id recurs across examples, so it can never identify a move
             .GroupBy(t => t.ChildId)
-            .ToDictionary(g => g.Key, g => g.First().ParentId);
+            .Select(g => (ChildId: g.Key, ParentId: g.First().ParentId));
     }
 }
 
