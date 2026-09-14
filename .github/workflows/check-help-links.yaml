@@ -1,0 +1,49 @@
+name: Check help links
+
+# Field help icons link to FieldWorks doc pages hosted off-site. Those links rot when the
+# docs site changes, not when we change code, so this runs on a timer instead of per-PR
+# (which would also make PR CI hostage to an external site's availability).
+on:
+  schedule:
+    - cron: '17 8 * * 1' # Mondays 08:17 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: check-help-links
+  cancel-in-progress: false
+
+jobs:
+  check-help-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240 # allows the on-failure retry to sleep for hours and stay under the 6h job cap
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: install
+        working-directory: frontend
+        run: pnpm install
+      # Split into first-attempt / wait / retry so the retry is visible as its own step in CI.
+      # On a scheduled run, a broken link is retried after a delay so a brief docs-site outage
+      # doesn't cry wolf: the job goes red only if it's still broken hours later. A manual run
+      # fails fast instead, so you get an answer without the wait.
+      - name: check help links (first attempt)
+        id: first
+        continue-on-error: true
+        working-directory: frontend/viewer
+        run: pnpm run test:manual
+      - name: wait 3h before retry
+        if: steps.first.outcome == 'failure' && github.event_name == 'schedule'
+        run: sleep 3h
+      - name: check help links (retry)
+        if: steps.first.outcome == 'failure' && github.event_name == 'schedule'
+        working-directory: frontend/viewer
+        run: pnpm run test:manual
+      # continue-on-error hid a first-attempt failure, so fail explicitly when we won't retry.
+      - name: fail if broken and not retrying
+        if: steps.first.outcome == 'failure' && github.event_name != 'schedule'
+        run: exit 1
