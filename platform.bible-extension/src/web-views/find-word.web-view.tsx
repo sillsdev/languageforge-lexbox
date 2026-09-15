@@ -56,9 +56,6 @@ globalThis.webViewComponent = function LexiconFindWord({
       logger.info(`Fetching entries for ${surfaceForm}`);
       return {
         failureMessage: 'Error fetching entries:',
-        // Drop the last query's entries: kept, they would sit under the new search term as though
-        // they answered it.
-        onFailure: () => setMatchingEntries(undefined),
         onResult: (entries) => setMatchingEntries(entries ?? []),
         request: () => lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm }),
       };
@@ -69,11 +66,9 @@ globalThis.webViewComponent = function LexiconFindWord({
   const onSearch = useCallback(
     (searchQuery: string) => {
       setSearchTerm(searchQuery);
+      setMatchingEntries(undefined);
       if (!searchQuery.trim()) {
-        // The query is withdrawn, so nothing should answer it and what is on screen answers a
-        // query that is gone.
         lookup.reset();
-        setMatchingEntries(undefined);
         return;
       }
       lookup.schedule(() => entriesLookup(searchQuery));
@@ -99,12 +94,10 @@ globalThis.webViewComponent = function LexiconFindWord({
       }
 
       onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
-      await papi.commands.sendCommand(
-        'lexicon.displayEntry',
-        projectId,
-        lexiconCode,
-        addedEntry.id,
-      );
+      // The entry is written, so failing to show it must not read as a failed add.
+      await papi.commands
+        .sendCommand('lexicon.displayEntry', projectId, lexiconCode, addedEntry.id)
+        .catch((e) => logger.error('Error displaying the new entry:', e));
       return true;
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings, onSearch, projectId],

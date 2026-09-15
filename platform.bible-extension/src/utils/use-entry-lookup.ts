@@ -24,8 +24,11 @@ type EntryLookupActions = {
   run: <T>(lookup: EntryLookupRequest<T>) => void;
   /**
    * Waits out {@link SCHEDULED_LOOKUP_DELAY_MS} and then starts the lookup `resolve` returns,
-   * discarding whatever was scheduled or in flight before. `resolve` runs when the wait is over, so
-   * it reads the state of that moment, and returning `undefined` starts nothing.
+   * discarding whatever was scheduled or in flight before. Pending from the moment it is called, so
+   * a view does not present what it holds as the answer to a query still being waited on.
+   *
+   * `resolve` runs when the wait is over, so it reads the state of that moment, and returning
+   * `undefined` starts nothing.
    */
   schedule: <T>(resolve: () => EntryLookupRequest<T> | undefined) => void;
 };
@@ -93,7 +96,6 @@ export default function useEntryLookup(): EntryLookup {
     [],
   );
 
-  // A lookup left waiting would otherwise start against a view that has moved on or gone away.
   useEffect(() => () => waitThenStart.cancel(), [waitThenStart]);
 
   const reset = useCallback((): void => {
@@ -114,10 +116,14 @@ export default function useEntryLookup(): EntryLookup {
   const schedule = useCallback(
     <T>(resolve: () => EntryLookupRequest<T> | undefined): void => {
       // Answers owed to the query being replaced are no longer wanted, even before this starts.
-      nextId();
+      const id = nextId();
+      setDidFail(false);
+      setIsPending(true);
       waitThenStart(() => {
         const lookup = resolve();
         if (lookup) perform(lookup).catch(logUnexpected);
+        // The wait was the whole of it, so nothing else will report that it is over.
+        else if (id === newestRef.current) setIsPending(false);
       }).catch(ignoreCancellation);
     },
     [nextId, perform, waitThenStart],

@@ -57,7 +57,10 @@ globalThis.webViewComponent = function LexiconAddWord({
       }
 
       setIsSubmitted(true);
-      await papi.commands.sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId);
+      // The entry is written, so failing to show it must not read as a failed add.
+      await papi.commands
+        .sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId)
+        .catch((e) => logger.error('Error displaying the new entry:', e));
       return true;
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings, projectId],

@@ -74,13 +74,6 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       logger.info(`Fetching entries for ${surfaceForm}`);
       return {
         failureMessage: 'Error fetching entries:',
-        // Drop what the last query found: kept, it would sit under the new search term as though
-        // it answered it. The domain derived from it would also file a new entry under a domain
-        // belonging to a search the user has left.
-        onFailure: () => {
-          setMatchingEntries(undefined);
-          setRelatedEntries(undefined);
-        },
         // Only entries and senses carrying a semantic domain can be related to anything.
         onResult: (entries) =>
           setMatchingEntries(
@@ -121,12 +114,10 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
   const onSearch = useCallback(
     (searchQuery: string) => {
       setSearchTerm(searchQuery);
+      setMatchingEntries(undefined);
+      setRelatedEntries(undefined);
       if (!searchQuery.trim()) {
-        // The query is withdrawn, so nothing should answer it and what is on screen answers a
-        // query that is gone.
         lookup.reset();
-        setMatchingEntries(undefined);
-        setRelatedEntries(undefined);
         return;
       }
       lookup.schedule(() => entriesLookup(searchQuery));
@@ -162,12 +153,10 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       }
 
       onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
-      await papi.commands.sendCommand(
-        'lexicon.displayEntry',
-        projectId,
-        lexiconCode,
-        addedEntry.id,
-      );
+      // The entry is written, so failing to show it must not read as a failed add.
+      await papi.commands
+        .sendCommand('lexicon.displayEntry', projectId, lexiconCode, addedEntry.id)
+        .catch((e) => logger.error('Error displaying the new entry:', e));
       return true;
     },
     [lexiconCode, lexiconNetworkObject, localizedStrings, onSearch, projectId, selectedDomain],

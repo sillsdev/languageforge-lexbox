@@ -70,7 +70,7 @@ export class EntryService implements IEntryService {
   }
 
   async deleteEntry(lexiconCode: string, id: string): Promise<undefined> {
-    if (!lexiconCode || !id) return;
+    // A delete has no absence to answer with, so a malformed id rejects instead of resolving.
     await this.fwLiteApi.deleteEntry(id, lexiconCode);
   }
 }

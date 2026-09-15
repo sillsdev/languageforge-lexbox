@@ -57,7 +57,8 @@ declare module 'lexicon' {
    * backend is unreachable, or it answered with a fault.
    *
    * `deleteEntry` is outside that rule and rejects for a lexicon that is not there, since it has no
-   * value to answer absence with.
+   * value to answer absence with. Its resolving means the backend accepted the delete, not that
+   * there was a record to delete, so it cannot serve as an existence check.
    *
    * A record `id` is one the lexicon minted, a GUID. An id in any other shape names no record the
    * lexicon could hold, so it reads as absence rather than as a fault.
