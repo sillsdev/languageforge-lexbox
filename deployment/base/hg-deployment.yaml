@@ -148,6 +148,12 @@ spec:
           - name: hgrc
             mountPath: /var/hg
             readOnly: true
+          # Apache writes its PID file, mod_wsgi/mod_cgid sockets, and file-based
+          # mutexes here. The image's build-time chown of this dir doesn't stick,
+          # so back it with an emptyDir: fsGroup: 33 makes it group-writable and
+          # the non-root UID (33) can create these runtime files.
+          - name: apache-runtime
+            mountPath: /usr/local/apache2/logs
 
 
 
@@ -191,6 +197,9 @@ spec:
           mountPath: /var/vcs/public
 
       volumes:
+      - name: apache-runtime
+        emptyDir:
+          sizeLimit: 64Mi
       - name: cache
         emptyDir:
           sizeLimit: 3Gi
