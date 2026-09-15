@@ -47,37 +47,25 @@ declare module 'lexicon' {
   /**
    * Reads and writes the lexical data of one lexicon at a time.
    *
-   * Every method names the lexicon it acts on by its FW Lite lexicon code. Mapping a Paratext
-   * project to a lexicon is the caller's own business; this service holds no notion of a project.
+   * Record-returning methods resolve `undefined` when the lexicon or record is missing and reject
+   * only for backend faults or other unknown failures. `deleteEntry` is the exception: a missing
+   * lexicon rejects because there is no meaningful absence value to return.
    *
-   * Absence resolves and faults reject, for every method that answers with a record. A lexicon that
-   * is not there, and a record it does not hold, both answer `undefined`. A caller resolving a
-   * reference it stored earlier therefore handles a deleted lexicon the way it handles a deleted
-   * record, without a `catch`. A rejection means the answer is unknown rather than "no": the
-   * backend is unreachable, or it answered with a fault.
-   *
-   * `deleteEntry` is outside that rule and rejects for a lexicon that is not there, since it has no
-   * value to answer absence with. Its resolving means the backend accepted the delete, not that
-   * there was a record to delete, so it cannot serve as an existence check.
-   *
-   * A record `id` is one the lexicon minted, a GUID. An id in any other shape names no record the
-   * lexicon could hold, so it reads as absence rather than as a fault.
+   * IDs are GUIDs minted by the lexicon; any other shape is treated as not found rather than as a
+   * fault.
    */
   export interface IEntryService {
     /**
-     * @param query - Ignored unless it narrows by surface form or semantic domain; a query that
-     *   narrows by neither matches nothing rather than everything.
-     * @returns The matching entries, or `undefined` when the query narrows by nothing or the
-     *   lexicon is not there. Empty when the lexicon holds no match.
+     * @param query - Ignored unless it narrows by surface form or semantic domain.
+     * @returns Matching entries, or `undefined` when the query narrows by nothing or the lexicon is
+     *   missing. Empty when the lexicon holds no match.
      */
     getEntries(lexiconCode: string, query: IEntryQuery): Promise<IEntry[] | undefined>;
     getEntry(lexiconCode: string, id: string): Promise<IEntry | undefined>;
     getSense(lexiconCode: string, id: string): Promise<ISense | undefined>;
     /**
-     * Adds an entry to the lexicon.
-     *
-     * @returns The created entry, carrying the ids the lexicon minted for it, or `undefined` when
-     *   the lexicon is not there. Rejects when the entry was refused.
+     * @returns The created entry, including any IDs minted by the lexicon, or `undefined` when the
+     *   lexicon is missing. Rejects when the backend refuses the entry.
      */
     addEntry(lexiconCode: string, entry: PartialEntry): Promise<IEntry | undefined>;
     updateEntry(lexiconCode: string, entry: IEntry): Promise<void>;

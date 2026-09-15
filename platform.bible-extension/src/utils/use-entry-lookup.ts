@@ -54,10 +54,8 @@ function ignoreCancellation(e: unknown): void {
 /**
  * Keeps a view's pending and failure state tied to the newest of its entry lookups.
  *
- * A query can change while a lookup for the previous one is waiting to start or already in flight,
- * and an emptied query means none should run at all. Scheduling and numbering live together here so
- * that standing a lookup down reaches it at either stage, and only the newest one's answer ever
- * reaches the view.
+ * A stale query must never update the view. This hook keeps only the newest scheduled or in-flight
+ * lookup active.
  */
 export default function useEntryLookup(): EntryLookup {
   const [didFail, setDidFail] = useState(false);
