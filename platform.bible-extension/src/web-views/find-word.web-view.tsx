@@ -3,7 +3,7 @@ import papi, { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
 import type { IEntry, IEntryService, LexiconWebViewProps, PartialEntry } from 'lexicon';
 import { SearchBar } from 'platform-bible-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
 import EntryList from '../components/entry-list';
 import EntryListWrapper from '../components/entry-list-wrapper';
@@ -63,6 +63,12 @@ globalThis.webViewComponent = function LexiconFindWord({
     [lexiconCode, lexiconNetworkObject, localizedStrings],
   );
 
+  const entriesLookupRef = useRef(entriesLookup);
+
+  useEffect(() => {
+    entriesLookupRef.current = entriesLookup;
+  }, [entriesLookup]);
+
   const onSearch = useCallback(
     (searchQuery: string) => {
       setSearchTerm(searchQuery);
@@ -71,9 +77,9 @@ globalThis.webViewComponent = function LexiconFindWord({
         lookup.reset();
         return;
       }
-      lookup.schedule(() => entriesLookup(searchQuery));
+      lookup.schedule(() => entriesLookupRef.current(searchQuery));
     },
-    [entriesLookup, lookup],
+    [lookup],
   );
 
   const addEntry = useCallback(

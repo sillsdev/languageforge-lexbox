@@ -10,7 +10,7 @@ import type {
 } from 'lexicon';
 import { Network } from 'lucide-react';
 import { Label, SearchBar } from 'platform-bible-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
 import EntryList from '../components/entry-list';
 import EntryListWrapper from '../components/entry-list-wrapper';
@@ -87,6 +87,12 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
     [lexiconCode, lexiconNetworkObject, localizedStrings],
   );
 
+  const entriesLookupRef = useRef(entriesLookup);
+
+  useEffect(() => {
+    entriesLookupRef.current = entriesLookup;
+  }, [entriesLookup]);
+
   const fetchRelatedEntries = useCallback(
     (semanticDomain: string) => {
       if (!lexiconCode || !lexiconNetworkObject) {
@@ -116,13 +122,14 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       setSearchTerm(searchQuery);
       setMatchingEntries(undefined);
       setRelatedEntries(undefined);
+      setSelectedDomain(undefined);
       if (!searchQuery.trim()) {
         lookup.reset();
         return;
       }
-      lookup.schedule(() => entriesLookup(searchQuery));
+      lookup.schedule(() => entriesLookupRef.current(searchQuery));
     },
-    [entriesLookup, lookup],
+    [lookup],
   );
 
   const addEntryInDomain = useCallback(
