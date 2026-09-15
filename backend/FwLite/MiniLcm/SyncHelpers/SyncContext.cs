@@ -33,16 +33,17 @@ public class SyncContext
     {
     }
 
-    public static SyncContext For(Entry[] beforeEntries, Entry[] afterEntries, bool deferDeletes = true)
+    /// <summary>Always defers deletes so descendants can move between entries; the caller must call <see cref="FlushDeletes"/>.</summary>
+    public static SyncContext For(Entry[] beforeEntries, Entry[] afterEntries)
     {
         VerifyNoUnsupportedMoves(beforeEntries, afterEntries);
-        return new SyncContext(deferDeletes, All(beforeEntries), All(afterEntries));
+        return new SyncContext(deferDeletes: true, All(beforeEntries), All(afterEntries));
     }
 
-    public static SyncContext For(Entry beforeEntry, Entry afterEntry, bool deferDeletes = true)
+    public static SyncContext For(Entry beforeEntry, Entry afterEntry)
     {
         if (beforeEntry.Id != afterEntry.Id) throw new ArgumentException("Entry ids must match", nameof(afterEntry));
-        return For([beforeEntry], [afterEntry], deferDeletes);
+        return For([beforeEntry], [afterEntry]);
     }
 
     public static SyncContext For(Sense beforeSense, Sense afterSense, bool deferDeletes = false)

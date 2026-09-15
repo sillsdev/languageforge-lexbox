@@ -189,9 +189,9 @@ public class SyncContextTests
     }
 
     [Fact]
-    public async Task WithDeferDeletes_DeferUntilDeleteAll()
+    public async Task EntryContext_DefersDeletesUntilFlush()
     {
-        var context = SyncContext.For([NewEntry()], [NewEntry()], deferDeletes: true);
+        var context = SyncContext.For([NewEntry()], [NewEntry()]);
         var deleted = false;
 
         (await context.HandleDelete(() => { deleted = true; return Task.FromResult(1); })).Should().Be(0);
@@ -202,9 +202,10 @@ public class SyncContextTests
     }
 
     [Fact]
-    public async Task WithoutDeferDeletes_DoNotDefer()
+    public async Task SenseContext_DoesNotDeferDeletes()
     {
-        var context = SyncContext.For([NewEntry()], [NewEntry()], deferDeletes: false);
+        var sense = NewSense();
+        var context = SyncContext.For(sense, sense);
         var deleted = false;
 
         (await context.HandleDelete(() => { deleted = true; return Task.FromResult(1); })).Should().Be(1);
