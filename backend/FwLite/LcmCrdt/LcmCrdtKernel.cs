@@ -370,6 +370,7 @@ public static class LcmCrdtKernel
             .Add<CreateExampleSentenceChange>()
             .Add<JsonPatchExampleSentenceChange>()
             .Add<Changes.SetOrderChange<ExampleSentence>>()
+            .Add<MoveExampleSentenceToSenseChange>()
             .Add<DeleteChange<ExampleSentence>>()
             .Add<AddTranslationChange>()
             .Add<RemoveTranslationChange>()

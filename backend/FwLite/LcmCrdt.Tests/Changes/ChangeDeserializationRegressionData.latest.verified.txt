@@ -2397,5 +2397,11 @@
   {
     "$type": "delete:UserComment",
     "EntityId": "4be242d0-b1a6-986f-cc0d-b35860e69e60"
+  },
+  {
+    "$type": "MoveExampleSentenceToSenseChange",
+    "SenseId": "7a5a8e98-b078-b380-c682-9765cf435468",
+    "Order": 0.3296040037939726,
+    "EntityId": "085ee084-3965-d19c-2413-5d4de7b0ad5b"
   }
 ]

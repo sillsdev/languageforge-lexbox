@@ -265,12 +265,13 @@ public class MiniLcmRepository(
     public async Task<Sense?> GetSense(Guid senseId)
     {
         var sense = await AsyncExtensions.SingleOrDefaultAsync(Senses.LoadWith(s => s.PartOfSpeech)
+                .LoadWith(s => s.ExampleSentences)
                 .AsQueryable(), e => e.Id == senseId);
         sense?.Finalize();
         return sense;
     }
 
-    public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
+    public async Task<ExampleSentence?> GetExampleSentence(Guid id)
     {
         var exampleSentence = await AsyncExtensions.SingleOrDefaultAsync(ExampleSentences
                 .AsQueryable(), e => e.Id == id);

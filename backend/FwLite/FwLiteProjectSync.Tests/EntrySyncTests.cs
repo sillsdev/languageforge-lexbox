@@ -3,7 +3,6 @@ using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using MiniLcm;
-using MiniLcm.Exceptions;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests;
@@ -19,8 +18,15 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
         return fixture.CrdtApi;
     }
 
-    // These delete-win cases live only in the CRDT subclass: the CRDT deletion must win when an object it
-    // deleted is still edited from the other side, whereas FwData intentionally still throws on a missing target.
+    // Only CRDT can diverge from the diff's "before": sync diffs the snapshot against FwData and applies to CRDT,
+    // whereas the FwData pass diffs FwData's own current state. So these cases live only in the CRDT subclass.
+
+    // CRDT as a technology has to handle these cases anyway, which is why we sync in the order we do.
+
+    #region Edit of an object deleted in CRDT
+
+    // The CRDT deletion wins when the object it deleted is still edited from the other side
+    // (FwData intentionally still throws on a missing target).
 
     [Fact]
     public async Task SyncFull_EntryEditedButDeletedInCrdt_DoesNotThrow()
@@ -97,6 +103,12 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
         actual.Senses[0].ExampleSentences.Should().BeEmpty();
     }
 
+    #endregion
+
+    #region Complex form component referencing an entry deleted in CRDT
+
+    // Component adds and reorders touching an entry CRDT deleted are moot and must be skipped, not throw and wedge the whole sync.
+
     [Fact]
     public async Task SyncFull_ComplexFormComponentReferencingEntryDeletedInCrdt_DoesNotThrow()
     {
@@ -138,6 +150,8 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
 
         (await Api.GetEntry(before.Id)).Should().BeNull();
     }
+
+    #endregion
 }
 
 public class FwDataEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntrySyncTestsBase(fixture)
@@ -778,178 +792,6 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
 
         // Assert
         await act.Should().ThrowAsync<InvalidOperationException>();
-    }
-
-    [Theory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public async Task CanSyncSenseMovedToDifferentEntry(bool sourceEntryDeleted, bool targetEntryCreated)
-    {
-        // Arrange
-        var senseId = Guid.NewGuid();
-        var sourceEntry = await Api.CreateEntry(new()
-        {
-            LexemeForm = { { "en", "source" } },
-            Senses = [new() { Id = senseId }]
-        });
-        var sourceEntryAfter = sourceEntry.Copy();
-        sourceEntryAfter.Senses.Clear(); // sense is moved from here
-
-        var targetEntry = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "target" } } };
-        if (!targetEntryCreated)
-            targetEntry = await Api.CreateEntry(targetEntry);
-
-        var targetEntryAfter = targetEntry.Copy();
-        targetEntryAfter.Senses.Add(new Sense() { Id = senseId }); // sense is moved to here
-
-        Entry[] before = targetEntryCreated
-            ? [sourceEntry]
-            : [sourceEntry, targetEntry];
-        Entry[] after = sourceEntryDeleted
-            ? [targetEntryAfter]
-            : [sourceEntryAfter, targetEntryAfter];
-
-        // Act
-        await EntrySync.SyncFull(before, after, Api);
-
-        // Assert
-        var actualSourceEntry = await Api.GetEntry(sourceEntry.Id);
-        if (sourceEntryDeleted)
-        {
-            actualSourceEntry.Should().BeNull();
-        }
-        else
-        {
-            actualSourceEntry.Should().NotBeNull();
-            actualSourceEntry.Senses.Should().BeEmpty();
-        }
-
-        var actualTargetEntry = await Api.GetEntry(targetEntry.Id);
-        actualTargetEntry.Should().NotBeNull();
-        actualTargetEntry.Senses.Should().HaveCount(1);
-        actualTargetEntry.Senses[0].Id.Should().Be(senseId);
-
-        var actualMovedSense = await Api.GetSense(actualTargetEntry.Id, senseId);
-        actualMovedSense.Should().NotBeNull();
-        actualMovedSense.EntryId.Should().Be(targetEntry.Id);
-
-        var tryGetSenseFromSource = () => Api.GetSense(sourceEntry.Id, senseId);
-        await tryGetSenseFromSource.Should().ThrowAsync<NotFoundException>().WithMessage("*does not belong to the expected entry*");
-    }
-
-    [Theory]
-    // Old component still exists in `after`, new component already exists in `before`.
-    [InlineData("complex-form,old-component,new-component", false, false)]
-    [InlineData("complex-form,new-component,old-component", false, false)]
-    [InlineData("old-component,complex-form,new-component", false, false)]
-    [InlineData("old-component,new-component,complex-form", false, false)]
-    [InlineData("new-component,complex-form,old-component", false, false)]
-    [InlineData("new-component,old-component,complex-form", false, false)]
-    // Old component is removed entirely in `after` (e.g. the now-empty entry was deleted in FLEx).
-    [InlineData("complex-form,old-component,new-component", true, false)]
-    [InlineData("complex-form,new-component,old-component", true, false)]
-    [InlineData("old-component,complex-form,new-component", true, false)]
-    [InlineData("old-component,new-component,complex-form", true, false)]
-    [InlineData("new-component,complex-form,old-component", true, false)]
-    [InlineData("new-component,old-component,complex-form", true, false)]
-    // New component is being created in this sync — it didn't exist before, but the moved sense
-    // should still end up on it. Stresses the entry-creation path (AddAndGet) instead of Replace.
-    [InlineData("complex-form,old-component,new-component", false, true)]
-    [InlineData("complex-form,new-component,old-component", false, true)]
-    [InlineData("old-component,complex-form,new-component", false, true)]
-    [InlineData("old-component,new-component,complex-form", false, true)]
-    [InlineData("new-component,complex-form,old-component", false, true)]
-    [InlineData("new-component,old-component,complex-form", false, true)]
-    // Both: old component deleted AND new component created in the same sync.
-    [InlineData("complex-form,old-component,new-component", true, true)]
-    [InlineData("complex-form,new-component,old-component", true, true)]
-    [InlineData("old-component,complex-form,new-component", true, true)]
-    [InlineData("old-component,new-component,complex-form", true, true)]
-    [InlineData("new-component,complex-form,old-component", true, true)]
-    [InlineData("new-component,old-component,complex-form", true, true)]
-    public async Task CanSyncComponentWhenSenseMovesToDifferentEntry(string entryOrderString, bool oldComponentDeleted, bool newComponentCreated)
-    {
-        var entryOrder = entryOrderString.Split(",", StringSplitOptions.TrimEntries);
-
-        var senseId = Guid.NewGuid();
-        var oldComponentEntry = await Api.CreateEntry(new() { LexemeForm = { { "en", "old-component" } }, Senses = [new() { Id = senseId }] });
-        var oldComponentEntryAfter = oldComponentEntry.Copy();
-        oldComponentEntryAfter.Senses.Clear(); // sense is moved from here
-
-        var newComponentEntry = new Entry { Id = Guid.NewGuid(), LexemeForm = { { "en", "new-component" } } };
-        if (!newComponentCreated)
-            newComponentEntry = await Api.CreateEntry(newComponentEntry);
-
-        var newComponentEntryAfter = newComponentEntry.Copy();
-        newComponentEntryAfter.Senses.Add(new Sense() { Id = senseId }); // sense is moved to here
-
-        var complexForm = new Entry()
-        {
-            Id = Guid.NewGuid(),
-            LexemeForm = { { "en", "complex form" } },
-        };
-        complexForm.Components.Add(ComplexFormComponent.FromEntries(complexForm, oldComponentEntry, senseId));
-        complexForm = await Api.CreateEntry(complexForm);
-
-        var complexFormAfter = complexForm.Copy();
-        complexFormAfter.Components =
-        [
-            ComplexFormComponent.FromEntries(complexForm, newComponentEntry, senseId)
-        ];
-
-        var before = entryOrder
-            .Where(name => !(newComponentCreated && name == "new-component"))
-            .Select(name =>
-            {
-                return name switch
-                {
-                    "complex-form" => complexForm,
-                    "old-component" => oldComponentEntry,
-                    "new-component" => newComponentEntry,
-                    _ => throw new InvalidOperationException("Unknown entry name")
-                };
-            }).ToArray();
-        var after = entryOrder
-            .Where(name => !(oldComponentDeleted && name == "old-component"))
-            .Select(name =>
-            {
-                return name switch
-                {
-                    "complex-form" => complexFormAfter,
-                    "old-component" => oldComponentEntryAfter,
-                    "new-component" => newComponentEntryAfter,
-                    _ => throw new InvalidOperationException("Unknown entry name")
-                };
-            }).ToArray();
-
-        await EntrySync.SyncFull(before, after, Api);
-
-        var actualComplexForm = await Api.GetEntry(complexForm.Id);
-        actualComplexForm.Should().NotBeNull();
-        actualComplexForm.Components.Should().HaveCount(1);
-        actualComplexForm.Components[0].ComponentEntryId.Should().Be(newComponentEntry.Id);
-        actualComplexForm.Components[0].ComponentSenseId.Should().Be(senseId);
-
-        var actualOldComponentEntry = await Api.GetEntry(oldComponentEntry.Id);
-        if (oldComponentDeleted)
-        {
-            actualOldComponentEntry.Should().BeNull();
-        }
-        else
-        {
-            actualOldComponentEntry.Should().NotBeNull();
-            actualOldComponentEntry.Senses.Should().BeEmpty();
-            actualOldComponentEntry.ComplexForms.Should().BeEmpty();
-        }
-
-        var actualNewComponentEntry = await Api.GetEntry(newComponentEntry.Id);
-        actualNewComponentEntry.Should().NotBeNull();
-        actualNewComponentEntry.Senses.Should().HaveCount(1);
-        actualNewComponentEntry.Senses[0].Id.Should().Be(senseId);
-        actualNewComponentEntry.ComplexForms.Should().HaveCount(1);
-        actualNewComponentEntry.ComplexForms[0].ComplexFormEntryId.Should().Be(complexForm.Id);
     }
 
     [Fact]

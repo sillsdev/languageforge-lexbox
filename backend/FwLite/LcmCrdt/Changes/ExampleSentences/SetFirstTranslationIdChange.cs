@@ -11,9 +11,7 @@ public class SetFirstTranslationIdChange : EditChange<ExampleSentence>, ISelfNam
     public SetFirstTranslationIdChange(Guid entityId, Guid translationId) : base(entityId)
     {
         if (translationId == Guid.Empty) throw new InvalidOperationException("translationId should not be Guid.Empty");
-#pragma warning disable CS0618 // Type or member is obsolete
-        if (translationId == Translation.MissingTranslationId) throw new InvalidOperationException("translationId should not be MissingTranslationId");
-#pragma warning restore CS0618 // Type or member is obsolete
+        if (Translation.IsMissingTranslationId(translationId)) throw new InvalidOperationException("translationId should not be MissingTranslationId");
         TranslationId = translationId;
     }
 

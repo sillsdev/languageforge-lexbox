@@ -14,9 +14,7 @@ public class RemoveTranslationChange(Guid entityId, Guid translationId) : EditCh
         entity.Translations.RemoveAll(t => t.Id == TranslationId);
         if (TranslationId == entity.DefaultFirstTranslationId)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            entity.Translations.RemoveAll(t => t.Id == Translation.MissingTranslationId);
-#pragma warning restore CS0618 // Type or member is obsolete
+            entity.Translations.RemoveAll(t => Translation.IsMissingTranslationId(t.Id));
         }
         return ValueTask.CompletedTask;
     }

@@ -610,9 +610,9 @@ public class CrdtMiniLcmApi(
         return sense;
     }
 
-    private void VerifySenseBelongsToEntry(Guid entryId, Sense sense)
+    private static void VerifySenseBelongsToEntry(Guid entryId, Sense sense)
     {
-        if (sense.EntryId != entryId) throw new NotFoundException($"Sense {sense.Id} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.EntryId}", nameof(Sense));
+        if (sense.EntryId != entryId) throw ParentMismatchException.ForType<Sense>(sense.Id, entryId, sense.EntryId);
     }
 
     public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
@@ -628,10 +628,7 @@ public class CrdtMiniLcmApi(
             throw new InvalidOperationException($"Part of speech must exist when creating a sense (could not find GUID {sense.PartOfSpeechId.Value})");
 
         await SubmitCreateSense(entryId, sense, between);
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var createdSense = await repo.GetSense(sense.Id) ?? throw NotFoundException.ForType<Sense>(sense.Id);
-        VerifySenseBelongsToEntry(entryId, createdSense);
-        return createdSense;
+        return await GetSense(entryId, sense.Id) ?? throw NotFoundException.ForType<Sense>(sense.Id);
     }
 
     public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
@@ -644,33 +641,49 @@ public class CrdtMiniLcmApi(
         UpdateObjectInput<Sense> update)
     {
         await SubmitUpdateSense(entryId, senseId, update);
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var updatedSense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
-        VerifySenseBelongsToEntry(entryId, updatedSense);
-        return updatedSense;
+        return await GetSense(entryId, senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
     }
 
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
-        await SenseSync.Sync(entryId, before, after, api ?? this);
-        var sense = await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
-        VerifySenseBelongsToEntry(entryId, sense);
-        return sense;
+        await SenseSync.Sync(entryId, before, after, api ?? this,
+            SyncContext.For(before, after, deferDeletes: false));
+        return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
     }
 
-    public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    public async Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var order = await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
-        var currentEntryId = await repo.Senses.Where(s => s.Id == senseId).Select(s => s.EntryId).FirstOrDefaultAsync();
-        if (currentEntryId != default && currentEntryId != entryId)
+        var sense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        if (kind == MoveKind.Reorder)
         {
-            await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, order));
+            // SetOrder doesn't re-parent, so an order picked against another entry's senses would be silently wrong
+            VerifySenseBelongsToEntry(entryId, sense);
+            await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<Sense>(senseId, await PickSenseOrder(repo, entryId, between)));
+            return;
         }
-        else
+        if (!await repo.Entries.AnyAsyncEF(e => e.Id == entryId)) throw NotFoundException.ForType<Entry>(entryId);
+        await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, await PickSenseOrder(repo, entryId, between)));
+    }
+
+    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        if (kind == MoveKind.Reorder)
         {
-            await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<Sense>(senseId, order));
+            // the sense is gone or was reparented on this side: the reorder is moot, skip it
+            var sense = await repo.GetSense(senseId);
+            if (sense is null || sense.EntryId != entryId) return;
+            await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<Sense>(senseId, await PickSenseOrder(repo, entryId, position)));
+            return;
         }
+        // no target check: a deleted target entry is fine, the move change then deletes the sense (delete wins)
+        await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, await PickSenseOrder(repo, entryId, position)));
+    }
+
+    private static async Task<double> PickSenseOrder(MiniLcmRepository repo, Guid entryId, BetweenPosition between)
+    {
+        return await OrderPicker.PickOrder(repo.Senses.Where(s => s.EntryId == entryId), between);
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)
@@ -715,7 +728,23 @@ public class CrdtMiniLcmApi(
     public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetExampleSentence(entryId, senseId, id);
+        return await GetExampleSentence(repo, entryId, senseId, id);
+    }
+
+    // sense first: loading it brings its examples along, so the second query only runs when the example isn't there
+    private static async Task<ExampleSentence?> GetExampleSentence(MiniLcmRepository repo, Guid entryId, Guid senseId, Guid id)
+    {
+        var sense = await repo.GetSense(senseId);
+        if (sense is not null)
+        {
+            VerifySenseBelongsToEntry(entryId, sense);
+            var owned = sense.ExampleSentences.FirstOrDefault(e => e.Id == id);
+            if (owned is not null) return owned;
+        }
+        var exampleSentence = await repo.GetExampleSentence(id);
+        if (exampleSentence is null) return null;
+        if (exampleSentence.SenseId != senseId) throw ParentMismatchException.ForType<ExampleSentence>(id, senseId, exampleSentence.SenseId);
+        return exampleSentence;
     }
 
     public async Task SubmitUpdateExampleSentence(Guid entryId,
@@ -745,11 +774,41 @@ public class CrdtMiniLcmApi(
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw NotFoundException.ForType<ExampleSentence>(after.Id);
     }
 
-    public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    public async Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        var order = await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);
-        await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, order));
+        if (kind == MoveKind.Reorder)
+        {
+            // see MoveSense
+            _ = await GetExampleSentence(repo, entryId, senseId, exampleId) ?? throw NotFoundException.ForType<ExampleSentence>(exampleId);
+            await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleId, await PickExampleOrder(repo, senseId, between)));
+            return;
+        }
+        if (!await repo.ExampleSentences.AnyAsyncEF(e => e.Id == exampleId)) throw NotFoundException.ForType<ExampleSentence>(exampleId);
+        var targetSense = await repo.GetSense(senseId) ?? throw NotFoundException.ForType<Sense>(senseId);
+        VerifySenseBelongsToEntry(entryId, targetSense);
+        await harmonyChangeWriter.AddChange(new MoveExampleSentenceToSenseChange(exampleId, senseId, await PickExampleOrder(repo, senseId, between)));
+    }
+
+    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        if (kind == MoveKind.Reorder)
+        {
+            // the example is gone or was reparented on this side: the reorder is moot, skip it
+            var example = await repo.GetExampleSentence(exampleSentenceId);
+            if (example is null || example.SenseId != senseId) return;
+            await harmonyChangeWriter.AddChange(new Changes.SetOrderChange<ExampleSentence>(exampleSentenceId, await PickExampleOrder(repo, senseId, position)));
+            return;
+        }
+        // no target checks: a reparented target sense is fine (the example follows it), and so is a deleted one
+        // (the move change then deletes the example, delete wins)
+        await harmonyChangeWriter.AddChange(new MoveExampleSentenceToSenseChange(exampleSentenceId, senseId, await PickExampleOrder(repo, senseId, position)));
+    }
+
+    private static async Task<double> PickExampleOrder(MiniLcmRepository repo, Guid senseId, BetweenPosition between)
+    {
+        return await OrderPicker.PickOrder(repo.ExampleSentences.Where(s => s.SenseId == senseId), between);
     }
 
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
@@ -790,7 +849,7 @@ public class CrdtMiniLcmApi(
             // When calling this, the first translation of the relevant example-sentence should almost definitely
             // be Translation.MissingTranslationId, which the API maps to the example sentence's DefaultFirstTranslationId.
             // However, there are edge cases, which are probably valid. See the comment above the caling code in CrdtRepairs.
-            if (translationId == Translation.MissingTranslationId) throw new InvalidOperationException("Cannot set the first translation id to the missing id placeholder");
+            if (Translation.IsMissingTranslationId(translationId)) throw new InvalidOperationException("Cannot set the first translation id to the missing id placeholder");
             // We could also validate that translationId is not the default first translation ID,
             // but it doesn't really matter if it is. It would just be unexpected.
             return new SetFirstTranslationIdChange(exampleSentenceId, translationId);
