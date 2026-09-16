@@ -66,8 +66,8 @@ export const selectLexiconWebViewProvider: IWebViewProvider = {
         `${WebViewType.SelectLexicon} provider received request to provide a ${savedWebView.webViewType} WebView`,
       );
     // Name the project in the tab when known: a fresh open has it in options, a restore falls back
-    // to the persisted title. Only a tab never opened with a project uses the generic label — the
-    // panel heading still names it once an action resolves the project.
+    // to the persisted title. Only a tab never opened with a project uses the generic label; the
+    // panel retitles it once a write prompts for and binds a project.
     const title = options.projectName
       ? formatReplacementString(
           await papi.localization.getLocalizedString({

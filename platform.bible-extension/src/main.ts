@@ -6,7 +6,12 @@ import { getErrorMessage } from 'platform-bible-utils';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
-import { type DownloadResult, FwLiteApi, type LoginResult } from './utils/fw-lite-api';
+import {
+  type DownloadResult,
+  FwLiteApi,
+  type LocalLexiconsResult,
+  type LoginResult,
+} from './utils/fw-lite-api';
 import { HttpStatusError } from './utils/http-status-error';
 import type { ProjectManager } from './utils/project-manager';
 import { ProjectManagers } from './utils/project-managers';
@@ -317,10 +322,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const selectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.selectLexicon',
     async (projectId: string, lexiconCode: string) => {
-      logger.info(`Selecting lexicon '${lexiconCode}' for project '${projectId}'`);
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
+      logger.info(`Selecting lexicon '${lexiconCode}' for project '${projectManager.projectId}'`);
       await applyLexiconSelection(projectManager, lexiconCode);
       return { success: true };
     },
@@ -374,10 +379,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const downloadAndSelectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.downloadAndSelectLexicon',
     async (projectId: string, authority: string, lexiconCode: string) => {
-      logger.info(`Downloading '${lexiconCode}' from '${authority}' for project '${projectId}'`);
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
-      if (!projectManager) return { result: 'Error' as const, success: false };
+      if (!projectManager) return { result: 'Error' as const, success: false, cancelled: true };
 
+      logger.info(
+        `Downloading '${lexiconCode}' from '${authority}' for project '${projectManager.projectId}'`,
+      );
       // Abort the backend download once the command times out, so an abandoned wait doesn't linger.
       const abort = new AbortController();
       const timeout = setTimeout(() => abort.abort(), DOWNLOAD_TIMEOUT_MS);
@@ -445,33 +452,24 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   const lexiconsCommandPromise = papi.commands.registerCommand(
     'lexicon.lexicons',
-    async (projectId?: string, all?: boolean, keepCodes?: string[]) => {
+    async (
+      webViewId: string,
+      all?: boolean,
+      keepCodes?: string[],
+    ): Promise<LocalLexiconsResult> => {
       logger.info('Fetching local lexicons');
-      if (!projectId || all)
-        return { projects: await fwLiteApi.getProjects(), filtered: false, noMatch: false };
-
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
-      // A stale projectId (e.g. from a restored layout) must not take down the whole list;
-      // it only costs the language-based filtering.
-      const langTag = await projectManager?.getLanguageTag().catch((e) => {
-        logger.warn(`Could not get language tag for project '${projectId}':`, getErrorMessage(e));
-        return undefined;
-      });
-      // Keep the current lexicon plus any applied earlier this session (keepCodes) even when their
-      // language doesn't match, so what's in use — and what was just replaced — stays visible.
-      const currentCode = await projectManager?.getLexiconCode().catch((e) => {
-        logger.warn(
-          `Could not get current lexicon for project '${projectId}':`,
-          getErrorMessage(e),
-        );
-        return undefined;
-      });
-      const keep = [...new Set([currentCode, ...(keepCodes ?? [])])].filter(
-        (c): c is string => !!c,
+      // A read: never prompt. No project (or one that no longer exists) only costs the filtering.
+      const projectId = await ProjectManagers.getProjectIdFromWebViewId(webViewId);
+      const project = projectId
+        ? await projectManagers.getProjectManagerFromProjectId(projectId)?.getLexiconPickerInfo()
+        : undefined;
+      // Keep the current lexicon plus any lexicons/codes (keepCodes) the caller does not want to lose
+      const keep = [project?.lexiconCode, ...(keepCodes ?? [])].filter((c): c is string => !!c);
+      const result = await fwLiteApi.getProjectsMatchingLanguage(
+        all ? undefined : project?.langTag,
+        keep,
       );
-      const result = await fwLiteApi.getProjectsMatchingLanguage(langTag, keep);
-      // The language label is needed for both the "filtered to X" bar and the "nothing matched X" note.
-      return { ...result, langTag: result.filtered || result.noMatch ? langTag : undefined };
+      return { project, ...result };
     },
   );
 

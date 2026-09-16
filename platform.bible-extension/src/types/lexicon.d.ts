@@ -121,13 +121,14 @@ declare module 'papi-shared-types' {
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     /**
-     * Local lexicons, filtered to the project's language when a real subset matches. `filtered`
-     * reports whether that happened; `noMatch` is true when a language matched nothing; `langTag`
-     * is that language either way. `all` skips the filter. `keepCodes` are codes to keep regardless
-     * of language (applied this session), on top of the project's current lexicon.
+     * Local lexicons for the project the web view is bound to (resolved from its definition, never
+     * prompting), filtered to that project's language when a real subset matches. `result.filtered`
+     * reports whether that happened; `result.noMatch` is true when a language matched nothing.
+     * `all` skips the filter. `keepCodes` are codes to keep regardless of language (applied this
+     * session), on top of the project's current lexicon.
      */
     'lexicon.lexicons': (
-      projectId?: string,
+      webViewId: string,
       all?: boolean,
       keepCodes?: string[],
     ) => Promise<LocalLexiconsResult | undefined>;
@@ -137,7 +138,10 @@ declare module 'papi-shared-types' {
     'lexicon.logout': (authority: string) => Promise<AuthServerStatus[] | undefined>;
     /** Remote (Lexbox server) CRDT projects the signed-in user can download. */
     'lexicon.remoteProjects': () => Promise<IProjectModel[] | undefined>;
-    /** Downloads a remote project (resolves once its initial sync finishes) and selects it. */
+    /**
+     * Downloads a remote project (resolves once its initial sync finishes) and selects it for the
+     * given project.
+     */
     'lexicon.downloadAndSelectLexicon': (
       projectId: string,
       authority: string,

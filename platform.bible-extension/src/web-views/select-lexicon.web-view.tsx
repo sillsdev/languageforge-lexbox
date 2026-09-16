@@ -1,59 +1,52 @@
-import { commands, logger } from '@papi/frontend';
+import { commands, localization, logger } from '@papi/frontend';
 import type { IProjectModel, LexiconWebViewProps } from 'lexicon';
-import { getErrorMessage } from 'platform-bible-utils';
+import { formatReplacementString, getErrorMessage } from 'platform-bible-utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import AuthStatus from '../components/auth-status';
 import CreateLexicon from '../components/create-lexicon';
 import LexiconPicker from '../components/lexicon-picker';
-import type { AuthServerStatus, DownloadAndSelectResult, LoginResult } from '../utils/fw-lite-api';
+import type {
+  AuthServerStatus,
+  DownloadAndSelectResult,
+  LocalLexiconsResult,
+  LoginResult,
+} from '../utils/fw-lite-api';
 
+async function titleForProject(projectName: string): Promise<string> {
+  const template = await localization.getLocalizedString({
+    localizeKey: '%lexicon_webViewTitle_selectLexiconForProject%',
+  });
+  return formatReplacementString(template, { project: projectName });
+}
+
+// The backend resolves the project from the web view definition on every command, so the web view
+// id is all this panel needs. The open-time props (lexiconCode, projectName, vernacularLanguage)
+// are deliberately unused: a restored tab keeps them frozen.
 globalThis.webViewComponent = function LexiconSelect({
   id: webViewId,
-  projectId,
-  lexiconCode,
-  vernacularLanguage,
-  projectName,
+  updateWebViewDefinition,
 }: LexiconWebViewProps) {
   const [authServers, setAuthServers] = useState<AuthServerStatus[] | undefined>();
-  // Name of the lexicon whose save just landed; drives the picker's one-time confirmation line.
-  const [savedName, setSavedName] = useState<string | undefined>();
-  // Lexicons applied during this panel session, kept in the list past the language filter so a
-  // just-replaced non-matching lexicon doesn't vanish. Seeded with the lexicon current at open.
-  const sessionKeptCodes = useRef(new Set<string>(lexiconCode ? [lexiconCode] : []));
-  // The lexicon currently applied to the project, so the picker pre-selects it (starts from the
-  // prop, then tracks each save). The short name of the resolved project, for labelling.
-  const [currentCode, setCurrentCode] = useState(lexiconCode);
-  const [currentProjectName, setCurrentProjectName] = useState(projectName);
-  const [lexicons, setLexicons] = useState<IProjectModel[] | undefined>();
+  const [lexiconList, setLexiconList] = useState<LocalLexiconsResult | undefined>();
   const [remoteProjects, setRemoteProjects] = useState<IProjectModel[] | undefined>();
-  const [showCreate, setShowCreate] = useState(false);
-  // A remote download is in flight; lock the account controls until it finishes.
-  const [downloading, setDownloading] = useState(false);
-
-  // When the language filter kicked in, the user can flip to the full list (per-panel choice).
+  const [savedName, setSavedName] = useState<string | undefined>();
   const [showAll, setShowAll] = useState(false);
-  // How the local list is currently filtered by the project's language (all set together from one
-  // lexicons response): filtered = a real subset; noMatch = a language was known but nothing matched.
-  const [langFilter, setLangFilter] = useState<{
-    filtered: boolean;
-    noMatch: boolean;
-    langTag?: string;
-  }>({ filtered: false, noMatch: false });
+  const [showCreate, setShowCreate] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  // Lexicons applied this session stay listed even when the language filter would hide them, so a
+  // just-replaced non-matching lexicon doesn't vanish.
+  const sessionKeptCodes = useRef(new Set<string>());
 
   const fetchLexicons = useCallback(() => {
     commands
-      .sendCommand('lexicon.lexicons', projectId, showAll, [...sessionKeptCodes.current])
-      .then((result) => {
-        setLexicons(result?.projects);
-        setLangFilter({
-          filtered: !!result?.filtered,
-          noMatch: !!result?.noMatch,
-          langTag: result?.langTag,
-        });
-        return undefined;
-      })
+      .sendCommand('lexicon.lexicons', webViewId, showAll, [...sessionKeptCodes.current])
+      .then(setLexiconList)
       .catch((e) => logger.error('Error fetching lexicons:', getErrorMessage(e)));
-  }, [projectId, showAll]);
+  }, [webViewId, showAll]);
+
+  useEffect(() => {
+    fetchLexicons();
+  }, [fetchLexicons]);
 
   const fetchRemoteProjects = useCallback(() => {
     commands
@@ -62,31 +55,19 @@ globalThis.webViewComponent = function LexiconSelect({
       .catch((e) => logger.error('Error fetching remote projects:', getErrorMessage(e)));
   }, []);
 
-  // A save just landed: remember it for the confirmation line, mark it current so the picker shows
-  // it checked, keep it visible this session, and refresh the lists (a downloaded remote now shows as local).
+  useEffect(() => {
+    fetchRemoteProjects();
+  }, [fetchRemoteProjects]);
+
   const handleSaved = useCallback(
     (name: string, code: string) => {
       sessionKeptCodes.current.add(code);
-      setCurrentCode(code);
       setSavedName(name);
       fetchLexicons();
       fetchRemoteProjects();
     },
     [fetchLexicons, fetchRemoteProjects],
   );
-
-  // The remote (server) list doesn't depend on the language filter, so fetch it — and log the open —
-  // once per project, not again every time the local list refetches (e.g. on "show all").
-  useEffect(() => {
-    logger.info(`This WebView was opened for project '${projectId}'`);
-    fetchRemoteProjects();
-  }, [fetchRemoteProjects, projectId]);
-
-  // The local list refetches on mount and whenever the show-all toggle changes (fetchLexicons closes
-  // over showAll).
-  useEffect(() => {
-    fetchLexicons();
-  }, [fetchLexicons]);
 
   // Keeps the last-known list when a refresh returns nothing, so the section doesn't vanish.
   const applyServers = useCallback(
@@ -110,14 +91,13 @@ globalThis.webViewComponent = function LexiconSelect({
       try {
         const { result, servers } = await commands.sendCommand('lexicon.login', authority);
         applyServers(servers);
-        // Now that a server is signed in, its projects can be listed.
-        fetchRemoteProjects();
         return result;
       } catch (e) {
         // A sign-in can land even after the command fails (e.g. PAPI request timeout).
         refreshAuthServers();
-        fetchRemoteProjects();
         throw e;
+      } finally {
+        fetchRemoteProjects();
       }
     },
     [applyServers, fetchRemoteProjects, refreshAuthServers],
@@ -127,67 +107,65 @@ globalThis.webViewComponent = function LexiconSelect({
     async (authority: string): Promise<void> => {
       try {
         applyServers(await commands.sendCommand('lexicon.logout', authority));
-        // Its remote projects are no longer accessible; drop them from the list.
-        fetchRemoteProjects();
       } catch (e) {
         // Sign-out may have failed server-side; re-fetch so the row reflects the real status.
         refreshAuthServers();
-        fetchRemoteProjects();
         throw e;
+      } finally {
+        fetchRemoteProjects();
       }
     },
     [applyServers, fetchRemoteProjects, refreshAuthServers],
   );
 
-  // The projectId prop isn't trusted for actions: it can be missing or stale (a tab restored from a
-  // saved layout after the project went away). On the first action, lexicon.resolveProject verifies
-  // the web view's project — prompting the user with the core project picker if needed — and the
-  // result is remembered so later actions in this panel don't re-resolve. undefined = the user
-  // dismissed the prompt.
-  const [resolvedProjectId, setResolvedProjectId] = useState<string | undefined>();
-  const resolveProjectId = useCallback(async (): Promise<string | undefined> => {
-    if (resolvedProjectId) return resolvedProjectId;
-    const { projectId: picked, projectName: pickedName } = await commands.sendCommand(
+  // Writes need a bound project. Prompting goes through lexicon.resolveProject (its own generous
+  // timeout) and the answer is stored on the definition, so later reads resolve the same project
+  // without prompting again. The id is returned rather than read back off the definition, because
+  // that update reaches the extension host asynchronously and the write would race it. Undefined
+  // means the user dismissed the prompt.
+  const ensureProject = useCallback(async (): Promise<string | undefined> => {
+    if (lexiconList?.project) return lexiconList.project.id;
+    const { projectId, projectName } = await commands.sendCommand(
       'lexicon.resolveProject',
-      webViewId ?? '',
+      webViewId,
     );
-    if (picked) setResolvedProjectId(picked);
-    // A tab restored without a project only learns its name here; keep the label in sync.
-    if (pickedName) setCurrentProjectName(pickedName);
-    return picked;
-  }, [resolvedProjectId, webViewId]);
+    if (!projectId) return undefined;
+    const definition = projectName
+      ? { projectId, title: await titleForProject(projectName) }
+      : { projectId };
+    if (!updateWebViewDefinition(definition)) {
+      logger.warn(`Could not bind WebView '${webViewId}' to project '${projectId}'`);
+    }
+    fetchLexicons();
+    return projectId;
+  }, [lexiconList?.project, webViewId, updateWebViewDefinition, fetchLexicons]);
 
   const selectLexicon = useCallback(
     async (code: string): Promise<{ cancelled?: boolean }> => {
-      const targetProjectId = await resolveProjectId();
-      if (!targetProjectId) return { cancelled: true };
-      const result = await commands.sendCommand('lexicon.selectLexicon', targetProjectId, code);
+      const projectId = await ensureProject();
+      if (!projectId) return { cancelled: true };
+      const result = await commands.sendCommand('lexicon.selectLexicon', projectId, code);
       if (!result?.success) throw new Error(result?.error || 'Failed to select lexicon');
       return {};
     },
-    [resolveProjectId],
+    [ensureProject],
   );
 
   const downloadAndSelect = useCallback(
     async (authority: string, code: string): Promise<DownloadAndSelectResult> => {
-      const targetProjectId = await resolveProjectId();
-      if (!targetProjectId) return { result: 'Error', success: false, cancelled: true };
-      return commands.sendCommand(
-        'lexicon.downloadAndSelectLexicon',
-        targetProjectId,
-        authority,
-        code,
-      );
+      const projectId = await ensureProject();
+      if (!projectId) return { result: 'Error', success: false, cancelled: true };
+      return commands.sendCommand('lexicon.downloadAndSelectLexicon', projectId, authority, code);
     },
-    [resolveProjectId],
+    [ensureProject],
   );
 
   const deleteLexicon = useCallback(
     async (code: string): Promise<void> => {
       const result = await commands.sendCommand('lexicon.deleteDownloadedLexicon', code);
       if (!result?.success) throw new Error(result?.error || 'Failed to delete the lexicon');
-      // The deleted project may be downloadable again; refresh both lists.
       fetchLexicons();
+      // The deleted lexicon may be downloadable again.
       fetchRemoteProjects();
     },
     [fetchLexicons, fetchRemoteProjects],
@@ -213,21 +191,15 @@ globalThis.webViewComponent = function LexiconSelect({
   );
 
   const onCreated = useCallback(
-    async (code: string): Promise<void> => {
+    async (name: string, code: string): Promise<void> => {
+      let selected = false;
       try {
-        const { cancelled } = await selectLexicon(code);
-        if (!cancelled) {
-          // handleSaved refreshes the lists; drop the create screen so the picker (with its success
-          // banner) shows.
-          handleSaved(code, code);
-          setShowCreate(false);
-          return;
-        }
+        selected = !(await selectLexicon(code)).cancelled;
       } catch (e) {
         logger.error('Error auto-selecting created lexicon:', getErrorMessage(e));
       }
-      // Created but not selected (failed, or the user dismissed the project prompt); back to the picker.
-      fetchLexicons();
+      if (selected) handleSaved(name, code);
+      else fetchLexicons();
       setShowCreate(false);
     },
     [fetchLexicons, handleSaved, selectLexicon],
@@ -237,8 +209,8 @@ globalThis.webViewComponent = function LexiconSelect({
     return (
       <CreateLexicon
         createLexicon={createLexicon}
-        defaultVernacularWs={vernacularLanguage}
-        existingCodes={lexicons?.map((l) => l.code)}
+        defaultVernacularWs={lexiconList?.project?.langTag}
+        existingCodes={lexiconList?.projects.map((l) => l.code)}
         onCancel={() => setShowCreate(false)}
         onCreated={onCreated}
       />
@@ -252,17 +224,17 @@ globalThis.webViewComponent = function LexiconSelect({
           <AuthStatus busy={downloading} login={login} logout={logout} servers={authServers} />
         </div>
         <LexiconPicker
-          loading={!lexicons}
-          localProjects={lexicons}
+          loading={!lexiconList}
+          localProjects={lexiconList?.projects}
           remoteProjects={remoteProjects}
           signedIn={!!authServers?.some((s) => s.loggedIn)}
-          initialCode={currentCode}
-          projectName={currentProjectName}
+          appliedCode={lexiconList?.project?.lexiconCode}
+          projectName={lexiconList?.project?.name}
           savedName={savedName}
           onClearSaved={() => setSavedName(undefined)}
-          languageFiltered={langFilter.filtered}
-          languageNoMatch={langFilter.noMatch}
-          filterLangTag={langFilter.langTag}
+          languageFiltered={!!lexiconList?.filtered}
+          languageNoMatch={!!lexiconList?.noMatch}
+          filterLangTag={lexiconList?.project?.langTag}
           onShowAll={() => setShowAll(true)}
           onCreateNew={() => setShowCreate(true)}
           selectLexicon={selectLexicon}

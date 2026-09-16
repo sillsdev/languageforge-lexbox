@@ -31,7 +31,7 @@ interface LexiconPickerProps {
   /** Whether any Lexbox server is signed in (drives the empty-state hint). */
   signedIn?: boolean;
   /** The project's applied lexicon, when known; pre-selected and marked with a "Current" badge. */
-  initialCode?: string;
+  appliedCode?: string;
   /** The Paratext project's short name, shown in the heading when known. */
   projectName?: string;
   /** Name of the lexicon whose save just landed; shows the one-time confirmation line. */
@@ -57,9 +57,9 @@ interface LexiconPickerProps {
   onDownloadingChange?: (downloading: boolean) => void;
 }
 
-// Codes can collide across servers, so key options by server (or "local") plus code.
+// Local codes are unique, so a local row's key is its code; remote codes can collide across servers.
 function keyFor(project: IProjectModel, local: boolean): string {
-  return `${local ? 'local' : (project.server?.id ?? 'remote')}/${project.code}`;
+  return local ? project.code : `${project.server?.id ?? 'remote'}/${project.code}`;
 }
 
 // Case-insensitive alphabetical by display name, code as tiebreak.
@@ -79,7 +79,7 @@ export default function LexiconPicker({
   localProjects,
   remoteProjects,
   signedIn = false,
-  initialCode,
+  appliedCode,
   projectName,
   savedName,
   onClearSaved,
@@ -97,19 +97,12 @@ export default function LexiconPicker({
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   const [error, setError] = useState('');
-  const [selectedKey, setSelectedKey] = useState(initialCode ? `local/${initialCode}` : '');
+  const [selectedKey, setSelectedKey] = useState(appliedCode ?? '');
   const [busy, setBusy] = useState<'none' | 'saving' | 'downloading'>('none');
   const [pendingDelete, setPendingDelete] = useState<IProjectModel | undefined>();
   const [deleting, setDeleting] = useState(false);
   // Informational line under the button (deletion outcome).
   const [notice, setNotice] = useState('');
-
-  // After a save, the just-chosen lexicon is the project's current one: point the selection at its
-  // (now local) row so it shows checked with the primary button disabled. Handles the remote case,
-  // where the selected key was the server row that the refresh turns into a local one.
-  useEffect(() => {
-    if (savedName && initialCode) setSelectedKey(`local/${initialCode}`);
-  }, [savedName, initialCode]);
 
   // Let the parent lock the account controls while a download runs: logging out mid-download would
   // abort it and disturb the auth state.
@@ -141,6 +134,13 @@ export default function LexiconPicker({
     );
     return map;
   }, [localProjects, remoteProjects]);
+
+  // Keep the pick while it's still a row (a downloaded remote's row disappears once the refresh
+  // shows it as local); otherwise fall back to the applied lexicon.
+  useEffect(() => {
+    if (!appliedCode) return;
+    setSelectedKey((prev) => (prev && entries.has(prev) ? prev : appliedCode));
+  }, [appliedCode, entries]);
 
   // Stable alphabetical order within every group. The current lexicon isn't pinned to the top — it
   // keeps its place and is marked with a "Current" badge, so the list doesn't reshuffle as the
@@ -269,7 +269,7 @@ export default function LexiconPicker({
         local={local}
         itemKey={key}
         isChosen={key === selectedKey}
-        isApplied={local && project.code === initialCode}
+        isApplied={key === appliedCode}
         deletable={deletability(project, local)}
         onSelect={() => {
           setError('');
@@ -304,7 +304,7 @@ export default function LexiconPicker({
   // When the pending pick is the applied lexicon there's nothing to change, so the primary action
   // stays disabled (the "Current" badge already marks it in-list). Remote rows are never applied.
   const isCurrentSelection =
-    !!selected && !selected.needsDownload && selected.project.code === initialCode;
+    !!selected && !selected.needsDownload && selected.project.code === appliedCode;
   // eslint-disable-next-line no-nested-ternary
   const confirmLabel = error
     ? localizedStrings['%lexicon_selectLexicon_retry%']

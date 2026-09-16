@@ -43,11 +43,23 @@ export interface DownloadAndSelectResult {
   error?: string;
 }
 
-/** The local lexicon list plus how it was language-filtered (see `getProjectsMatchingLanguage`). */
+/**
+ * The local lexicon list plus how it was language-filtered (see `getProjectsMatchingLanguage`).
+ * `project` is the Paratext project the requesting web view is bound to; undefined when it has none
+ * (or its project no longer exists), in which case the list is unfiltered.
+ */
 export interface LocalLexiconsResult {
+  project?: LexiconPickerProjectInfo;
   projects: IProjectModel[];
   filtered: boolean;
   noMatch: boolean;
+}
+
+/** The Paratext project settings the lexicon picker shows and filters by. */
+export interface LexiconPickerProjectInfo {
+  id: string;
+  name?: string;
+  lexiconCode?: string;
   langTag?: string;
 }
 
