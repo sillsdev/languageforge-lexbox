@@ -287,19 +287,21 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     lexiconCode: string,
   ): Promise<void> => {
     await projectManager.setLexiconCode(lexiconCode);
-    // An empty code is a valid "clear" — it still gets persisted above, but there's no lexicon left
-    // to look up an analysis language for.
-    if (!lexiconCode) return;
     // Best-effort: the code was already validated by setLexiconCode, so a failure here is transient;
-    // fall back to no analysis language rather than failing the (already-stored) selection.
-    const langs = await fwLiteApi
-      .getWritingSystems(lexiconCode)
-      .catch((e) => logger.error('Error fetching writing systems:', getErrorMessage(e)));
+    // fall back to no analysis language rather than failing the (already-stored) selection. An empty
+    // code clears the cached language with it — there's no lexicon left to look one up from.
+    const langs = lexiconCode
+      ? await fwLiteApi
+          .getWritingSystems(lexiconCode)
+          .catch((e) => logger.error('Error fetching writing systems:', getErrorMessage(e)))
+      : undefined;
     const analysisLang = langs?.analysis[0]?.wsId ?? '';
     if (analysisLang) {
       logger.info(`Storing lexicon analysis language '${analysisLang}'`);
-    } else {
+    } else if (lexiconCode) {
       logger.info('Failed to get analysis language of the lexicon');
+    } else {
+      logger.info('Clearing the stored lexicon analysis language');
     }
     await projectManager
       .setAnalysisLanguage(analysisLang)
@@ -381,7 +383,10 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         }
         logger.info(`Deleting lexicon '${lexiconCode}'`);
         await fwLiteApi.deleteProject(lexiconCode);
-        await clearLexiconSelectionIfApplied(projectId, lexiconCode);
+        // The lexicon is gone: failing to tidy the setting must not report the delete as failed.
+        await clearLexiconSelectionIfApplied(projectId, lexiconCode).catch((e) =>
+          logger.error('Error clearing the deleted lexicon selection:', getErrorMessage(e)),
+        );
         return { success: true };
       } catch (e) {
         const error = getErrorMessage(e);
