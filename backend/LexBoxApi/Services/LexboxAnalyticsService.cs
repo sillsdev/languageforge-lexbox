@@ -18,10 +18,6 @@ public class LexboxAnalyticsService(
     IHttpContextAccessor httpContextAccessor,
     TimeProvider? timeProvider = null) : ILexboxAnalyticsService
 {
-    // Cloudflare sets the original visitor IP here; lexbox sits behind it in production.
-    private const string CloudflareClientIpHeader = "CF-Connecting-IP";
-    private const string ForwardedForHeader = "X-Forwarded-For";
-
     private readonly AnalyticsConfigBase _config = analyticsConfig.Value;
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
@@ -97,24 +93,10 @@ public class LexboxAnalyticsService(
     }
 
     /// <summary>
-    /// The end user's IP address for this request: Cloudflare's <c>CF-Connecting-IP</c> in production,
-    /// otherwise the first <c>X-Forwarded-For</c> hop, otherwise the socket peer. Null when there is no
-    /// request (e.g. a background sync) or no address can be determined.
+    /// The end user's IP address for this request. Resolution to the real visitor (Cloudflare/forwarded
+    /// headers) happens in middleware, so this just reads the connection's remote IP. Null when there is no
+    /// request (e.g. a background sync).
     /// </summary>
-    private string? GetClientIp()
-    {
-        var request = httpContextAccessor.HttpContext?.Request;
-        if (request is null)
-            return null;
-
-        var cloudflareIp = request.Headers[CloudflareClientIpHeader].FirstOrDefault();
-        if (!string.IsNullOrWhiteSpace(cloudflareIp))
-            return cloudflareIp.Trim();
-
-        var forwardedFor = request.Headers[ForwardedForHeader].FirstOrDefault();
-        if (!string.IsNullOrWhiteSpace(forwardedFor))
-            return forwardedFor.Split(',')[0].Trim();
-
-        return httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
-    }
+    private string? GetClientIp() =>
+        httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
 }

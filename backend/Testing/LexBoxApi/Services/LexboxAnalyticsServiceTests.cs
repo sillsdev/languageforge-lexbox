@@ -123,7 +123,7 @@ public class LexboxAnalyticsServiceTests
     }
 
     [Fact]
-    public async Task Track_StampsCloudflareClientIpAndDoesNotGeolocateFromRequest()
+    public async Task Track_StampsClientIpAndDoesNotGeolocateFromRequest()
     {
         var handler = new CaptureHandler();
         var service = CreateService(handler, userId: Guid.NewGuid(), clientIp: "203.0.113.7");
@@ -213,7 +213,8 @@ public class LexboxAnalyticsServiceTests
         }
         if (!string.IsNullOrEmpty(clientIp))
         {
-            httpContext.Request.Headers["CF-Connecting-IP"] = clientIp;
+            // Middleware resolves the real visitor into RemoteIpAddress; the service only reads that.
+            httpContext.Connection.RemoteIpAddress = IPAddress.Parse(clientIp);
         }
         return new HttpContextAccessor { HttpContext = httpContext };
     }
