@@ -20,8 +20,11 @@ public class LexboxAnalyticsService(
 
     public Task TrackSendReceiveCompleted()
     {
-        var userId = loggedInContext.MaybeUser?.Id;
-        if (userId is null || userId == Guid.Empty)
+        var user = loggedInContext.MaybeUser;
+        if (user?.Id is not { } userId || userId == Guid.Empty)
+            return Task.CompletedTask;
+        // Respect the user's opt-out (carried on the JWT claim, re-issued whenever they change it).
+        if (user.OptedOutOfAnalytics == true)
             return Task.CompletedTask;
         var properties = CreateBaseProperties();
         if (properties is null)

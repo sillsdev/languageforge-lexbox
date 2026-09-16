@@ -44,6 +44,17 @@ public class LexboxAnalyticsServiceTests
     }
 
     [Fact]
+    public async Task TrackSendReceiveCompleted_SkipsWhenUserOptedOut()
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, userId: Guid.NewGuid(), optedOutOfAnalytics: true);
+
+        await service.TrackSendReceiveCompleted();
+
+        handler.RequestCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task TrackSendReceiveCompleted_SkipsWhenDisabled()
     {
         var handler = new CaptureHandler();
@@ -71,7 +82,8 @@ public class LexboxAnalyticsServiceTests
         Guid? userId,
         bool enabled = true,
         bool isDevelopment = true,
-        string? productionToken = null)
+        string? productionToken = null,
+        bool optedOutOfAnalytics = false)
     {
         var factory = new Mock<IHttpClientFactory>();
         factory.Setup(f => f.CreateClient(MixpanelClient.HttpClientName))
@@ -91,10 +103,10 @@ public class LexboxAnalyticsServiceTests
             mixpanelClient,
             Options.Create(config),
             environment,
-            BuildLoggedInContext(userId));
+            BuildLoggedInContext(userId, optedOutOfAnalytics));
     }
 
-    private static LoggedInContext BuildLoggedInContext(Guid? userId)
+    private static LoggedInContext BuildLoggedInContext(Guid? userId, bool optedOutOfAnalytics = false)
     {
         var httpContext = new DefaultHttpContext();
         if (userId is not null)
@@ -106,6 +118,7 @@ public class LexboxAnalyticsServiceTests
                 Email = "test@example.com",
                 Role = UserRole.user,
                 Locale = "en",
+                OptedOutOfAnalytics = optedOutOfAnalytics ? true : null,
             };
             httpContext.User = user.GetPrincipal("Testing");
         }

@@ -50,6 +50,7 @@ type JwtTokenUser = {
   unver?: boolean,
   mkproj?: boolean,
   creat?: boolean,
+  notracking?: boolean,
   aud: ApiLexboxAudience,
   scope?: string,
   loc: string,
@@ -70,6 +71,7 @@ export type LexAuthUser = {
   emailVerified: boolean
   canCreateProjects: boolean
   createdByAdmin: boolean
+  optedOutOfAnalytics: boolean
   audience: ApiLexboxAudience
   scope: string
   locale: string
@@ -200,6 +202,7 @@ export async function createGuestUserByAdmin(password: string, name: string, ema
     emailVerified: responseUser.emailVerificationRequired ?? false,
     canCreateProjects: responseUser.canCreateProjects ?? false,
     createdByAdmin: responseUser.createdByAdmin ?? false,
+    optedOutOfAnalytics: false,
     featureFlags: responseUser.featureFlags ?? [],
     emailOrUsername: (responseUser.email ?? responseUser.username) as string,
     audience: responseUser.audience === GqlLexboxAudience.LexboxApi ? 'LexboxApi' : 'Unknown',
@@ -249,6 +252,7 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
     emailVerified: !user.unver,
     canCreateProjects: user.mkproj === true || role === UserRole.Admin,
     createdByAdmin: user.creat ?? false,
+    optedOutOfAnalytics: user.notracking === true,
     locale: user.loc,
     audience,
     emailOrUsername: (email ?? username) as string,

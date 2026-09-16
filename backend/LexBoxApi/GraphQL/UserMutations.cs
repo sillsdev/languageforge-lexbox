@@ -24,7 +24,7 @@ namespace LexBoxApi.GraphQL;
 public class UserMutations
 {
     public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string? Email, string Name);
-    public record ChangeUserAccountBySelfInput(Guid UserId, string? Email, string Name, string Locale)
+    public record ChangeUserAccountBySelfInput(Guid UserId, string? Email, string Name, string Locale, bool? OptedOutOfAnalytics = null)
         : ChangeUserAccountDataInput(UserId, Email, Name);
     public record ChangeUserAccountByAdminInput(Guid UserId, string? Email, string Name, UserRole Role, FeatureFlag[]? FeatureFlags)
         : ChangeUserAccountDataInput(UserId, Email, Name);
@@ -221,6 +221,10 @@ public class UserMutations
             if (!string.IsNullOrEmpty(selfInput.Locale))
             {
                 user.LocalizationCode = selfInput.Locale;
+            }
+            if (selfInput.OptedOutOfAnalytics is { } optedOut)
+            {
+                user.OptedOutOfAnalytics = optedOut;
             }
         }
 

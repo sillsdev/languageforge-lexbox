@@ -256,6 +256,7 @@ type LexAuthUser {
   emailVerificationRequired: Boolean
   canCreateProjects: Boolean
   createdByAdmin: Boolean
+  optedOutOfAnalytics: Boolean
   locale: String!
 }
 
@@ -630,6 +631,7 @@ type User {
   createdById: UUID
   createdBy: User
   usersICreated: [User!]!
+  optedOutOfAnalytics: Boolean!
   organizations: [OrgMember!]!
   featureFlags: [FeatureFlag!]!
   id: UUID!
@@ -815,6 +817,7 @@ input ChangeUserAccountByAdminInput {
 
 input ChangeUserAccountBySelfInput {
   locale: String!
+  optedOutOfAnalytics: Boolean
   userId: UUID!
   email: String
   name: String!
