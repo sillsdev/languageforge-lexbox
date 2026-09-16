@@ -1,17 +1,15 @@
 import {configDefaults, defineConfig} from 'vitest/config';
 
-import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {playwright} from '@vitest/browser-playwright';
 import {storybookTest} from '@storybook/addon-vitest/vitest-plugin';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 
-const dirname =
-  typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-
 const browserTestPattern = '**/*.browser.{test,spec}.?(c|m)[jt]s?(x)';
 const launcherTestPattern = './tests/launcher/**/*.{test,spec}.?(c|m)[jt]s?(x)';
+// Opt-in only: these hit the network, so they're never part of `pnpm test` or CI.
+const manualTestPattern = '**/*.manual.{test,spec}.?(c|m)[jt]s?(x)';
 const e2eTestPatterns = ['./tests/**'];
 
 const sharedAlias = [
@@ -31,11 +29,27 @@ export default defineConfig({
           // $effect.root requires a dom.
           // We can add a node environment test project later if needed.
           environment: 'jsdom',
+          // jsdom doesn't provide a working `localStorage` here; the setup polyfills it.
+          setupFiles: ['./src/test-setup/local-storage.ts'],
           exclude: [
             browserTestPattern,
+            manualTestPattern,
             ...e2eTestPatterns,
             ...configDefaults.exclude,
           ],
+        },
+        resolve: {alias: sharedAlias},
+      },
+      {
+        plugins: [
+          svelte(),
+        ],
+        test: {
+          name: 'manual',
+          // Only fetch() against the FieldWorks docs site; no DOM needed.
+          environment: 'node',
+          include: [manualTestPattern],
+          exclude: [...e2eTestPatterns, ...configDefaults.exclude],
         },
         resolve: {alias: sharedAlias},
       },
@@ -73,7 +87,7 @@ export default defineConfig({
           svelte(),
           // seems to cause this project to only include storybook tests
           storybookTest({
-            configDir: path.join(dirname, '.storybook'),
+            configDir: path.join(import.meta.dirname, '.storybook'),
           }),
         ],
         test: {

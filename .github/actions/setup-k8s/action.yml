@@ -29,34 +29,50 @@ runs:
       uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
       with:
         cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
-    # It's also possible that hgweb, fw-headless, and/or ui image may have changed; if so, pull them and update kustomization.yaml for them as well
+    # It's also possible that hgweb, fw-headless, and/or ui image may have changed; if so, pull them and update kustomization.yaml for them as well.
+    # Swallow a missing tag (path-filter PRs) so the step stays green — continue-on-error still annotates as failure.
     - name: Pull fw-headless if updated
       id: fw-headless_image
       shell: bash
-      continue-on-error: true
-      run: docker pull ghcr.io/sillsdev/lexbox-fw-headless:${{ inputs.lexbox-api-tag }}
+      run: |
+        if docker pull ghcr.io/sillsdev/lexbox-fw-headless:${{ inputs.lexbox-api-tag }}; then
+          echo "found=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "fw-headless:${{ inputs.lexbox-api-tag }} not published; keeping kustomize tag"
+          echo "found=false" >> "$GITHUB_OUTPUT"
+        fi
     - name: Update image fw-headless version
-      if: ${{ steps.fw-headless_image.outcome == 'success' }}
+      if: ${{ steps.fw-headless_image.outputs.found == 'true' }}
       uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
       with:
         cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-fw-headless").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
     - name: Pull hgweb if updated
       id: hgweb_image
       shell: bash
-      continue-on-error: true
-      run: docker pull ghcr.io/sillsdev/lexbox-hgweb:${{ inputs.lexbox-api-tag }}
+      run: |
+        if docker pull ghcr.io/sillsdev/lexbox-hgweb:${{ inputs.lexbox-api-tag }}; then
+          echo "found=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "hgweb:${{ inputs.lexbox-api-tag }} not published; keeping kustomize tag"
+          echo "found=false" >> "$GITHUB_OUTPUT"
+        fi
     - name: Update image hgweb version
-      if: ${{ steps.hgweb_image.outcome == 'success' }}
+      if: ${{ steps.hgweb_image.outputs.found == 'true' }}
       uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
       with:
         cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-hgweb").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
     - name: Pull ui if updated
       id: ui_image
       shell: bash
-      continue-on-error: true
-      run: docker pull ghcr.io/sillsdev/lexbox-ui:${{ inputs.lexbox-api-tag }}
+      run: |
+        if docker pull ghcr.io/sillsdev/lexbox-ui:${{ inputs.lexbox-api-tag }}; then
+          echo "found=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "ui:${{ inputs.lexbox-api-tag }} not published; keeping kustomize tag"
+          echo "found=false" >> "$GITHUB_OUTPUT"
+        fi
     - name: Update image ui version
-      if: ${{ steps.ui_image.outcome == 'success' }}
+      if: ${{ steps.ui_image.outputs.found == 'true' }}
       uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
       with:
         cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-ui").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
@@ -65,7 +81,19 @@ runs:
       run: |
         kubectl create namespace languagedepot
         kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
-        kubectl wait --for=condition=Ready --timeout=90s pod -l 'app in (cert-manager, webhook)' -n cert-manager
+        kubectl wait --for=condition=Available --timeout=180s \
+          deployment/cert-manager \
+          deployment/cert-manager-cainjector \
+          deployment/cert-manager-webhook \
+          -n cert-manager
+        # Pod Available is not enough: cainjector still has to write a CA
+        # that matches the webhook serving cert. cmctl dry-runs a
+        # CertificateRequest through both admission webhooks until TLS works.
+        curl -fsSL -o /tmp/cmctl \
+          https://github.com/cert-manager/cmctl/releases/download/v2.5.0/cmctl_linux_amd64
+        chmod +x /tmp/cmctl
+        sudo mv /tmp/cmctl /usr/local/bin/cmctl
+        cmctl check api --wait=2m
         kubectl apply -k ./deployment/gha
         kubectl wait --for=condition=Ready --timeout=120s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
         kubectl wait --for=condition=Ready --timeout=120s pod -l 'app in (lexbox, ui, hg, db, fw-headless)' -n languagedepot

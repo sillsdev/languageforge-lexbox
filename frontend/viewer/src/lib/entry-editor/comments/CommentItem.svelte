@@ -63,6 +63,7 @@
           maxUnits={1}
           smallestUnit="minutes"
           options={{style: 'narrow'}}
+          live={30_000}
         />
         {#if isEdited}
           {#if features.history}

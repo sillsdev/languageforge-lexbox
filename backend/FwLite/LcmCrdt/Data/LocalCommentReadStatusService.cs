@@ -42,6 +42,19 @@ public class LocalCommentReadStatusService(IDbContextFactory<LcmCrdtDbContext> d
             .ExecuteDeleteAsync();
     }
 
+    /// <summary>
+    /// Debug helper: marks every comment in a thread unread again.
+    /// </summary>
+    public async Task MarkThreadUnread(Guid threadId)
+    {
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        var commentIds = await dbContext.UserComments
+            .Where(c => c.CommentThreadId == threadId)
+            .Select(c => c.Id)
+            .ToArrayAsync();
+        await MarkCommentsUnread(commentIds.Select(id => (id, threadId)));
+    }
+
     public async Task MarkThreadRead(Guid threadId)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();

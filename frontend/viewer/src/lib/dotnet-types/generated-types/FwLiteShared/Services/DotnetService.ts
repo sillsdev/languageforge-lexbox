@@ -21,6 +21,7 @@ export enum DotnetService {
 	JsInvokableLogger = "JsInvokableLogger",
 	UpdateService = "UpdateService",
 	PreferencesService = "PreferencesService",
-	PlatformFeaturesService = "PlatformFeaturesService"
+	PlatformFeaturesService = "PlatformFeaturesService",
+	AnalyticsService = "AnalyticsService"
 }
 /* eslint-enable */

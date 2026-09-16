@@ -84,6 +84,50 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     }
 
     [Theory]
+    [InlineData(HgProtocol.Resumable, HgProtocol.Hgweb)]
+    [InlineData(HgProtocol.Hgweb, HgProtocol.Resumable)]
+    public async Task CanSendReceiveInterleavingHgwebAndResumable(HgProtocol firstProtocol, HgProtocol secondProtocol)
+    {
+        // Interop smoke test: a single project sent/received through both the hgweb and
+        // hgresume servers, alternating protocols so each server pulls and appends to
+        // store files the other last wrote. Verifies the two front the same repo
+        // consistently across protocols.
+        //
+        // Note: this does NOT guard the hgweb/hgresume file-ownership issue behind PR #2590.
+        // Freshly-created repos get setgid, group-shared (660) store files owned by the
+        // shared www-data group, so it doesn't matter whether hgresume runs as root or
+        // www-data — either server can write the other's files. Reproducing that bug needs
+        // a repo without group-shared perms, which a new project never has.
+
+        // Create a fresh project and push it to the server via the first protocol.
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
+
+        var firstParams = new SendReceiveParams(firstProtocol, projectConfig);
+        _sendReceiveService.SendReceiveProject(firstParams, AdminAuth);
+
+        var lastCommit = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
+        lastCommit.Should().NotBeNull();
+
+        // Modify locally and push via the second protocol, which pulls the first protocol's
+        // commit and appends to the store files it wrote.
+        ModifyProjectHelper.ModifyProject(projectConfig.FwDataFile);
+        var secondParams = new SendReceiveParams(secondProtocol, projectConfig);
+        _sendReceiveService.SendReceiveProject(secondParams, AdminAuth, $"Modify via {secondProtocol}");
+
+        var lastCommitAfterSecond = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
+        lastCommitAfterSecond.Should().BeAfter(lastCommit!.Value);
+
+        // Modify again and push via the first protocol, so it in turn appends to the files
+        // the second protocol just wrote — completing the round trip.
+        ModifyProjectHelper.ModifyProject(projectConfig.FwDataFile);
+        _sendReceiveService.SendReceiveProject(firstParams, AdminAuth, $"Modify via {firstProtocol}");
+
+        var lastCommitAfterThird = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
+        lastCommitAfterThird.Should().BeAfter(lastCommitAfterSecond!.Value);
+    }
+
+    [Theory]
     [InlineData(HgProtocol.Hgweb)]
     [InlineData(HgProtocol.Resumable)]
     public async Task SendReceiveAfterProjectReset(HgProtocol protocol)

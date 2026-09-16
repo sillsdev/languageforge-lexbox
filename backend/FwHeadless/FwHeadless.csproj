@@ -12,7 +12,12 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" />
-    <PackageReference Include="SIL.Chorus.Mercurial" />
+    <!-- ExcludeAssets="native" drops the runtimes/<rid>/native/Mercurial tree from publish. The
+         package's build targets (SIL.Chorus.Mercurial.targets, CopyFiles) already stage that tree
+         into this project's Mercurial/ folder, which ships via the Content Include below and is the
+         copy the app actually uses. Without this exclude, publish ALSO copies it under runtimes/ —
+         ~108MB of duplicate Mercurial. (build assets still import, so CopyFiles still runs.) -->
+    <PackageReference Include="SIL.Chorus.Mercurial" ExcludeAssets="native" />
     <PackageReference Include="SIL.Chorus.ChorusMerge" GeneratePathProperty="true" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\Harmony.App.References.props" />

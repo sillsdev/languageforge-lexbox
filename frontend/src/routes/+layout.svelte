@@ -3,6 +3,7 @@
   import {getStores, navigating} from '$app/stores';
   import '$lib/app.postcss';
   import {initErrorStore} from '$lib/error';
+  import ErrorBoundary from '$lib/error/ErrorBoundary.svelte';
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
   import type {LayoutData} from './$types';
   import Notify from '$lib/notify/Notify.svelte';
@@ -75,7 +76,9 @@
 
 <div class="flex flex-col justify-between min-h-full" class:hydrating>
   <div class="flex flex-col flex-grow">
-    {@render children?.()}
+    <ErrorBoundary>
+      {@render children?.()}
+    </ErrorBoundary>
   </div>
   <Footer />
 </div>

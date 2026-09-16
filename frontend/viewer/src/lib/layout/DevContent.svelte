@@ -1,38 +1,32 @@
 <script module lang="ts">
   import {multiClick} from '$lib/attachments/multiClick';
-  import {get, writable} from 'svelte/store';
+  import {DEV_CHANNEL} from '$lib/feature-flags/feature-flags';
+  import {featureFlags} from '$lib/feature-flags/feature-flags.svelte';
 
-  //indicates that the user is a developer, show them features that are not ready for production, etc.
-  //does not indicate this is at development time
-  export const isDev = writable(false);
-
+  // Indicates that the user is on the `dev` release channel. Show them features
+  // that are not ready for production, etc. Does not indicate this is at development time.
   globalThis.enableDevMode = (enable = true) => {
-    isDev.set(enable);
-    if (enable) {
-      localStorage.setItem('devMode', 'true');
-    } else {
-      localStorage.removeItem('devMode');
-    }
+    featureFlags.channel = enable ? DEV_CHANNEL : '';
   };
-  isDev.set(localStorage.getItem('devMode') === 'true');
   export const devModeToggle = multiClick({
     count: 5,
     timeoutMs: 500,
-    onTrigger: () => globalThis.enableDevMode(!get(isDev)),
+    onTrigger: () => globalThis.enableDevMode(!featureFlags.isDev),
   });
 </script>
 
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import type {Snippet} from 'svelte';
+
   interface Props {
     invisible?: boolean;
     children?: Snippet;
   }
 
-  const { invisible = false, children }: Props = $props();
+  const {invisible = false, children}: Props = $props();
 </script>
 
-{#if $isDev}
+{#if featureFlags.isDev}
   {@render children?.()}
 {:else if invisible}
   <div class="invisible">

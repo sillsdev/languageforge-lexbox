@@ -111,7 +111,7 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         return $"""
 <?xml version="1.0" encoding="utf-8"?>
 <AppInstaller
- Uri="https://lexbox.org/api/fwlite-release/download-latest?edition=windowsAppInstaller"
+ Uri="https://lexbox.org/api/fwlite-release/FieldWorksLite.appinstaller"
  Version="{version}"
  xmlns="http://schemas.microsoft.com/appx/appinstaller/2021">
  <MainBundle
@@ -121,7 +121,11 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
    Uri="{windowsRelease.Url}" />
  <UpdateSettings>
    <!-- No OnLaunch: Windows never checks on start, so it can't show an update prompt and doesn't
-        race the in-app updater. Updates are applied silently by the background task (~every 8h). -->
+        race the in-app updater. Updates are applied silently by the background task. That task's
+        interval is nominally 8h, but it's a maintenance task that also carries RunOnlyIfIdle +
+        DisallowStartIfOnBatteries + up to an 8h random delay, so on a laptop that sleeps or runs on
+        battery real checks are far rarer. HoursBetweenUpdateChecks can't tighten this: it's an
+        OnLaunch-only attribute (see the AppInstaller schema), which we deliberately don't use. -->
    <ForceUpdateFromAnyVersion>false</ForceUpdateFromAnyVersion>
    <AutomaticBackgroundTask />
  </UpdateSettings>

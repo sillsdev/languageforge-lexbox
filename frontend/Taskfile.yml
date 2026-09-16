@@ -24,7 +24,6 @@ tasks:
       - pnpm-lock.yaml
       - pnpm-workspace.yaml
     cmds:
-      - corepack enable || true
       - pnpm install
 
   fw-lite-infr:
@@ -88,7 +87,6 @@ tasks:
       - ../pnpm-lock.yaml
       - ../pnpm-workspace.yaml
     cmds:
-      - corepack enable || true
       - pnpm install
   run-https-proxy:
     dir: ./https-proxy

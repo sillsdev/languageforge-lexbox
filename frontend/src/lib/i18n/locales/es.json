@@ -314,6 +314,7 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
     "error_code": "Código de error",
     "not_found": "404 - Vaya, no podemos encontrar esa página. ¡Lo siento!",
     "go_home": "Ir a inicio",
+    "retry": "Reintentar",
   },
   "modal": {
     "dismiss": "Descartar"

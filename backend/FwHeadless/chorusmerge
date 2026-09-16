@@ -5,4 +5,10 @@
 # are found even when hg's cwd is the repo. Resolve ChorusMerge.dll next to this script.
 SCRIPT_DIR=$(dirname $(readlink -f "$0"))
 
+# ChorusMerge ships only a net8.0 build (no net10 build yet, sillsdev/chorus), so its
+# runtimeconfig requests Microsoft.NETCore.App 8.0.0. The runtime image carries only the
+# .NET 10 shared framework, so roll forward across the major version to run there instead
+# of shipping a second (net8) runtime. Scoped to this wrapper so FwHeadless itself is
+# unaffected. The Dockerfile chorusmerge smoke-test exercises this at image-build time.
+export DOTNET_ROLL_FORWARD=Major
 exec dotnet "${SCRIPT_DIR}/ChorusMerge.dll" "$@"

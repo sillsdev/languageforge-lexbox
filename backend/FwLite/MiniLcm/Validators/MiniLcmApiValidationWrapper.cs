@@ -278,6 +278,16 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.SubmitMoveComplexFormComponent(complexFormComponent, between);
     }
 
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        return _api.SubmitMoveSense(entryId, senseId, position, kind);
+    }
+
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        return _api.SubmitMoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
+    }
+
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
         return _api.DeleteComplexFormComponent(complexFormComponent);
@@ -335,9 +345,9 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdateSense(entryId, before, after, api ?? this);
     }
 
-    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MoveSense(entryId, senseId, position);
+        return _api.MoveSense(entryId, senseId, position, kind);
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)
@@ -400,9 +410,9 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdateExampleSentence(entryId, senseId, before, after, api ?? this);
     }
 
-    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+        return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
@@ -534,6 +544,11 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.MarkCommentRead(commentId);
     }
 
+    public Task MarkCommentThreadUnread(Guid threadId)
+    {
+        return _api.MarkCommentThreadUnread(threadId);
+    }
+
     public Task MarkCommentThreadRead(Guid threadId)
     {
         return _api.MarkCommentThreadRead(threadId);
@@ -548,9 +563,10 @@ public partial class MiniLcmApiValidationWrapper(
 
     #region File Operations
 
-    public Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
+    public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
-        return _api.SaveFile(stream, metadata);
+        await validators.ValidateAndThrow(metadata);
+        return await _api.SaveFile(stream, metadata);
     }
 
     #endregion

@@ -263,7 +263,6 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
 public class SnapshotAtCommitServiceFileBasedTests : IAsyncLifetime
 {
     private readonly string _dbPath = $"snapshot-test-{Guid.NewGuid()}.sqlite";
-    private readonly CrdtProject _crdtProject;
     private readonly AsyncServiceScope _services;
     private LcmCrdtDbContext _dbContext = null!;
     private IMiniLcmApi _api = null!;
@@ -274,33 +273,22 @@ public class SnapshotAtCommitServiceFileBasedTests : IAsyncLifetime
 
     public SnapshotAtCommitServiceFileBasedTests()
     {
-        _crdtProject = new CrdtProject("file-based-test", _dbPath);
         var services = new ServiceCollection()
-            .AddTestLcmCrdtClient(_crdtProject)
+            .AddTestLcmCrdtClient()
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
     }
 
     public async Task InitializeAsync()
     {
-        var projectData = new ProjectData("File Based Test", "file-based-test", Guid.NewGuid(), null, Guid.NewGuid());
-        var currentProjectService = _services.ServiceProvider.GetRequiredService<CurrentProjectService>();
+        var crdtProject = await _services.ServiceProvider.GetRequiredService<CrdtProjectsService>()
+            .CreateProject(new("File Based Test", "file-based-test", DbPath: _dbPath));
+        // Same as opening the project in the app: migrate, regenerate search table if missing, load project data.
+        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(crdtProject);
 
-        // Set up project context for new DB (doesn't query DB)
-        _crdtProject.Data = projectData;
-        currentProjectService.SetupProjectContextForNewDb(_crdtProject);
-
-        // Now create DbContext - it will use the project context
         _dbContext = await _services.ServiceProvider
             .GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>()
             .CreateDbContextAsync();
-        await _dbContext.Database.OpenConnectionAsync();
-
-        // Initialize project in DB
-        await CrdtProjectsService.InitProjectDb(_dbContext, projectData);
-
-        // Refresh project data from DB
-        await currentProjectService.RefreshProjectData();
 
         _api = _services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
         _service = _services.ServiceProvider.GetRequiredService<SnapshotAtCommitService>();
@@ -330,7 +318,6 @@ public class SnapshotAtCommitServiceFileBasedTests : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await _dbContext.Database.CloseConnectionAsync();
         using var clearConn = new SqliteConnection($"Data Source={_dbPath}");
         SqliteConnection.ClearPool(clearConn);
         await _dbContext.Database.EnsureDeletedAsync();

@@ -5,6 +5,7 @@ using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using SIL.Harmony;
 using FwLiteShared;
+using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
 using FwLiteShared.Services;
 using FwLiteWeb.Routes;
@@ -26,6 +27,7 @@ public static class FwLiteWebKernel
         services.AddFwLiteProjectSync();
         services.AddMiniLcmRouteServices();
         services.AddFwLiteShared(environment);
+        services.Configure<AnalyticsConfig>(config => config.Host = MixpanelAnalytics.WebHost);
         services.AddSingleton<IPreferencesService, JsonFilePreferencesService>();
 
         services.AddSingleton<ITroubleshootingService, WebTroubleshootingService>();

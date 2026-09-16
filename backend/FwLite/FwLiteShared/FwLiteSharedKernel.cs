@@ -1,8 +1,10 @@
 using SIL.Harmony.Config;
 using System.Net;
+using FwLiteShared.Analytics;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
+using FwLiteShared.KeepAwake;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
@@ -25,6 +27,22 @@ public static class FwLiteSharedKernel
     {
         services.AddMemoryCache();
         services.AddHttpClient();
+        services.AddHttpClient(MixpanelAnalytics.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+        });
+        services.AddSingleton<IAnalyticsService, AnalyticsService>();
+        services.AddOptions<AnalyticsConfig>()
+            .BindConfiguration("Analytics")
+            // CI is a static, start-of-process signal, so fold it into the config switch rather than
+            // re-checking it on every event. PostConfigure runs after binding, so CI always wins.
+            .PostConfigure(config =>
+            {
+                if (MixpanelAnalytics.IsCiEnvironment())
+                    config.Enabled = false;
+            });
+        services.AddSingleton<IHostedService, AnalyticsIdentityListener>();
+        services.AddSingleton<IHostedService, AppLaunchTracker>();
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();
         services.AddLogging();
@@ -53,6 +71,8 @@ public static class FwLiteSharedKernel
         services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();
         services.TryAddSingleton<INetworkStatus, NetworkInterfaceNetworkStatus>();
         services.TryAddSingleton<IPlatformFeaturesService, DummyPlatformFeaturesService>();
+        services.TryAddSingleton<IKeepAwakePlatform, NoOpKeepAwakePlatform>();
+        services.TryAddSingleton<IKeepAwake, RefCountedKeepAwake>();
         services.AddSingleton<UpdateService>();
         services.AddSingleton<TestingService>();
         services.AddOptions<FwLiteConfig>().BindConfiguration("FwLite");

@@ -36,7 +36,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         await Utils.AddMemberToProject(ProjectId, this, "editor", ProjectRole.Editor);
         // Project folder needs to exist in order for file uploads to be allowed, so trigger first sync including S/R
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, ProjectId);
-        await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, ProjectId);
+        await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, ProjectId);
     }
 
     public async Task DisposeAsync()
@@ -64,12 +64,18 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         return (fileListing, result);
     }
 
-    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, string? overrideSubfolder = null, string? contentType = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null)
+    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, string? overrideSubfolder = null, string? contentType = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null, Guid? fileId = null)
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
         using (var formData = new MultipartFormDataContent())
         {
+            // When set, the server creates/updates the Files row under this exact id (MediaFileController.CreateOrUpdateMediaFile)
+            // instead of minting a fresh one. Required to heal a specific referenced media id.
+            if (fileId is not null)
+            {
+                formData.Add(new StringContent(fileId.Value.ToString()), name: "fileId");
+            }
             if (overrideFilename is not null)
             {
                 formData.Add(new StringContent(overrideFilename), name: "filename");
@@ -170,7 +176,12 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         await LoginIfNeeded(loginAs);
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/media/metadata/{fileId}");
         var result = await HttpClient.SendAsync(request);
-        return (await result.Content.ReadFromJsonAsync<ApiMetadataEndpointResult>(), result);
+        // Only a success response carries an ApiMetadataEndpointResult; a 404 body isn't that shape (its
+        // required 'filename' is absent), so deserializing it would throw instead of reporting "not found".
+        var metadata = result.IsSuccessStatusCode
+            ? await result.Content.ReadFromJsonAsync<ApiMetadataEndpointResult>()
+            : null;
+        return (metadata, result);
     }
 
     public void CreateDummyFile(string filename, long length)

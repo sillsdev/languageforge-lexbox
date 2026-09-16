@@ -8,14 +8,26 @@ namespace MiniLcm;
 
 public interface IMiniLcmWriteApi
 {
+    #region WritingSystem
+
+    // Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
+
     Task<WritingSystem> CreateWritingSystem(WritingSystem writingSystem, BetweenPosition<WritingSystemId?>? between = null);
 
-    Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
+    Task<WritingSystem> UpdateWritingSystem(
+        WritingSystemId id,
         WritingSystemType type,
-        UpdateObjectInput<WritingSystem> update);
-    Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null);
-    // Note there's no Task DeleteWritingSystem(Guid id) because deleting writing systems needs careful consideration, as it can cause a massive cascade of data deletion
+        UpdateObjectInput<WritingSystem> update
+    );
+
+    Task<WritingSystem> UpdateWritingSystem(
+        WritingSystem before,
+        WritingSystem after,
+        IMiniLcmApi? api = null
+    );
+
     Task MoveWritingSystem(WritingSystemId id, WritingSystemType type, BetweenPosition<WritingSystemId?> between);
+    #endregion
 
     #region PartOfSpeech
     Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
@@ -80,7 +92,8 @@ public interface IMiniLcmWriteApi
     Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? position = null);
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null);
-    Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position);
+    Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
+    Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
     Task DeleteSense(Guid entryId, Guid senseId);
     Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain);
     Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId);
@@ -106,7 +119,8 @@ public interface IMiniLcmWriteApi
         ExampleSentence before,
         ExampleSentence after,
         IMiniLcmApi? api = null);
-    Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
+    Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
+    Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
 
@@ -200,6 +214,13 @@ public interface IMiniLcmWriteApi
         throw new NotSupportedException("Comments are only supported by CRDT projects");
     }
     Task MarkCommentRead(Guid commentId)
+    {
+        throw new NotSupportedException("Comments are only supported by CRDT projects");
+    }
+    /// <summary>
+    /// Debug helper: marks every comment in the thread unread again.
+    /// </summary>
+    Task MarkCommentThreadUnread(Guid threadId)
     {
         throw new NotSupportedException("Comments are only supported by CRDT projects");
     }

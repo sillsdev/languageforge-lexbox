@@ -58,7 +58,7 @@ There are some additional urls below to access specific parts of the system.
 ### Local workflow
 
 #### Prerequisites
-- The SvelteKit UI requires: node v20+
+- The SvelteKit UI requires: node v26+
 - The .NET API requires: dotnet sdk v8+
 
 #### Running the project

@@ -34,6 +34,8 @@ using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Text.Json.Serialization.Metadata;
+using LcmCrdt.Harmony;
+using LcmCrdt.MiniLcmImp;
 using MiniLcm.Media;
 
 namespace LcmCrdt;
@@ -72,6 +74,16 @@ public static class LcmCrdtKernel
             harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
+        services.AddScoped<HarmonyChangeWriter>();
+
+        services.AddScoped<CrdtWritingSystemApi>();
+        services.AddScoped<CrdtSemanticDomainsApi>();
+        services.AddScoped<CrdtPublicationApi>();
+        services.AddScoped<CrdtComplexFormComponentApi>();
+        services.AddScoped<CrdtMorphTypeApi>();
+        services.AddScoped<CrdtPartsOfSpeechApi>();
+        services.AddScoped<CrdtComplexFormTypesApi>();
+
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
@@ -137,12 +149,15 @@ public static class LcmCrdtKernel
                     ?? throw new InvalidOperationException(
                         "linq2db mapping schema was not registered by UseLinqToDbCrdt; Harmony's Commit UTC conversion would be missing (issue #2092).");
                 new FluentMappingBuilder(mappingSchema)
-                    //tells linq2db to rewrite Sense.SemanticDomainRows / Entry.PublishInRows into
-                    //Json.Query(<underlying column>). The rewrite lives on the *Rows shadow accessors
-                    //rather than the real IList<T> columns; see Entry.PublishInRows for why.
-                    .Entity<Sense>().Property(s => s.SemanticDomainRows).IsExpression(SenseSemanticDomainRowsExpression(), isColumn: false)
-                    .Entity<Entry>().Property(e => e.PublishInRows).IsExpression(EntryPublishInRowsExpression(), isColumn: false)
+                    .Entity<Sense>().Property(s => s.SemanticDomains).IsExpression(SenseSemanticDomainsExpression(), isColumn: false)
+                    .Entity<Entry>().Property(e => e.PublishIn).IsExpression(EntryPublishInExpression(), isColumn: false)
                     .Entity<Entry>().Association(e => e.QueryMorphType(), e => e.MorphType, m => m!.Kind)
+                    .Entity<Entry>().Association(e => EntryQueryHelpers.QueryCommentThreads(e), (e, ct) => e.Id == ct.SubjectId && ct.SubjectType == SubjectType.Entry)
+                    .Entity<Entry>().Association(e => EntryQueryHelpers.QueryOpenCommentThreads(e), (e, ct) => e.Id == ct.SubjectId && ct.SubjectType == SubjectType.Entry && ct.Status == ThreadStatus.Open)
+                    //QueryEntryUnreadComments is needed because otherwise we need to chain QueryCommentThreads and QueryThreadsUnreadComments, which doesn't work in Gridify
+                    .Entity<Entry>().Association(e => EntryQueryHelpers.QueryEntryUnreadComments(e), (e, context) => context.GetTable<CommentThread>().Where(ct => ct.SubjectType == SubjectType.Entry && ct.SubjectId == e.Id)
+                        .SelectMany(ct => EntryQueryHelpers.QueryThreadsUnreadComments(ct)))
+                    .Entity<CommentThread>().Association(c => EntryQueryHelpers.QueryThreadsUnreadComments(c), c => c.Id, uc => uc.CommentThreadId)
                     .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComponentEntry(c), c => c.ComponentEntryId, e => e!.Id)
                     .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComponentSense(c), c => c.ComponentSenseId, s => s!.Id)
                     .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComplexFormEntry(c), c => c.ComplexFormEntryId, e => e!.Id)
@@ -175,14 +190,16 @@ public static class LcmCrdtKernel
             builder.AddInterceptors(updateSearchTableInterceptor);
     }
 
-    private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainRowsExpression()
+    private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainsExpression()
     {
-        return s => Json.Query(s.SemanticDomains);
+        //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten
+        return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
     }
 
-    private static Expression<Func<Entry, IQueryable<Publication>>> EntryPublishInRowsExpression()
+    private static Expression<Func<Entry, IQueryable<Publication>>> EntryPublishInExpression()
     {
-        return e => Json.Query(e.PublishIn);
+        //using Sql.Property, otherwise if we used `e.PublishIn` again it would be recursively rewritten
+        return e => Json.Query(Sql.Property<IList<Publication>>(e, nameof(Entry.PublishIn)));
     }
 
     public static void ConfigureCrdt(HarmonyConfig config, bool addRemoteResourceEntity = true)
@@ -353,6 +370,7 @@ public static class LcmCrdtKernel
             .Add<CreateExampleSentenceChange>()
             .Add<JsonPatchExampleSentenceChange>()
             .Add<Changes.SetOrderChange<ExampleSentence>>()
+            .Add<MoveExampleSentenceToSenseChange>()
             .Add<DeleteChange<ExampleSentence>>()
             .Add<AddTranslationChange>()
             .Add<RemoveTranslationChange>()

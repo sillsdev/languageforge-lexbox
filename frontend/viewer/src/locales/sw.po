@@ -58,6 +58,7 @@ msgstr ""
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} iliyopita"
 
@@ -89,6 +90,11 @@ msgstr "Seva ya {0}"
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# mabadiliko}}"
 
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "{num, plural, one {# entry to go} other {# entries to go}}"
+msgstr ""
+
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
@@ -98,6 +104,15 @@ msgstr "{num, plural, one {# kumbuka mpya ya FieldWorks Classic} other {# kumbuk
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, one {# kumbuka mpya ya FieldWorks Lite} other {# kumbukas mpya za FieldWorks Lite}}"
+
+#: src/project/browse/filter/UnreadCommentBadge.svelte
+msgid "{num, plural, one {# unread comment} other {# unread comments}}"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "{num, plural, one {# word to go} other {# words to go}}"
+msgstr ""
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
@@ -147,11 +162,6 @@ msgstr ""
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "neno"
-
-#. Dialog title
-#: src/lib/about/AboutDialog.svelte
-msgid "About"
-msgstr "Kuhusu"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -213,6 +223,10 @@ msgstr "Ongeza neno jipya"
 msgid "Add part of"
 msgstr "Ongeza sehemu ya"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Add Picture"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
 #. Small button to add another sense/meaning for a word
@@ -220,6 +234,14 @@ msgstr "Ongeza sehemu ya"
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "Ongeza Maana"
+
+#: src/project/tasks/TaskList.svelte
+msgid "Add some entries first."
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "Add some words first."
+msgstr ""
 
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
@@ -279,6 +301,10 @@ msgstr ""
 msgid "Analysis writing systems"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Analytics are turned off."
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
 #. Filter option: clear grammatical info filter
@@ -324,6 +350,11 @@ msgstr "Je, una uhakika kuwa unataka kufuta {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Uliza maswali na upate msaada kwenye jukwaa letu la jamii."
 
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "Audio"
+msgstr ""
+
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
@@ -362,6 +393,11 @@ msgstr "Kuoanisha otomatiki"
 msgid "Back"
 msgstr ""
 
+#: src/project/tasks/TaskView.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "Back to tasks"
+msgstr ""
+
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -386,6 +422,7 @@ msgstr "buluu"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Browse"
 msgstr "Angalia"
 
@@ -477,10 +514,8 @@ msgid "clear"
 msgstr "futa"
 
 #. Button to close popup
-#: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
@@ -506,18 +541,17 @@ msgstr "Rangi"
 msgid "Comment"
 msgstr ""
 
-#: src/lib/entry-editor/comments/CommentDialog.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
 msgstr ""
 
-#: src/lib/entry-editor/comments/CommentDialog.svelte
-msgid "Comments for {0}"
-msgstr ""
-
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "Complete"
 msgstr ""
 
 #. Field label
@@ -881,6 +915,10 @@ msgstr ""
 msgid "Ends with"
 msgstr "Inaishia na"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Entries missing both Lexeme form and Citation form"
+msgstr ""
+
 #. Filter option label
 #. Dropdown to filter entries by missing fields
 #. Example: "Entries missing Definition" shows words without definitions
@@ -949,6 +987,14 @@ msgstr "Hitilafu katika kupata hali ya kuoanisha"
 msgid "Error getting sync status."
 msgstr "Hitilafu katika kupata hali ya kuoanisha."
 
+#: src/project/tasks/TaskView.svelte
+msgid "Every entry already has this field filled in."
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "Every word already has this field filled in."
+msgstr ""
+
 #. Section header
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
@@ -961,6 +1007,7 @@ msgstr "Mfano"
 #. Sentence/phrase showing usage of a word
 #. Appears under each Sense/Meaning; can have multiple examples per meaning
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Example sentence"
 msgstr "Sentensi ya mfano"
 
@@ -1063,6 +1110,10 @@ msgstr "Maeneo"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
+#: src/home/HomeView.svelte
+msgid "FieldWorks Lite collects usage data to help us improve it."
+msgstr ""
+
 #. Success notification shown after FieldWorks Lite auto-updates. "FieldWorks Lite" is a product name — do not translate.
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
@@ -1118,6 +1169,14 @@ msgstr "Faili kubwa sana"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Filename"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Display as"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Word or Display as"
 msgstr ""
 
 #. Accessible label for the browse search input that filters entries or words
@@ -1258,10 +1317,23 @@ msgstr "kijani"
 msgid "Harmony snapshots regenerated successfully"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Has comments"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unread comments"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unresolved comments"
+msgstr ""
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
 #: src/project/browse/sort/SortMenu.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Headword"
 msgstr "Neno la kichwa"
 
@@ -1308,6 +1380,7 @@ msgstr "Ingiza"
 
 #. Future relative date format. {0} = formatted duration string (e.g., "3 hours", "2 days"). Paired with "{0} ago" for past dates.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "katika {0}"
 
@@ -1331,6 +1404,11 @@ msgstr "Sakinisha Sasisho"
 msgid "Installing Update..."
 msgstr "Inasakinisha Sasisho..."
 
+#. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "just now"
+msgstr ""
+
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
@@ -1346,6 +1424,15 @@ msgstr "Badiliko la mwisho: #"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Last sync: #"
 msgstr "Kuoanisha kwa mwisho: #"
+
+#: src/home/HomeView.svelte
+msgid "Learn more"
+msgstr ""
+
+#. Placeholder for the release channel text box. Production has no feature flags.
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Leave empty for production"
+msgstr ""
 
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
@@ -1528,6 +1615,7 @@ msgstr "Sasisho la mwongozo linahitajika. Tafadhali fuata maelekezo yaliyotolewa
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Meaning"
 msgstr "Maana"
 
@@ -1540,10 +1628,18 @@ msgstr ""
 msgid "Media Manager"
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Citation form {0}"
+msgstr ""
+
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
 msgstr "Maana yenye kushindwa {0}"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Display as {0}"
+msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1555,10 +1651,29 @@ msgstr "Sentensi ya mfano yenye kushindwa {0}"
 msgid "Missing Gloss {0}"
 msgstr "Glosi yenye kushindwa {0}"
 
-#. Task subject label in the task list. Identifies senses/meanings that have no part-of-speech (grammatical category) assigned.
 #: src/project/tasks/tasks-service.ts
-msgid "Missing Part of Speech"
-msgstr "Sehemu ya mazungumzo yenye kushindwa"
+msgid "Missing Grammatical info."
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Headword {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Lexeme form {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Part of speech"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Semantic domains"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Word {0}"
+msgstr ""
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1890,6 +2005,10 @@ msgstr "Fungua faili la logi"
 msgid "Opening in FieldWorks…"
 msgstr "Kufungua katika FieldWorks…"
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Opt out of analytics"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
@@ -1930,10 +2049,17 @@ msgstr "Sehemu za mazungumzo"
 msgid "Pending"
 msgstr "Inasubiri"
 
-#. Task instruction
 #: src/project/tasks/tasks-service.ts
-msgid "Pick a Part of Speech"
-msgstr "Chagua Sehemu ya Mazungumzo"
+msgid "Pick a Part of speech"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick Grammatical info."
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick one or more Semantic domains"
+msgstr ""
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
@@ -1995,6 +2121,12 @@ msgstr ""
 msgid "Previous picture"
 msgstr ""
 
+#: src/home/HomeView.svelte
+#: src/lib/about/PrivacyDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Privacy"
+msgstr ""
+
 #. Label in project card
 #: src/home/HomeView.svelte
 msgid "Project"
@@ -2034,6 +2166,42 @@ msgstr "Chapisha Neno katika"
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Definition"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Gloss"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form or Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Word"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record an example sentence"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record Display as"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record Word or Display as"
 msgstr ""
 
 #. Field label for citation source
@@ -2093,6 +2261,11 @@ msgstr ""
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
+msgstr ""
+
+#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Release channel"
 msgstr ""
 
 #. Link label to open release notes
@@ -2239,11 +2412,6 @@ msgstr "Chagua {0}"
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "Chagua {0} kuona maelezo"
-
-#. Empty state message
-#: src/project/tasks/TasksView.svelte
-msgid "Select a new task to work on"
-msgstr "Chagua jukumu jipya la kufanya"
 
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
@@ -2410,6 +2578,10 @@ msgstr "Ruka"
 msgid "Something went wrong"
 msgstr ""
 
+#: src/project/browse/sort/SortWritingSystemMenu.svelte
+msgid "Sort writing system"
+msgstr ""
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
@@ -2519,11 +2691,6 @@ msgstr "Inaoanisha..."
 msgid "System"
 msgstr "Mfumo"
 
-#. Page title with task name
-#: src/project/tasks/TasksView.svelte
-msgid "Task {0}"
-msgstr "Jukumu {0}"
-
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -2535,6 +2702,7 @@ msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "Jukumu"
 
@@ -2684,8 +2852,16 @@ msgstr "Tatanua"
 msgid "Try again"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Turn analytics back on"
+msgstr ""
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Citation form"
 msgstr ""
 
 #. Task instruction
@@ -2697,6 +2873,18 @@ msgstr "Andika Maana"
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Gloss"
 msgstr "Andika Fasihi"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form or Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Word"
+msgstr ""
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2895,10 +3083,18 @@ msgstr "Muonekano"
 msgid "View Picture"
 msgstr ""
 
+#: src/lib/about/PrivacyDialog.svelte
+msgid "View the SIL privacy policy"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "zambarau"
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
+msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
@@ -2953,6 +3149,10 @@ msgstr "Neno au Onyesha kulingana na inavyohitajika"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Word or meaning:"
 msgstr "Neno au maana:"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Words missing both Word and Display as"
+msgstr ""
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte

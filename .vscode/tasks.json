@@ -85,7 +85,7 @@
         },
         {
             "label": "Fw Lite vite",
-            "command": "npm",
+            "command": "pnpm",
             "type": "process",
             "args": [
                 "run",

@@ -36,6 +36,7 @@ The generated files are located in `src/lib/dotnet-types/generated-types/`.
 | UI | `tests/ui/` | ✅ Yes — auto-starts a dev server with in-memory demo; no infra needed |
 | E2E | `tests/e2e/` | ❌ Needs a Lexbox kind cluster + published FwLiteWeb binary |
 | Launcher | `tests/launcher/` | ❌ Needs a published FwLiteWeb binary |
+| Manual | `**/*.manual.test.ts` | ⚠️ Opt-in — `pnpm test:manual`. Hits the network, so it is excluded from `pnpm test` and CI |
 
 **Don't run E2E or Launcher tests unless you've explicitly set up that infrastructure** — they fail loudly without it and the setup isn't part of normal dev.
 
@@ -114,6 +115,16 @@ throw (or rethrow) rather than catching and rendering raw messages inline. It sh
 with a copy-error button and logs to .NET. Inline UI error states are for *expected*, actionable
 failures (offline, not-found, retry) with plain, translated messages.
 
+## Feature flags
+
+Frontend-only release channels live in `src/lib/feature-flags/`. Users type a
+channel in Troubleshoot (empty = production). Gate preview UI with
+`hasFlag('flag-name')` or `<FlagContent flag="flag-name">`. Flag names are typed
+from `CHANNEL_FLAGS`. Map flags onto preview channels only; when a feature
+ships, delete the flag — production has none. The `dev` channel is special:
+`DevContent` shows and `hasFlag` is always true. Do not list `dev` or
+`production` in `CHANNEL_FLAGS`.
+
 ## Key Concepts
 
 - **MiniLcm**: Lightweight dictionary API (entries, senses, definitions)
@@ -125,4 +136,5 @@ failures (offline, not-found, retry) with plain, translated messages.
 - `lingui.config.ts` - i18n configuration
 - `components.json` - ShadCN-svelte config
 - `src/lib/entry-editor/` - Entry editing components
+- `src/lib/feature-flags/` - Release-channel feature flags (`hasFlag`, `FlagContent`)
 - `src/routes/` - Page routes

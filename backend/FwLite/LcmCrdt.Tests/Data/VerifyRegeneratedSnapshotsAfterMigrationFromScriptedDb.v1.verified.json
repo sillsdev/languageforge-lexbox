@@ -144,7 +144,9 @@
         "Name": {
           "en": "Universe, Creation"
         },
+        "Abbreviation": {},
         "Code": "1",
+        "Description": {},
         "Predefined": true
       },
       "Id": "Guid_16"
@@ -166,7 +168,9 @@
         "Name": {
           "en": "Sky"
         },
+        "Abbreviation": {},
         "Code": "1.1",
+        "Description": {},
         "Predefined": true
       },
       "Id": "Guid_19"
@@ -188,7 +192,9 @@
         "Name": {
           "en": "World"
         },
+        "Abbreviation": {},
         "Code": "1.2",
+        "Description": {},
         "Predefined": true
       },
       "Id": "Guid_21"
@@ -210,7 +216,9 @@
         "Name": {
           "en": "Person"
         },
+        "Abbreviation": {},
         "Code": "2",
+        "Description": {},
         "Predefined": true
       },
       "Id": "Guid_23"
@@ -232,7 +240,9 @@
         "Name": {
           "en": "Body"
         },
+        "Abbreviation": {},
         "Code": "2.1",
+        "Description": {},
         "Predefined": true
       },
       "Id": "Guid_25"
@@ -254,7 +264,9 @@
         "Name": {
           "en": "Head"
         },
+        "Abbreviation": {},
         "Code": "2.1.1",
+        "Description": {},
         "Predefined": true
       },
       "Id": "Guid_27"
@@ -276,7 +288,9 @@
         "Name": {
           "en": "Eye"
         },
+        "Abbreviation": {},
         "Code": "2.1.1.1",
+        "Description": {},
         "Predefined": true
       },
       "Id": "Guid_29"

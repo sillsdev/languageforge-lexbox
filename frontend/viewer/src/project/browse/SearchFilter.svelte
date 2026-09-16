@@ -24,7 +24,9 @@
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {Button} from '$lib/components/ui/button';
   import Hotkey from '$lib/components/hotkey/hotkey.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
 
+  const features = useFeatures();
   const stats = useProjectStats();
   const viewService = useViewService();
   const wsService = useWritingSystemService();
@@ -35,12 +37,14 @@
     semanticDomain = $bindable(),
     partOfSpeech = $bindable(),
     publication = $bindable(),
+    unreadComments = $bindable(false),
   }: {
     search: string;
     gridifyFilter?: string;
     semanticDomain?: ISemanticDomain;
     partOfSpeech?: IPartOfSpeech;
     publication?: IPublication;
+    unreadComments?: boolean;
   } = $props();
 
   let inputRef = $state<HTMLInputElement | null>(null);
@@ -51,6 +55,8 @@
   let filterOp = $state<Op>('contains')
   let includeSubDomains = $state(false);
   let userFilterActive = $state(false);
+  let hasComments = $state(false);
+  let openComments = $state(false);
 
   function focusSearch() {
     inputRef?.focus();
@@ -68,6 +74,7 @@
     let newFilter: string[] = [];
     switch (missingField?.id) {
       case 'examples': newFilter.push('Senses.ExampleSentences=null'); break;
+      case 'translations': newFilter.push('Senses.ExampleSentences.Translations=null'); break;
       case 'senses': newFilter.push('Senses=null'); break;
       case 'partOfSpeech': newFilter.push('Senses.PartOfSpeechId='); break;
       case 'semanticDomains': newFilter.push('Senses.SemanticDomains=null'); break;
@@ -104,6 +111,18 @@
       newFilter.push(`PublishIn.Id=${publication.id}`);
     }
 
+    if (hasComments) {
+      newFilter.push('CommentThreads!=null');
+    }
+
+    if (unreadComments) {
+      newFilter.push('UnreadComments!=null');
+    }
+
+    if (openComments) {
+      newFilter.push('OpenCommentThreads!=null');
+    }
+
     // all user selected filters should be before this line!
     userFilterActive = newFilter.length > 0;
 
@@ -136,6 +155,9 @@
     semanticDomain = undefined;
     partOfSpeech = undefined;
     publication = undefined;
+    hasComments = false;
+    unreadComments = false;
+    openComments = false;
   }
 
   let filtersExpanded = $state(false);
@@ -220,6 +242,13 @@
             <Label class="p-2">{$t`Incomplete entries`}</Label>
             <MissingSelect bind:value={missingField} />
           </div>
+          {#if features.comments}
+            <div class="flex flex-col">
+              <Switch bind:checked={hasComments} label={$t`Has comments`} />
+              <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
+              <Switch class="mt-1.5" bind:checked={openComments} label={$t`Has unresolved comments`} />
+            </div>
+          {/if}
         </div>
       </ResponsivePopup>
     {/snippet}

@@ -10,6 +10,7 @@
   import CommentAuthorAvatar from './CommentAuthorAvatar.svelte';
   import CommentItem from './CommentItem.svelte';
   import CommentReplyInput from './CommentReplyInput.svelte';
+  import DevContent from '$lib/layout/DevContent.svelte';
   import type {ThreadView} from './types';
 
   let {
@@ -26,6 +27,7 @@
     onStartEdit,
     onCancelEdit,
     onSaveEdit,
+    onMarkUnread,
   }: {
     threadView: ThreadView;
     canComment: boolean;
@@ -40,6 +42,8 @@
     onStartEdit: (comment: IUserComment) => void;
     onCancelEdit: (commentId: string) => void;
     onSaveEdit: (commentId: string, text: string) => void;
+    /** Debug only: puts the thread back in the unread state. */
+    onMarkUnread?: () => void;
   } = $props();
 
   const resolved = $derived(threadView.thread.status === ThreadStatus.Closed);
@@ -87,6 +91,22 @@
           title={$t`Unread`}
         ></span>
       {/if}
+      <DevContent>
+        <Button
+          variant="outline"
+          size="icon-xs"
+          class="size-6 shrink-0"
+          aria-label="Mark unread (dev)"
+          title="Mark unread (dev)"
+          icon="i-mdi-email-mark-as-unread"
+          iconProps={{class: 'size-3.5'}}
+          disabled={saving}
+          onclick={(e) => {
+            e.stopPropagation();
+            onMarkUnread?.();
+          }}
+        />
+      </DevContent>
       <Icon
         icon="i-mdi-chevron-down"
         class="size-4 shrink-0 text-muted-foreground transition-transform"

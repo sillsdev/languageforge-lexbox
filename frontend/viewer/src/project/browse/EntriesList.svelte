@@ -250,6 +250,7 @@
                               class="mb-2"
                               selected={selectedEntryId === entry.id}
                               onclick={() => onSelectEntry(entry)}
+                              sortWs={sort?.writingSystem}
                               {previewDictionary}/>
                   </EntryMenu>
                 {/if}

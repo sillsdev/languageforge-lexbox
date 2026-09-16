@@ -1,3 +1,7 @@
+<script lang="ts" module>
+  export type ResizableHandleVariant = 'divider' | 'grab-bar';
+</script>
+
 <script lang="ts">
   import {cn, type WithoutChildrenOrChild} from '$lib/utils.js';
   import * as ResizablePrimitive from 'paneforge';
@@ -12,16 +16,24 @@
     ref = $bindable(null),
     class: className,
     withHandle = false,
+    variant = 'divider',
     leftPane,
     rightPane,
     resetTo,
     ...restProps
   }: WithoutChildrenOrChild<ResizablePrimitive.PaneResizerProps> & {
     withHandle?: boolean;
+    /**
+     * `divider`: hairline rule with a small grip, for pointer-driven splits.
+     * `grab-bar`: touch-sized bar with a drawer-style pill, for stacked/mobile splits.
+     */
+    variant?: ResizableHandleVariant;
     resetTo?: Readonly<[number, number]>;
     leftPane?: ResizablePrimitive.Pane;
     rightPane?: ResizablePrimitive.Pane;
   } = $props();
+
+  const grabBar = $derived(variant === 'grab-bar');
 
   let dragging = $state(false);
   const draggingDebounced = new Debounced(() => dragging, DEFAULT_DEBOUNCE_TIME);
@@ -64,13 +76,22 @@
   bind:ref
   data-slot="resizable-handle"
   class={cn(
-    'bg-border focus-visible:ring-ring relative flex w-px items-center justify-center after:absolute after:inset-y-0 after:inset-s-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:outline-hidden data-[direction=vertical]:h-px data-[direction=vertical]:w-full data-[direction=vertical]:after:inset-s-0 data-[direction=vertical]:after:h-1 data-[direction=vertical]:after:w-full data-[direction=vertical]:after:translate-x-0 data-[direction=vertical]:after:-translate-y-1/2 [&[data-direction=vertical]>div]:rotate-90',
+    'focus-visible:ring-ring relative flex items-center justify-center focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:outline-hidden',
+    grabBar
+      ? 'border-border z-10 w-4 border-s bg-transparent data-[direction=vertical]:h-0 data-[direction=vertical]:w-full data-[direction=vertical]:border-s-0 data-[direction=vertical]:border-t [&[data-direction=vertical]>div]:absolute [&[data-direction=vertical]>div]:top-6 [&[data-direction=vertical]>div]:left-1/2 [&[data-direction=vertical]>div]:-translate-x-1/2 [&[data-direction=vertical]>div]:h-2 [&[data-direction=vertical]>div]:w-24'
+      : 'bg-border w-px after:absolute after:inset-y-0 after:inset-s-1/2 after:w-1 after:-translate-x-1/2 data-[direction=vertical]:h-px data-[direction=vertical]:w-full data-[direction=vertical]:after:inset-s-0 data-[direction=vertical]:after:h-1 data-[direction=vertical]:after:w-full data-[direction=vertical]:after:translate-x-0 data-[direction=vertical]:after:-translate-y-1/2 [&[data-direction=vertical]>div]:rotate-90',
     className,
   )}
   ondblclick={resetPanes}
   {...restProps}
 >
-  {#if withHandle}
+  {#if grabBar}
+    <!-- Drawer-style grip: the bar itself is the drag target, sized for a thumb. -->
+    <div
+      class="bg-muted-foreground/40 data-[dragging=true]:bg-muted-foreground/70 relative h-24 w-2 rounded-full transition-colors after:absolute after:-inset-x-2 after:-inset-y-2 after:content-['']"
+      data-dragging={dragging}
+    ></div>
+  {:else if withHandle}
     <div
       class="flex gap-1 items-center justify-center z-10 min-w-3 overflow-hidden transition-all delay-100 hover:delay-300 duration-0"
       class:hover:min-w-max={showResizers}

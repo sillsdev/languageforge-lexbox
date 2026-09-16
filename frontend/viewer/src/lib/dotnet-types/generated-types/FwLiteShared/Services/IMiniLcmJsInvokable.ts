@@ -79,6 +79,7 @@ export interface IMiniLcmJsInvokable
 	deleteUserComment(commentId: string) : Promise<void>;
 	deleteCommentThread(threadId: string) : Promise<void>;
 	markCommentRead(commentId: string) : Promise<void>;
+	markCommentThreadUnread(threadId: string) : Promise<void>;
 	markCommentThreadRead(threadId: string) : Promise<void>;
 	markAllCommentsRead() : Promise<void>;
 	createEntry(entry: IEntry, options: ICreateEntryOptions) : Promise<IEntry>;

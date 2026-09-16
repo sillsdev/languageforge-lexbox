@@ -74,6 +74,14 @@ test.describe('Sense pictures', () => {
       buffer: TEST_PNG,
     });
 
+    // Adding a picture now opens the "Add Picture" dialog on an in-memory draft; the picture isn't
+    // added to the sense (nor rendered in the field) until Submit.
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('heading', {name: 'Add Picture'})).toBeVisible({timeout: 5000});
+    await expect(picturesField.locator('img')).toHaveCount(0);
+    await dialog.getByRole('button', {name: 'Submit'}).click();
+    await expect(dialog).toHaveCount(0);
+
     // An uploaded picture is available locally, so it loads automatically (no "Load picture"
     // placeholder) and renders into a blob url.
     const image = picturesField.locator('img').first();
@@ -90,14 +98,18 @@ test.describe('Sense pictures', () => {
     const picturesField = page.locator('[style*="grid-area: pictures"]').first();
     await expect(picturesField).toBeVisible({timeout: 5000});
     const fileInput = picturesField.locator('input[type="file"]');
+    const dialog = page.getByRole('dialog');
 
-    // First upload adds a picture; uploaded files are local, so it loads automatically.
+    // First upload opens the "Add Picture" dialog; Submit adds the picture. Uploaded files are local,
+    // so it loads automatically.
     await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: TEST_PNG});
+    await dialog.getByRole('button', {name: 'Submit'}).click();
     await expect(picturesField.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
 
-    // Uploading the same filename again -> server reports AlreadyExists with the existing mediaUri;
-    // it's already cached, so the second picture also renders immediately.
+    // Uploading the same filename again -> Submit -> server reports AlreadyExists with the existing
+    // mediaUri; it's already cached, so the second picture also renders immediately.
     await fileInput.setInputFiles({name: 'shared.png', mimeType: 'image/png', buffer: TEST_PNG});
+    await dialog.getByRole('button', {name: 'Submit'}).click();
 
     // Both pictures now render an image.
     await expect(picturesField.locator('img')).toHaveCount(2, {timeout: 5000});
@@ -121,7 +133,12 @@ test.describe('Sense pictures', () => {
     await picturesField.locator('input[type="file"]').setInputFiles({
       name: 'photo.png', mimeType: 'image/png', buffer: TEST_PNG,
     });
-    // An uploaded picture is local, so it loads automatically; wait for it before returning.
+    // Adding a picture now opens the "Add Picture" dialog on an in-memory draft; nothing is uploaded
+    // or added to the sense until Submit.
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('button', {name: 'Submit'}).click();
+    await expect(dialog).toHaveCount(0);
+    // Once submitted the uploaded picture is local, so it loads automatically; wait for it.
     await expect(picturesField.locator('img').first()).toHaveAttribute('src', /^blob:/, {timeout: 5000});
     return picturesField;
   }

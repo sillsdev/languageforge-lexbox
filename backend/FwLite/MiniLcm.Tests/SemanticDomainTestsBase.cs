@@ -12,12 +12,16 @@ public abstract class SemanticDomainTestsBase : MiniLcmTestBase
 
         var semanticDomain = new SemanticDomain()
         {
-            Id = Guid.NewGuid(), Name = new MultiString() { { "en", "new-semantic-domain" } }, Code = "1.0"
+            Id = Guid.NewGuid(),
+            Name = new MultiString() { { "en", "new-semantic-domain" } },
+            Abbreviation = new MultiString() { { "en", "1.0" } },
         };
         await Api.CreateSemanticDomain(semanticDomain);
         await Api.CreateSemanticDomain(new SemanticDomain()
         {
-            Id = Guid.NewGuid(), Name = new MultiString() { { "en", "new-semantic-domain-2" } }, Code = "1.1"
+            Id = Guid.NewGuid(),
+            Name = new MultiString() { { "en", "new-semantic-domain-2" } },
+            Abbreviation = new MultiString() { { "en", "1.1" } },
         });
 
         await Api.CreateEntry(new Entry()
@@ -48,6 +52,61 @@ public abstract class SemanticDomainTestsBase : MiniLcmTestBase
             sd.Name.Values.Should().NotBeEmpty();
             sd.Code.Should().NotBeEmpty();
         });
+    }
+
+    [Fact]
+    public async Task CreateSemanticDomain_RoundTripsExtendedFields()
+    {
+        var id = Guid.NewGuid();
+        var created = await Api.CreateSemanticDomain(new SemanticDomain
+        {
+            Id = id,
+            Name = new MultiString { { "en", "Animals" } },
+            Abbreviation = new MultiString { { "en", "1.6" } },
+            Description = new RichMultiString { { "en", new RichString("Living creatures") } },
+            OcmCodes = "22; 22.1",
+            LouwNidaCodes = "4.1; 4.2",
+        });
+
+        created.Abbreviation.Values["en"].Should().Be("1.6");
+        created.Code.Should().Be("1.6");
+        created.Description["en"].GetPlainText().Should().Be("Living creatures");
+        created.OcmCodes.Should().Be("22; 22.1");
+        created.LouwNidaCodes.Should().Be("4.1; 4.2");
+
+        var fetched = await Api.GetSemanticDomain(id);
+        fetched.Should().NotBeNull();
+        fetched!.Abbreviation.Values["en"].Should().Be("1.6");
+        fetched.Code.Should().Be("1.6");
+        fetched.Description["en"].GetPlainText().Should().Be("Living creatures");
+        fetched.OcmCodes.Should().Be("22; 22.1");
+        fetched.LouwNidaCodes.Should().Be("4.1; 4.2");
+    }
+
+    [Fact]
+    public async Task UpdateSemanticDomain_UpdatesExtendedFields()
+    {
+        var id = Guid.NewGuid();
+        var before = await Api.CreateSemanticDomain(new SemanticDomain
+        {
+            Id = id,
+            Name = new MultiString { { "en", "Food" } },
+            Abbreviation = new MultiString { { "en", "5.2" } },
+        });
+
+        var after = before.Copy();
+        after.Abbreviation = new MultiString { { "en", "5.2.1" } };
+        after.Code = string.Empty; // prefer Abbreviation when Code is cleared
+        after.Description = new RichMultiString { { "en", new RichString("Things people eat") } };
+        after.OcmCodes = "25";
+        after.LouwNidaCodes = "5";
+
+        var updated = await Api.UpdateSemanticDomain(before, after);
+        updated.Abbreviation.Values["en"].Should().Be("5.2.1");
+        updated.Code.Should().Be("5.2.1");
+        updated.Description["en"].GetPlainText().Should().Be("Things people eat");
+        updated.OcmCodes.Should().Be("25");
+        updated.LouwNidaCodes.Should().Be("5");
     }
 
     [Fact]

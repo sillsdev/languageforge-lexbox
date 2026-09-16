@@ -221,7 +221,9 @@ public class FwDataMiniLcmApi(
         return await GetWritingSystem(id, type) ?? throw new NullReferenceException($"unable to find writing system with id {id}");
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
+        WritingSystem after,
+        IMiniLcmApi? api)
     {
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",
@@ -425,7 +427,11 @@ public class FwDataMiniLcmApi(
         {
             Id = semanticDomain.Guid,
             Name = FromLcmMultiString(semanticDomain.Name),
+            Abbreviation = FromLcmMultiString(semanticDomain.Abbreviation),
             Code = LcmHelpers.GetSemanticDomainCode(semanticDomain),
+            Description = FromLcmMultiString(semanticDomain.Description),
+            OcmCodes = semanticDomain.OcmCodes,
+            LouwNidaCodes = semanticDomain.LouwNidaCodes,
             Predefined = CanonicalGuidsSemanticDomain.CanonicalSemDomGuids.Contains(semanticDomain.Guid),
         };
     }
@@ -456,10 +462,11 @@ public class FwDataMiniLcmApi(
             {
                 var lcmSemanticDomain = Cache.ServiceLocator.GetInstance<ICmSemanticDomainFactory>()
                     .Create(semanticDomain.Id, Cache.LangProject.SemanticDomainListOA);
-                lcmSemanticDomain.OcmCodes = semanticDomain.Code;
                 UpdateLcmMultiString(lcmSemanticDomain.Name, semanticDomain.Name);
-                // TODO: Find out if semantic domains are guaranteed to have an "en" writing system, or if we should use lcmCache.DefautlAnalWs instead
-                UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, new MultiString(){{"en", semanticDomain.Code}});
+                UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, semanticDomain.Abbreviation);
+                UpdateLcmMultiString(lcmSemanticDomain.Description, semanticDomain.Description);
+                lcmSemanticDomain.OcmCodes = semanticDomain.OcmCodes;
+                lcmSemanticDomain.LouwNidaCodes = semanticDomain.LouwNidaCodes;
             });
         return await GetSemanticDomain(semanticDomain.Id) ?? throw new InvalidOperationException("Semantic domain was not created");
     }
@@ -892,19 +899,43 @@ public class FwDataMiniLcmApi(
 
     private string ToMediaUri(string tsString)
     {
-        //rooted media paths aren't supported
+        var audioVisualRoot = Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder);
+        string fullFilePath;
         if (Path.IsPathRooted(tsString))
-            throw new ArgumentException("Media path must be relative", nameof(tsString));
-        var fullFilePath = Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder, tsString);
+        {
+            // Normalize-then-classify (ticket 13): a rooted path under AudioVisual is a managed file
+            // expressed absolutely — resolve it normally. A genuinely out-of-tree path can't be resolved
+            // to a managed media file, so it becomes the not-found sentinel (never crash on read).
+            // GetRelativePath is case-insensitive on Windows and separator-aware, so it won't misclassify a
+            // managed file (which would turn a real reference into the sentinel = data loss). The path escapes
+            // AudioVisual only when the relative result begins with a parent-directory (..) SEGMENT or is rooted
+            // (a different drive). Match the segment, not a raw ".." prefix, so a filename that merely starts
+            // with ".." (e.g. "..foo.wav") stays resolvable.
+            var relative = Path.GetRelativePath(audioVisualRoot, tsString);
+            if (relative == ".."
+                || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+                || relative.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal)
+                || Path.IsPathRooted(relative))
+                return MediaUri.NotFound.ToString();
+            fullFilePath = tsString;
+        }
+        else
+        {
+            fullFilePath = Path.Join(audioVisualRoot, tsString);
+        }
         return mediaAdapter.MediaUriFromPath(fullFilePath, Cache).ToString();
     }
 
-    internal string FromMediaUri(string mediaUriString)
+    internal string? FromMediaUri(string mediaUriString)
     {
         //path includes `AudioVisual` currently
         var mediaUri = new MediaUri(mediaUriString);
+        // not found, return null
+        if (mediaUri == MediaUri.NotFound) return null;
         var path = mediaAdapter.PathFromMediaUri(mediaUri, Cache);
-        if (path is null) throw new NotFoundException($"File ID: {mediaUri.FileId}.", nameof(MediaFile));
+        // An unresolvable reference (no Files row / not on disk) is skipped on write, not a crash
+        // the entry otherwise syncs and the field heals on a later sync once the binary is resolvable.
+        if (path is null) return null;
         return Path.GetRelativePath(Path.Join(Cache.LangProject.LinkedFilesRootDir, AudioVisualFolder), path);
     }
 
@@ -1448,6 +1479,7 @@ public class FwDataMiniLcmApi(
         lexEntry.SensesOS.Add(lexSense);
     }
 
+    // inserting/adding also re-parents an example currently owned by a different sense (LCM owning sequences move on insert)
     internal void InsertExampleSentence(ILexSense lexSense, ILexExampleSentence lexExample, BetweenPosition? between = null)
     {
         var previousExampleId = between?.Previous;
@@ -1510,13 +1542,13 @@ public class FwDataMiniLcmApi(
     public Task<Sense?> GetSense(Guid entryId, Guid id)
     {
         SenseRepository.TryGetObject(id, out var lcmSense);
-        if (lcmSense is not null) VerifySenseBelongsToEntry(entryId, lcmSense);
+        if (lcmSense is not null) ValidateOwnership(entryId, lcmSense);
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
     }
 
-    private void VerifySenseBelongsToEntry(Guid entryId, ILexSense sense)
+    private void ValidateOwnership(Guid entryId, ILexSense sense)
     {
-        if (sense.Entry.Guid != entryId) throw new NotFoundException($"Sense {sense.Guid} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.Entry.Guid}", nameof(Sense));
+        if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
     }
 
     public Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
@@ -1534,7 +1566,7 @@ public class FwDataMiniLcmApi(
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert sense",
             Cache.ServiceLocator.ActionHandler,
@@ -1549,22 +1581,26 @@ public class FwDataMiniLcmApi(
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
         var lexSense = SenseRepository.GetObject(after.Id);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         await Cache.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert Sense",
             async () =>
             {
-                await SenseSync.Sync(entryId, before, after, api ?? this);
+                await SenseSync.Sync(entryId, before, after, api ?? this,
+                    SyncContext.For(before, after, deferDeletes: false));
             });
         return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
     }
 
-    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    // repositioning and re-parenting are the same operation here: inserting into an LCM owning
+    // sequence moves the sense out of whatever entry currently owns it, so a plain reorder needs the ownership guard
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
+        if (kind == MoveKind.Reorder) ValidateOwnership(entryId, lexSense);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Sense",
             "Move Sense back",
@@ -1640,7 +1676,7 @@ public class FwDataMiniLcmApi(
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Sense",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
@@ -1650,8 +1686,17 @@ public class FwDataMiniLcmApi(
 
     public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
-        ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence);
-        return Task.FromResult(lcmExampleSentence is null ? null : FromLexExampleSentence(senseId, lcmExampleSentence));
+        if (!ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence))
+            return Task.FromResult<ExampleSentence?>(null);
+        ValidateOwnership(entryId, senseId, lcmExampleSentence);
+        return Task.FromResult<ExampleSentence?>(FromLexExampleSentence(senseId, lcmExampleSentence));
+    }
+
+    private void ValidateOwnership(Guid entryId, Guid senseId, ILexExampleSentence exampleSentence)
+    {
+        if (exampleSentence.Owner is not ILexSense sense || sense.Guid != senseId)
+            throw ParentMismatchException.ForType<ExampleSentence>(exampleSentence.Guid, senseId, exampleSentence.Owner.Guid);
+        ValidateOwnership(entryId, sense);
     }
 
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence, BetweenPosition? between = null)
@@ -1724,16 +1769,15 @@ public class FwDataMiniLcmApi(
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find example sentence with id " + after.Id);
     }
 
-    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between)
+    // see MoveSense: the insert re-parents
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
-        if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
-            throw new InvalidOperationException("Entry not found");
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
         if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
             throw new InvalidOperationException("Example sentence not found");
-
-        ValidateOwnership(lexExample, entryId, senseId);
+        ValidateOwnership(entryId, lexSense);
+        if (kind == MoveKind.Reorder) ValidateOwnership(entryId, senseId, lexExample);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Example sentence",
             "Move Example sentence back",
@@ -1807,9 +1851,8 @@ public class FwDataMiniLcmApi(
         //todo the owner many not be a sense, but could be something owned by the sense.
         if (lexExampleSentence.Owner is ILexSense sense)
         {
-            if (sense.Guid != senseId) throw new InvalidOperationException("Example sentence does not belong to sense");
-            if (sense.Entry.Guid != entryId)
-                throw new InvalidOperationException("Example sentence does not belong to entry");
+            if (sense.Guid != senseId) throw ParentMismatchException.ForType<ExampleSentence>(lexExampleSentence.Guid, senseId, sense.Guid);
+            if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
         }
         else
         {
@@ -1822,7 +1865,7 @@ public class FwDataMiniLcmApi(
     {
         if (lcmPicture.Owner is ILexSense sense)
         {
-            if (sense.Guid != senseId) throw new InvalidOperationException("Picture does not belong to sense");
+            if (sense.Guid != senseId) throw ParentMismatchException.ForType<Picture>(lcmPicture.Guid, senseId, sense.Guid);
         }
         else
         {
@@ -2010,8 +2053,10 @@ public class FwDataMiniLcmApi(
     public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => await CreateComplexFormComponent(complexFormComponent, position);
     public async Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => await MoveComplexFormComponent(complexFormComponent, between);
     public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => await CreateSense(entryId, sense, position);
+    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder) => await MoveSense(entryId, senseId, position, kind);
     public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => await UpdateSense(entryId, senseId, update);
     public async Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => await CreateExampleSentence(entryId, senseId, exampleSentence, position);
+    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder) => await MoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
     public async Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => await UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
     public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => await UpdatePartOfSpeech(id, update);
     public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => await UpdatePicture(entryId, senseId, pictureId, update);
