@@ -1,17 +1,10 @@
+using LexCore.Analytics;
 using LexCore.ServiceInterfaces;
-using Yarp.ReverseProxy.Model;
 
 namespace LexSyncReverseProxy.Services;
 
-public class ProxyEventsService
+public class ProxyEventsService(ILexProxyService lexProxyService, ILexboxAnalyticsService analytics)
 {
-    private readonly ILexProxyService _lexProxyService;
-
-    public ProxyEventsService(ILexProxyService lexProxyService)
-    {
-        _lexProxyService = lexProxyService;
-    }
-
     public async Task OnResumableRequest(HttpContext context)
     {
         if (context.Request.Path.StartsWithSegments("/api/v03/pushBundleChunk") &&
@@ -29,7 +22,8 @@ public class ProxyEventsService
                         context.Request.GetProjectCode() is { } projectCode)
                     {
                         // Last chunk, so record updated last-changed date
-                        await _lexProxyService.QueueProjectMetadataUpdate(projectCode);
+                        await lexProxyService.QueueProjectMetadataUpdate(projectCode);
+                        _ = analytics.TrackSendReceiveCompleted();
                     }
                 }
             }
@@ -42,7 +36,8 @@ public class ProxyEventsService
             && cmd == "unbundle"
             && context.Request.GetProjectCode() is { } projectCode)
         {
-            await _lexProxyService.QueueProjectMetadataUpdate(projectCode);
+            await lexProxyService.QueueProjectMetadataUpdate(projectCode);
+            _ = analytics.TrackSendReceiveCompleted();
         }
     }
 }
