@@ -89,6 +89,39 @@ public class LexboxAnalyticsServiceTests
         handler.RequestCount.Should().Be(0);
     }
 
+    [Theory]
+    [InlineData(AccountCreatedVia.Registration, "registration")]
+    [InlineData(AccountCreatedVia.Invitation, "invitation")]
+    [InlineData(AccountCreatedVia.Admin, "admin")]
+    [InlineData(AccountCreatedVia.ProjectInvite, "project_invite")]
+    public async Task TrackAccountCreated_SendsEventWithCreatedViaAndUserId(AccountCreatedVia createdVia, string expectedValue)
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, userId: null);
+        var userId = Guid.NewGuid();
+
+        await service.TrackAccountCreated(userId, createdVia);
+
+        handler.RequestCount.Should().Be(1);
+        handler.LastBody.Should().Contain("\"event\":\"account_created\"");
+        handler.LastBody.Should().Contain($"\"$user_id\":\"{userId}\"");
+        handler.LastBody.Should().Contain($"\"created_via\":\"{expectedValue}\"");
+        handler.LastBody.Should().Contain("\"product\":\"lexbox\"");
+        handler.LastBody.Should().Contain($"\"$app_version_string\":{JsonSerializer.Serialize(AppVersionService.Version)}");
+        handler.LastBody.Should().Contain(MixpanelTokens.DebugProjectToken);
+    }
+
+    [Fact]
+    public async Task TrackAccountCreated_SkipsWhenDisabled()
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, userId: null, enabled: false);
+
+        await service.TrackAccountCreated(Guid.NewGuid(), AccountCreatedVia.Registration);
+
+        handler.RequestCount.Should().Be(0);
+    }
+
     [Fact]
     public async Task TrackSendReceiveCompleted_SkipsWhenDisabled()
     {

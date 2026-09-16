@@ -8,6 +8,7 @@ using LexBoxApi.Otel;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
 using LexCore;
+using LexCore.Analytics;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -131,7 +132,8 @@ public class UserMutations
         LoggedInContext loggedInContext,
         CreateGuestUserByAdminInput input,
         LexBoxDbContext dbContext,
-        IEmailService emailService
+        IEmailService emailService,
+        ILexboxAnalyticsService analytics
     )
     {
         using var createGuestUserActivity = LexBoxActivitySource.Get().StartActivity("CreateGuestUser");
@@ -169,6 +171,7 @@ public class UserMutations
         }
         dbContext.Users.Add(userEntity);
         await dbContext.SaveChangesAsync();
+        _ = analytics.TrackAccountCreated(userEntity.Id, AccountCreatedVia.Admin);
         if (!string.IsNullOrEmpty(input.Email))
         {
             await emailService.SendVerifyAddressEmail(userEntity);

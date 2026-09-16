@@ -47,6 +47,17 @@ public class LexboxAnalyticsService(
         return Task.Run(() => mixpanelClient.SendAsync(ILexboxAnalyticsService.LoginCompletedEvent, properties));
     }
 
+    public Task TrackAccountCreated(Guid userId, AccountCreatedVia createdVia)
+    {
+        if (userId == Guid.Empty)
+            return Task.CompletedTask;
+        var properties = CreateBaseProperties(userId);
+        if (properties is null)
+            return Task.CompletedTask;
+        properties[ILexboxAnalyticsService.CreatedViaProperty] = createdVia.ToMixpanelValue();
+        return Task.Run(() => mixpanelClient.SendAsync(ILexboxAnalyticsService.AccountCreatedEvent, properties));
+    }
+
     /// <summary>
     /// Base Mixpanel properties, or null when analytics should not send at all.
     /// Falls back to the current request's user for <c>$user_id</c> when one is not supplied
