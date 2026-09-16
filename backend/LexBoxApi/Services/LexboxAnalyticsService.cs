@@ -67,6 +67,8 @@ public class LexboxAnalyticsService(
             _config.Product,
             _clock.GetUtcNow(),
             Guid.NewGuid().ToString());
+        // Stamp the app version on every lexbox event (matches FwLite's $app_version_string).
+        properties["$app_version_string"] = AppVersionService.Version;
         userId ??= loggedInContext.MaybeUser?.Id;
         if (userId is Guid id && id != Guid.Empty)
             properties["$user_id"] = id.ToString();

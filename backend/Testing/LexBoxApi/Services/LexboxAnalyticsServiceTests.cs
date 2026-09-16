@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using FluentAssertions;
 using LexBoxApi.Auth;
 using LexBoxApi.Services;
@@ -29,6 +30,7 @@ public class LexboxAnalyticsServiceTests
         handler.LastBody.Should().Contain("\"event\":\"send_receive_completed\"");
         handler.LastBody.Should().Contain($"\"$user_id\":\"{userId}\"");
         handler.LastBody.Should().Contain("\"product\":\"lexbox\"");
+        handler.LastBody.Should().Contain($"\"$app_version_string\":{JsonSerializer.Serialize(AppVersionService.Version)}");
         handler.LastBody.Should().Contain(MixpanelTokens.DebugProjectToken);
     }
 
@@ -71,6 +73,7 @@ public class LexboxAnalyticsServiceTests
         handler.LastBody.Should().Contain($"\"$user_id\":\"{userId}\"");
         handler.LastBody.Should().Contain($"\"login_type\":\"{loginType}\"");
         handler.LastBody.Should().Contain("\"product\":\"lexbox\"");
+        handler.LastBody.Should().Contain($"\"$app_version_string\":{JsonSerializer.Serialize(AppVersionService.Version)}");
         handler.LastBody.Should().Contain(MixpanelTokens.DebugProjectToken);
     }
 
