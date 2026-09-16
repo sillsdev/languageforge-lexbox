@@ -22,7 +22,6 @@ import type { DownloadAndSelectResult, DownloadResult } from '../utils/fw-lite-a
 import DeleteConfirm from './delete-confirm';
 import LexiconRow from './lexicon-row';
 
-/** Props for the LexiconPicker component */
 interface LexiconPickerProps {
   loading?: boolean;
   localProjects?: IProjectModel[];
@@ -62,7 +61,6 @@ function keyFor(project: IProjectModel, local: boolean): string {
   return local ? project.code : `${project.server?.id ?? 'remote'}/${project.code}`;
 }
 
-// Case-insensitive alphabetical by display name, code as tiebreak.
 function byName(a: IProjectModel, b: IProjectModel): number {
   return (
     (a.name || a.code).localeCompare(b.name || b.code, undefined, { sensitivity: 'base' }) ||
@@ -97,12 +95,11 @@ export default function LexiconPicker({
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
   const [error, setError] = useState('');
-  const [selectedKey, setSelectedKey] = useState(appliedCode ?? '');
+  const [pendingKey, setPendingKey] = useState('');
   const [busy, setBusy] = useState<'none' | 'saving' | 'downloading'>('none');
   const [pendingDelete, setPendingDelete] = useState<IProjectModel | undefined>();
   const [deleting, setDeleting] = useState(false);
-  // Informational line under the button (deletion outcome).
-  const [notice, setNotice] = useState('');
+  const [deleteNotice, setDeleteNotice] = useState('');
 
   // Let the parent lock the account controls while a download runs: logging out mid-download would
   // abort it and disturb the auth state.
@@ -110,7 +107,6 @@ export default function LexiconPicker({
     onDownloadingChange?.(busy === 'downloading');
   }, [busy, onDownloadingChange]);
 
-  // Human-readable name for the language the list was filtered by.
   const languageLabel = useMemo(() => {
     if (!filterLangTag) return '';
     try {
@@ -123,7 +119,6 @@ export default function LexiconPicker({
     }
   }, [filterLangTag]);
 
-  // Key -> project + whether choosing it means downloading first.
   const entries = useMemo(() => {
     const map = new Map<string, { project: IProjectModel; needsDownload: boolean }>();
     (localProjects ?? []).forEach((p) =>
@@ -135,19 +130,11 @@ export default function LexiconPicker({
     return map;
   }, [localProjects, remoteProjects]);
 
-  // Keep the pick while it's still a row (a downloaded remote's row disappears once the refresh
-  // shows it as local); otherwise fall back to the applied lexicon.
-  useEffect(() => {
-    if (!appliedCode) return;
-    setSelectedKey((prev) => (prev && entries.has(prev) ? prev : appliedCode));
-  }, [appliedCode, entries]);
-
   // Stable alphabetical order within every group. The current lexicon isn't pinned to the top — it
   // keeps its place and is marked with a "Current" badge, so the list doesn't reshuffle as the
   // selection changes.
   const sortedLocal = useMemo(() => [...(localProjects ?? [])].sort(byName), [localProjects]);
 
-  // One group per server with undownloaded projects, keyed and headed by its display name.
   const serverGroups = useMemo(() => {
     const byServer = new Map<string, IProjectModel[]>();
     (remoteProjects ?? []).forEach((p) => {
@@ -159,6 +146,7 @@ export default function LexiconPicker({
     return [...byServer].map(([name, list]) => [name, list.sort(byName)] as const);
   }, [remoteProjects]);
 
+  const selectedKey = pendingKey || appliedCode || '';
   const selected = entries.get(selectedKey);
 
   const messageForFailure = (result: DownloadResult): string => {
@@ -176,13 +164,12 @@ export default function LexiconPicker({
     }
   };
 
-  // Any local CRDT lexicon can be deleted (downloaded or local-only); FwData projects are managed by
-  // FieldWorks. No extra guard even for the current one — deleting it just clears the selection.
   const deletability = (project: IProjectModel, local: boolean): boolean => local && !!project.crdt;
 
   const beginDelete = (project: IProjectModel) => {
     setError('');
-    setNotice('');
+    setDeleteNotice('');
+    onClearSaved?.();
     setPendingDelete(project);
   };
 
@@ -194,12 +181,12 @@ export default function LexiconPicker({
     // eslint-disable-next-line promise/catch-or-return
     deleteLexicon(pendingDelete.code)
       .then(() => {
-        setNotice(
+        setDeleteNotice(
           formatReplacementString(localizedStrings['%lexicon_selectLexicon_deletedStatus%'], {
             name,
           }),
         );
-        setSelectedKey((prev) => (prev === key ? '' : prev));
+        setPendingKey((prev) => (prev === key ? '' : prev));
         return undefined;
       })
       .catch((e) => {
@@ -217,14 +204,17 @@ export default function LexiconPicker({
     const { project, needsDownload } = selected;
     const name = project.name || project.code;
     setError('');
-    setNotice('');
+    setDeleteNotice('');
 
     if (!needsDownload) {
       setBusy('saving');
       // eslint-disable-next-line promise/catch-or-return
       selectLexicon(project.code)
         .then(({ cancelled }) => {
-          if (!cancelled) onSaved(name, project.code);
+          if (!cancelled) {
+            setPendingKey(project.code);
+            onSaved(name, project.code);
+          }
           return undefined;
         })
         .catch((e) => {
@@ -245,7 +235,11 @@ export default function LexiconPicker({
     downloadAndSelect(authority, project.code)
       .then(({ result, success, cancelled, error: failureError }) => {
         if (cancelled) return undefined;
-        if (success) onSaved(name, project.code);
+        if (success) {
+          // The downloaded lexicon is now a local row, whose key is its code.
+          setPendingKey(project.code);
+          onSaved(name, project.code);
+        }
         // Prefer the backend's own reason (e.g. a sync failure) when it sent one.
         else setError(failureError || messageForFailure(result));
         return undefined;
@@ -273,9 +267,9 @@ export default function LexiconPicker({
         deletable={deletability(project, local)}
         onSelect={() => {
           setError('');
-          setNotice('');
+          setDeleteNotice('');
           onClearSaved?.();
-          setSelectedKey(key);
+          setPendingKey(key);
         }}
         onBeginDelete={() => beginDelete(project)}
         strings={localizedStrings}
@@ -462,9 +456,9 @@ export default function LexiconPicker({
               </p>
             )}
 
-            {!!notice && (
+            {!!deleteNotice && (
               <p className="tw:text-xs tw:text-muted-foreground tw:shrink-0" role="status">
-                {notice}
+                {deleteNotice}
               </p>
             )}
           </>

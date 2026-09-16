@@ -48,10 +48,12 @@ globalThis.webViewComponent = function LexiconSelect({
     fetchLexicons();
   }, [fetchLexicons]);
 
+  // undefined means the fetch itself failed, so keep the last-known list rather than dropping every
+  // server group. Signing out is not that case: it returns an empty list, which correctly clears them.
   const fetchRemoteProjects = useCallback(() => {
     commands
       .sendCommand('lexicon.remoteProjects')
-      .then(setRemoteProjects)
+      .then((next?: IProjectModel[]) => setRemoteProjects((prev) => next ?? prev))
       .catch((e) => logger.error('Error fetching remote projects:', getErrorMessage(e)));
   }, []);
 
@@ -162,13 +164,17 @@ globalThis.webViewComponent = function LexiconSelect({
 
   const deleteLexicon = useCallback(
     async (code: string): Promise<void> => {
-      const result = await commands.sendCommand('lexicon.deleteDownloadedLexicon', code);
+      const result = await commands.sendCommand(
+        'lexicon.deleteDownloadedLexicon',
+        code,
+        lexiconList?.project?.id,
+      );
       if (!result?.success) throw new Error(result?.error || 'Failed to delete the lexicon');
       fetchLexicons();
       // The deleted lexicon may be downloadable again.
       fetchRemoteProjects();
     },
-    [fetchLexicons, fetchRemoteProjects],
+    [fetchLexicons, fetchRemoteProjects, lexiconList?.project?.id],
   );
 
   const createLexicon = useCallback(
@@ -210,7 +216,12 @@ globalThis.webViewComponent = function LexiconSelect({
       <CreateLexicon
         createLexicon={createLexicon}
         defaultVernacularWs={lexiconList?.project?.langTag}
-        existingCodes={lexiconList?.projects.map((l) => l.code)}
+        // Remote codes count too: creating a lexicon whose code matches a remote one would suppress
+        // that remote from the download list.
+        existingCodes={[
+          ...(lexiconList?.projects.map((l) => l.code) ?? []),
+          ...(remoteProjects?.map((p) => p.code) ?? []),
+        ]}
         onCancel={() => setShowCreate(false)}
         onCreated={onCreated}
       />

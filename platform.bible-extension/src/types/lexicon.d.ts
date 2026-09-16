@@ -115,8 +115,14 @@ declare module 'papi-shared-types' {
       vernacularWs: string,
       analysisWs?: string,
     ) => Promise<SuccessHolder>;
-    /** Deletes any local CRDT lexicon (downloaded or local-only). Refuses FwData projects. */
-    'lexicon.deleteDownloadedLexicon': (lexiconCode: string) => Promise<SuccessHolder>;
+    /**
+     * Deletes any local CRDT lexicon (downloaded or local-only). Refuses FwData projects. Clears
+     * `projectId`'s lexicon setting when it pointed at the deleted lexicon.
+     */
+    'lexicon.deleteDownloadedLexicon': (
+      lexiconCode: string,
+      projectId?: string,
+    ) => Promise<SuccessHolder>;
     'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;

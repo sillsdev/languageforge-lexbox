@@ -319,6 +319,20 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     { timeoutMilliseconds: RESOLVE_PROJECT_TIMEOUT_MS },
   );
 
+  // A deleted lexicon must not stay selected, or the entry service keeps querying a database that's
+  // gone. Only the requesting project is reachable from here; others clear theirs on next use.
+  const clearLexiconSelectionIfApplied = async (
+    projectId: string | undefined,
+    lexiconCode: string,
+  ): Promise<void> => {
+    const projectManager = projectId
+      ? projectManagers.getProjectManagerFromProjectId(projectId)
+      : undefined;
+    if (!projectManager) return;
+    if ((await projectManager.getLexiconCode()) !== lexiconCode) return;
+    await applyLexiconSelection(projectManager, '');
+  };
+
   const selectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.selectLexicon',
     async (projectId: string, lexiconCode: string) => {
@@ -354,7 +368,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   const deleteDownloadedLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.deleteDownloadedLexicon',
-    async (lexiconCode: string) => {
+    async (lexiconCode: string, projectId?: string) => {
       try {
         // Any local CRDT lexicon can be deleted (downloaded or local-only). FwData projects are
         // managed by FieldWorks, so refuse them (the picker also hides delete for those).
@@ -367,6 +381,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
         }
         logger.info(`Deleting lexicon '${lexiconCode}'`);
         await fwLiteApi.deleteProject(lexiconCode);
+        await clearLexiconSelectionIfApplied(projectId, lexiconCode);
         return { success: true };
       } catch (e) {
         const error = getErrorMessage(e);
@@ -385,7 +400,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       logger.info(
         `Downloading '${lexiconCode}' from '${authority}' for project '${projectManager.projectId}'`,
       );
-      // Abort the backend download once the command times out, so an abandoned wait doesn't linger.
+      // Stop waiting after a while rather than hanging the panel. This only drops our request: the
+      // download route takes no cancellation token, so the backend runs on and may still store the
+      // lexicon (a retry then reports AlreadyDownloaded).
       const abort = new AbortController();
       const timeout = setTimeout(() => abort.abort(), DOWNLOAD_TIMEOUT_MS);
       let result: DownloadResult;

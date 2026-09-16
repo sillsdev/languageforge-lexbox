@@ -48,8 +48,11 @@ export interface DownloadAndSelectResult {
  * `project` is the Paratext project the requesting web view is bound to; undefined when it has none
  * (or its project no longer exists), in which case the list is unfiltered.
  */
-export interface LocalLexiconsResult {
+export interface LocalLexiconsResult extends LocalLexiconsMatch {
   project?: LexiconPickerProjectInfo;
+}
+
+export interface LocalLexiconsMatch {
   projects: IProjectModel[];
   filtered: boolean;
   noMatch: boolean;
@@ -191,7 +194,7 @@ export class FwLiteApi {
   async getProjectsMatchingLanguage(
     langTag?: string,
     keepCodes?: string[],
-  ): Promise<{ projects: IProjectModel[]; filtered: boolean; noMatch: boolean }> {
+  ): Promise<LocalLexiconsMatch> {
     const projects = await this.getProjects();
     if (!langTag?.trim()) return { projects, filtered: false, noMatch: false };
 

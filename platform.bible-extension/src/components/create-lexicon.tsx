@@ -96,7 +96,7 @@ export default function CreateLexicon({
         normalizeLangTag(vernacularWs),
         analysisWs.trim() ? normalizeLangTag(analysisWs) : undefined,
       );
-      await onCreated(name, code);
+      await onCreated(name.trim(), code);
     } catch (e) {
       logger.error(localizedStrings['%lexicon_createLexicon_error%'], JSON.stringify(e));
       setError(e instanceof Error ? e.message : String(e));

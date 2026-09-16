@@ -1,7 +1,7 @@
 import type { IProjectModel } from 'lexicon';
 import { Alert, AlertDescription, Button, Spinner } from 'platform-bible-react';
 import type { ReactElement } from 'react';
-import { formatReplacementString } from 'platform-bible-utils';
+import { formatReplacementString, type LanguageStrings } from 'platform-bible-utils';
 
 /** Props for the delete-lexicon confirmation. */
 interface DeleteConfirmProps {
@@ -9,7 +9,7 @@ interface DeleteConfirmProps {
   deleting: boolean;
   onConfirm: () => void;
   onCancel: () => void;
-  strings: Record<string, string>;
+  strings: LanguageStrings;
 }
 
 /** Inline confirm for deleting a local lexicon. */

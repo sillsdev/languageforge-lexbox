@@ -12,6 +12,7 @@ import {
   TooltipTrigger,
 } from 'platform-bible-react';
 import type { ReactElement } from 'react';
+import type { LanguageStrings } from 'platform-bible-utils';
 
 /** Props for one lexicon row. The picker computes identity/selection; this component just draws. */
 interface LexiconRowProps {
@@ -27,7 +28,7 @@ interface LexiconRowProps {
   deletable: boolean;
   onSelect: () => void;
   onBeginDelete: () => void;
-  strings: Record<string, string>;
+  strings: LanguageStrings;
 }
 
 /** One row in the lexicon list: check (pending), name/code, "Current"/"FieldWorks" badges. */
