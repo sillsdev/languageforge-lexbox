@@ -17,16 +17,24 @@ public class MixpanelClient(IHttpClientFactory httpClientFactory, ILogger<Mixpan
     /// <summary>
     /// Send one event. <paramref name="properties"/> must already contain the Mixpanel <c>token</c>.
     /// </summary>
+    /// <param name="geolocateFromRequestIp">
+    /// When true, append <c>?ip=1</c> so Mixpanel geolocates from the HTTP request's source IP. Correct for
+    /// client-side senders (e.g. FwLite) where the request originates on the user's device. Leave false for
+    /// server-side senders (e.g. LexBox), which must instead supply the end user's IP as the reserved
+    /// <c>ip</c> property — otherwise every event would geolocate to the server.
+    /// </param>
     public async Task SendAsync(
         string eventName,
         IReadOnlyDictionary<string, object?> properties,
+        bool geolocateFromRequestIp = false,
         CancellationToken cancellationToken = default)
     {
         try
         {
             var payload = new[] { new MixpanelTrackEvent(eventName, properties) };
             var client = httpClientFactory.CreateClient(HttpClientName);
-            using var response = await client.PostAsJsonAsync(TrackUrl + "?ip=1", payload, cancellationToken);
+            var url = geolocateFromRequestIp ? TrackUrl + "?ip=1" : TrackUrl;
+            using var response = await client.PostAsJsonAsync(url, payload, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 logger.LogWarning("Mixpanel track returned {Status} for {Event}",

@@ -123,6 +123,21 @@ public class LexboxAnalyticsServiceTests
     }
 
     [Fact]
+    public async Task Track_StampsCloudflareClientIpAndDoesNotGeolocateFromRequest()
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, userId: Guid.NewGuid(), clientIp: "203.0.113.7");
+
+        await service.TrackSendReceiveCompleted();
+
+        handler.RequestCount.Should().Be(1);
+        // The end user's IP is sent as the reserved "ip" property so Mixpanel geolocates them...
+        handler.LastBody.Should().Contain("\"ip\":\"203.0.113.7\"");
+        // ...and we must NOT ask Mixpanel to geolocate from the request (server) IP.
+        handler.LastRequestUri.Should().NotContain("ip=1");
+    }
+
+    [Fact]
     public async Task TrackSendReceiveCompleted_SkipsWhenDisabled()
     {
         var handler = new CaptureHandler();
@@ -151,7 +166,8 @@ public class LexboxAnalyticsServiceTests
         bool enabled = true,
         bool isDevelopment = true,
         string? productionToken = null,
-        bool optedOutOfAnalytics = false)
+        bool optedOutOfAnalytics = false,
+        string? clientIp = null)
     {
         var factory = new Mock<IHttpClientFactory>();
         factory.Setup(f => f.CreateClient(MixpanelClient.HttpClientName))
@@ -167,11 +183,15 @@ public class LexboxAnalyticsServiceTests
             EnvironmentName = isDevelopment ? Environments.Development : Environments.Production
         };
 
+        var accessor = BuildHttpContextAccessor(userId, optedOutOfAnalytics, clientIp);
+        var loggedInContext = new LoggedInContext(accessor, NullLogger<LoggedInContext>.Instance);
+
         return new LexboxAnalyticsService(
             mixpanelClient,
             Options.Create(config),
             environment,
-            BuildLoggedInContext(userId, optedOutOfAnalytics));
+            loggedInContext,
+            accessor);
     }
 
     private static LexAuthUser BuildUser(Guid userId, bool optedOutOfAnalytics = false) => new()
@@ -184,27 +204,32 @@ public class LexboxAnalyticsServiceTests
         OptedOutOfAnalytics = optedOutOfAnalytics ? true : null,
     };
 
-    private static LoggedInContext BuildLoggedInContext(Guid? userId, bool optedOutOfAnalytics = false)
+    private static HttpContextAccessor BuildHttpContextAccessor(Guid? userId, bool optedOutOfAnalytics, string? clientIp)
     {
         var httpContext = new DefaultHttpContext();
         if (userId is not null)
         {
             httpContext.User = BuildUser(userId.Value, optedOutOfAnalytics).GetPrincipal("Testing");
         }
-        var accessor = new HttpContextAccessor { HttpContext = httpContext };
-        return new LoggedInContext(accessor, NullLogger<LoggedInContext>.Instance);
+        if (!string.IsNullOrEmpty(clientIp))
+        {
+            httpContext.Request.Headers["CF-Connecting-IP"] = clientIp;
+        }
+        return new HttpContextAccessor { HttpContext = httpContext };
     }
 
     private sealed class CaptureHandler : HttpMessageHandler
     {
         public int RequestCount { get; private set; }
         public string LastBody { get; private set; } = "";
+        public string LastRequestUri { get; private set; } = "";
 
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
             RequestCount++;
+            LastRequestUri = request.RequestUri?.ToString() ?? "";
             if (request.Content is not null)
                 LastBody = await request.Content.ReadAsStringAsync(cancellationToken);
             return new HttpResponseMessage(HttpStatusCode.OK)

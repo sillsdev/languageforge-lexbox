@@ -1,6 +1,7 @@
 using LexBoxApi.Auth;
 using LexCore.Analytics;
 using LexCore.Auth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace LexBoxApi.Services;
@@ -14,8 +15,13 @@ public class LexboxAnalyticsService(
     IOptions<AnalyticsConfigBase> analyticsConfig,
     IHostEnvironment environment,
     LoggedInContext loggedInContext,
+    IHttpContextAccessor httpContextAccessor,
     TimeProvider? timeProvider = null) : ILexboxAnalyticsService
 {
+    // Cloudflare sets the original visitor IP here; lexbox sits behind it in production.
+    private const string CloudflareClientIpHeader = "CF-Connecting-IP";
+    private const string ForwardedForHeader = "X-Forwarded-For";
+
     private readonly AnalyticsConfigBase _config = analyticsConfig.Value;
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
@@ -80,9 +86,35 @@ public class LexboxAnalyticsService(
             Guid.NewGuid().ToString());
         // Stamp the app version on every lexbox event (matches FwLite's $app_version_string).
         properties["$app_version_string"] = AppVersionService.Version;
+        // Server-side: supply the end user's IP so Mixpanel geolocates them, not the lexbox server.
+        // SendAsync is called without ip=1, so Mixpanel uses this property instead of the request IP.
+        if (GetClientIp() is { } clientIp)
+            properties["ip"] = clientIp;
         userId ??= loggedInContext.MaybeUser?.Id;
         if (userId is Guid id && id != Guid.Empty)
             properties["$user_id"] = id.ToString();
         return properties;
+    }
+
+    /// <summary>
+    /// The end user's IP address for this request: Cloudflare's <c>CF-Connecting-IP</c> in production,
+    /// otherwise the first <c>X-Forwarded-For</c> hop, otherwise the socket peer. Null when there is no
+    /// request (e.g. a background sync) or no address can be determined.
+    /// </summary>
+    private string? GetClientIp()
+    {
+        var request = httpContextAccessor.HttpContext?.Request;
+        if (request is null)
+            return null;
+
+        var cloudflareIp = request.Headers[CloudflareClientIpHeader].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(cloudflareIp))
+            return cloudflareIp.Trim();
+
+        var forwardedFor = request.Headers[ForwardedForHeader].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(forwardedFor))
+            return forwardedFor.Split(',')[0].Trim();
+
+        return httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
     }
 }

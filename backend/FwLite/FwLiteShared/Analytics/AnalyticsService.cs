@@ -140,7 +140,8 @@ public class AnalyticsService(
             foreach (var enricher in _enrichers)
                 enricher.Enrich(eventProperties);
             Merge(eventProperties, properties);
-            await mixpanelClient.SendAsync(eventName, eventProperties);
+            // FwLite runs on the user's device, so the request IP is the user's — let Mixpanel geolocate from it.
+            await mixpanelClient.SendAsync(eventName, eventProperties, geolocateFromRequestIp: true);
         }
         catch (Exception e)
         {
