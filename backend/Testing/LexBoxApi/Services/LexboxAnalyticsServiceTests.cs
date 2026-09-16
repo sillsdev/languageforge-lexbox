@@ -54,6 +54,38 @@ public class LexboxAnalyticsServiceTests
         handler.RequestCount.Should().Be(0);
     }
 
+    [Theory]
+    [InlineData(ILexboxAnalyticsService.PasswordLoginType)]
+    [InlineData(ILexboxAnalyticsService.GoogleLoginType)]
+    public async Task TrackLoginCompleted_SendsEventWithLoginTypeAndUserId(string loginType)
+    {
+        var handler = new CaptureHandler();
+        // No ambient user: login events pass the authenticated user explicitly.
+        var service = CreateService(handler, userId: null);
+        var userId = Guid.NewGuid();
+
+        await service.TrackLoginCompleted(BuildUser(userId), loginType);
+
+        handler.RequestCount.Should().Be(1);
+        handler.LastBody.Should().Contain("\"event\":\"login_completed\"");
+        handler.LastBody.Should().Contain($"\"$user_id\":\"{userId}\"");
+        handler.LastBody.Should().Contain($"\"login_type\":\"{loginType}\"");
+        handler.LastBody.Should().Contain("\"product\":\"lexbox\"");
+        handler.LastBody.Should().Contain(MixpanelTokens.DebugProjectToken);
+    }
+
+    [Fact]
+    public async Task TrackLoginCompleted_SkipsWhenUserOptedOut()
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, userId: null);
+
+        await service.TrackLoginCompleted(BuildUser(Guid.NewGuid(), optedOutOfAnalytics: true),
+            ILexboxAnalyticsService.PasswordLoginType);
+
+        handler.RequestCount.Should().Be(0);
+    }
+
     [Fact]
     public async Task TrackSendReceiveCompleted_SkipsWhenDisabled()
     {
@@ -106,21 +138,22 @@ public class LexboxAnalyticsServiceTests
             BuildLoggedInContext(userId, optedOutOfAnalytics));
     }
 
+    private static LexAuthUser BuildUser(Guid userId, bool optedOutOfAnalytics = false) => new()
+    {
+        Id = userId,
+        Name = "Test User",
+        Email = "test@example.com",
+        Role = UserRole.user,
+        Locale = "en",
+        OptedOutOfAnalytics = optedOutOfAnalytics ? true : null,
+    };
+
     private static LoggedInContext BuildLoggedInContext(Guid? userId, bool optedOutOfAnalytics = false)
     {
         var httpContext = new DefaultHttpContext();
         if (userId is not null)
         {
-            var user = new LexAuthUser
-            {
-                Id = userId.Value,
-                Name = "Test User",
-                Email = "test@example.com",
-                Role = UserRole.user,
-                Locale = "en",
-                OptedOutOfAnalytics = optedOutOfAnalytics ? true : null,
-            };
-            httpContext.User = user.GetPrincipal("Testing");
+            httpContext.User = BuildUser(userId.Value, optedOutOfAnalytics).GetPrincipal("Testing");
         }
         var accessor = new HttpContextAccessor { HttpContext = httpContext };
         return new LoggedInContext(accessor, NullLogger<LoggedInContext>.Instance);

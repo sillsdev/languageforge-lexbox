@@ -28,6 +28,10 @@ spec:
           - mountPath: /frontend
             name: frontend
         env:
+          # Enable Mixpanel analytics in local dev (the base manifest turns it off everywhere).
+          # The Development environment selects the debug/test Mixpanel token automatically.
+          - name: Analytics__Enabled
+            value: "true"
           - name: DbConfig__DefaultSeedUserPassword
             value: "pass"
             valueFrom: # don't use secret as defined in base
