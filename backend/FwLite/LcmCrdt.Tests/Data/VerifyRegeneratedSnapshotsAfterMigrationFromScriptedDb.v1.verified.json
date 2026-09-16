@@ -10,8 +10,7 @@
         "Name": {
           "en": "Compound"
         }
-      },
-      "Id": "Guid_2"
+      }
     },
     "References": [],
     "EntityId": "Guid_2",
@@ -30,8 +29,7 @@
         "Name": {
           "en": "Unspecified"
         }
-      },
-      "Id": "Guid_5"
+      }
     },
     "References": [],
     "EntityId": "Guid_5",
@@ -71,8 +69,7 @@
         "ComplexForms": [],
         "ComplexFormTypes": [],
         "PublishIn": []
-      },
-      "Id": "Guid_7"
+      }
     },
     "References": [],
     "EntityId": "Guid_7",
@@ -101,8 +98,7 @@
         },
         "Translations": [],
         "SenseId": "Guid_11"
-      },
-      "Id": "Guid_10"
+      }
     },
     "References": [
       "Guid_11"
@@ -124,8 +120,7 @@
           "en": "Adverb"
         },
         "Predefined": true
-      },
-      "Id": "Guid_13"
+      }
     },
     "References": [],
     "EntityId": "Guid_13",
@@ -148,8 +143,7 @@
         "Code": "1",
         "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_16"
+      }
     },
     "References": [],
     "EntityId": "Guid_16",
@@ -172,8 +166,7 @@
         "Code": "1.1",
         "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_19"
+      }
     },
     "References": [],
     "EntityId": "Guid_19",
@@ -196,8 +189,7 @@
         "Code": "1.2",
         "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_21"
+      }
     },
     "References": [],
     "EntityId": "Guid_21",
@@ -220,8 +212,7 @@
         "Code": "2",
         "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_23"
+      }
     },
     "References": [],
     "EntityId": "Guid_23",
@@ -244,8 +235,7 @@
         "Code": "2.1",
         "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_25"
+      }
     },
     "References": [],
     "EntityId": "Guid_25",
@@ -268,8 +258,7 @@
         "Code": "2.1.1",
         "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_27"
+      }
     },
     "References": [],
     "EntityId": "Guid_27",
@@ -292,8 +281,7 @@
         "Code": "2.1.1.1",
         "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_29"
+      }
     },
     "References": [],
     "EntityId": "Guid_29",
@@ -327,8 +315,7 @@
         "SemanticDomains": [],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "Guid_11"
+      }
     },
     "References": [
       "Guid_7"
@@ -382,8 +369,7 @@
           "Z"
         ],
         "Order": 0
-      },
-      "Id": "Guid_32"
+      }
     },
     "References": [],
     "EntityId": "Guid_32",
@@ -435,8 +421,7 @@
           "Z"
         ],
         "Order": 0
-      },
-      "Id": "Guid_35"
+      }
     },
     "References": [],
     "EntityId": "Guid_35",
