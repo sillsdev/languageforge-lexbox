@@ -36,6 +36,8 @@ globalThis.webViewComponent = function LexiconSelect({
   // Lexicons applied this session stay listed even when the language filter would hide them, so a
   // just-replaced non-matching lexicon doesn't vanish.
   const sessionKeptCodes = useRef(new Set<string>());
+  // The project the user picked when prompted (see ensureProject).
+  const resolvedProjectId = useRef<string | undefined>(undefined);
 
   const fetchLexicons = useCallback(() => {
     commands
@@ -122,16 +124,19 @@ globalThis.webViewComponent = function LexiconSelect({
 
   // Writes need a bound project. Prompting goes through lexicon.resolveProject (its own generous
   // timeout) and the answer is stored on the definition, so later reads resolve the same project
-  // without prompting again. The id is returned rather than read back off the definition, because
-  // that update reaches the extension host asynchronously and the write would race it. Undefined
-  // means the user dismissed the prompt.
+  // without prompting again. That update reaches the extension host asynchronously, so the id is
+  // returned rather than read back off the definition, and it's kept in resolvedProjectId as well:
+  // a refresh that beats the update still comes back unbound, and without it the next write would
+  // prompt again and could bind a different project. Undefined means the user dismissed the prompt.
   const ensureProject = useCallback(async (): Promise<string | undefined> => {
-    if (lexiconList?.project) return lexiconList.project.id;
+    const bound = lexiconList?.project?.id ?? resolvedProjectId.current;
+    if (bound) return bound;
     const { projectId, projectName } = await commands.sendCommand(
       'lexicon.resolveProject',
       webViewId,
     );
     if (!projectId) return undefined;
+    resolvedProjectId.current = projectId;
     const definition = projectName
       ? { projectId, title: await titleForProject(projectName) }
       : { projectId };
@@ -140,7 +145,7 @@ globalThis.webViewComponent = function LexiconSelect({
     }
     fetchLexicons();
     return projectId;
-  }, [lexiconList?.project, webViewId, updateWebViewDefinition, fetchLexicons]);
+  }, [lexiconList?.project?.id, webViewId, updateWebViewDefinition, fetchLexicons]);
 
   const selectLexicon = useCallback(
     async (code: string): Promise<{ cancelled?: boolean }> => {
@@ -167,7 +172,7 @@ globalThis.webViewComponent = function LexiconSelect({
       const result = await commands.sendCommand(
         'lexicon.deleteDownloadedLexicon',
         code,
-        lexiconList?.project?.id,
+        lexiconList?.project?.id ?? resolvedProjectId.current,
       );
       if (!result?.success) throw new Error(result?.error || 'Failed to delete the lexicon');
       fetchLexicons();
