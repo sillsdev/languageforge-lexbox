@@ -37,10 +37,19 @@ globalThis.webViewComponent = function LexiconSelect({
   // just-replaced non-matching lexicon doesn't vanish.
   const sessionKeptCodes = useRef(new Set<string>());
 
+  // The language-filtered query is much slower than the unfiltered one, so a late response could
+  // undo a newer list, leaving Show all pressed, the list filtered, and its button a no-op.
+  const fetchSeq = useRef(0);
+
   const fetchLexicons = useCallback(() => {
+    fetchSeq.current += 1;
+    const seq = fetchSeq.current;
     commands
       .sendCommand('lexicon.lexicons', webViewId, showAll, [...sessionKeptCodes.current])
-      .then(setLexiconList)
+      .then((result) => {
+        if (seq === fetchSeq.current) setLexiconList(result);
+        return undefined;
+      })
       .catch((e) => logger.error('Error fetching lexicons:', getErrorMessage(e)));
   }, [webViewId, showAll]);
 

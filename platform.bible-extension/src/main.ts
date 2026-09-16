@@ -289,7 +289,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await projectManager.setLexiconCode(lexiconCode);
     // Best-effort: the code was already validated by setLexiconCode, so a failure here is transient;
     // fall back to no analysis language rather than failing the (already-stored) selection. An empty
-    // code clears the cached language with it — there's no lexicon left to look one up from.
+    // code clears the cached language with it, since there's no lexicon left to look one up from.
     const langs = lexiconCode
       ? await fwLiteApi
           .getWritingSystems(lexiconCode)
