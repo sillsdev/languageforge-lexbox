@@ -1,0 +1,149 @@
+name: FW Lite release notes
+# Drafts the FieldWorks Lite release notes (forum markdown + Google Play text) with Claude.
+# Called by fw-lite.yaml on main; dispatch it by hand to test the drafting without releasing anything.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag the notes are for
+        required: true
+        type: string
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN:
+        required: false
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag the notes are for (default is the tag a release of this commit would get today)
+        required: false
+        type: string
+
+# Read-only on purpose: Claude runs gh/git with GITHUB_TOKEN on model-chosen arguments derived from PR text. Never add write.
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  draft:
+    name: Draft release notes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HAS_CLAUDE_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+      # Keeps the tokens out of the env of Claude's shell commands. Claude's own process still holds them, so the real
+      # guards are the allowlist below (no tool reaches any host but GitHub) and the credential scan in "Check the notes".
+      CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: 1
+    steps:
+      - name: Resolve tag
+        id: tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          [ -n "$TAG" ] || TAG="v$(date --rfc-3339=date)-$(echo ${{ github.sha }} | cut -c1-8)" # same format as fw-lite.yaml's Set Version
+          echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
+      # Every step below is best effort (continue-on-error): a failed draft must never turn a release run red.
+      - name: Checkout
+        if: env.HAS_CLAUDE_TOKEN == 'true'
+        continue-on-error: true
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # the skill diffs against the previous release tag
+      - name: Fetch upstream release tags
+        # No-op upstream; lets a run on a fork (which has no releases) still draft from the real history.
+        if: env.HAS_CLAUDE_TOKEN == 'true'
+        continue-on-error: true
+        run: git fetch --quiet https://github.com/sillsdev/languageforge-lexbox.git 'refs/tags/*:refs/tags/*'
+      - name: Draft release notes with Claude
+        if: env.HAS_CLAUDE_TOKEN == 'true'
+        continue-on-error: true
+        timeout-minutes: 15
+        uses: anthropics/claude-code-action@8251c103ac8c1d761882c86aba1412c7f583c844 # v1.0.213
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: sillsdev/languageforge-lexbox # see "Fetch upstream release tags"
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Run the release-notes skill (.claude/skills/release-notes/SKILL.md) in pre-release mode with file output, for the FieldWorks Lite release this CI run is publishing.
+
+            Release tag: ${{ steps.tag.outputs.TAG }}, built from commit ${{ github.sha }}. The tag is definite, not predicted. Use that commit as the endpoint of every comparison (not origin/main, which may have moved on). The baseline is the previous release tag on that commit's history: `git describe --tags --abbrev=0 --match 'v20*' --exclude ${{ steps.tag.outputs.TAG }} ${{ github.sha }}` (never the tag itself; on a re-run this release, and newer ones, may already exist). All tags and history are already fetched; if that command finds no tag, write nothing and stop.
+
+            Write the two files described in the skill's "File output" section into the directory release-notes/. Do not write any other files, and do not create comments, issues, or PRs.
+          # No WebFetch or git fetch: nothing here may reach hosts other than GitHub.
+          claude_args: |
+            --max-turns 60
+            --allowedTools "Skill,Agent,Read,Glob,Grep,Write,Bash(gh api:*),Bash(gh release:*),Bash(gh pr:*),Bash(git log:*),Bash(git show:*),Bash(git tag:*),Bash(git describe:*),Bash(git merge-base:*),Bash(git rev-parse:*),Bash(ls:*),Bash(mkdir:*),Bash(wc:*),Bash(grep:*),Bash(head:*)"
+      - name: Check the notes
+        if: env.HAS_CLAUDE_TOKEN == 'true'
+        continue-on-error: true
+        env:
+          CLAUDE_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd release-notes 2>/dev/null || { echo "::warning::Claude wrote no release notes."; exit 0; }
+          # The notes go public unreviewed (Play Store) or lightly reviewed (release body), and Claude drafted them from
+          # PR text anyone could have written, so: no credentials, no links except to our own sites.
+          if grep -rqF -e "$CLAUDE_TOKEN" -e "$GH_TOKEN" .; then
+            echo "::warning::The release notes contain a credential; dropping them."
+            cd .. && rm -rf release-notes && exit 0
+          fi
+          for f in whatsnew-en-US forum.md; do
+            if [ -f "$f" ]; then tr -d '\000-\010\013-\037' < "$f" > "$f.tmp" && mv "$f.tmp" "$f"; fi
+          done
+          # Prints every link destination (URL, protocol-relative, www., markdown target) whose host isn't allowed, and any
+          # raw HTML (the notes are markdown; HTML only adds ways to hide a link). Fails closed on anything odd.
+          cat > check-links.py <<'PY'
+          import html, re, sys
+          text = html.unescape(open(sys.argv[1], encoding="utf-8").read())
+          allowed = re.compile(sys.argv[2] or r"(?!)")
+          dests = (re.findall(r"<(?!https?://)[a-zA-Z/!?][^\n]{0,40}", text)
+                   + re.findall(r"(?:https?:)?//[^\s)>\"'\]]+", text, re.I)
+                   + re.findall(r"(?<![\w.-])www\.[^\s)>\"'\]]+", text, re.I)
+                   + re.findall(r"\]\(([^)]*)\)", text))
+          bad = [d for d in dests if not allowed.fullmatch(re.sub(r"^(https?:)?//", "", d, flags=re.I).split("/")[0].split("?")[0].split("#")[0].lower())]
+          if bad: print("\n".join(bad)); sys.exit(1)
+          PY
+          if [ -f whatsnew-en-US ] && ! python3 check-links.py whatsnew-en-US ""; then
+            echo "::warning::Play Store notes contain a link (CI adds the only one); dropping them."
+            rm whatsnew-en-US
+          fi
+          if [ -f forum.md ] && ! python3 check-links.py forum.md '([a-z0-9-]+\.)*(sil\.org|github\.com|lexbox\.org)'; then
+            echo "::warning::Forum notes link outside our sites; dropping them."
+            rm forum.md
+          fi
+          rm check-links.py
+          if [ -s whatsnew-en-US ]; then
+            # Google Play counts UTF-16 code units (emoji are 2 each), so don't trust wc -m.
+            units=$(python3 -c 'import sys; print(len(sys.stdin.read().encode("utf-16-le")) // 2)' < whatsnew-en-US) || units=501
+            if [ "$units" -gt 500 ]; then
+              echo "::warning::Play Store notes are $units UTF-16 units (limit 500); dropping them."
+              rm whatsnew-en-US
+            fi
+          fi
+          rm -f release-body.md # only this step may write the release body
+          if [ -s forum.md ]; then
+            {
+              echo "<details>"
+              echo "<summary>FieldWorks Lite release notes (AI draft, review before posting to the forum)</summary>"
+              echo
+              cat forum.md
+              echo
+              echo "</details>"
+            } > release-body.md
+          fi
+          {
+            if [ -s whatsnew-en-US ]; then echo "## Play Store notes"; echo; echo '```'; cat whatsnew-en-US; echo; echo '```'; fi
+            if [ -s forum.md ]; then echo "## Forum notes"; echo; cat forum.md; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload release notes
+        if: env.HAS_CLAUDE_TOKEN == 'true'
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fw-lite-release-notes
+          path: |
+            release-notes/forum.md
+            release-notes/whatsnew-en-US
+            release-notes/release-body.md
+          if-no-files-found: ignore
