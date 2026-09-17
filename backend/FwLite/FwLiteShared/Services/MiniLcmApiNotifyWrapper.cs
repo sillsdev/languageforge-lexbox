@@ -190,6 +190,76 @@ public partial class MiniLcmApiNotifyWrapper(
         NotifyEntryChanged(entryId);
     }
 
+    // Comments emit a single coarse CommentsChangedEvent rather than an entry-scoped notification: the
+    // subject-to-entry mapping doesn't matter to the consumers (comment panel, unread badge, unread-filtered
+    // list all just re-query). Read-status mutations are included because marking read/unread changes the
+    // unread counts those same consumers show, even though nothing about the comment data itself changed.
+    private void NotifyCommentsChanged() => bus.PublishCommentsChanged(project);
+
+    async Task<CommentThread> IMiniLcmWriteApi.CreateCommentThread(CommentThread thread, UserComment firstComment)
+    {
+        var result = await _api.CreateCommentThread(thread, firstComment);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task<UserComment> IMiniLcmWriteApi.AddUserComment(Guid threadId, UserComment comment)
+    {
+        var result = await _api.AddUserComment(threadId, comment);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task<UserComment> IMiniLcmWriteApi.EditUserComment(Guid commentId, string text)
+    {
+        var result = await _api.EditUserComment(commentId, text);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task<CommentThread> IMiniLcmWriteApi.SetCommentThreadStatus(Guid threadId, ThreadStatus status)
+    {
+        var result = await _api.SetCommentThreadStatus(threadId, status);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task IMiniLcmWriteApi.DeleteUserComment(Guid commentId)
+    {
+        await _api.DeleteUserComment(commentId);
+        NotifyCommentsChanged();
+    }
+
+    async Task IMiniLcmWriteApi.DeleteCommentThread(Guid threadId)
+    {
+        await _api.DeleteCommentThread(threadId);
+        NotifyCommentsChanged();
+    }
+
+    async Task IMiniLcmWriteApi.MarkCommentRead(Guid commentId)
+    {
+        await _api.MarkCommentRead(commentId);
+        NotifyCommentsChanged();
+    }
+
+    async Task IMiniLcmWriteApi.MarkCommentThreadUnread(Guid threadId)
+    {
+        await _api.MarkCommentThreadUnread(threadId);
+        NotifyCommentsChanged();
+    }
+
+    async Task IMiniLcmWriteApi.MarkCommentThreadRead(Guid threadId)
+    {
+        await _api.MarkCommentThreadRead(threadId);
+        NotifyCommentsChanged();
+    }
+
+    async Task IMiniLcmWriteApi.MarkAllCommentsRead()
+    {
+        await _api.MarkAllCommentsRead();
+        NotifyCommentsChanged();
+    }
+
     void IDisposable.Dispose()
     {
     }

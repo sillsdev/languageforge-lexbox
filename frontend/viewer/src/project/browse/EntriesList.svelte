@@ -91,6 +91,13 @@
     });
   });
 
+  // A comment change (synced or read/unread) only moves entries in/out of the list when it's filtered by
+  // unread comments — otherwise the rows are unaffected, so skip the re-query unless that filter is active.
+  projectEventBus.onCommentsChanged(() => {
+    if (!gridifyFilter?.includes('UnreadComments')) return;
+    void entryLoader?.quietReset();
+  });
+
   $effect(() => {
     if (entryLoader?.error) {
       AppNotification.error($t`Failed to load entries`, entryLoader.error.message);

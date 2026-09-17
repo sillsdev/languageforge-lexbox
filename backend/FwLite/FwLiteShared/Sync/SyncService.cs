@@ -114,7 +114,11 @@ public class SyncService(
             // short-circuits and this is effectively a no-op.
             _ = TryEnsureProjectChangeListener(project);
             //need to await this, otherwise the database connection will be closed before the notifications are sent
-            if (!skipNotifications) await SendNotifications(syncResults);
+            if (!skipNotifications)
+            {
+                await SendNotifications(syncResults);
+                SendCommentNotifications(syncResults);
+            }
             return syncResults;
         }
         // Connectivity dropped mid-sync, or the device reports online but the server is unreachable (captive
@@ -234,6 +238,33 @@ public class SyncService(
         {
             logger.LogError(e, "Failed to send notifications, continuing");
         }
+    }
+
+    private void SendCommentNotifications(SyncResults syncResults)
+    {
+        try
+        {
+            // Coarse: any synced comment/thread change (or one that shifted local unread status) is enough to
+            // tell the frontend to re-query. Detection is pure over the pulled commits, so no DB hit or await.
+            if (!SyncResultsHaveCommentChanges(syncResults)) return;
+            changeEventBus.PublishCommentsChanged(currentProjectService.Project);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to send comment notifications, continuing");
+        }
+    }
+
+    public static bool SyncResultsHaveCommentChanges(SyncResults syncResults)
+    {
+        return syncResults.MissingFromLocal
+            .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
+            .Any(change => change is CreateCommentThreadChange
+                or CreateUserCommentChange
+                or EditUserCommentChange
+                or SetCommentThreadStatusChange
+                or DeleteChange<UserComment>
+                or DeleteChange<CommentThread>);
     }
 
     private async Task ApplySyncedCommentReadStatus(SyncResults syncResults, string? currentUserId)

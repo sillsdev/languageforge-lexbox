@@ -1,6 +1,7 @@
 <script lang="ts">
   import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
   import {useMiniLcmApi} from '$lib/services/service-provider';
+  import {useProjectEventBus} from '$lib/services/event-bus';
   import {useProjectContext} from '$project/project-context.svelte';
   import {cn, randomId} from '$lib/utils';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
@@ -30,6 +31,7 @@
   } = $props();
 
   const api = useMiniLcmApi();
+  const projectEventBus = useProjectEventBus();
   const projectContext = useProjectContext();
   const currentUserId = $derived(projectContext.projectData?.lastUserId);
   const canComment = $derived(Boolean(currentUserId) && !!projectContext.features.write);
@@ -91,6 +93,14 @@
       syncLocalUnreadFromSource();
     }
   }
+
+  // Live updates: a comment arriving via sync (or any comment change) while the panel is open should
+  // refresh the visible threads and unread markers, the same way the entry list reacts to entry changes.
+  projectEventBus.onCommentsChanged(() => {
+    if (!open) return;
+    void threadsResource.refetch();
+    void refetchUnreadIfNeeded();
+  });
 
   async function onThreadOpen(threadId: string): Promise<void> {
     if (!unreadThreadIds.has(threadId)) return;
