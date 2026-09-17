@@ -11,9 +11,7 @@
           "en": "Compound"
         },
         "DeletedAt": null
-      },
-      "Id": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
@@ -34,9 +32,7 @@
           "en": "Unspecified"
         },
         "DeletedAt": null
-      },
-      "Id": "eeb78fce-6009-4932-aaa6-85faeb180c69",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "eeb78fce-6009-4932-aaa6-85faeb180c69",
@@ -78,9 +74,7 @@
         "ComplexForms": [],
         "ComplexFormTypes": [],
         "PublishIn": []
-      },
-      "Id": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1",
@@ -112,9 +106,7 @@
         "Reference": null,
         "SenseId": "d510aa82-5557-4dd4-8b1f-1ec89facb979",
         "DeletedAt": null
-      },
-      "Id": "30a0dcc4-06b1-4402-b78e-745712c4cd2d",
-      "DeletedAt": null
+      }
     },
     "References": [
       "d510aa82-5557-4dd4-8b1f-1ec89facb979"
@@ -138,9 +130,7 @@
         },
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
@@ -167,9 +157,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d0",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d0",
@@ -196,9 +184,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d1",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d1",
@@ -225,9 +211,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d2",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d2",
@@ -254,9 +238,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d3",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d3",
@@ -283,9 +265,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4",
@@ -312,9 +292,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5",
@@ -341,9 +319,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6",
@@ -381,9 +357,7 @@
         "SemanticDomains": [],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "d510aa82-5557-4dd4-8b1f-1ec89facb979",
-      "DeletedAt": null
+      }
     },
     "References": [
       "b802e01f-fac1-42b8-b605-a5bbb7efcdc1"
@@ -439,9 +413,7 @@
           "Z"
         ],
         "Order": 0
-      },
-      "Id": "1d6f788d-b5a7-4dd8-bdbc-e10b6ac78ef7",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "1d6f788d-b5a7-4dd8-bdbc-e10b6ac78ef7",
@@ -495,9 +467,7 @@
           "Z"
         ],
         "Order": 0
-      },
-      "Id": "e8b2b514-e1ee-4a2b-9b52-6e32291aa407",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "e8b2b514-e1ee-4a2b-9b52-6e32291aa407",

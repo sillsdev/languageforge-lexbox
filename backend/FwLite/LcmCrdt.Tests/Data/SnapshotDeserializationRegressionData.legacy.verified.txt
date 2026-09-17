@@ -39,9 +39,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
-      },
-      "Id": "a4627ca8-f27b-44ce-91f5-cc992332bc86",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -84,9 +82,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
-      },
-      "Id": "962941b2-66bd-437f-aadc-b1921bcae5b4",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -167,9 +163,7 @@
           }
         ],
         "PublishIn": []
-      },
-      "Id": "8f403ae3-9859-4a74-a52d-3c0736bb5917",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -255,9 +249,7 @@
         "ComplexForms": [],
         "ComplexFormTypes": [],
         "PublishIn": []
-      },
-      "Id": "82cf7254-3a4f-497a-9e15-7d93fc830356",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -293,9 +285,7 @@
         },
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "a3274cfd-225f-45fd-8851-a7b1a1e1037a",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -336,9 +326,7 @@
         "ComponentEntryId": "e5dbeb7f-4df4-4fc7-82c2-a1e14f49365a",
         "ComponentSenseId": null,
         "ComponentHeadword": "Pine apple"
-      },
-      "Id": "29ff092d-1e5a-4bc9-95b9-22be9d9143c5",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -371,9 +359,7 @@
           "en": "Phrasal Verb"
         },
         "DeletedAt": null
-      },
-      "Id": "35cee792-74c8-444e-a9b7-ed0461d4d3b7",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -414,9 +400,7 @@
         "ComponentEntryId": "c06e7e0e-7822-41fa-9347-00f8115d5791",
         "ComponentSenseId": null,
         "ComponentHeadword": "Pine"
-      },
-      "Id": "925daf31-61de-4330-8b90-23af0f5967f7",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -452,9 +436,7 @@
         },
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -487,9 +469,7 @@
           "en": "Unspecified Complex Form"
         },
         "DeletedAt": null
-      },
-      "Id": "fec038ed-6a8c-4fa5-bc96-a4f515a98c50",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -566,9 +546,7 @@
         },
         "SenseId": "413d9f9b-d389-42a1-822f-9d9dea06ba9e",
         "DeletedAt": null
-      },
-      "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -623,9 +601,7 @@
         "SemanticDomains": [],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "468b3fd0-3d9e-4cae-9e4f-842dec5fa74d",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -683,9 +659,7 @@
         "SemanticDomains": [],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -753,9 +727,7 @@
         "SemanticDomains": [],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "ff2f6647-0ff2-4d67-845b-c43baf851d93",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -883,9 +855,7 @@
           "Z"
         ],
         "Order": 0
-      },
-      "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -1013,9 +983,7 @@
           "Z"
         ],
         "Order": 0
-      },
-      "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -1067,9 +1035,7 @@
         "Reference": null,
         "SenseId": "00000000-0000-0000-0000-e3e012824c86",
         "DeletedAt": null
-      },
-      "Id": "00000000-0000-0000-0000-6038aa8174c3",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -1154,9 +1120,7 @@
         },
         "SenseId": "413d9f9b-d389-42a1-822f-9d9dea06ba9e",
         "DeletedAt": null
-      },
-      "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -1449,9 +1413,7 @@
         },
         "SenseId": "44edb1ce-488b-3b73-1ee1-fa8340ce2b53",
         "DeletedAt": null
-      },
-      "Id": "803d70e9-7ca6-5a14-5776-955ea413f003",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -1499,9 +1461,7 @@
         "Reference": null,
         "SenseId": "00000000-0000-0000-0000-e3e012824c86",
         "DeletedAt": null
-      },
-      "Id": "00000000-0000-0000-0000-6038aa8174c3",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -1850,9 +1810,7 @@
         },
         "SenseId": "f82fca1a-d3fa-14f5-e07e-3eef03c2fb7f",
         "DeletedAt": null
-      },
-      "Id": "22365a16-4766-423e-58be-aa8cc941cb54",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -2283,9 +2241,7 @@
             }
           }
         ]
-      },
-      "Id": "a7d178a9-1815-9673-a50e-12f1e9f2e88c",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -2552,9 +2508,7 @@
             }
           }
         ]
-      },
-      "Id": "4f3be7d1-5e3d-ae3d-e207-c429480617d6",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -2781,9 +2735,7 @@
             }
           }
         ]
-      },
-      "Id": "adc64923-5080-2e74-cc41-4ce82badf96b",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -3132,9 +3084,7 @@
             }
           }
         ]
-      },
-      "Id": "c866a27e-79d8-6ac8-1947-ec0e8c980ea9",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -3459,9 +3409,7 @@
             }
           }
         ]
-      },
-      "Id": "f359f97f-4c1e-48f7-9d28-5c137d46fb28",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -3928,9 +3876,7 @@
             }
           }
         ]
-      },
-      "Id": "853b91e6-d738-7d5d-cc98-e62904160c35",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -4003,9 +3949,7 @@
             "UpdatedAt": "2026-07-02T11:46:28.7172532+07:00"
           }
         ]
-      },
-      "Id": "8f911a35-f5c5-f686-4ae7-51edce857df1",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -4063,9 +4007,7 @@
             "UpdatedAt": "2026-07-03T03:11:05.4871024+07:00"
           }
         ]
-      },
-      "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -4099,9 +4041,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
-      },
-      "Id": "a4627ca8-f27b-44ce-91f5-cc992332bc86",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -4135,9 +4075,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
-      },
-      "Id": "9fd83240-7fdb-6d68-8c5d-cd2793d4eb4b",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -4171,9 +4109,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
-      },
-      "Id": "962941b2-66bd-437f-aadc-b1921bcae5b4",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -4213,9 +4149,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": false
-      },
-      "Id": "6c54b75f-23fb-bbf2-a6a0-33418f0f311b",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -4645,9 +4579,7 @@
             }
           }
         ]
-      },
-      "Id": "a7d178a9-1815-9673-a50e-12f1e9f2e88c",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -5179,9 +5111,7 @@
             }
           }
         ]
-      },
-      "Id": "7f88a339-4c32-60a0-d287-9fa7e4fc7f57",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -5347,9 +5277,7 @@
         ],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "11c4d394-1e03-603c-95a0-86a482d278c5",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -5615,9 +5543,7 @@
             }
           }
         ]
-      },
-      "Id": "4f3be7d1-5e3d-ae3d-e207-c429480617d6",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -5921,9 +5847,7 @@
             }
           }
         ]
-      },
-      "Id": "e9d2b767-d15c-620d-fef9-498eca4c15df",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -6149,9 +6073,7 @@
             }
           }
         ]
-      },
-      "Id": "adc64923-5080-2e74-cc41-4ce82badf96b",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -6487,9 +6409,7 @@
             }
           }
         ]
-      },
-      "Id": "7db9365a-9981-f773-9889-2ab959719212",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -6691,9 +6611,7 @@
         ],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "2a23a9ba-a548-a602-29c0-954512e3912b",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -7041,9 +6959,7 @@
             }
           }
         ]
-      },
-      "Id": "c866a27e-79d8-6ac8-1947-ec0e8c980ea9",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -7411,9 +7327,7 @@
             }
           }
         ]
-      },
-      "Id": "f39ffe3c-94a1-557f-cf6c-c3a5d62eb118",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -7737,9 +7651,7 @@
             }
           }
         ]
-      },
-      "Id": "f359f97f-4c1e-48f7-9d28-5c137d46fb28",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -8091,9 +8003,7 @@
             }
           }
         ]
-      },
-      "Id": "1c34cc92-421a-01c1-d22f-4f1379981df7",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -8233,9 +8143,7 @@
         ],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "ff45c347-1da5-f492-d4e6-f65a04d6ad79",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -8701,9 +8609,7 @@
             }
           }
         ]
-      },
-      "Id": "853b91e6-d738-7d5d-cc98-e62904160c35",
-      "DeletedAt": null
+      }
     }
   },
   {
@@ -9123,9 +9029,7 @@
             }
           }
         ]
-      },
-      "Id": "3ad5077d-175e-bf42-60ec-df0e3cf1d2bb",
-      "DeletedAt": null
+      }
     }
   }
 ]

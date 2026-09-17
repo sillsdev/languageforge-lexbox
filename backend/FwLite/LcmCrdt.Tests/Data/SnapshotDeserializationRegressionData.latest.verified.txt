@@ -14,9 +14,7 @@
       "LouwNidaCodes": "",
       "DeletedAt": null,
       "Predefined": false
-    },
-    "Id": "a4627ca8-f27b-44ce-91f5-cc992332bc86",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -74,9 +72,7 @@
       "LouwNidaCodes": "Handcrafted Steel Chips",
       "DeletedAt": null,
       "Predefined": false
-    },
-    "Id": "fc2a0b61-797c-7d91-c737-ead87d4a2e94",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -93,9 +89,7 @@
       "LouwNidaCodes": "",
       "DeletedAt": null,
       "Predefined": false
-    },
-    "Id": "9fd83240-7fdb-6d68-8c5d-cd2793d4eb4b",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -259,9 +253,7 @@
       "LouwNidaCodes": "metrics",
       "DeletedAt": null,
       "Predefined": false
-    },
-    "Id": "a0984b79-7e88-f875-d4c7-29d3a6f38949",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -278,9 +270,7 @@
       "LouwNidaCodes": "",
       "DeletedAt": null,
       "Predefined": false
-    },
-    "Id": "962941b2-66bd-437f-aadc-b1921bcae5b4",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -315,9 +305,7 @@
       "LouwNidaCodes": "Handcrafted",
       "DeletedAt": null,
       "Predefined": false
-    },
-    "Id": "ef5cb328-6aab-ec0a-2b7f-d7b25e54e359",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -337,9 +325,7 @@
       "LouwNidaCodes": "",
       "DeletedAt": null,
       "Predefined": false
-    },
-    "Id": "6c54b75f-23fb-bbf2-a6a0-33418f0f311b",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -373,9 +359,7 @@
       "LouwNidaCodes": "backing up",
       "DeletedAt": null,
       "Predefined": false
-    },
-    "Id": "793be15c-a6c9-6f1f-0484-41b1c39077cf",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -404,9 +388,7 @@
         }
       ],
       "PublishIn": []
-    },
-    "Id": "8f403ae3-9859-4a74-a52d-3c0736bb5917",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -512,9 +494,7 @@
           }
         }
       ]
-    },
-    "Id": "691dda9c-b83e-71c6-3638-e66a279c396e",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -554,9 +534,7 @@
       "ComplexForms": [],
       "ComplexFormTypes": [],
       "PublishIn": []
-    },
-    "Id": "82cf7254-3a4f-497a-9e15-7d93fc830356",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -728,9 +706,7 @@
           }
         }
       ]
-    },
-    "Id": "8dbc0f41-998e-836a-97e1-f05d46d95c92",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -760,9 +736,7 @@
           }
         }
       ]
-    },
-    "Id": "84bb5f48-b2a9-d0c8-85ee-aec9203830ee",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -783,9 +757,7 @@
       "ComplexForms": [],
       "ComplexFormTypes": [],
       "PublishIn": []
-    },
-    "Id": "249c38f3-fc0d-195f-7533-97e8c140d0d7",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -797,9 +769,7 @@
       },
       "DeletedAt": null,
       "Predefined": true
-    },
-    "Id": "a3274cfd-225f-45fd-8851-a7b1a1e1037a",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -814,9 +784,7 @@
       },
       "DeletedAt": null,
       "Predefined": false
-    },
-    "Id": "45ffe5e6-f986-cfdc-d482-fef9666ac9f7",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -831,9 +799,7 @@
       "ComponentEntryId": "e5dbeb7f-4df4-4fc7-82c2-a1e14f49365a",
       "ComponentSenseId": null,
       "ComponentHeadword": "Pine apple"
-    },
-    "Id": "29ff092d-1e5a-4bc9-95b9-22be9d9143c5",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -848,9 +814,7 @@
       "ComponentEntryId": "262788b5-18fc-5cac-83ff-79e33b7db28d",
       "ComponentSenseId": "fc5773e3-d82e-5475-22e2-b4672dfbd7ae",
       "ComponentHeadword": "Soft"
-    },
-    "Id": "ac7cd20f-3d9e-ed6b-ce38-ba17d1cce9d2",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -861,9 +825,7 @@
         "en": "Phrasal Verb"
       },
       "DeletedAt": null
-    },
-    "Id": "35cee792-74c8-444e-a9b7-ed0461d4d3b7",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -877,9 +839,7 @@
         "klr": "syndicate"
       },
       "DeletedAt": null
-    },
-    "Id": "6c895a06-1e97-4657-2aa0-dc0bd08c5cb0",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -894,9 +854,7 @@
       "ComponentEntryId": "c06e7e0e-7822-41fa-9347-00f8115d5791",
       "ComponentSenseId": null,
       "ComponentHeadword": "Pine"
-    },
-    "Id": "925daf31-61de-4330-8b90-23af0f5967f7",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -911,9 +869,7 @@
       "ComponentEntryId": "2378252c-6c0c-c286-25c7-cc9f037d5cc8",
       "ComponentSenseId": "63356fab-b0de-1634-098f-a495295f8ae0",
       "ComponentHeadword": "Kip"
-    },
-    "Id": "e5f725a5-fc2b-ff4b-98d4-21b30360028b",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -925,9 +881,7 @@
       },
       "DeletedAt": null,
       "Predefined": true
-    },
-    "Id": "86ff66f6-0774-407a-a0dc-3eeaf873daf7",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -942,9 +896,7 @@
       },
       "DeletedAt": null,
       "Predefined": false
-    },
-    "Id": "66625a51-cfbb-78e4-fd8f-d192a3219147",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -955,9 +907,7 @@
         "en": "Unspecified Complex Form"
       },
       "DeletedAt": null
-    },
-    "Id": "fec038ed-6a8c-4fa5-bc96-a4f515a98c50",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -971,9 +921,7 @@
         "mhg": "grey"
       },
       "DeletedAt": null
-    },
-    "Id": "e7e8d07d-277e-9033-e369-cf08cef383f5",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -1016,9 +964,7 @@
       },
       "SenseId": "413d9f9b-d389-42a1-822f-9d9dea06ba9e",
       "DeletedAt": null
-    },
-    "Id": "88422849-e6e0-4137-8817-8b66eac419b8",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -1124,9 +1070,7 @@
       },
       "SenseId": "5d5254b0-d766-db1e-3e3a-14ae6f25ed17",
       "DeletedAt": null
-    },
-    "Id": "dc9f56b8-bcb4-0891-fd75-03fee950b5b7",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -1273,9 +1217,7 @@
       },
       "SenseId": "44edb1ce-488b-3b73-1ee1-fa8340ce2b53",
       "DeletedAt": null
-    },
-    "Id": "803d70e9-7ca6-5a14-5776-955ea413f003",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -1294,9 +1236,7 @@
       "SemanticDomains": [],
       "ExampleSentences": [],
       "Pictures": []
-    },
-    "Id": "468b3fd0-3d9e-4cae-9e4f-842dec5fa74d",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -1511,9 +1451,7 @@
           }
         }
       ]
-    },
-    "Id": "a7d178a9-1815-9673-a50e-12f1e9f2e88c",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -1696,9 +1634,7 @@
           }
         }
       ]
-    },
-    "Id": "4acef8a6-3390-be78-52a4-63a5562e7978",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -1964,9 +1900,7 @@
           }
         }
       ]
-    },
-    "Id": "7f88a339-4c32-60a0-d287-9fa7e4fc7f57",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -2243,9 +2177,7 @@
           }
         }
       ]
-    },
-    "Id": "8dfeab87-ff97-7007-4ceb-76404c80ed14",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -2328,9 +2260,7 @@
       ],
       "ExampleSentences": [],
       "Pictures": []
-    },
-    "Id": "11c4d394-1e03-603c-95a0-86a482d278c5",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -2624,9 +2554,7 @@
           }
         }
       ]
-    },
-    "Id": "2307e687-a4d0-fb10-067f-9eaa7cf392ff",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -2759,9 +2687,7 @@
           }
         }
       ]
-    },
-    "Id": "4f3be7d1-5e3d-ae3d-e207-c429480617d6",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -3107,9 +3033,7 @@
           }
         }
       ]
-    },
-    "Id": "542f78a0-a689-1af5-e51a-0fc4e5d2410d",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -3261,9 +3185,7 @@
           }
         }
       ]
-    },
-    "Id": "e9d2b767-d15c-620d-fef9-498eca4c15df",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -3539,9 +3461,7 @@
           }
         }
       ]
-    },
-    "Id": "8adba1c4-4855-3623-9b16-426b8ec858c4",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -3569,9 +3489,7 @@
       "SemanticDomains": [],
       "ExampleSentences": [],
       "Pictures": []
-    },
-    "Id": "ac8c3b6f-9487-4949-ab7a-1ed078cadffe",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -3684,9 +3602,7 @@
           }
         }
       ]
-    },
-    "Id": "adc64923-5080-2e74-cc41-4ce82badf96b",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -3936,9 +3852,7 @@
           }
         }
       ]
-    },
-    "Id": "17cda451-798e-29dd-ee49-7c04dc66719e",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -4106,9 +4020,7 @@
           }
         }
       ]
-    },
-    "Id": "7db9365a-9981-f773-9889-2ab959719212",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -4456,9 +4368,7 @@
           }
         }
       ]
-    },
-    "Id": "cddb9fca-60b5-96a4-c428-280da1e3e0e6",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -4559,9 +4469,7 @@
       ],
       "ExampleSentences": [],
       "Pictures": []
-    },
-    "Id": "2a23a9ba-a548-a602-29c0-954512e3912b",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -4760,9 +4668,7 @@
           }
         }
       ]
-    },
-    "Id": "a7b785ec-18ff-fb73-2dfb-05415e5fc622",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -4936,9 +4842,7 @@
           }
         }
       ]
-    },
-    "Id": "c866a27e-79d8-6ac8-1947-ec0e8c980ea9",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -5141,9 +5045,7 @@
           }
         }
       ]
-    },
-    "Id": "3d4dcd7c-647f-d0d6-f685-be073236df56",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -5327,9 +5229,7 @@
           }
         }
       ]
-    },
-    "Id": "f39ffe3c-94a1-557f-cf6c-c3a5d62eb118",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -5629,9 +5529,7 @@
           }
         }
       ]
-    },
-    "Id": "73d3f969-1f75-ad5e-c5dc-79868da67ff9",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -5659,9 +5557,7 @@
       "SemanticDomains": [],
       "ExampleSentences": [],
       "Pictures": []
-    },
-    "Id": "ff2f6647-0ff2-4d67-845b-c43baf851d93",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -5823,9 +5719,7 @@
           }
         }
       ]
-    },
-    "Id": "f359f97f-4c1e-48f7-9d28-5c137d46fb28",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -6028,9 +5922,7 @@
           }
         }
       ]
-    },
-    "Id": "d222b429-9ba1-6ed7-bfc2-6639f2166299",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -6206,9 +6098,7 @@
           }
         }
       ]
-    },
-    "Id": "1c34cc92-421a-01c1-d22f-4f1379981df7",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -6350,9 +6240,7 @@
           }
         }
       ]
-    },
-    "Id": "ea4e49c5-de1e-27d1-8ce2-e7494428ff27",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -6422,9 +6310,7 @@
       ],
       "ExampleSentences": [],
       "Pictures": []
-    },
-    "Id": "ff45c347-1da5-f492-d4e6-f65a04d6ad79",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -6722,9 +6608,7 @@
           }
         }
       ]
-    },
-    "Id": "53a2e1a5-1c61-00b8-1faf-c499918103a9",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -6957,9 +6841,7 @@
           }
         }
       ]
-    },
-    "Id": "853b91e6-d738-7d5d-cc98-e62904160c35",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7284,9 +7166,7 @@
           }
         }
       ]
-    },
-    "Id": "abb21571-4fe4-caa6-4244-0964b3a90276",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7496,9 +7376,7 @@
           }
         }
       ]
-    },
-    "Id": "3ad5077d-175e-bf42-60ec-df0e3cf1d2bb",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7712,9 +7590,7 @@
           }
         }
       ]
-    },
-    "Id": "6c3b9fe2-2bc3-9c43-b22c-abbb5c112196",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7758,9 +7634,7 @@
         "Z"
       ],
       "Order": 0
-    },
-    "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7779,9 +7653,7 @@
         "Planner"
       ],
       "Order": 0.4320924489200455
-    },
-    "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7825,9 +7697,7 @@
         "Z"
       ],
       "Order": 0
-    },
-    "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7846,9 +7716,7 @@
         "blockchains"
       ],
       "Order": 0.14806393624996905
-    },
-    "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7875,9 +7743,7 @@
       "Reference": null,
       "SenseId": "00000000-0000-0000-0000-e3e012824c86",
       "DeletedAt": null
-    },
-    "Id": "00000000-0000-0000-0000-6038aa8174c3",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -8052,9 +7918,7 @@
       },
       "SenseId": "f82fca1a-d3fa-14f5-e07e-3eef03c2fb7f",
       "DeletedAt": null
-    },
-    "Id": "22365a16-4766-423e-58be-aa8cc941cb54",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -8069,9 +7933,7 @@
         "nzu": "client-server",
         "pbz": "users"
       }
-    },
-    "Id": "78f9bd83-8dcb-6972-7e0b-5863ef2ea0a8",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -8083,9 +7945,7 @@
       "Name": {
         "ywa": "attitude"
       }
-    },
-    "Id": "a3ca5bad-7e34-ab17-b9f0-acbdb69de80f",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "RemoteResource",
@@ -8132,9 +7992,7 @@
         }
       ],
       "Analysis": null
-    },
-    "Id": "72bcb2dd-4d73-486c-d5df-e5d7b9a6a3eb",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -8209,9 +8067,7 @@
       "Postfix": "syndicate",
       "SecondaryOrder": 231566132,
       "DeletedAt": null
-    },
-    "Id": "edd0c7a1-e37c-c67b-7522-eed5ec86fde8",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -8239,9 +8095,7 @@
           "UpdatedAt": "2026-07-02T11:46:28.7172532+07:00"
         }
       ]
-    },
-    "Id": "8f911a35-f5c5-f686-4ae7-51edce857df1",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -8269,9 +8123,7 @@
           "UpdatedAt": "2026-07-06T00:23:27.650184+07:00"
         }
       ]
-    },
-    "Id": "e1e30272-9a49-2644-eef3-f36caa061eae",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -8286,9 +8138,7 @@
       "AuthorName": "Internal",
       "CreatedAt": "2026-07-02T14:57:23.0439447+07:00",
       "UpdatedAt": "2026-07-02T12:32:51.0578643+07:00"
-    },
-    "Id": "85ef40c2-e168-7cdd-e302-d3edc18c38a5",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -8316,9 +8166,7 @@
           "UpdatedAt": "2026-07-03T03:11:05.4871024+07:00"
         }
       ]
-    },
-    "Id": "b14e4cf6-2b50-74a4-e21e-482b38efd849",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -8346,9 +8194,7 @@
           "UpdatedAt": "2026-07-05T23:32:25.6629513+07:00"
         }
       ]
-    },
-    "Id": "2afa7c96-656a-536d-705f-b7a60a64bed2",
-    "DeletedAt": null
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -8363,8 +8209,6 @@
       "AuthorName": "Home Loan Account",
       "CreatedAt": "2026-07-02T22:19:48.4007941+07:00",
       "UpdatedAt": "2026-07-03T13:54:23.9312531+07:00"
-    },
-    "Id": "4f5808a8-bbf1-e23d-e5fe-5a997f13bf3a",
-    "DeletedAt": null
+    }
   }
 ]
