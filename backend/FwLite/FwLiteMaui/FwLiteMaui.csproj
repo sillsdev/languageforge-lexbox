@@ -68,6 +68,16 @@
          so the Mono interpreter is mandatory. Enabled in Debug too so both builds exercise the same runtime. -->
     <UseInterpreter>true</UseInterpreter>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetPlatform)' == 'ios'">
+    <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetPlatform)' == 'ios' And $(RuntimeIdentifier.StartsWith('iossimulator'))">
+    <!-- Simulator builds are unsigned by default, which drops the entitlements above (MSAL keychain access fails).
+         Ad-hoc sign so the entitlements apply; device builds need a real identity anyway. -->
+    <EnableCodeSigning>true</EnableCodeSigning>
+    <CodesignKey>-</CodesignKey>
+    <CodesignEntitlements>Platforms\iOS\Entitlements.Simulator.plist</CodesignEntitlements>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release' And ('$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst')">
     <!-- With the interpreter on, the SDK defaults the simulator to no linking; force the device default so trimming
          failures show up in the simulator. Do not set PublishTrimmed/TrimMode: the iOS SDK owns those. -->
