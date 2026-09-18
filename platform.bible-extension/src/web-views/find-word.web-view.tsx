@@ -3,15 +3,18 @@ import papi, { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
 import type { IEntry, IEntryService, LexiconWebViewProps, PartialEntry } from 'lexicon';
 import { SearchBar } from 'platform-bible-react';
-import { debounce } from 'platform-bible-utils';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import AddNewEntryButton from '../components/add-new-entry-button';
 import EntryList from '../components/entry-list';
 import EntryListWrapper from '../components/entry-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
+import displayAddedEntry from '../utils/display-added-entry';
+import type { EntryLookupRequest } from '../utils/use-entry-lookup';
+import useEntryLookup from '../utils/use-entry-lookup';
 
 globalThis.webViewComponent = function LexiconFindWord({
   analysisLanguage,
+  lexiconCode,
   projectId,
   vernacularLanguage,
   word,
@@ -22,8 +25,8 @@ globalThis.webViewComponent = function LexiconFindWord({
   const [lexiconNetworkObject, setLexiconNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
-  const [isFetching, setIsFetching] = useState(false);
   const [searchTerm, setSearchTerm] = useState(word ?? '');
+  const { didFail, isPending, lookup } = useEntryLookup();
 
   useEffect(() => {
     papi.networkObjects
@@ -33,62 +36,73 @@ globalThis.webViewComponent = function LexiconFindWord({
         logger.info('Got network object:', networkObject);
         setLexiconNetworkObject(networkObject);
       })
-      .catch((e) => logger.error(`${localizedStrings['%lexicon_error_gettingNetworkObject%']}`, e));
-  }, [localizedStrings]);
+      .catch((e) => logger.error('Error getting network object:', e));
+  }, []);
 
-  const fetchEntries = useCallback(
-    async (untrimmedSurfaceForm: string) => {
-      if (!projectId || !lexiconNetworkObject) {
-        const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
-        if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
-        return;
+  const entriesLookup = useCallback(
+    (untrimmedSurfaceForm: string): EntryLookupRequest<IEntry[] | undefined> | undefined => {
+      if (!lexiconCode || !lexiconNetworkObject) {
+        if (!lexiconCode) logger.warn('Missing required parameter: lexiconCode');
+        if (!lexiconNetworkObject) logger.warn('Missing required parameter: lexiconNetworkObject');
+        return undefined;
       }
 
       const surfaceForm = untrimmedSurfaceForm.trim();
       if (!surfaceForm) {
         logger.warn('No word provided for search');
-        return;
+        return undefined;
       }
 
       logger.info(`Fetching entries for ${surfaceForm}`);
-      setIsFetching(true);
-      const entries = await lexiconNetworkObject.getEntries(projectId, { surfaceForm });
-      setIsFetching(false);
-      setMatchingEntries(entries ?? []);
+      return {
+        failureMessage: 'Error fetching entries:',
+        onResult: (entries) => setMatchingEntries(entries ?? []),
+        request: () => lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm }),
+      };
     },
-    [lexiconNetworkObject, localizedStrings, projectId],
+    [lexiconCode, lexiconNetworkObject],
   );
 
-  const debouncedFetchEntries = useMemo(() => debounce(fetchEntries, 500), [fetchEntries]);
+  const entriesLookupRef = useRef(entriesLookup);
+
+  useEffect(() => {
+    entriesLookupRef.current = entriesLookup;
+  }, [entriesLookup]);
 
   const onSearch = useCallback(
     (searchQuery: string) => {
       setSearchTerm(searchQuery);
-      debouncedFetchEntries(searchQuery);
+      setMatchingEntries(undefined);
+      if (!searchQuery.trim()) {
+        lookup.reset();
+        return;
+      }
+      lookup.schedule(() => entriesLookupRef.current(searchQuery));
     },
-    [debouncedFetchEntries],
+    [lookup],
   );
 
   const addEntry = useCallback(
-    async (entry: PartialEntry) => {
-      if (!projectId || !lexiconNetworkObject) {
-        const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
-        if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
-        return;
+    async (entry: PartialEntry): Promise<boolean> => {
+      if (!lexiconCode || !projectId || !lexiconNetworkObject) {
+        if (!lexiconCode) logger.warn('Missing required parameter: lexiconCode');
+        if (!projectId) logger.warn('Missing required parameter: projectId');
+        if (!lexiconNetworkObject) logger.warn('Missing required parameter: lexiconNetworkObject');
+        return false;
       }
 
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const addedEntry = await lexiconNetworkObject.addEntry(projectId, entry);
-      if (addedEntry) {
-        onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
-        await papi.commands.sendCommand('lexicon.displayEntry', projectId, addedEntry.id);
-      } else {
-        logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
+      const addedEntry = await lexiconNetworkObject.addEntry(lexiconCode, entry);
+      if (!addedEntry) {
+        logger.error('Failed to add entry!');
+        return false;
       }
+
+      onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
+      await displayAddedEntry(projectId, lexiconCode, addedEntry.id);
+      return true;
     },
-    [lexiconNetworkObject, localizedStrings, onSearch, projectId],
+    [lexiconCode, lexiconNetworkObject, onSearch, projectId],
   );
 
   return (
@@ -123,7 +137,8 @@ globalThis.webViewComponent = function LexiconFindWord({
           />
         ) : undefined
       }
-      isLoading={isFetching}
+      hasError={didFail}
+      isLoading={isPending}
       hasItems={!!matchingEntries?.length}
     />
   );

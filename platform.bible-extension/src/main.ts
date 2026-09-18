@@ -167,14 +167,18 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   const displayEntryCommandPromise = papi.commands.registerCommand(
     'lexicon.displayEntry',
-    async (projectId: string, entryId: string) => {
+    async (projectId: string, lexiconCode: string, entryId: string) => {
       let success = false;
 
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success };
 
-      const lexiconCode = await projectManager.getLexiconCodeOrOpenSelector();
-      if (!lexiconCode) return { success };
+      // An entry id resolves only in the lexicon it was written to, and the calling WebView is the
+      // only thing that knows which that was.
+      if (!lexiconCode) {
+        logger.warn(`Cannot display entry '${entryId}' without the lexicon holding it`);
+        return { success };
+      }
 
       logger.info(`Displaying entry '${entryId}' in lexicon '${lexiconCode}'`);
       let url: string;
@@ -291,8 +295,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   // DEV-ONLY: a quick lexicon switcher. Lexicon selection is intentionally sticky — once a project
   // has one, the only supported way to change it is clearing `lexicon.lexiconCode` in the project
-  // settings (the next lexicon action then reopens the selector). This menu command is a
-  // development convenience to be removed before release, along with:
+  // settings, which unlinks the project and makes the next lexicon action reopen the selector. This
+  // menu command is a development convenience to be removed before release, along with:
   //   - its entry in the `context.registrations.add(...)` list below,
   //   - the `lexicon.changeLexicon` handler type in `src/types/lexicon.d.ts`,
   //   - the `%lexicon_menu_selectLexicon%` menu item in `contributions/menus.json`, and
