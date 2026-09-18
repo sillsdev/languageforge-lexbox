@@ -55,44 +55,18 @@
   const threadViews = $derived(threadsResource.current);
   const loading = $derived(threadsResource.loading);
 
-  // Arrival animation: flag threads/comments that show up after the first load (via sync or a local post)
-  // so only genuine arrivals animate — not the whole list when the panel opens or reopens. Known ids are
-  // seeded silently on the first load; anything not yet known is briefly marked as an arrival.
-  const newThreadIds = new SvelteSet<string>();
-  const newCommentIds = new SvelteSet<string>();
-  const knownThreadIds = new Set<string>();
-  const knownCommentIds = new Set<string>();
-  let arrivalsInitialized = false;
-
-  function markArrival(set: SvelteSet<string>, id: string): void {
-    set.add(id);
-    setTimeout(() => set.delete(id), 1200);
-  }
-
-  // $effect.pre runs before the DOM update, so the arrival flags are set on the same flush that creates the
-  // new elements — the transitions read the correct flag at creation time.
-  $effect.pre(() => {
-    const tvs = threadsResource.current;
-    if (!arrivalsInitialized) {
-      for (const tv of tvs) {
-        knownThreadIds.add(tv.thread.id);
-        for (const c of tv.comments) knownCommentIds.add(c.id);
-      }
-      arrivalsInitialized = true;
+  // Arrival highlight: suppress the flash for a moment after the panel opens so the initial list doesn't
+  // flash. Threads/comments created while this is false never flash (each snapshots it at creation);
+  // anything that arrives afterward — via sync or a local post — flashes as new.
+  let arrivalsEnabled = $state(false);
+  $effect(() => {
+    if (!open) {
+      arrivalsEnabled = false;
       return;
     }
-    for (const tv of tvs) {
-      if (!knownThreadIds.has(tv.thread.id)) {
-        knownThreadIds.add(tv.thread.id);
-        markArrival(newThreadIds, tv.thread.id);
-      }
-      for (const c of tv.comments) {
-        if (!knownCommentIds.has(c.id)) {
-          knownCommentIds.add(c.id);
-          markArrival(newCommentIds, c.id);
-        }
-      }
-    }
+    arrivalsEnabled = false;
+    const timer = setTimeout(() => (arrivalsEnabled = true), 1500);
+    return () => clearTimeout(timer);
   });
 
   const unreadResource = resource(
@@ -297,8 +271,7 @@
     {editingCommentId}
     {currentUserId}
     {unreadThreadIds}
-    {newThreadIds}
-    {newCommentIds}
+    {arrivalsEnabled}
     onClose={() => onOpenChange(false)}
     onStartThread={startThread}
     onReply={replyToThread}

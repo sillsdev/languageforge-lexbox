@@ -13,7 +13,7 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import type {ThreadView} from './types';
   import {slide} from 'svelte/transition';
-  import {SvelteSet} from 'svelte/reactivity';
+  import {untrack} from 'svelte';
 
   let {
     threadView,
@@ -23,8 +23,7 @@
     editingCommentId,
     expanded = false,
     hasUnread = false,
-    isNew = false,
-    newCommentIds,
+    arrivalsEnabled = false,
     onToggle,
     onResolve,
     onReply,
@@ -40,10 +39,8 @@
     editingCommentId?: string;
     expanded?: boolean;
     hasUnread?: boolean;
-    /** Thread arrived after the initial load; plays the arrival animation. */
-    isNew?: boolean;
-    /** Comment ids that arrived after the initial load; each animates in. */
-    newCommentIds?: SvelteSet<string>;
+    /** When false, this thread (and arriving comments) won't flash — mutes the initial-load batch. */
+    arrivalsEnabled?: boolean;
     onToggle: () => void;
     onResolve: () => void;
     onReply: (text: string) => void | Promise<void>;
@@ -53,6 +50,10 @@
     /** Debug only: puts the thread back in the unread state. */
     onMarkUnread?: () => void;
   } = $props();
+
+  // Snapshot at creation: a thread created while arrivals are muted (the initial load) never flashes, even
+  // after the mute lifts. A thread created afterward is a genuine arrival and flashes once.
+  const flashThread = untrack(() => arrivalsEnabled);
 
   const resolved = $derived(threadView.thread.status === ThreadStatus.Closed);
   const firstComment = $derived(threadView.comments[0]);
@@ -64,11 +65,11 @@
 </script>
 
 <section
-  in:slide={{duration: isNew ? 250 : 0}}
+  in:slide={{duration: 250}}
   class={cn(
     'shrink-0 overflow-hidden rounded-lg border border-border',
     resolved ? 'opacity-65' : 'border-l-[3px] border-l-primary bg-card',
-    isNew && 'comment-arrival',
+    flashThread && 'comment-arrival',
   )}
 >
   <Collapsible.Root open={expanded} onOpenChange={onOpenChange}>
@@ -158,7 +159,7 @@
             <CommentItem
               {comment}
               compact={index > 0}
-              isNew={newCommentIds?.has(comment.id) ?? false}
+              {arrivalsEnabled}
               canEdit={Boolean(currentUserId && comment.authorId === currentUserId)}
               {saving}
               editing={editingCommentId === comment.id}

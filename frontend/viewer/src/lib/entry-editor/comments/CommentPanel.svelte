@@ -28,8 +28,7 @@
     addingComment = $bindable(false),
     expandedThreadIds = new SvelteSet<string>(),
     mobileThreadId = $bindable<string | null>(null),
-    newThreadIds = new SvelteSet<string>(),
-    newCommentIds = new SvelteSet<string>(),
+    arrivalsEnabled = false,
     onClose,
     onStartThread,
     onReply,
@@ -52,9 +51,8 @@
     expandedThreadIds?: SvelteSet<string>;
     mobileThreadId?: string | null;
     unreadThreadIds?: Set<string>;
-    /** Threads/comments that arrived after the initial load; drives the arrival animation. */
-    newThreadIds?: SvelteSet<string>;
-    newCommentIds?: SvelteSet<string>;
+    /** When false, arriving threads/comments don't flash (used to mute the initial-load batch). */
+    arrivalsEnabled?: boolean;
     onClose?: () => void;
     onStartThread: () => void;
     onReply: (threadView: ThreadView, text: string) => void | Promise<void>;
@@ -203,7 +201,7 @@
             <CommentItem
               {comment}
               compact={index > 0}
-              isNew={newCommentIds.has(comment.id)}
+              {arrivalsEnabled}
               canEdit={Boolean(currentUserId && comment.authorId === currentUserId)}
               {saving}
               editing={editingCommentId === comment.id}
@@ -252,8 +250,7 @@
                 {saving}
                 {currentUserId}
                 {editingCommentId}
-                {newCommentIds}
-                isNew={newThreadIds.has(threadView.thread.id)}
+                {arrivalsEnabled}
                 hasUnread={unreadThreadIds.has(threadView.thread.id)}
                 expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                 onToggle={() => toggleExpanded(threadView.thread.id)}
@@ -286,8 +283,7 @@
                       {saving}
                       {currentUserId}
                       {editingCommentId}
-                      {newCommentIds}
-                      isNew={newThreadIds.has(threadView.thread.id)}
+                      {arrivalsEnabled}
                       hasUnread={unreadThreadIds.has(threadView.thread.id)}
                       expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                       onToggle={() => toggleExpanded(threadView.thread.id)}
