@@ -35,8 +35,8 @@ public static class ProjectRoutes
         if (invalidWs is not null)
             return TypedResults.Problem($"Invalid writing system code: {invalidWs}",
                 statusCode: StatusCodes.Status400BadRequest);
-        if (string.IsNullOrEmpty(input.WsUi) || !IetfLanguageTag.IsValid(input.WsUi))
-            return TypedResults.Problem($"Invalid UI writing system code: {input.WsUi}",
+        if (input.WsUi is string wsUi && !IetfLanguageTag.IsValid(wsUi))
+            return TypedResults.Problem($"Invalid UI writing system code: {wsUi}",
                 statusCode: StatusCodes.Status400BadRequest);
 
         var projectCode = await projectLookupService.GetProjectCode(projectId);

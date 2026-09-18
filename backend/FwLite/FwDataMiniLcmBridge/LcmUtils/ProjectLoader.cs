@@ -21,13 +21,13 @@ public interface IProjectLoader
     /// <returns></returns>
     LcmCache LoadCache(FwDataProject project);
 
-    LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs, string uiWs = "en");
+    LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs, string? uiWs = null);
 
     /// <summary>
     /// Like the single-WS overload, but the new project also gets every analysis/vernacular writing
     /// system in the given lists. The first item of each list is the default of that type.
     /// </summary>
-    LcmCache NewProject(FwDataProject project, IReadOnlyList<string> analysisWss, IReadOnlyList<string> vernacularWss, string uiWs = "en");
+    LcmCache NewProject(FwDataProject project, IReadOnlyList<string> analysisWss, IReadOnlyList<string> vernacularWss, string? uiWs = null);
 }
 
 public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
@@ -83,7 +83,7 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         return cache;
     }
 
-    public virtual LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs, string uiWs = "en")
+    public virtual LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs, string? uiWs = null)
     {
         return NewProject(project, [analysisWs], [vernacularWs], uiWs);
     }
@@ -91,7 +91,7 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
     public virtual LcmCache NewProject(FwDataProject project,
         IReadOnlyList<string> analysisWss,
         IReadOnlyList<string> vernacularWss,
-        string uiWs = "en")
+        string? uiWs = null)
     {
         Init();
         var lcmDirectories = new LcmDirectories(project.ProjectsPath, TemplatesFolder);
@@ -133,7 +133,7 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         ISynchronizeInvoke syncInvoke,
         CoreWritingSystemDefinition analysisWs,
         CoreWritingSystemDefinition vernacularWs,
-        string uiWs,
+        string? uiWs,
         HashSet<CoreWritingSystemDefinition> additionalAnalysisWss,
         HashSet<CoreWritingSystemDefinition> additionalVernacularWss)
     {

@@ -30,14 +30,12 @@ public class ProjectCreationService(
         string projectCode,
         IReadOnlyList<string> vernacularWritingSystems,
         IReadOnlyList<string> analysisWritingSystems,
-        string uiWritingSystem)
+        string? uiWritingSystem = null)
     {
         if (vernacularWritingSystems.Count == 0)
             throw new ArgumentException("At least one vernacular writing system is required", nameof(vernacularWritingSystems));
         if (analysisWritingSystems.Count == 0)
             throw new ArgumentException("At least one analysis writing system is required", nameof(analysisWritingSystems));
-        if (string.IsNullOrEmpty(uiWritingSystem))
-            throw new ArgumentException("A UI writing system is required", nameof(uiWritingSystem));
 
         // Reserve the project so a concurrent create or sync can't race on the same fw/ folder and repo.
         if (!syncHostedService.TryStartProjectCreation(projectId))
@@ -93,7 +91,7 @@ public class ProjectCreationService(
         FwDataProject fwDataProject,
         IReadOnlyList<string> vernacularWritingSystems,
         IReadOnlyList<string> analysisWritingSystems,
-        string uiWs)
+        string? uiWs = null)
     {
         // NewProject copies the SIL.LCModel template, configured with all of the requested writing
         // systems (the first of each list is the default of that type), and returns a loaded cache;

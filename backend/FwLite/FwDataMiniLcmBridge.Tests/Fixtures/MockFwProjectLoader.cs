@@ -19,7 +19,7 @@ public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
         return cache;
     }
 
-    public override LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs, string uiWs = "en")
+    public override LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs, string? uiWs = null)
     {
         Init();
         var lcmDirectories = new LcmDirectories(project.ProjectsPath, TemplatesFolder);
@@ -28,7 +28,7 @@ public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
             new SimpleProjectId(BackendProviderType.kMemoryOnly, Path.GetFullPath(project.FilePath)),
             analysisWs,
             vernacularWs,
-            uiWs,
+            uiWs ?? "en",
             new LfLcmUi(progress.SynchronizeInvoke),
             lcmDirectories,
             new LcmSettings());
