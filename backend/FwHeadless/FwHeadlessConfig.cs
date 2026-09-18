@@ -23,6 +23,22 @@ public class FwHeadlessConfig
     public string FdoDataModelVersion { get; init; } = "7000072";
 
     /// <summary>
+    /// The FLExBridge data version. FieldWorks/LfMergeBridge form the Mercurial branch a project's
+    /// data lives on by joining this and the FDO model version with a dot (see <see cref="SendReceiveBranchName"/>).
+    /// Mirrors FlexBridgeConstants.FlexBridgeDataVersion in FLExBridge, which is internal so we can't
+    /// reference it directly; bump this if FLExBridge bumps its data version.
+    /// </summary>
+    public string FlexBridgeDataVersion { get; init; } = "7500002";
+
+    /// <summary>
+    /// The Mercurial branch FieldWorks/LfMergeBridge keep a project's data on: FlexBridgeDataVersion,
+    /// a dot, then the FDO model version (e.g. "7500002.7000072"). This is exactly the branch name
+    /// LfMergeBridge derives from <see cref="FdoDataModelVersion"/>, so a new project's genesis commit
+    /// must land on this branch for send/receive to find the data.
+    /// </summary>
+    public string SendReceiveBranchName => $"{FlexBridgeDataVersion}.{FdoDataModelVersion}";
+
+    /// <summary>
     /// Project directory structure in FwHeadless: (Note that FwDataProject.ProjectsPath is the root of a SINGLE project)
     /// {ProjectStorageRoot}/
     ///   └── {projectCode}-{projectId}/          ← GetProjectFolder() / FwDataProject.ProjectsPath
