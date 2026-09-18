@@ -118,10 +118,11 @@ export default function useEntryLookup(): EntryLookup {
       setDidFail(false);
       setIsPending(true);
       waitThenStart(() => {
+        if (id !== newestRef.current) return;
         const lookup = resolve();
         if (lookup) perform(lookup).catch(logUnexpected);
         // The wait was the whole of it, so nothing else will report that it is over.
-        else if (id === newestRef.current) setIsPending(false);
+        else setIsPending(false);
       }).catch(ignoreCancellation);
     },
     [nextId, perform, waitThenStart],

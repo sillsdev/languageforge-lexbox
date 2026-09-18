@@ -46,8 +46,8 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
         logger.info('Got network object:', networkObject);
         setLexiconNetworkObject(networkObject);
       })
-      .catch((e) => logger.error(`${localizedStrings['%lexicon_error_gettingNetworkObject%']}`, e));
-  }, [localizedStrings]);
+      .catch((e) => logger.error('Error getting network object:', e));
+  }, []);
 
   useEffect(() => {
     setSelectedDomain(undefined);
@@ -59,9 +59,8 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
   const entriesLookup = useCallback(
     (untrimmedSurfaceForm: string): EntryLookupRequest<IEntry[] | undefined> | undefined => {
       if (!lexiconCode || !lexiconNetworkObject) {
-        const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
-        if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
-        if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
+        if (!lexiconCode) logger.warn('Missing required parameter: lexiconCode');
+        if (!lexiconNetworkObject) logger.warn('Missing required parameter: lexiconNetworkObject');
         return undefined;
       }
 
@@ -84,7 +83,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
         request: () => lexiconNetworkObject.getEntries(lexiconCode, { surfaceForm }),
       };
     },
-    [lexiconCode, lexiconNetworkObject, localizedStrings],
+    [lexiconCode, lexiconNetworkObject],
   );
 
   const entriesLookupRef = useRef(entriesLookup);
@@ -96,9 +95,8 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
   const fetchRelatedEntries = useCallback(
     (semanticDomain: string) => {
       if (!lexiconCode || !lexiconNetworkObject) {
-        const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
-        if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
-        if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
+        if (!lexiconCode) logger.warn('Missing required parameter: lexiconCode');
+        if (!lexiconNetworkObject) logger.warn('Missing required parameter: lexiconNetworkObject');
         return;
       }
 
@@ -110,7 +108,7 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
         request: () => lexiconNetworkObject.getEntries(lexiconCode, { semanticDomain }),
       });
     },
-    [lexiconCode, lexiconNetworkObject, localizedStrings, lookup],
+    [lexiconCode, lexiconNetworkObject, lookup],
   );
 
   useEffect(() => {
@@ -141,11 +139,10 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
         !selectedDomain ||
         !entry.senses?.length
       ) {
-        const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
-        if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
-        if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
-        if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!selectedDomain) logger.warn(`${errMissingParam}selectedDomain`);
+        if (!lexiconCode) logger.warn('Missing required parameter: lexiconCode');
+        if (!lexiconNetworkObject) logger.warn('Missing required parameter: lexiconNetworkObject');
+        if (!projectId) logger.warn('Missing required parameter: projectId');
+        if (!selectedDomain) logger.warn('Missing required parameter: selectedDomain');
         if (!entry.senses?.length) logger.warn('Cannot add entry without senses');
         return false;
       }
@@ -155,18 +152,25 @@ globalThis.webViewComponent = function LexiconFindRelatedWords({
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
       const addedEntry = await lexiconNetworkObject.addEntry(lexiconCode, entry);
       if (!addedEntry) {
-        logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
+        logger.error('Failed to add entry!');
         return false;
       }
 
       onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
       // The entry is written, so failing to show it must not read as a failed add.
-      await papi.commands
-        .sendCommand('lexicon.displayEntry', projectId, lexiconCode, addedEntry.id)
-        .catch((e) => logger.error('Error displaying the new entry:', e));
+      try {
+        await papi.commands.sendCommand(
+          'lexicon.displayEntry',
+          projectId,
+          lexiconCode,
+          addedEntry.id,
+        );
+      } catch (e) {
+        logger.error('Error displaying the new entry:', e);
+      }
       return true;
     },
-    [lexiconCode, lexiconNetworkObject, localizedStrings, onSearch, projectId, selectedDomain],
+    [lexiconCode, lexiconNetworkObject, onSearch, projectId, selectedDomain],
   );
 
   return (

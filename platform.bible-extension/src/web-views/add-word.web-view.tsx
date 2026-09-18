@@ -1,10 +1,8 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
-import { useLocalizedStrings } from '@papi/frontend/react';
 import type { IEntryService, LexiconWebViewProps, PartialEntry } from 'lexicon';
 import { useCallback, useEffect, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
-import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 globalThis.webViewComponent = function LexiconAddWord({
   analysisLanguage,
@@ -13,8 +11,6 @@ globalThis.webViewComponent = function LexiconAddWord({
   vernacularLanguage,
   word,
 }: LexiconWebViewProps) {
-  const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
-
   const [lexiconNetworkObject, setLexiconNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
@@ -29,16 +25,15 @@ globalThis.webViewComponent = function LexiconAddWord({
         logger.info('Got network object:', networkObject);
         setLexiconNetworkObject(networkObject);
       })
-      .catch((e) => logger.error(`${localizedStrings['%lexicon_error_gettingNetworkObject%']}`, e));
-  }, [localizedStrings]);
+      .catch((e) => logger.error('Error getting network object:', e));
+  }, []);
 
   const addEntry = useCallback(
     async (entry: PartialEntry): Promise<boolean> => {
       if (!lexiconCode || !projectId || !lexiconNetworkObject) {
-        const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
-        if (!lexiconCode) logger.warn(`${errMissingParam}lexiconCode`);
-        if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
+        if (!lexiconCode) logger.warn('Missing required parameter: lexiconCode');
+        if (!projectId) logger.warn('Missing required parameter: projectId');
+        if (!lexiconNetworkObject) logger.warn('Missing required parameter: lexiconNetworkObject');
         return false;
       }
 
@@ -52,18 +47,20 @@ globalThis.webViewComponent = function LexiconAddWord({
         setIsSubmitting(false);
       }
       if (!entryId) {
-        logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
+        logger.error('Failed to add entry!');
         return false;
       }
 
       setIsSubmitted(true);
       // The entry is written, so failing to show it must not read as a failed add.
-      await papi.commands
-        .sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId)
-        .catch((e) => logger.error('Error displaying the new entry:', e));
+      try {
+        await papi.commands.sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId);
+      } catch (e) {
+        logger.error('Error displaying the new entry:', e);
+      }
       return true;
     },
-    [lexiconCode, lexiconNetworkObject, localizedStrings, projectId],
+    [lexiconCode, lexiconNetworkObject, projectId],
   );
 
   return (
