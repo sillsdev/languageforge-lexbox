@@ -50,11 +50,14 @@ public class ProjectCreationService(
             // Language_Forge_Send_Receive refuses to make the *first* commit itself:
             //   1. hg init the local fw/ folder (no clone -- the empty remote has nothing to clone).
             //   2. Build fw.fwdata into that folder from the SIL.LCModel NewLangProj template,
-            //      configured with all of the requested writing systems.
-            //   3. Commit a minimal FLExProject.CustomProperties file on hg's *default* branch -- the same
-            //      genesis file, on the same branch, FieldWorks commits first. The fwdata itself is NOT
-            //      committed; Send/Receive splits it into the nested files Mercurial actually tracks
-            //      (fwdata is excluded from tracking).
+            //      configured with all of the requested writing systems, but do not commit it yet.
+            //   3. Commit a minimal FLExProject.CustomProperties file on hg's *default* branch to be
+            //      revision 0 -- Chorus expects revision 0 to be on the default branch, because it uses
+            //      that rev 0 commit to track a repo's history and catch when someone would try to push
+            //      an unrelated repo (which would otherwise create two Mercurial heads). This is the
+            //      same initial commit, with the same file, that FieldWorks creates. The fwdata itself
+            //      is NOT committed; Send/Receive splits it into the nested files Mercurial actually
+            //      tracks (fwdata is excluded from tracking).
             //   4. Set the branch to the send/receive branch name (FlexBridgeDataVersion.modelVersion,
             //      e.g. 7500002.7000072) AFTER the genesis commit; FLEx/LfMergeBridge look for the data on
             //      that branch, so the split data must land there while the genesis stays on 'default'.
