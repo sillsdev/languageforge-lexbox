@@ -87,6 +87,11 @@
     "update_success": "Your account has been updated.",
     "button_update": "Update Account Info",
     "email_taken": "An account with this email address already exists",
+    "analytics": {
+      "title": "Usage analytics",
+      "description": "We collect basic usage events (such as when a Send/Receive completes) tied to your account to help us improve LexBox. See our [privacy policy](https://software.sil.org/language-software-privacy-policy/) for details. You can opt out at any time.",
+      "opt_out_label": "Don't track my usage"
+    },
     "delete_account": {
       "title": "Delete Account",
       "submit": "Delete Account",
@@ -787,7 +792,8 @@ You are not currently a project manager. Only project managers can request early
   "footer": {
     "contact": "Contact",
     "terms_of_use": "Terms of use",
-    "privacy_policy": "Privacy policy"
+    "privacy_policy": "Privacy policy",
+    "analytics": "Analytics"
   },
   "more_settings": {
     "title": "More settings"

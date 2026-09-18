@@ -6,6 +6,7 @@ using LexBoxApi.Otel;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
 using LexCore;
+using LexCore.Analytics;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexData;
@@ -27,13 +28,15 @@ public class UserController : ControllerBase
     private readonly LoggedInContext _loggedInContext;
     private readonly IEmailService _emailService;
     private readonly LexAuthService _lexAuthService;
+    private readonly ILexboxAnalyticsService _analytics;
 
     public UserController(
         LexBoxDbContext lexBoxDbContext,
         TurnstileService turnstileService,
         LoggedInContext loggedInContext,
         IEmailService emailService,
-        LexAuthService lexAuthService
+        LexAuthService lexAuthService,
+        ILexboxAnalyticsService analytics
     )
     {
         _lexBoxDbContext = lexBoxDbContext;
@@ -41,6 +44,7 @@ public class UserController : ControllerBase
         _loggedInContext = loggedInContext;
         _emailService = emailService;
         _lexAuthService = lexAuthService;
+        _analytics = analytics;
     }
 
     [HttpPost("registerAccount")]
@@ -73,6 +77,7 @@ public class UserController : ControllerBase
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
         await _lexBoxDbContext.SaveChangesAsync();
+        _ = _analytics.TrackAccountCreated(userEntity.Id, AccountCreatedVia.Registration);
 
         var user = new LexAuthUser(userEntity);
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
@@ -159,6 +164,8 @@ public class UserController : ControllerBase
 
         acceptActivity?.AddTag("app.user.id", userEntity.Id);
         await _lexBoxDbContext.SaveChangesAsync();
+        // Only new accounts reach here (the else branch above returns for an existing account).
+        _ = _analytics.TrackAccountCreated(userEntity.Id, AccountCreatedVia.Invitation);
 
         var user = new LexAuthUser(userEntity);
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),

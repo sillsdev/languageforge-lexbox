@@ -115,6 +115,7 @@ public record LexAuthUser
         CreatedByAdmin = user.CreatedById == null ? null : true;
         Locale = user.LocalizationCode;
         Locked = user.Locked ? true : null;
+        OptedOutOfAnalytics = user.OptedOutOfAnalytics ? true : null;
     }
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
@@ -248,6 +249,9 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.CreatedByAdminClaimType)]
     public bool? CreatedByAdmin { get; init; }
+
+    [JsonPropertyName(LexAuthConstants.OptedOutOfAnalyticsClaimType)]
+    public bool? OptedOutOfAnalytics { get; init; }
 
     [JsonPropertyName(LexAuthConstants.LocaleClaimType)]
     public required string Locale { get; init; }
