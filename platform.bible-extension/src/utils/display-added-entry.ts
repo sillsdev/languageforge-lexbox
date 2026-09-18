@@ -4,8 +4,7 @@ import { getErrorMessage } from 'platform-bible-utils';
 /**
  * Opens the entry that was just added, telling the user when it cannot be opened.
  *
- * The entry is already written, so this failing is not a failed add. It is still reported, because
- * an add whose only visible outcome is a cleared form reads as nothing having happened.
+ * The entry is written either way, so this is not a failed add.
  */
 export default async function displayAddedEntry(
   projectId: string,
@@ -13,7 +12,13 @@ export default async function displayAddedEntry(
   entryId: string,
 ): Promise<void> {
   try {
-    await papi.commands.sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId);
+    const { success, error } = await papi.commands.sendCommand(
+      'lexicon.displayEntry',
+      projectId,
+      lexiconCode,
+      entryId,
+    );
+    if (!success) throw new Error(error ?? 'Failed to display the new entry');
   } catch (e) {
     logger.error('Error displaying the new entry:', e);
     try {
