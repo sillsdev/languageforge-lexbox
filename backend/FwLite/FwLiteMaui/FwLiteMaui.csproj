@@ -60,6 +60,19 @@
   <PropertyGroup>
     <TargetPlatform>$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)'))</TargetPlatform>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst'">
+    <!-- The .NET for iOS SDK refuses to build unless the installed Xcode matches its expected minor version exactly.
+         We build with whatever Xcode is installed (newer works); drop this once the workload catches up. -->
+    <ValidateXcodeVersion>false</ValidateXcodeVersion>
+    <!-- iOS has no JIT. EF Core 10 refuses to build its model / compile queries when dynamic code is unsupported,
+         so the Mono interpreter is mandatory. Enabled in Debug too so both builds exercise the same runtime. -->
+    <UseInterpreter>true</UseInterpreter>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' And ('$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst')">
+    <!-- With the interpreter on, the SDK defaults the simulator to no linking; force the device default so trimming
+         failures show up in the simulator. Do not set PublishTrimmed/TrimMode: the iOS SDK owns those. -->
+    <MtouchLink>SdkOnly</MtouchLink>
+  </PropertyGroup>
   <ItemGroup>
     <!-- App Icon -->
     <!-- background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
