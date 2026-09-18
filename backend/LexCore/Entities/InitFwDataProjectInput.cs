@@ -8,4 +8,4 @@ namespace LexCore.Entities;
 public record InitFwDataProjectInput(
     IReadOnlyList<string> WsVernacular,
     IReadOnlyList<string> WsAnalysis,
-    string? WsUi);
+    string WsUi);
