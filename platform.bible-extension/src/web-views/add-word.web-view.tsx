@@ -3,6 +3,7 @@ import papi, { logger } from '@papi/frontend';
 import type { IEntryService, LexiconWebViewProps, PartialEntry } from 'lexicon';
 import { useCallback, useEffect, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
+import displayAddedEntry from '../utils/display-added-entry';
 
 globalThis.webViewComponent = function LexiconAddWord({
   analysisLanguage,
@@ -52,12 +53,7 @@ globalThis.webViewComponent = function LexiconAddWord({
       }
 
       setIsSubmitted(true);
-      // The entry is written, so failing to show it must not read as a failed add.
-      try {
-        await papi.commands.sendCommand('lexicon.displayEntry', projectId, lexiconCode, entryId);
-      } catch (e) {
-        logger.error('Error displaying the new entry:', e);
-      }
+      await displayAddedEntry(projectId, lexiconCode, entryId);
       return true;
     },
     [lexiconCode, lexiconNetworkObject, projectId],

@@ -8,6 +8,7 @@ import AddNewEntryButton from '../components/add-new-entry-button';
 import EntryList from '../components/entry-list';
 import EntryListWrapper from '../components/entry-list-wrapper';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
+import displayAddedEntry from '../utils/display-added-entry';
 import type { EntryLookupRequest } from '../utils/use-entry-lookup';
 import useEntryLookup from '../utils/use-entry-lookup';
 
@@ -98,17 +99,7 @@ globalThis.webViewComponent = function LexiconFindWord({
       }
 
       onSearch(Object.values<string | undefined>(addedEntry.lexemeForm).pop() ?? '');
-      // The entry is written, so failing to show it must not read as a failed add.
-      try {
-        await papi.commands.sendCommand(
-          'lexicon.displayEntry',
-          projectId,
-          lexiconCode,
-          addedEntry.id,
-        );
-      } catch (e) {
-        logger.error('Error displaying the new entry:', e);
-      }
+      await displayAddedEntry(projectId, lexiconCode, addedEntry.id);
       return true;
     },
     [lexiconCode, lexiconNetworkObject, onSearch, projectId],

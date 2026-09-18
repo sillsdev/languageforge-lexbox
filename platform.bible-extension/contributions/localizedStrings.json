@@ -37,6 +37,7 @@
       "%lexicon_entryList_error%": "Could not search the lexicon. Try again",
       "%lexicon_entryList_loading%": "Loading...",
       "%lexicon_entryList_noResults%": "No results",
+      "%lexicon_error_entryAddedNotShown%": "The entry was added, but it could not be opened.",
       "%lexicon_error_lexiconMissing%": "The lexicon '{lexiconCode}' is no longer available. Please select a lexicon.",
       "%lexicon_findRelatedWord_noResultsInDomain%": "No entries in this semantic domain.",
       "%lexicon_findRelatedWord_selectInstruction%": "Select a semantic domain for related words in that domain",
