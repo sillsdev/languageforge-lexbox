@@ -28,6 +28,10 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
     private CancellationTokenSource _writingSystemsCacheReset = new();
     private WritingSystem[] GetWritingSystems(DbConnection connection, LcmCrdtDbContext? dbContext = null)
     {
+        // Capture the reset source before reading the list. If a concurrent writing-system change swaps
+        // and cancels the source after we've read the (now stale) list, caching against this captured
+        // token means the stale entry is evicted by that same invalidation rather than surviving it.
+        var cacheReset = Volatile.Read(ref _writingSystemsCacheReset);
         var cacheKey = CacheKey(connection);
         if (cache.TryGetValue<WritingSystem[]>(cacheKey, out var cached) && cached is { Length: > 0 })
             return cached;
@@ -60,7 +64,7 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                 if (writingSystems.Length > 0)
                 {
                     var options = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(30) };
-                    options.AddExpirationToken(new CancellationChangeToken(_writingSystemsCacheReset.Token));
+                    options.AddExpirationToken(new CancellationChangeToken(cacheReset.Token));
                     cache.Set(cacheKey, writingSystems, options);
                 }
                 return writingSystems;

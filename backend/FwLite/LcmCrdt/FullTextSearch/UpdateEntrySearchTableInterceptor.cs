@@ -53,8 +53,12 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor, IProje
         Entry[] toUpdate = entryIdsToUpdate.Count == 0
             ? []
             : await dbContext.Set<Entry>()
+                .AsNoTracking()
                 .Include(e => e.Senses)
-                .Where(e => entryIdsToUpdate.Contains(e.Id))
+                // EF.Parameter forces the id set to a single JSON parameter (translated with json_each)
+                // instead of one bound parameter per id, which would blow past SQLITE_MAX_VARIABLE_NUMBER
+                // on large batches (e.g. project imports).
+                .Where(e => EF.Parameter(entryIdsToUpdate).Contains(e.Id))
                 .ToArrayAsync();
         // The projection SQL has already run, so dbContext.WritingSystems reflects any writing systems
         // added in this batch; no separate newWritingSystems list is needed (unlike the EF path below,

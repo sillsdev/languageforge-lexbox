@@ -295,6 +295,9 @@ public class MiniLcmRepository(
         IQueryable<Entry> queryable;
         (queryable, queryOptions) = await FilterAndSortEntries(query, queryOptions);
 
+        // Register writing-system collations on this connection before the sorted query runs; the
+        // connection may have been opened before the writing systems existed (see EnsureConnectionOpen).
+        await EnsureConnectionOpen();
         // SQLite's ROW_NUMBER() cannot easily inherit the existing ORDER BY from the query. (AI tried a billion things)
         // This is pretty efficient since we only select IDs, not full entities.
         var sortedIds = await queryable.Select(e => e.Id).ToListAsyncEF();
