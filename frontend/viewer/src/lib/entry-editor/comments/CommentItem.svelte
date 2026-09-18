@@ -9,6 +9,7 @@
   import {t} from 'svelte-i18n-lingui';
   import CommentAuthorAvatar from './CommentAuthorAvatar.svelte';
   import {watch} from 'runed';
+  import {slide} from 'svelte/transition';
 
   let {
     comment,
@@ -16,6 +17,7 @@
     saving,
     editing,
     compact = false,
+    isNew = false,
     onStartEdit,
     onCancelEdit,
     onSaveEdit,
@@ -25,6 +27,8 @@
     saving: boolean;
     editing: boolean;
     compact?: boolean;
+    /** Comment arrived after the initial load; plays the arrival animation. */
+    isNew?: boolean;
     onStartEdit: () => void;
     onCancelEdit: () => void;
     onSaveEdit: (text: string) => void;
@@ -45,7 +49,10 @@
   });
 </script>
 
-<article class={cn('flex gap-2', compact && 'pt-2.5')}>
+<article
+  in:slide={{duration: isNew ? 200 : 0}}
+  class={cn('flex gap-2 rounded-md', compact && 'pt-2.5', isNew && 'comment-arrival')}
+>
   <CommentAuthorAvatar
     authorName={comment.authorName}
     authorId={comment.authorId}

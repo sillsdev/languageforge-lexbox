@@ -12,6 +12,8 @@
   import CommentReplyInput from './CommentReplyInput.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import type {ThreadView} from './types';
+  import {slide} from 'svelte/transition';
+  import {SvelteSet} from 'svelte/reactivity';
 
   let {
     threadView,
@@ -21,6 +23,8 @@
     editingCommentId,
     expanded = false,
     hasUnread = false,
+    isNew = false,
+    newCommentIds,
     onToggle,
     onResolve,
     onReply,
@@ -36,6 +40,10 @@
     editingCommentId?: string;
     expanded?: boolean;
     hasUnread?: boolean;
+    /** Thread arrived after the initial load; plays the arrival animation. */
+    isNew?: boolean;
+    /** Comment ids that arrived after the initial load; each animates in. */
+    newCommentIds?: SvelteSet<string>;
     onToggle: () => void;
     onResolve: () => void;
     onReply: (text: string) => void | Promise<void>;
@@ -56,9 +64,11 @@
 </script>
 
 <section
+  in:slide={{duration: isNew ? 250 : 0}}
   class={cn(
     'shrink-0 overflow-hidden rounded-lg border border-border',
     resolved ? 'opacity-65' : 'border-l-[3px] border-l-primary bg-card',
+    isNew && 'comment-arrival',
   )}
 >
   <Collapsible.Root open={expanded} onOpenChange={onOpenChange}>
@@ -148,6 +158,7 @@
             <CommentItem
               {comment}
               compact={index > 0}
+              isNew={newCommentIds?.has(comment.id) ?? false}
               canEdit={Boolean(currentUserId && comment.authorId === currentUserId)}
               {saving}
               editing={editingCommentId === comment.id}
@@ -167,3 +178,19 @@
     </Collapsible.Content>
   </Collapsible.Root>
 </section>
+
+<style>
+  /* Brief tint fade so a freshly-arrived thread catches the eye, then settles to its normal background. */
+  :global(.comment-arrival) {
+    animation: comment-arrival 1.1s ease-out;
+  }
+
+  @keyframes -global-comment-arrival {
+    from {
+      background-color: color-mix(in oklab, var(--primary) 22%, transparent);
+    }
+    to {
+      background-color: transparent;
+    }
+  }
+</style>
