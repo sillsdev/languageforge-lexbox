@@ -138,6 +138,11 @@
     },
   );
 
+  // Keep this entry's unread indicator live when comments arrive via sync or are marked read/unread.
+  eventBus.onCommentsChanged(() => {
+    if (features.comments) void entryUnreadResource.refetch();
+  });
+
   // Entry and comments share the space instead of the comments floating over the entry:
   // side by side once there's room, stacked below xl.
   const commentsDirection = $derived(IsExtraLarge.value ? 'horizontal' : 'vertical');

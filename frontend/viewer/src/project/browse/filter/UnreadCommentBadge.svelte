@@ -5,15 +5,21 @@
   import {resource} from 'runed';
   import {plural} from 'svelte-i18n-lingui';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {useProjectEventBus} from '$lib/services/event-bus';
 
   const projectContext = useProjectContext();
   const miniLcmApi = $derived(projectContext.maybeApi);
+  const projectEventBus = useProjectEventBus();
 
   let {
     unreadComments = $bindable(false)
   }: { unreadComments: boolean } = $props();
 
-  let unreadCountResource = resource(() => miniLcmApi, async (api) => {
+  // Bump on each comment change so the count re-queries live (new synced comments, or marking read/unread).
+  let commentsChangedTick = $state(0);
+  projectEventBus.onCommentsChanged(() => commentsChangedTick++);
+
+  let unreadCountResource = resource([() => miniLcmApi, () => commentsChangedTick], async ([api]) => {
     if (!api) return 0;
     return await api.countUnreadComments(undefined);
   }, {

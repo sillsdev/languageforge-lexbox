@@ -1,6 +1,7 @@
 <script lang="ts">
   import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
   import {useMiniLcmApi} from '$lib/services/service-provider';
+  import {useProjectEventBus} from '$lib/services/event-bus';
   import {useProjectContext} from '$project/project-context.svelte';
   import {cn, randomId} from '$lib/utils';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
@@ -30,6 +31,7 @@
   } = $props();
 
   const api = useMiniLcmApi();
+  const projectEventBus = useProjectEventBus();
   const projectContext = useProjectContext();
   const currentUserId = $derived(projectContext.projectData?.lastUserId);
   const canComment = $derived(Boolean(currentUserId) && !!projectContext.features.write);
@@ -52,6 +54,20 @@
   );
   const threadViews = $derived(threadsResource.current);
   const loading = $derived(threadsResource.loading);
+
+  // Arrival highlight: suppress the flash for a moment after the panel opens so the initial list doesn't
+  // flash. Threads/comments created while this is false never flash (each snapshots it at creation);
+  // anything that arrives afterward — via sync or a local post — flashes as new.
+  let arrivalsEnabled = $state(false);
+  $effect(() => {
+    if (!open) {
+      arrivalsEnabled = false;
+      return;
+    }
+    arrivalsEnabled = false;
+    const timer = setTimeout(() => (arrivalsEnabled = true), 1500);
+    return () => clearTimeout(timer);
+  });
 
   const unreadResource = resource(
     [() => open, () => subjectType, () => subjectId, () => unreadComments],
@@ -91,6 +107,14 @@
       syncLocalUnreadFromSource();
     }
   }
+
+  // Live updates: a comment arriving via sync (or any comment change) while the panel is open should
+  // refresh the visible threads and unread markers, the same way the entry list reacts to entry changes.
+  projectEventBus.onCommentsChanged(() => {
+    if (!open) return;
+    void threadsResource.refetch();
+    void refetchUnreadIfNeeded();
+  });
 
   async function onThreadOpen(threadId: string): Promise<void> {
     if (!unreadThreadIds.has(threadId)) return;
@@ -247,6 +271,7 @@
     {editingCommentId}
     {currentUserId}
     {unreadThreadIds}
+    {arrivalsEnabled}
     onClose={() => onOpenChange(false)}
     onStartThread={startThread}
     onReply={replyToThread}
