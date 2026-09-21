@@ -79,8 +79,12 @@
     <PackageReference Include="Microsoft.Maui.Controls" />
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
-    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
     <PackageReference Include="NReco.Logging.File" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <!-- Windows-only toast notifications (used by Platforms/Windows/AppUpdateService.cs). Conditioned
+         so it is not pulled into the iOS/Mac/Android bundles, where it is unused dead weight. -->
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FwLiteShared\FwLiteShared.csproj" />
