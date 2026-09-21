@@ -87,6 +87,37 @@ public class UpdateCheckerTests
         result.Should().Be(expectedResult);
     }
 
+    [Theory]
+    [InlineData(FwLitePlatform.iOS)]
+    [InlineData(FwLitePlatform.Mac)]
+    public void ShouldCheckForUpdate_WhenStoreDistributedPlatform_ReturnsFalse(FwLitePlatform os)
+    {
+        //iOS/Mac have no GitHub release feed; the server returns "no update" and the check would
+        //otherwise fire a pointless round-trip on every launch. Never-checked-before would normally
+        //return true, so this proves the platform gate wins for the default OnInterval condition.
+        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval, Os = os };
+        _platformUpdateServiceMock.Setup(p => p.LastUpdateCheck).Returns(DateTime.MinValue);
+        var checker = CreateUpdateChecker(config);
+
+        var result = checker.ShouldCheckForUpdate();
+
+        result.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(FwLitePlatform.iOS)]
+    [InlineData(FwLitePlatform.Mac)]
+    public void ShouldCheckForUpdate_WhenAlwaysConfigured_OverridesStoreDistributedSkip(FwLitePlatform os)
+    {
+        //The explicit Always override still forces a check (used for testing the endpoint on device).
+        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.Always, Os = os };
+        var checker = CreateUpdateChecker(config);
+
+        var result = checker.ShouldCheckForUpdate();
+
+        result.Should().BeTrue();
+    }
+
     [Fact]
     public void ShouldCheckForUpdate_WhenLastCheckInFuture_ReturnsTrue()
     {
