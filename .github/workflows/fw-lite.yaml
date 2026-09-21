@@ -289,10 +289,16 @@ jobs:
           on-no-files: ignore
 
   build-apple:
-    name: Build FW Lite app for iOS simulator and Mac Catalyst
+    name: Build FW Lite for iOS simulator; notarize Mac Catalyst
     needs: [build-and-test, frontend]
-    timeout-minutes: 45
+    timeout-minutes: 60
     runs-on: macos-latest
+    env:
+      # Signing/notarization secrets aren't exposed to workflows triggered by a PR from a fork; when
+      # absent (fork PRs) the Mac Catalyst app is still built unsigned so this job stays a compile
+      # check. On upstream push/dispatch the secret is present and the app is signed and notarized.
+      # Mirrors the HAS_SIGNING_KEY pattern in publish-android.
+      HAS_APPLE_SIGNING: ${{ secrets.SIL_APPLE_DEVELOPER_ID_APPLICATION_CERT_URL != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -306,9 +312,10 @@ jobs:
       - name: Setup Maui
         run: dotnet workload install maui-ios maui-maccatalyst
 
-      # No signing identity on the runner: the iOS build targets the simulator (ad-hoc signed, see FwLiteMaui.csproj)
-      # and Mac Catalyst is built, not published. Both run the Mono interpreter with SDK-only linking in Release,
-      # which is the configuration verified in the simulator; this job keeps that configuration compiling.
+      # The iOS build targets the simulator (ad-hoc signed, see FwLiteMaui.csproj); there is no iOS
+      # device signing here yet. Mac Catalyst is signed with the SIL Developer ID and notarized into a
+      # DMG when the signing secret is present (upstream), and built unsigned otherwise (fork PRs).
+      # Both run the Mono interpreter with SDK-only linking in Release, matching what was verified on device.
       - name: Build iOS (simulator)
         working-directory: backend/FwLite/FwLiteMaui
         run: |
@@ -317,7 +324,9 @@ jobs:
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
-      - name: Build Mac Catalyst
+      # Fork PRs have no signing secret: build unsigned so the job stays a compile check.
+      - name: Build Mac Catalyst (unsigned)
+        if: env.HAS_APPLE_SIGNING != 'true'
         working-directory: backend/FwLite/FwLiteMaui
         run: |
           dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 \
@@ -325,20 +334,87 @@ jobs:
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
-      # upload-artifact drops executable bits, so zip the bundles with ditto first.
+      - name: Import Developer ID signing certificate
+        if: env.HAS_APPLE_SIGNING == 'true'
+        env:
+          CERT_URL: ${{ secrets.SIL_APPLE_DEVELOPER_ID_APPLICATION_CERT_URL }}
+          CERT_PASSWORD: ${{ secrets.SIL_APPLE_DEVELOPER_ID_APPLICATION_PASSWORD }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/fw-lite-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 24)"
+          echo "SIGNING_KEYCHAIN=$KEYCHAIN" >> "$GITHUB_ENV"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          curl -fSL "$CERT_URL" -o "$RUNNER_TEMP/devid.p12"
+          security import "$RUNNER_TEMP/devid.p12" -k "$KEYCHAIN" -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+          # Prepend our keychain to the search list so the build finds the identity.
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | sed 's/"//g')
+          IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" | awk -F'"' '/Developer ID Application/ {print $2; exit}')"
+          if [ -z "$IDENTITY" ]; then echo "No Developer ID Application identity in the certificate" >&2; exit 1; fi
+          echo "CODESIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+          rm -f "$RUNNER_TEMP/devid.p12"
+
+      # Hardened runtime is required for notarization; Entitlements.DeveloperId.plist grants the
+      # executable-memory / library-validation exceptions the .NET interpreter needs to launch under it.
+      - name: Build and sign Mac Catalyst (Developer ID, hardened runtime)
+        if: env.HAS_APPLE_SIGNING == 'true'
+        working-directory: backend/FwLite/FwLiteMaui
+        run: |
+          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 \
+            -p:EnableCodeSigning=true -p:UseHardenedRuntime=true \
+            -p:CodesignKey="$CODESIGN_IDENTITY" \
+            -p:CodesignEntitlements=Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
+            -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
+            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+
+      - name: Package, notarize and staple the DMG
+        if: env.HAS_APPLE_SIGNING == 'true'
+        working-directory: backend/FwLite/FwLiteMaui
+        env:
+          ASC_KEY_ID: ${{ secrets.APPLE_APPSTORECONNECT_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APPLE_APPSTORECONNECT_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.APPLE_APPSTORECONNECT_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          APP="bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app"
+          mkdir -p ../artifacts/apple
+          DMG="$PWD/../artifacts/apple/FieldWorksLite.dmg"
+          # Stage the app beside an /Applications symlink so the DMG is drag-to-install.
+          STAGE="$RUNNER_TEMP/dmg-stage"
+          rm -rf "$STAGE"; mkdir -p "$STAGE"
+          cp -R "$APP" "$STAGE/"
+          ln -s /Applications "$STAGE/Applications"
+          hdiutil create -volname "FieldWorks Lite" -srcfolder "$STAGE" -ov -format UDZO "$DMG"
+          codesign --force --timestamp --sign "$CODESIGN_IDENTITY" "$DMG"
+          printf '%s' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/asc.p8"
+          xcrun notarytool submit "$DMG" --key "$RUNNER_TEMP/asc.p8" --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID" --wait
+          rm -f "$RUNNER_TEMP/asc.p8"
+          xcrun stapler staple "$DMG"
+
+      # upload-artifact drops executable bits, so zip the .app bundles with ditto first.
       - name: Zip app bundles
         working-directory: backend/FwLite/FwLiteMaui
         run: |
           mkdir -p ../artifacts/apple
           ditto -c -k --keepParent "bin/Release/net10.0-ios/iossimulator-arm64/FwLiteMaui.app" ../artifacts/apple/fw-lite-ios-simulator.zip
-          ditto -c -k --keepParent "bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app" ../artifacts/apple/fw-lite-maccatalyst.zip
+          if [ "$HAS_APPLE_SIGNING" != 'true' ]; then
+            ditto -c -k --keepParent "bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app" ../artifacts/apple/fw-lite-maccatalyst.zip
+          fi
+
+      - name: Remove temporary signing keychain
+        if: ${{ always() && env.HAS_APPLE_SIGNING == 'true' }}
+        run: security delete-keychain "$SIGNING_KEYCHAIN" || true
 
       - name: Upload Apple app bundles
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: fw-lite-apple
           if-no-files-found: error
-          path: backend/FwLite/artifacts/apple/*.zip
+          path: backend/FwLite/artifacts/apple/*
 
   publish-linux:
     name: Publish FW Lite app for Linux
@@ -583,6 +659,10 @@ jobs:
         with:
           name: fw-lite-android
           path: fw-lite-android
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: fw-lite-apple
+          path: fw-lite-apple
 
       - name: Zip artifacts
         run: |
@@ -599,12 +679,15 @@ jobs:
           tag_name: ${{ needs.build-and-test.outputs.version }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
+          # fail_on_unmatched_files defaults to false, so the DMG line is skipped if a run produced
+          # no notarized Mac build (e.g. signing secret absent).
           files: |
             fw-lite-msix/*
             fw-lite-portable.zip
             fw-lite-web-linux.zip
             fw-lite-android/*.apk
             fw-lite-android/*.aab
+            fw-lite-apple/*.dmg
 
       - name: Write Play Store release notes
         # The upload action reads notes from files (whatsnew-<locale>, max 500 chars); write it inline here.
