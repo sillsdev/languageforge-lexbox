@@ -64,7 +64,7 @@ public class ProjectCreationService(
             //   5. Send/Receive: split fw.fwdata into its nested files, commit those on the branch, push.
             await srService.InitRepo(fwDataProject.ProjectFolder);
 
-            BuildFromTemplate(fwDataProject, vernacularWritingSystems, analysisWritingSystems, uiWritingSystem);
+            BuildFwDataFile(fwDataProject, vernacularWritingSystems, analysisWritingSystems, uiWritingSystem);
             FixLinkedFilesRootDirSeparator(fwDataProject);
             AssertModelVersionMatches(fwDataProject);
 
@@ -89,7 +89,7 @@ public class ProjectCreationService(
         }
     }
 
-    private void BuildFromTemplate(
+    private void BuildFwDataFile(
         FwDataProject fwDataProject,
         IReadOnlyList<string> vernacularWritingSystems,
         IReadOnlyList<string> analysisWritingSystems,
