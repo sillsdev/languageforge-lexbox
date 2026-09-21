@@ -20,12 +20,13 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     private readonly Channel<Guid> _projectsToSync = Channel.CreateUnbounded<Guid>();
     private readonly ConcurrentDictionary<Guid, TaskCompletionSource<SyncJobResult>> _projectsQueuedOrRunning = new();
 
-    // Projects currently being created from a template. Tracked here (not just in ProjectCreationService)
+    // Projects currently being created and populated with an initial .fwdata file. Tracked here (not just in ProjectCreationService)
     // so a sync job can't be queued for a project mid-creation and race on the same fw/ folder and repo.
     private readonly ConcurrentDictionary<Guid, byte> _projectsBeingCreated = new();
 
     // Serialises the check-then-add across the two dictionaries above, so a creation and a sync can't
     // both slip through by interleaving their checks.
+    // This requires that SyncHostedService be a singleton, of course
     private readonly Lock _reservationLock = new();
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -66,7 +67,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     }
 
     /// <summary>
-    /// Reserves a project for creation-from-template, blocking a concurrent creation or sync of the
+    /// Reserves a project for creation-and-population, blocking a concurrent creation or sync of the
     /// same project. Returns false if a sync is already queued/running or another creation is in flight.
     /// Pair with <see cref="EndProjectCreation"/> in a finally block.
     /// </summary>
@@ -96,7 +97,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         bool addedToQueue;
         lock (_reservationLock)
         {
-            //don't sync a project while it's still being created from a template (would race on the repo)
+            //don't sync a project while it's still being created and populated with initial .fwdata (would race on the repo)
             if (_projectsBeingCreated.ContainsKey(projectId))
             {
                 logger.LogInformation("Project {ProjectId} is being created, not queueing a sync job", projectId);

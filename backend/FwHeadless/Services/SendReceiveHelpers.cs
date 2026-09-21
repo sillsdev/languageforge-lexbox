@@ -174,6 +174,7 @@ public static class SendReceiveHelpers
     public static async Task SwitchBranch(string folder, string branchName, bool createBranch = true, string commitMessage = "", IProgress? progress = null)
     {
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.folder", folder);
         activity?.SetTag("app.branch", branchName);
         progress ??= new NullProgress();
         // FLEx repos keep their data on a branch named after the FLExBridge data + FDO model version

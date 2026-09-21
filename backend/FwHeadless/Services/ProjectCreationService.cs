@@ -144,11 +144,6 @@ public class ProjectCreationService(
         File.Move(tempPath, sourcePath, overwrite: true);
     }
 
-    /// <summary>
-    /// Writes the genesis FLExProject.CustomProperties file into the repo root: an empty custom-property
-    /// list (just an &lt;AdditionalFields /&gt; root). Uses SIL's canonical XML settings so the bytes match
-    /// exactly what the first Send/Receive's project splitter regenerates, leaving no spurious diff.
-    /// </summary>
     private string WriteInitialCustomPropertiesFile(FwDataProject fwDataProject)
     {
         var path = Path.Join(fwDataProject.ProjectFolder, CustomPropertiesFilename);
