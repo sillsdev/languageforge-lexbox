@@ -98,7 +98,7 @@ public static class FwLiteMauiKernel
             {
                 config.Os = FwLitePlatform.iOS;
             }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.macOS)
+            else if (DeviceInfo.Current.Platform == DevicePlatform.macOS || DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst)
             {
                 config.Os = FwLitePlatform.Mac;
             }
