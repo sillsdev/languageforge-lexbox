@@ -81,6 +81,9 @@ public static class FwLiteMauiKernel
 #if WINDOWS
         services.AddFwLiteWindows(env);
 #endif
+#if MACCATALYST
+        services.Configure<AuthConfig>(config => config.CustomWebUiFactory = () => new AuthenticationSessionWebUi());
+#endif
 #if ANDROID
         services.Configure<AuthConfig>(config => config.GetParentActivityOrWindow = () => Platform.CurrentActivity);
         services.Replace(ServiceDescriptor.Singleton<IKeepAwakePlatform, AndroidKeepAwakePlatform>());

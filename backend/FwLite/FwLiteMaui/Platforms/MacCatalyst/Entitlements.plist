@@ -9,9 +9,6 @@
         <!-- When App Sandbox is enabled, this value is required to open outgoing network connections. -->
         <key>com.apple.security.network.client</key>
         <true/>
-        <!-- MSAL's desktop sign-in flow receives the OAuth redirect on a localhost TcpListener; binding it needs this. -->
-        <key>com.apple.security.network.server</key>
-        <true/>
     </dict>
 </plist>
 
