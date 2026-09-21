@@ -1,4 +1,5 @@
 import {toast} from 'svelte-sonner';
+import {copyText} from '$lib/services/clipboard';
 
 interface NotificationAction {
   label: string;
@@ -58,7 +59,7 @@ export class AppNotification {
         label: '',
         onClick: (event) => {
           event.preventDefault();
-          void navigator.clipboard.writeText(clipboardText);
+          void copyText(clipboardText).catch(() => {/* best-effort copy; nothing more to fall back to */});
           const actionButton = event.currentTarget as HTMLButtonElement | null;
           actionButton?.classList.add('copied');
         },
