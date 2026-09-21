@@ -9,7 +9,7 @@ This is a monorepo containing:
 
 ### Tech Stack
 
-- **Backend**: .NET 10, C#, Entity Framework Core, GraphQL (Hot Chocolate)
+- **Backend**: .NET 11, C#, Entity Framework Core, GraphQL (Hot Chocolate)
 - **Frontend**: SvelteKit, TypeScript
 - **Database**: PostgreSQL
 - **Infrastructure**: Docker, Kubernetes, Skaffold, Tilt
@@ -117,7 +117,7 @@ If you are struggling, explain the difficulty to the user instead of cheating. *
 
 ## Cursor Cloud specific instructions
 
-System deps (.NET 10 SDK, Taskfile/`task`) are baked into the VM snapshot; the startup update script only refreshes pnpm + FwLiteWeb NuGet deps. The generated TS types under `frontend/viewer/src/lib/dotnet-types/generated-types/` are committed, so the viewer runs without a backend build.
+System deps (.NET 11 SDK, Taskfile/`task`) are baked into the VM snapshot; the startup update script only refreshes pnpm + FwLiteWeb NuGet deps. The generated TS types under `frontend/viewer/src/lib/dotnet-types/generated-types/` are committed, so the viewer runs without a backend build.
 
 ### Running FW Lite Web (headless)
 
