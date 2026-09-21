@@ -8,6 +8,7 @@ on:
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
+      - '.github/workflows/fw-lite-release-notes.yaml'
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
@@ -21,6 +22,7 @@ on:
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
+      - '.github/workflows/fw-lite-release-notes.yaml'
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
@@ -535,13 +537,27 @@ jobs:
           if-no-files-found: error
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
-  create-release:
+  release-notes:
+    name: Draft release notes
     if: ${{ github.ref_name == 'main' }}
+    needs: [ build-and-test ]
+    uses: ./.github/workflows/fw-lite-release-notes.yaml
+    permissions:
+      contents: read
+      pull-requests: read
+    with:
+      tag: ${{ needs.build-and-test.outputs.version }}
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+  create-release:
+    # Spelled out per job so release-notes (best effort) never blocks the release.
+    if: ${{ !cancelled() && github.ref_name == 'main' && needs.build-and-test.result == 'success' && needs.publish-win.result == 'success' && needs.publish-linux.result == 'success' && needs.publish-mac.result == 'success' && needs.publish-android.result == 'success' }}
     environment:
       name: production
       url: https://lexbox.org/fw-lite
     name: Create Release
-    needs: [ build-and-test, publish-win, publish-linux, publish-mac, publish-android]
+    needs: [ build-and-test, publish-win, publish-linux, publish-mac, publish-android, release-notes ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -566,6 +582,12 @@ jobs:
         with:
           name: fw-lite-android
           path: fw-lite-android
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        # Missing when the notes job had no token or produced nothing usable; the write step below falls back.
+        continue-on-error: true
+        with:
+          name: fw-lite-release-notes
+          path: fw-lite-release-notes
 
       - name: Zip artifacts
         run: |
@@ -576,12 +598,25 @@ jobs:
         run: |
           mv fw-lite-msix/FwLiteMaui.msixbundle fw-lite-msix/FieldWorksLiteInstaller.msixbundle
 
+      - name: Decide whether to generate release notes
+        id: release-body
+        # A re-run without a draft keeps the existing body, which already holds the generated notes; generating again would append a second copy.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.build-and-test.outputs.version }}
+        run: |
+          generate=true
+          if [ ! -s fw-lite-release-notes/release-body.md ] && gh release view "$TAG" >/dev/null 2>&1; then generate=false; fi
+          echo "generate=$generate" >> "$GITHUB_OUTPUT"
       - name: Create Release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ needs.build-and-test.outputs.version }}
           target_commitish: ${{ github.sha }}
-          generate_release_notes: true
+          # Claude's forum-notes draft (missing file = keep any existing body); the generated notes are appended after it.
+          body_path: fw-lite-release-notes/release-body.md
+          generate_release_notes: ${{ steps.release-body.outputs.generate }}
           files: |
             fw-lite-msix/*
             fw-lite-portable.zip
@@ -590,15 +625,27 @@ jobs:
             fw-lite-android/*.aab
 
       - name: Write Play Store release notes
-        # The upload action reads notes from files (whatsnew-<locale>, max 500 chars); write it inline here.
+        # The upload action reads notes from files (whatsnew-<locale>, max 500 chars).
         if: env.HAS_PLAY_SERVICE_ACCOUNT == 'true'
         run: |
           mkdir -p whatsnew
-          cat > whatsnew/whatsnew-en-US <<'EOF'
+          if [ -s fw-lite-release-notes/whatsnew-en-US ]; then
+            # Add the forum link when the file still fits Play's 500-UTF-16-unit budget (the drafting job leaves room).
+            printf '%s\n\n%s\n' "$(cat fw-lite-release-notes/whatsnew-en-US)" "Full release notes: https://community.software.sil.org/t/10807" > whatsnew/whatsnew-en-US
+            units=$(python3 -c 'import sys; print(len(sys.stdin.read().encode("utf-16-le")) // 2)' < whatsnew/whatsnew-en-US) || units=501
+            if [ "$units" -gt 500 ]; then
+              echo "::warning::Play Store notes with the forum link are $units UTF-16 units (limit 500); shipping them without the link."
+              cp fw-lite-release-notes/whatsnew-en-US whatsnew/whatsnew-en-US
+            fi
+          else
+            echo "::warning::No Claude-drafted release notes found; using the generic Play Store text."
+            cat > whatsnew/whatsnew-en-US <<'EOF'
           Bug fixes and improvements.
 
           Full release notes: https://community.software.sil.org/t/10807
           EOF
+          fi
+          echo "Play Store notes:"; cat whatsnew/whatsnew-en-US
 
       - name: Upload to Play Store (beta)
         # Uploads the upload-key-signed AAB (Play App Signing re-signs with the app key).
