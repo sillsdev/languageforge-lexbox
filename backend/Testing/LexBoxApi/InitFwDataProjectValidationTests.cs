@@ -92,6 +92,7 @@ public class InitFwDataProjectValidationTests
     [InlineData("Migrated", ProjectMigrationStatus.Migrated)]
     [InlineData("migrating", ProjectMigrationStatus.Migrating)]
     [InlineData("PUBLICREDMINE", ProjectMigrationStatus.PublicRedmine)]
+    [InlineData("languageforgenonsr", ProjectMigrationStatus.LanguageForgeNonSR)]
     public void Project_origin_parses_case_insensitively(string input, ProjectMigrationStatus expected)
     {
         ProjectController.TryParseProjectOrigin(input, out var origin).Should().BeTrue();

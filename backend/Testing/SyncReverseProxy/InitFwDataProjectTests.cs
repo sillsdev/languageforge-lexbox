@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
 using FluentAssertions;
+using LexCore.Entities;
 using Testing.ApiTests;
 using Testing.Fixtures;
 using Testing.Services;
@@ -105,6 +107,57 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
         finally
         {
             if (projectId != default) await SoftDeleteProject(projectId);
+        }
+    }
+
+    /// <summary>
+    /// Only admins may say where a project came from, so a non-admin passing <c>projectOrigin</c>
+    /// must be rejected. Today it's [AdminRequired] on the endpoint that rejects it (403); once this
+    /// endpoint opens up to non-admins and that attribute goes away, the controller's own
+    /// AssertIsAdmin() will reject it (401). Either way the request must fail and no project may be
+    /// created, which is what this test pins down across that change.
+    /// To check it isn't passing for the wrong reason, temporarily delete [AdminRequired] from
+    /// ProjectController.InitFwDataProject, rebuild, and re-run: it must still pass.
+    /// </summary>
+    [Fact]
+    public async Task InitFwDataProject_RejectsProjectOriginFromANonAdmin()
+    {
+        var managerApiTester = new ApiTestBase();
+        await managerApiTester.LoginAs(ManagerAuth.Username, ManagerAuth.Password);
+
+        // Everything except projectOrigin is valid, so a 400 from input validation can't be what
+        // rejects this, and the origin itself is a real ProjectMigrationStatus name.
+        var code = $"tmpl-{Guid.NewGuid():N}"[..12];
+        var response = await managerApiTester.HttpClient.PostAsync(
+            $"{managerApiTester.BaseUrl}/api/project/initFwDataProject" +
+            $"?code={code}&wsVernacular=fr&projectOrigin={nameof(ProjectMigrationStatus.LanguageForgeNonSR)}", null);
+
+        if (response.StatusCode == HttpStatusCode.InternalServerError)
+        {
+            // In developer mode, a thrown System.UnauthorizedAccessException exception results in an HTTP 500
+            // instead of a 4xx code, with a JSON structure that includes `"title":"System.UnauthorizedAccessException"`.
+            // We check for that special case here; any non-JSON or JSON that has a different title would indicate a
+            // different problem and be a test failure.
+            JsonNode? problemDetails = null;
+            try
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                problemDetails = JsonNode.Parse(body);
+            }
+            catch (JsonException)
+            {
+                // Do nothing here, the Should().NotBeNull() check below handles this
+            }
+            var failureReasonMsg = "HTTP 500 should have been caused by developer page printing "
+                + "a traceback due to " + nameof(UnauthorizedAccessException);
+            problemDetails.Should().NotBeNull(failureReasonMsg);
+            problemDetails?["title"]?.ToString().Should().EndWithEquivalentOf(
+                nameof(UnauthorizedAccessException), failureReasonMsg);
+        }
+        else
+        {
+            response.StatusCode.Should().BeOneOf([HttpStatusCode.Forbidden, HttpStatusCode.Unauthorized],
+                "a non-admin may not set projectOrigin; body: {0}", await response.Content.ReadAsStringAsync());
         }
     }
 
