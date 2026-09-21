@@ -1,4 +1,5 @@
 import {DotnetService} from '$lib/dotnet-types';
+import {tryUseService} from '$lib/services/service-provider';
 
 /**
  * Copy text to the clipboard.
@@ -16,7 +17,7 @@ export async function copyText(text: string): Promise<void> {
     return;
   }
 
-  const platformFeatures = globalThis.window?.lexbox?.ServiceProvider?.tryGetService(DotnetService.PlatformFeaturesService);
+  const platformFeatures = tryUseService(DotnetService.PlatformFeaturesService);
   if (platformFeatures) {
     await platformFeatures.copyToClipboard(text);
     return;
