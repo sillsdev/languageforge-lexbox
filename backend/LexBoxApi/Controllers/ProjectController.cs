@@ -53,8 +53,7 @@ public class ProjectController(
         [FromQuery] string[]? wsAnalysis = null,
         string wsUi = "en",
         string? name = null,
-        string? projectOrigin = null,
-        CancellationToken cancellationToken = default)
+        string? projectOrigin = null)
     {
         if (wsVernacular is null || wsVernacular.Length == 0)
             return Problem("At least one vernacular writing system is required", statusCode: StatusCodes.Status400BadRequest);
@@ -89,20 +88,37 @@ public class ProjectController(
             projectOrigin: origin);
 
         // At this point, the project row and empty repo exist. Have FwHeadless populate the repo with
-        // the initial .fwdata; if that fails, compensate by tearing the project back down. Cleanup runs
-        // on a fresh token so a client disconnect can't skip it.
+        // the initial .fwdata; if that fails, compensate by tearing the project back down.
+        //
+        // Deliberately no CancellationToken here. An action's CancellationToken parameter binds to
+        // HttpContext.RequestAborted, which trips whenever the caller hangs up or its client times out --
+        // routine for an operation this slow. FwHeadless's initFwDataProject takes no cancellation token
+        // of its own, so it runs the creation through to completion regardless of what happens to this
+        // connection. Cancelling our wait would therefore tell us nothing about whether the project was
+        // created, while making us tear down one that FwHeadless is still building. HttpClient.Timeout
+        // (5 minutes, set in LexBoxKernel) is what bounds this call.
         (HttpStatusCode statusCode, string? error) result;
         try
         {
-            result = await fwHeadlessClient.InitFwDataProject(projectId, wsVernacular, wsAnalysisOrDefault, wsUi, cancellationToken);
+            result = await fwHeadlessClient.InitFwDataProject(projectId, wsVernacular, wsAnalysisOrDefault, wsUi);
         }
-        catch
+        catch (Exception ex)
         {
-            await CleanupFailedCreation(projectId, code);
+            // FwHeadless never answered, so we cannot tell a project that was never created from one
+            // still being built -- or one finished just as we gave up. Tearing it down here would race
+            // FwHeadless writing into the very repo we would delete. An orphaned empty project is
+            // recoverable by an admin; a project deleted out from under an in-flight creation is not.
+            logger.LogError(ex,
+                "initFwDataProject did not return for project {ProjectId} ({Code}); leaving it in place because FwHeadless may still be creating it. It may need manual cleanup",
+                projectId,
+                code);
             throw;
         }
         if (result.error is not null)
         {
+            // FwHeadless answered and the answer was failure, so creation is definitively not running
+            // (it releases its own reservation and cleans up locally before responding). Only here do we
+            // know enough to compensate.
             await CleanupFailedCreation(projectId, code);
             // Surface a bad request from FwHeadless (e.g. an invalid writing-system tag) as 400, not 500.
             var statusCode = result.statusCode == HttpStatusCode.BadRequest
