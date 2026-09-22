@@ -20,11 +20,11 @@ async function openNewEntryDialog(page: Page): Promise<Locator> {
 }
 
 function lexemeInput(dialog: Locator): Locator {
-  return dialog.locator('[style*="grid-area: lexemeForm"]').locator('input').first();
+  return dialog.locator('[data-field-id="lexemeForm"]').locator('input').first();
 }
 
 function glossInput(dialog: Locator): Locator {
-  return dialog.locator('[style*="grid-area: gloss"]').locator('input').first();
+  return dialog.locator('[data-field-id="gloss"]').locator('input').first();
 }
 
 const duplicatesSummary = /already exist/i;
