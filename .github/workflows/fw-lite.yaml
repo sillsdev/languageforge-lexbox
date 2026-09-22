@@ -294,10 +294,7 @@ jobs:
     timeout-minutes: 60
     runs-on: macos-latest
     env:
-      # Signing/notarization secrets aren't exposed to workflows triggered by a PR from a fork; when
-      # absent (fork PRs) the Mac Catalyst app is still built unsigned so this job stays a compile
-      # check. On upstream push/dispatch the secret is present and the app is signed and notarized.
-      # Mirrors the HAS_SIGNING_KEY pattern in publish-android.
+      # Mirrors the HAS_SIGNING_KEY pattern in publish-android (fork PRs get no secrets → unsigned).
       HAS_APPLE_SIGNING: ${{ secrets.SIL_APPLE_DEVELOPER_ID_APPLICATION_CERT_URL != '' }}
     steps:
       - name: Checkout
@@ -388,17 +385,33 @@ jobs:
           ASC_PRIVATE_KEY: ${{ secrets.APPLE_APPSTORECONNECT_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          # A universal build lands the bundle directly under the TFM dir (no per-RID subfolder);
-          # prefer that, falling back to a search so a layout change doesn't silently break packaging.
-          APP="bin/Release/net10.0-maccatalyst/FieldWorks Lite.app"
-          if [ ! -d "$APP" ]; then
-            APP="$(find bin/Release/net10.0-maccatalyst -maxdepth 2 -name 'FieldWorks Lite.app' -type d | head -n1)"
-          fi
-          if [ -z "$APP" ] || [ ! -d "$APP" ]; then echo "Mac Catalyst .app not found under bin/Release/net10.0-maccatalyst" >&2; exit 1; fi
-          # Fail loudly if the bundle isn't actually universal — the whole point is Intel + Apple Silicon.
+          # `dotnet build` with two RIDs emits a separate per-arch .app for each; it does NOT lipo them
+          # into one universal bundle (that only happens on `dotnet publish`, which we can't use here —
+          # publish trips EF's runtime model build under Mac Catalyst, see #1603). So merge the two
+          # per-arch bundles into a universal one ourselves, then re-sign (lipo invalidates signatures).
+          X64="bin/Release/net10.0-maccatalyst/maccatalyst-x64/FieldWorks Lite.app"
+          ARM="bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app"
+          for b in "$X64" "$ARM"; do [ -d "$b" ] || { echo "Missing per-arch bundle: $b" >&2; exit 1; }; done
+          APP="$RUNNER_TEMP/universal/FieldWorks Lite.app"
+          rm -rf "$RUNNER_TEMP/universal"; mkdir -p "$RUNNER_TEMP/universal"
+          cp -R "$ARM" "$APP"
+          # lipo each Mach-O file with its x64 counterpart; managed .dlls are arch-neutral, left as-is.
+          while IFS= read -r armf; do
+            rel="${armf#"$ARM"/}"
+            x64f="$X64/$rel"
+            [ -f "$x64f" ] || continue
+            if file -b "$armf" | grep -q 'Mach-O'; then
+              lipo -create "$armf" "$x64f" -output "$armf"
+            fi
+          done < <(find "$ARM" -type f)
+          # Re-seal the whole bundle (--deep) with the hardened runtime + entitlements after the merge.
+          codesign --force --timestamp --options runtime --deep \
+            --entitlements Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
+            --sign "$CODESIGN_IDENTITY" "$APP"
+          # Fail loudly if the merged bundle isn't actually universal — the whole point is Intel + Apple Silicon.
           EXE="$APP/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Contents/Info.plist")"
           ARCHS="$(lipo -archs "$EXE" 2>/dev/null || true)"
-          echo "Packaging $APP (archs: $ARCHS)"
+          echo "Universal app archs: $ARCHS"
           case "$ARCHS" in
             *x86_64*arm64*|*arm64*x86_64*) ;;
             *) echo "Expected a universal (x86_64 + arm64) build but got: '$ARCHS'" >&2; exit 1 ;;
@@ -701,8 +714,6 @@ jobs:
           tag_name: ${{ needs.build-and-test.outputs.version }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
-          # fail_on_unmatched_files defaults to false, so the DMG line is skipped if a run produced
-          # no notarized Mac build (e.g. signing secret absent).
           files: |
             fw-lite-msix/*
             fw-lite-portable.zip
