@@ -31,10 +31,14 @@ public class ProjectController(
     /// <summary>
     /// Admin-only: create a new FLEx project whose repo is populated with a template .fwdata
     /// (from the SIL.LCModel package) configured for the requested writing systems.
+    ///
+    /// At some future date this API may be opened up to trusted users, but the projectOrigin
+    /// parameter will remain admin-only/
     /// </summary>
     /// <param name="code">Project code for the new project.</param>
     /// <param name="wsVernacular">Vernacular writing system id(s); at least one is required. Repeat the query param for multiple.</param>
     /// <param name="wsAnalysis">Analysis writing system id(s); defaults to ["en"] when none are given. Repeat the query param for multiple.</param>
+    /// <param name="wsUi">Optional user interface writing system id; defaults to "en" if not given.</param>
     /// <param name="name">Optional display name; defaults to the code.</param>
     /// <param name="projectOrigin">Optional <see cref="ProjectMigrationStatus"/> to record as the project's origin; admin-only.</param>
     [HttpPost("initFwDataProject")]
@@ -84,8 +88,8 @@ public class ProjectController(
             OrgId: null),
             projectOrigin: origin);
 
-        // Saga: the project row + empty repo now exist. Have FwHeadless populate the repo with the
-        // template .fwdata; if that fails, compensate by tearing the project back down. Cleanup runs
+        // At this point, the project row and empty repo exist. Have FwHeadless populate the repo with
+        // the initial .fwdata; if that fails, compensate by tearing the project back down. Cleanup runs
         // on a fresh token so a client disconnect can't skip it.
         (HttpStatusCode statusCode, string? error) result;
         try
