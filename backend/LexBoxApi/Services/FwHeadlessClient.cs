@@ -200,7 +200,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
     }
 
     /// <summary>
-    /// Populates a newly-created (empty) project's repo with a template .fwdata configured for the
+    /// Initializes a newly-created (empty) project's repo with a new .fwdata configured for the
     /// given writing systems. Runs inline (a new empty project is small). Returns a null Error on
     /// success; on failure returns the FwHeadless status code and error body so the caller can
     /// propagate the right status (e.g. surface a 400 rather than flattening it to 500).
