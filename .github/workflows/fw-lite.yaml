@@ -369,7 +369,9 @@ jobs:
         if: env.HAS_APPLE_SIGNING == 'true'
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifiers="maccatalyst-x64;maccatalyst-arm64" \
+          # %3B is an escaped ';': MSBuild treats a literal ';' in a command-line -p: value as its
+          # property separator (error MSB1006), so it must be escaped here, not quoted for the shell.
+          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifiers=maccatalyst-x64%3Bmaccatalyst-arm64 \
             -p:EnableCodeSigning=true -p:UseHardenedRuntime=true \
             -p:CodesignKey="$CODESIGN_IDENTITY" \
             -p:CodesignEntitlements=Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
