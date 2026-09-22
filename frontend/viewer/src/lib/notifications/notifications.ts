@@ -59,9 +59,12 @@ export class AppNotification {
         label: '',
         onClick: (event) => {
           event.preventDefault();
-          void copyText(clipboardText).catch(() => {/* best-effort copy; nothing more to fall back to */});
+          //Capture the button synchronously: currentTarget is nulled once the handler returns.
           const actionButton = event.currentTarget as HTMLButtonElement | null;
-          actionButton?.classList.add('copied');
+          void copyText(clipboardText).then(
+            () => actionButton?.classList.add('copied'),
+            () => {/* best-effort copy; nothing more to fall back to */},
+          );
         },
       },
     });

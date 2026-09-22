@@ -26,6 +26,10 @@ internal class DummyPlatformFeaturesService : IPlatformFeaturesService
     [JSInvokable]
     public Task<CameraResult?> CaptureImage() => Task.FromResult<CameraResult?>(null);
 
+    //Only the MAUI host has a native clipboard to bridge to. Throw rather than no-op so an insecure
+    //web host (where navigator.clipboard is also undefined) surfaces a real failure instead of a
+    //silent false success in copyText().
     [JSInvokable]
-    public Task CopyToClipboard(string text) => Task.CompletedTask;
+    public Task CopyToClipboard(string text) =>
+        throw new NotSupportedException("Native clipboard is only available in the MAUI host");
 }
