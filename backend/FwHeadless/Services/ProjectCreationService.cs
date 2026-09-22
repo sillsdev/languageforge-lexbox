@@ -3,6 +3,7 @@ using System.Xml.Linq;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
 using LexCore.Exceptions;
+using LexCore.Sync;
 using Microsoft.Extensions.Options;
 using SIL.Xml;
 
@@ -43,6 +44,9 @@ public class ProjectCreationService(
         if (!syncHostedService.TryStartProjectCreation(projectId))
             throw new ProjectSyncInProgressException(projectId);
         var fwDataProject = config.Value.GetFwDataProject(projectCode, projectId);
+        // Published to status pollers in the finally below. Pre-set to a failure so an exit path that
+        // somehow reaches neither the success line nor the catch still releases pollers with an answer.
+        var outcome = ProjectCreationStatus.Failed("Project creation ended without reporting a result");
         try
         {
             // Build the first commit of a brand-new FLEx repo from scratch, mirroring how FieldWorks/
@@ -77,15 +81,17 @@ public class ProjectCreationService(
                 throw new SendReceiveException("Pushing the new project to the repo failed", pushResult);
 
             logger.LogInformation("Created project {ProjectCode} ({ProjectId}) from template", projectCode, projectId);
+            outcome = ProjectCreationStatus.Created;
         }
-        catch
+        catch (Exception ex)
         {
+            outcome = ProjectCreationStatus.Failed(ex.Message);
             CleanupLocalProject(fwDataProject);
             throw;
         }
         finally
         {
-            syncHostedService.EndProjectCreation(projectId);
+            syncHostedService.EndProjectCreation(projectId, outcome);
         }
     }
 
