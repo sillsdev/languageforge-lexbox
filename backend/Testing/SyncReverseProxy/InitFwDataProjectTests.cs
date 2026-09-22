@@ -17,7 +17,7 @@ namespace Testing.SyncReverseProxy;
 /// End-to-end coverage for the admin "init fwdata project" API. This is the one path that
 /// can't be unit-tested: LexBox creates an empty hg repo and FwHeadless does the first push of a
 /// template-built .fwdata into it (via LfMergeBridge/Chorus against the real hgweb). Requires the
-/// lexbox stack, so it only runs in CI.
+/// lexbox stack to be up and running, so only run it in CI or with `task test:integration`.
 /// </summary>
 [Trait("Category", "Integration")]
 public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
