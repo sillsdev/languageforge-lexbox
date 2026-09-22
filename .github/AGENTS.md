@@ -247,7 +247,7 @@ This is the most complex workflow because it:
 
 The workflow produces:
 - `fw-lite-viewer-js` - Built viewer (shared by publish jobs)
-- `fw-lite-apple` - iOS simulator .app (zipped) + the notarized Mac Catalyst `FieldWorksLite.dmg` (or an unsigned Mac Catalyst .app zip on fork PRs)
+- `fw-lite-apple` - iOS simulator .app (zipped) + the universal (Intel + Apple Silicon) notarized Mac Catalyst `FieldWorksLite.dmg` (or an unsigned arm64 Mac Catalyst .app zip on fork PRs)
 - `fw-lite-web-linux` - Linux binaries
 - `fw-lite-windows-exe` - Windows binaries
 - `fw-lite-maui-msix` - MAUI installer

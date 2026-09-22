@@ -361,13 +361,15 @@ jobs:
           echo "CODESIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
           rm -f "$RUNNER_TEMP/devid.p12"
 
-      # Hardened runtime is required for notarization; Entitlements.DeveloperId.plist grants the
-      # executable-memory / library-validation exceptions the .NET interpreter needs to launch under it.
-      - name: Build and sign Mac Catalyst (Developer ID, hardened runtime)
+      # Universal (x86_64 + arm64) so the DMG runs on both Intel and Apple Silicon; RuntimeIdentifiers
+      # (plural) is the Release default the csproj documents. Hardened runtime is required for
+      # notarization; Entitlements.DeveloperId.plist grants the executable-memory / library-validation
+      # exceptions the .NET interpreter needs to launch under it.
+      - name: Build and sign Mac Catalyst (universal, Developer ID, hardened runtime)
         if: env.HAS_APPLE_SIGNING == 'true'
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 \
+          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifiers="maccatalyst-x64;maccatalyst-arm64" \
             -p:EnableCodeSigning=true -p:UseHardenedRuntime=true \
             -p:CodesignKey="$CODESIGN_IDENTITY" \
             -p:CodesignEntitlements=Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
@@ -384,7 +386,21 @@ jobs:
           ASC_PRIVATE_KEY: ${{ secrets.APPLE_APPSTORECONNECT_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          APP="bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app"
+          # A universal build lands the bundle directly under the TFM dir (no per-RID subfolder);
+          # prefer that, falling back to a search so a layout change doesn't silently break packaging.
+          APP="bin/Release/net10.0-maccatalyst/FieldWorks Lite.app"
+          if [ ! -d "$APP" ]; then
+            APP="$(find bin/Release/net10.0-maccatalyst -maxdepth 2 -name 'FieldWorks Lite.app' -type d | head -n1)"
+          fi
+          if [ -z "$APP" ] || [ ! -d "$APP" ]; then echo "Mac Catalyst .app not found under bin/Release/net10.0-maccatalyst" >&2; exit 1; fi
+          # Fail loudly if the bundle isn't actually universal — the whole point is Intel + Apple Silicon.
+          EXE="$APP/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Contents/Info.plist")"
+          ARCHS="$(lipo -archs "$EXE" 2>/dev/null || true)"
+          echo "Packaging $APP (archs: $ARCHS)"
+          case "$ARCHS" in
+            *x86_64*arm64*|*arm64*x86_64*) ;;
+            *) echo "Expected a universal (x86_64 + arm64) build but got: '$ARCHS'" >&2; exit 1 ;;
+          esac
           mkdir -p ../artifacts/apple
           DMG="$PWD/../artifacts/apple/FieldWorksLite.dmg"
           # Stage the app beside an /Applications symlink so the DMG is drag-to-install.
