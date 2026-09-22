@@ -77,7 +77,7 @@ public sealed class AndroidInAppUpdateService : IDisposable
     {
         try
         {
-            _appUpdateManager.AppUpdateInfo
+            _appUpdateManager.GetAppUpdateInfo()
                 .AddOnSuccessListener(new OnSuccessListener(result =>
                 {
                     if (result is AppUpdateInfo info)
@@ -127,7 +127,8 @@ public sealed class AndroidInAppUpdateService : IDisposable
         new AlertDialog.Builder(activity)
             .SetTitle("Update ready")!
             .SetMessage("A new version of FieldWorks Lite has been downloaded. Restart to finish installing.")!
-            .SetPositiveButton("Restart & install", (_, _) => _appUpdateManager.CompleteUpdate())!
+            //CompleteUpdate returns a Play Task, not an awaitable; discard it to observe the result.
+            .SetPositiveButton("Restart & install", (_, _) => { _ = _appUpdateManager.CompleteUpdate(); })!
             .SetNegativeButton("Later", (_, _) => { })!
             .Show();
     }

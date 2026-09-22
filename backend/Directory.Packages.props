@@ -139,6 +139,12 @@
     <PackageVersion Include="UUIDNext" Version="4.2.4" />
     <PackageVersion Include="Verify.SystemJson" Version="1.4.1" />
     <PackageVersion Include="Verify.Xunit" Version="31.12.5" />
+    <!-- Keep AndroidX Fragment and its Ktx companion on the same version. The Play app-update binding's
+         transitive AndroidX deps otherwise leave Fragment.Ktx at 1.8.8.1 while Fragment resolves to 1.9.0,
+         and since 1.9.0 merged FragmentKt into the main artifact that mismatch causes an R8 "defined
+         multiple times" dexing failure. Transitive pinning (enabled above) bumps the stale ktx. -->
+    <PackageVersion Include="Xamarin.AndroidX.Fragment" Version="1.9.0" />
+    <PackageVersion Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.9.0" />
     <!-- .NET-for-Android binding of com.google.android.play:app-update, used by
          Platforms/Android/AndroidInAppUpdateService.cs for Google Play in-app updates. -->
     <PackageVersion Include="Xamarin.Google.Android.Play.App.Update" Version="2.1.0.20" />
