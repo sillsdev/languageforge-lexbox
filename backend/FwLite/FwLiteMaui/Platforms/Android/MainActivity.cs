@@ -23,6 +23,7 @@ namespace FwLiteMaui;
 public class MainActivity : MauiAppCompatActivity
 {
     private AndroidInAppUpdateService? _inAppUpdateService;
+    private bool _hasResumed;
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -46,8 +47,14 @@ public class MainActivity : MauiAppCompatActivity
     {
         base.OnResume();
         Platform.OnResume(this);
-        //Catch a flexible update whose download finished while we were backgrounded.
-        _inAppUpdateService?.CheckForDownloadedUpdateOnResume();
+        //Skip the first resume: it fires right after OnCreate's CheckForUpdate, which already handles a
+        //previously-downloaded update, so checking again here would risk a second dialog. Later resumes
+        //(returning from background) still catch a download that finished while we were away.
+        if (_hasResumed)
+        {
+            _inAppUpdateService?.CheckForDownloadedUpdateOnResume();
+        }
+        _hasResumed = true;
     }
 
     private void StartInAppUpdateCheck()

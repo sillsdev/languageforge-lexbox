@@ -106,8 +106,14 @@ public sealed class AndroidInAppUpdateService : IDisposable
         try
         {
             var options = AppUpdateOptions.NewBuilder(AppUpdateType.Flexible).Build();
-            _appUpdateManager.StartUpdateFlowForResult(info, activity, options, UpdateRequestCode);
-            _logger.LogInformation("Started Play flexible in-app update flow");
+            if (_appUpdateManager.StartUpdateFlowForResult(info, activity, options, UpdateRequestCode))
+            {
+                _logger.LogInformation("Started Play flexible in-app update flow");
+            }
+            else
+            {
+                _logger.LogWarning("Play did not start the flexible in-app update flow");
+            }
         }
         catch (Exception e)
         {
@@ -127,8 +133,11 @@ public sealed class AndroidInAppUpdateService : IDisposable
         new AlertDialog.Builder(activity)
             .SetTitle("Update ready")!
             .SetMessage("A new version of FieldWorks Lite has been downloaded. Restart to finish installing.")!
-            //CompleteUpdate returns a Play Task, not an awaitable; discard it to observe the result.
-            .SetPositiveButton("Restart & install", (_, _) => { _ = _appUpdateManager.CompleteUpdate(); })!
+            //CompleteUpdate returns a Play Task, not an awaitable; log if Play rejects the completion.
+            .SetPositiveButton("Restart & install", (_, _) =>
+                _appUpdateManager.CompleteUpdate()
+                    .AddOnFailureListener(new OnFailureListener(e =>
+                        _logger.LogError(e, "Failed to complete Play in-app update"))))!
             .SetNegativeButton("Later", (_, _) => { })!
             .Show();
     }
