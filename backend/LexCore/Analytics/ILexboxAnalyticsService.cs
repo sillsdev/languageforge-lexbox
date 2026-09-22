@@ -9,7 +9,8 @@ namespace LexCore.Analytics;
 /// </summary>
 public interface ILexboxAnalyticsService
 {
-    public const string SendReceiveCompletedEvent = "send_receive_completed";
+    public const string SendReceiveEvent = "send_receive";
+    public const string FwLiteSyncEvent = "fw_lite_sync";
     public const string LoginCompletedEvent = "login_completed";
     public const string AccountCreatedEvent = "account_created";
 
@@ -22,11 +23,19 @@ public interface ILexboxAnalyticsService
     public const string CreatedViaProperty = "created_via";
 
     /// <summary>
-    /// Track a completed send/receive for the current user. Fire-and-forget: returns a <see cref="Task"/>
-    /// the caller may discard. Sends nothing (a completed task) when analytics is disabled, no token is
-    /// configured, or there is no identified user — e.g. an automated service-account sync. Never throws.
+    /// Track a Mercurial send/receive for the current user — a push (unbundle) or a fetch (getbundle / the
+    /// first resumable pull chunk). Fire-and-forget: returns a <see cref="Task"/> the caller may discard.
+    /// Sends nothing (a completed task) when analytics is disabled, no token is configured, the user has opted
+    /// out, or there is no identified user — e.g. an automated service-account sync. Never throws.
     /// </summary>
-    Task TrackSendReceiveCompleted();
+    Task TrackSendReceive();
+
+    /// <summary>
+    /// Track a FieldWorks Lite (CRDT) sync for the current user, fired when a client fetches changes from the
+    /// crdt controller. Fire-and-forget: sends nothing when analytics is disabled, no token is configured, the
+    /// user has opted out, or there is no identified user. Never throws.
+    /// </summary>
+    Task TrackFwLiteSync();
 
     /// <summary>
     /// Track a successful login for <paramref name="user"/>. <paramref name="loginType"/> is one of
@@ -40,8 +49,10 @@ public interface ILexboxAnalyticsService
     /// <summary>
     /// Track a newly created user account, keyed to the new user's id. <paramref name="createdVia"/> describes
     /// which flow created it. The id is passed explicitly because the actor may be anonymous (self-registration)
-    /// or a different user (admin/project flows). Fire-and-forget: sends nothing when analytics is disabled or
-    /// no token is configured. Never throws.
+    /// or a different user (admin/project flows). Pass <paramref name="optedOutOfAnalytics"/> = true to honour a
+    /// choice the user made during creation (e.g. the register form's consent checkbox); the event is then not
+    /// sent. Fire-and-forget: sends nothing when analytics is disabled, no token is configured, or the user opted
+    /// out. Never throws.
     /// </summary>
-    Task TrackAccountCreated(Guid userId, AccountCreatedVia createdVia);
+    Task TrackAccountCreated(Guid userId, AccountCreatedVia createdVia, bool optedOutOfAnalytics = false);
 }

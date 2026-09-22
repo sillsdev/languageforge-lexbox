@@ -136,7 +136,7 @@ export async function login(userId: string, password: string): Promise<LoginResu
 }
 
 export type RegisterResponse = { error?: { turnstile?: boolean, accountExists?: boolean, invalidInput?: boolean }, user?: LexAuthUser };
-export async function createUser(endpoint: string, password: string, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
+export async function createUser(endpoint: string, password: string, name: string, email: string, locale: string, turnstileToken: string, optedOutOfAnalytics: boolean): Promise<RegisterResponse> {
   const passwordStrength = await measurePasswordStrength(password);
   const response = await fetch(endpoint, {
     method: 'post',
@@ -150,6 +150,7 @@ export async function createUser(endpoint: string, password: string, name: strin
       turnstileToken,
       passwordStrength,
       passwordHash: await hash(password),
+      optedOutOfAnalytics,
     })
   });
 
@@ -163,13 +164,15 @@ export async function createUser(endpoint: string, password: string, name: strin
   const userJson: LexAuthUser = jwtToUser(responseJson);
   return { user: userJson };
 }
-export function register(password: string, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
-  return createUser('/api/User/registerAccount', password, name, email, locale, turnstileToken);
+export function register(password: string, name: string, email: string, locale: string, turnstileToken: string, optedOutOfAnalytics: boolean): Promise<RegisterResponse> {
+  return createUser('/api/User/registerAccount', password, name, email, locale, turnstileToken, optedOutOfAnalytics);
 }
-export function acceptInvitation(password: string, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
-  return createUser('/api/User/acceptInvitation', password, name, email, locale, turnstileToken);
+export function acceptInvitation(password: string, name: string, email: string, locale: string, turnstileToken: string, optedOutOfAnalytics: boolean): Promise<RegisterResponse> {
+  return createUser('/api/User/acceptInvitation', password, name, email, locale, turnstileToken, optedOutOfAnalytics);
 }
-export async function createGuestUserByAdmin(password: string, name: string, email: string, locale: string, _turnstileToken: string, orgId?: string): Promise<RegisterResponse> {
+// Admins create guest accounts on someone else's behalf, so the guest's analytics preference isn't set here
+// (it defaults to tracked; the guest can opt out later on their own account settings page).
+export async function createGuestUserByAdmin(password: string, name: string, email: string, locale: string, _turnstileToken: string, _optedOutOfAnalytics: boolean, orgId?: string): Promise<RegisterResponse> {
   const passwordHash = await hash(password);
   const gqlInput: CreateGuestUserByAdminInput = {
     passwordHash,

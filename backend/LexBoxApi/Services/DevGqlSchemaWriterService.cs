@@ -36,8 +36,6 @@ public class DevGqlSchemaWriterService : IHostedService
             .AddScoped<FwHeadlessClient>()
             .AddScoped<UserService>()
             .AddScoped<LexAuthService>()
-            // Resolver-injected into user/project mutations; must be a known service type so HotChocolate
-            // treats it as a service, not a GraphQL input, when generating the schema.
             .AddScoped<ILexboxAnalyticsService, LexboxAnalyticsService>()
             .AddLexGraphQL(builder.Environment, true);
         var host = builder.Build();

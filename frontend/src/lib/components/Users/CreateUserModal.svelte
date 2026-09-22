@@ -15,6 +15,7 @@
       email: string,
       locale: string,
       turnstileToken: string,
+      optedOutOfAnalytics: boolean,
     ) => Promise<RegisterResponse>;
     onSubmitted?: (submittedUser: LexAuthUser) => void;
   }

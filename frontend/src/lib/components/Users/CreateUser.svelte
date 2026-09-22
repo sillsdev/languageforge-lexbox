@@ -1,6 +1,7 @@
 <script lang="ts">
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import {
+    Checkbox,
     SubmitButton,
     FormError,
     Input,
@@ -23,12 +24,15 @@
     errorOnChangingEmail?: string;
     skipTurnstile?: boolean;
     submitButtonText?: string;
+    /** Show the "help improve LexBox" analytics consent checkbox (users creating their own account). */
+    showAnalyticsConsent?: boolean;
     handleSubmit: (
       password: string,
       name: string,
       email: string,
       locale: string,
       turnstileToken: string,
+      optedOutOfAnalytics: boolean,
     ) => Promise<RegisterResponse>;
     onSubmitted?: (submittedUser: LexAuthUser) => void;
     formTainted?: boolean;
@@ -39,6 +43,7 @@
     errorOnChangingEmail = '',
     skipTurnstile = false,
     submitButtonText = $t('register.button_register'),
+    showAnalyticsConsent = false,
     handleSubmit,
     onSubmitted,
     formTainted = $bindable(false),
@@ -70,6 +75,8 @@
       .refine((value) => validateAsEmail(value) || usernameRe.test(value), { error: $t('register.invalid_username') }),
     password: passwordFormRules($t),
     locale: z.string().trim().min(2).default(userLocale),
+    // Opt-in framing: checked = the user consents to usage tracking. On by default.
+    trackUsage: z.boolean().default(true),
   });
 
   let { form, errors, message, enhance, submitting, tainted } = lexSuperForm(formSchema, async () => {
@@ -79,6 +86,8 @@
       $form.email,
       $form.locale,
       turnstileToken,
+      // Only the consent checkbox (when shown) can opt a self-created account out; otherwise stay tracked.
+      showAnalyticsConsent ? !$form.trackUsage : false,
     );
     if (error) {
       if (error.turnstile) {
@@ -143,6 +152,14 @@
   />
   <PasswordStrengthMeter password={$form.password} />
   <DisplayLanguageSelect bind:value={$form.locale} />
+  {#if showAnalyticsConsent}
+    <Checkbox
+      id="track-usage"
+      label={$t('register.analytics.consent_label')}
+      description={$t('register.analytics.description')}
+      bind:value={$form.trackUsage}
+    />
+  {/if}
   <FormError error={$message} />
   <SubmitButton loading={$submitting}>{submitButtonText}</SubmitButton>
 </MaybeProtectedForm>

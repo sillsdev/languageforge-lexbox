@@ -7,8 +7,9 @@ public class ProxyEventsService(ILexProxyService lexProxyService, ILexboxAnalyti
 {
     public async Task OnResumableRequest(HttpContext context)
     {
-        if (context.Request.Path.StartsWithSegments("/api/v03/pushBundleChunk") &&
-            context.Response.StatusCode == 200)
+        if (context.Response.StatusCode != 200) return;
+
+        if (context.Request.Path.StartsWithSegments("/api/v03/pushBundleChunk"))
         {
             if (context.Request.Query.TryGetValue("chunksize", out var chunkSizeStr) &&
                 context.Request.Query.TryGetValue("offset", out var offsetStr) &&
@@ -23,21 +24,38 @@ public class ProxyEventsService(ILexProxyService lexProxyService, ILexboxAnalyti
                     {
                         // Last chunk, so record updated last-changed date
                         await lexProxyService.QueueProjectMetadataUpdate(projectCode);
-                        _ = analytics.TrackSendReceiveCompleted();
+                        _ = analytics.TrackSendReceive();
                     }
                 }
+            }
+        }
+        else if (context.Request.Path.StartsWithSegments("/api/v03/pullBundleChunk"))
+        {
+            // A pull streams the bundle over many chunk requests; count one send/receive per pull by only
+            // firing on the first chunk (offset 0). A pull doesn't change the repo, so no metadata update.
+            if (context.Request.Query.TryGetValue("offset", out var offsetStr) &&
+                int.TryParse(offsetStr, out var offset) &&
+                offset == 0)
+            {
+                _ = analytics.TrackSendReceive();
             }
         }
     }
 
     public async Task OnHgRequest(HttpContext context)
     {
-        if (context.Request.Query.TryGetValue("cmd", out var cmd)
-            && cmd == "unbundle"
-            && context.Request.GetProjectCode() is { } projectCode)
+        if (!context.Request.Query.TryGetValue("cmd", out var cmd)) return;
+        if (context.Request.GetProjectCode() is not { } projectCode) return;
+
+        if (cmd == "unbundle")
         {
             await lexProxyService.QueueProjectMetadataUpdate(projectCode);
-            _ = analytics.TrackSendReceiveCompleted();
+            _ = analytics.TrackSendReceive();
+        }
+        else if (cmd == "getbundle")
+        {
+            // Fetch (pull). Doesn't change the repo, so no metadata update — just track the send/receive.
+            _ = analytics.TrackSendReceive();
         }
     }
 }

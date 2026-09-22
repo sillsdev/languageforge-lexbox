@@ -18,16 +18,16 @@ namespace Testing.LexBoxApi.Services;
 public class LexboxAnalyticsServiceTests
 {
     [Fact]
-    public async Task TrackSendReceiveCompleted_SendsEventWithCurrentUserIdAndProduct()
+    public async Task TrackSendReceive_SendsEventWithCurrentUserIdAndProduct()
     {
         var handler = new CaptureHandler();
         var userId = Guid.NewGuid();
         var service = CreateService(handler, userId: userId);
 
-        await service.TrackSendReceiveCompleted();
+        await service.TrackSendReceive();
 
         handler.RequestCount.Should().Be(1);
-        handler.LastBody.Should().Contain("\"event\":\"send_receive_completed\"");
+        handler.LastBody.Should().Contain("\"event\":\"send_receive\"");
         handler.LastBody.Should().Contain($"\"$user_id\":\"{userId}\"");
         handler.LastBody.Should().Contain("\"product\":\"lexbox\"");
         handler.LastBody.Should().Contain($"\"$app_version_string\":{JsonSerializer.Serialize(AppVersionService.Version)}");
@@ -35,23 +35,49 @@ public class LexboxAnalyticsServiceTests
     }
 
     [Fact]
-    public async Task TrackSendReceiveCompleted_SkipsWhenNoAuthenticatedUser()
+    public async Task TrackSendReceive_SkipsWhenNoAuthenticatedUser()
     {
         var handler = new CaptureHandler();
         var service = CreateService(handler, userId: null);
 
-        await service.TrackSendReceiveCompleted();
+        await service.TrackSendReceive();
 
         handler.RequestCount.Should().Be(0);
     }
 
     [Fact]
-    public async Task TrackSendReceiveCompleted_SkipsWhenUserOptedOut()
+    public async Task TrackSendReceive_SkipsWhenUserOptedOut()
     {
         var handler = new CaptureHandler();
         var service = CreateService(handler, userId: Guid.NewGuid(), optedOutOfAnalytics: true);
 
-        await service.TrackSendReceiveCompleted();
+        await service.TrackSendReceive();
+
+        handler.RequestCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task TrackFwLiteSync_SendsEventWithCurrentUserIdAndProduct()
+    {
+        var handler = new CaptureHandler();
+        var userId = Guid.NewGuid();
+        var service = CreateService(handler, userId: userId);
+
+        await service.TrackFwLiteSync();
+
+        handler.RequestCount.Should().Be(1);
+        handler.LastBody.Should().Contain("\"event\":\"fw_lite_sync\"");
+        handler.LastBody.Should().Contain($"\"$user_id\":\"{userId}\"");
+        handler.LastBody.Should().Contain("\"product\":\"lexbox\"");
+    }
+
+    [Fact]
+    public async Task TrackFwLiteSync_SkipsWhenUserOptedOut()
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, userId: Guid.NewGuid(), optedOutOfAnalytics: true);
+
+        await service.TrackFwLiteSync();
 
         handler.RequestCount.Should().Be(0);
     }
@@ -123,12 +149,23 @@ public class LexboxAnalyticsServiceTests
     }
 
     [Fact]
+    public async Task TrackAccountCreated_SkipsWhenUserOptedOutAtCreation()
+    {
+        var handler = new CaptureHandler();
+        var service = CreateService(handler, userId: null);
+
+        await service.TrackAccountCreated(Guid.NewGuid(), AccountCreatedVia.Registration, optedOutOfAnalytics: true);
+
+        handler.RequestCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task Track_StampsClientIpAndDoesNotGeolocateFromRequest()
     {
         var handler = new CaptureHandler();
         var service = CreateService(handler, userId: Guid.NewGuid(), clientIp: "203.0.113.7");
 
-        await service.TrackSendReceiveCompleted();
+        await service.TrackSendReceive();
 
         handler.RequestCount.Should().Be(1);
         // The end user's IP is sent as the reserved "ip" property so Mixpanel geolocates them...
@@ -138,24 +175,24 @@ public class LexboxAnalyticsServiceTests
     }
 
     [Fact]
-    public async Task TrackSendReceiveCompleted_SkipsWhenDisabled()
+    public async Task TrackSendReceive_SkipsWhenDisabled()
     {
         var handler = new CaptureHandler();
         var service = CreateService(handler, userId: Guid.NewGuid(), enabled: false);
 
-        await service.TrackSendReceiveCompleted();
+        await service.TrackSendReceive();
 
         handler.RequestCount.Should().Be(0);
     }
 
     [Fact]
-    public async Task TrackSendReceiveCompleted_SkipsWhenProductionTokenEmpty()
+    public async Task TrackSendReceive_SkipsWhenProductionTokenEmpty()
     {
         var handler = new CaptureHandler();
         // Production environment with no release token configured => nothing sent.
         var service = CreateService(handler, userId: Guid.NewGuid(), isDevelopment: false, productionToken: "");
 
-        await service.TrackSendReceiveCompleted();
+        await service.TrackSendReceive();
 
         handler.RequestCount.Should().Be(0);
     }

@@ -77,7 +77,7 @@ public class UserController : ControllerBase
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
         await _lexBoxDbContext.SaveChangesAsync();
-        _ = _analytics.TrackAccountCreated(userEntity.Id, AccountCreatedVia.Registration);
+        _ = _analytics.TrackAccountCreated(userEntity.Id, AccountCreatedVia.Registration, userEntity.OptedOutOfAnalytics);
 
         var user = new LexAuthUser(userEntity);
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
@@ -165,7 +165,7 @@ public class UserController : ControllerBase
         acceptActivity?.AddTag("app.user.id", userEntity.Id);
         await _lexBoxDbContext.SaveChangesAsync();
         // Only new accounts reach here (the else branch above returns for an existing account).
-        _ = _analytics.TrackAccountCreated(userEntity.Id, AccountCreatedVia.Invitation);
+        _ = _analytics.TrackAccountCreated(userEntity.Id, AccountCreatedVia.Invitation, userEntity.OptedOutOfAnalytics);
 
         var user = new LexAuthUser(userEntity);
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
@@ -192,6 +192,7 @@ public class UserController : ControllerBase
             CreatedById = creatorId,
             Locked = false,
             CanCreateProjects = jwtUser?.Email == input.Email && jwtUser.CanCreateProjects == true,
+            OptedOutOfAnalytics = input.OptedOutOfAnalytics,
         };
         UpdateUserMemberships(jwtUser, userEntity);
         return userEntity;

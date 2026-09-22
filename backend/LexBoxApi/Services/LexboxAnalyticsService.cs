@@ -7,8 +7,8 @@ using Microsoft.Extensions.Options;
 namespace LexBoxApi.Services;
 
 /// <summary>
-/// LexBox implementation of <see cref="ILexboxAnalyticsService"/>. Resolves the current user from the
-/// request and injects it into each event, then sends via the shared <see cref="MixpanelClient"/>.
+/// Resolves the current user from the request and injects it into each event, then sends via the shared
+/// <see cref="MixpanelClient"/>.
 /// </summary>
 public class LexboxAnalyticsService(
     MixpanelClient mixpanelClient,
@@ -21,7 +21,15 @@ public class LexboxAnalyticsService(
     private readonly AnalyticsConfigBase _config = analyticsConfig.Value;
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
-    public Task TrackSendReceiveCompleted()
+    public Task TrackSendReceive() => TrackCurrentUserEvent(ILexboxAnalyticsService.SendReceiveEvent);
+
+    public Task TrackFwLiteSync() => TrackCurrentUserEvent(ILexboxAnalyticsService.FwLiteSyncEvent);
+
+    /// <summary>
+    /// Send <paramref name="eventName"/> for the currently signed-in user. Sends nothing when there is no
+    /// identified user (e.g. an automated service-account sync) or they have opted out.
+    /// </summary>
+    private Task TrackCurrentUserEvent(string eventName)
     {
         var user = loggedInContext.MaybeUser;
         if (user?.Id is not { } userId || userId == Guid.Empty)
@@ -32,7 +40,7 @@ public class LexboxAnalyticsService(
         var properties = CreateBaseProperties();
         if (properties is null)
             return Task.CompletedTask;
-        return Task.Run(() => mixpanelClient.SendAsync(ILexboxAnalyticsService.SendReceiveCompletedEvent, properties));
+        return Task.Run(() => mixpanelClient.SendAsync(eventName, properties));
     }
 
     public Task TrackLoginCompleted(LexAuthUser user, string loginType)
@@ -49,9 +57,12 @@ public class LexboxAnalyticsService(
         return Task.Run(() => mixpanelClient.SendAsync(ILexboxAnalyticsService.LoginCompletedEvent, properties));
     }
 
-    public Task TrackAccountCreated(Guid userId, AccountCreatedVia createdVia)
+    public Task TrackAccountCreated(Guid userId, AccountCreatedVia createdVia, bool optedOutOfAnalytics = false)
     {
         if (userId == Guid.Empty)
+            return Task.CompletedTask;
+        // Respect an opt-out the user made while creating the account (register/invitation consent checkbox).
+        if (optedOutOfAnalytics)
             return Task.CompletedTask;
         var properties = CreateBaseProperties(userId);
         if (properties is null)
