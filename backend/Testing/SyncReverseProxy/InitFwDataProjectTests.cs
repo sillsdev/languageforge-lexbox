@@ -103,7 +103,6 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
             semDomResponse.StatusCode.Should().Be(HttpStatusCode.OK,
                 "SemanticDomainList.list should have been pushed; anything else (404 in particular) means "
                 + "Chorus filtered it out as oversized, i.e. the FieldWorks file-type handlers never loaded");
-            var semDomSize = (await semDomResponse.Content.ReadAsByteArrayAsync()).Length;
 
             // The requested writing systems should be current. FieldWorks may add its own defaults (e.g.
             // "en" as an analysis WS), so assert each requested code is present rather than exact equality.
