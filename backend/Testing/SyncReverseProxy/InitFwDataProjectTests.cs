@@ -90,6 +90,21 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
             var curAnalysisWss = SpaceSeparatedUni(langProject!, "CurAnalysisWss");
             var curVernWss = SpaceSeparatedUni(langProject!, "CurVernWss");
 
+            // 4. The largest file survived the push. Chorus's LargeFileFilter caps a file at 1 MB unless
+            //    some loaded file-type handler raises the cap for that extension, and the handler that knows
+            //    about .list ships in LibFLExBridge-ChorusPlugin.dll. If plugin discovery ever regresses
+            //    (sillsdev/chorus#393), .list silently falls back to the 1 MB default and Chorus *forgets*
+            //    SemanticDomainList.list instead of pushing it -- no error, no failed send/receive, just a
+            //    project that looks fine here and is missing its semantic domains when FLEx opens it.
+            //    Every other assertion in this test reads a small file, so they all stay green through
+            //    that failure; this is the only one that catches it.
+            var semDomResponse = await _adminApiTester.HttpClient.GetAsync(
+                $"{_adminApiTester.BaseUrl}/hg/{code}/raw-file/tip/Linguistics/Lexicon/SemanticDomainList.list");
+            semDomResponse.StatusCode.Should().Be(HttpStatusCode.OK,
+                "SemanticDomainList.list should have been pushed; anything else (404 in particular) means "
+                + "Chorus filtered it out as oversized, i.e. the FieldWorks file-type handlers never loaded");
+            var semDomSize = (await semDomResponse.Content.ReadAsByteArrayAsync()).Length;
+
             // The requested writing systems should be current. FieldWorks may add its own defaults (e.g.
             // "en" as an analysis WS), so assert each requested code is present rather than exact equality.
             foreach (var ws in analysis)
