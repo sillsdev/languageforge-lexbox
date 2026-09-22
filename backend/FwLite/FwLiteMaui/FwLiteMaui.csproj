@@ -67,6 +67,11 @@
     <!-- iOS has no JIT. EF Core 10 refuses to build its model / compile queries when dynamic code is unsupported,
          so the Mono interpreter is mandatory. Enabled in Debug too so both builds exercise the same runtime. -->
     <UseInterpreter>true</UseInterpreter>
+    <!-- Route every HttpClient through Apple's NSUrlSessionHandler (Network.framework) instead of the managed
+         SocketsHttpHandler + SslStream. The managed TLS path on Apple is the deprecated SecureTransport shim, which
+         resets the handshake against modern TLS-1.3 servers (e.g. lexbox.org's OIDC endpoint) — login fails with
+         "net_http_ssl_connection_failed / Connection reset by peer", only on Mac/iOS. Native handler negotiates fine. -->
+    <UseNativeHttpHandler>true</UseNativeHttpHandler>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetPlatform)' == 'ios'">
     <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
