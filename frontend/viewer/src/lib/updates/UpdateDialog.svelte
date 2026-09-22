@@ -46,6 +46,11 @@
     }
   }
 
+  function restartApp() {
+    // On success this terminates the app and relaunches on the new version, so it never resolves.
+    void updateService.restartToApplyUpdate();
+  }
+
   const appVersion = config.appVersion;
 </script>
 
@@ -68,6 +73,7 @@
       {checkPromise}
       {installPromise}
       {installUpdate}
+      {restartApp}
       {downloadProgress} />
 
     <div class="flex justify-center gap-3">

@@ -10,6 +10,7 @@
     checkPromise?: Promise<IAvailableUpdate | undefined>;
     installPromise?: Promise<UpdateResult>;
     installUpdate: (update: IAvailableUpdate) => Promise<void>;
+    restartApp: () => void;
     downloadProgress?: {bytesDownloaded: number; bytesPerSecond: number};
   }
 
@@ -17,6 +18,7 @@
     checkPromise,
     installPromise,
     installUpdate,
+    restartApp,
     downloadProgress
   }: Props = $props();
 
@@ -93,6 +95,12 @@
         <XButton onclick={() => installPromise = undefined} class="ml-auto border"/>
       {/if}
     </div>
+    {#if updateResult === UpdateResult.Success || updateResult === UpdateResult.Started}
+      <!-- the update only takes effect once the app restarts, so offer to do it now -->
+      <Button onclick={restartApp} class="w-full" icon="i-mdi-restart">
+        {$t`Restart now`}
+      </Button>
+    {/if}
   {/await}
 {:else if checkPromise}
   {#await checkPromise then availableUpdate}

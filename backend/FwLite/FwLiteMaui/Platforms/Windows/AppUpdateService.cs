@@ -189,6 +189,16 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         }
     }
 
+    public void RestartToApplyUpdate()
+    {
+        logger.LogInformation("Restarting to apply downloaded update");
+        //Terminates this instance and launches a fresh one. On the way down Windows completes the
+        //deferred package registration (DeferRegistrationWhenPackagesAreInUse), so the new instance
+        //starts on the updated version. Restart only returns if it failed to terminate the process.
+        var failure = Microsoft.Windows.AppLifecycle.AppInstance.Restart(string.Empty);
+        logger.LogError("Failed to restart to apply update: {FailureReason}", failure);
+    }
+
     public DateTime LastUpdateCheck
     {
         get => preferences.Get(LastUpdateCheckKey, DateTime.MinValue);
