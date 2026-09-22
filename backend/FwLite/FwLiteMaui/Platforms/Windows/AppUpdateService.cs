@@ -115,14 +115,26 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         try
         {
             var progress = new DownloadProgressReporter(eventBus, latestRelease);
-            await using var proxy = await UpdateDownloadProxy.StartAsync(latestRelease.Url, logger, progress.Report);
-            return await Deploy(proxy.LocalUri, quitOnUpdate);
+            UpdateResult result;
+            await using (var proxy = await UpdateDownloadProxy.StartAsync(latestRelease.Url, logger, progress.Report))
+            {
+                result = await Deploy(proxy.LocalUri, quitOnUpdate);
+            }
+
+            //Deploy only returns Started when it gave up waiting after the timeout with the download still
+            //incomplete. Disposing the proxy (above) tears down that in-flight download, so a Started here
+            //is effectively dead — the update would never finish. Fall back to the direct path, where
+            //PackageManager owns the download and nothing we dispose can cut it off. Once we trust the
+            //proxy path we can drop this fallback entirely.
+            if (result != UpdateResult.Started) return result;
+            logger.LogWarning("Proxy update path did not finish before the timeout; falling back to direct install");
         }
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Proxy update path failed; falling back to direct install");
-            return await Deploy(new Uri(latestRelease.Url), quitOnUpdate);
         }
+
+        return await Deploy(new Uri(latestRelease.Url), quitOnUpdate);
     }
 
     private async Task<UpdateResult> Deploy(Uri packageUri, bool quitOnUpdate)

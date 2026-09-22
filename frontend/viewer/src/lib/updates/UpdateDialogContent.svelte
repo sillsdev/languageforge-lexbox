@@ -4,6 +4,7 @@
   import {Button, XButton} from '$lib/components/ui/button';
   import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
   import Loading from '$lib/components/Loading.svelte';
+  import {formatFileSize} from '$lib/components/ui/format';
   import {getReleaseUrl} from './utils';
 
   type Props = {
@@ -21,17 +22,6 @@
     restartApp,
     downloadProgress
   }: Props = $props();
-
-  function formatBytes(bytes: number): string {
-    const units = ['B', 'KB', 'MB', 'GB'];
-    let value = bytes;
-    let unit = 0;
-    while (value >= 1024 && unit < units.length - 1) {
-      value /= 1024;
-      unit++;
-    }
-    return `${value.toFixed(1)} ${units[unit]}`;
-  }
 </script>
 
 {#if checkPromise}
@@ -61,7 +51,7 @@
     <Button loading class="w-full" icon="i-mdi-download">
       {#if downloadProgress}
         {$t`Downloading update...`}
-        {formatBytes(downloadProgress.bytesDownloaded)} ({formatBytes(downloadProgress.bytesPerSecond)}/s)
+        {formatFileSize(downloadProgress.bytesDownloaded)} ({formatFileSize(downloadProgress.bytesPerSecond)}/s)
       {:else}
         {$t`Installing Update...`}
       {/if}
