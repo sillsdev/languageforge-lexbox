@@ -9,7 +9,7 @@
     "build": "vite build",
     "build-ffmpeg-worker": "vite build --config vite.config.ffmpeg-worker.ts",
     "preview": "vite preview",
-    "pretest:ui": "playwright install chromium",
+    "pretest:ui": "playwright install chromium webkit",
     "test:ui": "playwright test -c ./tests/ui/playwright.config.ts",
     "pretest:e2e": "playwright install chromium",
     "test:e2e": "playwright test -c ./tests/e2e/playwright.config.ts",

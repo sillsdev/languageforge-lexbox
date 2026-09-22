@@ -1,5 +1,5 @@
 import {argosScreenshot, type ArgosScreenshotOptions} from '@argos-ci/playwright';
-import type {Page} from '@playwright/test';
+import {test, type Page} from '@playwright/test';
 
 const defaultOptions: ArgosScreenshotOptions = {
   viewports: [
@@ -39,5 +39,9 @@ export async function assertScreenshot(page: Page, name: string, options?: Argos
       viewports: [...defaultOptions.viewports ?? [], ...marketingScreenshotSizes],
     };
   }
-  await argosScreenshot(page, name, {...defaultOptions, ...options});
+  // chromium keeps bare names (its existing Argos baselines are the primary set); other browsers
+  // (e.g. webkit) get a browser-suffixed name so they add a separate baseline instead of colliding.
+  const projectName = test.info().project.name;
+  const screenshotName = projectName === 'chromium' ? name : `${name}-${projectName}`;
+  await argosScreenshot(page, screenshotName, {...defaultOptions, ...options});
 }
