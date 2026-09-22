@@ -352,7 +352,11 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
           # Prepend our keychain to the search list so the build finds the identity.
           security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | sed 's/"//g')
-          IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" | awk -F'"' '/Developer ID Application/ {print $2; exit}')"
+          # Use the certificate's SHA-1 hash, not the display name: the SIL identity name contains a
+          # comma ("...Linguistics, Inc..."), and MSBuild splits -p:CodesignKey=<value> on commas
+          # (error MSB1006: Property is not valid). The hash has no spaces/commas; codesign -s and
+          # MSBuild's CodesignKey both accept it.
+          IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" | awk '/Developer ID Application/ {print $2; exit}')"
           if [ -z "$IDENTITY" ]; then echo "No Developer ID Application identity in the certificate" >&2; exit 1; fi
           echo "CODESIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
           rm -f "$RUNNER_TEMP/devid.p12"
