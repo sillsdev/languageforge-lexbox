@@ -9,5 +9,6 @@ export interface IPlatformFeaturesService
 {
 	supportsImageCapture() : Promise<boolean>;
 	captureImage() : Promise<ICameraResult | undefined>;
+	copyToClipboard(text: string) : Promise<void>;
 }
 /* eslint-enable */
