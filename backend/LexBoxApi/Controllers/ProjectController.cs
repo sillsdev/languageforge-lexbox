@@ -33,7 +33,7 @@ public class ProjectController(
     /// (from the SIL.LCModel package) configured for the requested writing systems.
     ///
     /// At some future date this API may be opened up to trusted users, but the projectOrigin
-    /// parameter will remain admin-only/
+    /// parameter will remain admin-only.
     /// </summary>
     /// <param name="code">Project code for the new project.</param>
     /// <param name="wsVernacular">Vernacular writing system id(s); at least one is required. Repeat the query param for multiple.</param>
