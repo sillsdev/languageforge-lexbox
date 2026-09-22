@@ -21,6 +21,14 @@ public class AuthConfig
     /// </summary>
     public Func<object?>? GetParentActivityOrWindow { get; set; }
     public Action? AfterLoginWebView { get; set; }
+    /// <summary>
+    /// When set, interactive login uses this MSAL <c>ICustomWebUi</c> instead of MSAL's own system-browser flow.
+    /// Mac Catalyst uses it to run an <c>ASWebAuthenticationSession</c> (shares Safari's session, no localhost listener),
+    /// because the MSAL package has no Mac Catalyst build and falls back to its desktop implementation there.
+    /// </summary>
+    public Func<Microsoft.Identity.Client.Extensibility.ICustomWebUi>? CustomWebUiFactory { get; set; }
+    /// <summary>Redirect URI to register with MSAL when <see cref="CustomWebUiFactory"/> is set. Defaults to <c>msal{ClientId}://auth</c>.</summary>
+    public string? CustomWebUiRedirectUri { get; set; }
 
     public LexboxServer GetServerByAuthority(string authority)
     {
