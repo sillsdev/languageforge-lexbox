@@ -361,17 +361,17 @@ jobs:
           echo "CODESIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
           rm -f "$RUNNER_TEMP/devid.p12"
 
-      # Universal (x86_64 + arm64) so the DMG runs on both Intel and Apple Silicon; RuntimeIdentifiers
-      # (plural) is the Release default the csproj documents. Hardened runtime is required for
-      # notarization; Entitlements.DeveloperId.plist grants the executable-memory / library-validation
-      # exceptions the .NET interpreter needs to launch under it.
+      # Universal (x86_64 + arm64) so the DMG runs on both Intel and Apple Silicon. The two RIDs come
+      # from RuntimeIdentifiers in FwLiteMaui.csproj (Release + maccatalyst): passing them here as a
+      # global -p: property instead leaks the multi-RID value into referenced libraries (NETSDK1083),
+      # so we deliberately pass no RuntimeIdentifier and let the csproj drive the universal build.
+      # Hardened runtime is required for notarization; Entitlements.DeveloperId.plist grants the
+      # executable-memory / library-validation exceptions the .NET interpreter needs to launch under it.
       - name: Build and sign Mac Catalyst (universal, Developer ID, hardened runtime)
         if: env.HAS_APPLE_SIGNING == 'true'
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          # %3B is an escaped ';': MSBuild treats a literal ';' in a command-line -p: value as its
-          # property separator (error MSB1006), so it must be escaped here, not quoted for the shell.
-          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifiers=maccatalyst-x64%3Bmaccatalyst-arm64 \
+          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false \
             -p:EnableCodeSigning=true -p:UseHardenedRuntime=true \
             -p:CodesignKey="$CODESIGN_IDENTITY" \
             -p:CodesignEntitlements=Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
