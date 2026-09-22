@@ -7,16 +7,16 @@ namespace FwLiteShared.TypeGen;
 
 /// <summary>
 /// Emits a `ChangeType` string-literal union and a `knownChangeTypes` array built from the registered CRDT
-/// change types (<see cref="LcmCrdtKernel.AllChangeTypes"/>) and each type's serialized <c>$type</c>
-/// discriminator (<see cref="HistoryService.GetChangeTypeKeyFromType"/>). Attached to the <c>ChangeType</c>
-/// marker; suppresses the marker's own output.
+/// change types and each type's serialized <c>$type</c> discriminator, taken straight from Harmony's
+/// registration (<see cref="LcmCrdtKernel.AllRegisteredChanges"/>) so the generated list can't drift from
+/// what the serializer writes. Attached to the <c>ChangeType</c> marker; suppresses the marker's own output.
 /// </summary>
 public class ChangeTypesCodeGenerator : ClassCodeGenerator
 {
     public override RtClass GenerateNode(Type element, RtClass result, TypeResolver resolver)
     {
-        var typeNames = LcmCrdtKernel.AllChangeTypes()
-            .Select(HistoryService.GetChangeTypeKeyFromType)
+        var typeNames = LcmCrdtKernel.AllRegisteredChanges()
+            .Select(c => c.Discriminator)
             .Distinct()
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();

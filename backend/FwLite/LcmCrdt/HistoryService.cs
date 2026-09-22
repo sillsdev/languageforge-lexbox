@@ -1,6 +1,8 @@
 using Humanizer;
+using Microsoft.Extensions.Options;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Config;
 using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 using LinqToDB;
@@ -110,7 +112,7 @@ public record HistoryLineItem(
     }
 }
 
-public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory, IMiniLcmApi miniLcmApi)
+public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.IDbContextFactory<LcmCrdtDbContext> dbContextFactory, IMiniLcmApi miniLcmApi, IOptions<HarmonyConfig> harmonyConfig)
 {
 
     public async Task<ActivityAuthor[]> ListActivityAuthors()
@@ -138,11 +140,11 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .Select(g => new KeyValuePair<string, int>(g.Key.ChangeTypeKey, g.Count()))
             .ToDictionaryAsyncLinqToDB(p => p.Key, p => p.Value);
 
-        var registeredTypes = LcmCrdtKernel.AllChangeTypes()
-            .Select(t => new ActivityChangeType(
-                GetChangeTypeKeyFromType(t),
-                ChangeTypeLabel(t),
-                changeCounts.GetValueOrDefault(GetChangeTypeKeyFromType(t))))
+        var registeredTypes = harmonyConfig.Value.ChangeTypes
+            .Select(c => new ActivityChangeType(
+                c.Discriminator,
+                ChangeTypeLabel(c.Type),
+                changeCounts.GetValueOrDefault(c.Discriminator)))
             .Where(t => t.CommitCount > 0)
             .OrderBy(t => t.Label)
             .ToArray();
@@ -241,21 +243,6 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         };
     }
 
-    /// <summary>
-    /// The serialized <c>$type</c> discriminator of a change type. Mirrors Harmony's own logic: generic/shared
-    /// changes (jsonPatch:, delete:, SetOrderChange:) define a custom static <c>TypeName</c>, while a dedicated
-    /// change class serializes under its CLR type name. Single source of truth — the ChangeTypes TS codegen
-    /// uses this too, so the generated list can't drift from the runtime discriminators.
-    /// </summary>
-    public static string GetChangeTypeKeyFromType(Type changeType)
-    {
-        var typeNameProp = changeType.GetProperty(nameof(IPolyType.TypeName),
-            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy);
-        if (typeNameProp?.GetValue(null) is string name)
-            return name;
-        return changeType.Name;
-    }
-
     public static string ChangeTypeLabel(Type changeType)
     {
         if (changeType.IsGenericType && changeType.Name.Contains("JsonPatch", StringComparison.Ordinal))
@@ -323,18 +310,20 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException($"Change {changeIndex} not found in commit {commitId}");
 
-        // These three branches are independent read-only lookups that each open their own
+        // These branches are independent read-only lookups that each open their own
         // DbContext (via the repository factories), so run them concurrently.
+        //todo needs optimizing: when a sync pruned this change's snapshot, this replays every commit since the entity's last one (median 22k on a 100k-commit project)
         var snapshotTask = ResolveSnapshot(async () => await dataModel.GetAtCommit<object>(commitId, change.EntityId));
-        var previousSnapshotTask = ResolveSnapshot(() => dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
+        //todo the activity redesign wants this to diff against, but GetBeforeCommit rebuilds it by replaying every commit since the entity's last snapshot (~99k of 100k on a synced project), which leaves the preview blank forever — needs optimizing before it comes back
+        //var previousSnapshotTask = ResolveSnapshot(() => dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
         var affectedEntriesTask = GetAffectedEntryIds(change)
             .Select(async (Guid entryId, CancellationToken _) => await GetCurrentOrLatestEntry(entryId))
             .ToArrayAsync()
             .AsTask();
 
-        await Task.WhenAll(snapshotTask, previousSnapshotTask, affectedEntriesTask);
+        await Task.WhenAll(snapshotTask, affectedEntriesTask);
 
-        return new ChangeContext(change, await snapshotTask, await previousSnapshotTask, await affectedEntriesTask);
+        return new ChangeContext(change, await snapshotTask, null, await affectedEntriesTask);
     }
 
     // Some entity types like RemoteResource don't implement IObjectWithId, so cast safely.
@@ -412,11 +401,13 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
 
     public static string ChangeNameHelper(IChange change)
     {
+        // OpaqueChange is an unregistered change type (its EntityType is null), so we can't name it meaningfully.
+        if (change is OpaqueChange) return "Unknown";
         var type = change.GetType();
         //todo call JsonPatchChange.Summarize() instead of this
-        if (type.Name.Contains("JsonPatch")) return $"Edit{change.EntityType.Name}".Humanize();
-        else if (type.Name.StartsWith("DeleteChange`")) return $"Delete{change.EntityType.Name}".Humanize();
-        else if (type.Name.StartsWith("SetOrderChange`")) return $"Reorder{change.EntityType.Name}".Humanize();
+        if (type.Name.Contains("JsonPatch")) return $"Edit{change.EntityType?.Name}".Humanize();
+        else if (type.Name.StartsWith("DeleteChange`")) return $"Delete{change.EntityType?.Name}".Humanize();
+        else if (type.Name.StartsWith("SetOrderChange`")) return $"Reorder{change.EntityType?.Name}".Humanize();
         var changeName = type.Name.Humanize();
         return Regex.Replace(changeName, " Change$", "", RegexOptions.IgnoreCase);
     }

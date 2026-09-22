@@ -8,16 +8,19 @@ import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 /** Props for the LexiconComboBox component */
 interface LexiconComboBoxProps {
   lexicons?: IProjectModel[];
+  onCreateNew?: () => void;
   selectLexicon: (lexiconCode: string) => Promise<void>;
 }
 
 /** A combo-box for selecting a lexicon for a project. */
 export default function LexiconComboBox({
   lexicons,
+  onCreateNew,
   selectLexicon,
 }: LexiconComboBoxProps): ReactElement {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
+  const [saveError, setSaveError] = useState('');
   const [selectedLexiconCode, setSelectedLexiconCode] = useState('');
   const [settingSaved, setSettingSaved] = useState(false);
   const [settingSaving, setSettingSaving] = useState(false);
@@ -25,13 +28,15 @@ export default function LexiconComboBox({
   const saveSetting = useCallback(
     (code: string): void => {
       if (!code) return;
+      setSaveError('');
       setSettingSaving(true);
       // eslint-disable-next-line promise/catch-or-return
       selectLexicon(code)
         .then(() => setSettingSaved(true))
-        .catch((e) =>
-          logger.error(localizedStrings['%lexicon_selectLexicon_saveError%'], JSON.stringify(e)),
-        )
+        .catch((e) => {
+          logger.error(localizedStrings['%lexicon_selectLexicon_saveError%'], JSON.stringify(e));
+          setSaveError(e instanceof Error ? e.message : String(e));
+        })
         .finally(() => setSettingSaving(false));
     },
     [localizedStrings, selectLexicon],
@@ -74,6 +79,8 @@ export default function LexiconComboBox({
         textPlaceholder={localizedStrings['%lexicon_selectLexicon_select%']}
       />
 
+      {!!saveError && <p className="tw:text-sm tw:text-destructive tw:mt-1">{saveError}</p>}
+
       {!!selectedLexiconCode && (
         <div className="tw:flex tw:gap-2 tw:items-center">
           <Button onClick={() => saveSetting(selectedLexiconCode)} type="button">
@@ -84,6 +91,12 @@ export default function LexiconComboBox({
             {localizedStrings['%lexicon_selectLexicon_clear%']}
           </Button>
         </div>
+      )}
+
+      {!!onCreateNew && (
+        <Button onClick={onCreateNew} type="button" variant="secondary">
+          {localizedStrings['%lexicon_createLexicon_button%']}
+        </Button>
       )}
     </div>
   );

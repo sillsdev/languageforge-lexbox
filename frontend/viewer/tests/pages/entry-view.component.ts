@@ -18,7 +18,9 @@ export class EntryViewComponent {
   }
 
   async waitForEntryLoaded(): Promise<void> {
-    await expect(this.menuButton).toBeVisible({timeout: 5000});
+    // The lexeme form is the canonical "entry loaded" signal. (The dots-vertical menu icon isn't
+    // unique — audio fields and picture menus use it too — so it can't gate readiness.)
+    await expect(this.lexemeFormField).toBeVisible({timeout: 5000});
   }
 
   async waitForEntrySaved(): Promise<void> {

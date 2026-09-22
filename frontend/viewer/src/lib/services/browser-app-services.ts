@@ -4,8 +4,8 @@ import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteSha
 import type {IPreferencesService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IPreferencesService';
 
 const localStoragePreferencesService: IPreferencesService = {
-  get(key: string): Promise<string | null> {
-    return Promise.resolve(localStorage.getItem(key));
+  get(key: string): Promise<string | undefined> {
+    return Promise.resolve(localStorage.getItem(key) ?? undefined);
   },
   set(key: string, value: string): Promise<void> {
     localStorage.setItem(key, value);
@@ -22,8 +22,8 @@ const noopJsEventListener: IJsEventListener = {
     // Never resolves — no events to deliver in a browser-only context
     return new Promise<IFwEvent>(() => {});
   },
-  lastEvent(): Promise<IFwEvent | null> {
-    return Promise.resolve(null);
+  lastEvent(): Promise<IFwEvent | undefined> {
+    return Promise.resolve(undefined);
   },
 };
 

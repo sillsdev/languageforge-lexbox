@@ -23,7 +23,7 @@ public static class DataKernel
             services.AddScoped<SeedingData>();
 
         LinqToDBForEFTools.Initialize();
-        services.AddDbContext<LexBoxDbContext>((serviceProvider, options) =>
+        services.AddPooledDbContextFactory<LexBoxDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();
             options.UseNpgsql(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.LexBoxConnectionString);
@@ -47,7 +47,10 @@ public static class DataKernel
 #if DEBUG
             options.EnableSensitiveDataLogging();
 #endif
-        }, dbContextLifeTime);
+        });
+        //we're now using a pooled db context factory, but we don't want to rewrite everything else to use it, so we'll expose `LexBoxDbContext` as a service
+        //it'll get disposed properly when the service scope is disposed, just like before.
+        services.Add(new ServiceDescriptor(typeof(LexBoxDbContext), sp => sp.GetRequiredService<IDbContextFactory<LexBoxDbContext>>().CreateDbContext(), dbContextLifeTime));
         services.AddLogging();
         services.AddHealthChecks()
             .AddDbContextCheck<LexBoxDbContext>(customTestQuery: (context, token) => context.HeathCheck(token));

@@ -15,7 +15,7 @@
 </script>
 
 <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4 max-xs:justify-items-center">
-  {#each projects as project (project.id)}
+  {#each projects as project ((project.isDraft ? 'draft-' : '') + project.id)}
     {#if project.isDraft}
       <div class="draft card aspect-square bg-base-200 overflow-hidden">
         <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')"></div>

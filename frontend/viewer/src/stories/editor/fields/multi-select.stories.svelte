@@ -20,6 +20,15 @@
   }
 
   const selectedDomains = [allDomains[0], allDomains[80]];
+  const manySelectedDomains = [
+    allDomains[0],
+    allDomains[5],
+    allDomains[12],
+    allDomains[25],
+    allDomains[40],
+    allDomains[60],
+    allDomains[80],
+  ];
 
   const { Story } = defineMeta({
     component: MultiSelect<typeof allDomains[number]>,
@@ -44,6 +53,10 @@
 </script>
 
 <Story name="Standard" />
+
+<Story name="Many selected" args={{ values: manySelectedDomains }} />
+
+<Story name="Selected group off" args={{ showSelectedGroup: false }} />
 
 <Story name="Option order"  args={{ sortValuesBy: 'optionOrder' }} />
 

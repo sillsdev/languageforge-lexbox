@@ -61,5 +61,10 @@ export default defineConfig(({command}) => ({
       host: true,
       allowedHosts: true,
       cors: true,
+      watch: {
+        // Reinforced.Typings writes generated types atomically (*.ts.tmp -> rename) when the
+        // backend builds; watching those transient temp files races and throws EBUSY on Windows.
+        ignored: ['**/*.tmp'],
+      },
     },
 }));

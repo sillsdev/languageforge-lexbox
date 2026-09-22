@@ -1,0 +1,10 @@
+$patch: delete
+# Local-dev strips cert-manager OAuth Certificates; drop the retainer CronJob/RBAC
+# so we do not schedule Jobs against missing Secrets. Companion volume mounts stay
+# optional:true on the API Deployment and do not block pod start.
+# The values below are ignored aside from enabling parse; $patch: delete + target
+# selectors in kustomization.yaml are what matter.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: oauth-cert-retainer

@@ -20,7 +20,7 @@ public class CommitEntityConfiguration : IEntityTypeConfiguration<ServerCommit>
         builder.ToTable("CrdtCommits");
         builder.HasKey(c => c.Id);
         builder.ComplexProperty(c => c.HybridDateTime);
-        builder.HasOne<Project>().WithMany()
+        builder.HasOne<Project>().WithMany(p => p.HarmonyCommits)
             .HasPrincipalKey(project => project.Id)
             .HasForeignKey(c => c.ProjectId);
         builder.Property(c => c.Metadata).HasConversion(
@@ -32,10 +32,6 @@ public class CommitEntityConfiguration : IEntityTypeConfiguration<ServerCommit>
             json => JsonSerializer.Deserialize<List<ChangeEntity<ServerJsonChange>>>(json, Options) ?? new()
         ).HasColumnType("jsonb").IsRequired(false);
     }
-
-    private static ServerJsonChange Deserialize(string s) => JsonSerializer.Deserialize<ServerJsonChange>(s)!;
-
-    private static string Serialize(ServerJsonChange c) => JsonSerializer.Serialize(c);
 
     private class ServerJsonChangeConverter: JsonConverter<ServerJsonChange>
     {

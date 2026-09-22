@@ -47,6 +47,12 @@
             "group": "lexicon.editor",
             "order": 4,
             "command": "lexicon.findRelatedEntries"
+          },
+          {
+            "label": "%lexicon_menu_selectLexicon%",
+            "group": "lexicon.editor",
+            "order": 5,
+            "command": "lexicon.changeLexicon"
           }
         ]
       }

@@ -1,9 +1,13 @@
+using SIL.Harmony.Config;
 using FwLiteMaui.Services;
 using FwLiteShared;
+using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
+using FwLiteShared.KeepAwake;
 using FwLiteShared.Services;
 using LcmCrdt;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
@@ -22,6 +26,8 @@ public static class FwLiteMauiKernel
         // MAUI has no built-in appsettings.json loading like ASP.NET Core, so this is a no-op today.
         // See https://github.com/dotnet/maui/issues/4408
         //configuration.AddJsonFile("appsettings.json", optional: true);
+        // Environment variables are wired up in MauiProgram (e.g. FwLiteMaui__BaseDataDir), so the
+        // "FwLiteMaui" section bound below can be overridden at runtime without appsettings.json.
 
         string environment = "Production";
 #if DEBUG
@@ -33,6 +39,17 @@ public static class FwLiteMauiKernel
         services.AddBlazorWebViewDeveloperTools();
         //must be added after blazor as it modifies IJSRuntime in order to intercept it's constructor
         services.AddFwLiteShared(env);
+        services.Configure<AnalyticsConfig>(config => config.Host = MixpanelAnalytics.MauiHost);
+        services.AddSingleton<IAnalyticsEventEnricher, MauiAnalyticsEventEnricher>();
+#if ANDROID
+        // Firebase Test Lab / Play pre-launch is a static, start-of-process signal, so fold it into
+        // the config switch at startup rather than re-checking it on every event.
+        services.PostConfigure<AnalyticsConfig>(config =>
+        {
+            if (MixpanelAnalytics.IsTruthyEnv(ReadFirebaseTestLab()))
+                config.Enabled = false;
+        });
+#endif
         services.AddSingleton<HostedServiceAdapter>();
         services.AddSingleton<IMauiInitializeService>(sp => sp.GetRequiredService<HostedServiceAdapter>());
         services.Configure<AuthConfig>(config =>
@@ -64,8 +81,12 @@ public static class FwLiteMauiKernel
 #if WINDOWS
         services.AddFwLiteWindows(env);
 #endif
+#if MACCATALYST
+        services.Configure<AuthConfig>(config => config.CustomWebUiFactory = () => new AuthenticationSessionWebUi());
+#endif
 #if ANDROID
-        services.Configure<AuthConfig>(config => config.ParentActivityOrWindow = Platform.CurrentActivity);
+        services.Configure<AuthConfig>(config => config.GetParentActivityOrWindow = () => Platform.CurrentActivity);
+        services.Replace(ServiceDescriptor.Singleton<IKeepAwakePlatform, AndroidKeepAwakePlatform>());
 #endif
         services.AddSingleton<IAppLauncher, AppLauncher>();
 
@@ -80,7 +101,7 @@ public static class FwLiteMauiKernel
             {
                 config.Os = FwLitePlatform.iOS;
             }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.macOS)
+            else if (DeviceInfo.Current.Platform == DevicePlatform.macOS || DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst)
             {
                 config.Os = FwLitePlatform.Mac;
             }
@@ -116,7 +137,7 @@ public static class FwLiteMauiKernel
             config.CacheFileName = fwLiteMauiConfig.AuthCacheFilePath;
             config.SystemWebViewLogin = true;
         });
-        services.Configure<CrdtConfig>(config =>
+        services.Configure<HarmonyConfig>(config =>
         {
             config.FailedSyncOutputPath = Path.Combine(baseDataPath, "failedSyncs");
             config.LocalResourceCachePath = Path.Combine(baseDataPath, "localResourcesCache");
@@ -137,13 +158,35 @@ public static class FwLiteMauiKernel
         services.AddSingleton(_ => Launcher.Default);
         services.AddSingleton(_ => Browser.Default);
         services.AddSingleton(_ => Share.Default);
+        services.AddSingleton(_ => MediaPicker.Default);
         services.AddSingleton<IPreferencesService, MauiPreferencesService>();
         services.AddSingleton<ITroubleshootingService, MauiTroubleshootingService>();
+        services.AddSingleton<IPlatformFeaturesService, MauiPlatformFeaturesService>();
         logging.AddConsole();
 #if DEBUG
         logging.AddDebug();
 #endif
     }
+
+#if ANDROID
+    // Firebase Test Lab / Play pre-launch devices set the Android setting firebase.test.lab.
+    // Fresh Play installs by real users do not.
+    private static string? ReadFirebaseTestLab()
+    {
+        try
+        {
+            var resolver = Android.App.Application.Context.ContentResolver;
+            var system = Android.Provider.Settings.System.GetString(resolver, "firebase.test.lab");
+            if (!string.IsNullOrEmpty(system))
+                return system;
+            return Android.Provider.Settings.Global.GetString(resolver, "firebase.test.lab");
+        }
+        catch
+        {
+            return null;
+        }
+    }
+#endif
 
 #if WINDOWS
     private static readonly Lazy<bool> IsPackagedAppLazy = new(static () =>

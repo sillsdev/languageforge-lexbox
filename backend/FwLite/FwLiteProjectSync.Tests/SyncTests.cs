@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Media;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 
 namespace FwLiteProjectSync.Tests;
 
@@ -208,6 +209,31 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Integration")]
+    public async Task MovingASenseAndAnExampleSentenceInEachProjectSyncsAcrossBoth()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        var targetSense = await fwdataApi.CreateSense(_testEntry.Id, new Sense { Gloss = { { "en", "Fruit" } } });
+        var targetEntry = await fwdataApi.CreateEntry(new Entry { LexemeForm = { { "en", "Pear" } } });
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+        var sourceSense = (await fwdataApi.GetEntry(_testEntry.Id))!.Senses.Single(s => s.ExampleSentences.Count == 1);
+        var example = sourceSense.ExampleSentences[0];
+
+        // FieldWorks moves the example to the other sense while FieldWorks Lite moves its old sense to the other entry
+        await fwdataApi.MoveExampleSentence(_testEntry.Id, targetSense.Id, example.Id, new BetweenPosition(null, null), MoveKind.Reparent);
+        await crdtApi.MoveSense(targetEntry.Id, sourceSense.Id, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
+        (await crdtApi.GetSense(_testEntry.Id, targetSense.Id))!.ExampleSentences.Select(e => e.Id).Should().Equal(example.Id);
+        (await fwdataApi.GetEntry(targetEntry.Id))!.Senses.Select(s => s.Id).Should().Equal(sourceSense.Id);
+        (await fwdataApi.GetSense(targetEntry.Id, sourceSense.Id))!.ExampleSentences.Should().BeEmpty();
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
     public async Task SyncDryRun_NoChangesAreSynced()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -391,6 +417,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Id = new Guid("f4491f9b-3c5e-42ab-afc0-f22e19d0fff5"),
             Name = new MultiString() { { "en", "Language and thought" } },
+            Abbreviation = new MultiString() { { "en", "3" } },
             Code = "3",
             Predefined = true,
         };
@@ -400,6 +427,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Id = new Guid("62b4ae33-f3c2-447a-9ef7-7e41805b6a02"),
             Name = new MultiString() { { "en", "Social behavior" } },
+            Abbreviation = new MultiString() { { "en", "4" } },
             Code = "4",
             Predefined = true,
         };
@@ -430,6 +458,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             Id = new Guid("f4491f9b-3c5e-42ab-afc0-f22e19d0fff5"),
             Name = new MultiString() { { "en", "Language and thought" } },
+            Abbreviation = new MultiString() { { "en", "3" } },
             Code = "3",
             Predefined = true,
         };

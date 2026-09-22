@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Projects;
@@ -37,6 +38,8 @@ public class FwLiteProvider(
         DotnetService.JsInvokableLogger,
         DotnetService.UpdateService,
         DotnetService.PreferencesService,
+        DotnetService.PlatformFeaturesService,
+        DotnetService.AnalyticsService,
     ];
 
     public static Type GetServiceType(DotnetService service) => service switch
@@ -58,6 +61,8 @@ public class FwLiteProvider(
         DotnetService.JsInvokableLogger => typeof(JsInvokableLogger),
         DotnetService.UpdateService => typeof(UpdateService),
         DotnetService.PreferencesService => typeof(IPreferencesService),
+        DotnetService.PlatformFeaturesService => typeof(IPlatformFeaturesService),
+        DotnetService.AnalyticsService => typeof(IAnalyticsService),
         _ => throw new ArgumentOutOfRangeException(nameof(service), service, null)
     };
 
@@ -119,4 +124,6 @@ public enum DotnetService
     JsInvokableLogger,
     UpdateService,
     PreferencesService,
+    PlatformFeaturesService,
+    AnalyticsService,
 }

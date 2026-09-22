@@ -66,6 +66,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
           'FlexProjectMetadata': (metaData) => metaData.projectId as string,
           'ProjectWritingSystems': () => null,
           'FLExWsId': (metaData) => metaData.tag as string,
+          'HybridDateTime': () => null,
         },
         updates: {
           Mutation: {
@@ -190,11 +191,13 @@ class GqlClient {
     fetch: Fetch,
     query: TypedDocumentNode<Data, Variables>,
     variables: Variables,
-    context: QueryOperationOptions = {}): OperationResultStore<Data, Variables> & Pausable {
+    context: QueryOperationOptions = {},
+    pause = false): OperationResultStore<Data, Variables> & Pausable {
     const resultStore = queryStore<Data, Variables>({
       client: this.client,
       query,
       variables,
+      pause,
       context: {fetch, ...context}
     });
 

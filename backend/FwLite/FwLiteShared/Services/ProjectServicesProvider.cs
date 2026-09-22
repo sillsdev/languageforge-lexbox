@@ -39,10 +39,10 @@ public class ProjectServicesProvider(
     }
 
     [JSInvokable]
-    public Task<string?> TryGetCrdtProjectName(string code)
+    public string? TryGetCrdtProjectName(string code)
     {
         var crdtProject = crdtProjectsService.GetProject(code);
-        return Task.FromResult(crdtProject?.Data?.Name);
+        return crdtProject?.Data?.Name;
     }
 
     [JSInvokable]

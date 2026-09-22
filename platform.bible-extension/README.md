@@ -183,7 +183,10 @@ useEffect(() => {
 }, []);
 ```
 
-- The current PT project id (which the example WebViews get via their props).
+- The FW Lite lexicon code of the lexicon to act on (which the example WebViews get via their
+  `lexiconCode` prop). Every `IEntryService` method takes it as its first argument; the service
+  itself holds no notion of a Paratext project, so mapping a project to a lexicon is the caller's
+  own business.
 - Call any method defined in [entry-service.ts](src/services/entry-service.ts)
   - To use `lexiconService.addEntry`, also import types `IEntry` and `PartialEntry` from `'lexicon'`.
   - To use `lexiconService.getEntries`, also import types `IEntryQuery` and `PartialEntry` from `'lexicon'`.

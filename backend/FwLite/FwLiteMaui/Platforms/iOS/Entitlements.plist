@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- MSAL keeps its token cache in the keychain group "<TeamId>.com.microsoft.adalcache", deriving TeamId from the
+         app's first keychain access group. Without this entitlement sign-in completes but saving the token fails
+         with missing_entitlements. Simulator builds use Entitlements.Simulator.plist (no team prefix there). -->
+    <key>keychain-access-groups</key>
+    <array>
+        <string>$(AppIdentifierPrefix)com.microsoft.adalcache</string>
+    </array>
+</dict>
+</plist>

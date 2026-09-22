@@ -67,7 +67,7 @@ public class ImportTests : IClassFixture<SyncFixture>
         var ws = new WritingSystem
         {
             Id = Guid.NewGuid(),
-            Name = "fr",
+            Name = "French",
             WsId = "fr",
             Abbreviation = "Fr",
             Font = "Charis SIL",
@@ -108,7 +108,13 @@ public class ImportTests : IClassFixture<SyncFixture>
     [Fact]
     public async Task ImportsANewlyCreatedSemanticDomain()
     {
-        var sd = new SemanticDomain { Id = Guid.NewGuid(), Name = { ["en"] = "Test SD" }, Code = "TSD"};
+        var sd = new SemanticDomain
+        {
+            Id = Guid.NewGuid(),
+            Name = { ["en"] = "Test SD" },
+            Abbreviation = { ["en"] = "TSD" },
+            Code = "TSD",
+        };
         await _fixture.FwDataApi.CreateSemanticDomain(sd);
         await ImportService.ImportProject(_fixture.CrdtApi, _fixture.FwDataApi, 1);
         var importedSd = await _fixture.CrdtApi.GetSemanticDomain(sd.Id);

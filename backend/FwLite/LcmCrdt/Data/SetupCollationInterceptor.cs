@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
@@ -13,7 +14,7 @@ using SIL.Harmony;
 
 namespace LcmCrdt.Data;
 
-public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider, IOptions<CrdtConfig> crdtConfig) : IDbConnectionInterceptor, ISaveChangesInterceptor, IConnectionInterceptor
+public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider, IOptions<HarmonyConfig> harmonyConfig) : IDbConnectionInterceptor, ISaveChangesInterceptor, IConnectionInterceptor
 {
     private static string? WsTableName = null;
     private WritingSystem[] GetWritingSystems(DbConnection connection, LcmCrdtDbContext? dbContext = null)
@@ -29,7 +30,7 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                     {
                         var optionsBuilder = new DbContextOptionsBuilder<LcmCrdtDbContext>();
                         optionsBuilder.UseSqlite(connection);
-                        localContext = new LcmCrdtDbContext(optionsBuilder.Options, crdtConfig);
+                        localContext = new LcmCrdtDbContext(optionsBuilder.Options, harmonyConfig);
                     }
 
                     try

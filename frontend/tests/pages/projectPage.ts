@@ -14,6 +14,7 @@ export class ProjectPage extends AuthenticatedBasePage {
   get askToJoinButton(): Locator { return this.main.getByRole('button', {name: 'Ask to join'}); }
   get browseButton(): Locator { return this.main.getByRole('link', {name: 'Browse'}); }
   get modal(): Locator { return this.page.locator('.modal-box'); }
+  get showHgHistoryButton(): Locator { return this.main.getByRole('button', {name: 'Show history'}); }
 
   constructor(page: Page, private name: string, private code: string) {
     super(page, page.getByRole('heading', {name: `Project: ${name}`}), `/project/${code}`);
@@ -43,5 +44,11 @@ export class ProjectPage extends AuthenticatedBasePage {
   async clickVerifyRepo(): Promise<void> {
     await this.openMoreSettings();
     await this.verifyRepoButton.click();
+  }
+
+  async showHgHistory(): Promise<void> {
+    if (await this.showHgHistoryButton.isVisible()) {
+      await this.showHgHistoryButton.click();
+    }
   }
 }

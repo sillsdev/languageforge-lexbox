@@ -69,7 +69,6 @@ public class JsEventListener : IDisposable
     }
 
     [JSInvokable]
-    [TsFunction(Type = "Promise<IFwEvent | null>")]
     public ValueTask<IFwEvent?> LastEvent(FwEventType type)
     {
         return ValueTask.FromResult(_globalEventBus.GetLastEvent(type));

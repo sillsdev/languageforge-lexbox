@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Xml.Linq;
 using FluentAssertions;
 using LexBoxApi;
 using LexBoxApi.Config;
@@ -53,6 +54,23 @@ public class FwLiteReleaseServiceTests
     }
 
     [Theory]
+    [InlineData(FwLiteEdition.iOS)]
+    [InlineData(FwLiteEdition.Mac)]
+    [InlineData(FwLiteEdition.Android)]
+    public async Task UnconfiguredEditionReturnsNullInsteadOfThrowing(FwLiteEdition edition)
+    {
+        //Editions with no release-asset config (only Windows + Linux are configured in this fixture)
+        //must not throw: the should-update endpoint would otherwise 500 on every such client launch.
+        var latestRelease = await _fwLiteReleaseService.GetLatestRelease(edition);
+        latestRelease.Should().BeNull();
+
+        var shouldUpdate = await _fwLiteReleaseService.ShouldUpdate(edition, "v2024-11-20-d04e9b96");
+        shouldUpdate.Should().NotBeNull();
+        shouldUpdate.Release.Should().BeNull();
+        shouldUpdate.Update.Should().BeFalse();
+    }
+
+    [Theory]
     [InlineData("v2024-11-20-d04e9b96")]
     public async Task IsConsideredAnOldVersion(string appVersion)
     {
@@ -91,5 +109,26 @@ public class FwLiteReleaseServiceTests
     {
         var actual = FwLiteReleaseService.ShouldUpdateToRelease(appVersion, latestVersion);
         actual.Should().Be(expected, reason);
+    }
+
+    [Fact]
+    public async Task AppInstallerSelfReferencingUriEndsInAppinstaller()
+    {
+        //The App Installer APIs (Add-AppxPackage -AppInstallerFile, AddPackageByAppInstallerFileAsync)
+        //validate that the update source URL's path ends in .appinstaller. This root Uri is baked into
+        //every install as its update source, so if it stops ending in .appinstaller auto-update breaks.
+        var appInstaller = await _fwLiteReleaseService.GenerateAppInstaller();
+        var uri = XDocument.Parse(appInstaller).Root!.Attribute("Uri")!.Value;
+        new Uri(uri).AbsolutePath.Should().EndWith(".appinstaller");
+    }
+
+    [Theory]
+    //must match the bundle identity version CI stamps: `date +%Y.%-m.%-d` (no leading zeros) + ".1"
+    [InlineData("v2025-01-17-a62c709c", "2025.1.17.1")]
+    [InlineData("v2026-07-06-915ca19d", "2026.7.6.1")]
+    [InlineData("v2026-10-30-deadbeef", "2026.10.30.1")]
+    public void ConvertVersionToAppInstallerVersionGivesExpectedResult(string tag, string expected)
+    {
+        FwLiteReleaseService.ConvertVersionToAppInstallerVersion(tag).Should().Be(expected);
     }
 }

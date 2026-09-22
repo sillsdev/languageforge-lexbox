@@ -20,7 +20,7 @@ namespace LexBoxApi.Controllers;
 [ApiController]
 [Route("/api/crdt")]
 [RequireScope(LexboxAuthScope.SendAndReceive)]
-[ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
+[ApiExplorerSettings(GroupName = LexboxOpenApi.OpenApiPublicDocumentName)]
 public class CrdtController(
     LexBoxDbContext dbContext,
     IHubContext<CrdtProjectChangeHub, IProjectChangeHubClient> hubContext,

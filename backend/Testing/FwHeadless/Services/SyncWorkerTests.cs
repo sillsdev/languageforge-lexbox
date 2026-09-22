@@ -1,5 +1,6 @@
 using FwHeadless.Services;
 using LexCore.Sync;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Moq;
 using static Testing.FwHeadless.Services.SyncStep;
 
@@ -7,6 +8,20 @@ namespace Testing.FwHeadless.Services;
 
 public class SyncWorkerTests
 {
+    [Fact]
+    public async Task SyncHarmonyRoute_SucceedsWhenRequestScopeAlreadyHasProjectContext()
+    {
+        using var h = new SyncWorkerTestHarness();
+
+        // Regression: the route used to run the worker in the request scope that the
+        // ProjectContextFromIdService middleware had already set the project on, so the worker's
+        // second SetupProjectContext threw "Can't setup project context for crdt ...".
+        var result = await h.RunHarmonyRouteWithPrePopulatedContextAsync();
+
+        result.Result.Should().BeOfType<Ok>();
+        h.Steps.Should().Contain(HarmonySync);
+    }
+
     [Fact]
     public async Task ExecuteSync_SuccessWithCrdtAndFwChanges_RegeneratesSnapshotAfterSendReceive()
     {

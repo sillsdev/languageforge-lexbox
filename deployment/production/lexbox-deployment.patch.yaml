@@ -25,4 +25,4 @@ spec:
             - name: Email__CreateProjectEmailDestination
               value: "admin@languagedepot.org"
             - name: Email__BaseUrl
-              value: "https://languagedepot.org"
+              value: "https://lexbox.org"

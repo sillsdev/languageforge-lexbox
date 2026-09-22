@@ -12,37 +12,40 @@ spec:
             runAsUser: 33
             runAsGroup: 33 # www-data
             runAsNonRoot: true
-          image: busybox:1.36.1
-          imagePullPolicy: IfNotPresent
+          # busybox base image with the seed repo zips baked into /init-repos.
+          # Published by .github/workflows/build-test-repos.yaml; refresh with a
+          # manual run of that workflow. Everything references :latest.
+          image: ghcr.io/sillsdev/lexbox-test-repos:latest
+          imagePullPolicy: Always
           command:
             - 'sh'
             - '-c'
             - |
-              if [ ! -d /repos/s/sena-3 ] && [ ! -d /repos/sena-3 ]; then
-                if [ -f /init-repos/sena-3.zip ]; then
-                  unzip -q /init-repos/sena-3.zip -d /repos/s/
-                else
-                  wget -O /tmp/sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
-                  unzip -q /tmp/sena-3.zip -d /repos/s/
+              set -eu
+              # Extract a seed repo into the hgweb bucket unless it's already
+              # there. Fails loudly (rather than leaving hg to 404 later) if a
+              # zip is missing or doesn't contain a valid Mercurial repo.
+              extract() {
+                name="$1"    # repo directory name
+                bucket="$2"  # hgweb bucket subdir (first letter of the code)
+                zip="$3"     # zip file baked into the image
+                target="/repos/$bucket/$name"
+                if [ -d "$target/.hg" ]; then
+                  echo "$name already present, skipping"
+                  return
                 fi
-              fi
-              if [ ! -d /repos/e/elawa-dev-flex ] && [ ! -d /repos/elawa-dev-flex ]; then
-                if [ -f /init-repos/elawa.zip ]; then
-                  unzip -q /init-repos/elawa.zip -d /repos/e/
-                else
-                  wget -O /tmp/elawa.zip 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t'
-                  unzip -q /tmp/elawa.zip -d /repos/e/
-                fi
-              fi
-              if [ ! -d /repos/e/empty-dev-flex ] && [ ! -d /repos/empty-dev-flex ]; then
-                if [ -f /init-repos/empty.zip ]; then
-                  unzip -q /init-repos/empty.zip -d /repos/e/
-                else
-                  wget -O /tmp/empty.zip 'https://drive.google.com/uc?export=download&id=1p73u-AGdSwNkg_5KEv9-4iLRuN-1V-LD'
-                  unzip -q /tmp/empty.zip -d /repos/e/
+                echo "Extracting $name from $zip ..."
+                rm -rf "$target"          # clear any partial/corrupt extract
+                mkdir -p "/repos/$bucket"
+                unzip -q "/init-repos/$zip" -d "/repos/$bucket/"
+                if [ ! -d "$target/.hg" ]; then
+                  echo "ERROR: $zip did not produce a valid $name repo" >&2
                   exit 1
                 fi
-              fi
+              }
+              extract sena-3         s sena-3.zip
+              extract elawa-dev-flex e elawa.zip
+              extract empty-dev-flex e empty.zip
           volumeMounts:
             - name: repos
               mountPath: /repos

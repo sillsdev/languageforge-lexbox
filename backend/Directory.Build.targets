@@ -1,0 +1,16 @@
+<Project>
+  <!--
+    Feed the in-repo analyzers to every backend project as analyzers (not as a normal reference).
+    OutputItemType="Analyzer"        -> the built assembly is handed to the compiler as an analyzer.
+    ReferenceOutputAssembly="false"  -> consumers get the analyzer's behaviour, not a code reference.
+
+    This lives in Directory.Build.targets (not .props) so that IsAnalyzerProject, set in each
+    analyzer csproj, is already evaluated. The condition prevents the analyzer projects from
+    referencing themselves (which would create a build cycle).
+  -->
+  <ItemGroup Condition="'$(IsAnalyzerProject)' != 'true'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)Analyzers\LexboxAnalyzers\LexboxAnalyzers.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>

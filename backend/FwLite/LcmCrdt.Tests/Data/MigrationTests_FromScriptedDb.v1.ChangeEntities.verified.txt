@@ -99,6 +99,10 @@
       },
       "Predefined": true,
       "Code": "1",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d0"
     }
   },
@@ -113,6 +117,10 @@
       },
       "Predefined": true,
       "Code": "1.1",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d1"
     }
   },
@@ -127,6 +135,10 @@
       },
       "Predefined": true,
       "Code": "1.2",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d2"
     }
   },
@@ -141,6 +153,10 @@
       },
       "Predefined": true,
       "Code": "2",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d3"
     }
   },
@@ -155,6 +171,10 @@
       },
       "Predefined": true,
       "Code": "2.1",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4"
     }
   },
@@ -169,6 +189,10 @@
       },
       "Predefined": true,
       "Code": "2.1.1",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5"
     }
   },
@@ -183,6 +207,10 @@
       },
       "Predefined": true,
       "Code": "2.1.1.1",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6"
     }
   },

@@ -27,7 +27,7 @@ public class OAuthService(
         if (options.Value.SystemWebViewLogin)
         {
             await HandleSystemWebViewLogin(application, cancellation);
-            globalEventBus.PublishEvent(new AuthenticationChangedEvent(lexboxServer));
+            globalEventBus.PublishEvent(new AuthenticationChangedEvent(lexboxServer, AuthenticationChangeCause.Login));
             return new(null, true);
         }
 
@@ -48,11 +48,17 @@ public class OAuthService(
 
     private async Task HandleSystemWebViewLogin(IPublicClientApplication application, CancellationToken cancellation)
     {
-        var result = await application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
-            .WithUseEmbeddedWebView(false)
-            .WithParentActivityOrWindow(options.Value.ParentActivityOrWindow)
-            .WithSystemWebViewOptions(new() { })
-            .ExecuteAsync(cancellation);
+        var request = application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
+            .WithParentActivityOrWindow(options.Value.GetParentActivityOrWindow?.Invoke());
+        if (options.Value.CustomWebUiFactory is { } customWebUiFactory)
+        {
+            request = request.WithCustomWebUi(customWebUiFactory());
+        }
+        else
+        {
+            request = request.WithUseEmbeddedWebView(false).WithSystemWebViewOptions(new() { });
+        }
+        await request.ExecuteAsync(cancellation);
     }
 
     public async Task<(AuthenticationResult, string ClientReturnUrl)> FinishLoginRequest(Uri uri,
@@ -68,7 +74,7 @@ public class OAuthService(
             await request.GetAuthenticationResult(applicationLifetime?.ApplicationStopping.Merge(cancellation) ??
                                                   cancellation),
             request.ClientReturnUrl);
-        globalEventBus.PublishEvent(new AuthenticationChangedEvent(request.LexboxServer));
+        globalEventBus.PublishEvent(new AuthenticationChangedEvent(request.LexboxServer, AuthenticationChangeCause.Login));
         return result;
         //step 8
     }

@@ -52,7 +52,10 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         var editionConfig = config.Value.Editions.GetValueOrDefault(edition);
         if (editionConfig is null)
         {
-            throw new ArgumentException($"No config for edition {edition}");
+            //Editions with no release-asset config (e.g. store-distributed iOS/Mac) have no GitHub
+            //feed to check. Return null ("no update") rather than throwing, which the endpoint would
+            //otherwise surface as a 500 on every client launch.
+            return null;
         }
         using var activity = LexBoxActivitySource.Get().StartActivity();
         activity?.AddTag(FwLiteEditionTag, edition.ToString());
@@ -111,7 +114,7 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         return $"""
 <?xml version="1.0" encoding="utf-8"?>
 <AppInstaller
- Uri="https://lexbox.org/api/fwlite-release/download-latest?edition=windowsAppInstaller"
+ Uri="https://lexbox.org/api/fwlite-release/FieldWorksLite.appinstaller"
  Version="{version}"
  xmlns="http://schemas.microsoft.com/appx/appinstaller/2021">
  <MainBundle
@@ -120,10 +123,12 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
    Version="{version}"
    Uri="{windowsRelease.Url}" />
  <UpdateSettings>
-   <OnLaunch
-     HoursBetweenUpdateChecks="8"
-     ShowPrompt="true"
-     UpdateBlocksActivation="false" />
+   <!-- No OnLaunch: Windows never checks on start, so it can't show an update prompt and doesn't
+        race the in-app updater. Updates are applied silently by the background task. That task's
+        interval is nominally 8h, but it's a maintenance task that also carries RunOnlyIfIdle +
+        DisallowStartIfOnBatteries + up to an 8h random delay, so on a laptop that sleeps or runs on
+        battery real checks are far rarer. HoursBetweenUpdateChecks can't tighten this: it's an
+        OnLaunch-only attribute (see the AppInstaller schema), which we deliberately don't use. -->
    <ForceUpdateFromAnyVersion>false</ForceUpdateFromAnyVersion>
    <AutomaticBackgroundTask />
  </UpdateSettings>
@@ -131,12 +136,17 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
 """;
     }
 
-    private static string ConvertVersionToAppInstallerVersion(string version)
+    //public for testing (like ShouldUpdateToRelease): this MUST match the bundle's manifest identity
+    //version exactly (CI stamps that from `date +%Y.%-m.%-d` plus a `.1` revision in the MakeAppx /bv
+    //arg), or the App Installer install fails with an identity mismatch.
+    public static string ConvertVersionToAppInstallerVersion(string version)
     {
-        //version is something like v2025-01-17-a62c709c which should be converted to 2025.1.17.1 always adding .1 on the end and trimming zeros
+        //version is something like v2025-01-17-a62c709c which should be converted to 2025.1.17.1,
+        //always adding .1 on the end. int.Parse drops leading zeros
         return version.Split('-') switch
         {
-            [var year, var month, var day, ..] => $"{year.TrimStart('v')}.{month.TrimStart('0')}.{day.TrimStart('0')}.1",
+            [var year, var month, var day, ..] =>
+                $"{int.Parse(year.TrimStart('v'))}.{int.Parse(month)}.{int.Parse(day)}.1",
             _ => throw new ArgumentException($"Invalid version {version}")
         };
     }

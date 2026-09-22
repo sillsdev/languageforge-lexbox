@@ -33,6 +33,8 @@ declare module 'lexicon' {
 
   export interface SuccessHolder {
     success: boolean;
+    /** When `success` is false, a human-readable reason (e.g. a backend validation message). */
+    error?: string;
   }
 
   export interface IEntryQuery {
@@ -42,13 +44,32 @@ declare module 'lexicon' {
     readonly semanticDomain?: string;
   }
 
+  /**
+   * Reads and writes the lexical data of one lexicon at a time.
+   *
+   * Record-returning methods resolve `undefined` when the lexicon or record is missing and reject
+   * only for backend faults or other unknown failures. `deleteEntry` is the exception: a missing
+   * lexicon rejects because there is no meaningful absence value to return.
+   *
+   * IDs are GUIDs minted by the lexicon; any other shape is treated as not found rather than as a
+   * fault.
+   */
   export interface IEntryService {
-    getEntries(projectId: string, query: IEntryQuery): Promise<IEntry[] | undefined>;
-    getEntry(projectId: string, id: string): Promise<IEntry | undefined>;
-    getSense(projectId: string, id: string): Promise<ISense | undefined>;
-    addEntry(projectId: string, reference: PartialEntry): Promise<IEntry | undefined>;
-    updateEntry(projectId: string, reference: IEntry): Promise<void>;
-    deleteEntry(projectId: string, id: string): Promise<void>;
+    /**
+     * @param query - Ignored unless it narrows by surface form or semantic domain.
+     * @returns Matching entries, or `undefined` when the query narrows by nothing or the lexicon is
+     *   missing. Empty when the lexicon holds no match.
+     */
+    getEntries(lexiconCode: string, query: IEntryQuery): Promise<IEntry[] | undefined>;
+    getEntry(lexiconCode: string, id: string): Promise<IEntry | undefined>;
+    getSense(lexiconCode: string, id: string): Promise<ISense | undefined>;
+    /**
+     * @returns The created entry, including any IDs minted by the lexicon, or `undefined` when the
+     *   lexicon is missing. Rejects when the backend refuses the entry.
+     */
+    addEntry(lexiconCode: string, entry: PartialEntry): Promise<IEntry | undefined>;
+    updateEntry(lexiconCode: string, entry: IEntry): Promise<void>;
+    deleteEntry(lexiconCode: string, id: string): Promise<void>;
   }
 
   /** Additions for options/props of project-specific WebViews. */
@@ -98,7 +119,24 @@ declare module 'papi-shared-types' {
     'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.authServers': () => Promise<AuthServerStatus[] | undefined>;
     'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
-    'lexicon.displayEntry': (projectId: string, entryId: string) => Promise<SuccessHolder>;
+    /** DEV-ONLY lexicon switcher; remove before release (see src/main.ts changeLexiconCommand). */
+    'lexicon.changeLexicon': (webViewId: string) => Promise<SuccessHolder>;
+    'lexicon.createLexicon': (
+      name: string,
+      code: string,
+      vernacularWs: string,
+      analysisWs?: string,
+    ) => Promise<SuccessHolder>;
+    /**
+     * Opens the browse view on one entry of the lexicon named, rather than of whichever lexicon the
+     * project's setting holds by then — so an entry just written to one lexicon is never shown from
+     * another. `projectId` scopes the browse tab, which a later entry of the same project reuses.
+     */
+    'lexicon.displayEntry': (
+      projectId: string,
+      lexiconCode: string,
+      entryId: string,
+    ) => Promise<SuccessHolder>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.lexicons': (projectId?: string) => Promise<IProjectModel[] | undefined>;

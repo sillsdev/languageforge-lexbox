@@ -7,4 +7,5 @@
   <ItemGroup>
     <PackageReference Include="NeinLinq" />
   </ItemGroup>
+  <Import Project="$(MSBuildThisFileDirectory)..\Harmony.Core.References.props" />
 </Project>

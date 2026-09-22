@@ -87,6 +87,28 @@ export class EntryApiHelper {
     }, {idx: targetIndex, order: DEFAULT_ORDER, morphType: MorphTypeKind.Unknown});
   }
 
+  /** Create an entry with explicit per-writing-system lexeme forms (e.g. {seh: 'x', ny: 'y'}). */
+  async createEntryWithForms(lexemeForm: Record<string, string>): Promise<{id: string}> {
+    return this.page.evaluate(async ({forms, morphType}) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const created = await api.createEntry({
+        id: crypto.randomUUID(),
+        lexemeForm: forms,
+        citationForm: {},
+        senses: [],
+        note: {},
+        literalMeaning: {},
+        morphType,
+        components: [],
+        complexForms: [],
+        complexFormTypes: [],
+        publishIn: [],
+        homographNumber: 0,
+      }, {includeComplexFormsAndComponents: true, autoAddMainPublication: false});
+      return {id: created.id};
+    }, {forms: lexemeForm, morphType: MorphTypeKind.Stem});
+  }
+
   async createEntryWithHeadword(headword: string): Promise<{id: string; headword: string}> {
     return this.page.evaluate(async ({hw, morphType}) => {
       const api = window.__PLAYWRIGHT_UTILS__.demoApi;

@@ -11,6 +11,7 @@ using FwLiteWeb.Utils;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using NReco.Logging.File;
+using Scalar.AspNetCore;
 
 namespace FwLiteWeb;
 
@@ -60,8 +61,7 @@ public static class FwLiteWebServer
         }
         builder.Services.AddCors();
         builder.Services.AddFwLiteWebServices(builder.Environment);
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddOpenApi();
         builder.Services.AddHealthChecks();
 
         configure?.Invoke(builder);
@@ -69,12 +69,6 @@ public static class FwLiteWebServer
         app.Logger.LogInformation("FwLite FwLiteWeb startup");
         EnsureDataDirectoriesExist(app);
 // Configure the HTTP request pipeline.
-        app.UseSwagger();
-        app.UseSwaggerUI(o =>
-        {
-            o.ConfigObject.DisplayRequestDuration = true;
-            o.EnableTryItOutByDefault();
-        });
         if (app.Environment.IsDevelopment())
         {
             app.UseDirectoryBrowser();
@@ -117,6 +111,9 @@ public static class FwLiteWebServer
         app.MapAuthRoutes();
         app.MapMiniLcmRoutes("/api/mini-lcm");
         app.MapHealthChecks("/health");
+
+        app.MapOpenApi();
+        app.MapScalarApiReference();
 
         app.MapStaticAssets();
         app.MapRazorComponents<App>()

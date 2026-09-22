@@ -21,11 +21,18 @@ import { parseUrl } from '@opentelemetry/sdk-trace-web/build/src/utils';
 
 export const SERVICE_NAME = browser ? 'LexBox-SvelteKit-Client' : 'LexBox-SvelteKit-Server';
 
+// The OTLP trace exporter POSTs batches to this path. Tracing that request produces a span
+// that gets exported, producing another request -- an endless loop. The exporter has a built-in
+// guard (globalThis.fetch.__original) but our fetch proxy chain -- and zone.js re-wrapping fetch
+// via ZoneContextManager -- hides it, so we instead make our own tracing skip this URL. The
+// instrumentation-fetch/-xml-http-request layers get the same URL via ignoreUrls (see otel.client).
+export const TRACE_EXPORT_URL_PATTERN = /\/v1\/traces(?:$|\?)/;
+
 export function tracer(): Tracer {
   return trace.getTracer(SERVICE_NAME);
 }
 
-type ErrorType = 'gql' | 'fetch' | 'jwt-decode';
+type ErrorType = 'gql' | 'fetch' | 'jwt-decode' | 'zxcvbn';
 type LexBoxErrorSource = `${'client' | 'server'}-${ErrorType}`;
 export type ErrorSource = LexBoxErrorSource | ErrorHandler;
 type ErrorAttributes = Attributes & { ['app.error.source']: ErrorSource };
@@ -135,10 +142,14 @@ function traceErrorEvent(
  * we just want to make sure that our trace-ID gets used and that we stamp errors with it.
  */
 export function traceFetch([input]: Parameters<Fetch>, fetch: () => ReturnType<Fetch>, event?: RequestEvent | NavigationEvent | Event): ReturnType<Fetch> {
+  // Matches: https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/packages/opentelemetry-instrumentation-fetch/src/fetch.ts#L314-L316
+  const url = parseUrl(isRequest(input) ? input.url : input.toString()).href;
+  // Don't trace our own trace-export requests, or we loop (see TRACE_EXPORT_URL_PATTERN).
+  if (TRACE_EXPORT_URL_PATTERN.test(url)) {
+    return fetch();
+  }
   return tracer().startActiveSpan('fetch', async (span) => {
     try {
-      // Matches: https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/packages/opentelemetry-instrumentation-fetch/src/fetch.ts#L314-L316
-      const url = parseUrl(isRequest(input) ? input.url : input.toString()).href;
       span.setAttribute(SemanticAttributes.HTTP_URL, url);
       traceUserAttributes(span, event);
       if (browser)

@@ -83,6 +83,16 @@ public class UpdateChecker(
             return true;
         }
 
+        //Store-distributed platforms (iOS/Mac) have no GitHub release feed, so there is nothing to
+        //check for: the server returns "no update" and the round-trip is pointless on every launch.
+        //Left after the explicit config overrides so Always can still force a check for testing.
+        if (config.Value.Os is FwLitePlatform.iOS or FwLitePlatform.Mac)
+        {
+            logger.LogInformation("Update check skipped: {Os} is store-distributed with no release feed",
+                config.Value.Os);
+            return false;
+        }
+
         var lastChecked = platformUpdateService.LastUpdateCheck;
         var timeSinceLastCheck = DateTime.UtcNow - lastChecked;
         if (timeSinceLastCheck.TotalHours < -1)

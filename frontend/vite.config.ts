@@ -6,6 +6,7 @@ import {gqlOptions} from './gql-codegen';
 import precompileIntl from 'svelte-intl-precompile/sveltekit-plugin';
 import {type ProxyOptions, searchForWorkspaceRoot} from 'vite';
 import {sveltekit} from '@sveltejs/kit/vite';
+import {analyzer} from 'vite-bundle-analyzer';
 
 const inDocker = process.env['DockerDev'] === 'true';
 const exposeServer = false;
@@ -21,18 +22,25 @@ export default defineConfig({
     sourcemap: true
   },
   plugins: [
-    {
-      resolveId(id: string): string | undefined {
-        //workaround for https://github.com/sveltejs/kit/issues/10799
-        if (id === 'css-tree') {
-          return './node_modules/css-tree/dist/csstree.esm.js';
-        }
-      }
-    },
     codegen(gqlOptions),
     precompileIntl('src/lib/i18n/locales'),
     sveltekit(),
     ssl ? basicSsl() : null, // crypto.subtle is only available on secure connections
+    process.env.ANALYZE === '1'
+      ? analyzer({
+          analyzerMode: 'json',
+          fileName: 'bundle-stats',
+          defaultSizes: 'gzip',
+        })
+      : null,
+    process.env.ANALYZE === '1'
+      ? analyzer({
+          analyzerMode: 'static',
+          fileName: 'bundle-stats',
+          defaultSizes: 'gzip',
+          openAnalyzer: false,
+        })
+      : null,
   ],
   optimizeDeps: {
   },

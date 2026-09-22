@@ -16,6 +16,12 @@ The CI/CD setup is:
 3. Consider if changes will increase build times
 4. Check if the change needs to work across multiple OS/platforms
 
+## 🔒 Cluster Access and Privacy (non-negotiable)
+
+- **NEVER access a k8s cluster without explicit permission** for that specific cluster — no `kubectl`, `helm`, `k9s`, port-forwards, or log pulls. Production requires an instruction that explicitly names production. The only exception is a throwaway local cluster (e.g. kind) you started yourself.
+- **Never push to the fleet repo** — pushing there IS deploying.
+- **Everything from a real environment is private.** Logs, DB contents, project codes, project/language names, user names: none of it goes into GitHub issues/PRs/comments or anywhere else online. Full rules in the root `AGENTS.md` (🔒 Privacy and Production Access).
+
 ---
 
 ## Workflow Overview
@@ -54,10 +60,10 @@ The CI/CD setup is:
 
 The `GHA integration tests / dotnet` check (`integration-test-gha.yaml`) fails in two known ways that are NOT regressions. Re-run first (`gh run rerun <runId> --failed`) — especially on frontend-only or dependency-only PRs, which can't affect the lexbox-api / hg / fw-headless containers it exercises:
 
-1. **cert-manager readiness timeout** — `setup-k8s` waits `--timeout=90s` for cert-manager pods; on a cold kind cluster they don't always make it → deploy aborts fast (~3 min) and the status step logs "No resources found in languagedepot namespace". Environmental — tends to hit all branches in the same window.
+1. **cert-manager webhook CA race** — `setup-k8s` used to wait only for `cert-manager`/`webhook` pod Ready (90s), then `kubectl apply -k`. Webhook Ready ≠ CA injected into the ValidatingWebhookConfiguration, so applying `ClusterIssuer` (`deployment/local-dev/self-signed-ssl.yaml`) intermittently fails with `x509: certificate signed by unknown authority`. Deploy aborts ~3 min in; status logs "No resources found" or pods still `ContainerCreating`. Mitigated by waiting for all three cert-manager deployments Available, then `cmctl check api --wait=2m` (dry-run CertificateRequest through the admission webhooks) before kustomize apply. If it still flakes, re-run.
 2. **MediaFileTests large-upload stream error** — `Testing.FwHeadless.MediaFileTests.UploadReplacementFile_TooLarge_ThrowsError` intermittently throws `HttpRequestException: Error while copying content to a stream` (transient connection drop streaming the large file) instead of the expected validation error. Shows as Failed: 1 / Passed: ~146 after the full ~14 min run.
 
-Also expected, not a failure: on frontend-only PRs the backend image-publish workflows (`lexbox-fw-headless`, `lexbox-hgweb`) don't trigger (path filters), so `setup-k8s` gets `manifest unknown` pulling those images at the PR version and falls back to the `develop` tag via `continue-on-error`. Those log lines are noise.
+Also expected, not a failure: on frontend-only PRs the backend image-publish workflows (`lexbox-fw-headless`, `lexbox-hgweb`) don't trigger (path filters), so `setup-k8s` logs that those images are unpublished at the PR version and keeps the `develop` tag. Those log lines are noise.
 
 Separately: a PR whose merge state is CONFLICTING silently *skips* the build/test checks rather than failing them — if expected checks are missing, reconcile with develop first.
 
@@ -224,7 +230,7 @@ This is the most complex workflow because it:
 | `build-and-test` | ubuntu-latest | Core .NET build + tests (`FwLiteCore.slnf`) |
 | `frontend` | ubuntu-latest | Build viewer, Playwright snapshots |
 | `frontend-component-unit-tests` | ubuntu-latest | Vitest unit tests |
-| `publish-mac` | macos-latest | macOS binaries |
+| `build-apple` | macos-latest | MAUI Release builds for iOS simulator + Mac Catalyst (compile check, unsigned) |
 | `publish-linux` | ubuntu-latest | Linux binaries |
 | `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX |
 
@@ -241,7 +247,7 @@ This is the most complex workflow because it:
 
 The workflow produces:
 - `fw-lite-viewer-js` - Built viewer (shared by publish jobs)
-- `fw-lite-web-mac` - macOS binaries
+- `fw-lite-apple` - iOS simulator + Mac Catalyst .app bundles (zipped)
 - `fw-lite-web-linux` - Linux binaries
 - `fw-lite-windows-exe` - Windows binaries
 - `fw-lite-maui-msix` - MAUI installer

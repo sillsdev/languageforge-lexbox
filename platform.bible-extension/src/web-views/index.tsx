@@ -1,5 +1,5 @@
 import type { IWebViewProvider, SavedWebViewDefinition, WebViewDefinition } from '@papi/core';
-import type { BrowseWebViewOptions, LexiconWebViewOptions, ProjectWebViewOptions } from 'lexicon';
+import type { BrowseWebViewOptions, LexiconWebViewOptions } from 'lexicon';
 import mainCssStyles from '../styles.css?inline';
 import tailwindCssStyles from '../tailwind.css?inline';
 import { WebViewType } from '../types/enums';
@@ -57,7 +57,7 @@ export const addWordWebViewProvider: IWebViewProvider = {
 export const selectLexiconWebViewProvider: IWebViewProvider = {
   async getWebView(
     savedWebView: SavedWebViewDefinition,
-    options: ProjectWebViewOptions,
+    options: LexiconWebViewOptions,
   ): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== String(WebViewType.SelectLexicon))
       throw new Error(

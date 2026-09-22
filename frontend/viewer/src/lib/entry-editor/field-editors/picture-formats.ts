@@ -9,3 +9,7 @@ export const ACCEPTED_PICTURE_TYPES = 'image/jpeg,image/png,image/tiff,image/bmp
 export function isLosslessImage(file: File): boolean {
   return /^image\/(png|bmp|tiff)$/.test(file.type) || /\.(png|bmp|tiff?)$/i.test(file.name);
 }
+
+export function isSupportedImageType(file: File): boolean {
+  return /^image\/(jpeg|png|tiff|bmp)$/.test(file.type) || /\.(jpe?g|png|bmp|tiff?)$/i.test(file.name);
+}

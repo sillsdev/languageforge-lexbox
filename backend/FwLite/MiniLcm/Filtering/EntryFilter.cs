@@ -21,6 +21,7 @@ public class EntryFilter
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.Definition)}", provider.EntrySensesDefinition!);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}", provider.EntrySensesExampleSentences, NormalizeEmptyToNull<ExampleSentence>);
         mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}.{nameof(ExampleSentence.Sentence)}", provider.EntrySensesExampleSentencesSentence!);
+        mapper.AddMap($"{nameof(Entry.Senses)}.{nameof(Sense.ExampleSentences)}.{nameof(ExampleSentence.Translations)}", provider.EntrySensesExampleSentencesTranslations, provider.EntrySensesExampleSentencesTranslationsConverter);
 
         mapper.AddMap(nameof(Entry.Note), provider.EntryNote!);
         mapper.AddMap(nameof(Entry.LexemeForm), provider.EntryLexemeForm!);
@@ -30,6 +31,9 @@ public class EntryFilter
         mapper.AddMap(nameof(Entry.ComplexFormTypes), provider.EntryComplexFormTypes, provider.EntryComplexFormTypesConverter);
         mapper.AddMap(nameof(Entry.PublishIn), provider.EntryPublishIn, provider.EntryPublishInConverter);
         mapper.AddMap($"{nameof(Entry.PublishIn)}.{nameof(Publication.Id)}", provider.EntryPublishInId);
+        mapper.AddMap("CommentThreads", provider.EntryCommentThreads, NormalizeEmptyToNull<CommentThread>);
+        mapper.AddMap("OpenCommentThreads", provider.EntryOpenCommentThreads, NormalizeEmptyToNull<CommentThread>);
+        mapper.AddMap("UnreadComments", provider.EntryUnreadComments, NormalizeEmptyToNull<object>);
         return mapper;
     }
 

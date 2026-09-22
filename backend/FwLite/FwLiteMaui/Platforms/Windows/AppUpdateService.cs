@@ -116,16 +116,16 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         {
             var progress = new DownloadProgressReporter(eventBus, latestRelease);
             await using var proxy = await UpdateDownloadProxy.StartAsync(latestRelease.Url, logger, progress.Report);
-            return await Deploy(proxy.LocalUri, latestRelease, quitOnUpdate);
+            return await Deploy(proxy.LocalUri, quitOnUpdate);
         }
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Proxy update path failed; falling back to direct install");
-            return await Deploy(new Uri(latestRelease.Url), latestRelease, quitOnUpdate);
+            return await Deploy(new Uri(latestRelease.Url), quitOnUpdate);
         }
     }
 
-    private async Task<UpdateResult> Deploy(Uri packageUri, FwLiteRelease latestRelease, bool quitOnUpdate)
+    private async Task<UpdateResult> Deploy(Uri packageUri, bool quitOnUpdate)
     {
         var packageManager = new PackageManager();
         var asyncOperation = packageManager.AddPackageByUriAsync(packageUri,

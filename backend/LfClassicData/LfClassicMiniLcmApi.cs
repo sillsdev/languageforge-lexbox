@@ -19,7 +19,6 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
     private IMongoCollection<Entities.Entry> Entries => dbContext.Entries(projectCode);
 
 
-    private Dictionary<Guid, PartOfSpeech>? _partsOfSpeechCacheByGuid = null;
     private Dictionary<string, PartOfSpeech>? _partsOfSpeechCacheByStringKey = null;
 
     public async Task<WritingSystems> GetWritingSystems()

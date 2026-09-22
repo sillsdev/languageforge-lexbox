@@ -65,7 +65,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     }
 
 
-    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before, WritingSystem after, IMiniLcmApi? api = null)
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystem before,
+        WritingSystem after,
+        IMiniLcmApi? api)
     {
         return _api.UpdateWritingSystem(before, after, api);
     }
@@ -87,6 +89,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
         return _api.UpdatePartOfSpeech(id, NormalizePatch(update));
+    }
+
+    public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        await _api.SubmitUpdatePartOfSpeech(id, NormalizePatch(update));
     }
 
 
@@ -121,6 +128,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.UpdatePublication(id, NormalizePatch(update));
     }
 
+    public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update)
+    {
+        await _api.SubmitUpdatePublication(id, NormalizePatch(update));
+    }
+
 
     public async Task<Publication> UpdatePublication(Publication before, Publication after, IMiniLcmApi? api = null)
     {
@@ -153,6 +165,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.UpdateSemanticDomain(id, NormalizePatch(update));
     }
 
+    public async Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
+    {
+        await _api.SubmitUpdateSemanticDomain(id, NormalizePatch(update));
+    }
+
 
     public async Task<SemanticDomain> UpdateSemanticDomain(SemanticDomain before, SemanticDomain after, IMiniLcmApi? api = null)
     {
@@ -168,7 +185,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     {
         var copy = sd.Copy();
         copy.Name = StringNormalizer.Normalize(sd.Name);
-        copy.Code = StringNormalizer.Normalize(sd.Code); // yes, LibLcm normalizes this too
+        copy.Abbreviation = StringNormalizer.Normalize(sd.Abbreviation);
+        copy.Description = StringNormalizer.Normalize(sd.Description);
+        copy.OcmCodes = StringNormalizer.Normalize(sd.OcmCodes);
+        copy.LouwNidaCodes = StringNormalizer.Normalize(sd.LouwNidaCodes);
+        copy.Code = StringNormalizer.Normalize(SemanticDomain.ResolveCode(copy.Abbreviation, sd.Code)) ?? string.Empty;
         return copy;
     }
 
@@ -184,6 +205,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     public Task<ComplexFormType> UpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
     {
         return _api.UpdateComplexFormType(id, NormalizePatch(update));
+    }
+
+    public async Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update)
+    {
+        await _api.SubmitUpdateComplexFormType(id, NormalizePatch(update));
     }
 
 
@@ -250,6 +276,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.UpdateEntry(id, NormalizePatch(update));
     }
 
+    public async Task SubmitUpdateEntry(Guid id, UpdateObjectInput<Entry> update)
+    {
+        await _api.SubmitUpdateEntry(id, NormalizePatch(update));
+    }
+
 
     public async Task<Entry> UpdateEntry(Entry before, Entry after, IMiniLcmApi? api = null)
     {
@@ -266,9 +297,29 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreateComplexFormComponent(NormalizeComplexFormComponent(complexFormComponent), position);
     }
 
+    public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null)
+    {
+        await _api.SubmitCreateComplexFormComponent(NormalizeComplexFormComponent(complexFormComponent), position);
+    }
+
     public Task MoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
     {
         return _api.MoveComplexFormComponent(complexFormComponent, between);
+    }
+
+    public async Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between)
+    {
+        await _api.SubmitMoveComplexFormComponent(complexFormComponent, between);
+    }
+
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        return _api.SubmitMoveSense(entryId, senseId, position, kind);
+    }
+
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        return _api.SubmitMoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
     }
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -328,9 +379,19 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreateSense(entryId, NormalizeSense(sense), position);
     }
 
+    public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null)
+    {
+        await _api.SubmitCreateSense(entryId, NormalizeSense(sense), position);
+    }
+
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
         return _api.UpdateSense(entryId, senseId, NormalizePatch(update));
+    }
+
+    public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
+    {
+        await _api.SubmitUpdateSense(entryId, senseId, NormalizePatch(update));
     }
 
 
@@ -339,9 +400,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.UpdateSense(entryId, NormalizeSense(before), NormalizeSense(after), api);
     }
 
-    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MoveSense(entryId, senseId, position);
+        return _api.MoveSense(entryId, senseId, position, kind);
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)
@@ -385,9 +446,19 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreateExampleSentence(entryId, senseId, NormalizeExampleSentence(exampleSentence), position);
     }
 
+    public async Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null)
+    {
+        await _api.SubmitCreateExampleSentence(entryId, senseId, NormalizeExampleSentence(exampleSentence), position);
+    }
+
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update)
     {
         return _api.UpdateExampleSentence(entryId, senseId, exampleSentenceId, NormalizePatch(update));
+    }
+
+    public async Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update)
+    {
+        await _api.SubmitUpdateExampleSentence(entryId, senseId, exampleSentenceId, NormalizePatch(update));
     }
 
 
@@ -396,9 +467,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.UpdateExampleSentence(entryId, senseId, NormalizeExampleSentence(before), NormalizeExampleSentence(after), api);
     }
 
-    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+        return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
@@ -461,9 +532,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.UpdatePicture(entryId, senseId, pictureId, NormalizePatch(update));
     }
 
-    public Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
     {
-        return _api.SubmitUpdatePicture(entryId, senseId, pictureId, NormalizePatch(update));
+        await _api.SubmitUpdatePicture(entryId, senseId, pictureId, NormalizePatch(update));
     }
 
     public async Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Picture before, Picture after, IMiniLcmApi? api = null)
@@ -567,6 +638,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     public Task MarkCommentRead(Guid commentId)
     {
         return _api.MarkCommentRead(commentId);
+    }
+
+    public Task MarkCommentThreadUnread(Guid threadId)
+    {
+        return _api.MarkCommentThreadUnread(threadId);
     }
 
     public Task MarkCommentThreadRead(Guid threadId)

@@ -3,6 +3,11 @@ import { ProjectManager } from './project-manager';
 
 export class ProjectManagers {
   private readonly projectManagers: { [projectId: string]: ProjectManager } = {};
+  private readonly isLexiconCodeValid: (lexiconCode: string) => Promise<boolean>;
+
+  constructor(isLexiconCodeValid: (lexiconCode: string) => Promise<boolean>) {
+    this.isLexiconCodeValid = isLexiconCodeValid;
+  }
 
   static async getProjectIdFromWebViewId(webViewId: string): Promise<string | undefined> {
     if (!webViewId) return;
@@ -19,7 +24,7 @@ export class ProjectManagers {
   getProjectManagerFromProjectId(projectId: string): ProjectManager | undefined {
     if (!projectId) return;
     if (!(projectId in this.projectManagers)) {
-      this.projectManagers[projectId] = new ProjectManager(projectId);
+      this.projectManagers[projectId] = new ProjectManager(projectId, this.isLexiconCodeValid);
     }
     return this.projectManagers[projectId];
   }

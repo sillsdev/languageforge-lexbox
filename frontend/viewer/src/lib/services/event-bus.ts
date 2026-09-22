@@ -36,7 +36,7 @@ export class EventBus {
   }
 
   private async eventLoop(jsEventListener: IJsEventListener) {
-    let event: IFwEvent;
+    let event: IFwEvent | undefined;
     while (true) {
       event = await jsEventListener.nextEventAsync();
       if (!event) return;

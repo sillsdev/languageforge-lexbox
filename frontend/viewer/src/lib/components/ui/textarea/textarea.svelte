@@ -1,5 +1,6 @@
 <script lang="ts">
   import {cn, type WithElementRef, type WithoutChildren} from '$lib/utils.js';
+  import {onMount} from 'svelte';
   import type {HTMLTextareaAttributes} from 'svelte/elements';
 
   let {
@@ -9,6 +10,11 @@
     'data-slot': dataSlot = 'textarea',
     ...restProps
   }: WithoutChildren<WithElementRef<HTMLTextareaAttributes>> = $props();
+  onMount(() => {
+    if (restProps.autofocus) {
+      ref?.focus();
+    }
+  });
 </script>
 
 <textarea

@@ -11,7 +11,6 @@
   interface Props {
     handleSubmit: (
       password: string,
-      passwordStrength: number,
       name: string,
       email: string,
       locale: string,

@@ -71,6 +71,7 @@ describe('StompGuard', () => {
     objStompGuard!.value.value = 100; // deep change from child
     expect(objStompGuard!.value.value).toBe(100);
     await tick();
+    // svelte-ignore state_referenced_locally -- mutating the proxy in place is the point of this test
     parentObjValue.value = 200; // parent change
     expect(objStompGuard!.value.value).toBe(200); // stomped the deep change
     cleanup();

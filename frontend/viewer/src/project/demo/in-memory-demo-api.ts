@@ -76,7 +76,7 @@ export const mockFwLiteConfig: IFwLiteConfig = {
 };
 
 export const mockUpdateService: IUpdateService = {
-  checkForUpdates(): Promise<IAvailableUpdate | null> {
+  checkForUpdates(): Promise<IAvailableUpdate | undefined> {
     return Promise.resolve({
       supportsAutoUpdate: true,
       release: {
@@ -92,8 +92,8 @@ export const mockUpdateService: IUpdateService = {
 };
 
 const mockJsEventListener: IJsEventListener = {
-  nextEventAsync: () => Promise.resolve(null!),
-  lastEvent: () => Promise.resolve(null)
+  nextEventAsync: () => Promise.resolve(undefined!),
+  lastEvent: () => Promise.resolve(undefined)
 };
 
 export class InMemoryDemoApi implements IMiniLcmJsInvokable {
@@ -122,7 +122,13 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
-    window.__PLAYWRIGHT_UTILS__ = { demoApi: inMemoryLexboxApi };
+    window.__PLAYWRIGHT_UTILS__ = {
+      demoApi: inMemoryLexboxApi,
+      async setWrite(write: boolean) {
+        inMemoryLexboxApi.setWrite(write);
+        await projectContext.refetchFeatures();
+      },
+    };
 
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
       localProjects(): Promise<IProjectModel[]> {
@@ -197,14 +203,39 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   getSemanticDomains(): Promise<ISemanticDomain[]> {
     return Promise.resolve([
-      {id: '36e8f1df-1798-4ae6-904d-600ca6eb4145', name: {en: 'Fruit'}, code: '1', predefined: false},
-      {id: 'Animal', name: {en: 'Animal'}, code: '2', predefined: false},
+      {
+        id: '36e8f1df-1798-4ae6-904d-600ca6eb4145',
+        name: {en: 'Fruit'},
+        abbreviation: {en: '1'},
+        code: '1',
+        description: {},
+        ocmCodes: '',
+        louwNidaCodes: '',
+        predefined: false,
+      },
+      {
+        id: 'Animal',
+        name: {en: 'Animal'},
+        abbreviation: {en: '2'},
+        code: '2',
+        description: {},
+        ocmCodes: '',
+        louwNidaCodes: '',
+        predefined: false,
+      },
     ]);
+  }
+
+  #write = true;
+
+  /** Test-only: toggle the write feature exposed by {@link supportedFeatures}. */
+  setWrite(write: boolean) {
+    this.#write = write;
   }
 
   supportedFeatures() {
     return Promise.resolve({
-      write: true,
+      write: this.#write,
       audio: true,
       customViews: true,
     } satisfies IMiniLcmFeatures);
@@ -226,9 +257,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       })));
   }
 
-  getCommentThread(id: string): Promise<ICommentThread | null> {
+  getCommentThread(id: string): Promise<ICommentThread | undefined> {
     const thread = this._commentThreads.find(thread => thread.id === id && !thread.deletedAt);
-    return Promise.resolve(thread ? {...thread} : null);
+    return Promise.resolve(thread ? {...thread} : undefined);
   }
 
   getUserComments(threadId: string): Promise<IUserComment[]> {
@@ -237,9 +268,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       .map(comment => ({...comment})));
   }
 
-  getUserComment(id: string): Promise<IUserComment | null> {
+  getUserComment(id: string): Promise<IUserComment | undefined> {
     const comment = this._userComments.find(comment => comment.id === id && !comment.deletedAt);
-    return Promise.resolve(comment ? {...comment} : null);
+    return Promise.resolve(comment ? {...comment} : undefined);
   }
 
   getUnreadComments(_threadId?: string): Promise<IUserComment[]> {
@@ -335,6 +366,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve();
   }
 
+  markCommentThreadUnread(_threadId: string): Promise<void> {
+    return Promise.resolve();
+  }
+
   markAllCommentsRead(): Promise<void> {
     return Promise.resolve();
   }
@@ -365,9 +400,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve(JSON.parse(JSON.stringify(this._customViews)) as ICustomView[]);
   }
 
-  getCustomView(id: string): Promise<ICustomView | null> {
-    const found = this._customViews.find(v => v.id === id) ?? null;
-    return Promise.resolve(found ? (JSON.parse(JSON.stringify(found)) as ICustomView) : null);
+  getCustomView(id: string): Promise<ICustomView | undefined> {
+    const found = this._customViews.find(v => v.id === id);
+    return Promise.resolve(found ? (JSON.parse(JSON.stringify(found)) as ICustomView) : undefined);
   }
 
   private _entries = entries;
@@ -393,7 +428,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }
 
   getWritingSystems(): Promise<IWritingSystems> {
-    return Promise.resolve(writingSystems as unknown as IWritingSystems);
+    return Promise.resolve(writingSystems);
   }
 
   async searchEntries(query: string, options: IQueryOptions | undefined): Promise<IEntry[]> {
@@ -722,8 +757,12 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   // Maps an already-uploaded filename to its mediaUri, mirroring how the real server dedups by
   // filename (LcmMediaService keys by the file name within the project's resource cache).
   #uploadedFilenames = new Map<string, string>();
+  // Pre-seeded demo pictures that have been "downloaded" from the (simulated) remote media service,
+  // so a later local-only request returns them instead of NotFound — mirroring how a synced project
+  // fetches images on demand.
+  #downloadedRemoteFiles = new Set<string>();
 
-  getFileStream(mediaUri: string, _downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
+  getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
     const uploaded = this.#uploadedFiles.get(mediaUri);
     if (uploaded) {
       return Promise.resolve({
@@ -737,6 +776,10 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     }
     const svg = demoPictureSvgs[mediaUri];
     if (!svg) return Promise.resolve({result: ReadFileResult.NotFound});
+    if (!this.#downloadedRemoteFiles.has(mediaUri)) {
+      if (!downloadIfMissing) return Promise.resolve({result: ReadFileResult.NotFound});
+      this.#downloadedRemoteFiles.add(mediaUri);
+    }
     const blob = new Blob([svg], {type: 'image/svg+xml'});
     return Promise.resolve({
       result: ReadFileResult.Success,

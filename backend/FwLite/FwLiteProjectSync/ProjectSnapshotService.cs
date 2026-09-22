@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Text.Json;
 using FwDataMiniLcmBridge;
 using LcmCrdt;
@@ -7,17 +8,17 @@ using SIL.Harmony;
 
 namespace FwLiteProjectSync;
 
-public class ProjectSnapshotService(IOptions<CrdtConfig> crdtConfig)
+public class ProjectSnapshotService(IOptions<HarmonyConfig> harmonyConfig)
 {
     public virtual async Task<ProjectSnapshot?> GetProjectSnapshot(FwDataProject project)
     {
         var snapshotPath = SnapshotPath(project);
         if (!File.Exists(snapshotPath)) return null;
         await using var file = File.OpenRead(snapshotPath);
-        // crdtConfig's options are fine for reading even though they "exclude" [MiniLcmInternal] members:
+        // harmonyConfig's options are fine for reading even though they "exclude" [MiniLcmInternal] members:
         // the modifier only nulls the getter (the write side), so deserialization still populates those
         // members (Order, entity Ids) via their setters. See SaveProjectSnapshot for why they're written.
-        return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file, crdtConfig.Value.JsonSerializerOptions);
+        return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file, harmonyConfig.Value.JsonSerializerOptions);
     }
 
     public virtual async Task RegenerateProjectSnapshot(IMiniLcmReadApi crdtApi, FwDataProject project, bool keepBackup)
@@ -52,7 +53,7 @@ public class ProjectSnapshotService(IOptions<CrdtConfig> crdtConfig)
         }
 
         await using var file = File.Create(snapshotPath);
-        // Serialize with default options, not crdtConfig's: the CRDT options hide [MiniLcmInternal] members
+        // Serialize with default options, not harmonyConfig's: the CRDT options hide [MiniLcmInternal] members
         // (the internal Order values and entity Ids) — that's the API's presentation view, which omits
         // bookkeeping callers don't need. The snapshot is a stored record, so we keep the full object graph.
         // The sync diff itself keys off business fields and list order, not these, so this is about a
