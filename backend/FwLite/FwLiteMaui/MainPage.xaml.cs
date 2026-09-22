@@ -70,7 +70,7 @@ public partial class MainPage : ContentPage
     }
 #endif
 
-#if ANDROID
+#if ANDROID || IOS || MACCATALYST
     private partial void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e);
 #else
 
