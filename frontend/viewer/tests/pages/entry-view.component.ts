@@ -12,7 +12,10 @@ export class EntryViewComponent {
 
   constructor(readonly page: Page) {
     this.container = page.locator('.entry-view, [data-entry-view]');
-    this.lexemeFormField = page.locator('[data-field-id="lexemeForm"]');
+    // `.first()`: during entry-to-entry navigation WebKit's out-transition can briefly leave the
+    // previous editor mounted, so two lexemeForm field-roots coexist. The main editor is first in
+    // DOM order (dialogs portal to the end of <body>), so first() is the live entry editor.
+    this.lexemeFormField = page.locator('[data-field-id="lexemeForm"]').first();
     this.addSenseButton = page.getByRole('button', {name: /add (sense|meaning)/i});
     this.menuButton = page.locator('.i-mdi-dots-vertical');
   }
