@@ -25,7 +25,7 @@ import LexiconRow from './lexicon-row';
 interface LexiconPickerProps {
   loading?: boolean;
   localProjects?: IProjectModel[];
-  /** Remote projects not yet downloaded (lexicon.remoteProjects dedupes them against local ones). */
+  /** Remote lexicons, excluding any that are already local. */
   remoteProjects?: IProjectModel[];
   /** Whether any Lexbox server is signed in (drives the empty-state hint). */
   signedIn?: boolean;
@@ -41,18 +41,15 @@ interface LexiconPickerProps {
   languageFiltered?: boolean;
   /** True when a language was known but nothing matched it, so the full list is shown with a note. */
   languageNoMatch?: boolean;
-  /** The language tag the local list was filtered by, or that nothing matched. */
   filterLangTag?: string;
   /** Asks the parent to refetch the local list without the language filter. */
   onShowAll?: () => void;
   onCreateNew?: () => void;
   selectLexicon: (lexiconCode: string) => Promise<{ cancelled?: boolean }>;
   downloadAndSelect: (authority: string, lexiconCode: string) => Promise<DownloadAndSelectResult>;
-  /** Deletes a local CRDT lexicon; the caller refreshes the lists. */
   deleteLexicon: (lexiconCode: string) => Promise<void>;
-  /** The chosen lexicon was stored for the project; the parent tracks it and triggers the banner. */
   onSaved: (name: string, code: string) => void;
-  /** Called when a download starts/ends so the parent can lock account controls while it runs. */
+  /** Called when a download starts/ends. */
   onDownloadingChange?: (downloading: boolean) => void;
 }
 
@@ -70,7 +67,7 @@ function byName(a: IProjectModel, b: IProjectModel): number {
 
 /**
  * A searchable list for choosing the lexicon to use with the current Paratext project — local
- * lexicons, or remote ones that download on selection.
+ * lexicons, or remote ones, downloaded on confirm.
  */
 export default function LexiconPicker({
   loading = false,
@@ -299,12 +296,9 @@ export default function LexiconPicker({
   // stays disabled (the "Current" badge already marks it in-list). Remote rows are never applied.
   const isCurrentSelection =
     !!selected && !selected.needsDownload && selected.project.code === appliedCode;
-  // eslint-disable-next-line no-nested-ternary
-  const confirmLabel = error
-    ? localizedStrings['%lexicon_selectLexicon_retry%']
-    : selected?.needsDownload
-      ? localizedStrings['%lexicon_selectLexicon_downloadAndUse%']
-      : localizedStrings['%lexicon_selectLexicon_use%'];
+  const confirmLabel = selected?.needsDownload
+    ? localizedStrings['%lexicon_selectLexicon_downloadAndUse%']
+    : localizedStrings['%lexicon_selectLexicon_use%'];
 
   return (
     <TooltipProvider>
@@ -322,6 +316,11 @@ export default function LexiconPicker({
           <CommandInput
             placeholder={localizedStrings['%lexicon_selectLexicon_filterPlaceholder%']}
           />
+          {loading && (
+            <div className="tw:border-b tw:px-3 tw:py-1 tw:text-xs tw:text-muted-foreground tw:shrink-0">
+              {localizedStrings['%lexicon_selectLexicon_loading%']}
+            </div>
+          )}
           {languageFiltered && (
             <div className="tw:flex tw:items-center tw:gap-1 tw:border-b tw:px-3 tw:py-1 tw:text-xs tw:text-muted-foreground tw:shrink-0">
               <span>
@@ -357,9 +356,7 @@ export default function LexiconPicker({
           >
             <CommandEmpty>
               {/* eslint-disable-next-line no-nested-ternary */}
-              {loading ? (
-                localizedStrings['%lexicon_selectLexicon_loading%']
-              ) : hasOptions ? (
+              {loading ? undefined : hasOptions ? (
                 localizedStrings['%lexicon_selectLexicon_noMatch%']
               ) : (
                 <>

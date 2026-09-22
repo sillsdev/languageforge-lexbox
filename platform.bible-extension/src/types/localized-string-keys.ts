@@ -70,7 +70,6 @@ export const LOCALIZED_STRING_KEYS: LocalizeKey[] = [
   '%lexicon_selectLexicon_noMatch%',
   '%lexicon_selectLexicon_noneFound%',
   '%lexicon_selectLexicon_remoteHelper%',
-  '%lexicon_selectLexicon_retry%',
   '%lexicon_selectLexicon_savedTitle%',
   '%lexicon_selectLexicon_savedTitleForProject%',
   '%lexicon_selectLexicon_saveError%',

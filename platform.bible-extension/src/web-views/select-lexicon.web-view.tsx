@@ -1,5 +1,6 @@
 import { commands, localization, logger } from '@papi/frontend';
 import type { IProjectModel, LexiconWebViewProps } from 'lexicon';
+import { Alert, AlertDescription } from 'platform-bible-react';
 import { formatReplacementString, getErrorMessage } from 'platform-bible-utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import AuthStatus from '../components/auth-status';
@@ -19,15 +20,14 @@ async function titleForProject(projectName: string): Promise<string> {
   return formatReplacementString(template, { project: projectName });
 }
 
-// The backend resolves the project from the web view definition on every command, so the web view
-// id is all this panel needs. The open-time props (lexiconCode, projectName, vernacularLanguage)
-// are deliberately unused: a restored tab keeps them frozen.
+// The backend resolves the project from the web view id, so nothing here reads the open-time props.
 globalThis.webViewComponent = function LexiconSelect({
   id: webViewId,
   updateWebViewDefinition,
 }: LexiconWebViewProps) {
   const [authServers, setAuthServers] = useState<AuthServerStatus[] | undefined>();
   const [lexiconList, setLexiconList] = useState<LocalLexiconsResult | undefined>();
+  const [listError, setListError] = useState('');
   const [remoteProjects, setRemoteProjects] = useState<IProjectModel[] | undefined>();
   const [savedName, setSavedName] = useState<string | undefined>();
   const [showAll, setShowAll] = useState(false);
@@ -37,20 +37,24 @@ globalThis.webViewComponent = function LexiconSelect({
   // just-replaced non-matching lexicon doesn't vanish.
   const sessionKeptCodes = useRef(new Set<string>());
 
-  // The language-filtered query is much slower than the unfiltered one, so a late response could
-  // undo a newer list, leaving Show all pressed, the list filtered, and its button a no-op.
+  // The language-filtered query is slower, so a late response could undo a newer unfiltered list.
   const fetchSeq = useRef(0);
 
   const fetchLexicons = useCallback(() => {
     fetchSeq.current += 1;
     const seq = fetchSeq.current;
+    setListError('');
     commands
       .sendCommand('lexicon.lexicons', webViewId, showAll, [...sessionKeptCodes.current])
       .then((result) => {
         if (seq === fetchSeq.current) setLexiconList(result);
         return undefined;
       })
-      .catch((e) => logger.error('Error fetching lexicons:', getErrorMessage(e)));
+      .catch((e) => {
+        const message = getErrorMessage(e);
+        logger.error('Error fetching lexicons:', message);
+        if (seq === fetchSeq.current) setListError(message);
+      });
   }, [webViewId, showAll]);
 
   useEffect(() => {
@@ -243,8 +247,15 @@ globalThis.webViewComponent = function LexiconSelect({
         <div className="tw:shrink-0">
           <AuthStatus busy={downloading} login={login} logout={logout} servers={authServers} />
         </div>
+        {!!listError && (
+          <div className="tw:shrink-0 tw:px-4 tw:pt-4">
+            <Alert variant="destructive">
+              <AlertDescription role="alert">{listError}</AlertDescription>
+            </Alert>
+          </div>
+        )}
         <LexiconPicker
-          loading={!lexiconList}
+          loading={!lexiconList && !listError}
           localProjects={lexiconList?.projects}
           remoteProjects={remoteProjects}
           signedIn={!!authServers?.some((s) => s.loggedIn)}
