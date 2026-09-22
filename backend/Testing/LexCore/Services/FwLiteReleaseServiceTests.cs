@@ -54,6 +54,23 @@ public class FwLiteReleaseServiceTests
     }
 
     [Theory]
+    [InlineData(FwLiteEdition.iOS)]
+    [InlineData(FwLiteEdition.Mac)]
+    [InlineData(FwLiteEdition.Android)]
+    public async Task UnconfiguredEditionReturnsNullInsteadOfThrowing(FwLiteEdition edition)
+    {
+        //Editions with no release-asset config (only Windows + Linux are configured in this fixture)
+        //must not throw: the should-update endpoint would otherwise 500 on every such client launch.
+        var latestRelease = await _fwLiteReleaseService.GetLatestRelease(edition);
+        latestRelease.Should().BeNull();
+
+        var shouldUpdate = await _fwLiteReleaseService.ShouldUpdate(edition, "v2024-11-20-d04e9b96");
+        shouldUpdate.Should().NotBeNull();
+        shouldUpdate.Release.Should().BeNull();
+        shouldUpdate.Update.Should().BeFalse();
+    }
+
+    [Theory]
     [InlineData("v2024-11-20-d04e9b96")]
     public async Task IsConsideredAnOldVersion(string appVersion)
     {
