@@ -12,6 +12,14 @@ const defaultOptions: ArgosScreenshotOptions = {
   // (and thus the surrounding layout) churns between screenshots. Both are decorative and not
   // meaningful for visual regression. visibility:hidden preserves layout so nothing else shifts.
   argosCSS: '[data-testid="app-version"], [data-testid="made-with"] { visibility: hidden; }',
+  // Argos captures each viewport as soon as window.innerWidth matches. WebKit flushes
+  // matchMedia-driven layout (e.g. the mobile/desktop master-detail pane switch in IsMobile) one
+  // animation frame *after* the resize, whereas Chromium does it synchronously — so at mobile
+  // width WebKit would otherwise be photographed mid-reflow, still showing the desktop layout.
+  // Let the reactive reflow settle before capturing. (Runs before every viewport's screenshot.)
+  beforeScreenshot: async () => {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  },
 };
 
 const marketingScreenshotSizes: Exclude<ArgosScreenshotOptions['viewports'], undefined> = [
