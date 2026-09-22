@@ -129,7 +129,70 @@ public class ProjectController(
 
         await projectService.UpdateLastCommit(code);
         return projectId;
+
+        // ====================================================================================
+        // NOT ENABLED. Sketch of the "return 202 and let the caller poll" alternative, kept here
+        // deliberately so the trade-offs can be discussed against real code rather than in the
+        // abstract. It would replace everything from the try/catch above down to the return.
+        //
+        // What it buys: nobody holds a request open for the length of a creation, so the client
+        // timeout that this method currently has to reason about stops existing as a concern.
+        //
+        // What FwHeadless would need: its POST /api/project/initFwDataProject would take the
+        // reservation (SyncHostedService.TryStartProjectCreation), hand the work to a background
+        // runner the way SyncHostedService.QueueJob already does for merges, and return 202 at
+        // once. The two status endpoints the caller would then poll already exist and work today:
+        // GET /api/project/creation-status and GET /api/project/await-creation-finished, reachable
+        // via FwHeadlessClient.CreationStatus / AwaitCreationFinished.
+        //
+        // The open question, and the reason this is a comment and not the implementation: with
+        // nobody waiting, who compensates a creation that fails? Today this method does it inline
+        // because it is still on the stack when the answer arrives. Options:
+        //   (a) FwHeadless cleans up after itself -- but that means granting it permission to
+        //       delete a LexBox project row, which it deliberately cannot do today.
+        //   (b) A Quartz job sweeps projects left in a "creating" state past some age. Closest to
+        //       how the rest of the system already handles background work.
+        //   (c) Leave failures in place for an admin and surface them in the UI.
+        // (b) or (c) also need the creation state persisted on the project row: FwHeadless's
+        // status is in-memory, so it does not survive a restart on either side, and a client that
+        // reconnects later has nothing to poll against.
+        //
+        // The LexBox side would then be roughly:
+        //
+        //     // Fire and forget: FwHeadless queues the work and answers immediately.
+        //     var accepted = await fwHeadlessClient.InitFwDataProject(projectId, wsVernacular, wsAnalysisOrDefault, wsUi);
+        //     if (accepted.error is not null)
+        //     {
+        //         // A rejection here is from the queueing step only (bad writing system, project
+        //         // not found), so nothing has been built yet and compensating is unambiguous.
+        //         await CleanupFailedCreation(projectId, code);
+        //         var statusCode = accepted.statusCode == HttpStatusCode.BadRequest
+        //             ? StatusCodes.Status400BadRequest
+        //             : StatusCodes.Status500InternalServerError;
+        //         return Problem($"Failed to start creating the project: {accepted.error}", statusCode: statusCode);
+        //     }
+        //     // UpdateLastCommit moves to whatever observes the creation finishing; there is no
+        //     // commit to record yet at this point.
+        //     return Accepted(projectId);
+        // ====================================================================================
     }
+
+    // NOT ENABLED. The companion to the 202 sketch above: what the frontend would poll while a
+    // creation runs. Uncomment along with the 202 change.
+    //
+    // [HttpGet("fwDataProjectCreationStatus/{projectId}")]
+    // [AdminRequired]
+    // [ProducesResponseType(StatusCodes.Status200OK)]
+    // [ProducesResponseType(StatusCodes.Status404NotFound)]
+    // public async Task<ActionResult<ProjectCreationStatus>> FwDataProjectCreationStatus(
+    //     Guid projectId,
+    //     CancellationToken cancellationToken)
+    // {
+    //     // Passing RequestAborted is fine here, unlike on the creation call itself: a status read
+    //     // starts no durable work, so abandoning it costs nothing. See FwHeadlessClient.CreationStatus.
+    //     var status = await fwHeadlessClient.CreationStatus(projectId, cancellationToken);
+    //     return status is null ? NotFound() : status;
+    // }
 
     /// <summary>
     /// Parses a project origin. Enum.TryParse also accepts raw numbers ("1") and comma-separated lists
