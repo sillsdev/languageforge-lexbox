@@ -144,7 +144,10 @@ test.describe('New entry possible duplicates', () => {
     await expect(dialog.getByText(/similar (gloss|meaning)/i).first()).toBeVisible();
   });
 
-  test('an out-of-view duplicate strip surfaces a jump pill', async ({page}) => {
+  test('an out-of-view duplicate strip surfaces a jump pill', async ({page, browserName}) => {
+    // In WebKit the IntersectionObserver that dismisses the pill doesn't report the widget as
+    // intersecting after the smooth scroll settles, so the pill lingers. Tracked in #2678.
+    test.skip(browserName === 'webkit', 'WebKit jump-pill IntersectionObserver after smooth scroll — see #2678');
     // small viewport so the duplicate strip (below the editor grid) starts outside the dialog's scroll view
     await page.setViewportSize({width: 1024, height: 560});
     const projectPage = new DemoProjectPage(page);
