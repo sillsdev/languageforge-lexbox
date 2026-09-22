@@ -20,27 +20,39 @@ public class AuthenticationSessionWebUi : ICustomWebUi
         ASWebAuthenticationSession? session = null;
         await MainThread.InvokeOnMainThreadAsync(() =>
         {
-            session = new ASWebAuthenticationSession(new NSUrl(authorizationUri.AbsoluteUri), redirectUri.Scheme,
-                (callbackUrl, error) =>
-                {
-                    if (callbackUrl is not null)
-                    {
-                        completion.TrySetResult(new Uri(callbackUrl.AbsoluteString!));
-                    }
-                    else if (error?.Code == (long)ASWebAuthenticationSessionErrorCode.CanceledLogin)
-                    {
-                        completion.TrySetException(new MsalClientException(MsalError.AuthenticationCanceledError, "User canceled authentication."));
-                    }
-                    else
-                    {
-                        completion.TrySetException(new MsalClientException(MsalError.AuthenticationFailed, error?.LocalizedDescription ?? "Authentication session failed"));
-                    }
-                })
+            var url = new NSUrl(authorizationUri.AbsoluteUri);
+            void CompletionHandler(NSUrl? callbackUrl, NSError? error)
             {
-                // share the user's Safari session so an existing Lexbox login completes without re-entering credentials
-                PrefersEphemeralWebBrowserSession = false,
-                PresentationContextProvider = new PresentationContextProvider(),
-            };
+                if (callbackUrl is not null)
+                {
+                    completion.TrySetResult(new Uri(callbackUrl.AbsoluteString!));
+                }
+                else if (error?.Code == (long)ASWebAuthenticationSessionErrorCode.CanceledLogin)
+                {
+                    completion.TrySetException(new MsalClientException(MsalError.AuthenticationCanceledError, "User canceled authentication."));
+                }
+                else
+                {
+                    completion.TrySetException(new MsalClientException(MsalError.AuthenticationFailed, error?.LocalizedDescription ?? "Authentication session failed"));
+                }
+            }
+
+            // The (url, string scheme, handler) constructor is obsoleted on maccatalyst 17.4+; use the
+            // ASWebAuthenticationSessionCallback overload there and fall back to the string overload on 15.0-17.3.
+            if (OperatingSystem.IsMacCatalystVersionAtLeast(17, 4))
+            {
+                session = new ASWebAuthenticationSession(url,
+                    ASWebAuthenticationSessionCallback.Create(redirectUri.Scheme), CompletionHandler);
+            }
+            else
+            {
+                session = new ASWebAuthenticationSession(url, redirectUri.Scheme, CompletionHandler);
+            }
+
+            // share the user's Safari session so an existing Lexbox login completes without re-entering credentials
+            session.PrefersEphemeralWebBrowserSession = false;
+            session.PresentationContextProvider = new PresentationContextProvider();
+
             if (!session.Start())
             {
                 completion.TrySetException(new MsalClientException(MsalError.AuthenticationFailed, "Could not start the authentication session"));
