@@ -33,6 +33,6 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>XSAppIconAssets</key>
-	<string>Assets.xcassets/logo_light.appiconset</string>
+	<string>Assets.xcassets/logo_background.appiconset</string>
 </dict>
 </plist>

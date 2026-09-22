@@ -86,7 +86,9 @@
   <ItemGroup>
     <!-- App Icon -->
     <!-- background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
-    <MauiIcon Condition="'$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst'" Include="Resources\AppIcon\logo_light.svg" Color="#1c4e80" />
+    <!-- Use a separate foreground + ForegroundScale so the logo has padding inside the rounded square instead of filling it edge-to-edge.
+         The generated appiconset is named after the Include file (logo_background), so Platforms/{iOS,MacCatalyst}/Info.plist's XSAppIconAssets must match. -->
+    <MauiIcon Condition="'$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst'" Include="Resources\AppIcon\logo_background.svg" ForegroundFile="Resources\AppIcon\logo_light.svg" Color="#1c4e80" ForegroundScale="0.75" />
     <MauiIcon Condition="'$(TargetPlatform)' == 'android'" Include="Resources\AppIcon\logo_background.svg" ForegroundFile="Resources\AppIcon\logo_light_padding.svg" ForegroundScale="0.8" />
     <MauiIcon Condition="'$(TargetPlatform)' != 'ios' And '$(TargetPlatform)' != 'maccatalyst' And '$(TargetPlatform)' != 'android'" Include="Resources\AppIcon\logo_light.svg" />
     <!-- Splash Screen -->
