@@ -6,6 +6,7 @@ using LexBoxApi.GraphQL;
 using LexBoxApi.Hub;
 using LexBoxApi.Models;
 using LexBoxApi.Services;
+using LexCore.Analytics;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
@@ -28,7 +29,8 @@ public class CrdtController(
     LoggedInContext loggedInContext,
     ProjectService projectService,
     CrdtCommitService crdtCommitService,
-    LexAuthService lexAuthService
+    LexAuthService lexAuthService,
+    ILexboxAnalyticsService analytics
     ) : ControllerBase
 {
     [HttpGet("{projectId}/get")]
@@ -61,6 +63,8 @@ public class CrdtController(
         [FromBody] SyncState clientHeads)
     {
         await permissionService.AssertCanDownloadProject(projectId);
+        // A FW Lite client calls this to fetch changes as part of a sync; track it as one sync event.
+        _ = analytics.TrackFwLiteSync();
         var localState = await crdtCommitService.GetSyncState(projectId);
         return new ChangesResult(crdtCommitService.GetMissingCommits(projectId, localState, clientHeads), localState);
     }

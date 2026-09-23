@@ -16,5 +16,6 @@
     handleSubmit={acceptInvitation}
     onSubmitted={onSubmit}
     errorOnChangingEmail={$t('register.changing_email_not_allowed')}
+    showAnalyticsOptOut
   />
 </TitlePage>
