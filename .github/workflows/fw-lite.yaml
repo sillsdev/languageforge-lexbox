@@ -405,10 +405,18 @@ jobs:
               lipo -create "$f" "$x64f" -output "$f"
             fi
           done < <(find "$APP" -type f)
-          # Re-seal the whole bundle (--deep) with the hardened runtime + entitlements after the merge.
-          codesign --force --timestamp --options runtime --deep \
+          # Re-sign after the merge (lipo invalidates signatures). --deep is unreliable for notarization,
+          # so sign inside-out: every nested Mach-O with the hardened runtime first (deepest paths first),
+          # then seal the app bundle with the entitlements. Verify before packaging.
+          while IFS= read -r f; do
+            if file -b "$f" | grep -q 'Mach-O'; then
+              codesign --force --timestamp --options runtime --sign "$CODESIGN_IDENTITY" "$f"
+            fi
+          done < <(find "$APP/Contents" -type f | awk '{print length"\t"$0}' | sort -rn | cut -f2-)
+          codesign --force --timestamp --options runtime \
             --entitlements Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
             --sign "$CODESIGN_IDENTITY" "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP"
           # Fail loudly if the merged bundle isn't actually universal — the whole point is Intel + Apple Silicon.
           EXE="$APP/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Contents/Info.plist")"
           ARCHS="$(lipo -archs "$EXE" 2>/dev/null || true)"
@@ -427,8 +435,15 @@ jobs:
           hdiutil create -volname "FieldWorks Lite" -srcfolder "$STAGE" -ov -format UDZO "$DMG"
           codesign --force --timestamp --sign "$CODESIGN_IDENTITY" "$DMG"
           printf '%s' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/asc.p8"
-          xcrun notarytool submit "$DMG" --key "$RUNNER_TEMP/asc.p8" --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID" --wait
+          # submit --wait exits 0 even when the result is Invalid, so capture the id, always print the
+          # detailed notary log (the only place the actual rejection reasons appear), then gate on status.
+          SUBMIT_JSON="$(xcrun notarytool submit "$DMG" --key "$RUNNER_TEMP/asc.p8" --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID" --wait --output-format json)"
+          echo "$SUBMIT_JSON"
+          SUBMIT_ID="$(echo "$SUBMIT_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)["id"])')"
+          xcrun notarytool log "$SUBMIT_ID" --key "$RUNNER_TEMP/asc.p8" --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID" || true
+          STATUS="$(echo "$SUBMIT_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)["status"])')"
           rm -f "$RUNNER_TEMP/asc.p8"
+          if [ "$STATUS" != "Accepted" ]; then echo "Notarization failed with status: $STATUS" >&2; exit 1; fi
           xcrun stapler staple "$DMG"
 
       # upload-artifact drops executable bits, so zip the .app bundles with ditto first.
