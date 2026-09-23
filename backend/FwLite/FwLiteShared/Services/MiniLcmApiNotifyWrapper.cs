@@ -239,25 +239,21 @@ public partial class MiniLcmApiNotifyWrapper(
     async Task IMiniLcmWriteApi.MarkCommentRead(Guid commentId)
     {
         await _api.MarkCommentRead(commentId);
-        NotifyCommentsChanged();
     }
 
     async Task IMiniLcmWriteApi.MarkCommentThreadUnread(Guid threadId)
     {
         await _api.MarkCommentThreadUnread(threadId);
-        NotifyCommentsChanged();
     }
 
     async Task IMiniLcmWriteApi.MarkCommentThreadRead(Guid threadId)
     {
         await _api.MarkCommentThreadRead(threadId);
-        NotifyCommentsChanged();
     }
 
     async Task IMiniLcmWriteApi.MarkAllCommentsRead()
     {
         await _api.MarkAllCommentsRead();
-        NotifyCommentsChanged();
     }
 
     void IDisposable.Dispose()
