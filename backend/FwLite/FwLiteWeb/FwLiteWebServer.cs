@@ -22,8 +22,11 @@ public static class FwLiteWebServer
         var builder = WebApplication.CreateBuilder(options);
         if (!builder.Environment.IsDevelopment() && options.Args?.Contains("--urls") != true && string.IsNullOrEmpty(builder.Configuration["http_ports"]))
             builder.WebHost.UseUrls("http://127.0.0.1:0");
-        // Initializes ICU (icu.net) for the FwData bridge and imported writing-system collations.
-        ProjectLoader.Init();
+        if (builder.Environment.IsDevelopment())
+        {
+            //do this early so we catch bugs on startup
+            ProjectLoader.Init();
+        }
 
         builder.ConfigureDev<AuthConfig>(config =>
             config.LexboxServers = [
