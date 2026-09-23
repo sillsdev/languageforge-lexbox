@@ -146,19 +146,25 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         using var cts = new CancellationTokenSource(DeployUpperBound);
         try
         {
-            var progress = new DownloadProgressReporter(eventBus, latestRelease);
-            await using var proxy = await UpdateDownloadProxy.StartAsync(latestRelease.Url, logger, progress.Report, cts.Token);
-            return await Deploy(proxy.LocalUri, quitOnUpdate, cts.Token);
+            try
+            {
+                var progress = new DownloadProgressReporter(eventBus, latestRelease);
+                await using var proxy = await UpdateDownloadProxy.StartAsync(latestRelease.Url, logger, progress.Report, cts.Token);
+                return await Deploy(proxy.LocalUri, quitOnUpdate, cts.Token);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogWarning(ex, "Proxy update path failed; falling back to direct install");
+                return await Deploy(new Uri(latestRelease.Url), quitOnUpdate, cts.Token);
+            }
         }
         catch (OperationCanceledException)
         {
-            logger.LogWarning("Update did not finish staging within {Timeout}", DeployUpperBound);
-            return UpdateResult.Started;
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Proxy update path failed; falling back to direct install");
-            return await Deploy(new Uri(latestRelease.Url), quitOnUpdate, cts.Token);
+            // The timeout cancels the package operation and tears down the proxy, so nothing keeps
+            // downloading — report failure (not Started) so the UI offers a retry rather than a Restart
+            // button that would try to apply an incomplete package.
+            logger.LogWarning("Update did not finish staging within {Timeout}; treating as failed", DeployUpperBound);
+            return UpdateResult.Failed;
         }
     }
 

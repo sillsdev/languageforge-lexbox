@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
@@ -24,6 +25,7 @@ public sealed class UpdateDownloadProxy : IAsyncDisposable
     private readonly Action<long> _onBytes;
     private readonly CancellationTokenSource _cts = new();
     private readonly Lock _urlLock = new();
+    private readonly ConcurrentDictionary<Task, byte> _handlers = new();
     private string _finalUrl;
     private Task? _acceptLoop;
     private long _bytesServed;
@@ -106,8 +108,12 @@ public sealed class UpdateDownloadProxy : IAsyncDisposable
                 break;
             }
 
-            // Windows overlaps range requests, so handle each concurrently.
-            _ = Task.Run(() => HandleRequestAsync(context, expectedPath));
+            // Windows overlaps range requests, so handle each concurrently. Track the handler so disposal
+            // can wait for in-flight requests before tearing down the shared HttpClient/listener.
+            var handler = Task.Run(() => HandleRequestAsync(context, expectedPath));
+            _handlers[handler] = 0;
+            _ = handler.ContinueWith(static (t, state) => ((ConcurrentDictionary<Task, byte>)state!).TryRemove(t, out _),
+                _handlers, TaskScheduler.Default);
         }
     }
 
@@ -190,22 +196,43 @@ public sealed class UpdateDownloadProxy : IAsyncDisposable
         lock (_urlLock) return _finalUrl;
     }
 
+    private const int MaxRedirectHops = 5;
+
+    // Resolve to a terminal (non-redirect) URL so range requests hit the asset host directly and the
+    // response we later forward to Windows is never a 3xx (a forwarded 302 from localhost is a dead end).
+    // Throws if it can't reach a terminal URL, so the caller falls back to a direct (proxy-less) install
+    // and lets Windows follow the redirect itself.
     private static async Task<string> ResolveFinalUrl(HttpClient client, string url, CancellationToken cancellationToken)
     {
-        for (var hop = 0; hop < 5; hop++)
+        for (var hop = 0; hop < MaxRedirectHops; hop++)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Head, url);
-            using var response = await client.SendAsync(request, cancellationToken);
-            if ((int)response.StatusCode is >= 300 and < 400 && response.Headers.Location is { } location)
+            using var response = await SendResolveAsync(client, url, cancellationToken);
+            if ((int)response.StatusCode is >= 300 and < 400)
             {
+                if (response.Headers.Location is not { } location)
+                    throw new HttpRequestException($"Redirect with no Location while resolving update asset ({(int)response.StatusCode})");
                 url = location.IsAbsoluteUri ? location.ToString() : new Uri(new Uri(url), location).ToString();
                 continue;
             }
 
-            break;
+            return url;
         }
 
-        return url;
+        throw new HttpRequestException($"Exceeded {MaxRedirectHops} redirects while resolving update asset");
+    }
+
+    // HEAD is cheap for redirect discovery, but some origins reject it (405/501) while still redirecting on
+    // GET. Fall back to GET (headers only; body never read) in that case. Caller disposes the response.
+    private static async Task<HttpResponseMessage> SendResolveAsync(HttpClient client, string url, CancellationToken cancellationToken)
+    {
+        var head = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, url),
+            HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        if (head.StatusCode is not (HttpStatusCode.MethodNotAllowed or HttpStatusCode.NotImplemented))
+            return head;
+
+        head.Dispose();
+        return await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, url),
+            HttpCompletionOption.ResponseHeadersRead, cancellationToken);
     }
 
     private static int GetFreeLoopbackPort()
@@ -226,13 +253,18 @@ public sealed class UpdateDownloadProxy : IAsyncDisposable
     {
         await _cts.CancelAsync();
         try { _listener.Stop(); } catch { /* ignore */ }
-        if (_acceptLoop is not null)
-        {
-            // Safe to await: _acceptLoop is our own Task.Run started in StartAsync.
+        // Safe to await: these are all our own Task.Run tasks. Wait for the accept loop and any in-flight
+        // request handlers (cancellation already signalled) before disposing the shared HttpClient/listener,
+        // so a handler can't touch a disposed resource. Bounded so a stuck handler can't hang disposal.
 #pragma warning disable VSTHRD003
-            try { await _acceptLoop; } catch { /* ignore */ }
-#pragma warning restore VSTHRD003
+        try
+        {
+            var pending = _handlers.Keys.ToArray();
+            var drain = _acceptLoop is not null ? pending.Append(_acceptLoop) : pending;
+            await Task.WhenAll(drain).WaitAsync(TimeSpan.FromSeconds(5));
         }
+        catch { /* best effort: handlers swallow their own errors; timeout/cancellation is fine */ }
+#pragma warning restore VSTHRD003
 
         ((IDisposable)_listener).Dispose();
         _upstream.Dispose();

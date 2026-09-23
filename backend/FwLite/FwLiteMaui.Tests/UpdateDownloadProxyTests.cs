@@ -45,6 +45,20 @@ public class UpdateDownloadProxyTests
     }
 
     [Fact]
+    public async Task ResolvesRedirectEvenWhenOriginRejectsHead()
+    {
+        // Origin rejects HEAD (405) but redirects on GET — the proxy must fall back to GET, follow the
+        // 302 to the terminal asset, and still serve the payload (instead of forwarding a dead 302).
+        await using var upstream = new FakeUpstream(Payload);
+        await using var proxy = await UpdateDownloadProxy.StartAsync(upstream.RedirectUrl, NullLogger.Instance, _ => { });
+
+        using var client = new HttpClient();
+        var body = await client.GetByteArrayAsync(proxy.LocalUri);
+
+        body.Should().Equal(Payload);
+    }
+
+    [Fact]
     public async Task ReturnsNotFoundForUnknownPath()
     {
         await using var upstream = new FakeUpstream(Payload);
@@ -66,6 +80,8 @@ public class UpdateDownloadProxyTests
         private readonly Task _loop;
 
         public string Url { get; }
+        /// <summary>Entry point that rejects HEAD (405) and 302-redirects GET to <see cref="Url"/>.</summary>
+        public string RedirectUrl { get; }
 
         public FakeUpstream(byte[] payload)
         {
@@ -76,6 +92,7 @@ public class UpdateDownloadProxyTests
             probe.Stop();
 
             Url = $"http://localhost:{port}/asset";
+            RedirectUrl = $"http://localhost:{port}/redirect";
             _listener.Prefixes.Add($"http://localhost:{port}/");
             _listener.Start();
             _loop = Task.Run(AcceptLoopAsync);
@@ -96,6 +113,20 @@ public class UpdateDownloadProxyTests
         {
             try
             {
+                if (ctx.Request.Url?.AbsolutePath == "/redirect")
+                {
+                    if (ctx.Request.HttpMethod == "HEAD")
+                    {
+                        ctx.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                    }
+                    else
+                    {
+                        ctx.Response.StatusCode = (int)HttpStatusCode.Found;
+                        ctx.Response.Headers["Location"] = Url;
+                    }
+                    return;
+                }
+
                 ctx.Response.Headers["Accept-Ranges"] = "bytes";
                 var rangeHeader = ctx.Request.Headers["Range"];
                 if (!string.IsNullOrEmpty(rangeHeader) && RangeHeaderValue.TryParse(rangeHeader, out var range))
