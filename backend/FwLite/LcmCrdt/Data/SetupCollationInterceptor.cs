@@ -1,7 +1,9 @@
 using SIL.Harmony.Config;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text;
 using LinqToDB.Interceptors;
 using Microsoft.Data.Sqlite;
@@ -13,6 +15,7 @@ using Microsoft.Extensions.Primitives;
 using MiniLcm.Culture;
 using SIL.Harmony;
 using SIL.Harmony.Db;
+using SQLitePCL;
 
 namespace LcmCrdt.Data;
 
@@ -21,17 +24,33 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
 {
     private static string? WsTableName = null;
 
-    // Cached writing-system lists are tied to this token so they can all be dropped at once whenever a
-    // writing system is added or changed — otherwise a connection that cached the list before the change
-    // (its cache key includes the connection string, so it isn't cleared by a per-connection invalidation
-    // on the writing connection) would keep registering a stale set of collations.
-    private CancellationTokenSource _writingSystemsCacheReset = new();
-    private WritingSystem[] GetWritingSystems(DbConnection connection, LcmCrdtDbContext? dbContext = null)
+    // What has been registered on each native connection handle. Keyed by the sqlite3 handle rather than
+    // the SqliteConnection because pooled handles outlive SqliteConnection objects and keep collations
+    // registered directly on the handle, so a reused handle needs no re-registration.
+    private readonly ConditionalWeakTable<sqlite3, RegisteredCollations> _registeredCollations = new();
+
+    // WritingSystemsVersion is null when no writing-system collations were registered (none existed yet),
+    // and is cancelled when that project's writing systems change, marking the handle's set as stale.
+    private sealed record RegisteredCollations(CancellationToken? WritingSystemsVersion);
+
+    // One reset source per connection string (i.e. per project database). Cancelling it evicts that
+    // project's cached writing-system list and marks its handles' writing-system collations as stale,
+    // without touching other projects.
+    private readonly ConcurrentDictionary<string, CancellationTokenSource> _writingSystemsResets = new();
+
+    private CancellationTokenSource WritingSystemsReset(DbConnection connection) =>
+        _writingSystemsResets.GetOrAdd(connection.ConnectionString, _ => new CancellationTokenSource());
+
+    private void InvalidateWritingSystems(DbConnection connection)
     {
-        // Capture the reset source before reading the list. If a concurrent writing-system change swaps
-        // and cancels the source after we've read the (now stale) list, caching against this captured
-        // token means the stale entry is evicted by that same invalidation rather than surviving it.
-        var cacheReset = Volatile.Read(ref _writingSystemsCacheReset);
+        // Cancelling evicts every cache entry and handle linked to this token. Deliberately not disposed:
+        // a concurrent reader may still read its Token, and a cancelled source is collected once unreferenced.
+        if (_writingSystemsResets.TryRemove(connection.ConnectionString, out var previous))
+            previous.Cancel();
+    }
+
+    private WritingSystem[] GetWritingSystems(DbConnection connection, CancellationToken cacheVersion, LcmCrdtDbContext? dbContext = null)
+    {
         var cacheKey = CacheKey(connection);
         if (cache.TryGetValue<WritingSystem[]>(cacheKey, out var cached) && cached is { Length: > 0 })
             return cached;
@@ -64,7 +83,7 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                 if (writingSystems.Length > 0)
                 {
                     var options = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(30) };
-                    options.AddExpirationToken(new CancellationChangeToken(cacheReset.Token));
+                    options.AddExpirationToken(new CancellationChangeToken(cacheVersion));
                     cache.Set(cacheKey, writingSystems, options);
                 }
                 return writingSystems;
@@ -93,14 +112,30 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
     /// enough on its own: a connection can be opened before the writing systems (or even the schema)
     /// exist, and it is then reused for later queries without the interceptor firing again. Registering
     /// collations here — on the connection that is about to run the query — makes collation availability
-    /// independent of when the connection happened to open.
+    /// independent of when the connection happened to open. Cheap once the handle is up to date.
     /// </remarks>
     public async ValueTask EnsureCollationsSetup(LcmCrdtDbContext dbContext)
     {
         var connection = (SqliteConnection)dbContext.Database.GetDbConnection();
         if (connection.State != ConnectionState.Open)
             await dbContext.Database.OpenConnectionAsync();
-        SetupCommonCollations(connection, GetWritingSystems(connection, dbContext));
+        EnsureCollations(connection, dbContext);
+    }
+
+    private void EnsureCollations(SqliteConnection connection, LcmCrdtDbContext? dbContext = null)
+    {
+        var handle = connection.Handle ?? throw new InvalidOperationException("Unable to setup collations, connection must be open.");
+        _registeredCollations.TryGetValue(handle, out var registered);
+        if (registered?.WritingSystemsVersion is { IsCancellationRequested: false }) return;
+
+        // Capture the version before reading the list. If a concurrent writing-system change cancels it
+        // after we've read the (now stale) list, both the cache entry and this handle are marked stale
+        // by that same invalidation rather than surviving it.
+        var version = WritingSystemsReset(connection).Token;
+        if (registered is null) SetupCommonCollation(connection);
+        var writingSystems = GetWritingSystems(connection, version, dbContext);
+        SetupCollations(connection, writingSystems);
+        _registeredCollations.AddOrUpdate(handle, new RegisteredCollations(writingSystems.Length > 0 ? version : null));
     }
 
     private bool HasTable(DbContext context, string tableName)
@@ -115,57 +150,48 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         return $"writingSystems|{connection.ConnectionString}";
     }
 
-    /// <summary>
-    /// Drops every cached writing-system list (across all connections) so the next query re-reads the
-    /// current set and registers any newly added writing-system collation.
-    /// </summary>
-    private void InvalidateAllWritingSystemsCaches()
-    {
-        var previous = Interlocked.Exchange(ref _writingSystemsCacheReset, new CancellationTokenSource());
-        // Cancelling evicts every cache entry linked to this token. Deliberately not disposed: a
-        // concurrent GetWritingSystems may still read its Token, and a cancelled source with no
-        // registrations left is cheap and collected once unreferenced.
-        previous.Cancel();
-    }
-
     // Harmony projects writing-system changes with raw SQL, bypassing EF change tracking, so the
     // ISaveChangesInterceptor path below never sees them for API-driven writes. React to the projected
-    // change here instead: invalidate the cached writing-system lists so later queries pick up the new
-    // writing system and register its collation.
+    // change here instead, the same way the save path does.
     public ValueTask OnProjectedEntitiesChanged(ProjectedEntityBatch batch)
     {
-        if (batch.Changes.Any(c => c.ClrType == typeof(WritingSystem)))
-            InvalidateAllWritingSystemsCaches();
+        if (batch.DbContext is not LcmCrdtDbContext dbContext) return ValueTask.CompletedTask;
+        var changes = batch.Changes.Where(c => c.ClrType == typeof(WritingSystem)).ToArray();
+        if (changes.Length == 0) return ValueTask.CompletedTask;
+
+        var upserted = changes
+            .Where(c => c.Kind == ProjectedChangeKind.Upsert)
+            .Select(c => c.Entity)
+            .OfType<WritingSystem>();
+        OnWritingSystemsChanged((SqliteConnection)dbContext.Database.GetDbConnection(), upserted);
         return ValueTask.CompletedTask;
     }
 
-    private void SetupCommonCollations(SqliteConnection sqliteConnection, WritingSystem[]? writingSystems = null)
+    // Registers the added/changed writing systems' collations on the writing connection, then marks this
+    // project's cached list and handles as stale so other connections re-read and register them too.
+    private void OnWritingSystemsChanged(SqliteConnection connection, IEnumerable<WritingSystem> upserted)
     {
-        // Setup general use collation
-        sqliteConnection.CreateCollation(SqlSortingExtensions.CollateUnicodeNoCase,
-            CultureInfo.CurrentCulture.CompareInfo,
-            (compareInfo, x, y) =>
-            {
-                var caseInsensitiveResult = compareInfo.Compare(x, y, CompareOptions.IgnoreCase);
-                if (caseInsensitiveResult != 0)
-                    return caseInsensitiveResult;
-                // When case-insensitively equal, sort lowercase before uppercase
-                return compareInfo.Compare(x, y, CompareOptions.None);
-            });
+        // The connection might not yet be open if ef is just getting ready to save stuff
+        if (connection.State != ConnectionState.Open) connection.Open();
+        SetupCollations(connection, upserted);
+        InvalidateWritingSystems(connection);
+    }
 
-        // Setup writing system specific collations if available
-        if (writingSystems is not null)
-        {
-            SetupCollations(sqliteConnection, writingSystems);
-        }
+    private void SetupCommonCollation(SqliteConnection sqliteConnection)
+    {
+        // Registered on the handle rather than via SqliteConnection.CreateCollation, which Microsoft.Data.Sqlite
+        // unregisters when the connection returns to the pool, so it lives exactly as long as the handle
+        // tracked in _registeredCollations.
+        CreateSpanCollation(sqliteConnection, SqlSortingExtensions.CollateUnicodeNoCase,
+            CultureInfo.CurrentCulture.CompareInfo,
+            CompareIgnoreCaseLowerFirst);
     }
 
     public void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData)
     {
         var context = (LcmCrdtDbContext?)eventData.Context;
         if (context is null) throw new InvalidOperationException("context is null");
-        var sqliteConnection = (SqliteConnection)connection;
-        SetupCommonCollations(sqliteConnection, GetWritingSystems(connection, context));
+        EnsureCollations((SqliteConnection)connection, context);
     }
 
     public Task ConnectionOpenedAsync(DbConnection connection,
@@ -191,9 +217,8 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
     {
         if (connection is not SqliteConnection sqliteConnection) return;
 
-        // Collations persist on the connection, so if EF already opened this connection, this is
-        // redundant but harmless. SQLite allows re-registering collations.
-        SetupCommonCollations(sqliteConnection, GetWritingSystems(connection));
+        // A no-op when EF (or an earlier use of this pooled handle) already registered the collations.
+        EnsureCollations(sqliteConnection);
     }
 
     public Task ConnectionOpenedAsync(LinqToDB.Interceptors.ConnectionEventData eventData, DbConnection connection, CancellationToken cancellationToken)
@@ -219,30 +244,15 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
     private void UpdateCollationsOnSave(DbContext? dbContext)
     {
         if (dbContext is null) return;
-        var connection = (SqliteConnection)dbContext.Database.GetDbConnection();
-        bool updateWs = false;
-        foreach (var entityEntry in dbContext.ChangeTracker.Entries<WritingSystem>())
-        {
-            if (entityEntry.State is EntityState.Added or EntityState.Modified)
-            {
-                // The connection might not yet be open if ef is just getting ready to save stuff
-                if (connection.State != ConnectionState.Open) connection.Open();
-
-                var writingSystem = entityEntry.Entity;
-                SetupCollation(connection, writingSystem);
-                updateWs = true;
-            }
-        }
-
-        if (updateWs)
-        {
-            // Drop every connection's cached list, not just this one's, so reads on other connections
-            // re-read the new writing system and register its collation.
-            InvalidateAllWritingSystemsCaches();
-        }
+        var upserted = dbContext.ChangeTracker.Entries<WritingSystem>()
+            .Where(e => e.State is EntityState.Added or EntityState.Modified)
+            .Select(e => e.Entity)
+            .ToArray();
+        if (upserted.Length == 0) return;
+        OnWritingSystemsChanged((SqliteConnection)dbContext.Database.GetDbConnection(), upserted);
     }
 
-    private void SetupCollations(SqliteConnection connection, WritingSystem[] writingSystems)
+    private void SetupCollations(SqliteConnection connection, IEnumerable<WritingSystem> writingSystems)
     {
         foreach (var writingSystem in writingSystems)
         {
@@ -257,14 +267,16 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         //todo use custom comparison based on the writing system
         CreateSpanCollation(connection, SqlSortingExtensions.CollationName(writingSystem.WsId),
             compareInfo,
-            static (compareInfo, x, y) =>
-            {
-                var caseInsensitiveResult = compareInfo.Compare(x, y, CompareOptions.IgnoreCase);
-                if (caseInsensitiveResult != 0)
-                    return caseInsensitiveResult;
-                // When case-insensitively equal, sort lowercase before uppercase
-                return compareInfo.Compare(x, y, CompareOptions.None);
-            });
+            CompareIgnoreCaseLowerFirst);
+    }
+
+    private static int CompareIgnoreCaseLowerFirst(CompareInfo compareInfo, ReadOnlySpan<char> x, ReadOnlySpan<char> y)
+    {
+        var caseInsensitiveResult = compareInfo.Compare(x, y, CompareOptions.IgnoreCase);
+        if (caseInsensitiveResult != 0)
+            return caseInsensitiveResult;
+        // When case-insensitively equal, sort lowercase before uppercase
+        return compareInfo.Compare(x, y, CompareOptions.None);
     }
 
     //this is a premature optimization, but it avoids creating strings for each comparison and instead uses spans which avoids allocations
