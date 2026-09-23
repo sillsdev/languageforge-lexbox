@@ -82,5 +82,9 @@ export async function assertScreenshot(page: Page, name: string, options?: Argos
     // ourselves to keep the same snapshot names (and thus the existing chromium baselines).
     await argosScreenshot(page, `${screenshotName} vw-${width}`, {...commonOptions, ...options, viewports: undefined});
   }
-  if (originalViewport) await page.setViewportSize(originalViewport);
+  if (originalViewport) {
+    await page.setViewportSize(originalViewport);
+    // Settle back to the original width too, so the page isn't left mid-reflow for whatever runs next.
+    await waitForResponsiveLayout(page, originalViewport.width);
+  }
 }
