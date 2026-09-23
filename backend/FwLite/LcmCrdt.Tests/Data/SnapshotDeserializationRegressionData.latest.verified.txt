@@ -7657,9 +7657,28 @@
       "IcuCollationRules": "Customizable",
       "SystemCollationLocale": "Borders",
       "Order": 0.03765569767409571
-    },
-    "Id": "3b85e4c8-6330-9167-2349-3bba70056346",
-    "DeletedAt": null
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "48cd49a6-9e90-7bf0-03e5-5297705ab10f",
+      "MaybeId": "48cd49a6-9e90-7bf0-03e5-5297705ab10f",
+      "WsId": "xfa",
+      "IsAudio": false,
+      "Name": "Architect",
+      "Abbreviation": "neutral",
+      "Font": "B2C",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "Corporate"
+      ],
+      "IcuCollationRules": "generating",
+      "SystemCollationLocale": "Pataca",
+      "Order": 0.052759721692780426
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7701,9 +7720,28 @@
       "IcuCollationRules": "connect",
       "SystemCollationLocale": "Oregon",
       "Order": 0.9633181157872764
-    },
-    "Id": "9be8f583-63b4-cf64-4202-0e09481317c0",
-    "DeletedAt": null
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "26d08fb5-a2cf-3586-21ca-74361a451202",
+      "MaybeId": "26d08fb5-a2cf-3586-21ca-74361a451202",
+      "WsId": "zpg",
+      "IsAudio": false,
+      "Name": "driver",
+      "Abbreviation": "cross-platform",
+      "Font": "SMS",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "invoice"
+      ],
+      "IcuCollationRules": "Practical",
+      "SystemCollationLocale": "Usability",
+      "Order": 0.14720526900908437
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7770,9 +7808,28 @@
       "IcuCollationRules": "Monitored",
       "SystemCollationLocale": "bandwidth",
       "Order": 0.2935114043495951
-    },
-    "Id": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
-    "DeletedAt": null
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "3004769f-a2d1-3ecc-ff92-5beba42fe11c",
+      "MaybeId": "3004769f-a2d1-3ecc-ff92-5beba42fe11c",
+      "WsId": "jul",
+      "IsAudio": false,
+      "Name": "Forward",
+      "Abbreviation": "XSS",
+      "Font": "Applications",
+      "DeletedAt": null,
+      "Type": 0,
+      "Exemplars": [
+        "Mill"
+      ],
+      "IcuCollationRules": "Wooden",
+      "SystemCollationLocale": "web-enabled",
+      "Order": 0.16803085028296483
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",
@@ -7814,9 +7871,28 @@
       "IcuCollationRules": "Assurance",
       "SystemCollationLocale": "Kids \u0026 Electronics",
       "Order": 0.34200726440404006
-    },
-    "Id": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
-    "DeletedAt": null
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "ce87f975-e6be-0a22-18b8-58293588f26d",
+      "MaybeId": "ce87f975-e6be-0a22-18b8-58293588f26d",
+      "WsId": "ula",
+      "IsAudio": false,
+      "Name": "California",
+      "Abbreviation": "connect",
+      "Font": "Electronics, Books \u0026 Health",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "Versatile"
+      ],
+      "IcuCollationRules": "Arkansas",
+      "SystemCollationLocale": "Auto Loan Account",
+      "Order": 0.9792463783367654
+    }
   },
   {
     "$type": "MiniLcmCrdtAdapter",

@@ -33,7 +33,7 @@ When `IcuCollationRules` or `SystemCollationLocale` is set, use icu.net (`RuleBa
 _Avoid_: Applying case-insensitive or lowercase-first logic on top of imported ICU collation
 
 **Collation import (from FLEx)**:
-Populated when mapping `CoreWritingSystemDefinition` → `WritingSystem` in the FwData bridge. Custom modes: store non-empty compiled ICU rules only. Other-language: store .NET locale tag only. Default ordering: leave both fields null (legacy fallback). Import-only — no write-back to fwdata LDML.
+Populated when mapping `CoreWritingSystemDefinition` → `WritingSystem` in the FwData bridge. Custom modes: store non-empty compiled ICU rules only. Other-language: store .NET locale tag only. Default ordering (including a system collation for the writing system's own language, which liblcm assigns when none is set): leave both fields null (legacy fallback). Import-only — no write-back to fwdata LDML.
 _Avoid_: Parsing LDML in FwLite; persisting empty `IcuCollationRules` for default ordering
 
 **Collation write-back**:

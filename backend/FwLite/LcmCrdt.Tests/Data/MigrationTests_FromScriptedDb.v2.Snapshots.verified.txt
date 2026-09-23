@@ -1422,6 +1422,8 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 1
       }
     },
@@ -1476,6 +1478,8 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 1
       }
     },
@@ -1530,6 +1534,8 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 3
       }
     },
@@ -1584,6 +1590,8 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 2
       }
     },
@@ -1638,6 +1646,8 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 3
       }
     },
@@ -1692,6 +1702,8 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 2
       }
     },
