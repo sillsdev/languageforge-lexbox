@@ -395,15 +395,16 @@ jobs:
           APP="$RUNNER_TEMP/universal/FieldWorks Lite.app"
           rm -rf "$RUNNER_TEMP/universal"; mkdir -p "$RUNNER_TEMP/universal"
           cp -R "$ARM" "$APP"
-          # lipo each Mach-O file with its x64 counterpart; managed .dlls are arch-neutral, left as-is.
-          while IFS= read -r armf; do
-            rel="${armf#"$ARM"/}"
+          # lipo each Mach-O file in the copy with its x64 counterpart, writing back into the copy
+          # (managed .dlls are arch-neutral, left as-is).
+          while IFS= read -r f; do
+            rel="${f#"$APP"/}"
             x64f="$X64/$rel"
             [ -f "$x64f" ] || continue
-            if file -b "$armf" | grep -q 'Mach-O'; then
-              lipo -create "$armf" "$x64f" -output "$armf"
+            if file -b "$f" | grep -q 'Mach-O'; then
+              lipo -create "$f" "$x64f" -output "$f"
             fi
-          done < <(find "$ARM" -type f)
+          done < <(find "$APP" -type f)
           # Re-seal the whole bundle (--deep) with the hardened runtime + entitlements after the merge.
           codesign --force --timestamp --options runtime --deep \
             --entitlements Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
