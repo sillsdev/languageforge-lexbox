@@ -17,17 +17,20 @@ namespace Testing.LexBoxApi.Services;
 
 public class LexboxAnalyticsServiceTests
 {
-    [Fact]
-    public async Task TrackSendReceive_SendsEventWithCurrentUserIdAndProduct()
+    [Theory]
+    [InlineData(ILexboxAnalyticsService.SendDirection)]
+    [InlineData(ILexboxAnalyticsService.ReceiveDirection)]
+    public async Task TrackSendReceive_SendsEventWithDirectionUserIdAndProduct(string direction)
     {
         var handler = new CaptureHandler();
         var userId = Guid.NewGuid();
         var service = CreateService(handler, userId: userId);
 
-        await service.TrackSendReceive();
+        await service.TrackSendReceive(direction);
 
         handler.RequestCount.Should().Be(1);
         handler.LastBody.Should().Contain("\"event\":\"send_receive\"");
+        handler.LastBody.Should().Contain($"\"direction\":\"{direction}\"");
         handler.LastBody.Should().Contain($"\"$user_id\":\"{userId}\"");
         handler.LastBody.Should().Contain("\"product\":\"lexbox\"");
         handler.LastBody.Should().Contain($"\"$app_version_string\":{JsonSerializer.Serialize(AppVersionService.Version)}");
@@ -40,7 +43,7 @@ public class LexboxAnalyticsServiceTests
         var handler = new CaptureHandler();
         var service = CreateService(handler, userId: null);
 
-        await service.TrackSendReceive();
+        await service.TrackSendReceive(ILexboxAnalyticsService.SendDirection);
 
         handler.RequestCount.Should().Be(0);
     }
@@ -51,7 +54,7 @@ public class LexboxAnalyticsServiceTests
         var handler = new CaptureHandler();
         var service = CreateService(handler, userId: Guid.NewGuid(), optedOutOfAnalytics: true);
 
-        await service.TrackSendReceive();
+        await service.TrackSendReceive(ILexboxAnalyticsService.SendDirection);
 
         handler.RequestCount.Should().Be(0);
     }
@@ -165,7 +168,7 @@ public class LexboxAnalyticsServiceTests
         var handler = new CaptureHandler();
         var service = CreateService(handler, userId: Guid.NewGuid(), clientIp: "203.0.113.7");
 
-        await service.TrackSendReceive();
+        await service.TrackSendReceive(ILexboxAnalyticsService.SendDirection);
 
         handler.RequestCount.Should().Be(1);
         // The end user's IP is sent as the reserved "ip" property so Mixpanel geolocates them...
@@ -180,7 +183,7 @@ public class LexboxAnalyticsServiceTests
         var handler = new CaptureHandler();
         var service = CreateService(handler, userId: Guid.NewGuid(), enabled: false);
 
-        await service.TrackSendReceive();
+        await service.TrackSendReceive(ILexboxAnalyticsService.SendDirection);
 
         handler.RequestCount.Should().Be(0);
     }
@@ -192,7 +195,7 @@ public class LexboxAnalyticsServiceTests
         // Production environment with no release token configured => nothing sent.
         var service = CreateService(handler, userId: Guid.NewGuid(), isDevelopment: false, productionToken: "");
 
-        await service.TrackSendReceive();
+        await service.TrackSendReceive(ILexboxAnalyticsService.SendDirection);
 
         handler.RequestCount.Should().Be(0);
     }

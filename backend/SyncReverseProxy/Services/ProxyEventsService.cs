@@ -24,7 +24,7 @@ public class ProxyEventsService(ILexProxyService lexProxyService, ILexboxAnalyti
                     {
                         // Last chunk, so record updated last-changed date
                         await lexProxyService.QueueProjectMetadataUpdate(projectCode);
-                        _ = analytics.TrackSendReceive();
+                        _ = analytics.TrackSendReceive(ILexboxAnalyticsService.SendDirection);
                     }
                 }
             }
@@ -37,7 +37,7 @@ public class ProxyEventsService(ILexProxyService lexProxyService, ILexboxAnalyti
                 int.TryParse(offsetStr, out var offset) &&
                 offset == 0)
             {
-                _ = analytics.TrackSendReceive();
+                _ = analytics.TrackSendReceive(ILexboxAnalyticsService.ReceiveDirection);
             }
         }
     }
@@ -50,12 +50,12 @@ public class ProxyEventsService(ILexProxyService lexProxyService, ILexboxAnalyti
         if (cmd == "unbundle")
         {
             await lexProxyService.QueueProjectMetadataUpdate(projectCode);
-            _ = analytics.TrackSendReceive();
+            _ = analytics.TrackSendReceive(ILexboxAnalyticsService.SendDirection);
         }
         else if (cmd == "getbundle")
         {
             // Fetch (pull). Doesn't change the repo, so no metadata update — just track the send/receive.
-            _ = analytics.TrackSendReceive();
+            _ = analytics.TrackSendReceive(ILexboxAnalyticsService.ReceiveDirection);
         }
     }
 }

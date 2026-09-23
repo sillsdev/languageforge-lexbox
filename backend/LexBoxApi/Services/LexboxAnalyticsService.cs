@@ -21,15 +21,18 @@ public class LexboxAnalyticsService(
     private readonly AnalyticsConfigBase _config = analyticsConfig.Value;
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
-    public Task TrackSendReceive() => TrackCurrentUserEvent(ILexboxAnalyticsService.SendReceiveEvent);
+    public Task TrackSendReceive(string direction) =>
+        TrackCurrentUserEvent(ILexboxAnalyticsService.SendReceiveEvent,
+            new() { [ILexboxAnalyticsService.DirectionProperty] = direction });
 
     public Task TrackFwLiteSync() => TrackCurrentUserEvent(ILexboxAnalyticsService.FwLiteSyncEvent);
 
     /// <summary>
-    /// Send <paramref name="eventName"/> for the currently signed-in user. Sends nothing when there is no
-    /// identified user (e.g. an automated service-account sync) or they have opted out.
+    /// Send <paramref name="eventName"/> for the currently signed-in user, with any <paramref name="extraProperties"/>
+    /// merged onto the base properties. Sends nothing when there is no identified user (e.g. an automated
+    /// service-account sync) or they have opted out.
     /// </summary>
-    private Task TrackCurrentUserEvent(string eventName)
+    private Task TrackCurrentUserEvent(string eventName, Dictionary<string, object?>? extraProperties = null)
     {
         var user = loggedInContext.MaybeUser;
         if (user?.Id is not { } userId || userId == Guid.Empty)
@@ -40,6 +43,11 @@ public class LexboxAnalyticsService(
         var properties = CreateBaseProperties();
         if (properties is null)
             return Task.CompletedTask;
+        if (extraProperties is not null)
+        {
+            foreach (var (key, value) in extraProperties)
+                properties[key] = value;
+        }
         return Task.Run(() => mixpanelClient.SendAsync(eventName, properties));
     }
 
