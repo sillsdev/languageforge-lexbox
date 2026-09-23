@@ -3015,11 +3015,11 @@ msgid "Update available: {0}"
 msgstr "Pembaruan tersedia: {0}"
 
 #: src/lib/updates/UpdateDialogContent.svelte
-msgid "Update downloaded — restart to apply."
+msgid "Update downloaded. Restart to apply."
 msgstr ""
 
 #: src/lib/updates/UpdateDialogContent.svelte
-msgid "Update downloading in the background — restart to apply once it's finished."
+msgid "Update downloading in the background. Restart to apply once it's finished."
 msgstr ""
 
 #. Error message when update fails to install

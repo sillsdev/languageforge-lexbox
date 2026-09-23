@@ -60,10 +60,10 @@
     <div class="flex items-center gap-4 p-4 rounded-lg bg-muted">
       {#if updateResult === UpdateResult.Success}
         <Icon icon="i-mdi-check-circle" />
-        <p>{$t`Update downloaded — restart to apply.`}</p>
+        <p>{$t`Update downloaded. Restart to apply.`}</p>
       {:else if updateResult === UpdateResult.Started}
         <Icon icon="i-mdi-information" />
-        <p>{$t`Update downloading in the background — restart to apply once it's finished.`}</p>
+        <p>{$t`Update downloading in the background. Restart to apply once it's finished.`}</p>
       {:else if updateResult === UpdateResult.Failed}
         <Icon icon="i-mdi-alert-circle" />
         <p>{$t`Update failed to install.`}</p>
