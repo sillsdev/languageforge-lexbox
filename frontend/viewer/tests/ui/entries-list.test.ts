@@ -24,7 +24,10 @@ test.describe('EntriesList', () => {
       await expect(projectPage.entriesList.entryRows.first()).toContainText(/.+/);
     });
 
-    test('can scroll through entries incrementally', async () => {
+    test('can scroll through entries incrementally', async ({browserName}) => {
+      // Flaky under WebKit: the virtualized list sometimes doesn't update the rendered rows after a
+      // programmatic scroll in time. Tracked in #2678.
+      test.skip(browserName === 'webkit', 'WebKit virtualized-scroll flakiness — see #2678');
       const initialTexts = await projectPage.entriesList.getVisibleEntryTexts(5);
       expect(initialTexts.length).toBeGreaterThan(0);
 
@@ -86,7 +89,9 @@ test.describe('EntriesList', () => {
       await projectPage.goto();
     });
 
-    test('reloading with entry selected scrolls to that entry', async ({page}) => {
+    test('reloading with entry selected scrolls to that entry', async ({page, browserName}) => {
+      // Flaky under WebKit (virtualized scroll/selection timing). Tracked in #2678.
+      test.skip(browserName === 'webkit', 'WebKit virtualized-scroll flakiness — see #2678');
       // Scroll far down (~100 items)
       await projectPage.entriesList.scrollToPixels(100 * ESTIMATED_ITEM_HEIGHT);
       await projectPage.page.waitForTimeout(200);

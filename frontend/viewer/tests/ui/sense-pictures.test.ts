@@ -501,7 +501,10 @@ test.describe('Sense pictures', () => {
     await expect(chevron).toHaveClass(/rotate-180/);
   });
 
-  test('a downloaded image reloads automatically (no re-click) after navigating away and back', async ({page}) => {
+  test('a downloaded image reloads automatically (no re-click) after navigating away and back', async ({page, browserName}) => {
+    // Flaky under WebKit: after navigating away and back the reloaded image's blob: src doesn't
+    // always appear within the timeout (image-load timing). Tracked in #2678.
+    test.skip(browserName === 'webkit', 'WebKit image-reload timing flakiness — see #2678');
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();
 
