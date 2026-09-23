@@ -115,11 +115,11 @@
     />
     <DisplayLanguageSelect bind:value={$form.locale} />
     <div id="analytics" class="mt-2 scroll-mt-4">
-      <span class="label-text font-medium">{$t('account_settings.analytics.title')}</span>
+      <span class="label-text font-medium">{$t('analytics.title')}</span>
       <Checkbox
         id="opted-out-of-analytics"
-        label={$t('account_settings.analytics.opt_out_label')}
-        description={$t('account_settings.analytics.description')}
+        label={$t('analytics.opt_out_label')}
+        description={$t('analytics.description')}
         bind:value={$form.optedOutOfAnalytics}
       />
     </div>
