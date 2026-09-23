@@ -152,6 +152,15 @@ declare module 'papi-shared-types' {
       lexiconCode: string,
       entryId: string,
     ) => Promise<SuccessHolder>;
+    /**
+     * Downloads a remote project (resolves once its initial sync finishes) and selects it for the
+     * given project.
+     */
+    'lexicon.downloadAndSelectLexicon': (
+      projectId: string,
+      authority: string,
+      lexiconCode: string,
+    ) => Promise<DownloadAndSelectResult>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     /**
@@ -170,17 +179,16 @@ declare module 'papi-shared-types' {
       authority: string,
     ) => Promise<{ result?: LoginResult; servers?: AuthServerStatus[] }>;
     'lexicon.logout': (authority: string) => Promise<AuthServerStatus[] | undefined>;
+    /**
+     * Opens the lexicon selector on a project, leaving to the caller whether reopening it on an
+     * already-linked project is appropriate.
+     *
+     * @returns Whether the selector opened, which is not whether a lexicon was chosen; a chosen
+     *   lexicon lands in the project's `lexicon.lexiconCode` setting.
+     */
+    'lexicon.openSelector': (projectId: string) => Promise<SuccessHolder>;
     /** Remote (Lexbox server) CRDT projects the signed-in user can download. */
     'lexicon.remoteProjects': () => Promise<IProjectModel[] | undefined>;
-    /**
-     * Downloads a remote project (resolves once its initial sync finishes) and selects it for the
-     * given project.
-     */
-    'lexicon.downloadAndSelectLexicon': (
-      projectId: string,
-      authority: string,
-      lexiconCode: string,
-    ) => Promise<DownloadAndSelectResult>;
     /**
      * Resolves the Paratext project a WebView is scoped to, prompting with the core project picker
      * when it has none (e.g. a selector tab restored from a saved layout); `projectId` is undefined
