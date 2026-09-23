@@ -52,7 +52,10 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         var editionConfig = config.Value.Editions.GetValueOrDefault(edition);
         if (editionConfig is null)
         {
-            throw new ArgumentException($"No config for edition {edition}");
+            //Editions with no release-asset config (e.g. store-distributed iOS/Mac) have no GitHub
+            //feed to check. Return null ("no update") rather than throwing, which the endpoint would
+            //otherwise surface as a 500 on every client launch.
+            return null;
         }
         using var activity = LexBoxActivitySource.Get().StartActivity();
         activity?.AddTag(FwLiteEditionTag, edition.ToString());

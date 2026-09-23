@@ -288,10 +288,10 @@ jobs:
           label: FW Lite Viewer unit
           on-no-files: ignore
 
-  publish-mac:
-    name: Publish FW Lite app for Mac
+  build-apple:
+    name: Build FW Lite app for iOS simulator and Mac Catalyst
     needs: [build-and-test, frontend]
-    timeout-minutes: 30
+    timeout-minutes: 45
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -303,25 +303,42 @@ jobs:
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.x'
+      - name: Setup Maui
+        run: dotnet workload install maui-ios maui-maccatalyst
 
-      - name: Dotnet build
-        working-directory: backend/FwLite/FwLiteWeb
-        run: dotnet build --configuration Release
+      # No signing identity on the runner: the iOS build targets the simulator (ad-hoc signed, see FwLiteMaui.csproj)
+      # and Mac Catalyst is built, not published. Both run the Mono interpreter with SDK-only linking in Release,
+      # which is the configuration verified in the simulator; this job keeps that configuration compiling.
+      - name: Build iOS (simulator)
+        working-directory: backend/FwLite/FwLiteMaui
+        run: |
+          dotnet build -f net10.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 \
+            -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
+            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
-      - name: Publish OSX
-        working-directory: backend/FwLite/FwLiteWeb
-        run: dotnet publish -r osx-x64 --artifacts-path ../artifacts -p:Version=${{ needs.build-and-test.outputs.semver-version }}
+      - name: Build Mac Catalyst
+        working-directory: backend/FwLite/FwLiteMaui
+        run: |
+          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 \
+            -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
+            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
-      - name: Publish OSX ARM
-        working-directory: backend/FwLite/FwLiteWeb
-        run: dotnet publish -r osx-arm64 --artifacts-path ../artifacts -p:Version=${{ needs.build-and-test.outputs.semver-version }}
-#todo sign the app
-      - name: Upload local web app artifacts
+      # upload-artifact drops executable bits, so zip the bundles with ditto first.
+      - name: Zip app bundles
+        working-directory: backend/FwLite/FwLiteMaui
+        run: |
+          mkdir -p ../artifacts/apple
+          ditto -c -k --keepParent "bin/Release/net10.0-ios/iossimulator-arm64/FwLiteMaui.app" ../artifacts/apple/fw-lite-ios-simulator.zip
+          ditto -c -k --keepParent "bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app" ../artifacts/apple/fw-lite-maccatalyst.zip
+
+      - name: Upload Apple app bundles
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: fw-lite-web-mac
+          name: fw-lite-apple
           if-no-files-found: error
-          path: backend/FwLite/artifacts/publish/FwLiteWeb/*
+          path: backend/FwLite/artifacts/apple/*.zip
 
   publish-linux:
     name: Publish FW Lite app for Linux
@@ -541,7 +558,7 @@ jobs:
       name: production
       url: https://lexbox.org/fw-lite
     name: Create Release
-    needs: [ build-and-test, publish-win, publish-linux, publish-mac, publish-android]
+    needs: [ build-and-test, publish-win, publish-linux, build-apple, publish-android]
     runs-on: ubuntu-latest
     permissions:
       contents: write

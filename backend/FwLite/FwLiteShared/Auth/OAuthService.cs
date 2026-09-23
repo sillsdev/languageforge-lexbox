@@ -48,11 +48,17 @@ public class OAuthService(
 
     private async Task HandleSystemWebViewLogin(IPublicClientApplication application, CancellationToken cancellation)
     {
-        var result = await application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
-            .WithUseEmbeddedWebView(false)
-            .WithParentActivityOrWindow(options.Value.GetParentActivityOrWindow?.Invoke())
-            .WithSystemWebViewOptions(new() { })
-            .ExecuteAsync(cancellation);
+        var request = application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
+            .WithParentActivityOrWindow(options.Value.GetParentActivityOrWindow?.Invoke());
+        if (options.Value.CustomWebUiFactory is { } customWebUiFactory)
+        {
+            request = request.WithCustomWebUi(customWebUiFactory());
+        }
+        else
+        {
+            request = request.WithUseEmbeddedWebView(false).WithSystemWebViewOptions(new() { });
+        }
+        await request.ExecuteAsync(cancellation);
     }
 
     public async Task<(AuthenticationResult, string ClientReturnUrl)> FinishLoginRequest(Uri uri,

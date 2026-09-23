@@ -6,6 +6,7 @@
   import {onDestroy} from 'svelte';
   import {mergeProps} from 'bits-ui';
   import {cn} from '$lib/utils';
+  import {copyText} from '$lib/services/clipboard';
 
   type Props = ButtonProps & {
     text?: string;
@@ -28,7 +29,7 @@
           });
         return;
       }
-      await navigator.clipboard.writeText(text);
+      await copyText(text);
       if (notify)
         AppNotification.display($t`Copied to clipboard`, {
           type: 'success',

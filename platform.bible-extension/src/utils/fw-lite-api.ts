@@ -126,19 +126,21 @@ export class FwLiteApi {
   private static readonly projectTypeByCode = new Map<string, 'FwData' | 'Harmony'>();
 
   private readonly baseUrl: string;
-  private lexiconCode?: string;
+
+  /**
+   * The lexicon this instance is bound to, standing in wherever a method is called without one. Set
+   * once at construction, so a caller already in flight cannot have the lexicon changed under it.
+   */
+  private readonly lexiconCode?: string;
+
   constructor(baseUrl: string, lexiconCode?: string) {
     this.baseUrl = baseUrl;
-    this.setLexiconCode(lexiconCode);
-  }
-
-  setLexiconCode(lexiconCode?: string): void {
     this.lexiconCode = lexiconCode;
   }
 
   async deleteEntry(id: string, lexiconCode?: string): Promise<void> {
     const { code, type } = await this.checkLexiconCode(lexiconCode);
-    const path = `mini-lcm/${type}/${code}/entry/${id}`;
+    const path = `mini-lcm/${type}/${code}/entry/${sanitizeUrlComponent(id)}`;
     await this.fetchPath(path, 'DELETE');
   }
 
@@ -169,13 +171,13 @@ export class FwLiteApi {
 
   async getEntry(id: string, lexiconCode?: string): Promise<IEntry> {
     const { code, type } = await this.checkLexiconCode(lexiconCode);
-    const path = `mini-lcm/${type}/${code}/entry/${id}`;
+    const path = `mini-lcm/${type}/${code}/entry/${sanitizeUrlComponent(id)}`;
     return (await this.fetchPath(path)) as IEntry;
   }
 
   async getSense(id: string, lexiconCode?: string): Promise<ISense> {
     const { code, type } = await this.checkLexiconCode(lexiconCode);
-    const path = `mini-lcm/${type}/${code}/sense/${id}`;
+    const path = `mini-lcm/${type}/${code}/sense/${sanitizeUrlComponent(id)}`;
     return (await this.fetchPath(path)) as ISense;
   }
 

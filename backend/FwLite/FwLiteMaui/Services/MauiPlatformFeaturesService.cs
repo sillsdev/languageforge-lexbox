@@ -24,4 +24,11 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker) : IPlatformFe
         return new(new DotNetStreamReference(await file.OpenReadAsync()), file.ContentType, file.FileName);
     }
 
+    [JSInvokable]
+    public Task CopyToClipboard(string text)
+    {
+        //UIPasteboard/NSPasteboard access must happen on the UI thread on Apple platforms.
+        return MainThread.InvokeOnMainThreadAsync(() => Clipboard.Default.SetTextAsync(text));
+    }
+
 }

@@ -230,7 +230,7 @@ This is the most complex workflow because it:
 | `build-and-test` | ubuntu-latest | Core .NET build + tests (`FwLiteCore.slnf`) |
 | `frontend` | ubuntu-latest | Build viewer, Playwright snapshots |
 | `frontend-component-unit-tests` | ubuntu-latest | Vitest unit tests |
-| `publish-mac` | macos-latest | macOS binaries |
+| `build-apple` | macos-latest | MAUI Release builds for iOS simulator + Mac Catalyst (compile check, unsigned) |
 | `publish-linux` | ubuntu-latest | Linux binaries |
 | `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX |
 
@@ -247,7 +247,7 @@ This is the most complex workflow because it:
 
 The workflow produces:
 - `fw-lite-viewer-js` - Built viewer (shared by publish jobs)
-- `fw-lite-web-mac` - macOS binaries
+- `fw-lite-apple` - iOS simulator + Mac Catalyst .app bundles (zipped)
 - `fw-lite-web-linux` - Linux binaries
 - `fw-lite-windows-exe` - Windows binaries
 - `fw-lite-maui-msix` - MAUI installer

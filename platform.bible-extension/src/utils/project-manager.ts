@@ -19,10 +19,6 @@ export class ProjectManager {
     this.isLexiconCodeValid = isLexiconCodeValid ?? (async () => true);
   }
 
-  static async getLexiconCode(projectId: string): Promise<string | undefined> {
-    return await new ProjectManager(projectId).getLexiconCode();
-  }
-
   /** Tells the user why their lexicon selection was discarded, so the selector isn't unexplained. */
   private static async notifyLexiconMissing(lexiconCode: string): Promise<void> {
     try {
@@ -74,6 +70,14 @@ export class ProjectManager {
     await this.openSelector();
   }
 
+  /**
+   * Opens the lexicon selector for this project.
+   *
+   * One selector serves a project, so opening it again re-aims the one already open rather than
+   * adding a second.
+   *
+   * @returns Whether the selector opened, which is not whether a lexicon was chosen.
+   */
   async openSelector(): Promise<boolean> {
     // Only for the tab title. The panel reads everything else through lexicon.lexicons, since props
     // are frozen at open time and go stale on a layout restore.
@@ -113,6 +117,12 @@ export class ProjectManager {
     return { id: this.projectId, name, lexiconCode, langTag };
   }
 
+  /**
+   * Options for a WebView scoped to one lexicon.
+   *
+   * These are a snapshot: an open view keeps the values it was given until a command reopens it,
+   * even after the project's lexicon selection changes.
+   */
   async getLexiconWebViewOptions(word?: string): Promise<LexiconWebViewOptions> {
     return {
       analysisLanguage: await this.getAnalysisLanguage(),

@@ -22,6 +22,9 @@ export function usePlatformFeaturesService(): {service: IPlatformFeaturesService
         },
         supportsImageCapture(): Promise<boolean> {
           return Promise.resolve(false);
+        },
+        copyToClipboard(): Promise<void> {
+          return Promise.resolve();
         }
       },
       features: Object.fromEntries(features.map((feature) => [feature, false])) as Record<Features, boolean>

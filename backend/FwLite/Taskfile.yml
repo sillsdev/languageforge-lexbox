@@ -108,6 +108,22 @@ tasks:
     # EXTRA_ARGS goes through a Task var so multi-token values stay separate; CLI_ARGS gets re-quoted into a single shell arg.
     cmd: dotnet build -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.EXTRA_ARGS}} {{.CLI_ARGS}}
 
+  build-maui-ios:
+    desc: Build FwLiteMaui for the iOS simulator (CONFIG=Debug|Release). Builds the viewer first; without it the app shows a MIME-type error.
+    deps: [ ui:build-viewer ]
+    dir: ./FwLiteMaui
+    vars:
+      CONFIG: '{{.CONFIG | default "Debug"}}'
+    cmd: dotnet build -f net10.0-ios -c {{.CONFIG}} -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 {{.CLI_ARGS}}
+
+  maui-mac:
+    desc: Build & run FwLiteMaui on Mac Catalyst (CONFIG=Debug|Release). Builds the viewer first; without it the app shows a MIME-type error.
+    deps: [ ui:build-viewer ]
+    dir: ./FwLiteMaui
+    vars:
+      CONFIG: '{{.CONFIG | default "Debug"}}'
+    cmd: dotnet build -f net10.0-maccatalyst -c {{.CONFIG}} -t:Run -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 {{.CLI_ARGS}}
+
   install-maui-android:
     desc: Retry install + run without rebuilding (for when you miss the permission prompt) - uses existing build artifacts
     dir: ./FwLiteMaui

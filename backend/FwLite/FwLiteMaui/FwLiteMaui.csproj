@@ -60,10 +60,40 @@
   <PropertyGroup>
     <TargetPlatform>$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)'))</TargetPlatform>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst'">
+    <!-- The .NET for iOS SDK refuses to build unless the installed Xcode matches its expected minor version exactly.
+         We build with whatever Xcode is installed (newer works); drop this once the workload catches up. -->
+    <ValidateXcodeVersion>false</ValidateXcodeVersion>
+    <!-- iOS has no JIT. EF Core 10 refuses to build its model / compile queries when dynamic code is unsupported,
+         so the Mono interpreter is mandatory. Enabled in Debug too so both builds exercise the same runtime. -->
+    <UseInterpreter>true</UseInterpreter>
+    <!-- Route every HttpClient through Apple's NSUrlSessionHandler (Network.framework) instead of the managed
+         SocketsHttpHandler + SslStream. The managed TLS path on Apple is the deprecated SecureTransport shim, which
+         resets the handshake against modern TLS-1.3 servers (e.g. lexbox.org's OIDC endpoint) — login fails with
+         "net_http_ssl_connection_failed / Connection reset by peer", only on Mac/iOS. Native handler negotiates fine. -->
+    <UseNativeHttpHandler>true</UseNativeHttpHandler>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetPlatform)' == 'ios'">
+    <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetPlatform)' == 'ios' And $(RuntimeIdentifier.StartsWith('iossimulator'))">
+    <!-- Simulator builds are unsigned by default, which drops the entitlements above (MSAL keychain access fails).
+         Ad-hoc sign so the entitlements apply; device builds need a real identity anyway. -->
+    <EnableCodeSigning>true</EnableCodeSigning>
+    <CodesignKey>-</CodesignKey>
+    <CodesignEntitlements>Platforms\iOS\Entitlements.Simulator.plist</CodesignEntitlements>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' And ('$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst')">
+    <!-- With the interpreter on, the SDK defaults the simulator to no linking; force the device default so trimming
+         failures show up in the simulator. Do not set PublishTrimmed/TrimMode: the iOS SDK owns those. -->
+    <MtouchLink>SdkOnly</MtouchLink>
+  </PropertyGroup>
   <ItemGroup>
     <!-- App Icon -->
     <!-- background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
-    <MauiIcon Condition="'$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst'" Include="Resources\AppIcon\logo_light.svg" Color="#1c4e80" />
+    <!-- Use a separate foreground + ForegroundScale so the logo has padding inside the rounded square instead of filling it edge-to-edge.
+         The generated appiconset is named after the Include file (logo_background), so Platforms/{iOS,MacCatalyst}/Info.plist's XSAppIconAssets must match. -->
+    <MauiIcon Condition="'$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst'" Include="Resources\AppIcon\logo_background.svg" ForegroundFile="Resources\AppIcon\logo_light.svg" Color="#1c4e80" ForegroundScale="0.75" />
     <MauiIcon Condition="'$(TargetPlatform)' == 'android'" Include="Resources\AppIcon\logo_background.svg" ForegroundFile="Resources\AppIcon\logo_light_padding.svg" ForegroundScale="0.8" />
     <MauiIcon Condition="'$(TargetPlatform)' != 'ios' And '$(TargetPlatform)' != 'maccatalyst' And '$(TargetPlatform)' != 'android'" Include="Resources\AppIcon\logo_light.svg" />
     <!-- Splash Screen -->
@@ -79,8 +109,12 @@
     <PackageReference Include="Microsoft.Maui.Controls" />
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
-    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
     <PackageReference Include="NReco.Logging.File" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <!-- Windows-only toast notifications (used by Platforms/Windows/AppUpdateService.cs). Conditioned
+         so it is not pulled into the iOS/Mac/Android bundles, where it is unused dead weight. -->
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FwLiteShared\FwLiteShared.csproj" />
