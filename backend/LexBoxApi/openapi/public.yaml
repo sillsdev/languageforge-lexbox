@@ -1506,6 +1506,12 @@ components:
           type: array
           items:
             type: string
+        icuCollationRules:
+          type: string
+          nullable: true
+        systemCollationLocale:
+          type: string
+          nullable: true
         order:
           pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
           anyOf:
