@@ -286,6 +286,10 @@ msgstr ""
 msgid "an entry"
 msgstr "một mục"
 
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "An update has been downloaded."
+msgstr ""
+
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -2326,6 +2330,10 @@ msgstr ""
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
+msgstr ""
+
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "Restart"
 msgstr ""
 
 #. Button label to restore a deleted Entry or Word inside EntryView

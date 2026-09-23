@@ -6,8 +6,6 @@ using Android.OS;
 using AndroidX.Core.View;
 using FwLiteShared.Auth;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Identity.Client;
 
 namespace FwLiteMaui;
@@ -62,11 +60,9 @@ public class MainActivity : MauiAppCompatActivity
         //Never let a Play update check crash startup - it's a best-effort nicety.
         try
         {
-            var logger = IPlatformApplication.Current?.Services.GetService<ILoggerFactory>()
-                             ?.CreateLogger<AndroidInAppUpdateService>()
-                         ?? (ILogger)NullLogger<AndroidInAppUpdateService>.Instance;
-            _inAppUpdateService = new AndroidInAppUpdateService(this, logger);
-            _inAppUpdateService.CheckForUpdate(this);
+            //Container-owned singleton (disposed at shutdown); don't dispose it from the activity.
+            _inAppUpdateService = IPlatformApplication.Current?.Services.GetService<AndroidInAppUpdateService>();
+            _inAppUpdateService?.CheckForUpdate(this);
         }
         catch (Exception e)
         {

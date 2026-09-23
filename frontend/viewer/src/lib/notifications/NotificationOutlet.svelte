@@ -10,6 +10,9 @@
   import {t} from 'svelte-i18n-lingui';
   import {Toaster} from '$lib/components/ui/sonner';
   import {openReleaseUrl} from '$lib/updates/utils';
+  import {useUpdateService} from '$lib/services/service-provider';
+
+  const updateService = useUpdateService();
 
   const notificationTypes = {
     [UserNotificationType.Plain]: 'plain',
@@ -41,6 +44,13 @@
         $t`FieldWorks Lite has been updated successfully. Please restart the app to apply the changes.`,
         {type: 'info', timeout: 'long'}
       );
+    } else if (event.result == UpdateResult.Downloaded) {
+      // Android Play flexible flow: the update is downloaded but installing it requires restarting via
+      // the platform's completeUpdate(), so offer that as an action rather than a plain message.
+      AppNotification.displayAction($t`An update has been downloaded.`, {
+        callback: () => void updateService.completeUpdate(),
+        label: $t`Restart`
+      });
     }
   }, {includeLast: true});
 

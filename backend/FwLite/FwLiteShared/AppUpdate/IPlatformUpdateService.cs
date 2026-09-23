@@ -10,6 +10,12 @@ public interface IPlatformUpdateService
     bool SupportsAutoUpdate { get; }
     Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease);
     Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease);
+
+    /// <summary>
+    /// Finish installing an update the platform has already downloaded (used by Android's Play flexible
+    /// flow, where the app must trigger the install/restart itself). No-op where it doesn't apply.
+    /// </summary>
+    Task CompleteUpdate() => Task.CompletedTask;
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -20,5 +26,8 @@ public enum UpdateResult
     Failed,
     Started,
     ManualUpdateRequired,
-    Disallowed
+    Disallowed,
+
+    /// <summary>An update finished downloading and is waiting for the user to restart to install it.</summary>
+    Downloaded
 }

@@ -17,4 +17,14 @@ public class UpdateService(UpdateChecker updateChecker)
     {
         return Task.Run(async () => await updateChecker.ApplyUpdate(update.Release));
     }
+
+    /// <summary>
+    /// Finish installing an update the platform already downloaded (Android Play flexible flow), invoked
+    /// from the "Restart" toast. A no-op on platforms that don't need it.
+    /// </summary>
+    [JSInvokable]
+    public Task CompleteUpdate()
+    {
+        return updateChecker.CompleteUpdate();
+    }
 }

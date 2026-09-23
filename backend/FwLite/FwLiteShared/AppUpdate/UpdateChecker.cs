@@ -47,6 +47,12 @@ public class UpdateChecker(
         });
     }
 
+    /// <summary>
+    /// Finish installing an update the platform already downloaded (Android Play flexible flow). Invoked
+    /// from the web UI's "Restart" prompt via <see cref="Services.UpdateService"/>.
+    /// </summary>
+    public Task CompleteUpdate() => platformUpdateService.CompleteUpdate();
+
     public async Task<UpdateResult> ApplyUpdate(FwLiteRelease release)
     {
         if (ShouldPromptBeforeUpdate() &&
