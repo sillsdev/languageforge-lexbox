@@ -2328,8 +2328,8 @@ msgstr "Resolve"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
-msgid "Restart now"
-msgstr "Restart now"
+msgid "Restart"
+msgstr "Restart"
 
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte

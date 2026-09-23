@@ -57,7 +57,7 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
             .AddText("FieldWorks Lite update ready")
             .AddText($"Version {latestRelease.Version} is ready. Restart to finish installing.")
             .AddButton(new ToastButton()
-                .SetContent("Restart now")
+                .SetContent("Restart")
                 .AddArgument(ActionKey, "restart"))
             .Show(toast => toast.Tag = "update");
     }

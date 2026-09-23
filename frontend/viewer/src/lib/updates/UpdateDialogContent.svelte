@@ -86,7 +86,7 @@
     {#if updateResult === UpdateResult.Success || updateResult === UpdateResult.Started}
       <!-- the update only takes effect once the app restarts, so offer to do it now -->
       <Button onclick={restartApp} class="w-full" icon="i-mdi-restart">
-        {$t`Restart now`}
+        {$t`Restart`}
       </Button>
     {/if}
   {/await}

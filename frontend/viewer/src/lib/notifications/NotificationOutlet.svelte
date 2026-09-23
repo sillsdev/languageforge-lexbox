@@ -41,7 +41,7 @@
       AppNotification.displayAction(
         $t`FieldWorks Lite has been updated. Restart to finish installing.`,
         {
-          label: $t`Restart now`,
+          label: $t`Restart`,
           callback: () => {
             void useUpdateService().restartToApplyUpdate();
           },
