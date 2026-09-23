@@ -30,19 +30,19 @@ public class WritingSystemCollatorProviderTests
     };
 
     [Fact]
-    public void GetCollator_UsesIcu4NLocaleCollator_WhenLocaleSet()
+    public void GetCollator_UsesIcuCollator_WhenLocaleSet()
     {
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs() with { SystemCollationLocale = "de" });
-        collator.Should().BeOfType<Icu4NLocaleCollator>();
+        collator.Should().BeOfType<IcuCollator>();
     }
 
     [Fact]
-    public void GetCollator_UsesIcu4NRulesCollator_WhenRulesSet()
+    public void GetCollator_UsesIcuCollator_WhenRulesSet()
     {
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = "&a < b" });
-        collator.Should().BeOfType<Icu4NRulesCollator>();
+        collator.Should().BeOfType<IcuCollator>();
     }
 
     [Fact]
@@ -50,12 +50,11 @@ public class WritingSystemCollatorProviderTests
     {
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs());
-        collator.Should().NotBeOfType<Icu4NLocaleCollator>();
-        collator.Should().NotBeOfType<Icu4NRulesCollator>();
+        collator.Should().BeOfType<LegacyCompareInfoCollator>();
     }
 
     [Fact]
-    public void Icu4NRulesCollator_SortsByCustomRules()
+    public void IcuRulesCollator_SortsByCustomRules()
     {
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = "&z < a" });
@@ -63,11 +62,20 @@ public class WritingSystemCollatorProviderTests
     }
 
     [Fact]
-    public void Icu4NRulesCollator_ReversesAAndB()
+    public void IcuRulesCollator_ReversesAAndB()
     {
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = "&b < a &B < A" });
         collator.Compare("Banane", "Apfel").Should().BeLessThan(0);
+    }
+
+    [Fact]
+    public void IcuLocaleCollator_SortsByLocale()
+    {
+        var provider = CreateProvider();
+        var collator = provider.GetCollator(BaseWs() with { SystemCollationLocale = "sv" });
+        // Swedish sorts ä after z
+        collator.Compare("ä", "z").Should().BeGreaterThan(0);
     }
 
     [Fact]
@@ -83,7 +91,6 @@ public class WritingSystemCollatorProviderTests
     {
         var provider = CreateProvider();
         var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = "not valid icu rules <<<<" });
-        collator.Should().NotBeOfType<Icu4NRulesCollator>();
         collator.Should().BeOfType<LegacyCompareInfoCollator>();
     }
 }

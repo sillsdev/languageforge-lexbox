@@ -40,13 +40,13 @@ public class WritingSystemCollatorProvider(
     {
         try
         {
-            return new Icu4NLocaleCollator(writingSystem.SystemCollationLocale!);
+            return IcuCollator.FromLocale(writingSystem.SystemCollationLocale!);
         }
         catch (Exception ex)
         {
             logger.LogWarning(
                 ex,
-                "Failed to create ICU4N locale collator for '{Locale}' on writing system '{WsId}'; using .NET collation fallback",
+                "Failed to create ICU locale collator for '{Locale}' on writing system '{WsId}'; using .NET collation fallback",
                 writingSystem.SystemCollationLocale,
                 writingSystem.WsId);
             return CreateCultureCollator(writingSystem.SystemCollationLocale!);
@@ -57,13 +57,13 @@ public class WritingSystemCollatorProvider(
     {
         try
         {
-            return new Icu4NRulesCollator(writingSystem.IcuCollationRules!);
+            return IcuCollator.FromRules(writingSystem.IcuCollationRules!);
         }
         catch (Exception ex)
         {
             logger.LogWarning(
                 ex,
-                "Failed to create ICU4N rules collator for writing system '{WsId}'; using legacy collation fallback",
+                "Failed to create ICU rules collator for writing system '{WsId}'; using legacy collation fallback",
                 writingSystem.WsId);
             return new LegacyCompareInfoCollator(cultureProvider.GetCompareInfo(writingSystem));
         }

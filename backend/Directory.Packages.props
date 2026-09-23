@@ -29,8 +29,8 @@
     <PackageVersion Include="HotChocolate.Types.Analyzers" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="HotChocolate.Types.OffsetPagination" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
-    <PackageVersion Include="icu.net" Version="3.0.1" />
-    <PackageVersion Include="ICU4N.Collation" Version="60.1.0-alpha.356" />
+    <PackageVersion Include="icu.net" Version="3.0.3-beta.33" />
+    <PackageVersion Include="Icu4c.Android.Fw.Lib" Version="70.1.182" />
     <PackageVersion Include="linq2db.Extensions" Version="6.4.0" />
     <PackageVersion Include="linq2db.EntityFrameworkCore" Version="10.5.0" />
     <PackageVersion Include="L10NSharp" Version="10.0.0-beta0014" />
