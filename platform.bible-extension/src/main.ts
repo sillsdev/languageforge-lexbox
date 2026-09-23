@@ -186,7 +186,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (projectId: string, lexiconCode: string, entryId: string) => {
       let success = false;
 
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success };
 
       // An entry id resolves only in the lexicon it was written to, and the calling WebView is the
@@ -332,7 +332,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     lexiconCode: string,
   ): Promise<void> => {
     const projectManager = projectId
-      ? projectManagers.getProjectManagerFromProjectId(projectId)
+      ? await projectManagers.getProjectManagerFromProjectId(projectId)
       : undefined;
     if (!projectManager) return;
     if ((await projectManager.getLexiconCode()) !== lexiconCode) return;
@@ -342,7 +342,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const selectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.selectLexicon',
     async (projectId: string, lexiconCode: string) => {
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
       logger.info(`Selecting lexicon '${lexiconCode}' for project '${projectManager.projectId}'`);
@@ -403,7 +403,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const downloadAndSelectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.downloadAndSelectLexicon',
     async (projectId: string, authority: string, lexiconCode: string) => {
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { result: 'Error' as const, success: false, cancelled: true };
 
       logger.info(
@@ -487,7 +487,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       // A read: never prompt. No project (or one that no longer exists) only costs the filtering.
       const projectId = await ProjectManagers.getProjectIdFromWebViewId(webViewId);
       const project = projectId
-        ? await projectManagers.getProjectManagerFromProjectId(projectId)?.getLexiconPickerInfo()
+        ? await (
+            await projectManagers.getProjectManagerFromProjectId(projectId)
+          )?.getLexiconPickerInfo()
         : undefined;
       // Keep the current lexicon plus any lexicons/codes (keepCodes) the caller does not want to lose
       const keep = [project?.lexiconCode, ...(keepCodes ?? [])].filter((c): c is string => !!c);
