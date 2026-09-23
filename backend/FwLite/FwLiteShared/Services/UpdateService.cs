@@ -19,8 +19,8 @@ public class UpdateService(UpdateChecker updateChecker, IPlatformUpdateService p
     }
 
     [JSInvokable]
-    public void RestartToApplyUpdate()
+    public Task RestartToApplyUpdate()
     {
-        platformUpdateService.RestartToApplyUpdate();
+        return platformUpdateService.RestartToApplyUpdate();
     }
 }

@@ -50,7 +50,7 @@ For the hands-off path, set mode **`Always`** in step 4 instead — the app auto
 on launch.
 
 ## How it fits together
-- The app is redirected with two env vars (config section is `FwLite`), set at **User** scope so the
+- The app is redirected with env vars (config section is `FwLite`), set at **User** scope so the
   packaged app inherits them:
   - `FwLite__UpdateUrl=http://localhost:<port>/api/fwlite-release/should-update`
   - `FwLite__UpdateCheckCondition=Never|Always`

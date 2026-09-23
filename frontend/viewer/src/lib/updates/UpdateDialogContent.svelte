@@ -60,12 +60,10 @@
     <div class="flex items-center gap-4 p-4 rounded-lg bg-muted">
       {#if updateResult === UpdateResult.Success}
         <Icon icon="i-mdi-check-circle" />
-        <p>{$t`Update installed successfully! Please restart the application.`}</p>
+        <p>{$t`Update downloaded — restart to apply.`}</p>
       {:else if updateResult === UpdateResult.Started}
         <Icon icon="i-mdi-information" />
-        <!-- Apparently there's some unreliability in the update process.
-         Hopefully the progress above will work and help -->
-        <p>{$t`Update started in the background. Restart the application after the update is complete.`}</p>
+        <p>{$t`Update downloading in the background — restart to apply once it's finished.`}</p>
       {:else if updateResult === UpdateResult.Failed}
         <Icon icon="i-mdi-alert-circle" />
         <p>{$t`Update failed to install.`}</p>

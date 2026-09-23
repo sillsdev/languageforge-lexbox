@@ -13,9 +13,10 @@ public interface IPlatformUpdateService
 
     /// <summary>
     /// Restarts the app so a downloaded update can be applied. Only meaningful on platforms that
-    /// support auto-update; elsewhere it's a no-op.
+    /// support auto-update; elsewhere it's a no-op. On success the process is terminated by the platform,
+    /// so this typically does not return.
     /// </summary>
-    void RestartToApplyUpdate();
+    Task RestartToApplyUpdate();
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
