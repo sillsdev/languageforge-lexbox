@@ -16,7 +16,7 @@
   import {copy, EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {createEntryOptions} from '$lib/create-entry-options';
   import {useProjectEventBus} from '$lib/services/event-bus';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {ShouldAutoFocus} from '$lib/hooks/should-auto-focus.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import {useFeatures} from '$lib/services/feature-service';
   import type {ReadonlyDeep} from 'type-fest';
@@ -150,7 +150,7 @@
   let editorRef: HTMLElement | null = $state(null);
   watch([() => [loadedEntryId, entryScrollViewportRef, editorRef]], () => {
     entryScrollViewportRef?.scrollTo({ top: 0, left: 0 });
-    if (!IsMobile.value) findFirstTabbable(editorRef)?.focus();
+    if (ShouldAutoFocus.value) findFirstTabbable(editorRef)?.focus();
   });
 </script>
 
