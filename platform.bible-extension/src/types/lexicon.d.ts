@@ -180,8 +180,8 @@ declare module 'papi-shared-types' {
     ) => Promise<{ result?: LoginResult; servers?: AuthServerStatus[] }>;
     'lexicon.logout': (authority: string) => Promise<AuthServerStatus[] | undefined>;
     /**
-     * Opens the lexicon selector on a project, leaving to the caller whether reopening it on an
-     * already-linked project is appropriate.
+     * Opens the lexicon selector on a project that has no lexicon. Refuses a project that already
+     * has one: selection is sticky, so clear its `lexicon.lexiconCode` setting first.
      *
      * @returns Whether the selector opened, which is not whether a lexicon was chosen; a chosen
      *   lexicon lands in the project's `lexicon.lexiconCode` setting.

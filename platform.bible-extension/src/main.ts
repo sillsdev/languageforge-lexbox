@@ -290,6 +290,15 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
+      // Selection is sticky (see changeLexiconCommand): a linked project is changed only by first
+      // clearing its lexicon.lexiconCode setting.
+      const lexiconCode = await projectManager.getLexiconCode();
+      if (lexiconCode) {
+        const error = `Project '${projectId}' already uses lexicon '${lexiconCode}'`;
+        logger.warn(`Not opening the lexicon selector: ${error}`);
+        return { success: false, error };
+      }
+
       return { success: await projectManager.openSelector() };
     },
   );
