@@ -64,7 +64,9 @@ export class ProjectManager {
     // action opens a broken view — so the caller can prompt for a new selection.
     logger.warn(`Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`);
     await this.setLexiconCode('');
-    await this.setAnalysisLanguage('');
+    await this.setAnalysisLanguage('').catch((e) =>
+      logger.warn('Could not clear the analysis language:', getErrorMessage(e)),
+    );
     await ProjectManager.notifyLexiconMissing(lexiconCode);
   }
 
