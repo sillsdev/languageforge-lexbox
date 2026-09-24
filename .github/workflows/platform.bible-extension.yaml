@@ -12,6 +12,7 @@ on:
       - ".github/workflows/platform.bible-extension.yaml"
     branches:
       - develop
+  workflow_dispatch:
 
 # Modified from https://github.com/paranext/paranext-extension-template/blob/main/.github/workflows/lint.yml
 
@@ -62,3 +63,125 @@ jobs:
       - name: Run all linters
         working-directory: lexbox/platform.bible-extension
         run: npm run lint
+
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: lexbox
+          persist-credentials: false
+
+      - name: Checkout paranext-core repo to use its sub-packages
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: paranext-core
+          repository: paranext/paranext-core
+          persist-credentials: false
+
+      # Core is not pinned, so record which revision the zip was built against.
+      - name: Record paranext-core revision
+        working-directory: paranext-core
+        run: |
+          echo "paranext-core: \`$(git rev-parse HEAD)\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: "10.x"
+
+      - name: Install Task
+        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          package_json_file: lexbox/frontend/package.json
+
+      # The viewer needs the frontend's Node; the extension below pins an older one.
+      - name: Setup Node.js for the viewer
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: lexbox/frontend/package.json
+          cache: "pnpm"
+          cache-dependency-path: lexbox/frontend/pnpm-lock.yaml
+
+      - name: Build the viewer and FW Lite
+        working-directory: lexbox/platform.bible-extension
+        run: task build-fw-lite
+
+      - name: Setup Node.js for the extension
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          cache: "npm"
+          cache-dependency-path: |
+            lexbox/platform.bible-extension/package-lock.json
+            paranext-core/package-lock.json
+          node-version-file: lexbox/platform.bible-extension/package.json
+
+      - name: Install extension dependencies
+        working-directory: lexbox/platform.bible-extension
+        run: npm ci
+
+      - name: Install core dependencies
+        working-directory: paranext-core
+        run: npm ci --ignore-scripts
+
+      - name: Package the extension
+        working-directory: lexbox/platform.bible-extension
+        run: npm run package
+
+      - name: Read the version
+        id: version
+        working-directory: lexbox/platform.bible-extension
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload the extension zip
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lexicon-extension
+          if-no-files-found: error
+          path: lexbox/platform.bible-extension/release/lexicon_${{ steps.version.outputs.version }}.zip
+
+  publish:
+    needs: [lint, package]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    # Serialize publishes: two runs replacing the same release at once could leave neither.
+    concurrency:
+      group: publish-lexicon-extension
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      TAG: lexicon-v${{ needs.package.outputs.version }}
+      ZIP: lexicon_${{ needs.package.outputs.version }}.zip
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: lexicon-extension
+
+      # The version is not bumped on every change, so an existing release for it is replaced.
+      # Deleting the tag too makes the new release point at this commit.
+      - name: Remove any existing release for this version
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release delete "$TAG" --cleanup-tag --yes
+          fi
+          if gh api "repos/$GH_REPO/git/ref/tags/$TAG" --silent 2> /dev/null; then
+            gh api --method DELETE "repos/$GH_REPO/git/refs/tags/$TAG"
+          fi
+
+      - name: Publish the release
+        run: |
+          gh release create "$TAG" "$ZIP" \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Lexicon extension ${{ needs.package.outputs.version }}" \
+            --notes "Platform.Bible Lexicon extension, built from $GITHUB_SHA. Windows and Linux only."
