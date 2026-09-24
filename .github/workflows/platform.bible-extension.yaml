@@ -19,6 +19,11 @@ on:
 permissions:
   contents: read
 
+# Keeps an older build from publishing over a newer one.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     runs-on: ${{ matrix.os }}
@@ -68,6 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
+      core-sha: ${{ steps.core.outputs.sha }}
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout git repo
@@ -85,9 +91,12 @@ jobs:
 
       # Core is not pinned, so record which revision the zip was built against.
       - name: Record paranext-core revision
+        id: core
         working-directory: paranext-core
         run: |
-          echo "paranext-core: \`$(git rev-parse HEAD)\`" >> "$GITHUB_STEP_SUMMARY"
+          sha="$(git rev-parse HEAD)"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "paranext-core: \`$sha\`" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
@@ -127,9 +136,20 @@ jobs:
         working-directory: lexbox/platform.bible-extension
         run: npm ci
 
+      # platform-bible-react imports editor packages from core's gitignored dev-packages/staging/,
+      # which only core's preinstall creates, and --ignore-scripts below skips it.
+      - name: Stage core's dev packages
+        working-directory: paranext-core
+        run: npm run stage-dev-packages
+
       - name: Install core dependencies
         working-directory: paranext-core
         run: npm ci --ignore-scripts
+
+      # Core's postinstall makes this check; --ignore-scripts above skips it.
+      - name: Verify core's staged dev packages match its lockfile
+        working-directory: paranext-core
+        run: npm run verify:dev-packages
 
       - name: Package the extension
         working-directory: lexbox/platform.bible-extension
@@ -153,35 +173,32 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    # Serialize publishes: two runs replacing the same release at once could leave neither.
-    concurrency:
-      group: publish-lexicon-extension
-      cancel-in-progress: false
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_REPO: ${{ github.repository }}
       TAG: lexicon-v${{ needs.package.outputs.version }}
       ZIP: lexicon_${{ needs.package.outputs.version }}.zip
+      NOTES: >-
+        Platform.Bible Lexicon extension, built from ${{ github.sha }}
+        against paranext-core ${{ needs.package.outputs.core-sha }}. Windows and Linux only.
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: lexicon-extension
 
-      # The version is not bumped on every change, so an existing release for it is replaced.
-      # Deleting the tag too makes the new release point at this commit.
-      - name: Remove any existing release for this version
-        run: |
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            gh release delete "$TAG" --cleanup-tag --yes
-          fi
-          if gh api "repos/$GH_REPO/git/ref/tags/$TAG" --silent 2> /dev/null; then
-            gh api --method DELETE "repos/$GH_REPO/git/refs/tags/$TAG"
-          fi
-
+      # The version is not bumped on every change, so an existing release for it is updated in place.
+      # Recreating it instead would leave nothing to download if a later step failed.
       - name: Publish the release
         run: |
-          gh release create "$TAG" "$ZIP" \
-            --prerelease \
-            --target "$GITHUB_SHA" \
-            --title "Lexicon extension ${{ needs.package.outputs.version }}" \
-            --notes "Platform.Bible Lexicon extension, built from $GITHUB_SHA. Windows and Linux only."
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh api --method PATCH "repos/$GH_REPO/git/refs/tags/$TAG" \
+              -f sha="$GITHUB_SHA" -F force=true --silent
+            gh release upload "$TAG" "$ZIP" --clobber
+            gh release edit "$TAG" --notes "$NOTES"
+          else
+            gh release create "$TAG" "$ZIP" \
+              --prerelease \
+              --target "$GITHUB_SHA" \
+              --title "Lexicon extension ${{ needs.package.outputs.version }}" \
+              --notes "$NOTES"
+          fi
