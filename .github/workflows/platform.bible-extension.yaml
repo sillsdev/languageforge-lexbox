@@ -188,6 +188,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_REPO: ${{ github.repository }}
       TAG: lexicon-v${{ needs.package.outputs.version }}
+      VERSION: ${{ needs.package.outputs.version }}
       ZIP: lexicon_${{ needs.package.outputs.version }}.zip
       NOTES: >-
         Platform.Bible Lexicon extension, built from ${{ github.sha }}
@@ -210,6 +211,6 @@ jobs:
             gh release create "$TAG" "$ZIP" \
               --prerelease \
               --target "$GITHUB_SHA" \
-              --title "Lexicon extension ${{ needs.package.outputs.version }}" \
+              --title "Lexicon extension $VERSION" \
               --notes "$NOTES"
           fi
