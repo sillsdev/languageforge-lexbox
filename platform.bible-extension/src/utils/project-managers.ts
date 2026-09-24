@@ -1,4 +1,5 @@
 import papi, { logger } from '@papi/backend';
+import { getErrorMessage } from 'platform-bible-utils';
 import { ProjectManager } from './project-manager';
 
 export class ProjectManagers {
@@ -34,7 +35,10 @@ export class ProjectManagers {
     return await papi.projectLookup
       .getMetadataForProject(projectId)
       .then(() => true)
-      .catch(() => false);
+      .catch((e) => {
+        logger.warn(`Metadata lookup for project '${projectId}' failed:`, getErrorMessage(e));
+        return false;
+      });
   }
 
   async getProjectManagerFromProjectId(projectId: string): Promise<ProjectManager | undefined> {
