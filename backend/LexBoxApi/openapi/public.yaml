@@ -720,6 +720,59 @@ paths:
           description: Internal Server Error
         '200':
           description: OK
+  '/api/fw-lite/sync/request-crdt-snapshot-rebuild/{projectId}':
+    post:
+      tags:
+        - Sync
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: note
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/SnapshotRebuildCommit'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SnapshotRebuildCommit'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/SnapshotRebuildCommit'
   /api/fw-lite/sync/block:
     post:
       tags:
@@ -1384,6 +1437,29 @@ components:
             - $ref: '#/components/schemas/FwLiteRelease'
         update:
           type: boolean
+    SnapshotRebuildCommit:
+      required:
+        - commitId
+        - clientId
+        - dateTime
+        - commitsToReplay
+      type: object
+      properties:
+        commitId:
+          type: string
+          format: uuid
+        clientId:
+          type: string
+          format: uuid
+        dateTime:
+          type: string
+          format: date-time
+        commitsToReplay:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
     SyncBlockStatus:
       type: object
       properties:
