@@ -57,9 +57,20 @@ jobs:
         working-directory: lexbox/platform.bible-extension
         run: npm ci
 
+      # platform-bible-react imports editor packages from core's gitignored dev-packages/staging/,
+      # which only core's preinstall creates, and --ignore-scripts below skips it.
+      - name: Stage core's dev packages
+        working-directory: paranext-core
+        run: npm run stage-dev-packages
+
       - name: Install core dependencies
         working-directory: paranext-core
         run: npm ci --ignore-scripts
+
+      # Core's postinstall makes this check; --ignore-scripts above skips it.
+      - name: Verify core's staged dev packages match its lockfile
+        working-directory: paranext-core
+        run: npm run verify:dev-packages
 
       - name: Run format checking
         working-directory: lexbox/platform.bible-extension
