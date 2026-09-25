@@ -126,8 +126,6 @@ declare module 'papi-shared-types' {
     'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.authServers': () => Promise<AuthServerStatus[] | undefined>;
     'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
-    /** DEV-ONLY lexicon switcher; remove before release (see src/main.ts changeLexiconCommand). */
-    'lexicon.changeLexicon': (webViewId: string) => Promise<SuccessHolder>;
     'lexicon.createLexicon': (
       name: string,
       code: string,
@@ -190,14 +188,17 @@ declare module 'papi-shared-types' {
     /** Remote (Lexbox server) CRDT projects the signed-in user can download. */
     'lexicon.remoteProjects': () => Promise<IProjectModel[] | undefined>;
     /**
-     * Resolves the Paratext project a WebView is scoped to, prompting with the core project picker
-     * when it has none (e.g. a selector tab restored from a saved layout); `projectId` is undefined
-     * if the user dismisses. Kept separate from the acting commands so their timeouts don't tick
-     * while the picker waits. `projectName` is the resolved project's short name.
+     * Resolves a WebView's Paratext project, prompting with the project picker if it has none
+     * (`projectId` is undefined if dismissed). Separate from the acting commands so their timeouts
+     * don't run while the picker waits.
      */
     'lexicon.resolveProject': (
       webViewId: string,
     ) => Promise<{ projectId?: string; projectName?: string }>;
+    /**
+     * Sets the project's lexicon, replacing any existing one; rejects an unknown `lexiconCode`.
+     * Other extensions should prefer `lexicon.openSelector`, which lets the user choose.
+     */
     'lexicon.selectLexicon': (projectId: string, lexiconCode: string) => Promise<SuccessHolder>;
   }
 

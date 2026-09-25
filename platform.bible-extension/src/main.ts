@@ -290,8 +290,8 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
-      // Selection is sticky (see changeLexiconCommand): a linked project is changed only by first
-      // clearing its lexicon.lexiconCode setting.
+      // Selection is sticky: a linked project is changed only by first clearing its
+      // lexicon.lexiconCode setting.
       const lexiconCode = await projectManager.getLexiconCode();
       if (lexiconCode) {
         const error = `Project '${projectId}' already uses lexicon '${lexiconCode}'`;
@@ -462,26 +462,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     { timeoutMilliseconds: DOWNLOAD_TIMEOUT_MS + COMMAND_TIMEOUT_BUFFER_MS },
   );
 
-  // DEV-ONLY: a quick lexicon switcher. Lexicon selection is intentionally sticky — once a project
-  // has one, the only supported way to change it is clearing `lexicon.lexiconCode` in the project
-  // settings, which unlinks the project and makes the next lexicon action reopen the selector. This
-  // menu command is a development convenience to be removed before release, along with:
-  //   - its entry in the `context.registrations.add(...)` list below,
-  //   - the `lexicon.changeLexicon` handler type in `src/types/lexicon.d.ts`,
-  //   - the `%lexicon_menu_selectLexicon%` menu item in `contributions/menus.json`, and
-  //   - the `%lexicon_menu_selectLexicon%` string in `contributions/localizedStrings.json`.
-  // (`ProjectManager.openSelector` stays — the non-dev clear-and-reopen path uses it too.)
-  const changeLexiconCommandPromise = papi.commands.registerCommand(
-    'lexicon.changeLexicon',
-    async (webViewId: string) => {
-      const projectManager =
-        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
-      if (!projectManager) return { success: false };
-      const success = await projectManager.openSelector();
-      return { success };
-    },
-  );
-
   const createLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.createLexicon',
     async (name: string, code: string, vernacularWs: string, analysisWs?: string) => {
@@ -535,7 +515,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await addEntryCommandPromise,
     await authServersCommandPromise,
     await browseLexiconCommandPromise,
-    await changeLexiconCommandPromise, // DEV-ONLY: remove before release (see registration above)
     await createLexiconCommandPromise,
     await deleteDownloadedLexiconCommandPromise,
     await displayEntryCommandPromise,
