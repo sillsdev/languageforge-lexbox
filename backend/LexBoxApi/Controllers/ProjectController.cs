@@ -1,6 +1,9 @@
+using System.Net;
+using System.Text.RegularExpressions;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Controllers.ActionResults;
 using LexBoxApi.Jobs;
+using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -20,9 +23,202 @@ public class ProjectController(
     IHgService hgService,
     LexBoxDbContext lexBoxDbContext,
     IPermissionService permissionService,
-    ISchedulerFactory scheduler)
+    ISchedulerFactory scheduler,
+    FwHeadlessClient fwHeadlessClient,
+    ILogger<ProjectController> logger)
     : ControllerBase
 {
+    /// <summary>
+    /// Admin-only: create a new FLEx project whose repo is populated with a template .fwdata
+    /// (from the SIL.LCModel package) configured for the requested writing systems.
+    ///
+    /// At some future date this API may be opened up to trusted users, but the projectOrigin
+    /// parameter will remain admin-only.
+    /// </summary>
+    /// <param name="code">Project code for the new project.</param>
+    /// <param name="wsVernacular">Vernacular writing system id(s); at least one is required. Repeat the query param for multiple.</param>
+    /// <param name="wsAnalysis">Analysis writing system id(s); defaults to ["en"] when none are given. Repeat the query param for multiple.</param>
+    /// <param name="wsUi">Optional user interface writing system id; defaults to "en" if not given.</param>
+    /// <param name="name">Optional display name; defaults to the code.</param>
+    /// <param name="projectOrigin">Optional <see cref="ProjectMigrationStatus"/> to record as the project's origin; admin-only.</param>
+    [HttpPost("initFwDataProject")]
+    [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Guid>> InitFwDataProject(
+        string code,
+        [FromQuery] string[] wsVernacular,
+        [FromQuery] string[]? wsAnalysis = null,
+        string wsUi = "en",
+        string? name = null,
+        string? projectOrigin = null)
+    {
+        if (wsVernacular is null || wsVernacular.Length == 0)
+            return Problem("At least one vernacular writing system is required", statusCode: StatusCodes.Status400BadRequest);
+        if (code is null || code.Length < 4 || !Regex.IsMatch(code, Project.ProjectCodeRegex))
+            return Problem($"Invalid project code '{code}'", statusCode: StatusCodes.Status400BadRequest);
+
+        ProjectMigrationStatus? origin = null;
+        if (!string.IsNullOrEmpty(projectOrigin))
+        {
+            // Only admins may say where a project came from. Currently redundant with [AdminRequired],
+            // but this endpoint is expected to open up to non-admins later; this check must stay.
+            permissionService.AssertIsAdmin();
+            if (!TryParseProjectOrigin(projectOrigin, out var parsedOrigin))
+                return Problem($"Invalid project origin '{projectOrigin}'", statusCode: StatusCodes.Status400BadRequest);
+            origin = parsedOrigin;
+        }
+        if (await projectService.ProjectExists(code))
+            return Problem($"A project with code '{code}' already exists", statusCode: StatusCodes.Status409Conflict);
+
+        var wsAnalysisOrDefault = AnalysisWritingSystemsOrDefault(wsAnalysis);
+
+        var projectId = await projectService.CreateProject(new CreateProjectInput(
+            Id: null,
+            Name: string.IsNullOrWhiteSpace(name) ? code : name,
+            Description: string.Empty,
+            Code: code,
+            Type: ProjectType.FLEx,
+            RetentionPolicy: RetentionPolicy.Verified,
+            IsConfidential: false,
+            ProjectManagerId: null,
+            OrgId: null),
+            projectOrigin: origin);
+
+        // At this point, the project row and empty repo exist. Have FwHeadless populate the repo with
+        // the initial .fwdata; if that fails, compensate by tearing the project back down.
+        //
+        // Deliberately no CancellationToken here. An action's CancellationToken parameter binds to
+        // HttpContext.RequestAborted, which trips whenever the caller hangs up or its client times out --
+        // routine for an operation this slow. FwHeadless's initFwDataProject takes no cancellation token
+        // of its own, so it runs the creation through to completion regardless of what happens to this
+        // connection. Cancelling our wait would therefore tell us nothing about whether the project was
+        // created, while making us tear down one that FwHeadless is still building. HttpClient.Timeout
+        // (5 minutes, set in LexBoxKernel) is what bounds this call.
+        (HttpStatusCode statusCode, string? error) result;
+        try
+        {
+            result = await fwHeadlessClient.InitFwDataProject(projectId, wsVernacular, wsAnalysisOrDefault, wsUi);
+        }
+        catch (Exception ex)
+        {
+            // FwHeadless never answered, so we cannot tell a project that was never created from one
+            // still being built -- or one finished just as we gave up. Tearing it down here would race
+            // FwHeadless writing into the very repo we would delete. An orphaned empty project is
+            // recoverable by an admin; a project deleted out from under an in-flight creation is not.
+            logger.LogError(ex,
+                "initFwDataProject did not return for project {ProjectId} ({Code}); leaving it in place because FwHeadless may still be creating it. It may need manual cleanup",
+                projectId,
+                code);
+            throw;
+        }
+        if (result.error is not null)
+        {
+            // FwHeadless answered and the answer was failure, so creation is definitively not running
+            // (it releases its own reservation and cleans up locally before responding). Only here do we
+            // know enough to compensate.
+            await CleanupFailedCreation(projectId, code);
+            // Surface a bad request from FwHeadless (e.g. an invalid writing-system tag) as 400, not 500.
+            var statusCode = result.statusCode == HttpStatusCode.BadRequest
+                ? StatusCodes.Status400BadRequest
+                : StatusCodes.Status500InternalServerError;
+            return Problem($"Failed to create the project from the template: {result.error}", statusCode: statusCode);
+        }
+
+        await projectService.UpdateLastCommit(code);
+        return projectId;
+
+        // ====================================================================================
+        // NOT ENABLED. Sketch of the "return 202 and let the caller poll" alternative, kept here
+        // deliberately so the trade-offs can be discussed against real code rather than in the
+        // abstract. It would replace everything from the try/catch above down to the return.
+        //
+        // What it buys: nobody holds a request open for the length of a creation, so the client
+        // timeout that this method currently has to reason about stops existing as a concern.
+        //
+        // What FwHeadless would need: its POST /api/project/initFwDataProject would take the
+        // reservation (SyncHostedService.TryStartProjectCreation), hand the work to a background
+        // runner the way SyncHostedService.QueueJob already does for merges, and return 202 at
+        // once. The two status endpoints the caller would then poll already exist and work today:
+        // GET /api/project/creation-status and GET /api/project/await-creation-finished, reachable
+        // via FwHeadlessClient.CreationStatus / AwaitCreationFinished.
+        //
+        // The open question, and the reason this is a comment and not the implementation: with
+        // nobody waiting, who compensates a creation that fails? Today this method does it inline
+        // because it is still on the stack when the answer arrives. Options:
+        //   (a) FwHeadless cleans up after itself -- but that means granting it permission to
+        //       delete a LexBox project row, which it deliberately cannot do today.
+        //   (b) A Quartz job sweeps projects left in a "creating" state past some age. Closest to
+        //       how the rest of the system already handles background work.
+        //   (c) Leave failures in place for an admin and surface them in the UI.
+        // (b) or (c) also need the creation state persisted on the project row: FwHeadless's
+        // status is in-memory, so it does not survive a restart on either side, and a client that
+        // reconnects later has nothing to poll against.
+        //
+        // The LexBox side would then be roughly:
+        //
+        //     // Fire and forget: FwHeadless queues the work and answers immediately.
+        //     var accepted = await fwHeadlessClient.InitFwDataProject(projectId, wsVernacular, wsAnalysisOrDefault, wsUi);
+        //     if (accepted.error is not null)
+        //     {
+        //         // A rejection here is from the queueing step only (bad writing system, project
+        //         // not found), so nothing has been built yet and compensating is unambiguous.
+        //         await CleanupFailedCreation(projectId, code);
+        //         var statusCode = accepted.statusCode == HttpStatusCode.BadRequest
+        //             ? StatusCodes.Status400BadRequest
+        //             : StatusCodes.Status500InternalServerError;
+        //         return Problem($"Failed to start creating the project: {accepted.error}", statusCode: statusCode);
+        //     }
+        //     // UpdateLastCommit moves to whatever observes the creation finishing; there is no
+        //     // commit to record yet at this point.
+        //     return Accepted(projectId);
+        // ====================================================================================
+    }
+
+    // NOT ENABLED. The companion to the 202 sketch above: what the frontend would poll while a
+    // creation runs. Uncomment along with the 202 change.
+    //
+    // [HttpGet("fwDataProjectCreationStatus/{projectId}")]
+    // [AdminRequired]
+    // [ProducesResponseType(StatusCodes.Status200OK)]
+    // [ProducesResponseType(StatusCodes.Status404NotFound)]
+    // public async Task<ActionResult<ProjectCreationStatus>> FwDataProjectCreationStatus(
+    //     Guid projectId,
+    //     CancellationToken cancellationToken)
+    // {
+    //     // Passing RequestAborted is fine here, unlike on the creation call itself: a status read
+    //     // starts no durable work, so abandoning it costs nothing. See FwHeadlessClient.CreationStatus.
+    //     var status = await fwHeadlessClient.CreationStatus(projectId, cancellationToken);
+    //     return status is null ? NotFound() : status;
+    // }
+
+    /// <summary>
+    /// Parses a project origin. Enum.TryParse also accepts raw numbers ("1") and comma-separated lists
+    /// ("Migrated,Migrating"), so the parsed value must round-trip to the name that was passed in.
+    /// </summary>
+    public static bool TryParseProjectOrigin(string projectOrigin, out ProjectMigrationStatus origin) =>
+        Enum.TryParse(projectOrigin, ignoreCase: true, out origin)
+        && Enum.IsDefined(origin)
+        && string.Equals(origin.ToString(), projectOrigin, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Analysis writing systems to use, defaulting to English when none are supplied.</summary>
+    public static string[] AnalysisWritingSystemsOrDefault(string[]? wsAnalysis) =>
+        wsAnalysis is { Length: > 0 } ? wsAnalysis : ["en"];
+
+    private async Task CleanupFailedCreation(Guid projectId, string code)
+    {
+        try
+        {
+            await projectService.CleanupFailedProjectCreation(projectId, code);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to roll back project {ProjectId} ({Code}) after a failed template creation", projectId, code);
+        }
+    }
+
     [HttpPost("refreshProjectLastChanged")]
     public async Task<ActionResult> RefreshProjectLastChanged(string projectCode)
     {

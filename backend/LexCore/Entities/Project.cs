@@ -97,6 +97,7 @@ public enum ProjectMigrationStatus
     Migrating,
     PrivateRedmine,
     PublicRedmine,
+    LanguageForgeNonSR,
 }
 
 public enum ResetStatus

@@ -29,17 +29,25 @@ public class ApiTestBase
     /// </summary>
     /// <param name="baseUrl">bas url for the client</param>
     /// <param name="useCookies">enable or disable cookies for the client</param>
-    public static (SocketsHttpHandler Handler, HttpClient Client) NewHttpClient(string? baseUrl = null, bool useCookies = true)
+    /// <param name="retryTransientFailures">
+    /// retry transient failures (5xx/timeouts). Leave on for idempotent calls; turn off for
+    /// non-idempotent operations (e.g. project creation) where a retried request would collide with
+    /// the resource the first attempt already created.
+    /// </param>
+    public static (SocketsHttpHandler Handler, HttpClient Client) NewHttpClient(string? baseUrl = null, bool useCookies = true, bool retryTransientFailures = true)
     {
-        var retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
-            .AddRetry(new HttpRetryStrategyOptions { BackoffType = DelayBackoffType.Linear, MaxRetryAttempts = 3 })
-            .Build();
-
         var socketsHttpHandler = new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(15), UseCookies = useCookies };
+        HttpMessageHandler handler = socketsHttpHandler;
+        if (retryTransientFailures)
+        {
+            var retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+                .AddRetry(new HttpRetryStrategyOptions { BackoffType = DelayBackoffType.Linear, MaxRetryAttempts = 3 })
+                .Build();
 #pragma warning disable EXTEXP0001
-        var resilienceHandler = new ResilienceHandler(retryPipeline) { InnerHandler = socketsHttpHandler };
+            handler = new ResilienceHandler(retryPipeline) { InnerHandler = socketsHttpHandler };
 #pragma warning restore EXTEXP0001
-        var httpClient = new HttpClient(resilienceHandler);
+        }
+        var httpClient = new HttpClient(handler);
         if (!string.IsNullOrEmpty(baseUrl))
         {
             httpClient.BaseAddress = new Uri(baseUrl);
