@@ -287,12 +287,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'lexicon.openSelector',
     async (projectId: string) => {
       logger.info(`Opening the lexicon selector for project '${projectId}'`);
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
       // Selection is sticky: a linked project is changed only by first clearing its
       // lexicon.lexiconCode setting.
-      const lexiconCode = await projectManager.getLexiconCode();
+      const lexiconCode = await projectManager.getValidLexiconCode();
       if (lexiconCode) {
         const error = `Project '${projectId}' already uses lexicon '${lexiconCode}'`;
         logger.warn(`Not opening the lexicon selector: ${error}`);
@@ -310,22 +310,18 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     projectManager: ProjectManager,
     lexiconCode: string,
   ): Promise<void> => {
+    if (!lexiconCode) return await projectManager.clearLexicon();
     await projectManager.setLexiconCode(lexiconCode);
     // Best-effort: the code was already validated by setLexiconCode, so a failure here is transient;
-    // fall back to no analysis language rather than failing the (already-stored) selection. An empty
-    // code clears the cached language with it, since there's no lexicon left to look one up from.
-    const langs = lexiconCode
-      ? await fwLiteApi
-          .getWritingSystems(lexiconCode)
-          .catch((e) => logger.error('Error fetching writing systems:', getErrorMessage(e)))
-      : undefined;
+    // fall back to no analysis language rather than failing the (already-stored) selection.
+    const langs = await fwLiteApi
+      .getWritingSystems(lexiconCode)
+      .catch((e) => logger.error('Error fetching writing systems:', getErrorMessage(e)));
     const analysisLang = langs?.analysis[0]?.wsId ?? '';
     if (analysisLang) {
       logger.info(`Storing lexicon analysis language '${analysisLang}'`);
-    } else if (lexiconCode) {
-      logger.info('Failed to get analysis language of the lexicon');
     } else {
-      logger.info('Clearing the stored lexicon analysis language');
+      logger.info('Failed to get analysis language of the lexicon');
     }
     await projectManager
       .setAnalysisLanguage(analysisLang)
@@ -356,7 +352,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       : undefined;
     if (!projectManager) return;
     if ((await projectManager.getLexiconCode()) !== lexiconCode) return;
-    await applyLexiconSelection(projectManager, '');
+    await projectManager.clearLexicon();
   };
 
   const selectLexiconCommandPromise = papi.commands.registerCommand(
