@@ -63,11 +63,16 @@ export class ProjectManager {
     // The stored lexicon no longer resolves (e.g. deleted in FW Lite). Clear it — otherwise every
     // action opens a broken view — so the caller can prompt for a new selection.
     logger.warn(`Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`);
+    await this.clearLexicon();
+    await ProjectManager.notifyLexiconMissing(lexiconCode);
+  }
+
+  /** Clears the lexicon selection and its cached analysis language. */
+  async clearLexicon(): Promise<void> {
     await this.setLexiconCode('');
     await this.setAnalysisLanguage('').catch((e) =>
       logger.warn('Could not clear the analysis language:', getErrorMessage(e)),
     );
-    await ProjectManager.notifyLexiconMissing(lexiconCode);
   }
 
   async getLexiconCodeOrOpenSelector(): Promise<string | void> {
