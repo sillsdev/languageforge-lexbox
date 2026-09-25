@@ -1,4 +1,5 @@
 import papi, { logger } from '@papi/backend';
+import { getErrorMessage } from 'platform-bible-utils';
 import { ProjectManager } from './project-manager';
 
 export class ProjectManagers {
@@ -18,13 +19,9 @@ export class ProjectManagers {
       logger.debug(`No projectId found for WebView '${webViewId}'`);
       return;
     }
-    // A restored layout can reference a project that no longer exists; using such an id makes
-    // every project-settings call fail, so treat it as "no project" (callers then prompt).
-    const exists = await papi.projectLookup
-      .getMetadataForProject(webViewDef.projectId)
-      .then(() => true)
-      .catch(() => false);
-    if (!exists) {
+    // A restored layout can reference a project that no longer exists; treat it as "no project"
+    // (callers then prompt).
+    if (!(await ProjectManagers.projectExists(webViewDef.projectId))) {
       logger.warn(
         `Project '${webViewDef.projectId}' for WebView '${webViewId}' no longer resolves; ignoring it`,
       );
@@ -33,8 +30,23 @@ export class ProjectManagers {
     return webViewDef.projectId;
   }
 
-  getProjectManagerFromProjectId(projectId: string): ProjectManager | undefined {
+  // A deleted project's id makes every project-settings call fail.
+  private static async projectExists(projectId: string): Promise<boolean> {
+    return await papi.projectLookup
+      .getMetadataForProject(projectId)
+      .then(() => true)
+      .catch((e) => {
+        logger.warn(`Metadata lookup for project '${projectId}' failed:`, getErrorMessage(e));
+        return false;
+      });
+  }
+
+  async getProjectManagerFromProjectId(projectId: string): Promise<ProjectManager | undefined> {
     if (!projectId) return;
+    if (!(await ProjectManagers.projectExists(projectId))) {
+      logger.warn(`Project '${projectId}' no longer resolves; ignoring it`);
+      return;
+    }
     if (!(projectId in this.projectManagers)) {
       this.projectManagers[projectId] = new ProjectManager(projectId, this.isLexiconCodeValid);
     }
@@ -56,6 +68,6 @@ export class ProjectManagers {
         title: '%lexicon_selectProject_title%',
       }));
     if (!projectId) return;
-    return this.getProjectManagerFromProjectId(projectId);
+    return await this.getProjectManagerFromProjectId(projectId);
   }
 }
