@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Entitlements for the Developer ID (direct download, notarized) Mac Catalyst build. Separate from
+     the default Entitlements.plist because notarization requires the hardened runtime, and a .NET /
+     Mono app under the hardened runtime needs the executable-memory and library-validation
+     exceptions below or it crashes on launch. Keeps the app sandbox (as the default build does). -->
+<plist version="1.0">
+    <dict>
+        <key>com.apple.security.app-sandbox</key>
+        <true/>
+        <key>com.apple.security.network.client</key>
+        <true/>
+        <!-- The .NET runtime / Mono interpreter maps executable memory; the hardened runtime blocks
+             that unless these are granted. -->
+        <key>com.apple.security.cs.allow-jit</key>
+        <true/>
+        <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+        <true/>
+        <!-- Native libraries in the bundle (e.g. libe_sqlite3) are not signed by our team; allow the
+             hardened runtime to load them. -->
+        <key>com.apple.security.cs.disable-library-validation</key>
+        <true/>
+    </dict>
+</plist>
