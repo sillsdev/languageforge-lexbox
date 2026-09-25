@@ -15,6 +15,8 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     public required string Abbreviation { get; init; }
     public required string Font { get; init; }
     public required string[] Exemplars { get; init; } = [];
+    public string? IcuCollationRules { get; init; }
+    public string? SystemCollationLocale { get; init; }
     public required WritingSystemType Type { get; init; }
     public required double Order { get; init; }
 
@@ -27,6 +29,8 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
         Abbreviation = writingSystem.Abbreviation;
         Font = writingSystem.Font;
         Exemplars = writingSystem.Exemplars;
+        IcuCollationRules = writingSystem.IcuCollationRules;
+        SystemCollationLocale = writingSystem.SystemCollationLocale;
         Type = writingSystem.Type;
         Order = order;
     }
@@ -47,6 +51,8 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
             Abbreviation = Abbreviation,
             Font = Font,
             Exemplars = Exemplars,
+            IcuCollationRules = IcuCollationRules,
+            SystemCollationLocale = SystemCollationLocale,
             Type = Type,
             Order = Order,
             DeletedAt = alreadyExists ? commit.DateTime : null

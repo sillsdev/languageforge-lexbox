@@ -121,6 +121,10 @@
          so it is not pulled into the iOS/Mac/Android bundles, where it is unused dead weight. -->
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
   </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <!-- ICU natives + data for icu.net collation (Android has no public system ICU). -->
+    <PackageReference Include="Icu4c.Android.Fw.Lib" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FwLiteShared\FwLiteShared.csproj" />
     <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />

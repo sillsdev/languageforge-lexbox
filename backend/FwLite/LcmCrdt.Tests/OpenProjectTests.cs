@@ -32,6 +32,7 @@ public class OpenProjectTests
             .Contain(["de", "de-Zxxx-x-audio", "de-fonipa"]);
         writingSystems.Analysis.Select(ws => ws.WsId.Code).Should()
             .Contain(["en", "fr"]);
+        writingSystems.Vernacular.Single(ws => ws.WsId == "de").IcuCollationRules.Should().Be(ExampleProjectData.DemoIcuCollationRules);
 
         var entries = await api.GetEntries().ToArrayAsync();
         entries.Select(e => e.LexemeForm["de"]).Should().Contain(
@@ -40,6 +41,13 @@ public class OpenProjectTests
         var beere = entries.Single(e => e.LexemeForm["de"] == "Beere");
         var complexForms = entries.Where(e => e.Components.Count > 0).ToArray();
         complexForms.Select(e => e.LexemeForm["de"]).Should().Contain(["Erdbeere", "Heidelbeere"]);
+
+        var headwords = await api
+            .GetEntries(new QueryOptions(new SortOptions(SortField.Headword, "de")))
+            .Select(e => e.LexemeForm["de"])
+            .ToArrayAsync();
+        headwords.Should().Equal(
+            "Banane", "Beere", "Apfel", "Erdbeere", "Heidelbeere", "Orange", "Traube");
 
         await using var dbContext = await asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await dbContext.Database.EnsureDeletedAsync();

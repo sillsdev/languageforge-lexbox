@@ -44,6 +44,12 @@ public static class WritingSystemSync
         patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<WritingSystem>(nameof(WritingSystem.Font),
             beforeWritingSystem.Font,
             afterWritingSystem.Font));
+        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<WritingSystem>(nameof(WritingSystem.IcuCollationRules),
+            beforeWritingSystem.IcuCollationRules,
+            afterWritingSystem.IcuCollationRules));
+        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<WritingSystem>(nameof(WritingSystem.SystemCollationLocale),
+            beforeWritingSystem.SystemCollationLocale,
+            afterWritingSystem.SystemCollationLocale));
         // TODO: Exemplars, Order, and do we need DeletedAt?
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<WritingSystem>(patchDocument);

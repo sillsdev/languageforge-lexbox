@@ -1,4 +1,5 @@
 using FwLiteShared.Services;
+using LcmCrdt.Culture;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
@@ -127,6 +128,7 @@ public static class MauiProgram
         holder.App = app;
         var logger = app.Services.GetRequiredService<ILogger<MauiApp>>();
         logger.LogInformation("App started, {Version}", AppVersion.Version);
+        IcuInit.TryInitialize(logger);
         AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
         {
             if (e.ExceptionObject is Exception exception)
