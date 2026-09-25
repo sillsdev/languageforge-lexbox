@@ -12,7 +12,10 @@ export class EntryViewComponent {
 
   constructor(readonly page: Page) {
     this.container = page.locator('.entry-view, [data-entry-view]');
-    this.lexemeFormField = page.locator('[style*="grid-area: lexemeForm"]');
+    // `.first()`: during entry-to-entry navigation WebKit's out-transition can briefly leave the
+    // previous editor mounted, so two lexemeForm field-roots coexist. The main editor is first in
+    // DOM order (dialogs portal to the end of <body>), so first() is the live entry editor.
+    this.lexemeFormField = page.locator('[data-field-id="lexemeForm"]').first();
     this.addSenseButton = page.getByRole('button', {name: /add (sense|meaning)/i});
     this.menuButton = page.locator('.i-mdi-dots-vertical');
   }
@@ -29,7 +32,7 @@ export class EntryViewComponent {
   }
 
   glossFieldContainer(index = 0): Locator {
-    return this.page.locator('[style*="grid-area: gloss"]').nth(index);
+    return this.page.locator('[data-field-id="gloss"]').nth(index);
   }
 
   async getGlossInput(senseIndex = 0, writingSystem?: string): Promise<Locator> {
@@ -79,6 +82,6 @@ export class EntryViewComponent {
   }
 
   async getSenseCount(): Promise<number> {
-    return this.page.locator('[style*="grid-area: gloss"]').count();
+    return this.page.locator('[data-field-id="gloss"]').count();
   }
 }

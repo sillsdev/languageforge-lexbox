@@ -40,7 +40,7 @@ test.describe('Browse hotkeys', () => {
       const dialog = newEntryDialog(page);
       await expect(dialog).toBeVisible();
 
-      const lexemeInput = dialog.locator('[style*="grid-area: lexemeForm"] input').first();
+      const lexemeInput = dialog.locator('[data-field-id="lexemeForm"] input').first();
       await expect(lexemeInput).toBeVisible();
       await lexemeInput.fill('hotkey-preserve');
       await expect(lexemeInput).toHaveValue('hotkey-preserve');

@@ -19,7 +19,7 @@ test('the image ignores a click while the actions menu is open (touch ghost-clic
   const projectPage = new DemoProjectPage(page);
   await projectPage.goto();
   await projectPage.selectEntryByFilter('ambuka');
-  const field = page.locator('[style*="grid-area: pictures"]').first();
+  const field = page.locator('[data-field-id="pictures"]').first();
   await field.locator('input[type="file"]').setInputFiles({name: 'photo.png', mimeType: 'image/png', buffer: TEST_PNG});
   // Adding a picture now opens the "Add Picture" dialog on a draft; Submit adds it to the sense.
   const addDialog = page.getByRole('dialog');
