@@ -385,38 +385,10 @@ jobs:
           ASC_PRIVATE_KEY: ${{ secrets.APPLE_APPSTORECONNECT_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          # `dotnet build` with two RIDs emits a separate per-arch .app for each; it does NOT lipo them
-          # into one universal bundle (that only happens on `dotnet publish`, which we can't use here —
-          # publish trips EF's runtime model build under Mac Catalyst, see #1603). So merge the two
-          # per-arch bundles into a universal one ourselves, then re-sign (lipo invalidates signatures).
-          X64="bin/Release/net10.0-maccatalyst/maccatalyst-x64/FieldWorks Lite.app"
-          ARM="bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app"
-          for b in "$X64" "$ARM"; do [ -d "$b" ] || { echo "Missing per-arch bundle: $b" >&2; exit 1; }; done
-          APP="$RUNNER_TEMP/universal/FieldWorks Lite.app"
-          rm -rf "$RUNNER_TEMP/universal"; mkdir -p "$RUNNER_TEMP/universal"
-          cp -R "$ARM" "$APP"
-          # lipo each Mach-O file in the copy with its x64 counterpart, writing back into the copy
-          # (managed .dlls are arch-neutral, left as-is).
-          while IFS= read -r f; do
-            rel="${f#"$APP"/}"
-            x64f="$X64/$rel"
-            [ -f "$x64f" ] || continue
-            if file -b "$f" | grep -q 'Mach-O'; then
-              lipo -create "$f" "$x64f" -output "$f"
-            fi
-          done < <(find "$APP" -type f)
-          # Re-sign after the merge (lipo invalidates signatures). --deep is unreliable for notarization,
-          # so sign inside-out: every nested Mach-O with the hardened runtime first (deepest paths first),
-          # then seal the app bundle with the entitlements. Verify before packaging.
-          while IFS= read -r f; do
-            if file -b "$f" | grep -q 'Mach-O'; then
-              codesign --force --timestamp --options runtime --sign "$CODESIGN_IDENTITY" "$f"
-            fi
-          done < <(find "$APP/Contents" -type f | awk '{print length"\t"$0}' | sort -rn | cut -f2-)
-          codesign --force --timestamp --options runtime \
-            --entitlements Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
-            --sign "$CODESIGN_IDENTITY" "$APP"
+          # The SDK merges and signs the universal bundle here; the maccatalyst-*/ bundles are incomplete intermediates.
+          APP="bin/Release/net10.0-maccatalyst/FieldWorks Lite.app"
           codesign --verify --deep --strict --verbose=2 "$APP"
+          [ -f "$APP/Contents/Resources/wwwroot/index.html" ] || { echo "Missing wwwroot/index.html in $APP" >&2; exit 1; }
           # Fail loudly if the merged bundle isn't actually universal — the whole point is Intel + Apple Silicon.
           EXE="$APP/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Contents/Info.plist")"
           ARCHS="$(lipo -archs "$EXE" 2>/dev/null || true)"
