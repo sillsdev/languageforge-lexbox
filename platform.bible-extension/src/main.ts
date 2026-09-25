@@ -292,7 +292,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
       // Selection is sticky: a linked project is changed only by first clearing its
       // lexicon.lexiconCode setting.
-      const lexiconCode = await projectManager.getLexiconCode();
+      const lexiconCode = await projectManager.getValidLexiconCode();
       if (lexiconCode) {
         const error = `Project '${projectId}' already uses lexicon '${lexiconCode}'`;
         logger.warn(`Not opening the lexicon selector: ${error}`);
