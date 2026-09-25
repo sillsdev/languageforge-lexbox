@@ -233,7 +233,7 @@ This is the most complex workflow because it:
 | `build-apple` | macos-latest | MAUI Release builds for iOS simulator + Mac Catalyst; signs Mac Catalyst with the SIL Developer ID and notarizes a DMG when the signing secret is present (upstream), else unsigned compile check (fork PRs) |
 | `launch-mac` | macos-latest + macos-15-intel | Checks Gatekeeper accepts the notarized DMG, then launches the app on each CPU and waits for its "Viewer loaded" log line (upstream only; gates `create-release`) |
 | `publish-linux` | ubuntu-latest | Linux binaries |
-| `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX |
+| `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX; launches the portable exe and waits for its "Viewer loaded" log line |
 
 ### Solution filters
 
