@@ -18,6 +18,8 @@
          referenced library and fail them with NETSDK1083. Skipped when a single RuntimeIdentifier is
          passed explicitly (e.g. the CI unsigned fork build's maccatalyst-arm64 compile check). -->
     <RuntimeIdentifiers Condition="'$(Configuration)' == 'Release' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' And '$(RuntimeIdentifier)' == ''">maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>
+    <!-- Otherwise SelfContained makes the SDK put the host RID in the universal build's output path (bin/.../osx-arm64/). -->
+    <UseCurrentRuntimeIdentifier Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">false</UseCurrentRuntimeIdentifier>
     <OutputType>Exe</OutputType>
     <RootNamespace>FwLiteMaui</RootNamespace>
     <UseMaui>true</UseMaui>
