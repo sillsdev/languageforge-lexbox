@@ -167,6 +167,44 @@ public class FwDataFactoryTests : IDisposable
         _gatedLoader.LoadCount.Should().Be(2);
     }
 
+    [Fact]
+    public async Task CloseRightAfterRemovalDisposesTheOldCache()
+    {
+        _gatedLoader.Release.Set();
+        for (var i = 0; i < 5; i++)
+        {
+            var project = NewProject("close-after-removal");
+            var lcmCache = _mockLoader.NewProject(project, "en", "en");
+            GetCache(project).Should().BeSameAs(lcmCache);
+
+            // Queues the eviction callback, as expiry does, so close races it for the key lock.
+            _memoryCache.Remove(FwDataFactory.CacheKey(project));
+            await _factory.CloseProjectAsync(project);
+
+            lcmCache.IsDisposed.Should().BeTrue($"iteration {i}");
+        }
+    }
+
+    [Fact]
+    public void ReloadAfterRemovalDisposesTheOldCacheBeforeLoading()
+    {
+        _gatedLoader.Release.Set();
+        var project = NewProject("reload-after-removal");
+        var firstCache = _mockLoader.NewProject(project, "en", "en");
+        GetCache(project).Should().BeSameAs(firstCache);
+        var secondCache = _mockLoader.NewProject(NewProject("reload-after-removal-second"), "en", "en");
+        _mockLoader.Projects[project.Name] = secondCache;
+        bool? firstDisposedWhenLoading = null;
+        _gatedLoader.OnLoadCache = () => firstDisposedWhenLoading = firstCache.IsDisposed;
+
+        _memoryCache.Remove(FwDataFactory.CacheKey(project));
+        var reloaded = GetCache(project);
+
+        firstDisposedWhenLoading.Should().BeTrue();
+        reloaded.Should().BeSameAs(secondCache);
+        reloaded.IsDisposed.Should().BeFalse();
+    }
+
     // The requester may get the cache or an "already disposed" error, depending on how it races the disposal.
     private static async Task IgnoreFailure(Task load)
     {
@@ -181,10 +219,12 @@ public class FwDataFactoryTests : IDisposable
         public ManualResetEventSlim Entered { get; } = new();
         public ManualResetEventSlim Release { get; } = new();
         public bool FailNext { get; set; }
+        public Action? OnLoadCache { get; set; }
 
         public LcmCache LoadCache(FwDataProject project)
         {
             Interlocked.Increment(ref _loadCount);
+            OnLoadCache?.Invoke();
             if (FailNext)
             {
                 FailNext = false;
