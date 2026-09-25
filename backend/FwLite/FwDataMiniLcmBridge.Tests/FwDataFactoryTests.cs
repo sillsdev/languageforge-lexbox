@@ -1,9 +1,7 @@
-using System.Collections.Concurrent;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SIL.LCModel;
 
@@ -16,20 +14,20 @@ public class FwDataFactoryTests : IDisposable
     private readonly FwDataFactory _factory;
     private readonly MockFwProjectLoader _mockLoader;
     private readonly GatedProjectLoader _gatedLoader;
-    private readonly LogCapture _logs = new();
+    private readonly IMemoryCache _memoryCache;
     private readonly string _projectsFolder;
 
     public FwDataFactoryTests()
     {
         _services = new ServiceCollection()
             .AddTestFwDataBridge()
-            .AddLogging(builder => builder.AddProvider(_logs))
             .AddSingleton<GatedProjectLoader>()
             .AddSingleton<IProjectLoader>(sp => sp.GetRequiredService<GatedProjectLoader>())
             .BuildServiceProvider();
         _factory = _services.GetRequiredService<FwDataFactory>();
         _mockLoader = _services.GetRequiredService<MockFwProjectLoader>();
         _gatedLoader = _services.GetRequiredService<GatedProjectLoader>();
+        _memoryCache = _services.GetRequiredService<IMemoryCache>();
         _projectsFolder = _services.GetRequiredService<IOptions<FwDataBridgeConfig>>().Value.ProjectsFolder;
     }
 
@@ -116,22 +114,23 @@ public class FwDataFactoryTests : IDisposable
     }
 
     [Fact]
-    public async Task EvictionDuringALoadDisposesItOnceLoaded()
+    public async Task RemovingTheCacheKeyDuringALoadDoesNotLoseTheLoad()
     {
-        var project = NewProject("evict-during-load");
-        var lcmCache = _mockLoader.NewProject(project, "en", "en");
+        var project = NewProject("remove-during-load");
+        _mockLoader.NewProject(project, "en", "en");
         var load = StartBlockedLoad(project);
 
-        _services.GetRequiredService<IMemoryCache>().Remove(FwDataFactory.CacheKey(project));
-        await WaitForEvictionCallback(project);
+        _memoryCache.Remove(FwDataFactory.CacheKey(project));
         _gatedLoader.Release.Set();
+        var lcmCache = await load.WaitAsync(Timeout);
 
-        await WaitUntil(() => lcmCache.IsDisposed);
-        await IgnoreFailure(load);
+        lcmCache.IsDisposed.Should().BeFalse();
+        GetCache(project).Should().BeSameAs(lcmCache);
+        _gatedLoader.LoadCount.Should().Be(1);
     }
 
     [Fact]
-    public async Task ShutdownDisposesAProjectRetriedAfterAFailedLoad()
+    public void ShutdownDisposesAProjectRetriedAfterAFailedLoad()
     {
         _gatedLoader.Release.Set();
         var project = NewProject("retry-then-shutdown");
@@ -141,15 +140,32 @@ public class FwDataFactoryTests : IDisposable
         getCache.Should().Throw<InvalidOperationException>();
         getCache().Should().BeSameAs(lcmCache);
 
-        // The failed entry's eviction callback runs on the thread pool, typically after the retry.
-        await WaitForEvictionCallback(project);
         _factory.Dispose();
 
         lcmCache.IsDisposed.Should().BeTrue();
     }
 
-    private Task WaitForEvictionCallback(FwDataProject project) =>
-        WaitUntil(() => _logs.Messages.Any(m => m.Contains("Evicting project") && m.Contains(project.FilePath)));
+    [Fact]
+    public async Task RequestDuringACloseGetsANewCacheAfterIt()
+    {
+        _gatedLoader.Release.Set();
+        var project = NewProject("request-during-close");
+        var firstCache = _mockLoader.NewProject(project, "en", "en");
+        GetCache(project).Should().BeSameAs(firstCache);
+        var secondCache = _mockLoader.NewProject(NewProject("request-during-close-reload"), "en", "en");
+        _mockLoader.Projects[project.Name] = secondCache;
+
+        var close = _factory.CloseProjectAsync(project);
+        // Close takes the entry out of the cache before disposing it; request once it's gone.
+        await WaitUntil(() => !_memoryCache.TryGetValue(FwDataFactory.CacheKey(project), out _));
+        var reloaded = GetCache(project);
+        await close.WaitAsync(Timeout);
+
+        firstCache.IsDisposed.Should().BeTrue();
+        reloaded.Should().BeSameAs(secondCache);
+        reloaded.IsDisposed.Should().BeFalse();
+        _gatedLoader.LoadCount.Should().Be(2);
+    }
 
     // The requester may get the cache or an "already disposed" error, depending on how it races the disposal.
     private static async Task IgnoreFailure(Task load)
@@ -181,16 +197,5 @@ public class FwDataFactoryTests : IDisposable
 
         public LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs) =>
             inner.NewProject(project, analysisWs, vernacularWs);
-    }
-
-    private class LogCapture : ILoggerProvider, ILogger
-    {
-        public ConcurrentQueue<string> Messages { get; } = new();
-        public ILogger CreateLogger(string categoryName) => this;
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
-        public bool IsEnabled(LogLevel logLevel) => true;
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
-            Func<TState, Exception?, string> formatter) => Messages.Enqueue(formatter(state, exception));
-        public void Dispose() { }
     }
 }
