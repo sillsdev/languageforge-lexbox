@@ -9,6 +9,7 @@ export enum UpdateResult {
 	Failed = "Failed",
 	Started = "Started",
 	ManualUpdateRequired = "ManualUpdateRequired",
-	Disallowed = "Disallowed"
+	Disallowed = "Disallowed",
+	Downloaded = "Downloaded"
 }
 /* eslint-enable */

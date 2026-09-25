@@ -2,6 +2,7 @@ using SIL.Harmony.Config;
 using FwLiteMaui.Services;
 using FwLiteShared;
 using FwLiteShared.Analytics;
+using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
 using FwLiteShared.KeepAwake;
 using FwLiteShared.Services;
@@ -87,6 +88,12 @@ public static class FwLiteMauiKernel
 #if ANDROID
         services.Configure<AuthConfig>(config => config.GetParentActivityOrWindow = () => Platform.CurrentActivity);
         services.Replace(ServiceDescriptor.Singleton<IKeepAwakePlatform, AndroidKeepAwakePlatform>());
+        //Google Play in-app updates. One singleton (one AppUpdateManager) resolved both as the concrete
+        //type (by MainActivity, to drive the launch/resume checks) and as IPlatformUpdateService (for the
+        //shared CompleteUpdate hook). Disposed by the container at shutdown.
+        services.AddSingleton<AndroidInAppUpdateService>();
+        services.RemoveAll<IPlatformUpdateService>();
+        services.AddSingleton<IPlatformUpdateService>(sp => sp.GetRequiredService<AndroidInAppUpdateService>());
 #endif
         services.AddSingleton<IAppLauncher, AppLauncher>();
 

@@ -47,6 +47,12 @@ public class UpdateChecker(
         });
     }
 
+    /// <summary>
+    /// Finish installing an update the platform already downloaded (Android Play flexible flow). Invoked
+    /// from the web UI's "Restart" prompt via <see cref="Services.UpdateService"/>.
+    /// </summary>
+    public Task CompleteUpdate() => platformUpdateService.CompleteUpdate();
+
     public async Task<UpdateResult> ApplyUpdate(FwLiteRelease release)
     {
         if (ShouldPromptBeforeUpdate() &&
@@ -83,12 +89,13 @@ public class UpdateChecker(
             return true;
         }
 
-        //Store-distributed platforms (iOS/Mac) have no GitHub release feed, so there is nothing to
-        //check for: the server returns "no update" and the round-trip is pointless on every launch.
+        //Store-distributed platforms have no GitHub release feed we act on, so the round-trip is
+        //pointless on every launch: iOS/Mac have no feed at all, and Android is driven by Google Play's
+        //in-app updates (AndroidInAppUpdateService) instead of this check.
         //Left after the explicit config overrides so Always can still force a check for testing.
-        if (config.Value.Os is FwLitePlatform.iOS or FwLitePlatform.Mac)
+        if (config.Value.Os is FwLitePlatform.iOS or FwLitePlatform.Mac or FwLitePlatform.Android)
         {
-            logger.LogInformation("Update check skipped: {Os} is store-distributed with no release feed",
+            logger.LogInformation("Update check skipped: {Os} updates are store/Play-driven, not via the release feed",
                 config.Value.Os);
             return false;
         }

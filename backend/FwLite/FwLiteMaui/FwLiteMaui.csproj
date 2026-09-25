@@ -121,6 +121,11 @@
          so it is not pulled into the iOS/Mac/Android bundles, where it is unused dead weight. -->
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
   </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <!-- Android-only Google Play in-app updates (used by Platforms/Android/AndroidInAppUpdateService.cs).
+         Conditioned so it is not pulled into the Windows/iOS/Mac bundles, where it is unused. -->
+    <PackageReference Include="Xamarin.Google.Android.Play.App.Update" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FwLiteShared\FwLiteShared.csproj" />
     <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />

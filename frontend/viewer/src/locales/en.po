@@ -281,6 +281,10 @@ msgstr "All authors"
 msgid "an entry"
 msgstr "an entry"
 
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "An update has been downloaded."
+msgstr "An update has been downloaded."
+
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -2322,6 +2326,10 @@ msgstr "Reset"
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
 msgstr "Resolve"
+
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "Restart"
+msgstr "Restart"
 
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
