@@ -47,14 +47,11 @@ public class FwDataFactory(
     }
 
     private readonly Lock _cacheEntryLock = new();
-    // Entries rather than keys, so a stale eviction callback can't untrack a newer entry for the same project.
     private HashSet<ProjectCacheEntry> _projectCacheEntries = [];
     private LcmCache GetProjectServiceCached(FwDataProject project)
     {
         var key = CacheKey(project);
-        // IMemoryCache.GetOrCreate isn't atomic: concurrent callers would each load the project, and the later Set
-        // would evict (and dispose) the earlier LcmCache as Replaced. So create the entry under a lock, and let the
-        // entry make every caller share the one slow load without holding the lock during it.
+        // IMemoryCache.GetOrCreate isn't atomic, so the entry is created under the lock; its load runs outside it.
         ProjectCacheEntry projectEntry;
         lock (_cacheEntryLock)
         {
