@@ -287,7 +287,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     'lexicon.openSelector',
     async (projectId: string) => {
       logger.info(`Opening the lexicon selector for project '${projectId}'`);
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
       // Selection is sticky: a linked project is changed only by first clearing its
