@@ -696,6 +696,23 @@ jobs:
           description:  'Release for version ${{ needs.build-and-test.outputs.version }} from branch ${{ github.ref_name || github.head_ref }}'
           description-url: 'https://github.com/sillsdev/languageforge-lexbox'
 
+      - name: Launch the portable app and wait for the viewer to load
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem backend/FwLite/artifacts/sign/portable -Recurse -Filter FwLiteMaui.exe | Select-Object -First 1
+          if (-not $exe) { throw 'FwLiteMaui.exe not found in the portable publish output' }
+          $env:FwLiteMaui__BaseDataDir = Join-Path $env:RUNNER_TEMP 'fwlite-data'
+          $log = Join-Path $env:FwLiteMaui__BaseDataDir 'app.log'
+          $app = Start-Process -FilePath $exe.FullName -PassThru
+          $loaded = $false
+          for ($i = 0; $i -lt 120 -and -not $app.HasExited; $i++) {
+            if ((Test-Path $log) -and (Select-String -Path $log -Pattern 'Viewer loaded' -Quiet)) { $loaded = $true; break }
+            Start-Sleep -Seconds 1
+          }
+          if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force }
+          if (Test-Path $log) { Get-Content $log }
+          if (-not $loaded) { throw "The app never logged 'Viewer loaded'" }
+
       - name: Upload FWLite Portable
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
