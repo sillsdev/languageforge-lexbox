@@ -49,6 +49,7 @@ public class FwDataFactory(
 
     // One lock per project, held for the whole load, so concurrent requests share a load instead of racing
     // (IMemoryCache.GetOrCreate isn't atomic) and the cache only ever holds a finished LcmCache.
+    // Never pruned: it grows by one small Lock per distinct project path this factory opens.
     private readonly ConcurrentDictionary<string, Lock> _keyLocks = new();
     private Lock KeyLock(string key) => _keyLocks.GetOrAdd(key, _ => new());
 
