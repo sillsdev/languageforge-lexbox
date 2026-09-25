@@ -445,7 +445,7 @@ jobs:
           if-no-files-found: error
           path: backend/FwLite/artifacts/apple/*
 
-  # Opens the notarized DMG the way a user would, natively on each CPU the universal app supports.
+  # Checks that Gatekeeper accepts the notarized DMG, then runs the app natively on each CPU the universal build supports.
   launch-mac:
     name: Launch the Mac DMG (${{ matrix.arch }})
     needs: build-apple
@@ -494,8 +494,9 @@ jobs:
             sleep 1
           done
           kill "$PID" 2>/dev/null || true
+          wait "$PID" 2>/dev/null || true
           cat "$OUT"
-          find "$CONTAINER" -name 'app*.log' -exec cat {} + 2>/dev/null || true
+          find "$CONTAINER" -name 'app*.log' -print -exec cat {} \; 2>/dev/null || true
           grep -rqs 'Viewer loaded' "$OUT" "$CONTAINER" || { echo "The app never logged 'Viewer loaded'" >&2; exit 1; }
 
   publish-linux:
@@ -699,9 +700,13 @@ jobs:
       - name: Launch the portable app and wait for the viewer to load
         shell: pwsh
         run: |
-          $exe = Get-ChildItem backend/FwLite/artifacts/sign/portable -Recurse -Filter FwLiteMaui.exe | Select-Object -First 1
+          # Run a copy: the app writes its WebView2 profile next to the exe, and the portable folder ships.
+          $dir = Join-Path $env:RUNNER_TEMP 'fwlite-portable'
+          Copy-Item -Recurse backend/FwLite/artifacts/sign/portable $dir
+          $exe = Get-ChildItem $dir -Recurse -Filter FwLiteMaui.exe | Select-Object -First 1
           if (-not $exe) { throw 'FwLiteMaui.exe not found in the portable publish output' }
           $env:FwLiteMaui__BaseDataDir = Join-Path $env:RUNNER_TEMP 'fwlite-data'
+          $env:FwLite__UpdateCheckCondition = 'Never'
           $log = Join-Path $env:FwLiteMaui__BaseDataDir 'app.log'
           $app = Start-Process -FilePath $exe.FullName -PassThru
           $loaded = $false
