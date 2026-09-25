@@ -1,5 +1,5 @@
+using System.Diagnostics;
 using System.Text.Json;
-using Windows.Foundation;
 using Windows.Management.Deployment;
 using Windows.Networking.Connectivity;
 using LexCore.Entities;
@@ -24,7 +24,9 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         ToastNotificationManagerCompat.OnActivated += toastArgs =>
         {
             ToastArguments args = ToastArguments.Parse(toastArgs.Argument);
-            HandleNotificationAction(args.Get(ActionKey), args.Get(NotificationIdKey), args);
+            args.TryGetValue(ActionKey, out var action);
+            args.TryGetValue(NotificationIdKey, out var notificationId);
+            HandleNotificationAction(action, notificationId, args);
         };
         if (ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
         {
@@ -46,9 +48,18 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         await ApplyUpdate(fwLiteRelease);
     }
 
-    private void ShowUpdateInstallingNotification(FwLiteRelease latestRelease)
+    // Shown once the update is staged and only a restart is needed. The Restart button is the only restart
+    // affordance for the background/auto-update path (the in-app dialog has its own button).
+    private void ShowUpdateReadyNotification(FwLiteRelease latestRelease)
     {
-        new ToastContentBuilder().AddText("FieldWorks Lite Installing update").AddText($"Version {latestRelease.Version} will be installed after FieldWorks Lite is closed").Show();
+        new ToastContentBuilder()
+            .AddArgument(NotificationIdKey, $"update-ready-{Guid.NewGuid()}")
+            .AddText("FieldWorks Lite update ready")
+            .AddText($"Version {latestRelease.Version} is ready. Restart to finish installing.")
+            .AddButton(new ToastButton()
+                .SetContent("Restart")
+                .AddArgument(ActionKey, "restart"))
+            .Show(toast => toast.Tag = "update");
     }
 
     public async Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease)
@@ -74,14 +85,23 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         return taskResult != null;
     }
 
-    private void HandleNotificationAction(string action, string notificationId, ToastArguments args)
+    private void HandleNotificationAction(string? action, string? notificationId, ToastArguments args)
     {
-        var result = args.Get(args.Get(ResultRefKey));
-        if (!NotificationCompletionSources.TryGetValue(notificationId, out var tcs))
+        if (action == "restart")
+        {
+            _ = Task.Run(RestartToApplyUpdate);
+            return;
+        }
+
+        string? result = null;
+        if (args.TryGetValue(ResultRefKey, out var resultKey) && resultKey is not null)
+            args.TryGetValue(resultKey, out result);
+
+        if (notificationId is null || !NotificationCompletionSources.TryGetValue(notificationId, out var tcs))
         {
             if (action == "download")
             {
-                var release = JsonSerializer.Deserialize<FwLiteRelease>(result);
+                var release = result is null ? null : JsonSerializer.Deserialize<FwLiteRelease>(result);
                 if (release == null)
                 {
                     logger.LogError("Invalid release {Release} for notification {NotificationId}", result, notificationId);
@@ -107,84 +127,195 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
     private async Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease, bool quitOnUpdate)
     {
         logger.LogInformation("Installing new version: {Version}, Current version: {CurrentVersion}", latestRelease.Version, AppVersion.Version);
-        var packageManager = new PackageManager();
 
-        //If this install is associated with an .appinstaller file, it's on the OS update track and we
-        //must update through the App Installer API. Updating the raw bundle via AddPackageByUriAsync
-        //would detach it from that track (see App Installer non-store update docs). Installs from a plain
-        //.msixbundle - how most users are installed today - have no association and take the fallback path.
-        var appInstallerUri = GetAppInstallerUri();
-        IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> asyncOperation;
-        if (appInstallerUri is not null)
+        var result = await DownloadAndStage(latestRelease, quitOnUpdate);
+
+        // When the update is staged and only a restart remains, notify with a Restart button. Skip when
+        // quitOnUpdate (that path force-shuts-down and restarts on its own).
+        if (result is UpdateResult.Success && !quitOnUpdate)
+            ShowUpdateReadyNotification(latestRelease);
+
+        return result;
+    }
+
+    private async Task<UpdateResult> DownloadAndStage(FwLiteRelease latestRelease, bool quitOnUpdate)
+    {
+        // Preferred path: download through a loopback proxy so we can report real byte progress. Only if
+        // the proxy infrastructure itself fails do we fall back to handing PackageManager the URL directly,
+        // so we never regress update capability.
+        using var cts = new CancellationTokenSource(DeployUpperBound);
+        try
         {
-            logger.LogInformation("Updating via App Installer file {AppInstallerUri}", appInstallerUri);
-            //ForceUpdateFromAnyVersion is controlled by the .appinstaller XML, not these options.
-            asyncOperation = packageManager.AddPackageByAppInstallerFileAsync(appInstallerUri,
-                quitOnUpdate ? AddPackageByAppInstallerOptions.ForceTargetAppShutdown : AddPackageByAppInstallerOptions.None,
-                packageManager.GetDefaultPackageVolume());
-        }
-        else
-        {
-            asyncOperation = packageManager.AddPackageByUriAsync(new Uri(latestRelease.Url),
-                new AddPackageOptions()
-                {
-                    DeferRegistrationWhenPackagesAreInUse = true,
-                    ForceUpdateFromAnyVersion = true,
-                    ForceAppShutdown = quitOnUpdate
-                });
-        }
-        asyncOperation.Progress = (info, progressInfo) =>
-        {
-            NotifyInstallProgress(progressInfo.percentage, latestRelease);
-            if (progressInfo.state == DeploymentProgressState.Queued)
+            try
             {
-                logger.LogInformation("Queued update");
-                return;
+                var progress = new DownloadProgressReporter(eventBus, latestRelease);
+                await using var proxy = await UpdateDownloadProxy.StartAsync(latestRelease.Url, logger, progress.Report, cts.Token);
+                return await Deploy(proxy.LocalUri, quitOnUpdate, cts.Token);
             }
-            logger.LogInformation("Downloading update: {ProgressPercentage}%", progressInfo.percentage);
-        };
-        ShowUpdateInstallingNotification(latestRelease);
-
-        //note this asyncOperation is not reliable, it's possible the update will install and this will never resolve
-        var updateTask = asyncOperation.AsTask();
-        var completedTask = await Task.WhenAny(updateTask, Task.Delay(TimeSpan.FromMinutes(2)));
-        if (completedTask == updateTask)
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogWarning(ex, "Proxy update path failed; falling back to direct install");
+                return await Deploy(new Uri(latestRelease.Url), quitOnUpdate, cts.Token);
+            }
+        }
+        catch (OperationCanceledException)
         {
-            var result = await updateTask;
+            // The timeout cancels the package operation and tears down the proxy, so nothing keeps
+            // downloading — report failure (not Started) so the UI offers a retry rather than a Restart
+            // button that would try to apply an incomplete package.
+            logger.LogWarning("Update did not finish staging within {Timeout}; treating as failed", DeployUpperBound);
+            return UpdateResult.Failed;
+        }
+    }
+
+    // Once the package is in use, Windows stages the update and defers registration until the next launch.
+    // The historical hang here came from attaching a Progress handler: that drops the WinRT->Task
+    // completion in .NET desktop apps (dotnet/wpf#4097, CsWinRT#1720), so the await never returned and the
+    // UI sat on "Downloading…" forever. Without a Progress handler the operation completes once the package
+    // is staged (registration deferred, i.e. IsRegistered=false) — that's the primary "ready to restart"
+    // signal. As a defensive fallback we also poll Windows for a pending deferred registration, so a repeat
+    // of the hang still resolves.
+    private async Task<UpdateResult> Deploy(Uri packageUri, bool quitOnUpdate, CancellationToken ct)
+    {
+        var packageFullName = Windows.ApplicationModel.Package.Current.Id.FullName;
+        var packageManager = new PackageManager();
+        // No .Progress handler on purpose (see above). Byte progress comes from the proxy; stage progress
+        // is logged separately by PackageUpdateLogger (PackageCatalog.PackageUpdating).
+        var deployTask = packageManager.AddPackageByUriAsync(packageUri,
+            new AddPackageOptions()
+            {
+                DeferRegistrationWhenPackagesAreInUse = true,
+                ForceUpdateFromAnyVersion = true,
+                ForceAppShutdown = quitOnUpdate
+            }).AsTask(ct);
+
+        using var pollCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        var stagedTask = WaitForRegistrationPending(packageFullName, pollCts.Token);
+        try
+        {
+            var completed = await Task.WhenAny(deployTask, stagedTask);
+            if (completed == stagedTask)
+            {
+                await stagedTask; // observe / surface cancellation
+                Observe(deployTask); // deferred registration keeps running in the background; don't cancel it
+                logger.LogInformation("Update staged (registration pending); restart to apply");
+                return UpdateResult.Success;
+            }
+
+            var result = await deployTask;
             if (!string.IsNullOrEmpty(result.ErrorText))
             {
-                logger.LogError(result.ExtendedErrorCode, "Failed to download update: {ErrorText}", result.ErrorText);
+                logger.LogError(result.ExtendedErrorCode, "Failed to install update: {ErrorText}", result.ErrorText);
                 return UpdateResult.Failed;
             }
 
-            logger.LogInformation("Update downloaded, will install on next restart");
+            logger.LogInformation("Update deployed (registered now: {IsRegistered}); restart to apply", result.IsRegistered);
             return UpdateResult.Success;
         }
-
-        return UpdateResult.Started;
+        finally
+        {
+            await pollCts.CancelAsync(); // stop the poll loop if the deploy path returned first
+        }
     }
 
-    private void NotifyInstallProgress(uint percentage, FwLiteRelease release)
+    // Upper bound so a genuinely stuck deployment can't pin the operation forever; the happy path resolves
+    // in seconds/minutes once staging completes, well under this.
+    private static readonly TimeSpan DeployUpperBound = TimeSpan.FromMinutes(30);
+
+    private bool _registrationPendingApiUnavailable;
+
+    // Poll (every 10s) until Windows reports our family has a newer package staged with registration
+    // deferred. Lets cancellation propagate so the caller's upper-bound timeout still surfaces as Started.
+    private async Task WaitForRegistrationPending(string packageFullName, CancellationToken ct)
     {
-        eventBus.PublishEvent(new AppUpdateProgressEvent(percentage, release));
+        while (!IsRegistrationPending(packageFullName))
+            await Task.Delay(TimeSpan.FromSeconds(10), ct);
     }
 
-    /// <summary>
-    /// The .appinstaller URI this install is associated with, or null if it wasn't installed via an
-    /// .appinstaller file (i.e. it's not on the OS update track and should use the direct-bundle path).
-    /// </summary>
-    private Uri? GetAppInstallerUri()
+    // "Is a newer version staged for our package with registration deferred (waiting for restart)?"
+    // NB: despite the API parameter being named packageFamilyName, it requires the package FULL name —
+    // passing a family name throws E_INVALIDARG (see the WindowsAppSDK IDL @warning on this method). Kept
+    // defensive: it relies on an FrameworkUdk primitive with undocumented failure modes, so on any error we
+    // disable it and lean on the deploy operation completing instead — never abort or report a false ready.
+    private bool IsRegistrationPending(string packageFullName)
     {
+        if (_registrationPendingApiUnavailable) return false;
         try
         {
-            return Windows.ApplicationModel.Package.Current.GetAppInstallerInfo()?.Uri;
+            return Microsoft.Windows.Management.Deployment.PackageDeploymentManager.GetDefault()
+                .IsPackageRegistrationPending(packageFullName);
         }
         catch (Exception e)
         {
-            //Package.Current throws for unpackaged/portable apps; treat as "not on the track".
-            logger.LogWarning(e, "Unable to read App Installer info; falling back to direct bundle update");
-            return null;
+            _registrationPendingApiUnavailable = true;
+            logger.LogWarning(e, "IsPackageRegistrationPending unavailable; relying on deployment completion");
+            return false;
         }
+    }
+
+    private static void Observe(Task task) =>
+        _ = task.ContinueWith(static t => _ = t.Exception, CancellationToken.None,
+            TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+
+    // Turns the proxy's running byte total into throttled progress events (bytes + speed).
+    // The JsEventListener channel is small (size 10) so we cap emission at ~4/sec.
+    private sealed class DownloadProgressReporter(GlobalEventBus eventBus, FwLiteRelease release)
+    {
+        private static readonly TimeSpan MinInterval = TimeSpan.FromMilliseconds(250);
+        private readonly long _startTimestamp = Stopwatch.GetTimestamp();
+        private readonly Lock _lock = new();
+        private long _lastEmitTimestamp;
+
+        public void Report(long totalBytesDownloaded)
+        {
+            var now = Stopwatch.GetTimestamp();
+            lock (_lock)
+            {
+                if (_lastEmitTimestamp != 0 && Stopwatch.GetElapsedTime(_lastEmitTimestamp, now) < MinInterval)
+                    return;
+                _lastEmitTimestamp = now;
+            }
+
+            var elapsedSeconds = Stopwatch.GetElapsedTime(_startTimestamp, now).TotalSeconds;
+            var bytesPerSecond = elapsedSeconds > 0 ? totalBytesDownloaded / elapsedSeconds : 0;
+            eventBus.PublishEvent(new AppUpdateProgressEvent(totalBytesDownloaded, bytesPerSecond, release));
+        }
+    }
+
+    // Restart flags: allow Restart Manager to relaunch us only when we're terminated for an update, not
+    // for a crash/hang/reboot. (RESTART_NO_CRASH | RESTART_NO_HANG | RESTART_NO_REBOOT.)
+    private const int RestartOnlyForUpdate = 0x1 | 0x2 | 0x8;
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    private static extern int RegisterApplicationRestart(string? commandLine, int flags);
+
+    public async Task RestartToApplyUpdate()
+    {
+        logger.LogInformation("Applying staged update and restarting");
+
+        // NOT AppInstance.Restart: that terminates this process and CreateProcess-relaunches the *old* exe
+        // path directly, which is not a package activation, so the deferred registration never applies and
+        // we'd come back on the old version. Instead we let the deployment engine register the staged
+        // package with ForceTargetApplicationShutdown — it shuts down the package (WebView2 children
+        // included), completes the registration, and Restart Manager relaunches us as the new version.
+        // RegisterApplicationRestart must be called before the shutdown so we get relaunched.
+        var hr = RegisterApplicationRestart(null, RestartOnlyForUpdate);
+        if (hr != 0)
+            logger.LogWarning("RegisterApplicationRestart failed (0x{Hr:X8}); the app may not relaunch automatically", hr);
+
+        var packageManager = new PackageManager();
+        // No .Progress handler (same dropped-completion issue as Deploy). On success the engine terminates
+        // this process, so the await does not return; we only get here on failure.
+        var result = await packageManager.RegisterPackageByFamilyNameAsync(
+            Windows.ApplicationModel.Package.Current.Id.FamilyName,
+            [],
+            DeploymentOptions.ForceTargetApplicationShutdown,
+            null,
+            []).AsTask();
+
+        logger.LogError(result.ExtendedErrorCode,
+            "Failed to register staged update: {ErrorText}. It remains staged and will apply the next time the app is launched.",
+            result.ErrorText);
     }
 
     public DateTime LastUpdateCheck

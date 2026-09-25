@@ -1,7 +1,8 @@
 import type {IHarmonyResource} from '$lib/dotnet-types/generated-types/SIL/Harmony/Resource/IHarmonyResource';
-import {formatNumber} from '$lib/components/ui/format';
 import {gt, locale} from 'svelte-i18n-lingui';
 import {fromStore} from 'svelte/store';
+
+export {formatFileSize} from '$lib/components/ui/format';
 
 export type MediaFileLocation = 'local' | 'remote' | 'both';
 
@@ -35,19 +36,6 @@ export function mediaFileDisplayName(resource: IHarmonyResource): string {
   return resource.metadata?.filename
     ?? (resource.localPath ? basename(resource.localPath) : undefined)
     ?? resource.id;
-}
-
-const BYTE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB'];
-
-export function formatFileSize(bytes?: number): string | undefined {
-  if (bytes == null) return undefined;
-  let size = bytes;
-  let unit = 0;
-  while (size >= 1024 && unit < BYTE_UNITS.length - 1) {
-    size /= 1024;
-    unit++;
-  }
-  return `${formatNumber(size, {maximumFractionDigits: unit === 0 ? 0 : 1})} ${BYTE_UNITS[unit]}`;
 }
 
 const MIME_TYPE_BY_EXTENSION: Record<string, string> = {

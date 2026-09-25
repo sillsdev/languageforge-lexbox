@@ -871,6 +871,10 @@ msgstr "Telah memuat turun {0}"
 msgid "Downloading {0}..."
 msgstr "Memuat turun {0}..."
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Downloading update..."
+msgstr ""
+
 #. Generic progress message
 #: src/home/Server.svelte
 msgid "Downloading..."
@@ -1114,10 +1118,9 @@ msgstr "FieldWorks Lite"
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr ""
 
-#. Success notification shown after FieldWorks Lite auto-updates. "FieldWorks Lite" is a product name — do not translate.
 #: src/lib/notifications/NotificationOutlet.svelte
-msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
-msgstr "FieldWorks Lite telah dikemas kini dengan berjaya. Sila mulai semula aplikasi untuk menggunakan perubahan."
+msgid "FieldWorks Lite has been updated. Restart to finish installing."
+msgstr ""
 
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -2328,6 +2331,11 @@ msgstr ""
 msgid "Resolve"
 msgstr ""
 
+#: src/lib/notifications/NotificationOutlet.svelte
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Restart"
+msgstr ""
+
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
 msgid "Restore"
@@ -3006,20 +3014,18 @@ msgstr "Kemas kini {0}"
 msgid "Update available: {0}"
 msgstr "Kemas kini tersedia: {0}"
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update downloaded. Restart to apply."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update downloading in the background. Restart to apply once it's finished."
+msgstr ""
+
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "Kemas kini gagal dipasang."
-
-#. Success message after update installs
-#: src/lib/updates/UpdateDialogContent.svelte
-msgid "Update installed successfully! Please restart the application."
-msgstr "Kemas kini berjaya dipasang! Sila mulakan semula aplikasi."
-
-#. Info message when update runs in background
-#: src/lib/updates/UpdateDialogContent.svelte
-msgid "Update started in the background. Restart the application after the update is complete."
-msgstr "Kemas kini bermula di latar belakang. Mulakan semula aplikasi selepas kemas kini selesai."
 
 #. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte
