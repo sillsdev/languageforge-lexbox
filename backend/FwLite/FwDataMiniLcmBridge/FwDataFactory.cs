@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Media;
@@ -40,54 +39,51 @@ public class FwDataFactory(
         });
     }
 
-    private static string CacheKey(FwDataProject project) => $"{nameof(FwDataFactory)}|{project.FilePath}";
-    private static string FilePathFromCacheKey(string cacheKey) => cacheKey.Split('|')[1];
+    internal static string CacheKey(FwDataProject project) => $"{nameof(FwDataFactory)}|{project.FilePath}";
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(FwDataProject project, bool saveOnDispose)
     {
         return new FwDataMiniLcmApi(new(() => GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project, mediaAdapter, config);
     }
 
-    private HashSet<string> _projectCacheKeys = [];
     private readonly Lock _cacheEntryLock = new();
+    // Entries rather than keys, so a stale eviction callback can't untrack a newer entry for the same project.
+    private HashSet<ProjectCacheEntry> _projectCacheEntries = [];
     private LcmCache GetProjectServiceCached(FwDataProject project)
     {
         var key = CacheKey(project);
         // IMemoryCache.GetOrCreate isn't atomic: concurrent callers would each load the project, and the later Set
         // would evict (and dispose) the earlier LcmCache as Replaced. So create the entry under a lock, and let the
-        // Lazy make every caller share the one slow load without holding the lock during it.
-        Lazy<LcmCache> lazyProjectService;
+        // entry make every caller share the one slow load without holding the lock during it.
+        ProjectCacheEntry projectEntry;
         lock (_cacheEntryLock)
         {
-            lazyProjectService = cache.GetOrCreate(key,
+            projectEntry = cache.GetOrCreate(key,
                 entry =>
                 {
                     entry.SlidingExpiration = CacheSlidingExpiration;
-                    entry.RegisterPostEvictionCallback(OnLcmProjectCacheEviction, (logger, _projectCacheKeys));
-                    _projectCacheKeys.Add(key);
-                    return new Lazy<LcmCache>(() =>
+                    entry.RegisterPostEvictionCallback(OnLcmProjectCacheEviction);
+                    var newEntry = new ProjectCacheEntry(key, project.FilePath, () =>
                     {
                         logger.LogInformation("Loading project {ProjectFileName}", project.FileName);
                         var projectService = projectLoader.LoadCache(project);
                         logger.LogInformation("Project {ProjectFileName} loaded", project.FileName);
                         return projectService;
-                    }, LazyThreadSafetyMode.ExecutionAndPublication);
+                    }, logger);
+                    _projectCacheEntries.Add(newEntry);
+                    return newEntry;
                 }) ?? throw new InvalidOperationException("Project service is null");
         }
 
         LcmCache projectService;
         try
         {
-            projectService = lazyProjectService.Value;
+            projectService = projectEntry.LcmCache;
         }
         catch
         {
-            // The Lazy caches its exception, so drop the entry to let the next call retry the load.
-            lock (_cacheEntryLock)
-            {
-                if (cache.TryGetValue(key, out Lazy<LcmCache>? current) && ReferenceEquals(current, lazyProjectService))
-                    cache.Remove(key);
-            }
+            // The entry caches its load exception, so drop it to let the next call retry the load.
+            RemoveIfCurrent(projectEntry);
             throw;
         }
 
@@ -99,46 +95,53 @@ public class FwDataFactory(
         return projectService;
     }
 
-    private static void OnLcmProjectCacheEviction(object keyObj, object? value, EvictionReason reason, object? state)
+    private void RemoveIfCurrent(ProjectCacheEntry projectEntry)
     {
-        if (value is null) return;
+        lock (_cacheEntryLock)
+        {
+            if (cache.TryGetValue(projectEntry.Key, out ProjectCacheEntry? current) && ReferenceEquals(current, projectEntry))
+                cache.Remove(projectEntry.Key);
+        }
+    }
+
+    private void OnLcmProjectCacheEviction(object key, object? value, EvictionReason reason, object? state)
+    {
+        if (value is not ProjectCacheEntry projectEntry) return;
         // todo this could trigger when the service is still referenced elsewhere, for example in a long running task.
         // disposing of the service while it's still in use would be bad.
         // one way around this would be to return a lease object, only after a timeout and no more references to the lease object would the service be disposed.
-        var lazyLcmCache = (Lazy<LcmCache>)value;
-        var (logger, projectCacheKeys) = ((ILogger<FwDataFactory>, HashSet<string>))state!;
-        if (keyObj.ToString() is not string key)
+        logger.LogInformation("Evicting project {ProjectFileName} from cache ({EvictionReason})", projectEntry.FilePath, reason);
+        lock (_cacheEntryLock)
         {
-            Debug.Fail($"Eviction callback called with null key {keyObj}");
-            logger.LogError("Eviction callback called with null key {Key}", keyObj);
-            return;
+            _projectCacheEntries.Remove(projectEntry);
         }
-        var filePath = FilePathFromCacheKey(key);
-        logger.LogInformation("Evicting project {ProjectFileName} from cache ({EvictionReason})", filePath, reason);
-        projectCacheKeys.Remove(key);
-        // Not created means the load failed or is still running, so there's nothing to dispose.
-        if (lazyLcmCache.IsValueCreated && lazyLcmCache.Value is { IsDisposed: false } lcmCache)
+        _ = projectEntry.DisposeLoaded().ContinueWith(disposal =>
         {
-            lcmCache.Dispose();
-            logger.LogInformation("FW Data Project {ProjectFileName} disposed", filePath);
+            if (disposal.IsFaulted)
+                logger.LogError(disposal.Exception, "Failed to dispose project {ProjectFileName}", projectEntry.FilePath);
             GC.Collect();
-        }
+        }, TaskScheduler.Default);
     }
 
     public void Dispose()
     {
         logger.LogInformation("Closing all projects");
-        //ensure a race condition doesn't cause us to dispose of a project that's already been disposed
-        var projectCacheKeys = Interlocked.Exchange(ref _projectCacheKeys, []);
-        foreach (var key in projectCacheKeys)
+        HashSet<ProjectCacheEntry> projectEntries;
+        lock (_cacheEntryLock)
         {
-            var lazyLcmCache = cache.Get<Lazy<LcmCache>>(key);
-            var lcmCache = lazyLcmCache is { IsValueCreated: true } ? lazyLcmCache.Value : null;
-            if (lcmCache is null || lcmCache.IsDisposed) continue;
-            var filePath = FilePathFromCacheKey(key);
-            lcmCache.Dispose(); //need to explicitly call dispose as that blocks, just removing from the cache does not block, meaning it will not finish disposing before the program exits.
-            logger.LogInformation("FW Data Project {ProjectFileName} disposed", filePath);
-            cache.Remove(key);
+            projectEntries = _projectCacheEntries;
+            _projectCacheEntries = [];
+        }
+        foreach (var projectEntry in projectEntries)
+        {
+            //need to explicitly dispose as that blocks, just removing from the cache does not block, meaning it will not finish disposing before the program exits.
+            var disposal = projectEntry.DisposeLoaded();
+            // Not waited for: a load that hasn't finished has no changes to save, and exiting releases its file locks.
+            if (!disposal.IsCompleted)
+                logger.LogWarning("Project {ProjectFileName} is still loading at shutdown, not waiting for it", projectEntry.FilePath);
+            else if (disposal.IsFaulted)
+                logger.LogError(disposal.Exception, "Failed to dispose project {ProjectFileName}", projectEntry.FilePath);
+            RemoveIfCurrent(projectEntry);
         }
     }
 
@@ -147,15 +150,21 @@ public class FwDataFactory(
         // if we are shutting down, don't do anything because we want project dispose to be called as part of the shutdown process.
         if (_shuttingDown) return;
         logger.LogInformation("Explicitly Closing project {ProjectFileName}", project.FilePath);
-        var cacheKey = CacheKey(project);
-        var lazyLcmCache = cache.Get<Lazy<LcmCache>>(cacheKey);
-        // A load still in flight has nothing to dispose yet, so it's left alone (as before it was cached).
-        var lcmCache = lazyLcmCache is { IsValueCreated: true } ? lazyLcmCache.Value : null;
-        if (lcmCache is null) return;
-        // Dispose cache immediately so file locks are released before we return.
+        var projectEntry = TakeEntry(CacheKey(project));
+        if (projectEntry is null) return;
+        // Dispose immediately (waiting for a load still in flight) so file locks are released before we return.
         // The caller assumes the project is ready to be opened somewhere else (e.g. in FieldWorks)
-        if (!lcmCache.IsDisposed) await Task.Run(lcmCache.Dispose);
-        cache.Remove(cacheKey);
+        await Task.Run(projectEntry.DisposeLoaded);
+    }
+
+    private ProjectCacheEntry? TakeEntry(string key)
+    {
+        lock (_cacheEntryLock)
+        {
+            if (!cache.TryGetValue(key, out ProjectCacheEntry? projectEntry)) return null;
+            cache.Remove(key);
+            return projectEntry;
+        }
     }
 
     public IAsyncDisposable DeferCloseAsync(FwDataProject project)
@@ -192,5 +201,79 @@ public class FwDataFactory(
         _shuttingDown = true;
         Dispose();
         return Task.CompletedTask;
+    }
+
+    private sealed class ProjectCacheEntry
+    {
+        // Lets disposal wait for the load without blocking a thread on the Lazy.
+        private readonly TaskCompletionSource _loaded = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private LcmCache? _loadedCache;
+        private readonly Lazy<LcmCache> _lcmCache;
+        private readonly TaskCompletionSource _disposed = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _disposeRequested;
+        private readonly ILogger _logger;
+
+        public ProjectCacheEntry(string key, string filePath, Func<LcmCache> load, ILogger logger)
+        {
+            Key = key;
+            FilePath = filePath;
+            _logger = logger;
+            _lcmCache = new(() =>
+            {
+                try
+                {
+                    var lcmCache = load();
+                    _loadedCache = lcmCache;
+                    _loaded.SetResult();
+                    return lcmCache;
+                }
+                catch (Exception e)
+                {
+                    _loaded.SetException(e);
+                    throw;
+                }
+            }, LazyThreadSafetyMode.ExecutionAndPublication);
+        }
+
+        public string Key { get; }
+        public string FilePath { get; }
+        public LcmCache LcmCache => _lcmCache.Value;
+
+        /// <summary>
+        /// Disposes the LcmCache once its load finishes, synchronously if it already has.
+        /// Runs once however many of eviction, close and shutdown call it; every caller gets the same task.
+        /// </summary>
+        public Task DisposeLoaded()
+        {
+            if (Interlocked.Exchange(ref _disposeRequested, 1) == 0)
+            {
+                if (_loaded.Task.IsCompleted) DisposeAfterLoad(_loaded.Task);
+                else _ = _loaded.Task.ContinueWith(DisposeAfterLoad, TaskScheduler.Default);
+            }
+#pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks: this entry owns the TaskCompletionSource
+            return _disposed.Task;
+#pragma warning restore VSTHRD003
+        }
+
+        private void DisposeAfterLoad(Task load)
+        {
+            try
+            {
+                if (!load.IsCompletedSuccessfully)
+                {
+                    _logger.LogWarning(load.Exception, "FW Data Project {ProjectFileName} failed to load, nothing to dispose", FilePath);
+                }
+                else if (_loadedCache is { IsDisposed: false } lcmCache)
+                {
+                    lcmCache.Dispose();
+                    _logger.LogInformation("FW Data Project {ProjectFileName} disposed", FilePath);
+                }
+                _disposed.SetResult();
+            }
+            catch (Exception e)
+            {
+                _disposed.SetException(e);
+            }
+        }
     }
 }
