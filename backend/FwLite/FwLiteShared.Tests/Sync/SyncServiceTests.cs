@@ -163,6 +163,63 @@ public class SyncServiceTests
         deletedThreadIds.Should().ContainSingle().Which.Should().Be(deletedThreadId);
     }
 
+    [Fact]
+    public void SyncResultsHaveCommentChanges_TrueForCreatedComment()
+    {
+        var change = new CreateUserCommentChange(new UserComment
+        {
+            Id = Guid.NewGuid(),
+            CommentThreadId = Guid.NewGuid(),
+            Text = "synced comment"
+        });
+
+        SyncService.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeTrue();
+    }
+
+    [Fact]
+    public void SyncResultsHaveCommentChanges_TrueForThreadStatusChange()
+    {
+        var change = new SetCommentThreadStatusChange(Guid.NewGuid(), ThreadStatus.Closed, DateTimeOffset.UtcNow);
+
+        SyncService.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeTrue();
+    }
+
+    [Fact]
+    public void SyncResultsHaveCommentChanges_TrueForDeletedThread()
+    {
+        var change = new DeleteChange<CommentThread>(Guid.NewGuid());
+
+        SyncService.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeTrue();
+    }
+
+    [Fact]
+    public void SyncResultsHaveCommentChanges_FalseForNonCommentChanges()
+    {
+        // an entry deletion is not a comment change, so it must not trigger a comments-changed notification
+        var change = new DeleteChange<Entry>(Guid.NewGuid());
+
+        SyncService.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeFalse();
+    }
+
+    [Fact]
+    public void SyncResultsHaveCommentChanges_FalseWhenNothingSynced()
+    {
+        SyncService.SyncResultsHaveCommentChanges(new SyncResults([], [], true)).Should().BeFalse();
+    }
+
+    private static SyncResults ResultsWith(IChange change)
+    {
+        var commitId = Guid.NewGuid();
+        var commit = new FakeCommit(commitId, new HybridDateTime(DateTimeOffset.UtcNow, 0))
+        {
+            ChangeEntities =
+            [
+                new ChangeEntity<IChange> { Change = change, CommitId = commitId, EntityId = change.EntityId, Index = 0 }
+            ]
+        };
+        return new SyncResults([commit], [], true);
+    }
+
     private class FakeCommit : Commit
     {
         [SetsRequiredMembers]

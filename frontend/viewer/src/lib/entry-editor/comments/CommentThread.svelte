@@ -12,6 +12,8 @@
   import CommentReplyInput from './CommentReplyInput.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import type {ThreadView} from './types';
+  import {slide} from 'svelte/transition';
+  import {untrack} from 'svelte';
 
   let {
     threadView,
@@ -21,6 +23,7 @@
     editingCommentId,
     expanded = false,
     hasUnread = false,
+    arrivalsEnabled = false,
     onToggle,
     onResolve,
     onReply,
@@ -36,6 +39,8 @@
     editingCommentId?: string;
     expanded?: boolean;
     hasUnread?: boolean;
+    /** When false, this thread (and arriving comments) won't flash — mutes the initial-load batch. */
+    arrivalsEnabled?: boolean;
     onToggle: () => void;
     onResolve: () => void;
     onReply: (text: string) => void | Promise<void>;
@@ -45,6 +50,10 @@
     /** Debug only: puts the thread back in the unread state. */
     onMarkUnread?: () => void;
   } = $props();
+
+  // Snapshot at creation: a thread created while arrivals are muted (the initial load) never flashes, even
+  // after the mute lifts. A thread created afterward is a genuine arrival and flashes once.
+  const flashThread = untrack(() => arrivalsEnabled);
 
   const resolved = $derived(threadView.thread.status === ThreadStatus.Closed);
   const firstComment = $derived(threadView.comments[0]);
@@ -56,9 +65,11 @@
 </script>
 
 <section
+  in:slide={{duration: 250}}
   class={cn(
     'shrink-0 overflow-hidden rounded-lg border border-border',
     resolved ? 'opacity-65' : 'border-l-[3px] border-l-primary bg-card',
+    flashThread && 'comment-arrival',
   )}
 >
   <Collapsible.Root open={expanded} onOpenChange={onOpenChange}>
@@ -148,6 +159,7 @@
             <CommentItem
               {comment}
               compact={index > 0}
+              {arrivalsEnabled}
               canEdit={Boolean(currentUserId && comment.authorId === currentUserId)}
               {saving}
               editing={editingCommentId === comment.id}
@@ -167,3 +179,19 @@
     </Collapsible.Content>
   </Collapsible.Root>
 </section>
+
+<style>
+  /* Brief tint fade so a freshly-arrived thread catches the eye, then settles to its normal background. */
+  :global(.comment-arrival) {
+    animation: comment-arrival 1.1s ease-out;
+  }
+
+  @keyframes -global-comment-arrival {
+    from {
+      background-color: color-mix(in oklab, var(--primary) 22%, transparent);
+    }
+    to {
+      background-color: transparent;
+    }
+  }
+</style>

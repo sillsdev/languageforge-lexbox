@@ -28,6 +28,7 @@
     addingComment = $bindable(false),
     expandedThreadIds = new SvelteSet<string>(),
     mobileThreadId = $bindable<string | null>(null),
+    arrivalsEnabled = false,
     onClose,
     onStartThread,
     onReply,
@@ -50,6 +51,8 @@
     expandedThreadIds?: SvelteSet<string>;
     mobileThreadId?: string | null;
     unreadThreadIds?: Set<string>;
+    /** When false, arriving threads/comments don't flash (used to mute the initial-load batch). */
+    arrivalsEnabled?: boolean;
     onClose?: () => void;
     onStartThread: () => void;
     onReply: (threadView: ThreadView, text: string) => void | Promise<void>;
@@ -198,6 +201,7 @@
             <CommentItem
               {comment}
               compact={index > 0}
+              {arrivalsEnabled}
               canEdit={Boolean(currentUserId && comment.authorId === currentUserId)}
               {saving}
               editing={editingCommentId === comment.id}
@@ -246,6 +250,7 @@
                 {saving}
                 {currentUserId}
                 {editingCommentId}
+                {arrivalsEnabled}
                 hasUnread={unreadThreadIds.has(threadView.thread.id)}
                 expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                 onToggle={() => toggleExpanded(threadView.thread.id)}
@@ -278,6 +283,7 @@
                       {saving}
                       {currentUserId}
                       {editingCommentId}
+                      {arrivalsEnabled}
                       hasUnread={unreadThreadIds.has(threadView.thread.id)}
                       expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                       onToggle={() => toggleExpanded(threadView.thread.id)}
