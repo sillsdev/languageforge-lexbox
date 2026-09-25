@@ -67,6 +67,7 @@ public class FwDataFactory(
         lock (KeyLock(key))
         {
             if (cache.TryGetValue(key, out hit) && !hit!.IsDisposed) return hit;
+            DisposeTrackedCaches(key);
             logger.LogInformation("Loading project {ProjectFileName}", project.FileName);
             var lcmCache = projectLoader.LoadCache(project);
             logger.LogInformation("Project {ProjectFileName} loaded", project.FileName);
@@ -93,16 +94,37 @@ public class FwDataFactory(
         }
     }
 
+    // Call with KeyLock(key) held: an expired entry's eviction callback may not have run yet.
+    private void DisposeTrackedCaches(string key)
+    {
+        List<LcmCache> untracked;
+        lock (_openCachesLock)
+        {
+            untracked = _openCaches.Where(open => open.Value == key).Select(open => open.Key).ToList();
+            foreach (var lcmCache in untracked) _openCaches.Remove(lcmCache);
+        }
+        foreach (var lcmCache in untracked)
+        {
+            if (lcmCache.IsDisposed) continue;
+            lcmCache.Dispose();
+            logger.LogInformation("FW Data Project {ProjectFileName} disposed", FilePathFromCacheKey(key));
+        }
+    }
+
     private void OnLcmProjectCacheEviction(object keyObj, object? value, EvictionReason reason, object? state)
     {
         if (value is not LcmCache lcmCache) return;
         // todo this could trigger when the service is still referenced elsewhere, for example in a long running task.
         // disposing of the service while it's still in use would be bad.
         // one way around this would be to return a lease object, only after a timeout and no more references to the lease object would the service be disposed.
-        var filePath = FilePathFromCacheKey((string)keyObj);
+        var key = (string)keyObj;
+        var filePath = FilePathFromCacheKey(key);
         logger.LogInformation("Evicting project {ProjectFileName} from cache ({EvictionReason})", filePath, reason);
-        if (!Untrack(lcmCache) || lcmCache.IsDisposed) return;
-        lcmCache.Dispose();
+        lock (KeyLock(key))
+        {
+            if (!Untrack(lcmCache) || lcmCache.IsDisposed) return;
+            lcmCache.Dispose();
+        }
         logger.LogInformation("FW Data Project {ProjectFileName} disposed", filePath);
         GC.Collect();
     }
@@ -141,11 +163,14 @@ public class FwDataFactory(
         {
             lock (KeyLock(key))
             {
-                if (!cache.TryGetValue(key, out LcmCache? lcmCache) || lcmCache is null) return;
-                // Untracked first, so the eviction callback that Remove triggers leaves the disposal to us.
-                var owned = Untrack(lcmCache);
-                cache.Remove(key);
-                if (owned && !lcmCache.IsDisposed) lcmCache.Dispose();
+                if (cache.TryGetValue(key, out LcmCache? lcmCache) && lcmCache is not null)
+                {
+                    // Untracked first, so the eviction callback that Remove triggers leaves the disposal to us.
+                    var owned = Untrack(lcmCache);
+                    cache.Remove(key);
+                    if (owned && !lcmCache.IsDisposed) lcmCache.Dispose();
+                }
+                DisposeTrackedCaches(key);
             }
         });
     }
