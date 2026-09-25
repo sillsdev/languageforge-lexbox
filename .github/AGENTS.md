@@ -231,8 +231,9 @@ This is the most complex workflow because it:
 | `frontend` | ubuntu-latest | Build viewer, Playwright snapshots |
 | `frontend-component-unit-tests` | ubuntu-latest | Vitest unit tests |
 | `build-apple` | macos-latest | MAUI Release builds for iOS simulator + Mac Catalyst; signs Mac Catalyst with the SIL Developer ID and notarizes a DMG when the signing secret is present (upstream), else unsigned compile check (fork PRs) |
+| `launch-mac` | macos-latest + macos-15-intel | Checks Gatekeeper accepts the notarized DMG, then launches the app on each CPU and waits for its "Viewer loaded" log line (upstream only; gates `create-release`) |
 | `publish-linux` | ubuntu-latest | Linux binaries |
-| `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX |
+| `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX; launches the portable exe and waits for its "Viewer loaded" log line |
 
 ### Solution filters
 
@@ -249,8 +250,8 @@ The workflow produces:
 - `fw-lite-viewer-js` - Built viewer (shared by publish jobs)
 - `fw-lite-apple` - iOS simulator .app (zipped) + the universal (Intel + Apple Silicon) notarized Mac Catalyst `FieldWorksLite.dmg` (or an unsigned arm64 Mac Catalyst .app zip on fork PRs)
 - `fw-lite-web-linux` - Linux binaries
-- `fw-lite-windows-exe` - Windows binaries
-- `fw-lite-maui-msix` - MAUI installer
+- `fw-lite-portable` - Windows portable app
+- `fw-lite-msix` - MAUI installer
 
 ---
 
