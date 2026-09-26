@@ -118,4 +118,48 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
             perEntry,
             entryCount);
     }
+
+    [Fact]
+    public async Task BulkCreateEntries_PersistsAllEntries_WhenBelowBatchThreshold()
+    {
+        // Batch size well above entry count so only the tail flush (changeList.Count > 0) fires.
+        _fixture.Api.BulkCreateBatchSize = 1000;
+        var entryCount = 5;
+        var entries = await SeedData(entryCount, _fixture.Api).ToListAsync();
+
+        await _fixture.Api.BulkCreateEntries(entries.ToAsyncEnumerable());
+
+        (await _fixture.Api.CountEntries()).Should().Be(entryCount);
+    }
+
+    [Fact]
+    public async Task BulkCreateEntries_PersistsAllEntries_AcrossMultipleBatchFlushes()
+    {
+        // Tiny batch size forces multiple mid-loop flushes plus the tail flush.
+        _fixture.Api.BulkCreateBatchSize = 3;
+        var entryCount = 10;
+        var entries = await SeedData(entryCount, _fixture.Api).ToListAsync();
+
+        await _fixture.Api.BulkCreateEntries(entries.ToAsyncEnumerable());
+
+        (await _fixture.Api.CountEntries()).Should().Be(entryCount);
+    }
+
+    [Fact]
+    public async Task BulkCreateEntries_RoundTripsAllEntriesById()
+    {
+        _fixture.Api.BulkCreateBatchSize = 3;
+        var entries = await SeedData(10, _fixture.Api).ToListAsync();
+        await _fixture.Api.BulkCreateEntries(entries.ToAsyncEnumerable());
+
+        var stored = await _fixture.Api.GetAllEntries().ToListAsync();
+        stored.Select(e => e.Id).Should().BeEquivalentTo(entries.Select(e => e.Id));
+    }
+
+    [Fact]
+    public async Task BulkCreateEntries_EmptyInput_NoEntriesPersisted()
+    {
+        await _fixture.Api.BulkCreateEntries(AsyncEnumerable.Empty<Entry>());
+        (await _fixture.Api.CountEntries()).Should().Be(0);
+    }
 }
