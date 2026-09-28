@@ -3,8 +3,10 @@ using Microsoft.JSInterop;
 
 namespace FwLiteMaui.Services;
 
-public class MauiPlatformFeaturesService(IMediaPicker mediaPicker) : IPlatformFeaturesService
+public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share) : IPlatformFeaturesService
 {
+    //Generous: downloads can come from FieldWorks projects, which don't enforce the upload limit.
+    private const long MaxShareFileSize = 100 * 1024 * 1024;
 
     [JSInvokable]
     public Task<bool> SupportsImageCapture()
@@ -35,6 +37,34 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker) : IPlatformFe
     {
         //UIPasteboard/NSPasteboard access must happen on the UI thread on Apple platforms.
         return MainThread.InvokeOnMainThreadAsync(() => Clipboard.Default.SetTextAsync(text));
+    }
+
+    [JSInvokable]
+    public Task<bool> SupportsShareFile()
+    {
+        return Task.FromResult(DeviceInfo.Platform == DevicePlatform.iOS || DeviceInfo.Platform == DevicePlatform.MacCatalyst);
+    }
+
+    [JSInvokable]
+    public async Task ShareFile(IJSStreamReference file, string fileName, string? contentType)
+    {
+        //One shared folder, cleared on each share: the share sheet may still be reading the previous file
+        //after RequestAsync returns, so it can't be deleted right away.
+        var shareDir = Path.Combine(FileSystem.CacheDirectory, "share");
+        if (Directory.Exists(shareDir)) Directory.Delete(shareDir, recursive: true);
+        Directory.CreateDirectory(shareDir);
+        var filePath = Path.Combine(shareDir, Path.GetFileName(fileName));
+        await using (var source = await file.OpenReadStreamAsync(MaxShareFileSize))
+        await using (var target = File.Create(filePath))
+        {
+            await source.CopyToAsync(target);
+        }
+        await file.DisposeAsync();
+
+        await MainThread.InvokeOnMainThreadAsync(() => share.RequestAsync(new ShareFileRequest(fileName, contentType is null ? new ShareFile(filePath) : new ShareFile(filePath, contentType))
+        {
+            PresentationSourceBounds = MauiTroubleshootingService.PresentationSourceBounds()
+        }));
     }
 
 }
