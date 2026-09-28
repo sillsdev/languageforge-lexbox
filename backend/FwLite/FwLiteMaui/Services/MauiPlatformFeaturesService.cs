@@ -15,7 +15,13 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker) : IPlatformFe
     [JSInvokable]
     public async Task<CameraResult?> CaptureImage()
     {
-        var file = await mediaPicker.CapturePhotoAsync();
+        //Full-resolution camera photos can exceed MediaFile.MaxFileSize, so have the OS downscale and recompress
+        var file = await mediaPicker.CapturePhotoAsync(new MediaPickerOptions
+        {
+            MaximumWidth = 2048,
+            MaximumHeight = 2048,
+            CompressionQuality = 85,
+        });
         if (file == null)
         {
             return null;
