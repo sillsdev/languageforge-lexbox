@@ -40,6 +40,22 @@
   }
 
   const recordingMode = $derived(recording || digitalDuration);
+
+  // WebKit on iOS/Mac Catalyst maps a bare "audio/*" to movies only (UTTypeMovie), which greys out audio
+  // files in the document picker. Listing concrete types gives it real audio UTIs.
+  const acceptedAudioTypes = [
+    'audio/*',
+    'audio/mpeg',
+    'audio/wav',
+    'audio/x-wav',
+    'audio/mp4',
+    'audio/x-m4a',
+    'audio/aac',
+    'audio/flac',
+    'audio/ogg',
+    'audio/webm',
+    'audio/aiff',
+  ].join(',');
 </script>
 
 <div
@@ -73,30 +89,40 @@
         {/if}
       </Button>
     </div>
-    <Recorder.Root
-      container={recorderContainerElem}
-      onRecordingComplete={(b) => onRecordingComplete(b)}
-      bind:recording
-      bind:duration
-    >
-      <div class="flex flex-col items-center gap-2">
-        {#if digitalDuration}
-          <span>{digitalDuration}</span>
-        {:else}
-          <span class={cn('text-muted-foreground text-sm mx-4 whitespace-pre-wrap', recording && 'invisible')}>
-            <T msg="Hold to record or#press and release to start recording.">
-              <br />
-            </T>
-          </span>
-        {/if}
-        <Recorder.Trigger autofocus bind:walkieTalkieMode />
-      </div>
-    </Recorder.Root>
+    {#if Recorder.recordingSupported}
+      <Recorder.Root
+        container={recorderContainerElem}
+        onRecordingComplete={(b) => onRecordingComplete(b)}
+        bind:recording
+        bind:duration
+      >
+        <div class="flex flex-col items-center gap-2">
+          {#if digitalDuration}
+            <span>{digitalDuration}</span>
+          {:else}
+            <span class={cn('text-muted-foreground text-sm mx-4 whitespace-pre-wrap', recording && 'invisible')}>
+              <T msg="Hold to record or#press and release to start recording.">
+                <br />
+              </T>
+            </span>
+          {/if}
+          <Recorder.Trigger autofocus bind:walkieTalkieMode />
+        </div>
+      </Recorder.Root>
+    {:else}
+      <span class="text-muted-foreground text-sm mx-4">{$t`Recording isn't available on this device.`}</span>
+    {/if}
   </div>
 
   <!--
   Hidden file input.
   Should not be at root level as it might trigger a margin/gap.
   -->
-  <input bind:this={fileInputElement} type="file" accept="audio/*" onchange={handleFileSelection} class="hidden" />
+  <input
+    bind:this={fileInputElement}
+    type="file"
+    accept={acceptedAudioTypes}
+    onchange={handleFileSelection}
+    class="hidden"
+  />
 </div>
