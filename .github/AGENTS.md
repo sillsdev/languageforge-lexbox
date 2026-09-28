@@ -234,6 +234,7 @@ This is the most complex workflow because it:
 | `launch-mac` | macos-latest + macos-15-intel | Checks Gatekeeper accepts the notarized DMG, then launches the app on each CPU and waits for its "Viewer loaded" log line (upstream only; gates `create-release`) |
 | `publish-linux` | ubuntu-latest | Linux binaries |
 | `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX; launches the portable exe and waits for its "Viewer loaded" log line |
+| `package-extension` | ubuntu-latest | Platform.Bible extension zip: publishes FwLiteWeb (win-x64, linux-x64) with the built viewer, stamps the build's version, packages with the extension's npm tooling |
 | `create-release` | ubuntu-latest | main only: GitHub release `v<date>-<sha>` with the installers; notes from `.github/release-fw-lite.yml` via `.github/actions/release-notes`, which also gives the Lexbox release its own range |
 
 ### Solution filters
@@ -253,6 +254,7 @@ The workflow produces:
 - `fw-lite-web-linux` - Linux binaries
 - `fw-lite-portable` - Windows portable app
 - `fw-lite-msix` - MAUI installer
+- `fw-lite-extension` - Platform.Bible extension zip (`lexicon_<YYYY.M.D>.zip`), attached to the FW Lite release
 
 ---
 

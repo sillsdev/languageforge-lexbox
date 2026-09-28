@@ -7,6 +7,7 @@ on:
       - 'backend/Directory.Packages.props'
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
+      - 'platform.bible-extension/**'
       - '.github/workflows/fw-lite.yaml'
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
@@ -21,6 +22,7 @@ on:
       - 'backend/Directory.Packages.props'
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
+      - 'platform.bible-extension/**'
       - '.github/workflows/fw-lite.yaml'
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
@@ -738,13 +740,93 @@ jobs:
           if-no-files-found: error
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
+  package-extension:
+    name: Package the Platform.Bible extension
+    needs: [ build-and-test, frontend ]
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: lexbox
+      # The extension's file: dependencies point at ../../paranext-core, so core is a sibling checkout.
+      - name: Checkout paranext-core
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: paranext-core
+          repository: paranext/paranext-core
+          persist-credentials: false
+      # Core is not pinned, so record which revision the zip was built against.
+      - name: Record paranext-core revision
+        working-directory: paranext-core
+        run: |
+          echo "paranext-core: \`$(git rev-parse HEAD)\`" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: fw-lite-viewer-js
+          path: lexbox/${{ env.VIEWER_BUILD_OUTPUT_DIR }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.x'
+      - name: Install Task
+        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish FW Lite for the extension
+        working-directory: lexbox/platform.bible-extension
+        run: task publish-fw-lite -- -p:Version=${{ needs.build-and-test.outputs.semver-version }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          cache: npm
+          cache-dependency-path: |
+            lexbox/platform.bible-extension/package-lock.json
+            paranext-core/package-lock.json
+          node-version-file: lexbox/platform.bible-extension/package.json
+      - name: Install extension dependencies
+        working-directory: lexbox/platform.bible-extension
+        run: npm ci
+      # platform-bible-react imports editor packages from core's gitignored dev-packages/staging/,
+      # which only core's preinstall creates, and --ignore-scripts below skips it.
+      - name: Stage core's dev packages
+        working-directory: paranext-core
+        run: npm run stage-dev-packages
+      - name: Install core dependencies
+        working-directory: paranext-core
+        run: npm ci --ignore-scripts
+      # Core's postinstall makes this check; --ignore-scripts above skips it.
+      - name: Verify core's staged dev packages match its lockfile
+        working-directory: paranext-core
+        run: npm run verify:dev-packages
+
+      # The extension is an edition of FW Lite, so it carries the build's version like the others.
+      # zip-build names the zip from package.json; Platform.Bible reads manifest.json.
+      - name: Stamp the version
+        working-directory: lexbox/platform.bible-extension
+        env:
+          VERSION: ${{ needs.build-and-test.outputs.semver-version }}
+        run: |
+          npm pkg set version="$VERSION"
+          node -e "const fs = require('fs'); const m = JSON.parse(fs.readFileSync('manifest.json')); m.version = process.env.VERSION; fs.writeFileSync('manifest.json', JSON.stringify(m, null, 2) + '\n')"
+      - name: Package the extension
+        working-directory: lexbox/platform.bible-extension
+        run: npm run package
+      - name: Upload the extension zip
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fw-lite-extension
+          if-no-files-found: error
+          path: lexbox/platform.bible-extension/release/lexicon_*.zip
+
   create-release:
     if: ${{ github.ref_name == 'main' }}
     environment:
       name: production
       url: https://lexbox.org/fw-lite
     name: Create Release
-    needs: [ build-and-test, publish-win, publish-linux, build-apple, launch-mac, publish-android]
+    needs: [ build-and-test, publish-win, publish-linux, build-apple, launch-mac, publish-android, package-extension]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -773,6 +855,10 @@ jobs:
         with:
           name: fw-lite-apple
           path: fw-lite-apple
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: fw-lite-extension
+          path: fw-lite-extension
 
       - name: Zip artifacts
         run: |
@@ -808,6 +894,7 @@ jobs:
             fw-lite-android/*.apk
             fw-lite-android/*.aab
             fw-lite-apple/*.dmg
+            fw-lite-extension/*.zip
 
       - name: Write Play Store release notes
         # The upload action reads notes from files (whatsnew-<locale>, max 500 chars); write it inline here.
