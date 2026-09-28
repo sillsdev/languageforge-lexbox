@@ -24,10 +24,8 @@ useEventBus();
 // Wire up globally-accessible helpers for hosts (e.g., MAUI)
 window.lexbox.SvelteNavigate = (url: string, options?: { replace?: boolean }) => navigate(url, options);
 
-//don't mount the app until after we've loaded the local
-void setLanguage('default')
-  .then(() => {
-    mount(App, {
-      target: document.getElementById('svelte-app')!,
-    });
-  });
+// Awaited at the top level, so the host's import() of this module only resolves once the app has mounted.
+await setLanguage('default');
+mount(App, {
+  target: document.getElementById('svelte-app')!,
+});

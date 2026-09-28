@@ -293,6 +293,8 @@ jobs:
     needs: [build-and-test, frontend]
     timeout-minutes: 60
     runs-on: macos-latest
+    outputs:
+      signed: ${{ steps.signing.outputs.signed }}
     env:
       # Mirrors the HAS_SIGNING_KEY pattern in publish-android (fork PRs get no secrets → unsigned).
       HAS_APPLE_SIGNING: ${{ secrets.SIL_APPLE_DEVELOPER_ID_APPLICATION_CERT_URL != '' }}
@@ -332,6 +334,7 @@ jobs:
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       - name: Import Developer ID signing certificate
+        id: signing
         if: env.HAS_APPLE_SIGNING == 'true'
         env:
           CERT_URL: ${{ secrets.SIL_APPLE_DEVELOPER_ID_APPLICATION_CERT_URL }}
@@ -356,6 +359,7 @@ jobs:
           IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" | awk '/Developer ID Application/ {print $2; exit}')"
           if [ -z "$IDENTITY" ]; then echo "No Developer ID Application identity in the certificate" >&2; exit 1; fi
           echo "CODESIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+          echo "signed=true" >> "$GITHUB_OUTPUT"
           rm -f "$RUNNER_TEMP/devid.p12"
 
       # Universal (x86_64 + arm64) so the DMG runs on both Intel and Apple Silicon. The two RIDs come
@@ -388,7 +392,9 @@ jobs:
           # The SDK merges and signs the universal bundle here; the maccatalyst-*/ bundles are incomplete intermediates.
           APP="bin/Release/net10.0-maccatalyst/FieldWorks Lite.app"
           codesign --verify --deep --strict --verbose=2 "$APP"
-          [ -f "$APP/Contents/Resources/wwwroot/index.html" ] || { echo "Missing wwwroot/index.html in $APP" >&2; exit 1; }
+          for f in index.html _content/FwLiteShared/viewer/main.js; do
+            [ -f "$APP/Contents/Resources/wwwroot/$f" ] || { echo "Missing wwwroot/$f in $APP" >&2; exit 1; }
+          done
           # Fail loudly if the merged bundle isn't actually universal — the whole point is Intel + Apple Silicon.
           EXE="$APP/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Contents/Info.plist")"
           ARCHS="$(lipo -archs "$EXE" 2>/dev/null || true)"
@@ -438,6 +444,60 @@ jobs:
           name: fw-lite-apple
           if-no-files-found: error
           path: backend/FwLite/artifacts/apple/*
+
+  # Checks that Gatekeeper accepts the notarized DMG, then runs the app natively on each CPU the universal build supports.
+  launch-mac:
+    name: Launch the Mac DMG (${{ matrix.arch }})
+    needs: build-apple
+    if: needs.build-apple.outputs.signed == 'true'
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-latest
+          - arch: x86_64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: fw-lite-apple
+
+      - name: Check Gatekeeper accepts the DMG and the app
+        run: |
+          set -euo pipefail
+          # -vv names what the verdict is based on; require notarization, not just a valid signature.
+          gatekeeper() {
+            local out; out="$(spctl --assess -vv "$@" 2>&1)" || true
+            echo "$out"
+            [[ "$out" == *": accepted"* && "$out" == *"source=Notarized Developer ID"* ]]
+          }
+          xcrun stapler validate FieldWorksLite.dmg
+          gatekeeper --type open --context context:primary-signature FieldWorksLite.dmg
+          hdiutil attach FieldWorksLite.dmg -nobrowse -readonly -mountpoint /Volumes/FieldWorksLite
+          gatekeeper --type execute "/Volumes/FieldWorksLite/FieldWorks Lite.app"
+
+      - name: Launch the app and wait for the viewer to load
+        run: |
+          set -euo pipefail
+          echo "Runner CPU: $(uname -m)"
+          OUT="$RUNNER_TEMP/stdout.log"
+          # The app is sandboxed, so its app.log lands in its container.
+          CONTAINER="$HOME/Library/Containers/org.sil.FwLiteMaui"
+          "/Volumes/FieldWorksLite/FieldWorks Lite.app/Contents/MacOS/FwLiteMaui" > "$OUT" 2>&1 &
+          PID=$!
+          for _ in $(seq 120); do
+            grep -rqs 'Viewer loaded' "$OUT" "$CONTAINER" && break
+            kill -0 "$PID" 2>/dev/null || break
+            sleep 1
+          done
+          kill "$PID" 2>/dev/null || true
+          wait "$PID" 2>/dev/null || true
+          cat "$OUT"
+          find "$CONTAINER" -name 'app*.log' -print -exec cat {} \; 2>/dev/null || true
+          grep -rqs 'Viewer loaded' "$OUT" "$CONTAINER" || { echo "The app never logged 'Viewer loaded'" >&2; exit 1; }
 
   publish-linux:
     name: Publish FW Lite app for Linux
@@ -637,6 +697,27 @@ jobs:
           description:  'Release for version ${{ needs.build-and-test.outputs.version }} from branch ${{ github.ref_name || github.head_ref }}'
           description-url: 'https://github.com/sillsdev/languageforge-lexbox'
 
+      - name: Launch the portable app and wait for the viewer to load
+        shell: pwsh
+        run: |
+          # Run a copy: the app writes its WebView2 profile next to the exe, and the portable folder ships.
+          $dir = Join-Path $env:RUNNER_TEMP 'fwlite-portable'
+          Copy-Item -Recurse backend/FwLite/artifacts/sign/portable $dir
+          $exe = Get-ChildItem $dir -Recurse -Filter FwLiteMaui.exe | Select-Object -First 1
+          if (-not $exe) { throw 'FwLiteMaui.exe not found in the portable publish output' }
+          $env:FwLiteMaui__BaseDataDir = Join-Path $env:RUNNER_TEMP 'fwlite-data'
+          $env:FwLite__UpdateCheckCondition = 'Never'
+          $log = Join-Path $env:FwLiteMaui__BaseDataDir 'app.log'
+          $app = Start-Process -FilePath $exe.FullName -PassThru
+          $loaded = $false
+          for ($i = 0; $i -lt 120 -and -not $app.HasExited; $i++) {
+            if ((Test-Path $log) -and (Select-String -Path $log -Pattern 'Viewer loaded' -Quiet)) { $loaded = $true; break }
+            Start-Sleep -Seconds 1
+          }
+          if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force }
+          if (Test-Path $log) { Get-Content $log }
+          if (-not $loaded) { throw "The app never logged 'Viewer loaded'" }
+
       - name: Upload FWLite Portable
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -657,7 +738,7 @@ jobs:
       name: production
       url: https://lexbox.org/fw-lite
     name: Create Release
-    needs: [ build-and-test, publish-win, publish-linux, build-apple, publish-android]
+    needs: [ build-and-test, publish-win, publish-linux, build-apple, launch-mac, publish-android]
     runs-on: ubuntu-latest
     permissions:
       contents: write
