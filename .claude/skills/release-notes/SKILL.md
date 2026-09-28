@@ -27,11 +27,14 @@ The hard part is the filter: include everything a user would care about, and not
 
 ### Released mode
 
+FW Lite releases are tagged `v<date>-<sha>`; Lexbox releases are tagged `lexbox-v…` and are not what you want.
+
 ```bash
-gh release view --repo sillsdev/languageforge-lexbox --json tagName,publishedAt,body
+gh release list --repo sillsdev/languageforge-lexbox --exclude-drafts --limit 30 --json tagName,publishedAt --jq '[.[] | select(.tagName | startswith("v20"))][0]'
+gh release view <TAG> --repo sillsdev/languageforge-lexbox --json tagName,publishedAt,body
 ```
 
-Sanity-check `publishedAt` against today — you want the genuinely newest release. Extract only the **FieldWorks Lite** section of the body. Ignore the **Lexbox** and **Other Stuff 🤔** sections entirely — server-side or developer changes, never user-facing.
+Sanity-check `publishedAt` against today — you want the genuinely newest release. Extract only the **FieldWorks Lite** section of the body. Ignore the **Platform.Bible extension** and **Other Stuff 🤔** sections entirely — not what FieldWorks Lite users read.
 
 (If `gh` is unavailable, WebFetch `https://github.com/sillsdev/languageforge-lexbox/releases/latest` — that URL redirects to the real newest tag. Don't trust the `/releases` listing page; it can be served stale.)
 
