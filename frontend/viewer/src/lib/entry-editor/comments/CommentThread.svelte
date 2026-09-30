@@ -39,7 +39,7 @@
     editingCommentId?: string;
     expanded?: boolean;
     hasUnread?: boolean;
-    /** When false, this thread (and arriving comments) won't flash — mutes the initial-load batch. */
+    /** When false, this thread (and arriving comments) won't flash or slide in — mutes the initial-load batch. */
     arrivalsEnabled?: boolean;
     onToggle: () => void;
     onResolve: () => void;
@@ -65,7 +65,7 @@
 </script>
 
 <section
-  in:slide={{duration: 250}}
+  in:slide={{duration: flashThread ? 250 : 0}}
   class={cn(
     'shrink-0 overflow-hidden rounded-lg border border-border',
     resolved ? 'opacity-65' : 'border-l-[3px] border-l-primary bg-card',

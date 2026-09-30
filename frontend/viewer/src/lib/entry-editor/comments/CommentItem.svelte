@@ -28,7 +28,7 @@
     saving: boolean;
     editing: boolean;
     compact?: boolean;
-    /** When false, this comment won't flash on mount — mutes the initial-load batch. */
+    /** When false, this comment won't flash or slide in on mount — mutes the initial-load batch. */
     arrivalsEnabled?: boolean;
     onStartEdit: () => void;
     onCancelEdit: () => void;
@@ -55,7 +55,7 @@
 </script>
 
 <article
-  in:slide={{duration: 200}}
+  in:slide={{duration: flashOnArrival ? 200 : 0}}
   class={cn('flex gap-2 rounded-md', compact && 'pt-2.5', flashOnArrival && 'comment-arrival')}
 >
   <CommentAuthorAvatar

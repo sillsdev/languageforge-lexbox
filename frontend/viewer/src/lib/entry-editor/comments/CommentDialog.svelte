@@ -60,6 +60,9 @@
   // anything that arrives afterward — via sync or a local post — flashes as new.
   let arrivalsEnabled = $state(false);
   $effect(() => {
+    // Switching subject with the panel open swaps the whole list in place, so restart the mute for it too.
+    void subjectType;
+    void subjectId;
     if (!open) {
       arrivalsEnabled = false;
       return;
