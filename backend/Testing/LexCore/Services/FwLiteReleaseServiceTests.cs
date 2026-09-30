@@ -117,7 +117,7 @@ public class FwLiteReleaseServiceTests
         "fw-lite-v2026-09-28-553eb3f8",
         false,
         "same prefixed version is not an update")]
-    public void ShouldUpdateToReleaseGivesExpectedResult(string appVersion,
+    public void IsNewerGivesExpectedResult(string appVersion,
         string latestVersion,
         bool expected,
         string reason)
