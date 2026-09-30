@@ -1,7 +1,6 @@
 {
   "sdk": {
     "version": "10.0.100",
-    "rollForward": "latestMinor",
-    "workloadVersion": "10.0.401"
+    "rollForward": "latestMinor"
   }
 }
