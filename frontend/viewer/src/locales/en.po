@@ -866,6 +866,10 @@ msgstr "Downloaded {0}"
 msgid "Downloading {0}..."
 msgstr "Downloading {0}..."
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Downloading update..."
+msgstr "Downloading update..."
+
 #. Generic progress message
 #: src/home/Server.svelte
 msgid "Downloading..."
@@ -1109,10 +1113,9 @@ msgstr "FieldWorks Lite"
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite collects usage data to help us improve it."
 
-#. Success notification shown after FieldWorks Lite auto-updates. "FieldWorks Lite" is a product name — do not translate.
 #: src/lib/notifications/NotificationOutlet.svelte
-msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
-msgstr "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
+msgid "FieldWorks Lite has been updated. Restart to finish installing."
+msgstr "FieldWorks Lite has been updated. Restart to finish installing."
 
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -2323,6 +2326,11 @@ msgstr "Reset"
 msgid "Resolve"
 msgstr "Resolve"
 
+#: src/lib/notifications/NotificationOutlet.svelte
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Restart"
+msgstr "Restart"
+
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
 msgid "Restore"
@@ -3001,20 +3009,18 @@ msgstr "Update {0}"
 msgid "Update available: {0}"
 msgstr "Update available: {0}"
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update downloaded. Restart to apply."
+msgstr "Update downloaded. Restart to apply."
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update downloading in the background. Restart to apply once it's finished."
+msgstr "Update downloading in the background. Restart to apply once it's finished."
+
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "Update failed to install."
-
-#. Success message after update installs
-#: src/lib/updates/UpdateDialogContent.svelte
-msgid "Update installed successfully! Please restart the application."
-msgstr "Update installed successfully! Please restart the application."
-
-#. Info message when update runs in background
-#: src/lib/updates/UpdateDialogContent.svelte
-msgid "Update started in the background. Restart the application after the update is complete."
-msgstr "Update started in the background. Restart the application after the update is complete."
 
 #. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte

@@ -4,22 +4,24 @@
   import {Button, XButton} from '$lib/components/ui/button';
   import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
   import Loading from '$lib/components/Loading.svelte';
+  import {formatFileSize} from '$lib/components/ui/format';
   import {getReleaseUrl} from './utils';
 
   type Props = {
     checkPromise?: Promise<IAvailableUpdate | undefined>;
     installPromise?: Promise<UpdateResult>;
     installUpdate: (update: IAvailableUpdate) => Promise<void>;
-    installProgress?: number;
+    restartApp: () => void;
+    downloadProgress?: {bytesDownloaded: number; bytesPerSecond: number};
   }
 
   let {
     checkPromise,
     installPromise,
     installUpdate,
-    installProgress
+    restartApp,
+    downloadProgress
   }: Props = $props();
-
 </script>
 
 {#if checkPromise}
@@ -47,20 +49,21 @@
 {#if installPromise}
   {#await installPromise}
     <Button loading class="w-full" icon="i-mdi-download">
-      {$t`Installing Update...`}
-      <!-- Don't show 0%, because that doesn't mean anything and we're not sure if the % actually works -->
-      {#if installProgress}{installProgress}%{/if}
+      {#if downloadProgress}
+        {$t`Downloading update...`}
+        {formatFileSize(downloadProgress.bytesDownloaded)} ({formatFileSize(downloadProgress.bytesPerSecond)}/s)
+      {:else}
+        {$t`Installing Update...`}
+      {/if}
     </Button>
   {:then updateResult}
     <div class="flex items-center gap-4 p-4 rounded-lg bg-muted">
       {#if updateResult === UpdateResult.Success}
         <Icon icon="i-mdi-check-circle" />
-        <p>{$t`Update installed successfully! Please restart the application.`}</p>
+        <p>{$t`Update downloaded. Restart to apply.`}</p>
       {:else if updateResult === UpdateResult.Started}
         <Icon icon="i-mdi-information" />
-        <!-- Apparently there's some unreliability in the update process.
-         Hopefully the progress above will work and help -->
-        <p>{$t`Update started in the background. Restart the application after the update is complete.`}</p>
+        <p>{$t`Update downloading in the background. Restart to apply once it's finished.`}</p>
       {:else if updateResult === UpdateResult.Failed}
         <Icon icon="i-mdi-alert-circle" />
         <p>{$t`Update failed to install.`}</p>
@@ -80,6 +83,12 @@
         <XButton onclick={() => installPromise = undefined} class="ml-auto border"/>
       {/if}
     </div>
+    {#if updateResult === UpdateResult.Success || updateResult === UpdateResult.Started}
+      <!-- the update only takes effect once the app restarts, so offer to do it now -->
+      <Button onclick={restartApp} class="w-full" icon="i-mdi-restart">
+        {$t`Restart`}
+      </Button>
+    {/if}
   {/await}
 {:else if checkPromise}
   {#await checkPromise then availableUpdate}

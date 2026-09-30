@@ -9,7 +9,8 @@ import type {FwEventType} from './FwEventType';
 
 export interface IAppUpdateProgressEvent extends IFwEvent
 {
-	percentage: number;
+	bytesDownloaded: number;
+	bytesPerSecond: number;
 	release: IFwLiteRelease;
 	type: FwEventType;
 	isGlobal: boolean;
