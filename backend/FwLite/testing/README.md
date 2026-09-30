@@ -57,7 +57,8 @@ on launch.
 - The client does no version comparison of its own, so the server decides. Like the real lexbox API,
   the server only offers the update when the **served version is strictly newer** than the running
   app — it reads the app's current version from the `User-Agent`
-  (`Fieldworks-Lite-Client/{version}`) and compares ordinally. So serving **v1** while **v1** is
+  (`Fieldworks-Lite-Client/{version}`) and compares with the same `FwLiteVersion.IsNewer` the real
+  API uses. So serving **v1** while **v1** is
   installed reports *up-to-date*; serving **v2** prompts. `release.url` points back at the server's
   `/download/<bundle>` endpoint, which the in-app loopback proxy streams for real progress.
 - In-place update works because both bundles share identity `FwLiteDesktopTest` with v2 > v1;

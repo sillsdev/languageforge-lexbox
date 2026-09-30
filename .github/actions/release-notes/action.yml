@@ -11,8 +11,8 @@ inputs:
     description: Space-separated tag prefixes, tried in order, that identify this product's previous release
     required: true
   config:
-    description: release.yml to categorize with
-    default: .github/release.yml
+    description: Path of the release.yml-style config to categorize with
+    required: true
   token:
     description: Token with contents:read
     required: true
