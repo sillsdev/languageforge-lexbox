@@ -126,8 +126,6 @@ declare module 'papi-shared-types' {
     'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.authServers': () => Promise<AuthServerStatus[] | undefined>;
     'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
-    /** DEV-ONLY lexicon switcher; remove before release (see src/main.ts changeLexiconCommand). */
-    'lexicon.changeLexicon': (webViewId: string) => Promise<SuccessHolder>;
     'lexicon.createLexicon': (
       name: string,
       code: string,
@@ -152,6 +150,15 @@ declare module 'papi-shared-types' {
       lexiconCode: string,
       entryId: string,
     ) => Promise<SuccessHolder>;
+    /**
+     * Downloads a remote project (resolves once its initial sync finishes) and selects it for the
+     * given project.
+     */
+    'lexicon.downloadAndSelectLexicon': (
+      projectId: string,
+      authority: string,
+      lexiconCode: string,
+    ) => Promise<DownloadAndSelectResult>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     /**
@@ -170,26 +177,28 @@ declare module 'papi-shared-types' {
       authority: string,
     ) => Promise<{ result?: LoginResult; servers?: AuthServerStatus[] }>;
     'lexicon.logout': (authority: string) => Promise<AuthServerStatus[] | undefined>;
+    /**
+     * Opens the lexicon selector on a project that has no lexicon. Refuses a project that already
+     * has one: selection is sticky, so clear its `lexicon.lexiconCode` setting first.
+     *
+     * @returns Whether the selector opened, which is not whether a lexicon was chosen; a chosen
+     *   lexicon lands in the project's `lexicon.lexiconCode` setting.
+     */
+    'lexicon.openSelector': (projectId: string) => Promise<SuccessHolder>;
     /** Remote (Lexbox server) CRDT projects the signed-in user can download. */
     'lexicon.remoteProjects': () => Promise<IProjectModel[] | undefined>;
     /**
-     * Downloads a remote project (resolves once its initial sync finishes) and selects it for the
-     * given project.
-     */
-    'lexicon.downloadAndSelectLexicon': (
-      projectId: string,
-      authority: string,
-      lexiconCode: string,
-    ) => Promise<DownloadAndSelectResult>;
-    /**
-     * Resolves the Paratext project a WebView is scoped to, prompting with the core project picker
-     * when it has none (e.g. a selector tab restored from a saved layout); `projectId` is undefined
-     * if the user dismisses. Kept separate from the acting commands so their timeouts don't tick
-     * while the picker waits. `projectName` is the resolved project's short name.
+     * Resolves a WebView's Paratext project, prompting with the project picker if it has none
+     * (`projectId` is undefined if dismissed). Separate from the acting commands so their timeouts
+     * don't run while the picker waits.
      */
     'lexicon.resolveProject': (
       webViewId: string,
     ) => Promise<{ projectId?: string; projectName?: string }>;
+    /**
+     * Sets the project's lexicon, replacing any existing one; rejects an unknown `lexiconCode`.
+     * Other extensions should prefer `lexicon.openSelector`, which lets the user choose.
+     */
     'lexicon.selectLexicon': (projectId: string, lexiconCode: string) => Promise<SuccessHolder>;
   }
 

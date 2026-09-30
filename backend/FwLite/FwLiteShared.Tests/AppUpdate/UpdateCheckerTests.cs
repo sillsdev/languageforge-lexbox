@@ -13,133 +13,69 @@ public class UpdateCheckerTests
     private readonly Mock<IHttpClientFactory> _httpClientFactoryMock = new();
     private readonly Mock<IPlatformUpdateService> _platformUpdateServiceMock = new();
 
+    // Empty preferences => never checked => the shared throttle allows a check. This lets the tests below
+    // isolate ShouldCheckReleaseFeed's platform-skip logic from the interval gate (covered by
+    // UpdateCheckThrottleTests).
+    private readonly InMemoryPreferencesService _preferences = new();
+
     private UpdateChecker CreateUpdateChecker(FwLiteConfig? config = null)
     {
+        var options = Options.Create(config ?? new FwLiteConfig());
+        var throttle = new UpdateCheckThrottle(_preferences, options, Mock.Of<ILogger<UpdateCheckThrottle>>());
         return new UpdateChecker(
             _httpClientFactoryMock.Object,
             Mock.Of<ILogger<UpdateChecker>>(),
-            Options.Create(config ?? new FwLiteConfig()),
+            options,
             new GlobalEventBus(Mock.Of<ILogger<GlobalEventBus>>()),
             _platformUpdateServiceMock.Object,
+            throttle,
             new MemoryCache(new MemoryCacheOptions()));
     }
 
-    [Fact]
-    public void ShouldCheckForUpdate_WhenConfigSetToNever_ReturnsFalse()
-    {
-        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.Never };
-        var checker = CreateUpdateChecker(config);
-
-        var result = checker.ShouldCheckForUpdate();
-
-        result.Should().BeFalse();
-    }
-
-    [Fact]
-    public void ShouldCheckForUpdate_WhenConfigSetToAlways_ReturnsTrue()
-    {
-        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.Always };
-        var checker = CreateUpdateChecker(config);
-
-        var result = checker.ShouldCheckForUpdate();
-
-        result.Should().BeTrue();
-    }
-
-    [Theory]
-    [InlineData(1, false)]
-    [InlineData(4, false)]
-    [InlineData(7, false)]
-    [InlineData(8, true)]
-    [InlineData(9, true)]
-    [InlineData(24, true)]
-    [InlineData(28, true)]
-    public void ShouldCheckForUpdate_RespectsDefaultInterval(int hoursSinceLastCheck, bool expectedResult)
-    {
-        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval };
-        var lastCheckTime = DateTime.UtcNow.AddHours(-hoursSinceLastCheck);
-        _platformUpdateServiceMock.Setup(p => p.LastUpdateCheck).Returns(lastCheckTime);
-
-        var checker = CreateUpdateChecker(config);
-        var result = checker.ShouldCheckForUpdate();
-
-        result.Should().Be(expectedResult);
-    }
-
-    [Theory]
-    [InlineData(1, false)]
-    [InlineData(3, false)]
-    [InlineData(4, true)]
-    [InlineData(5, true)]
-    public void ShouldCheckForUpdate_RespectsCustomInterval(int hoursSinceLastCheck, bool expectedResult)
-    {
-        var config = new FwLiteConfig
-        {
-            UpdateCheckCondition = UpdateCheckCondition.OnInterval,
-            UpdateCheckInterval = TimeSpan.FromHours(4)
-        };
-        var lastCheckTime = DateTime.UtcNow.AddHours(-hoursSinceLastCheck);
-        _platformUpdateServiceMock.Setup(p => p.LastUpdateCheck).Returns(lastCheckTime);
-
-        var checker = CreateUpdateChecker(config);
-        var result = checker.ShouldCheckForUpdate();
-
-        result.Should().Be(expectedResult);
-    }
-
     [Theory]
     [InlineData(FwLitePlatform.iOS)]
     [InlineData(FwLitePlatform.Mac)]
-    public void ShouldCheckForUpdate_WhenStoreDistributedPlatform_ReturnsFalse(FwLitePlatform os)
+    [InlineData(FwLitePlatform.Android)]
+    public void ShouldCheckReleaseFeed_WhenStoreDistributedPlatform_ReturnsFalse(FwLitePlatform os)
     {
-        //iOS/Mac have no GitHub release feed; the server returns "no update" and the check would
-        //otherwise fire a pointless round-trip on every launch. Never-checked-before would normally
-        //return true, so this proves the platform gate wins for the default OnInterval condition.
+        //iOS/Mac have no GitHub release feed and Android is Play-driven; the feed round-trip is pointless.
+        //Preferences are empty (never checked), so the throttle would otherwise allow the check - this
+        //proves the platform skip wins for the default OnInterval condition.
         var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval, Os = os };
-        _platformUpdateServiceMock.Setup(p => p.LastUpdateCheck).Returns(DateTime.MinValue);
         var checker = CreateUpdateChecker(config);
 
-        var result = checker.ShouldCheckForUpdate();
-
-        result.Should().BeFalse();
+        checker.ShouldCheckReleaseFeed().Should().BeFalse();
     }
 
     [Theory]
     [InlineData(FwLitePlatform.iOS)]
     [InlineData(FwLitePlatform.Mac)]
-    public void ShouldCheckForUpdate_WhenAlwaysConfigured_OverridesStoreDistributedSkip(FwLitePlatform os)
+    [InlineData(FwLitePlatform.Android)]
+    public void ShouldCheckReleaseFeed_WhenAlwaysConfigured_OverridesStoreDistributedSkip(FwLitePlatform os)
     {
-        //The explicit Always override still forces a check (used for testing the endpoint on device).
+        //The explicit Always override still forces a feed check (used for testing the endpoint on device).
         var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.Always, Os = os };
         var checker = CreateUpdateChecker(config);
 
-        var result = checker.ShouldCheckForUpdate();
-
-        result.Should().BeTrue();
+        checker.ShouldCheckReleaseFeed().Should().BeTrue();
     }
 
     [Fact]
-    public void ShouldCheckForUpdate_WhenLastCheckInFuture_ReturnsTrue()
+    public void ShouldCheckReleaseFeed_WhenNonStorePlatform_DelegatesToThrottle()
     {
-        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval };
-        var futureTime = DateTime.UtcNow.AddHours(2);
-        _platformUpdateServiceMock.Setup(p => p.LastUpdateCheck).Returns(futureTime);
-
+        //Windows uses the feed; with an empty last-check the throttle allows the check.
+        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval, Os = FwLitePlatform.Windows };
         var checker = CreateUpdateChecker(config);
-        var result = checker.ShouldCheckForUpdate();
 
-        result.Should().BeTrue("because a future timestamp indicates clock skew and should trigger a check");
+        checker.ShouldCheckReleaseFeed().Should().BeTrue();
     }
 
     [Fact]
-    public void ShouldCheckForUpdate_WhenNeverCheckedBefore_ReturnsTrue()
+    public void ShouldCheckReleaseFeed_WhenConfigSetToNever_ReturnsFalse()
     {
-        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval };
-        _platformUpdateServiceMock.Setup(p => p.LastUpdateCheck).Returns(DateTime.MinValue);
-
+        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.Never, Os = FwLitePlatform.Windows };
         var checker = CreateUpdateChecker(config);
-        var result = checker.ShouldCheckForUpdate();
 
-        result.Should().BeTrue("because DateTime.MinValue means never checked");
+        checker.ShouldCheckReleaseFeed().Should().BeFalse();
     }
 }

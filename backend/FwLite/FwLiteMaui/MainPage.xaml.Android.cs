@@ -43,7 +43,8 @@ public partial class MainPage
         if ("mailto".Equals(e.Url?.Scheme, StringComparison.OrdinalIgnoreCase))
         {
             var intent = new Intent(action: Intent.ActionSendto, Android.Net.Uri.Parse(e.Url.ToString()));
-            intent.AddFlags(ActivityFlags.NewTask);
+            //Fully qualified: AndroidX.Activity (imported above for ComponentActivity) also defines an ActivityFlags.
+            intent.AddFlags(Android.Content.ActivityFlags.NewTask);
             Platform.AppContext.StartActivity(intent);
             e.UrlLoadingStrategy = UrlLoadingStrategy.CancelLoad;
         }

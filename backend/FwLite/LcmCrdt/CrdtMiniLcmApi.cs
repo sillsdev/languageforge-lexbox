@@ -39,6 +39,9 @@ public class CrdtMiniLcmApi(
     public ProjectData ProjectData => projectService.ProjectData;
     public CrdtProject Project => projectService.Project;
 
+    // Flush threshold (in accumulated IChange records) for BulkCreateEntries; internal so tests can force multi-batch behavior.
+    internal int BulkCreateBatchSize { get; set; } = 1000;
+
     #region WritingSystemApi
     public Task<WritingSystems> GetWritingSystems()
     {
@@ -354,7 +357,7 @@ public class CrdtMiniLcmApi(
             entryCount++;
             changeList.AddRange(CreateEntryChanges(entry, semanticDomains, createdEntryIds));
             createdEntryIds.Add(entry.Id);
-            if (changeList.Count > 1000)
+            if (changeList.Count > BulkCreateBatchSize)
             {
                 await harmonyChangeWriter.AddChanges(changeList);
                 changeList.Clear();
@@ -364,9 +367,12 @@ public class CrdtMiniLcmApi(
         if (changeList.Count > 0)
         {
             await harmonyChangeWriter.AddChanges(changeList);
+            changeList.Clear();
         }
 
         await (entrySearchService?.RegenerateEntrySearchTable() ?? Task.CompletedTask);
+
+        logger.LogInformation("Added {Count} entries", entryCount);
     }
 
     private IEnumerable<IChange> CreateEntryChanges(Entry entry,

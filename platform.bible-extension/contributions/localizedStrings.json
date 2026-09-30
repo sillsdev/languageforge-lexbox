@@ -48,7 +48,6 @@
       "%lexicon_menu_browseLexicon%": "Browse lexicon",
       "%lexicon_menu_findEntry%": "Search in lexicon...",
       "%lexicon_menu_findRelatedEntries%": "Search for related words...",
-      "%lexicon_menu_selectLexicon%": "Select lexicon...",
       "%lexicon_projectSettings_analysisLanguage%": "Analysis language",
       "%lexicon_projectSettings_lexicon%": "Lexicon",
       "%lexicon_projectSettings_lexiconDescription%": "The lexicon this project uses, here and in other extensions that read this setting. Clearing it asks you to choose again the next time you use a lexicon",

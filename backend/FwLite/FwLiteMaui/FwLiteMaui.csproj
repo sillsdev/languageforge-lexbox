@@ -13,6 +13,13 @@
 		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
     <!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
     <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">android-arm;android-arm64;android-x86;android-x64</RuntimeIdentifiers>
+    <!-- Universal (Intel + Apple Silicon) Release build. Set here (on the app project) rather than via a
+         global -p:RuntimeIdentifiers on the command line, which would leak the multi-RID value into every
+         referenced library and fail them with NETSDK1083. Skipped when a single RuntimeIdentifier is
+         passed explicitly (e.g. the CI unsigned fork build's maccatalyst-arm64 compile check). -->
+    <RuntimeIdentifiers Condition="'$(Configuration)' == 'Release' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' And '$(RuntimeIdentifier)' == ''">maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>
+    <!-- Otherwise SelfContained makes the SDK put the host RID in the universal build's output path (bin/.../osx-arm64/). -->
+    <UseCurrentRuntimeIdentifier Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">false</UseCurrentRuntimeIdentifier>
     <OutputType>Exe</OutputType>
     <RootNamespace>FwLiteMaui</RootNamespace>
     <UseMaui>true</UseMaui>
@@ -119,6 +126,9 @@
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
     <!-- ICU natives + data for icu.net collation (Android has no public system ICU). -->
     <PackageReference Include="Icu4c.Android.Fw.Lib" />
+    <!-- Android-only Google Play in-app updates (used by Platforms/Android/AndroidInAppUpdateService.cs).
+         Conditioned so it is not pulled into the Windows/iOS/Mac bundles, where it is unused. -->
+    <PackageReference Include="Xamarin.Google.Android.Play.App.Update" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FwLiteShared\FwLiteShared.csproj" />

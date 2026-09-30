@@ -48,25 +48,36 @@ export class ProjectManager {
     return await this.getSetting(ProjectSettingKey.LexiconCode);
   }
 
-  async getLexiconCodeOrOpenSelector(): Promise<string | void> {
+  /** Returns the stored lexicon code if it still resolves; a stale one is cleared. */
+  async getValidLexiconCode(): Promise<string | void> {
     const lexiconCode = await this.getSetting(ProjectSettingKey.LexiconCode);
     const nameOrId = await this.getNameOrId();
-    if (lexiconCode) {
-      if (await this.isLexiconCodeValid(lexiconCode)) {
-        logger.info(`Project '${nameOrId}' is using lexicon '${lexiconCode}'`);
-        return lexiconCode;
-      }
-      // The stored lexicon no longer resolves (e.g. deleted in FW Lite). Clear it — otherwise every
-      // action opens a broken view — then fall through to prompt for a new selection.
-      logger.warn(
-        `Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`,
-      );
-      await this.setLexiconCode('');
-      await ProjectManager.notifyLexiconMissing(lexiconCode);
-    } else {
+    if (!lexiconCode) {
       logger.info(`Lexicon not yet selected for project '${nameOrId}'`);
+      return;
     }
+    if (await this.isLexiconCodeValid(lexiconCode)) {
+      logger.info(`Project '${nameOrId}' is using lexicon '${lexiconCode}'`);
+      return lexiconCode;
+    }
+    // The stored lexicon no longer resolves (e.g. deleted in FW Lite). Clear it — otherwise every
+    // action opens a broken view — so the caller can prompt for a new selection.
+    logger.warn(`Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`);
+    await this.clearLexicon();
+    await ProjectManager.notifyLexiconMissing(lexiconCode);
+  }
 
+  /** Clears the lexicon selection and its cached analysis language. */
+  async clearLexicon(): Promise<void> {
+    await this.setLexiconCode('');
+    await this.setAnalysisLanguage('').catch((e) =>
+      logger.warn('Could not clear the analysis language:', getErrorMessage(e)),
+    );
+  }
+
+  async getLexiconCodeOrOpenSelector(): Promise<string | void> {
+    const lexiconCode = await this.getValidLexiconCode();
+    if (lexiconCode) return lexiconCode;
     await this.openSelector();
   }
 

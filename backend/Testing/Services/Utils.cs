@@ -153,12 +153,22 @@ public static class Utils
     {
         projectName = projectName[..Math.Min(projectName.Length, 40)]; // make sure the path isn't too long
         var projectDir = projectName.IsNullOrWhiteSpace() ? BasePath : Path.Join(BasePath, projectName);
-        // Add a random id to the path to be certain we prevent naming clashes
-        var randomIndexedId = $"{_folderIndex++}-{Guid.NewGuid().ToString().Split("-")[0]}";
+        // Add a random id to the path to be certain we prevent naming clashes.
+        // Letters only: this path ends up in hg error text, and Chorus (<= 6.0.0-beta0074) classifies errors by searching
+        // that whole text for HTTP status codes, so a hex id containing e.g. "404" turns an auth failure into a "project not found".
+        var randomIndexedId = $"{_folderIndex++}-{RandomLetters(8)}";
         //fwdata file containing folder name will be the same as the file name
         projectDir = Path.Join(projectDir, randomIndexedId, projectCode);
         projectDir.Length.Should().BeLessThan(150, $"Path may be too long with mercurial directories {projectDir}");
         return projectDir;
+    }
+
+    private static string RandomLetters(int length)
+    {
+        return string.Create(length, Random.Shared, static (span, random) =>
+        {
+            for (var i = 0; i < span.Length; i++) span[i] = (char)('a' + random.Next(26));
+        });
     }
 }
 

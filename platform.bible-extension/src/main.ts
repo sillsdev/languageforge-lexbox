@@ -186,7 +186,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (projectId: string, lexiconCode: string, entryId: string) => {
       let success = false;
 
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success };
 
       // An entry id resolves only in the lexicon it was written to, and the calling WebView is the
@@ -283,6 +283,26 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  const openSelectorCommandPromise = papi.commands.registerCommand(
+    'lexicon.openSelector',
+    async (projectId: string) => {
+      logger.info(`Opening the lexicon selector for project '${projectId}'`);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
+      if (!projectManager) return { success: false };
+
+      // Selection is sticky: a linked project is changed only by first clearing its
+      // lexicon.lexiconCode setting.
+      const lexiconCode = await projectManager.getValidLexiconCode();
+      if (lexiconCode) {
+        const error = `Project '${projectId}' already uses lexicon '${lexiconCode}'`;
+        logger.warn(`Not opening the lexicon selector: ${error}`);
+        return { success: false, error };
+      }
+
+      return { success: await projectManager.openSelector() };
+    },
+  );
+
   // Store the lexicon choice on the project and cache its analysis language. setLexiconCode runs the
   // registered validator (a writing-systems check), so it throws if the code doesn't resolve — which
   // is how download-and-select refuses to record a project whose download didn't really land.
@@ -290,22 +310,18 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     projectManager: ProjectManager,
     lexiconCode: string,
   ): Promise<void> => {
+    if (!lexiconCode) return await projectManager.clearLexicon();
     await projectManager.setLexiconCode(lexiconCode);
     // Best-effort: the code was already validated by setLexiconCode, so a failure here is transient;
-    // fall back to no analysis language rather than failing the (already-stored) selection. An empty
-    // code clears the cached language with it, since there's no lexicon left to look one up from.
-    const langs = lexiconCode
-      ? await fwLiteApi
-          .getWritingSystems(lexiconCode)
-          .catch((e) => logger.error('Error fetching writing systems:', getErrorMessage(e)))
-      : undefined;
+    // fall back to no analysis language rather than failing the (already-stored) selection.
+    const langs = await fwLiteApi
+      .getWritingSystems(lexiconCode)
+      .catch((e) => logger.error('Error fetching writing systems:', getErrorMessage(e)));
     const analysisLang = langs?.analysis[0]?.wsId ?? '';
     if (analysisLang) {
       logger.info(`Storing lexicon analysis language '${analysisLang}'`);
-    } else if (lexiconCode) {
-      logger.info('Failed to get analysis language of the lexicon');
     } else {
-      logger.info('Clearing the stored lexicon analysis language');
+      logger.info('Failed to get analysis language of the lexicon');
     }
     await projectManager
       .setAnalysisLanguage(analysisLang)
@@ -332,17 +348,17 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     lexiconCode: string,
   ): Promise<void> => {
     const projectManager = projectId
-      ? projectManagers.getProjectManagerFromProjectId(projectId)
+      ? await projectManagers.getProjectManagerFromProjectId(projectId)
       : undefined;
     if (!projectManager) return;
     if ((await projectManager.getLexiconCode()) !== lexiconCode) return;
-    await applyLexiconSelection(projectManager, '');
+    await projectManager.clearLexicon();
   };
 
   const selectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.selectLexicon',
     async (projectId: string, lexiconCode: string) => {
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
       logger.info(`Selecting lexicon '${lexiconCode}' for project '${projectManager.projectId}'`);
@@ -403,7 +419,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   const downloadAndSelectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.downloadAndSelectLexicon',
     async (projectId: string, authority: string, lexiconCode: string) => {
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { result: 'Error' as const, success: false, cancelled: true };
 
       logger.info(
@@ -442,26 +458,6 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     { timeoutMilliseconds: DOWNLOAD_TIMEOUT_MS + COMMAND_TIMEOUT_BUFFER_MS },
   );
 
-  // DEV-ONLY: a quick lexicon switcher. Lexicon selection is intentionally sticky — once a project
-  // has one, the only supported way to change it is clearing `lexicon.lexiconCode` in the project
-  // settings, which unlinks the project and makes the next lexicon action reopen the selector. This
-  // menu command is a development convenience to be removed before release, along with:
-  //   - its entry in the `context.registrations.add(...)` list below,
-  //   - the `lexicon.changeLexicon` handler type in `src/types/lexicon.d.ts`,
-  //   - the `%lexicon_menu_selectLexicon%` menu item in `contributions/menus.json`, and
-  //   - the `%lexicon_menu_selectLexicon%` string in `contributions/localizedStrings.json`.
-  // (`ProjectManager.openSelector` stays — the non-dev clear-and-reopen path uses it too.)
-  const changeLexiconCommandPromise = papi.commands.registerCommand(
-    'lexicon.changeLexicon',
-    async (webViewId: string) => {
-      const projectManager =
-        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
-      if (!projectManager) return { success: false };
-      const success = await projectManager.openSelector();
-      return { success };
-    },
-  );
-
   const createLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.createLexicon',
     async (name: string, code: string, vernacularWs: string, analysisWs?: string) => {
@@ -487,7 +483,9 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       // A read: never prompt. No project (or one that no longer exists) only costs the filtering.
       const projectId = await ProjectManagers.getProjectIdFromWebViewId(webViewId);
       const project = projectId
-        ? await projectManagers.getProjectManagerFromProjectId(projectId)?.getLexiconPickerInfo()
+        ? await (
+            await projectManagers.getProjectManagerFromProjectId(projectId)
+          )?.getLexiconPickerInfo()
         : undefined;
       // Keep the current lexicon plus any lexicons/codes (keepCodes) the caller does not want to lose
       const keep = [project?.lexiconCode, ...(keepCodes ?? [])].filter((c): c is string => !!c);
@@ -515,18 +513,18 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await addEntryCommandPromise,
     await authServersCommandPromise,
     await browseLexiconCommandPromise,
-    await changeLexiconCommandPromise, // DEV-ONLY: remove before release (see registration above)
     await createLexiconCommandPromise,
     await deleteDownloadedLexiconCommandPromise,
     await displayEntryCommandPromise,
+    await downloadAndSelectLexiconCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
     await lexiconsCommandPromise,
     await loginCommandPromise,
     await logoutCommandPromise,
+    await openSelectorCommandPromise,
     await remoteProjectsCommandPromise,
     await resolveProjectCommandPromise,
-    await downloadAndSelectLexiconCommandPromise,
     await selectLexiconCommandPromise,
     // Services
     await entryService,

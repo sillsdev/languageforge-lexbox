@@ -8,6 +8,7 @@
       installUpdate: async () => {
         await new Promise(resolve => setTimeout(resolve, 750));
       },
+      restartApp: () => {},
     },
   });
 </script>
@@ -100,7 +101,7 @@
         {...args}
         checkPromise={completedCheck(autoUpdate)}
         installPromise={pendingInstall()}
-        installProgress={86}
+        downloadProgress={{bytesDownloaded: 12_900_000, bytesPerSecond: 2_100_000}}
       />
     </div>
   {/snippet}
