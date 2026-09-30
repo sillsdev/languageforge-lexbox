@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fw-lite-web",
+      "runtimeExecutable": "task",
+      "runtimeArgs": ["fw-lite-web"],
+      "port": 5137
+    }
+  ]
+}
