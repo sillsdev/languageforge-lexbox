@@ -11,6 +11,7 @@ on:
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
+      - 'global.json'
     branches:
       - develop
       - main
@@ -24,6 +25,7 @@ on:
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
+      - 'global.json'
     branches:
       - develop
       - main
