@@ -199,7 +199,7 @@ Each note set's heading in your chat reply is a link to where that text gets pos
 
 ```markdown
 ## [Forum release notes](https://community.software.sil.org/t/10807)
-## [Android release notes](https://play.google.com/console/u/0/developers/7374456150929059145/app/4972009849345036990/releases/overview)
+## [Android release notes](https://play.google.com/console/developers/7374456150929059145/app/4972009849345036990/releases/overview)
 ```
 
 The version-tag heading stays plain. Leave the Android heading unlinked (or drop the block) when the release gets no Android note.
