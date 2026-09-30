@@ -1,10 +1,8 @@
 using Android.App;
-using FwLiteShared;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Events;
 using LexCore.Entities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Xamarin.Google.Android.Play.Core.AppUpdate;
 using Xamarin.Google.Android.Play.Core.AppUpdate.Install.Model;
 
@@ -17,9 +15,8 @@ namespace FwLiteMaui;
 /// <see cref="AppUpdateEvent"/> so the web UI can prompt the user to restart, which calls back into
 /// <see cref="RestartToApplyUpdate"/>.
 ///
-/// The availability check is gated on the same 8h timer as the other platforms
-/// (<see cref="FwLiteConfig.UpdateCheckInterval"/> + persisted <see cref="LastUpdateCheck"/>), so we don't
-/// re-surface the bottom sheet on every launch/resume.
+/// The availability check is gated on the same interval as the other platforms via the shared
+/// <see cref="UpdateCheckThrottle"/>, so we don't re-surface the bottom sheet on every launch/resume.
 ///
 /// Downloaded-state detection is done by polling <c>AppUpdateInfo.InstallStatus()</c> on resume rather
 /// than by registering an <c>IInstallStateUpdatedListener</c>: the C# binding's generic
@@ -35,12 +32,9 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
     /// <summary>Activity-result request code for the Play update flow (see <see cref="MainActivity"/>).</summary>
     public const int UpdateRequestCode = 2400;
 
-    private const string LastUpdateCheckKey = "androidLastUpdateChecked";
-
     private readonly IAppUpdateManager _appUpdateManager;
     private readonly ILogger<AndroidInAppUpdateService> _logger;
-    private readonly IPreferences _preferences;
-    private readonly IOptions<FwLiteConfig> _config;
+    private readonly UpdateCheckThrottle _throttle;
     private readonly GlobalEventBus _eventBus;
 
     // Notify about a downloaded update at most once per app run, so tapping "Later"/ignoring the toast
@@ -49,13 +43,11 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
 
     public AndroidInAppUpdateService(
         ILogger<AndroidInAppUpdateService> logger,
-        IPreferences preferences,
-        IOptions<FwLiteConfig> config,
+        UpdateCheckThrottle throttle,
         GlobalEventBus eventBus)
     {
         _logger = logger;
-        _preferences = preferences;
-        _config = config;
+        _throttle = throttle;
         _eventBus = eventBus;
         _appUpdateManager = AppUpdateManagerFactory.Create(Platform.AppContext);
     }
@@ -75,8 +67,8 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
                 return;
             }
 
-            if (!ShouldCheckForUpdate()) return;
-            LastUpdateCheck = DateTime.UtcNow;
+            if (!_throttle.ShouldCheckForUpdate()) return;
+            _throttle.RecordCheck();
 
             if (info.UpdateAvailability() == UpdateAvailability.UpdateAvailable &&
                 info.IsUpdateTypeAllowed(AppUpdateType.Flexible))
@@ -99,19 +91,6 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
                 NotifyDownloaded(info);
             }
         });
-    }
-
-    //Mirrors UpdateChecker.ShouldCheckForUpdate: honor the configured condition and 8h interval so we
-    //don't re-show Play's bottom sheet on every launch.
-    private bool ShouldCheckForUpdate()
-    {
-        var config = _config.Value;
-        if (config.UpdateCheckCondition == UpdateCheckCondition.Never) return false;
-        if (config.UpdateCheckCondition == UpdateCheckCondition.Always) return true;
-
-        var timeSinceLastCheck = DateTime.UtcNow - LastUpdateCheck;
-        if (timeSinceLastCheck < TimeSpan.Zero) return true; //last check is in the future (clock change)
-        return timeSinceLastCheck >= config.UpdateCheckInterval;
     }
 
     private void NotifyDownloaded(AppUpdateInfo info)
@@ -175,12 +154,6 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
     }
 
     // IPlatformUpdateService
-
-    public DateTime LastUpdateCheck
-    {
-        get => _preferences.Get(LastUpdateCheckKey, DateTime.MinValue);
-        set => _preferences.Set(LastUpdateCheckKey, value);
-    }
 
     //Play in-app updates aren't app-driven downloads, so the metered-connection prompt doesn't apply;
     //Play handles data-usage consent in its own UI.
