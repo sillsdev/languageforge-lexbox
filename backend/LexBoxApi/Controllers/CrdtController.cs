@@ -64,7 +64,7 @@ public class CrdtController(
     {
         await permissionService.AssertCanDownloadProject(projectId);
         // A FW Lite client calls this to fetch changes as part of a sync; track it as one sync event.
-        _ = analytics.TrackFwLiteSync();
+        _ = analytics.TrackFwLiteSync(projectId);
         var localState = await crdtCommitService.GetSyncState(projectId);
         return new ChangesResult(crdtCommitService.GetMissingCommits(projectId, localState, clientHeads), localState);
     }
