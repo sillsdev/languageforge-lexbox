@@ -10,6 +10,6 @@ export interface IUpdateService
 {
 	checkForUpdates() : Promise<IAvailableUpdate | undefined>;
 	applyUpdate(update: IAvailableUpdate) : Promise<UpdateResult>;
-	completeUpdate() : Promise<void>;
+	restartToApplyUpdate() : Promise<void>;
 }
 /* eslint-enable */

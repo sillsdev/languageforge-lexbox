@@ -15,7 +15,7 @@ namespace FwLiteMaui;
 /// update is available; if so, Play renders its own bottom-sheet prompt and downloads the update in the
 /// background while the user keeps working. When the download has finished we raise an
 /// <see cref="AppUpdateEvent"/> so the web UI can prompt the user to restart, which calls back into
-/// <see cref="CompleteUpdate"/>.
+/// <see cref="RestartToApplyUpdate"/>.
 ///
 /// The availability check is gated on the same 8h timer as the other platforms
 /// (<see cref="FwLiteConfig.UpdateCheckInterval"/> + persisted <see cref="LastUpdateCheck"/>), so we don't
@@ -121,7 +121,9 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
         //Play flexible updates have no GitHub release; the version code is all we know and the toast
         //doesn't display it, so a minimal release is fine.
         var release = new FwLiteRelease(info.AvailableVersionCode().ToString(), string.Empty);
-        _eventBus.PublishEvent(new AppUpdateEvent(UpdateResult.Downloaded, release));
+        //Success is the shared "downloaded/staged, restart to finish installing" state; the web UI's
+        //Success toast offers Restart, which calls back into RestartToApplyUpdate below.
+        _eventBus.PublishEvent(new AppUpdateEvent(UpdateResult.Success, release));
     }
 
     private void QueryInfo(Action<AppUpdateInfo> onInfo)
@@ -184,7 +186,7 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
     //Play handles data-usage consent in its own UI.
     public bool IsOnMeteredConnection() => false;
 
-    //Updating is done through Play's own flow (CheckForUpdate + CompleteUpdate), not the shared
+    //Updating is done through Play's own flow (CheckForUpdate + RestartToApplyUpdate), not the shared
     //ApplyUpdate path, so the manual Updates dialog keeps showing "Download" (linking to Play).
     public bool SupportsAutoUpdate => false;
 
@@ -192,11 +194,12 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
 
     public Task<bool> RequestPermissionToUpdate(FwLiteRelease latestRelease) => Task.FromResult(true);
 
-    public Task CompleteUpdate()
+    public Task RestartToApplyUpdate()
     {
         try
         {
-            //CompleteUpdate returns a Play Task, not an awaitable; log if Play rejects the completion.
+            //Play's completeUpdate() installs the downloaded flexible update and restarts the app. It
+            //returns a Play Task, not an awaitable; log if Play rejects the completion.
             _ = _appUpdateManager.CompleteUpdate()
                 .AddOnFailureListener(new OnFailureListener(e =>
                     _logger.LogError(e, "Failed to complete Play in-app update")));

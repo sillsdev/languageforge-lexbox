@@ -32,4 +32,10 @@ public class CorePlatformUpdateService: IPlatformUpdateService
     {
         return Task.FromResult(true);
     }
+
+    public Task RestartToApplyUpdate()
+    {
+        //no-op, restart-to-update is not supported on this platform
+        return Task.CompletedTask;
+    }
 }

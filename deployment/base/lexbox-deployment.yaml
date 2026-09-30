@@ -187,6 +187,9 @@ spec:
             value: http://hg:8080/
           - name: HgConfig__AutoUpdateLexEntryCountOnSendReceive
             value: "true"
+          # Mixpanel analytics off by default everywhere; production opts in via its overlay.
+          - name: Analytics__Enabled
+            value: "false"
           - name: CloudFlare__TurnstileKey
             valueFrom:
               secretKeyRef:

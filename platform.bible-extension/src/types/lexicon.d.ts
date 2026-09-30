@@ -1,6 +1,11 @@
 import type { OpenWebViewOptions, WebViewProps } from '@papi/core';
 import type { IEntryService, IProjectModel, SuccessHolder } from 'lexicon';
-import type { AuthServerStatus, LoginResult } from '../utils/fw-lite-api';
+import type {
+  AuthServerStatus,
+  DownloadAndSelectResult,
+  LocalLexiconsResult,
+  LoginResult,
+} from '../utils/fw-lite-api';
 
 // TODO: Sort out internal types and those that need to be exposed for other extensions.
 
@@ -102,6 +107,8 @@ declare module 'lexicon' {
   /** Additions for options/props of WebViews that interact with a lexicon via the FwLiteApi. */
   interface LexiconOptions extends Partial<LexiconLanguages> {
     lexiconCode?: string;
+    /** The Paratext project's short name, for showing which project the view is scoped to. */
+    projectName?: string;
     word?: string;
   }
 
@@ -119,13 +126,19 @@ declare module 'papi-shared-types' {
     'lexicon.addEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.authServers': () => Promise<AuthServerStatus[] | undefined>;
     'lexicon.browseLexicon': (webViewId: string) => Promise<SuccessHolder>;
-    /** DEV-ONLY lexicon switcher; remove before release (see src/main.ts changeLexiconCommand). */
-    'lexicon.changeLexicon': (webViewId: string) => Promise<SuccessHolder>;
     'lexicon.createLexicon': (
       name: string,
       code: string,
       vernacularWs: string,
       analysisWs?: string,
+    ) => Promise<SuccessHolder>;
+    /**
+     * Deletes any local CRDT lexicon (downloaded or local-only). Refuses FwData projects. Clears
+     * `projectId`'s lexicon setting when it pointed at the deleted lexicon.
+     */
+    'lexicon.deleteDownloadedLexicon': (
+      lexiconCode: string,
+      projectId?: string,
     ) => Promise<SuccessHolder>;
     /**
      * Opens the browse view on one entry of the lexicon named, rather than of whichever lexicon the
@@ -137,13 +150,55 @@ declare module 'papi-shared-types' {
       lexiconCode: string,
       entryId: string,
     ) => Promise<SuccessHolder>;
+    /**
+     * Downloads a remote project (resolves once its initial sync finishes) and selects it for the
+     * given project.
+     */
+    'lexicon.downloadAndSelectLexicon': (
+      projectId: string,
+      authority: string,
+      lexiconCode: string,
+    ) => Promise<DownloadAndSelectResult>;
     'lexicon.findEntry': (webViewId: string, entry: string) => Promise<SuccessHolder>;
     'lexicon.findRelatedEntries': (webViewId: string, entry: string) => Promise<SuccessHolder>;
-    'lexicon.lexicons': (projectId?: string) => Promise<IProjectModel[] | undefined>;
+    /**
+     * Local lexicons for the project the web view is bound to (resolved from its definition, never
+     * prompting), filtered to that project's language when a real subset matches. `result.filtered`
+     * reports whether that happened; `result.noMatch` is true when a language matched nothing.
+     * `all` skips the filter. `keepCodes` are codes to keep regardless of language (applied this
+     * session), on top of the project's current lexicon.
+     */
+    'lexicon.lexicons': (
+      webViewId: string,
+      all?: boolean,
+      keepCodes?: string[],
+    ) => Promise<LocalLexiconsResult | undefined>;
     'lexicon.login': (
       authority: string,
     ) => Promise<{ result?: LoginResult; servers?: AuthServerStatus[] }>;
     'lexicon.logout': (authority: string) => Promise<AuthServerStatus[] | undefined>;
+    /**
+     * Opens the lexicon selector on a project that has no lexicon. Refuses a project that already
+     * has one: selection is sticky, so clear its `lexicon.lexiconCode` setting first.
+     *
+     * @returns Whether the selector opened, which is not whether a lexicon was chosen; a chosen
+     *   lexicon lands in the project's `lexicon.lexiconCode` setting.
+     */
+    'lexicon.openSelector': (projectId: string) => Promise<SuccessHolder>;
+    /** Remote (Lexbox server) CRDT projects the signed-in user can download. */
+    'lexicon.remoteProjects': () => Promise<IProjectModel[] | undefined>;
+    /**
+     * Resolves a WebView's Paratext project, prompting with the project picker if it has none
+     * (`projectId` is undefined if dismissed). Separate from the acting commands so their timeouts
+     * don't run while the picker waits.
+     */
+    'lexicon.resolveProject': (
+      webViewId: string,
+    ) => Promise<{ projectId?: string; projectName?: string }>;
+    /**
+     * Sets the project's lexicon, replacing any existing one; rejects an unknown `lexiconCode`.
+     * Other extensions should prefer `lexicon.openSelector`, which lets the user choose.
+     */
     'lexicon.selectLexicon': (projectId: string, lexiconCode: string) => Promise<SuccessHolder>;
   }
 

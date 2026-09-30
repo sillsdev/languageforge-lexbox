@@ -111,6 +111,11 @@ tasks:
   fw-lite-win:
     deps: [fw-lite:maui-windows, ui:fw-lite-infr]
 
+  fw-lite-mac:
+    aliases: [mac]
+    desc: Build & run FwLiteMaui on Mac Catalyst
+    deps: [fw-lite:maui-mac]
+
   fw-lite-android:
     aliases: [android]
     deps: [fw-lite:run-maui-android]

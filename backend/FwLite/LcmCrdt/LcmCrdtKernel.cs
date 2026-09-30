@@ -5,6 +5,7 @@ using SIL.Harmony.Config;
 using SIL.Harmony.Linq2db;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Db;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Comments;
@@ -46,6 +47,9 @@ public static class LcmCrdtKernel
     {
         services.AddLcmCrdtClientCore();
         services.AddScoped<UpdateEntrySearchTableInterceptor>();
+        // Also expose it as a Harmony projected-entity interceptor so CRDT projection writes (which use
+        // raw SQL and bypass EF change tracking) keep the FTS search table in sync. Same scoped instance.
+        services.AddScoped<IProjectedEntityInterceptor>(sp => sp.GetRequiredService<UpdateEntrySearchTableInterceptor>());
         services.AddScoped<EntrySearchServiceFactory>();
         return services;
     }
@@ -61,6 +65,9 @@ public static class LcmCrdtKernel
         services.AddSingleton<ProjectImporter>();
         services.AddScoped<SnapshotAtCommitService>();
         services.AddSingleton<SetupCollationInterceptor>();
+        // Expose it as a Harmony projected-entity interceptor so CRDT writing-system changes (raw-SQL
+        // projection, no EF change tracking) invalidate the cached writing-system lists used for collations.
+        services.AddSingleton<IProjectedEntityInterceptor>(sp => sp.GetRequiredService<SetupCollationInterceptor>());
         services.AddDbContextFactory<LcmCrdtDbContext>(ConfigureDbOptions, ServiceLifetime.Scoped);
         services.RemoveAll<LcmCrdtDbContext>();//we don't want to be able to inject these directly as they will leak.
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");

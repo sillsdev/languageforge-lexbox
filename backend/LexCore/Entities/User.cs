@@ -34,6 +34,11 @@ public class User : EntityBase
     public bool Locked { get; set; } = false;
 
     /// <summary>
+    /// When true, the user has opted out of usage analytics and no analytics events should be tracked for them.
+    /// </summary>
+    public bool OptedOutOfAnalytics { get; set; } = false;
+
+    /// <summary>
     /// Used for legacy users
     /// </summary>
     public string? Username { get; set; }

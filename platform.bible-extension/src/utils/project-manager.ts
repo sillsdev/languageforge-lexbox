@@ -5,6 +5,7 @@ import type { IBaseProjectDataProvider } from 'papi-shared-types';
 import { formatReplacementString, getErrorMessage } from 'platform-bible-utils';
 // eslint-disable-next-line no-restricted-imports
 import type { Layout } from 'shared/models/docking-framework.model';
+import type { LexiconPickerProjectInfo } from './fw-lite-api';
 import { ProjectSettingKey, WebViewType } from '../types/enums';
 
 export class ProjectManager {
@@ -47,26 +48,36 @@ export class ProjectManager {
     return await this.getSetting(ProjectSettingKey.LexiconCode);
   }
 
-  async getLexiconCodeOrOpenSelector(): Promise<string | void> {
+  /** Returns the stored lexicon code if it still resolves; a stale one is cleared. */
+  async getValidLexiconCode(): Promise<string | void> {
     const lexiconCode = await this.getSetting(ProjectSettingKey.LexiconCode);
     const nameOrId = await this.getNameOrId();
-    if (lexiconCode) {
-      if (await this.isLexiconCodeValid(lexiconCode)) {
-        logger.info(`Project '${nameOrId}' is using lexicon '${lexiconCode}'`);
-        return lexiconCode;
-      }
-      // The stored lexicon no longer resolves (e.g. it was deleted in FW Lite). Clear it so the
-      // project isn't stuck pointing at a missing lexicon (which would cause every action to open a
-      // broken view), then fall through to prompt for a new selection.
-      logger.warn(
-        `Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`,
-      );
-      await this.setLexiconCode('');
-      await ProjectManager.notifyLexiconMissing(lexiconCode);
-    } else {
+    if (!lexiconCode) {
       logger.info(`Lexicon not yet selected for project '${nameOrId}'`);
+      return;
     }
+    if (await this.isLexiconCodeValid(lexiconCode)) {
+      logger.info(`Project '${nameOrId}' is using lexicon '${lexiconCode}'`);
+      return lexiconCode;
+    }
+    // The stored lexicon no longer resolves (e.g. deleted in FW Lite). Clear it — otherwise every
+    // action opens a broken view — so the caller can prompt for a new selection.
+    logger.warn(`Lexicon '${lexiconCode}' for project '${nameOrId}' no longer resolves; clearing`);
+    await this.clearLexicon();
+    await ProjectManager.notifyLexiconMissing(lexiconCode);
+  }
 
+  /** Clears the lexicon selection and its cached analysis language. */
+  async clearLexicon(): Promise<void> {
+    await this.setLexiconCode('');
+    await this.setAnalysisLanguage('').catch((e) =>
+      logger.warn('Could not clear the analysis language:', getErrorMessage(e)),
+    );
+  }
+
+  async getLexiconCodeOrOpenSelector(): Promise<string | void> {
+    const lexiconCode = await this.getValidLexiconCode();
+    if (lexiconCode) return lexiconCode;
     await this.openSelector();
   }
 
@@ -79,11 +90,13 @@ export class ProjectManager {
    * @returns Whether the selector opened, which is not whether a lexicon was chosen.
    */
   async openSelector(): Promise<boolean> {
-    const vernacularLanguage = await this.getLanguageTag();
-    const options: LexiconWebViewOptions = { vernacularLanguage };
+    // Only for the tab title. The panel reads everything else through lexicon.lexicons, since props
+    // are frozen at open time and go stale on a layout restore.
+    const options: LexiconWebViewOptions = { projectName: await this.getName() };
     return await this.openWebView(
       WebViewType.SelectLexicon,
-      { floatSize: { height: 500, width: 400 }, type: 'float' },
+      // Tall enough for the account section plus a useful slice of the list (see LexiconPicker).
+      { floatSize: { height: 640, width: 440 }, type: 'float' },
       options,
     );
   }
@@ -103,6 +116,16 @@ export class ProjectManager {
 
   async getNameOrId(): Promise<string | undefined> {
     return (await this.getName()) || this.projectId;
+  }
+
+  /** A failed read leaves that field unset instead of failing the whole picker. */
+  async getLexiconPickerInfo(): Promise<LexiconPickerProjectInfo> {
+    const [name, lexiconCode, langTag] = await Promise.all([
+      this.getSettingOrUndefined(ProjectSettingKey.ProjectName),
+      this.getSettingOrUndefined(ProjectSettingKey.LexiconCode),
+      this.getSettingOrUndefined(ProjectSettingKey.ProjectLanguageTag),
+    ]);
+    return { id: this.projectId, name, lexiconCode, langTag };
   }
 
   /**
@@ -150,6 +173,18 @@ export class ProjectManager {
   private async getSetting(setting: ProjectSettingKey): Promise<string | undefined> {
     logger.info(`Getting '${setting}'`);
     return await (await this.getDataProvider())?.getSetting(setting);
+  }
+
+  private async getSettingOrUndefined(setting: ProjectSettingKey): Promise<string | undefined> {
+    try {
+      return await this.getSetting(setting);
+    } catch (e) {
+      logger.warn(
+        `Could not get '${setting}' for project '${this.projectId}':`,
+        getErrorMessage(e),
+      );
+      return undefined;
+    }
   }
 
   private async setSetting(setting: ProjectSettingKey, value: string): Promise<void> {

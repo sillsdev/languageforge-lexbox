@@ -89,7 +89,7 @@ export const mockUpdateService: IUpdateService = {
     await delay(2000);
     return Promise.resolve(UpdateResult.Success);
   },
-  completeUpdate(): Promise<void> {
+  restartToApplyUpdate(): Promise<void> {
     return Promise.resolve();
   }
 };

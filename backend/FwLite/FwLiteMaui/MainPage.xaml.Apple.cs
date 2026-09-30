@@ -19,5 +19,22 @@ public partial class MainPage
             e.WebView.Inspectable = true;
         }
     }
+
+    private partial void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e)
+    {
+        // The app is served from the app:// scheme, so any real web/mail/tel link is external and
+        // should open in the system browser or mail client rather than loading inside the WebView
+        // (where the user would be stuck with no chrome to navigate back).
+        var scheme = e.Url?.Scheme;
+        if (scheme is null) return;
+        if (scheme.Equals("http", StringComparison.OrdinalIgnoreCase)
+            || scheme.Equals("https", StringComparison.OrdinalIgnoreCase)
+            || scheme.Equals("mailto", StringComparison.OrdinalIgnoreCase)
+            || scheme.Equals("tel", StringComparison.OrdinalIgnoreCase))
+        {
+            e.UrlLoadingStrategy = UrlLoadingStrategy.CancelLoad;
+            _ = Launcher.Default.OpenAsync(e.Url!);
+        }
+    }
 }
 #endif

@@ -16,6 +16,9 @@ spec:
             limits:
               memory: 1Gi
           env:
+            # Production opts in to Mixpanel analytics (base disables it everywhere else).
+            - name: Analytics__Enabled
+              value: "true"
             - name: Email__SmtpHost
               value: email-smtp.us-east-1.amazonaws.com
             - name: Email__SmtpPort

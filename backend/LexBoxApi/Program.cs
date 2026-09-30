@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using HotChocolate.AspNetCore;
 using LexBoxApi;
 using LexBoxApi.Auth;
+using LexBoxApi.Cloudflare;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.ErrorHandling;
 using LexBoxApi.Hub;
@@ -121,6 +122,7 @@ builder.Services.AddOptions<ForwardedHeadersOptions>()
             options.KnownIPNetworks.Add(IPNetwork.Parse(knownNetwork.Value!));
         }
     });
+builder.Services.AddCloudflareClientIp();
 
 var generatingOpenApiSchema = LexboxOpenApi.IsSchemaGenerationRequest(args);
 if (generatingOpenApiSchema)
@@ -134,6 +136,9 @@ var app = builder.Build();
 app.Logger.LogInformation("LexBox-api version: {version}", AppVersionService.Version);
 
 app.UseForwardedHeaders();
+// Must follow UseForwardedHeaders: it exposes the Cloudflare edge IP that this validates before
+// trusting CF-Connecting-IP, so RemoteIpAddress becomes the real visitor behind Cloudflare.
+app.UseCloudflareClientIp();
 app.Use(async (context, next) =>
 {
     context.Response.Headers["lexbox-version"] = AppVersionService.Version;

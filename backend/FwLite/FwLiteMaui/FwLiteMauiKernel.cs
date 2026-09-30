@@ -90,7 +90,7 @@ public static class FwLiteMauiKernel
         services.Replace(ServiceDescriptor.Singleton<IKeepAwakePlatform, AndroidKeepAwakePlatform>());
         //Google Play in-app updates. One singleton (one AppUpdateManager) resolved both as the concrete
         //type (by MainActivity, to drive the launch/resume checks) and as IPlatformUpdateService (for the
-        //shared CompleteUpdate hook). Disposed by the container at shutdown.
+        //shared RestartToApplyUpdate hook). Disposed by the container at shutdown.
         services.AddSingleton<AndroidInAppUpdateService>();
         services.RemoveAll<IPlatformUpdateService>();
         services.AddSingleton<IPlatformUpdateService>(sp => sp.GetRequiredService<AndroidInAppUpdateService>());

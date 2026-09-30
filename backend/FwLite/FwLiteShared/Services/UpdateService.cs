@@ -4,7 +4,7 @@ using Reinforced.Typings.Attributes;
 
 namespace FwLiteShared.Services;
 
-public class UpdateService(UpdateChecker updateChecker)
+public class UpdateService(UpdateChecker updateChecker, IPlatformUpdateService platformUpdateService)
 {
     [JSInvokable]
     public Task<AvailableUpdate?> CheckForUpdates()
@@ -18,13 +18,9 @@ public class UpdateService(UpdateChecker updateChecker)
         return Task.Run(async () => await updateChecker.ApplyUpdate(update.Release));
     }
 
-    /// <summary>
-    /// Finish installing an update the platform already downloaded (Android Play flexible flow), invoked
-    /// from the "Restart" toast. A no-op on platforms that don't need it.
-    /// </summary>
     [JSInvokable]
-    public Task CompleteUpdate()
+    public Task RestartToApplyUpdate()
     {
-        return updateChecker.CompleteUpdate();
+        return platformUpdateService.RestartToApplyUpdate();
     }
 }
