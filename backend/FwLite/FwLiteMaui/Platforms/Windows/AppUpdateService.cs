@@ -10,10 +10,9 @@ using FwLiteShared.Events;
 
 namespace FwLiteMaui;
 
-public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences preferences, GlobalEventBus eventBus)
+public class AppUpdateService(ILogger<AppUpdateService> logger, GlobalEventBus eventBus)
     : IMauiInitializeService, IPlatformUpdateService
 {
-    private const string LastUpdateCheckKey = "lastUpdateChecked";
     private  const string NotificationIdKey = "notificationId";
     private const string ActionKey = "action";
     private const string ResultRefKey = "resultRef";
@@ -316,12 +315,6 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, IPreferences pre
         logger.LogError(result.ExtendedErrorCode,
             "Failed to register staged update: {ErrorText}. It remains staged and will apply the next time the app is launched.",
             result.ErrorText);
-    }
-
-    public DateTime LastUpdateCheck
-    {
-        get => preferences.Get(LastUpdateCheckKey, DateTime.MinValue);
-        set => preferences.Set(LastUpdateCheckKey, value);
     }
 
     public bool SupportsAutoUpdate => !FwLiteMauiKernel.IsPortableApp;

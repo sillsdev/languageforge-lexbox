@@ -5,7 +5,6 @@ namespace FwLiteShared.AppUpdate;
 
 public interface IPlatformUpdateService
 {
-    DateTime LastUpdateCheck { get; set; }
     bool IsOnMeteredConnection();
     bool SupportsAutoUpdate { get; }
     Task<UpdateResult> ApplyUpdate(FwLiteRelease latestRelease);

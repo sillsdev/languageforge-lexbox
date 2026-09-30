@@ -16,6 +16,7 @@ public class UpdateChecker(
     IOptions<FwLiteConfig> config,
     GlobalEventBus eventBus,
     IPlatformUpdateService platformUpdateService,
+    UpdateCheckThrottle throttle,
     IMemoryCache cache) : BackgroundService
 {
     private const string CacheKey = "ManualUpdateCheck";
@@ -28,7 +29,7 @@ public class UpdateChecker(
 
     public async Task<UpdateResult?> TryUpdate()
     {
-        if (!ShouldCheckForUpdate()) return null;
+        if (!ShouldCheckReleaseFeed()) return null;
         var update = await CheckForUpdate();
         if (update is null) return null;
         return await ApplyUpdate(update.Release);
@@ -40,7 +41,7 @@ public class UpdateChecker(
         {
             entry.AbsoluteExpirationRelativeToNow = CacheDuration;
             var response = await ShouldUpdateAsync();
-            platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
+            throttle.RecordCheck();
             return response.Update
                 ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate)
                 : null;
@@ -70,47 +71,24 @@ public class UpdateChecker(
         eventBus.PublishEvent(new AppUpdateEvent(result, release));
     }
 
-    internal bool ShouldCheckForUpdate()
+    /// <summary>
+    /// Whether to check the GitHub release feed now: the shared interval gate
+    /// (<see cref="UpdateCheckThrottle.ShouldCheckForUpdate"/>) plus a skip for store-distributed
+    /// platforms. iOS/Mac have no release feed at all, and Android is driven by Google Play's in-app
+    /// updates (AndroidInAppUpdateService) instead of this check. The explicit <c>Always</c> condition
+    /// still forces a feed check for on-device endpoint testing.
+    /// </summary>
+    internal bool ShouldCheckReleaseFeed()
     {
-        if (config.Value.UpdateCheckCondition == UpdateCheckCondition.Never)
+        if (config.Value.UpdateCheckCondition != UpdateCheckCondition.Always &&
+            config.Value.Os is FwLitePlatform.iOS or FwLitePlatform.Mac or FwLitePlatform.Android)
         {
-            logger.LogInformation("Update check prevented by configuration");
-            return false;
-        }
-        if (config.Value.UpdateCheckCondition == UpdateCheckCondition.Always)
-        {
-            logger.LogInformation("Update check forced by configuration");
-            return true;
-        }
-
-        //Store-distributed platforms (iOS/Mac) have no GitHub release feed, so there is nothing to
-        //check for: the server returns "no update" and the round-trip is pointless on every launch.
-        //Left after the explicit config overrides so Always can still force a check for testing.
-        if (config.Value.Os is FwLitePlatform.iOS or FwLitePlatform.Mac)
-        {
-            logger.LogInformation("Update check skipped: {Os} is store-distributed with no release feed",
+            logger.LogInformation("Update check skipped: {Os} updates are store/Play-driven, not via the release feed",
                 config.Value.Os);
             return false;
         }
 
-        var lastChecked = platformUpdateService.LastUpdateCheck;
-        var timeSinceLastCheck = DateTime.UtcNow - lastChecked;
-        if (timeSinceLastCheck.TotalHours < -1)
-        {
-            logger.LogInformation("Should check for update, because last check was in the future: {LastCheck}",
-                lastChecked);
-            return true;
-        }
-
-        if (timeSinceLastCheck < config.Value.UpdateCheckInterval)
-        {
-            logger.LogInformation("Should not check for update, because last check was too recent: {LastCheck}",
-                lastChecked);
-            return false;
-        }
-
-        logger.LogInformation("Should check for update based on last check time: {LastCheck}", lastChecked);
-        return true;
+        return throttle.ShouldCheckForUpdate();
     }
 
     private bool ShouldPromptBeforeUpdate()

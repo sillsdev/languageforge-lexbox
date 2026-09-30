@@ -4,18 +4,6 @@ namespace FwLiteShared.AppUpdate;
 
 public class CorePlatformUpdateService: IPlatformUpdateService
 {
-    public DateTime LastUpdateCheck
-    {
-        get
-        {
-            return DateTime.MinValue;
-        }
-        set
-        {
-            //no-op, does not track last update time
-        }
-    }
-
     public bool IsOnMeteredConnection()
     {
         return false;
