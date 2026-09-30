@@ -11,6 +11,7 @@ on:
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
+      - 'global.json'
     branches:
       - develop
       - main
@@ -24,6 +25,7 @@ on:
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
+      - 'global.json'
     branches:
       - develop
       - main
@@ -39,6 +41,8 @@ permissions:
 
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
+  # Pinned so a new workload set (e.g. a new default Apple SDK pack) cannot silently break the MAUI builds.
+  MAUI_WORKLOAD_VERSION: 10.0.401
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
@@ -309,7 +313,7 @@ jobs:
         with:
           dotnet-version: '10.x'
       - name: Setup Maui
-        run: dotnet workload install maui-ios maui-maccatalyst
+        run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
       # The iOS build targets the simulator (ad-hoc signed, see FwLiteMaui.csproj); there is no iOS
       # device signing here yet. Mac Catalyst is signed with the SIL Developer ID and notarized into a
@@ -564,7 +568,7 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Setup Maui
-        run: dotnet workload install maui-android
+        run: dotnet workload install maui-android --version ${{ env.MAUI_WORKLOAD_VERSION }}
       - name: Decode Android Keystore
         id: decodeKeystore
         if: env.HAS_SIGNING_KEY == 'true'
@@ -638,7 +642,7 @@ jobs:
             nuget-${{ runner.os }}-
 
       - name: Setup Maui
-        run: dotnet workload install maui-windows
+        run: dotnet workload install maui-windows --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
       - name: Build MAUI tests
         run: dotnet build backend/FwLite/FwLiteMaui.Tests/FwLiteMaui.Tests.csproj -p:BuildAndroid=false
