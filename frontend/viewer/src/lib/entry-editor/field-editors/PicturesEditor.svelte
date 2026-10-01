@@ -5,7 +5,13 @@
   import PictureImage from './PictureImage.svelte';
   import EditPictureDialog from './EditPictureDialog.svelte';
   import PictureViewerDialog from './PictureViewerDialog.svelte';
-  import {ACCEPTED_PICTURE_TYPES, isLosslessImage, isSupportedImageType, uniqueUploadFilename} from './picture-formats';
+  import {
+    ACCEPTED_PICTURE_TYPES,
+    generatedPictureFilename,
+    isLosslessImage,
+    isSupportedImageType,
+    uniqueUploadFilename,
+  } from './picture-formats';
   import {downloadPictureFile} from './picture-actions';
   import {useImageService} from './image-service.svelte';
   import {t} from 'svelte-i18n-lingui';
@@ -207,7 +213,10 @@
       if (result == null) {
         return;
       }
-      const captured = new File([await result.image.arrayBuffer()], result.fileName, {type: result.contentType});
+      const extension = result.fileName.split('.').pop() ?? 'jpg';
+      const captured = new File([await result.image.arrayBuffer()], generatedPictureFilename(extension), {
+        type: result.contentType,
+      });
       let file: File;
       try {
         file = await convertPicture(captured);
