@@ -11,15 +11,20 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import type {Snippet} from 'svelte';
   import {cn} from '$lib/utils';
+  import {generatedMediaFilename} from '$lib/utils/media-filename';
 
   let {
     open = $bindable(false),
     title = undefined,
+    fieldId = undefined,
+    wsId = undefined,
     onSubmit = () => {},
     children = undefined,
   }: {
     open: boolean;
     title?: string;
+    fieldId?: string;
+    wsId?: string;
     onSubmit?: (audioId: string) => void;
     children?: Snippet;
   } = $props();
@@ -105,8 +110,8 @@
   }
 
   function onRecordingComplete(blob: Blob) {
-    let fileExt = mimeTypeToFileExtension(blob.type);
-    selectedFile = new File([blob], `recording-${Date.now()}.${fileExt}`, {type: blob.type});
+    const fileExt = mimeTypeToFileExtension(blob.type);
+    selectedFile = new File([blob], generatedMediaFilename({field: fieldId, ws: wsId}, fileExt), {type: blob.type});
   }
 
   function mimeTypeToFileExtension(mimeType: string) {

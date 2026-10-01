@@ -1,7 +1,7 @@
 // Single source of truth for the picture upload formats, shared by the add file picker
 // (PicturesEditor) and the replace file picker (EditPictureDialog).
 
-import {randomId} from '$lib/utils';
+import {generatedMediaFilename} from '$lib/utils/media-filename';
 
 // Formats the browser accepts and that the server supports for pictures.
 export const ACCEPTED_PICTURE_TYPES = 'image/jpeg,image/png,image/tiff,image/bmp';
@@ -16,9 +16,13 @@ export function isSupportedImageType(file: File): boolean {
   return /^image\/(jpeg|png|tiff|bmp)$/.test(file.type) || /\.(jpe?g|png|bmp|tiff?)$/i.test(file.name);
 }
 
+export function generatedPictureFilename(extension: string): string {
+  return generatedMediaFilename({field: 'picture'}, extension);
+}
+
 // iOS WebKit names every photo taken from the file picker's "Take Photo" option `image.jpg`, and
 // saved files are deduplicated by filename, so a second photo would silently reuse the first one.
 export function uniqueUploadFilename(filename: string): string {
-  const match = /^image(\.jpe?g)$/i.exec(filename);
-  return match ? `${randomId()}${match[1]}` : filename;
+  const match = /^image\.(jpe?g)$/i.exec(filename);
+  return match ? generatedPictureFilename(match[1]) : filename;
 }
