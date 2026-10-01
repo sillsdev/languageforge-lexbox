@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:FwLiteMaui"
              xmlns:shared="clr-namespace:FwLiteShared;assembly=FwLiteShared"
              x:Class="FwLiteMaui.MainPage"
-             SafeAreaEdges="Container">
+             SafeAreaEdges="{OnPlatform Default=Container, Android=All}">
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="#app" ComponentType="{x:Type shared:Root}"/>
