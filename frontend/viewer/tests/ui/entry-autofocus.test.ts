@@ -6,8 +6,13 @@ import {DemoProjectPage} from './demo-project.page';
 // with a keyboard. Screen size must not matter, so the touch case uses a wide (tablet) viewport.
 // Adding a sense or example is a request to type, so those focus the new field on every device.
 
-function entryRow(page: Page, headword: string) {
-  return page.locator('[role="row"]').filter({has: page.getByRole('heading', {name: headword, exact: true})});
+function focusedField(page: Page) {
+  return page.evaluate(() => {
+    const field = document.activeElement as HTMLElement;
+    const {top, bottom} = field.getBoundingClientRect();
+    const gridArea = field.closest<HTMLElement>('[style*="grid-area"]')?.style.gridArea;
+    return {gridArea, top, inView: top >= 0 && bottom <= window.innerHeight};
+  });
 }
 
 test.describe('Entry autofocus', () => {
@@ -17,7 +22,7 @@ test.describe('Entry autofocus', () => {
     expect(await page.evaluate(() => matchMedia('(pointer: fine)').matches)).toBe(true);
 
     const {headword} = await projectPage.api.getEntryAtIndex(3);
-    await entryRow(page, headword).click();
+    await projectPage.entryRow(headword).click();
 
     await expect(await projectPage.entryView.getLexemeInput()).toBeFocused();
   });
@@ -31,16 +36,12 @@ test.describe('Entry autofocus', () => {
       // guard against the test passing vacuously: this must be a touch-first, desktop-width layout
       expect(await page.evaluate(() => matchMedia('(pointer: fine)').matches)).toBe(false);
 
-      const first = await projectPage.api.getEntryAtIndex(3);
-      await entryRow(page, first.headword).tap();
+      await projectPage.tapEntry(3);
       const lexemeInput = await projectPage.entryView.getLexemeInput();
-      await expect(lexemeInput).toHaveValue(first.headword);
       await expect(lexemeInput).not.toBeFocused();
 
       // and not when switching to another entry either
-      const second = await projectPage.api.getEntryAtIndex(4);
-      await entryRow(page, second.headword).tap();
-      await expect(lexemeInput).toHaveValue(second.headword);
+      await projectPage.tapEntry(4);
       await expect(lexemeInput).not.toBeFocused();
     });
 
@@ -50,7 +51,7 @@ test.describe('Entry autofocus', () => {
       expect(await page.evaluate(() => matchMedia('(pointer: fine)').matches)).toBe(false);
 
       const {headword} = await projectPage.api.getEntryAtIndex(3);
-      const row = entryRow(page, headword);
+      const row = projectPage.entryRow(headword);
       await row.focus();
       await row.press('Enter');
 
@@ -63,10 +64,7 @@ test.describe('Entry autofocus', () => {
       const projectPage = new DemoProjectPage(page);
       await projectPage.goto();
       expect(await page.evaluate(() => matchMedia('(pointer: fine)').matches)).toBe(false);
-
-      const {headword} = await projectPage.api.getEntryAtIndex(3);
-      await entryRow(page, headword).tap();
-      await expect(await projectPage.entryView.getLexemeInput()).toHaveValue(headword);
+      await projectPage.tapEntry(3);
       const senseCount = await projectPage.entryView.getSenseCount();
 
       await projectPage.entryView.addSenseButton.tap();
@@ -77,45 +75,34 @@ test.describe('Entry autofocus', () => {
     async function focusNewExample(page: Page) {
       const projectPage = new DemoProjectPage(page);
       await projectPage.goto();
-      const {headword} = await projectPage.api.getEntryAtIndex(3);
-      await entryRow(page, headword).tap();
-      await expect(await projectPage.entryView.getLexemeInput()).toHaveValue(headword);
+      await projectPage.tapEntry(3);
       await page.getByRole('button', {name: /add example/i}).last().tap();
-      await expect.poll(focusedField).toMatchObject({field: 'grid-area: sentence;'});
-
-      function focusedField() {
-        return page.evaluate(() => {
-          const field = document.activeElement!;
-          const {top, bottom} = field.getBoundingClientRect();
-          return {field: field.closest('[style*="grid-area"]')?.getAttribute('style'), inView: top >= 0 && bottom <= window.innerHeight, top};
-        });
-      }
-      return focusedField;
+      await expect.poll(() => focusedField(page)).toMatchObject({gridArea: 'sentence'});
     }
 
     test('the focused field stays in view when the keyboard shrinks the viewport', async ({page}) => {
-      const focusedField = await focusNewExample(page);
+      await focusNewExample(page);
       // park the field near the bottom, where the keyboard would cover it
       await page.evaluate(() => document.activeElement!.scrollIntoView({block: 'end'}));
-      await expect.poll(focusedField).toMatchObject({inView: true});
+      await expect.poll(() => focusedField(page)).toMatchObject({inView: true});
 
       // a virtual keyboard resizes the window well after focus; emulate that
       await page.setViewportSize({width: 1024, height: 300});
 
-      await expect.poll(focusedField).toMatchObject({field: 'grid-area: sentence;', inView: true});
+      await expect.poll(() => focusedField(page)).toMatchObject({gridArea: 'sentence', inView: true});
     });
 
     test('a focused field the user scrolled away from is left alone when the viewport shrinks', async ({page}) => {
-      const focusedField = await focusNewExample(page);
-      await page.evaluate(() => document.activeElement!.closest('[data-scroll-area-viewport], [class*="overflow"]')!.scrollBy(0, -2000));
-      const scrolledAway = await focusedField();
+      await focusNewExample(page);
+      await page.locator('[data-slot="scroll-area-viewport"]', {has: page.locator(':focus')}).evaluate(el => el.scrollBy(0, -2000));
+      const scrolledAway = await focusedField(page);
       expect(scrolledAway.inView).toBe(false);
 
       await page.setViewportSize({width: 1024, height: 300});
       await page.waitForTimeout(500);
 
       // still well below the viewport, i.e. not re-centered (the resize itself may shift it a few px)
-      const after = await focusedField();
+      const after = await focusedField(page);
       expect(after.inView).toBe(false);
       expect(after.top).toBeGreaterThan(scrolledAway.top - 100);
     });

@@ -1,19 +1,12 @@
 import {expect, test, type Page} from '@playwright/test';
 import {DemoProjectPage} from './demo-project.page';
 
-// The keyboard shrinks the viewport (landscape phones: ~150 CSS px left, portrait: ~530), so below
-// SHORT_BREAKPOINT the editor sheds its sticky chrome and swaps the add-sense FAB for the inline button.
-
-function entryRow(page: Page, headword: string) {
-  return page.locator('[role="row"]').filter({has: page.getByRole('heading', {name: headword, exact: true})});
-}
+// SHORT_BREAKPOINT: the viewport is this short when the keyboard is open or on a landscape phone.
 
 async function openEntry(page: Page) {
   const projectPage = new DemoProjectPage(page);
   await projectPage.goto();
-  const {headword} = await projectPage.api.getEntryAtIndex(3);
-  await entryRow(page, headword).tap();
-  await expect(await projectPage.entryView.getLexemeInput()).toHaveValue(headword);
+  await projectPage.tapEntry(3);
   return projectPage;
 }
 

@@ -1,4 +1,4 @@
-import {type Page} from '@playwright/test';
+import {expect, type Locator, type Page} from '@playwright/test';
 import {ProjectPage} from '../pages/project.page';
 import {EntryApiHelper} from './entry-api-helper';
 
@@ -14,6 +14,18 @@ export class DemoProjectPage extends ProjectPage {
   constructor(page: Page) {
     super(page);
     this.api = new EntryApiHelper(page);
+  }
+
+  entryRow(headword: string): Locator {
+    return this.page.locator('[role="row"]').filter({has: this.page.getByRole('heading', {name: headword, exact: true})});
+  }
+
+  /** Opens the entry at `index` with a touch tap (needs `hasTouch`) and returns its headword. */
+  async tapEntry(index: number): Promise<string> {
+    const {headword} = await this.api.getEntryAtIndex(index);
+    await this.entryRow(headword).tap();
+    await expect(await this.entryView.getLexemeInput()).toHaveValue(headword);
+    return headword;
   }
 
   async goto() {

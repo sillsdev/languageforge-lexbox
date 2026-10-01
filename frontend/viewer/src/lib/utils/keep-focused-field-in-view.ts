@@ -5,10 +5,11 @@ import {useDebounce, useEventListener} from 'runed';
  * several resize events) and the browser doesn't re-scroll the focused field for that, so a field near the
  * bottom ends up under the keyboard. Covers autofocus and manual taps alike.
  * Only a field the resize itself pushed out of view gets scrolled back; one the user scrolled away from stays put.
+ * Call once during component init: the runed helpers need an effect context.
  */
 export function keepFocusedFieldInView() {
   let heightBefore = window.innerHeight;
-  useEventListener(window, 'resize', useDebounce(() => {
+  const recenter = useDebounce(() => {
     const heightAfter = window.innerHeight;
     const field = document.activeElement;
     if (isTextField(field)) {
@@ -18,7 +19,8 @@ export function keepFocusedFieldInView() {
       if (wasInView && bottom > heightAfter) field.scrollIntoView({block: 'center'});
     }
     heightBefore = heightAfter;
-  }, 100));
+  }, 100);
+  useEventListener(window, 'resize', () => void recenter());
 }
 
 function isTextField(target: EventTarget | null): target is HTMLElement {

@@ -170,6 +170,7 @@
 <div class="h-full flex flex-col relative">
   {#if entry}
     <header>
+      <!-- short: keyboard open or landscape phone, every px above the field counts -->
       <div class="max-md:p-2 md:mb-4 short:py-0 short:mb-0 flex justify-between">
         {#if showClose && onClose}
           <XButton onclick={onClose} size="icon" />

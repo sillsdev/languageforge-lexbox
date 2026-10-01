@@ -183,6 +183,7 @@
         <Editor.SubGrid class={cn(sense.id === highlighted?.entity.id && 'highlight')}>
           <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
 
+          <!-- short: keyboard open or landscape phone, a sticky header would cover the field -->
           <ObjectHeader type="sense" index={i + 1} class={cn(modalMode || 'sticky short:static short:animate-none',
             'top-0 bg-background z-1 w-[calc(100%+2px)] pr-0.5 animate-fade-out animation-scroll')}>
             <EntityListItemActions {i}
@@ -231,6 +232,7 @@
     {/if}
     {#if showSenses && !readonly && canAddSense}
       <hr class="col-span-full grow border-t-4">
+      <!-- short: the FAB would float over the field being typed in, so fall back to the inline button -->
       {#if IsMobile.value && !IsShort.value && !modalMode}
         <FabContainer class="sticky col-span-full mt-2">
           <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
