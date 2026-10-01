@@ -414,7 +414,8 @@ jobs:
           rm -rf "$STAGE"; mkdir -p "$STAGE"
           cp -R "$APP" "$STAGE/"
           ln -s /Applications "$STAGE/Applications"
-          hdiutil create -volname "FieldWorks Lite" -srcfolder "$STAGE" -ov -format UDZO "$DMG"
+          # hdiutil randomly fails with "Resource busy" on GitHub macOS runners (actions/runner-images#7522).
+          try=0; until hdiutil create -volname "FieldWorks Lite" -srcfolder "$STAGE" -ov -format UDZO "$DMG"; do (( ++try < 5 )) || exit 1; sleep $((try * 5)); done
           codesign --force --timestamp --sign "$CODESIGN_IDENTITY" "$DMG"
           printf '%s' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/asc.p8"
           # submit --wait exits 0 even when the result is Invalid, so capture the id, always print the
@@ -480,7 +481,8 @@ jobs:
           }
           xcrun stapler validate FieldWorksLite.dmg
           gatekeeper --type open --context context:primary-signature FieldWorksLite.dmg
-          hdiutil attach FieldWorksLite.dmg -nobrowse -readonly -mountpoint /Volumes/FieldWorksLite
+          # hdiutil randomly fails with "Resource busy" on GitHub macOS runners (actions/runner-images#7522).
+          try=0; until hdiutil attach FieldWorksLite.dmg -nobrowse -readonly -mountpoint /Volumes/FieldWorksLite; do (( ++try < 5 )) || exit 1; sleep $((try * 5)); done
           gatekeeper --type execute "/Volumes/FieldWorksLite/FieldWorks Lite.app"
 
       - name: Launch the app and wait for the viewer to load
