@@ -1,6 +1,22 @@
 name: FieldWorks Lite
 on:
+  # A direct dispatch is CI only. Never add `release`/`version` inputs here: GitHub rejects
+  # undeclared dispatch inputs, so only the release pipeline (via workflow_call) can release.
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Release version (vYYYY-MM-DD-sha8), shared with the LexBox release'
+        type: string
+        required: true
+      semver-version:
+        description: 'Release semver version (YYYY.M.D)'
+        type: string
+        required: true
+      release:
+        description: 'Sign and publish the GitHub and Play Store release'
+        type: boolean
+        default: false
   push:
     paths:
       - 'backend/FwLite/**'
@@ -14,7 +30,6 @@ on:
       - 'global.json'
     branches:
       - develop
-      - main
   pull_request:
     paths:
       - 'backend/FwLite/**'
@@ -28,10 +43,9 @@ on:
       - 'global.json'
     branches:
       - develop
-      - main
       - feat/sync-morph-types #just for now ensure PRs to this branch have checks run
 
-# Only cancel superseded PR runs; never cancel release builds triggered by a push.
+# Only cancel superseded PR runs; never cancel develop or release builds.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -72,11 +86,20 @@ jobs:
       - name: Set Version
         id: setVersion
         shell: bash
-        # set version to date in vYYYY-MM-DD-commitSha format, and semver version to YYYY.MM.DD
+        # Release runs pass the version in. Otherwise derive it from the commit's date (UTC), same as
+        # release-pipeline.yaml: version vYYYY-MM-DD-commitSha, semver version YYYY.M.D
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_SEMVER_VERSION: ${{ inputs.semver-version }}
         run: |
-          shortSha=$(echo ${{ github.sha }} | cut -c1-8)
-          echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
-          echo "SEMVER_VERSION=$(date +%Y.%-m.%-d)" >> ${GITHUB_OUTPUT}
+          if [ -n "$INPUT_VERSION" ] && [ -n "$INPUT_SEMVER_VERSION" ]; then
+            echo "VERSION=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "SEMVER_VERSION=$INPUT_SEMVER_VERSION" >> "$GITHUB_OUTPUT"
+          else
+            shortSha=$(echo "$GITHUB_SHA" | cut -c1-8)
+            echo "VERSION=v$(TZ=UTC git show -s --format=%cd --date=format-local:%Y-%m-%d HEAD)-$shortSha" >> "$GITHUB_OUTPUT"
+            echo "SEMVER_VERSION=$(TZ=UTC git show -s --format=%cd --date=format-local:%Y.%-m.%-d HEAD)" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Dotnet build
         # FwLiteCore.slnf omits MAUI projects — those build and test on publish-win (Windows).
@@ -116,9 +139,10 @@ jobs:
 
   benchmark:
     name: Run FW Lite sync benchmarks
-    # Auto-runs post-merge on develop only — too slow and variance-prone to gate every PR (revisit
-    # if they get fast enough). Also runnable on demand via workflow_dispatch to baseline a branch.
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+    # Auto-runs post-merge on develop (the only push trigger) — too slow and variance-prone to gate every
+    # PR (revisit if they get fast enough). Also runnable on demand via workflow_dispatch to baseline a
+    # branch. Skipped in releases, which inherit the caller's workflow_dispatch event.
+    if: ${{ !inputs.release && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
     # Benchmarks take tens of minutes; 60 leaves headroom for hosted-runner variance.
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -690,7 +714,7 @@ jobs:
           MakeAppx.exe bundle /v /bv ${{ needs.build-and-test.outputs.semver-version }}.1 /d . /p ../sign/FwLiteMaui.msixbundle
 
       - name: Sign with Trusted Signing
-        if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' }}
+        if: ${{ github.event_name == 'push' || inputs.release }}
         uses: sillsdev/codesign/trusted-signing-action@0485c27c94116d62f80febc468cc1979ed7245de # v3.2.0
         with:
           credentials: ${{ secrets.TRUSTED_SIGNING_CREDENTIALS }}
@@ -698,7 +722,7 @@ jobs:
           files-folder-filter: msixbundle,exe
           files-folder-recurse: true
           files-folder-depth: 4
-          description:  'Release for version ${{ needs.build-and-test.outputs.version }} from branch ${{ github.ref_name || github.head_ref }}'
+          description:  'Release for version ${{ needs.build-and-test.outputs.version }}'
           description-url: 'https://github.com/sillsdev/languageforge-lexbox'
 
       - name: Launch the portable app and wait for the viewer to load
@@ -737,7 +761,7 @@ jobs:
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
   create-release:
-    if: ${{ github.ref_name == 'main' }}
+    if: ${{ inputs.release }}
     environment:
       name: production
       url: https://lexbox.org/fw-lite
