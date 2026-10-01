@@ -7,8 +7,8 @@
 @custom-variant dark (&:is(.dark *));
 @custom-variant pointer (@media (hover: hover));
 @custom-variant paratext (&:is([data-paratext="true"] *));
-/* landscape phones, with or without the keyboard; 480px is WCAG C34's floor for sticky chrome */
-@custom-variant short (@media (max-height: 479px));
+/* a landscape phone, or the keyboard is open (see SHORT_BREAKPOINT) */
+@custom-variant short (@media (max-height: 599px));
 
 @keyframes shimmer {
   from { background-position: 100% 0; }

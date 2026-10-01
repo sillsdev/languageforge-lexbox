@@ -1,8 +1,8 @@
 import {expect, test, type Page} from '@playwright/test';
 import {DemoProjectPage} from './demo-project.page';
 
-// Landscape phones leave ~150 CSS px above the keyboard, so the editor sheds its sticky chrome there
-// and the add-sense FAB gets out of the way while a field is being typed in.
+// The keyboard shrinks the viewport (landscape phones: ~150 CSS px left, portrait: ~530), so below
+// SHORT_BREAKPOINT the editor sheds its sticky chrome and swaps the add-sense FAB for the inline button.
 
 function entryRow(page: Page, headword: string) {
   return page.locator('[role="row"]').filter({has: page.getByRole('heading', {name: headword, exact: true})});
@@ -36,17 +36,17 @@ test.describe('Short viewport', () => {
 test.describe('Phone', () => {
   test.use({hasTouch: true, isMobile: true, viewport: {width: 412, height: 915}});
 
-  test('the add-sense FAB hides while a field is being typed in and comes back on blur', async ({page}) => {
+  test('the add-sense FAB gives way to the inline button when the keyboard shrinks the viewport', async ({page}) => {
     const projectPage = await openEntry(page);
     const fab = page.getByRole('button', {name: /^(sense|meaning)$/i});
     await expect(fab).toBeVisible();
+    await expect(projectPage.entryView.addSenseButton).toBeHidden();
 
-    await fab.tap();
-    const senseCount = await projectPage.entryView.getSenseCount();
-    await expect(await projectPage.entryView.getGlossInput(senseCount - 1)).toBeFocused();
+    await page.setViewportSize({width: 412, height: 530});
     await expect(fab).toBeHidden();
+    await expect(projectPage.entryView.addSenseButton).toBeAttached();
 
-    await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+    await page.setViewportSize({width: 412, height: 915});
     await expect(fab).toBeVisible();
   });
 });

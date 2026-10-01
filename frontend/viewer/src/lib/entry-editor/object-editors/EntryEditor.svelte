@@ -31,8 +31,7 @@
   import {watch} from 'runed';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import {FocusMightOpenKeyboard} from '$lib/hooks/focus-might-open-keyboard.svelte';
-  import {isTextField} from '$lib/utils/keep-focused-field-in-view';
+  import {IsShort} from '$lib/hooks/is-short.svelte';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import DevContent from '$lib/layout/DevContent.svelte';
   import ObjectHeader from './ObjectHeader.svelte';
@@ -156,17 +155,6 @@
     }
   });
 
-  // Cleared with a delay: tapping the FAB blurs the field on mousedown, and an unmounted FAB never gets the click.
-  let typingOnTouch = $state(false);
-  let typingTimeout: ReturnType<typeof setTimeout>;
-  function onFocusIn(event: FocusEvent) {
-    clearTimeout(typingTimeout);
-    typingOnTouch = isTextField(event.target) && FocusMightOpenKeyboard.value;
-  }
-  function onFocusOut() {
-    typingTimeout = setTimeout(() => typingOnTouch = false, 150);
-  }
-
   function isBottomInView(element: Element): boolean {
     const elementRect = element.getBoundingClientRect();
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
@@ -185,7 +173,7 @@
   const showSenses = $derived(showExamples || hasVisibleFields(viewService.currentView.senseFields));
 </script>
 
-<div class="flex min-h-0 gap-4" onfocusin={onFocusIn} onfocusout={onFocusOut}>
+<div class="flex min-h-0 gap-4">
   <Editor.Root bind:ref bind:this={editor} class="min-w-0 flex-1">
     <Editor.Grid bind:ref={editorElem}>
       <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
@@ -243,7 +231,7 @@
     {/if}
     {#if showSenses && !readonly && canAddSense}
       <hr class="col-span-full grow border-t-4">
-      {#if IsMobile.value && !modalMode && !typingOnTouch}
+      {#if IsMobile.value && !IsShort.value && !modalMode}
         <FabContainer class="sticky col-span-full mt-2">
           <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
           <AddSenseFab onclick={addSense} />
