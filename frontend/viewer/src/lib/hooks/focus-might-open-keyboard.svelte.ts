@@ -13,7 +13,7 @@ $effect.root(() => {
  * (mouse/trackpad) and the user isn't currently driving the app with a keyboard. It's a guess; a touch
  * device with a hardware keyboard attached still reports true.
  *
- * Gate focus the user didn't ask for on this. The new entry dialog doesn't: typing is the point of it.
+ * Gate focus the user didn't ask for on this. Creating an entry, sense or example doesn't: typing is the point of it.
  * Screen size is deliberately not a factor: tablets and landscape phones are wide, but still touch-first.
  */
 export class FocusMightOpenKeyboard {

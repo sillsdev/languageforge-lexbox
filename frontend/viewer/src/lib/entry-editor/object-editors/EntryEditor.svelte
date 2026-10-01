@@ -32,6 +32,7 @@
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {FocusMightOpenKeyboard} from '$lib/hooks/focus-might-open-keyboard.svelte';
+  import {isTextField} from '$lib/utils/keep-focused-field-in-view';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import DevContent from '$lib/layout/DevContent.svelte';
   import ObjectHeader from './ObjectHeader.svelte';
@@ -139,7 +140,7 @@
       setTimeout(() => {
         const newEntityElem = editorElem?.querySelector('.highlight');
         if (newEntityElem) {
-          if (highlighted?.autofocus && !FocusMightOpenKeyboard.value)
+          if (highlighted?.autofocus)
             findFirstTabbable(newEntityElem?.querySelector(`.${ENTITY_FIELD_CONTAINER_CLASS}`))?.focus();
 
           const _isBottomInViewport = isBottomInView(newEntityElem);
@@ -154,6 +155,17 @@
       });
     }
   });
+
+  // Cleared with a delay: tapping the FAB blurs the field on mousedown, and an unmounted FAB never gets the click.
+  let typingOnTouch = $state(false);
+  let typingTimeout: ReturnType<typeof setTimeout>;
+  function onFocusIn(event: FocusEvent) {
+    clearTimeout(typingTimeout);
+    typingOnTouch = isTextField(event.target) && FocusMightOpenKeyboard.value;
+  }
+  function onFocusOut() {
+    typingTimeout = setTimeout(() => typingOnTouch = false, 150);
+  }
 
   function isBottomInView(element: Element): boolean {
     const elementRect = element.getBoundingClientRect();
@@ -173,7 +185,7 @@
   const showSenses = $derived(showExamples || hasVisibleFields(viewService.currentView.senseFields));
 </script>
 
-<div class="flex min-h-0 gap-4">
+<div class="flex min-h-0 gap-4" onfocusin={onFocusIn} onfocusout={onFocusOut}>
   <Editor.Root bind:ref bind:this={editor} class="min-w-0 flex-1">
     <Editor.Grid bind:ref={editorElem}>
       <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
@@ -183,7 +195,7 @@
         <Editor.SubGrid class={cn(sense.id === highlighted?.entity.id && 'highlight')}>
           <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
 
-          <ObjectHeader type="sense" index={i + 1} class={cn(modalMode || 'sticky',
+          <ObjectHeader type="sense" index={i + 1} class={cn(modalMode || 'sticky short:static short:animate-none',
             'top-0 bg-background z-1 w-[calc(100%+2px)] pr-0.5 animate-fade-out animation-scroll')}>
             <EntityListItemActions {i}
                 items={entry.senses}
@@ -231,7 +243,7 @@
     {/if}
     {#if showSenses && !readonly && canAddSense}
       <hr class="col-span-full grow border-t-4">
-      {#if IsMobile.value && !modalMode}
+      {#if IsMobile.value && !modalMode && !typingOnTouch}
         <FabContainer class="sticky col-span-full mt-2">
           <!-- sticky isn't working in the new entry dialog. I think that's fine/good. -->
           <AddSenseFab onclick={addSense} />

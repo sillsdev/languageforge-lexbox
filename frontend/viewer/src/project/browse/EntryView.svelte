@@ -170,13 +170,13 @@
 <div class="h-full flex flex-col relative">
   {#if entry}
     <header>
-      <div class="max-md:p-2 md:mb-4 flex justify-between">
+      <div class="max-md:p-2 md:mb-4 short:py-0 short:mb-0 flex justify-between">
         {#if showClose && onClose}
           <XButton onclick={onClose} size="icon" />
         {/if}
         <!-- flex-1 truncates a long unbreakable headword so it can't push the actions off screen. -->
         <h2
-          class="ml-4 text-2xl font-semibold mb-2 min-w-0 flex-1 truncate max-md:text-center"
+          class="ml-4 text-2xl font-semibold mb-2 min-w-0 flex-1 truncate max-md:text-center short:text-lg short:mb-0"
           title={headword}>{headword}</h2>
         <div class="flex shrink-0">
           {#if features.comments}
