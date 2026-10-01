@@ -50,12 +50,13 @@ test('the image ignores a click while the actions menu is open (touch ghost-clic
 // `pointer-events: none` on <body>, freezing the app. Delay popstate to reproduce that timing.
 test('Edit from the mobile actions drawer survives a slow popstate', async ({page}) => {
   await page.addInitScript(() => {
+    const delayedEvents = new WeakSet<Event>();
     window.addEventListener('popstate', (e) => {
-      if ((e as PopStateEvent & {__delayed?: boolean}).__delayed) return;
+      if (delayedEvents.has(e)) return;
       e.stopImmediatePropagation();
       setTimeout(() => {
-        const delayed = new PopStateEvent('popstate', {state: e.state}) as PopStateEvent & {__delayed?: boolean};
-        delayed.__delayed = true;
+        const delayed = new PopStateEvent('popstate', {state: e.state as unknown});
+        delayedEvents.add(delayed);
         window.dispatchEvent(delayed);
       }, 300);
     }, {capture: true});
