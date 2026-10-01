@@ -9,13 +9,15 @@ $effect.root(() => {
 });
 
 /**
- * Whether it's appropriate to move focus into a text field without the user asking for it.
- * On touch devices that would pop up the virtual keyboard, so we only do it when the primary pointer
- * is fine (mouse/trackpad) or the user is currently driving the app with a (presumably physical) keyboard.
+ * Whether moving focus into a text field would probably pop up the virtual keyboard: no fine pointer
+ * (mouse/trackpad) and the user isn't currently driving the app with a keyboard. It's a guess; a touch
+ * device with a hardware keyboard attached still reports true.
+ *
+ * Gate focus the user didn't ask for on this. The new entry dialog doesn't: typing is the point of it.
  * Screen size is deliberately not a factor: tablets and landscape phones are wide, but still touch-first.
  */
-export class ShouldAutoFocus {
+export class FocusMightOpenKeyboard {
   static get value(): boolean {
-    return finePointer.current || !!usingKeyboard?.current;
+    return !finePointer.current && !usingKeyboard?.current;
   }
 }
