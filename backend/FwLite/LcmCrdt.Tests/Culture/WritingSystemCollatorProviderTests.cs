@@ -70,6 +70,14 @@ public class WritingSystemCollatorProviderTests
     }
 
     [Fact]
+    public void IcuRulesCollator_DecodesUnicodeEscapes()
+    {
+        var provider = CreateProvider();
+        var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = @"&z < a" });
+        collator.Compare("z", "a").Should().BeLessThan(0);
+    }
+
+    [Fact]
     public void IcuLocaleCollator_SortsByLocale()
     {
         var provider = CreateProvider();

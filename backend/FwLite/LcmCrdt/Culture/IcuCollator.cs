@@ -22,7 +22,8 @@ internal sealed class IcuCollator : ICollator
     public static IcuCollator FromRules(string rules)
     {
         IcuInit.EnsureInitialized();
-        return new(new Icu.Collation.RuleBasedCollator(rules));
+        // Decode \uXXXX escapes the same way libpalaso's IcuRulesCollator does, so ICU sees the same rules FLEx gives it.
+        return new(new Icu.Collation.RuleBasedCollator(LdmlCollationParser.ReplaceUnicodeEscapesForIcu(rules)));
     }
 
     public int Compare(string? x, string? y) =>
