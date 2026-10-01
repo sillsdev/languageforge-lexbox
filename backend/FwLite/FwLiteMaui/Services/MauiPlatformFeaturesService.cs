@@ -48,10 +48,15 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share)
     [JSInvokable]
     public async Task ShareFile(IJSStreamReference file, string fileName, string? contentType)
     {
-        //One shared folder, cleared on each share: the share sheet may still be reading the previous file
-        //after RequestAsync returns, so it can't be deleted right away.
-        var shareDir = Path.Combine(FileSystem.CacheDirectory, "share");
-        if (Directory.Exists(shareDir)) Directory.Delete(shareDir, recursive: true);
+        //A folder per share: the share sheet may still be reading a file after RequestAsync returns, and a
+        //second share can start while the first is still copying, so only clearly stale folders are removed.
+        var shareRoot = Path.Combine(FileSystem.CacheDirectory, "share");
+        Directory.CreateDirectory(shareRoot);
+        foreach (var oldDir in Directory.GetDirectories(shareRoot))
+        {
+            if (Directory.GetCreationTimeUtc(oldDir) < DateTime.UtcNow.AddMinutes(-10)) Directory.Delete(oldDir, recursive: true);
+        }
+        var shareDir = Path.Combine(shareRoot, Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(shareDir);
         var filePath = Path.Combine(shareDir, Path.GetFileName(fileName));
         await using (var source = await file.OpenReadStreamAsync(MaxShareFileSize))
