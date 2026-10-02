@@ -10,8 +10,8 @@ function focusedField(page: Page) {
   return page.evaluate(() => {
     const field = document.activeElement as HTMLElement;
     const {top, bottom} = field.getBoundingClientRect();
-    const gridArea = field.closest<HTMLElement>('[style*="grid-area"]')?.style.gridArea;
-    return {gridArea, tag: field.tagName, top, inView: top >= 0 && bottom <= window.innerHeight};
+    const fieldId = field.closest<HTMLElement>('[data-field-id]')?.dataset.fieldId;
+    return {fieldId, top, inView: top >= 0 && bottom <= window.innerHeight};
   });
 }
 
@@ -77,7 +77,7 @@ test.describe('Entry autofocus', () => {
       await projectPage.goto();
       await projectPage.tapEntry(3);
       await page.getByRole('button', {name: /add example/i}).last().tap();
-      await expect.poll(() => focusedField(page)).toMatchObject({gridArea: 'sentence'});
+      await expect.poll(() => focusedField(page)).toMatchObject({fieldId: 'sentence'});
     }
 
     test('the focused field stays in view when the keyboard shrinks the viewport', async ({page}) => {
@@ -89,7 +89,7 @@ test.describe('Entry autofocus', () => {
       // a virtual keyboard resizes the window well after focus; emulate that
       await page.setViewportSize({width: 1024, height: 300});
 
-      await expect.poll(() => focusedField(page)).toMatchObject({gridArea: 'sentence', inView: true});
+      await expect.poll(() => focusedField(page)).toMatchObject({fieldId: 'sentence', inView: true});
     });
 
     test('a focused field the user scrolled away from is left alone when the viewport shrinks', async ({page}) => {
