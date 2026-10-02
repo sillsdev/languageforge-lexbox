@@ -20,6 +20,16 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     private readonly Channel<Guid> _projectsToSync = Channel.CreateUnbounded<Guid>();
     private readonly ConcurrentDictionary<Guid, TaskCompletionSource<SyncJobResult>> _projectsQueuedOrRunning = new();
 
+    // Projects currently being created and populated with an initial .fwdata file. Tracked here (not just in ProjectCreationService)
+    // so a sync job can't be queued for a project mid-creation and race on the same fw/ folder and repo.
+    // The TaskCompletionSource carries the outcome to anyone long-polling AwaitCreationFinished.
+    private readonly ConcurrentDictionary<Guid, TaskCompletionSource<ProjectCreationStatus>> _projectsBeingCreated = new();
+
+    // Serialises the check-then-add across the two dictionaries above, so a creation and a sync can't
+    // both slip through by interleaving their checks.
+    // This requires that SyncHostedService be a singleton, of course
+    private readonly Lock _reservationLock = new();
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await foreach (var projectId in _projectsToSync.Reader.ReadAllAsync(stoppingToken))
@@ -54,8 +64,40 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
 
     public virtual bool IsJobQueuedOrRunning(Guid projectId)
     {
-        return _projectsQueuedOrRunning.ContainsKey(projectId);
+        return _projectsQueuedOrRunning.ContainsKey(projectId) || _projectsBeingCreated.ContainsKey(projectId);
     }
+
+    /// <summary>
+    /// Reserves a project for creation-and-population, blocking a concurrent creation or sync of the
+    /// same project. Returns false if a sync is already queued/running or another creation is in flight.
+    /// Pair with <see cref="EndProjectCreation"/> in a finally block.
+    /// </summary>
+    public bool TryStartProjectCreation(Guid projectId)
+    {
+        lock (_reservationLock)
+        {
+            if (_projectsQueuedOrRunning.ContainsKey(projectId)) return false;
+            // RunContinuationsAsynchronously so a long-polling awaiter's continuation can't run inline on
+            // the thread that finished the creation.
+            return _projectsBeingCreated.TryAdd(projectId,
+                new TaskCompletionSource<ProjectCreationStatus>(TaskCreationOptions.RunContinuationsAsynchronously));
+        }
+    }
+
+    /// <summary>
+    /// Releases the reservation and publishes the outcome to pollers. Must be called on every exit path
+    /// from a creation, or an AwaitCreationFinished caller waits until its own token trips.
+    /// </summary>
+    public void EndProjectCreation(Guid projectId, ProjectCreationStatus result)
+    {
+        // Cache before removing the reservation, so a poller that sees "not in flight" always finds the
+        // result waiting for it rather than a gap.
+        CacheRecentCreationResult(projectId, result);
+        _projectsBeingCreated.TryRemove(projectId, out var tcs);
+        tcs?.TrySetResult(result);
+    }
+
+    public bool IsProjectBeingCreated(Guid projectId) => _projectsBeingCreated.ContainsKey(projectId);
 
     public async Task<SyncJobResult?> AwaitSyncFinished(Guid projectId, CancellationToken cancellationToken)
     {
@@ -64,10 +106,44 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         return TryGetRecentSyncResult(projectId);
     }
 
+    /// <summary>
+    /// Waits for an in-flight creation to finish. Returns the recent result if one just finished, or
+    /// null when this FwHeadless has no record of a creation for the project (the caller should then
+    /// derive the status from durable state instead).
+    /// </summary>
+    public async Task<ProjectCreationStatus?> AwaitCreationFinished(Guid projectId, CancellationToken cancellationToken)
+    {
+        if (_projectsBeingCreated.TryGetValue(projectId, out var tcs))
+            return await tcs.Task.WaitAsync(cancellationToken);
+        return TryGetRecentCreationResult(projectId);
+    }
+
+    public ProjectCreationStatus? TryGetRecentCreationResult(Guid projectId)
+    {
+        return memoryCache.Get<ProjectCreationStatus>($"CreationResult|{projectId}");
+    }
+
+    private void CacheRecentCreationResult(Guid projectId, ProjectCreationStatus result)
+    {
+        // Longer than the sync equivalent's 30s: a caller whose own request timed out partway through a
+        // creation should still be able to come back and learn how it ended.
+        memoryCache.Set($"CreationResult|{projectId}", result, TimeSpan.FromMinutes(5));
+    }
+
     public bool QueueJob(Guid projectId)
     {
-        //will only queue job if it's not already queued
-        var addedToQueue = _projectsQueuedOrRunning.TryAdd(projectId, new());
+        bool addedToQueue;
+        lock (_reservationLock)
+        {
+            //don't sync a project while it's still being created and populated with initial .fwdata (would race on the repo)
+            if (_projectsBeingCreated.ContainsKey(projectId))
+            {
+                logger.LogInformation("Project {ProjectId} is being created, not queueing a sync job", projectId);
+                return false;
+            }
+            //will only queue job if it's not already queued
+            addedToQueue = _projectsQueuedOrRunning.TryAdd(projectId, new());
+        }
         if (addedToQueue)
         {
             if (!_projectsToSync.Writer.TryWrite(projectId))
