@@ -113,9 +113,23 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Generate release notes
+        id: notes
+        uses: ./.github/actions/release-notes
+        with:
+          tag: lexbox-${{ needs.set-version.outputs.version }}
+          # Before the split, Lexbox and FW Lite shared bare v* releases.
+          previous-tag-prefixes: lexbox-v v20
+          config: .github/release-lexbox.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
-          tag_name: ${{ needs.set-version.outputs.version }}
+          tag_name: lexbox-${{ needs.set-version.outputs.version }}
           target_commitish: ${{ github.sha }}
-          generate_release_notes: true
+          body_path: ${{ steps.notes.outputs.notes-file }}
+          # Keep /releases/latest pointing at FW Lite, the product people download.
+          make_latest: false

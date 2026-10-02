@@ -44,7 +44,7 @@ The CI/CD setup is:
 | `integration-test-gha.yaml` | API/UI changes | Spin up K8s in GHA, run integration tests |
 | `deploy.yaml` | Called by others | Deploy to K8s environment via fleet repo |
 | `deploy-branch.yaml` | Manual | Deploy feature branch to develop |
-| `release-pipeline.yaml` | develop/main push | Orchestrate build → test → deploy |
+| `release-pipeline.yaml` | develop/main push | Orchestrate build → test → deploy; on main also a `lexbox-v<date>-<sha>` GitHub release |
 
 ### Development Workflows
 
@@ -234,6 +234,7 @@ This is the most complex workflow because it:
 | `launch-mac` | macos-latest + macos-15-intel | Checks Gatekeeper accepts the notarized DMG, then launches the app on each CPU and waits for its "Viewer loaded" log line (upstream only; gates `create-release`) |
 | `publish-linux` | ubuntu-latest | Linux binaries |
 | `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX; launches the portable exe and waits for its "Viewer loaded" log line |
+| `create-release` | ubuntu-latest | main only: GitHub release `v<date>-<sha>` with the installers; notes from `.github/release-fw-lite.yml` via `.github/actions/release-notes`, which also gives the Lexbox release its own range |
 
 ### Solution filters
 
