@@ -9,7 +9,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="SIL.Core" />
-    <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
+    <!-- Host check alone misses win-x64 published from Linux (the Platform.Bible extension). -->
+    <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Condition="$([MSBuild]::IsOsPlatform('Windows')) Or $(RuntimeIdentifier.StartsWith('win'))" />
     <PackageReference Include="SIL.LCModel" />
     <PackageReference Include="structuremap.patched" />
     <PackageReference Include="System.Linq.Async" />

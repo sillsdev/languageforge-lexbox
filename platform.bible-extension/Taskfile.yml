@@ -28,6 +28,7 @@ tasks:
     deps: [build-viewer]
     cmds:
       - task: publish-fw-lite
+        vars: { CLI_ARGS: '' }
   # Args after `--` reach dotnet publish, e.g. `task publish-fw-lite -- -p:Version=2026.9.28`.
   publish-fw-lite:
     cmds:
