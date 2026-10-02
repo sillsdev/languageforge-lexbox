@@ -190,7 +190,6 @@ public partial class MiniLcmApiNotifyWrapper(
         NotifyEntryChanged(entryId);
     }
 
-    // Read-status writes stay silent on purpose: marking a thread read shouldn't refresh the entry list.
     private void NotifyCommentsChanged() => bus.PublishCommentsChanged(project);
 
     async Task<CommentThread> IMiniLcmWriteApi.CreateCommentThread(CommentThread thread, UserComment firstComment)
@@ -232,6 +231,12 @@ public partial class MiniLcmApiNotifyWrapper(
         await _api.DeleteCommentThread(threadId);
         NotifyCommentsChanged();
     }
+
+    // Read-status writes stay silent on purpose: marking a thread read shouldn't refresh the entry list.
+    Task IMiniLcmWriteApi.MarkCommentRead(Guid commentId) => _api.MarkCommentRead(commentId);
+    Task IMiniLcmWriteApi.MarkCommentThreadUnread(Guid threadId) => _api.MarkCommentThreadUnread(threadId);
+    Task IMiniLcmWriteApi.MarkCommentThreadRead(Guid threadId) => _api.MarkCommentThreadRead(threadId);
+    Task IMiniLcmWriteApi.MarkAllCommentsRead() => _api.MarkAllCommentsRead();
 
     void IDisposable.Dispose()
     {
