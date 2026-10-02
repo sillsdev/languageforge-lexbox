@@ -12,6 +12,8 @@
   import CommentReplyInput from './CommentReplyInput.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import type {ThreadView} from './types';
+  import {slide} from 'svelte/transition';
+  import {prefersReducedMotion} from 'svelte/motion';
 
   let {
     threadView,
@@ -21,6 +23,7 @@
     editingCommentId,
     expanded = false,
     hasUnread = false,
+    arrivals = new Set<string>(),
     onToggle,
     onResolve,
     onReply,
@@ -36,6 +39,7 @@
     editingCommentId?: string;
     expanded?: boolean;
     hasUnread?: boolean;
+    arrivals?: Set<string>;
     onToggle: () => void;
     onResolve: () => void;
     onReply: (text: string) => void | Promise<void>;
@@ -45,6 +49,12 @@
     /** Debug only: puts the thread back in the unread state. */
     onMarkUnread?: () => void;
   } = $props();
+
+  // A new thread animates as one block; a comment animates itself, or the collapsed thread hiding it.
+  const threadArrived = $derived(arrivals.has(`${threadView.thread.id}:${threadView.thread.status}`));
+  const flash = $derived(
+    threadArrived || (!expanded && threadView.comments.some((c) => arrivals.has(c.id))),
+  );
 
   const resolved = $derived(threadView.thread.status === ThreadStatus.Closed);
   const firstComment = $derived(threadView.comments[0]);
@@ -56,9 +66,11 @@
 </script>
 
 <section
+  in:slide={{duration: threadArrived && !prefersReducedMotion.current ? 250 : 0}}
   class={cn(
     'shrink-0 overflow-hidden rounded-lg border border-border',
     resolved ? 'opacity-65' : 'border-l-[3px] border-l-primary bg-card',
+    flash && 'animate-flash-highlight',
   )}
 >
   <Collapsible.Root open={expanded} onOpenChange={onOpenChange}>
@@ -142,12 +154,13 @@
     </Collapsible.Trigger>
 
     <Collapsible.Content class="overflow-hidden">
-      <div class="border-t border-border px-3.5 pt-2.5 pb-3">
+      <div class="border-t border-border px-2 pt-2.5 pb-3">
         <div class="flex flex-col">
           {#each threadView.comments as comment, index (comment.id)}
             <CommentItem
               {comment}
               compact={index > 0}
+              arrived={!threadArrived && arrivals.has(comment.id)}
               canEdit={Boolean(currentUserId && comment.authorId === currentUserId)}
               {saving}
               editing={editingCommentId === comment.id}
@@ -159,7 +172,7 @@
         </div>
 
         {#if canComment && !resolved}
-          <div class="mt-2.5 border-t border-border pt-2.5">
+          <div class="mt-2.5 border-t border-border px-1.5 pt-2.5">
             <CommentReplyInput {saving} onSubmit={onReply} />
           </div>
         {/if}
