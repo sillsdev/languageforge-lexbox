@@ -27,8 +27,13 @@ tasks:
   build-fw-lite:
     deps: [build-viewer]
     cmds:
+      - task: publish-fw-lite
+        vars: { CLI_ARGS: '' }
+  # Args after `--` reach dotnet publish, e.g. `task publish-fw-lite -- -p:Version=2026.9.28`.
+  publish-fw-lite:
+    cmds:
       # Publish both RIDs so one extension package runs on Windows and Linux.
-      - dotnet publish ../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --sc -r win-x64 --output ./public/fw-lite/win-x64
-      - dotnet publish ../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --sc -r linux-x64 --output ./public/fw-lite/linux-x64
+      - dotnet publish ../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --sc -r win-x64 --output ./public/fw-lite/win-x64 {{.CLI_ARGS}}
+      - dotnet publish ../backend/FwLite/FwLiteWeb/FwLiteWeb.csproj --configuration Release --sc -r linux-x64 --output ./public/fw-lite/linux-x64 {{.CLI_ARGS}}
   build-viewer:
     deps: [viewer:build]
