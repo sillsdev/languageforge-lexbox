@@ -183,7 +183,10 @@ public partial class CrdtProjectsService(
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
         // Code must satisfy the lowercase-only ProjectCode rule; the display name keeps its casing.
-        return await CreateProjectFromTemplate(new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager, AuthenticatedUser: "Example User", AuthenticatedUserId: "example-user"), vernacularWs: "de");
+        return await CreateProjectFromTemplate(
+            new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager, AuthenticatedUser: "Example User", AuthenticatedUserId: "example-user"),
+            vernacularWs: "de",
+            configureVernacular: ws => ws with { IcuCollationRules = ExampleProjectData.DemoIcuCollationRules });
     }
 
     /// <summary>
@@ -196,7 +199,8 @@ public partial class CrdtProjectsService(
     public virtual async Task<CrdtProject> CreateProjectFromTemplate(
         CreateProjectRequest request,
         WritingSystemId vernacularWs,
-        WritingSystemId? analysisWs = null)
+        WritingSystemId? analysisWs = null,
+        Func<WritingSystem, WritingSystem>? configureVernacular = null)
     {
         // Templated projects are created locally; this path has no way to associate one with a server
         // at creation time, so reject a Domain up front — the invariant holds where the project is born.
@@ -214,7 +218,7 @@ public partial class CrdtProjectsService(
             {
                 var api = provider.GetRequiredService<IMiniLcmApi>();
                 var jsonOptions = provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.JsonSerializerOptions;
-                var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs);
+                var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs, configureVernacular);
                 var commitMetadataInterceptor = provider.GetRequiredService<CommitMetadataInterceptor>();
                 using (commitMetadataInterceptor.Intercept(CommitHelpers.StampAsTemplate))
                 {

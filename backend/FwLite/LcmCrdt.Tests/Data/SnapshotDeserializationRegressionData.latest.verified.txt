@@ -7633,7 +7633,51 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Order": 0
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "3b85e4c8-6330-9167-2349-3bba70056346",
+      "MaybeId": "3b85e4c8-6330-9167-2349-3bba70056346",
+      "WsId": "syk",
+      "IsAudio": false,
+      "Name": "vortals",
+      "Abbreviation": "Granite",
+      "Font": "Iowa",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "Incredible Metal Chair"
+      ],
+      "IcuCollationRules": "Customizable",
+      "SystemCollationLocale": "Borders",
+      "Order": 0.03765569767409571
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "48cd49a6-9e90-7bf0-03e5-5297705ab10f",
+      "MaybeId": "48cd49a6-9e90-7bf0-03e5-5297705ab10f",
+      "WsId": "xfa",
+      "IsAudio": false,
+      "Name": "Architect",
+      "Abbreviation": "neutral",
+      "Font": "B2C",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "Corporate"
+      ],
+      "IcuCollationRules": "generating",
+      "SystemCollationLocale": "Pataca",
+      "Order": 0.052759721692780426
     }
   },
   {
@@ -7652,7 +7696,51 @@
       "Exemplars": [
         "Planner"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Order": 0.4320924489200455
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "9be8f583-63b4-cf64-4202-0e09481317c0",
+      "MaybeId": "9be8f583-63b4-cf64-4202-0e09481317c0",
+      "WsId": "enh",
+      "IsAudio": false,
+      "Name": "internet solution",
+      "Abbreviation": "Walk",
+      "Font": "payment",
+      "DeletedAt": null,
+      "Type": 0,
+      "Exemplars": [
+        "Licensed Fresh Cheese"
+      ],
+      "IcuCollationRules": "connect",
+      "SystemCollationLocale": "Oregon",
+      "Order": 0.9633181157872764
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "26d08fb5-a2cf-3586-21ca-74361a451202",
+      "MaybeId": "26d08fb5-a2cf-3586-21ca-74361a451202",
+      "WsId": "zpg",
+      "IsAudio": false,
+      "Name": "driver",
+      "Abbreviation": "cross-platform",
+      "Font": "SMS",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "invoice"
+      ],
+      "IcuCollationRules": "Practical",
+      "SystemCollationLocale": "Usability",
+      "Order": 0.14720526900908437
     }
   },
   {
@@ -7696,7 +7784,51 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Order": 0
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
+      "MaybeId": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
+      "WsId": "ksh",
+      "IsAudio": false,
+      "Name": "Refined",
+      "Abbreviation": "Coordinator",
+      "Font": "indexing",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "National"
+      ],
+      "IcuCollationRules": "Monitored",
+      "SystemCollationLocale": "bandwidth",
+      "Order": 0.2935114043495951
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "3004769f-a2d1-3ecc-ff92-5beba42fe11c",
+      "MaybeId": "3004769f-a2d1-3ecc-ff92-5beba42fe11c",
+      "WsId": "jul",
+      "IsAudio": false,
+      "Name": "Forward",
+      "Abbreviation": "XSS",
+      "Font": "Applications",
+      "DeletedAt": null,
+      "Type": 0,
+      "Exemplars": [
+        "Mill"
+      ],
+      "IcuCollationRules": "Wooden",
+      "SystemCollationLocale": "web-enabled",
+      "Order": 0.16803085028296483
     }
   },
   {
@@ -7715,7 +7847,51 @@
       "Exemplars": [
         "blockchains"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Order": 0.14806393624996905
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
+      "MaybeId": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
+      "WsId": "mnm",
+      "IsAudio": false,
+      "Name": "uniform",
+      "Abbreviation": "feed",
+      "Font": "Intelligent Plastic Chips",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "Beauty, Games \u0026 Movies"
+      ],
+      "IcuCollationRules": "Assurance",
+      "SystemCollationLocale": "Kids \u0026 Electronics",
+      "Order": 0.34200726440404006
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "ce87f975-e6be-0a22-18b8-58293588f26d",
+      "MaybeId": "ce87f975-e6be-0a22-18b8-58293588f26d",
+      "WsId": "ula",
+      "IsAudio": false,
+      "Name": "California",
+      "Abbreviation": "connect",
+      "Font": "Electronics, Books \u0026 Health",
+      "DeletedAt": null,
+      "Type": 1,
+      "Exemplars": [
+        "Versatile"
+      ],
+      "IcuCollationRules": "Arkansas",
+      "SystemCollationLocale": "Auto Loan Account",
+      "Order": 0.9792463783367654
     }
   },
   {
