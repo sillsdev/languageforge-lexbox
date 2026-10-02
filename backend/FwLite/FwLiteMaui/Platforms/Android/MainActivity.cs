@@ -14,6 +14,8 @@ using Microsoft.Identity.Client;
 
 namespace FwLiteMaui;
 
+//ConfigurationChanges deliberately leaves out Keyboard/KeyboardHidden: the recreation on keyboard attach/detach
+//is what keeps FwLiteConfig.HasHardwareKeyboard fresh (see OnCreate).
 [Activity(Theme = "@style/Maui.SplashTheme",
     MainLauncher = true,
     LaunchMode = LaunchMode.SingleTop,
@@ -42,9 +44,9 @@ public class MainActivity : MauiAppCompatActivity
         }
 
         ApplyBrandedSystemBars();
-        //Attaching or detaching a keyboard recreates the activity (ConfigChanges doesn't claim Keyboard), so
-        //reading it here keeps the value current without a change event. Resources.Configuration is still
-        //stale at this point; the input device list is already updated.
+        //Attaching or detaching a keyboard recreates the activity, so reading it here keeps the value current
+        //without a change event. Resources.Configuration is still stale at this point; the input device list
+        //is already updated.
         var config = IPlatformApplication.Current?.Services.GetService<IOptions<FwLiteConfig>>()?.Value;
         if (config is not null) config.HasHardwareKeyboard = HasHardwareKeyboard();
         StartInAppUpdateCheck();
