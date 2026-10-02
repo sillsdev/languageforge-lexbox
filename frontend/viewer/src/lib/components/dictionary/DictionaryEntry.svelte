@@ -6,6 +6,7 @@
   import {cn} from '$lib/utils';
   import type {Snippet} from 'svelte';
   import Headwords from './Headwords.svelte';
+  import {useViewService} from '$lib/views/view-service.svelte';
   let {
     entry,
     showLinks = false,
@@ -34,6 +35,9 @@
   });
 
   const wsService = useWritingSystemService();
+  const viewService = useViewService();
+  const vernacularWs = $derived(wsService.viewVernacularNoAudio(viewService.currentView));
+  const analysisWs = $derived(wsService.viewAnalysis(viewService.currentView).filter((ws) => !ws.isAudio));
 
   let senses = $derived(entry.senses.map(getRenderedContent));
 
@@ -47,8 +51,7 @@
     return {
       id: sense.id,
       partOfSpeech: partsOfSpeech.current.find((pos) => pos.id === sense.partOfSpeechId)?.label,
-      glossesAndDefs: wsService.analysis
-        .filter((ws) => !ws.isAudio)
+      glossesAndDefs: analysisWs
         .map((ws) => ({
           wsId: ws.wsId,
           wsAbbr: ws.abbreviation,
@@ -60,18 +63,14 @@
       exampleSentences: sense.exampleSentences.map((example) => ({
         id: example.id,
         sentences: [
-          ...wsService.vernacular
-            .filter((ws) => !ws.isAudio)
-            .map((ws) => ({
-              text: asString(example.sentence[ws.wsId]),
-              color: wsService.wsColor(ws.wsId, 'vernacular'),
-            })),
-          ...wsService.analysis
-            .filter((ws) => !ws.isAudio)
-            .map((ws) => ({
-              text: asString(example.translations[0]?.text?.[ws.wsId]),
-              color: wsService.wsColor(ws.wsId, 'analysis'),
-            })),
+          ...vernacularWs.map((ws) => ({
+            text: asString(example.sentence[ws.wsId]),
+            color: wsService.wsColor(ws.wsId, 'vernacular'),
+          })),
+          ...analysisWs.map((ws) => ({
+            text: asString(example.translations[0]?.text?.[ws.wsId]),
+            color: wsService.wsColor(ws.wsId, 'analysis'),
+          })),
         ].filter(({text}) => !!text),
       })),
     };

@@ -97,6 +97,12 @@ export class WritingSystemService {
     return this.filterWs(this.vernacular, view?.vernacular);
   }
 
+  /** The view's non-audio vernacular writing systems, or all of them if the view only shows audio ones. */
+  viewVernacularNoAudio(view: View): IWritingSystem[] {
+    const writingSystems = this.viewVernacular(view).filter(ws => !ws.isAudio);
+    return writingSystems.length ? writingSystems : this.vernacularNoAudio;
+  }
+
   filterWs(writingSystems: IWritingSystem[], override?: IViewWritingSystem[]) {
     if (!override) return writingSystems;
     return writingSystems.filter(ws => override.find(_ws => _ws.wsId === ws.wsId));

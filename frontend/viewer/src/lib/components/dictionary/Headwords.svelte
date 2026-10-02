@@ -3,6 +3,7 @@
   import {cn} from '$lib/utils';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useWritingSystemService} from '$project/data';
+  import {useViewService} from '$lib/views/view-service.svelte';
 
   let {
     entry,
@@ -15,10 +16,11 @@
   } = $props();
 
   const wsService = useWritingSystemService();
+  const viewService = useViewService();
 
   let headwords = $derived.by(() => {
-    return wsService.vernacular
-      .filter((ws) => !ws.isAudio)
+    return wsService
+      .viewVernacularNoAudio(viewService.currentView)
       .map((ws) => ({
         wsId: ws.wsId,
         value: wsService.headword(entry, ws.wsId),
