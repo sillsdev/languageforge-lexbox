@@ -67,6 +67,7 @@ export const mockFwLiteConfig: IFwLiteConfig = {
   appVersion: 'dev',
   feedbackUrl: '',
   os: FwLitePlatform.Web,
+  hasHardwareKeyboard: true,
   useDevAssets: true,
   devAssetsPort: 5173,
   edition: 0,
@@ -130,6 +131,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       async setWrite(write: boolean) {
         inMemoryLexboxApi.setWrite(write);
         await projectContext.refetchFeatures();
+      },
+      setHasHardwareKeyboard(value: boolean) {
+        mockFwLiteConfig.hasHardwareKeyboard = value;
       },
     };
 

@@ -32,6 +32,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>FieldWorks Lite uses the camera to take pictures for dictionary entries.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>FieldWorks Lite uses the microphone to record audio for dictionary entries.</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/logo_background.appiconset</string>
 </dict>

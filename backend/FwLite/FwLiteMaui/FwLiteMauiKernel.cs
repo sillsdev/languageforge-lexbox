@@ -95,6 +95,9 @@ public static class FwLiteMauiKernel
         services.RemoveAll<IPlatformUpdateService>();
         services.AddSingleton<IPlatformUpdateService>(sp => sp.GetRequiredService<AndroidInAppUpdateService>());
 #endif
+#if IOS
+        services.Replace(ServiceDescriptor.Singleton<IKeepAwakePlatform, IosKeepAwakePlatform>());
+#endif
         services.AddSingleton<IAppLauncher, AppLauncher>();
 
         services.Configure<FwLiteConfig>(config =>
@@ -120,6 +123,9 @@ public static class FwLiteMauiKernel
             {
                 config.Os = FwLitePlatform.Other;
             }
+#if IOS
+            config.HasHardwareKeyboard = GameController.GCKeyboard.CoalescedKeyboard is not null;
+#endif
             // MAUI doesn't support appsettings.json — gate dev-only settings in code instead.
             // See https://github.com/dotnet/maui/issues/4408
             if (env.IsDevelopment())
