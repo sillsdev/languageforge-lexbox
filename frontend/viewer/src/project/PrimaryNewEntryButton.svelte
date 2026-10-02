@@ -18,6 +18,7 @@
   import {isApplePlatform} from '$lib/utils/platform';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {HasHardwareKeyboard} from '$lib/hooks/has-hardware-keyboard';
 
   $effect(() => {
     instances[id] = active;
@@ -50,7 +51,7 @@
 
 {#if isActive && features.write}
   <div class="relative z-1" in:receive={{ key: 'new-entry-button' }} out:send={{ key: 'new-entry-button' }}>
-    <Tooltip.Root>
+    <Tooltip.Root disabled={!HasHardwareKeyboard.value}>
       <Tooltip.Trigger>
         {#snippet child({props})}
           <Button variant="default" size="extended-fab" class="font-semibold" icon="i-mdi-plus-thick" {...props} {onclick}>
