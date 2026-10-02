@@ -15,16 +15,14 @@
     unreadComments = $bindable(false)
   }: { unreadComments: boolean } = $props();
 
-  let commentsChangedTick = $state(0);
-  projectEventBus.onCommentsChanged(() => commentsChangedTick++);
-
-  let unreadCountResource = resource([() => miniLcmApi, () => commentsChangedTick], async ([api]) => {
+  let unreadCountResource = resource(() => miniLcmApi, async (api) => {
     if (!api) return 0;
     return await api.countUnreadComments(undefined);
   }, {
     initialValue: 0,
     debounce: 500
   });
+  projectEventBus.onCommentsChanged(() => void unreadCountResource.refetch());
   const unreadCount = $derived(unreadCountResource.current);
   const label = $derived($plural(unreadCount, {one: '# unread comment', other: '# unread comments'}));
 </script>
