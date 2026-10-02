@@ -44,7 +44,7 @@ The CI/CD setup is:
 | `integration-test-gha.yaml` | API/UI changes | Spin up K8s in GHA, run integration tests |
 | `deploy.yaml` | Called by others | Deploy to K8s environment via fleet repo |
 | `deploy-branch.yaml` | Manual | Deploy feature branch to develop |
-| `release-pipeline.yaml` | develop/main push | Orchestrate build → test → deploy; on main also a `lexbox-v<date>-<sha>` GitHub release |
+| `release-pipeline.yaml` | Manual dispatch (develop only) | Release LexBox (build → test → deploy, then a `lexbox-v<date>-<sha>` GitHub release) and FW Lite with one shared version |
 
 ### Development Workflows
 
@@ -76,6 +76,7 @@ flowchart TD
     RP[release-pipeline.yaml] -->|calls| API[lexbox-api.yaml]
     RP -->|calls| UI[lexbox-ui.yaml]
     RP -->|calls| FWH[lexbox-fw-headless.yaml]
+    RP -->|calls with release: true| FWL[fw-lite.yaml]
     
     API --> IT[integration-test-gha.yaml]
     UI --> IT
@@ -84,9 +85,10 @@ flowchart TD
     IT --> DEP[deploy.yaml]
 ```
 
-### FwLite is Separate
+### FwLite
 
-`fw-lite.yaml` is **independent** from the main LexBox workflows:
+`fw-lite.yaml` runs on its own for CI (develop pushes, PRs, manual dispatch). Releases call it from `release-pipeline.yaml` with `release: true` and the shared `version`/`semver-version`; that's the only way to publish the GitHub/Play Store release. Its own manual dispatch can't release (it declares no inputs). The LexBox and FW Lite releases run in parallel; neither blocks the other.
+
 - Core .NET build/tests run on Linux (`FwLiteCore.slnf`); MAUI build/tests on Windows only
 - Has its own test suite
 - Publishes standalone apps, not Docker images
@@ -113,10 +115,10 @@ All Docker images go to `ghcr.io/sillsdev/`:
 - `lexbox-hgweb`
 
 Images are tagged with:
-- Branch name (`develop`, `main`)
+- Branch name (`develop`)
 - PR number (`pr-123`)
 - Commit SHA
-- `latest` (for main branch)
+- `latest` (release pipeline)
 
 ### Environments
 
@@ -234,7 +236,7 @@ This is the most complex workflow because it:
 | `launch-mac` | macos-latest + macos-15-intel | Checks Gatekeeper accepts the notarized DMG, then launches the app on each CPU and waits for its "Viewer loaded" log line (upstream only; gates `create-release`) |
 | `publish-linux` | ubuntu-latest | Linux binaries |
 | `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX; launches the portable exe and waits for its "Viewer loaded" log line |
-| `create-release` | ubuntu-latest | main only: GitHub release `v<date>-<sha>` with the installers; notes from `.github/release-fw-lite.yml` via `.github/actions/release-notes`, which also gives the Lexbox release its own range |
+| `create-release` | ubuntu-latest | Release runs only (`release: true`): GitHub release `v<date>-<sha>` with the installers; notes from `.github/release-fw-lite.yml` via `.github/actions/release-notes`, which also gives the Lexbox release its own range |
 
 ### Solution filters
 

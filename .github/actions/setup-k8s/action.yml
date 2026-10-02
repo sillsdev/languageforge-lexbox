@@ -1,4 +1,5 @@
 name: Setup and run lexbox k8s
+description: Create a local k8s cluster, deploy lexbox to it at the given image tags, and expose its ingress for tests
 inputs:
   lexbox-api-tag:
     required: true
