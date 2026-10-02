@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
@@ -13,6 +12,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace LexBoxApi.Auth;
@@ -20,6 +20,7 @@ namespace LexBoxApi.Auth;
 public class LexAuthService
 {
     public const string JwtUpdatedHeader = LexAuthConstants.JwtUpdatedHeader;
+    private static readonly JsonWebTokenHandler TokenHandler = new();
     private readonly IOptions<JwtOptions> _userOptions;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -186,21 +187,23 @@ public class LexAuthService
         var id = Guid.NewGuid().ToString().GetHashCode().ToString("x", CultureInfo.InvariantCulture);
         identity.AddClaim(new Claim(JwtRegisteredClaimNames.Jti, id));
         identity.AddClaims(user.GetClaims().Where(c => c.Type != JwtRegisteredClaimNames.Aud));
-        var handler = new JwtSecurityTokenHandler();
-        var jwt = handler.CreateJwtSecurityToken(
-            audience: user.Audience.ToString(),
-            issuer: LexboxAudience.LexboxApi.ToString(),
-            subject: identity,
-            notBefore: jwtDate,
-            expires: jwtDate + tokenLifetime,
-            signingCredentials: new SigningCredentials(
+        var claims = new Dictionary<string, object?>();
+        JwtTicketDataFormat.AddArrayClaims(identity, claims);
+        var descriptor = new SecurityTokenDescriptor
+        {
+            Audience = user.Audience.ToString(),
+            Issuer = LexboxAudience.LexboxApi.ToString(),
+            Subject = identity,
+            Claims = claims!,
+            NotBefore = jwtDate,
+            Expires = jwtDate + tokenLifetime,
+            SigningCredentials = new SigningCredentials(
                 GetSigningKey(options),
                 SecurityAlgorithms.HmacSha256
             )
-        );
-        JwtTicketDataFormat.FixUpArrayClaims(jwt);
-        var token = handler.WriteToken(jwt);
-        expiresAt = jwt.ValidTo.ToUniversalTime();
+        };
+        var token = TokenHandler.CreateToken(descriptor);
+        expiresAt = TokenHandler.ReadJsonWebToken(token).ValidTo.ToUniversalTime();
         return token;
     }
 }
