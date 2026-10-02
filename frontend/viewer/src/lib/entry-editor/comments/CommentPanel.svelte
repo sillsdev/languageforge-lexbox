@@ -139,7 +139,7 @@
                 bind:value={newThreadText}
                 placeholder={$t`Start a conversation…`}
                 rows={3}
-                disabled={loading || saving}
+                disabled={saving}
                 class="max-h-40 overflow-y-auto text-sm"
                 onkeydown={(e) => {
                   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -152,7 +152,7 @@
                 <Button variant="outline" size="sm" onclick={cancelAdding} disabled={saving}>
                   {$t`Cancel`}
                 </Button>
-                <Button size="sm" onclick={submitNewThread} disabled={!newThreadText.trim() || loading} loading={saving}>
+                <Button size="sm" onclick={submitNewThread} disabled={!newThreadText.trim()} loading={saving}>
                   {$t`Comment`}
                 </Button>
               </div>
