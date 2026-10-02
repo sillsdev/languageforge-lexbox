@@ -73,7 +73,7 @@ The body usually has a plain-English summary; don't judge from the title alone w
 A merged PR is not the same as a shipped feature. FieldWorks Lite gates unreleased UI behind release-channel feature flags; the registry is `CHANNEL_FLAGS` in `frontend/viewer/src/lib/feature-flags/feature-flags.ts` (production is the empty channel and has no flags; features ship by *deleting* their flag). Read it at both ends of the release:
 
 ```bash
-git show <TAG>:frontend/viewer/src/lib/feature-flags/feature-flags.ts        # released mode; pre-release mode uses origin/develop (the tag doesn't exist yet)
+git show <TAG>:frontend/viewer/src/lib/feature-flags/feature-flags.ts        # released mode; pre-release mode uses the commit from Step 1 (the tag doesn't exist yet)
 git show <PREV_TAG>:frontend/viewer/src/lib/feature-flags/feature-flags.ts   # previous release (the baseline tag from Step 1)
 ```
 

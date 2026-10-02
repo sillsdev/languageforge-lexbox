@@ -65,9 +65,14 @@ jobs:
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
       semver-version: ${{ steps.setVersion.outputs.SEMVER_VERSION }}
+      app-version: ${{ steps.setVersion.outputs.APP_VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # full commit history (no file contents) for the app version's commit count
+          fetch-depth: 0
+          filter: tree:0
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.x'
@@ -100,6 +105,9 @@ jobs:
             echo "VERSION=v$(TZ=UTC git show -s --format=%cd --date=format-local:%Y-%m-%d HEAD)-$shortSha" >> "$GITHUB_OUTPUT"
             echo "SEMVER_VERSION=$(TZ=UTC git show -s --format=%cd --date=format-local:%Y.%-m.%-d HEAD)" >> "$GITHUB_OUTPUT"
           fi
+          # Android versionCode / Apple CFBundleVersion. Play rejects codes at or below ones it has accepted;
+          # before releases moved off main these were FieldWorks Lite run numbers (up to ~4300), hence the offset.
+          echo "APP_VERSION=$(( $(git rev-list --count HEAD) + 10000 ))" >> "$GITHUB_OUTPUT"
 
       - name: Dotnet build
         # FwLiteCore.slnf omits MAUI projects — those build and test on publish-win (Windows).
@@ -348,7 +356,7 @@ jobs:
         run: |
           dotnet build -f net10.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       # Fork PRs have no signing secret: build unsigned so the job stays a compile check.
@@ -358,7 +366,7 @@ jobs:
         run: |
           dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       - name: Import Developer ID signing certificate
@@ -405,7 +413,7 @@ jobs:
             -p:CodesignKey="$CODESIGN_IDENTITY" \
             -p:CodesignEntitlements=Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       - name: Package, notarize and staple the DMG
@@ -614,7 +622,7 @@ jobs:
         run: |
           dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
             -p:AndroidKeyStore=true \
             -p:AndroidSigningKeyStore=${KEYSTORE_PATH} \
@@ -631,7 +639,7 @@ jobs:
           echo "::warning::Signing key unavailable (likely a fork PR); building an unsigned Android APK."
           dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
             -p:AndroidKeyStore=false
 
