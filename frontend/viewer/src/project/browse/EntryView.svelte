@@ -138,6 +138,7 @@
     },
   );
 
+  // Keep this entry's unread indicator live when comments arrive via sync
   eventBus.onCommentsChanged(() => {
     if (features.comments) void entryUnreadResource.refetch();
   });
