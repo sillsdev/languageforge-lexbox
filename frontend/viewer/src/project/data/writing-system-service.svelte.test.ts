@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest';
 import type {IWritingSystem, IWritingSystems} from '$lib/dotnet-types';
 import type {ProjectContext} from '$project/project-context.svelte';
 import type {MorphTypesService} from './morph-types.svelte';
+import type {View} from '$lib/views/view-data';
 import {WritingSystemService} from './writing-system-service.svelte';
 
 // The dedup only looks at wsId, so a minimal stub is enough (distinct object per call so we can
@@ -43,5 +44,32 @@ describe('uniqueWritingSystems', () => {
 
     expect(result.map((w) => w.wsId)).toEqual(['en', 'es', 'fr']);
     expect(result[0]).toBe(analysisEn);
+  });
+});
+
+describe('viewVernacularNoAudio', () => {
+  function audioWs(wsId: string): IWritingSystem {
+    return {wsId, isAudio: true} as unknown as IWritingSystem;
+  }
+  function viewWith(vernacular?: string[]): View {
+    return {vernacular: vernacular?.map((wsId) => ({wsId}))} as unknown as View;
+  }
+
+  it("keeps the view's text writing systems and drops audio ones", () => {
+    const service = serviceWith([ws('seh'), audioWs('seh-audio'), ws('ny')], []);
+
+    expect(service.viewVernacularNoAudio(viewWith(['ny', 'seh-audio'])).map((w) => w.wsId)).toEqual(['ny']);
+  });
+
+  it('uses every text vernacular when the view does not restrict writing systems', () => {
+    const service = serviceWith([ws('seh'), audioWs('seh-audio'), ws('ny')], []);
+
+    expect(service.viewVernacularNoAudio(viewWith()).map((w) => w.wsId)).toEqual(['seh', 'ny']);
+  });
+
+  it('falls back to every text vernacular when the view only shows audio', () => {
+    const service = serviceWith([ws('seh'), audioWs('seh-audio'), ws('ny')], []);
+
+    expect(service.viewVernacularNoAudio(viewWith(['seh-audio'])).map((w) => w.wsId)).toEqual(['seh', 'ny']);
   });
 });
