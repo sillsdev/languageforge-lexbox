@@ -190,10 +190,7 @@ public partial class MiniLcmApiNotifyWrapper(
         NotifyEntryChanged(entryId);
     }
 
-    // Comments emit a single coarse CommentsChangedEvent rather than an entry-scoped notification: the
-    // subject-to-entry mapping doesn't matter to the consumers (comment panel, unread badge, unread-filtered
-    // list all just re-query). Read-status mutations are included because marking read/unread changes the
-    // unread counts those same consumers show, even though nothing about the comment data itself changed.
+    // Read-status writes stay silent on purpose: marking a thread read shouldn't refresh the entry list.
     private void NotifyCommentsChanged() => bus.PublishCommentsChanged(project);
 
     async Task<CommentThread> IMiniLcmWriteApi.CreateCommentThread(CommentThread thread, UserComment firstComment)
@@ -234,26 +231,6 @@ public partial class MiniLcmApiNotifyWrapper(
     {
         await _api.DeleteCommentThread(threadId);
         NotifyCommentsChanged();
-    }
-
-    async Task IMiniLcmWriteApi.MarkCommentRead(Guid commentId)
-    {
-        await _api.MarkCommentRead(commentId);
-    }
-
-    async Task IMiniLcmWriteApi.MarkCommentThreadUnread(Guid threadId)
-    {
-        await _api.MarkCommentThreadUnread(threadId);
-    }
-
-    async Task IMiniLcmWriteApi.MarkCommentThreadRead(Guid threadId)
-    {
-        await _api.MarkCommentThreadRead(threadId);
-    }
-
-    async Task IMiniLcmWriteApi.MarkAllCommentsRead()
-    {
-        await _api.MarkAllCommentsRead();
     }
 
     void IDisposable.Dispose()

@@ -15,7 +15,6 @@
     unreadComments = $bindable(false)
   }: { unreadComments: boolean } = $props();
 
-  // Bump on each comment change so the count re-queries live (new synced comments, or marking read/unread).
   let commentsChangedTick = $state(0);
   projectEventBus.onCommentsChanged(() => commentsChangedTick++);
 

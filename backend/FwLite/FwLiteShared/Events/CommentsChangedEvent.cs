@@ -1,8 +1,7 @@
 namespace FwLiteShared.Events;
 
 /// <summary>
-/// Coarse, project-scoped signal that comment threads, comments, or their local read status changed.
-/// Carries no payload: consumers (comment panel, unread badge, unread-filtered entry list) simply re-query.
+/// Comment threads or comments changed; consumers re-query. Local read-status writes don't fire it.
 /// </summary>
 public class CommentsChangedEvent : IFwEvent
 {

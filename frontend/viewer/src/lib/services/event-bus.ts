@@ -141,8 +141,7 @@ export class ProjectEventBus {
     });
   }
 
-  // Coarse comment signal: threads/comments changed, or local read status shifted. One callback per
-  // change; consumers (comment panel, unread badge, unread-filtered list) re-query rather than react per id.
+  // One callback per change; consumers re-query.
   public onCommentsChanged(callback: (event: ICommentsChangedEvent) => void) {
     this.onProjectEvent(event => {
       if (isCommentsChangedEvent(event)) {

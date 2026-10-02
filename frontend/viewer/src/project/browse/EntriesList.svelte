@@ -91,8 +91,8 @@
     });
   });
 
-  // A comment change (synced or read/unread) only moves entries in/out of the list when it's filtered by
-  // unread comments — otherwise the rows are unaffected, so skip the re-query unless that filter is active.
+  // A comment change only moves entries in/out of the list when it's filtered by unread comments, so skip
+  // the re-query otherwise.
   projectEventBus.onCommentsChanged(() => {
     if (!gridifyFilter?.includes('UnreadComments')) return;
     void entryLoader?.quietReset();
