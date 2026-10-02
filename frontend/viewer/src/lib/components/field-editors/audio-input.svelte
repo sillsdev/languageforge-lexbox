@@ -54,6 +54,8 @@
   import {formatDuration, normalizeDuration} from '$lib/components/ui/format';
   import {t} from 'svelte-i18n-lingui';
   import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
+  import {guessMimeType} from '$lib/media-manager/media-file-utils';
+  import {createMediaUrl} from '$lib/components/audio/media-url';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import AudioDialog from '$lib/components/audio/AudioDialog.svelte';
   import {tryUseFieldBody} from '$lib/components/editor/field/field-root.svelte';
@@ -116,10 +118,17 @@
         AppNotification.error(`Failed to load audio ${audioId}`);
         return;
       }
-      let blob = await new Response(result.stream).blob();
+      // Response(stream).blob() drops Content-Type, and WebKit refuses to play an untyped blob (NotSupportedError)
+      const headers = result.filename ? {'Content-Type': guessMimeType(result.filename)} : undefined;
+      let blob = await new Response(result.stream, {headers}).blob();
+      const url = await createMediaUrl(blob);
+      if (!audio) {
+        URL.revokeObjectURL(url);
+        return false;
+      }
       if (audio.src) URL.revokeObjectURL(audio.src);
       loadedAudioId = undefined;
-      audio.src = URL.createObjectURL(blob);
+      audio.src = url;
       filename = result.filename;
       loadedAudioId = audioId;
       return true;
