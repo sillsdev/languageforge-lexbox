@@ -1,4 +1,3 @@
-#if IOS
 using FwLiteShared.KeepAwake;
 using Microsoft.Extensions.Logging;
 using UIKit;
@@ -19,7 +18,7 @@ public sealed class IosKeepAwakePlatform(ILogger<IosKeepAwakePlatform> logger) :
 
     public void Acquire(KeepAwakeWork work)
     {
-        MainThread.BeginInvokeOnMainThread(() =>
+        OnMainThread("acquire", () =>
         {
             var app = UIApplication.SharedApplication;
             app.IdleTimerDisabled = true;
@@ -32,17 +31,34 @@ public sealed class IosKeepAwakePlatform(ILogger<IosKeepAwakePlatform> logger) :
 
     public void Release()
     {
-        MainThread.BeginInvokeOnMainThread(() =>
+        OnMainThread("release", () =>
         {
             UIApplication.SharedApplication.IdleTimerDisabled = false;
             EndBackgroundTask();
         });
     }
 
+    // The action runs after Acquire/Release return, so RefCountedKeepAwake can't catch its exceptions,
+    // and an unhandled exception on the main thread would crash the app.
+    private void OnMainThread(string operation, Action action)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to {Operation} iOS keep-awake", operation);
+            }
+        });
+    }
+
     private void OnBackgroundTimeExpired()
     {
         // iOS reclaimed our background time before the work finished. Ending the task here is
-        // mandatory, or the OS terminates the app. The in-flight sync/download will be suspended and
+        // mandatory, or the OS terminates the app. The in-flight download will be suspended and
         // should resume or retry when the app next returns to the foreground.
         logger.LogWarning(
             "iOS background time expired before keep-awake work finished; work may be suspended until the app returns to the foreground");
@@ -56,4 +72,3 @@ public sealed class IosKeepAwakePlatform(ILogger<IosKeepAwakePlatform> logger) :
         _backgroundTaskId = UIApplication.BackgroundTaskInvalid;
     }
 }
-#endif
