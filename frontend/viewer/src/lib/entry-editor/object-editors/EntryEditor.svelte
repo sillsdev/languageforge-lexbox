@@ -31,7 +31,7 @@
   import {watch} from 'runed';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import {FocusMightOpenKeyboard} from '$lib/hooks/focus-might-open-keyboard.svelte';
+  import {HasHardwareKeyboard} from '$lib/hooks/has-hardware-keyboard';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import DevContent from '$lib/layout/DevContent.svelte';
   import ObjectHeader from './ObjectHeader.svelte';
@@ -139,7 +139,7 @@
       setTimeout(() => {
         const newEntityElem = editorElem?.querySelector('.highlight');
         if (newEntityElem) {
-          if (highlighted?.autofocus && !FocusMightOpenKeyboard.value)
+          if (highlighted?.autofocus && HasHardwareKeyboard.value)
             findFirstTabbable(newEntityElem?.querySelector(`.${ENTITY_FIELD_CONTAINER_CLASS}`))?.focus();
 
           const _isBottomInViewport = isBottomInView(newEntityElem);

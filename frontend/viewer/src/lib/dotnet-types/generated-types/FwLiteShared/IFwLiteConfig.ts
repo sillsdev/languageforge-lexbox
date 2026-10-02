@@ -11,6 +11,7 @@ export interface IFwLiteConfig
 	devAssetsPort: number;
 	appVersion: string;
 	os: FwLitePlatform;
+	hasHardwareKeyboard: boolean;
 	feedbackUrl: string;
 	updateUrl: string;
 	edition: number;

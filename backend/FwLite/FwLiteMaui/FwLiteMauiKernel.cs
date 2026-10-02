@@ -123,6 +123,12 @@ public static class FwLiteMauiKernel
             {
                 config.Os = FwLitePlatform.Other;
             }
+#if ANDROID
+            config.HasHardwareKeyboard = Platform.AppContext.Resources?.Configuration is
+                {Keyboard: Android.Content.Res.KeyboardType.Qwerty, HardKeyboardHidden: Android.Content.Res.HardKeyboardHidden.No};
+#elif IOS
+            config.HasHardwareKeyboard = GameController.GCKeyboard.CoalescedKeyboard is not null;
+#endif
             // MAUI doesn't support appsettings.json — gate dev-only settings in code instead.
             // See https://github.com/dotnet/maui/issues/4408
             if (env.IsDevelopment())
