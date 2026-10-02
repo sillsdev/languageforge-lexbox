@@ -5,7 +5,7 @@
   import PictureImage from './PictureImage.svelte';
   import EditPictureDialog from './EditPictureDialog.svelte';
   import PictureViewerDialog from './PictureViewerDialog.svelte';
-  import {ACCEPTED_PICTURE_TYPES, isLosslessImage, isSupportedImageType} from './picture-formats';
+  import {ACCEPTED_PICTURE_TYPES, isLosslessImage, isSupportedImageType, uniqueUploadFilename} from './picture-formats';
   import {downloadPictureFile} from './picture-actions';
   import {useImageService} from './image-service.svelte';
   import {t} from 'svelte-i18n-lingui';
@@ -96,7 +96,7 @@
   }
 
   async function uploadFile(file: File): Promise<string | null> {
-    const response = await api.saveFile(file, {filename: file.name, mimeType: file.type, extraFields: {}});
+    const response = await api.saveFile(file, {filename: uniqueUploadFilename(file.name), mimeType: file.type, extraFields: {}});
     switch (response.result) {
       case UploadFileResult.SavedLocally:
       case UploadFileResult.SavedToLexbox:
@@ -202,16 +202,19 @@
   async function takePicture() {
     busyAction = 'add';
     try {
-      let result = await platformFeatures.service.captureImage();
+      // Capture errors (e.g. a denied camera permission) propagate to the global error handler
+      const result = await platformFeatures.service.captureImage();
       if (result == null) {
         return;
       }
-      let file = await convertPicture(
-        new File([await result.image.arrayBuffer()], result.fileName, {type: result.contentType}),
-      );
+      const captured = new File([await result.image.arrayBuffer()], result.fileName, {type: result.contentType});
+      let file: File;
+      try {
+        file = await convertPicture(captured);
+      } catch {
+        return; // convertPicture already shows a notification on failure
+      }
       openCreate(file);
-    } catch {
-      // convertPicture already shows a notification on failure
     } finally {
       busyAction = null;
     }
