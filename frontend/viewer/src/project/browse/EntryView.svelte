@@ -169,8 +169,9 @@
 
 <div class="h-full flex flex-col relative">
   {#if entry}
-    <header>
-      <!-- short: keyboard open or landscape phone, every px above the field counts -->
+    <!-- short: keyboard open or landscape phone, every px above the field counts;
+      very-short: landscape with the keyboard open, the field needs all of it (closing the keyboard brings the header back) -->
+    <header class="very-short:hidden">
       <div class="max-md:p-2 md:mb-4 short:py-0 short:mb-0 flex justify-between">
         {#if showClose && onClose}
           <XButton onclick={onClose} size="icon" />

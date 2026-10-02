@@ -24,6 +24,18 @@ test.describe('Short viewport', () => {
     await page.setViewportSize({width: 1024, height: 768});
     await expect(senseHeader(page)).toHaveCSS('position', 'sticky');
   });
+
+  test('the entry header disappears when the keyboard leaves almost nothing', async ({page}) => {
+    await openEntry(page);
+    const entryHeader = page.locator('header', {has: page.getByRole('heading', {level: 2})}).first();
+    await expect(entryHeader).toBeVisible();
+
+    await page.setViewportSize({width: 1024, height: 200});
+    await expect(entryHeader).toBeHidden();
+
+    await page.setViewportSize({width: 1024, height: 400});
+    await expect(entryHeader).toBeVisible();
+  });
 });
 
 test.describe('Phone', () => {

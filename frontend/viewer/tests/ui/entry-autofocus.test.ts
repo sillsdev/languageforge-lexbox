@@ -11,7 +11,7 @@ function focusedField(page: Page) {
     const field = document.activeElement as HTMLElement;
     const {top, bottom} = field.getBoundingClientRect();
     const gridArea = field.closest<HTMLElement>('[style*="grid-area"]')?.style.gridArea;
-    return {gridArea, top, inView: top >= 0 && bottom <= window.innerHeight};
+    return {gridArea, tag: field.tagName, top, inView: top >= 0 && bottom <= window.innerHeight};
   });
 }
 

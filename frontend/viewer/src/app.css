@@ -7,8 +7,9 @@
 @custom-variant dark (&:is(.dark *));
 @custom-variant pointer (@media (hover: hover));
 @custom-variant paratext (&:is([data-paratext="true"] *));
-/* a landscape phone, or the keyboard is open (see SHORT_BREAKPOINT) */
+/* a landscape phone, or the keyboard is open (see SHORT_BREAKPOINT, VERY_SHORT_BREAKPOINT) */
 @custom-variant short (@media (max-height: 599px));
+@custom-variant very-short (@media (max-height: 299px));
 
 @keyframes shimmer {
   from { background-position: 100% 0; }
