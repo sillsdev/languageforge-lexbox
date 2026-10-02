@@ -2,10 +2,14 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.Content.Res;
+using Android.Hardware.Input;
 using Android.OS;
+using Android.Views;
 using AndroidX.Core.View;
+using FwLiteShared;
 using FwLiteShared.Auth;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
 namespace FwLiteMaui;
@@ -38,6 +42,11 @@ public class MainActivity : MauiAppCompatActivity
         }
 
         ApplyBrandedSystemBars();
+        //Attaching or detaching a keyboard recreates the activity (ConfigChanges doesn't claim Keyboard), so
+        //reading it here keeps the value current without a change event. Resources.Configuration is still
+        //stale at this point; the input device list is already updated.
+        var config = IPlatformApplication.Current?.Services.GetService<IOptions<FwLiteConfig>>()?.Value;
+        if (config is not null) config.HasHardwareKeyboard = HasHardwareKeyboard();
         StartInAppUpdateCheck();
     }
 
@@ -75,6 +84,14 @@ public class MainActivity : MauiAppCompatActivity
         base.OnNewIntent(intent);
         Platform.OnNewIntent(intent);
     }
+
+    private bool HasHardwareKeyboard()
+    {
+        if (GetSystemService(InputService) is not InputManager inputManager) return false;
+        return (inputManager.GetInputDeviceIds() ?? []).Select(id => inputManager.GetInputDevice(id))
+            .Any(d => d is {IsVirtual: false, KeyboardType: InputKeyboardType.Alphabetic});
+    }
+
     public override void OnConfigurationChanged(Configuration newConfig)
     {
         base.OnConfigurationChanged(newConfig);
