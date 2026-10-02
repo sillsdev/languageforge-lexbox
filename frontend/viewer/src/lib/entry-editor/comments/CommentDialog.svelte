@@ -43,34 +43,29 @@
   const expandedThreadIds = new SvelteSet<string>();
   let mobileThreadId = $state<string | null>(null);
 
+  // Track shown ids so only new arrivals animate, and only once: remounts (mobile detail view, expand) must
+  // not replay it. Threads are keyed with their status so a resolve or reopen animates in its new section.
+  let shownIds = new SvelteSet<string>();
+  let arrivals = $state(new Set<string>());
+
   const threadsResource = resource(
     [() => open, () => subjectType, () => subjectId],
-    async ([isOpen, targetSubjectType, targetSubjectId]): Promise<ThreadView[]> => {
+    async ([isOpen, targetSubjectType, targetSubjectId], _prev, {refetching}): Promise<ThreadView[]> => {
       if (!isOpen) return [];
       const threads = await api.getCommentThreads(targetSubjectType, targetSubjectId, true);
+      const ids = threads.flatMap((t) => [`${t.id}:${t.status}`, ...(t.comments ?? []).map((c) => c.id)]);
+      if (refetching) {
+        arrivals = new Set([...arrivals, ...ids.filter((id) => !shownIds.has(id))]);
+        // just past the 1.2s flash-highlight in app.css, so the class comes off and can't replay
+        setTimeout(() => (arrivals = new Set()), 1300);
+      }
+      shownIds = new SvelteSet(ids);
       return threads.map((thread) => ({thread, comments: thread.comments ?? []}));
     },
     {initialValue: [] satisfies ThreadView[]},
   );
   const threadViews = $derived(threadsResource.current);
   const loading = $derived(threadsResource.loading);
-
-  // Arrival highlight: suppress the flash for a moment after the panel opens so the initial list doesn't
-  // flash. Threads/comments created while this is false never flash (each snapshots it at creation);
-  // anything that arrives afterward — via sync or a local post — flashes as new.
-  let arrivalsEnabled = $state(false);
-  $effect(() => {
-    // Switching subject with the panel open swaps the whole list in place, so restart the mute for it too.
-    void subjectType;
-    void subjectId;
-    if (!open) {
-      arrivalsEnabled = false;
-      return;
-    }
-    arrivalsEnabled = false;
-    const timer = setTimeout(() => (arrivalsEnabled = true), 1500);
-    return () => clearTimeout(timer);
-  });
 
   const unreadResource = resource(
     [() => open, () => subjectType, () => subjectId, () => unreadComments],
@@ -274,7 +269,7 @@
     {editingCommentId}
     {currentUserId}
     {unreadThreadIds}
-    {arrivalsEnabled}
+    {arrivals}
     onClose={() => onOpenChange(false)}
     onStartThread={startThread}
     onReply={replyToThread}

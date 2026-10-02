@@ -10,7 +10,7 @@
   import CommentAuthorAvatar from './CommentAuthorAvatar.svelte';
   import {watch} from 'runed';
   import {slide} from 'svelte/transition';
-  import {untrack} from 'svelte';
+  import {prefersReducedMotion} from 'svelte/motion';
 
   let {
     comment,
@@ -18,7 +18,7 @@
     saving,
     editing,
     compact = false,
-    arrivalsEnabled = false,
+    arrived = false,
     onStartEdit,
     onCancelEdit,
     onSaveEdit,
@@ -28,16 +28,11 @@
     saving: boolean;
     editing: boolean;
     compact?: boolean;
-    /** When false, this comment won't flash or slide in on mount — mutes the initial-load batch. */
-    arrivalsEnabled?: boolean;
+    arrived?: boolean;
     onStartEdit: () => void;
     onCancelEdit: () => void;
     onSaveEdit: (text: string) => void;
   } = $props();
-
-  // Snapshot at creation: a comment rendered while arrivals are muted (the initial load) never flashes; one
-  // created afterward is a genuine arrival and flashes once.
-  const flashOnArrival = untrack(() => arrivalsEnabled);
 
   const features = useFeatures();
   let draftText = $state('');
@@ -55,8 +50,8 @@
 </script>
 
 <article
-  in:slide={{duration: flashOnArrival ? 200 : 0}}
-  class={cn('flex gap-2 rounded-md', compact && 'pt-2.5', flashOnArrival && 'comment-arrival')}
+  in:slide={{duration: arrived && !prefersReducedMotion.current ? 200 : 0}}
+  class={cn('flex gap-2 rounded-md px-1.5', compact && 'pt-2.5', arrived && 'animate-flash-highlight')}
 >
   <CommentAuthorAvatar
     authorName={comment.authorName}
