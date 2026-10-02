@@ -91,10 +91,9 @@
     });
   });
 
-  // A comment change only moves entries in/out of the list when it's filtered by unread comments, so skip
-  // the re-query otherwise.
+  // Only a comment-filtered list can change on a comment event.
   projectEventBus.onCommentsChanged(() => {
-    if (!gridifyFilter?.includes('UnreadComments')) return;
+    if (!gridifyFilter?.includes('Comment')) return;
     void entryLoader?.quietReset();
   });
 
