@@ -95,6 +95,9 @@ public static class FwLiteMauiKernel
         services.RemoveAll<IPlatformUpdateService>();
         services.AddSingleton<IPlatformUpdateService>(sp => sp.GetRequiredService<AndroidInAppUpdateService>());
 #endif
+#if IOS
+        services.Replace(ServiceDescriptor.Singleton<IKeepAwakePlatform, IosKeepAwakePlatform>());
+#endif
         services.AddSingleton<IAppLauncher, AppLauncher>();
 
         services.Configure<FwLiteConfig>(config =>
