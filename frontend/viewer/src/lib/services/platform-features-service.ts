@@ -25,6 +25,12 @@ export function usePlatformFeaturesService(): {service: IPlatformFeaturesService
         },
         copyToClipboard(): Promise<void> {
           return Promise.resolve();
+        },
+        supportsShareFile(): Promise<boolean> {
+          return Promise.resolve(false);
+        },
+        shareFile(): Promise<void> {
+          return Promise.reject(new Error('Native file sharing is not available'));
         }
       },
       features: Object.fromEntries(features.map((feature) => [feature, false])) as Record<Features, boolean>

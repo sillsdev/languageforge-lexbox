@@ -1,0 +1,20 @@
+# Notes for FW Lite releases. Lexbox-only PRs are left out; PRs labeled both count as FW Lite.
+# FW Lite Core keeps its own section, with the same title as in release-lexbox.yml, so the two
+# releases can be compared for shared changes.
+changelog:
+  categories:
+    - title: FieldWorks Lite
+      labels:
+        - "💻 FW Lite"
+    - title: FW Lite Core
+      labels:
+        - "🔩 FW Lite Core"
+    - title: Platform.Bible extension
+      labels:
+        - "📙 Platform.Bible"
+    - title: Other Stuff 🤔
+      labels:
+        - "*"
+      exclude:
+        labels:
+          - "📦 Lexbox"

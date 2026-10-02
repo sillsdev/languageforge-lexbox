@@ -46,7 +46,7 @@ interface CreateLexiconProps {
   defaultVernacularWs?: string;
   existingCodes?: string[];
   onCancel: () => void;
-  onCreated: (code: string) => Promise<void>;
+  onCreated: (name: string, code: string) => Promise<void>;
 }
 
 /** A form for creating a new FW Lite CRDT project from the blank template. */
@@ -96,7 +96,7 @@ export default function CreateLexicon({
         normalizeLangTag(vernacularWs),
         analysisWs.trim() ? normalizeLangTag(analysisWs) : undefined,
       );
-      await onCreated(code);
+      await onCreated(name.trim(), code);
     } catch (e) {
       logger.error(localizedStrings['%lexicon_createLexicon_error%'], JSON.stringify(e));
       setError(e instanceof Error ? e.message : String(e));

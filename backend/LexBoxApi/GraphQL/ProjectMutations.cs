@@ -6,6 +6,7 @@ using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
 using LexCore;
+using LexCore.Analytics;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
@@ -139,7 +140,8 @@ public class ProjectMutations
         IPermissionService permissionService,
         LoggedInContext loggedInContext,
         BulkAddProjectMembersInput input,
-        LexBoxDbContext dbContext)
+        LexBoxDbContext dbContext,
+        ILexboxAnalyticsService analytics)
     {
         await permissionService.AssertCanCreateGuestUserInProject(input.ProjectId);
         var projectExists = await dbContext.Projects.AnyAsync(p => p.Id == input.ProjectId);
@@ -147,6 +149,7 @@ public class ProjectMutations
         List<UserProjectRole> AddedMembers = [];
         List<UserProjectRole> CreatedMembers = [];
         List<UserProjectRole> ExistingMembers = [];
+        List<Guid> createdUserIds = [];
         var existingUsers = await dbContext.Users.Include(u => u.Projects).Where(u => input.Usernames.Contains(u.Username) || input.Usernames.Contains(u.Email)).ToArrayAsync();
         var byUsername = existingUsers.Where(u => u.Username is not null).ToDictionary(u => u.Username!);
         var byEmail = existingUsers.Where(u => u.Email is not null).ToDictionary(u => u.Email!);
@@ -174,6 +177,7 @@ public class ProjectMutations
                     CanCreateProjects = false
                 };
                 CreatedMembers.Add(new UserProjectRole(usernameOrEmail, input.Role));
+                createdUserIds.Add(user.Id);
                 user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
                 dbContext.Add(user);
             }
@@ -193,6 +197,8 @@ public class ProjectMutations
             }
         }
         await dbContext.SaveChangesAsync();
+        foreach (var createdUserId in createdUserIds)
+            _ = analytics.TrackAccountCreated(createdUserId, AccountCreatedVia.ProjectInvite);
         return new BulkAddProjectMembersResult(AddedMembers, CreatedMembers, ExistingMembers);
     }
 

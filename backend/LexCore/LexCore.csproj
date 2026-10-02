@@ -6,6 +6,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NeinLinq" />
+    <!-- Shared Mixpanel transport (LexCore/Analytics/MixpanelClient) needs IHttpClientFactory + ILogger.
+         LexCore is a plain library (no ASP.NET framework reference), so these come as packages. -->
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\Harmony.Core.References.props" />
 </Project>

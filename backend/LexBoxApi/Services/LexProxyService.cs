@@ -46,6 +46,11 @@ public class LexProxyService : ILexProxyService
         await UpdateProjectMetadataJob.Queue(_schedulerFactory, projectCode);
     }
 
+    public ValueTask<Guid?> LookupProjectId(string projectCode)
+    {
+        return _projectService.LookupProjectId(projectCode);
+    }
+
     public RequestInfo GetDestinationPrefix(HgType type)
     {
         return new RequestInfo(HgService.DetermineProjectUrlPrefix(type, _hgConfig));

@@ -9,6 +9,7 @@ using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
 using LcmCrdt;
+using LexCore.Analytics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -27,10 +28,11 @@ public static class FwLiteSharedKernel
     {
         services.AddMemoryCache();
         services.AddHttpClient();
-        services.AddHttpClient(MixpanelAnalytics.HttpClientName, client =>
+        services.AddHttpClient(MixpanelClient.HttpClientName, client =>
         {
             client.Timeout = TimeSpan.FromSeconds(10);
         });
+        services.AddSingleton<MixpanelClient>();
         services.AddSingleton<IAnalyticsService, AnalyticsService>();
         services.AddOptions<AnalyticsConfig>()
             .BindConfiguration("Analytics")
@@ -66,6 +68,7 @@ public static class FwLiteSharedKernel
         services.AddSingleton<IBackgroundSyncService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddSingleton<IHostedService, PushListenerRecoveryService>();
+        services.AddSingleton<UpdateCheckThrottle>();
         services.AddSingleton<UpdateChecker>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<UpdateChecker>());
         services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();

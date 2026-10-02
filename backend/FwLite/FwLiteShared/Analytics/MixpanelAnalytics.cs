@@ -1,29 +1,30 @@
-using System.Text;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
+using LcmCrdt;
+using LexCore.Analytics;
 
 namespace FwLiteShared.Analytics;
 
+/// <summary>
+/// FwLite-specific Mixpanel helpers (identity from lexbox.org auth, app_launched, host names).
+/// The product-agnostic transport, tokens and CI detection live in <see cref="LexCore.Analytics"/>
+/// and are re-exposed here for FwLite callers and tests.
+/// </summary>
 public static class MixpanelAnalytics
 {
-    // Base64-encoded Mixpanel project tokens. These are write-only ingestion tokens, not secrets
-    // (they're exposed in every client request), but they're encoded here so a plaintext token
-    // string can't be trivially scraped from the public repo. Decoded once at runtime below.
-    private const string DebugProjectTokenEncoded = "NWI5MDE3MjZjZDMzMGNmNmZhMWQyNzBmZTNjNzA1ZTg=";
-    private const string ProductionProjectTokenEncoded = "YzA5ZDZhYmVjZWQ1MTE0YjBjM2YzMGY2ZjU1YmE3NjI=";
-
     /// <summary>Mixpanel debug/test project token. Decoded at runtime; not a secret.</summary>
-    public static string DebugProjectToken { get; } = DecodeToken(DebugProjectTokenEncoded);
+    public static string DebugProjectToken => MixpanelTokens.DebugProjectToken;
 
     /// <summary>Mixpanel release/production project token. Decoded at runtime; not a secret.</summary>
-    public static string ProductionProjectToken { get; } = DecodeToken(ProductionProjectTokenEncoded);
+    public static string ProductionProjectToken => MixpanelTokens.ProductionProjectToken;
 
-    private static string DecodeToken(string encoded) => Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
-
-    public const string TrackUrl = "https://api.mixpanel.com/track";
-    public const string HttpClientName = "Mixpanel";
+    public const string TrackUrl = MixpanelClient.TrackUrl;
+    public const string HttpClientName = MixpanelClient.HttpClientName;
     public const string ProductionLexboxHost = "lexbox.org";
     public const string AppLaunchedEvent = "app_launched";
+    public const string ProjectOpenedEvent = "project_opened";
+    /// <summary>Matches lexbox's <c>ILexboxAnalyticsService.ProjectIdProperty</c> so events can be joined on it.</summary>
+    public const string ProjectIdProperty = "project_id";
     public const string MauiHost = "maui";
     public const string WebHost = "web";
 
@@ -36,14 +37,24 @@ public static class MixpanelAnalytics
     }
 
     /// <summary>
+    /// Fire <see cref="ProjectOpenedEvent"/> for a CRDT project synced with lexbox.org. <paramref name="server"/> is
+    /// resolved from <see cref="ProjectData.OriginDomain"/>, so local-only projects (whose <see cref="ProjectData.Id"/>
+    /// is not a lexbox project id) have none and are skipped, as are projects from other servers (e.g. staging).
+    /// </summary>
+    public static void RecordProjectOpened(IAnalyticsService analytics, ProjectData projectData, LexboxServer? server)
+    {
+        if (server is null || !IsProductionLexbox(server))
+            return;
+        analytics.Track(ProjectOpenedEvent,
+            new Dictionary<string, object?> { [ProjectIdProperty] = projectData.Id.ToString() });
+    }
+
+    /// <summary>
     /// Development uses <see cref="AnalyticsConfig.DebugProjectToken"/>.
     /// Release uses <see cref="AnalyticsConfig.ProductionToken"/>; empty means do not send.
     /// </summary>
-    public static string? SelectToken(bool isDevelopment, AnalyticsConfig config)
-    {
-        var token = isDevelopment ? config.DebugProjectToken : config.ProductionToken;
-        return string.IsNullOrWhiteSpace(token) ? null : token;
-    }
+    public static string? SelectToken(bool isDevelopment, AnalyticsConfig config) =>
+        MixpanelTokens.SelectToken(isDevelopment, config.DebugProjectToken, config.ProductionToken);
 
     public static bool IsProductionLexbox(LexboxServer server) =>
         string.Equals(server.Authority.Host, ProductionLexboxHost, StringComparison.OrdinalIgnoreCase);
@@ -51,28 +62,10 @@ public static class MixpanelAnalytics
     /// <summary>
     /// True when the process is running under CI. GitHub Actions sets <c>CI</c> and <c>GITHUB_ACTIONS</c>.
     /// </summary>
-    public static bool IsCiEnvironment(
-        IReadOnlyDictionary<string, string?>? environmentVariables = null)
-    {
-        return IsTruthyEnv(ReadEnv(environmentVariables, "CI"))
-            || IsTruthyEnv(ReadEnv(environmentVariables, "GITHUB_ACTIONS"));
-    }
+    public static bool IsCiEnvironment(IReadOnlyDictionary<string, string?>? environmentVariables = null) =>
+        AnalyticsCiEnvironment.IsCiEnvironment(environmentVariables);
 
-    private static string? ReadEnv(IReadOnlyDictionary<string, string?>? environmentVariables, string key)
-    {
-        if (environmentVariables is not null)
-            return environmentVariables.TryGetValue(key, out var value) ? value : null;
-        return Environment.GetEnvironmentVariable(key);
-    }
-
-    public static bool IsTruthyEnv(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return false;
-        return value.Equals("true", StringComparison.OrdinalIgnoreCase)
-            || value.Equals("1", StringComparison.OrdinalIgnoreCase)
-            || value.Equals("yes", StringComparison.OrdinalIgnoreCase);
-    }
+    public static bool IsTruthyEnv(string? value) => AnalyticsCiEnvironment.IsTruthyEnv(value);
 
     /// <summary>
     /// Identify on lexbox.org login (persisted <c>$user_id</c>; a different user rotates <c>$device_id</c>).

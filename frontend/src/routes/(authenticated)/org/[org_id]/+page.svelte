@@ -145,8 +145,9 @@
     email: string,
     locale: string,
     _turnstileToken: string,
+    optedOutOfAnalytics: boolean,
   ): ReturnType<typeof createGuestUserByAdmin> {
-    return createGuestUserByAdmin(password, name, email, locale, _turnstileToken, org.id);
+    return createGuestUserByAdmin(password, name, email, locale, _turnstileToken, optedOutOfAnalytics, org.id);
   }
 
   let createUserModal: CreateUserModal | undefined = $state();

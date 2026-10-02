@@ -27,11 +27,14 @@ The hard part is the filter: include everything a user would care about, and not
 
 ### Released mode
 
+FW Lite releases are tagged `v<date>-<sha>`; Lexbox releases are tagged `lexbox-v…` and are not what you want.
+
 ```bash
-gh release view --repo sillsdev/languageforge-lexbox --json tagName,publishedAt,body
+gh release list --repo sillsdev/languageforge-lexbox --exclude-drafts --limit 30 --json tagName,publishedAt --jq '[.[] | select(.tagName | startswith("v20"))][0]'
+gh release view <TAG> --repo sillsdev/languageforge-lexbox --json tagName,publishedAt,body
 ```
 
-Sanity-check `publishedAt` against today — you want the genuinely newest release. Extract only the **FieldWorks Lite** section of the body. Ignore the **Lexbox** and **Other Stuff 🤔** sections entirely — server-side or developer changes, never user-facing.
+Sanity-check `publishedAt` against today — you want the genuinely newest release. Extract the **FieldWorks Lite** and **FW Lite Core** sections of the body (Core is the shared sync/CRDT code; its fixes are user-facing too). Ignore the **Platform.Bible extension** and **Other Stuff 🤔** sections entirely — not what FieldWorks Lite users read.
 
 (If `gh` is unavailable, WebFetch `https://github.com/sillsdev/languageforge-lexbox/releases/latest` — that URL redirects to the real newest tag. Don't trust the `/releases` listing page; it can be served stale.)
 
@@ -46,7 +49,7 @@ Sanity-check `publishedAt` against today — you want the genuinely newest relea
    ```
 
    (or `gh api repos/sillsdev/languageforge-lexbox/compare/<TAG>...main` when the local clone is inconvenient).
-3. Categorize each PR the way GitHub release notes would, per `.github/release.yml`: label `💻 FW Lite` → **FieldWorks Lite**; `📦 Lexbox` → Lexbox; everything else (incl. dependabot) → Other Stuff. First category wins, so a PR with both FW Lite and Lexbox labels counts as FieldWorks Lite. Batch the label lookups:
+3. Categorize each PR the way GitHub release notes would, per `.github/release-fw-lite.yml`: label `💻 FW Lite` → **FieldWorks Lite**; `🔩 FW Lite Core` → **FW Lite Core**; `📙 Platform.Bible` → Platform.Bible extension; `📦 Lexbox` → Lexbox; everything else (incl. dependabot) → Other Stuff. First category wins, so a PR with both FW Lite and Lexbox labels counts as FieldWorks Lite. Batch the label lookups:
 
    ```bash
    gh pr view <N> --repo sillsdev/languageforge-lexbox --json number,title,labels
@@ -192,3 +195,16 @@ A tightened, platform-filtered subset of the forum notes — same research, not 
 - Wording tighter than the forum version; "Fixed" past tense, consistent within the batch; keep essential parentheticals but trim them hard
 
 **Checklist before delivering:** every item applies to Android · Android-only fixes tagged · under 500 characters (count it) · long tail folded · headline items first · tense/phrasing consistent.
+
+## Step 7: Link the headings
+
+Each note set's heading in your chat reply is a link to where that text gets posted, so the reviewer can go straight from the block to the page:
+
+```markdown
+## [Forum release notes](https://community.software.sil.org/t/10807)
+## [Android release notes](https://play.google.com/console/developers/7374456150929059145/app/4972009849345036990/releases/overview)
+```
+
+The version-tag heading stays plain. Leave the Android heading unlinked (or drop the block) when the release gets no Android note.
+
+Play Console release-detail URLs end in a per-release id (`.../tracks/<trackId>/releases/50/details`), so there's no link that always lands on the newest release; the releases overview lists the latest release on each track and links through.

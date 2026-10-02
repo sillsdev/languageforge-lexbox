@@ -3,6 +3,7 @@ using LexBoxApi.Auth;
 using LexBoxApi.GraphQL;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services.Email;
+using LexCore.Analytics;
 using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.Extensions.Hosting.Internal;
@@ -35,6 +36,7 @@ public class DevGqlSchemaWriterService : IHostedService
             .AddScoped<FwHeadlessClient>()
             .AddScoped<UserService>()
             .AddScoped<LexAuthService>()
+            .AddScoped<ILexboxAnalyticsService, LexboxAnalyticsService>()
             .AddLexGraphQL(builder.Environment, true);
         var host = builder.Build();
         await host.StartAsync();

@@ -33,13 +33,9 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         var latestRelease = await GetLatestRelease(edition);
         if (latestRelease is null) return new ShouldUpdateResponse(null);
 
-        var shouldUpdateToRelease = ShouldUpdateToRelease(appVersion, latestRelease.Version);
-        return shouldUpdateToRelease ? new ShouldUpdateResponse(latestRelease) : new ShouldUpdateResponse(null);
-    }
-
-    public static bool ShouldUpdateToRelease(string appVersion, string latestVersion)
-    {
-        return String.Compare(latestVersion, appVersion, StringComparison.Ordinal) > 0;
+        return FwLiteVersion.IsNewer(latestRelease.Version, appVersion)
+            ? new ShouldUpdateResponse(latestRelease)
+            : new ShouldUpdateResponse(null);
     }
 
     public async ValueTask InvalidateReleaseCache()
@@ -136,14 +132,14 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
 """;
     }
 
-    //public for testing (like ShouldUpdateToRelease): this MUST match the bundle's manifest identity
+    //public for testing: this MUST match the bundle's manifest identity
     //version exactly (CI stamps that from `date +%Y.%-m.%-d` plus a `.1` revision in the MakeAppx /bv
     //arg), or the App Installer install fails with an identity mismatch.
     public static string ConvertVersionToAppInstallerVersion(string version)
     {
         //version is something like v2025-01-17-a62c709c which should be converted to 2025.1.17.1,
         //always adding .1 on the end. int.Parse drops leading zeros
-        return version.Split('-') switch
+        return FwLiteVersion.StripReleaseTagPrefix(version).Split('-') switch
         {
             [var year, var month, var day, ..] =>
                 $"{int.Parse(year.TrimStart('v'))}.{int.Parse(month)}.{int.Parse(day)}.1",

@@ -55,6 +55,10 @@ task test:ui-standalone
 task test:ui-standalone -- entries-list --ui
 ```
 
+UI tests run under both `chromium` and `webkit` (Safari's engine, on Linux). Narrow to one
+with `--project=webkit` or `--project=chromium`, e.g. `task test:ui-standalone -- entries-list --project=webkit`.
+WebKit snapshots use `-webkit`-suffixed Argos baselines; chromium keeps the bare names.
+
 ### Theme (light/dark + color) for screenshots
 
 Theming is `mode-watcher`. Don't click the `ThemePicker` popover — set it directly.

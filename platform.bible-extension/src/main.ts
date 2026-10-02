@@ -6,18 +6,35 @@ import { getErrorMessage } from 'platform-bible-utils';
 import { Stream } from 'stream';
 import { EntryService } from './services/entry-service';
 import { WebViewType } from './types/enums';
-import { FwLiteApi, type LoginResult } from './utils/fw-lite-api';
+import {
+  type DownloadResult,
+  FwLiteApi,
+  type LocalLexiconsResult,
+  type LoginResult,
+} from './utils/fw-lite-api';
 import { HttpStatusError } from './utils/http-status-error';
+import type { ProjectManager } from './utils/project-manager';
 import { ProjectManagers } from './utils/project-managers';
 import * as webViewProviders from './web-views';
 
 let fwLiteProcess: ChildProcessByStdio<Stream.Writable, Stream.Readable, Stream.Readable>;
 
-// Signing in can easily take longer than 30s, set increase to 5min. The stack of timeouts seems to be:
-//  5 min - papi command (this one)
-//  5 min - undici/node fetch (has gone back and forth; 300s today, see https://github.com/nodejs/undici/pull/5467)
-//  inf.  - FW Lite
+// Signing in can easily take longer than 30s. Timeout stack: this papi command (5 min) -> undici/
+// node fetch (5 min, see https://github.com/nodejs/undici/pull/5467) -> FW Lite (no timeout).
 const SIGN_IN_TIMEOUT_MS = 5 * 60 * 1000;
+
+// Downloading a project runs its full initial sync inline, which for a large project is minutes.
+// Same timeout stack as sign-in (see above).
+const DOWNLOAD_TIMEOUT_MS = 5 * 60 * 1000;
+
+// Resolving a project can open the core project picker and wait on the user. Same 5-min budget as
+// sign-in/download — arbitrary, since it only caps an abandoned command; a present user picks in seconds.
+const RESOLVE_PROJECT_TIMEOUT_MS = 5 * 60 * 1000;
+
+// The PAPI command timeout must outlast our own internal abort so the command doesn't reject while
+// the aborted work is still unwinding — otherwise a download/sign-in finishing right at the deadline
+// can persist its result while the web view already saw a rejection.
+const COMMAND_TIMEOUT_BUFFER_MS = 30 * 1000;
 
 export async function activate(context: ExecutionActivationContext): Promise<void> {
   logger.info('Lexicon extension activating!');
@@ -63,13 +80,12 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
   );
 
   // A lexicon code is valid only if the backend resolves it to a project with a vernacular writing
-  // system. Used both to validate the project setting on write and to re-check a stored code before
-  // acting on it, since a lexicon can be deleted in FW Lite after it was selected.
+  // system. Used to validate the setting on write and to re-check a stored code before acting on it
+  // (a lexicon can be deleted in FW Lite after it was selected).
   //
-  // Only the backend's definitive answers about the code itself count as "invalid" here — 404 (no
-  // such lexicon) and 400 (a code that can never resolve, e.g. all whitespace). A wrong answer
-  // discards the user's stored lexicon choice, so every other failure (FW Lite still starting up
-  // when the first command fires, a transient backend fault) is treated as "still valid".
+  // Only 404 (no such lexicon) and 400 (a code that can never resolve) count as "invalid" here —
+  // since a wrong answer discards the user's stored choice, every other failure (FW Lite still
+  // starting up, a transient backend fault) is treated as "still valid".
   const isLexiconCodeValid = async (lexiconCode: string): Promise<boolean> => {
     try {
       return (await fwLiteApi.getWritingSystems(lexiconCode)).vernacular.length > 0;
@@ -170,7 +186,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     async (projectId: string, lexiconCode: string, entryId: string) => {
       let success = false;
 
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success };
 
       // An entry id resolves only in the lexicon it was written to, and the calling WebView is the
@@ -251,7 +267,7 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
       return { result, servers: await getAuthServers() };
     },
     undefined,
-    { timeoutMilliseconds: SIGN_IN_TIMEOUT_MS },
+    { timeoutMilliseconds: SIGN_IN_TIMEOUT_MS + COMMAND_TIMEOUT_BUFFER_MS },
   );
 
   const logoutCommandPromise = papi.commands.registerCommand(
@@ -267,50 +283,179 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     },
   );
 
+  const openSelectorCommandPromise = papi.commands.registerCommand(
+    'lexicon.openSelector',
+    async (projectId: string) => {
+      logger.info(`Opening the lexicon selector for project '${projectId}'`);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
+      if (!projectManager) return { success: false };
+
+      // Selection is sticky: a linked project is changed only by first clearing its
+      // lexicon.lexiconCode setting.
+      const lexiconCode = await projectManager.getValidLexiconCode();
+      if (lexiconCode) {
+        const error = `Project '${projectId}' already uses lexicon '${lexiconCode}'`;
+        logger.warn(`Not opening the lexicon selector: ${error}`);
+        return { success: false, error };
+      }
+
+      return { success: await projectManager.openSelector() };
+    },
+  );
+
+  // Store the lexicon choice on the project and cache its analysis language. setLexiconCode runs the
+  // registered validator (a writing-systems check), so it throws if the code doesn't resolve — which
+  // is how download-and-select refuses to record a project whose download didn't really land.
+  const applyLexiconSelection = async (
+    projectManager: ProjectManager,
+    lexiconCode: string,
+  ): Promise<void> => {
+    if (!lexiconCode) return await projectManager.clearLexicon();
+    await projectManager.setLexiconCode(lexiconCode);
+    // Best-effort: the code was already validated by setLexiconCode, so a failure here is transient;
+    // fall back to no analysis language rather than failing the (already-stored) selection.
+    const langs = await fwLiteApi
+      .getWritingSystems(lexiconCode)
+      .catch((e) => logger.error('Error fetching writing systems:', getErrorMessage(e)));
+    const analysisLang = langs?.analysis[0]?.wsId ?? '';
+    if (analysisLang) {
+      logger.info(`Storing lexicon analysis language '${analysisLang}'`);
+    } else {
+      logger.info('Failed to get analysis language of the lexicon');
+    }
+    await projectManager
+      .setAnalysisLanguage(analysisLang)
+      .catch((e) => logger.error('Error setting analysis language:', getErrorMessage(e)));
+  };
+
+  // Resolving may open the core project picker and wait on the user, so it lives in its own
+  // command with a generous timeout instead of eating into the timeout of the command that acts.
+  const resolveProjectCommandPromise = papi.commands.registerCommand(
+    'lexicon.resolveProject',
+    async (webViewId: string) => {
+      const projectManager =
+        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
+      return { projectId: projectManager?.projectId, projectName: await projectManager?.getName() };
+    },
+    undefined,
+    { timeoutMilliseconds: RESOLVE_PROJECT_TIMEOUT_MS },
+  );
+
+  // A deleted lexicon must not stay selected, or the entry service keeps querying a database that's
+  // gone. Only the requesting project is reachable from here; others clear theirs on next use.
+  const clearLexiconSelectionIfApplied = async (
+    projectId: string | undefined,
+    lexiconCode: string,
+  ): Promise<void> => {
+    const projectManager = projectId
+      ? await projectManagers.getProjectManagerFromProjectId(projectId)
+      : undefined;
+    if (!projectManager) return;
+    if ((await projectManager.getLexiconCode()) !== lexiconCode) return;
+    await projectManager.clearLexicon();
+  };
+
   const selectLexiconCommandPromise = papi.commands.registerCommand(
     'lexicon.selectLexicon',
     async (projectId: string, lexiconCode: string) => {
-      logger.info(`Selecting lexicon '${lexiconCode}' for project '${projectId}'`);
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
       if (!projectManager) return { success: false };
 
-      await projectManager.setLexiconCode(lexiconCode);
-      if (lexiconCode) {
-        const langs = await fwLiteApi
-          .getWritingSystems(lexiconCode)
-          .catch((e) => logger.error('Error fetching writing systems:', JSON.stringify(e)));
-        const analysisLang = langs?.analysis[0]?.wsId ?? '';
-        if (analysisLang) {
-          logger.info(`Storing lexicon analysis language '${analysisLang}'`);
-        } else {
-          logger.info('Failed to get analysis language of the lexicon');
-        }
-        await projectManager
-          .setAnalysisLanguage(analysisLang)
-          .catch((e) => logger.error('Error setting analysis language:', JSON.stringify(e)));
-      }
+      logger.info(`Selecting lexicon '${lexiconCode}' for project '${projectManager.projectId}'`);
+      await applyLexiconSelection(projectManager, lexiconCode);
       return { success: true };
     },
   );
 
-  // DEV-ONLY: a quick lexicon switcher. Lexicon selection is intentionally sticky — once a project
-  // has one, the only supported way to change it is clearing `lexicon.lexiconCode` in the project
-  // settings, which unlinks the project and makes the next lexicon action reopen the selector. This
-  // menu command is a development convenience to be removed before release, along with:
-  //   - its entry in the `context.registrations.add(...)` list below,
-  //   - the `lexicon.changeLexicon` handler type in `src/types/lexicon.d.ts`,
-  //   - the `%lexicon_menu_selectLexicon%` menu item in `contributions/menus.json`, and
-  //   - the `%lexicon_menu_selectLexicon%` string in `contributions/localizedStrings.json`.
-  // (`ProjectManager.openSelector` stays — the non-dev clear-and-reopen path uses it too.)
-  const changeLexiconCommandPromise = papi.commands.registerCommand(
-    'lexicon.changeLexicon',
-    async (webViewId: string) => {
-      const projectManager =
-        await projectManagers.getProjectManagerFromWebViewIdOrSelectProject(webViewId);
-      if (!projectManager) return { success: false };
-      const success = await projectManager.openSelector();
-      return { success };
+  const remoteProjectsCommandPromise = papi.commands.registerCommand(
+    'lexicon.remoteProjects',
+    async () => {
+      try {
+        const [remote, local] = await Promise.all([
+          fwLiteApi.getRemoteProjects(),
+          fwLiteApi.getProjects(),
+        ]);
+        // Suppress a remote project when ANY local project already has its code. FW Lite collapses a
+        // same-code CRDT and FwData project into one record, and a selection stores only the code, so
+        // downloading such a remote would resolve that code to the wrong project. #2647 tracks the
+        // format-aware fix that would let same-code projects coexist. Dedupe against ALL local
+        // projects, not the web view's language-filtered list.
+        return remote.filter((r) => !local.some((l) => l.code === r.code));
+      } catch (e) {
+        logger.error('Error fetching remote projects:', getErrorMessage(e));
+        return undefined;
+      }
     },
+  );
+
+  const deleteDownloadedLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.deleteDownloadedLexicon',
+    async (lexiconCode: string, projectId?: string) => {
+      try {
+        // Any local CRDT lexicon can be deleted (downloaded or local-only). FwData projects are
+        // managed by FieldWorks, so refuse them (the picker also hides delete for those).
+        const project = (await fwLiteApi.getProjects()).find((p) => p.code === lexiconCode);
+        if (!project) {
+          return { success: false, error: `Lexicon '${lexiconCode}' wasn't found.` };
+        }
+        if (!project.crdt) {
+          return { success: false, error: `FieldWorks projects can't be deleted here.` };
+        }
+        logger.info(`Deleting lexicon '${lexiconCode}'`);
+        await fwLiteApi.deleteProject(lexiconCode);
+        // The lexicon is gone: failing to tidy the setting must not report the delete as failed.
+        await clearLexiconSelectionIfApplied(projectId, lexiconCode).catch((e) =>
+          logger.error('Error clearing the deleted lexicon selection:', getErrorMessage(e)),
+        );
+        return { success: true };
+      } catch (e) {
+        const error = getErrorMessage(e);
+        logger.error('Error deleting lexicon:', error);
+        return { success: false, error };
+      }
+    },
+  );
+
+  const downloadAndSelectLexiconCommandPromise = papi.commands.registerCommand(
+    'lexicon.downloadAndSelectLexicon',
+    async (projectId: string, authority: string, lexiconCode: string) => {
+      const projectManager = await projectManagers.getProjectManagerFromProjectId(projectId);
+      if (!projectManager) return { result: 'Error' as const, success: false, cancelled: true };
+
+      logger.info(
+        `Downloading '${lexiconCode}' from '${authority}' for project '${projectManager.projectId}'`,
+      );
+      // Stop waiting after a while rather than hanging the panel. This only drops our request: the
+      // download route takes no cancellation token, so the backend runs on and may still store the
+      // lexicon (a retry then reports AlreadyDownloaded).
+      const abort = new AbortController();
+      const timeout = setTimeout(() => abort.abort(), DOWNLOAD_TIMEOUT_MS);
+      let result: DownloadResult;
+      let error: string | undefined;
+      try {
+        ({ result, error } = await fwLiteApi.downloadProject(authority, lexiconCode, abort.signal));
+      } catch (e) {
+        logger.error('Error downloading project:', getErrorMessage(e));
+        return { result: 'Error' as const, success: false };
+      } finally {
+        clearTimeout(timeout);
+      }
+      // AlreadyDownloaded is fine — the project is local, so go ahead and select it.
+      if (result !== 'Success' && result !== 'AlreadyDownloaded')
+        return { result, success: false, error };
+
+      try {
+        await applyLexiconSelection(projectManager, lexiconCode);
+        return { result, success: true };
+      } catch (e) {
+        // Downloaded, but selection failed (e.g. the validator's writing-systems check). Report the
+        // download result but success:false so the web view surfaces a failure and keeps the picker.
+        logger.error('Downloaded but failed to select lexicon:', getErrorMessage(e));
+        return { result, success: false };
+      }
+    },
+    undefined,
+    { timeoutMilliseconds: DOWNLOAD_TIMEOUT_MS + COMMAND_TIMEOUT_BUFFER_MS },
   );
 
   const createLexiconCommandPromise = papi.commands.registerCommand(
@@ -329,13 +474,26 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
 
   const lexiconsCommandPromise = papi.commands.registerCommand(
     'lexicon.lexicons',
-    async (projectId?: string) => {
+    async (
+      webViewId: string,
+      all?: boolean,
+      keepCodes?: string[],
+    ): Promise<LocalLexiconsResult> => {
       logger.info('Fetching local lexicons');
-      if (!projectId) return await fwLiteApi.getProjects();
-
-      const projectManager = projectManagers.getProjectManagerFromProjectId(projectId);
-      const langTag = await projectManager?.getLanguageTag();
-      return await fwLiteApi.getProjectsMatchingLanguage(langTag);
+      // A read: never prompt. No project (or one that no longer exists) only costs the filtering.
+      const projectId = await ProjectManagers.getProjectIdFromWebViewId(webViewId);
+      const project = projectId
+        ? await (
+            await projectManagers.getProjectManagerFromProjectId(projectId)
+          )?.getLexiconPickerInfo()
+        : undefined;
+      // Keep the current lexicon plus any lexicons/codes (keepCodes) the caller does not want to lose
+      const keep = [project?.lexiconCode, ...(keepCodes ?? [])].filter((c): c is string => !!c);
+      const result = await fwLiteApi.getProjectsMatchingLanguage(
+        all ? undefined : project?.langTag,
+        keep,
+      );
+      return { project, ...result };
     },
   );
 
@@ -355,14 +513,18 @@ export async function activate(context: ExecutionActivationContext): Promise<voi
     await addEntryCommandPromise,
     await authServersCommandPromise,
     await browseLexiconCommandPromise,
-    await changeLexiconCommandPromise, // DEV-ONLY: remove before release (see registration above)
     await createLexiconCommandPromise,
+    await deleteDownloadedLexiconCommandPromise,
     await displayEntryCommandPromise,
+    await downloadAndSelectLexiconCommandPromise,
     await findEntryCommandPromise,
     await findRelatedEntriesCommandPromise,
     await lexiconsCommandPromise,
     await loginCommandPromise,
     await logoutCommandPromise,
+    await openSelectorCommandPromise,
+    await remoteProjectsCommandPromise,
+    await resolveProjectCommandPromise,
     await selectLexiconCommandPromise,
     // Services
     await entryService,
@@ -377,15 +539,13 @@ export async function deactivate(): Promise<boolean> {
 }
 
 /**
- * Returns a stable per-user directory for FW Lite data (projects, auth cache), in its own
- * subdirectory so it doesn't collide with Platform.Bible's own `papi.storage` data for this
- * extension (`.../extensions/lexicon/user-data/`). Mirrors Platform.Bible's own `app://` scheme
- * (paranext-core's `getAppDir()`): the real per-user location when packaged, the repo-local
- * dev-appdata directory in development, so `npm start` doesn't read/write production user data.
+ * Per-user directory for FW Lite data (projects, auth cache), separate from Platform.Bible's own
+ * `papi.storage` data for this extension. Mirrors paranext-core's `app://`/`getAppDir()` scheme:
+ * the real per-user location when packaged, repo-local dev-appdata in development, so `npm start`
+ * doesn't touch production user data.
  *
- * Uses process.env/globalThis instead of require('os'/'path') because Platform.Bible blocks
- * non-papi requires, so paths are assembled by hand with the platform-appropriate separator
- * (backslash on Windows, forward slash on Linux/Mac, which .NET requires there).
+ * Builds paths by hand (no require('os'/'path') — Platform.Bible blocks non-papi requires), using
+ * the platform separator: backslash on Windows, forward slash elsewhere (which .NET requires).
  */
 function getFwLiteDataDir(platform: string): string {
   const isWindows = platform === 'win32';

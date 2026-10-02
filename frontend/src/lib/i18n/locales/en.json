@@ -107,6 +107,11 @@
       "you_have_mail": "You've got mail!"
     }
   },
+  "analytics": {
+    "title": "Usage analytics",
+    "description": "We collect basic usage events tied to your account to help us improve LexBox. See our [privacy policy](https://software.sil.org/language-software-privacy-policy/) for details. You can opt out at any time.",
+    "opt_out_label": "Don't track my usage"
+  },
   "appbar": {
     "app_name": "Lexbox",
     "app_subtitle": "formerly Language Depot"
@@ -787,7 +792,8 @@ You are not currently a project manager. Only project managers can request early
   "footer": {
     "contact": "Contact",
     "terms_of_use": "Terms of use",
-    "privacy_policy": "Privacy policy"
+    "privacy_policy": "Privacy policy",
+    "analytics": "Analytics"
   },
   "more_settings": {
     "title": "More settings"

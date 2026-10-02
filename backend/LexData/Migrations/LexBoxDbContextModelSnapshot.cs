@@ -19,7 +19,7 @@ namespace LexData.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
-                .HasAnnotation("ProductVersion", "9.0.16")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -826,6 +826,9 @@ namespace LexData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("OptedOutOfAnalytics")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1086,7 +1089,7 @@ namespace LexData.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
-                    b.ComplexProperty<Dictionary<string, object>>("HybridDateTime", "SIL.Harmony.Core.ServerCommit.HybridDateTime#HybridDateTime", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "HybridDateTime", "SIL.Harmony.Core.ServerCommit.HybridDateTime#HybridDateTime", b1 =>
                         {
                             b1.IsRequired();
 
@@ -1179,8 +1182,7 @@ namespace LexData.Migrations
 
                     b.OwnsOne("LexCore.Entities.ProjectWritingSystems", "WritingSystems", b1 =>
                         {
-                            b1.Property<Guid>("FlexProjectMetadataProjectId")
-                                .HasColumnType("uuid");
+                            b1.Property<Guid>("FlexProjectMetadataProjectId");
 
                             b1.HasKey("FlexProjectMetadataProjectId");
 
@@ -1195,22 +1197,17 @@ namespace LexData.Migrations
 
                             b1.OwnsMany("LexCore.Entities.FLExWsId", "AnalysisWss", b2 =>
                                 {
-                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
-                                        .HasColumnType("uuid");
+                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId");
 
                                     b2.Property<int>("__synthesizedOrdinal")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType("integer");
+                                        .ValueGeneratedOnAdd();
 
-                                    b2.Property<bool>("IsActive")
-                                        .HasColumnType("boolean");
+                                    b2.Property<bool>("IsActive");
 
-                                    b2.Property<bool>("IsDefault")
-                                        .HasColumnType("boolean");
+                                    b2.Property<bool>("IsDefault");
 
                                     b2.Property<string>("Tag")
-                                        .IsRequired()
-                                        .HasColumnType("text");
+                                        .IsRequired();
 
                                     b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "__synthesizedOrdinal");
 
@@ -1222,22 +1219,17 @@ namespace LexData.Migrations
 
                             b1.OwnsMany("LexCore.Entities.FLExWsId", "VernacularWss", b2 =>
                                 {
-                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
-                                        .HasColumnType("uuid");
+                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId");
 
                                     b2.Property<int>("__synthesizedOrdinal")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType("integer");
+                                        .ValueGeneratedOnAdd();
 
-                                    b2.Property<bool>("IsActive")
-                                        .HasColumnType("boolean");
+                                    b2.Property<bool>("IsActive");
 
-                                    b2.Property<bool>("IsDefault")
-                                        .HasColumnType("boolean");
+                                    b2.Property<bool>("IsDefault");
 
                                     b2.Property<string>("Tag")
-                                        .IsRequired()
-                                        .HasColumnType("text");
+                                        .IsRequired();
 
                                     b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "__synthesizedOrdinal");
 
@@ -1365,7 +1357,7 @@ namespace LexData.Migrations
             modelBuilder.Entity("SIL.Harmony.Core.ServerCommit", b =>
                 {
                     b.HasOne("LexCore.Entities.Project", null)
-                        .WithMany()
+                        .WithMany("HarmonyCommits")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1395,6 +1387,8 @@ namespace LexData.Migrations
             modelBuilder.Entity("LexCore.Entities.Project", b =>
                 {
                     b.Navigation("FlexProjectMetadata");
+
+                    b.Navigation("HarmonyCommits");
 
                     b.Navigation("Users");
                 });
