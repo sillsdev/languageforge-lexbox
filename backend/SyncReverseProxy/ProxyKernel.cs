@@ -1,5 +1,8 @@
 using System.Diagnostics;
+using System.Security.Claims;
 using System.Text;
+using LexCore.Auth;
+using LexCore.Config;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
@@ -9,6 +12,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Trace;
 using Yarp.ReverseProxy.Forwarder;
 
@@ -96,8 +100,20 @@ public static class ProxyKernel
 
         var requestInfo = lexProxyService.GetDestinationPrefix(hgType);
 
-        using var sendReceiveTicket = await sendReceiveService.BeginSendReceive(projectCode);
-        if (sendReceiveTicket is null) throw new ProjectLockedException(projectCode);
+        // userId (the "sub" claim) is always present here: these routes require BasicAuth, so the
+        // concurrency key is always well-formed and per-user.
+        var userId = context.User.FindFirstValue(LexAuthConstants.IdClaimType) ?? string.Empty;
+        var gate = await sendReceiveService.BeginSendReceive(projectCode, userId);
+        using var sendReceiveTicket = gate.Ticket;
+        switch (gate.Result)
+        {
+            case BeginSendReceiveResult.MigrationInProgress:
+                throw new ProjectLockedException(projectCode);
+            case BeginSendReceiveResult.ConcurrencyLimitReached:
+                Activity.Current?.AddTag("app.send_receive_concurrency_limited", true);
+                await WriteConcurrencyLimitReached(context);
+                return;
+        }
 
         await forwarder.SendAsync(context, requestInfo.DestinationPrefix, httpClient, ForwarderRequestConfig.Empty, transformer);
         try
@@ -120,6 +136,36 @@ public static class ProxyKernel
             Activity.Current?.AddException(e);
             //we don't want to throw errors from the post process event
         }
+    }
+
+    private static async Task WriteConcurrencyLimitReached(HttpContext context)
+    {
+        var config = context.RequestServices.GetRequiredService<IOptions<SendReceiveConfig>>().Value;
+        var (statusCode, retryAfterSeconds) = ResolveConcurrencyLimitResponse(
+            context.Request.Headers.UserAgent.ToString(),
+            config.ConcurrencyRetryAfterSeconds);
+        context.Response.StatusCode = statusCode;
+        if (retryAfterSeconds is { } seconds)
+            context.Response.Headers.RetryAfter = seconds.ToString();
+        // Body must be non-empty: an old resumable client maps a 503-with-body to NotAvailable and
+        // stops cleanly.
+        await context.Response.WriteAsync(
+            "Too many concurrent sync requests for this project; please try again shortly.");
+    }
+
+    /// <summary>
+    /// Version-gated rejection status for the per-(user, project) concurrency cap. The Chorus
+    /// resumable client infinite-retries on an unhandled 429, but stops cleanly on 503. Newer
+    /// clients advertise a "Chorus/&lt;ver&gt;" capability token in their User-Agent and map 429 to
+    /// backoff-and-retry, so only those receive 429 + Retry-After; everything else (old resumable
+    /// clients sending "HgResume v03" with no token, and plain hgweb/mercurial clients) gets 503.
+    /// </summary>
+    public static (int statusCode, int? retryAfterSeconds) ResolveConcurrencyLimitResponse(string? userAgent, int retryAfterSeconds)
+    {
+        var clientHandles429 = userAgent?.Contains("Chorus/", StringComparison.OrdinalIgnoreCase) == true;
+        return clientHandles429
+            ? (StatusCodes.Status429TooManyRequests, retryAfterSeconds)
+            : (StatusCodes.Status503ServiceUnavailable, null);
     }
 
     /// <summary>
