@@ -171,6 +171,9 @@ spec:
         env:
           - name: URLS
             value: "http://+:8080"
+          # default also includes /var/vcs/private, which we don't mount; startup would fail creating dirs there
+          - name: HGRESUME_REPO_PATHS
+            value: /var/vcs/public
           # gates /api/manage/*; hgresume refuses to start without it
           - name: HGRESUME_MANAGE_SECRET
             valueFrom:
