@@ -127,7 +127,7 @@
   }
 
   let editorElem: HTMLDivElement | null = $state(null);
-  const {features: platformFeatures} = usePlatformFeaturesService();
+  const platform = usePlatformFeaturesService();
   let highlighted = $state<{ entity: IExampleSentence | ISense; autofocus?: boolean}>();
   let highlightTimeout: ReturnType<typeof setTimeout>;
   const ENTITY_FIELD_CONTAINER_CLASS = 'entity-field-container';
@@ -140,7 +140,7 @@
       setTimeout(() => {
         const newEntityElem = editorElem?.querySelector('.highlight');
         if (newEntityElem) {
-          if (highlighted?.autofocus && platformFeatures.hasHardwareKeyboard)
+          if (highlighted?.autofocus && platform.features.hasHardwareKeyboard)
             findFirstTabbable(newEntityElem?.querySelector(`.${ENTITY_FIELD_CONTAINER_CLASS}`))?.focus();
 
           const _isBottomInViewport = isBottomInView(newEntityElem);

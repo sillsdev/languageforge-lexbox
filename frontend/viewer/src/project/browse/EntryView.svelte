@@ -37,7 +37,7 @@
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const features = useFeatures();
-  const {features: platformFeatures} = usePlatformFeaturesService();
+  const platform = usePlatformFeaturesService();
   const viewService = useViewService();
   const dictionaryPreviewStorage = useProjectStorage().dictionaryPreview;
   let {
@@ -156,7 +156,7 @@
   let editorRef: HTMLElement | null = $state(null);
   watch([() => [loadedEntryId, entryScrollViewportRef, editorRef]], () => {
     entryScrollViewportRef?.scrollTo({ top: 0, left: 0 });
-    if (platformFeatures.hasHardwareKeyboard) findFirstTabbable(editorRef)?.focus();
+    if (platform.features.hasHardwareKeyboard) findFirstTabbable(editorRef)?.focus();
   });
 </script>
 
