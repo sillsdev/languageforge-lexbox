@@ -35,7 +35,7 @@ import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwL
 import {delay} from '$lib/utils/time';
 import {initProjectContext, type ProjectContext} from '$project/project-context.svelte';
 import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
-import {refreshPlatformFeatures} from '$lib/services/platform-features-service';
+import {fallbackPlatformFeaturesService, refreshPlatformFeatures} from '$lib/services/platform-features-service';
 import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
 import type {ILcmFileMetadata} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ILcmFileMetadata';
@@ -126,11 +126,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     let hasHardwareKeyboard = true;
     window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
-      supportsImageCapture: () => Promise.resolve(false),
-      captureImage: () => Promise.resolve(undefined),
-      copyToClipboard: () => Promise.resolve(),
-      supportsShareFile: () => Promise.resolve(false),
-      shareFile: () => Promise.reject(new Error('Native file sharing is not available')),
+      ...fallbackPlatformFeaturesService,
       hasHardwareKeyboard: () => Promise.resolve(hasHardwareKeyboard),
     });
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);

@@ -11,34 +11,30 @@ const features = ['supportsImageCapture', 'hasHardwareKeyboard'] as const satisf
   [K in keyof IPlatformFeaturesService]: IPlatformFeaturesService[K] extends () => Promise<boolean> ? K : never
 }[keyof IPlatformFeaturesService]>)[];
 type Features = typeof features[number];
-export function usePlatformFeaturesService(): {service: IPlatformFeaturesService, features: Record<Features, boolean>} {
-  const service = tryUseService(DotnetService.PlatformFeaturesService);
-
-  if (!service) {
-    return {
-      service: {
-        captureImage(): Promise<ICameraResult | undefined> {
-          return Promise.resolve(undefined);
-        },
-        supportsImageCapture(): Promise<boolean> {
-          return Promise.resolve(false);
-        },
-        copyToClipboard(): Promise<void> {
-          return Promise.resolve();
-        },
-        supportsShareFile(): Promise<boolean> {
-          return Promise.resolve(false);
-        },
-        shareFile(): Promise<void> {
-          return Promise.reject(new Error('Native file sharing is not available'));
-        },
-        hasHardwareKeyboard(): Promise<boolean> {
-          return Promise.resolve(true);
-        }
-      },
-      features: Object.fromEntries(features.map((feature) => [feature, false])) as Record<Features, boolean>
-    };
+//Stands in when no host registered the service (the plain browser app); its answers are what the cache reports.
+export const fallbackPlatformFeaturesService: IPlatformFeaturesService = {
+  captureImage(): Promise<ICameraResult | undefined> {
+    return Promise.resolve(undefined);
+  },
+  supportsImageCapture(): Promise<boolean> {
+    return Promise.resolve(false);
+  },
+  copyToClipboard(): Promise<void> {
+    return Promise.resolve();
+  },
+  supportsShareFile(): Promise<boolean> {
+    return Promise.resolve(false);
+  },
+  shareFile(): Promise<void> {
+    return Promise.reject(new Error('Native file sharing is not available'));
+  },
+  hasHardwareKeyboard(): Promise<boolean> {
+    return Promise.resolve(true);
   }
+};
+
+export function usePlatformFeaturesService(): {service: IPlatformFeaturesService, features: Record<Features, boolean>} {
+  const service = tryUseService(DotnetService.PlatformFeaturesService) ?? fallbackPlatformFeaturesService;
   const featuresObj = {} as Record<Features, boolean>;
   for (const feature of features) {
     if (!cache.has(feature)) {
