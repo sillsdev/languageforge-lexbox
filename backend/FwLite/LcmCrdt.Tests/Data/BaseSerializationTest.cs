@@ -137,12 +137,6 @@ public abstract class BaseSerializationTest
 
     protected record LegacyRecord<T>(T Input, T Output);
 
-    /// <summary>
-    /// Latest keeps every entry that still round-trips, plus one generated entry per type that has none or just changed shape.
-    /// Stale entries move to legacy as Input (old json) and Output (what it reserializes to now); legacy Outputs are refreshed in place.
-    /// A stale entry's reserialized form is not kept in latest: it already is the legacy Output, and keeping it (plus a generated
-    /// entry per stale entry) doubled a type's entries on every schema change.
-    /// </summary>
     protected static Task VerifyRegressionDataUpToDate<T>(
         string fileNamePrefix,
         IEnumerable<Type> allTypes,
@@ -154,6 +148,7 @@ public abstract class BaseSerializationTest
         var latestJsonArray = ReadJsonArrayFromFile(GetJsonFilePath($"{fileNamePrefix}.latest.verified.txt", sourceFile));
         var newLatestJsonArray = new JsonArray();
 
+        // step 1: validate the round-tripping/output of legacy entries
         foreach (var legacyJsonNode in legacyJsonArray)
         {
             legacyJsonNode.Should().NotBeNull();
@@ -166,10 +161,12 @@ public abstract class BaseSerializationTest
             var newLegacyOutputJson = JsonSerializer.Serialize(value, IndentedHarmonyJsonOptions);
             if (legacyOutputJson != newLegacyOutputJson)
             {
+                //the legacy entry no longer round-trips to the same output, so we should verify the new output
                 legacyJsonNode[nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLegacyOutputJson);
             }
         }
 
+        // step 2: validate the round-tripping/output of latest entries, moving any that don't to legacy
         var stableTypes = new HashSet<Type>();
         var staleTypes = new HashSet<Type>();
         foreach (var latestJsonNode in latestJsonArray)
@@ -181,24 +178,33 @@ public abstract class BaseSerializationTest
             value.Should().NotBeNull();
             var newLatestJson = JsonSerializer.Serialize(value, IndentedHarmonyJsonOptions);
 
-            if (latestJson == newLatestJson)
+            if (latestJson != newLatestJson)
             {
-                newLatestJsonArray.Add(latestJsonNode.DeepClone());
-                stableTypes.Add(typeOf(value));
-            }
-            else
-            {
+                // The current "latest" json doesn't match it's reserialized form.
+                // I.e. it's no longer the latest. It's now legacy
                 legacyJsonArray.Add(new JsonObject
                 {
                     [nameof(LegacyRecord<T>.Input)] = latestJsonNode.DeepClone(),
                     [nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLatestJson)
                 });
+                // Its reserialized form is already the legacy Output, so it isn't kept in latest.
+                // Keeping it, plus one generated entry per stale entry, doubled a type's entries on every schema change.
                 staleTypes.Add(typeOf(value));
+            }
+            else
+            {
+                // it's still the latest
+                newLatestJsonArray.Add(latestJsonNode.DeepClone());
+                stableTypes.Add(typeOf(value));
             }
         }
 
-        var typesNeedingGeneratedEntry = allTypes.Where(type => staleTypes.Contains(type) || !stableTypes.Contains(type));
-        foreach (var type in typesNeedingGeneratedEntry)
+        // step 3: add one generated entry for any type not already represented, or whose shape just changed.
+        // If the new model only changes the representation of the same data then this might not be helpful.
+        // However, we typically change the model in order to add new data, so the generated entry will exercise that new data.
+        // Anyhow, it's much easier for a dev to remove unwanted entries than
+        // to generate and insert them manually. We can remove this if it's too noisy.
+        foreach (var type in allTypes.Where(type => staleTypes.Contains(type) || !stableTypes.Contains(type)))
         {
             var serialized = JsonSerializer.Serialize(generate(type), IndentedHarmonyJsonOptions);
             newLatestJsonArray.Add(JsonNode.Parse(serialized));
