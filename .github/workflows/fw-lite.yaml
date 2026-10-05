@@ -561,22 +561,29 @@ jobs:
             dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
             dotnet publish -r linux-arm64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
-      - name: Launch FwLiteWeb and wait for it to serve the viewer
+      # Headless Chrome loads the page so the server logs 'Viewer loaded', the line the MAUI checks wait for.
+      - name: Launch FwLiteWeb and wait for the viewer to load
         working-directory: backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64
         run: |
           chmod +x ./FwLiteWeb
           log="$RUNNER_TEMP/fwliteweb.log"
           ./FwLiteWeb --urls http://127.0.0.1:5137 --FwLiteWeb:OpenBrowser=false --FwLite:UpdateCheckCondition=Never > "$log" 2>&1 &
-          pid=$!
-          for i in $(seq 1 60); do
-            if curl -fsS -o /dev/null http://127.0.0.1:5137/; then echo "served after ${i}s"; kill $pid; exit 0; fi
-            kill -0 $pid 2>/dev/null || break
+          server=$!
+          for _ in $(seq 60); do
+            curl -fsS -o /dev/null http://127.0.0.1:5137/ && break
+            kill -0 $server 2>/dev/null || break
             sleep 1
           done
+          google-chrome --headless=new --disable-gpu --no-sandbox --user-data-dir="$RUNNER_TEMP/chrome" http://127.0.0.1:5137/ > /dev/null 2>&1 &
+          chrome=$!
+          for _ in $(seq 120); do
+            grep -q 'Viewer loaded' "$log" && break
+            kill -0 $server 2>/dev/null || break
+            sleep 1
+          done
+          kill $chrome $server 2>/dev/null || true
           cat "$log"
-          kill $pid 2>/dev/null || true
-          echo "::error::FwLiteWeb never served the viewer"
-          exit 1
+          grep -q 'Viewer loaded' "$log" || { echo "::error::FwLiteWeb never logged 'Viewer loaded'"; exit 1; }
 
       - name: Upload FWLite Linux artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -813,20 +820,29 @@ jobs:
           description:  'Release for version ${{ needs.build-and-test.outputs.version }}'
           description-url: 'https://github.com/sillsdev/languageforge-lexbox'
 
-      - name: Launch FwLiteWeb and wait for it to serve the viewer
+      # Headless Chrome loads the page so the server logs 'Viewer loaded', the line the MAUI checks wait for.
+      - name: Launch FwLiteWeb and wait for the viewer to load
         shell: pwsh
         working-directory: backend/FwLite/artifacts/publish/FwLiteWeb/release_win-x64
         run: |
           $out = Join-Path $env:RUNNER_TEMP 'fwliteweb.out.log'
           $err = Join-Path $env:RUNNER_TEMP 'fwliteweb.err.log'
-          $args = '--urls', 'http://127.0.0.1:5137', '--FwLiteWeb:OpenBrowser=false', '--FwLite:UpdateCheckCondition=Never'
-          $app = Start-Process -FilePath (Resolve-Path .\FwLiteWeb.exe) -ArgumentList $args -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
-          $served = $false
-          for ($i = 0; $i -lt 60 -and -not $app.HasExited; $i++) {
-            try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:5137/ | Out-Null; $served = $true; break } catch { Start-Sleep -Seconds 1 }
+          $serverArgs = '--urls', 'http://127.0.0.1:5137', '--FwLiteWeb:OpenBrowser=false', '--FwLite:UpdateCheckCondition=Never'
+          $server = Start-Process -FilePath (Resolve-Path .\FwLiteWeb.exe) -ArgumentList $serverArgs -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+          for ($i = 0; $i -lt 60 -and -not $server.HasExited; $i++) {
+            try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:5137/ | Out-Null; break } catch { Start-Sleep -Seconds 1 }
           }
-          if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force }
-          if (-not $served) { Get-Content $out, $err; throw 'FwLiteWeb never served the viewer' }
+          $chromeExe = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+          $chromeArgs = '--headless=new', '--disable-gpu', "--user-data-dir=$(Join-Path $env:RUNNER_TEMP 'chrome')", 'http://127.0.0.1:5137/'
+          $chrome = Start-Process -FilePath $chromeExe -ArgumentList $chromeArgs -PassThru
+          $loaded = $false
+          for ($i = 0; $i -lt 120 -and -not $server.HasExited; $i++) {
+            if (Select-String -Path $out -Pattern 'Viewer loaded' -Quiet) { $loaded = $true; break }
+            Start-Sleep -Seconds 1
+          }
+          foreach ($p in $chrome, $server) { if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force } }
+          Get-Content $out, $err
+          if (-not $loaded) { throw "FwLiteWeb never logged 'Viewer loaded'" }
 
       - name: Upload FWLite Windows web artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
