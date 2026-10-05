@@ -31,7 +31,7 @@ task build-fw-lite
 | `npm run build`             | Build once (dev)                                              |
 | `npm run watch`             | Rebuild on file changes                                       |
 | `npm run build:production`  | Production build                                              |
-| `npm run package`           | Production build + zip for distribution                       |
+| `npm run package`           | Production build + zip for distribution (release zips come from the `package-extension` job in `.github/workflows/fw-lite.yaml`, which stamps the version; the committed `0.0.1` is a placeholder) |
 | `npm run lint`              | ESLint + stylelint                                            |
 | `npm run lint-fix`          | Format + lint with auto-fix                                   |
 | `npm run format`            | Prettier format                                               |
