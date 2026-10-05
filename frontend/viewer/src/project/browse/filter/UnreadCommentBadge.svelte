@@ -5,9 +5,11 @@
   import {resource} from 'runed';
   import {plural} from 'svelte-i18n-lingui';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {useProjectEventBus} from '$lib/services/event-bus';
 
   const projectContext = useProjectContext();
   const miniLcmApi = $derived(projectContext.maybeApi);
+  const projectEventBus = useProjectEventBus();
 
   let {
     unreadComments = $bindable(false)
@@ -20,6 +22,7 @@
     initialValue: 0,
     debounce: 500
   });
+  projectEventBus.onCommentsChanged(() => void unreadCountResource.refetch());
   const unreadCount = $derived(unreadCountResource.current);
   const label = $derived($plural(unreadCount, {one: '# unread comment', other: '# unread comments'}));
 </script>
