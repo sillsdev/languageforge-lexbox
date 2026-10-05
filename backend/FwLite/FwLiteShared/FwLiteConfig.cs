@@ -15,8 +15,6 @@ public class FwLiteConfig
         PlatformID.MacOSX => FwLitePlatform.Mac,
         _ => FwLitePlatform.Other
     };
-    //Android (MainActivity) and iOS (FwLiteMauiKernel) report the real state; everywhere else a keyboard is a given.
-    public bool HasHardwareKeyboard { get; set; } = true;
     public string FeedbackUrl => $"https://docs.google.com/forms/d/e/1FAIpQLSetM5LIjrwZ8ibmxz9gHwYDqTqpEzsr3ILzrf_dW1rOoRf9rw/viewform?usp=pp_url&entry.1159558932={AppVersion}&entry.866582270={Os}";
 
     private string? _updateUrl;

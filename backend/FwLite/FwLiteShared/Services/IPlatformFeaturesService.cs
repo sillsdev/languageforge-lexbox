@@ -24,6 +24,13 @@ public interface IPlatformFeaturesService
 
     [JSInvokable]
     Task ShareFile(IJSStreamReference file, string fileName, string? contentType);
+
+    //Without one, focusing a field pops up the virtual keyboard, so the frontend gates focus the user didn't
+    //ask for (and keyboard-shortcut hints) on this. A startup snapshot: Android re-queries on activity
+    //recreation (which attaching or detaching a keyboard triggers), iOS only on the next launch.
+    //Screen size is deliberately not a factor: tablets and landscape phones are wide, but still touch-first.
+    [JSInvokable]
+    Task<bool> HasHardwareKeyboard();
 }
 
 internal class DummyPlatformFeaturesService : IPlatformFeaturesService
@@ -47,4 +54,7 @@ internal class DummyPlatformFeaturesService : IPlatformFeaturesService
     [JSInvokable]
     public Task ShareFile(IJSStreamReference file, string fileName, string? contentType) =>
         throw new NotSupportedException("Native file sharing is only available in the MAUI host");
+
+    [JSInvokable]
+    public Task<bool> HasHardwareKeyboard() => Task.FromResult(true);
 }

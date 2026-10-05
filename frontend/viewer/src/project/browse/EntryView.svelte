@@ -16,7 +16,7 @@
   import {copy, EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {createEntryOptions} from '$lib/create-entry-options';
   import {useProjectEventBus} from '$lib/services/event-bus';
-  import {HasHardwareKeyboard} from '$lib/hooks/has-hardware-keyboard';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import {useFeatures} from '$lib/services/feature-service';
   import type {ReadonlyDeep} from 'type-fest';
@@ -37,6 +37,7 @@
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const features = useFeatures();
+  const {features: platformFeatures} = usePlatformFeaturesService();
   const viewService = useViewService();
   const dictionaryPreviewStorage = useProjectStorage().dictionaryPreview;
   let {
@@ -155,7 +156,7 @@
   let editorRef: HTMLElement | null = $state(null);
   watch([() => [loadedEntryId, entryScrollViewportRef, editorRef]], () => {
     entryScrollViewportRef?.scrollTo({ top: 0, left: 0 });
-    if (HasHardwareKeyboard.value) findFirstTabbable(editorRef)?.focus();
+    if (platformFeatures.hasHardwareKeyboard) findFirstTabbable(editorRef)?.focus();
   });
 </script>
 

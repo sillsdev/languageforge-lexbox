@@ -35,6 +35,7 @@ import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwL
 import {delay} from '$lib/utils/time';
 import {initProjectContext, type ProjectContext} from '$project/project-context.svelte';
 import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
+import {refreshPlatformFeatures} from '$lib/services/platform-features-service';
 import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
 import type {ILcmFileMetadata} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ILcmFileMetadata';
@@ -67,7 +68,6 @@ export const mockFwLiteConfig: IFwLiteConfig = {
   appVersion: 'dev',
   feedbackUrl: '',
   os: FwLitePlatform.Web,
-  hasHardwareKeyboard: true,
   useDevAssets: true,
   devAssetsPort: 5173,
   edition: 0,
@@ -124,6 +124,15 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
     initProjectStorage(projectContext.projectCode);
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
+    let hasHardwareKeyboard = true;
+    window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
+      supportsImageCapture: () => Promise.resolve(false),
+      captureImage: () => Promise.resolve(undefined),
+      copyToClipboard: () => Promise.resolve(),
+      supportsShareFile: () => Promise.resolve(false),
+      shareFile: () => Promise.reject(new Error('Native file sharing is not available')),
+      hasHardwareKeyboard: () => Promise.resolve(hasHardwareKeyboard),
+    });
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
     window.__PLAYWRIGHT_UTILS__ = {
@@ -133,7 +142,8 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         await projectContext.refetchFeatures();
       },
       setHasHardwareKeyboard(value: boolean) {
-        mockFwLiteConfig.hasHardwareKeyboard = value;
+        hasHardwareKeyboard = value;
+        refreshPlatformFeatures();
       },
     };
 

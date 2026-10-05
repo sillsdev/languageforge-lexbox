@@ -72,4 +72,19 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share)
         }));
     }
 
+    [JSInvokable]
+    public Task<bool> HasHardwareKeyboard()
+    {
+#if ANDROID
+        if (Android.App.Application.Context.GetSystemService(Android.Content.Context.InputService) is not Android.Hardware.Input.InputManager inputManager)
+            return Task.FromResult(false);
+        var hasKeyboard = (inputManager.GetInputDeviceIds() ?? []).Select(id => inputManager.GetInputDevice(id))
+            .Any(d => d is {IsVirtual: false, KeyboardType: Android.Views.InputKeyboardType.Alphabetic});
+        return Task.FromResult(hasKeyboard);
+#elif IOS
+        return Task.FromResult(GameController.GCKeyboard.CoalescedKeyboard is not null);
+#else
+        return Task.FromResult(true);
+#endif
+    }
 }
