@@ -556,8 +556,8 @@ jobs:
       - name: Publish Linux
         working-directory: backend/FwLite/FwLiteWeb
         run: |
-            dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
-            dotnet publish -r linux-arm64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
+            dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+            dotnet publish -r linux-arm64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       - name: Test Linux executable
         working-directory: backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64
