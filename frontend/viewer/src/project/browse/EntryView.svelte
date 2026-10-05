@@ -154,7 +154,7 @@
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
   let editorRef: HTMLElement | null = $state(null);
-  watch([() => [loadedEntryId, entryScrollViewportRef, editorRef]], () => {
+  watch([() => [loadedEntryId, entryScrollViewportRef, editorRef, platform.features.hasHardwareKeyboard]], () => {
     entryScrollViewportRef?.scrollTo({ top: 0, left: 0 });
     if (platform.features.hasHardwareKeyboard) findFirstTabbable(editorRef)?.focus();
   });
