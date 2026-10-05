@@ -23,6 +23,7 @@ on:
       - 'backend/Directory.Packages.props'
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
+      - 'platform.bible-extension/**'
       - '.github/workflows/fw-lite.yaml'
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
@@ -36,6 +37,7 @@ on:
       - 'backend/Directory.Packages.props'
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
+      - 'platform.bible-extension/**'
       - '.github/workflows/fw-lite.yaml'
       - '.github/actions/setup-k8s/**'
       - 'FwLiteCore.slnf'
@@ -559,20 +561,22 @@ jobs:
             dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
             dotnet publish -r linux-arm64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
-      - name: Test Linux executable
+      - name: Launch FwLiteWeb and wait for it to serve the viewer
         working-directory: backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64
         run: |
-            set +e
-            chmod +x ./FwLiteWeb
-            output=$(timeout 10s ./FwLiteWeb 2>&1)
-            exit_code=$?
-            if [ $exit_code -eq 124 ] || [ $exit_code -eq 0 ]; then
-              echo "✅ Linux executable ran without crashing for 10s"
-            else
-              echo "❌ Linux executable exited with code $exit_code"
-              echo "$output"
-              exit 1
-            fi
+          chmod +x ./FwLiteWeb
+          log="$RUNNER_TEMP/fwliteweb.log"
+          ./FwLiteWeb --urls http://127.0.0.1:5137 --FwLiteWeb:OpenBrowser=false --FwLite:UpdateCheckCondition=Never > "$log" 2>&1 &
+          pid=$!
+          for i in $(seq 1 60); do
+            if curl -fsS -o /dev/null http://127.0.0.1:5137/; then echo "served after ${i}s"; kill $pid; exit 0; fi
+            kill -0 $pid 2>/dev/null || break
+            sleep 1
+          done
+          cat "$log"
+          kill $pid 2>/dev/null || true
+          echo "::error::FwLiteWeb never served the viewer"
+          exit 1
 
       - name: Upload FWLite Linux artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -770,13 +774,151 @@ jobs:
           if-no-files-found: error
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
+  publish-win-web:
+    name: Publish FW Lite web app for Windows
+    needs: [ build-and-test, frontend ]
+    timeout-minutes: 30
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: fw-lite-viewer-js
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.x'
+      - name: Cache NuGet packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Publish Windows
+        working-directory: backend/FwLite/FwLiteWeb
+        run: dotnet publish -r win-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+
+      - name: Sign with Trusted Signing
+        if: ${{ github.event_name == 'push' || inputs.release }}
+        uses: sillsdev/codesign/trusted-signing-action@0485c27c94116d62f80febc468cc1979ed7245de # v3.2.0
+        with:
+          credentials: ${{ secrets.TRUSTED_SIGNING_CREDENTIALS }}
+          files-folder: ${{ github.workspace }}/backend/FwLite/artifacts/publish/FwLiteWeb/release_win-x64
+          files-folder-filter: exe
+          files-folder-recurse: true
+          files-folder-depth: 4
+          description:  'Release for version ${{ needs.build-and-test.outputs.version }}'
+          description-url: 'https://github.com/sillsdev/languageforge-lexbox'
+
+      - name: Launch FwLiteWeb and wait for it to serve the viewer
+        shell: pwsh
+        working-directory: backend/FwLite/artifacts/publish/FwLiteWeb/release_win-x64
+        run: |
+          $out = Join-Path $env:RUNNER_TEMP 'fwliteweb.out.log'
+          $err = Join-Path $env:RUNNER_TEMP 'fwliteweb.err.log'
+          $args = '--urls', 'http://127.0.0.1:5137', '--FwLiteWeb:OpenBrowser=false', '--FwLite:UpdateCheckCondition=Never'
+          $app = Start-Process -FilePath (Resolve-Path .\FwLiteWeb.exe) -ArgumentList $args -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+          $served = $false
+          for ($i = 0; $i -lt 60 -and -not $app.HasExited; $i++) {
+            try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:5137/ | Out-Null; $served = $true; break } catch { Start-Sleep -Seconds 1 }
+          }
+          if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force }
+          if (-not $served) { Get-Content $out, $err; throw 'FwLiteWeb never served the viewer' }
+
+      - name: Upload FWLite Windows web artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fw-lite-web-win
+          if-no-files-found: error
+          path: backend/FwLite/artifacts/publish/FwLiteWeb/release_win-x64/*
+
+  package-extension:
+    name: Package the Platform.Bible extension
+    needs: [ build-and-test, publish-win-web, publish-linux ]
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: lexbox
+          persist-credentials: false
+      # The extension's file: dependencies point at ../../paranext-core, so core is a sibling checkout.
+      - name: Checkout paranext-core
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: paranext-core
+          repository: paranext/paranext-core
+          persist-credentials: false
+      # Core is unpinned.
+      - name: Record paranext-core revision
+        working-directory: paranext-core
+        run: |
+          echo "paranext-core: \`$(git rev-parse HEAD)\`" >> "$GITHUB_STEP_SUMMARY"
+
+      # The extension spawns fw-lite/<rid>/FwLiteWeb, so it bundles the signed, launch-tested publish outputs.
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: fw-lite-web-win
+          path: lexbox/platform.bible-extension/public/fw-lite/win-x64
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: fw-lite-web-linux
+          path: fw-lite-web-linux
+      - name: Place the Linux binaries
+        run: mv fw-lite-web-linux/release_linux-x64 lexbox/platform.bible-extension/public/fw-lite/linux-x64
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          cache: npm
+          cache-dependency-path: |
+            lexbox/platform.bible-extension/package-lock.json
+            paranext-core/package-lock.json
+          node-version-file: lexbox/platform.bible-extension/package.json
+      - name: Install extension dependencies
+        working-directory: lexbox/platform.bible-extension
+        run: npm ci
+      # --ignore-scripts skips core's preinstall (stages the gitignored dev-packages/staging/ that
+      # platform-bible-react imports) and postinstall (verify), so both run as explicit steps.
+      - name: Stage core's dev packages
+        working-directory: paranext-core
+        run: npm run stage-dev-packages
+      - name: Install core dependencies
+        working-directory: paranext-core
+        run: npm ci --ignore-scripts
+      - name: Verify core's staged dev packages match its lockfile
+        working-directory: paranext-core
+        run: npm run verify:dev-packages
+
+      # zip-build names the zip from package.json; Platform.Bible reads manifest.json.
+      - name: Stamp the version
+        working-directory: lexbox/platform.bible-extension
+        env:
+          VERSION: ${{ needs.build-and-test.outputs.semver-version }}
+        run: |
+          npm pkg set version="$VERSION"
+          jq --arg v "$VERSION" '.version = $v' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+      - name: Package the extension
+        working-directory: lexbox/platform.bible-extension
+        run: npm run package
+      - name: Upload the extension zip
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fw-lite-extension
+          if-no-files-found: error
+          path: lexbox/platform.bible-extension/release/lexicon_*.zip
+
   create-release:
     if: ${{ inputs.release }}
     environment:
       name: production
       url: https://lexbox.org/fw-lite
     name: Create Release
-    needs: [ build-and-test, publish-win, publish-linux, build-apple, launch-mac, publish-android]
+    needs: [ build-and-test, publish-win, publish-win-web, publish-linux, build-apple, launch-mac, publish-android, package-extension]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -803,18 +945,27 @@ jobs:
           path: fw-lite-web-linux
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
+          name: fw-lite-web-win
+          path: fw-lite-web-win
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
           name: fw-lite-android
           path: fw-lite-android
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: fw-lite-apple
           path: fw-lite-apple
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: fw-lite-extension
+          path: fw-lite-extension
 
       - name: Zip artifacts
         run: |
           zip -r fw-lite-portable.zip fw-lite-portable
           chmod +x fw-lite-web-linux/*/FwLiteWeb fw-lite-web-linux/*/*.sh
           zip -r fw-lite-web-linux.zip fw-lite-web-linux
+          zip -r fw-lite-web-win.zip fw-lite-web-win
       - name: Rename Installer
         run: |
           mv fw-lite-msix/FwLiteMaui.msixbundle fw-lite-msix/FieldWorksLiteInstaller.msixbundle
@@ -839,9 +990,11 @@ jobs:
             fw-lite-msix/*
             fw-lite-portable.zip
             fw-lite-web-linux.zip
+            fw-lite-web-win.zip
             fw-lite-android/*.apk
             fw-lite-android/*.aab
             fw-lite-apple/*.dmg
+            fw-lite-extension/*.zip
 
       - name: Write Play Store release notes
         # The upload action reads notes from files (whatsnew-<locale>, max 500 chars); write it inline here.
