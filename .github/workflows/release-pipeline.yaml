@@ -1,14 +1,25 @@
 name: Release pipeline
+# Releases LexBox and FW Lite from one manual dispatch, sharing a single version.
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      release-lexbox:
+        description: 'Release LexBox (build, deploy staging + production)'
+        type: boolean
+        default: true
+      release-fw-lite:
+        description: 'Release FW Lite (build, sign, GitHub + Play Store release)'
+        type: boolean
+        default: true
 
 permissions:
   contents: read
   packages: write
   checks: write
+
+env:
+  # The only branch a release may be dispatched from.
+  RELEASE_BRANCH: develop
 
 jobs:
   set-version:
@@ -16,16 +27,28 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
+      semver-version: ${{ steps.setVersion.outputs.SEMVER_VERSION }}
     steps:
+      - name: Check release branch
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/$RELEASE_BRANCH" ]; then
+            echo "::error::Releases must be dispatched from $RELEASE_BRANCH, not $GITHUB_REF"
+            exit 1
+          fi
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set Version
         id: setVersion
-        # set version to date in vYYYY-MM-DD-commitSha format
+        # Based on the commit's date (UTC) so re-runs keep the same version.
+        # version: vYYYY-MM-DD-commitSha, semver version: YYYY.M.D
         run: |
-          shortSha=$(echo ${{ github.sha }} | cut -c1-8)
-          echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
+          shortSha=$(echo "$GITHUB_SHA" | cut -c1-8)
+          echo "VERSION=v$(TZ=UTC git show -s --format=%cd --date=format-local:%Y-%m-%d HEAD)-$shortSha" >> "$GITHUB_OUTPUT"
+          echo "SEMVER_VERSION=$(TZ=UTC git show -s --format=%cd --date=format-local:%Y.%-m.%-d HEAD)" >> "$GITHUB_OUTPUT"
   build-api:
     name: Build API
     needs: [ set-version ]
+    if: inputs.release-lexbox
     uses: ./.github/workflows/lexbox-api.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -34,6 +57,7 @@ jobs:
   build-ui:
     name: Build UI
     needs: [ set-version ]
+    if: inputs.release-lexbox
     uses: ./.github/workflows/lexbox-ui.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -42,6 +66,7 @@ jobs:
   build-hgweb:
     name: Build hgweb
     needs: [ set-version ]
+    if: inputs.release-lexbox
     uses: ./.github/workflows/lexbox-hgweb.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -50,6 +75,7 @@ jobs:
   build-fw-headless:
     name: Build fw-headless
     needs: [ set-version ]
+    if: inputs.release-lexbox
     uses: ./.github/workflows/lexbox-fw-headless.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
@@ -133,3 +159,19 @@ jobs:
           body_path: ${{ steps.notes.outputs.notes-file }}
           # Keep /releases/latest pointing at FW Lite, the product people download.
           make_latest: false
+
+  # Runs in parallel with the LexBox release; it shares the version but neither blocks the other.
+  fw-lite:
+    name: FW Lite
+    needs: [ set-version ]
+    if: inputs.release-fw-lite
+    uses: ./.github/workflows/fw-lite.yaml
+    secrets: inherit
+    # the caller caps the called workflow's token: create-release needs contents: write
+    permissions:
+      contents: write
+      checks: write
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      semver-version: ${{ needs.set-version.outputs.semver-version }}
+      release: true
