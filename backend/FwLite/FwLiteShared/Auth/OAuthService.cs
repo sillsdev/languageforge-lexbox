@@ -26,7 +26,7 @@ public class OAuthService(
     {
         if (options.Value.SystemWebViewLogin)
         {
-            await HandleSystemWebViewLogin(application, cancellation);
+            await HandleSystemWebViewLogin(application, lexboxServer, cancellation);
             globalEventBus.PublishEvent(new AuthenticationChangedEvent(lexboxServer, AuthenticationChangeCause.Login));
             return new(null, true);
         }
@@ -46,7 +46,7 @@ public class OAuthService(
         return new(uri, false);
     }
 
-    private async Task HandleSystemWebViewLogin(IPublicClientApplication application, CancellationToken cancellation)
+    private async Task HandleSystemWebViewLogin(IPublicClientApplication application, LexboxServer lexboxServer, CancellationToken cancellation)
     {
         var request = application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
             .WithParentActivityOrWindow(options.Value.GetParentActivityOrWindow?.Invoke());
@@ -56,7 +56,12 @@ public class OAuthService(
         }
         else
         {
-            request = request.WithUseEmbeddedWebView(false).WithSystemWebViewOptions(new() { });
+            request = request.WithUseEmbeddedWebView(false).WithSystemWebViewOptions(new()
+            {
+                // MSAL aborts its loopback listener right after writing its own success page, which often resets
+                // the connection before the browser reads it. A body-less redirect gets through.
+                BrowserRedirectSuccess = new Uri(lexboxServer.Authority, "/fw-lite/signed-in")
+            });
         }
         await request.ExecuteAsync(cancellation);
     }

@@ -156,6 +156,10 @@
       "back_to_login": "Back to login page"
     }
   },
+  "fw_lite_signed_in": {
+    "title": "Signed in to FieldWorks Lite",
+    "message": "You can close this tab and return to FieldWorks Lite."
+  },
   "login": {
     "bad_credentials": "The account information you entered is incorrect.",
     "your_account_is_locked": "Your account is locked. [Contact an administrator](mailto:admin@languagedepot.org) to have it unlocked or deleted.",
