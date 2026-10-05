@@ -41,7 +41,16 @@ export function usePlatformFeaturesService(): {service: IPlatformFeaturesService
   }
   const featuresObj = {} as Record<Features, boolean>;
   for (const feature of features) {
-    if (!cache.has(feature)) queryFeature(service, feature);
+    if (!cache.has(feature)) {
+      cache.set(feature, false);
+      void service[feature]().then((result) => {
+        cache.set(feature, result);
+      }).catch((err) => {
+        // if the service call fails, we want to clear the cache so that we can try again later
+        cache.delete(feature);
+        throw err;
+      });
+    }
     Object.defineProperty(featuresObj, feature, {
       get: () => cache.get(feature) ?? false
     });
@@ -53,20 +62,8 @@ export function usePlatformFeaturesService(): {service: IPlatformFeaturesService
   };
 }
 
-function queryFeature(service: IPlatformFeaturesService, feature: Features) {
-  cache.set(feature, false);
-  void service[feature]().then((result) => {
-    cache.set(feature, result);
-  }).catch((err) => {
-    // if the service call fails, we want to clear the cache so that we can try again later
-    cache.delete(feature);
-    throw err;
-  });
-}
-
-/** Re-asks the platform for every feature; for tests that swap the service's answers after startup. */
+/** Forgets every cached answer and asks again; for tests that change the service's answers after startup. */
 export function refreshPlatformFeatures(): void {
-  const service = tryUseService(DotnetService.PlatformFeaturesService);
-  if (!service) return;
-  for (const feature of features) queryFeature(service, feature);
+  cache.clear();
+  usePlatformFeaturesService();
 }
