@@ -148,22 +148,16 @@ public abstract class BaseSerializationTest
         var latestJsonArray = ReadJsonArrayFromFile(GetJsonFilePath($"{fileNamePrefix}.latest.verified.txt", sourceFile));
         var newLatestJsonArray = new JsonArray();
 
-        // step 1: validate the round-tripping/output of legacy entries
+        // step 1: refresh the output of legacy entries, so any that no longer round-trip to the same output get verified
         foreach (var legacyJsonNode in legacyJsonArray)
         {
             legacyJsonNode.Should().NotBeNull();
             var legacyJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacyRecord<T>.Input)]!);
             legacyJson.Should().NotBeNullOrWhiteSpace();
-            var legacyOutputJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacyRecord<T>.Output)]!);
-            legacyOutputJson.Should().NotBeNullOrWhiteSpace();
             var value = JsonSerializer.Deserialize<T>(legacyJson, HarmonyJsonOptions);
             value.Should().NotBeNull();
             var newLegacyOutputJson = JsonSerializer.Serialize(value, IndentedHarmonyJsonOptions);
-            if (legacyOutputJson != newLegacyOutputJson)
-            {
-                //the legacy entry no longer round-trips to the same output, so we should verify the new output
-                legacyJsonNode[nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLegacyOutputJson);
-            }
+            legacyJsonNode[nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLegacyOutputJson);
         }
 
         // step 2: validate the round-tripping/output of latest entries, moving any that don't to legacy
