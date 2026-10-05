@@ -187,8 +187,6 @@ public abstract class BaseSerializationTest
                     [nameof(LegacyRecord<T>.Input)] = latestJsonNode.DeepClone(),
                     [nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLatestJson)
                 });
-                // Its reserialized form is already the legacy Output, so it isn't kept in latest.
-                // Keeping it, plus one generated entry per stale entry, doubled a type's entries on every schema change.
                 staleTypes.Add(typeOf(value));
             }
             else
