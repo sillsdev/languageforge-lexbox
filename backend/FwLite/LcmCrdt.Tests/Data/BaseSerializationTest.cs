@@ -134,4 +134,83 @@ public abstract class BaseSerializationTest
         }) ?? throw new InvalidOperationException("Could not parse json array");
         return node.AsArray();
     }
+
+    protected record LegacyRecord<T>(T Input, T Output);
+
+    /// <summary>
+    /// Latest keeps every entry that still round-trips, plus one generated entry per type that has none or just changed shape.
+    /// Stale entries move to legacy as Input (old json) and Output (what it reserializes to now); legacy Outputs are refreshed in place.
+    /// A stale entry's reserialized form is not kept in latest: it already is the legacy Output, and keeping it (plus a generated
+    /// entry per stale entry) doubled a type's entries on every schema change.
+    /// </summary>
+    protected static Task VerifyRegressionDataUpToDate<T>(
+        string fileNamePrefix,
+        IEnumerable<Type> allTypes,
+        Func<T, Type> typeOf,
+        Func<Type, T> generate,
+        [CallerFilePath] string sourceFile = "") where T : class
+    {
+        var legacyJsonArray = ReadJsonArrayFromFile(GetJsonFilePath($"{fileNamePrefix}.legacy.verified.txt", sourceFile));
+        var latestJsonArray = ReadJsonArrayFromFile(GetJsonFilePath($"{fileNamePrefix}.latest.verified.txt", sourceFile));
+        var newLatestJsonArray = new JsonArray();
+
+        foreach (var legacyJsonNode in legacyJsonArray)
+        {
+            legacyJsonNode.Should().NotBeNull();
+            var legacyJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacyRecord<T>.Input)]!);
+            legacyJson.Should().NotBeNullOrWhiteSpace();
+            var legacyOutputJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacyRecord<T>.Output)]!);
+            legacyOutputJson.Should().NotBeNullOrWhiteSpace();
+            var value = JsonSerializer.Deserialize<T>(legacyJson, HarmonyJsonOptions);
+            value.Should().NotBeNull();
+            var newLegacyOutputJson = JsonSerializer.Serialize(value, IndentedHarmonyJsonOptions);
+            if (legacyOutputJson != newLegacyOutputJson)
+            {
+                legacyJsonNode[nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLegacyOutputJson);
+            }
+        }
+
+        var stableTypes = new HashSet<Type>();
+        var staleTypes = new HashSet<Type>();
+        foreach (var latestJsonNode in latestJsonArray)
+        {
+            latestJsonNode.Should().NotBeNull();
+            var latestJson = ToNormalizedIndentedJsonString(latestJsonNode);
+            latestJson.Should().NotBeNullOrWhiteSpace();
+            var value = JsonSerializer.Deserialize<T>(latestJsonNode, HarmonyJsonOptions);
+            value.Should().NotBeNull();
+            var newLatestJson = JsonSerializer.Serialize(value, IndentedHarmonyJsonOptions);
+
+            if (latestJson == newLatestJson)
+            {
+                newLatestJsonArray.Add(latestJsonNode.DeepClone());
+                stableTypes.Add(typeOf(value));
+            }
+            else
+            {
+                legacyJsonArray.Add(new JsonObject
+                {
+                    [nameof(LegacyRecord<T>.Input)] = latestJsonNode.DeepClone(),
+                    [nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLatestJson)
+                });
+                staleTypes.Add(typeOf(value));
+            }
+        }
+
+        var typesNeedingGeneratedEntry = allTypes.Where(type => staleTypes.Contains(type) || !stableTypes.Contains(type));
+        foreach (var type in typesNeedingGeneratedEntry)
+        {
+            var serialized = JsonSerializer.Serialize(generate(type), IndentedHarmonyJsonOptions);
+            newLatestJsonArray.Add(JsonNode.Parse(serialized));
+        }
+
+        return Task.WhenAll(
+            Verify(SerializeRegressionData(legacyJsonArray), sourceFile: sourceFile)
+                .UseStrictJson()
+                .UseFileName($"{fileNamePrefix}.legacy"),
+            Verify(SerializeRegressionData(newLatestJsonArray), sourceFile: sourceFile)
+                .UseStrictJson()
+                .UseFileName($"{fileNamePrefix}.latest")
+        );
+    }
 }
