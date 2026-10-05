@@ -31,11 +31,13 @@ task build-fw-lite
 | `npm run build`             | Build once (dev)                                              |
 | `npm run watch`             | Rebuild on file changes                                       |
 | `npm run build:production`  | Production build                                              |
-| `npm run package`           | Production build + zip for distribution (release zips come from the `package-extension` job in `.github/workflows/fw-lite.yaml`, which stamps the version; the committed `0.0.1` is a placeholder) |
+| `npm run package`           | Production build + zip for distribution                       |
 | `npm run lint`              | ESLint + stylelint                                            |
 | `npm run lint-fix`          | Format + lint with auto-fix                                   |
 | `npm run format`            | Prettier format                                               |
 | `npm run core:copy-package` | Copy built package to paranext-core (for cross-extension dev) |
+
+Release zips are built by the `package-extension` job in `.github/workflows/fw-lite.yaml`, which stamps the version; the committed `0.0.1` is a placeholder.
 
 > **Warning:** Use `npm`, not `pnpm`.
 
