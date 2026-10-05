@@ -10,6 +10,7 @@
     generatedPictureFilename,
     isLosslessImage,
     isSupportedImageType,
+    pictureExtension,
     uniqueUploadFilename,
   } from './picture-formats';
   import {downloadPictureFile} from './picture-actions';
@@ -213,7 +214,7 @@
       if (result == null) {
         return;
       }
-      const extension = result.fileName.split('.').pop() ?? 'jpg';
+      const extension = pictureExtension(result.contentType, result.fileName);
       const captured = new File([await result.image.arrayBuffer()], generatedPictureFilename(extension), {
         type: result.contentType,
       });

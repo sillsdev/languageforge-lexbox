@@ -111,7 +111,10 @@
 
   function onRecordingComplete(blob: Blob) {
     const fileExt = mimeTypeToFileExtension(blob.type);
-    selectedFile = new File([blob], generatedMediaFilename({field: fieldId, ws: wsId}, fileExt), {type: blob.type});
+    // Not every field body sets a fieldId (picture captions don't), and a name starting with a bare
+    // ws code reads like the ws were the field.
+    const name = generatedMediaFilename({field: fieldId ?? 'audio', ws: wsId}, fileExt);
+    selectedFile = new File([blob], name, {type: blob.type});
   }
 
   function mimeTypeToFileExtension(mimeType: string) {
