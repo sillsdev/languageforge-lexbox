@@ -9041,44 +9041,90 @@
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "3b85e4c8-6330-9167-2349-3bba70056346",
-        "MaybeId": "3b85e4c8-6330-9167-2349-3bba70056346",
-        "WsId": "syk",
+        "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "MaybeId": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "WsId": "en",
         "IsAudio": false,
-        "Name": "vortals",
-        "Abbreviation": "Granite",
-        "Font": "Iowa",
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
         "DeletedAt": null,
         "Type": 1,
         "Exemplars": [
-          "Incredible Metal Chair"
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
         ],
-        "IcuCollationRules": "Customizable",
-        "SystemCollationLocale": "Borders",
-        "Order": 0.03765569767409571
-      },
-      "Id": "3b85e4c8-6330-9167-2349-3bba70056346",
-      "DeletedAt": null
+        "Order": 0
+      }
     },
     "Output": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "3b85e4c8-6330-9167-2349-3bba70056346",
-        "MaybeId": "3b85e4c8-6330-9167-2349-3bba70056346",
-        "WsId": "syk",
+        "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "MaybeId": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
+        "WsId": "en",
         "IsAudio": false,
-        "Name": "vortals",
-        "Abbreviation": "Granite",
-        "Font": "Iowa",
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
         "DeletedAt": null,
         "Type": 1,
         "Exemplars": [
-          "Incredible Metal Chair"
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
         ],
-        "IcuCollationRules": "Customizable",
-        "SystemCollationLocale": "Borders",
-        "Order": 0.03765569767409571
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
+        "Order": 0
       }
     }
   },
@@ -9087,44 +9133,40 @@
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "9be8f583-63b4-cf64-4202-0e09481317c0",
-        "MaybeId": "9be8f583-63b4-cf64-4202-0e09481317c0",
-        "WsId": "enh",
+        "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+        "MaybeId": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+        "WsId": "lli",
         "IsAudio": false,
-        "Name": "internet solution",
-        "Abbreviation": "Walk",
-        "Font": "payment",
+        "Name": "Granite",
+        "Abbreviation": "withdrawal",
+        "Font": "Handmade",
         "DeletedAt": null,
         "Type": 0,
         "Exemplars": [
-          "Licensed Fresh Cheese"
+          "Planner"
         ],
-        "IcuCollationRules": "connect",
-        "SystemCollationLocale": "Oregon",
-        "Order": 0.9633181157872764
-      },
-      "Id": "9be8f583-63b4-cf64-4202-0e09481317c0",
-      "DeletedAt": null
+        "Order": 0.4320924489200455
+      }
     },
     "Output": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "9be8f583-63b4-cf64-4202-0e09481317c0",
-        "MaybeId": "9be8f583-63b4-cf64-4202-0e09481317c0",
-        "WsId": "enh",
+        "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+        "MaybeId": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
+        "WsId": "lli",
         "IsAudio": false,
-        "Name": "internet solution",
-        "Abbreviation": "Walk",
-        "Font": "payment",
+        "Name": "Granite",
+        "Abbreviation": "withdrawal",
+        "Font": "Handmade",
         "DeletedAt": null,
         "Type": 0,
         "Exemplars": [
-          "Licensed Fresh Cheese"
+          "Planner"
         ],
-        "IcuCollationRules": "connect",
-        "SystemCollationLocale": "Oregon",
-        "Order": 0.9633181157872764
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
+        "Order": 0.4320924489200455
       }
     }
   },
@@ -9133,44 +9175,90 @@
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
-        "MaybeId": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
-        "WsId": "ksh",
+        "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "MaybeId": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "WsId": "en",
         "IsAudio": false,
-        "Name": "Refined",
-        "Abbreviation": "Coordinator",
-        "Font": "indexing",
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
         "DeletedAt": null,
-        "Type": 1,
+        "Type": 0,
         "Exemplars": [
-          "National"
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
         ],
-        "IcuCollationRules": "Monitored",
-        "SystemCollationLocale": "bandwidth",
-        "Order": 0.2935114043495951
-      },
-      "Id": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
-      "DeletedAt": null
+        "Order": 0
+      }
     },
     "Output": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
-        "MaybeId": "3b9876d2-3b5d-a9f6-735d-7b6a8c232acd",
-        "WsId": "ksh",
+        "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "MaybeId": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
+        "WsId": "en",
         "IsAudio": false,
-        "Name": "Refined",
-        "Abbreviation": "Coordinator",
-        "Font": "indexing",
+        "Name": "en",
+        "Abbreviation": "Eng",
+        "Font": "Charis SIL",
         "DeletedAt": null,
-        "Type": 1,
+        "Type": 0,
         "Exemplars": [
-          "National"
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z"
         ],
-        "IcuCollationRules": "Monitored",
-        "SystemCollationLocale": "bandwidth",
-        "Order": 0.2935114043495951
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
+        "Order": 0
       }
     }
   },
@@ -9179,44 +9267,40 @@
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
-        "MaybeId": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
-        "WsId": "mnm",
+        "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+        "MaybeId": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+        "WsId": "taw",
         "IsAudio": false,
-        "Name": "uniform",
-        "Abbreviation": "feed",
-        "Font": "Intelligent Plastic Chips",
+        "Name": "bluetooth",
+        "Abbreviation": "Credit Card Account",
+        "Font": "Intelligent Concrete Sausages",
         "DeletedAt": null,
-        "Type": 1,
+        "Type": 0,
         "Exemplars": [
-          "Beauty, Games \u0026 Movies"
+          "blockchains"
         ],
-        "IcuCollationRules": "Assurance",
-        "SystemCollationLocale": "Kids \u0026 Electronics",
-        "Order": 0.34200726440404006
-      },
-      "Id": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
-      "DeletedAt": null
+        "Order": 0.14806393624996905
+      }
     },
     "Output": {
       "$type": "MiniLcmCrdtAdapter",
       "Obj": {
         "$type": "WritingSystem",
-        "Id": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
-        "MaybeId": "6e82adb2-46c1-7a00-e603-c18419f13d4f",
-        "WsId": "mnm",
+        "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+        "MaybeId": "19023cf0-de25-9b0c-d5ad-94df308267c4",
+        "WsId": "taw",
         "IsAudio": false,
-        "Name": "uniform",
-        "Abbreviation": "feed",
-        "Font": "Intelligent Plastic Chips",
+        "Name": "bluetooth",
+        "Abbreviation": "Credit Card Account",
+        "Font": "Intelligent Concrete Sausages",
         "DeletedAt": null,
-        "Type": 1,
+        "Type": 0,
         "Exemplars": [
-          "Beauty, Games \u0026 Movies"
+          "blockchains"
         ],
-        "IcuCollationRules": "Assurance",
-        "SystemCollationLocale": "Kids \u0026 Electronics",
-        "Order": 0.34200726440404006
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
+        "Order": 0.14806393624996905
       }
     }
   }
