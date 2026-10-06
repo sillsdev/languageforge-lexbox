@@ -162,7 +162,6 @@ public abstract class BaseSerializationTest
 
         // step 2: validate the round-tripping/output of latest entries, moving any that don't to legacy
         var stableTypes = new HashSet<Type>();
-        var staleTypes = new HashSet<Type>();
         foreach (var latestJsonNode in latestJsonArray)
         {
             latestJsonNode.Should().NotBeNull();
@@ -181,7 +180,6 @@ public abstract class BaseSerializationTest
                     [nameof(LegacyRecord<T>.Input)] = latestJsonNode.DeepClone(),
                     [nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLatestJson)
                 });
-                staleTypes.Add(typeOf(value));
             }
             else
             {
@@ -191,12 +189,12 @@ public abstract class BaseSerializationTest
             }
         }
 
-        // step 3: add one generated entry for any type not already represented, or whose shape just changed.
+        // step 3: add a generated entry for any type no longer represented in latest.
         // If the new model only changes the representation of the same data then this might not be helpful.
         // However, we typically change the model in order to add new data, so the generated entry will exercise that new data.
         // Anyhow, it's much easier for a dev to remove unwanted entries than
         // to generate and insert them manually. We can remove this if it's too noisy.
-        foreach (var type in allTypes.Where(type => staleTypes.Contains(type) || !stableTypes.Contains(type)))
+        foreach (var type in allTypes.Where(type => !stableTypes.Contains(type)))
         {
             var serialized = JsonSerializer.Serialize(generate(type), IndentedHarmonyJsonOptions);
             newLatestJsonArray.Add(JsonNode.Parse(serialized));
