@@ -41,10 +41,11 @@
 
   const recordingMode = $derived(recording || digitalDuration);
 
-  // WebKit on iOS/Mac Catalyst maps a bare "audio/*" to movies only (UTTypeMovie), which greys out audio
-  // files in the document picker. Listing concrete types gives it real audio UTIs.
+  // No bare "audio/*": WebKit on iOS/Mac Catalyst maps it to movies (UTTypeMovie), which greys out audio files
+  // in the document picker and adds "Take Video"/"Photo Library" to the picker menu. Concrete types map to real
+  // audio UTIs, and with no image/movie types WebKit skips that menu and opens Files directly. Leave out
+  // audio/webm and audio/3gpp: Apple maps both to movie UTIs, which would bring the menu back.
   const acceptedAudioTypes = [
-    'audio/*',
     'audio/mpeg',
     'audio/wav',
     'audio/x-wav',
@@ -53,8 +54,17 @@
     'audio/aac',
     'audio/flac',
     'audio/ogg',
-    'audio/webm',
+    'audio/opus',
     'audio/aiff',
+    '.mp3',
+    '.wav',
+    '.m4a',
+    '.aac',
+    '.flac',
+    '.ogg',
+    '.opus',
+    '.aif',
+    '.aiff',
   ].join(',');
 </script>
 
