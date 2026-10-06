@@ -37,7 +37,7 @@ task build-fw-lite
 | `npm run format`            | Prettier format                                               |
 | `npm run core:copy-package` | Copy built package to paranext-core (for cross-extension dev) |
 
-Release zips are built by the `package-extension` job in `.github/workflows/fw-lite.yaml`, which stamps the version; the committed `0.0.1` is a placeholder. The zip bundles FW Lite for Windows and Linux only.
+Release zips are built by the `package-extension` job in `.github/workflows/fw-lite.yaml`, which stamps FW Lite's build-date version (`YYYY.M.D`, the same one the other editions carry) into `package.json` and `manifest.json`; the committed `0.0.1` is a placeholder, never bumped by hand. The zip bundles FW Lite for Windows and Linux only.
 
 > **Warning:** Use `npm`, not `pnpm`.
 
