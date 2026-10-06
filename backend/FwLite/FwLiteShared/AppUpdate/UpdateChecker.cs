@@ -19,6 +19,7 @@ public class UpdateChecker(
     UpdateCheckThrottle throttle,
     IMemoryCache cache) : BackgroundService
 {
+    public const string HttpClientName = "Lexbox";
     private const string CacheKey = "ManualUpdateCheck";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(2);
 
@@ -37,15 +38,18 @@ public class UpdateChecker(
 
     public async Task<AvailableUpdate?> CheckForUpdate()
     {
-        return await cache.GetOrCreateAsync(CacheKey, async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = CacheDuration;
-            var response = await ShouldUpdateAsync();
-            throttle.RecordCheck();
-            return response.Update
-                ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate)
-                : null;
-        });
+        if (cache.TryGetValue(CacheKey, out AvailableUpdate? cached)) return cached;
+        var response = await ShouldUpdateAsync();
+        //a request that never reached the server (offline, DNS still down while a VPN connects) is not a check:
+        //leave the throttle and the manual-check cache alone so the next launch or connectivity recovery
+        //retries instead of waiting out UpdateCheckInterval
+        if (response is null) return null;
+        throttle.RecordCheck();
+        var update = response.Update
+            ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate)
+            : null;
+        cache.Set(CacheKey, update, CacheDuration);
+        return update;
     }
 
     public async Task<UpdateResult> ApplyUpdate(FwLiteRelease release)
@@ -96,12 +100,13 @@ public class UpdateChecker(
         return platformUpdateService.IsOnMeteredConnection();
     }
 
-    private async Task<ShouldUpdateResponse> ShouldUpdateAsync()
+    /// <returns>The server's answer, or null when the request failed before getting a response.</returns>
+    private async Task<ShouldUpdateResponse?> ShouldUpdateAsync()
     {
         try
         {
             var response = await httpClientFactory
-                .CreateClient("Lexbox")
+                .CreateClient(HttpClientName)
                 .SendAsync(new HttpRequestMessage(HttpMethod.Get, config.Value.UpdateUrl)
                 {
                     Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{config.Value.AppVersion}" } }
@@ -121,7 +126,7 @@ public class UpdateChecker(
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to fetch latest release");
-            return new ShouldUpdateResponse(null);
+            return null;
         }
     }
 }
