@@ -31,21 +31,24 @@ public interface ILexboxAnalyticsService
     public const string SendDirection = "send";
     public const string ReceiveDirection = "receive";
 
+    /// <summary>The <see cref="SendReceiveEvent"/> / <see cref="FwLiteSyncEvent"/> property carrying the synced project's id.</summary>
+    public const string ProjectIdProperty = "project_id";
+
     /// <summary>
-    /// Track a Mercurial send/receive for the current user. <paramref name="direction"/> is one of
+    /// Track a Mercurial send/receive of <paramref name="projectId"/> for the current user. <paramref name="direction"/> is one of
     /// <see cref="SendDirection"/> (a push — unbundle / resumable pushBundleChunk) or <see cref="ReceiveDirection"/>
     /// (a fetch — getbundle / the first resumable pull chunk). Fire-and-forget: returns a <see cref="Task"/> the
     /// caller may discard. Sends nothing (a completed task) when analytics is disabled, no token is configured, the
     /// user has opted out, or there is no identified user — e.g. an automated service-account sync. Never throws.
     /// </summary>
-    Task TrackSendReceive(string direction);
+    Task TrackSendReceive(Guid projectId, string direction);
 
     /// <summary>
-    /// Track a FieldWorks Lite (CRDT) sync for the current user, fired when a client fetches changes from the
+    /// Track a FieldWorks Lite (CRDT) sync of <paramref name="projectId"/> for the current user, fired when a client fetches changes from the
     /// crdt controller. Fire-and-forget: sends nothing when analytics is disabled, no token is configured, the
     /// user has opted out, or there is no identified user. Never throws.
     /// </summary>
-    Task TrackFwLiteSync();
+    Task TrackFwLiteSync(Guid projectId);
 
     /// <summary>
     /// Track a successful login for <paramref name="user"/>. <paramref name="loginType"/> is one of

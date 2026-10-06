@@ -7,6 +7,7 @@ using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Services;
+using LcmCrdt;
 using LexCore.Analytics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
@@ -262,6 +263,46 @@ public class AnalyticsServiceTests
         service.CurrentUserId.Should().Be("user-2");
         service.GetOrCreateDeviceId().Should().NotBe(originalDevice);
         prefs.Get(nameof(PreferenceKey.AnalyticsUserId)).Should().Be("user-2");
+    }
+
+    [Fact]
+    public void RecordProjectOpened_LexboxProject_TracksWithProjectId()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var projectId = Guid.NewGuid();
+        var projectData = new ProjectData("Test", "test", projectId, "https://lexbox.org", Guid.NewGuid());
+        var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
+
+        MixpanelAnalytics.RecordProjectOpened(analytics.Object, projectData, server);
+
+        analytics.Verify(a => a.Track(
+            MixpanelAnalytics.ProjectOpenedEvent,
+            It.Is<IReadOnlyDictionary<string, object?>>(p =>
+                p.Count == 1 && Equals(p[MixpanelAnalytics.ProjectIdProperty], projectId.ToString())),
+            null), Times.Once);
+    }
+
+    [Fact]
+    public void RecordProjectOpened_LocalOnlyProject_DoesNotTrack()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var projectData = new ProjectData("Test", "test", Guid.NewGuid(), OriginDomain: null, Guid.NewGuid());
+
+        MixpanelAnalytics.RecordProjectOpened(analytics.Object, projectData, server: null);
+
+        analytics.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public void RecordProjectOpened_NonProductionServer_DoesNotTrack()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var projectData = new ProjectData("Test", "test", Guid.NewGuid(), "https://staging.languagedepot.org", Guid.NewGuid());
+        var server = new LexboxServer(new Uri("https://staging.languagedepot.org"), "Lexbox Staging");
+
+        MixpanelAnalytics.RecordProjectOpened(analytics.Object, projectData, server);
+
+        analytics.VerifyNoOtherCalls();
     }
 
     [Fact]

@@ -9,6 +9,7 @@ declare global {
       demoApi: IMiniLcmJsInvokable;
       /** Toggle demo write feature and refetch project features. */
       setWrite: (write: boolean) => Promise<void>;
+      setHasHardwareKeyboard: (value: boolean) => void;
     };
   }
 }
