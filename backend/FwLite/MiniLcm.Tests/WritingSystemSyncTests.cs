@@ -51,4 +51,19 @@ public class WritingSystemSyncTests
 
         update.Should().BeNull();
     }
+
+    [Fact]
+    public void DiffToUpdate_SwitchingRulesToLocale_ClearsRules()
+    {
+        var before = BaseWs() with { IcuCollationRules = "&a < b" };
+        var after = before with { IcuCollationRules = null, SystemCollationLocale = "de" };
+
+        var update = WritingSystemSync.WritingSystemDiffToUpdate(before, after);
+
+        update.Should().NotBeNull();
+        var patched = before with { };
+        update!.Patch.ApplyTo(patched);
+        patched.IcuCollationRules.Should().BeNull();
+        patched.SystemCollationLocale.Should().Be("de");
+    }
 }

@@ -20,6 +20,7 @@ using SIL.LCModel.Core.Text;
 using SIL.LCModel.Core.WritingSystems;
 using SIL.LCModel.DomainServices;
 using SIL.LCModel.Infrastructure;
+using SIL.WritingSystems;
 using CollectionExtensions = SIL.Extensions.CollectionExtensions;
 
 namespace FwDataMiniLcmBridge.Api;
@@ -1019,13 +1020,39 @@ public class FwDataMiniLcmApi(
     private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
     {
         var sortWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Vernacular);
+        var headwordComparer = GetHeadwordComparer(sortWs);
         var stemSecondaryOrder = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphStem).SecondaryOrder;
         if (order.Field == SortField.SearchRelevance)
         {
-            return entries.ApplyRoughBestMatchOrder(order, sortWs, stemSecondaryOrder, query);
+            return entries.ApplyRoughBestMatchOrder(order, sortWs, headwordComparer, stemSecondaryOrder, query);
         }
 
-        return entries.ApplyHeadwordOrder(order, sortWs, stemSecondaryOrder);
+        return entries.ApplyHeadwordOrder(order, sortWs, headwordComparer, stemSecondaryOrder);
+    }
+
+    /// <summary>
+    /// Sorts with the writing system's own collation, like FLEx's RecordSorter, so fwdata and CRDT order match.
+    /// FLEx swaps in a system collation when the rules are empty or invalid; we do the same without modifying the project.
+    /// https://github.com/sillsdev/FieldWorks/blob/32068b620/Src/Common/Filters/RecordSorter.cs#L2213-L2217
+    /// </summary>
+    private IComparer<string?> GetHeadwordComparer(int wsHandle)
+    {
+        var ws = Cache.ServiceLocator.WritingSystemManager.Get(wsHandle);
+        IComparer<string> collator;
+        try
+        {
+            var collation = ws.DefaultCollation;
+            collator = collation is RulesCollationDefinition rules && (!rules.Validate(out _) || string.IsNullOrEmpty(rules.CollationRules))
+                ? new SystemCollationDefinition { LanguageTag = ws.LanguageTag }.Collator
+                : collation.Collator;
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to create collator for writing system {WsId}; using culture sort", ws.Id);
+            collator = StringComparer.CurrentCulture;
+        }
+
+        return Comparer<string?>.Create((x, y) => collator.Compare(x ?? string.Empty, y ?? string.Empty));
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)

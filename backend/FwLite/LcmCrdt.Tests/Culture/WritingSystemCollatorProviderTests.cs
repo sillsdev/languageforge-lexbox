@@ -46,6 +46,15 @@ public class WritingSystemCollatorProviderTests
     }
 
     [Fact]
+    public void GetCollator_PrefersRulesOverLocale_WhenBothSet()
+    {
+        var provider = CreateProvider();
+        // the locale alone sorts a before z; the rules put z first
+        var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = "&z < a", SystemCollationLocale = "sv" });
+        collator.Compare("z", "a").Should().BeLessThan(0);
+    }
+
+    [Fact]
     public void GetCollator_UsesLegacyFallback_WhenCollationUnset()
     {
         var provider = CreateProvider();

@@ -23,14 +23,17 @@ public class WritingSystemCollatorProvider(
 
     private ICollator CreateCollator(WritingSystem writingSystem)
     {
-        if (!string.IsNullOrEmpty(writingSystem.SystemCollationLocale))
-        {
-            return TryCreateLocaleCollator(writingSystem);
-        }
-
+        // Rules win over the locale: they're explicit tailoring for this writing system, and FLEx only falls
+        // back to a system collation when the rules are empty or invalid. The validator rejects both being set.
+        // https://github.com/sillsdev/FieldWorks/blob/32068b620/Src/Common/Filters/RecordSorter.cs#L2213-L2217
         if (!string.IsNullOrEmpty(writingSystem.IcuCollationRules))
         {
             return TryCreateRulesCollator(writingSystem);
+        }
+
+        if (!string.IsNullOrEmpty(writingSystem.SystemCollationLocale))
+        {
+            return TryCreateLocaleCollator(writingSystem);
         }
 
         return new LegacyCompareInfoCollator(cultureProvider.GetCompareInfo(writingSystem));

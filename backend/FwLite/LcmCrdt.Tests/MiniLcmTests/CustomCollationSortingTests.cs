@@ -1,61 +1,46 @@
 namespace LcmCrdt.Tests.MiniLcmTests;
 
-public class CustomCollationSortingTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFixture>
+public class CustomCollationSortingTests : CustomCollationSortingTestsBase
 {
-    [Fact]
-    public async Task HeadwordSort_UsesIcuCollationRules()
+    private readonly MiniLcmApiFixture _fixture = new();
+
+    protected override async Task<IMiniLcmApi> NewApi()
     {
-        const string wsId = "en-x-icu-test";
-        await fixture.Api.CreateWritingSystem(new()
-        {
-            Id = Guid.NewGuid(),
-            Type = WritingSystemType.Vernacular,
-            WsId = wsId,
-            Name = "Custom ICU",
-            Abbreviation = "Ci",
-            Font = "Arial",
-            IcuCollationRules = "&z < a",
-        });
+        await _fixture.InitializeAsync();
+        return _fixture.Api;
+    }
 
-        var apple = await fixture.Api.CreateEntry(new() { LexemeForm = { { wsId, "apple" } } });
-        var zebra = await fixture.Api.CreateEntry(new() { LexemeForm = { { wsId, "zebra" } } });
-        var ids = new[] { apple.Id, zebra.Id }.ToHashSet();
-
-        var headwords = await fixture.Api
-            .GetEntries(new QueryOptions(new SortOptions(SortField.Headword, wsId)))
-            .Where(e => ids.Contains(e.Id))
-            .Select(e => e.Headword())
-            .ToArrayAsync();
-
-        headwords.Should().Equal("zebra", "apple");
+    public override async Task DisposeAsync()
+    {
+        await base.DisposeAsync();
+        await _fixture.DisposeAsync();
     }
 
     [Fact]
-    public async Task HeadwordSort_UsesSystemCollationLocale()
+    public async Task ComplexForms_SortByWritingSystemCollation()
     {
-        const string wsId = "cs";
-        await fixture.Api.CreateWritingSystem(new()
+        await Api.CreateWritingSystem(new()
         {
             Id = Guid.NewGuid(),
             Type = WritingSystemType.Vernacular,
-            WsId = wsId,
-            Name = "Czech",
-            Abbreviation = "Cs",
+            WsId = "de",
+            Name = "German",
+            Abbreviation = "De",
             Font = "Arial",
-            SystemCollationLocale = "cs",
+            IcuCollationRules = "&z < a",
         });
+        // the default vernacular writing system is the first one
+        var vernacular = (await Api.GetWritingSystems()).Vernacular.First();
+        await Api.MoveWritingSystem("de", WritingSystemType.Vernacular, new(null, vernacular.WsId));
 
-        // English sorts c before h; Czech treats "ch" as a letter after h.
-        var cha = await fixture.Api.CreateEntry(new() { LexemeForm = { { wsId, "cha" } } });
-        var ha = await fixture.Api.CreateEntry(new() { LexemeForm = { { wsId, "ha" } } });
-        var ids = new[] { cha.Id, ha.Id }.ToHashSet();
+        var component = await Api.CreateEntry(new() { LexemeForm = { { "de", "base" } } });
+        var apple = await Api.CreateEntry(new() { LexemeForm = { { "de", "apple" } } });
+        var zebra = await Api.CreateEntry(new() { LexemeForm = { { "de", "zebra" } } });
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(apple, component));
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(zebra, component));
 
-        var headwords = await fixture.Api
-            .GetEntries(new QueryOptions(new SortOptions(SortField.Headword, wsId)))
-            .Where(e => ids.Contains(e.Id))
-            .Select(e => e.Headword())
-            .ToArrayAsync();
+        var entry = await Api.GetEntry(component.Id);
 
-        headwords.Should().Equal("ha", "cha");
+        entry!.ComplexForms.Select(c => c.ComplexFormHeadword).Should().Equal("zebra", "apple");
     }
 }
