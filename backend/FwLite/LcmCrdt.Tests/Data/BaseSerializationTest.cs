@@ -158,6 +158,9 @@ public abstract class BaseSerializationTest
             value.Should().NotBeNull();
             var newLegacyOutputJson = JsonSerializer.Serialize(value, IndentedHarmonyJsonOptions);
             legacyJsonNode[nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLegacyOutputJson);
+            // the output is no longer round-trip tested in latest, so make sure it reserializes to itself
+            var reserializedOutput = JsonSerializer.Deserialize<T>(newLegacyOutputJson, HarmonyJsonOptions);
+            JsonSerializer.Serialize(reserializedOutput, IndentedHarmonyJsonOptions).Should().Be(newLegacyOutputJson);
         }
 
         // step 2: validate the round-tripping/output of latest entries, moving any that don't to legacy
