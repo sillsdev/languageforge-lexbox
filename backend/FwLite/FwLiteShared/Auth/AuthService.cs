@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 using FwLiteShared.Projects;
 using Microsoft.Extensions.Logging;
@@ -41,18 +42,27 @@ public class AuthService(
     // Not [JSInvokable]: a CancellationToken can't be marshaled from JS.
     public async Task<LoginResult> SignInWebView(LexboxServer server, CancellationToken cancellation)
     {
+        var started = Stopwatch.GetTimestamp();
         try
         {
             var result = await clientFactory.GetClient(server).SignIn(string.Empty, cancellation);//returnUrl does nothing here
             if (!result.HandledBySystemWebView) throw new InvalidOperationException("Sign in not handled by system web view");
             options.Value.AfterLoginWebView?.Invoke();
+            logger.LogInformation("Web view sign in to {Server} succeeded after {Elapsed}",
+                server.Authority, Stopwatch.GetElapsedTime(started));
             return LoginResult.Success;
         }
         catch (Exception e)
         {
             var classified = OAuthClient.ClassifyInteractiveLoginFailure(e);
-            if (classified is null) throw;
-            logger.LogInformation(e, "Web view sign in did not complete: {LoginResult}", classified);
+            if (classified is null)
+            {
+                logger.LogError(e, "Web view sign in to {Server} failed after {Elapsed}",
+                    server.Authority, Stopwatch.GetElapsedTime(started));
+                throw;
+            }
+            logger.LogInformation(e, "Web view sign in to {Server} did not complete after {Elapsed}: {LoginResult}",
+                server.Authority, Stopwatch.GetElapsedTime(started), classified);
             return classified.Value;
         }
     }

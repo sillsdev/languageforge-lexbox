@@ -46,6 +46,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         // MAUI doesn't load environment variables into configuration by default (unlike ASP.NET Core),
         // so add them here. This lets config sections like "FwLiteMaui" be set via e.g. FwLiteMaui__BaseDataDir.
+        builder.Configuration.AddInMemoryCollection(FwLiteMauiKernel.DefaultConfiguration);
         builder.Configuration.AddEnvironmentVariables();
         builder
             .UseMauiApp<App>()
