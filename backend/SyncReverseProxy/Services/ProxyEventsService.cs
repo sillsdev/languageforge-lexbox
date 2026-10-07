@@ -24,7 +24,7 @@ public class ProxyEventsService(ILexProxyService lexProxyService, ILexboxAnalyti
                     {
                         // Last chunk, so record updated last-changed date
                         await lexProxyService.QueueProjectMetadataUpdate(projectCode);
-                        _ = analytics.TrackSendReceive(ILexboxAnalyticsService.SendDirection);
+                        await TrackSendReceive(projectCode, ILexboxAnalyticsService.SendDirection);
                     }
                 }
             }
@@ -35,9 +35,10 @@ public class ProxyEventsService(ILexProxyService lexProxyService, ILexboxAnalyti
             // firing on the first chunk (offset 0). A pull doesn't change the repo, so no metadata update.
             if (context.Request.Query.TryGetValue("offset", out var offsetStr) &&
                 int.TryParse(offsetStr, out var offset) &&
-                offset == 0)
+                offset == 0 &&
+                context.Request.GetProjectCode() is { } projectCode)
             {
-                _ = analytics.TrackSendReceive(ILexboxAnalyticsService.ReceiveDirection);
+                await TrackSendReceive(projectCode, ILexboxAnalyticsService.ReceiveDirection);
             }
         }
     }
@@ -50,12 +51,22 @@ public class ProxyEventsService(ILexProxyService lexProxyService, ILexboxAnalyti
         if (cmd == "unbundle")
         {
             await lexProxyService.QueueProjectMetadataUpdate(projectCode);
-            _ = analytics.TrackSendReceive(ILexboxAnalyticsService.SendDirection);
+            await TrackSendReceive(projectCode, ILexboxAnalyticsService.SendDirection);
         }
         else if (cmd == "getbundle")
         {
             // Fetch (pull). Doesn't change the repo, so no metadata update — just track the send/receive.
-            _ = analytics.TrackSendReceive(ILexboxAnalyticsService.ReceiveDirection);
+            await TrackSendReceive(projectCode, ILexboxAnalyticsService.ReceiveDirection);
         }
+    }
+
+    /// <summary>
+    /// Resolves the project id (cached by ProjectService, usually already warm from the auth check), then fires the
+    /// analytics event without awaiting the send itself.
+    /// </summary>
+    private async Task TrackSendReceive(string projectCode, string direction)
+    {
+        if (await lexProxyService.LookupProjectId(projectCode) is not { } projectId) return;
+        _ = analytics.TrackSendReceive(projectId, direction);
     }
 }

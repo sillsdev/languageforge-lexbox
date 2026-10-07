@@ -1,5 +1,6 @@
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
+using LcmCrdt;
 using LexCore.Analytics;
 
 namespace FwLiteShared.Analytics;
@@ -21,6 +22,9 @@ public static class MixpanelAnalytics
     public const string HttpClientName = MixpanelClient.HttpClientName;
     public const string ProductionLexboxHost = "lexbox.org";
     public const string AppLaunchedEvent = "app_launched";
+    public const string ProjectOpenedEvent = "project_opened";
+    /// <summary>Matches lexbox's <c>ILexboxAnalyticsService.ProjectIdProperty</c> so events can be joined on it.</summary>
+    public const string ProjectIdProperty = "project_id";
     public const string MauiHost = "maui";
     public const string WebHost = "web";
 
@@ -30,6 +34,19 @@ public static class MixpanelAnalytics
     public static void RecordProcessStart(IAnalyticsService analytics)
     {
         analytics.Track(AppLaunchedEvent);
+    }
+
+    /// <summary>
+    /// Fire <see cref="ProjectOpenedEvent"/> for a CRDT project synced with lexbox.org. <paramref name="server"/> is
+    /// resolved from <see cref="ProjectData.OriginDomain"/>, so local-only projects (whose <see cref="ProjectData.Id"/>
+    /// is not a lexbox project id) have none and are skipped, as are projects from other servers (e.g. staging).
+    /// </summary>
+    public static void RecordProjectOpened(IAnalyticsService analytics, ProjectData projectData, LexboxServer? server)
+    {
+        if (server is null || !IsProductionLexbox(server))
+            return;
+        analytics.Track(ProjectOpenedEvent,
+            new Dictionary<string, object?> { [ProjectIdProperty] = projectData.Id.ToString() });
     }
 
     /// <summary>

@@ -21,11 +21,17 @@ public class LexboxAnalyticsService(
     private readonly AnalyticsConfigBase _config = analyticsConfig.Value;
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
-    public Task TrackSendReceive(string direction) =>
+    public Task TrackSendReceive(Guid projectId, string direction) =>
         TrackCurrentUserEvent(ILexboxAnalyticsService.SendReceiveEvent,
-            new() { [ILexboxAnalyticsService.DirectionProperty] = direction });
+            new()
+            {
+                [ILexboxAnalyticsService.ProjectIdProperty] = projectId.ToString(),
+                [ILexboxAnalyticsService.DirectionProperty] = direction,
+            });
 
-    public Task TrackFwLiteSync() => TrackCurrentUserEvent(ILexboxAnalyticsService.FwLiteSyncEvent);
+    public Task TrackFwLiteSync(Guid projectId) =>
+        TrackCurrentUserEvent(ILexboxAnalyticsService.FwLiteSyncEvent,
+            new() { [ILexboxAnalyticsService.ProjectIdProperty] = projectId.ToString() });
 
     /// <summary>
     /// Send <paramref name="eventName"/> for the currently signed-in user, with any <paramref name="extraProperties"/>

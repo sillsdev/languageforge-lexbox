@@ -77,7 +77,7 @@ public class MauiTroubleshootingService(
     // iPadOS presents the share sheet as a popover anchored to this rectangle; without a source rect
     // UIKit throws. The request originates from a WebView button whose screen position we don't have,
     // so anchor to the centre of the display. Ignored on platforms that don't use a popover.
-    private static Rect PresentationSourceBounds()
+    internal static Rect PresentationSourceBounds()
     {
         var display = DeviceDisplay.Current.MainDisplayInfo;
         var width = display.Width / display.Density;
