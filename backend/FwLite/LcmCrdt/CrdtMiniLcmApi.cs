@@ -1,14 +1,11 @@
-using FluentValidation;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
-using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Changes.ExampleSentences;
 using LcmCrdt.Data;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Harmony;
-using LcmCrdt.MediaServer;
 using LcmCrdt.MiniLcmImp;
 using LcmCrdt.Objects;
 using LinqToDB.Async;
@@ -25,8 +22,6 @@ public class CrdtMiniLcmApi(
     CurrentProjectService projectService,
     MiniLcmRepositoryFactory repoFactory,
     ILogger<CrdtMiniLcmApi> logger,
-    LcmMediaService lcmMediaService,
-    LocalCommentReadStatusService commentReadStatusService,
     CrdtWritingSystemApi writingSystemApi,
     CrdtSemanticDomainsApi semanticDomainsApi,
     CrdtPublicationApi publicationApi,
@@ -34,6 +29,9 @@ public class CrdtMiniLcmApi(
     CrdtMorphTypeApi morphTypeApi,
     CrdtPartsOfSpeechApi partsOfSpeechApi,
     CrdtComplexFormTypesApi complexFormTypesApi,
+    CrdtMediaApi mediaApi,
+    CrdtCustomViewApi customViewApi,
+    CrdtCommentApi commentApi,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     public ProjectData ProjectData => projectService.ProjectData;
@@ -923,248 +921,131 @@ public class CrdtMiniLcmApi(
         await harmonyChangeWriter.AddChange(new RemoveSensePictureChange(pictureId, senseId));
     }
 
+    #region MediaApi
     public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri, bool downloadIfMissing = true)
     {
-        if (mediaUri == MediaUri.NotFound) return new ReadFileResponse(ReadFileResult.NotFound);
-        return await lcmMediaService.GetFileStream(mediaUri.FileId, downloadIfMissing);
+        return await mediaApi.GetFileStream(mediaUri, downloadIfMissing);
     }
 
     public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
-        try
-        {
-            if (stream.SafeLength() > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
-            var (result, newResource) = await lcmMediaService.SaveFile(stream, metadata);
-            var mediaUri = new MediaUri(result.Id, ProjectData.ServerId ?? "lexbox.org");
-            return new UploadFileResponse(mediaUri, savedToLexbox: result.Remote, newResource);
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Failed to save file {Filename}", metadata.Filename);
-            return new UploadFileResponse(e.Message);
-        }
+        return await mediaApi.SaveFile(stream, metadata);
     }
+    #endregion
 
-    public async IAsyncEnumerable<CustomView> GetCustomViews()
+    #region CustomViewApi
+    public IAsyncEnumerable<CustomView> GetCustomViews()
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var customView in repo.CustomViews.AsAsyncEnumerable())
-        {
-            yield return customView;
-        }
+        return customViewApi.GetCustomViews();
     }
 
     public async Task<CustomView?> GetCustomView(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetCustomView(id);
+        return await customViewApi.GetCustomView(id);
     }
 
     public async Task<CustomView> CreateCustomView(CustomView customView)
     {
-        AssertManagerRoleForCustomViewWrite();
-        if (customView.Id == Guid.Empty) customView.Id = Guid.NewGuid();
-        await harmonyChangeWriter.AddChange(new CreateCustomViewChange(customView.Id, customView));
-        return await GetCustomView(customView.Id) ?? throw NotFoundException.ForType<CustomView>(customView.Id);
+        return await customViewApi.CreateCustomView(customView);
     }
 
     public async Task<CustomView> UpdateCustomView(CustomView customView)
     {
-        AssertManagerRoleForCustomViewWrite();
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var id = customView.Id;
-        var _ = await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
-        await harmonyChangeWriter.AddChange(new EditCustomViewChange(id, customView));
-        return await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
+        return await customViewApi.UpdateCustomView(customView);
     }
 
     public async Task DeleteCustomView(Guid id)
     {
-        AssertManagerRoleForCustomViewWrite();
-        await using var repo = await repoFactory.CreateRepoAsync();
-        _ = await repo.GetCustomView(id) ?? throw NotFoundException.ForType<CustomView>(id);
-        await harmonyChangeWriter.AddChange(new DeleteChange<CustomView>(id));
+        await customViewApi.DeleteCustomView(id);
     }
+    #endregion
 
-    private void AssertManagerRoleForCustomViewWrite()
+    #region CommentApi
+    public IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId, bool includeComments = false)
     {
-        if (ProjectData.Role == UserProjectRole.Manager) return;
-        throw new UnauthorizedAccessException(
-            $"Only managers can manage custom views.");
-    }
-
-    public async IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId, bool includeComments = false)
-    {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var threads = repo.CommentThreads
-            .Where(t => t.SubjectType == subjectType && t.SubjectId == subjectId);
-        if (includeComments)
-        {
-            threads = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.Include(threads, t => t.Comments!.OrderBy(c => c.CreatedAt).ThenBy(c => c.Id));
-        }
-
-        threads = threads.OrderByDescending(t => t.CreatedAt).ThenByDescending(t => t.Id);
-        await foreach (var thread in threads.AsAsyncEnumerable())
-        {
-            yield return thread;
-        }
+        return commentApi.GetCommentThreads(subjectType, subjectId, includeComments);
     }
 
     public async Task<CommentThread?> GetCommentThread(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetCommentThread(id);
+        return await commentApi.GetCommentThread(id);
     }
 
-    public async IAsyncEnumerable<UserComment> GetUserComments(Guid threadId)
+    public IAsyncEnumerable<UserComment> GetUserComments(Guid threadId)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var comments = repo.UserComments
-            .Where(c => c.CommentThreadId == threadId)
-            .OrderBy(c => c.CreatedAt).ThenBy(c => c.Id);
-        await foreach (var comment in comments.AsAsyncEnumerable())
-        {
-            yield return comment;
-        }
+        return commentApi.GetUserComments(threadId);
     }
 
     public async Task<UserComment?> GetUserComment(Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.GetUserComment(id);
+        return await commentApi.GetUserComment(id);
     }
 
-    public async IAsyncEnumerable<UserComment> GetUnreadComments(Guid? threadId = null)
+    public IAsyncEnumerable<UserComment> GetUnreadComments(Guid? threadId = null)
     {
-        foreach (var comment in await commentReadStatusService.GetUnreadComments(threadId))
-        {
-            yield return comment;
-        }
+        return commentApi.GetUnreadComments(threadId);
     }
 
-    public async IAsyncEnumerable<UserComment> GetUnreadCommentsForSubject(SubjectType subjectType, Guid subjectId)
+    public IAsyncEnumerable<UserComment> GetUnreadCommentsForSubject(SubjectType subjectType, Guid subjectId)
     {
-        foreach (var comment in await commentReadStatusService.GetUnreadCommentsForSubject(subjectType, subjectId))
-        {
-            yield return comment;
-        }
+        return commentApi.GetUnreadCommentsForSubject(subjectType, subjectId);
     }
 
-    public Task<int> CountUnreadComments(Guid? threadId = null)
+    public async Task<int> CountUnreadComments(Guid? threadId = null)
     {
-        return commentReadStatusService.CountUnreadComments(threadId);
+        return await commentApi.CountUnreadComments(threadId);
     }
 
     public async Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
     {
-        if (thread.Id == Guid.Empty) thread.Id = Guid.NewGuid();
-        var now = DateTimeOffset.UtcNow;
-        StampCommentThreadAuthor(thread, now);
-        firstComment.CommentThreadId = thread.Id;
-        StampCommentAuthor(firstComment, now);
-
-        await harmonyChangeWriter.AddChanges((IEnumerable<IChange>)[
-            new CreateCommentThreadChange(thread),
-            new CreateUserCommentChange(firstComment)
-        ]);
-        return await GetCommentThread(thread.Id) ?? throw NotFoundException.ForType<CommentThread>(thread.Id);
+        return await commentApi.CreateCommentThread(thread, firstComment);
     }
 
     public async Task<UserComment> AddUserComment(Guid threadId, UserComment comment)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
-        comment.CommentThreadId = threadId;
-        StampCommentAuthor(comment, DateTimeOffset.UtcNow);
-
-        await harmonyChangeWriter.AddChange(new CreateUserCommentChange(comment));
-        return await repo.GetUserComment(comment.Id) ?? throw NotFoundException.ForType<UserComment>(comment.Id);
+        return await commentApi.AddUserComment(threadId, comment);
     }
 
     public async Task<UserComment> EditUserComment(Guid commentId, string text)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
-        AssertCurrentUserCanChangeComment(comment);
-        await harmonyChangeWriter.AddChange(new EditUserCommentChange(commentId, text, DateTimeOffset.UtcNow));
-        return await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
+        return await commentApi.EditUserComment(commentId, text);
     }
 
     public async Task<CommentThread> SetCommentThreadStatus(Guid threadId, ThreadStatus status)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
-        await harmonyChangeWriter.AddChange(new SetCommentThreadStatusChange(threadId, status, DateTimeOffset.UtcNow));
-        return await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
+        return await commentApi.SetCommentThreadStatus(threadId, status);
     }
 
     public async Task DeleteUserComment(Guid commentId)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
-        AssertCurrentUserCanChangeComment(comment);
-        await harmonyChangeWriter.AddChange(new DeleteChange<UserComment>(commentId));
-        await commentReadStatusService.RemoveUnreadComments([commentId]);
+        await commentApi.DeleteUserComment(commentId);
     }
 
     public async Task DeleteCommentThread(Guid threadId)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        _ = await repo.GetCommentThread(threadId) ?? throw NotFoundException.ForType<CommentThread>(threadId);
-        await harmonyChangeWriter.AddChange(new DeleteChange<CommentThread>(threadId));
-        await commentReadStatusService.MarkThreadRead(threadId);
+        await commentApi.DeleteCommentThread(threadId);
     }
 
-    public Task MarkCommentRead(Guid commentId)
+    public async Task MarkCommentRead(Guid commentId)
     {
-        return commentReadStatusService.MarkCommentRead(commentId);
+        await commentApi.MarkCommentRead(commentId);
     }
 
-    public Task MarkCommentThreadUnread(Guid threadId)
+    public async Task MarkCommentThreadUnread(Guid threadId)
     {
-        return commentReadStatusService.MarkThreadUnread(threadId);
+        await commentApi.MarkCommentThreadUnread(threadId);
     }
 
-    public Task MarkCommentThreadRead(Guid threadId)
+    public async Task MarkCommentThreadRead(Guid threadId)
     {
-        return commentReadStatusService.MarkThreadRead(threadId);
+        await commentApi.MarkCommentThreadRead(threadId);
     }
 
-    public Task MarkAllCommentsRead()
+    public async Task MarkAllCommentsRead()
     {
-        return commentReadStatusService.MarkAllRead();
+        await commentApi.MarkAllCommentsRead();
     }
-
-    private void StampCommentThreadAuthor(CommentThread thread, DateTimeOffset now)
-    {
-        if (thread.Id == Guid.Empty) thread.Id = Guid.NewGuid();
-        thread.AuthorId = RequireCommentUserId();
-        thread.AuthorName = ProjectData.LastUserName;
-        thread.CreatedAt = thread.CreatedAt == default ? now : thread.CreatedAt;
-        thread.UpdatedAt = thread.UpdatedAt == default ? thread.CreatedAt : thread.UpdatedAt;
-    }
-
-    private void StampCommentAuthor(UserComment comment, DateTimeOffset now)
-    {
-        if (comment.Id == Guid.Empty) comment.Id = Guid.NewGuid();
-        comment.AuthorId = RequireCommentUserId();
-        comment.AuthorName = ProjectData.LastUserName;
-        comment.CreatedAt = comment.CreatedAt == default ? now : comment.CreatedAt;
-        comment.UpdatedAt = comment.UpdatedAt == default ? comment.CreatedAt : comment.UpdatedAt;
-    }
-
-    private string RequireCommentUserId()
-    {
-        if (string.IsNullOrEmpty(ProjectData.LastUserId))
-            throw new ValidationException("Cannot create or modify comments without a known user identity.");
-        return ProjectData.LastUserId;
-    }
-
-    private void AssertCurrentUserCanChangeComment(UserComment comment)
-    {
-        if (comment.AuthorId == RequireCommentUserId()) return;
-        throw new UnauthorizedAccessException("Only the comment author can edit or delete this comment.");
-    }
+    #endregion
 
     public void Dispose()
     {
