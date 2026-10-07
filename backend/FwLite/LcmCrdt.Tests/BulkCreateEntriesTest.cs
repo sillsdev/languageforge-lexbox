@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using LcmCrdt.MiniLcmImp;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 using Xunit.Abstractions;
@@ -123,7 +124,7 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
     public async Task BulkCreateEntries_PersistsAllEntries_WhenBelowBatchThreshold()
     {
         // Batch size well above entry count so only the tail flush (changeList.Count > 0) fires.
-        _fixture.Api.BulkCreateBatchSize = 1000;
+        _fixture.GetService<CrdtEntryApi>().BulkCreateBatchSize = 1000;
         var entryCount = 5;
         var entries = await SeedData(entryCount, _fixture.Api).ToListAsync();
 
@@ -136,7 +137,7 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
     public async Task BulkCreateEntries_PersistsAllEntries_AcrossMultipleBatchFlushes()
     {
         // Tiny batch size forces multiple mid-loop flushes plus the tail flush.
-        _fixture.Api.BulkCreateBatchSize = 3;
+        _fixture.GetService<CrdtEntryApi>().BulkCreateBatchSize = 3;
         var entryCount = 10;
         var entries = await SeedData(entryCount, _fixture.Api).ToListAsync();
 
@@ -148,7 +149,7 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
     [Fact]
     public async Task BulkCreateEntries_RoundTripsAllEntriesById()
     {
-        _fixture.Api.BulkCreateBatchSize = 3;
+        _fixture.GetService<CrdtEntryApi>().BulkCreateBatchSize = 3;
         var entries = await SeedData(10, _fixture.Api).ToListAsync();
         await _fixture.Api.BulkCreateEntries(entries.ToAsyncEnumerable());
 
