@@ -64,6 +64,30 @@ tasks:
       - pnpm run {{.CLI_ARGS}} --no-bail check
       - pnpm run {{.CLI_ARGS}} --no-bail lint
 
+  gql-codegen:
+    desc: 'Generates src/lib/gql/generated (gitignored) from schema.graphql. Normally the vite plugin does this during dev/build.'
+    deps: [ install ]
+    # gql-codegen.ts only has type imports, so node's type stripping can load it directly.
+    cmd: node --input-type=module -e "const {gqlOptions} = await import('./gql-codegen.ts'); const {generate} = await import('@graphql-codegen/cli'); await generate(gqlOptions.config, true);"
+
+  _gql-codegen-if-missing:
+    internal: true
+    status: [ test -d src/lib/gql/generated ]
+    cmds:
+      - task: gql-codegen
+
+  verify:
+    desc: 'Pre-done gate for the LexBox app: gql types if missing, svelte-check, eslint, vitest. Stops at the first failure (~3 min).'
+    deps: [ install ]
+    cmds:
+      - task: _gql-codegen-if-missing
+      - pnpm run check
+      - echo "verify(lexbox-ui) svelte-check OK"
+      - pnpm run lint
+      - echo "verify(lexbox-ui) eslint OK"
+      - pnpm run test:unit --run
+      - echo "verify(lexbox-ui) vitest OK"
+
   svelte:
     desc: "Directory independent access to pnpm. E.g. `task svelte -- install`"
     aliases: [ s ]

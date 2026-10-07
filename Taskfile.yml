@@ -102,6 +102,28 @@ tasks:
     deps: [api:only, k8s:infra-forward, ui:lexbox-only]
     interactive: true
 
+  verify:
+    desc: 'Frontend pre-done gate: ui:verify (LexBox app) then fw-ui:verify (viewer). 3 min warm, ~7 cold; backend drift is `task check-generated`.'
+    cmds:
+      - task: ui:verify
+      - task: fw-ui:verify
+
+  check-generated:
+    desc: 'Runs every committed-artifact drift check CI runs (EF model x2, gql schema, OpenAPI, FwLite TS types); reports all, fails if any fail.'
+    silent: true
+    # Runs each check even after one fails, so one pass lists every stale artifact.
+    # `dotnet ef` does not restore; in a fresh worktree it fails with NETSDK1004 without these.
+    cmd: |
+      dotnet restore backend/LexBoxApi/LexBoxApi.csproj --verbosity quiet
+      dotnet restore backend/FwLite/LcmCrdt/LcmCrdt.csproj --verbosity quiet
+      failed=""
+      for t in api:has-pending-model-changes api:check-gql-schema api:check-openapi-schema fw-lite:has-pending-model-changes fw-lite:has-stale-generated-types; do
+        echo "check-generated: $t"
+        "{{.TASK_EXE}}" "$t" || failed="$failed $t"
+      done
+      if [ -n "$failed" ]; then echo "check-generated FAILED:$failed"; exit 1; fi
+      echo "check-generated: all OK"
+
   fw-lite-web:
     aliases:
       - web

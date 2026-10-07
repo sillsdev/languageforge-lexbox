@@ -23,12 +23,39 @@ Lightweight FieldWorks application for dictionary editing with CRDT-based sync.
 # Run FwLite Web (typical workflow)
 task fw-lite-web   # from repo root
 
-# Run all FwLite tests (slow — prefer targeted runs, see root AGENTS.md Testing section)
-dotnet test FwLiteOnly.slnf
-
-# Build MAUI app (Windows)
-dotnet build FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0.19041.0
+# Fast inner loop: FwLiteShared builds in seconds and regenerates the viewer's TS types
+dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
+# One MAUI head (~40 s Windows, ~80 s Android). BuildAndroid=false skips restoring the Android TFM.
+dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false -clp:ErrorsOnly
+dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net10.0-android -clp:ErrorsOnly
 ```
+
+Batch edits before a head build. `dotnet build` takes one project: build the csproj, never the folder.
+
+### Test timings
+
+Observed in agent sessions; plan around them.
+
+| Run | Minutes |
+|---|---|
+| `LcmCrdt.Tests` whole project (~720 tests) | 4 to 9 |
+| `Sena3SyncTests` (any `Sena3` filter) | 9 to 20 |
+| `BulkCreateEntriesTest.BulkCreateEntriesPerformance` | ~3.5 |
+| One test class, already built, `--no-build` | under 1 |
+
+- Build the test csproj once, then `dotnet test <csproj> --no-build --filter ...` per iteration.
+- Anything over 2 minutes goes in `run_in_background`; tell the user it is running.
+- `Console.Error` is swallowed under xUnit. Log through `ITestOutputHelper`, or add `--logger "console;verbosity=detailed"`.
+
+### Logs & diagnostics
+
+| App | Log |
+|---|---|
+| MAUI Windows, MSIX-installed | `%LOCALAPPDATA%\Packages\<PFN>\LocalState\app.log` (+ `app1.log`) |
+| MAUI Windows, Debug or portable (unpackaged) | `app.log` in the working directory, or next to the exe when launched from System32 |
+| Any MAUI | override the folder with env `FwLiteMaui__BaseDataDir` (`FwLiteMauiConfig.cs`) |
+| FwLiteWeb | `./fw-lite-web.log` in its working directory (`FwLiteWeb:LogFileName`) |
+| Android | `adb logcat -d -t 200 \| grep DOTNET` (console logging lands under the `DOTNET` tag) |
 
 ## Testing on Android (agents)
 
@@ -46,7 +73,7 @@ dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
 task fw-lite:has-stale-generated-types
 ```
 
-The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`.
+The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`. The `index.ts` barrels under `generated-types/` are hand-maintained: add an export when you add an event or service. A new `[JSInvokable]` method on `MiniLcmJsInvokable` also needs a stub in `frontend/viewer/src/project/demo/in-memory-demo-api.ts`, or svelte-check fails late.
 
 ⚠️ **`[JSInvokable]` methods must not have optional/defaulted parameters (nor a `CancellationToken`).** The generated TS marks them optional (`arg?`), but that's a lie: Blazor JSInterop requires JS to pass every parameter, and can't marshal a `CancellationToken` — so JS callers break at runtime. If a server-side (REST) caller needs cancellation or an extra arg, add a separate **non-`[JSInvokable]`** overload for it (see `AuthService.SignInWebView`).
 
@@ -155,12 +182,6 @@ flowchart LR
     SERVER --> CLIENTS[Other clients]
 ```
 
-### Testing Sync
-
-1. **Unit tests**: `dotnet test LcmCrdt.Tests`
-2. **Integration tests**: `dotnet test FwLiteProjectSync.Tests`
-3. **Manual testing**: Use two browser windows, edit in both, verify sync
-
 ---
 
 ## 🔴 CRITICAL AREA: FwData ↔ CRDT Sync
@@ -211,11 +232,13 @@ So: add a `Submit*` only when the plain path throws on concurrency, route sync t
 
 ### Testing Sync
 
-The gold standard is `FwLiteProjectSync.Tests/Sena3SyncTests.cs` which uses a real FwData project.
+The gold standard is `FwLiteProjectSync.Tests/Sena3SyncTests.cs` which uses a real FwData project (9 to 20 min: run it in the background, once, when the work is done).
 
 ```bash
-dotnet test FwLiteProjectSync.Tests --filter "Sena3"
+dotnet test backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj --filter "FullyQualifiedName~Sena3"
 ```
+
+To debug a sync bug: reproduce it in `FwLiteProjectSync.Tests/`, then run a dry-run sync (`SyncDryRun`/`ImportDryRun`, recorded via `RecordingMiniLcmApi`) to see the changes it would make before stepping through `CrdtFwdataProjectSyncService.Sync()`.
 
 ---
 
@@ -276,20 +299,6 @@ Imperative validation in `MiniLcmApiValidationWrapper` (rules that need an async
 
 ---
 
-## Important Files Quick Reference
-
-| File | Purpose | Risk Level |
-|------|---------|------------|
-| `MiniLcm/IMiniLcmApi.cs` | Core API interface | 🔴 High |
-| `MiniLcm/Models/Entry.cs` | Entry model | 🔴 High |
-| `MiniLcm/SyncHelpers/EntrySync.cs` | Entry diff/sync | 🔴 High |
-| `LcmCrdt/CrdtMiniLcmApi.cs` | CRDT implementation | 🔴 High |
-| `LcmCrdt/LcmCrdtKernel.cs` | CRDT registration | 🟡 Medium |
-| `FwDataMiniLcmBridge/Api/FwDataMiniLcmApi.cs` | FwData bridge | 🔴 High |
-| `FwLiteProjectSync/CrdtFwdataProjectSyncService.cs` | Sync orchestration | 🔴 High |
-
----
-
 ## Testing Strategy
 
 ### When the work is finished:
@@ -312,40 +321,22 @@ For model additions, add to the `*TestsBase.cs` pattern:
 - Implementations in both `LcmCrdt.Tests/MiniLcmTests/` and `FwDataMiniLcmBridge.Tests/`
 - This ensures both implementations behave the same
 
----
+### Verify snapshots
 
-## Common Tasks
+Tests tagged `Category=Verified` (`task fw-lite:test-verified`) compare against committed `*.verified.*` fixtures and write a `*.received.*` sibling on mismatch. `task fw-lite:accept-snapshots` lists every received file with a diff stat; `-- --apply` promotes them. Review the diff first: a changed fixture is a format change shipped to users.
 
-### "Add a new field to Entry"
+| Fixture | Regenerated by |
+|---|---|
+| `LcmCrdt.Tests/Data/MigrationTests_FromScriptedDb.{v1,v2}.*` | `MigrationTests.VerifyAfterMigrationFromScriptedDb` |
+| `LcmCrdt.Tests/{Changes/Change,Data/Snapshot}DeserializationRegressionData.{latest,legacy}` | `RegressionDataUpToDate` in `ChangeSerializationTests` / `SnapshotDeserializationTests` |
+| `LcmCrdt.Tests/DataModelSnapshotTests.VerifyDbModel` (+ 3 siblings) | `DataModelSnapshotTests` |
+| `FwLiteProjectSync.Tests/sena-3-live.verified.sqlite` + `sena-3-live_snapshot` | `Sena3SyncTests.LiveSena3Sync` (writes `sena-3-live.received.sqlite` when CRDT changes) |
 
-1. `MiniLcm/Models/Entry.cs` - add property
-2. `MiniLcm/Models/Entry.cs` - add to `Copy()`
-3. `LcmCrdt/Objects/Entry.cs` - mirror property
-4. `MiniLcm/SyncHelpers/EntrySync.cs` - add to `EntryDiffToUpdate()`
-5. `FwDataMiniLcmBridge/Api/FwDataMiniLcmApi.cs` - map to/from LCM
-6. Tests in all three test projects
+`sena-3-live.verified.sqlite` stores applied migration ids in `__EFMigrationsHistory`. When it already records a migration, keep that migration's id and patch the fixture; renaming or re-adding the migration breaks the fixture.
 
-### "Add a new entity type (like Sense, ExampleSentence)"
+## Further reading
 
-This is major work. Follow the pattern of `Sense`:
-1. Model in `MiniLcm/Models/`
-2. CRDT entity in `LcmCrdt/Objects/`
-3. Create/Update changes in `LcmCrdt/Changes/`
-4. API methods in interfaces and both implementations
-5. Sync helper in `MiniLcm/SyncHelpers/`
-6. Full test coverage
+- `FwLiteMaui/Platforms/README.md`: verified Windows (MSIX, restart) and Android (Play in-app update) API gotchas.
+- `docs/research/msix-appinstaller-fwlite.md`: MSIX / App Installer update research.
+- `backend/FwLite/testing/README.md`: end-to-end Windows auto-update test harness (`task fw-lite:test-update`).
 
-### "Fix a sync bug"
-
-1. Reproduce with a test in `FwLiteProjectSync.Tests/`
-2. Use a dry-run sync (`SyncDryRun`/`ImportDryRun`, which record via `RecordingMiniLcmApi`) to see what changes would be made
-3. Debug through `CrdtFwdataProjectSyncService.Sync()`
-4. Check `ProjectSnapshot` handling
-
----
-
-## Getting Help
-
-- Existing sync tests are the best documentation
-- `Sena3SyncTests.cs` uses real FwData - study it
-- When in doubt, add more logging and test with real data

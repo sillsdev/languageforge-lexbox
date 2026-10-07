@@ -38,7 +38,8 @@ export default defineConfig({
             ...configDefaults.exclude,
           ],
         },
-        resolve: {alias: sharedAlias},
+        // 'browser' so `import {mount} from 'svelte'` gets the client build (component smoke tests under jsdom).
+        resolve: {alias: sharedAlias, conditions: ['browser']},
       },
       {
         plugins: [
