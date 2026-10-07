@@ -90,6 +90,7 @@ public static class LcmCrdtKernel
         services.AddScoped<CrdtMorphTypeApi>();
         services.AddScoped<CrdtPartsOfSpeechApi>();
         services.AddScoped<CrdtComplexFormTypesApi>();
+        services.AddScoped<CrdtEntryApi>();
         services.AddScoped<CrdtSenseApi>();
         services.AddScoped<CrdtExampleSentenceApi>();
         services.AddScoped<CrdtPictureApi>();
