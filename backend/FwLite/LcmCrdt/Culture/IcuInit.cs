@@ -1,10 +1,14 @@
+using Icu;
 using Microsoft.Extensions.Logging;
 
 namespace LcmCrdt.Culture;
 
 public static class IcuInit
 {
-    private static bool _initialized;
+    // volatile: read outside the lock, and _initError must be visible once this is true
+    private static volatile bool _initialized;
+    // Set when Init failed, so later callers fail the same way instead of retrying u_init every time
+    private static Exception? _initError;
     private static readonly Lock _lock = new();
 
     /// <summary>
@@ -28,20 +32,30 @@ public static class IcuInit
 
     internal static void EnsureInitialized()
     {
-        if (_initialized)
+        if (!_initialized)
         {
-            return;
-        }
-
-        lock (_lock)
-        {
-            if (_initialized)
+            lock (_lock)
             {
-                return;
-            }
+                if (!_initialized)
+                {
+                    try
+                    {
+                        var errorCode = Icu.Wrapper.Init();
+                        // ICU codes above ZERO_ERROR are failures; negative ones are warnings
+                        if (errorCode > ErrorCode.ZERO_ERROR)
+                            _initError = new InvalidOperationException($"ICU failed to initialize: {errorCode}");
+                    }
+                    catch (Exception e)
+                    {
+                        _initError = e;
+                    }
 
-            Icu.Wrapper.Init();
-            _initialized = true;
+                    _initialized = true;
+                }
+            }
         }
+
+        if (_initError is not null)
+            throw new InvalidOperationException("ICU is not available", _initError);
     }
 }
