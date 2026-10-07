@@ -28,12 +28,25 @@ public class UpdateChecker(
         await TryUpdate();
     }
 
+    private readonly SemaphoreSlim _automaticCheckLock = new(1, 1);
+
     public async Task<UpdateResult?> TryUpdate()
     {
-        if (!ShouldCheckReleaseFeed()) return null;
-        var update = await CheckForUpdate();
-        if (update is null) return null;
-        return await ApplyUpdate(update.Release);
+        //the startup check and a connectivity-regained retry can overlap. Both would pass the throttle before
+        //either records a response and apply the same update twice, so serialize them and evaluate the gate
+        //only once the previous attempt has finished.
+        await _automaticCheckLock.WaitAsync();
+        try
+        {
+            if (!ShouldCheckReleaseFeed()) return null;
+            var update = await CheckForUpdate();
+            if (update is null) return null;
+            return await ApplyUpdate(update.Release);
+        }
+        finally
+        {
+            _automaticCheckLock.Release();
+        }
     }
 
     public async Task<AvailableUpdate?> CheckForUpdate()
@@ -103,14 +116,26 @@ public class UpdateChecker(
     /// <returns>The server's answer, or null when the request failed before getting a response.</returns>
     private async Task<ShouldUpdateResponse?> ShouldUpdateAsync()
     {
+        HttpResponseMessage response;
         try
         {
-            var response = await httpClientFactory
+            response = await httpClientFactory
                 .CreateClient(HttpClientName)
                 .SendAsync(new HttpRequestMessage(HttpMethod.Get, config.Value.UpdateUrl)
                 {
                     Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{config.Value.AppVersion}" } }
                 });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to fetch latest release");
+            return null;
+        }
+
+        //from here on the server has answered, so whatever goes wrong still counts as a check: a bad
+        //response is not fixed by asking again sooner than UpdateCheckInterval
+        try
+        {
             if (!response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
@@ -125,8 +150,8 @@ public class UpdateChecker(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to fetch latest release");
-            return null;
+            logger.LogError(ex, "Failed to read should update response");
+            return new ShouldUpdateResponse(null);
         }
     }
 }

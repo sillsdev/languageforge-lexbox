@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Net.Sockets;
+using System.Text;
 using FwLiteShared;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Events;
@@ -87,7 +88,10 @@ public class UpdateCheckerTests
     }
 
     /// <summary>Routes the Lexbox client through <paramref name="send"/> and counts the requests.</summary>
-    private StubHandler UseHttpHandler(Func<HttpResponseMessage> send)
+    private StubHandler UseHttpHandler(Func<HttpResponseMessage> send) =>
+        UseAsyncHttpHandler(() => Task.FromResult(send()));
+
+    private StubHandler UseAsyncHttpHandler(Func<Task<HttpResponseMessage>> send)
     {
         var handler = new StubHandler(send);
         _httpClientFactoryMock.Setup(f => f.CreateClient(UpdateChecker.HttpClientName))
@@ -95,16 +99,22 @@ public class UpdateCheckerTests
         return handler;
     }
 
-    private class StubHandler(Func<HttpResponseMessage> send) : HttpMessageHandler
+    private class StubHandler(Func<Task<HttpResponseMessage>> send) : HttpMessageHandler
     {
-        public int Requests { get; private set; }
+        private int _requests;
+        public int Requests => _requests;
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            Requests++;
-            return Task.FromResult(send());
+            Interlocked.Increment(ref _requests);
+            return send();
         }
     }
+
+    private static HttpResponseMessage NoUpdateResponse() => new(HttpStatusCode.OK)
+    {
+        Content = JsonContent.Create(new ShouldUpdateResponse(null))
+    };
 
     private static HttpRequestException DnsFailure() =>
         new("No such host is known. (lexbox.org:443)", new SocketException((int)SocketError.HostNotFound));
@@ -144,6 +154,45 @@ public class UpdateCheckerTests
 
         await checker.CheckForUpdate();
         handler.Requests.Should().Be(1, "a recent answer is served from the manual-check cache");
+    }
+
+    [Fact]
+    public async Task CheckForUpdate_WhenResponseIsMalformed_StillRecordsCheck()
+    {
+        //the server answered; a body we can't parse is not fixed by asking again on every launch
+        UseHttpHandler(() => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("this is not json", Encoding.UTF8, "application/json")
+        });
+        var checker = CreateUpdateChecker(new FwLiteConfig { Os = FwLitePlatform.Windows });
+
+        (await checker.CheckForUpdate()).Should().BeNull();
+
+        _throttle.ShouldCheckForUpdate().Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task TryUpdate_WhenCalledConcurrently_OnlyOneRequestIsMade()
+    {
+        //startup check in flight (slow DNS) while connectivity-regained triggers a retry: the second caller
+        //must wait for the first and then see the recorded check instead of fetching (and applying) again
+        var release = new TaskCompletionSource<HttpResponseMessage>();
+#pragma warning disable VSTHRD003 // the test owns this TaskCompletionSource and completes it below
+        var handler = UseAsyncHttpHandler(() => release.Task);
+#pragma warning restore VSTHRD003
+        var checker = CreateUpdateChecker(new FwLiteConfig { Os = FwLitePlatform.Windows });
+
+        var first = checker.TryUpdate();
+        var second = checker.TryUpdate();
+        //let both callers get as far as they can before the server answers
+        await Task.Delay(50);
+        handler.Requests.Should().Be(1);
+
+        release.SetResult(NoUpdateResponse());
+        await Task.WhenAll(first, second);
+
+        handler.Requests.Should().Be(1);
+        _throttle.ShouldCheckForUpdate().Should().BeFalse();
     }
 
     [Fact]
