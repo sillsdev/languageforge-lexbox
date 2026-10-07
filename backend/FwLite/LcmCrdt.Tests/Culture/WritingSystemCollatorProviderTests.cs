@@ -58,7 +58,7 @@ public class WritingSystemCollatorProviderTests
     public void GetCollator_UsesLegacyFallback_WhenCollationUnset()
     {
         var provider = CreateProvider();
-        var collator = provider.GetCollator(BaseWs());
+        var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = null, SystemCollationLocale = null });
         collator.Should().BeOfType<LegacyCompareInfoCollator>();
     }
 
@@ -82,7 +82,7 @@ public class WritingSystemCollatorProviderTests
     public void IcuRulesCollator_DecodesUnicodeEscapes()
     {
         var provider = CreateProvider();
-        var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = @"&z < a" });
+        var collator = provider.GetCollator(BaseWs() with { IcuCollationRules = @"&z < \u0061" });
         collator.Compare("z", "a").Should().BeLessThan(0);
     }
 
