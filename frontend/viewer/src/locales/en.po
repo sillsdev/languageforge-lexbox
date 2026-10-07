@@ -253,6 +253,10 @@ msgstr "Add Word"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Advanced: settings file"
+msgstr "Advanced: settings file"
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
@@ -793,6 +797,7 @@ msgstr "Dictionary Preview"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Discard"
 
@@ -1075,6 +1080,10 @@ msgstr "Failed to regenerate search index"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to save file"
 msgstr "Failed to save file"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to save settings"
+msgstr "Failed to save settings"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
@@ -2041,6 +2050,10 @@ msgstr "Part of"
 msgid "Part of speech"
 msgstr "Part of speech"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file."
+msgstr "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file."
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -2372,6 +2385,10 @@ msgstr "Same word"
 msgid "Save"
 msgstr "Save"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Save and apply"
+msgstr "Save and apply"
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Save as"
 msgstr "Save as"
@@ -2477,6 +2494,10 @@ msgstr "Sentence"
 #: src/project/ProjectSidebar.svelte
 msgid "Settings"
 msgstr "Settings"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Settings saved and applied"
+msgstr "Settings saved and applied"
 
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
@@ -3055,6 +3076,10 @@ msgstr "Uploading pictures is not supported here"
 msgid "Uses components as"
 msgstr "Uses components as"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Verbose logging"
+msgstr "Verbose logging"
+
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -3154,6 +3179,10 @@ msgstr "Word or meaning:"
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
 msgstr "Words missing both Word and Display as"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
+msgstr "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte

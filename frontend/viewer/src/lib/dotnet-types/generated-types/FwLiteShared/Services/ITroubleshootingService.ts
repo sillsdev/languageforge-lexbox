@@ -10,6 +10,10 @@ export interface ITroubleshootingService
 	getDataDirectory() : Promise<string>;
 	openLogFile() : Promise<void>;
 	shareLogFile() : Promise<void>;
+	getVerboseLogging() : Promise<boolean | undefined>;
+	setVerboseLogging(enabled: boolean) : Promise<void>;
+	getSettingsFile() : Promise<string>;
+	setSettingsFile(contents: string) : Promise<void>;
 	shareCrdtProject(projectCode: string) : Promise<void>;
 	regenerateHarmonySnapshots(projectCode: string) : Promise<void>;
 	regenerateEntrySearchTable(projectCode: string) : Promise<void>;

@@ -258,6 +258,10 @@ msgstr "Ajouter un mot"
 msgid "Add your first entry to start building your dictionary."
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Advanced: settings file"
+msgstr ""
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
@@ -798,6 +802,7 @@ msgstr "Aperçu du dictionnaire"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Rejeter"
 
@@ -1079,6 +1084,10 @@ msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to save file"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to save settings"
 msgstr ""
 
 #. Error notification
@@ -2046,6 +2055,10 @@ msgstr "Une partie de"
 msgid "Part of speech"
 msgstr "Partie du discours"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file."
+msgstr ""
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/SyncStatusPrimitive.svelte
@@ -2377,6 +2390,10 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Save and apply"
+msgstr ""
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Save as"
 msgstr ""
@@ -2482,6 +2499,10 @@ msgstr "Phrase"
 #: src/project/ProjectSidebar.svelte
 msgid "Settings"
 msgstr "Paramètres"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Settings saved and applied"
+msgstr ""
 
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
@@ -3060,6 +3081,10 @@ msgstr ""
 msgid "Uses components as"
 msgstr "Utilise des composants comme"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Verbose logging"
+msgstr ""
+
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -3158,6 +3183,10 @@ msgstr "Mot ou sens :"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
 msgstr ""
 
 #. Column header
