@@ -29,6 +29,7 @@ public class CrdtMiniLcmApi(
     CrdtMorphTypeApi morphTypeApi,
     CrdtPartsOfSpeechApi partsOfSpeechApi,
     CrdtComplexFormTypesApi complexFormTypesApi,
+    CrdtPictureApi pictureApi,
     CrdtMediaApi mediaApi,
     CrdtCustomViewApi customViewApi,
     CrdtCommentApi commentApi,
@@ -860,22 +861,18 @@ public class CrdtMiniLcmApi(
         }
     }
 
+    #region PictureApi
     public async Task<Picture> CreatePicture(Guid entryId,
         Guid senseId,
         Picture picture,
         BetweenPosition? between = null)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var change = new CreateSensePictureChange(picture, senseId, between);
-        await harmonyChangeWriter.AddChange(change);
-        return await GetPicture(entryId, senseId, change.PictureId) ?? throw NotFoundException.ForType<Picture>(change.PictureId);
+        return await pictureApi.CreatePicture(entryId, senseId, picture, between);
     }
 
     public async Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var sense = await repo.GetSense(senseId);
-        return sense?.Pictures.FirstOrDefault(pic => pic.Id == id);
+        return await pictureApi.GetPicture(entryId, senseId, id);
     }
 
     public async Task SubmitUpdatePicture(Guid entryId,
@@ -883,9 +880,7 @@ public class CrdtMiniLcmApi(
         Guid pictureId,
         UpdateObjectInput<Picture> update)
     {
-        var jsonPatch = update.Patch;
-        var patchChange = new UpdateSensePictureChange(pictureId, senseId, jsonPatch);
-        await harmonyChangeWriter.AddChange(patchChange);
+        await pictureApi.SubmitUpdatePicture(entryId, senseId, pictureId, update);
     }
 
     public async Task<Picture> UpdatePicture(Guid entryId,
@@ -893,8 +888,7 @@ public class CrdtMiniLcmApi(
         Guid pictureId,
         UpdateObjectInput<Picture> update)
     {
-        await SubmitUpdatePicture(entryId, senseId, pictureId, update);
-        return await GetPicture(entryId, senseId, pictureId) ?? throw NotFoundException.ForType<Picture>(pictureId);
+        return await pictureApi.UpdatePicture(entryId, senseId, pictureId, update);
     }
 
     public async Task<Picture> UpdatePicture(Guid entryId,
@@ -903,23 +897,19 @@ public class CrdtMiniLcmApi(
         Picture after,
         IMiniLcmApi? api = null)
     {
-        await PictureSync.Sync(entryId, senseId, before, after, api ?? this);
-        return await GetPicture(entryId, senseId, after.Id) ?? throw NotFoundException.ForType<Picture>(after.Id);
+        return await pictureApi.UpdatePicture(entryId, senseId, before, after, api ?? this);
     }
 
     public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between)
     {
-        await using var repo = await repoFactory.CreateRepoAsync();
-        var sense = await repo.GetSense(senseId);
-        if (sense is null) throw NotFoundException.ForType<Sense>(senseId);
-        var order = OrderPicker.PickOrder(sense.Pictures, between);
-        await harmonyChangeWriter.AddChange(new ReorderSensePictureChange(pictureId, senseId, order));
+        await pictureApi.MovePicture(entryId, senseId, pictureId, between);
     }
 
     public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
     {
-        await harmonyChangeWriter.AddChange(new RemoveSensePictureChange(pictureId, senseId));
+        await pictureApi.DeletePicture(entryId, senseId, pictureId);
     }
+    #endregion
 
     #region MediaApi
     public async Task<ReadFileResponse> GetFileStream(MediaUri mediaUri, bool downloadIfMissing = true)
