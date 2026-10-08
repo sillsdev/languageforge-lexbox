@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using LcmCrdt.FullTextSearch;
 using LcmCrdt.MiniLcmImp;
+using Microsoft.EntityFrameworkCore;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
 using Xunit.Abstractions;
@@ -155,6 +157,33 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
 
         var stored = await _fixture.Api.GetAllEntries().ToListAsync();
         stored.Select(e => e.Id).Should().BeEquivalentTo(entries.Select(e => e.Id));
+    }
+
+    [Fact]
+    public async Task BulkCreateEntries_SearchTableIsUpToDate_AcrossMultipleBatchFlushes()
+    {
+        // Tiny batch size forces multiple mid-loop flushes plus the tail flush,
+        // each of which must index its entries via UpdateEntrySearchTableInterceptor.
+        _fixture.GetService<CrdtEntryApi>().BulkCreateBatchSize = 3;
+        var entries = await SeedData(10, _fixture.Api).ToListAsync();
+        for (var i = 0; i < entries.Count; i++)
+        {
+            entries[i].LexemeForm["en"] = $"bulkimport{(char)('a' + i)}word";
+        }
+
+        await _fixture.Api.BulkCreateEntries(entries.ToAsyncEnumerable());
+
+        await using var dbContext = await _fixture.GetService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        await using var searchService = _fixture.GetService<EntrySearchServiceFactory>().CreateSearchService(dbContext);
+        var records = await searchService.EntrySearchRecords.AsNoTracking().ToListAsync();
+        records.Select(r => (r.Id, r.LexemeForm))
+            .Should().BeEquivalentTo(entries.Select(e => (e.Id, e.LexemeForm["en"])));
+
+        foreach (var entry in entries)
+        {
+            var results = await _fixture.Api.SearchEntries(entry.LexemeForm["en"]).ToListAsync();
+            results.Select(e => e.Id).Should().Equal(entry.Id);
+        }
     }
 
     [Fact]

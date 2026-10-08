@@ -2,7 +2,6 @@ using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
-using LcmCrdt.FullTextSearch;
 using LcmCrdt.Harmony;
 using LcmCrdt.Objects;
 using LinqToDB.Async;
@@ -16,8 +15,7 @@ namespace LcmCrdt.MiniLcmImp;
 public class CrdtEntryApi(
     MiniLcmRepositoryFactory repoFactory,
     HarmonyChangeWriter harmonyChangeWriter,
-    ILogger<CrdtEntryApi> logger,
-    EntrySearchService? entrySearchService = null)
+    ILogger<CrdtEntryApi> logger)
 {
     // Flush threshold (in accumulated IChange records) for BulkCreateEntries; internal so tests can force multi-batch behavior.
     internal int BulkCreateBatchSize { get; set; } = 1000;
@@ -80,8 +78,6 @@ public class CrdtEntryApi(
             await harmonyChangeWriter.AddChanges(changeList);
             changeList.Clear();
         }
-
-        await (entrySearchService?.RegenerateEntrySearchTable() ?? Task.CompletedTask);
 
         logger.LogInformation("Added {Count} entries", entryCount);
     }
