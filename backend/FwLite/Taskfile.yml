@@ -218,3 +218,20 @@ tasks:
     cmds:
       - task: reset-verified
       - task: test-verified
+  accept-snapshots:
+    silent: true
+    desc: 'Lists *.received.* snapshots (gitignored) with a diff stat against each .verified. sibling. Dry run; `-- --apply` promotes them.'
+    cmd: |
+      files=$(git ls-files --others --ignored --exclude-standard -- '*.received.*')
+      if [ -z "$files" ]; then echo "No *.received.* files under backend/FwLite."; exit 0; fi
+      for r in $files; do
+        v="${r/.received./.verified.}"
+        if [ -f "$v" ]; then
+          echo "== $r"
+          git -c core.autocrlf=false diff --no-index --stat -- "$v" "$r" || true
+        else
+          echo "== $r (new: no $v yet)"
+        fi
+        if [ "{{.CLI_ARGS}}" = "--apply" ]; then mv "$r" "$v" && echo "   promoted -> $v"; fi
+      done
+      if [ "{{.CLI_ARGS}}" != "--apply" ]; then echo "Dry run. Review with git diff --no-index <verified> <received>, then: task fw-lite:accept-snapshots -- --apply"; fi

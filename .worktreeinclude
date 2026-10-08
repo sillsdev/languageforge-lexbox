@@ -1,0 +1,2 @@
+# Gitignored files Claude Code copies into each new worktree (https://code.claude.com/docs/en/worktrees.md).
+AGENTS.local.md
