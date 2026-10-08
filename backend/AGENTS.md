@@ -29,15 +29,6 @@ Harmony is consumed as a **NuGet package** by default (`SIL.Harmony`, `SIL.Harmo
 
 To build against local Harmony source (e.g. when developing the CRDT substrate), clone [sillsdev/harmony](https://github.com/sillsdev/harmony) as a sibling repo (`../harmony`), copy `Directory.Build.props.user.example` to `Directory.Build.props.user`, and set `UseHarmonySource=true`. Or pass `-p:UseHarmonySource=true` for a one-off build.
 
-## Sibling repos
-
-Read upstream source directly instead of reverse-engineering DLLs, and check whether harmony already provides something before re-implementing it.
-
-| Repo | Where to look |
-|---|---|
-| harmony | `C:\dev\harmony`. Pinned version → commit: `commit=` in `~/.nuget/packages/sil.harmony/<ver>/sil.harmony.nuspec`; then `git -C C:/dev/harmony fetch origin` and `git -C C:/dev/harmony show <commit>:src/SIL.Harmony/<file>` |
-| liblcm | `C:\dev\liblcm`: `src/SIL.LCModel/MasterLCModel.xml` is the model, `src/SIL.LCModel/DomainImpl/` the behaviour |
-| chorus | `C:\dev\chorus`: `src/LibChorus/VcsDrivers/Mercurial/HgResumeTransport.cs` (`pushBundleChunk` / `pullBundleChunk` resumable protocol) |
 
 ## Code Conventions
 

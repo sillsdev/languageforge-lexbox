@@ -48,10 +48,6 @@ pnpm run test:unit --run
 - Types in `src/lib/gql/generated/` (gitignored) come from the vite plugin during `dev`/`build`. When the folder is missing (fresh worktree), svelte-check fails on every query: run `task ui:gql-codegen`.
 - Queries in `src/lib/gql/`
 
-### Layering
-
-- Interfaces in `backend/LexCore`, implementations in `backend/LexBoxApi`; see root `CODING_STANDARDS.md`.
-
 ### Components
 
 - Use DaisyUI classes for consistent styling

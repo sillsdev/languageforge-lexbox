@@ -61,20 +61,10 @@ Start with `.github/scripts/ci-logs.sh <run-id|run-or-job-url> [job-name-substri
 - **`ErrImagePull ... not found` for `lexbox-api`/`lexbox-ui`** in the k8s logs: images publish only for branches on `origin`. A fork PR, or a branch never pushed to origin, can't pass integration tests; ask the user to push the branch to origin.
 - Not a failure: on frontend-only PRs `setup-k8s` logs that `lexbox-fw-headless`/`lexbox-hgweb` are unpublished at the PR version and keeps the `develop` tag (path filters skip those builds).
 
-## Agent GitHub access
-
-`gh` runs as a bot account (`gh api user --jq .login`; scopes in `gh auth status`). Git pushes go through Git Credential Manager, not `gh`. Hand the user the exact command for anything marked "no".
-
-| Operation | Bot | Notes |
-|---|---|---|
-| Read runs, logs, artifacts, PRs, issues | yes | Pass `-R sillsdev/languageforge-lexbox` outside a checkout (`gh run download` fails with "not a git repository" without it) |
-| Push to `origin` (sillsdev) | no | pull-only; a 403 push means the bot identity, so stop and ask |
-| `gh workflow run`, `gh run rerun` | no | 403 |
-| GHCR packages API | no | no `read:packages` scope |
-| PRs on other sillsdev repos (e.g. chorus) | no | "must be a collaborator"; give the user the branch and PR body |
 
 ## Gotchas
 
+- Outside a checkout (e.g. a scratch dir), pass `-R sillsdev/languageforge-lexbox` to `gh`; `gh run download` otherwise fails with "not a git repository".
 - Workflows mix `.yml` (`codeql.yml`) and `.yaml`; glob `.github/workflows/*.y*ml`.
 - `-p:` values containing `,` or `;` split into separate MSBuild switches (MSB1006): quote the whole `"-p:Name=a;b"` or write `;` as `%3B`.
 - Multi-RID builds keep `RuntimeIdentifiers` in the csproj; a global `-p:RuntimeIdentifier(s)` leaks into referenced libraries (NETSDK1083). See the Mac Catalyst step in `fw-lite.yaml`.

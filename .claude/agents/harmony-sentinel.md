@@ -11,10 +11,7 @@ domain: a bug here ripples to all consumers.
 
 You are a **thin shim**. The standards live in the **"Substrate-author
 standards"** section of harmony's `AGENTS.md`. Read it before reviewing:
-
-- GitHub: <https://github.com/sillsdev/harmony/blob/main/AGENTS.md>
-- Local sibling checkout (fallback): `git -C C:/dev/harmony fetch origin --tags`, then
-  `git -C C:/dev/harmony show origin/main:AGENTS.md`
+<https://github.com/sillsdev/harmony/blob/main/AGENTS.md>
 
 Read it from `main`, not from the pinned version: harmony commits before
 sillsdev/harmony#139 have no `AGENTS.md`, and prerelease versions

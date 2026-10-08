@@ -103,10 +103,16 @@ tasks:
     interactive: true
 
   verify:
-    desc: 'Frontend pre-done gate: ui:verify (LexBox app) then fw-ui:verify (viewer). 3 min warm, ~7 cold; backend drift is `task check-generated`.'
+    desc: 'Frontend pre-done gate: ui:verify (LexBox app) and fw-ui:verify (viewer) in parallel; backend drift is `task check-generated`.'
     cmds:
-      - task: ui:verify
-      - task: fw-ui:verify
+      # Both apps share one pnpm workspace: install once up front, so the parallel verifies never run two installs at once.
+      - task: ui:install
+      - task: fw-ui:install
+      - task: _verify-parallel
+
+  _verify-parallel:
+    internal: true
+    deps: [ ui:verify, fw-ui:verify ]
 
   check-generated:
     desc: 'Runs every committed-artifact drift check CI runs (EF model x2, gql schema, OpenAPI, FwLite TS types); reports all, fails if any fail.'
