@@ -4,7 +4,7 @@
 
 ## Build & Test
 
-`dotnet build` takes one project: build the test csproj, never the folder (MSB1003/MSB1008). Fast FwLite builds and test timings are in `FwLite/AGENTS.md`.
+`dotnet build` takes one project: pass the `.csproj` you need (the test project when testing), never a folder (MSB1003/MSB1008). Fast FwLite builds and test timings are in `FwLite/AGENTS.md`.
 
 ```bash
 dotnet build LexBoxApi/LexBoxApi.csproj

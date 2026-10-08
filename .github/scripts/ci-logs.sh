@@ -36,7 +36,8 @@ done
 
 JOB_ID=""
 if [[ "$RUN" == *"/runs/"* ]]; then
-  [[ "$RUN" =~ /job/([0-9]+) ]] && JOB_ID="${BASH_REMATCH[1]}"
+  # Web job links are /job/<id> (the id the jobs API takes); accept /jobs/ too.
+  [[ "$RUN" =~ /jobs?/([0-9]+) ]] && JOB_ID="${BASH_REMATCH[1]}"
   [[ "$RUN" =~ /runs/([0-9]+) ]] && RUN="${BASH_REMATCH[1]}"
 fi
 [[ "$RUN" =~ ^[0-9]+$ ]] || { echo "ci-logs: cannot read a run id from '$RUN'" >&2; exit 2; }

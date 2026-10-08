@@ -39,7 +39,7 @@ Observed in agent sessions; plan around them.
 | Run | Minutes |
 |---|---|
 | `LcmCrdt.Tests` whole project (~720 tests) | 4 to 9 |
-| `Sena3SyncTests` (any `Sena3` filter) | 9 to 20 |
+| `Sena3SyncTests` whole class (filter to one or two tests instead) | 9 to 20 |
 | `BulkCreateEntriesTest.BulkCreateEntriesPerformance` | ~3.5 |
 | One test class, already built, `--no-build` | under 1 |
 
@@ -149,6 +149,8 @@ When adding a new field/property to the model (Entry, Sense, etc.):
    - `LcmCrdt.Tests/` - CRDT-specific tests
    - `FwLiteProjectSync.Tests/` - Sync round-trip tests
 
+A whole new entity type (like `Sense` or `ExampleSentence`) is major work: follow the pattern of `Sense` through every step above, plus Create/Update changes in `LcmCrdt/Changes/`, API methods on both `IMiniLcmApi` implementations, and a sync helper in `MiniLcm/SyncHelpers/`.
+
 ### ⚠️ Performance Warning
 
 CRDT change classes can cause **multiple database hits per change**. If adding complex operations:
@@ -232,10 +234,10 @@ So: add a `Submit*` only when the plain path throws on concurrency, route sync t
 
 ### Testing Sync
 
-The gold standard is `FwLiteProjectSync.Tests/Sena3SyncTests.cs` which uses a real FwData project (9 to 20 min: run it in the background, once, when the work is done).
+The gold standard is `FwLiteProjectSync.Tests/Sena3SyncTests.cs` which uses a real FwData project. Run the one or two tests that cover your change, in the background, once the work is done; the whole class takes 9 to 20 min.
 
 ```bash
-dotnet test backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj --filter "FullyQualifiedName~Sena3"
+dotnet test backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj --filter "FullyQualifiedName~Sena3SyncTests.DryRunSync_MakesNoChanges"
 ```
 
 To debug a sync bug: reproduce it in `FwLiteProjectSync.Tests/`, then run a dry-run sync (`SyncDryRun`/`ImportDryRun`, recorded via `RecordingMiniLcmApi`) to see the changes it would make before stepping through `CrdtFwdataProjectSyncService.Sync()`.

@@ -72,6 +72,9 @@ tasks:
 
   _gql-codegen-if-missing:
     internal: true
+    # Regenerates when the folder is missing or the schema changed (a full run is ~40 s, so not every time).
+    # Query edits are covered by the vite plugin during dev.
+    sources: [ schema.graphql, gql-codegen.ts ]
     status: [ test -d src/lib/gql/generated ]
     cmds:
       - task: gql-codegen

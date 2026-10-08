@@ -23,7 +23,7 @@ Vite and Playwright default to port 5173, and Playwright **reuses whatever alrea
 
 ### Browser pane (Claude preview tools)
 
-- Start the viewer with `preview_start` (config `viewer` in `.claude/launch.json`, port 5173); `navigate` to localhost is denied. With `FwLite__DevAssetsPort` set, vite binds that port instead.
+- On the default port, start the viewer with `preview_start` (config `viewer` in `.claude/launch.json`, port 5173); `navigate` to localhost is denied. `launch.json` can't read `FwLite__DevAssetsPort`, so on another port start vite yourself and open it with `preview_start` and `url: http://localhost:<port>`.
 - Screenshots need the pane displayed; otherwise use `read_page` / `get_page_text`. Call `read_page` before `find`.
 - Wrap `javascript_tool` snippets in an IIFE; top-level `const` collides across calls.
 - `left_click_drag` times out on paneforge resize handles: use the keyboard or set sizes via JS.

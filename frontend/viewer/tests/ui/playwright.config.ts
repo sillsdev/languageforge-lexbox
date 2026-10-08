@@ -1,8 +1,9 @@
 import {defineConfig, devices, type ReporterDescription} from '@playwright/test';
 import * as testEnv from '../../../tests/envVars';
 
-// Same override as vite.config.ts, so a worktree on its own port tests its own dev server.
-const vitePort = process.env.FwLite__DevAssetsPort || '5173';
+// Same override and validation as vite.config.ts, so a worktree on its own port tests its own dev server.
+const parsedDevPort = Number(process.env.FwLite__DevAssetsPort);
+const vitePort = Number.isFinite(parsedDevPort) && parsedDevPort > 0 ? String(parsedDevPort) : '5173';
 const dotnetPort = '5137';
 const autoStartServer = process.env.AUTO_START_SERVER === 'true';
 const serverPort = process.env.SERVER_PORT ?? (autoStartServer ? vitePort : dotnetPort);

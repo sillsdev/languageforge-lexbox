@@ -49,7 +49,7 @@ Start with `.github/scripts/ci-logs.sh <run-id|run-or-job-url> [job-name-substri
 - **Checks missing on a PR**: a CONFLICTING PR schedules none. Check `gh pr view <n> --json mergeable,statusCheckRollup` before waiting; merge develop first.
 - **`startup_failure`** (no jobs, no annotations): the workflow YAML was rejected, e.g. a nested job asking for permissions its caller lacks. Run `actionlint`; the message is only on the run page.
 - **Waiting**: one `gh run watch <id> -R sillsdev/languageforge-lexbox --exit-status` in the background (Monitor). Sleep loops hit the 10-minute Bash timeout.
-- **Flaky or systemic?** `gh run list -R sillsdev/languageforge-lexbox -w "<workflow name>" -b develop --limit 5 --json conclusion`. Failing on develop too means systemic: not your PR, and a re-run won't help.
+- **Flaky or systemic?** `gh run list -R sillsdev/languageforge-lexbox -w "<workflow name>" -b develop --limit 5 --json databaseId,conclusion`, then run `.github/scripts/ci-logs.sh` on a failed develop run. Only when the same job fails with the same error on develop is it systemic: not your PR, and a re-run won't help. A different job or error on develop proves nothing about yours.
 
 ### Known flaky (ask the user to re-run once)
 

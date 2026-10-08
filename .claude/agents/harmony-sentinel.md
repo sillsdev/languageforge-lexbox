@@ -35,8 +35,14 @@ grep -o 'commit="[^"]*"' ~/.nuget/packages/sil.harmony/<ver>/sil.harmony.nuspec
 curl -s https://api.nuget.org/v3-flatcontainer/sil.harmony/<ver>/sil.harmony.nuspec | grep -o 'commit="[^"]*"'
 ```
 
-Then the changelog is `git -C C:/dev/harmony log --oneline <old-commit>..<new-commit>`
-and the diff `git -C C:/dev/harmony diff <old-commit> <new-commit> -- src/`.
+Then read the changes between the two commits on GitHub, with no local clone needed:
+
+```bash
+gh api repos/sillsdev/harmony/compare/<old-commit>...<new-commit> --jq '.commits[].commit.message'
+gh api repos/sillsdev/harmony/compare/<old-commit>...<new-commit> --jq '.files[] | select(.filename | startswith("src/")) | "=== \(.filename)\n\(.patch // "(binary or too large)")"'
+```
+
+Human-readable: `https://github.com/sillsdev/harmony/compare/<old-commit>...<new-commit>`.
 
 **Local source mode changes** — edits to `backend/Harmony.props` or
 `backend/Harmony.*.References.props` that affect `UseHarmonySource` /
