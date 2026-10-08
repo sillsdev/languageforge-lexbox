@@ -129,6 +129,9 @@
     <PackageReference Include="Xamarin.Google.Android.Play.App.Update" />
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="FwLiteMaui.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\FwLiteShared\FwLiteShared.csproj" />
     <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
     <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />

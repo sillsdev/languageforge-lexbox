@@ -7,6 +7,9 @@
   import InputShell from '$lib/components/ui/input/input-shell.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
   import {Input} from '$lib/components/ui/input';
+  import {Switch} from '$lib/components/ui/switch';
+  import {Textarea} from '$lib/components/ui/textarea';
+  import * as Collapsible from '$lib/components/ui/collapsible';
   import {featureFlags} from '$lib/feature-flags/feature-flags.svelte';
   import {CopyButton} from '$lib/components/ui/button';
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
@@ -34,6 +37,8 @@
   let regenerateConfirmOpen = $state(false);
   let regenerateSearchConfirmOpen = $state(false);
   let canShare = resource(() => service, async (s) => await s?.getCanShare());
+  // null means the host has no settings file to toggle (web)
+  let verboseLogging = resource(() => service, async (s) => await s?.getVerboseLogging());
   const regenerating = $derived(regeneratingOperation !== null);
   // Mobile platforms keep app data in private storage that no file manager can open.
   const canOpenDataDirectory = $derived(config.os !== FwLitePlatform.Android && config.os !== FwLitePlatform.iOS);
@@ -42,6 +47,35 @@
     if (!await service?.tryOpenDataDirectory()) {
       AppNotification.display($t`Failed to open data directory, use the path in the text field instead`, 'error');
     }
+  }
+
+  async function setVerboseLogging(enabled: boolean) {
+    await service?.setVerboseLogging(enabled);
+    await verboseLogging.refetch();
+    await settingsFile.refetch();
+  }
+
+  // Advanced: support can paste a config fix straight into the settings file
+  let advancedOpen = $state(false);
+  let settingsFile = resource(() => service, async (s) => await s?.getSettingsFile());
+  let settingsDraft = $state('');
+  $effect(() => {
+    if (settingsFile.current !== undefined) settingsDraft = settingsFile.current;
+  });
+  const settingsDirty = $derived(settingsDraft !== (settingsFile.current ?? ''));
+
+  async function saveSettingsFile() {
+    if (!service) return;
+    try {
+      await service.setSettingsFile(settingsDraft);
+    } catch (e) {
+      // invalid JSON is an expected, actionable failure
+      AppNotification.display(e instanceof Error ? e.message : $t`Failed to save settings`, 'error');
+      return;
+    }
+    await settingsFile.refetch();
+    await verboseLogging.refetch();
+    AppNotification.display($t`Settings saved and applied`, 'success');
   }
 
   async function shareProject() {
@@ -159,6 +193,40 @@
             {$t`Regenerate search index`}
           </Button>
         </div>
+      {/if}
+      {#if service && verboseLogging.current != null}
+        <div class="w-full flex flex-col gap-1.5">
+          <Switch label={$t`Verbose logging`}
+                  checked={verboseLogging.current}
+                  onCheckedChange={(enabled) => void setVerboseLogging(enabled)} />
+          <p class="text-sm text-muted-foreground">
+            {$t`Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need.`}
+          </p>
+        </div>
+      {/if}
+      {#if service && verboseLogging.current != null}
+        <Collapsible.Root bind:open={advancedOpen} class="w-full">
+          <Collapsible.Trigger
+            class="flex cursor-pointer items-center gap-1 text-sm text-muted-foreground [&[data-state=open]>.i-mdi-chevron-down]:rotate-180">
+            <i class="i-mdi-chevron-down size-4 transition-transform"></i>
+            {$t`Advanced: settings file`}
+          </Collapsible.Trigger>
+          <Collapsible.Content class="flex flex-col gap-2 pt-2">
+            <p class="text-sm text-muted-foreground">
+              {$t`Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file.`}
+            </p>
+            <Textarea bind:value={settingsDraft} rows={8} spellcheck={false} class="font-mono text-xs" placeholder={'{\n  "Logging": { "LogLevel": { "LcmCrdt": "Debug" } }\n}'} />
+            <div class="flex gap-2">
+              <Button variant="outline" size="sm" disabled={!settingsDirty} onclick={() => saveSettingsFile()}>
+                <i class="i-mdi-content-save"></i>
+                {$t`Save and apply`}
+              </Button>
+              <Button variant="ghost" size="sm" disabled={!settingsDirty} onclick={() => settingsDraft = settingsFile.current ?? ''}>
+                {$t`Discard`}
+              </Button>
+            </div>
+          </Collapsible.Content>
+        </Collapsible.Root>
       {/if}
       {#if service}
         <div class="flex gap-2">
