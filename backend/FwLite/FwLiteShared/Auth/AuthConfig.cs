@@ -22,6 +22,12 @@ public class AuthConfig
     public Func<object?>? GetParentActivityOrWindow { get; set; }
     public Action? AfterLoginWebView { get; set; }
     /// <summary>
+    /// Opens the system browser for MSAL's desktop sign-in flow. When set, MSAL calls this instead of its own
+    /// Process.Start, which lets us log the loopback redirect URI (port) the browser must come back to.
+    /// Only MSAL's DefaultOsBrowserWebUi (Windows) uses it; Android and the <see cref="CustomWebUiFactory"/> path ignore it.
+    /// </summary>
+    public Func<Uri, Task>? OpenSystemBrowser { get; set; }
+    /// <summary>
     /// When set, interactive login uses this MSAL <c>ICustomWebUi</c> instead of MSAL's own system-browser flow.
     /// Mac Catalyst uses it to run an <c>ASWebAuthenticationSession</c> (shares Safari's session, no localhost listener),
     /// because the MSAL package has no Mac Catalyst build and falls back to its desktop implementation there.
