@@ -47,6 +47,10 @@ public static class LexBoxKernel
             .BindConfiguration("HealthChecks")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<SendReceiveConfig>()
+            .BindConfiguration("SendReceive")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddOptions<FwLiteReleaseConfig>()
             .BindConfiguration("FwLiteRelease")
             .ValidateDataAnnotations()
