@@ -567,8 +567,10 @@ jobs:
         run: |
           chmod +x ./FwLiteWeb
           log="$RUNNER_TEMP/fwliteweb.log"
-          ./FwLiteWeb --urls http://127.0.0.1:5137 --FwLiteWeb:OpenBrowser=false --FwLite:UpdateCheckCondition=Never > "$log" 2>&1 &
+          # File logging off, or fw-lite-web.log lands in this folder and ships in the artifact.
+          ./FwLiteWeb --urls http://127.0.0.1:5137 --FwLiteWeb:OpenBrowser=false --FwLiteWeb:EnableFileLogging=false --FwLite:UpdateCheckCondition=Never > "$log" 2>&1 &
           server=$!
+          # Wait for the server to answer, giving up early if it died.
           for _ in $(seq 60); do
             curl -fsS -o /dev/null http://127.0.0.1:5137/ && break
             kill -0 $server 2>/dev/null || break
@@ -576,6 +578,7 @@ jobs:
           done
           google-chrome --headless=new --disable-gpu --no-sandbox --user-data-dir="$RUNNER_TEMP/chrome" http://127.0.0.1:5137/ > /dev/null 2>&1 &
           chrome=$!
+          # Wait for the page to finish loading in Chrome, again giving up early if the server died.
           for _ in $(seq 120); do
             grep -q 'Viewer loaded' "$log" && break
             kill -0 $server 2>/dev/null || break
@@ -827,8 +830,10 @@ jobs:
         run: |
           $out = Join-Path $env:RUNNER_TEMP 'fwliteweb.out.log'
           $err = Join-Path $env:RUNNER_TEMP 'fwliteweb.err.log'
-          $serverArgs = '--urls', 'http://127.0.0.1:5137', '--FwLiteWeb:OpenBrowser=false', '--FwLite:UpdateCheckCondition=Never'
+          # File logging off, or fw-lite-web.log lands in this folder and ships in the artifact.
+          $serverArgs = '--urls', 'http://127.0.0.1:5137', '--FwLiteWeb:OpenBrowser=false', '--FwLiteWeb:EnableFileLogging=false', '--FwLite:UpdateCheckCondition=Never'
           $server = Start-Process -FilePath (Resolve-Path .\FwLiteWeb.exe) -ArgumentList $serverArgs -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+          # Wait for the server to answer, giving up early if it died.
           for ($i = 0; $i -lt 60 -and -not $server.HasExited; $i++) {
             try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:5137/ | Out-Null; break } catch { Start-Sleep -Seconds 1 }
           }
@@ -836,6 +841,7 @@ jobs:
           $chromeArgs = '--headless=new', '--disable-gpu', "--user-data-dir=$(Join-Path $env:RUNNER_TEMP 'chrome')", 'http://127.0.0.1:5137/'
           $chrome = Start-Process -FilePath $chromeExe -ArgumentList $chromeArgs -PassThru
           $loaded = $false
+          # Wait for the page to finish loading in Chrome, again giving up early if the server died.
           for ($i = 0; $i -lt 120 -and -not $server.HasExited; $i++) {
             if (Select-String -Path $out -Pattern 'Viewer loaded' -Quiet) { $loaded = $true; break }
             Start-Sleep -Seconds 1
@@ -856,6 +862,8 @@ jobs:
     needs: [ build-and-test, publish-win-web, publish-linux ]
     timeout-minutes: 20
     runs-on: ubuntu-latest
+    outputs:
+      paranext-core-revision: ${{ steps.core-revision.outputs.revision }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -871,16 +879,21 @@ jobs:
           persist-credentials: false
       # Core is unpinned.
       - name: Record paranext-core revision
+        id: core-revision
         working-directory: paranext-core
         run: |
-          echo "paranext-core: \`$(git rev-parse HEAD)\`" >> "$GITHUB_STEP_SUMMARY"
+          revision=$(git rev-parse HEAD)
+          echo "revision=$revision" >> "$GITHUB_OUTPUT"
+          echo "paranext-core: \`$revision\`" >> "$GITHUB_STEP_SUMMARY"
 
       # The extension spawns fw-lite/<rid>/FwLiteWeb, so it bundles the signed, launch-tested publish outputs.
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - name: Download the Windows build
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: fw-lite-web-win
           path: lexbox/platform.bible-extension/public/fw-lite/win-x64
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - name: Download the Linux build
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: fw-lite-web-linux
           path: fw-lite-web-linux
@@ -897,7 +910,7 @@ jobs:
           node-version-file: lexbox/platform.bible-extension/package.json
       - name: Install extension dependencies
         working-directory: lexbox/platform.bible-extension
-        run: npm ci
+        run: npm ci --ignore-scripts
       # --ignore-scripts skips core's preinstall (stages the gitignored dev-packages/staging/ that
       # platform-bible-react imports) and postinstall (verify), so both run as explicit steps.
       - name: Stage core's dev packages
@@ -994,6 +1007,11 @@ jobs:
           previous-tag-prefixes: v20
           config: .github/release-fw-lite.yml
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Note which paranext-core the extension was built against
+        env:
+          NOTES_FILE: ${{ steps.notes.outputs.notes-file }}
+          REVISION: ${{ needs.package-extension.outputs.paranext-core-revision }}
+        run: printf '\n\nPlatform.Bible extension built against paranext-core `%s`.\n' "$REVISION" >> "$NOTES_FILE"
 
       - name: Create Release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2

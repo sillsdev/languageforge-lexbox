@@ -49,7 +49,7 @@ jobs:
 
       - name: Install extension dependencies
         working-directory: lexbox/platform.bible-extension
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       # --ignore-scripts skips core's preinstall (stages the gitignored dev-packages/staging/ that
       # platform-bible-react imports) and postinstall (verify), so both run as explicit steps.
