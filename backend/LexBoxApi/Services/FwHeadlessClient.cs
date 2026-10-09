@@ -1,5 +1,7 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
+using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.Sync;
 using Microsoft.AspNetCore.Mvc;
@@ -197,4 +199,90 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         return null;
     }
 
+    /// <summary>
+    /// Initializes a newly-created (empty) project's repo with a new .fwdata configured for the
+    /// given writing systems. Runs inline (a new empty project is small). Returns a null Error on
+    /// success; on failure returns the FwHeadless status code and error body so the caller can
+    /// propagate the right status (e.g. surface a 400 rather than flattening it to 500).
+    /// </summary>
+    public async Task<(HttpStatusCode StatusCode, string? Error)> InitFwDataProject(Guid projectId,
+        IReadOnlyList<string> wsVernacular,
+        IReadOnlyList<string> wsAnalysis,
+        string wsUi,
+        CancellationToken cancellationToken = default)
+    {
+        var input = new InitFwDataProjectInput(wsVernacular, wsAnalysis, wsUi);
+        var response = await httpClient.PostAsJsonAsync($"/api/project/initFwDataProject?projectId={projectId}",
+            input,
+            cancellationToken);
+        if (response.IsSuccessStatusCode) return (response.StatusCode, null);
+        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        logger.LogError("Failed to init fwdata project: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+            response.StatusCode,
+            response.ReasonPhrase,
+            projectId,
+            responseBody);
+        return (response.StatusCode, responseBody);
+    }
+
+    /// <summary>
+    /// Current creation status for a project, or null if FwHeadless doesn't know the project or the
+    /// call failed (both are logged). Cheap and safe to poll.
+    /// </summary>
+    /// <remarks>
+    /// Unlike <see cref="InitFwDataProject"/>, this one does take a cancellation token, and callers may
+    /// safely pass HttpContext.RequestAborted. Abandoning a status read costs nothing: it starts no
+    /// durable work and tells the caller nothing it has to act on. Abandoning the creation call is what
+    /// is dangerous, because the creation keeps running on the FwHeadless side either way.
+    /// </remarks>
+    public async Task<ProjectCreationStatus?> CreationStatus(Guid projectId, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.GetAsync($"/api/project/creation-status?projectId={projectId}", cancellationToken);
+        if (response.IsSuccessStatusCode)
+            return await response.Content.ReadFromJsonAsync<ProjectCreationStatus>(cancellationToken);
+        // 404 is an ordinary answer ("no such project"), not a fault worth an error log.
+        if (response.StatusCode != HttpStatusCode.NotFound)
+        {
+            logger.LogError("Failed to get project creation status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId,
+                await response.Content.ReadAsStringAsync(cancellationToken));
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Waits for an in-flight creation to finish and returns how it ended, or null if FwHeadless doesn't
+    /// know the project or the call failed. Returns TimedOutAwaitingCreation if the wait is given up on
+    /// -- by either side -- which means "still running, ask again", never "creation failed".
+    /// </summary>
+    public async Task<ProjectCreationStatus?> AwaitCreationFinished(Guid projectId, CancellationToken cancellationToken = default)
+    {
+        HttpResponseMessage response;
+        try
+        {
+            response = await httpClient.GetAsync($"/api/project/await-creation-finished?projectId={projectId}", cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            // We gave up first, so FwHeadless's own TimedOutAwaitingCreation response is on a connection
+            // we already dropped. Report the same thing ourselves, so a caller sees one contract no
+            // matter which side stopped waiting. The creation itself is untouched and still running.
+            logger.LogInformation("Gave up awaiting creation of project {ProjectId}; it is still running", projectId);
+            return ProjectCreationStatus.TimedOutAwaitingCreation;
+        }
+
+        if (response.IsSuccessStatusCode)
+            return await response.Content.ReadFromJsonAsync<ProjectCreationStatus>(cancellationToken);
+        if (response.StatusCode != HttpStatusCode.NotFound)
+        {
+            logger.LogError("Failed to await project creation: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId,
+                await response.Content.ReadAsStringAsync(cancellationToken));
+        }
+        return null;
+    }
 }
