@@ -7595,132 +7595,6 @@
   {
     "$type": "MiniLcmCrdtAdapter",
     "Obj": {
-      "$type": "WritingSystem",
-      "Id": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
-      "MaybeId": "3ce0d5a6-5af0-4a08-8086-d0e827dfe2dd",
-      "WsId": "en",
-      "IsAudio": false,
-      "Name": "en",
-      "Abbreviation": "Eng",
-      "Font": "Charis SIL",
-      "DeletedAt": null,
-      "Type": 1,
-      "Exemplars": [
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-        "Z"
-      ],
-      "Order": 0
-    }
-  },
-  {
-    "$type": "MiniLcmCrdtAdapter",
-    "Obj": {
-      "$type": "WritingSystem",
-      "Id": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
-      "MaybeId": "7cd09869-ce02-61b2-2dea-d3ed6e505109",
-      "WsId": "lli",
-      "IsAudio": false,
-      "Name": "Granite",
-      "Abbreviation": "withdrawal",
-      "Font": "Handmade",
-      "DeletedAt": null,
-      "Type": 0,
-      "Exemplars": [
-        "Planner"
-      ],
-      "Order": 0.4320924489200455
-    }
-  },
-  {
-    "$type": "MiniLcmCrdtAdapter",
-    "Obj": {
-      "$type": "WritingSystem",
-      "Id": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
-      "MaybeId": "073c37cd-24cf-4d3d-ab33-19dfc94c96b7",
-      "WsId": "en",
-      "IsAudio": false,
-      "Name": "en",
-      "Abbreviation": "Eng",
-      "Font": "Charis SIL",
-      "DeletedAt": null,
-      "Type": 0,
-      "Exemplars": [
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "O",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "W",
-        "X",
-        "Y",
-        "Z"
-      ],
-      "Order": 0
-    }
-  },
-  {
-    "$type": "MiniLcmCrdtAdapter",
-    "Obj": {
-      "$type": "WritingSystem",
-      "Id": "19023cf0-de25-9b0c-d5ad-94df308267c4",
-      "MaybeId": "19023cf0-de25-9b0c-d5ad-94df308267c4",
-      "WsId": "taw",
-      "IsAudio": false,
-      "Name": "bluetooth",
-      "Abbreviation": "Credit Card Account",
-      "Font": "Intelligent Concrete Sausages",
-      "DeletedAt": null,
-      "Type": 0,
-      "Exemplars": [
-        "blockchains"
-      ],
-      "Order": 0.14806393624996905
-    }
-  },
-  {
-    "$type": "MiniLcmCrdtAdapter",
-    "Obj": {
       "$type": "ExampleSentence",
       "Id": "00000000-0000-0000-0000-6038aa8174c3",
       "Order": 0,
@@ -8209,6 +8083,27 @@
       "AuthorName": "Home Loan Account",
       "CreatedAt": "2026-07-02T22:19:48.4007941+07:00",
       "UpdatedAt": "2026-07-03T13:54:23.9312531+07:00"
+    }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "WritingSystem",
+      "Id": "afce7628-0915-8357-117e-e4c1e79dc33b",
+      "MaybeId": "afce7628-0915-8357-117e-e4c1e79dc33b",
+      "WsId": "nuw",
+      "IsAudio": false,
+      "Name": "Dam",
+      "Abbreviation": "Handmade Granite Sausages",
+      "Font": "Consultant",
+      "DeletedAt": null,
+      "Type": 0,
+      "Exemplars": [
+        "Gorgeous Rubber Cheese"
+      ],
+      "IcuCollationRules": "Shoal",
+      "SystemCollationLocale": "Regional",
+      "Order": 0.9920491895054084
     }
   }
 ]

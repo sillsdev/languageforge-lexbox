@@ -19,7 +19,11 @@ using SQLitePCL;
 
 namespace LcmCrdt.Data;
 
-public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvider cultureProvider, IOptions<HarmonyConfig> harmonyConfig)
+public class SetupCollationInterceptor(
+    IMemoryCache cache,
+    IMiniLcmCultureProvider cultureProvider,
+    IWritingSystemCollatorProvider collatorProvider,
+    IOptions<HarmonyConfig> harmonyConfig)
     : IDbConnectionInterceptor, ISaveChangesInterceptor, IConnectionInterceptor, IProjectedEntityInterceptor
 {
     private static string? WsTableName = null;
@@ -70,6 +74,7 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
                 WsTableName ??= localContext.Model.FindRuntimeEntityType(typeof(WritingSystem))?.GetTableName() ?? "WritingSystem";
                 if (!HasTable(localContext, WsTableName))
                 {
+                    // Schema not migrated yet — don't cache so a later open can register collations.
                     return [];
                 }
 
@@ -262,9 +267,17 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
 
     private void SetupCollation(SqliteConnection connection, WritingSystem writingSystem)
     {
+        if (HasImportedCollation(writingSystem))
+        {
+            // ICollator only compares strings, so this path allocates per comparison.
+            CreateSpanCollation(connection, SqlSortingExtensions.CollationName(writingSystem.WsId),
+                collatorProvider.GetCollator(writingSystem),
+                static (collator, x, y) => collator.Compare(x.ToString(), y.ToString()));
+            return;
+        }
+
         var compareInfo = cultureProvider.GetCompareInfo(writingSystem);
 
-        //todo use custom comparison based on the writing system
         CreateSpanCollation(connection, SqlSortingExtensions.CollationName(writingSystem.WsId),
             compareInfo,
             CompareIgnoreCaseLowerFirst);
@@ -278,6 +291,10 @@ public class SetupCollationInterceptor(IMemoryCache cache, IMiniLcmCultureProvid
         // When case-insensitively equal, sort lowercase before uppercase
         return compareInfo.Compare(x, y, CompareOptions.None);
     }
+
+    private static bool HasImportedCollation(WritingSystem writingSystem) =>
+        !string.IsNullOrEmpty(writingSystem.SystemCollationLocale)
+        || !string.IsNullOrEmpty(writingSystem.IcuCollationRules);
 
     //this is a premature optimization, but it avoids creating strings for each comparison and instead uses spans which avoids allocations
     //if the new comparison function does not support spans then we can use SqliteConnection.CreateCollation instead which works with strings

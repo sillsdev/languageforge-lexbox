@@ -763,6 +763,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 1,
       "Order": 1,
       "EntityId": "0b76099f-a102-4d24-8fd7-2c44b6eb3623"
@@ -806,6 +808,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 0,
       "Order": 1,
       "EntityId": "33c8a15a-1bd4-429e-a400-3304a3e1d997"
@@ -849,6 +853,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 0,
       "Order": 3,
       "EntityId": "485bd12f-976e-40df-b66c-16d70ee916fa"
@@ -892,6 +898,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 0,
       "Order": 2,
       "EntityId": "9fd79197-95ef-46d7-81a8-bb21aa2579c0"
@@ -935,6 +943,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 1,
       "Order": 3,
       "EntityId": "abeaeb03-1a56-49d5-8cc8-a3afe5ffe89e"
@@ -978,6 +988,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 1,
       "Order": 2,
       "EntityId": "d4078989-6c7b-4cc5-8501-ce968405484a"
