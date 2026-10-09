@@ -1,6 +1,22 @@
 name: FieldWorks Lite
 on:
+  # A direct dispatch is CI only. Never add `release`/`version` inputs here: GitHub rejects
+  # undeclared dispatch inputs, so only the release pipeline (via workflow_call) can release.
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Release version (vYYYY-MM-DD-sha8), shared with the LexBox release'
+        type: string
+        required: true
+      semver-version:
+        description: 'Release semver version (YYYY.M.D)'
+        type: string
+        required: true
+      release:
+        description: 'Sign and publish the GitHub and Play Store release'
+        type: boolean
+        default: false
   push:
     paths:
       - 'backend/FwLite/**'
@@ -14,7 +30,6 @@ on:
       - 'global.json'
     branches:
       - develop
-      - main
   pull_request:
     paths:
       - 'backend/FwLite/**'
@@ -28,10 +43,9 @@ on:
       - 'global.json'
     branches:
       - develop
-      - main
       - feat/sync-morph-types #just for now ensure PRs to this branch have checks run
 
-# Only cancel superseded PR runs; never cancel release builds triggered by a push.
+# Only cancel superseded PR runs; never cancel develop or release builds.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -51,9 +65,14 @@ jobs:
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
       semver-version: ${{ steps.setVersion.outputs.SEMVER_VERSION }}
+      app-version: ${{ steps.setVersion.outputs.APP_VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # full commit history (no file contents) for the app version's commit count
+          fetch-depth: 0
+          filter: tree:0
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.x'
@@ -72,11 +91,23 @@ jobs:
       - name: Set Version
         id: setVersion
         shell: bash
-        # set version to date in vYYYY-MM-DD-commitSha format, and semver version to YYYY.MM.DD
+        # Release runs pass the version in. Otherwise derive it from the commit's date (UTC), same as
+        # release-pipeline.yaml: version vYYYY-MM-DD-commitSha, semver version YYYY.M.D
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_SEMVER_VERSION: ${{ inputs.semver-version }}
         run: |
-          shortSha=$(echo ${{ github.sha }} | cut -c1-8)
-          echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
-          echo "SEMVER_VERSION=$(date +%Y.%-m.%-d)" >> ${GITHUB_OUTPUT}
+          if [ -n "$INPUT_VERSION" ] && [ -n "$INPUT_SEMVER_VERSION" ]; then
+            echo "VERSION=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
+            echo "SEMVER_VERSION=$INPUT_SEMVER_VERSION" >> "$GITHUB_OUTPUT"
+          else
+            shortSha=$(echo "$GITHUB_SHA" | cut -c1-8)
+            echo "VERSION=v$(TZ=UTC git show -s --format=%cd --date=format-local:%Y-%m-%d HEAD)-$shortSha" >> "$GITHUB_OUTPUT"
+            echo "SEMVER_VERSION=$(TZ=UTC git show -s --format=%cd --date=format-local:%Y.%-m.%-d HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+          # Android versionCode / Apple CFBundleVersion. Play rejects codes at or below ones it has accepted;
+          # before releases moved off main these were FieldWorks Lite run numbers (up to ~4300), hence the offset.
+          echo "APP_VERSION=$(( $(git rev-list --count HEAD) + 10000 ))" >> "$GITHUB_OUTPUT"
 
       - name: Dotnet build
         # FwLiteCore.slnf omits MAUI projects — those build and test on publish-win (Windows).
@@ -116,9 +147,10 @@ jobs:
 
   benchmark:
     name: Run FW Lite sync benchmarks
-    # Auto-runs post-merge on develop only — too slow and variance-prone to gate every PR (revisit
-    # if they get fast enough). Also runnable on demand via workflow_dispatch to baseline a branch.
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+    # Auto-runs post-merge on develop (the only push trigger) — too slow and variance-prone to gate every
+    # PR (revisit if they get fast enough). Also runnable on demand via workflow_dispatch to baseline a
+    # branch. Skipped in releases, which inherit the caller's workflow_dispatch event.
+    if: ${{ !inputs.release && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
     # Benchmarks take tens of minutes; 60 leaves headroom for hosted-runner variance.
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -324,7 +356,7 @@ jobs:
         run: |
           dotnet build -f net10.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       # Fork PRs have no signing secret: build unsigned so the job stays a compile check.
@@ -334,7 +366,7 @@ jobs:
         run: |
           dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       - name: Import Developer ID signing certificate
@@ -381,7 +413,7 @@ jobs:
             -p:CodesignKey="$CODESIGN_IDENTITY" \
             -p:CodesignEntitlements=Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       - name: Package, notarize and staple the DMG
@@ -524,8 +556,8 @@ jobs:
       - name: Publish Linux
         working-directory: backend/FwLite/FwLiteWeb
         run: |
-            dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
-            dotnet publish -r linux-arm64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
+            dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+            dotnet publish -r linux-arm64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
       - name: Test Linux executable
         working-directory: backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64
@@ -590,7 +622,7 @@ jobs:
         run: |
           dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
             -p:AndroidKeyStore=true \
             -p:AndroidSigningKeyStore=${KEYSTORE_PATH} \
@@ -607,7 +639,7 @@ jobs:
           echo "::warning::Signing key unavailable (likely a fork PR); building an unsigned Android APK."
           dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
-            -p:ApplicationVersion=${{ github.run_number }} \
+            -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
             -p:AndroidKeyStore=false
 
@@ -692,7 +724,7 @@ jobs:
           MakeAppx.exe bundle /v /bv ${{ needs.build-and-test.outputs.semver-version }}.1 /d . /p ../sign/FwLiteMaui.msixbundle
 
       - name: Sign with Trusted Signing
-        if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' }}
+        if: ${{ github.event_name == 'push' || inputs.release }}
         uses: sillsdev/codesign/trusted-signing-action@0485c27c94116d62f80febc468cc1979ed7245de # v3.2.0
         with:
           credentials: ${{ secrets.TRUSTED_SIGNING_CREDENTIALS }}
@@ -700,7 +732,7 @@ jobs:
           files-folder-filter: msixbundle,exe
           files-folder-recurse: true
           files-folder-depth: 4
-          description:  'Release for version ${{ needs.build-and-test.outputs.version }} from branch ${{ github.ref_name || github.head_ref }}'
+          description:  'Release for version ${{ needs.build-and-test.outputs.version }}'
           description-url: 'https://github.com/sillsdev/languageforge-lexbox'
 
       - name: Launch the portable app and wait for the viewer to load
@@ -739,7 +771,7 @@ jobs:
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
   create-release:
-    if: ${{ github.ref_name == 'main' }}
+    if: ${{ inputs.release }}
     environment:
       name: production
       url: https://lexbox.org/fw-lite
@@ -753,6 +785,10 @@ jobs:
       HAS_PLAY_SERVICE_ACCOUNT: ${{ secrets.FW_LITE_PLAY_SERVICE_ACCOUNT_JSON != '' }}
 
     steps:
+      # Checkout wipes a non-git workspace, so it goes before the downloads.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: fw-lite-msix
@@ -783,9 +819,6 @@ jobs:
         run: |
           mv fw-lite-msix/FwLiteMaui.msixbundle fw-lite-msix/FieldWorksLiteInstaller.msixbundle
 
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
       - name: Generate release notes
         id: notes
         uses: ./.github/actions/release-notes
@@ -798,6 +831,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
+          fail_on_unmatched_files: true
           tag_name: ${{ needs.build-and-test.outputs.version }}
           target_commitish: ${{ github.sha }}
           body_path: ${{ steps.notes.outputs.notes-file }}

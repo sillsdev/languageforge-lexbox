@@ -1,6 +1,7 @@
 <script lang="ts">
   import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
   import {useMiniLcmApi} from '$lib/services/service-provider';
+  import {useProjectEventBus} from '$lib/services/event-bus';
   import {useProjectContext} from '$project/project-context.svelte';
   import {cn, randomId} from '$lib/utils';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
@@ -30,6 +31,7 @@
   } = $props();
 
   const api = useMiniLcmApi();
+  const projectEventBus = useProjectEventBus();
   const projectContext = useProjectContext();
   const currentUserId = $derived(projectContext.projectData?.lastUserId);
   const canComment = $derived(Boolean(currentUserId) && !!projectContext.features.write);
@@ -41,11 +43,23 @@
   const expandedThreadIds = new SvelteSet<string>();
   let mobileThreadId = $state<string | null>(null);
 
+  // Track shown ids so only new arrivals animate, and only once: remounts (mobile detail view, expand) must
+  // not replay it. Threads are keyed with their status so a resolve or reopen animates in its new section.
+  let shownIds = new SvelteSet<string>();
+  let arrivals = $state(new Set<string>());
+
   const threadsResource = resource(
     [() => open, () => subjectType, () => subjectId],
-    async ([isOpen, targetSubjectType, targetSubjectId]): Promise<ThreadView[]> => {
+    async ([isOpen, targetSubjectType, targetSubjectId], _prev, {refetching}): Promise<ThreadView[]> => {
       if (!isOpen) return [];
       const threads = await api.getCommentThreads(targetSubjectType, targetSubjectId, true);
+      const ids = threads.flatMap((t) => [`${t.id}:${t.status}`, ...(t.comments ?? []).map((c) => c.id)]);
+      if (refetching) {
+        arrivals = new Set([...arrivals, ...ids.filter((id) => !shownIds.has(id))]);
+        // just past the 1.2s flash-highlight in app.css, so the class comes off and can't replay
+        setTimeout(() => (arrivals = new Set()), 1300);
+      }
+      shownIds = new SvelteSet(ids);
       return threads.map((thread) => ({thread, comments: thread.comments ?? []}));
     },
     {initialValue: [] satisfies ThreadView[]},
@@ -91,6 +105,14 @@
       syncLocalUnreadFromSource();
     }
   }
+
+  // Live updates: a comment arriving via sync (or any comment change) while the panel is open should
+  // refresh the visible threads and unread markers, the same way the entry list reacts to entry changes.
+  projectEventBus.onCommentsChanged(() => {
+    if (!open) return;
+    void threadsResource.refetch();
+    void refetchUnreadIfNeeded();
+  });
 
   async function onThreadOpen(threadId: string): Promise<void> {
     if (!unreadThreadIds.has(threadId)) return;
@@ -247,6 +269,7 @@
     {editingCommentId}
     {currentUserId}
     {unreadThreadIds}
+    {arrivals}
     onClose={() => onOpenChange(false)}
     onStartThread={startThread}
     onReply={replyToThread}

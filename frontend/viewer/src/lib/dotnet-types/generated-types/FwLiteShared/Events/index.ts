@@ -3,6 +3,7 @@ export * from './FwEventType';
 export * from './IAppUpdateEvent';
 export * from './IAppUpdateProgressEvent';
 export * from './IAuthenticationChangedEvent';
+export * from './ICommentsChangedEvent';
 export * from './IEntriesChangedEvent';
 export * from './IFwEvent';
 export * from './IJsEventListener';

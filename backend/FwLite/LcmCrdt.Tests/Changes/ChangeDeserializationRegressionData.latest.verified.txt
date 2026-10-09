@@ -1771,19 +1771,6 @@
     "EntityId": "83854dd5-2b69-bbd8-8172-181036df378f"
   },
   {
-    "$type": "CreateWritingSystemChange",
-    "WsId": "zms",
-    "Name": "quantify",
-    "Abbreviation": "Ergonomic",
-    "Font": "software",
-    "Exemplars": [
-      "Berkshire"
-    ],
-    "Type": 1,
-    "Order": 0.7988004089201804,
-    "EntityId": "0fccfaaa-1e55-f6fb-966f-5c1e6caedf45"
-  },
-  {
     "$type": "AddComplexFormTypeChange",
     "ComplexFormType": {
       "Id": "d5f54e9f-65cf-360b-3955-071cd3910f4e",
@@ -2403,5 +2390,20 @@
     "SenseId": "7a5a8e98-b078-b380-c682-9765cf435468",
     "Order": 0.3296040037939726,
     "EntityId": "085ee084-3965-d19c-2413-5d4de7b0ad5b"
+  },
+  {
+    "$type": "CreateWritingSystemChange",
+    "WsId": "jow",
+    "Name": "Incredible Rubber Mouse",
+    "Abbreviation": "payment",
+    "Font": "matrix",
+    "Exemplars": [
+      "web services"
+    ],
+    "IcuCollationRules": "fuchsia",
+    "SystemCollationLocale": "application",
+    "Type": 1,
+    "Order": 0.26752684125181847,
+    "EntityId": "ff400435-e634-d4fe-8ef0-7db95241cced"
   }
 ]

@@ -4,6 +4,7 @@ using FwLiteShared;
 using FwLiteShared.Auth;
 using FwLiteShared.Services;
 using LcmCrdt;
+using LcmCrdt.Culture;
 using FwLiteWeb;
 using FwLiteWeb.Components;
 using FwLiteWeb.Routes;
@@ -67,6 +68,7 @@ public static class FwLiteWebServer
         configure?.Invoke(builder);
         var app = builder.Build();
         app.Logger.LogInformation("FwLite FwLiteWeb startup");
+        IcuInit.TryInitialize(app.Logger);
         EnsureDataDirectoriesExist(app);
 // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

@@ -10,6 +10,7 @@ declare global {
       demoApi: IMiniLcmJsInvokable;
       /** Toggle demo write feature and refetch project features. */
       setWrite: (write: boolean) => Promise<void>;
+      setHasHardwareKeyboard: (value: boolean) => void;
       /** Create a custom view and refresh the app's list of views. */
       addCustomView: (customView: ICustomView) => Promise<ICustomView>;
     };

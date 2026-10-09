@@ -33,7 +33,7 @@ public class WritingSystemTests(ProjectLoaderFixture fixture) : WritingSystemTes
             Font = "Arial"
         });
         // the input Font is intentionally dropped (see FwDataMiniLcmApi.CreateWritingSystem);
-        // "Charis SIL" is liblcm's default for a fresh writing system
+        // "Charis SIL" is liblcm's fallback for a fresh writing system with no <lang>.ldml template
         ws.Font.Should().Be("Charis SIL");
     }
 }

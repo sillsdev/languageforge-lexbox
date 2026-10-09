@@ -39,14 +39,37 @@ tasks:
   test:
     cmd: pnpm test
   test-unit:
-    cmd: pnpm test --project unit
+    desc: 'Vitest unit project only (jsdom; no browser, storybook or launcher projects).'
+    cmd: pnpm run test:unit --run {{.CLI_ARGS}}
+
+  verify:
+    silent: true
+    desc: 'Pre-done gate for the viewer: svelte-check, eslint, vitest unit, i18n extract drift. Stops at the first failure (~4 min).'
+    deps: [ install ]
+    cmds:
+      - pnpm run check
+      - echo "verify(viewer) svelte-check OK"
+      - pnpm run lint
+      - echo "verify(viewer) eslint OK"
+      - task: test-unit
+      - echo "verify(viewer) vitest unit OK"
+      # Same check as CI (fw-lite.yaml): en.po must not change when strings are re-extracted.
+      # Compares before/after hashes, so an extract you have already run but not committed still passes.
+      - |
+        before=$(git hash-object src/locales/en.po)
+        pnpm i18n:extract
+        if [ "$(git hash-object src/locales/en.po)" != "$before" ]; then
+          echo "verify(viewer) i18n FAILED: pnpm i18n:extract changed src/locales/en.po; review and commit src/locales"
+          exit 1
+        fi
+        echo "verify(viewer) i18n extract OK"
 
   test:ui:
     desc: 'runs UI tests against already running server'
     cmd: pnpm run test:ui {{.CLI_ARGS}}
   test:ui-standalone:
     aliases: [pts]
-    desc: 'runs UI tests and runs dev automatically; --ui for playwright UI mode, --update-snapshots to refresh visual baselines'
+    desc: 'UI tests with an auto-started dev server (port 5173, or FwLite__DevAssetsPort). Filter: `-- sort.test.ts --project=chromium`; `--ui` for UI mode, `--update-snapshots` to refresh visual baselines'
     env:
       AUTO_START_SERVER: true
     cmd: pnpm run test:ui {{.CLI_ARGS}}

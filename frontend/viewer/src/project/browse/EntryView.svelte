@@ -16,7 +16,7 @@
   import {copy, EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {createEntryOptions} from '$lib/create-entry-options';
   import {useProjectEventBus} from '$lib/services/event-bus';
-  import {FocusMightOpenKeyboard} from '$lib/hooks/focus-might-open-keyboard.svelte';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import {useFeatures} from '$lib/services/feature-service';
   import type {ReadonlyDeep} from 'type-fest';
@@ -37,6 +37,7 @@
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const features = useFeatures();
+  const platform = usePlatformFeaturesService();
   const viewService = useViewService();
   const dictionaryPreviewStorage = useProjectStorage().dictionaryPreview;
   let {
@@ -138,6 +139,11 @@
     },
   );
 
+  // Keep this entry's unread indicator live when comments arrive via sync
+  eventBus.onCommentsChanged(() => {
+    if (features.comments) void entryUnreadResource.refetch();
+  });
+
   // Entry and comments share the space instead of the comments floating over the entry:
   // side by side once there's room, stacked below xl.
   const commentsDirection = $derived(IsExtraLarge.value ? 'horizontal' : 'vertical');
@@ -148,9 +154,9 @@
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
   let editorRef: HTMLElement | null = $state(null);
-  watch([() => [loadedEntryId, entryScrollViewportRef, editorRef]], () => {
+  watch([() => [loadedEntryId, entryScrollViewportRef, editorRef, platform.features.hasHardwareKeyboard]], () => {
     entryScrollViewportRef?.scrollTo({ top: 0, left: 0 });
-    if (!FocusMightOpenKeyboard.value) findFirstTabbable(editorRef)?.focus();
+    if (platform.features.hasHardwareKeyboard) findFirstTabbable(editorRef)?.focus();
   });
 </script>
 

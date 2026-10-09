@@ -12,6 +12,11 @@ public class WritingSystemValidator : AbstractValidator<WritingSystem>
         RuleFor(ws => ws.DeletedAt).Null();
         RuleFor(ws => ws.Name).NotNull().NotEmpty().WithMessage((s) => $"Name is required ({s.WsId} - {s.Id})");
         RuleFor(ws => ws.WsId).Must(BeValidWsId).WithMessage(ws => $"Invalid writing system id: {ws.WsId}");
+        // FLEx stores a single DefaultCollation, so an import only ever sets one of these
+        RuleFor(ws => ws.SystemCollationLocale)
+            .Empty()
+            .When(ws => !string.IsNullOrEmpty(ws.IcuCollationRules))
+            .WithMessage(ws => $"A writing system can't have both custom collation rules and a system collation locale ({ws.WsId})");
     }
 
     private bool BeValidWsId(WritingSystemId wsId)
