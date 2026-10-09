@@ -7,6 +7,7 @@
   import type {WithoutChildrenOrChild} from 'bits-ui';
   import type {Snippet} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
+  import {useViewService} from '$lib/views/view-service.svelte';
 
   interface Props extends WithoutChildrenOrChild<ListItemProps> {
     entry?: IEntry;
@@ -27,7 +28,8 @@
 
   const writingSystemService = useWritingSystemService();
   const partOfSpeechService = usePartsOfSpeech();
-  const sensePreview = $derived(writingSystemService.firstDefOrGlossVal(entry?.senses?.[0]));
+  const viewService = useViewService();
+  const sensePreview = $derived(writingSystemService.viewFirstDefOrGlossVal(entry?.senses?.[0], viewService.currentView));
   const partOfSpeech = $derived(entry?.senses?.[0]?.partOfSpeech);
 
   // Generate random widths for skeleton UI elements
@@ -43,6 +45,10 @@
 
   // Calculate animation delay based on index (staggered effect)
   const animationDelay = `${(Math.random() * 5) * 0.15}s`;
+
+  const defaultWs = $derived(sortWs
+    ?? writingSystemService.viewVernacularNoAudio(viewService.currentView)[0]?.wsId
+    ?? '');
 </script>
 
 <ListItem bind:ref {...rest}>
@@ -55,8 +61,16 @@
   {:else if previewDictionary}
     <DictionaryEntry {entry}/>
   {:else}
+    <!-- Show the WS abbreviation if the headword we display does not match what the user is expecting -->
+    {@const best = writingSystemService.viewBestHeadwordIn(entry, viewService.currentView, defaultWs)}
+    {@const fallbackWs = best && best.ws.wsId !== defaultWs ? best.ws : undefined}
     <h2 class="font-medium text-2xl flex min-w-0 justify-between items-center gap-2">
-      <span class="min-w-0 wrap-break-word">{writingSystemService.bestHeadword(entry, sortWs) || $t`Untitled`}</span>
+      <span class="min-w-0 wrap-break-word">
+        {#if fallbackWs}
+          <span class="-mr-1 relative -bottom-px text-xs font-normal text-foreground/80" title={fallbackWs.name}>{fallbackWs.abbreviation || fallbackWs.wsId}</span>
+        {/if}
+        {best?.value || $t`Untitled`}
+      </span>
       {@render badge?.()}
     </h2>
     {#if entry.senses.length}

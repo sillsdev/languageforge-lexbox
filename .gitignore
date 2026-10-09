@@ -24,6 +24,7 @@ msal.cache
 artifacts/
 .vs/
 project-cache.json
+preferences.json
 localResourcesCache/
 
 #Verify

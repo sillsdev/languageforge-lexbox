@@ -6,6 +6,7 @@
   import {cn} from '$lib/utils';
   import type {Snippet} from 'svelte';
   import Headwords from './Headwords.svelte';
+  import {useViewService} from '$lib/views/view-service.svelte';
   let {
     entry,
     showLinks = false,
@@ -16,6 +17,7 @@
     highlightSenseId = undefined,
     hideExamples = false,
     inline = false,
+    respectView = true,
     ...restProps
   }: HTMLAttributes<HTMLDivElement> & {
     entry: IEntry;
@@ -27,6 +29,8 @@
     hideExamples?: boolean;
     /** Render senses as one flowing line (no line break per sense) — for compact previews */
     inline?: boolean;
+    /** false shows every writing system, not just the current view's */
+    respectView?: boolean;
   } = $props();
 
   $effect(() => {
@@ -34,6 +38,13 @@
   });
 
   const wsService = useWritingSystemService();
+  const viewService = useViewService();
+  const vernacularWs = $derived(
+    respectView ? wsService.viewVernacularNoAudio(viewService.currentView) : wsService.vernacularNoAudio,
+  );
+  const analysisWs = $derived(
+    (respectView ? wsService.viewAnalysis(viewService.currentView) : wsService.analysis).filter((ws) => !ws.isAudio),
+  );
 
   let senses = $derived(entry.senses.map(getRenderedContent));
 
@@ -47,8 +58,7 @@
     return {
       id: sense.id,
       partOfSpeech: partsOfSpeech.current.find((pos) => pos.id === sense.partOfSpeechId)?.label,
-      glossesAndDefs: wsService.analysis
-        .filter((ws) => !ws.isAudio)
+      glossesAndDefs: analysisWs
         .map((ws) => ({
           wsId: ws.wsId,
           wsAbbr: ws.abbreviation,
@@ -60,18 +70,14 @@
       exampleSentences: sense.exampleSentences.map((example) => ({
         id: example.id,
         sentences: [
-          ...wsService.vernacular
-            .filter((ws) => !ws.isAudio)
-            .map((ws) => ({
-              text: asString(example.sentence[ws.wsId]),
-              color: wsService.wsColor(ws.wsId, 'vernacular'),
-            })),
-          ...wsService.analysis
-            .filter((ws) => !ws.isAudio)
-            .map((ws) => ({
-              text: asString(example.translations[0]?.text?.[ws.wsId]),
-              color: wsService.wsColor(ws.wsId, 'analysis'),
-            })),
+          ...vernacularWs.map((ws) => ({
+            text: asString(example.sentence[ws.wsId]),
+            color: wsService.wsColor(ws.wsId, 'vernacular'),
+          })),
+          ...analysisWs.map((ws) => ({
+            text: asString(example.translations[0]?.text?.[ws.wsId]),
+            color: wsService.wsColor(ws.wsId, 'analysis'),
+          })),
         ].filter(({text}) => !!text),
       })),
     };
@@ -104,7 +110,7 @@
   <div class="float-right group-not-[&:hover]/container:invisible relative -top-1">
     {@render actions?.()}
   </div>
-  <Headwords {entry} class={cn('mr-1', headwordClass)} />
+  <Headwords {entry} {respectView} class={cn('mr-1', headwordClass)} />
   {#each senses as sense, i (sense.id)}
     {#if senses.length > 1}
       {#if inline}

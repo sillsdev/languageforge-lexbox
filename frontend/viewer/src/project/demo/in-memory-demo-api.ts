@@ -48,6 +48,7 @@ import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-b
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import {initProjectStorage} from '$lib/storage';
 import {MorphTypesService} from '$project/data/morph-types.svelte';
+import {useCustomViewService} from '$project/data/custom-view-service.svelte';
 import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
 import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
 import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
@@ -131,6 +132,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     });
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
+    const customViewService = useCustomViewService();
     window.__PLAYWRIGHT_UTILS__ = {
       demoApi: inMemoryLexboxApi,
       async setWrite(write: boolean) {
@@ -141,6 +143,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         hasHardwareKeyboard = value;
         refreshPlatformFeatures();
       },
+      addCustomView: (customView: ICustomView) => customViewService.add(customView),
     };
 
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {

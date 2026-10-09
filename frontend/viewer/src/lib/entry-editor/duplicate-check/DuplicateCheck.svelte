@@ -127,7 +127,7 @@
   });
   const hasExactWordMatch = $derived(!!matches?.some((match) => match.kind === 'same-word'));
   const previewHeadwords = $derived(
-    [...new Set((matches ?? []).map((match) => writingSystemService.headword(match.entry)).filter(Boolean))].join(', '),
+    [...new Set((matches ?? []).map((match) => writingSystemService.firstHeadword(match.entry)).filter(Boolean))].join(', '),
   );
   const summaryMessage = $derived.by(() => {
     if (hasExactWordMatch)
@@ -263,7 +263,8 @@
                   onclick={() => (expandedEntryId = isExpanded ? undefined : match.entry.id)}
                 >
                   <div class="grow min-w-0 text-sm {isExpanded ? '' : 'line-clamp-1'}">
-                    <DictionaryEntry entry={match.entry} inline={!isExpanded} hideExamples={!isExpanded} />
+                    <!-- Matches are found across all writing systems, so hiding any could hide the evidence -->
+                    <DictionaryEntry entry={match.entry} inline={!isExpanded} hideExamples={!isExpanded} respectView={false} />
                   </div>
                   <Badge
                     variant="outline"
