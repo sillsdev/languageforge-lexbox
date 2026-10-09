@@ -17,6 +17,7 @@
     highlightSenseId = undefined,
     hideExamples = false,
     inline = false,
+    respectView = true,
     ...restProps
   }: HTMLAttributes<HTMLDivElement> & {
     entry: IEntry;
@@ -28,6 +29,8 @@
     hideExamples?: boolean;
     /** Render senses as one flowing line (no line break per sense) — for compact previews */
     inline?: boolean;
+    /** false shows every writing system, not just the current view's */
+    respectView?: boolean;
   } = $props();
 
   $effect(() => {
@@ -36,8 +39,12 @@
 
   const wsService = useWritingSystemService();
   const viewService = useViewService();
-  const vernacularWs = $derived(wsService.viewVernacularNoAudio(viewService.currentView));
-  const analysisWs = $derived(wsService.viewAnalysis(viewService.currentView).filter((ws) => !ws.isAudio));
+  const vernacularWs = $derived(
+    respectView ? wsService.viewVernacularNoAudio(viewService.currentView) : wsService.vernacularNoAudio,
+  );
+  const analysisWs = $derived(
+    (respectView ? wsService.viewAnalysis(viewService.currentView) : wsService.analysis).filter((ws) => !ws.isAudio),
+  );
 
   let senses = $derived(entry.senses.map(getRenderedContent));
 
@@ -103,7 +110,7 @@
   <div class="float-right group-not-[&:hover]/container:invisible relative -top-1">
     {@render actions?.()}
   </div>
-  <Headwords {entry} class={cn('mr-1', headwordClass)} />
+  <Headwords {entry} {respectView} class={cn('mr-1', headwordClass)} />
   {#each senses as sense, i (sense.id)}
     {#if senses.length > 1}
       {#if inline}

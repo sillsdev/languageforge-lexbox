@@ -87,6 +87,36 @@ test.describe('Sort by writing system', () => {
     await expect(wsTrigger()).toHaveCount(0);
   });
 
+  test('a headword from outside the view is labelled with its writing system in the simple list', async () => {
+    const {page} = projectPage;
+
+    await projectPage.api.createEntryWithForms({seh: 'qtxseh'});
+    await projectPage.entriesList.filterByText('qtx');
+    const row = projectPage.entriesList.entryRows.filter({hasNotText: 'Add to dictionary'});
+
+    await page.evaluate((base) => window.__PLAYWRIGHT_UTILS__.addCustomView({
+      id: crypto.randomUUID(),
+      name: 'Chichewa only',
+      base,
+      entryFields: [{fieldId: 'lexemeForm'}],
+      senseFields: [{fieldId: 'gloss'}],
+      exampleFields: [{fieldId: 'sentence'}],
+      vernacular: [{wsId: 'ny'}],
+    }), ViewBase.FwLite);
+    await page.getByRole('button').filter({has: page.locator('.i-mdi-layers')}).click();
+    await page.getByRole('radio', {name: 'Chichewa only (Lite)'}).click();
+    await page.keyboard.press('Escape');
+
+    // Simple mode: the Sena form stands in for the missing Chichewa one, tagged "Sen".
+    await expect(row.locator('h2')).toHaveText(/^Sen\s*qtxseh\s*$/);
+
+    // Preview mode: the form is shown untagged; its writing-system colour says which it is.
+    await page.getByRole('button').filter({has: page.locator('.i-mdi-layers')}).click();
+    await page.getByRole('tab', {name: 'Preview'}).click();
+    await page.keyboard.press('Escape');
+    await expect(row.locator('strong')).toHaveText('qtxseh');
+  });
+
   test('a view with only audio vernaculars falls back to every text vernacular', async () => {
     const {page} = projectPage;
 

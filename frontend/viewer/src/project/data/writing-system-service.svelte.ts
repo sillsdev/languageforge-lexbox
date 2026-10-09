@@ -97,7 +97,11 @@ export class WritingSystemService {
     return this.filterWs(this.vernacular, view?.vernacular);
   }
 
-  /** The view's non-audio vernacular writing systems, or all of them if the view only shows audio ones. */
+  /**
+   * The view's non-audio vernacular writing systems, or all of them if the view only shows audio ones.
+   * We currently only have fallback like this for vernacular, because headwords are the primary identifier in a lexicon,
+   * so it can be highly disorienting if none is displayed
+   * */
   viewVernacularNoAudio(view: View): IWritingSystem[] {
     const writingSystems = this.viewVernacular(view).filter(ws => !ws.isAudio);
     return writingSystems.length ? writingSystems : this.vernacularNoAudio;
@@ -138,21 +142,31 @@ export class WritingSystemService {
     return this.defaultVernacular?.exemplars;
   }
 
-  headword(entry: ReadonlyDeep<IEntry>, ws?: string): string {
-    if (ws) {
-      return this.#decorated(entry, ws) || '';
-    }
+  headword(entry: ReadonlyDeep<IEntry>, ws: string): string {
+    return this.#decorated(entry, ws) || '';
+  }
+
+  firstHeadword(entry: ReadonlyDeep<IEntry>): string {
     return firstTruthy(this.vernacularNoAudio, ws => this.#decorated(entry, ws.wsId)) || '';
   }
 
   /**
-   * Headword to show in the entry list when sorting by writing system `ws`. Prefers `ws` so the
-   * shown headword matches the sort key, but falls back to the first available vernacular value
-   * (like {@link headword}) so rows aren't left blank when an entry has no form in `ws`.
+   * Like {@link firstHeadword}, but prefers the view's vernaculars over the rest, so the simple list
+   * and the dictionary preview agree on which headword an entry shows.
    */
-  bestHeadword(entry: ReadonlyDeep<IEntry>, ws?: string): string {
-    if (!ws) return this.headword(entry);
-    return this.#decorated(entry, ws) || this.headword(entry);
+  viewBestHeadword(entry: ReadonlyDeep<IEntry>, view: View, ws?: string): string {
+    return this.viewBestHeadwordIn(entry, view, ws)?.value ?? '';
+  }
+
+  /** {@link viewBestHeadword} plus the writing system the headword came from, so a fallback can be labelled. */
+  viewBestHeadwordIn(entry: ReadonlyDeep<IEntry>, view: View, wsId?: string): {ws: IWritingSystem, value: string} | undefined {
+    const viewWs = this.viewVernacularNoAudio(view);
+    const preferred = wsId ? this.getWritingSystem(wsId, 'vernacular') : viewWs[0];
+    const candidates = [...(preferred ? [preferred] : []), ...viewWs, ...this.vernacularNoAudio];
+    return firstTruthy(candidates, ws => {
+      const value = this.headword(entry, ws.wsId);
+      return value ? {ws, value} : undefined;
+    });
   }
 
   #decorated(entry: ReadonlyDeep<IEntry>, ws: string): string | undefined {
@@ -203,6 +217,15 @@ export class WritingSystemService {
   firstDefOrGlossVal(sense: ISense | undefined): string {
     if (!sense) return '';
     return this.first(sense.definition, this.analysis) || this.first(sense.gloss, this.analysis) || '';
+  }
+
+  /** Like {@link firstDefOrGlossVal}, but prefers the view's analysis writing systems. */
+  viewFirstDefOrGlossVal(sense: ISense | undefined, view: View): string {
+    if (!sense) return '';
+    const viewAnalysis = this.viewAnalysis(view).filter(ws => !ws.isAudio);
+    return this.first(sense.definition, viewAnalysis)
+      || this.first(sense.gloss, viewAnalysis)
+      || this.firstDefOrGlossVal(sense);
   }
 
   firstSentenceOrTranslationVal(example: IExampleSentence | undefined): string {

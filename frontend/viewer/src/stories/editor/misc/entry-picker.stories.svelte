@@ -44,7 +44,7 @@
   <div>
     {#each selectedEntryHistory as selected (selected.entry.id)}
       <p>
-        Entry: {writingSystemService?.headword(selected.entry)}
+        Entry: {writingSystemService?.firstHeadword(selected.entry)}
         {#if selected.sense}
           Sense: {writingSystemService?.firstGloss(selected.sense)}
         {/if}

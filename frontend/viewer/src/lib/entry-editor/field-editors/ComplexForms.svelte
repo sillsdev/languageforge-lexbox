@@ -31,9 +31,9 @@
     const complexForm: IComplexFormComponent = {
       id: randomId(),
       complexFormEntryId: selection.entry.id,
-      complexFormHeadword: writingSystemService.headword(selection.entry),
+      complexFormHeadword: writingSystemService.firstHeadword(selection.entry),
       componentEntryId: entry.id,
-      componentHeadword: writingSystemService.headword(entry),
+      componentHeadword: writingSystemService.firstHeadword(entry),
     };
     value = [...value, complexForm];
     onchange?.(value);
