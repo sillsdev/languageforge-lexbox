@@ -10,6 +10,14 @@
         <true/>
         <key>com.apple.security.network.client</key>
         <true/>
+        <!-- Keep these in step with Entitlements.plist: the same keys gate the camera, microphone and
+             open-panel file access under both the app sandbox and the hardened runtime. -->
+        <key>com.apple.security.device.camera</key>
+        <true/>
+        <key>com.apple.security.device.audio-input</key>
+        <true/>
+        <key>com.apple.security.files.user-selected.read-only</key>
+        <true/>
         <!-- The .NET runtime / Mono interpreter maps executable memory; the hardened runtime blocks
              that unless these are granted. -->
         <key>com.apple.security.cs.allow-jit</key>

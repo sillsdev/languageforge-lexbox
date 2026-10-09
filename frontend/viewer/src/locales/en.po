@@ -2202,6 +2202,10 @@ msgstr "Record Display as"
 msgid "Record Word or Display as"
 msgstr "Record Word or Display as"
 
+#: src/lib/components/audio/audio-provider.svelte
+msgid "Recording isn't available on this device."
+msgstr "Recording isn't available on this device."
+
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
