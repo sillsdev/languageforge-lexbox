@@ -38,9 +38,7 @@
 
   // Generate random values when component is created
   const headwordWidth = randomWidth(20, 50);
-  const definitionWidth = randomWidth(40, 80);
-  // Real badges size to their label, not the row
-  const badgeWidth = `${(2.75 + Math.random() * 1.75).toFixed(2)}rem`;
+  const definitionWidth = randomWidth(10, 70);
 
   // Calculate animation delay based on index (staggered effect)
   const animationDelay = `${(Math.random() * 5) * 0.15}s`;
@@ -53,7 +51,7 @@
     </div>
     <div class="flex justify-between items-end gap-2">
       <div class="h-4 my-0.5 motion-safe:animate-pulse bg-muted-foreground/20 rounded" style="width: {definitionWidth}; animation-delay: {animationDelay}"></div>
-      <div class="h-5.5 shrink-0 motion-safe:animate-pulse bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}; animation-delay: {animationDelay}"></div>
+      <div class="h-5.5 w-12 shrink-0 motion-safe:animate-pulse bg-muted-foreground/20 rounded-full" style="animation-delay: {animationDelay}"></div>
     </div>
   {:else if previewDictionary}
     <DictionaryEntry {entry}/>
