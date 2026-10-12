@@ -5,18 +5,20 @@
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$project/data';
   import {Button, buttonVariants} from '$lib/components/ui/button';
+  import {useViewService} from '$lib/views/view-service.svelte';
 
   type Props = {
-    /** Selected writing system id to sort/display by. Undefined = the default vernacular. */
+    /** Selected writing system id to sort/display by. Undefined = the current view's first vernacular. */
     value?: string;
   };
 
   let {value = $bindable()}: Props = $props();
 
   const writingSystemService = useWritingSystemService();
-  // Vernacular writing systems, excluding audio — the ones a headword can sort by.
-  const writingSystems = $derived(writingSystemService.vernacularNoAudio);
-  const selectedWsId = $derived(value ?? writingSystemService.defaultVernacular?.wsId);
+  const viewService = useViewService();
+  // The current view's vernacular writing systems, excluding audio — the ones a headword can sort by.
+  const writingSystems = $derived(writingSystemService.viewVernacularNoAudio(viewService.currentView));
+  const selectedWsId = $derived(value ?? writingSystems[0]?.wsId);
   const selectedWs = $derived(writingSystems.find(ws => ws.wsId === selectedWsId));
 </script>
 
