@@ -16,7 +16,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using MiniLcm.Project;
+using System.Globalization;
+using System.Net.Sockets;
 using Polly;
+using Polly.Simmy.Fault;
 using Polly.Simmy;
 using SIL.Harmony;
 
@@ -28,6 +31,8 @@ public static class FwLiteSharedKernel
     {
         services.AddMemoryCache();
         services.AddHttpClient();
+        var lexboxClientBuilder = services.AddHttpClient(UpdateChecker.HttpClientName);
+        if (ChaosEnabled(environment)) ConfigureHttpClientChaos(lexboxClientBuilder);
         services.AddHttpClient(MixpanelClient.HttpClientName, client =>
         {
             client.Timeout = TimeSpan.FromSeconds(10);
@@ -98,12 +103,9 @@ public static class FwLiteSharedKernel
         services.AddTransient<HttpClientRefreshDelegate>();
         var httpClientBuilder = services.AddHttpClient(OAuthClient.AuthHttpClientName);
         httpClientBuilder.AddHttpMessageHandler<HttpClientRefreshDelegate>();
+        if (ChaosEnabled(environment)) ConfigureHttpClientChaos(httpClientBuilder);
         if (environment.IsDevelopment())
         {
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FW_LITE_CHAOS")))
-            {
-                ConfigureHttpClientChaos(httpClientBuilder);
-            }
             // Allow self-signed certificates in development
             httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
             {
@@ -116,14 +118,40 @@ public static class FwLiteSharedKernel
         }
     }
 
+    private static bool ChaosEnabled(IHostEnvironment environment)
+    {
+        return environment.IsDevelopment() &&
+               !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FW_LITE_CHAOS"));
+    }
+
+    /// <summary>
+    /// FW_LITE_CHAOS=true injects chaos into 30% of requests; a number between 0 and 1 (e.g. 1.0) sets the
+    /// rate directly, which makes a specific failure reproducible instead of a dice roll.
+    /// </summary>
+    private static double ChaosInjectionRate()
+    {
+        var value = Environment.GetEnvironmentVariable("FW_LITE_CHAOS");
+        return double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var rate)
+            ? Math.Clamp(rate, 0, 1)
+            : 0.3;
+    }
+
     private static void ConfigureHttpClientChaos(IHttpClientBuilder builder)
     {
         builder.AddResilienceHandler("chaos",
             pipelineBuilder =>
             {
-                const double injectionRate = 0.3;
+                var injectionRate = ChaosInjectionRate();
                 pipelineBuilder.AddChaosLatency(injectionRate, TimeSpan.FromSeconds(5))
-                    .AddChaosFault(injectionRate, () => new InvalidOperationException("Chaos injected fault"))
+                    .AddChaosFault(new ChaosFaultStrategyOptions
+                    {
+                        InjectionRate = injectionRate,
+                        FaultGenerator = new FaultGenerator()
+                            .AddException(() => new InvalidOperationException("Chaos injected fault"))
+                            //what SocketsHttpHandler throws when DNS is unreachable, e.g. while a VPN is still connecting
+                            .AddException(() => new HttpRequestException("No such host is known. (chaos)",
+                                new SocketException((int)SocketError.HostNotFound)))
+                    })
                     .AddChaosOutcome(new()
                     {
                         InjectionRate = injectionRate,
