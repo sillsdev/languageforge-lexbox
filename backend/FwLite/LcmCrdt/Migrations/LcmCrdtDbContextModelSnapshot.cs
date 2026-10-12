@@ -629,6 +629,9 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("IcuCollationRules")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -637,6 +640,9 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SystemCollationLocale")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")

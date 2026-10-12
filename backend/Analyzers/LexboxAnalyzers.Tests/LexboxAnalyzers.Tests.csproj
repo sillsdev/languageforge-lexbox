@@ -11,6 +11,9 @@
          analyzer, which (under CentralPackageTransitivePinningEnabled) would otherwise collide
          repo-wide with the newer Roslyn pulled transitively by EF Core Design. -->
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <!-- NuGet ignores this once CPM is off, but C# Dev Kit doesn't and fails the load expecting
+         the repo-wide Humanizer.Core pin. -->
+    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
 
   <ItemGroup>

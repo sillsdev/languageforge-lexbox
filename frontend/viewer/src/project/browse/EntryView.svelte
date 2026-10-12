@@ -109,7 +109,7 @@
   let latestPersistedSnapshot = $state<ReadonlyDeep<IEntry>>();
   const entryPersistence = new EntryPersistence(() => latestPersistedSnapshot);
   let entry = $derived(entryResource.current ?? undefined);
-  const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
+  const headword = $derived((entry && writingSystemService.viewBestHeadword(entry, viewService.currentView)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
   const dictionaryPreview: DictionaryPreviewMode = $derived(
     isDictionaryPreviewMode(dictionaryPreviewStorage.current) ? dictionaryPreviewStorage.current : 'show'

@@ -62,6 +62,7 @@ public static class LcmCrdtKernel
 
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
+        services.AddSingleton<IWritingSystemCollatorProvider, WritingSystemCollatorProvider>();
         services.AddSingleton<ProjectImporter>();
         services.AddScoped<SnapshotAtCommitService>();
         services.AddSingleton<SetupCollationInterceptor>();
@@ -90,6 +91,13 @@ public static class LcmCrdtKernel
         services.AddScoped<CrdtMorphTypeApi>();
         services.AddScoped<CrdtPartsOfSpeechApi>();
         services.AddScoped<CrdtComplexFormTypesApi>();
+        services.AddScoped<CrdtEntryApi>();
+        services.AddScoped<CrdtSenseApi>();
+        services.AddScoped<CrdtExampleSentenceApi>();
+        services.AddScoped<CrdtPictureApi>();
+        services.AddScoped<CrdtMediaApi>();
+        services.AddScoped<CrdtCustomViewApi>();
+        services.AddScoped<CrdtCommentApi>();
 
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();

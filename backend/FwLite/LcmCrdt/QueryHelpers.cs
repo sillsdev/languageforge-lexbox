@@ -44,11 +44,11 @@ public static class QueryHelpers
         });
     }
 
-    public static IComparer<ComplexFormComponent> AsComplexFormComparer(this CompareInfo compareInfo)
+    public static IComparer<ComplexFormComponent> AsComplexFormComparer(this IComparer<string> headwordComparer)
     {
         return Comparer<ComplexFormComponent>.Create((a, b) =>
         {
-            var result = compareInfo.Compare(a.ComplexFormHeadword, b.ComplexFormHeadword, CompareOptions.IgnoreCase);
+            var result = headwordComparer.Compare(a.ComplexFormHeadword, b.ComplexFormHeadword);
             if (result != 0) return result;
             return a.ComplexFormEntryId.CompareTo(b.ComplexFormEntryId);
         });

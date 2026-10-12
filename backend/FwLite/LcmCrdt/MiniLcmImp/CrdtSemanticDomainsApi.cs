@@ -58,4 +58,14 @@ public class CrdtSemanticDomainsApi(MiniLcmRepositoryFactory repoFactory, Harmon
     {
         await harmonyChangeWriter.AddChanges(await semanticDomains.Select(sd => new CreateSemanticDomainChange(sd)).ToArrayAsync());
     }
+
+    public async Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        await harmonyChangeWriter.AddChange(new AddSemanticDomainChange(semanticDomain, senseId));
+    }
+
+    public async Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        await harmonyChangeWriter.AddChange(new RemoveSemanticDomainChange(semanticDomainId, senseId));
+    }
 }

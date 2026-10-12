@@ -138311,6 +138311,8 @@
         "DeletedAt": null,
         "Type": 1,
         "Exemplars": [],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 1
       },
       {
@@ -138324,6 +138326,8 @@
         "DeletedAt": null,
         "Type": 1,
         "Exemplars": [],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 2
       }
     ],
@@ -138366,6 +138370,8 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 1
       },
       {
@@ -138379,6 +138385,8 @@
         "DeletedAt": null,
         "Type": 0,
         "Exemplars": [],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 2
       }
     ]

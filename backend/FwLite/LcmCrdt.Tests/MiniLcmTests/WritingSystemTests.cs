@@ -53,4 +53,46 @@ public class WritingSystemTests : WritingSystemTestsBase
         });
         ws.Font.Should().Be("Arial");
     }
+
+    private async Task CreateWsWithRules()
+    {
+        await Api.CreateWritingSystem(new()
+        {
+            Id = Guid.NewGuid(),
+            Type = WritingSystemType.Vernacular,
+            WsId = "es",
+            Name = "Spanish",
+            Abbreviation = "Es",
+            Font = "Arial",
+            IcuCollationRules = "&z < a",
+        });
+    }
+
+    [Fact]
+    public async Task UpdateWritingSystem_PatchSettingLocaleWithoutClearingRules_Throws()
+    {
+        await CreateWsWithRules();
+
+        var act = () => Api.UpdateWritingSystem("es", WritingSystemType.Vernacular,
+            new UpdateObjectInput<WritingSystem>().Set(ws => ws.SystemCollationLocale, "sv"));
+
+        await act.Should().ThrowAsync<FluentValidation.ValidationException>();
+        var ws = await Api.GetWritingSystem("es", WritingSystemType.Vernacular);
+        ws!.SystemCollationLocale.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task UpdateWritingSystem_PatchSwitchingRulesToLocale_Works()
+    {
+        await CreateWsWithRules();
+
+        await Api.UpdateWritingSystem("es", WritingSystemType.Vernacular,
+            new UpdateObjectInput<WritingSystem>()
+                .Set(ws => ws.IcuCollationRules, null)
+                .Set(ws => ws.SystemCollationLocale, "sv"));
+
+        var ws = await Api.GetWritingSystem("es", WritingSystemType.Vernacular);
+        ws!.IcuCollationRules.Should().BeNull();
+        ws.SystemCollationLocale.Should().Be("sv");
+    }
 }

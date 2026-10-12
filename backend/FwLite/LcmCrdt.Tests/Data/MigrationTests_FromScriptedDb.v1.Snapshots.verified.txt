@@ -412,6 +412,8 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 0
       }
     },
@@ -466,6 +468,8 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 0
       }
     },
