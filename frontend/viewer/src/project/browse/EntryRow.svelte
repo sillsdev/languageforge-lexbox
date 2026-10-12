@@ -47,10 +47,12 @@
 
 <ListItem bind:ref {...rest}>
   {#if rest.skeleton || !entry}
-    <div>
-      <div class="h-5 motion-safe:animate-shimmer rounded mb-2" style="width: {headwordWidth}"></div>
-      <div class="h-4 motion-safe:animate-pulse bg-muted-foreground/20 rounded mb-2" style="width: {definitionWidth}; animation-delay: {animationDelay}"></div>
-      <div class="h-6 motion-safe:animate-pulse bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}; animation-delay: {animationDelay}"></div>
+    <div class="h-8 flex items-center">
+      <div class="h-5 motion-safe:animate-shimmer rounded" style="width: {headwordWidth}"></div>
+    </div>
+    <div class="flex justify-between items-end">
+      <div class="h-4 my-0.5 motion-safe:animate-pulse bg-muted-foreground/20 rounded" style="width: {definitionWidth}; animation-delay: {animationDelay}"></div>
+      <div class="h-5.5 motion-safe:animate-pulse bg-muted-foreground/20 rounded-full" style="width: {badgeWidth}; animation-delay: {animationDelay}"></div>
     </div>
   {:else if previewDictionary}
     <DictionaryEntry {entry}/>
