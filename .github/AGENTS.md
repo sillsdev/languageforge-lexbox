@@ -221,9 +221,11 @@ This is the most complex workflow because it:
 | `frontend-component-unit-tests` | ubuntu-latest | Vitest unit tests |
 | `build-apple` | macos-latest | MAUI Release builds for iOS simulator + Mac Catalyst; signs Mac Catalyst with the SIL Developer ID and notarizes a DMG when the signing secret is present (upstream), else unsigned compile check (fork PRs) |
 | `launch-mac` | macos-latest + macos-15-intel | Checks Gatekeeper accepts the notarized DMG, then launches the app on each CPU and waits for its "Viewer loaded" log line (upstream only; gates `create-release`) |
-| `publish-linux` | ubuntu-latest | Linux binaries |
+| `publish-linux` | ubuntu-latest | Linux binaries; launches linux-x64 under headless Chrome and waits for its "Viewer loaded" log line |
 | `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX; launches the portable exe and waits for its "Viewer loaded" log line |
-| `create-release` | ubuntu-latest | Release runs only (`release: true`): GitHub release `v<date>-<sha>` with the installers; notes from `.github/release-fw-lite.yml` via `.github/actions/release-notes`, which also gives the Lexbox release its own range |
+| `publish-win-web` | windows-latest | Windows FwLiteWeb (win-x64), signed; launches it under headless Chrome and waits for its "Viewer loaded" log line |
+| `package-extension` | ubuntu-latest | Platform.Bible extension zip: bundles the `publish-win-web` and `publish-linux` outputs, stamps the build's version into `package.json` and `manifest.json`, packages with the extension's npm tooling |
+| `create-release` | ubuntu-latest | Release runs only (`release: true`): GitHub release `v<date>-<sha>` with the installers, the Windows and Linux web zips and the extension zip; notes from `.github/release-fw-lite.yml` via `.github/actions/release-notes`, which also gives the Lexbox release its own range |
 
 ### Solution filters
 
@@ -236,8 +238,10 @@ The workflow produces:
 - `fw-lite-viewer-js` - Built viewer (shared by publish jobs)
 - `fw-lite-apple` - iOS simulator .app (zipped) + the universal (Intel + Apple Silicon) notarized Mac Catalyst `FieldWorksLite.dmg` (or an unsigned arm64 Mac Catalyst .app zip on fork PRs)
 - `fw-lite-web-linux` - Linux binaries
+- `fw-lite-web-win` - Windows FwLiteWeb binaries, signed
 - `fw-lite-portable` - Windows portable app
 - `fw-lite-msix` - MAUI installer
+- `fw-lite-extension` - Platform.Bible extension zip (`lexicon_<YYYY.M.D>.zip`), attached to the FW Lite release
 
 ---
 
