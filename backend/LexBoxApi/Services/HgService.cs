@@ -172,8 +172,6 @@ public partial class HgService : IHgService, IHostedService
             Directory.Move(hgFolder, hgPath);
         }
         await CleanupRepoFolder(tempRepo);
-        // Mercurial would trust an uploaded hgrc (hooks, extensions) on the server, and nothing here needs one.
-        File.Delete(Path.Join(hgPath, "hgrc"));
         SetPermissionsRecursively(tempRepo);
         // Now we're ready to move the new repo into place, replacing the old one
         await DeleteRepoIfExists(code);
@@ -231,7 +229,7 @@ public partial class HgService : IHgService, IHostedService
 
 
     /// <summary>
-    /// deletes all files and folders in the repo folder except for .hg
+    /// deletes all files and folders in the repo folder except for .hg, and drops .hg/hgrc
     /// </summary>
     private async Task CleanupRepoFolder(DirectoryInfo repoDir)
     {
@@ -239,7 +237,13 @@ public partial class HgService : IHgService, IHostedService
         {
             foreach (var info in repoDir.EnumerateFileSystemInfos())
             {
-                if (info.Name == ".hg") continue;
+                if (info.Name == ".hg")
+                {
+                    // Mercurial would trust an uploaded hgrc (hooks, extensions) on the server, and nothing here needs one.
+                    if (info is DirectoryInfo hg)
+                        foreach (var hgrc in hg.EnumerateFiles("hgrc")) hgrc.Delete();
+                    continue;
+                }
                 if (info is DirectoryInfo dir) dir.Delete(true);
                 else info.Delete();
             }
