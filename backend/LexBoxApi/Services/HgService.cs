@@ -172,6 +172,8 @@ public partial class HgService : IHgService, IHostedService
             Directory.Move(hgFolder, hgPath);
         }
         await CleanupRepoFolder(tempRepo);
+        // Mercurial would trust an uploaded hgrc (hooks, extensions) on the server, and nothing here needs one.
+        File.Delete(Path.Join(hgPath, "hgrc"));
         SetPermissionsRecursively(tempRepo);
         // Now we're ready to move the new repo into place, replacing the old one
         await DeleteRepoIfExists(code);
