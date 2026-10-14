@@ -12,7 +12,7 @@ This is a monorepo containing:
 - **Backend**: .NET 10, C#, Entity Framework Core, GraphQL (Hot Chocolate)
 - **Frontend**: SvelteKit, TypeScript
 - **Database**: PostgreSQL
-- **Infrastructure**: Docker, Kubernetes, Skaffold, Tilt
+- **Infrastructure**: Docker, Kubernetes, Tilt
 
 ### Structure
 
