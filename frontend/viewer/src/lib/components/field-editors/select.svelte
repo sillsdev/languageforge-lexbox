@@ -10,6 +10,7 @@
   import {cn} from '$lib/utils';
   import {watch} from 'runed';
   import {computeCommandScore} from 'bits-ui';
+  import CommandSeparator from '../ui/command/command-separator.svelte';
 
   type Value = ReadonlyDeep<MutableValue>;
 
@@ -125,7 +126,7 @@
           <XButton
             onclick={() => selectValue(undefined)}
             aria-label={$t`clear`}
-            class={cn('pointer-events-auto', value || 'invisible')}
+            class={cn('pointer-events-auto bg-transparent', value || 'invisible')}
           />
         {/if}
         <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
@@ -149,6 +150,15 @@
     </CommandInput>
     <CommandList class="max-md:h-75 md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
+      {#if clearable && value}
+        <CommandGroup>
+          <CommandItem onSelect={() => selectValue(undefined)}>
+            <Icon icon="i-mdi-close" />
+            {$t`None`}
+          </CommandItem>
+        </CommandGroup>
+        <CommandSeparator />
+      {/if}
       <CommandGroup>
         {#each renderedOptions as option, i (getId(option))}
           {@const label = getLabel(option)}
