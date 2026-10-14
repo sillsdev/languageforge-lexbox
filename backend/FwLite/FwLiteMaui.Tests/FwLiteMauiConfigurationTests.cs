@@ -99,6 +99,7 @@ public class FwLiteMauiConfigurationTests : IDisposable
         config.Reload();
         FwLiteMauiConfiguration.IsVerboseLogging(config).Should().BeTrue();
         config["Logging:LogLevel:FwLiteShared.Auth.LoggerAdapter"].Should().Be("Debug");
+        config["FwLiteMaui:MaxLogFileCount"].Should().Be("5");
 
         FwLiteMauiConfiguration.SetVerboseLogging(SettingsFilePath, false);
         config.Reload();
