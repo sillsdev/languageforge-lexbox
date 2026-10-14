@@ -2,6 +2,7 @@ using System.Net;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
+using FwLiteShared.LocalSync;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
@@ -29,6 +30,10 @@ public static class FwLiteSharedKernel
         services.AddLogging();
         services.AddScoped<ImportFwdataService>();
         services.AddScoped<SyncService>();
+        services.AddScoped<SyncResultsProcessor>();
+        services.AddScoped<LocalSyncHost>();
+        services.AddScoped<LocalSyncService>();
+        services.AddSingleton<ILocalAuthorProvider, PreferencesLocalAuthorProvider>();
         services.AddScoped<ProjectServicesProvider>();
         services.AddScoped<IServerHttpClientProvider, LexboxOauthServerClientProvider>();
         services.AddSingleton<LexboxProjectChangeListener>();

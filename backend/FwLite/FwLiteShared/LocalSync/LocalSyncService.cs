@@ -1,0 +1,40 @@
+using FwLiteShared.Sync;
+using LcmCrdt.LocalSync;
+using SIL.Harmony;
+
+namespace FwLiteShared.LocalSync;
+
+/// <summary>
+/// The result of a local sync attempt. <see cref="SyncResults"/> is null when the identity check refused the sync.
+/// </summary>
+public record LocalSyncResult(IdentityComparison Comparison, SyncResults? SyncResults)
+{
+    public bool Synced => SyncResults?.IsSynced == true;
+}
+
+/// <summary>
+/// Syncs the current project with another copy of it without Lexbox: a local sync host, or (later) a sync folder.
+/// Unlike <see cref="SyncService"/> it needs no sign-in, and it never updates the Lexbox sync date, because
+/// commits exchanged locally still have to reach Lexbox.
+/// </summary>
+public class LocalSyncService(
+    DataModel dataModel,
+    ProjectIdentityService projectIdentityService,
+    SyncResultsProcessor syncResultsProcessor)
+{
+    /// <param name="remote">The other copy.</param>
+    /// <param name="remoteIdentity">The other copy's identity, as it reported it (in the join handshake or the sync folder's manifest).</param>
+    public async Task<LocalSyncResult> SyncWith(ISyncable remote, ProjectIdentity remoteIdentity)
+    {
+        var comparison = ProjectIdentity.Compare(await projectIdentityService.GetIdentity(), remoteIdentity);
+        if (comparison != IdentityComparison.Match) return new LocalSyncResult(comparison, null);
+
+        var syncResults = await dataModel.SyncWith(remote);
+        if (syncResults.IsSynced)
+        {
+            await syncResultsProcessor.ApplyCommentReadStatus(syncResults);
+            await syncResultsProcessor.SendNotifications(syncResults);
+        }
+        return new LocalSyncResult(comparison, syncResults);
+    }
+}

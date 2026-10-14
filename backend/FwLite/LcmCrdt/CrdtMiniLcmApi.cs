@@ -34,6 +34,7 @@ public class CrdtMiniLcmApi(
     LcmMediaService lcmMediaService,
     LocalCommentReadStatusService commentReadStatusService,
     CommitMetadataInterceptor commitMetadataInterceptor,
+    CurrentAuthorService currentAuthorService,
     EntrySearchService? entrySearchService = null) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
@@ -42,12 +43,13 @@ public class CrdtMiniLcmApi(
 
     private CommitMetadata NewMetadata()
     {
+        //todo, if a user logs out and in with another account, this will be out of date until the next sync
+        var author = currentAuthorService.GetCurrentAuthor();
         var metadata = new CommitMetadata
         {
             ClientVersion = AppVersion.Version,
-            //todo, if a user logs out and in with another account, this will be out of date until the next sync
-            AuthorName = ProjectData.LastUserName ?? config.Value.DefaultAuthorForCommits,
-            AuthorId = ProjectData.LastUserId
+            AuthorName = author.Name ?? config.Value.DefaultAuthorForCommits,
+            AuthorId = author.Id
         };
         commitMetadataInterceptor.Apply(metadata);
         return metadata;
@@ -1208,8 +1210,7 @@ public class CrdtMiniLcmApi(
     private void StampCommentThreadAuthor(CommentThread thread, DateTimeOffset now)
     {
         if (thread.Id == Guid.Empty) thread.Id = Guid.NewGuid();
-        thread.AuthorId = RequireCommentUserId();
-        thread.AuthorName = ProjectData.LastUserName;
+        (thread.AuthorId, thread.AuthorName) = RequireCommentAuthor();
         thread.CreatedAt = thread.CreatedAt == default ? now : thread.CreatedAt;
         thread.UpdatedAt = thread.UpdatedAt == default ? thread.CreatedAt : thread.UpdatedAt;
     }
@@ -1217,22 +1218,23 @@ public class CrdtMiniLcmApi(
     private void StampCommentAuthor(UserComment comment, DateTimeOffset now)
     {
         if (comment.Id == Guid.Empty) comment.Id = Guid.NewGuid();
-        comment.AuthorId = RequireCommentUserId();
-        comment.AuthorName = ProjectData.LastUserName;
+        (comment.AuthorId, comment.AuthorName) = RequireCommentAuthor();
         comment.CreatedAt = comment.CreatedAt == default ? now : comment.CreatedAt;
         comment.UpdatedAt = comment.UpdatedAt == default ? comment.CreatedAt : comment.UpdatedAt;
     }
 
-    private string RequireCommentUserId()
+    private (string Id, string? Name) RequireCommentAuthor()
     {
-        if (string.IsNullOrEmpty(ProjectData.LastUserId))
+        var author = currentAuthorService.GetCurrentAuthor();
+        if (string.IsNullOrEmpty(author.Id))
             throw new ValidationException("Cannot create or modify comments without a known user identity.");
-        return ProjectData.LastUserId;
+        return (author.Id, author.Name);
     }
 
     private void AssertCurrentUserCanChangeComment(UserComment comment)
     {
-        if (comment.AuthorId == RequireCommentUserId()) return;
+        RequireCommentAuthor();
+        if (currentAuthorService.IsCurrentAuthor(comment.AuthorId)) return;
         throw new UnauthorizedAccessException("Only the comment author can edit or delete this comment.");
     }
 

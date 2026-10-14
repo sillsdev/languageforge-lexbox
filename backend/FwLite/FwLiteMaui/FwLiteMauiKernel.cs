@@ -1,6 +1,7 @@
 using FwLiteMaui.Services;
 using FwLiteShared;
 using FwLiteShared.Auth;
+using FwLiteShared.LocalSync;
 using FwLiteShared.Services;
 using LcmCrdt;
 using Microsoft.Extensions.Configuration;
@@ -138,6 +139,8 @@ public static class FwLiteMauiKernel
         services.AddSingleton(_ => Browser.Default);
         services.AddSingleton(_ => Share.Default);
         services.AddSingleton<IPreferencesService, MauiPreferencesService>();
+        services.AddSingleton<ILocalAuthorProvider>(sp =>
+            new PreferencesLocalAuthorProvider(sp.GetRequiredService<IPreferencesService>(), DeviceInfo.Current.Name));
         services.AddSingleton<ITroubleshootingService, MauiTroubleshootingService>();
         logging.AddConsole();
 #if DEBUG
