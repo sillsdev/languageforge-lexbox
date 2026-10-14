@@ -20,20 +20,14 @@ main() {
     esac
   done
   command -v hg >/dev/null 2>&1 || { echo "hg not found on PATH" >&2; return 2; }
+  command -v flock >/dev/null 2>&1 || { echo "flock not found on PATH; not scanning without a lock" >&2; return 2; }
 
-  lock=/tmp/hg-active-repos.lock
-  if ! mkdir "$lock" 2>/dev/null; then
-    other=$(cat "$lock/pid" 2>/dev/null)
-    case "$other" in ''|*[!0-9]*) other='' ;; esac
-    if [ -n "$other" ] && kill -0 "$other" 2>/dev/null; then
-      echo "another scan (pid $other) is still running; wait for it to finish" >&2
-      return 3
-    fi
-    echo "taking over a stale lock (pid ${other:-unknown} is gone)" >&2
+  # The kernel releases this lock when the scan and its hg child exit, however they exit.
+  exec 9>/tmp/hg-active-repos.lock
+  if ! flock -n 9; then
+    echo "another scan is still running; wait for it to finish" >&2
+    return 3
   fi
-  echo $$ > "$lock/pid"
-  trap 'rm -rf "$lock"' EXIT
-  trap 'rm -rf "$lock"; exit 129' HUP INT TERM PIPE
 
   nice_cmd=""
   command -v nice >/dev/null 2>&1 && nice_cmd="nice -n 19"

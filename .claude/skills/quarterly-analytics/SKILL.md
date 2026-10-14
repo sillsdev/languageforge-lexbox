@@ -49,7 +49,7 @@ SIL fiscal years start Oct 1 and are named after the calendar year they end in: 
 | Active Users | Mixpanel unique users of `app_launched` in the quarter | Mixpanel unique users of any event in the quarter |
 | Avg MAU, MAU month 1-3 | Mixpanel unique users per calendar month; Avg = mean, 1 decimal | Same |
 | Number of User Countries | Mixpanel distinct `mp_country_code` over the quarter | Same (Lexbox events carry the client IP) |
-| Number of Languages Impacted | `languagesImpacted`: active projects whose code doesn't match `test|train|demo|dev|copy`. No manual judgment. | Same filter on the hg list |
+| Number of Languages Impacted | `languagesImpacted`: active projects whose code doesn't match `test\|train\|demo\|dev\|copy`. No manual judgment. | Same filter on the hg list |
 | New Support Tickets | Threads *started* in the quarter in the `lexbox_support` group, sorted into FW Lite or Lexbox by content. Count borderline support requests. Exclude FW Lite beta join requests, alerts (prod alerts, Honeycomb triggers), spam, FYI forwards and messages with no request in them. | Same |
 | New Community Topics | Topics created in the quarter in the FW Lite forum category (`public_sources.py`) | 0, there is no forum |
 | Analytics contain test projects/users (Product List tab) | Yes | Yes |
