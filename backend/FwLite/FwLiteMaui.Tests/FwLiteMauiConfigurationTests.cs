@@ -112,7 +112,8 @@ public class FwLiteMauiConfigurationTests : IDisposable
     [Fact]
     public void WriteSettingsFile_RejectsInvalidJson_AndKeepsTheOldFile()
     {
-        FwLiteMauiConfiguration.WriteSettingsFile(SettingsFilePath, """{ "Logging": { "LogLevel": { "Default": "Debug" } } }""");
+        var fileJson = """{ "Logging": { "LogLevel": { "Default": "Debug" } } }""";
+        FwLiteMauiConfiguration.WriteSettingsFile(SettingsFilePath, fileJson);
 
         var act = () => FwLiteMauiConfiguration.WriteSettingsFile(SettingsFilePath, "{ not json");
         act.Should().Throw<ArgumentException>().WithMessage("*not valid JSON*");
@@ -120,6 +121,7 @@ public class FwLiteMauiConfigurationTests : IDisposable
         array.Should().Throw<ArgumentException>().WithMessage("*JSON object*");
 
         FwLiteMauiConfiguration.IsVerboseLogging(Build()).Should().BeTrue();
+        File.ReadAllText(SettingsFilePath).Should().Be(fileJson);
     }
 
     [Fact]
@@ -135,6 +137,7 @@ public class FwLiteMauiConfigurationTests : IDisposable
     [Fact]
     public void SetVerboseLogging_CreatesTheFileWhenMissing()
     {
+        File.Exists(SettingsFilePath).Should().BeFalse();
         FwLiteMauiConfiguration.SetVerboseLogging(SettingsFilePath, true);
 
         File.Exists(SettingsFilePath).Should().BeTrue();
