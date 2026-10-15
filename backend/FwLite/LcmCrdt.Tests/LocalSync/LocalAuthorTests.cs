@@ -88,12 +88,4 @@ public class LocalAuthorTests : IAsyncLifetime
         thread.AuthorId.Should().Be("lexbox-user-1");
         thread.AuthorName.Should().Be("Real Person");
     }
-
-    private class InMemoryPreferencesService : IPreferencesService
-    {
-        private readonly Dictionary<string, string> _values = [];
-        public string? Get(string key) => _values.GetValueOrDefault(key);
-        public void Set(string key, string value) => _values[key] = value;
-        public void Remove(string key) => _values.Remove(key);
-    }
 }

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FwLiteShared.Events;
 using FwLiteShared.LocalSync;
+using FwLiteShared.Services;
 using FwLiteShared.Sync;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -17,6 +18,9 @@ public static class LocalSyncTestHelpers
         services.AddScoped<SyncResultsProcessor>();
         services.AddScoped<LocalSyncHost>();
         services.AddScoped<LocalSyncService>();
+        services.AddScoped<FolderSyncService>();
+        services.AddSingleton<FolderProjectOpener>();
+        services.AddSingleton<IPreferencesService, InMemoryPreferencesService>();
     }
 
     public static MiniLcmApiFixture CreateFixture(Guid projectId, bool seedWs = true) =>
@@ -53,4 +57,12 @@ public class HostOverTheWire(LocalSyncHost host, Guid projectId, JsonSerializerO
     public Task<SyncResults> SyncWith(ISyncable remoteModel) => remoteModel.SyncWith(this);
     public Task SyncMany(ISyncable[] remotes) => throw new NotSupportedException();
     public ValueTask<bool> ShouldSync() => ValueTask.FromResult(true);
+}
+
+public class InMemoryPreferencesService : IPreferencesService
+{
+    private readonly Dictionary<string, string> _values = [];
+    public string? Get(string key) => _values.GetValueOrDefault(key);
+    public void Set(string key, string value) => _values[key] = value;
+    public void Remove(string key) => _values.Remove(key);
 }

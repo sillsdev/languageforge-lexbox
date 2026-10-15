@@ -37,4 +37,21 @@ public class LocalSyncService(
         }
         return new LocalSyncResult(comparison, syncResults);
     }
+
+    /// <summary>
+    /// Fills a project created moments ago for this purpose (it has no commits yet) from another copy. There's no
+    /// identity check because there's nothing local to protect; a project with any commits is refused.
+    /// </summary>
+    public async Task<SyncResults> Download(ISyncable remote)
+    {
+        if ((await projectIdentityService.GetIdentity()).RootCommitId is not null)
+            throw new InvalidOperationException("Can only download into a project that has no commits yet");
+        var syncResults = await dataModel.SyncWith(remote);
+        if (syncResults.IsSynced)
+        {
+            await syncResultsProcessor.ApplyCommentReadStatus(syncResults);
+            await syncResultsProcessor.SendNotifications(syncResults);
+        }
+        return syncResults;
+    }
 }

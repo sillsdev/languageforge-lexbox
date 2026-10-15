@@ -59,6 +59,8 @@ public static class FwLiteSharedKernel
         services.AddScoped<SyncResultsProcessor>();
         services.AddScoped<LocalSyncHost>();
         services.AddScoped<LocalSyncService>();
+        services.AddScoped<FolderSyncService>();
+        services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<ILocalAuthorProvider, PreferencesLocalAuthorProvider>();
         services.AddScoped<ProjectServicesProvider>();
         services.AddScoped<IServerHttpClientProvider, LexboxOauthServerClientProvider>();

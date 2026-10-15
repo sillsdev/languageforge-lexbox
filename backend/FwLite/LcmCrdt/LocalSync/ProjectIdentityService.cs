@@ -22,4 +22,10 @@ public class ProjectIdentityService(CurrentProjectService currentProjectService,
             rootCommitId,
             wsIds.Select(wsId => wsId.Code).ToHashSet());
     }
+
+    public async Task<bool> HasCommit(Guid commitId)
+    {
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        return await ((ICrdtDbContext)dbContext).Commits.AnyAsync(c => c.Id == commitId);
+    }
 }
