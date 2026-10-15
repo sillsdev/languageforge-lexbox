@@ -11,11 +11,11 @@
   interface Props {
     handleSubmit: (
       password: string,
-      passwordStrength: number,
       name: string,
       email: string,
       locale: string,
       turnstileToken: string,
+      optedOutOfAnalytics: boolean,
     ) => Promise<RegisterResponse>;
     onSubmitted?: (submittedUser: LexAuthUser) => void;
   }

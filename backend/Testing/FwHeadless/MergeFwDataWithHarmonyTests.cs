@@ -70,7 +70,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
     public async Task TriggerSync_WorksTheFirstTime()
     {
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
-        var result = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
+        var result = await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, _projectId);
         result.Should().NotBeNull();
         result.Status.Should().Be(SyncJobStatusEnum.Success);
         result.SyncResult.Should().NotBeNull();
@@ -78,7 +78,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         result.SyncResult.FwdataChanges.Should().Be(0);
 
         // there should be a short grace period during which the result remains available
-        var result2 = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
+        var result2 = await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, _projectId);
         result2.Should().BeEquivalentTo(result);
     }
 
@@ -86,11 +86,11 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
     public async Task TriggerSync_WorksWithSomeCommits()
     {
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
-        await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
+        await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, _projectId);
 
         await AddTestCommit(_projectId);
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
-        var result = await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, _projectId);
+        var result = await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, _projectId);
         result.Should().NotBeNull();
         result.Status.Should().Be(SyncJobStatusEnum.Success);
         result.SyncResult.Should().NotBeNull();

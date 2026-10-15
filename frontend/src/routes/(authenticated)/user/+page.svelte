@@ -1,6 +1,6 @@
 <script lang="ts">
   import {useEmailResult, useRequestedEmail} from '$lib/email/EmailVerificationStatus.svelte';
-  import {DisplayLanguageSelect, Form, FormError, Input, SubmitButton, lexSuperForm} from '$lib/forms';
+  import {Checkbox, DisplayLanguageSelect, Form, FormError, Input, SubmitButton, lexSuperForm} from '$lib/forms';
   import t from '$lib/i18n';
   import {TitlePage} from '$lib/layout';
   import {_changeUserAccountData} from './+page';
@@ -46,6 +46,7 @@
     email: z.string().email($t('form.invalid_email')).nullish(),
     name: z.string().trim().min(1, $t('register.name_missing')),
     locale: z.string().trim().min(2),
+    optedOutOfAnalytics: z.boolean(),
   });
 
   let { form, errors, enhance, message, submitting, formState } = lexSuperForm(formSchema, async () => {
@@ -53,6 +54,7 @@
       email: $form.email,
       name: $form.name,
       locale: $form.locale,
+      optedOutOfAnalytics: $form.optedOutOfAnalytics,
       userId: $user.id,
     });
     if (data?.changeUserAccountBySelf.errors?.some((e) => e.__typename === 'UniqueValueError')) {
@@ -67,7 +69,7 @@
       requestedEmail.set($form.email);
     }
 
-    if ($formState.name.tainted || $formState.locale.tainted) {
+    if ($formState.name.tainted || $formState.locale.tainted || $formState.optedOutOfAnalytics.tainted) {
       notifySuccess($t('account_settings.update_success'));
     }
   }, {
@@ -87,6 +89,7 @@
         email: $user.email ?? null,
         name: $user.name,
         locale: $user.locale,
+        optedOutOfAnalytics: data.user.optedOutOfAnalytics,
       },
       { taint: false },
     );
@@ -111,6 +114,15 @@
       bind:value={$form.email}
     />
     <DisplayLanguageSelect bind:value={$form.locale} />
+    <div id="analytics" class="mt-2 scroll-mt-4">
+      <span class="label-text font-medium">{$t('analytics.title')}</span>
+      <Checkbox
+        id="opted-out-of-analytics"
+        label={$t('analytics.opt_out_label')}
+        description={$t('analytics.description')}
+        bind:value={$form.optedOutOfAnalytics}
+      />
+    </div>
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('account_settings.button_update')}</SubmitButton>
   </Form>

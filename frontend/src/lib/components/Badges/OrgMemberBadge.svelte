@@ -17,7 +17,7 @@
 </script>
 
 <ActionBadge {actionIcon} {variant} disabled={!canManage} {onAction}>
-  <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-x-clip" title={member.name}>
+  <span class="pr-3 whitespace-nowrap x-ellipsis" title={member.name}>
     {member.name}
   </span>
 

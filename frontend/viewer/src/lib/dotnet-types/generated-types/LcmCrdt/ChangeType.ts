@@ -24,6 +24,7 @@ export type ChangeType =
   | 'CreateWritingSystemChange'
   | 'EditCustomViewChange'
   | 'EditUserCommentChange'
+  | 'MoveExampleSentenceToSenseChange'
   | 'MoveSenseToEntryChange'
   | 'RemoveComplexFormTypeChange'
   | 'RemovePublicationChange'
@@ -91,6 +92,7 @@ export const knownChangeTypes = [
   'CreateWritingSystemChange',
   'EditCustomViewChange',
   'EditUserCommentChange',
+  'MoveExampleSentenceToSenseChange',
   'MoveSenseToEntryChange',
   'RemoveComplexFormTypeChange',
   'RemovePublicationChange',

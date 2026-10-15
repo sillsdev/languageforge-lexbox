@@ -2,8 +2,7 @@
   import {SortField} from '$lib/dotnet-types';
   import {msg} from 'svelte-i18n-lingui';
   import type {IconClass} from '$lib/icon-class';
-
-  export type SortDirection = 'asc' | 'desc';
+  import type {SortDirection} from './options';
 
   const sortLabels = {
     [SortField.SearchRelevance]: msg`Best match`,
@@ -43,7 +42,7 @@
   const autoSort = $derived(autoSelector());
   const sortField = $derived(selectedSortField ?? autoSort);
   watch(() => ({ sortField, direction }), ({ sortField, direction }) => {
-    value = { field: sortField, dir: direction } as SortConfig;
+    value = { field: sortField, dir: direction };
   });
 </script>
 
@@ -51,6 +50,7 @@
   <ResponsiveMenu.Trigger class={cn(buttonVariants({variant: 'secondary', size: 'xs'}), badgeVariants({ variant: 'secondary' }), 'border-none h-7')}>
     {#snippet child({props})}
       <Button {...props}
+        data-testid="sort-menu-trigger"
         icon={sortIcons[sortField]?.[direction] ?? 'i-mdi-arrow-down'}
         iconProps={{ class: 'size-4' }}>
         {$t(sortLabels[sortField])}

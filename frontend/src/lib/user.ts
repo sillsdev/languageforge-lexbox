@@ -4,7 +4,7 @@ import {jwtDecode} from 'jwt-decode';
 import {deleteCookie, getCookie} from './util/cookies';
 import {hash} from '$lib/util/hash';
 import {ensureErrorIsTraced, errorSourceTag} from './otel';
-import zxcvbn from 'zxcvbn';
+import type zxcvbn from 'zxcvbn';
 import {
   type AuthUserOrg,
   type AuthUserProject,
@@ -50,6 +50,7 @@ type JwtTokenUser = {
   unver?: boolean,
   mkproj?: boolean,
   creat?: boolean,
+  notracking?: boolean,
   aud: ApiLexboxAudience,
   scope?: string,
   loc: string,
@@ -70,6 +71,7 @@ export type LexAuthUser = {
   emailVerified: boolean
   canCreateProjects: boolean
   createdByAdmin: boolean
+  optedOutOfAnalytics: boolean
   audience: ApiLexboxAudience
   scope: string
   locale: string
@@ -84,8 +86,35 @@ export function getHomePath(user: LexAuthUser | null): '/admin' | '/' {
   return user?.isAdmin ? '/admin' : '/';
 }
 
+export type ZxcvbnFn = typeof zxcvbn;
+
+let zxcvbnImport: Promise<ZxcvbnFn> | undefined;
+
+export function preloadZxcvbn(): Promise<ZxcvbnFn> {
+  zxcvbnImport ??= import('zxcvbn').then((mod) => {
+    if (typeof mod === 'function') return mod;
+    return mod.default;
+  }).catch((error: unknown) => {
+    zxcvbnImport = undefined;
+    throw error;
+  });
+  return zxcvbnImport;
+}
+
+export async function measurePasswordStrength(password: string): Promise<number | undefined> {
+  try {
+    const zxcvbn = await preloadZxcvbn();
+    return zxcvbn(password).score;
+  } catch (error) {
+    ensureErrorIsTraced(error, undefined, {
+      'app.error.source': errorSourceTag('zxcvbn'),
+    });
+    return undefined;
+  }
+}
+
 export async function login(userId: string, password: string): Promise<LoginResult> {
-  const strength = zxcvbn(password);
+  const passwordStrength = await measurePasswordStrength(password);
   const response = await fetch('/api/login', {
     method: 'post',
     headers: {
@@ -95,7 +124,7 @@ export async function login(userId: string, password: string): Promise<LoginResu
       emailOrUsername: userId,
       password: await hash(password),
       preHashedPassword: true,
-      passwordStrength: strength.score
+      passwordStrength,
     }),
     lexboxResponseHandlingConfig: {
       disableRedirectOnAuthError: true,
@@ -107,7 +136,8 @@ export async function login(userId: string, password: string): Promise<LoginResu
 }
 
 export type RegisterResponse = { error?: { turnstile?: boolean, accountExists?: boolean, invalidInput?: boolean }, user?: LexAuthUser };
-export async function createUser(endpoint: string, password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
+export async function createUser(endpoint: string, password: string, name: string, email: string, locale: string, turnstileToken: string, optedOutOfAnalytics: boolean): Promise<RegisterResponse> {
+  const passwordStrength = await measurePasswordStrength(password);
   const response = await fetch(endpoint, {
     method: 'post',
     headers: {
@@ -120,6 +150,7 @@ export async function createUser(endpoint: string, password: string, passwordStr
       turnstileToken,
       passwordStrength,
       passwordHash: await hash(password),
+      optedOutOfAnalytics,
     })
   });
 
@@ -133,17 +164,19 @@ export async function createUser(endpoint: string, password: string, passwordStr
   const userJson: LexAuthUser = jwtToUser(responseJson);
   return { user: userJson };
 }
-export function register(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
-  return createUser('/api/User/registerAccount', password, passwordStrength, name, email, locale, turnstileToken);
+export function register(password: string, name: string, email: string, locale: string, turnstileToken: string, optedOutOfAnalytics: boolean): Promise<RegisterResponse> {
+  return createUser('/api/User/registerAccount', password, name, email, locale, turnstileToken, optedOutOfAnalytics);
 }
-export function acceptInvitation(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
-  return createUser('/api/User/acceptInvitation', password, passwordStrength, name, email, locale, turnstileToken);
+export function acceptInvitation(password: string, name: string, email: string, locale: string, turnstileToken: string, optedOutOfAnalytics: boolean): Promise<RegisterResponse> {
+  return createUser('/api/User/acceptInvitation', password, name, email, locale, turnstileToken, optedOutOfAnalytics);
 }
-export async function createGuestUserByAdmin(password: string, passwordStrength: number, name: string, email: string, locale: string, _turnstileToken: string, orgId?: string): Promise<RegisterResponse> {
+// Admins create guest accounts on someone else's behalf, so the guest's analytics preference isn't set here
+// (it defaults to tracked; the guest can opt out later on their own account settings page).
+export async function createGuestUserByAdmin(password: string, name: string, email: string, locale: string, _turnstileToken: string, _optedOutOfAnalytics: boolean, orgId?: string): Promise<RegisterResponse> {
   const passwordHash = await hash(password);
   const gqlInput: CreateGuestUserByAdminInput = {
     passwordHash,
-    passwordStrength,
+    passwordStrength: await measurePasswordStrength(password),
     name,
     locale,
     orgId,
@@ -172,6 +205,7 @@ export async function createGuestUserByAdmin(password: string, passwordStrength:
     emailVerified: responseUser.emailVerificationRequired ?? false,
     canCreateProjects: responseUser.canCreateProjects ?? false,
     createdByAdmin: responseUser.createdByAdmin ?? false,
+    optedOutOfAnalytics: false,
     featureFlags: responseUser.featureFlags ?? [],
     emailOrUsername: (responseUser.email ?? responseUser.username) as string,
     audience: responseUser.audience === GqlLexboxAudience.LexboxApi ? 'LexboxApi' : 'Unknown',
@@ -221,6 +255,7 @@ export function jwtToUser(user: JwtTokenUser): LexAuthUser {
     emailVerified: !user.unver,
     canCreateProjects: user.mkproj === true || role === UserRole.Admin,
     createdByAdmin: user.creat ?? false,
+    optedOutOfAnalytics: user.notracking === true,
     locale: user.loc,
     audience,
     emailOrUsername: (email ?? username) as string,

@@ -282,7 +282,9 @@ internal static class LcmHelpers
     {
         var abbr = semanticDomain.Abbreviation;
         // UiString can be null even though there is an abbreviation available
-        return abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
+        var code = abbr.UiString ?? abbr.BestVernacularAnalysisAlternative.Text;
+        // LCM uses "***" as the missing-string marker when Abbreviation is empty
+        return code is null or "***" ? string.Empty : code;
     }
 
     internal static void SetString(this ITsMultiString multiString, FwDataMiniLcmApi api, WritingSystemId ws, string value)
@@ -294,9 +296,18 @@ internal static class LcmHelpers
         }
         else
         {
-            var tsString = TsStringUtils.MakeString(api.FromMediaUri(value),
-                writingSystemHandle
-            );
+            // An empty value is a clear, not a media reference (a clear can arrive as an empty string,
+            // not only as a remove) — clear the field rather than trying to resolve it as a MediaUri.
+            if (string.IsNullOrEmpty(value))
+            {
+                multiString.set_String(writingSystemHandle, null);
+                return;
+            }
+            // An unresolvable audio reference resolves to null — skip the field rather than crash
+            // commonly happens when a media file has not yet been uploaded.
+            var mediaPath = api.FromMediaUri(value);
+            if (mediaPath is null) return;
+            var tsString = TsStringUtils.MakeString(mediaPath, writingSystemHandle);
             multiString.set_String(writingSystemHandle, tsString);
         }
     }
@@ -310,7 +321,17 @@ internal static class LcmHelpers
         }
         else
         {
-            var tsString = TsStringUtils.MakeString(api.FromMediaUri(value.GetPlainText()), writingSystemHandle);
+            // An empty value is a clear, not a media reference — clear the field (see the string overload).
+            if (value.IsEmpty || string.IsNullOrEmpty(value.GetPlainText()))
+            {
+                multiString.set_String(writingSystemHandle, null);
+                return;
+            }
+            // An unresolvable audio reference resolves to null — skip the field rather than crash
+            // commonly happens when a media file has not yet been uploaded.
+            var mediaPath = api.FromMediaUri(value.GetPlainText());
+            if (mediaPath is null) return;
+            var tsString = TsStringUtils.MakeString(mediaPath, writingSystemHandle);
             multiString.set_String(writingSystemHandle, tsString);
         }
     }

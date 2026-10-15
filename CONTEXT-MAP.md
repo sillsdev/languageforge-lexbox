@@ -4,4 +4,4 @@ Domain glossaries for this monorepo. Each `CONTEXT.md` is a glossary only — no
 
 ## Contexts
 
-- [FwLite Commenting](./backend/FwLite/CONTEXT.md) — collaborative comments on dictionary entries, senses, and example sentences
+- [FwLite](./backend/FwLite/CONTEXT.md) — dictionary editing concerns including collation and collaborative comments

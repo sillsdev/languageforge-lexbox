@@ -7,7 +7,7 @@ import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 /** Props for the AddNewEntryButton component */
 interface AddNewEntryButtonProps extends LexiconLanguages {
-  addEntry: (entry: PartialEntry) => Promise<void>;
+  addEntry: (entry: PartialEntry) => Promise<boolean>;
   headword?: string;
 }
 

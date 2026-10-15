@@ -5,7 +5,6 @@ version: '3'
 vars:
   TESTING_DIR: './backend/Testing'
   HG_REPO_DIR: './hgweb/repos'
-  DATA_DIR: './data'
 includes:
   k8s:
     taskfile: ./deployment/Taskfile.yml
@@ -16,6 +15,9 @@ includes:
   ui:
     taskfile: ./frontend/Taskfile.yml
     dir: ./frontend
+  fw-ui:
+    taskfile: ./frontend/viewer/Taskfile.yml
+    dir: ./frontend/viewer
   api:
     taskfile: ./backend/Taskfile.yml
     dir: ./backend
@@ -38,9 +40,8 @@ tasks:
     deps: [ setup-win, setup-unix ]
     cmds:
       - git config blame.ignoreRevsFile .git-blame-ignore-revs
-      - npx --yes husky
+      - pnpm dlx husky
       - task: setup-k8s
-      - docker build -t local-dev-init data/
   setup-k8s:
     cmds:
       - kubectl --context=docker-desktop apply -f deployment/setup/namespace.yaml
@@ -49,16 +50,10 @@ tasks:
     platforms: [ windows ]
     cmds:
       - powershell "if (!(test-path deployment/local-dev/local.env)) { cp deployment/local-dev/local.env.template deployment/local-dev/local.env }"
-      - powershell -File download.ps1 sena-3 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS' 'BEC5131799DB07BF8D84D8FC1F3169FB2574F2A1F4C37F6898EAB563A4AE95B8'
-      - powershell -File download.ps1 empty 'https://drive.google.com/uc?export=download&id=1p73u-AGdSwNkg_5KEv9-4iLRuN-1V-LD' 'F4EB48D2C7B3294DCA93965F14F058E56D797F38D562B86CF0372F774E1B486B'
-      - powershell -File download.ps1 elawa 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t' "E3608F1E3188CE5FDB166FBF9D5AAD06558DB68EFA079FB453881572B50CB8E3"
   setup-unix:
     platforms: [ linux, darwin ]
     cmds:
       - "test -f deployment/local-dev/local.env || cp deployment/local-dev/local.env.template deployment/local-dev/local.env"
-      - wget -c -O {{.DATA_DIR}}/sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
-      - wget -c -O {{.DATA_DIR}}/empty.zip 'https://drive.google.com/uc?export=download&id=1p73u-AGdSwNkg_5KEv9-4iLRuN-1V-LD'
-      - wget -c -O {{.DATA_DIR}}/elawa.zip 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t'
   setup-local-env:
     cmds:
       - echo "HONEYCOMB_API_KEY=__REPLACE__" > deployment/local-dev/local.env
@@ -107,6 +102,34 @@ tasks:
     deps: [api:only, k8s:infra-forward, ui:lexbox-only]
     interactive: true
 
+  verify:
+    desc: 'Frontend pre-done gate: ui:verify (LexBox app) and fw-ui:verify (viewer) in parallel; backend drift is `task check-generated`.'
+    cmds:
+      # Both apps share one pnpm workspace: install once up front, so the parallel verifies never run two installs at once.
+      - task: ui:install
+      - task: fw-ui:install
+      - task: _verify-parallel
+
+  _verify-parallel:
+    internal: true
+    deps: [ ui:verify, fw-ui:verify ]
+
+  check-generated:
+    desc: 'Runs every committed-artifact drift check CI runs (EF model x2, gql schema, OpenAPI, FwLite TS types); reports all, fails if any fail.'
+    silent: true
+    # Runs each check even after one fails, so one pass lists every stale artifact.
+    # `dotnet ef` does not restore; in a fresh worktree it fails with NETSDK1004 without these.
+    cmd: |
+      dotnet restore backend/LexBoxApi/LexBoxApi.csproj --verbosity quiet
+      dotnet restore backend/FwLite/LcmCrdt/LcmCrdt.csproj --verbosity quiet
+      failed=""
+      for t in api:has-pending-model-changes api:check-gql-schema api:check-openapi-schema fw-lite:has-pending-model-changes fw-lite:has-stale-generated-types; do
+        echo "check-generated: $t"
+        "{{.TASK_EXE}}" "$t" || failed="$failed $t"
+      done
+      if [ -n "$failed" ]; then echo "check-generated FAILED:$failed"; exit 1; fi
+      echo "check-generated: all OK"
+
   fw-lite-web:
     aliases:
       - web
@@ -115,6 +138,11 @@ tasks:
 
   fw-lite-win:
     deps: [fw-lite:maui-windows, ui:fw-lite-infr]
+
+  fw-lite-mac:
+    aliases: [mac]
+    desc: Build & run FwLiteMaui on Mac Catalyst
+    deps: [fw-lite:maui-mac]
 
   fw-lite-android:
     aliases: [android]

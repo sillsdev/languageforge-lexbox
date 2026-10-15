@@ -1,15 +1,19 @@
 # syntax=docker/dockerfile:1
 # TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.
-FROM node:20 AS builder-base
+FROM node:26 AS builder-base
 WORKDIR /app
-# Version of corepack distributed with node currently (2025-02-04) has a bug that prevents PNPM installation; latest version has the bugfix
-RUN npm install -g corepack@latest
-RUN corepack enable && corepack prepare pnpm@10.24.0 --activate
+RUN npm install -g pnpm@12.3.4
 
 FROM builder-base AS builder
 
+# Project-local virtual store so node_modules/.pnpm lands in the image
+# (global store is cache-mount-only and COPY would get dangling symlinks).
+# PNPM_CONFIG_* is required: virtualStoreType is an enum and is validated
+# before ${...} interpolation in pnpm-workspace.yaml.
+ENV PNPM_CONFIG_VIRTUAL_STORE_TYPE=project
+
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 
 COPY . /app/
 COPY src /app/src
@@ -19,7 +23,16 @@ ENV VITE_APP_VERSION=$APP_VERSION
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build
 
-FROM node:20-alpine
+# Drop devDependencies from node_modules so the runtime image ships only prod deps.
+# adapter-node bundles devDeps (svelte, kit, vite, etc.) into build/; the packages it leaves
+# external — and thus reads from node_modules at runtime — are all in "dependencies", so pruning
+# devDeps is safe. This is the copy the runtime stage below picks up.
+# CI=true lets pnpm prune run non-interactively (it otherwise aborts without a TTY).
+# --ignore-scripts skips the "prepare" hook (svelte-kit sync), which would fail here since
+# svelte-kit is a devDep being removed and the build already ran.
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store CI=true pnpm prune --prod --ignore-scripts
+
+FROM node:26-alpine
 # container would not receive SIGTERM from docker when shutting down so Docker would force kill
 # the container after 10s.  This will make shutdown faster because the SIGTERM will be handled appropriately.
 # https://maximorlov.com/process-signals-inside-docker-containers/

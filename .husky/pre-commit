@@ -1,1 +1,32 @@
-cd frontend/viewer && npx lint-staged
+#!/usr/bin/env sh
+set -eu
+
+cd "$(git rev-parse --show-toplevel)"
+
+# Single list of extensions: cheap skip-check and lint-staged glob.
+grep_pat=
+glob_inner=
+for ext in js ts svelte css md json; do
+  grep_pat="${grep_pat:+$grep_pat|}$ext"
+  glob_inner="${glob_inner:+$glob_inner,}$ext"
+done
+
+if ! git diff --cached --name-only --diff-filter=ACMR | grep -qE "\.(${grep_pat})$"; then
+  exit 0
+fi
+
+lint_staged="frontend/viewer/node_modules/.bin/lint-staged"
+if [ ! -f "$lint_staged" ]; then
+  if ! command -v pnpm >/dev/null 2>&1; then
+    echo "pre-commit: staged *.{${glob_inner}} files need prettier, but $lint_staged is missing and pnpm is not installed to install it." >&2
+    echo "pre-commit: install pnpm, then run: cd frontend && pnpm install" >&2
+    exit 1
+  fi
+  echo "pre-commit: $lint_staged missing, installing frontend deps (one-time per worktree, ~45s)..." >&2
+  # cd, not pnpm -C: only cwd picks up the packageManager pin in frontend/package.json.
+  # --frozen-lockfile so committing can never rewrite pnpm-lock.yaml.
+  (cd frontend && pnpm install --frozen-lockfile) >&2
+fi
+
+printf '{"*.{%s}":"prettier --write"}\n' "$glob_inner" |
+  "$lint_staged" --config - --cwd frontend/viewer

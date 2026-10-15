@@ -45,6 +45,9 @@ public class LexAuthUserTests
         CanCreateProjects = true,
         UpdatedDate = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero).ToUnixTimeSeconds(),
         CreatedByAdmin = false,
+        // Set so the notracking claim is emitted (null/false-when-default claims are dropped),
+        // otherwise EnsureAllClaimsAreRepresentedByTestUser fails for this property.
+        OptedOutOfAnalytics = true,
         Locale = "en",
         Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ],
         Projects = new[]

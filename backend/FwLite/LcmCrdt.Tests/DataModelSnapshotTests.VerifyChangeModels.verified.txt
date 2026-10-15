@@ -144,6 +144,10 @@
     TypeDiscriminator: jsonPatch:WritingSystem
   },
   {
+    DerivedType: MoveExampleSentenceToSenseChange,
+    TypeDiscriminator: MoveExampleSentenceToSenseChange
+  },
+  {
     DerivedType: MoveSenseToEntryChange,
     TypeDiscriminator: MoveSenseToEntryChange
   },

@@ -27,7 +27,7 @@ public class LocalSyncServiceTests : IAsyncLifetime
     }
 
     private static HostOverTheWire HostWire(MiniLcmApiFixture host) =>
-        new(host.GetService<LocalSyncHost>(), ProjectId, host.CrdtConfig.JsonSerializerOptions);
+        new(host.GetService<LocalSyncHost>(), ProjectId, JsonOptions(host));
 
     private static Task<ProjectIdentity> IdentityOf(MiniLcmApiFixture fixture) =>
         fixture.GetService<ProjectIdentityService>().GetIdentity();

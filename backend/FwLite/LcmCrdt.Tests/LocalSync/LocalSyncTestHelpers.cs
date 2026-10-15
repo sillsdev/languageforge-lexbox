@@ -3,6 +3,7 @@ using FwLiteShared.Events;
 using FwLiteShared.LocalSync;
 using FwLiteShared.Sync;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using SIL.Harmony.Core;
 
 namespace LcmCrdt.Tests.LocalSync;
@@ -27,6 +28,9 @@ public static class LocalSyncTestHelpers
         await projectService.UpdateLastUser(userId, userId);
         await projectService.UpdateUserRole(UserProjectRole.Editor);
     }
+
+    public static JsonSerializerOptions JsonOptions(MiniLcmApiFixture fixture) =>
+        fixture.GetService<IOptions<SIL.Harmony.Config.HarmonyConfig>>().Value.JsonSerializerOptions;
 
     public static T JsonRoundTrip<T>(T value, JsonSerializerOptions options) =>
         JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(value, options), options)!;

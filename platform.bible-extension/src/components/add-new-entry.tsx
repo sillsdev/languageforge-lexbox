@@ -2,12 +2,14 @@ import { logger } from '@papi/frontend';
 import { useLocalizedStrings } from '@papi/frontend/react';
 import type { LexiconLanguages, PartialEntry } from 'lexicon';
 import { Button, Input, Label } from 'platform-bible-react';
+import { getErrorMessage } from 'platform-bible-utils';
 import { type ReactElement, useCallback, useEffect, useState } from 'react';
 import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
 
 /** Props for the AddNewEntry component */
 interface AddNewEntryProps extends LexiconLanguages {
-  addEntry: (entry: PartialEntry) => Promise<void>;
+  /** Adds the entry, answering whether it was added. The fields are kept when it was not. */
+  addEntry: (entry: PartialEntry) => Promise<boolean>;
   headword?: string;
   onCancel?: () => void;
 }
@@ -48,9 +50,11 @@ export default function AddNewEntry({
       gloss.trim(),
       definition.trim(),
     );
-    await addEntry(entry)
-      .then(() => clearEntry())
-      .catch((e) => logger.error('Error adding entry:', JSON.stringify(e)));
+    try {
+      if (await addEntry(entry)) clearEntry();
+    } catch (e) {
+      logger.error('Error adding entry:', getErrorMessage(e));
+    }
   }
 
   return (

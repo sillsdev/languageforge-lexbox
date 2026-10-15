@@ -18,7 +18,7 @@ tasks:
     dir: ./FwLiteWeb
     cmd: dotnet run -- --FwLite:UseDevAssets=false
   web-chaos:
-    desc: Run FwLiteWeb with some Chaos injected to http requests to lexbox, requests will have chaos 30% of the time, this includes some latency of 5 seconds
+    desc: Run FwLiteWeb with some Chaos injected to http requests to lexbox (auth + update check), requests will have chaos 30% of the time (set FW_LITE_CHAOS to a rate like 1.0 to override), this includes 5 seconds of latency, 500 responses and DNS-style "No such host" failures
     dir: ./FwLiteWeb
     env:
       FW_LITE_CHAOS: true
@@ -69,6 +69,12 @@ tasks:
     dir: ./FwLiteMaui
     cmd: dotnet run -f net10.0-windows10.0.19041.0
 
+  test-update:
+    desc: Interactive harness to test the Windows auto-update flow end-to-end (see testing/README.md)
+    platforms: [ windows ]
+    interactive: true
+    cmd: pwsh -NoProfile -File testing/test-update.ps1 {{.CLI_ARGS}}
+
   publish-maui-windows:
     deps: [ publish-maui-windows-msix, publish-maui-windows-portable]
 
@@ -107,6 +113,22 @@ tasks:
     dir: ./FwLiteMaui
     # EXTRA_ARGS goes through a Task var so multi-token values stay separate; CLI_ARGS gets re-quoted into a single shell arg.
     cmd: dotnet build -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.EXTRA_ARGS}} {{.CLI_ARGS}}
+
+  build-maui-ios:
+    desc: Build FwLiteMaui for the iOS simulator (CONFIG=Debug|Release). Builds the viewer first; without it the app shows a MIME-type error.
+    deps: [ ui:build-viewer ]
+    dir: ./FwLiteMaui
+    vars:
+      CONFIG: '{{.CONFIG | default "Debug"}}'
+    cmd: dotnet build -f net10.0-ios -c {{.CONFIG}} -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 {{.CLI_ARGS}}
+
+  maui-mac:
+    desc: Build & run FwLiteMaui on Mac Catalyst (CONFIG=Debug|Release). Builds the viewer first; without it the app shows a MIME-type error.
+    deps: [ ui:build-viewer ]
+    dir: ./FwLiteMaui
+    vars:
+      CONFIG: '{{.CONFIG | default "Debug"}}'
+    cmd: dotnet build -f net10.0-maccatalyst -c {{.CONFIG}} -t:Run -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 {{.CLI_ARGS}}
 
   install-maui-android:
     desc: Retry install + run without rebuilding (for when you miss the permission prompt) - uses existing build artifacts
@@ -196,3 +218,20 @@ tasks:
     cmds:
       - task: reset-verified
       - task: test-verified
+  accept-snapshots:
+    silent: true
+    desc: 'Lists *.received.* snapshots (gitignored) with a diff stat against each .verified. sibling. Dry run; `-- --apply` promotes them.'
+    cmd: |
+      files=$(git ls-files --others --ignored --exclude-standard -- '*.received.*')
+      if [ -z "$files" ]; then echo "No *.received.* files under backend/FwLite."; exit 0; fi
+      for r in $files; do
+        v="${r/.received./.verified.}"
+        if [ -f "$v" ]; then
+          echo "== $r"
+          git -c core.autocrlf=false diff --no-index --stat -- "$v" "$r" || true
+        else
+          echo "== $r (new: no $v yet)"
+        fi
+        if [ "{{.CLI_ARGS}}" = "--apply" ]; then mv "$r" "$v" && echo "   promoted -> $v"; fi
+      done
+      if [ "{{.CLI_ARGS}}" != "--apply" ]; then echo "Dry run. Review with git diff --no-index <verified> <received>, then: task fw-lite:accept-snapshots -- --apply"; fi

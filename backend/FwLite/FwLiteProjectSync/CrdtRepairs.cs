@@ -1,5 +1,6 @@
 using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
+using MiniLcm.Exceptions;
 using MiniLcm.Models;
 
 namespace FwLiteProjectSync;
@@ -7,7 +8,7 @@ namespace FwLiteProjectSync;
 public static class CrdtRepairs
 {
 #pragma warning disable CS0618 // Type or member is obsolete
-    public static async Task<int> SyncMissingTranslationIds(Entry[] snapshotEntries, FwDataMiniLcmApi fwDataApi, CrdtMiniLcmApi crdtApi, bool dryRun = false)
+    public static async Task<int> SyncMissingTranslationIds(Entry[] snapshotEntries, FwDataMiniLcmApi fwDataApi, CrdtMiniLcmApi crdtApi)
     {
         using var activity = FwLiteProjectSyncActivitySource.Value.StartActivity();
         // Sync any available IDs from fwdata to the snapshot and the crdt entries
@@ -27,7 +28,7 @@ public static class CrdtRepairs
                         continue;
                     }
 
-                    if (snapshotTranslation.Id != Translation.MissingTranslationId)
+                    if (!Translation.IsMissingTranslationId(snapshotTranslation.Id))
                     {
                         // already has a valid ID
                         continue;
@@ -38,7 +39,16 @@ public static class CrdtRepairs
                     // because the API returns the Default ID and thus needs to anticipate it being passed back in.
                     snapshotTranslation.Id = exampleSentence.DefaultFirstTranslationId;
 
-                    var fwDataExampleSentence = await fwDataApi.GetExampleSentence(entry.Id, sense.Id, exampleSentence.Id);
+                    ExampleSentence? fwDataExampleSentence;
+                    try
+                    {
+                        fwDataExampleSentence = await fwDataApi.GetExampleSentence(entry.Id, sense.Id, exampleSentence.Id);
+                    }
+                    catch (ParentMismatchException)
+                    {
+                        // moved to another sense in FLEx; the move sync recreates the translation under fwdata's ID
+                        continue;
+                    }
                     if (fwDataExampleSentence is null)
                     {
                         // example sentence was deleted, so all translations will be deleted via cascade
@@ -78,7 +88,7 @@ public static class CrdtRepairs
             }
         }
 
-        if (!dryRun && exampleSentenceIdToTranslationId.Any())
+        if (exampleSentenceIdToTranslationId.Any())
         {
             await crdtApi.SetFirstTranslationIds(exampleSentenceIdToTranslationId);
         }

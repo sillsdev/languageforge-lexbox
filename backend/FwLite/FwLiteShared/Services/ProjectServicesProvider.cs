@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using FwLiteShared.Sync;
@@ -17,7 +18,8 @@ public class ProjectServicesProvider(
     CrdtProjectsService crdtProjectsService,
     IServiceProvider serviceProvider,
     LexboxProjectService lexboxProjectService,
-    IEnumerable<IProjectProvider> projectProviders
+    IEnumerable<IProjectProvider> projectProviders,
+    IAnalyticsService analytics
 ): IAsyncDisposable
 {
     private IProjectProvider? FwDataProjectProvider =>
@@ -39,10 +41,10 @@ public class ProjectServicesProvider(
     }
 
     [JSInvokable]
-    public Task<string?> TryGetCrdtProjectName(string code)
+    public string? TryGetCrdtProjectName(string code)
     {
         var crdtProject = crdtProjectsService.GetProject(code);
-        return Task.FromResult(crdtProject?.Data?.Name);
+        return crdtProject?.Data?.Name;
     }
 
     [JSInvokable]
@@ -71,6 +73,7 @@ public class ProjectServicesProvider(
                     ActivatorUtilities.CreateInstance<MediaFilesServiceJsInvokable>(scopedServices)
                 );
                 _projectScopes.TryAdd(scope, scope);
+                MixpanelAnalytics.RecordProjectOpened(analytics, projectData, server);
                 return scope;
             }
             catch

@@ -1,3 +1,6 @@
+using MiniLcm.Exceptions;
+using MiniLcm.SyncHelpers;
+
 namespace MiniLcm.Tests;
 
 public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
@@ -41,7 +44,28 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
     {
         var exampleSentence = await Api.GetExampleSentence(_entryId, _senseId, _exampleSentenceId);
         exampleSentence.Should().NotBeNull();
+        exampleSentence.SenseId.Should().Be(_senseId);
         exampleSentence.Sentence["en"].Should().BeEquivalentTo(new RichString("new-example-sentence", "en"));
+    }
+
+    [Fact]
+    public async Task Get_ExampleSentenceFromWrongSense_Throws()
+    {
+        var otherSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = otherSenseId, Gloss = { { "en", "other" } } });
+
+        var act = () => Api.GetExampleSentence(_entryId, otherSenseId, _exampleSentenceId);
+        await act.Should().ThrowAsync<ParentMismatchException>();
+    }
+
+    [Fact]
+    public async Task Get_ExampleSentenceFromWrongEntry_Throws()
+    {
+        var otherEntryId = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = otherEntryId, LexemeForm = { { "en", "other" } } });
+
+        var act = () => Api.GetExampleSentence(otherEntryId, _senseId, _exampleSentenceId);
+        await act.Should().ThrowAsync<ParentMismatchException>();
     }
 
     [Fact]
@@ -64,6 +88,71 @@ public abstract class ExampleSentenceTestsBase : MiniLcmTestBase
         var actualSentence = await Api.CreateExampleSentence(_entryId, _senseId, expectedExampleSentence);
         actualSentence.Should().BeEquivalentTo(expectedExampleSentence,
             options => options.Excluding(s => s.Order));
+    }
+
+    [Fact]
+    public async Task MoveExampleSentence_ReordersWithinTheSameSense()
+    {
+        var second = await Api.CreateExampleSentence(_entryId, _senseId, new ExampleSentence
+        {
+            Id = Guid.NewGuid(),
+            Sentence = { { "en", new RichString("second", "en") } }
+        });
+
+        await Api.MoveExampleSentence(_entryId, _senseId, second.Id, new BetweenPosition(null, _exampleSentenceId));
+
+        var sense = await Api.GetSense(_entryId, _senseId);
+        sense.Should().NotBeNull();
+        sense.ExampleSentences.Select(e => e.Id).Should().Equal([second.Id, _exampleSentenceId]);
+    }
+
+    [Fact]
+    public async Task MoveExampleSentence_WrongSense_Throws()
+    {
+        var otherSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = otherSenseId, Gloss = { { "en", "other" } } });
+
+        var act = () => Api.MoveExampleSentence(_entryId, otherSenseId, _exampleSentenceId, new BetweenPosition(null, null));
+        await act.Should().ThrowAsync<ParentMismatchException>()
+            .WithMessage($"*ExampleSentence {_exampleSentenceId}*{otherSenseId}*");
+
+        // a plain move must never re-parent
+        var example = await Api.GetExampleSentence(_entryId, _senseId, _exampleSentenceId);
+        example.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task MoveExampleSentence_WrongEntry_Throws()
+    {
+        var otherEntryId = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = otherEntryId, LexemeForm = { { "en", "other" } } });
+
+        var act = () => Api.MoveExampleSentence(otherEntryId, _senseId, _exampleSentenceId, new BetweenPosition(null, null));
+        await act.Should().ThrowAsync<ParentMismatchException>();
+    }
+
+    [Fact]
+    public async Task MoveExampleSentence_Reparent_ReparentsToDifferentSense()
+    {
+        var targetSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
+
+        await Api.MoveExampleSentence(_entryId, targetSenseId, _exampleSentenceId, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        var moved = await Api.GetExampleSentence(_entryId, targetSenseId, _exampleSentenceId);
+        moved.Should().NotBeNull();
+        moved.SenseId.Should().Be(targetSenseId);
+
+        var getFromSourceSense = () => Api.GetExampleSentence(_entryId, _senseId, _exampleSentenceId);
+        await getFromSourceSense.Should().ThrowAsync<ParentMismatchException>();
+
+        var targetSense = await Api.GetSense(_entryId, targetSenseId);
+        targetSense.Should().NotBeNull();
+        targetSense.ExampleSentences.Should().ContainSingle(e => e.Id == _exampleSentenceId);
+
+        var sourceSense = await Api.GetSense(_entryId, _senseId);
+        sourceSense.Should().NotBeNull();
+        sourceSense.ExampleSentences.Should().BeEmpty();
     }
 
     [Fact]

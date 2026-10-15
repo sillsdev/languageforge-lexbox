@@ -57,5 +57,7 @@ public class ActivityChangeInfoResolverCoverageTests : HistoryServiceActivityTes
 
     // Entity type name without the CLR generic-arity suffix, so a generic entity (RemoteResource<TMetadata>)
     // reads as "RemoteResource". The resolved entity types are all non-generic, so stripping is harmless there.
-    private static string EntityTypeName(Type entityType) => entityType.Name.Split('`')[0];
+    // EntityType is null for opaque/unknown changes; none are expected in these fixtures, so bucket them
+    // under a distinct name rather than throwing.
+    private static string EntityTypeName(Type? entityType) => entityType?.Name.Split('`')[0] ?? "(unknown)";
 }

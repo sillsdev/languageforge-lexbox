@@ -91,8 +91,9 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
   const lexBoxSetAuthCookieHeader = response.headers.getSetCookie()
     .find(h => h.startsWith(`${AUTH_COOKIE_NAME}=`));
 
-  if (lexBoxSetAuthCookieHeader) {
-    const { name, value, ...options } = setCookieParser.parseString(lexBoxSetAuthCookieHeader);
+  const parsedAuthCookie = lexBoxSetAuthCookieHeader ? setCookieParser.parseString(lexBoxSetAuthCookieHeader) : null;
+  if (parsedAuthCookie) {
+    const { name, value, ...options } = parsedAuthCookie;
     const path = options.path ?? '/';
     event.cookies.set(AUTH_COOKIE_NAME, value, {
             ...options,

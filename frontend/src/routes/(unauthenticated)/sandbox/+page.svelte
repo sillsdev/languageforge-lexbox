@@ -2,7 +2,10 @@
   import {resolve} from '$app/paths';
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
+  import ErrorBoundary from '$lib/error/ErrorBoundary.svelte';
   import {Button, Form, Input, lexSuperForm, SubmitButton} from '$lib/forms';
+  import SandboxBoom from './SandboxBoom.svelte';
+  import {armSandboxBoom} from './sandbox-boom';
   import {PageBreadcrumb} from '$lib/layout';
   import z from 'zod';
 // eslint-disable-next-line no-restricted-imports
@@ -51,6 +54,12 @@
   let deleteModal: DeleteModal | undefined = $state();
   let notificationModal: Modal | undefined = $state();
   let notificationModalIsAtBottom = $state(false);
+
+  let boomKey = $state(0);
+  function throwRenderError(): void {
+    armSandboxBoom();
+    boomKey += 1;
+  }
 </script>
 
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
@@ -74,6 +83,13 @@
     <a rel="external" target="_blank" class="btn" href={resolve('/api/testing/test500NoException')}>Goto API 500 new tab</a>
     <button class="btn" onclick={fetch500}>Fetch 500</button>
     <button class="btn" onclick={gqlThrows500}>GQL 500</button>
+    <div class="divider"></div>
+    <Button variant="btn-warning" outline onclick={throwRenderError}>Throw render error</Button>
+    {#key boomKey}
+      <ErrorBoundary>
+        <SandboxBoom />
+      </ErrorBoundary>
+    {/key}
   </div>
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">

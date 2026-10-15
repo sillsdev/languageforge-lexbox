@@ -15,6 +15,8 @@
   import type {TaskSubject} from './subject.svelte';
   import type {Overrides} from '$lib/views/view-data';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
+  import {pt} from '$lib/views/view-text';
+  import {useViewService} from '$lib/views/view-service.svelte';
 
   let {
     entry = $bindable(),
@@ -32,6 +34,7 @@
     onNextEntry?: () => void,
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
+  const viewService = useViewService();
   const overrides = $derived.by((): Overrides => {
     if (!task.subjectWritingSystemId) return {};
     const ws = {wsId: task.subjectWritingSystemId};
@@ -120,10 +123,10 @@
 
 <Drawer.Root bind:open={() => !!entry, open => {if (!open) entry = undefined;}}>
   <Drawer.Content class="mx-auto max-w-4xl">
-    <Drawer.Header class="relative flex flex-nowrap items-center">
+    <XButton onclick={() => entry = undefined} class="absolute right-2 top-2 z-10" />
+    <Drawer.Header class="flex flex-nowrap items-center">
       <Progress value={progress * 100} class="h-8" />
 <!--      <Drawer.Title class="text-3xl text-center">{entry ? writingSystemService.headword(entry) : ''}</Drawer.Title>-->
-      <XButton onclick={() => entry = undefined} />
     </Drawer.Header>
     <div class="mx-2 md:mx-4 shadow-inner rounded-md p-4">
       {#if entry}
@@ -133,7 +136,7 @@
     <Drawer.Footer class="gap-4">
       <Separator/>
       <p class="text-lg">
-        {task.prompt}
+        {pt(task.prompt, viewService.currentView)}
       </p>
       {#if subject}
         {#key subject}

@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PartsOfSpeech>
+	<CmPossibilityList
+		guid="64dd1920-ba7a-43ca-9577-4dcc3b8ede9a">
+		<Abbreviation>
+			<AUni
+				ws="en">Pos</AUni>
+		</Abbreviation>
+		<DateCreated
+			val="2023-08-16 09:28:29.486" />
+		<DateModified
+			val="2023-08-16 09:28:29.486" />
+		<Depth
+			val="127" />
+		<DisplayOption
+			val="0" />
+		<IsClosed
+			val="False" />
+		<IsSorted
+			val="True" />
+		<IsVernacular
+			val="False" />
+		<ItemClsid
+			val="5049" />
+		<ListVersion
+			val="00000000-0000-0000-0000-000000000000" />
+		<Name>
+			<AUni
+				ws="en">Parts Of Speech</AUni>
+		</Name>
+		<Possibilities>
+			<ownseq
+				class="PartOfSpeech"
+				guid="46e4fe08-ffa0-4c8b-bf98-2c56f38904d9">
+				<Abbreviation>
+					<AUni
+						ws="en">adv</AUni>
+				</Abbreviation>
+				<BackColor
+					val="-1073741824" />
+				<CatalogSourceId>
+					<Uni>Adverb</Uni>
+				</CatalogSourceId>
+				<DateCreated
+					val="2023-08-16 09:28:29.490" />
+				<DateModified
+					val="2023-08-16 09:28:29.490" />
+				<Description>
+					<AStr
+						ws="en">
+						<Run
+							ws="en">An adverb, narrowly defined, is a part of speech whose members modify verbs for such categories as time, manner, place, or direction. An adverb, broadly defined, is a part of speech whose members modify any constituent class of words other than nouns, such as verbs, adjectives, adverbs, phrases, clauses, or sentences. Under this definition, the possible type of modification depends on the class of the constituent being modified.</Run>
+					</AStr>
+				</Description>
+				<ForeColor
+					val="6303632" />
+				<Hidden
+					val="False" />
+				<IsProtected
+					val="False" />
+				<Name>
+					<AUni
+						ws="en">Adverb</AUni>
+				</Name>
+				<SortSpec
+					val="0" />
+				<UnderColor
+					val="-1073741824" />
+				<UnderStyle
+					val="1" />
+			</ownseq>
+			<ownseq
+				class="PartOfSpeech"
+				guid="a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5">
+				<Abbreviation>
+					<AUni
+						ws="en">n</AUni>
+				</Abbreviation>
+				<BackColor
+					val="-1073741824" />
+				<CatalogSourceId>
+					<Uni>Noun</Uni>
+				</CatalogSourceId>
+				<DateCreated
+					val="2023-08-16 09:28:29.491" />
+				<DateModified
+					val="2023-08-16 09:28:29.491" />
+				<Description>
+					<AStr
+						ws="en">
+						<Run
+							ws="en">A noun is a broad classification of parts of speech which include substantives and nominals.</Run>
+					</AStr>
+				</Description>
+				<ForeColor
+					val="6303632" />
+				<Hidden
+					val="False" />
+				<IsProtected
+					val="False" />
+				<Name>
+					<AUni
+						ws="en">Noun</AUni>
+				</Name>
+				<SortSpec
+					val="0" />
+				<UnderColor
+					val="-1073741824" />
+				<UnderStyle
+					val="1" />
+			</ownseq>
+			<ownseq
+				class="PartOfSpeech"
+				guid="a4fc78d6-7591-4fb3-8edd-82f10ae3739d">
+				<Abbreviation>
+					<AUni
+						ws="en">pro-form</AUni>
+				</Abbreviation>
+				<BackColor
+					val="-1073741824" />
+				<CatalogSourceId>
+					<Uni>Pro-form</Uni>
+				</CatalogSourceId>
+				<DateCreated
+					val="2023-08-16 09:28:29.491" />
+				<DateModified
+					val="2023-08-16 09:28:29.491" />
+				<Description>
+					<AStr
+						ws="en">
+						<Run
+							ws="en">A pro-form is a part of speech whose members usually substitute for other constituents, including phrases, clauses, or sentences, and whose meaning is recoverable from the linguistic or extralinguistic context.</Run>
+					</AStr>
+				</Description>
+				<ForeColor
+					val="6303632" />
+				<Hidden
+					val="False" />
+				<IsProtected
+					val="False" />
+				<Name>
+					<AUni
+						ws="en">Pro-form</AUni>
+				</Name>
+				<SortSpec
+					val="0" />
+				<SubPossibilities>
+					<ownseq
+						class="PartOfSpeech"
+						guid="a3274cfd-225f-45fd-8851-a7b1a1e1037a">
+						<Abbreviation>
+							<AUni
+								ws="en">pro</AUni>
+						</Abbreviation>
+						<BackColor
+							val="-1073741824" />
+						<CatalogSourceId>
+							<Uni>Pronoun</Uni>
+						</CatalogSourceId>
+						<DateCreated
+							val="2023-08-16 09:28:29.491" />
+						<DateModified
+							val="2023-08-16 09:28:29.491" />
+						<Description>
+							<AStr
+								ws="en">
+								<Run
+									ws="en">A pronoun is a pro-form which functions like a noun and substitutes for a noun or noun phrase.</Run>
+							</AStr>
+						</Description>
+						<ForeColor
+							val="6303632" />
+						<Hidden
+							val="False" />
+						<IsProtected
+							val="False" />
+						<Name>
+							<AUni
+								ws="en">Pronoun</AUni>
+						</Name>
+						<SortSpec
+							val="0" />
+						<UnderColor
+							val="-1073741824" />
+						<UnderStyle
+							val="1" />
+					</ownseq>
+				</SubPossibilities>
+				<UnderColor
+					val="-1073741824" />
+				<UnderStyle
+					val="1" />
+			</ownseq>
+			<ownseq
+				class="PartOfSpeech"
+				guid="86ff66f6-0774-407a-a0dc-3eeaf873daf7">
+				<Abbreviation>
+					<AUni
+						ws="en">v</AUni>
+				</Abbreviation>
+				<BackColor
+					val="-1073741824" />
+				<CatalogSourceId>
+					<Uni>Verb</Uni>
+				</CatalogSourceId>
+				<DateCreated
+					val="2023-08-16 09:28:29.491" />
+				<DateModified
+					val="2023-08-16 09:28:29.491" />
+				<Description>
+					<AStr
+						ws="en">
+						<Run
+							ws="en">A verb is a part of speech whose members typically signal events and actions; constitute, singly or in a phrase, a minimal predicate in a clause; govern the number and types of other constituents which may occur in the clause; and, in inflectional languages, may be inflected for tense, aspect, voice, modality, or agreement with other constituents in person, number, or grammatical gender.</Run>
+					</AStr>
+				</Description>
+				<ForeColor
+					val="6303632" />
+				<Hidden
+					val="False" />
+				<IsProtected
+					val="False" />
+				<Name>
+					<AUni
+						ws="en">Verb</AUni>
+				</Name>
+				<SortSpec
+					val="0" />
+				<UnderColor
+					val="-1073741824" />
+				<UnderStyle
+					val="1" />
+			</ownseq>
+		</Possibilities>
+		<PreventChoiceAboveLevel
+			val="0" />
+		<PreventDuplicates
+			val="True" />
+		<PreventNodeChoices
+			val="False" />
+		<UseExtendedFields
+			val="True" />
+		<WsSelector
+			val="-3" />
+	</CmPossibilityList>
+</PartsOfSpeech>

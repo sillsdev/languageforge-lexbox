@@ -77,10 +77,9 @@ public static class MergeRoutes
         return TypedResults.Ok();
     }
 
-    static async Task<Results<Ok, NotFound<string>>> SyncHarmonyProject(
+    internal static async Task<Results<Ok, NotFound<string>>> SyncHarmonyProject(
         Guid projectId,
         IProjectLookupService projectLookupService,
-        CrdtSyncService crdtSyncService,
         IServiceProvider services,
         CancellationToken stoppingToken
     )
@@ -94,7 +93,10 @@ public static class MergeRoutes
             return TypedResults.NotFound("Project not found");
         }
 
-        var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(services, projectId);
+        // Fresh scope so the worker's CurrentProjectService isn't the one the request-pipeline
+        // middleware already set the project context on (which would trip SetupProjectContext).
+        await using var scope = services.CreateAsyncScope();
+        var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(scope.ServiceProvider, projectId);
         await syncWorker.ExecuteSync(stoppingToken, onlyHarmony: true);
 
         return TypedResults.Ok();

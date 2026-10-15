@@ -25,6 +25,7 @@
   const projectContext = initProjectContext();
   const code = untrack(() => _code);
   projectContext.projectCode = code;
+  projectContext.inParatext = untrack(() => paratext);
 
   initProjectStorage(code);
 
@@ -71,8 +72,7 @@
       projectCode: code,
       projectType,
       server: projectScope.server,
-      projectData: projectScope.projectData,
-      paratext
+      projectData: projectScope.projectData
     });
     serviceLoaded = true;
   });

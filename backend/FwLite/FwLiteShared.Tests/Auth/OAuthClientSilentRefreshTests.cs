@@ -55,7 +55,9 @@ public class OAuthClientSilentRefreshTests
         result.Should().BeNull();
         (await appMock.Object.GetAccountsAsync()).Should().BeEmpty();
         appMock.Verify(a => a.RemoveAsync(It.IsAny<IAccount>()), Times.Once);
-        events.Should().ContainSingle().Which.Server.Should().Be(Server);
+        events.Should().ContainSingle();
+        events[0].Server.Should().Be(Server);
+        events[0].Cause.Should().Be(AuthenticationChangeCause.SessionExpired);
     }
 
     [Fact]
@@ -128,7 +130,7 @@ public class OAuthClientSilentRefreshTests
     {
         var release = new TaskCompletionSource();
         var acquireEntered = new TaskCompletionSource();
-        var (client, appMock, _, _) = BuildClient(async (account, _) =>
+        var (client, appMock, _, events) = BuildClient(async (account, _) =>
         {
             acquireEntered.TrySetResult();
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
@@ -150,6 +152,7 @@ public class OAuthClientSilentRefreshTests
 
         (await appMock.Object.GetAccountsAsync()).Should().BeEmpty();
         (await client.GetCurrentToken()).Should().BeNull("logout prevails");
+        events.Should().Contain(e => e.Cause == AuthenticationChangeCause.Logout);
     }
 
     private static AuthenticationResult NearExpiryResult(IAccount account) => new(

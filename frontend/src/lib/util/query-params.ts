@@ -90,7 +90,7 @@ export function toSearchParams<T extends PrimitiveRecord>(params: T): string {
 /**
  * @param defaultValue The value to return if the specified parameter is `null`
  */
-export function getBoolSearchParam<T extends PrimitiveRecord>(key: keyof ConditionalPick<T, boolean>, params: URLSearchParams, defaultValue = false): boolean {
+export function getBoolSearchParam<T extends PrimitiveRecord>(key: Exclude<keyof ConditionalPick<T, boolean>, number | symbol>, params: URLSearchParams, defaultValue = false): boolean {
   const value = getSearchParam<T, boolean>(key, params);
   if (value === true.toString()) {
     return true;

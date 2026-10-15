@@ -1,5 +1,7 @@
+using SIL.Harmony.Config;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using LinqToDB;
 using LinqToDB.Internal.SqlQuery;
@@ -238,11 +240,20 @@ public static class Json
         [property: Column("fullkey")] string FullKey,
         [property: Column("path")] string Path);
 
-    public static IJsonTypeInfoResolver MakeLcmCrdtExternalJsonTypeResolver(this CrdtConfig config)
+    /// <summary>
+    /// Web-cased <see cref="JsonSerializerOptions"/> for talking to the sync server (camelCase wire format),
+    /// with the external MiniLcm modifiers layered on. Harmony's <see cref="HarmonyConfig.ConfigureExternalJsonOptions"/>
+    /// then adds its <see cref="SIL.Harmony.Changes.IChange"/>/<c>IObject</c> polymorphism (type-info modifier plus the
+    /// change converter) so that <c>ChangeEntity&lt;IChange&gt;</c> fields in sync payloads round-trip.
+    /// </summary>
+    public static JsonSerializerOptions MakeLcmCrdtExternalJsonOptions(this HarmonyConfig config)
     {
-        var resolver = config.MakeJsonTypeResolver();
-        resolver = resolver.AddExternalMiniLcmModifiers();
-        return resolver;
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        {
+            TypeInfoResolver = new DefaultJsonTypeInfoResolver().AddExternalMiniLcmModifiers()
+        };
+        config.ConfigureExternalJsonOptions(options);
+        return options;
     }
 
     internal static void ExampleSentenceTranslationModifier(JsonTypeInfo typeInfo)

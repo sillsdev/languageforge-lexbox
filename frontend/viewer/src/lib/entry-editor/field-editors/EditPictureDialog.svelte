@@ -6,8 +6,9 @@
   import {Button} from '$lib/components/ui/button';
   import PictureImage from './PictureImage.svelte';
   import {ACCEPTED_PICTURE_TYPES} from './picture-formats';
+  import {downloadPictureFile} from './picture-actions';
   import {t} from 'svelte-i18n-lingui';
-  import {useLexboxApi} from '$lib/services/service-provider';
+  import {useMiniLcmApi} from '$lib/services/service-provider';
   import {AppNotification} from '$lib/notifications/notifications';
   import {useWritingSystemService} from '$project/data';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
@@ -16,20 +17,24 @@
   type Props = {
     open: boolean;
     picture: IPicture;
+    /** When true the dialog is adding a not-yet-saved picture: title becomes "Add Picture" and the
+        Download/Delete buttons are hidden. */
+    isNew?: boolean;
     /** Uploads a replacement file and returns its mediaUri (or null if rejected). Does NOT touch
         the model — the new image is only previewed until Submit. */
     onUploadReplacement: (file: File) => Promise<string | null>;
-    /** Applies the buffered edits (caption + replaced image) to the model. */
-    onSubmit: (after: IPicture) => void;
+    /** Applies the buffered edits (caption + replaced image). Returns whether the submit succeeded,
+        i.e. whether the dialog may close (a new-picture upload can fail and must stay open). */
+    onSubmit: (after: IPicture) => boolean | Promise<boolean>;
     /** Deletes the picture immediately (has its own confirmation); independent of Submit. Returns a
         promise that resolves once the delete — or its cancellation — has settled. */
     onDelete: () => Promise<void>;
   };
-  let {open = $bindable(false), picture, onUploadReplacement, onSubmit, onDelete}: Props = $props();
+  let {open = $bindable(false), picture, isNew = false, onUploadReplacement, onSubmit, onDelete}: Props = $props();
 
   useBackHandler({addToStack: () => open, onBack: () => (open = false), key: 'edit-picture-dialog'});
   const writingSystemService = useWritingSystemService();
-  const api = useLexboxApi();
+  const api = useMiniLcmApi();
 
   // Buffered, local edits. Nothing here reaches the model until Submit; Cancel just closes and the
   // next open re-seeds these from the picture, discarding whatever was typed/replaced.
@@ -63,25 +68,15 @@
     }
   }
 
-  // Downloads the currently-shown image, saved under the filename the media server reports for it.
   let downloading = $state(false);
   async function downloadPicture() {
     if (downloading) return;
     downloading = true;
     try {
-      const file = await api.getFileStream(mediaUri, true);
-      if (!file.stream) {
-        AppNotification.display(file.errorMessage ?? $t`Unable to download the picture`, {type: 'error'});
-        return;
+      const result = await downloadPictureFile(api, mediaUri);
+      if (!result.success) {
+        AppNotification.display(result.errorMessage ?? $t`Unable to download the picture`, {type: 'error'});
       }
-      const blob = await new Response(await file.stream.stream()).blob();
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = file.fileName ?? 'picture';
-      anchor.click();
-      // Release the object URL on the next tick, once the browser has captured the blob.
-      setTimeout(() => URL.revokeObjectURL(url), 0);
     } finally {
       downloading = false;
     }
@@ -103,16 +98,23 @@
     }
   }
 
-  function submit() {
-    onSubmit({...$state.snapshot(picture), caption: $state.snapshot(caption), mediaUri});
-    open = false;
+  let submitting = $state(false);
+  async function submit() {
+    if (submitting) return;
+    submitting = true;
+    try {
+      const ok = await onSubmit({...$state.snapshot(picture), caption: $state.snapshot(caption), mediaUri});
+      if (ok) open = false;
+    } finally {
+      submitting = false;
+    }
   }
 </script>
 
 <Dialog.Root bind:open>
   <Dialog.DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{$t`Edit Picture`}</Dialog.DialogTitle>
+      <Dialog.DialogTitle>{isNew ? $t`Add Picture` : $t`Edit Picture`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
 
     <!-- Picture at the top, centered in the dialog (shows the buffered replacement if any). -->
@@ -133,19 +135,23 @@
     </Editor.Root>
 
     <Dialog.DialogFooter>
-      <Button icon="i-mdi-download" variant="secondary" loading={downloading} disabled={uploading || downloading} onclick={() => downloadPicture()}>
-        {$t`Download Picture`}
-      </Button>
-      <Button icon="i-mdi-image-refresh" variant="secondary" loading={uploading} disabled={uploading || deleting} onclick={() => fileInputElement?.click()}>
+      {#if !isNew}
+        <Button icon="i-mdi-download" variant="secondary" loading={downloading} disabled={uploading || downloading} onclick={() => downloadPicture()}>
+          {$t`Download Picture`}
+        </Button>
+      {/if}
+      <Button icon="i-mdi-image-refresh" variant="secondary" loading={uploading} disabled={uploading || deleting || submitting} onclick={() => fileInputElement?.click()}>
         {$t`Replace Picture`}
       </Button>
-      <Button icon="i-mdi-delete" variant="destructive" loading={deleting} disabled={uploading || deleting} onclick={() => deletePicture()}>
-        {$t`Delete Picture`}
-      </Button>
-      <Button variant="secondary" onclick={() => (open = false)}>
+      {#if !isNew}
+        <Button icon="i-mdi-delete" variant="destructive" loading={deleting} disabled={uploading || deleting} onclick={() => deletePicture()}>
+          {$t`Delete Picture`}
+        </Button>
+      {/if}
+      <Button variant="secondary" disabled={submitting} onclick={() => (open = false)}>
         {$t`Cancel`}
       </Button>
-      <Button disabled={uploading || deleting} onclick={() => submit()}>
+      <Button loading={submitting} disabled={uploading || deleting || submitting} onclick={() => submit()}>
         {$t`Submit`}
       </Button>
     </Dialog.DialogFooter>

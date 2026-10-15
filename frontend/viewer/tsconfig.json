@@ -22,6 +22,9 @@
       "$project/*": ["./src/project/*"]
     },
     "verbatimModuleSyntax": true,
+    /* Vite emits, never tsc. Without noEmit, allowJs makes TS plan to write each included .js over itself
+       ("Cannot write file ... bundled-ffmpeg-worker.js because it would overwrite input file"). */
+    "noEmit": true,
   },
   "include": [
     "src/**/*.ts",

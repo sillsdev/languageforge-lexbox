@@ -134,4 +134,82 @@ public abstract class BaseSerializationTest
         }) ?? throw new InvalidOperationException("Could not parse json array");
         return node.AsArray();
     }
+
+    protected record LegacyRecord<T>(T Input, T Output);
+
+    protected static Task VerifyRegressionDataUpToDate<T>(
+        string fileNamePrefix,
+        IEnumerable<Type> allTypes,
+        Func<T, Type> typeOf,
+        Func<Type, T> generate,
+        [CallerFilePath] string sourceFile = "") where T : class
+    {
+        var legacyJsonArray = ReadJsonArrayFromFile(GetJsonFilePath($"{fileNamePrefix}.legacy.verified.txt", sourceFile));
+        var latestJsonArray = ReadJsonArrayFromFile(GetJsonFilePath($"{fileNamePrefix}.latest.verified.txt", sourceFile));
+        var newLatestJsonArray = new JsonArray();
+
+        // step 1: refresh the output of legacy entries, so any that no longer round-trip to the same output get verified
+        foreach (var legacyJsonNode in legacyJsonArray)
+        {
+            legacyJsonNode.Should().NotBeNull();
+            var legacyJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacyRecord<T>.Input)]!);
+            legacyJson.Should().NotBeNullOrWhiteSpace();
+            var value = JsonSerializer.Deserialize<T>(legacyJson, HarmonyJsonOptions);
+            value.Should().NotBeNull();
+            var newLegacyOutputJson = JsonSerializer.Serialize(value, IndentedHarmonyJsonOptions);
+            legacyJsonNode[nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLegacyOutputJson);
+            // the output is no longer round-trip tested in latest, so make sure it reserializes to itself
+            var reserializedOutput = JsonSerializer.Deserialize<T>(newLegacyOutputJson, HarmonyJsonOptions);
+            JsonSerializer.Serialize(reserializedOutput, IndentedHarmonyJsonOptions).Should().Be(newLegacyOutputJson);
+        }
+
+        // step 2: validate the round-tripping/output of latest entries, moving any that don't to legacy
+        var stableTypes = new HashSet<Type>();
+        foreach (var latestJsonNode in latestJsonArray)
+        {
+            latestJsonNode.Should().NotBeNull();
+            var latestJson = ToNormalizedIndentedJsonString(latestJsonNode);
+            latestJson.Should().NotBeNullOrWhiteSpace();
+            var value = JsonSerializer.Deserialize<T>(latestJsonNode, HarmonyJsonOptions);
+            value.Should().NotBeNull();
+            var newLatestJson = JsonSerializer.Serialize(value, IndentedHarmonyJsonOptions);
+
+            if (latestJson != newLatestJson)
+            {
+                // The current "latest" json doesn't match it's reserialized form.
+                // I.e. it's no longer the latest. It's now legacy
+                legacyJsonArray.Add(new JsonObject
+                {
+                    [nameof(LegacyRecord<T>.Input)] = latestJsonNode.DeepClone(),
+                    [nameof(LegacyRecord<T>.Output)] = JsonNode.Parse(newLatestJson)
+                });
+            }
+            else
+            {
+                // it's still the latest
+                newLatestJsonArray.Add(latestJsonNode.DeepClone());
+                stableTypes.Add(typeOf(value));
+            }
+        }
+
+        // step 3: add a generated entry for any type no longer represented in latest.
+        // If the new model only changes the representation of the same data then this might not be helpful.
+        // However, we typically change the model in order to add new data, so the generated entry will exercise that new data.
+        // Anyhow, it's much easier for a dev to remove unwanted entries than
+        // to generate and insert them manually. We can remove this if it's too noisy.
+        foreach (var type in allTypes.Where(type => !stableTypes.Contains(type)))
+        {
+            var serialized = JsonSerializer.Serialize(generate(type), IndentedHarmonyJsonOptions);
+            newLatestJsonArray.Add(JsonNode.Parse(serialized));
+        }
+
+        return Task.WhenAll(
+            Verify(SerializeRegressionData(legacyJsonArray), sourceFile: sourceFile)
+                .UseStrictJson()
+                .UseFileName($"{fileNamePrefix}.legacy"),
+            Verify(SerializeRegressionData(newLatestJsonArray), sourceFile: sourceFile)
+                .UseStrictJson()
+                .UseFileName($"{fileNamePrefix}.latest")
+        );
+    }
 }

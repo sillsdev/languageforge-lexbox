@@ -1,19 +1,15 @@
 <script lang="ts">
   import * as RadioGroup from '$lib/components/ui/radio-group';
   import {t} from 'svelte-i18n-lingui';
-  import Switch from '$lib/components/ui/switch/switch.svelte';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {Button} from '$lib/components/ui/button';
-  import DevContent from '$lib/layout/DevContent.svelte';
   import ViewPicker from './ViewPicker.svelte';
 
   let open = $state(false);
   let {
     dictionaryPreview = $bindable('show'),
-    readonly = $bindable(false),
   }: {
     dictionaryPreview?: 'show' | 'hide' | 'sticky'
-    readonly?: boolean
   } = $props();
 </script>
 <ResponsivePopup bind:open>
@@ -28,13 +24,5 @@
       <RadioGroup.Option value="sticky">{$t`Pinned`}</RadioGroup.Option>
     </RadioGroup.Root>
     <ViewPicker onClose={() => open = false} />
-    <DevContent>
-      <div class="space-y-2">
-        <h3 class="font-normal">Dev Options</h3>
-        <div class="flex items-center space-x-2">
-          <Switch bind:checked={readonly} label="Readonly" />
-        </div>
-      </div>
-    </DevContent>
   </div>
 </ResponsivePopup>

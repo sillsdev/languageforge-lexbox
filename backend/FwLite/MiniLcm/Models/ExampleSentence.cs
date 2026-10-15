@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using MiniLcm.Attributes;
 using UUIDNext;
@@ -67,4 +68,11 @@ public class Translation
 
     [Obsolete("Only for handling legacy data.")]
     public static readonly Guid MissingTranslationId = new("3dce1982-8e93-44f1-b92c-e9c7bdf72801");
+
+    public static bool IsMissingTranslationId([NotNullWhen(true)] Guid? id)
+    {
+#pragma warning disable CS0618 // Type or member is obsolete
+        return id == MissingTranslationId;
+#pragma warning restore CS0618 // Type or member is obsolete
+    }
 }

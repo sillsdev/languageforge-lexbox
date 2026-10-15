@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using FluentAssertions.Execution;
 using LcmCrdt.Objects;
 using SIL.Harmony.Core;
@@ -85,8 +84,6 @@ public class SnapshotDeserializationTests : BaseSerializationTest
         }
     }
 
-    private record LegacySnapshotRecord(IObjectBase Input, IObjectBase Output);
-
     [Fact]
     public void CanDeserializeLegacyRegressionData()
     {
@@ -98,7 +95,7 @@ public class SnapshotDeserializationTests : BaseSerializationTest
         // when it detects that they don't stably round-trip and
         // (2) keeps the round-trip output of the snapshots up to date
         using var jsonFile = File.OpenRead(GetJsonFilePath("SnapshotDeserializationRegressionData.legacy.verified.txt"));
-        var snapshots = JsonSerializer.Deserialize<List<LegacySnapshotRecord>>(jsonFile, HarmonyJsonOptions);
+        var snapshots = JsonSerializer.Deserialize<List<LegacyRecord<IObjectBase>>>(jsonFile, HarmonyJsonOptions);
         snapshots.Should().NotBeNullOrEmpty().And.NotContainNulls();
         snapshots.SelectMany(c => new[] { c.Input, c.Output })
             .Should().NotContainNulls()
@@ -107,84 +104,12 @@ public class SnapshotDeserializationTests : BaseSerializationTest
 
     [Fact]
     [Trait("Category", "Verified")]
-    public async Task RegressionDataUpToDate()
+    public Task RegressionDataUpToDate()
     {
-        var legacyJsonArray = ReadJsonArrayFromFile(GetJsonFilePath("SnapshotDeserializationRegressionData.legacy.verified.txt"));
-        var latestJsonArray = ReadJsonArrayFromFile(GetJsonFilePath("SnapshotDeserializationRegressionData.latest.verified.txt"));
-        var newLatestJsonArray = new JsonArray();
-
-        // step 1: validate the round-tripping/output of legacy snapshots
-        foreach (var legacyJsonNode in legacyJsonArray)
-        {
-            legacyJsonNode.Should().NotBeNull();
-            var legacyJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacySnapshotRecord.Input)]!);
-            legacyJson.Should().NotBeNullOrWhiteSpace();
-            var legacyOutputJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacySnapshotRecord.Output)]!);
-            legacyOutputJson.Should().NotBeNullOrWhiteSpace();
-            var snapshot = JsonSerializer.Deserialize<IObjectBase>(legacyJson, HarmonyJsonOptions);
-            snapshot.Should().NotBeNull();
-            var newLegacyOutputJson = JsonSerializer.Serialize(snapshot, IndentedHarmonyJsonOptions);
-            if (legacyOutputJson != newLegacyOutputJson)
-            {
-                //the legacy snapshot no longer round-trips to the same output, so we should verify the new output
-                legacyJsonNode[nameof(LegacySnapshotRecord.Output)] = JsonNode.Parse(newLegacyOutputJson);
-            }
-        }
-
-        // step 2: validate the round-tripping/output of latest snapshots, moving any that don't to legacy
-        var seenObjectTypes = new HashSet<Type>();
-        foreach (var latestJsonNode in latestJsonArray)
-        {
-            latestJsonNode.Should().NotBeNull();
-            var latestJson = ToNormalizedIndentedJsonString(latestJsonNode);
-            latestJson.Should().NotBeNullOrWhiteSpace();
-            var snapshot = JsonSerializer.Deserialize<IObjectBase>(latestJsonNode, HarmonyJsonOptions);
-            snapshot.Should().NotBeNull();
-            seenObjectTypes.Add(snapshot.DbObject.GetType());
-            var newLatestJson = JsonSerializer.Serialize(snapshot, IndentedHarmonyJsonOptions);
-
-            if (latestJson != newLatestJson)
-            {
-                // The current "latest" json doesn't match it's reserialized form.
-                // I.e. it's no longer the latest. It's now legacy
-                legacyJsonArray.Add(new JsonObject
-                {
-                    [nameof(LegacySnapshotRecord.Input)] = latestJsonNode.DeepClone(),
-                    [nameof(LegacySnapshotRecord.Output)] = JsonNode.Parse(newLatestJson)
-                });
-                newLatestJsonArray.Add(JsonNode.Parse(newLatestJson));
-                // Additionally we add a brand new generated snapshot.
-                // If the new model only removes data or changes the representation of the same data then this probably isn't helpful.
-                // However, we typically change the model in order to add new data, so the generated snapshot will exercise that new data.
-                // Anyhow, it's much easier for a dev to remove unwanted snapshots than
-                // to generate and insert them manually. We can remove this if it's too noisy.
-                var generatedSnapshot = GenerateSnapshotForType(snapshot.DbObject.GetType());
-                var serialized = JsonSerializer.Serialize(generatedSnapshot, IndentedHarmonyJsonOptions);
-                newLatestJsonArray.Add(JsonNode.Parse(serialized));
-            }
-            else
-            {
-                // it's still the latest
-                newLatestJsonArray.Add(latestJsonNode.DeepClone());
-            }
-        }
-
-        // step 3: add snapshots for any snapshot types not already represented
-        foreach (var snapshotType in LcmCrdtKernel.AllObjectTypes()
-            .Where(snapshotType => !seenObjectTypes.Contains(snapshotType)))
-        {
-            var generatedSnapshot = GenerateSnapshotForType(snapshotType);
-            var serialized = JsonSerializer.Serialize(generatedSnapshot, IndentedHarmonyJsonOptions);
-            newLatestJsonArray.Add(JsonNode.Parse(serialized));
-        }
-
-        await Task.WhenAll(
-            Verify(SerializeRegressionData(legacyJsonArray))
-                .UseStrictJson()
-                .UseFileName("SnapshotDeserializationRegressionData.legacy"),
-            Verify(SerializeRegressionData(newLatestJsonArray))
-                .UseStrictJson()
-                .UseFileName("SnapshotDeserializationRegressionData.latest")
-        );
+        return VerifyRegressionDataUpToDate<IObjectBase>(
+            "SnapshotDeserializationRegressionData",
+            LcmCrdtKernel.AllObjectTypes(),
+            snapshot => snapshot.DbObject.GetType(),
+            GenerateSnapshotForType);
     }
 }

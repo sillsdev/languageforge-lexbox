@@ -10,7 +10,6 @@ namespace FwLiteShared.Services;
 public interface IPreferencesService
 {
     [JSInvokable]
-    [TsFunction(Type = "Promise<string | null>")]
     string? Get(string key);
     [JSInvokable]
     void Set(string key, string value);

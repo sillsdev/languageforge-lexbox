@@ -27,22 +27,23 @@ public class ExampleSentenceValidator : AbstractValidator<ExampleSentence>
 
 public class ExampleSentenceTranslationValidator : AbstractValidator<Translation>
 {
-    private readonly ExampleSentence _exampleSentence;
+    private readonly ExampleSentence? _exampleSentence;
 
-    public ExampleSentenceTranslationValidator(ExampleSentence exampleSentence)
+    public ExampleSentenceTranslationValidator()
     {
-        _exampleSentence = exampleSentence;
         RuleFor(translation => translation.Text).NoEmptyValues(GetExampleSentenceTranslationIdentifier)
             .NoDefaultWritingSystems(GetExampleSentenceTranslationIdentifier);
     }
 
-    private string GetExampleSentenceTranslationIdentifier(Translation arg)
+    /// <summary>The parent only sharpens the error message, so validating without one is fine.</summary>
+    public ExampleSentenceTranslationValidator(ExampleSentence exampleSentence) : this()
     {
-        return $"Example: {_exampleSentence.Id:D} Translation #{_exampleSentence.Translations.IndexOf(arg) + 1}";
+        _exampleSentence = exampleSentence;
     }
 
-    private string GetExampleSentenceIdentifier()
+    private string GetExampleSentenceTranslationIdentifier(Translation translation)
     {
-        return _exampleSentence.Id.ToString("D");
+        if (_exampleSentence is null) return $"Translation {translation.Id:D}";
+        return $"Example: {_exampleSentence.Id:D} Translation #{_exampleSentence.Translations.IndexOf(translation) + 1}";
     }
 }

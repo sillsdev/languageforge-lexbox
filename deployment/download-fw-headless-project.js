@@ -85,7 +85,9 @@ function extractTarFile() {
   fs.mkdirSync(localExtractDir, { recursive: true });
 
   // Use system tar command (available on Windows 10+ and Linux)
-  execFileSync("tar", ["-xzf", localTar, "-C", localExtractDir], { stdio: "inherit" });
+  // relative posix path, because GNU tar (Git Bash) reads the colon in "D:\..." as host:path
+  const extractDir = path.relative(process.cwd(), localExtractDir).split(path.sep).join("/");
+  execFileSync("tar", ["-xzf", localTar, "-C", extractDir], { stdio: "inherit" });
 
   console.log(`Project extracted to ${localExtractDir}`);
 }

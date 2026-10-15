@@ -1,3 +1,6 @@
+using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.DependencyInjection;
+using SIL.Harmony.Core;
 using LcmCrdt.LocalSync;
 using SIL.Harmony;
 
@@ -46,6 +49,26 @@ public class ProjectIdentityServiceTests : IAsyncLifetime
         var comparison = ProjectIdentity.Compare(await IdentityOf(copy), await IdentityOf(_original));
 
         comparison.Should().Be(IdentityComparison.Match);
+    }
+
+    [Fact]
+    public async Task ADownloadedProject_HasNoCommitsOfItsOwnBeforeItsFirstSync()
+    {
+        // The root commit is only a lineage signal if a download can't author a commit before receiving the
+        // project's real history: one stamped by a device clock set in the past would sort first and become the root.
+        var db = $"file:{Guid.NewGuid():N}?mode=memory&cache=shared";
+        await using var keepAlive = new SqliteConnection($"Data Source={db}");
+        await keepAlive.OpenAsync();
+        int? commitsBeforeFirstSync = null;
+
+        // the same path CombinedProjectsService.DownloadProject takes, with its first sync in AfterCreate
+        await _original.GetService<CrdtProjectsService>().CreateProject(new("Sena 3", "sena-3-download", ProjectId,
+            new Uri("https://lexbox.example"),
+            AfterCreate: async (provider, _) => commitsBeforeFirstSync =
+                (await provider.GetRequiredService<DataModel>().GetChanges(new SyncState([]))).MissingFromClient.Length,
+            DbPath: db));
+
+        commitsBeforeFirstSync.Should().Be(0);
     }
 
     [Fact]

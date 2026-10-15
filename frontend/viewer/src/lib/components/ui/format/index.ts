@@ -1,5 +1,6 @@
 import FormatDate, {formatDate} from './format-date.svelte';
 import {formatNumber} from './format-number';
+import {formatFileSize} from './format-file-size';
 import {formatDuration, normalizeDuration} from './format-duration';
 import FormatDuration from './format-duration.svelte';
 import FormatRelativeDate from './format-relative-date.svelte';
@@ -8,6 +9,7 @@ export {
   FormatDate,
   formatDate,
   formatNumber,
+  formatFileSize,
   FormatDuration,
   formatDuration,
   normalizeDuration,

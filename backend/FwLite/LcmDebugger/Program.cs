@@ -9,10 +9,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Project;
 using Moq;
+using NReco.Logging.File;
 
 var builder = Host.CreateApplicationBuilder();
 //slows down import to log all sql.
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
+builder.Logging.AddFile(RunOutput.FilePath("run.log"));
 builder.Services.AddFwDataBridge();
 builder.Services.AddLcmCrdtClient();
 builder.Services.AddFwLiteProjectSync();

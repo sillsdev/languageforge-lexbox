@@ -20,11 +20,12 @@ export class ProjectPage {
     await this.page.locator('.i-mdi-loading').waitFor({state: 'detached'});
     await this.page.waitForFunction(() => document.fonts.ready);
     await expect(this.page.locator('.animate-pulse')).toHaveCount(0);
-    await expect(this.entriesList.skeletons).toHaveCount(0);
     await expect(this.page.getByRole('textbox', {name: 'Filter'})).toBeVisible();
     await expect(this.page.getByRole('button', {name: 'Headword'})).toBeVisible();
     // Entries hydrate after the table shell renders, so poll instead of one-shotting.
     await expect.poll(() => this.entriesList.entryRows.count()).toBeGreaterThan(5);
+    // Rows mount as skeletons first (and count as rows above), so this has to follow the poll.
+    await expect(this.entriesList.skeletons).toHaveCount(0);
   }
 
   async selectEntryByFilter(filter: string) {

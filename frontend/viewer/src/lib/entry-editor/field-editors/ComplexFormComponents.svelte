@@ -31,10 +31,10 @@
     const component: IComplexFormComponent = {
       id: randomId(),
       complexFormEntryId: entry.id,
-      complexFormHeadword: writingSystemService.headword(entry),
+      complexFormHeadword: writingSystemService.firstHeadword(entry),
       componentEntryId: selection.entry.id,
       componentSenseId: selection.sense?.id,
-      componentHeadword: writingSystemService.headword(selection.entry),
+      componentHeadword: writingSystemService.firstHeadword(selection.entry),
     };
     value = [...value, component];
     onchange?.(value);

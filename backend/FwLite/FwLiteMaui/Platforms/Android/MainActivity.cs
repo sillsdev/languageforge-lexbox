@@ -5,10 +5,13 @@ using Android.Content.Res;
 using Android.OS;
 using AndroidX.Core.View;
 using FwLiteShared.Auth;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 
 namespace FwLiteMaui;
 
+//ConfigurationChanges deliberately leaves out Keyboard/KeyboardHidden: the recreation on keyboard attach/detach
+//is what keeps IPlatformFeaturesService.HasHardwareKeyboard fresh.
 [Activity(Theme = "@style/Maui.SplashTheme",
     MainLauncher = true,
     LaunchMode = LaunchMode.SingleTop,
@@ -19,6 +22,9 @@ namespace FwLiteMaui;
     Categories = [Intent.CategoryDefault])]
 public class MainActivity : MauiAppCompatActivity
 {
+    private AndroidInAppUpdateService? _inAppUpdateService;
+    private bool _hasResumed;
+
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
@@ -34,12 +40,36 @@ public class MainActivity : MauiAppCompatActivity
         }
 
         ApplyBrandedSystemBars();
+        StartInAppUpdateCheck();
     }
 
     protected override void OnResume()
     {
         base.OnResume();
         Platform.OnResume(this);
+        //Skip the first resume: it fires right after OnCreate's CheckForUpdate, which already handles a
+        //previously-downloaded update, so checking again here would risk a second dialog. Later resumes
+        //(returning from background) still catch a download that finished while we were away.
+        if (_hasResumed)
+        {
+            _inAppUpdateService?.CheckForDownloadedUpdateOnResume();
+        }
+        _hasResumed = true;
+    }
+
+    private void StartInAppUpdateCheck()
+    {
+        //Never let a Play update check crash startup - it's a best-effort nicety.
+        try
+        {
+            //Container-owned singleton (disposed at shutdown); don't dispose it from the activity.
+            _inAppUpdateService = IPlatformApplication.Current?.Services.GetService<AndroidInAppUpdateService>();
+            _inAppUpdateService?.CheckForUpdate(this);
+        }
+        catch (Exception e)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to start in-app update check: {e}");
+        }
     }
 
     protected override void OnNewIntent(Intent? intent)
@@ -47,6 +77,7 @@ public class MainActivity : MauiAppCompatActivity
         base.OnNewIntent(intent);
         Platform.OnNewIntent(intent);
     }
+
     public override void OnConfigurationChanged(Configuration newConfig)
     {
         base.OnConfigurationChanged(newConfig);
@@ -66,6 +97,12 @@ public class MainActivity : MauiAppCompatActivity
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
     {
         base.OnActivityResult(requestCode, resultCode, data);
+        if (requestCode == AndroidInAppUpdateService.UpdateRequestCode)
+        {
+            //Play's update flow result. Nothing to do: if the user declined, Play offers again later;
+            //if they accepted, the download proceeds in the background. Don't forward to MSAL.
+            return;
+        }
         AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(requestCode, resultCode, data);
     }
 }

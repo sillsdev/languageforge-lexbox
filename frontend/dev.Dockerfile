@@ -1,11 +1,15 @@
 # syntax=docker/dockerfile:1
 # TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.
-FROM node:20 AS builder
+FROM node:26 AS builder
 
-# Version of corepack distributed with node currently (2025-02-04) has a bug that prevents PNPM installation; latest version has the bugfix
-RUN npm install -g corepack@latest
-RUN corepack enable && corepack prepare pnpm@10.24.0 --activate
+RUN npm install -g pnpm@12.3.4
 WORKDIR /app
+
+# Project-local virtual store so node_modules/.pnpm lands in the image
+# (global store is cache-mount-only and would dangle at runtime).
+# PNPM_CONFIG_* is required: virtualStoreType is an enum and is validated
+# before ${...} interpolation in pnpm-workspace.yaml.
+ENV PNPM_CONFIG_VIRTUAL_STORE_TYPE=project
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
 

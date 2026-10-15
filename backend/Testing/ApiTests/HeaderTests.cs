@@ -3,6 +3,8 @@ using FluentAssertions;
 
 namespace Testing.ApiTests;
 
+// Hits live staging (Cloudflare), so it stays out of `task test:unit` and CI unit runs.
+[Trait("Category", "Integration")]
 public class HeaderTests : ApiTestBase
 {
     public HeaderTests()

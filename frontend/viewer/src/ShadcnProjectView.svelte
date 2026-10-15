@@ -47,7 +47,7 @@
     }
   }
 </script>
-<svelte:window on:message={onMessage}/>
+<svelte:window onmessage={onMessage}/>
 <DialogsProvider/>
 <div class="h-screen flex PortalTarget overflow-hidden shadcn-root" {...rest}>
   <Sidebar.Provider bind:open>

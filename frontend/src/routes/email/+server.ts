@@ -21,5 +21,6 @@ export function GET(event: RequestEvent): Response {
     template: EmailTemplate.ForgotPassword,
     resetUrl: 'https://example.com/reset'
   };
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- eslint can't resolve the .svelte component props, svelte-check can and needs the cast
   return json(render(componentMap[type] as unknown as Component<EmailTemplateProps>, props, event.locals.activeLocale));
 }

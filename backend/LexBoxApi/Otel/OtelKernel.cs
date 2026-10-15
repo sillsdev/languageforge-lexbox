@@ -1,11 +1,9 @@
 using System.Diagnostics;
-using System.Diagnostics.Metrics;
 using System.Security.Claims;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using Npgsql;
 using OpenTelemetry;
-using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Quartz;
@@ -93,22 +91,6 @@ public static class OtelKernel
                 })
                 .AddHotChocolateInstrumentation()
             );
-
-        var meter = new Meter(ServiceName, AppVersionService.Version);
-        var counter = meter.CreateCounter<long>("api.login-attempts");
-        services.AddOpenTelemetry().WithMetrics(metricProviderBuilder =>
-            metricProviderBuilder
-                .AddOtlpExporter(options =>
-                {
-                    configuration.Bind("Otel", options);
-                })
-                .AddMeter(meter.Name)
-                .SetResourceBuilder(appResourceBuilder)
-                .AddAspNetCoreInstrumentation()
-                .AddRuntimeInstrumentation()
-                .AddProcessInstrumentation()
-                .AddHttpClientInstrumentation()
-        );
     }
 
     private static void EnrichWithUser(this Activity activity, HttpContext httpContext)

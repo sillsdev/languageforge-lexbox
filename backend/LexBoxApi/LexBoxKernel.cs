@@ -1,27 +1,20 @@
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL;
-using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Proxies;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
 using LexBoxApi.Services.FwLiteReleases;
+using LexCore.Analytics;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
-using LfClassicData;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
-using Polly;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace LexBoxApi;
 
 public static class LexBoxKernel
 {
-    public const string SwaggerDocumentName = "v1";
-    public const string OpenApiPublicDocumentName = "public";
-
     public static void AddLexBoxApi(this IServiceCollection services,
         ConfigurationManager configuration,
         IWebHostEnvironment environment)
@@ -59,6 +52,22 @@ public static class LexBoxKernel
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddHttpClient();
+        // Mixpanel analytics (shared core in LexCore). Bound from the "Analytics" section so it can be
+        // toggled per-environment via config (e.g. Analytics__Enabled in k8s). Off unless the config
+        // enables it and a production token is present; CI always forces it off.
+        services.AddHttpClient(MixpanelClient.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(10));
+        services.AddSingleton<MixpanelClient>();
+        // Scoped: the implementation resolves the current user via LoggedInContext (scoped).
+        services.AddScoped<ILexboxAnalyticsService, LexboxAnalyticsService>();
+        services.AddOptions<AnalyticsConfigBase>()
+            .BindConfiguration("Analytics")
+            .PostConfigure(config =>
+            {
+                if (string.IsNullOrEmpty(config.Product))
+                    config.Product = MixpanelProducts.Lexbox;
+                if (AnalyticsCiEnvironment.IsCiEnvironment())
+                    config.Enabled = false;
+            });
         services.AddServiceDiscovery();
         services.AddHttpClient<FwHeadlessClient>(client => client.BaseAddress = new ("http://fwHeadless"))
             .AddServiceDiscovery();//service discovery means that we lookup the hostname in Services__fwHeadless__http in config
@@ -80,8 +89,6 @@ public static class LexBoxKernel
         services.AddScoped<ILexProxyService, LexProxyService>();
         services.AddSingleton<ISendReceiveService, SendReceiveService>();
         services.AddSingleton<LexboxLinkGenerator>();
-        if (environment.IsDevelopment())
-            services.AddHostedService<SwaggerValidationService>();
         services.AddScheduledTasks(configuration);
         services.AddHealthChecks()
             .AddCheck<HgWebHealthCheck>("hgweb", HealthStatus.Unhealthy, ["hg"], TimeSpan.FromSeconds(5))
@@ -92,15 +99,5 @@ public static class LexBoxKernel
         services.AddFileUploadProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
-    }
-
-    private class SwaggerValidationService(IAsyncSwaggerProvider swaggerProvider): BackgroundService
-    {
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            //this delay is because there's some kind of race condition where minimal apis are not yet registered
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-            await swaggerProvider.GetSwaggerAsync(SwaggerDocumentName);
-        }
     }
 }

@@ -21,7 +21,16 @@ public class SyncResultsProcessor(
     LocalCommentReadStatusService commentReadStatusService,
     ILogger<SyncResultsProcessor> logger)
 {
+    /// <summary>
+    /// Tells the UI which entries changed, and whether any user comments or comment threads did.
+    /// </summary>
     public async Task SendNotifications(SyncResults syncResults)
+    {
+        await SendEntryNotifications(syncResults);
+        SendCommentNotifications(syncResults);
+    }
+
+    private async Task SendEntryNotifications(SyncResults syncResults)
     {
         try
         {
@@ -49,6 +58,33 @@ public class SyncResultsProcessor(
         {
             logger.LogError(e, "Failed to send notifications, continuing");
         }
+    }
+
+    private void SendCommentNotifications(SyncResults syncResults)
+    {
+        try
+        {
+            // Coarse: any synced comment/thread change (or one that shifted local unread status) is enough to
+            // tell the frontend to re-query. Detection is pure over the pulled commits, so no DB hit or await.
+            if (!SyncResultsHaveCommentChanges(syncResults)) return;
+            changeEventBus.PublishCommentsChanged(currentProjectService.Project);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to send comment notifications, continuing");
+        }
+    }
+
+    public static bool SyncResultsHaveCommentChanges(SyncResults syncResults)
+    {
+        return syncResults.MissingFromLocal
+            .SelectMany(c => c.ChangeEntities, (_, change) => change.Change)
+            .Any(change => change is CreateCommentThreadChange
+                or CreateUserCommentChange
+                or EditUserCommentChange
+                or SetCommentThreadStatusChange
+                or DeleteChange<UserComment>
+                or DeleteChange<CommentThread>);
     }
 
     public async Task ApplyCommentReadStatus(SyncResults syncResults)

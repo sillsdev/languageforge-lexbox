@@ -1,0 +1,45 @@
+name: Generate release notes
+description: >-
+  Renders GitHub's auto-generated notes for one product's release. Lexbox and FW Lite release from the
+  same repo under different tag prefixes, so the range has to start at that product's previous release
+  rather than whatever release GitHub would pick.
+inputs:
+  tag:
+    description: Tag of the release being created
+    required: true
+  previous-tag-prefixes:
+    description: Space-separated tag prefixes, tried in order, that identify this product's previous release
+    required: true
+  config:
+    description: Path of the release.yml-style config to categorize with
+    required: true
+  token:
+    description: Token with contents:read
+    required: true
+outputs:
+  notes-file:
+    description: Path of the rendered markdown
+    value: ${{ steps.notes.outputs.notes-file }}
+runs:
+  using: composite
+  steps:
+    - id: notes
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        GH_REPO: ${{ github.repository }}
+        TAG: ${{ inputs.tag }}
+        PREFIXES: ${{ inputs.previous-tag-prefixes }}
+        CONFIG: ${{ inputs.config }}
+      run: |
+        prev=""
+        for prefix in $PREFIXES; do
+          prev="$(gh release list --exclude-drafts --limit 200 --json tagName \
+            --jq "[.[].tagName | select(startswith(\"$prefix\") and . != \"$TAG\")][0] // empty")"
+          [ -n "$prev" ] && break
+        done
+        echo "Previous release: ${prev:-none}"
+        args=(-f tag_name="$TAG" -f target_commitish="$GITHUB_SHA" -f configuration_file_path="$CONFIG")
+        [ -n "$prev" ] && args+=(-f previous_tag_name="$prev")
+        gh api "repos/$GH_REPO/releases/generate-notes" "${args[@]}" --jq .body > "$RUNNER_TEMP/release-notes.md"
+        echo "notes-file=$RUNNER_TEMP/release-notes.md" >> "$GITHUB_OUTPUT"

@@ -21,9 +21,34 @@ public class UpdateSemanticDomainProxy : SemanticDomain
         set => throw new NotImplementedException();
     }
 
+    public override MultiString Abbreviation
+    {
+        get => new UpdateMultiStringProxy(_lcmSemanticDomain.Abbreviation, _lexboxLcmApi);
+        set => throw new NotImplementedException();
+    }
+
+    public override RichMultiString Description
+    {
+        get => new UpdateRichMultiStringProxy(_lcmSemanticDomain.Description, _lexboxLcmApi);
+        set => throw new NotImplementedException();
+    }
+
     public override string Code
     {
-        get => _lcmSemanticDomain.Abbreviation.BestAnalysisVernacularAlternative.Text;
-        set => throw new NotImplementedException();
+        get => LcmHelpers.GetSemanticDomainCode(_lcmSemanticDomain);
+        // Derived from Abbreviation on read; ignore writes (do not map Code → Abbreviation).
+        set { }
+    }
+
+    public override string? OcmCodes
+    {
+        get => _lcmSemanticDomain.OcmCodes;
+        set => _lcmSemanticDomain.OcmCodes = value;
+    }
+
+    public override string? LouwNidaCodes
+    {
+        get => _lcmSemanticDomain.LouwNidaCodes;
+        set => _lcmSemanticDomain.LouwNidaCodes = value;
     }
 }

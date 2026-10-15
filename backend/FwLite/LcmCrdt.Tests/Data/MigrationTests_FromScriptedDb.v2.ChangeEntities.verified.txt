@@ -431,6 +431,10 @@
       },
       "Predefined": true,
       "Code": "2",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "1bd42665-0610-4442-8d8d-7c666fee3a6d"
     }
   },
@@ -445,6 +449,10 @@
       },
       "Predefined": false,
       "Code": "2.1",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4"
     }
   },
@@ -459,6 +467,10 @@
       },
       "Predefined": false,
       "Code": "2.1.1",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5"
     }
   },
@@ -473,6 +485,10 @@
       },
       "Predefined": false,
       "Code": "2.1.1.1",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6"
     }
   },
@@ -487,6 +503,10 @@
       },
       "Predefined": true,
       "Code": "1",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "63403699-07c1-43f3-a47c-069d6e4316e5"
     }
   },
@@ -501,6 +521,10 @@
       },
       "Predefined": true,
       "Code": "1.1",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "999581c4-1611-4acb-ae1b-5e6c1dfe6f0c"
     }
   },
@@ -515,6 +539,10 @@
       },
       "Predefined": true,
       "Code": "1.2",
+      "Abbreviation": {},
+      "Description": {},
+      "OcmCodes": null,
+      "LouwNidaCodes": null,
       "EntityId": "dc1a2c6f-1b32-4631-8823-36dacc8cb7bb"
     }
   },
@@ -659,7 +687,11 @@
         "Name": {
           "en": "Universe, Creation"
         },
+        "Abbreviation": {},
         "Code": "1",
+        "Description": {},
+        "OcmCodes": null,
+        "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
       },
@@ -731,6 +763,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 1,
       "Order": 1,
       "EntityId": "0b76099f-a102-4d24-8fd7-2c44b6eb3623"
@@ -774,6 +808,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 0,
       "Order": 1,
       "EntityId": "33c8a15a-1bd4-429e-a400-3304a3e1d997"
@@ -817,6 +853,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 0,
       "Order": 3,
       "EntityId": "485bd12f-976e-40df-b66c-16d70ee916fa"
@@ -860,6 +898,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 0,
       "Order": 2,
       "EntityId": "9fd79197-95ef-46d7-81a8-bb21aa2579c0"
@@ -903,6 +943,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 1,
       "Order": 3,
       "EntityId": "abeaeb03-1a56-49d5-8cc8-a3afe5ffe89e"
@@ -946,6 +988,8 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 1,
       "Order": 2,
       "EntityId": "d4078989-6c7b-4cc5-8501-ce968405484a"

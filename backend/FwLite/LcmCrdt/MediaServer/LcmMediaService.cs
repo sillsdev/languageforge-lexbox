@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Mime;
@@ -16,7 +17,7 @@ namespace LcmCrdt.MediaServer;
 public class LcmMediaService(
     ResourceService<LcmFileMetadata> resourceService,
     CurrentProjectService currentProjectService,
-    IOptions<CrdtConfig> options,
+    IOptions<HarmonyConfig> options,
     IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider,
     ILogger<LcmMediaService> logger
@@ -189,7 +190,7 @@ public class LcmMediaService(
 
     public string ProjectResourceCachePath => ProjectCachePath(currentProjectService.Project, options.Value);
 
-    public static string ProjectCachePath(CrdtProject project, CrdtConfig options)
+    public static string ProjectCachePath(CrdtProject project, HarmonyConfig options)
     {
         return Path.Combine(options.LocalResourceCachePath, project.Name);
     }

@@ -11,6 +11,8 @@ interface AuthStatusProps {
   servers?: AuthServerStatus[];
   login: (authority: string) => Promise<LoginResult | undefined>;
   logout: (authority: string) => Promise<void>;
+  /** Lock the sign-in/out buttons (e.g. while a download runs); the account text stays visible. */
+  busy?: boolean;
 }
 
 /** A per-server auth error plus the sign-in state it belongs to, so it auto-hides once that flips. */
@@ -21,6 +23,7 @@ export default function AuthStatus({
   servers,
   login,
   logout,
+  busy = false,
 }: AuthStatusProps): ReactElement | undefined {
   const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
 
@@ -118,9 +121,10 @@ export default function AuthStatus({
                   </span>
                   <Button
                     className="tw:shrink-0"
-                    disabled={isPending}
+                    disabled={isPending || busy}
                     onClick={() => handleLogout(status.server.id)}
                     size="sm"
+                    title={busy ? localizedStrings['%lexicon_auth_busyDownloading%'] : undefined}
                     type="button"
                     variant="secondary"
                   >
@@ -130,8 +134,9 @@ export default function AuthStatus({
               ) : (
                 <Button
                   className="tw:self-start"
-                  disabled={isPending}
+                  disabled={isPending || busy}
                   onClick={() => handleLogin(status.server.id)}
+                  title={busy ? localizedStrings['%lexicon_auth_busyDownloading%'] : undefined}
                   type="button"
                 >
                   {isPending

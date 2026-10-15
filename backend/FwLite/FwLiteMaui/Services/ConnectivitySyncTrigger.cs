@@ -1,13 +1,16 @@
+using FwLiteShared.AppUpdate;
 using FwLiteShared.Projects;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace FwLiteMaui.Services;
 
-// Primary use case: app started offline should start syncing if the device comes online
+// Primary use case: app started offline should start syncing (and finish its startup network work, like
+// the update check) if the device comes online
 public sealed class ConnectivitySyncTrigger(
     IConnectivity connectivity,
     LexboxProjectChangeListener lexboxProjectChangeListener,
+    UpdateChecker updateChecker,
     ILogger<ConnectivitySyncTrigger> logger) : IHostedService
 {
     private NetworkAccess _lastAccess;
@@ -38,6 +41,21 @@ public sealed class ConnectivitySyncTrigger(
 
         logger.LogInformation("Connectivity regained (internet access); ensuring push listeners");
         _ = EnsureListeners();
+        _ = RetryUpdateCheck();
+    }
+
+    //the startup check is a no-op when it fails before reaching the server (no throttle record), so
+    //this retries it once the network is actually usable. TryUpdate itself honors the interval gate.
+    private async Task RetryUpdateCheck()
+    {
+        try
+        {
+            await updateChecker.TryUpdate();
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to check for updates after connectivity change");
+        }
     }
 
     private async Task EnsureListeners(CancellationToken cancellationToken = default)

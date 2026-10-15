@@ -255,7 +255,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     {
         var senseId = Guid.NewGuid();
         var semanticDomainId = Guid.NewGuid();
-        await Api.CreateSemanticDomain(new SemanticDomain() { Id = semanticDomainId, Code = "test", Name = new MultiString() { { "en", "test" } } });
+        await Api.CreateSemanticDomain(new SemanticDomain() { Id = semanticDomainId, Abbreviation = { { "en", "test" } }, Name = new MultiString() { { "en", "test" } } });
         var semanticDomain = await Api.GetSemanticDomains().SingleOrDefaultAsync(sd => sd.Id == semanticDomainId);
         ArgumentNullException.ThrowIfNull(semanticDomain);
         var createdSense = await Api.CreateSense(Entry1Id, new Sense()

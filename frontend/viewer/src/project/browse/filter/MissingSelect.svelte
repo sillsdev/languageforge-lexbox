@@ -7,6 +7,7 @@
     { id: 'publication', label: gt`Publication` },
     { id: 'senses', label: gt`Senses` },
     { id: 'examples', label: gt`Example sentences` },
+    { id: 'translations', label: gt`Example translations` },
   ]
 
   export type MissingOption = typeof missingOptions[number];

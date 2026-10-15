@@ -53,6 +53,10 @@ tab_width = 4
 indent_size = 4
 continuation_indent_size = 4
 
+# In-repo analyzers (backend/Analyzers/LexboxAnalyzers). See backend/Analyzers/README.md.
+# LX0001: CRDT change types must declare a `Guid entityId` constructor (required for JSON deserialization).
+dotnet_diagnostic.LX0001.severity = error
+
 # Verify settings
 [*.{received,verified}.{json,txt,xml}]
 end_of_line = lf

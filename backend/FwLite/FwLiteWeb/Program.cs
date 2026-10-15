@@ -24,10 +24,18 @@ await using (app)
     // Windows doesn't allow sending SIGINT to a process, so we need to listen for a shutdown command
     _ = Task.Run(async () =>
          {
-             // Wait for the "shutdown" command from stdin
-             while ((await Console.In.ReadLineAsync())?.Trim() is not ("shutdown" or null)) { }
-
-             await app.StopAsync();
+             // Wait for the "shutdown" command from stdin. On EOF (null, e.g. stdin redirected from
+             // /dev/null or a closed pipe) stop reading but keep the app running; it will still stop
+             // normally on SIGINT/SIGTERM.
+             string? line;
+             while ((line = await Console.In.ReadLineAsync()) is not null)
+             {
+                 if (line.Trim() == "shutdown")
+                 {
+                     await app.StopAsync();
+                     return;
+                 }
+             }
          });
 
     await app.WaitForShutdownAsync();

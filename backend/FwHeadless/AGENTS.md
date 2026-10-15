@@ -15,6 +15,10 @@ Headless service for FieldWorks data processing. Handles Mercurial sync, FwData 
 - Lose data during format conversion
 - Create divergent data that can't be reconciled
 
+## 🔒 Debugging real projects: privacy and cluster access
+
+Investigating a sync problem often means looking at a real user's project. That data is private: NEVER put project codes, project/language names, user names, or stats that identify a specific project into GitHub issues/PRs/comments or anywhere else online — describe the case generically and hand identifying details to the user privately. And NEVER access a k8s cluster without explicit permission (one local-dev exception). Full rules in the root `AGENTS.md` (🔒 Privacy and Production Access).
+
 ---
 
 ## Quick Start
@@ -75,7 +79,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[1. FieldWorks user does Send/Receive] --> B[2. FwHeadless detects Mercurial changes<br/>SyncHostedService]
+    A["1. User clicks Sync (FW Lite dialog<br/>or LexBox project page)"] --> B["2. POST /api/merge/execute queues a job;<br/>SyncHostedService drains the queue,<br/>one project at a time server-wide"]
     B --> C[3. Load FwData project<br/>FwDataFactory]
     C --> D[4. Sync FwData → CRDT<br/>CrdtFwdataProjectSyncService]
     D --> E[5. Sync CRDT → LexBox server<br/>CrdtSyncService]
@@ -249,7 +253,7 @@ dotnet test ../FwLite/FwLiteProjectSync.Tests
 ## Debugging Tips
 
 1. **Enable detailed logging** in `appsettings.Development.json`
-2. **Use `DryRunMiniLcmApi`** to see what sync would do without applying
+2. **Use a dry-run sync** (`SyncDryRun`/`ImportDryRun`) to see what sync would do without applying
 3. **Check ProjectSnapshot** - if it's wrong, sync will be wrong
 4. **Compare CRDT and FwData states** manually when debugging
 5. **Mercurial log** (`hg log -v`) shows commit history

@@ -29,7 +29,7 @@
     children?: Snippet
   }>();
 
-  const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
+  const headword = $derived((entry && writingSystemService.viewBestHeadword(entry, viewService.currentView)) || $t`Untitled`);
 
   let open = $state(false);
 

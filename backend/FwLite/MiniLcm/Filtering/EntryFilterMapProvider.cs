@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using MiniLcm.Models;
 
 namespace MiniLcm.Filtering;
 
@@ -9,6 +10,8 @@ public abstract class EntryFilterMapProvider<T>
     public virtual Func<string, object>? EntrySensesSemanticDomainsConverter { get; } = null;
     public abstract Expression<Func<T, object?>> EntrySensesExampleSentences { get; }
     public abstract Expression<Func<T, string, object>> EntrySensesExampleSentencesSentence { get; }
+    public abstract Expression<Func<T, object?>> EntrySensesExampleSentencesTranslations { get; }
+    public virtual Func<string, object>? EntrySensesExampleSentencesTranslationsConverter { get; } = null;
     public abstract Expression<Func<T, object?>> EntrySensesPartOfSpeechId { get; }
     public abstract Expression<Func<T, object?>> EntrySenses { get; }
     public abstract Expression<Func<T, string, object>> EntrySensesGloss { get; }
@@ -25,4 +28,8 @@ public abstract class EntryFilterMapProvider<T>
     public abstract Expression<Func<T, object?>> EntryPublishIn { get; }
     public abstract Expression<Func<T, object?>> EntryPublishInId { get; }
     public virtual Func<string, object>? EntryPublishInConverter { get; } = null;
+    public abstract Expression<Func<T, object?>> EntryCommentThreads { get; }
+    public abstract Expression<Func<T, object?>> EntryOpenCommentThreads { get; }
+    public abstract Expression<Func<T, object?>> EntryUnreadComments { get; }
+
 }

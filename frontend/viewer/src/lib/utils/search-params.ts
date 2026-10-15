@@ -2,6 +2,7 @@
 export enum BrowseParam {
   EntryId = 'entryId',
   EntryOpen = 'entryOpen',
+  CommentsOpen = 'commentsOpen',
 }
 
 /**

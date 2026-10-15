@@ -56,6 +56,7 @@
 
 <div
   style="grid-area: {fieldId}"
+  data-field-id={fieldId}
   class={cn('grid grid-cols-subgrid col-span-full items-baseline', className)}
   {...restProps}
 >

@@ -5,6 +5,7 @@
   import t from '$lib/i18n';
   import {PageBreadcrumb, TitlePage} from '$lib/layout';
   import {hash} from '$lib/util/hash';
+  import {measurePasswordStrength} from '$lib/user';
   import {z} from 'zod';
   import {useNotifications} from '$lib/notify';
   import type {PageData} from './$types';
@@ -21,13 +22,15 @@
 
   const formSchema = z.object({
     password: passwordFormRules($t),
-    score: z.number(),
   });
   let { form, errors, enhance, submitting, message } = lexSuperForm(formSchema, async () => {
     const response: Response = await fetch('api/login/resetPassword', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ passwordHash: await hash($form.password), passwordStrength: $form.score }),
+      body: JSON.stringify({
+        passwordHash: await hash($form.password),
+        passwordStrength: await measurePasswordStrength($form.password),
+      }),
       lexboxResponseHandlingConfig: {
         disableRedirectOnAuthError: true,
       },
@@ -52,7 +55,7 @@
       error={$errors.password}
       autofocus
     />
-    <PasswordStrengthMeter onScoreUpdated={(score) => ($form.score = score)} password={$form.password} />
+    <PasswordStrengthMeter password={$form.password} />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('reset_password.submit')}</SubmitButton>
   </Form>

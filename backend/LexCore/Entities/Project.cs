@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
 using LexCore.ServiceInterfaces;
+using SIL.Harmony.Core;
 using NeinLinq;
 
 namespace LexCore.Entities;
@@ -28,6 +29,8 @@ public class Project : EntityBase
     //historical reference for if this project originated here (migrated), or came from redmine, public or private
     public ProjectMigrationStatus ProjectOrigin { get; set; } = ProjectMigrationStatus.Migrated;
     public DateTimeOffset? MigratedDate { get; set; } = null;
+
+    public List<ServerCommit>? HarmonyCommits { get; set; }
 
     [NotMapped]
     [InjectLambda(nameof(SqlUserCount))]

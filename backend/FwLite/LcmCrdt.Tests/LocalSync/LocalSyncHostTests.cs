@@ -28,7 +28,7 @@ public class LocalSyncHostTests : IAsyncLifetime
     }
 
     private LocalSyncHost Host => _host.GetService<LocalSyncHost>();
-    private HostOverTheWire HostWire() => new(Host, ProjectId, _host.CrdtConfig.JsonSerializerOptions);
+    private HostOverTheWire HostWire() => new(Host, ProjectId, JsonOptions(_host));
 
     [Fact]
     public async Task AJoinerSyncingThroughTheHost_ExchangesEntriesBothWays()
@@ -78,7 +78,7 @@ public class LocalSyncHostTests : IAsyncLifetime
 
         // e.g. a retry after a timeout: the joiner sends commits the host already applied
         var everything = await _joiner.DataModel.GetChanges(new SyncState([]));
-        await Host.AddRange(ProjectId, JsonRoundTrip(everything.MissingFromClient, _host.CrdtConfig.JsonSerializerOptions));
+        await Host.AddRange(ProjectId, JsonRoundTrip(everything.MissingFromClient, JsonOptions(_host)));
 
         (await _host.Api.GetUnreadComments().ToArrayAsync()).Should().BeEmpty();
     }

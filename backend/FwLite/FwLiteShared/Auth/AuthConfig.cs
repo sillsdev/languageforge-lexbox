@@ -13,8 +13,22 @@ public class AuthConfig
     public required string ClientId { get; set; } = DefaultClientId;
     public string CacheFileName { get; set; } = Path.GetFullPath("msal.json");
     public bool SystemWebViewLogin { get; set; } = false;
-    public object? ParentActivityOrWindow { get; set; }
+    /// <summary>
+    /// Android MSAL requires the current Activity at login time via
+    /// <c>WithParentActivityOrWindow</c>. Must be a factory: <c>IOptions&lt;AuthConfig&gt;</c>
+    /// is snapshotted at first resolve, which now happens at Maui startup (Mixpanel identity)
+    /// before <c>Platform.OnResume</c> sets <c>CurrentActivity</c>.
+    /// </summary>
+    public Func<object?>? GetParentActivityOrWindow { get; set; }
     public Action? AfterLoginWebView { get; set; }
+    /// <summary>
+    /// When set, interactive login uses this MSAL <c>ICustomWebUi</c> instead of MSAL's own system-browser flow.
+    /// Mac Catalyst uses it to run an <c>ASWebAuthenticationSession</c> (shares Safari's session, no localhost listener),
+    /// because the MSAL package has no Mac Catalyst build and falls back to its desktop implementation there.
+    /// </summary>
+    public Func<Microsoft.Identity.Client.Extensibility.ICustomWebUi>? CustomWebUiFactory { get; set; }
+    /// <summary>Redirect URI to register with MSAL when <see cref="CustomWebUiFactory"/> is set. Defaults to <c>msal{ClientId}://auth</c>.</summary>
+    public string? CustomWebUiRedirectUri { get; set; }
 
     public LexboxServer GetServerByAuthority(string authority)
     {

@@ -1,0 +1,17 @@
+# Notes for Lexbox releases. FW Lite Core ships in FwHeadless, so it is listed; the FW Lite apps and the
+# Platform.Bible extension do not ship in anything this pipeline deploys, so they are left out.
+changelog:
+  categories:
+    - title: Lexbox
+      labels:
+        - "📦 Lexbox"
+    - title: FW Lite Core
+      labels:
+        - "🔩 FW Lite Core"
+    - title: Other Stuff 🤔
+      labels:
+        - "*"
+      exclude:
+        labels:
+          - "💻 FW Lite"
+          - "📙 Platform.Bible"

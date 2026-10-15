@@ -472,6 +472,10 @@ namespace LcmCrdt.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -479,9 +483,19 @@ namespace LcmCrdt.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("LouwNidaCodes")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<string>("OcmCodes")
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("Predefined")
                         .HasColumnType("INTEGER");
@@ -615,6 +629,9 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("IcuCollationRules")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -623,6 +640,9 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SystemCollationLocale")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")

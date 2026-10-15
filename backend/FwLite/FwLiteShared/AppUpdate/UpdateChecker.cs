@@ -16,8 +16,10 @@ public class UpdateChecker(
     IOptions<FwLiteConfig> config,
     GlobalEventBus eventBus,
     IPlatformUpdateService platformUpdateService,
+    UpdateCheckThrottle throttle,
     IMemoryCache cache) : BackgroundService
 {
+    public const string HttpClientName = "Lexbox";
     private const string CacheKey = "ManualUpdateCheck";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(2);
 
@@ -26,25 +28,41 @@ public class UpdateChecker(
         await TryUpdate();
     }
 
+    private readonly SemaphoreSlim _automaticCheckLock = new(1, 1);
+
     public async Task<UpdateResult?> TryUpdate()
     {
-        if (!ShouldCheckForUpdate()) return null;
-        var update = await CheckForUpdate();
-        if (update is null) return null;
-        return await ApplyUpdate(update.Release);
+        //the startup check and a connectivity-regained retry can overlap. Both would pass the throttle before
+        //either records a response and apply the same update twice, so serialize them and evaluate the gate
+        //only once the previous attempt has finished.
+        await _automaticCheckLock.WaitAsync();
+        try
+        {
+            if (!ShouldCheckReleaseFeed()) return null;
+            var update = await CheckForUpdate();
+            if (update is null) return null;
+            return await ApplyUpdate(update.Release);
+        }
+        finally
+        {
+            _automaticCheckLock.Release();
+        }
     }
 
     public async Task<AvailableUpdate?> CheckForUpdate()
     {
-        return await cache.GetOrCreateAsync(CacheKey, async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = CacheDuration;
-            var response = await ShouldUpdateAsync();
-            platformUpdateService.LastUpdateCheck = DateTime.UtcNow;
-            return response.Update
-                ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate)
-                : null;
-        });
+        if (cache.TryGetValue(CacheKey, out AvailableUpdate? cached)) return cached;
+        var response = await ShouldUpdateAsync();
+        //a request that never reached the server (offline, DNS still down while a VPN connects) is not a check:
+        //leave the throttle and the manual-check cache alone so the next launch or connectivity recovery
+        //retries instead of waiting out UpdateCheckInterval
+        if (response is null) return null;
+        throttle.RecordCheck();
+        var update = response.Update
+            ? new AvailableUpdate(response.Release, platformUpdateService.SupportsAutoUpdate)
+            : null;
+        cache.Set(CacheKey, update, CacheDuration);
+        return update;
     }
 
     public async Task<UpdateResult> ApplyUpdate(FwLiteRelease release)
@@ -70,37 +88,24 @@ public class UpdateChecker(
         eventBus.PublishEvent(new AppUpdateEvent(result, release));
     }
 
-    internal bool ShouldCheckForUpdate()
+    /// <summary>
+    /// Whether to check the GitHub release feed now: the shared interval gate
+    /// (<see cref="UpdateCheckThrottle.ShouldCheckForUpdate"/>) plus a skip for store-distributed
+    /// platforms. iOS/Mac have no release feed at all, and Android is driven by Google Play's in-app
+    /// updates (AndroidInAppUpdateService) instead of this check. The explicit <c>Always</c> condition
+    /// still forces a feed check for on-device endpoint testing.
+    /// </summary>
+    internal bool ShouldCheckReleaseFeed()
     {
-        if (config.Value.UpdateCheckCondition == UpdateCheckCondition.Never)
+        if (config.Value.UpdateCheckCondition != UpdateCheckCondition.Always &&
+            config.Value.Os is FwLitePlatform.iOS or FwLitePlatform.Mac or FwLitePlatform.Android)
         {
-            logger.LogInformation("Update check prevented by configuration");
-            return false;
-        }
-        if (config.Value.UpdateCheckCondition == UpdateCheckCondition.Always)
-        {
-            logger.LogInformation("Update check forced by configuration");
-            return true;
-        }
-
-        var lastChecked = platformUpdateService.LastUpdateCheck;
-        var timeSinceLastCheck = DateTime.UtcNow - lastChecked;
-        if (timeSinceLastCheck.TotalHours < -1)
-        {
-            logger.LogInformation("Should check for update, because last check was in the future: {LastCheck}",
-                lastChecked);
-            return true;
-        }
-
-        if (timeSinceLastCheck < config.Value.UpdateCheckInterval)
-        {
-            logger.LogInformation("Should not check for update, because last check was too recent: {LastCheck}",
-                lastChecked);
+            logger.LogInformation("Update check skipped: {Os} updates are store/Play-driven, not via the release feed",
+                config.Value.Os);
             return false;
         }
 
-        logger.LogInformation("Should check for update based on last check time: {LastCheck}", lastChecked);
-        return true;
+        return throttle.ShouldCheckForUpdate();
     }
 
     private bool ShouldPromptBeforeUpdate()
@@ -108,16 +113,29 @@ public class UpdateChecker(
         return platformUpdateService.IsOnMeteredConnection();
     }
 
-    private async Task<ShouldUpdateResponse> ShouldUpdateAsync()
+    /// <returns>The server's answer, or null when the request failed before getting a response.</returns>
+    private async Task<ShouldUpdateResponse?> ShouldUpdateAsync()
     {
+        HttpResponseMessage response;
         try
         {
-            var response = await httpClientFactory
-                .CreateClient("Lexbox")
+            response = await httpClientFactory
+                .CreateClient(HttpClientName)
                 .SendAsync(new HttpRequestMessage(HttpMethod.Get, config.Value.UpdateUrl)
                 {
                     Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{config.Value.AppVersion}" } }
                 });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to fetch latest release");
+            return null;
+        }
+
+        //from here on the server has answered, so whatever goes wrong still counts as a check: a bad
+        //response is not fixed by asking again sooner than UpdateCheckInterval
+        try
+        {
             if (!response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
@@ -132,7 +150,7 @@ public class UpdateChecker(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to fetch latest release");
+            logger.LogError(ex, "Failed to read should update response");
             return new ShouldUpdateResponse(null);
         }
     }
