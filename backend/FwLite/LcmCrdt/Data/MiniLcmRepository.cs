@@ -275,6 +275,15 @@ public class MiniLcmRepository(
         return sense;
     }
 
+    // pictures live in the sense's jsonb column, so finding the owner means searching every sense's pictures
+    public async Task<Guid?> GetPictureSenseId(Guid pictureId)
+    {
+        var id = pictureId.ToString();
+        return await AsyncExtensions.FirstOrDefaultAsync(dbContext.Senses.ToLinqToDB()
+            .Where(s => Json.Query(s.Pictures).Any(p => Json.Value(p, p => p.Id.ToString()) == id))
+            .Select(s => (Guid?)s.Id));
+    }
+
     public async Task<ExampleSentence?> GetExampleSentence(Guid id)
     {
         var exampleSentence = await AsyncExtensions.SingleOrDefaultAsync(ExampleSentences
