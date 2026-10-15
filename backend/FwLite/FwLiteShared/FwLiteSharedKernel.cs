@@ -60,6 +60,7 @@ public static class FwLiteSharedKernel
         services.AddScoped<LocalSyncHost>();
         services.AddScoped<LocalSyncService>();
         services.AddScoped<FolderSyncService>();
+        services.AddScoped<MediaCopier>();
         services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<ILocalAuthorProvider, PreferencesLocalAuthorProvider>();
         services.AddScoped<ProjectServicesProvider>();

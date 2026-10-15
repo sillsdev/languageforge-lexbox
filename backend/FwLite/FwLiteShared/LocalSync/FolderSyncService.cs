@@ -12,7 +12,10 @@ namespace FwLiteShared.LocalSync;
 
 /// <param name="FolderState">What the folder held before the sync; for another project, its manifest (to offer a switch).</param>
 /// <param name="Sync">Null when the folder wasn't a sync folder at all.</param>
-public record FolderSyncResult(SyncFolderState FolderState, LocalSyncResult? Sync)
+/// <param name="MediaSent">Media files copied to the folder.</param>
+/// <param name="MediaReceived">Media files copied from the folder.</param>
+/// <param name="MediaFailed">Media files that couldn't be copied either way; they're retried on the next sync.</param>
+public record FolderSyncResult(SyncFolderState FolderState, LocalSyncResult? Sync, int MediaSent = 0, int MediaReceived = 0, int MediaFailed = 0)
 {
     public bool Synced => Sync?.Synced == true;
 }
@@ -25,6 +28,7 @@ public class FolderSyncService(
     CurrentProjectService currentProjectService,
     ProjectIdentityService projectIdentityService,
     LocalSyncService localSyncService,
+    MediaCopier mediaCopier,
     IPreferencesService preferences,
     IOptions<HarmonyConfig> harmonyConfig,
     ILogger<FolderSyncService> logger)
@@ -52,8 +56,14 @@ public class FolderSyncService(
         var result = await localSyncService.SyncWith(folder, folderIdentity);
         if (result.Synced)
         {
+            // after the commits, so this device knows every resource the folder's files belong to; copy everything
+            // both ways because the drive leaves, so a file left on it can't be fetched later
+            var media = new FolderMediaStore(path);
+            var sent = await mediaCopier.Push(media);
+            var received = await mediaCopier.PullAll(media);
             WriteManifest(path, await projectIdentityService.GetIdentity());
             preferences.Set(RememberedFolderKey(localIdentity.ProjectId), path);
+            return new FolderSyncResult(state, result, sent.Copied, received.Copied, sent.Failed + received.Failed);
         }
         return new FolderSyncResult(state, result);
     }
@@ -89,7 +99,11 @@ public class FolderSyncService(
     {
         path = Path.GetFullPath(path);
         var syncResults = await localSyncService.Download(OpenFolder(path));
-        if (syncResults.IsSynced) preferences.Set(RememberedFolderKey(currentProjectService.ProjectData.Id), path);
+        if (syncResults.IsSynced)
+        {
+            await mediaCopier.PullAll(new FolderMediaStore(path));
+            preferences.Set(RememberedFolderKey(currentProjectService.ProjectData.Id), path);
+        }
         return syncResults;
     }
 

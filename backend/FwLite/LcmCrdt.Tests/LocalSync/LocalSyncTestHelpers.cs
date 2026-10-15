@@ -19,6 +19,7 @@ public static class LocalSyncTestHelpers
         services.AddScoped<LocalSyncHost>();
         services.AddScoped<LocalSyncService>();
         services.AddScoped<FolderSyncService>();
+        services.AddScoped<MediaCopier>();
         services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<IPreferencesService, InMemoryPreferencesService>();
     }
