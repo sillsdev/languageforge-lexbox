@@ -49,12 +49,3 @@ AGENTS.local.md
 .claude/scheduled_tasks.lock
 .claude/agent-memory-local/
 screenshots/
-
-# quarterly-analytics skill output (project codes). The scripts refuse to write inside a git work tree; this is a backstop.
-lexbox-analytics/
-prod-summary.json
-analytics-values.json
-public-sources.json
-fwl-projects.csv
-lexbox-created.csv
-lexbox-active-repos.txt

@@ -1,7 +1,8 @@
 #!/bin/sh
 # Runs inside the hg pod (piped in by prod-collect.ps1). Usage: sh -s -- START LAST_DAY MTIME_CUTOFF
-# Prints the code of every repo with at least one commit dated START..LAST_DAY (whole days), one
-# per line, then a final "# repos=.. checked=.. active=.. failed=.." line. Progress goes to stderr.
+# Counts the repos with at least one commit dated START..LAST_DAY (whole days) and prints one line:
+# "lexbox_active_projects=.. lexbox_languages_impacted=.. repos_scanned=.. repos_checked=.. hg_failures=..".
+# Progress goes to stderr.
 #
 # Load matters more than speed here: a parallel scan has taken a node down before. So this runs
 # one hg process at a time at the lowest CPU priority, refuses to start while another scan is still
@@ -39,6 +40,7 @@ main() {
   total=0
   checked=0
   active=0
+  languages=0
   failed=0
   for group in "${HG_REPOS_ROOT:-/var/hg/repos}"/*; do
     [ -d "$group" ] || continue
@@ -52,16 +54,19 @@ main() {
       # HGPLAIN ignores aliases and [defaults] from the repo's own hgrc.
       if ! out=$(HGPLAIN=1 $nice_cmd hg -R "$repo" log -d "$START to $LAST_DAY" -l 1 --template '{rev}\n' 2>/dev/null); then
         failed=$((failed + 1))
-        echo "hg log failed: $(basename "$repo")" >&2
+        echo "hg log failed: ${repo##*/}" >&2
       fi
       if [ -n "$out" ]; then
         active=$((active + 1))
-        basename "$repo"
+        case "${repo##*/}" in
+          *test*|*train*|*demo*|*dev*|*copy*) ;;
+          *) languages=$((languages + 1)) ;;
+        esac
       fi
     done
     echo "$group done: repos=$total checked=$checked active=$active failed=$failed" >&2
   done
-  echo "# repos=$total checked=$checked active=$active failed=$failed"
+  echo "lexbox_active_projects=$active lexbox_languages_impacted=$languages repos_scanned=$total repos_checked=$checked hg_failures=$failed"
   [ "$total" -gt 0 ] || { echo "no repos found" >&2; return 4; }
 }
 

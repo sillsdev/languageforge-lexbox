@@ -3,17 +3,14 @@ PR-label FTE split. Needs `gh` (logged in) and Python 3.10+, nothing else.
 
     python public_sources.py FY27Q1
 
-Writes public-sources.json to $LEXBOX_ANALYTICS_DIR (default ~/lexbox-analytics)/<quarter>/ and
-prints a summary.
+Prints the numbers and the releases, flags and forum topics behind them. Writes nothing.
 """
 import datetime as dt
 import json
-import os
 import re
 import subprocess
 import sys
 import urllib.request
-from pathlib import Path
 
 REPO = "sillsdev/languageforge-lexbox"
 FORUM_CATEGORY = "https://community.software.sil.org/c/fwlite/48/l/latest.json"
@@ -27,21 +24,6 @@ def quarter_range(quarter):
     start = dt.date(fy - 1 if q == 1 else fy, [10, 1, 4, 7][q - 1], 1)
     end = dt.date(start.year + (start.month + 2) // 12, (start.month + 2) % 12 + 1, 1)
     return start, end
-
-
-def out_dir(quarter):
-    """The output holds project codes and support-thread subjects, so it must not be in any git work tree."""
-    base = Path(os.environ.get("LEXBOX_ANALYTICS_DIR") or Path.home() / "lexbox-analytics")
-    path = (base / quarter).resolve()
-    created = not path.exists()
-    path.mkdir(parents=True, exist_ok=True)
-    inside = subprocess.run(["git", "-C", str(path), "rev-parse", "--is-inside-work-tree"],
-                            capture_output=True, text=True).stdout.strip()
-    if inside == "true":
-        if created:
-            path.rmdir()
-        sys.exit(f"{path} is inside a git work tree; set LEXBOX_ANALYTICS_DIR elsewhere.")
-    return path
 
 
 def gh_json(*args):
@@ -91,9 +73,7 @@ def releases(start, end):
                 "latestDate": rs[-1]["published_at"][:10] if rs else None,
                 "tags": [r["tag_name"] for r in rs]}
 
-    return {"fwl": summary(fwl), "lexbox": summary(lexbox), "flags": flags,
-            "all": [{"tag": r["tag_name"], "published": r["published_at"][:10], "assets": len(r["assets"])}
-                    for r in found]}
+    return {"fwl": summary(fwl), "lexbox": summary(lexbox), "flags": flags}
 
 
 def forum_topics(start, end):
@@ -170,19 +150,20 @@ def fte_share(start, end):
 def main():
     if len(sys.argv) != 2:
         sys.exit(__doc__)
+    # Forum titles can hold characters the Windows console code page can't encode.
+    sys.stdout.reconfigure(encoding="utf-8")
     quarter = sys.argv[1]
     start, end = quarter_range(quarter)
-    path = out_dir(quarter) / "public-sources.json"
-    result = {"quarter": quarter, "start": start.isoformat(), "end": end.isoformat(),
-              "releases": releases(start, end), "forum": forum_topics(start, end), "fte": fte_share(start, end)}
-    path.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
-    r, f, fte = result["releases"], result["forum"], result["fte"]
-    print(f"{quarter}: {start} .. {end} (exclusive) -> {path}")
-    print(f"FW Lite releases: {r['fwl']['count']}, latest {r['fwl']['latest']} ({r['fwl']['latestDate']})")
-    print(f"Lexbox releases:  {r['lexbox']['count']}, latest {r['lexbox']['latest']} ({r['lexbox']['latestDate']})")
+    r, f, fte = releases(start, end), forum_topics(start, end), fte_share(start, end)
+    print(f"{quarter}: {start} .. {end} (exclusive)")
+    for name, key in (("FW Lite", "fwl"), ("Lexbox", "lexbox")):
+        print(f"{name} releases: {r[key]['count']}, latest {r[key]['latest']} ({r[key]['latestDate']}): "
+              f"{', '.join(r[key]['tags'])}")
     for flag in r["flags"]:
         print(f"  check: {flag}")
     print(f"FW Lite forum topics: {f['count']}")
+    for t in f["topics"]:
+        print(f"  {t['created']} {t['title']}")
     print(f"FTE sanity check: FW Lite {fte['fwlPercentByLabel']}% by PR label, "
           f"{fte['fwlPercentByFiles']}% by files touched ({fte['mergedPrs']} PRs, {fte['byLabel']['unlabelled']} unlabelled)")
 
