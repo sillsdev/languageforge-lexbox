@@ -21,7 +21,7 @@
     value?: Value;
     options: ReadonlyArray<Value>;
     readonly?: boolean;
-    clearable?: boolean;
+    clearable?: boolean | 'row' | 'button';
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
     labelSelector: ConditionalKeys<Value, string> | ((value: Value) => string);
     placeholder?: string;
@@ -122,7 +122,7 @@
     </Button>
     {#if !readonly}
       <div class="absolute right-0 z-10 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
-        {#if clearable}
+        {#if clearable === true || clearable === 'button'}
           <XButton
             onclick={() => selectValue(undefined)}
             aria-label={$t`clear`}
@@ -150,10 +150,9 @@
     </CommandInput>
     <CommandList class="max-md:h-75 md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
-      {#if clearable && value}
+      {#if (clearable === true || clearable === 'row') && value}
         <CommandGroup>
           <CommandItem onSelect={() => selectValue(undefined)}>
-            <Icon icon="i-mdi-close" />
             {$t`None`}
           </CommandItem>
         </CommandGroup>
