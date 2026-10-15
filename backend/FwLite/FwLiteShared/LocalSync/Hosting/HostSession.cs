@@ -1,0 +1,186 @@
+using System.Security.Cryptography;
+using LcmCrdt.LocalSync;
+
+namespace FwLiteShared.LocalSync.Hosting;
+
+/// <param name="VersionMismatch">The joiner runs a different app or protocol version: shown to the host, never refused.</param>
+public record JoinerPeer(Guid RequestId, string DisplayName, string AppVersion, bool VersionMismatch, JoinState State, DateTimeOffset? LastSync);
+
+/// <summary>
+/// The state of one hosting session: who asked to join, who was approved, and their tokens. Nothing here outlives
+/// the session. Independent of the HTTP server so it can be reasoned about (and tested) on its own.
+/// </summary>
+public class HostSession(HostedProject project, string appVersion)
+{
+    /// <summary>The join route is open to anyone on the network, so a session keeps at most this many requests.</summary>
+    public const int MaxJoinRequests = 50;
+
+    private readonly Lock _lock = new();
+    private readonly Dictionary<Guid, Joiner> _joiners = [];
+    private bool _autoApprove;
+    private bool _ended;
+
+    private record Joiner(Guid RequestId, JoinRequest Request, bool VersionMismatch)
+    {
+        public JoinState State { get; set; } = JoinState.Pending;
+        public JoinRejection? Rejection { get; set; }
+        public string? Token { get; set; }
+        public DateTimeOffset? LastSync { get; set; }
+    }
+
+    public HostedProject Project => project;
+
+    /// <summary>Raised whenever a joiner arrives, is approved or rejected, syncs or leaves, so the hosting panel can refresh.</summary>
+    public event Action? Changed;
+
+    public bool AutoApprove
+    {
+        get { lock (_lock) return _autoApprove; }
+        set
+        {
+            lock (_lock)
+            {
+                _autoApprove = value;
+                if (value)
+                {
+                    foreach (var joiner in _joiners.Values.Where(j => j.State == JoinState.Pending)) ApproveLocked(joiner);
+                }
+            }
+            Changed?.Invoke();
+        }
+    }
+
+    public IReadOnlyList<JoinerPeer> Peers
+    {
+        get
+        {
+            lock (_lock)
+            {
+                return [.. _joiners.Values
+                    .Where(j => j.State != JoinState.Rejected)
+                    .Select(j => new JoinerPeer(j.RequestId, j.Request.DisplayName, j.Request.AppVersion, j.VersionMismatch, j.State, j.LastSync))];
+            }
+        }
+    }
+
+    /// <param name="current">The hosted project as it is now (its writing systems can change during a session);
+    /// the project the session started with by default.</param>
+    /// <exception cref="HostSessionFullException">The session already holds <see cref="MaxJoinRequests"/> requests.</exception>
+    public Guid RequestJoin(JoinRequest request, HostedProject? current = null)
+    {
+        var joiner = new Joiner(Guid.NewGuid(), request,
+            VersionMismatch: request.AppVersion != appVersion || request.ProtocolVersion != LocalSyncProtocol.Version);
+        lock (_lock)
+        {
+            if (_joiners.Count >= MaxJoinRequests) throw new HostSessionFullException();
+            _joiners[joiner.RequestId] = joiner;
+            if (_ended) Reject(joiner, JoinRejection.SessionEnded);
+            else if (HasDifferentHistory(current ?? project, request.Project)) Reject(joiner, JoinRejection.DifferentHistory);
+            else if (_autoApprove) ApproveLocked(joiner);
+        }
+        Changed?.Invoke();
+        return joiner.RequestId;
+    }
+
+    /// <summary>
+    /// The host's half of the identity check: a copy of the same project with a different history is refused before
+    /// anyone is asked. A different project, or no copy at all, is the joiner's decision (switch or download).
+    /// </summary>
+    private static bool HasDifferentHistory(HostedProject hosted, JoinerProject? joinerProject)
+    {
+        if (joinerProject is null || joinerProject.ProjectId != hosted.ProjectId) return false;
+        var comparison = ProjectIdentity.Compare(
+            new ProjectIdentity(hosted.ProjectId, hosted.RootCommitId, hosted.WritingSystemIds.ToHashSet()),
+            new ProjectIdentity(joinerProject.ProjectId, joinerProject.RootCommitId, joinerProject.WritingSystemIds.ToHashSet()));
+        return comparison != IdentityComparison.Match;
+    }
+
+    public JoinStatus? GetJoinStatus(Guid requestId)
+    {
+        lock (_lock)
+        {
+            if (!_joiners.TryGetValue(requestId, out var joiner)) return null;
+            return joiner.State switch
+            {
+                JoinState.Approved => new JoinStatus(JoinState.Approved, joiner.Token, project, appVersion),
+                JoinState.Rejected => new JoinStatus(JoinState.Rejected, Rejection: joiner.Rejection),
+                _ => new JoinStatus(JoinState.Pending),
+            };
+        }
+    }
+
+    public void Approve(Guid requestId) => Decide(requestId, joiner => ApproveLocked(joiner));
+
+    public void Decline(Guid requestId) => Decide(requestId, joiner => Reject(joiner, JoinRejection.Declined));
+
+    private void Decide(Guid requestId, Action<Joiner> decision)
+    {
+        lock (_lock)
+        {
+            if (_ended || !_joiners.TryGetValue(requestId, out var joiner) || joiner.State != JoinState.Pending) return;
+            decision(joiner);
+        }
+        Changed?.Invoke();
+    }
+
+    public bool IsAuthorized(string token)
+    {
+        lock (_lock) return FindByToken(token) is not null;
+    }
+
+    /// <summary>Records that an approved joiner just synced, for the hosting panel's peer list.</summary>
+    public void MarkSynced(string token)
+    {
+        lock (_lock)
+        {
+            var joiner = FindByToken(token);
+            if (joiner is null) return;
+            joiner.LastSync = DateTimeOffset.UtcNow;
+        }
+        Changed?.Invoke();
+    }
+
+    public void Leave(string token)
+    {
+        lock (_lock)
+        {
+            var joiner = FindByToken(token);
+            if (joiner is null) return;
+            _joiners.Remove(joiner.RequestId);
+        }
+        Changed?.Invoke();
+    }
+
+    /// <summary>Revokes every token and turns away anyone still waiting. Nothing about the session is kept.</summary>
+    public void End()
+    {
+        lock (_lock)
+        {
+            _ended = true;
+            foreach (var joiner in _joiners.Values)
+            {
+                joiner.Token = null;
+                if (joiner.State == JoinState.Pending) Reject(joiner, JoinRejection.SessionEnded);
+            }
+        }
+        Changed?.Invoke();
+    }
+
+    private Joiner? FindByToken(string token) =>
+        _ended ? null : _joiners.Values.FirstOrDefault(j => j.Token is not null && CryptographicOperations.FixedTimeEquals(
+            System.Text.Encoding.UTF8.GetBytes(j.Token), System.Text.Encoding.UTF8.GetBytes(token)));
+
+    private static void ApproveLocked(Joiner joiner)
+    {
+        joiner.State = JoinState.Approved;
+        joiner.Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+    }
+
+    private static void Reject(Joiner joiner, JoinRejection rejection)
+    {
+        joiner.State = JoinState.Rejected;
+        joiner.Rejection = rejection;
+    }
+}
+
+public class HostSessionFullException() : Exception($"This session already has {HostSession.MaxJoinRequests} join requests");

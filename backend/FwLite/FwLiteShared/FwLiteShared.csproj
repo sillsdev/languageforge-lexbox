@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
     <PackageReference Include="Reinforced.Typings" />
     <PackageReference Include="System.Reactive" />
+    <PackageReference Include="Watson.Lite" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\LexCore\LexCore.csproj" />

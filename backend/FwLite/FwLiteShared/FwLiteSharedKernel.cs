@@ -6,6 +6,7 @@ using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.KeepAwake;
 using FwLiteShared.LocalSync;
+using FwLiteShared.LocalSync.Hosting;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
@@ -61,6 +62,8 @@ public static class FwLiteSharedKernel
         services.AddScoped<LocalSyncService>();
         services.AddScoped<FolderSyncService>();
         services.AddScoped<MediaCopier>();
+        services.AddSingleton<LocalSyncHosting>();
+        services.AddScoped<LocalSyncJoiner>();
         services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<ILocalAuthorProvider, PreferencesLocalAuthorProvider>();
         services.AddScoped<ProjectServicesProvider>();
@@ -87,7 +90,10 @@ public static class FwLiteSharedKernel
         services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();
         services.TryAddSingleton<INetworkStatus, NetworkInterfaceNetworkStatus>();
         services.TryAddSingleton<IPlatformFeaturesService, DummyPlatformFeaturesService>();
-        services.TryAddSingleton<IKeepAwakePlatform, NoOpKeepAwakePlatform>();
+        // desktops pick their own; MAUI replaces this for Android and iOS
+        if (OperatingSystem.IsWindows()) services.TryAddSingleton<IKeepAwakePlatform, WindowsKeepAwakePlatform>();
+        else if (OperatingSystem.IsLinux()) services.TryAddSingleton<IKeepAwakePlatform, LinuxKeepAwakePlatform>();
+        else services.TryAddSingleton<IKeepAwakePlatform, NoOpKeepAwakePlatform>();
         services.TryAddSingleton<IKeepAwake, RefCountedKeepAwake>();
         services.AddSingleton<UpdateService>();
         services.AddSingleton<TestingService>();

@@ -1,6 +1,8 @@
 using System.Text.Json;
 using FwLiteShared.Events;
+using FwLiteShared.KeepAwake;
 using FwLiteShared.LocalSync;
+using FwLiteShared.LocalSync.Hosting;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +24,10 @@ public static class LocalSyncTestHelpers
         services.AddScoped<MediaCopier>();
         services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<IPreferencesService, InMemoryPreferencesService>();
+        services.AddSingleton<IKeepAwakePlatform, RecordingKeepAwakePlatform>();
+        services.AddSingleton<IKeepAwake, RefCountedKeepAwake>();
+        services.AddSingleton<LocalSyncHosting>();
+        services.AddScoped<LocalSyncJoiner>();
     }
 
     public static MiniLcmApiFixture CreateFixture(Guid projectId, bool seedWs = true) =>
