@@ -40,7 +40,7 @@ spec:
           - name: LfClassicConfig__ConnectionString
             value: mongodb://host.docker.internal:27017
           # Trust the local cluster's pod network so X-Forwarded-Proto from the
-          # ingress-nginx controller is honored — otherwise lexbox sees the request
+          # Traefik gateway controller is honored — otherwise lexbox sees the request
           # as HTTP and emits HTTP URLs in /.well-known/openid-configuration, which
           # breaks the FwLite OAuth flow. The pod CIDR differs between Docker
           # Desktop on Windows/Mac (10.1.0.0/16), Docker Desktop on Linux, and the

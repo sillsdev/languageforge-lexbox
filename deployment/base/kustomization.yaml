@@ -12,7 +12,7 @@ resources:
 - fw-headless-deployment.yaml
 - lexbox-deployment.yaml
 - ui-deployment.yaml
-- proxy-deployment.yaml
+- http-routes.yaml
 - app-config.yaml
 - oauth-certs.yaml
 - oauth-cert-retainer.yaml

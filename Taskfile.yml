@@ -46,6 +46,7 @@ tasks:
     cmds:
       - kubectl --context=docker-desktop apply -f deployment/setup/namespace.yaml
       - kubectl --context=docker-desktop apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
+      - kubectl --context=docker-desktop apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.2/standard-install.yaml
   setup-win:
     platforms: [ windows ]
     cmds:

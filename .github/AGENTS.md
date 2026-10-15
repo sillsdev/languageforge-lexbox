@@ -186,6 +186,11 @@ Each environment folder:
 - Applies environment-specific patches
 - Sets environment-specific config
 
+**Routing (Gateway API):**
+- `base/http-routes.yaml` holds the `HTTPRoute`s; each env sets its hostnames in `http-routes.patch.yaml`.
+- Clusters attach to the LTOps shared Gateway. `local-dev/`/`gha/` run their own Gateway on a vendored Traefik (`local-dev/traefik/`, re-render with `task k8s:render-traefik`). Gateway API CRDs are a cluster prerequisite (`task setup-k8s`, `setup-k8s` action).
+- `legacy-ingress/` is the old ingress-nginx `Ingress`, kept until every cluster has cut over.
+
 ---
 
 ## Common Tasks

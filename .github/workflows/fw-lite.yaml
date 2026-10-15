@@ -1124,16 +1124,16 @@ jobs:
       - uses: ./.github/actions/setup-k8s
         with:
           lexbox-api-tag: develop
-          ingress-controller-port: '6579' # http; only used by the action's own curl-verify step
+          gateway-port: '6579' # http; only used by the action's own curl-verify step
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # MSAL refuses any non-https authority. ingress-nginx serves a snake-oil
+      # MSAL refuses any non-https authority. The local Gateway serves a snake-oil
       # cert that FwLite trusts via --environment Development and playwright via
       # ignoreHTTPSErrors.
-      - name: Forward ingress HTTPS port
+      - name: Forward gateway HTTPS port
         shell: bash
         run: |
-          kubectl port-forward service/ingress-nginx-controller 6580:443 -n languagedepot >/tmp/https-port-forward.log 2>&1 &
+          kubectl port-forward service/traefik 6580:443 -n languagedepot >/tmp/https-port-forward.log 2>&1 &
           # Wait for the port-forward to actually be listening
           for i in $(seq 1 30); do
             if curl -sk https://localhost:6580 >/dev/null 2>&1; then
@@ -1196,7 +1196,7 @@ jobs:
             kubectl describe pods -l "app=${app}" -n languagedepot > k8s-logs/describe-${app}.txt 2>&1 || true
             kubectl logs -l "app=${app}" -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-${app}.txt 2>&1 || true
           done
-          kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-ingress.txt 2>&1 || true
+          kubectl logs -l 'app.kubernetes.io/name=traefik' -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-gateway.txt 2>&1 || true
 
       - name: Upload k8s logs (on failure)
         if: failure()

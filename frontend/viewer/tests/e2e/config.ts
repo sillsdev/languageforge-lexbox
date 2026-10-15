@@ -5,7 +5,7 @@ export interface Server {
 }
 
 // Kind cluster in CI serves HTTP on 6579; CI overrides to https/6580
-// (the ingress port-forward). MSAL refuses non-https authorities.
+// (the gateway port-forward). MSAL refuses non-https authorities.
 export const lexboxServer: Server = {
   hostname: process.env.TEST_SERVER_HOSTNAME || 'localhost',
   protocol: (process.env.TEST_SERVER_PROTOCOL as 'http' | 'https') || 'http',

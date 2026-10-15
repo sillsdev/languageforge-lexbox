@@ -136,3 +136,10 @@ tasks:
 
   check-backup-jobs:
     cmd: kubectl get jobs --context aws-prod -n languagedepot
+
+  render-traefik:
+    desc: Re-render the vendored Traefik manifest for local-dev/CI from local-dev/traefik/values.yaml (needs helm)
+    vars:
+      CHART_VERSION: 41.7.1
+    cmds:
+      - helm template traefik traefik --repo https://traefik.github.io/charts --version {{.CHART_VERSION}} --namespace languagedepot --skip-crds -f local-dev/traefik/values.yaml > local-dev/traefik/traefik.yaml

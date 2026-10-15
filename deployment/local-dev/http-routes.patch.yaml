@@ -1,0 +1,5 @@
+- op: replace
+  path: /spec/parentRefs
+  value:
+  - name: lexbox
+    namespace: languagedepot
