@@ -16,13 +16,11 @@ pnpm run dev
 # Build for production
 pnpm run build
 
-# Run tests
-pnpm test
-
-# Lint (requires build first)
-pnpm run -r build
-pnpm run -r lint
+# Unit tests (vitest); `pnpm test` is the Playwright suite, which needs the lexbox stack
+pnpm run test:unit --run
 ```
+
+**Before saying done**, run `task verify` from the repo root (svelte-check, eslint and vitest for this app and the viewer). After backend GraphQL changes, `task check-generated` catches a stale `schema.graphql`.
 
 ## Tech Stack
 
@@ -47,7 +45,7 @@ pnpm run -r lint
 ### GraphQL
 
 - Schema at `schema.graphql`
-- Codegen: `pnpm run gql-codegen`
+- Types in `src/lib/gql/generated/` (gitignored) come from the vite plugin during `dev`/`build`. When the folder is missing (fresh worktree), svelte-check fails on every query: run `task ui:gql-codegen`.
 - Queries in `src/lib/gql/`
 
 ### Components
