@@ -44,9 +44,24 @@ public class ProjectIdentityComparisonTests
     }
 
     [Fact]
-    public void DifferentWritingSystems_WhenOneSideHasAnExtraWritingSystem()
+    public void Match_WhenOneSideHasAddedAWritingSystem()
     {
+        // a writing system added on one device must be able to reach the others through local sync
         var local = Identity(wsIds: ["seh", "en", "pt"]);
+        ProjectIdentity.Compare(local, Identity()).Should().Be(IdentityComparison.Match);
+    }
+
+    [Fact]
+    public void DifferentWritingSystems_WhenTheyShareNone()
+    {
+        var local = Identity(wsIds: ["mal", "fr"]);
         ProjectIdentity.Compare(local, Identity()).Should().Be(IdentityComparison.DifferentWritingSystems);
+    }
+
+    [Fact]
+    public void Match_WhenOneSideHasNoWritingSystemsYet()
+    {
+        var local = new ProjectIdentity(ProjectId, RootCommitId, new HashSet<string>());
+        ProjectIdentity.Compare(local, Identity()).Should().Be(IdentityComparison.Match);
     }
 }

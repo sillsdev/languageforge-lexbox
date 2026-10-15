@@ -160,20 +160,23 @@ public class LocalSyncOverHttpTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task TheJoinerChecksTheHostsCurrentProject_NotTheOneItJoined()
+    public async Task AWritingSystemAddedDuringTheSession_ReachesTheJoiner()
     {
         var approved = await JoinAndApprove();
-        // the host adds a writing system after the joiner joined
+        await Joiner.Sync(HostAddress, approved);
+        // the host adds a writing system after the joiner joined and synced
         await _host.Api.CreateWritingSystem(new WritingSystem
         {
             Id = Guid.NewGuid(), WsId = "pt", Name = "Portuguese", Abbreviation = "pt", Font = "Arial",
             Type = WritingSystemType.Analysis
         });
 
-        var result = await Joiner.Sync(HostAddress, approved);
+        var first = await Joiner.Sync(HostAddress, approved);
+        var second = await Joiner.Sync(HostAddress, approved);
 
-        // the strict writing-system rule compares against the host as it is now
-        result.Sync!.Comparison.Should().Be(LcmCrdt.LocalSync.IdentityComparison.DifferentWritingSystems);
+        first.Synced.Should().BeTrue();
+        second.Synced.Should().BeTrue();
+        (await _joiner.Api.GetWritingSystems()).Analysis.Select(ws => ws.WsId.Code).Should().Contain("pt");
     }
 
     [Fact]
