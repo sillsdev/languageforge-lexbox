@@ -19,6 +19,17 @@ namespace FwLiteMaui;
 
 public static class FwLiteMauiKernel
 {
+    /// <summary>
+    /// Lowest-precedence configuration, registered before environment variables in MauiProgram so each entry
+    /// can be overridden at runtime (e.g. Logging__LogLevel__FwLiteShared.Auth.LoggerAdapter=Information).
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string?> DefaultConfiguration = new Dictionary<string, string?>
+    {
+        //MSAL is chatty at Information; Warning still surfaces listener and token failures
+        ["Logging:LogLevel:FwLiteShared.Auth.LoggerAdapter"] = "Warning",
+        ["Logging:LogLevel:Microsoft.EntityFrameworkCore.Database"] = "Warning",
+    };
+
     public static void AddFwLiteMauiServices(this IServiceCollection services,
         ConfigurationManager configuration,
         ILoggingBuilder logging)
@@ -135,8 +146,9 @@ public static class FwLiteMauiKernel
         services.AddOptions<FwLiteMauiConfig>().BindConfiguration("FwLiteMaui");
         var fwLiteMauiConfig = configuration.GetSection("FwLiteMaui").Get<FwLiteMauiConfig>() ?? new();
         var baseDataPath = fwLiteMauiConfig.BaseDataDir;
-        logging.AddFilter("FwLiteShared.Auth.LoggerAdapter", LogLevel.Warning);
-        logging.AddFilter("Microsoft.EntityFrameworkCore.Database", LogLevel.Warning);
+        //filters come from configuration (defaults in DefaultConfiguration) so a user can raise a category at
+        //runtime, e.g. Logging__LogLevel__FwLiteShared.Auth.LoggerAdapter=Information for MSAL sign in details
+        logging.AddConfiguration(configuration.GetSection("Logging"));
         Directory.CreateDirectory(baseDataPath);
         services.Configure<LcmCrdtConfig>(config =>
         {
@@ -146,6 +158,7 @@ public static class FwLiteMauiKernel
         {
             config.CacheFileName = fwLiteMauiConfig.AuthCacheFilePath;
             config.SystemWebViewLogin = true;
+            config.OpenSystemBrowser = uri => Launcher.Default.OpenAsync(uri);
         });
         services.Configure<HarmonyConfig>(config =>
         {
