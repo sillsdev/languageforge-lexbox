@@ -65,7 +65,8 @@ updates:
 
   # --- GitHub Actions ---
   - package-ecosystem: github-actions
-    directory: /
+    # Workflows plus composite actions (.github/actions/*/action.y*ml)
+    directories: ["/", "/.github/actions/*"]
     target-branch: develop
     schedule:
       interval: weekly
