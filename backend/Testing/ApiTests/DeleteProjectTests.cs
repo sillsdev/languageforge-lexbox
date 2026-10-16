@@ -12,8 +12,65 @@ namespace Testing.ApiTests;
 
 [Trait("Category", "Integration")]
 [Collection("FwHeadless Sync")]
-public class DeleteProjectTests : ApiTestBase
+// IntegrationFixture is only used to upload the template repo, so deleting a project removes actual content
+public class DeleteProjectTests(IntegrationFixture fixture) : ApiTestBase, IClassFixture<IntegrationFixture>
 {
+    private async Task<LexboxProject> CreateProjectWithTemplateRepo(ProjectConfig config)
+    {
+        var project = await this.RegisterProjectInLexBox(config, waitForRepoReady: true);
+        await fixture.PopulateWithTemplateRepo(config.Code);
+        return project;
+    }
+
+    [Fact]
+    public async Task DeleteProject_RemovesRepo_AndRecreatingTheCodeGivesAnEmptyRepo()
+    {
+        await LoginAs("admin");
+        var config = Utils.GetNewProjectConfig();
+        var project = await CreateProjectWithTemplateRepo(config);
+        await using var cleanup = Defer.Async(async () =>
+        {
+            // in case the test fails before deleting it, not asserted so it can't hide the actual failure
+            await HttpClient.DeleteAsync($"api/project/{project.Id}");
+        });
+
+        var response = await HttpClient.DeleteAsync($"api/project/{project.Id}");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        await this.AssertRepoNotServed(config.Code);
+
+        // creating a repo fails if one already exists for the code, so this also verifies the repo was removed
+        await using var recreated = await this.RegisterProjectInLexBox(config with { Id = Guid.NewGuid() }, waitForRepoReady: true);
+        await this.AssertRepoEmpty(config.Code);
+        (await GetProjectLastCommit(config.Code)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task SoftDeleteProject_RemovesRepo_AndTheCodeCanBeReusedWithAnEmptyRepo()
+    {
+        await LoginAs("admin");
+        var config = Utils.GetNewProjectConfig();
+        // A soft deleted project can't be hard deleted (its code gets a suffix that isn't a valid repo name),
+        // so like DeleteProject_NonDevRetentionPolicy_ReturnsForbidden this leaves it behind
+        var project = await CreateProjectWithTemplateRepo(config);
+
+        var gqlResponse = await ExecuteGql($$"""
+            mutation {
+                softDeleteProject(input: { projectId: "{{project.Id}}" }) {
+                    project { id code deletedDate }
+                    errors { __typename }
+                }
+            }
+            """);
+        var deletedProject = gqlResponse["data"]!["softDeleteProject"]!["project"].Should().BeOfType<JsonObject>().Subject;
+        deletedProject["deletedDate"].Should().NotBeNull();
+        deletedProject["code"]!.GetValue<string>().Should().StartWith(config.Code + "__");
+        await this.AssertRepoNotServed(config.Code);
+
+        await using var recreated = await this.RegisterProjectInLexBox(config with { Id = Guid.NewGuid() }, waitForRepoReady: true);
+        await this.AssertRepoEmpty(config.Code);
+        (await GetProjectLastCommit(config.Code)).Should().BeNull();
+    }
+
     [Fact]
     public async Task DeleteProject_Success_RemovesProjectAndCallsFwHeadless()
     {
