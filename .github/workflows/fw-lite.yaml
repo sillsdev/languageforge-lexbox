@@ -1124,26 +1124,23 @@ jobs:
       - uses: ./.github/actions/setup-k8s
         with:
           lexbox-api-tag: develop
-          gateway-port: '6579' # http; only used by the action's own curl-verify step
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       # MSAL refuses any non-https authority. The local Gateway serves a snake-oil
       # cert that FwLite trusts via --environment Development and playwright via
-      # ignoreHTTPSErrors.
-      - name: Forward gateway HTTPS port
+      # ignoreHTTPSErrors. HTTPS is mapped to localhost:6580 by deployment/gha/kind.yaml.
+      - name: Wait for gateway HTTPS port
         shell: bash
         run: |
-          kubectl port-forward service/traefik 6580:443 -n languagedepot >/tmp/https-port-forward.log 2>&1 &
-          # Wait for the port-forward to actually be listening
           for i in $(seq 1 30); do
             if curl -sk https://localhost:6580 >/dev/null 2>&1; then
-              echo "✅ HTTPS port-forward ready on :6580"
+              echo "✅ HTTPS gateway ready on :6580"
               exit 0
             fi
             sleep 1
           done
-          echo "❌ HTTPS port-forward did not become ready"
-          cat /tmp/https-port-forward.log
+          echo "❌ HTTPS gateway did not become ready on :6580"
+          curl -vk https://localhost:6580 || true
           exit 1
 
       - name: Cache Playwright browsers

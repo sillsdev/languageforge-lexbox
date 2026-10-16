@@ -26,7 +26,6 @@ jobs:
       - uses: ./.github/actions/setup-k8s
         with:
           lexbox-api-tag: ${{ inputs.lexbox-api-tag }}
-          gateway-port: '6579'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build
@@ -64,7 +63,6 @@ jobs:
       - uses: ./.github/actions/setup-k8s
         with:
           lexbox-api-tag: ${{ inputs.lexbox-api-tag }}
-          gateway-port: '6579'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       ##playwright tests
