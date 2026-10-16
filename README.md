@@ -92,7 +92,7 @@ The SvelteKit UI will be available at http://localhost:3000.
 
 ---
 ### Project urls
-* http://localhost - k8s ingress
+* http://localhost - k8s gateway (Traefik)
 * http://localhost:3000 - SvelteKit UI
 * http://localhost:5158/api - .NET API
 * http://localhost:5158/api/swagger - .NET Swagger UI
@@ -158,7 +158,7 @@ More info on the following subfolders can be found in their respective READMEs:
 
 flowchart LR
     Chorus(["Chorus (e.g. FLEx)"]) -- "https:(hg-staging|resumable-staging)" --- proxy
-    Web -- https://staging.languagedepot.org --- proxy([ingress])
+    Web -- https://staging.languagedepot.org --- proxy([gateway])
 
     proxy ---|http:5158/api or /hg| api([lexbox-api])
     proxy ---|http:3000| node([sveltekit])

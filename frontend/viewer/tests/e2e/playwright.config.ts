@@ -34,7 +34,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     viewport: {width: 1280, height: 720},
-    // Kind cluster ingress uses a snake-oil cert.
+    // Kind cluster gateway uses a snake-oil cert.
     ignoreHTTPSErrors: true,
   },
   projects: [

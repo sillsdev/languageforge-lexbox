@@ -1,0 +1,42 @@
+# Helm values for the Traefik Gateway API controller used by local-dev and CI (kind).
+# traefik.yaml is rendered from these values and committed; regenerate with `task k8s:render-traefik` (needs helm on PATH).
+# The Gateway/GatewayClass live in ../gateway.yaml, not in the chart output.
+
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+providers:
+  kubernetesCRD:
+    enabled: false
+  kubernetesIngress:
+    enabled: false
+  kubernetesGateway:
+    enabled: true
+
+gateway:
+  enabled: false
+gatewayClass:
+  enabled: false
+ingressClass:
+  enabled: false
+
+ports:
+  web:
+    # lexbox runs behind this proxy only, so trust whatever X-Forwarded-* the client sends (same as ingress-nginx's use-forwarded-headers)
+    forwardedHeaders:
+      insecure: true
+    transport:
+      respondingTimeouts:
+        # Traefik defaults to 60s, which would cut off long hg pushes and resumable uploads
+        readTimeout: 0
+  websecure:
+    forwardedHeaders:
+      insecure: true
+    transport:
+      respondingTimeouts:
+        readTimeout: 0
+
+service:
+  # Docker Desktop binds LoadBalancer services to localhost:80/443
+  type: LoadBalancer

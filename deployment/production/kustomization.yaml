@@ -5,8 +5,11 @@ namespace: languagedepot
 resources:
   - ../base
   - backup.yaml
+components:
+  - ../legacy-ingress
 
 patches:
+  - path: http-routes.patch.yaml
   - path: lexbox-deployment.patch.yaml
   - path: app-config.yaml
   - path: fw-headless-volume.yaml
