@@ -42,7 +42,9 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share)
     [JSInvokable]
     public Task<bool> SupportsShareFile()
     {
-        return Task.FromResult(DeviceInfo.Platform == DevicePlatform.iOS || DeviceInfo.Platform == DevicePlatform.MacCatalyst);
+        return Task.FromResult(DeviceInfo.Platform == DevicePlatform.iOS
+                               || DeviceInfo.Platform == DevicePlatform.MacCatalyst
+                               || DeviceInfo.Platform == DevicePlatform.Android);
     }
 
     [JSInvokable]
