@@ -21,8 +21,17 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
     public async Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
+        // sense first: loading it brings its pictures along, so the owner search only runs when the picture isn't there
         var sense = await repo.GetSense(senseId);
-        return sense?.Pictures.FirstOrDefault(pic => pic.Id == id);
+        if (sense is not null)
+        {
+            CrdtSenseApi.VerifySenseBelongsToEntry(entryId, sense);
+            var owned = sense.Pictures.FirstOrDefault(pic => pic.Id == id);
+            if (owned is not null) return owned;
+        }
+        var actualSenseId = await repo.GetPictureSenseId(id);
+        if (actualSenseId is null) return null;
+        throw ParentMismatchException.ForType<Picture>(id, senseId, actualSenseId.Value);
     }
 
     public async Task SubmitUpdatePicture(Guid entryId,

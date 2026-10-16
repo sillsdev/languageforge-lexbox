@@ -1897,6 +1897,7 @@ public class FwDataMiniLcmApi(
         if (lcmPicture.Owner is ILexSense sense)
         {
             if (sense.Guid != senseId) throw ParentMismatchException.ForType<Picture>(lcmPicture.Guid, senseId, sense.Guid);
+            if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
         }
         else
         {
