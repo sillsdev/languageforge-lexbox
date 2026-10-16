@@ -14,7 +14,7 @@ SIL fiscal years start Oct 1 and are named after the calendar year they end in: 
 
 ## Ground rules
 
-- **Privacy.** The scripts print counts and write nothing to disk, so project codes never leave prod. Support-thread subjects and anything else user-identifying stay in this conversation: don't save them to files, commit them or post them anywhere (repo AGENTS.md privacy rules).
+- **Privacy.** The scripts print counts and write nothing sensitive to disk. The only project codes that leave prod are those of repos `hg log` fails on, which the scan names in its progress output. Those codes, support-thread subjects and anything else user-identifying stay in this conversation: don't save them to files, commit them or post them anywhere (repo AGENTS.md privacy rules).
 - **Prod is the user's to run.** Never run kubectl or psql against aws-prod yourself. Show `scripts/prod-collect.ps1` as a click-to-run command and read the counts it prints.
 - **Ask little, with AskUserQuestion, lightest question first.** Ask about FTE every quarter and anything the standing rules below don't settle (anomalies, flags). Don't ask the user to read files.
 - **Nothing goes into the sheet before the user's final OK.** Write only the two product rows, never another product's cells.
@@ -22,7 +22,7 @@ SIL fiscal years start Oct 1 and are named after the calendar year they end in: 
 ## Steps
 
 1. **Quarter and preflight.** Use the argument, or the last finished quarter. Check which connectors are attached: Google Drive + Sheets (required), Gmail, Mixpanel.
-   - **No Mixpanel connector:** ask whether to browse Mixpanel with Claude in Chrome, or use Mixpanel's Query API with a service account. For the API, the user sets `MIXPANEL_SA_USER` and `MIXPANEL_SA_SECRET` in their environment. Pass them only as `curl -u "$MIXPANEL_SA_USER:$MIXPANEL_SA_SECRET" ...`, print only aggregate results, and never echo, log or inspect those variables.
+   - **No Mixpanel connector:** ask whether to browse Mixpanel with Claude in Chrome, or use Mixpanel's Query API with a service account. For the API, the user sets `MIXPANEL_SA_USER` and `MIXPANEL_SA_SECRET` in their environment. Hand them to curl on stdin, never on its command line, where other processes can read them: `printf 'user = "%s:%s"\n' "$MIXPANEL_SA_USER" "$MIXPANEL_SA_SECRET" | curl -K - ...` (`printf` is a shell builtin). Print only aggregate results, and never echo, log or inspect those variables.
    - **No Gmail connector:** page the `lexbox_support` Google Group in Chrome instead. Its list is sorted by last activity, so check each thread's first-message date.
 2. **Read the sheet.** Find "LangTech Analytics Dashboard" with Drive search. Read rows 1-2 (headers) and the FieldWorks Lite and Lexbox rows of this quarter's tab, plus the previous quarter's tab for comparison and the FTE history. Map columns by header text, because the columns change between quarters. If the quarter's tab doesn't exist yet, stop and say so: the sheet owner creates it.
 3. **Collect, in parallel where you can:**
@@ -74,7 +74,7 @@ Users who opted out of analytics never show up, and the team's own devices do.
 
 ## Support tickets via Gmail
 
-Search `list:lexbox_support@groups.sil.org after:YYYY/MM/DD before:YYYY/MM/DD -subject:FIRING -subject:RESOLVED -subject:Triggered` (Gmail's `before:` is exclusive, and the dates are Pacific time, so double-check threads that start right at a boundary). Page through all results, then check each candidate's first message's date and topic. Things Gmail does differently from the group itself:
+Search `list:lexbox_support@groups.sil.org after:YYYY/MM/DD before:YYYY/MM/DD -subject:FIRING -subject:RESOLVED -subject:Triggered` (Gmail's `before:` is exclusive, and the dates are Pacific time, so double-check threads that start right at a boundary). Page through all results and classify from what the search returns (date, subject, sender, snippet). This is outside users' personal data and everything read goes to Anthropic, so open a thread only when the results don't settle its start date, its product or whether it's a request. When in doubt, open it: the count matters more. Things Gmail does differently from the group itself:
 - **Subject changes split threads.** A follow-up about a new problem from the same person can land in its own Gmail thread, while the group shows one conversation. Count it once.
 - **Only mail the user received is there.** If the earliest message is a reply ("Re: …"), the thread started earlier; take the date from the quoted original.
 - **Spam is still there.** Marketing mail ("Congrats on launching…") still arrives; skip it.
@@ -83,7 +83,7 @@ Use only search and read; never the connector's draft, send, label, trash or fil
 
 ## Prod scripts and load
 
-`prod-collect.ps1` port-forwards the DB and kills the forward's whole process tree afterwards. It runs `prod-queries.sql` in a read-only transaction with statement and lock timeouts, then pipes `hg-active-repos.sh` into the hg pod. Both bring back only counts. The scan:
+`prod-collect.ps1` port-forwards the DB and kills the forward's whole process tree afterwards. It runs `prod-queries.sql` in a read-only transaction with statement and lock timeouts, then pipes `hg-active-repos.sh` into the hg pod. Both bring back counts; the scan also names any repo `hg log` fails on. The scan:
 - runs one `hg log` at a time, at `nice 19`;
 - skips repos whose changelog hasn't changed in the month before the quarter;
 - takes a lock in the pod, so two scans never overlap.

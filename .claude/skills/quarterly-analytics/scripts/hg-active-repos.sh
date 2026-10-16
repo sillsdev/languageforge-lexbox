@@ -2,7 +2,7 @@
 # Runs inside the hg pod (piped in by prod-collect.ps1). Usage: sh -s -- START LAST_DAY MTIME_CUTOFF
 # Counts the repos with at least one commit dated START..LAST_DAY (whole days) and prints one line:
 # "lexbox_active_projects=.. lexbox_languages_impacted=.. repos_scanned=.. repos_checked=.. hg_failures=..".
-# Progress goes to stderr.
+# Progress, including the name of any repo hg log fails on, goes to stderr.
 #
 # Load matters more than speed here: a parallel scan has taken a node down before. So this runs
 # one hg process at a time at the lowest CPU priority, refuses to start while another scan is still
@@ -24,7 +24,7 @@ main() {
   command -v flock >/dev/null 2>&1 || { echo "flock not found on PATH; not scanning without a lock" >&2; return 2; }
 
   # The kernel releases this lock when the scan and its hg child exit, however they exit.
-  exec 9>/tmp/hg-active-repos.lock
+  exec 9>>/tmp/hg-active-repos.lock
   if ! flock -n 9; then
     echo "another scan is still running; wait for it to finish" >&2
     return 3

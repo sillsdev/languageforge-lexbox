@@ -9,7 +9,9 @@
       password), then stops the port-forward.
   hg: pipes hg-active-repos.sh into the hg pod (sequential, low priority, one scan at a time).
       The lock lives in the pod, so don't run this step while hg is being redeployed (two pods).
-  Both only bring back counts, which this prints at the end. Nothing is written to disk.
+  Both bring back counts, which this prints at the end; the scan also names any repo hg fails on.
+  Nothing sensitive is written to disk: kubectl's port-forward log goes to a temp file that's
+  deleted afterwards.
 #>
 param(
   [Parameter(Mandatory)][ValidatePattern('^FY\d{2}Q[1-4]$', Options = 'None')][string]$Quarter,
