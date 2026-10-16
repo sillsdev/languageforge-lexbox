@@ -46,7 +46,7 @@ SIL fiscal years start Oct 1 and are named after the calendar year they end in: 
 | Installs | Mixpanel: users whose first-ever `app_launched` falls in the quarter. See the FY27Q1 caveat. | n/a |
 | Active Projects | `fwl_active_projects`: projects with a CRDT commit in the quarter, deleted ones included | `lexbox_active_projects`: hg repos with a commit dated in the quarter. Every folder is included, deleted and reset backups too, so a project reset during the quarter counts twice (the doc's method). |
 | New Projects Started | `fwl_new_projects`: first-ever CRDT commit in the quarter | `lexbox_created_projects`: projects created in the quarter, deleted ones included |
-| Active Users | Mixpanel unique users of `app_launched` in the quarter | Mixpanel unique users of any event in the quarter |
+| Active Users | Mixpanel unique users of `app_launched` in the quarter | Mixpanel unique users of any `lexbox` event in the quarter |
 | Avg MAU, MAU month 1-3 | Mixpanel unique users per calendar month; Avg = mean, 1 decimal | Same |
 | Number of User Countries | Mixpanel distinct `mp_country_code` over the quarter | Same (Lexbox events carry the client IP) |
 | Number of Languages Impacted | `fwl_languages_impacted`: active projects whose code doesn't contain test, train, demo, dev or copy (in `prod-queries.sql` and `hg-active-repos.sh`). No manual judgment. | `lexbox_languages_impacted`, same filter |
@@ -56,9 +56,15 @@ SIL fiscal years start Oct 1 and are named after the calendar year they end in: 
 
 ## Mixpanel
 
-Everything is in the Mixpanel project named "Lexbox". Events carry `product` = `fw-lite` or `lexbox`:
-- **FW Lite:** `app_launched` once per app start (desktop and Android), plus `project_opened`. Tracking started with v2026-09-01.
-- **Lexbox:** server-side `send_receive`, `fw_lite_sync`, `login_completed` and `account_created`, keyed by user id. Tracking started 2026-09-28, so FY27Q1 is its first full quarter and there's nothing earlier to compare with.
+Everything is in the Mixpanel project named "Lexbox" (`Get-Projects` gives its id):
+- **FW Lite:** `app_launched`, once per app start (desktop and Android). Tracking started with v2026-09-01. Don't filter it on `product`: that property only arrived around v2026-09-28, and older installs still send `app_launched` without it.
+- **Lexbox:** server-side `send_receive`, `fw_lite_sync`, `login_completed` and `account_created`, keyed by user id, all with `product` = `lexbox`. Query `$all_events` filtered on `product` = `lexbox`. Tracking started 2026-09-28, so FY27Q1 is its first full quarter and there's nothing earlier to compare with.
+
+Queries go through the connector's `Run-Query` (`insights`):
+- **Quarter totals** (Active Users, countries): `chartType` `bar` over the quarter's absolute date range, which counts each user once. Countries are the `aggregate-property` measurement, `unique_values` of `mp_country_code`.
+- **MAU:** `chartType` `line` with `unit` `month`. Never add months up.
+- **Installs:** the query schema has no "first time ever" filter, so subtract: unique users from 2026-01-01 to the quarter's last day, minus unique users from 2026-01-01 to the day before the quarter.
+- To split by event, break down on `$event_name` ("Event Name" returns `undefined`).
 
 Users who opted out of analytics never show up, and the team's own devices do.
 
