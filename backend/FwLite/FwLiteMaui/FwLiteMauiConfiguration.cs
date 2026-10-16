@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +17,7 @@ public static class FwLiteMauiConfiguration
     public const string SettingsFileName = "fw-lite-settings.json";
     private const string MsalLogCategory = "FwLiteShared.Auth.LoggerAdapter";
     private const string DefaultLogLevelKey = "Logging:LogLevel:Default";
+    private const string BaseDataDirKey = "FwLiteMaui:BaseDataDir";
 
     public static void AddFwLiteMauiConfiguration(this ConfigurationManager configuration)
     {
@@ -48,6 +50,11 @@ public static class FwLiteMauiConfiguration
             };
             source.ResolveFileProvider();
         });
+        //the file was looked up in this directory, so it must not move the directory: otherwise the data dir, the
+        //log and the file the troubleshoot dialog edits would all point somewhere other than the file that was loaded
+        builder.AddInMemoryCollection([
+            new KeyValuePair<string, string?>(BaseDataDirKey, Path.GetDirectoryName(Path.GetFullPath(settingsFilePath)))
+        ]);
         builder.AddEnvironmentVariables();
     }
 
@@ -78,7 +85,17 @@ public static class FwLiteMauiConfiguration
     /// </summary>
     public static void SetVerboseLogging(string settingsFilePath, bool enabled)
     {
-        var root = ReadSettingsFile(settingsFilePath);
+        JsonObject root;
+        try
+        {
+            root = ReadSettingsFile(settingsFilePath);
+        }
+        catch (JsonException e)
+        {
+            //the switch must not silently replace a hand-edited file; the advanced editor shows the raw text to repair
+            throw new InvalidOperationException(
+                $"The settings file is not valid JSON, fix it under 'Advanced: settings file' first: {e.Message}");
+        }
         var logging = root["Logging"] as JsonObject ?? (JsonObject)(root["Logging"] = new JsonObject());
         var logLevel = logging["LogLevel"] as JsonObject ?? (JsonObject)(logging["LogLevel"] = new JsonObject());
         if (enabled)
@@ -96,7 +113,7 @@ public static class FwLiteMauiConfiguration
         File.WriteAllText(settingsFilePath, root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }
 
-    /// <summary>Replaces the whole file with user-supplied text; blank deletes it. Rejects anything that isn't a JSON object.</summary>
+    /// <summary>Replaces the whole file with user-supplied text; blank deletes it. Rejects anything the configuration loader would.</summary>
     public static void WriteSettingsFile(string settingsFilePath, string contents)
     {
         if (string.IsNullOrWhiteSpace(contents))
@@ -105,17 +122,24 @@ public static class FwLiteMauiConfiguration
             return;
         }
 
-        JsonNode? node;
+        //validate with the same parser AddJsonFile uses, so what saves here is what loads at startup
+        //(it rejects e.g. duplicate keys, which JsonNode.Parse accepts)
         try
         {
-            node = JsonNode.Parse(contents, documentOptions: ParseOptions);
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(contents));
+            new ConfigurationBuilder().AddJsonStream(stream).Build();
         }
-        catch (JsonException e)
+        catch (Exception e) when (e is JsonException || e.InnerException is JsonException)
         {
-            throw new ArgumentException($"Settings are not valid JSON: {e.Message}", nameof(contents));
+            var reason = (e.InnerException ?? e).Message;
+            throw new ArgumentException($"Settings are not valid JSON: {reason}", nameof(contents));
+        }
+        catch (FormatException e)
+        {
+            //the parser's own rejections: "must be a JSON object", duplicate keys
+            throw new ArgumentException($"Settings are not valid: {e.Message}", nameof(contents));
         }
 
-        if (node is not JsonObject) throw new ArgumentException("Settings must be a JSON object", nameof(contents));
         Directory.CreateDirectory(Path.GetDirectoryName(settingsFilePath)!);
         File.WriteAllText(settingsFilePath, contents);
     }

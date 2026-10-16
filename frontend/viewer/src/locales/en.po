@@ -1019,6 +1019,10 @@ msgstr "Example sentence"
 msgid "Example sentences"
 msgstr "Example sentences"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to change verbose logging"
+msgstr "Failed to change verbose logging"
+
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
@@ -2051,8 +2055,8 @@ msgid "Part of speech"
 msgstr "Part of speech"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file."
-msgstr "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file."
+msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
+msgstr "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet

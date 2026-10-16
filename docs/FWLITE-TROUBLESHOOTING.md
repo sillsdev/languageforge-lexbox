@@ -58,8 +58,8 @@ lists which top-level sections the file contains. The ones support is most likel
 | Setting | Purpose |
 |---------|---------|
 | `Logging:LogLevel:<category>` | any log category, e.g. `Default`, `FwLiteShared.Auth.LoggerAdapter` (MSAL), `LcmCrdt`, `FwLiteShared`, `Microsoft.EntityFrameworkCore.Database` |
-| `FwLiteMaui:MaxLogFileSize` | bytes per log file before it rolls (default 50 MB) |
-| `FwLiteMaui:MaxLogFileCount` | how many rolled log files to keep (default 2) |
+| `FwLiteMaui:MaxLogFileSize` | bytes per log file before it rolls (default 50 MB); needs a restart |
+| `FwLiteMaui:MaxLogFileCount` | how many rolled log files to keep (default 2); needs a restart |
 | `FwDataBridge:ProjectsFolder` | where FieldWorks projects are loaded from (Windows) |
 
 Treat a pasted snippet like any other instruction from a stranger: sections such as `Auth` change which server
@@ -74,5 +74,8 @@ Example: only MSAL at `Debug`, everything else unchanged, and keep 4 log files:
 }
 ```
 
-The data directory itself should be moved with the `FwLiteMaui__BaseDataDir` environment variable rather than
-the file, because the file is looked up in the default (or env-var) directory before it is read.
+Log levels apply as soon as the file is saved. The log file size and count are read once when the logger starts,
+so those take effect at the next launch.
+
+The data directory can only be moved with the `FwLiteMaui__BaseDataDir` environment variable; the file is looked up
+in the default (or env-var) directory before it is read, so a `BaseDataDir` inside the file is ignored.

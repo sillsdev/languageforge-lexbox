@@ -61,6 +61,19 @@ public class FwLiteMauiConfigurationTests : IDisposable
     }
 
     [Fact]
+    public void SettingsFile_CannotMoveTheDataDirectory()
+    {
+        var elsewhere = Path.Combine(_dataDir, "elsewhere");
+        File.WriteAllText(SettingsFilePath, $$"""{ "FwLiteMaui": { "BaseDataDir": "{{elsewhere.Replace(Path.DirectorySeparatorChar, '/')}}", "MaxLogFileCount": 5 } }""");
+
+        var config = Build().GetSection("FwLiteMaui").Get<FwLiteMauiConfig>()!;
+
+        config.BaseDataDir.Should().Be(Path.GetFullPath(_dataDir));
+        config.SettingsFilePath.Should().Be(Path.GetFullPath(SettingsFilePath));
+        config.MaxLogFileCount.Should().Be(5);
+    }
+
+    [Fact]
     public void CorruptSettingsFile_IsSkippedInsteadOfCrashing()
     {
         File.WriteAllText(SettingsFilePath, "{ not json");
@@ -118,10 +131,36 @@ public class FwLiteMauiConfigurationTests : IDisposable
         var act = () => FwLiteMauiConfiguration.WriteSettingsFile(SettingsFilePath, "{ not json");
         act.Should().Throw<ArgumentException>().WithMessage("*not valid JSON*");
         var array = () => FwLiteMauiConfiguration.WriteSettingsFile(SettingsFilePath, "[1]");
-        array.Should().Throw<ArgumentException>().WithMessage("*JSON object*");
+        array.Should().Throw<ArgumentException>().WithMessage("*must be an object*");
 
         FwLiteMauiConfiguration.IsVerboseLogging(Build()).Should().BeTrue();
         File.ReadAllText(SettingsFilePath).Should().Be(fileJson);
+    }
+
+    [Fact]
+    public void WriteSettingsFile_RejectsWhatTheLoaderRejects()
+    {
+        //JsonNode.Parse accepts a duplicate key, the configuration parser does not; the file must not be saved
+        //if it would then be skipped at startup
+        var duplicate = () => FwLiteMauiConfiguration.WriteSettingsFile(SettingsFilePath,
+            """{ "Logging": { "LogLevel": { "Default": "Debug" } }, "Logging": { "LogLevel": { "Default": "Trace" } } }""");
+        duplicate.Should().Throw<ArgumentException>().WithMessage("*duplicate*");
+        File.Exists(SettingsFilePath).Should().BeFalse();
+
+        //what the loader tolerates must still save
+        FwLiteMauiConfiguration.WriteSettingsFile(SettingsFilePath, """{ /* comment */ "Logging": { "LogLevel": { "Default": "Debug", } }, }""");
+        FwLiteMauiConfiguration.IsVerboseLogging(Build()).Should().BeTrue();
+    }
+
+    [Fact]
+    public void SetVerboseLogging_RefusesToReplaceACorruptFile()
+    {
+        File.WriteAllText(SettingsFilePath, "{ not json");
+
+        var act = () => FwLiteMauiConfiguration.SetVerboseLogging(SettingsFilePath, true);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*Advanced: settings file*");
+        File.ReadAllText(SettingsFilePath).Should().Be("{ not json");
     }
 
     [Fact]

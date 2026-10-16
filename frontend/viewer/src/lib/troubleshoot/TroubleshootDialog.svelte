@@ -50,7 +50,14 @@
   }
 
   async function setVerboseLogging(enabled: boolean) {
-    await service?.setVerboseLogging(enabled);
+    if (!service) return;
+    try {
+      await service.setVerboseLogging(enabled);
+    } catch (e) {
+      // a hand-edited settings file with broken JSON is an expected, actionable failure
+      AppNotification.display(e instanceof Error ? e.message : $t`Failed to change verbose logging`, 'error');
+    }
+    // also puts the switch back in sync when the change failed
     await verboseLogging.refetch();
     await settingsFile.refetch();
   }
@@ -213,7 +220,7 @@
           </Collapsible.Trigger>
           <Collapsible.Content class="flex flex-col gap-2 pt-2">
             <p class="text-sm text-muted-foreground">
-              {$t`Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file.`}
+              {$t`Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart.`}
             </p>
             <Textarea bind:value={settingsDraft} rows={8} spellcheck={false} class="font-mono text-xs" placeholder={'{\n  "Logging": { "LogLevel": { "LcmCrdt": "Debug" } }\n}'} />
             <div class="flex gap-2">
