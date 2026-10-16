@@ -66,6 +66,8 @@ Queries go through the connector's `Run-Query` (`insights`):
 - **Installs:** the query schema has no "first time ever" filter, so subtract: unique users from 2026-01-01 to the quarter's last day, minus unique users from 2026-01-01 to the day before the quarter.
 - To split by event, break down on `$event_name` ("Event Name" returns `undefined`).
 
+Use only `Run-Query` and the Get/List tools; never create, edit, delete, merge or dismiss anything in Mixpanel.
+
 Users who opted out of analytics never show up, and the team's own devices do.
 
 **FY27Q1 caveat (delete this paragraph once FY27Q2 is done).** Installs overcount in FY27Q1. Existing devices that first sent `app_launched` after updating to an analytics build (Sep 2026 or later) look like new installs. The effect fades in FY27Q2 and is negligible after that. In FY27Q1 add a short note to the FW Lite Notes cell; in FY27Q2 add one only if Installs look high against Active Users.
