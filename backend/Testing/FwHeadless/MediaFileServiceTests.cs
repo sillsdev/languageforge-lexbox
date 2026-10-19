@@ -275,7 +275,7 @@ public class MediaFileServiceTests : IDisposable
     {
         var result = HgRunner.Run($"hg {args}", _cache.ProjectId.ProjectFolder, 5, new NullProgress());
         result.ExitCode.Should().Be(0, $"hg {args} failed: {result.StandardError}");
-        return result.StandardOutput;
+        return result.StandardOutput.Trim();
     }
 
     [Fact]
