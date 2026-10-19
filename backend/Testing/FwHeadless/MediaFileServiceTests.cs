@@ -291,9 +291,38 @@ public class MediaFileServiceTests : IDisposable
 
         File.Exists(filePath).Should().BeFalse();
         await AssertDbFileDoesNotExist("test.txt");
-        RunHg("status").Should().BeEmpty("the removal should be committed, leaving the working copy clean");
+        RunHg($"status \"{filePath}\"").Should().BeEmpty("the removal should be committed");
         RunHg("manifest -r tip").Should().NotContain(repoRelativePath);
         CurrentRev().Should().Be(1, "rev 0 adds the file, rev 1 removes it");
+    }
+
+    [Fact]
+    public async Task DeleteMediaFile_FileNotTrackedByHg_Succeeds()
+    {
+        await _service.SaveMediaFile(new MediaFile { Filename = "tracked.txt", ProjectId = _projectId }, SimpleStream("test"));
+        //e.g. a file from before media files were committed to hg
+        var untrackedFile = await AddFile("untracked.txt");
+        RunHg($"status \"{FullFilePath(untrackedFile)}\"").Should().StartWith("? ", "the file should not be tracked by hg");
+
+        await _service.DeleteMediaFile(untrackedFile);
+
+        File.Exists(FullFilePath(untrackedFile)).Should().BeFalse();
+        await AssertDbFileDoesNotExist("untracked.txt");
+        RunHg($"status \"{FullFilePath(untrackedFile)}\"").Should().BeEmpty();
+        CurrentRev().Should().Be(0, "there is no removal to commit for a file hg never tracked");
+    }
+
+    [Fact]
+    public async Task SaveMediaFile_DoesNotCommitOtherPendingChanges()
+    {
+        var pendingFile = Path.Join(_cache.LangProject.LinkedFilesRootDir, "pending.txt");
+        await File.WriteAllTextAsync(pendingFile, "pending");
+        RunHg($"add \"{pendingFile}\"");
+
+        await _service.SaveMediaFile(new MediaFile { Filename = "test.txt", ProjectId = _projectId }, SimpleStream("test"));
+
+        RunHg("manifest -r tip").Should().Contain("test.txt").And.NotContain("pending.txt");
+        RunHg($"status \"{pendingFile}\"").Should().StartWith("A ", "the pending change should be left for whoever made it");
     }
 
 

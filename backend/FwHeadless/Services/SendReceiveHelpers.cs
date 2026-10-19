@@ -154,9 +154,15 @@ public static class SendReceiveHelpers
         var fileDir = Path.GetDirectoryName(filePath);
         ArgumentNullException.ThrowIfNull(fileDir);
 
+        //a deleted file that hg never tracked (or whose removal is already recorded) has nothing to commit, `hg files` exits with 1 for such a path
+        if (!File.Exists(filePath) &&
+            (await Task.Run(() => HgRunner.Run($"hg files {EscapeShellArg(filePath)}", fileDir, 5, progress))).ExitCode == 1)
+            return;
+
         //records the file as added if it exists, or as removed if it was deleted; hg won't commit an untracked file or a deletion it hasn't recorded
         await ExecuteHgSuccess($"hg addremove --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
-        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", fileDir, progress);
+        //only commit this file, other pending changes in the working copy (e.g. from a Send/Receive in progress) must not be swept into it
+        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)} {EscapeShellArg(filePath)}", fileDir, progress);
     }
 
     private static string EscapeShellArg(string arg)
