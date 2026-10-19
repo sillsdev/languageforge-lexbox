@@ -25,6 +25,11 @@ public static partial class ErrorScrubber
     private const int MaxStackFrames = 60;
     private const string Ellipsis = "…";
 
+    // The rest of a path after its start. Paths can contain spaces ("C:\Users\Jo Smith\My Dict.sqlite"), so a space
+    // is taken as part of the path when the next word looks like more path: it has a separator or a file extension.
+    // Best effort: an unquoted path can still end in a word that looks like neither.
+    private const string PathRest = @"(?:[^\s'""<>|]|\s+(?=[^\s'""<>|]*(?:[\\/]|\.\w{1,10}\b)))*";
+
     // One alternation so each input is scanned once; at any position the earliest alternative wins.
     // EnumerateMatches doesn't expose groups, so MessagePlaceholder tells the alternatives apart by their first chars.
     [GeneratedRegex(
@@ -33,9 +38,11 @@ public static partial class ErrorScrubber
         // email
         @"|[\w.+\-]+@[\w\-]+(?:\.[\w\-]+)+" +
         // C:\foo\bar, C:/foo, \\server\share
-        @"|(?:\b[a-zA-Z]:[\\/]|\\\\)[^\s'""<>|]*" +
-        // /home/bob/x, ~/x; needs at least two segments so a lone "/" or "and/or" is left alone
-        @"|(?<![\w.:])~?/(?:[^\s/'""<>]+/)+[^\s'""<>]*" +
+        @"|(?:\b[a-zA-Z]:[\\/]|\\\\)" + PathRest +
+        // /home/bob/x, ~/x; needs two segments so a lone "/" or "and/or" is left alone
+        @"|(?<![\w.:])~?/[^\s/'""<>]+/" + PathRest +
+        // relative Windows path, e.g. Documents\x.sqlite
+        @"|[^\s'""<>|]*\\" + PathRest +
         // quoted. A single quote inside a word is an apostrophe: "Can't open 'x'" must redact 'x', and
         // 'Bob's entry' as a whole. No backticks: .NET generic type names (List`1) use them.
         @"|(?<!\w)'(?:[^'\r\n]|'(?=\w))*'(?!\w)|""[^""\r\n]*""|“[^”\r\n]*”|‘[^’\r\n]*’|«[^»\r\n]*»")]
@@ -131,8 +138,8 @@ public static partial class ErrorScrubber
             return "<redacted>";
         if (match.Contains("://", StringComparison.Ordinal))
             return "<url>";
-        // an email can't start with a separator or contain ':', so these are paths
-        if (match[0] is '/' or '\\' or '~' || (match.Length > 1 && match[1] == ':'))
+        // an email can't contain a backslash, start with a separator or contain ':', so these are paths
+        if (match.Contains('\\') || match[0] is '/' or '~' || (match.Length > 1 && match[1] == ':'))
             return "<path>";
         return "<email>";
     }

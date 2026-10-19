@@ -65,7 +65,8 @@ public class AnalyticsService(
             return;
         try
         {
-            await Task.WhenAll(pending).WaitAsync(timeout);
+            // Called with a blocking wait from the unhandled-exception handler, possibly on the UI thread.
+            await Task.WhenAll(pending).WaitAsync(timeout).ConfigureAwait(false);
         }
         catch (TimeoutException)
         {
