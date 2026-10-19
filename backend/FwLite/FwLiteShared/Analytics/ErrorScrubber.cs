@@ -64,13 +64,21 @@ public static partial class ErrorScrubber
         @"|(?<!\w)'(?:[^'\r\n]|'(?=\w))*'(?!\w)|""[^""\r\n]*""|“[^”\r\n]*”|‘[^’\r\n]*’|«[^»\r\n]*»")]
     private static partial Regex FrameRegex();
 
+    // A JS frame in Firefox/WebKit form: "save@https://host/index.js:1:2345"
+    [GeneratedRegex(@"^[^\s@]*@\S+:\d+:\d+\)?$")]
+    private static partial Regex JsAtFrameRegex();
+
     /// <summary>Scrub a free-text message (exception message, formatted log message) and collapse it to one line.</summary>
     public static string? ScrubMessage(string? message)
     {
         if (string.IsNullOrWhiteSpace(message))
             return null;
-        var writer = new BoundedWriter(stackalloc char[MaxStringBytes + 1]);
-        var input = message.AsSpan();
+        return ScrubMessage(message.AsSpan(), stackalloc char[MaxStringBytes + 1]);
+    }
+
+    private static string ScrubMessage(ReadOnlySpan<char> input, Span<char> buffer)
+    {
+        var writer = new BoundedWriter(buffer);
         var last = 0;
         foreach (var match in MessageRegex().EnumerateMatches(input))
         {
@@ -86,7 +94,8 @@ public static partial class ErrorScrubber
 
     /// <summary>
     /// Split a .NET or JS stack trace into scrubbed frames: source directories, URL origins and query strings
-    /// are dropped, and the list is capped to fit a Mixpanel list property.
+    /// are dropped, and the list is capped to fit a Mixpanel list property. Lines that aren't frames (a relayed
+    /// .NET error's " ---> Inner: message", a JS "Cause: {...}") are free text, so they're scrubbed as messages.
     /// </summary>
     public static List<string> ScrubStack(string? stackTrace)
     {
@@ -100,7 +109,7 @@ public static partial class ErrorScrubber
             var line = rawLine.Trim();
             if (line.IsEmpty || line.StartsWith("--- End of", StringComparison.Ordinal))
                 continue;
-            var frame = ScrubFrame(line, buffer);
+            var frame = IsFrame(line) ? ScrubFrame(line, buffer) : ScrubMessage(line, buffer);
             // + quotes and comma in the JSON array
             totalBytes += Encoding.UTF8.GetByteCount(frame) + 3;
             if (totalBytes > MaxListBytes || frames.Count >= MaxStackFrames)
@@ -115,6 +124,9 @@ public static partial class ErrorScrubber
     {
         return Encoding.UTF8.GetByteCount(value) <= maxBytes ? value : TruncateWithEllipsis(value, maxBytes);
     }
+
+    private static bool IsFrame(ReadOnlySpan<char> line) =>
+        line.StartsWith("at ", StringComparison.Ordinal) || JsAtFrameRegex().IsMatch(line);
 
     private static string ScrubFrame(ReadOnlySpan<char> line, Span<char> buffer)
     {

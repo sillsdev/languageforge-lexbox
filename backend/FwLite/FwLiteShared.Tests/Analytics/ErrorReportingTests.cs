@@ -119,6 +119,54 @@ public class ErrorReportingTests
     }
 
     [Fact]
+    public void BuildProperties_ReportsEveryAggregateInnerException()
+    {
+        var exception = new AggregateException(
+            new InvalidOperationException("first"),
+            new TimeoutException("second", new IOException("nested")));
+
+        var props = ErrorReporting.BuildProperties("Cat", LogLevel.Error, null, exception);
+
+        props["inner_exceptions"].Should().BeEquivalentTo(new[]
+        {
+            "System.InvalidOperationException: first",
+            "System.TimeoutException: second",
+            "System.IO.IOException: nested",
+        }, options => options.WithStrictOrdering());
+    }
+
+    [Fact]
+    public void ScrubStack_ScrubsNonFrameLinesAsMessages()
+    {
+        // a .NET error relayed through the viewer: inner exception and cause lines are free text, not frames
+        var stack = string.Join('\n',
+            " ---> System.IO.IOException: Could not read Big Dict at C:\\Users\\Jo Smith\\My Dict.sqlite",
+            "   at FwLiteShared.Foo.Bar()",
+            "Cause: {\"word\":\"banana\"}",
+            "save@https://0.0.0.0/_content/viewer/index.js:1:2345");
+
+        ErrorScrubber.ScrubStack(stack).Should().Equal(
+            "---> System.IO.IOException: Could not read Big Dict at <path>",
+            "at FwLiteShared.Foo.Bar()",
+            "Cause: {<redacted>:<redacted>}",
+            "save@/_content/viewer/index.js:1:2345");
+    }
+
+    [Fact]
+    public void LoggerProvider_OmitsTemplateWhenStateHasNone()
+    {
+        var (analytics, logger) = CreateLogger("FwLiteShared.Foo");
+        IReadOnlyDictionary<string, object?>? sent = null;
+        analytics.Setup(a => a.Track(ErrorReporting.ErrorEvent, It.IsAny<IReadOnlyDictionary<string, object?>>(), null))
+            .Callback<string, IReadOnlyDictionary<string, object?>?, DateTimeOffset?>((_, p, _) => sent = p);
+
+        logger.Log(LogLevel.Error, default, "formatted text with my-secret-project", null, (state, _) => state);
+
+        sent.Should().NotBeNull();
+        sent!.Should().NotContainKey("message_template");
+    }
+
+    [Fact]
     public void BuildProperties_NoException()
     {
         var props = ErrorReporting.BuildProperties("Cat", LogLevel.Critical, "Something broke", null);
@@ -132,6 +180,9 @@ public class ErrorReportingTests
     [InlineData("TypeError: x is undefined", "TypeError")]
     [InlineData("System.InvalidOperationException: broken", "System.InvalidOperationException")]
     [InlineData("Script error.", "Error")]
+    [InlineData("Error: boom", "Error")]
+    [InlineData("BananaError: user text", "Error")]
+    [InlineData("secret.wordError: user text", "Error")]
     public void BuildProperties_ViewerError(string message, string expectedType)
     {
         var exception = new JsErrorException(message, "    at foo (http://localhost:5173/src/a.ts:1:2)");

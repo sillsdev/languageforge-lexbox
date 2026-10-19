@@ -97,15 +97,14 @@ public sealed class AnalyticsErrorLoggerProvider(IServiceProvider services, Time
         {
             if (!IsEnabled(logLevel))
                 return;
-            provider.Report(category, logLevel, MessageTemplate(state, exception, formatter), exception);
+            provider.Report(category, logLevel, MessageTemplate(state), exception);
         }
 
         /// <summary>
-        /// Prefer the message template ("Failed to open {Project}") over the formatted message, which embeds
-        /// argument values that may be user data.
+        /// The message template ("Failed to open {Project}"), never the formatted message, which embeds argument
+        /// values that may be user data. Null for state that carries no template.
         /// </summary>
-        private static string? MessageTemplate<TState>(TState state, Exception? exception,
-            Func<TState, Exception?, string> formatter)
+        private static string? MessageTemplate<TState>(TState state)
         {
             if (state is IReadOnlyList<KeyValuePair<string, object?>> values)
             {
@@ -115,7 +114,7 @@ public sealed class AnalyticsErrorLoggerProvider(IServiceProvider services, Time
                         return value as string;
                 }
             }
-            return formatter(state, exception);
+            return null;
         }
     }
 }
