@@ -3,6 +3,7 @@ name: quarterly-analytics
 description: Collect the quarterly product analytics for FieldWorks Lite and Lexbox and enter them in the FieldWorks Lite and Lexbox rows of the LangTech Analytics Dashboard Google Sheet. Gathers GitHub releases, forum topics, Mixpanel users/MAU/countries/installs and support tickets itself, hands the user one command for the prod-only numbers (aws-prod DB + hg pod), asks only about FTE and anomalies, then writes the sheet after a final OK.
 when_to_use: User says "quarterly analytics", "collect the analytics", "fill the analytics sheet", "LangTech analytics", "/quarterly-analytics FY27Q1", or a scheduled quarterly reminder kicks it off.
 argument-hint: "[FYyyQn, default: the last finished quarter]"
+disable-model-invocation: true
 allowed-tools: Bash(python .claude/skills/quarterly-analytics/scripts/public_sources.py:*) Read Glob Grep
 ---
 
