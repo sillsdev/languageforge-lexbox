@@ -34,7 +34,7 @@ public class CurrentProjectService(
             result = await dbContext.ProjectData.AsNoTracking().FirstAsync();
             projectDataCache.SetProjectData(Project, result);
         }
-        if (result is null) throw new InvalidOperationException($"Project data not found for project {MaybeProject?.Name}");
+        if (result is null) throw new InvalidOperationException($"Project data not found for project '{MaybeProject?.Name}'");
 
         return result;
     }
@@ -42,7 +42,7 @@ public class CurrentProjectService(
     public void ValidateProjectScope()
     {
         if (Project is null)
-            throw new InvalidOperationException($"Project is null for project {MaybeProject?.Name}, there's a bug and {nameof(SetupProjectContext)} was not called");
+            throw new InvalidOperationException($"Project is null for project '{MaybeProject?.Name}', there's a bug and {nameof(SetupProjectContext)} was not called");
     }
 
     private static string CacheKey(CrdtProject project)
@@ -73,7 +73,7 @@ public class CurrentProjectService(
         using var activity = LcmCrdtActivitySource.Value.StartActivity();
         activity?.SetTag("app.project_code", project.Name);
         if (_project != null && project != _project)
-            throw new InvalidOperationException($"Can't setup project context for {project.Name} when already in context of project {_project.Name}");
+            throw new InvalidOperationException($"Cannot setup project context for '{project.Name}' when already in context of project '{_project.Name}'");
         _project = project;
         //migrate will only execute once with a static which tracks if we've already migrated
         await MigrateDb();
@@ -82,7 +82,7 @@ public class CurrentProjectService(
 
     public async ValueTask<ProjectData> SetupProjectContext(string projectCode)
     {
-        return await SetupProjectContext(crdtProjectsService.GetProject(projectCode) ?? throw new InvalidOperationException($"Crdt Project {projectCode} not found"));
+        return await SetupProjectContext(crdtProjectsService.GetProject(projectCode) ?? throw new InvalidOperationException($"Crdt Project '{projectCode}' not found"));
     }
 
     public async ValueTask<ProjectData> RefreshProjectData()

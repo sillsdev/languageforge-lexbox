@@ -98,7 +98,7 @@ public static class FwLiteWebServer
             {
                 var fwDataProjectContext = context.RequestServices.GetRequiredService<FwDataProjectContext>();
                 var fwProjectList = context.RequestServices.GetRequiredService<FieldWorksProjectList>();
-                fwDataProjectContext.Project = fwProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData {fwData} not found");
+                fwDataProjectContext.Project = fwProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData '{fwData}' not found");
             }
 
             await next(context);

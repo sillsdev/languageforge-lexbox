@@ -536,6 +536,31 @@ public class AnalyticsServiceTests
     }
 
     [Fact]
+    public async Task FlushAsync_WaitsForQueuedTrack()
+    {
+        var handler = new CaptureHandler { Delay = TimeSpan.FromMilliseconds(300) };
+        var service = CreateService(handler, isDevelopment: true);
+
+        service.Track("error");
+        await service.FlushAsync(TimeSpan.FromSeconds(5));
+
+        handler.CompletedCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task FlushAsync_ReturnsAtTimeoutWhenSendHangs()
+    {
+        var handler = new CaptureHandler { Delay = TimeSpan.FromSeconds(4) };
+        var service = CreateService(handler, isDevelopment: true);
+
+        service.Track("error");
+        var act = async () => await service.FlushAsync(TimeSpan.FromMilliseconds(100));
+
+        await act.Should().CompleteWithinAsync(TimeSpan.FromSeconds(2));
+        handler.CompletedCount.Should().Be(0);
+    }
+
+    [Fact]
     public void RecordProcessStart_TracksAppLaunched()
     {
         var analytics = new Mock<IAnalyticsService>();
@@ -628,6 +653,8 @@ public class AnalyticsServiceTests
         public HttpRequestMessage? LastRequest { get; private set; }
         public string LastBody { get; private set; } = "";
         public bool ThrowOnSend { get; set; }
+        public TimeSpan Delay { get; set; }
+        public int CompletedCount { get; private set; }
 
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
@@ -637,6 +664,9 @@ public class AnalyticsServiceTests
             LastRequest = request;
             if (request.Content is not null)
                 LastBody = await request.Content.ReadAsStringAsync(cancellationToken);
+            if (Delay > TimeSpan.Zero)
+                await Task.Delay(Delay, cancellationToken);
+            CompletedCount++;
             if (ThrowOnSend)
                 throw new HttpRequestException("simulated Mixpanel outage");
             return new HttpResponseMessage(HttpStatusCode.OK)

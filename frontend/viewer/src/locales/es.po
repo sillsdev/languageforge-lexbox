@@ -1894,6 +1894,7 @@ msgstr "No se han encontrado palabras"
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
 msgid "None"
 msgstr "Ninguno"
 
@@ -3097,6 +3098,10 @@ msgstr ""
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "violeta"
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
+msgstr ""
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
