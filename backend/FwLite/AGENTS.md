@@ -299,6 +299,13 @@ linq2db wraps every SQLite timestamp comparison in `strftime('...%f', ...)` — 
 
 Imperative validation in `MiniLcmApiValidationWrapper` (rules that need an async lookup, so they can't be FluentValidation rules) must throw `FluentValidation.ValidationException` — the same type the validators throw — not `InvalidOperationException`. Otherwise the same rule reports different exception types per code path. Reserve `InvalidOperationException` for genuine "can't happen" data-integrity guards, not user-input validation.
 
+## Exception messages and error logs
+
+Error logs and their exceptions are sent to Mixpanel as error reports (`FwLiteShared/Analytics/ErrorScrubber.cs`). The scrubber can only redact what it can recognize:
+
+- Quote user data in exception messages with single quotes: `$"Project '{code}' not found"`. That covers project names and codes, entry text, writing system codes and filter values. Quoted values, paths, URLs and emails are redacted; anything else is sent as-is.
+- In log calls, pass user data as template arguments: `logger.LogError(e, "Failed to open {Project}", code)`. Only the template is sent, never the argument values.
+
 ---
 
 ## Testing Strategy

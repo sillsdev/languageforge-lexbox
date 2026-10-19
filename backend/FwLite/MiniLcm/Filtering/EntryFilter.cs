@@ -45,7 +45,7 @@ public class EntryFilter
         // i.e. it always ignores the returned value and we can't do anything about that.
         // Throw because IsNullOrDefault won't work as expected
         if (value is "") throw new Exception("To filter for empty collections use [] or null.");
-        throw new Exception($"Invalid value {value} for {typeof(T).Name}");
+        throw new Exception($"Invalid value '{value}' for {typeof(T).Name}");
     }
 
     //used by the database for non-json collections
@@ -58,7 +58,7 @@ public class EntryFilter
         // In this case it would actually work, because null is what the expression needs,
         // but throwing makes it consistent with json collections where we can't support ""/IsNullOrDefault.
         if (value is "") throw new Exception("To filter for empty collections use [] or null.");
-        throw new Exception($"Invalid value {value} for {typeof(T).Name}");
+        throw new Exception($"Invalid value '{value}' for {typeof(T).Name}");
     }
 
     public string? GridifyFilter { get; set; }
