@@ -271,6 +271,31 @@ public class MediaFileServiceTests : IDisposable
         return int.Parse(_hgRepository.GetHeads().Single().Number.LocalRevisionNumber);
     }
 
+    private string RunHg(string args)
+    {
+        var result = HgRunner.Run($"hg {args}", _cache.ProjectId.ProjectFolder, 5, new NullProgress());
+        result.ExitCode.Should().Be(0, $"hg {args} failed: {result.StandardError}");
+        return result.StandardOutput;
+    }
+
+    [Fact]
+    public async Task DeleteMediaFile_CommitsTheRemoval()
+    {
+        var mediaFile = new MediaFile { Filename = "test.txt", ProjectId = _projectId };
+        await _service.SaveMediaFile(mediaFile, SimpleStream("test"));
+        var filePath = _service.FilePath(mediaFile);
+        var repoRelativePath = Path.GetRelativePath(_cache.ProjectId.ProjectFolder, filePath).Replace('\\', '/');
+        RunHg("manifest -r tip").Should().Contain(repoRelativePath);
+
+        await _service.DeleteMediaFile(mediaFile);
+
+        File.Exists(filePath).Should().BeFalse();
+        await AssertDbFileDoesNotExist("test.txt");
+        RunHg("status").Should().BeEmpty("the removal should be committed, leaving the working copy clean");
+        RunHg("manifest -r tip").Should().NotContain(repoRelativePath);
+        CurrentRev().Should().Be(1, "rev 0 adds the file, rev 1 removes it");
+    }
+
 
     [Fact]
     public async Task SaveMediaFile_CanUpdateExistingFile()

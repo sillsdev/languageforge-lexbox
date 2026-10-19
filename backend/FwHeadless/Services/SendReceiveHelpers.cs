@@ -151,12 +151,11 @@ public static class SendReceiveHelpers
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
         activity?.SetTag("app.file_path", filePath);
         progress ??= new NullProgress();
-        if (!File.Exists(filePath)) throw new FileNotFoundException($"File not found: {filePath}");
         var fileDir = Path.GetDirectoryName(filePath);
         ArgumentNullException.ThrowIfNull(fileDir);
 
-        //we need to track the file, otherwise hg will not commit it
-        await ExecuteHgSuccess($"hg add --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
+        //records the file as added if it exists, or as removed if it was deleted; hg won't commit an untracked file or a deletion it hasn't recorded
+        await ExecuteHgSuccess($"hg addremove --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
         await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", fileDir, progress);
     }
 
