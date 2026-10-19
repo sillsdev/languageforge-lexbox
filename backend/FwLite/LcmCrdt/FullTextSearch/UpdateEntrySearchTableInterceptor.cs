@@ -1,7 +1,10 @@
+using LcmCrdt.Changes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Caching.Memory;
+using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
 using SIL.Harmony.Db;
 
 namespace LcmCrdt.FullTextSearch;
@@ -14,6 +17,11 @@ namespace LcmCrdt.FullTextSearch;
 //   * ISaveChangesInterceptor — direct EF writes to the projected tables (e.g. tests, and any code
 //     that edits the projected DbSets and calls SaveChanges) still go through EF change tracking.
 // A given write goes through exactly one of these paths, so there is no double processing.
+//
+// A projected sense only knows its new entry, so the entry a sense moved out of is taken from
+// MoveSenseToEntryChange.FromEntryId (see #2659). Harmony saves new commits with EF SaveChanges before
+// snapshotting and projecting them, so SavingChangesAsync collects those ids from the added change entities
+// (the projection batch only carries the latest snapshot per entity, which would miss earlier moves in a sync).
 public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor, IProjectedEntityInterceptor
 {
     public async ValueTask OnProjectedEntitiesChanged(ProjectedEntityBatch batch)
@@ -26,12 +34,14 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor, IProje
         var morphTypeChanged = batch.Changes.Any(c => c.ClrType == typeof(MorphType));
         if (morphTypeChanged)
         {
+            _entriesSensesMovedFrom.Clear();
             await EntrySearchService.RegenerateEntrySearchTable(dbContext);
             return;
         }
 
         var entryIdsToRemove = new List<Guid>();
-        var entryIdsToUpdate = new HashSet<Guid>();
+        var entryIdsToUpdate = new HashSet<Guid>(_entriesSensesMovedFrom);
+        _entriesSensesMovedFrom.Clear();
         foreach (var change in batch.Changes)
         {
             if (change.ClrType == typeof(Entry))
@@ -67,6 +77,7 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor, IProje
     }
 
     private bool EntryTableNeedsRegeneration { get; set; } = false;
+    private readonly HashSet<Guid> _entriesSensesMovedFrom = [];
     public InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         throw new NotImplementedException(
@@ -81,8 +92,19 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor, IProje
         InterceptionResult<int> result,
         CancellationToken cancellationToken = new CancellationToken())
     {
+        CaptureEntriesSensesMovedFrom(eventData.Context);
         await UpdateSearchTableOnSave(eventData.Context);
         return result;
+    }
+
+    private void CaptureEntriesSensesMovedFrom(DbContext? maybeDbContext)
+    {
+        if (maybeDbContext is not LcmCrdtDbContext dbContext) return;
+        foreach (var changeEntity in dbContext.ChangeTracker.Entries<ChangeEntity<IChange>>())
+        {
+            if (changeEntity is { State: EntityState.Added, Entity.Change: MoveSenseToEntryChange { FromEntryId: { } fromEntryId } })
+                _entriesSensesMovedFrom.Add(fromEntryId);
+        }
     }
 
     public async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData,
@@ -141,11 +163,16 @@ public class UpdateEntrySearchTableInterceptor : ISaveChangesInterceptor, IProje
     }
 
     // If saving changes fails, then the MorphType changes didn't make it into the DB and headwords don't need to be regenerated after all
-    public void SaveChangesFailed(DbContextErrorEventData eventData) => EntryTableNeedsRegeneration = false;
+    public void SaveChangesFailed(DbContextErrorEventData eventData)
+    {
+        EntryTableNeedsRegeneration = false;
+        _entriesSensesMovedFrom.Clear();
+    }
 
     public Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
     {
         EntryTableNeedsRegeneration = false;
+        _entriesSensesMovedFrom.Clear();
         return Task.CompletedTask;
     }
 

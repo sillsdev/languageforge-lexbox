@@ -103,7 +103,10 @@ public class CrdtSenseApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeWri
             return;
         }
         if (!await repo.Entries.AnyAsyncEF(e => e.Id == entryId)) throw NotFoundException.ForType<Entry>(entryId);
-        await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, await PickSenseOrder(repo, entryId, between)));
+        await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, await PickSenseOrder(repo, entryId, between))
+        {
+            FromEntryId = sense.EntryId
+        });
     }
 
     public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
@@ -118,7 +121,11 @@ public class CrdtSenseApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeWri
             return;
         }
         // no target check: a deleted target entry is fine, the move change then deletes the sense (delete wins)
-        await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, await PickSenseOrder(repo, entryId, position)));
+        var fromEntryId = (await repo.GetSense(senseId))?.EntryId;
+        await harmonyChangeWriter.AddChange(new MoveSenseToEntryChange(senseId, entryId, await PickSenseOrder(repo, entryId, position))
+        {
+            FromEntryId = fromEntryId
+        });
     }
 
     private static async Task<double> PickSenseOrder(MiniLcmRepository repo, Guid entryId, BetweenPosition between)

@@ -2095,12 +2095,6 @@
     "EntityId": "c954bd38-e4b5-ce57-0069-2a6edc91e629"
   },
   {
-    "$type": "MoveSenseToEntryChange",
-    "EntryId": "a71ce732-d089-6171-22f3-e5d571f4cc37",
-    "Order": 4.123,
-    "EntityId": "48c7b2d6-6c0a-9c43-e3b1-dee1ce0f9633"
-  },
-  {
     "$type": "jsonPatch:MorphType",
     "PatchDocument": [],
     "EntityId": "59a71ac4-b66d-e921-8ec1-92a8380af470"
@@ -2405,5 +2399,12 @@
     "Type": 1,
     "Order": 0.26752684125181847,
     "EntityId": "ff400435-e634-d4fe-8ef0-7db95241cced"
+  },
+  {
+    "$type": "MoveSenseToEntryChange",
+    "EntryId": "7c93d45a-b1ff-9a2d-8b47-ec404c06e8f6",
+    "Order": 0.8023048271138249,
+    "FromEntryId": "eca2d80f-2ddc-0efc-23fe-400e84bca3b3",
+    "EntityId": "e0646921-e06c-ed1e-ebba-b0874531a575"
   }
 ]

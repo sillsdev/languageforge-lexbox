@@ -11,6 +11,11 @@ public class MoveSenseToEntryChange(Guid entityId, Guid entryId, double order) :
 {
     public Guid EntryId { get; } = entryId;
     public double Order { get; init; } = order;
+    /// <summary>
+    /// The entry the sense belonged to when the move was made. Only used to re-index that entry's search record;
+    /// null for changes made before this was recorded.
+    /// </summary>
+    public Guid? FromEntryId { get; init; }
 
     public override async ValueTask ApplyChange(Sense sense, IChangeContext context)
     {

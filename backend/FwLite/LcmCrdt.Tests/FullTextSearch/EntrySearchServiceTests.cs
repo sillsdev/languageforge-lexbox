@@ -1,4 +1,6 @@
 using LcmCrdt.FullTextSearch;
+using LcmCrdt.Changes;
+using MiniLcm.SyncHelpers;
 using Microsoft.EntityFrameworkCore;
 using MiniLcm.Tests.AutoFakerHelpers;
 using Soenneker.Utils.AutoBogus;
@@ -362,6 +364,49 @@ public class EntrySearchServiceTests : IAsyncLifetime
 
         // Changing morph type of an entry must regenerate its search record's headword.
         (await Headword(id)).Should().Be("~out~");
+    }
+
+    [Fact]
+    public async Task SearchTableIsUpdatedForBothEntries_WhenSenseIsMoved()
+    {
+        var senseId = Guid.NewGuid();
+        var entryA = await fixture.Api.CreateEntry(new Entry()
+        {
+            LexemeForm = { ["en"] = "entryA" },
+            Senses = [new Sense() { Id = senseId, Gloss = { ["en"] = "movedgloss" } }]
+        });
+        var entryB = await fixture.Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = "entryB" } });
+        (await SearchIds("movedgloss")).Should().Contain(entryA.Id).And.NotContain(entryB.Id);
+
+        await fixture.Api.MoveSense(entryB.Id, senseId, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        (await SearchIds("movedgloss")).Should().Contain(entryB.Id).And.NotContain(entryA.Id);
+    }
+
+    [Fact]
+    public async Task SearchTableIsUpdatedForAllEntries_WhenSenseIsMovedTwiceInOneCommit()
+    {
+        var senseId = Guid.NewGuid();
+        var entryA = await fixture.Api.CreateEntry(new Entry()
+        {
+            LexemeForm = { ["en"] = "entryA" },
+            Senses = [new Sense() { Id = senseId, Gloss = { ["en"] = "movedgloss" } }]
+        });
+        var entryB = await fixture.Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = "entryB" } });
+        var entryC = await fixture.Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = "entryC" } });
+
+        await fixture.DataModel.AddChanges(Guid.NewGuid(),
+        [
+            new MoveSenseToEntryChange(senseId, entryB.Id, 1) { FromEntryId = entryA.Id },
+            new MoveSenseToEntryChange(senseId, entryC.Id, 1) { FromEntryId = entryB.Id }
+        ]);
+
+        (await SearchIds("movedgloss")).Should().BeEquivalentTo([entryC.Id]);
+    }
+
+    private async Task<Guid[]> SearchIds(string query)
+    {
+        return await _service.Search(query).Select(e => e.Id).ToArrayAsync();
     }
 
     private async Task<string?> Headword(Guid entryId)

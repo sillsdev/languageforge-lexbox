@@ -1500,5 +1500,20 @@
       "Order": 0.7988004089201804,
       "EntityId": "0fccfaaa-1e55-f6fb-966f-5c1e6caedf45"
     }
+  },
+  {
+    "Input": {
+      "$type": "MoveSenseToEntryChange",
+      "EntryId": "a71ce732-d089-6171-22f3-e5d571f4cc37",
+      "Order": 4.123,
+      "EntityId": "48c7b2d6-6c0a-9c43-e3b1-dee1ce0f9633"
+    },
+    "Output": {
+      "$type": "MoveSenseToEntryChange",
+      "EntryId": "a71ce732-d089-6171-22f3-e5d571f4cc37",
+      "Order": 4.123,
+      "FromEntryId": null,
+      "EntityId": "48c7b2d6-6c0a-9c43-e3b1-dee1ce0f9633"
+    }
   }
 ]
