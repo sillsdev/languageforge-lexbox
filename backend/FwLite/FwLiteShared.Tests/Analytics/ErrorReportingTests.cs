@@ -47,6 +47,16 @@ public class ErrorReportingTests
     }
 
     [Fact]
+    public void ScrubMessage_TruncatesWhenPlaceholdersOverflow()
+    {
+        // each 3-char quote grows to a 10-char placeholder, so the output overflows before the input ends
+        var scrubbed = ErrorScrubber.ScrubMessage(string.Concat(Enumerable.Repeat("'x' ", 50)))!;
+
+        Encoding.UTF8.GetByteCount(scrubbed).Should().BeLessThanOrEqualTo(ErrorScrubber.MaxStringBytes);
+        scrubbed.Should().StartWith("<redacted> <redacted>").And.EndWith("…").And.NotContain("'x'");
+    }
+
+    [Fact]
     public void ScrubStack_StripsDotnetSourceDirectories()
     {
         var stack = string.Join('\n',
@@ -125,7 +135,7 @@ public class ErrorReportingTests
 
         var props = ErrorReporting.BuildProperties("FwLiteShared.Services.JsInvokableLogger", LogLevel.Error, "Viewer error", exception);
 
-        props["error_source"].Should().Be(ErrorReporting.ViewerSource);
+        props["error_source"].Should().Be(ErrorReporting.JsSource);
         props["exception_type"].Should().Be(expectedType);
         props["exception_stack"].Should().BeEquivalentTo(new[] { "at foo (/src/a.ts:1:2)" });
     }

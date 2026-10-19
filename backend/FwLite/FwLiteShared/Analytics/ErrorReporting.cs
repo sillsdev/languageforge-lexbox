@@ -12,7 +12,7 @@ public static partial class ErrorReporting
 {
     public const string ErrorEvent = "error";
     public const string DotnetSource = "dotnet";
-    public const string ViewerSource = "viewer";
+    public const string JsSource = "js";
     private const int MaxInnerExceptions = 5;
 
     // "TypeError: x" or "System.InvalidOperationException: x" at the start of a viewer error message
@@ -27,7 +27,7 @@ public static partial class ErrorReporting
     {
         var properties = new Dictionary<string, object?>
         {
-            ["error_source"] = exception is JsErrorException ? ViewerSource : DotnetSource,
+            ["error_source"] = exception is JsErrorException ? JsSource : DotnetSource,
             ["log_category"] = category,
             ["log_level"] = level.ToString(),
         };
