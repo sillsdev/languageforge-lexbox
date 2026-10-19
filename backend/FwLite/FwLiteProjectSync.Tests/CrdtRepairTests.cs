@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 
 namespace FwLiteProjectSync.Tests;
 
@@ -107,6 +108,25 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         // And the snapshot was updated to mirror the crdt change
         var updatedSnapshotEntry = (await GetSnapshotEntries()).Single();
         updatedSnapshotEntry.SingleTranslation().Id.Should().Be(fwTranslationId);
+    }
+
+    [Fact]
+    public async Task CrdtEntryMissingTranslationId_DryRunSync_LeavesRealCrdtUntouched()
+    {
+        // arrange
+        var (fwEntry, crdtEntry, _) = await CreateSyncedEntryMissingTranslationId();
+        var crdtTranslationIdBefore = crdtEntry.SingleTranslation().Id;
+        var fwTranslationId = fwEntry.SingleTranslation().Id;
+        crdtTranslationIdBefore.Should().NotBe(fwTranslationId, "the repair hasn't run yet");
+
+        // act - a dry run repairs translation IDs on the throwaway copy, never the real project
+        var projectSnapshot = await GetSnapshot();
+        await SyncService.SyncDryRun(CrdtApi, FwDataApi, projectSnapshot);
+
+        // assert - the real crdt translation ID is unchanged (a real sync would have written the fwdata ID)
+        var crdtEntryAfter = await CrdtApi.GetEntry(crdtEntry.Id);
+        crdtEntryAfter.Should().NotBeNull();
+        crdtEntryAfter.SingleTranslation().Id.Should().Be(crdtTranslationIdBefore);
     }
 
     [Fact]
@@ -242,6 +262,30 @@ public class CrdtRepairTests(SyncFixture fixture) : IClassFixture<SyncFixture>, 
         // assert - the crdt translation was also removed
         var updatedCrdtEntry = await CrdtApi.GetEntry(crdtEntry.Id);
         updatedCrdtEntry!.Senses.Single().ExampleSentences.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CrdtEntryMissingTranslationId_FwExampleSentenceMoved_FullSync()
+    {
+        // arrange
+        var (fwEntry, crdtEntry, _) = await CreateSyncedEntryMissingTranslationId();
+        var entryId = fwEntry.Id;
+        var exampleSentenceId = fwEntry.SingleExampleSentence().Id;
+        var fwTranslationId = fwEntry.SingleTranslation().Id;
+        var targetSense = await FwDataApi.CreateSense(entryId, new() { Gloss = { { "en", "target" } } });
+
+        // act
+        await FwDataApi.MoveExampleSentence(entryId, targetSense.Id, exampleSentenceId, new BetweenPosition(null, null), MoveKind.Reparent);
+        var projectSnapshot = await GetSnapshot();
+        await SyncService.Sync(CrdtApi, FwDataApi, projectSnapshot);
+
+        // assert - the move synced and the translation now carries the fwdata ID on both sides
+        var updatedFwEntry = await FwDataApi.GetEntry(entryId);
+        var updatedCrdtEntry = await CrdtApi.GetEntry(entryId);
+        updatedFwEntry.Should().NotBeNull();
+        updatedCrdtEntry.Should().NotBeNull();
+        updatedCrdtEntry.Should().BeEquivalentTo(updatedFwEntry, SyncTests.SyncExclusions);
+        updatedCrdtEntry.Senses.Single(s => s.Id == targetSense.Id).ExampleSentences.Single().Translations.Single().Id.Should().Be(fwTranslationId);
     }
 
     [Fact]

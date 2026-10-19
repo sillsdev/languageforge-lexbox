@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "LexBox.sln",
+    "path": "LexBox.slnx",
     "projects": [
       "backend\\FwLite\\FwDataMiniLcmBridge.Tests\\FwDataMiniLcmBridge.Tests.csproj",
       "backend\\FwLite\\FwDataMiniLcmBridge\\FwDataMiniLcmBridge.csproj",

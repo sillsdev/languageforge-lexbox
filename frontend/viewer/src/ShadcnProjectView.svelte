@@ -13,6 +13,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
+  import MediaManagerView from '$lib/media-manager/MediaManagerView.svelte';
   import {onMount} from 'svelte';
 
   const {
@@ -49,7 +50,7 @@
     }
   }
 </script>
-<svelte:window on:message={onMessage}/>
+<svelte:window onmessage={onMessage}/>
 <DialogsProvider/>
 <div class="h-screen flex PortalTarget overflow-hidden shadcn-root" {...rest}>
   <Sidebar.Provider bind:open>
@@ -76,6 +77,9 @@
         {#key `${params.id}${$location.search}`}
           <PluginRunView pluginId={params.id} />
         {/key}
+      </Route>
+      <Route path="/media-manager">
+        <MediaManagerView/>
       </Route>
       <Route path="/">
         {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}

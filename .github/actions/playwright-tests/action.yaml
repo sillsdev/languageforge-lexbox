@@ -15,7 +15,7 @@ runs:
   using: composite
   steps:
     # First we need to setup Node...
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version-file: 'frontend/package.json'
     # Then we can set up pnpm...
@@ -23,7 +23,7 @@ runs:
       with:
         package_json_file: 'frontend/package.json'
     # Then we can have Node set up package caching
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version-file: 'frontend/package.json'
         cache: 'pnpm'
@@ -35,7 +35,8 @@ runs:
     - name: Set up Playwright dependencies
       shell: bash
       working-directory: frontend
-      run: pnpm exec playwright install --with-deps
+      # only the browsers playwright.config.ts runs: webkit's apt deps regularly stall on the slow azure mirror
+      run: pnpm exec playwright install --with-deps chromium firefox
 
     - name: Integration tests (Playwright)
       id: playwright-tests
@@ -48,7 +49,7 @@ runs:
 
     - name: Upload playwright results
       if: ${{ always() && steps.playwright-tests.outcome != 'skipped' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: playwright-traces
         path: |

@@ -61,6 +61,7 @@ export const FW_LITE_VIEW: RootView = {
       definition: {show: true, order: 2},
       partOfSpeechId: {show: true, order: 3},
       semanticDomains: {show: true, order: 4},
+      pictures: {show: true, order: 5},
     },
     example: {
       sentence: {show: true, order: 1},

@@ -2,16 +2,41 @@
   - changed-files:
       - any-glob-to-any-file:
         - 'frontend/viewer/**'
-      - all-globs-to-any-file:
-        - 'backend/FwLite/**'
-        - '!backend/FwLite/FwHeadless/**'
+        - 'backend/FwLite/*'
+        - 'backend/FwLite/FwLiteMaui/**'
+        - 'backend/FwLite/FwLiteMaui.Tests/**'
+        - 'backend/FwLite/FwLiteWeb/**'
+        - 'backend/FwLite/FwLiteShared/**'
+        - 'backend/FwLite/FwLiteShared.Tests/**'
+        - 'backend/FwLite/LcmDebugger/**'
+        - 'backend/FwLite/scripts/**'
+        - 'FwLite*.slnf'
+        - '.github/workflows/fw-lite.yaml'
+
+# Shared libraries that ship in both FW Lite and FwHeadless.
+"🔩 FW Lite Core":
+  - changed-files:
+      - any-glob-to-any-file:
+        - 'backend/FwLite/MiniLcm/**'
+        - 'backend/FwLite/MiniLcm.Tests/**'
+        - 'backend/FwLite/LcmCrdt/**'
+        - 'backend/FwLite/LcmCrdt.Tests/**'
+        - 'backend/FwLite/FwDataMiniLcmBridge/**'
+        - 'backend/FwLite/FwDataMiniLcmBridge.Tests/**'
+        - 'backend/FwLite/FwLiteProjectSync/**'
+        - 'backend/FwLite/FwLiteProjectSync.Tests/**'
+        - 'backend/Harmony*.props'
+        - 'backend/Directory.Packages.props'
 
 "📦 Lexbox":
   - changed-files:
       - any-glob-to-any-file:
-        - 'backend/FwLite/FwHeadless/**'
+        - 'backend/FwHeadless/**'
         - 'hgweb/**'
         - 'deployment/**'
+        - '.github/workflows/lexbox-*.yaml'
+        - '.github/workflows/release-pipeline.yaml'
+        - '.github/workflows/deploy*.yaml'
       - all-globs-to-any-file:
         - 'backend/**'
         - '!backend/FwLite/**'
@@ -26,3 +51,4 @@
   - changed-files:
       - any-glob-to-any-file:
         - 'platform.bible-extension/**'
+        - '.github/workflows/platform.bible-extension.yaml'

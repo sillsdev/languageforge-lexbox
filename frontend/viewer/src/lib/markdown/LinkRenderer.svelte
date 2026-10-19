@@ -1,10 +1,16 @@
 <script lang="ts">
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
+  import type { Snippet } from 'svelte';
 
-  export let href: string;
-  export let title: string | undefined = undefined;
+  interface Props {
+    href: string;
+    title?: string | undefined;
+    children?: Snippet;
+  }
+
+  const { href, title = undefined, children }: Props = $props();
 </script>
 
 <Anchor {href} {title} variant="text">
-  <slot />
+  {@render children?.()}
 </Anchor>

@@ -6,13 +6,14 @@
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
   import InputShell from '$lib/components/ui/input/input-shell.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
+  import {Input} from '$lib/components/ui/input';
+  import {featureFlags} from '$lib/feature-flags/feature-flags.svelte';
   import {CopyButton} from '$lib/components/ui/button';
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import Loading from '$lib/components/Loading.svelte';
   import {resource} from 'runed';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
-  import {isDev} from '$lib/layout/DevContent.svelte';
 
   const openQueryParam = new QueryParamStateBool({
     key: 'troubleshootDialogOpen',
@@ -119,7 +120,15 @@
           <span class="font-semibold">{config.os}</span>
         </p>
       </div>
-      {#if service && (canOpenDataDirectory || $isDev)}
+      <div class="w-full flex flex-col gap-1.5">
+        <Label for="release-channel">{$t`Release channel`}</Label>
+        <Input
+          id="release-channel"
+          bind:value={featureFlags.channel}
+          placeholder={$t`Leave empty for production`}
+        />
+      </div>
+      {#if service && (canOpenDataDirectory || featureFlags.isDev)}
         <div class="w-full flex flex-col gap-1.5">
           <Label>{$t`Data Directory`}</Label>
           <InputShell class="ps-2 pe-1">

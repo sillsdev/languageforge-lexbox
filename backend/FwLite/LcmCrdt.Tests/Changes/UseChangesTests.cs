@@ -134,6 +134,27 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         }
     }
 
+    // Every change type, dependency-ordered so it can be applied in one pass. Shared with
+    // ActivityChangeInfoResolverCoverageTests, which drives the whole catalogue through the activity feed.
+    internal static IReadOnlyList<IChange> AllChangesInDependencyOrder()
+    {
+        var remaining = GetAllChanges().ToList();
+        var ordered = new List<IChange>(remaining.Count);
+        while (remaining.Count > 0)
+        {
+            var ready = remaining
+                .Where(c => c.Dependencies is null || c.Dependencies.All(d => ordered.Contains(d)))
+                .ToList();
+            if (ready.Count == 0) throw new InvalidOperationException("Cyclic or unsatisfiable change dependencies");
+            foreach (var c in ready)
+            {
+                ordered.Add(c.Change);
+                remaining.Remove(c);
+            }
+        }
+        return ordered;
+    }
+
     private record ChangeWithDependencies(IChange Change, IEnumerable<IChange>? Dependencies = null);
 
     private static IEnumerable<ChangeWithDependencies> GetAllChanges()
@@ -181,7 +202,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         yield return new ChangeWithDependencies(createSensePictureChange, [createSenseChange]);
 
         var semanticDomain = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "test sd" } } };
-        var createSemanticDomainChange = new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, "1.1.1");
+        var createSemanticDomainChange = new CreateSemanticDomainChange(new SemanticDomain { Id = semanticDomain.Id, Name = semanticDomain.Name, Code = "1.1.1" });
         yield return new ChangeWithDependencies(createSemanticDomainChange);
 
         var writingSystem = new WritingSystem { Id = Guid.NewGuid(), WsId = "de", Name = "test ws", Abbreviation = "tws", Font = "Arial", Type = WritingSystemType.Vernacular };
@@ -218,7 +239,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         yield return new ChangeWithDependencies(addSemanticDomainChange, [createSenseChange, createSemanticDomainChange]);
 
         var semanticDomain2 = new SemanticDomain { Id = Guid.NewGuid(), Name = { { "en", "sd 2" } } };
-        var addSemanticDomain2Change = new CreateSemanticDomainChange(semanticDomain2.Id, semanticDomain2.Name, "1.1.2");
+        var addSemanticDomain2Change = new CreateSemanticDomainChange(new SemanticDomain { Id = semanticDomain2.Id, Name = semanticDomain2.Name, Code = "1.1.2" });
         yield return new ChangeWithDependencies(addSemanticDomain2Change);
 
         var replaceSemanticDomainChange = new ReplaceSemanticDomainChange(semanticDomain.Id, semanticDomain2, sense.Id);
@@ -237,14 +258,17 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createcomponentEntryChange = new CreateEntryChange(componentEntry);
         yield return new ChangeWithDependencies(createcomponentEntryChange);
 
-        var setComplexFormComponentChange = SetComplexFormComponentChange.NewComponent(complexFormComponent.Id, componentEntry.Id);
-        yield return new ChangeWithDependencies(setComplexFormComponentChange, [createcomponentEntryChange, createComplexFormComponentChange]);
-
         var setSenseOrderChange = new LcmCrdt.Changes.SetOrderChange<Sense>(sense.Id, 10);
         yield return new ChangeWithDependencies(setSenseOrderChange, [createSenseChange]);
 
         var setExampleSentenceOrderChange = new LcmCrdt.Changes.SetOrderChange<ExampleSentence>(exampleSentence.Id, 10);
         yield return new ChangeWithDependencies(setExampleSentenceOrderChange, [createExampleSentenceChange]);
+
+        var exampleMoveTargetSense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "example move target" } } };
+        var createExampleMoveTargetSenseChange = new CreateSenseChange(exampleMoveTargetSense, entry.Id);
+        yield return new ChangeWithDependencies(createExampleMoveTargetSenseChange, [createEntryChange]);
+        var moveExampleSentenceToSenseChange = new MoveExampleSentenceToSenseChange(exampleSentence.Id, exampleMoveTargetSense.Id, 1);
+        yield return new ChangeWithDependencies(moveExampleSentenceToSenseChange, [createExampleSentenceChange, createExampleMoveTargetSenseChange]);
 
         var setPictureOrderChange = new ReorderSensePictureChange(picture.Id, sense.Id, 10);
         yield return new ChangeWithDependencies(setPictureOrderChange, [createSenseChange, createSensePictureChange]);
@@ -282,12 +306,19 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var removePublicationChange = new RemovePublicationChange(entry.Id, publication2.Id);
         yield return new ChangeWithDependencies(removePublicationChange, [replacePublicationChange]);
 
-        yield return new ChangeWithDependencies(new CreateRemoteResourceChange(Guid.NewGuid(), "test-remote-id"));
-        var createRemoteResourcePendingUploadChange = new CreateRemoteResourcePendingUploadChange(Guid.NewGuid());
+        yield return new ChangeWithDependencies(new CreateRemoteResourceChange<LcmFileMetadata>(Guid.NewGuid(), "test-remote-id"));
+        var createRemoteResourcePendingUploadChange = new CreateRemoteResourcePendingUploadChange<LcmFileMetadata>(Guid.NewGuid());
         yield return new ChangeWithDependencies(createRemoteResourcePendingUploadChange);
         yield return new ChangeWithDependencies(
-            new RemoteResourceUploadedChange(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
+            new RemoteResourceUploadedChange<LcmFileMetadata>(createRemoteResourcePendingUploadChange.EntityId, "test-remote-id"),
             [createRemoteResourcePendingUploadChange]);
+        yield return new ChangeWithDependencies(
+            new SetRemoteResourceMetadataChange<LcmFileMetadata>(createRemoteResourcePendingUploadChange.EntityId, new LcmFileMetadata("test.txt", "text/plain")),
+            [createRemoteResourcePendingUploadChange]);
+
+        var createRemoteResourceChange = new CreateRemoteResourceChange<LcmFileMetadata>(Guid.NewGuid(), "test-remote-id2");
+        yield return new ChangeWithDependencies(createRemoteResourceChange);
+        yield return new ChangeWithDependencies(new DeleteRemoteResourceChange<LcmFileMetadata>(createRemoteResourceChange.EntityId), [createRemoteResourceChange]);
 
         var customView = new CustomView
         {

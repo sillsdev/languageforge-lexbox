@@ -12,6 +12,7 @@ on:
       - 'backend/LexCore/**'
       - 'backend/LexData/**'
       - 'backend/Testing/FwHeadless/**'
+      - '.github/workflows/develop-fw-headless.yaml'
       - '.github/workflows/lexbox-fw-headless.yaml'
       - '.github/workflows/deploy.yaml'
       - 'deployment/base/fw-headless-deployment.yaml'
@@ -28,6 +29,7 @@ on:
       - 'backend/LexCore/**'
       - 'backend/LexData/**'
       - 'backend/Testing/FwHeadless/**'
+      - '.github/workflows/develop-fw-headless.yaml'
       - '.github/workflows/lexbox-fw-headless.yaml'
       - '.github/workflows/deploy.yaml'
       - 'deployment/base/fw-headless-deployment.yaml'
@@ -50,6 +52,10 @@ jobs:
   build-fw-headless:
     name: Build FwHeadless
     needs: set-version
+    permissions:
+      contents: read
+      checks: write # publish-unit-test-result-action
+      packages: write # ghcr.io push
     uses: ./.github/workflows/lexbox-fw-headless.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}

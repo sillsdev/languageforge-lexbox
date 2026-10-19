@@ -16,8 +16,12 @@ public class LexboxFwDataMediaAdapter(IOptions<FwHeadlessConfig> config, MediaFi
     public MediaUri MediaUriFromPath(string path, LcmCache cache)
     {
         if (!Path.IsPathRooted(path)) throw new ArgumentException("Path must be absolute, " + path, nameof(path));
-        if (!File.Exists(path)) return MediaUri.NotFound;
-        return MediaUriForMediaFile(mediaFileService.FindMediaFile(config.Value.LexboxProjectId(cache), path));
+        // Resolve via the Files row, not the file on disk: a pending row reserves the anticipated path of a
+        // not-yet-uploaded binary, so the file may legitimately be absent while the reference is still valid.
+        // A path with a row (pending or backed) resolves to its MediaUri; a path with neither row nor file
+        // reads back as the not-found sentinel, same as the no-row case did before.
+        var mediaFile = mediaFileService.FindMediaFile(config.Value.LexboxProjectId(cache), path);
+        return mediaFile is null ? MediaUri.NotFound : MediaUriForMediaFile(mediaFile);
     }
 
     public string? PathFromMediaUri(MediaUri mediaUri, LcmCache cache)

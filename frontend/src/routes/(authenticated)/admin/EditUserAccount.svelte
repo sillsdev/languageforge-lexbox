@@ -5,16 +5,14 @@
   import {Button, FormError, Input, SystemRoleSelect, emptyString, passwordFormRules} from '$lib/forms';
   import {type FeatureFlag, UserRole} from '$lib/gql/types';
   import {_changeUserAccountByAdmin, _setUserLocked, type User} from './+page';
-  import type {LexAuthUser} from '$lib/user';
+  import {allPossibleFlags, measurePasswordStrength, type LexAuthUser} from '$lib/user';
   import t from '$lib/i18n';
   import type {FormModalResult} from '$lib/components/modals/FormModal.svelte';
   import {hash} from '$lib/util/hash';
   import Icon from '$lib/icons/Icon.svelte';
   import UserLockedAlert from '$lib/components/Users/UserLockedAlert.svelte';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
-  import {allPossibleFlags} from '$lib/user';
   import AdminContent from '$lib/layout/AdminContent.svelte';
-  import {untrack} from 'svelte';
 
   interface Props {
     currUser: LexAuthUser;
@@ -28,7 +26,6 @@
     emailVerified: z.boolean(),
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
-    score: z.number(),
     featureFlags: z.array(z.string()),
     role: z.enum([UserRole.User, UserRole.Admin]),
   });
@@ -78,7 +75,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               passwordHash: await hash($form!.password),
-              passwordStrength: $form!.score,
+              passwordStrength: await measurePasswordStrength($form!.password),
               userId: user.id,
             }),
           });
@@ -164,12 +161,7 @@
         autocomplete="new-password"
         error={errors.password}
       />
-      <PasswordStrengthMeter
-        onScoreUpdated={(score) => {
-          if (untrack(() => $form)) $form!.score = score;
-        }}
-        password={$form!.password}
-      />
+      <PasswordStrengthMeter password={$form!.password} />
     </div>
     <FormError error={lockUserError} />
   {/snippet}

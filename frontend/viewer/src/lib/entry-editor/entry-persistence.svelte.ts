@@ -1,7 +1,7 @@
 import {type Props} from './object-editors/EntryEditor.svelte';
-import {useLexboxApi} from '$lib/services/service-provider';
+import {useMiniLcmApi} from '$lib/services/service-provider';
 import {useSaveHandler} from '$lib/services/save-event-service.svelte';
-import {watch, type Getter} from 'runed';
+import {type Getter, watch} from 'runed';
 import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
 import type {ReadonlyDeep, WritableDeep} from 'type-fest';
 
@@ -10,7 +10,7 @@ export function copy<T>(value: T): WritableDeep<T> {
 }
 
 export class EntryPersistence {
-  lexboxApi = useLexboxApi();
+  api = useMiniLcmApi();
   saveHandler = useSaveHandler();
   initialEntry: ReadonlyDeep<IEntry> | undefined = undefined;
   constructor(private entryGetter: Getter<ReadonlyDeep<IEntry> | undefined | null>, private onUpdated: () => void = () => { }) {
@@ -26,11 +26,11 @@ export class EntryPersistence {
       },
       ondelete: async (e: { entry: IEntry, example?: IExampleSentence, sense?: ISense }) => {
         if (e.example !== undefined && e.sense !== undefined) {
-          await this.saveHandler.handleSave(() => this.lexboxApi.deleteExampleSentence(e.entry.id, e.sense!.id, e.example!.id));
+          await this.saveHandler.handleSave(() => this.api.deleteExampleSentence(e.entry.id, e.sense!.id, e.example!.id));
         } else if (e.sense !== undefined) {
-          await this.saveHandler.handleSave(() => this.lexboxApi.deleteSense(e.entry.id, e.sense!.id));
+          await this.saveHandler.handleSave(() => this.api.deleteSense(e.entry.id, e.sense!.id));
         } else {
-          await this.saveHandler.handleSave(() => this.lexboxApi.deleteEntry(e.entry.id));
+          await this.saveHandler.handleSave(() => this.api.deleteEntry(e.entry.id));
           this.onUpdated();
           return;
         }
@@ -43,7 +43,7 @@ export class EntryPersistence {
   public async updateEntry(entry: IEntry): Promise<IEntry> {
     if (this.initialEntry === undefined) throw new Error('Not sure what to compare against');
     if (this.initialEntry.id != entry.id) throw new Error('Entry id mismatch');
-    const updatedEntry = await this.saveHandler.handleSave(() => this.lexboxApi.updateEntry(this.initialEntry as IEntry, $state.snapshot(entry)));
+    const updatedEntry = await this.saveHandler.handleSave(() => this.api.updateEntry(this.initialEntry as IEntry, $state.snapshot(entry)));
     this.onUpdated();
 
     // update with the version from the server or else we might get unsaved changes in initialEntry
@@ -58,10 +58,10 @@ export class EntryPersistence {
     let updatedSense: ISense;
     const entry: IEntry = copy(this.initialEntry);
     if (initialSense) {
-      updatedSense = await this.saveHandler.handleSave(() => this.lexboxApi.updateSense(sense.entryId, initialSense as ISense, $state.snapshot(sense)));
+      updatedSense = await this.saveHandler.handleSave(() => this.api.updateSense(sense.entryId, initialSense as ISense, $state.snapshot(sense)));
       entry.senses = entry.senses.map(s => s.id === sense.id ? updatedSense : s);
     } else {
-      updatedSense = await this.saveHandler.handleSave(() => this.lexboxApi.createSense(sense.entryId, $state.snapshot(sense)));
+      updatedSense = await this.saveHandler.handleSave(() => this.api.createSense(sense.entryId, $state.snapshot(sense)));
       entry.senses.push(updatedSense);
     }
     this.updateInitialEntryIfIdMatches(entry);
@@ -76,10 +76,10 @@ export class EntryPersistence {
     const initialExample = sense.exampleSentences.find(e => e.id === example.id);
     let updatedExample: IExampleSentence;
     if (initialExample) {
-      updatedExample = await this.saveHandler.handleSave(() => this.lexboxApi.updateExampleSentence(sense.entryId, sense.id, initialExample, $state.snapshot(example)));
+      updatedExample = await this.saveHandler.handleSave(() => this.api.updateExampleSentence(sense.entryId, sense.id, initialExample, $state.snapshot(example)));
       sense.exampleSentences = sense.exampleSentences.map(e => e.id === example.id ? updatedExample : e);
     } else {
-      updatedExample = await this.saveHandler.handleSave(() => this.lexboxApi.createExampleSentence(sense.entryId, example.senseId, $state.snapshot(example)));
+      updatedExample = await this.saveHandler.handleSave(() => this.api.createExampleSentence(sense.entryId, example.senseId, $state.snapshot(example)));
       sense.exampleSentences.push(updatedExample);
     }
     this.updateInitialEntryIfIdMatches(entry);

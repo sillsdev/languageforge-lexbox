@@ -7,7 +7,64 @@ import type {
   LexiconRef,
   PartialEntry,
 } from 'lexicon';
+import type {
+  ILexboxServer,
+  IServerStatus,
+  LoginResult as GeneratedLoginResult,
+} from '@dotnet-types';
+import { getErrorMessage } from 'platform-bible-utils';
 import { GridifyConditionalOperator } from '../types/enums';
+import { HttpStatusError } from './http-status-error';
+
+// Local aliases for the FW Lite backend's generated API types (type-only via @dotnet-types).
+export type LexboxServer = ILexboxServer;
+export type AuthServerStatus = IServerStatus;
+
+/** The generated `LoginResult` enum as a string union, which keeps the import type-only. */
+export type LoginResult = `${GeneratedLoginResult}`;
+
+/**
+ * Outcome of downloading a remote project. The REST route flattens the backend's
+ * DownloadProjectByCodeResult to HTTP status codes, so we map those back to a union here rather
+ * than reusing the generated enum. 'NotFound'/'Forbidden' can't happen for a project we just
+ * listed, but a project's access can change between listing and download, so they're handled.
+ */
+export type DownloadResult = 'Success' | 'AlreadyDownloaded' | 'Forbidden' | 'NotFound' | 'Error';
+
+/**
+ * Downloading a remote lexicon and selecting it for the project. `success` is true only when both
+ * the download and the selection completed. `error` carries the backend's reason when a failure
+ * sent one; `cancelled` means the user dismissed the project prompt.
+ */
+export interface DownloadAndSelectResult {
+  result: DownloadResult;
+  success: boolean;
+  cancelled?: boolean;
+  error?: string;
+}
+
+/**
+ * The local lexicon list plus how it was language-filtered (see `getProjectsMatchingLanguage`).
+ * `project` is the Paratext project the requesting web view is bound to; undefined when it has none
+ * (or its project no longer exists), in which case the list is unfiltered.
+ */
+export interface LocalLexiconsResult extends LocalLexiconsMatch {
+  project?: LexiconPickerProjectInfo;
+}
+
+export interface LocalLexiconsMatch {
+  projects: IProjectModel[];
+  filtered: boolean;
+  noMatch: boolean;
+}
+
+/** The Paratext project settings the lexicon picker shows and filters by. */
+export interface LexiconPickerProjectInfo {
+  id: string;
+  name?: string;
+  lexiconCode?: string;
+  langTag?: string;
+}
 
 /** Throws if urlComponent is empty; otherwise, returns it encoded. */
 function sanitizeUrlComponent(urlComponent?: string): string {
@@ -22,6 +79,30 @@ function validateUrlComponent(urlComponent?: string): string {
   return urlComponent;
 }
 
+/**
+ * Backend error bodies are JSON: either a bare string or a `ProblemDetails` object with a `detail`
+ * field. Unwrap either shape to plain text so it doesn't reach the user still wrapped in
+ * JSON-string quotes; anything else, including invalid JSON, is returned as-is.
+ */
+function extractErrorMessage(body: string): string {
+  if (!body) return body;
+  try {
+    const parsed: unknown = JSON.parse(body);
+    if (typeof parsed === 'string') return parsed;
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      'detail' in parsed &&
+      typeof parsed.detail === 'string'
+    ) {
+      return parsed.detail;
+    }
+  } catch {
+    // Not JSON — fall through and use the raw text.
+  }
+  return body;
+}
+
 async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   logger.info(`About to fetch: ${input}`);
   if (init) {
@@ -29,32 +110,37 @@ async function fetchUrl(input: string, init?: RequestInit): Promise<unknown> {
   }
   const results = await papi.fetch(input, init);
   if (!results.ok) {
-    throw new Error(`Failed to fetch: ${results.statusText}`);
+    const errorBody = await results.text();
+    throw new HttpStatusError(
+      results.status,
+      extractErrorMessage(errorBody) || `Failed to fetch: ${results.status} ${results.statusText}`,
+    );
   }
-  return await results.json();
-}
-
-export function getBrowseUrl(baseUrl: string, lexiconCode: string, entryId?: string): string {
-  let url = `${baseUrl}/paratext/fwdata/${sanitizeUrlComponent(lexiconCode)}`;
-  if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}&entryOpen=true`;
-  return url;
+  const text = await results.text();
+  // eslint-disable-next-line no-type-assertion/no-type-assertion
+  return text ? (JSON.parse(text) as unknown) : undefined;
 }
 
 export class FwLiteApi {
+  // Shared across all instances (EntryService, main) — all talk to the same backend process.
+  private static readonly projectTypeByCode = new Map<string, 'FwData' | 'Harmony'>();
+
   private readonly baseUrl: string;
-  private lexiconCode?: string;
+
+  /**
+   * The lexicon this instance is bound to, standing in wherever a method is called without one. Set
+   * once at construction, so a caller already in flight cannot have the lexicon changed under it.
+   */
+  private readonly lexiconCode?: string;
+
   constructor(baseUrl: string, lexiconCode?: string) {
     this.baseUrl = baseUrl;
-    this.setLexiconCode(lexiconCode);
-  }
-
-  setLexiconCode(lexiconCode?: string): void {
     this.lexiconCode = lexiconCode;
   }
 
   async deleteEntry(id: string, lexiconCode?: string): Promise<void> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
-    const path = `mini-lcm/${type}/${code}/entry/${id}`;
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
+    const path = `mini-lcm/${type}/${code}/entry/${sanitizeUrlComponent(id)}`;
     await this.fetchPath(path, 'DELETE');
   }
 
@@ -62,7 +148,7 @@ export class FwLiteApi {
     const tag = langTag.trim().toLocaleLowerCase().split('-')[0];
     if (!code || !tag) return false;
     const writingSystems = await this.getWritingSystems(code);
-    const vernLangTags = Object.keys(writingSystems.vernacular).map((v) => v.toLocaleLowerCase());
+    const vernLangTags = writingSystems.vernacular.map((ws) => ws.wsId.toLocaleLowerCase());
     return vernLangTags.some((v) => v === tag || v.startsWith(`${tag}-`));
   }
 
@@ -73,7 +159,7 @@ export class FwLiteApi {
     semanticDomain?: string,
     lexiconCode?: string,
   ): Promise<IEntry[]> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     let path = `mini-lcm/${type}/${code}/entries`;
     if (search) path += `/${search}`;
     if (semanticDomain) {
@@ -84,56 +170,190 @@ export class FwLiteApi {
   }
 
   async getEntry(id: string, lexiconCode?: string): Promise<IEntry> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
-    const path = `mini-lcm/${type}/${code}/entry/${id}`;
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
+    const path = `mini-lcm/${type}/${code}/entry/${sanitizeUrlComponent(id)}`;
     return (await this.fetchPath(path)) as IEntry;
   }
 
   async getSense(id: string, lexiconCode?: string): Promise<ISense> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
-    const path = `mini-lcm/${type}/${code}/sense/${id}`;
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
+    const path = `mini-lcm/${type}/${code}/sense/${sanitizeUrlComponent(id)}`;
     return (await this.fetchPath(path)) as ISense;
   }
 
   async getProjects(): Promise<IProjectModel[]> {
-    return (await this.fetchPath('localProjects')) as IProjectModel[];
+    const projects = (await this.fetchPath('localProjects')) as IProjectModel[];
+    projects.forEach((p) => FwLiteApi.projectTypeByCode.set(p.code, p.crdt ? 'Harmony' : 'FwData'));
+    return projects;
   }
 
-  async getProjectsMatchingLanguage(langTag?: string): Promise<IProjectModel[]> {
-    const projects = (await this.fetchPath('localProjects')) as IProjectModel[];
-    if (!langTag?.trim()) return projects;
+  /**
+   * Local projects filtered to `langTag`. `filtered` = a real subset came back; `noMatch` = a
+   * language was given but nothing matched (so all are returned). `keepCodes` are kept regardless
+   * of language (the current lexicon + any applied this session) so a just-replaced one doesn't
+   * vanish.
+   */
+  async getProjectsMatchingLanguage(
+    langTag?: string,
+    keepCodes?: string[],
+  ): Promise<LocalLexiconsMatch> {
+    const projects = await this.getProjects();
+    if (!langTag?.trim()) return { projects, filtered: false, noMatch: false };
 
-    try {
-      const matches = (
-        await Promise.all(
-          projects.map(async (p) =>
-            (await this.doesProjectMatchLangTag(p.code, langTag)) ? p : undefined,
-          ),
-        )
-      ).filter((p) => p) as IProjectModel[];
-      return matches.length ? matches : projects;
-    } catch {
-      return projects;
-    }
+    // Promise.allSettled so one project's failed check (e.g. a broken/deleted project) only
+    // drops that project from consideration.
+    const results = await Promise.allSettled(
+      projects.map(async (p) =>
+        (await this.doesProjectMatchLangTag(p.code, langTag)) ? p : undefined,
+      ),
+    );
+    results.forEach((result, i) => {
+      if (result.status === 'rejected') {
+        logger.warn(
+          `Could not check language match for project '${projects[i].code}':`,
+          getErrorMessage(result.reason),
+        );
+      }
+    });
+    const matches = results
+      .filter(
+        (result): result is PromiseFulfilledResult<IProjectModel | undefined> =>
+          result.status === 'fulfilled',
+      )
+      .map((result) => result.value)
+      .filter((p): p is IProjectModel => Boolean(p));
+    if (!matches.length) return { projects, filtered: false, noMatch: true };
+
+    // Retain the kept lexicons regardless of language, keeping original order and no duplicate.
+    const keep = new Set(matches.map((p) => p.code));
+    keepCodes?.forEach((c) => keep.add(c));
+    const kept = projects.filter((p) => keep.has(p.code));
+    if (kept.length === projects.length) return { projects, filtered: false, noMatch: false };
+    return { projects: kept, filtered: true, noMatch: false };
   }
 
   async getWritingSystems(lexiconCode?: string): Promise<IWritingSystems> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/writingSystems`;
     return (await this.fetchPath(path)) as IWritingSystems;
   }
 
   async postNewEntry(entry: PartialEntry, lexiconCode?: string): Promise<IEntry> {
-    const { code, type } = this.checkLexiconCode(lexiconCode);
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry`;
     return (await this.fetchPath(path, 'POST', entry)) as IEntry;
   }
 
+  async getAuthServers(): Promise<AuthServerStatus[]> {
+    return (await this.fetchPath('auth/servers')) as AuthServerStatus[];
+  }
+
+  /**
+   * Remote (Lexbox server) projects the signed-in user can download, across all configured servers,
+   * flattened into one list (each carries its own `server`; signed-out servers return nothing).
+   * Filtered to CRDT projects — the `crdt` flag is the backend's "has Harmony commits" signal.
+   */
+  async getRemoteProjects(): Promise<IProjectModel[]> {
+    const byServer = (await this.fetchPath('remoteProjects')) as Record<string, IProjectModel[]>;
+    return Object.values(byServer)
+      .flat()
+      .filter((p) => p.crdt);
+  }
+
+  /**
+   * Downloads a remote CRDT project; its promise resolves only once the initial sync completes (can
+   * take minutes).
+   */
+  async downloadProject(
+    authority: string,
+    code: string,
+    signal?: AbortSignal,
+  ): Promise<{ result: DownloadResult; error?: string }> {
+    const path = `download/crdt/${sanitizeUrlComponent(authority)}/${sanitizeUrlComponent(code)}`;
+    const response = await papi.fetch(this.getUrl(path), { method: 'POST', signal });
+    switch (response.status) {
+      case 200:
+        FwLiteApi.projectTypeByCode.set(code, 'Harmony');
+        return { result: 'Success' };
+      case 204:
+        return { result: 'AlreadyDownloaded' };
+      case 403:
+        return { result: 'Forbidden' };
+      case 404:
+        return { result: 'NotFound' };
+      default: {
+        // Surface the backend's own reason when it sends one (e.g. a sync failure); some errors are
+        // a bare status with no body, so callers fall back to a generic message when it's empty.
+        const error = extractErrorMessage(await response.text().catch(() => '')).trim();
+        return { result: 'Error', error: error || undefined };
+      }
+    }
+  }
+
+  /** Deletes a local CRDT project (downloaded or local-only). */
+  async deleteProject(code: string): Promise<void> {
+    await this.fetchPath(`crdt/${sanitizeUrlComponent(code)}`, 'DELETE');
+    FwLiteApi.projectTypeByCode.delete(code);
+  }
+
+  /**
+   * Triggers a system-browser sign-in. Doesn't resolve until the user finishes in their browser,
+   * cancels, or MSAL gives up. Pass `signal` to abort an abandoned sign-in, which the backend
+   * otherwise leaves pending indefinitely.
+   */
+  async login(authority: string, signal?: AbortSignal): Promise<LoginResult> {
+    const path = `auth/login-web-view/${sanitizeUrlComponent(authority)}`;
+    return (await fetchUrl(this.getUrl(path), { signal })) as LoginResult;
+  }
+
+  async logout(authority: string): Promise<void> {
+    const path = `auth/logout/${sanitizeUrlComponent(authority)}`;
+    // The endpoint redirects to the web-app root, so fetchPath would choke parsing HTML as JSON.
+    const results = await papi.fetch(this.getUrl(path));
+    if (!results.ok) throw new Error(`Failed to fetch: ${results.status} ${results.statusText}`);
+  }
+
   /* eslint-enable no-type-assertion/no-type-assertion */
 
-  private checkLexiconCode(lexiconCode?: string): LexiconRef {
-    const code = sanitizeUrlComponent(lexiconCode || this.lexiconCode);
-    return { code, type: 'FwData' };
+  async getBrowseUrl(lexiconCode: string, entryId?: string): Promise<string> {
+    const type = await this.resolveProjectType(lexiconCode);
+    const segment = type === 'Harmony' ? 'project' : 'fwdata';
+    let url = `${this.baseUrl}/paratext/${segment}/${sanitizeUrlComponent(lexiconCode)}`;
+    if (entryId) url += `/browse?entryId=${validateUrlComponent(entryId)}&entryOpen=true`;
+    return url;
+  }
+
+  async createProject(
+    name: string,
+    code: string,
+    vernacularWs: string,
+    analysisWs?: string,
+  ): Promise<void> {
+    const params = new URLSearchParams({ name, code, vernacularWs });
+    if (analysisWs) params.append('analysisWs', analysisWs);
+    await this.fetchPath(`project/create?${params.toString()}`, 'POST');
+    FwLiteApi.projectTypeByCode.set(code, 'Harmony');
+  }
+
+  private async checkLexiconCode(lexiconCode?: string): Promise<LexiconRef> {
+    const rawCode = lexiconCode || this.lexiconCode;
+    const code = sanitizeUrlComponent(rawCode);
+    const type = await this.resolveProjectType(rawCode ?? '');
+    return { code, type };
+  }
+
+  /**
+   * Looks up a project's API type. The cache is in-memory only (empty after a restart), so a miss
+   * repopulates it from the backend rather than guessing — a wrong guess could misroute a Harmony
+   * project to the FwData endpoints and break every operation on it. If `getProjects` itself
+   * throws, propagate rather than default; only default to 'FwData' when the backend answered but
+   * the code was unrecognized.
+   */
+  private async resolveProjectType(code: string): Promise<'FwData' | 'Harmony'> {
+    const cached = FwLiteApi.projectTypeByCode.get(code);
+    if (cached) return cached;
+    await this.getProjects();
+    return FwLiteApi.projectTypeByCode.get(code) ?? 'FwData';
   }
 
   private getUrl(path: string): string {

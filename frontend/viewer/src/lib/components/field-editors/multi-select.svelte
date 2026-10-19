@@ -6,7 +6,15 @@
   import {tick} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
   import {Checkbox} from '../ui/checkbox';
-  import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '../ui/command';
+  import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    CommandSeparator,
+  } from '../ui/command';
   import {Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger} from '../ui/drawer';
   import {Icon} from '../ui/icon';
   import SubmitOrCancel from '../SubmitOrCancel.svelte';
@@ -33,6 +41,7 @@
     emptyResultsPlaceholder?: string;
     drawerTitle?: string;
     sortValuesBy?: 'selectionOrder' | 'optionOrder' | NonNullable<Parameters<Array<Value>['sort']>[0]>;
+    showSelectedGroup?: boolean;
     onchange?: (value: Value[]) => void;
   } = $props();
 
@@ -46,6 +55,7 @@
     emptyResultsPlaceholder,
     drawerTitle,
     sortValuesBy = 'selectionOrder',
+    showSelectedGroup = true,
     onchange,
   } = $derived(constProps);
 
@@ -72,6 +82,8 @@
   let filterValue = $state('');
   let decoratedValues = $derived(decorateAndSort([...values]));
   let pendingValues = $state<DecoratedValue[]>([]);
+  // Frozen at open so newly selected items stay in place until the picker is reopened.
+  let selectedGroupSnapshot = $state<DecoratedValue[]>([]);
   let displayValues = $derived(dirty ? pendingValues : decoratedValues);
   let triggerRef = $state<HTMLButtonElement | null>(null);
   let commandRef = $state<HTMLElement | null>(null);
@@ -81,6 +93,9 @@
     () => {
       dirty = false;
       filterValue = '';
+      if (open) {
+        selectedGroupSnapshot = decorateAndSort([...values]);
+      }
     },
   );
 
@@ -153,8 +168,21 @@
       .map((result) => result.option);
   });
 
+  const pinSelectedAtTop = $derived(showSelectedGroup && !filterValue && selectedGroupSnapshot.length > 0);
+
+  const orderedOptions = $derived.by(() => {
+    if (!pinSelectedAtTop) return filteredOptions;
+    const pinnedIds = new Set(selectedGroupSnapshot.map((s) => s.id));
+    const pinned = selectedGroupSnapshot.map((s) => s.value);
+    const rest = filteredOptions.filter((option) => !pinnedIds.has(getId(option)));
+    return [...pinned, ...rest];
+  });
+
+  const pinnedCount = $derived(pinSelectedAtTop ? selectedGroupSnapshot.length : 0);
+
   const RENDER_LIMIT = 100;
-  const renderedOptions = $derived(filteredOptions.slice(0, RENDER_LIMIT));
+  const renderedOptions = $derived(orderedOptions.slice(0, RENDER_LIMIT));
+  const showSelectedDivider = $derived(pinSelectedAtTop && pinnedCount > 0 && pinnedCount < renderedOptions.length);
 
   function onkeydown(e: KeyboardEvent) {
     if (e.key === 'Enter' && dirty && (e.metaKey || e.ctrlKey)) {
@@ -178,7 +206,10 @@
   function getHighlightedValue(): Value | undefined {
     const selectedItem = commandRef?.querySelector('[data-command-item][data-selected]');
     const index = selectedItem?.getAttribute('data-value-index');
-    if (index) return filteredOptions[Number(index)];
+    if (index == null || index === '') return;
+    const i = Number(index);
+    if (Number.isNaN(i) || i < 0) return;
+    return orderedOptions[i];
   }
 </script>
 
@@ -241,40 +272,21 @@
     <CommandList class="max-md:h-75 md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
       <CommandGroup>
+        {#if pinSelectedAtTop}
+          <div class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+            {$t`Selected`}
+          </div>
+        {/if}
         {#each renderedOptions as value, i (getId(value))}
-          {@const label = getLabel(value)}
-          {@const id = getId(value)}
-          {@const selected = pendingValues.some((v) => v.id === id)}
-          <CommandItem
-            keywords={[label.toLocaleLowerCase()]}
-            value={label.toLocaleLowerCase() + String(id)}
-            onSelect={() => toggleSelected(value, !dirty && !IsMobile.value)}
-            class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
-            data-value-index={i}
-            aria-label={label}
-          >
-            <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
-            <Checkbox
-              checked={selected}
-              tabindex={-1}
-              class={cn(
-                'max-md:hidden mr-2 size-5 border-muted-foreground text-foreground! bg-transparent! group-[&:not([data-selected])]:border-transparent',
-                selected || 'not-[&:hover]:opacity-50',
-              )}
-              onclick={(e) => {
-                // prevents command item selection
-                e.stopPropagation();
-              }}
-              onpointerdown={(e) => {
-                // prevents moving focus to the checkbox when clicking on it
-                e.preventDefault();
-              }}
-              onCheckedChange={() => toggleSelected(value, false)}
-            />
-            {label || $t`Untitled`}
-          </CommandItem>
+          {#if showSelectedDivider && i === pinnedCount}
+            <CommandSeparator class="my-1" />
+            <div class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+              {$t`All`}
+            </div>
+          {/if}
+          {@render optionItem(value, i)}
         {/each}
-        {#if renderedOptions.length < filteredOptions.length}
+        {#if renderedOptions.length < orderedOptions.length}
           <div class="text-muted-foreground text-sm px-2 py-1">
             {$t`Refine your filter to see more...`}
           </div>
@@ -282,6 +294,40 @@
       </CommandGroup>
     </CommandList>
   </Command>
+{/snippet}
+
+{#snippet optionItem(value: Value, index: number)}
+  {@const label = getLabel(value)}
+  {@const id = getId(value)}
+  {@const selected = pendingValues.some((v) => v.id === id)}
+  <CommandItem
+    keywords={[label.toLocaleLowerCase()]}
+    value={label.toLocaleLowerCase() + String(id)}
+    onSelect={() => toggleSelected(value, !dirty && !IsMobile.value)}
+    class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
+    data-value-index={index}
+    aria-label={label}
+  >
+    <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
+    <Checkbox
+      checked={selected}
+      tabindex={-1}
+      class={cn(
+        'max-md:hidden mr-2 size-5 border-muted-foreground text-foreground! bg-transparent! group-[&:not([data-selected])]:border-transparent',
+        selected || 'not-[&:hover]:opacity-50',
+      )}
+      onclick={(e) => {
+        // prevents command item selection
+        e.stopPropagation();
+      }}
+      onpointerdown={(e) => {
+        // prevents moving focus to the checkbox when clicking on it
+        e.preventDefault();
+      }}
+      onCheckedChange={() => toggleSelected(value, false)}
+    />
+    {label || $t`Untitled`}
+  </CommandItem>
 {/snippet}
 
 {#if IsMobile.value}

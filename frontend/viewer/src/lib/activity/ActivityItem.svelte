@@ -49,8 +49,8 @@
   const historyService = useHistoryService();
   let openHistoryId = $state<string>()
 
-  const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(change => {
-    return new ChangeWithLazyContext(change, activity, () => historyService.loadChangeContext(activity.commitId, change.index));
+  const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(({entity}) => {
+    return new ChangeWithLazyContext(entity, activity, () => historyService.loadChangeContext(activity.commitId, entity.index));
   }));
 </script>
 

@@ -19,7 +19,6 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
     private IMongoCollection<Entities.Entry> Entries => dbContext.Entries(projectCode);
 
 
-    private Dictionary<Guid, PartOfSpeech>? _partsOfSpeechCacheByGuid = null;
     private Dictionary<string, PartOfSpeech>? _partsOfSpeechCacheByStringKey = null;
 
     public async Task<WritingSystems> GetWritingSystems()
@@ -91,7 +90,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             _partsOfSpeechCacheByStringKey = await GetPartsOfSpeech().ToDictionaryAsync(pos => pos.Name["__key"]);
         }
         return _partsOfSpeechCacheByStringKey.GetValueOrDefault(key);
-    }   
+    }
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
@@ -300,7 +299,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         {
             Id = picture.Guid,
             Caption = ToRichMultiString(picture.Caption),
-            // TODO: Create a LfClassicMediaAdapter that can create MediaUris for LF URLs, then use that rather than returning NotFound
+            // Not implementing a LfClassicMediaAdapter since we're going to decommission LfClassicMiniLcmApi soon
             MediaUri = MediaUri.NotFound,
         };
     }

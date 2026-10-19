@@ -39,6 +39,12 @@ COPY opentelemetry_module.conf /usr/local/apache2/conf/
 # Ensure /var/hg and /var/hg/repos are owned by www-data user
 RUN install -d /var/hg/repos -o www-data -g www-data
 
+# Make Apache's runtime dir writable by www-data so the container can run as
+# non-root. Apache keeps its PID file, mod_wsgi socket (WSGISocketPrefix
+# logs/wsgi), mod_cgid socket, and file-based mutexes under this dir; without
+# this, startup fails as UID 33.
+RUN chown -R www-data:www-data /usr/local/apache2/logs
+
 # Configure hgweb
 COPY hgweb.hgrc /var/hg/
 COPY hgweb.wsgi /usr/local/www/wsgi-scripts/
@@ -50,3 +56,7 @@ VOLUME /var/hg/repos
 ARG APP_VERSION
 ENV APP_VERSION=$APP_VERSION
 ENV OTEL_RESOURCE_ATTRIBUTES_FROM_BUILD="service.name=hgweb,service.version=${APP_VERSION}"
+
+# Run as an unprivileged user. hgweb listens on 8088 (unprivileged), so no
+# root-only startup step remains.
+USER www-data

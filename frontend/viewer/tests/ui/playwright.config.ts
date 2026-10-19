@@ -1,7 +1,9 @@
 import {defineConfig, devices, type ReporterDescription} from '@playwright/test';
 import * as testEnv from '../../../tests/envVars';
 
-const vitePort = '5173';
+// Same override and validation as vite.config.ts, so a worktree on its own port tests its own dev server.
+const parsedDevPort = Number(process.env.FwLite__DevAssetsPort);
+const vitePort = Number.isFinite(parsedDevPort) && parsedDevPort > 0 ? String(parsedDevPort) : '5173';
 const dotnetPort = '5137';
 const autoStartServer = process.env.AUTO_START_SERVER === 'true';
 const serverPort = process.env.SERVER_PORT ?? (autoStartServer ? vitePort : dotnetPort);
@@ -23,8 +25,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : 2,
+  workers: process.env.CI ? 2 : 2,
   outputDir: 'test-results',
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter:[
@@ -56,7 +57,8 @@ export default defineConfig({
   webServer: [
     {
       command: 'pnpm run dev',
-      url: 'http://localhost:5173',
+      cwd: '../../', // resolved relative to this config file → frontend/viewer (pnpm 12 no longer walks up for the manifest)
+      url: `http://localhost:${vitePort}`,
       reuseExistingServer: true
     }
   ],
@@ -64,6 +66,12 @@ export default defineConfig({
     {
       name: 'chromium',
       use: {...devices['Desktop Chrome'], userAgent: 'Playwright Chrome'},
+    },
+    {
+      // Safari's engine, running on Linux via Playwright's bundled WebKit build.
+      // No userAgent override, so it presents as real Safari (the target we care about).
+      name: 'webkit',
+      use: {...devices['Desktop Safari']},
     },
   ]
 });

@@ -49,7 +49,7 @@ Same as above plus:
 | Domain | Description |
 | - | - |
 | `develop.lexbox.org` | routes well known paths[^1] to `lexbox/` and everything else to the UI |
-| `resumable-develop.lexbox.org`<br>`hg-develop.lexbox.org` | route everything to `lexbox/` |
+| `resumable.lexbox.dev.languagetechnology.org`<br>`hg.lexbox.dev.languagetechnology.org` | route everything to `lexbox/` |
 
 
 ### Local development

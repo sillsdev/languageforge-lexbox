@@ -191,7 +191,7 @@ export class PluginApiAdapter implements PluginApiMethods {
    * had (offline, or not found), so plugins can degrade instead of crashing.
    */
   async getMedia(mediaUri: string): Promise<{data: ArrayBuffer; fileName?: string; mimeType?: string} | null> {
-    const file = await this.api.getFileStream(mediaUri);
+    const file = await this.api.getFileStream(mediaUri, true);
     if (!file.stream) return null;
     const data = await file.stream.arrayBuffer();
     return {data, fileName: file.fileName, mimeType: guessMimeType(file.fileName)};
@@ -212,7 +212,7 @@ export class PluginApiAdapter implements PluginApiMethods {
     }
     const filename = asNonEmptyString((metadata as {filename?: unknown}).filename, 'filename');
     const mimeType = asNonEmptyString((metadata as {mimeType?: unknown}).mimeType, 'mimeType');
-    return await this.api.saveFile(data, {filename, mimeType});
+    return await this.api.saveFile(data, {filename, mimeType, extraFields: {}});
   }
 
   async createEntry(input: unknown): Promise<PluginEntry> {
@@ -490,7 +490,7 @@ function asOpenEntryMode(value: unknown): OpenEntryMode {
 function asQuery(value: unknown): PluginEntryQuery {
   if (value === undefined || value === null) return {};
   if (typeof value !== 'object') throw new PluginApiException('invalid-args', 'Query options must be an object');
-  return value as PluginEntryQuery;
+  return value;
 }
 
 function asId(value: unknown): string {

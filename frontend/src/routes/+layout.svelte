@@ -3,15 +3,17 @@
   import {getStores, navigating} from '$app/stores';
   import '$lib/app.postcss';
   import {initErrorStore} from '$lib/error';
+  import ErrorBoundary from '$lib/error/ErrorBoundary.svelte';
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
   import type {LayoutData} from './$types';
   import Notify from '$lib/notify/Notify.svelte';
   import {Footer} from '$lib/layout';
+  import {setBreadcrumbStore} from '$lib/layout/Breadcrumbs/context';
   import {initNotificationService} from '$lib/notify';
   import {overlayContainer} from '$lib/overlay';
   import {Duration} from '$lib/util/time';
   import {browser} from '$app/environment';
-  import {onMount, setContext} from 'svelte';
+  import {onMount} from 'svelte';
   import {derived, writable} from 'svelte/store';
   import {initI18n} from '$lib/i18n';
 
@@ -29,7 +31,7 @@
   });
 
   const { notifyWarning } = initNotificationService();
-  setContext('breadcrumb-store', writable([] as Element[]));
+  setBreadcrumbStore(writable([] as Element[]));
 
   const error = initErrorStore($page.error);
   $effect(() => {
@@ -74,7 +76,9 @@
 
 <div class="flex flex-col justify-between min-h-full" class:hydrating>
   <div class="flex flex-col flex-grow">
-    {@render children?.()}
+    <ErrorBoundary>
+      {@render children?.()}
+    </ErrorBoundary>
   </div>
   <Footer />
 </div>

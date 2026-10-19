@@ -37,7 +37,7 @@ public interface IMiniLcmReadApi
     /// </summary>
     Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null);
 
-    Task<ReadFileResponse> GetFileStream(MediaUri mediaUri)
+    Task<ReadFileResponse> GetFileStream(MediaUri mediaUri, bool downloadIfMissing = true)
     {
         return Task.FromResult(new ReadFileResponse(ReadFileResult.NotSupported));
     }

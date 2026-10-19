@@ -2,7 +2,11 @@
   import Markdown, {type ComponentsMap} from 'svelte-exmarkdown';
   import LinkRenderer from './LinkRenderer.svelte';
 
-  export let md: string;
+  interface Props {
+    md: string;
+  }
+
+  const { md }: Props = $props();
   const renderer: ComponentsMap = { a: LinkRenderer };
 </script>
 

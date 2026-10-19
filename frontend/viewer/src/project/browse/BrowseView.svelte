@@ -1,5 +1,6 @@
 <script lang="ts">
-  import {ResizableHandle, ResizablePane, ResizablePaneGroup} from '$lib/components/ui/resizable';
+  import Hotkey from '$lib/components/hotkey/hotkey.svelte';
+  import MasterDetailView from '$lib/components/master-detail/MasterDetailView.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import EntryView from './EntryView.svelte';
   import SearchFilter from './SearchFilter.svelte';
@@ -7,40 +8,64 @@
   import {t} from 'svelte-i18n-lingui';
   import SidebarPrimaryAction from '../SidebarPrimaryAction.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
+  import {useFeatures} from '$lib/services/feature-service';
   import PrimaryNewEntryButton from '../PrimaryNewEntryButton.svelte';
-  import {QueryParamState, QueryParamStateBool} from '$lib/utils/url.svelte';
   import {BrowseParam} from '$lib/utils/search-params';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
-  import IfOnce from '$lib/components/if-once/if-once.svelte';
   import {SortField, type IPartOfSpeech, type IPublication, type ISemanticDomain} from '$lib/dotnet-types';
   import SortMenu from './sort/SortMenu.svelte';
+  import SortWritingSystemMenu from './sort/SortWritingSystemMenu.svelte';
   import type {SortConfig} from './sort/options';
   import {useProjectContext} from '$project/project-context.svelte';
   import type {EntryListViewMode} from './EntryListViewOptions.svelte';
   import EntryListViewOptions from './EntryListViewOptions.svelte';
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
+  import UnreadCommentBadge from '$project/browse/filter/UnreadCommentBadge.svelte';
+  import {QueryParamStateBool} from '$lib/utils/url.svelte';
+  import {watch} from 'runed';
+  import {useWritingSystemService} from '$project/data';
 
   const projectContext = useProjectContext();
   const viewService = useViewService();
+  const writingSystemService = useWritingSystemService();
   const dialogsService = useDialogsService();
+  const features = useFeatures();
   const entryListViewMode = useProjectStorage().entryListViewMode;
 
-  // DESKTOP: the entry is a sibling of the list (it's a split view). We can switch between selected entries.
-  // So, selectedEntryId itself drives navigation.
-  // MOBILE: an entry is a child of the list (it's hierarchical). We always go back to the list before opening a different entry.
-  // So, entryOpen drives navigation.
-  const selectedEntryId = new QueryParamState({key: BrowseParam.EntryId, allowBack: !IsMobile.value, replaceOnDefaultValue: !IsMobile.value});
-  const entryOpen = new QueryParamStateBool({key: BrowseParam.EntryOpen, allowBack: IsMobile.value, replaceOnDefaultValue: IsMobile.value}, false);
-  const defaultLayout = [30, 70] as const; // Default split: 30% for list, 70% for details
+  let selectedId = $state('');
   let search = $state('');
   let gridifyFilter = $state<string>();
   let publication = $state<IPublication>();
   let semanticDomain = $state<ISemanticDomain>();
   let partOfSpeech = $state<IPartOfSpeech>();
+  let unreadComments = $state(false);
+  // Same history strategy as the master-detail open state: on mobile the comments take
+  // half the screen, so back should close them rather than leave the view. Nothing else
+  // pushes for them now that the panel is a pane rather than a drawer.
+  const commentsOpen = new QueryParamStateBool({
+    key: BrowseParam.CommentsOpen,
+    allowBack: IsMobile.value,
+    replaceOnDefaultValue: IsMobile.value,
+  }, false);
   let sort = $state<SortConfig>();
+  // Writing system to sort/display by, chosen separately from the sort field/direction.
+  // Undefined = the current view's first vernacular.
+  let sortWs = $state<string>();
+  // The user's pick is kept, but only applies while the current view shows that writing system.
+  const effectiveSortWs = $derived.by(() => {
+    const viewWritingSystems = writingSystemService.viewVernacularNoAudio(viewService.currentView);
+    return viewWritingSystems.find(ws => ws.wsId === sortWs)?.wsId ?? viewWritingSystems[0]?.wsId;
+  });
+  const sortWithWs = $derived<SortConfig | undefined>(sort ? {...sort, writingSystem: effectiveSortWs} : undefined);
   const entryMode: EntryListViewMode = $derived(entryListViewMode.current === 'preview' ? 'preview' : 'simple');
+
+  // Turning the filter on means the comments are what the user came for, so open the
+  // sidebar once. Deliberately only on the transition, so closing it stays closed.
+  watch(() => unreadComments, (filterOn, wasOn) => {
+    if (filterOn && !wasOn) commentsOpen.current = true;
+  });
 
   async function newEntry() {
     const entry = await dialogsService.createNewEntry(undefined, {
@@ -50,84 +75,73 @@
       partOfSpeech,
     });
     if (!entry) return;
-    selectedEntryId.current = entry.id;
+    selectedId = entry.id;
   }
 
-  let leftPane: ResizablePane | undefined = $state();
-  let rightPane: ResizablePane | undefined = $state();
   let entriesList: EntriesList | undefined = $state();
 
-  async function onCloseEntry() {
-    if (IsMobile.value) {
-      // we preserve the selected entry, so we can scroll to it on filter changes (like desktop)
-      entryOpen.current = false;
-      // it can creep out of view on mobile
-      await entriesList?.tryToScrollToEntry(selectedEntryId.current);
-    }
+  async function onClose() {
+    // Selected id is preserved by MasterDetailView so we can scroll back to it.
+    await entriesList?.tryToScrollToEntry(selectedId);
   }
 </script>
+<Hotkey key="e" disabled={!features.write} onHotkey={() => void newEntry()} />
 <SidebarPrimaryAction>
   {#snippet children(isOpen: boolean)}
     <PrimaryNewEntryButton active={!IsMobile.value && isOpen} onclick={newEntry}/>
   {/snippet}
 </SidebarPrimaryAction>
 <ViewErrorBoundary class="flex flex-col h-full" title={$t`Browse view failed`}>
-  <ResizablePaneGroup direction="horizontal" class="flex-1 min-h-0 overflow-visible!">
-    <IfOnce show={!IsMobile.value || !selectedEntryId.current || !entryOpen.current}>
-      <ResizablePane
-        bind:this={leftPane}
-        defaultSize={defaultLayout[0]}
-        collapsible
-        collapsedSize={0}
-        minSize={15}
-        class="min-h-0 flex flex-col relative @container/list"
-      >
-        <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
-          <div class="md:mr-3">
-            <SearchFilter bind:search bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech />
-            <div class="my-2 flex items-center justify-between">
-              <SortMenu bind:value={sort}
-                autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
+  <MasterDetailView
+    idParam={BrowseParam.EntryId}
+    openParam={BrowseParam.EntryOpen}
+    bind:selectedId
+    onClose={onClose}
+  >
+    {#snippet master({selectedId: masterSelectedId, select})}
+      <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
+        <div class="md:mr-3">
+          <SearchFilter bind:search bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech bind:unreadComments />
+          <div class="my-2 flex items-center gap-2">
+            <SortMenu bind:value={sort}
+              autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
+            <SortWritingSystemMenu bind:value={() => effectiveSortWs, (v) => sortWs = v} />
+            {#if features.comments}
+              <UnreadCommentBadge bind:unreadComments/>
+            {/if}
+            <div class="ms-auto">
               <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />
             </div>
           </div>
-          <EntriesList bind:this={entriesList}
-                       {search}
-                       selectedEntryId={selectedEntryId.current}
-                       {sort}
-                       {gridifyFilter}
-                       {publication}
-                       {partOfSpeech}
-                       {semanticDomain}
-                       onSelectEntry={(e) => {
-                        selectedEntryId.current = e?.id ?? '';
-                        entryOpen.current = !!selectedEntryId.current;
-                       }}
-                       previewDictionary={entryMode === 'preview'}/>
         </div>
-      </ResizablePane>
-    </IfOnce>
-    {#if !IsMobile.value}
-      <ResizableHandle class="my-4" {leftPane} {rightPane} withHandle resetTo={defaultLayout} />
-    {/if}
-    {#if !IsMobile.value || (selectedEntryId.current && entryOpen.current)}
-      <ResizablePane
-        bind:this={rightPane}
-        defaultSize={defaultLayout[1]} collapsible collapsedSize={0} minSize={15}>
-          {#if !selectedEntryId.current}
-            <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
-              <p>{$t`Select ${pt($t`an entry`, $t`a word`, viewService.currentView)} to view details`}</p>
-            </div>
-          {:else if projectContext.maybeApi}
-            <div class="md:p-4 md:pl-4 h-full">
-              <EntryView
-                entryId={selectedEntryId.current}
-                onClose={onCloseEntry}
-                showClose={IsMobile.value}
-              />
-            </div>
-          {/if}
-      </ResizablePane>
-    {/if}
-  </ResizablePaneGroup>
+        <EntriesList bind:this={entriesList}
+                     {search}
+                     selectedEntryId={masterSelectedId}
+                     sort={sortWithWs}
+                     {gridifyFilter}
+                     {publication}
+                     {partOfSpeech}
+                     {semanticDomain}
+                     onSelectEntry={(e) => select(e?.id ?? '')}
+                     previewDictionary={entryMode === 'preview'}/>
+      </div>
+    {/snippet}
+    {#snippet detail({selectedId: detailSelectedId, close, showClose})}
+      {#if projectContext.maybeApi}
+        <div class="md:p-4 md:pl-4 h-full">
+          <EntryView
+            entryId={detailSelectedId}
+            onClose={close}
+            {showClose}
+            bind:showComments={() => commentsOpen.current, (v) => commentsOpen.current = v}
+          />
+        </div>
+      {/if}
+    {/snippet}
+    {#snippet empty()}
+      <div class="flex items-center justify-center h-full text-muted-foreground text-center m-2">
+        <p>{$t`Select ${pt($t`an entry`, $t`a word`, viewService.currentView)} to view details`}</p>
+      </div>
+    {/snippet}
+  </MasterDetailView>
 </ViewErrorBoundary>

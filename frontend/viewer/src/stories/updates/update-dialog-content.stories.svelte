@@ -8,6 +8,7 @@
       installUpdate: async () => {
         await new Promise(resolve => setTimeout(resolve, 750));
       },
+      restartApp: () => {},
     },
   });
 </script>
@@ -32,7 +33,7 @@
     supportsAutoUpdate: false,
   };
 
-  function pendingCheck(): Promise<IAvailableUpdate | null> {
+  function pendingCheck(): Promise<IAvailableUpdate | undefined> {
     return new Promise(() => {});
   }
 
@@ -40,7 +41,7 @@
     return Promise.reject(new DemoStoryError(message));
   }
 
-  function completedCheck(update: IAvailableUpdate | null): Promise<IAvailableUpdate | null> {
+  function completedCheck(update: IAvailableUpdate | undefined): Promise<IAvailableUpdate | undefined> {
     return Promise.resolve(update);
   }
 
@@ -80,7 +81,7 @@
 <Story name="Up To Date">
   {#snippet template(args)}
     <div class="max-w-md space-y-4">
-      <UpdateDialogContent {...args} checkPromise={completedCheck(null)} />
+      <UpdateDialogContent {...args} checkPromise={completedCheck(undefined)} />
     </div>
   {/snippet}
 </Story>
@@ -100,7 +101,7 @@
         {...args}
         checkPromise={completedCheck(autoUpdate)}
         installPromise={pendingInstall()}
-        installProgress={86}
+        downloadProgress={{bytesDownloaded: 12_900_000, bytesPerSecond: 2_100_000}}
       />
     </div>
   {/snippet}

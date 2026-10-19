@@ -13,8 +13,7 @@
         "ComplexFormHeadword": "Orange",
         "ComponentEntryId": "Guid_4",
         "ComponentHeadword": "de"
-      },
-      "Id": "Guid_2"
+      }
     },
     "References": [
       "Guid_3",
@@ -36,8 +35,7 @@
         "Name": {
           "en": "Compound"
         }
-      },
-      "Id": "Guid_7"
+      }
     },
     "References": [],
     "EntityId": "Guid_7",
@@ -56,8 +54,7 @@
         "Name": {
           "en": "Unspecified"
         }
-      },
-      "Id": "Guid_10"
+      }
     },
     "References": [],
     "EntityId": "Guid_10",
@@ -123,8 +120,7 @@
           }
         ],
         "PublishIn": []
-      },
-      "Id": "Guid_4"
+      }
     },
     "References": [],
     "EntityId": "Guid_4",
@@ -164,8 +160,7 @@
         "ComplexForms": [],
         "ComplexFormTypes": [],
         "PublishIn": []
-      },
-      "Id": "Guid_3"
+      }
     },
     "References": [],
     "EntityId": "Guid_3",
@@ -205,8 +200,7 @@
         "ComplexForms": [],
         "ComplexFormTypes": [],
         "PublishIn": []
-      },
-      "Id": "Guid_16"
+      }
     },
     "References": [],
     "EntityId": "Guid_16",
@@ -246,8 +240,7 @@
         "ComplexForms": [],
         "ComplexFormTypes": [],
         "PublishIn": []
-      },
-      "Id": "Guid_19"
+      }
     },
     "References": [],
     "EntityId": "Guid_19",
@@ -306,8 +299,7 @@
           ]
         },
         "SenseId": "Guid_24"
-      },
-      "Id": "Guid_22"
+      }
     },
     "References": [
       "Guid_24"
@@ -338,8 +330,7 @@
         },
         "Translations": [],
         "SenseId": "Guid_28"
-      },
-      "Id": "Guid_27"
+      }
     },
     "References": [
       "Guid_28"
@@ -370,8 +361,7 @@
         },
         "Translations": [],
         "SenseId": "Guid_31"
-      },
-      "Id": "Guid_30"
+      }
     },
     "References": [
       "Guid_31"
@@ -402,8 +392,7 @@
         },
         "Translations": [],
         "SenseId": "Guid_34"
-      },
-      "Id": "Guid_33"
+      }
     },
     "References": [
       "Guid_34"
@@ -425,8 +414,7 @@
           "en": "Adverb"
         },
         "Predefined": true
-      },
-      "Id": "Guid_36"
+      }
     },
     "References": [],
     "EntityId": "Guid_36",
@@ -445,10 +433,11 @@
         "Name": {
           "en": "Person"
         },
+        "Abbreviation": {},
         "Code": "2",
+        "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_39"
+      }
     },
     "References": [],
     "EntityId": "Guid_39",
@@ -467,10 +456,11 @@
         "Name": {
           "en": "Body"
         },
+        "Abbreviation": {},
         "Code": "2.1",
+        "Description": {},
         "Predefined": false
-      },
-      "Id": "Guid_42"
+      }
     },
     "References": [],
     "EntityId": "Guid_42",
@@ -489,10 +479,11 @@
         "Name": {
           "en": "Head"
         },
+        "Abbreviation": {},
         "Code": "2.1.1",
+        "Description": {},
         "Predefined": false
-      },
-      "Id": "Guid_44"
+      }
     },
     "References": [],
     "EntityId": "Guid_44",
@@ -511,10 +502,11 @@
         "Name": {
           "en": "Eye"
         },
+        "Abbreviation": {},
         "Code": "2.1.1.1",
+        "Description": {},
         "Predefined": false
-      },
-      "Id": "Guid_46"
+      }
     },
     "References": [],
     "EntityId": "Guid_46",
@@ -533,10 +525,11 @@
         "Name": {
           "en": "Universe, Creation"
         },
+        "Abbreviation": {},
         "Code": "1",
+        "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_48"
+      }
     },
     "References": [],
     "EntityId": "Guid_48",
@@ -555,10 +548,11 @@
         "Name": {
           "en": "Sky"
         },
+        "Abbreviation": {},
         "Code": "1.1",
+        "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_50"
+      }
     },
     "References": [],
     "EntityId": "Guid_50",
@@ -577,10 +571,11 @@
         "Name": {
           "en": "World"
         },
+        "Abbreviation": {},
         "Code": "1.2",
+        "Description": {},
         "Predefined": true
-      },
-      "Id": "Guid_52"
+      }
     },
     "References": [],
     "EntityId": "Guid_52",
@@ -614,8 +609,7 @@
         "SemanticDomains": [],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "Guid_28"
+      }
     },
     "References": [
       "Guid_16"
@@ -651,8 +645,7 @@
         "SemanticDomains": [],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "Guid_31"
+      }
     },
     "References": [
       "Guid_3"
@@ -708,14 +701,15 @@
             "Name": {
               "en": "Universe, Creation"
             },
+            "Abbreviation": {},
             "Code": "1",
+            "Description": {},
             "Predefined": true
           }
         ],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "Guid_24"
+      }
     },
     "References": [
       "Guid_4",
@@ -753,8 +747,7 @@
         "SemanticDomains": [],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "Guid_34"
+      }
     },
     "References": [
       "Guid_19"
@@ -808,8 +801,7 @@
           "Z"
         ],
         "Order": 1
-      },
-      "Id": "Guid_59"
+      }
     },
     "References": [],
     "EntityId": "Guid_59",
@@ -861,8 +853,7 @@
           "Z"
         ],
         "Order": 1
-      },
-      "Id": "Guid_62"
+      }
     },
     "References": [],
     "EntityId": "Guid_62",
@@ -914,8 +905,7 @@
           "Z"
         ],
         "Order": 3
-      },
-      "Id": "Guid_65"
+      }
     },
     "References": [],
     "EntityId": "Guid_65",
@@ -967,8 +957,7 @@
           "Z"
         ],
         "Order": 2
-      },
-      "Id": "Guid_68"
+      }
     },
     "References": [],
     "EntityId": "Guid_68",
@@ -1020,8 +1009,7 @@
           "Z"
         ],
         "Order": 3
-      },
-      "Id": "Guid_71"
+      }
     },
     "References": [],
     "EntityId": "Guid_71",
@@ -1073,8 +1061,7 @@
           "Z"
         ],
         "Order": 2
-      },
-      "Id": "Guid_74"
+      }
     },
     "References": [],
     "EntityId": "Guid_74",

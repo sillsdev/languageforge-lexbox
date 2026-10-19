@@ -36,7 +36,7 @@ describe('objectTemplateAreas', () => {
     const fields: TypedViewField<FieldId>[] = [
       {fieldId: 'word' as FieldId, show: true},
       {fieldId: 'hidden' as FieldId, show: false},
-      {fieldId: 'gloss' as FieldId, show: true},
+      {fieldId: 'gloss', show: true},
     ];
     expect(objectTemplateAreas(fields)).toBe('"word word word" "gloss gloss gloss"');
   });

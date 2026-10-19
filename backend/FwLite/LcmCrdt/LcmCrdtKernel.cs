@@ -2,9 +2,11 @@ using System.Linq.Expressions;
 using System.Text.Json;
 using MiniLcm.Media;
 using SIL.Harmony;
+using SIL.Harmony.Config;
 using SIL.Harmony.Linq2db;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Db;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Comments;
@@ -34,7 +36,9 @@ using LcmCrdt.MediaServer;
 using LcmCrdt.Project;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Text.Json.Serialization.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using LcmCrdt.Harmony;
+using LcmCrdt.MiniLcmImp;
+using MiniLcm.Media;
 
 namespace LcmCrdt;
 
@@ -44,6 +48,9 @@ public static class LcmCrdtKernel
     {
         services.AddLcmCrdtClientCore();
         services.AddScoped<UpdateEntrySearchTableInterceptor>();
+        // Also expose it as a Harmony projected-entity interceptor so CRDT projection writes (which use
+        // raw SQL and bypass EF change tracking) keep the FTS search table in sync. Same scoped instance.
+        services.AddScoped<IProjectedEntityInterceptor>(sp => sp.GetRequiredService<UpdateEntrySearchTableInterceptor>());
         services.AddScoped<EntrySearchServiceFactory>();
         return services;
     }
@@ -56,21 +63,44 @@ public static class LcmCrdtKernel
 
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
+        services.AddSingleton<IWritingSystemCollatorProvider, WritingSystemCollatorProvider>();
         services.AddSingleton<ProjectImporter>();
         services.AddScoped<SnapshotAtCommitService>();
         services.AddSingleton<SetupCollationInterceptor>();
+        // Expose it as a Harmony projected-entity interceptor so CRDT writing-system changes (raw-SQL
+        // projection, no EF change tracking) invalidate the cached writing-system lists used for collations.
+        services.AddSingleton<IProjectedEntityInterceptor>(sp => sp.GetRequiredService<SetupCollationInterceptor>());
         services.AddDbContextFactory<LcmCrdtDbContext>(ConfigureDbOptions, ServiceLifetime.Scoped);
         services.RemoveAll<LcmCrdtDbContext>();//we don't want to be able to inject these directly as they will leak.
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
         services.AddCrdtDataDbFactory<LcmCrdtDbContext>(
-            ConfigureCrdt
+            config => ConfigureCrdt(config, false)//don't add remote resources because they are added in AddCrdtRemoteResources
         );
-        services.AddOptions<CrdtConfig>().PostConfigure((CrdtConfig crdtConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
+        services.AddCrdtRemoteResources<LcmFileMetadata>();
+        services.AddOptions<HarmonyConfig>().PostConfigure((HarmonyConfig harmonyConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
-            crdtConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
+            harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
+        services.AddScoped<HarmonyChangeWriter>();
+
+        services.AddScoped<CrdtWritingSystemApi>();
+        services.AddScoped<CrdtSemanticDomainsApi>();
+        services.AddScoped<CrdtPublicationApi>();
+        services.AddScoped<CrdtComplexFormComponentApi>();
+        services.AddScoped<CrdtMorphTypeApi>();
+        services.AddScoped<CrdtPartsOfSpeechApi>();
+        services.AddScoped<CrdtComplexFormTypesApi>();
+        services.AddScoped<CrdtEntryApi>();
+        services.AddScoped<CrdtSenseApi>();
+        services.AddScoped<CrdtExampleSentenceApi>();
+        services.AddScoped<CrdtPictureApi>();
+        services.AddScoped<CrdtMediaApi>();
+        services.AddScoped<CrdtCustomViewApi>();
+        services.AddScoped<CrdtCommentApi>();
+        services.AddScoped<CrdtPluginApi>();
+
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
@@ -86,11 +116,8 @@ public static class LcmCrdtKernel
         services.AddHttpClient();
         services.AddSingleton(provider => new RefitSettings
         {
-            ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
-            {
-                TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
-                    .MakeLcmCrdtExternalJsonTypeResolver()
-            })
+            ContentSerializer = new SystemTextJsonContentSerializer(
+                provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.MakeLcmCrdtExternalJsonOptions())
         });
         services.AddSingleton<CrdtHttpSyncService>();
         services.AddSingleton<IRefitHttpServiceFactory, RefitHttpServiceFactory>();
@@ -139,12 +166,15 @@ public static class LcmCrdtKernel
                     ?? throw new InvalidOperationException(
                         "linq2db mapping schema was not registered by UseLinqToDbCrdt; Harmony's Commit UTC conversion would be missing (issue #2092).");
                 new FluentMappingBuilder(mappingSchema)
-                    //tells linq2db to rewrite Sense.SemanticDomainRows / Entry.PublishInRows into
-                    //Json.Query(<underlying column>). The rewrite lives on the *Rows shadow accessors
-                    //rather than the real IList<T> columns; see Entry.PublishInRows for why.
-                    .Entity<Sense>().Property(s => s.SemanticDomainRows).IsExpression(SenseSemanticDomainRowsExpression(), isColumn: false)
-                    .Entity<Entry>().Property(e => e.PublishInRows).IsExpression(EntryPublishInRowsExpression(), isColumn: false)
+                    .Entity<Sense>().Property(s => s.SemanticDomains).IsExpression(SenseSemanticDomainsExpression(), isColumn: false)
+                    .Entity<Entry>().Property(e => e.PublishIn).IsExpression(EntryPublishInExpression(), isColumn: false)
                     .Entity<Entry>().Association(e => e.QueryMorphType(), e => e.MorphType, m => m!.Kind)
+                    .Entity<Entry>().Association(e => EntryQueryHelpers.QueryCommentThreads(e), (e, ct) => e.Id == ct.SubjectId && ct.SubjectType == SubjectType.Entry)
+                    .Entity<Entry>().Association(e => EntryQueryHelpers.QueryOpenCommentThreads(e), (e, ct) => e.Id == ct.SubjectId && ct.SubjectType == SubjectType.Entry && ct.Status == ThreadStatus.Open)
+                    //QueryEntryUnreadComments is needed because otherwise we need to chain QueryCommentThreads and QueryThreadsUnreadComments, which doesn't work in Gridify
+                    .Entity<Entry>().Association(e => EntryQueryHelpers.QueryEntryUnreadComments(e), (e, context) => context.GetTable<CommentThread>().Where(ct => ct.SubjectType == SubjectType.Entry && ct.SubjectId == e.Id)
+                        .SelectMany(ct => EntryQueryHelpers.QueryThreadsUnreadComments(ct)))
+                    .Entity<CommentThread>().Association(c => EntryQueryHelpers.QueryThreadsUnreadComments(c), c => c.Id, uc => uc.CommentThreadId)
                     .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComponentEntry(c), c => c.ComponentEntryId, e => e!.Id)
                     .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComponentSense(c), c => c.ComponentSenseId, s => s!.Id)
                     .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComplexFormEntry(c), c => c.ComplexFormEntryId, e => e!.Id)
@@ -177,17 +207,19 @@ public static class LcmCrdtKernel
             builder.AddInterceptors(updateSearchTableInterceptor);
     }
 
-    private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainRowsExpression()
+    private static Expression<Func<Sense, IQueryable<SemanticDomain>>> SenseSemanticDomainsExpression()
     {
-        return s => Json.Query(s.SemanticDomains);
+        //using Sql.Property, otherwise if we used `s.SemanticDomains` again it would be recursively rewritten
+        return s => Json.Query(Sql.Property<IList<SemanticDomain>>(s, nameof(Sense.SemanticDomains)));
     }
 
-    private static Expression<Func<Entry, IQueryable<Publication>>> EntryPublishInRowsExpression()
+    private static Expression<Func<Entry, IQueryable<Publication>>> EntryPublishInExpression()
     {
-        return e => Json.Query(e.PublishIn);
+        //using Sql.Property, otherwise if we used `e.PublishIn` again it would be recursively rewritten
+        return e => Json.Query(Sql.Property<IList<Publication>>(e, nameof(Entry.PublishIn)));
     }
 
-    public static void ConfigureCrdt(CrdtConfig config)
+    public static void ConfigureCrdt(HarmonyConfig config, bool addRemoteResourceEntity = true)
     {
         config.EnableProjectedTables = true;
         config.ObjectTypeListBuilder
@@ -237,7 +269,7 @@ public static class LcmCrdtKernel
                 builder.Property(s => s.Pictures)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
+                        json => string.IsNullOrEmpty(json) ? new() : JsonSerializer.Deserialize<List<Picture>>(json, (JsonSerializerOptions?)null) ?? new());
             })
             .Add<ExampleSentence>(builder =>
             {
@@ -338,8 +370,6 @@ public static class LcmCrdtKernel
                 }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
             });
 
-        config.AddRemoteResourceEntity();
-
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
             .Add<JsonPatchChange<WritingSystem>>()
@@ -368,6 +398,7 @@ public static class LcmCrdtKernel
             .Add<CreateExampleSentenceChange>()
             .Add<JsonPatchExampleSentenceChange>()
             .Add<Changes.SetOrderChange<ExampleSentence>>()
+            .Add<MoveExampleSentenceToSenseChange>()
             .Add<DeleteChange<ExampleSentence>>()
             .Add<AddTranslationChange>()
             .Add<RemoveTranslationChange>()
@@ -389,7 +420,6 @@ public static class LcmCrdtKernel
             .Add<AddPublicationChange>()
             .Add<RemovePublicationChange>()
             .Add<ReplacePublicationChange>()
-            .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>()
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
@@ -411,23 +441,47 @@ public static class LcmCrdtKernel
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
 
-        config.JsonSerializerOptions.TypeInfoResolver =
-            (config.JsonSerializerOptions.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
-            .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
+        // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
+        // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the
+        // ChangeTypeListBuilder the first time the options are built, which would happen before the
+        // AddRemoteResourceEntity call below (and AddCrdtRemoteResources in DI) and throw
+        // "ChangeTypeListBuilder is frozen". ConfigureJsonOptions defers the tweak until options are built.
+        config.ConfigureJsonOptions(options =>
+        {
+            // Append to Harmony's existing resolver rather than replacing it (see ConfigureJsonOptions docs).
+            if (options.TypeInfoResolver is DefaultJsonTypeInfoResolver resolver)
+                resolver.Modifiers.Add(Json.ExampleSentenceTranslationModifier);
+            else
+                options.TypeInfoResolver = (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver())
+                    .WithAddedModifier(Json.ExampleSentenceTranslationModifier);
+        });
+
+        if (addRemoteResourceEntity)
+            config.AddRemoteResourceEntity<LcmFileMetadata>();
+    }
+
+    /// <summary>
+    /// The registered CRDT change types together with their serialized <c>$type</c> discriminators, straight
+    /// from Harmony's registration. Prefer this over <see cref="AllChangeTypes"/> when you need the
+    /// discriminator, so it can't drift from what the serializer actually writes.
+    /// </summary>
+    public static IReadOnlyList<RegisteredChangeType> AllRegisteredChanges()
+    {
+        var harmonyConfig = new HarmonyConfig();
+        ConfigureCrdt(harmonyConfig);
+        return harmonyConfig.ChangeTypes;
     }
 
     public static IEnumerable<Type> AllChangeTypes()
     {
-        var crdtConfig = new CrdtConfig();
-        ConfigureCrdt(crdtConfig);
-        return crdtConfig.ChangeTypes;
+        return AllRegisteredChanges().Select(t => t.Type);
     }
 
     public static IEnumerable<Type> AllObjectTypes()
     {
-        var crdtConfig = new CrdtConfig();
-        ConfigureCrdt(crdtConfig);
-        return crdtConfig.ObjectTypes;
+        var harmonyConfig = new HarmonyConfig();
+        ConfigureCrdt(harmonyConfig);
+        return harmonyConfig.ObjectTypes;
     }
 
     private static IList<Translation> DeserializeTranslations(string json)

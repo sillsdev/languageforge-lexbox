@@ -21,7 +21,7 @@ public class OpenProjectTests
         var crdtProjectsService = asyncScope.ServiceProvider.GetRequiredService<CrdtProjectsService>();
         var crdtProject = await crdtProjectsService.CreateExampleProject("ExampleProject");
 
-        // Opening triggers MigrateDb; the template already carries morph types so no redundant seed runs.
+        // Opening triggers MigrateDb; the template already carries morph types.
         var api = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(crdtProject);
 
         var morphTypes = await api.GetMorphTypes().ToArrayAsync();
@@ -32,6 +32,7 @@ public class OpenProjectTests
             .Contain(["de", "de-Zxxx-x-audio", "de-fonipa"]);
         writingSystems.Analysis.Select(ws => ws.WsId.Code).Should()
             .Contain(["en", "fr"]);
+        writingSystems.Vernacular.Single(ws => ws.WsId == "de").IcuCollationRules.Should().Be(ExampleProjectData.DemoIcuCollationRules);
 
         var entries = await api.GetEntries().ToArrayAsync();
         entries.Select(e => e.LexemeForm["de"]).Should().Contain(
@@ -40,6 +41,13 @@ public class OpenProjectTests
         var beere = entries.Single(e => e.LexemeForm["de"] == "Beere");
         var complexForms = entries.Where(e => e.Components.Count > 0).ToArray();
         complexForms.Select(e => e.LexemeForm["de"]).Should().Contain(["Erdbeere", "Heidelbeere"]);
+
+        var headwords = await api
+            .GetEntries(new QueryOptions(new SortOptions(SortField.Headword, "de")))
+            .Select(e => e.LexemeForm["de"])
+            .ToArrayAsync();
+        headwords.Should().Equal(
+            "Banane", "Beere", "Apfel", "Erdbeere", "Heidelbeere", "Orange", "Traube");
 
         await using var dbContext = await asyncScope.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
         await dbContext.Database.EnsureDeletedAsync();
@@ -123,7 +131,7 @@ public class OpenProjectTests
             var historyService = services.GetRequiredService<HistoryService>();
 
             // The imported template data is re-attributed to System and tagged, overriding the signed-in user.
-            var templateCommits = await historyService.ProjectActivity(0, 1000, new ActivityQuery()).ToArrayAsync();
+            var templateCommits = await historyService.ProjectActivity(0, 1000, new ActivityQuery());
             templateCommits.Should().NotBeEmpty();
             templateCommits.Should().AllSatisfy(activity =>
             {
@@ -134,7 +142,7 @@ public class OpenProjectTests
 
             // A later edit keeps the signed-in user (not System) — the stamp is scoped to the template import.
             await api.CreateEntry(new() { LexemeForm = { ["fr"] = "post-template" } });
-            var latest = (await historyService.ProjectActivity(0, 1, new ActivityQuery()).ToArrayAsync()).Single();
+            var latest = (await historyService.ProjectActivity(0, 1, new ActivityQuery())).Single();
             latest.Metadata.AuthorId.Should().Be("test-user-id");
             latest.Metadata.AuthorName.Should().Be("Test User");
             latest.Metadata[CommitHelpers.TemplateProp].Should().BeNull();
@@ -167,7 +175,7 @@ public class OpenProjectTests
 
     private static async Task<string?> LatestCommitAuthorId(HistoryService historyService)
     {
-        var latest = await historyService.ProjectActivity(skip: 0, take: 1).ToArrayAsync();
+        var latest = await historyService.ProjectActivity(skip: 0, take: 1);
         return latest.Single().Metadata.AuthorId;
     }
 

@@ -16,5 +16,7 @@ export interface IWritingSystem extends IObjectWithId
 	deletedAt?: string;
 	type: WritingSystemType;
 	exemplars: string[];
+	icuCollationRules?: string;
+	systemCollationLocale?: string;
 }
 /* eslint-enable */

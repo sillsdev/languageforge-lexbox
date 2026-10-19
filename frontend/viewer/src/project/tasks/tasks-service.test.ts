@@ -1,7 +1,12 @@
 import {describe, it, expect} from 'vitest';
-import {type IEntry, type IExampleSentence, type ISense, WritingSystemType} from '$lib/dotnet-types';
+import {type IEntry, type IExampleSentence, type ISemanticDomain, type ISense, type IWritingSystem, ViewBase, WritingSystemType} from '$lib/dotnet-types';
 import {defaultEntry, defaultExampleSentence, defaultSense} from '$lib/utils';
 import {TasksService} from './tasks-service';
+import {pt, type ViewText} from '$lib/views/view-text';
+
+function bothViews(text: ViewText): string[] {
+  return [pt(text, ViewBase.FieldWorks), pt(text, ViewBase.FwLite)];
+}
 
 function newEntry(e: Partial<IEntry>): IEntry {
   const entry = {
@@ -33,26 +38,33 @@ function newExample(e: Partial<IExampleSentence>): IExampleSentence {
   return example;
 }
 
-const exampleTask = [...TasksService.makeExampleSentenceTasks([{
-  id: 'en',
-  type: WritingSystemType.Vernacular,
-  wsId: 'en',
-  isAudio: false,
-  name: '',
-  abbreviation: 'Eng',
-  font: '',
-  exemplars: []
-}])][0];
-const senseTask = [...TasksService.makeSenseTasks([{
-  id: 'en',
-  type: WritingSystemType.Analysis,
-  wsId: 'en',
-  isAudio: false,
-  name: '',
-  abbreviation: 'Eng',
-  font: '',
-  exemplars: []
-}])][1];
+function ws(type: WritingSystemType): IWritingSystem {
+  return {
+    id: 'en',
+    type,
+    wsId: 'en',
+    isAudio: false,
+    name: '',
+    abbreviation: 'Eng',
+    font: '',
+    exemplars: []
+  };
+}
+
+function semanticDomain(code: string): ISemanticDomain {
+  return {code} as ISemanticDomain;
+}
+
+const vernacularWs = ws(WritingSystemType.Vernacular);
+const analysisWs = ws(WritingSystemType.Analysis);
+
+//find tasks by id rather than positional index so the fixtures survive reordering of the generators
+const exampleTask = [...TasksService.makeExampleSentenceTasks([vernacularWs])].find(t => t.id === 'example-sentence-en')!;
+const senseTask = [...TasksService.makeSenseTasks([analysisWs])].find(t => t.id === 'sense-no-gloss-en')!;
+const semanticDomainTask = [...TasksService.makeSenseTasks([analysisWs])].find(t => t.id === 'missing-semantic-domain')!;
+const headwordTask = [...TasksService.makeEntryTasks([vernacularWs])].find(t => t.id === 'entry-no-headword-en')!;
+const citationFormTask = [...TasksService.makeEntryTasks([vernacularWs])].find(t => t.id === 'entry-no-citation-form-en')!;
+const lexemeFormTask = [...TasksService.makeEntryTasks([vernacularWs])].find(t => t.id === 'entry-no-lexeme-form-en')!;
 
 describe('tasks service', () => {
   describe('subjects', () => {
@@ -170,6 +182,124 @@ describe('tasks service', () => {
         const [subject] = TasksService.subjects(senseTask, entry);
         expect(subject.entry).toStrictEqual(entry);
         expect(subject.sense).toBeTruthy();
+      });
+    });
+
+    describe('semantic domain', () => {
+
+      it('should return a sense missing semantic domains', () => {
+        let sense: ISense;
+        const entry = newEntry({
+          senses: [sense = newSense({semanticDomains: []})]
+        });
+        const [subject] = TasksService.subjects(semanticDomainTask, entry);
+        expect(subject.sense).toStrictEqual(sense);
+      });
+
+      it('should skip senses that already have a semantic domain', () => {
+        let sense: ISense;
+        const entry = newEntry({
+          senses: [
+            newSense({semanticDomains: [semanticDomain('1.1')]}),
+            sense = newSense({semanticDomains: []})
+          ]
+        });
+        const [subject] = TasksService.subjects(semanticDomainTask, entry);
+        expect(subject.sense).toStrictEqual(sense);
+      });
+
+      it('subject should show the domain codes once filled', () => {
+        const entry = newEntry({
+          senses: [newSense({semanticDomains: []})]
+        });
+        const [subject] = TasksService.subjects(semanticDomainTask, entry);
+        subject.sense!.semanticDomains = [semanticDomain('1.1'), semanticDomain('2.3')];
+        expect(subject.subject).toStrictEqual('1.1, 2.3');
+      });
+    });
+
+    describe('entry', () => {
+
+      it('citation form: should return the entry as subject', () => {
+        const entry = newEntry({citationForm: {}});
+        const [subject] = TasksService.subjects(citationFormTask, entry);
+        expect(subject.entry).toStrictEqual(entry);
+        expect(subject.sense).toBeUndefined();
+      });
+
+      it('citation form: subject should update with changes', () => {
+        const entry = newEntry({citationForm: {}});
+        const [subject] = TasksService.subjects(citationFormTask, entry);
+        subject.entry.citationForm['en'] = 'hello';
+        expect(subject.subject).toStrictEqual('hello');
+      });
+
+      it('lexeme form: should return the entry as subject', () => {
+        const entry = newEntry({lexemeForm: {}});
+        const [subject] = TasksService.subjects(lexemeFormTask, entry);
+        expect(subject.entry).toStrictEqual(entry);
+        expect(subject.sense).toBeUndefined();
+      });
+
+      it('lexeme form: subject should update with changes', () => {
+        const entry = newEntry({lexemeForm: {}});
+        const [subject] = TasksService.subjects(lexemeFormTask, entry);
+        subject.entry.lexemeForm['en'] = 'world';
+        expect(subject.subject).toStrictEqual('world');
+      });
+
+      it('headword: should return the entry when both forms are empty', () => {
+        const entry = newEntry({lexemeForm: {}, citationForm: {}});
+        const [subject] = TasksService.subjects(headwordTask, entry);
+        expect(subject.entry).toStrictEqual(entry);
+      });
+
+      it('headword: is satisfied by a lexeme form', () => {
+        const entry = newEntry({lexemeForm: {en: 'lex'}, citationForm: {}});
+        expect(headwordTask.isComplete(entry)).toBe(true);
+      });
+
+      it('headword: is satisfied by a citation form', () => {
+        const entry = newEntry({lexemeForm: {}, citationForm: {en: 'cite'}});
+        expect(headwordTask.isComplete(entry)).toBe(true);
+      });
+
+      it('headword: prefers the citation form for the subject value', () => {
+        const entry = newEntry({lexemeForm: {en: 'lex'}, citationForm: {en: 'cite'}});
+        const [subject] = TasksService.subjects(headwordTask, entry);
+        expect(subject.subject).toStrictEqual('cite');
+      });
+
+      it('headword: is incomplete when both forms are empty', () => {
+        const entry = newEntry({lexemeForm: {}, citationForm: {}});
+        expect(headwordTask.isComplete(entry)).toBe(false);
+      });
+    });
+
+    describe('audio prompts', () => {
+      const audioWs: IWritingSystem = {...ws(WritingSystemType.Vernacular), isAudio: true};
+
+      it('entry tasks say "Record" for an audio writing system, in both views', () => {
+        const prompts = [...TasksService.makeEntryTasks([audioWs])].flatMap(t => bothViews(t.prompt));
+        expect(prompts).toStrictEqual([
+          'Record a Lexeme form or Citation form', 'Record Word or Display as',
+          'Record a Lexeme form', 'Record a Word',
+          'Record a Citation form', 'Record Display as',
+        ]);
+      });
+
+      it('entry tasks say "Type" or "Fill in" for a text writing system, in both views', () => {
+        const prompts = [...TasksService.makeEntryTasks([vernacularWs])].flatMap(t => bothViews(t.prompt));
+        expect(prompts).toStrictEqual([
+          'Type a Lexeme form or Citation form', 'Fill in Word or Display as',
+          'Type a Lexeme form', 'Type a Word',
+          'Type a Citation form', 'Fill in Display as',
+        ]);
+      });
+
+      it('example sentence task says "Record" for an audio writing system', () => {
+        const [task] = [...TasksService.makeExampleSentenceTasks([audioWs])];
+        expect(task.prompt).toStrictEqual('Record an example sentence');
       });
     });
 

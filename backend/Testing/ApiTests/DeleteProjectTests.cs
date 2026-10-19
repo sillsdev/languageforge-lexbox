@@ -23,7 +23,7 @@ public class DeleteProjectTests : ApiTestBase
         var projectId = await FwHeadlessTestHelpers.CopyProjectToNewProject(HttpClient, projectCode, "sena-3");
 
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
-        await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, projectId);
+        await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, projectId);
         await AssertProjectStatus(projectId, ProjectSyncStatusEnum.ReadyToSync);
 
         // Act
@@ -120,7 +120,7 @@ public class DeleteProjectTests : ApiTestBase
         {
             try
             {
-                await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, projectId);
+                await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, projectId);
             }
             catch (Exception ex)
             {
@@ -215,7 +215,7 @@ public class DeleteProjectTests : ApiTestBase
         await AssertProjectStatus(projectId, ProjectSyncStatusEnum.NeverSynced);
 
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
-        await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, projectId);
+        await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, projectId);
 
         var statusBeforeReset = await HttpClient.GetAsync($"api/fw-lite/sync/status/{projectId}");
         statusBeforeReset.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -242,7 +242,7 @@ public class DeleteProjectTests : ApiTestBase
         {
             try
             {
-                await FwHeadlessTestHelpers.AwaitSyncFinished(HttpClient, projectId);
+                await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, projectId);
             }
             catch
             {

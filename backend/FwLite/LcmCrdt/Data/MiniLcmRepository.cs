@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Data;
 using Gridify;
 using LcmCrdt.Changes.Entries;
@@ -40,16 +41,27 @@ public class MiniLcmRepositoryFactory(
 public class MiniLcmRepository(
     LcmCrdtDbContext dbContext,
     IMiniLcmCultureProvider cultureProvider,
+    IWritingSystemCollatorProvider collatorProvider,
     IOptions<LcmCrdtConfig> config,
+    SetupCollationInterceptor collationSetup,
     EntrySearchService? entrySearchService = null
 ) : IAsyncDisposable, IDisposable
 {
     public EntrySearchService? SearchService { get; } = entrySearchService;
 
+    // Complex forms sort with the same collation as the entry list
+    private IComparer<ComplexFormComponent> ComplexFormComparer(WritingSystem? writingSystem) =>
+        writingSystem is null
+            ? cultureProvider.GetCompareInfo(null).GetStringComparer(CompareOptions.IgnoreCase).AsComplexFormComparer()
+            : collatorProvider.GetCollator(writingSystem).AsComplexFormComparer();
+
     private async ValueTask EnsureConnectionOpen()
     {
-        if (dbContext.Database.GetDbConnection().State == ConnectionState.Open) return;
-        await RelationalDatabaseFacadeExtensions.OpenConnectionAsync(dbContext.Database);
+        // Registers the writing-system collations on this query's connection (opening it if needed).
+        // A connection can be opened before writing systems exist and then reused, so relying on the
+        // connection-opened interceptor alone can leave the collations unregistered — see
+        // SetupCollationInterceptor.EnsureCollationsSetup.
+        await collationSetup.EnsureCollationsSetup(dbContext);
     }
 
     public ValueTask DisposeAsync()
@@ -147,8 +159,7 @@ public class MiniLcmRepository(
             .AsQueryable();
 
         queryable = options.ApplyPaging(queryable);
-        var complexFormComparer = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular))
-            .AsComplexFormComparer();
+        var complexFormComparer = ComplexFormComparer(await GetWritingSystem(default, WritingSystemType.Vernacular));
         var entries = AsyncExtensions.AsAsyncEnumerable(queryable);
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
         await foreach (var entry in EfExtensions.SafeIterate(entries))
@@ -255,8 +266,7 @@ public class MiniLcmRepository(
         if (entry is not null)
         {
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
-            var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
-                .AsComplexFormComparer();
+            var complexFormComparer = ComplexFormComparer(sortWs);
             entry.Finalize(complexFormComparer);
         }
 
@@ -266,12 +276,13 @@ public class MiniLcmRepository(
     public async Task<Sense?> GetSense(Guid senseId)
     {
         var sense = await AsyncExtensions.SingleOrDefaultAsync(Senses.LoadWith(s => s.PartOfSpeech)
+                .LoadWith(s => s.ExampleSentences)
                 .AsQueryable(), e => e.Id == senseId);
         sense?.Finalize();
         return sense;
     }
 
-    public async Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
+    public async Task<ExampleSentence?> GetExampleSentence(Guid id)
     {
         var exampleSentence = await AsyncExtensions.SingleOrDefaultAsync(ExampleSentences
                 .AsQueryable(), e => e.Id == id);
@@ -292,6 +303,9 @@ public class MiniLcmRepository(
         IQueryable<Entry> queryable;
         (queryable, queryOptions) = await FilterAndSortEntries(query, queryOptions);
 
+        // Register writing-system collations on this connection before the sorted query runs; the
+        // connection may have been opened before the writing systems existed (see EnsureConnectionOpen).
+        await EnsureConnectionOpen();
         // SQLite's ROW_NUMBER() cannot easily inherit the existing ORDER BY from the query. (AI tried a billion things)
         // This is pretty efficient since we only select IDs, not full entities.
         var sortedIds = await queryable.Select(e => e.Id).ToListAsyncEF();

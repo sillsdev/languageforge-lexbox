@@ -6,7 +6,7 @@ namespace MiniLcm.Wrappers;
 
 /// <summary>
 /// The standard wrapper stack applied at every user-facing API entry point:
-/// MiniLcmJsInvokable, MiniLcmApiHubBase, and MiniLcmRoutes.
+/// MiniLcmJsInvokable and MiniLcmRoutes.
 /// </summary>
 public class MiniLcmApiUserFacingWrappers(
     MiniLcmApiQueryNormalizationWrapperFactory readNormalization,

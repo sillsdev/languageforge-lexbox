@@ -70,7 +70,7 @@ export class PluginService {
 
   /** Fetches a plugin's HTML from its media resource (cached locally; downloads on first use). */
   async getHtml(plugin: IPlugin): Promise<PluginHtmlResult> {
-    const file = await this.#projectContext.api.getFileStream(plugin.fileUri);
+    const file = await this.#projectContext.api.getFileStream(plugin.fileUri, true);
     if (!file.stream) {
       if (file.result === ReadFileResult.Offline) return {result: 'offline'};
       return {result: 'error', message: file.errorMessage ?? file.result};
@@ -159,6 +159,7 @@ export class PluginService {
         // Keeps plugin files together in the project's LinkedFiles (for FLEx users and the
         // media manager) instead of scattering hash-named folders at its root.
         linkedFilesSubfolder: 'Plugins',
+        extraFields: {},
       });
       if (response.result === UploadFileResult.TooBig) {
         throw new Error('This plugin file is too big (the limit is 10MB)');

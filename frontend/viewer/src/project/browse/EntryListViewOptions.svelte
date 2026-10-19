@@ -4,20 +4,16 @@
 
 <script lang="ts">
   import {t} from 'svelte-i18n-lingui';
-  import Switch from '$lib/components/ui/switch/switch.svelte';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {Button} from '$lib/components/ui/button';
-  import DevContent from '$lib/layout/DevContent.svelte';
   import ViewPicker from './ViewPicker.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import {Icon} from '$lib/components/ui/icon';
 
   let {
     entryMode = $bindable('simple'),
-    readonly = $bindable(false),
   }: {
     entryMode?: EntryListViewMode
-    readonly?: boolean
   } = $props();
 
   let open = $state(false);
@@ -46,14 +42,5 @@
     </div>
 
     <ViewPicker onClose={() => open = false} />
-
-    <DevContent>
-      <div class="space-y-2">
-        <h3 class="font-normal">Dev Options</h3>
-        <div class="flex items-center space-x-2">
-          <Switch bind:checked={readonly} label="Readonly" />
-        </div>
-      </div>
-    </DevContent>
   </div>
 </ResponsivePopup>

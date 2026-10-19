@@ -20,6 +20,13 @@ import type {IJsInvokableLogger} from '$lib/dotnet-types/generated-types/FwLiteS
 import type {IPreferencesService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IPreferencesService';
 
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
+import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
+import type {
+  IPlatformFeaturesService
+} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IPlatformFeaturesService';
+import type {
+  IAnalyticsService
+} from '$lib/dotnet-types/generated-types/FwLiteShared/Analytics/IAnalyticsService';
 
 export type ServiceKey = keyof LexboxServiceRegistry;
 export type LexboxServiceRegistry = {
@@ -31,6 +38,7 @@ export type LexboxServiceRegistry = {
   [DotnetService.ProjectServicesProvider]: IProjectServicesProvider,
   [DotnetService.HistoryService]: IHistoryServiceJsInvokable,
   [DotnetService.SyncService]: ISyncServiceJsInvokable,
+  [DotnetService.MediaFilesService]: IMediaFilesServiceJsInvokable,
   [DotnetService.AppLauncher]: IAppLauncher,
   [DotnetService.TroubleshootingService]: ITroubleshootingService,
   [DotnetService.TestingService]: ITestingService,
@@ -39,6 +47,8 @@ export type LexboxServiceRegistry = {
   [DotnetService.JsInvokableLogger]: IJsInvokableLogger,
   [DotnetService.UpdateService]: IUpdateService,
   [DotnetService.PreferencesService]: IPreferencesService,
+  [DotnetService.PlatformFeaturesService]: IPlatformFeaturesService,
+  [DotnetService.AnalyticsService]: IAnalyticsService,
 };
 
 export const SERVICE_KEYS = Object.values(DotnetService);
@@ -85,10 +95,6 @@ export function setupServiceProvider() {
   }
 }
 
-export function useLexboxApi(): IMiniLcmJsInvokable {
-  return useMiniLcmApi();
-}
-
 export function useMiniLcmApi(): IMiniLcmJsInvokable {
   return useProjectContext().api;
 }
@@ -121,6 +127,10 @@ export function useUpdateService(): IUpdateService {
 
 export function usePreferencesService(): IPreferencesService {
   return window.lexbox.ServiceProvider.getService(DotnetService.PreferencesService);
+}
+
+export function useAnalyticsService(): IAnalyticsService | undefined {
+  return window.lexbox.ServiceProvider.tryGetService(DotnetService.AnalyticsService);
 }
 
 export function useService<K extends ServiceKey>(key: K): LexboxServiceRegistry[K] {

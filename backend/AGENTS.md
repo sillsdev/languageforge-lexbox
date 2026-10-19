@@ -4,16 +4,11 @@
 
 ## Build & Test
 
+`dotnet build` takes one project: pass the `.csproj` you need (the test project when testing), never a folder (MSB1003/MSB1008). Fast FwLite builds and test timings are in `FwLite/AGENTS.md`.
+
 ```bash
-# Build all backend
-dotnet build
-
-# Run all tests
-dotnet test
-
-# Build specific project
 dotnet build LexBoxApi/LexBoxApi.csproj
-dotnet build FwLite/FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0.19041.0
+dotnet test Testing/Testing.csproj --filter "FullyQualifiedName~MyTestClass"
 ```
 
 ## Project Structure
@@ -34,12 +29,13 @@ Harmony is consumed as a **NuGet package** by default (`SIL.Harmony`, `SIL.Harmo
 
 To build against local Harmony source (e.g. when developing the CRDT substrate), clone [sillsdev/harmony](https://github.com/sillsdev/harmony) as a sibling repo (`../harmony`), copy `Directory.Build.props.user.example` to `Directory.Build.props.user`, and set `UseHarmonySource=true`. Or pass `-p:UseHarmonySource=true` for a one-off build.
 
+
 ## Code Conventions
 
 - **Nullable**: Enabled globally, `Nullable` warnings are errors
 - **Implicit usings**: Enabled
 - **Target framework**: net10.0 (unless platform-specific)
-- **Async**: Use `async/await`, not `.Result` or `.Wait()`
+- **Async**: Use `async/await`, not `.Result` or `.Wait()`. Prefer `return await Foo()` over returning the task directly — awaiting keeps this method on the stack trace when the inner call throws. Only drop the `await` (return the task) as a hot-path micro-optimization ([#2435](https://github.com/sillsdev/languageforge-lexbox/pull/2435#discussion_r3584331713))
 - **Records**: Prefer for DTOs and immutable data
 
 ## Key Patterns

@@ -1,4 +1,4 @@
-import {getContext, onDestroy, setContext, untrack} from 'svelte';
+import {createContext, onDestroy, untrack} from 'svelte';
 import type {ILexboxServer, IMiniLcmFeatures, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 import type {
   IHistoryServiceJsInvokable
@@ -10,8 +10,8 @@ import {resource, type ResourceReturn} from 'runed';
 import {DetachedResource, type DetachedResourceReturn} from './detached-resource';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
-
-const projectContextKey = 'current-project';
+import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
+import {devSettings} from '$lib/layout/dev-settings.svelte';
 
 type ProjectType = 'crdt' | 'fwdata' | undefined;
 
@@ -19,21 +19,23 @@ interface ProjectContextSetup {
   api: IMiniLcmJsInvokable;
   historyService?: IHistoryServiceJsInvokable;
   syncService?: ISyncServiceJsInvokable;
+  mediaFilesService?: IMediaFilesServiceJsInvokable;
   projectName: string;
   projectCode: string;
   projectType?: 'crdt' | 'fwdata';
   server?: ILexboxServer;
   projectData?: IProjectData;
-  paratext?: boolean;
 }
+const [getProjectContext, setProjectContext] = createContext<ProjectContext>();
+
 export function initProjectContext(args?: ProjectContextSetup) {
   const context = new ProjectContext(args);
-  setContext(projectContextKey, context);
+  setProjectContext(context);
   onDestroy(() => context.destroy());
   return context;
 }
 export function useProjectContext() {
-  return getContext<ProjectContext>(projectContextKey);
+  return getProjectContext();
 }
 export class ProjectContext {
   #stateCache = new SvelteMap<symbol, unknown>();
@@ -47,6 +49,7 @@ export class ProjectContext {
   #projectData = $state<IProjectData>();
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
+  #mediaFilesService: IMediaFilesServiceJsInvokable | undefined = $state(undefined);
   #paratext = $state(false);
   #detachedResources = new SvelteSet<DetachedResource<unknown>>();
   #features = resource(() => this.#api, (api) => {
@@ -93,7 +96,15 @@ export class ProjectContext {
     return this.#projectData;
   }
   public get features(): IMiniLcmFeatures {
-    return this.#features.current;
+    const features = this.#features.current;
+    // Dev-only override lets a developer force the UI readonly by turning off write.
+    if (devSettings.readonly) return {...features, write: false};
+    return features;
+  }
+
+  /** Re-fetch {@link features} from the API (e.g. after a test toggles demo write). */
+  public refetchFeatures(): Promise<IMiniLcmFeatures | undefined> {
+    return this.#features.refetch();
   }
   public get historyService(): IHistoryServiceJsInvokable | undefined {
     return this.#historyService;
@@ -101,8 +112,29 @@ export class ProjectContext {
   public get syncService(): ISyncServiceJsInvokable | undefined {
     return this.#syncService;
   }
+  public get mediaFilesService(): IMediaFilesServiceJsInvokable | undefined {
+    return this.#mediaFilesService;
+  }
+  /**
+   * Whether the project is embedded in Paratext, which restricts the UI to this one project.
+   * Set before the project is opened, so the restriction also holds while the project is still
+   * loading and if it fails to load at all. One-way: turning it back off would silently re-enable
+   * navigation out of the embedded view.
+   */
   public get inParatext(): boolean {
     return this.#paratext;
+  }
+  public set inParatext(value: boolean) {
+    if (this.#paratext === value) return;
+    if (this.#paratext) {
+      if (import.meta.env.DEV) {
+        throw new Error('Cannot leave Paratext mode once it is set');
+      } else {
+        console.error('Cannot leave Paratext mode once it is set');
+        return;
+      }
+    }
+    this.#paratext = value;
   }
 
   constructor(args?: ProjectContextSetup) {
@@ -113,12 +145,12 @@ export class ProjectContext {
     this.#api = args.api;
     this.#historyService = args.historyService;
     this.#syncService = args.syncService;
+    this.#mediaFilesService = args.mediaFilesService;
     this.#projectName = args.projectName;
     this.#projectCode = args.projectCode;
     this.#projectType = args.projectType;
     this.#server = args.server;
     this.#projectData = args.projectData;
-    this.#paratext = args.paratext ?? false;
 
     for (const res of this.#detachedResources) {
       res.onApiChange(args.api);
@@ -144,7 +176,7 @@ export class ProjectContext {
    */
   public apiResource<T>(initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: { eager?: boolean }): DetachedResourceReturn<T> {
     const res = new DetachedResource(initialValue, factory, () => this.#api, options);
-    this.#detachedResources.add(res as DetachedResource<unknown>);
+    this.#detachedResources.add(res);
     return res;
   }
 

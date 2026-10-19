@@ -3,7 +3,7 @@
   import {SubmitButton, Form, FormError, Input, lexSuperForm} from '$lib/forms';
   import t from '$lib/i18n';
   import {PageTitle} from '$lib/layout';
-  import {login, logout} from '$lib/user';
+  import {login, logout, preloadZxcvbn} from '$lib/user';
   import {onMount} from 'svelte';
   import Markdown from 'svelte-exmarkdown';
   import flexLogo from '$lib/assets/flex-logo.png';
@@ -78,6 +78,10 @@
   }
 
   let badCredentials = $state(false);
+
+  function onPasswordTouched(): void {
+    void preloadZxcvbn();
+  }
 </script>
 
 <div class="hero flex-grow">
@@ -95,14 +99,16 @@
             autofocus
           />
 
-          <Input
-            id="password"
-            label={$t('login.label_password')}
-            type="password"
-            bind:value={$form.password}
-            error={$errors.password}
-            autocomplete="current-password"
-          />
+          <div onfocusin={onPasswordTouched}>
+            <Input
+              id="password"
+              label={$t('login.label_password')}
+              type="password"
+              bind:value={$form.password}
+              error={$errors.password}
+              autocomplete="current-password"
+            />
+          </div>
 
           <div class="markdown-wrapper">
             <FormError error={$message} markdown/>

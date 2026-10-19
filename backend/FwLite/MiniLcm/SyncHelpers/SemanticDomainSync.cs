@@ -26,14 +26,26 @@ public static class SemanticDomainSync
 
     public static UpdateObjectInput<SemanticDomain>? SemanticDomainDiffToUpdate(SemanticDomain beforeSemanticDomain, SemanticDomain afterSemanticDomain)
     {
+        afterSemanticDomain.ApplyResolvedCode();
         JsonPatchDocument<SemanticDomain> patchDocument = new();
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<SemanticDomain>(nameof(SemanticDomain.Name),
             beforeSemanticDomain.Name,
             afterSemanticDomain.Name));
-        // TODO: Once we add abbreviations to MiniLcm's SemanticDomain objects, then:
-        // patchDocument.Operations.AddRange(GetMultiStringDiff<SemanticDomain>(nameof(SemanticDomain.Abbreviation),
-        //     beforeSemanticDomain.Abbreviation,
-        //     afterSemanticDomain.Abbreviation));
+        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<SemanticDomain>(nameof(SemanticDomain.Abbreviation),
+            beforeSemanticDomain.Abbreviation,
+            afterSemanticDomain.Abbreviation));
+        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<SemanticDomain>(nameof(SemanticDomain.Description),
+            beforeSemanticDomain.Description,
+            afterSemanticDomain.Description));
+        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<SemanticDomain>(nameof(SemanticDomain.Code),
+            beforeSemanticDomain.Code,
+            afterSemanticDomain.Code));
+        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<SemanticDomain>(nameof(SemanticDomain.OcmCodes),
+            beforeSemanticDomain.OcmCodes,
+            afterSemanticDomain.OcmCodes));
+        patchDocument.Operations.AddRange(SimpleStringDiff.GetStringDiff<SemanticDomain>(nameof(SemanticDomain.LouwNidaCodes),
+            beforeSemanticDomain.LouwNidaCodes,
+            afterSemanticDomain.LouwNidaCodes));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<SemanticDomain>(patchDocument);
     }

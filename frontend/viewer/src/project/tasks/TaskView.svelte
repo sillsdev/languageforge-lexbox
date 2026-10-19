@@ -3,12 +3,15 @@
   import {type IEntry, SortField} from '$lib/dotnet-types';
   import EntriesList from '../browse/EntriesList.svelte';
   import {Button} from '$lib/components/ui/button';
+  import {Icon} from '$lib/components/ui/icon';
   import SubjectPopup from './SubjectPopup.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import DoneView from './DoneView.svelte';
   import {watch} from 'runed';
   import type {TaskSubject} from './subject.svelte';
   import {t} from 'svelte-i18n-lingui';
+  import {pt} from '$lib/views/view-text';
+  import {useViewService} from '$lib/views/view-service.svelte';
   import {cn} from '$lib/utils';
   import {useProjectContext} from '$project/project-context.svelte';
 
@@ -21,6 +24,7 @@
     }
   }: { taskId: string, onClose: () => void } = $props();
   const tasksService = useTasksService();
+  const viewService = useViewService();
   const task = $derived(tasksService.listTasks().find(task => task.id === taskId));
   watch(() => taskId, () => {
     completedSubjects = [];
@@ -53,7 +57,13 @@
         </details>
       </DevContent>
       {#if entryCount === 0}
-        <h1 class="text-xl p-4 mx-auto">{$t`This task is complete`} 🎊</h1>
+        <!-- Already-done state: calm and centered, distinct from DoneView's confetti (which celebrates active completion). -->
+        <div class="flex grow flex-col items-center justify-center gap-3 p-4 text-center">
+          <Icon icon="i-mdi-check-circle-outline" class="text-primary size-16" />
+          <h1 class="text-xl font-semibold">{$t`This task is complete`}</h1>
+          <p class="text-muted-foreground max-w-sm">{pt($t`Every entry already has this field filled in.`, $t`Every word already has this field filled in.`, viewService.currentView)}</p>
+          <Button variant="outline" icon="i-mdi-arrow-left" onclick={onClose} class="mt-2">{$t`Back to tasks`}</Button>
+        </div>
       {/if}
       <div class={cn('contents', entryCount === 0 && 'hidden')}>
         <EntriesList bind:this={entriesList}

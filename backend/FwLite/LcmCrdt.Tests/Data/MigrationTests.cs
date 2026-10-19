@@ -1,3 +1,4 @@
+using SIL.Harmony.Config;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -60,7 +61,7 @@ public class MigrationTests : IAsyncLifetime
     {
         await _helper.InitializeAsync(regressionVersion);
         var api = _helper.Services.GetRequiredService<IMiniLcmApi>();
-        var crdtConfig = _helper.Services.GetRequiredService<IOptions<CrdtConfig>>().Value;
+        var harmonyConfig = _helper.Services.GetRequiredService<IOptions<HarmonyConfig>>().Value;
 
         await using var dbContext = await _helper.Services.GetRequiredService<ICrdtDbContextFactory>().CreateDbContextAsync();
         var snapshots = await dbContext.Snapshots.AsNoTracking()
@@ -112,7 +113,7 @@ public class MigrationTests : IAsyncLifetime
     {
         await _helper.InitializeAsync(regressionVersion);
         var api = _helper.Services.GetRequiredService<IMiniLcmApi>();
-        var crdtConfig = _helper.Services.GetRequiredService<IOptions<CrdtConfig>>().Value;
+        var harmonyConfig = _helper.Services.GetRequiredService<IOptions<HarmonyConfig>>().Value;
 
         await using var dbContext = await _helper.Services.GetRequiredService<ICrdtDbContextFactory>().CreateDbContextAsync();
         await using var dataModel = _helper.Services.GetRequiredService<DataModel>();

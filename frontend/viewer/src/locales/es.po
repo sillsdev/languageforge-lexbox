@@ -29,43 +29,41 @@ msgstr "– ({0} cambios)"
 msgid "…and {0} more changes"
 msgstr ""
 
-#. Toast shown after a trusted plugin's write is auto-approved (no confirm dialog); {0} is the plugin name.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” added an entry"
 msgstr ""
 
-#. Toast shown right after the user picks "Always allow for this plugin" in the write-confirm dialog; {0} is the plugin name.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
 msgstr ""
 
-#. Toast shown after a trusted plugin's write is auto-approved (no confirm dialog); {0} is the plugin name. Pairs with "added an entry" / "made {1} changes" for other write kinds.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” changed an entry"
 msgstr ""
 
-#. Toast shown after a trusted plugin's batch write is auto-approved; {0} is the plugin name, {1} is the number of changes made.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” made {1} changes"
 msgstr ""
 
-#. Security warning shown when a plugin's sandboxed iframe navigates away from its own page (not allowed); {0} is the plugin name. Paired with the "Plugin stopped" heading.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
 msgstr ""
 
-#. Toast shown after revoking a plugin's "Always allow" write trust (from the plugin toolbar or the card menu); {0} is the plugin name.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "“{0}” will ask before making changes again."
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+msgid "(edited)"
 msgstr ""
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "(empty)"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
 msgstr ""
 
@@ -77,7 +75,6 @@ msgstr ""
 msgid "{0}"
 msgstr "{0}"
 
-#. Default name suggested for a duplicated plugin. {0} is the original plugin's name; "(copy)" is appended as a suffix.
 #: src/lib/plugins/PluginsView.svelte
 msgid "{0} (copy)"
 msgstr ""
@@ -98,6 +95,7 @@ msgstr ""
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "{0} ago"
 msgstr "{0} hace"
 
@@ -114,6 +112,14 @@ msgstr ""
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "{0} replies"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "{0} resolved"
+msgstr ""
+
 #. Display name for server
 #: src/home/Server.svelte
 msgid "{0} Server"
@@ -125,6 +131,11 @@ msgstr "{0} Servidor"
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {# cambio} other {# cambios}}"
 
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "{num, plural, one {# entry to go} other {# entries to go}}"
+msgstr ""
+
 #. Commit count display
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
@@ -134,6 +145,20 @@ msgstr "{num, plural, one {# nuevo FieldWorks Classic commit} other {# nuevos Fi
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, one {# nuevo commit de FieldWorks Lite} other {# nuevos commits de FieldWorks Lite}}"
+
+#: src/project/browse/filter/UnreadCommentBadge.svelte
+msgid "{num, plural, one {# unread comment} other {# unread comments}}"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "{num, plural, one {# word to go} other {# words to go}}"
+msgstr ""
+
+#. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "{num, plural, one {Show # more...} other {Show # more...}}"
+msgstr ""
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -150,12 +175,15 @@ msgstr "**Menos tipos de morfema** (sólo *Raíz*, *Raíz vinculado*, *Tallo*, *
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Terminología más simple** (p. ej. *Palabra* en lugar de *Forma del lexema*, *Significado* en lugar de *Acepción*)"
 
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "1 reply"
+msgstr ""
+
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Una nueva versión de FieldWorks Lite está disponible."
 
-#. Dialog subtitle in the plugin editor (add/edit a plugin). "Get AI prompt" names a button elsewhere in the Plugins page.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "A plugin is a single HTML file. Ask an AI to write one for you (see “Get AI prompt”), start from an example, or write it yourself."
 msgstr ""
@@ -164,16 +192,25 @@ msgstr ""
 msgid "A short summary shown on the plugin’s card."
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "A similar word already exists"
+#. Warning banner in the New Entry dialog when exactly one possible duplicate was found (none an exact headword match)
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "A similar entry already exists"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A similar entry already exists"
+#. Warning banner in the New Word dialog when exactly one possible duplicate was found (none spelled exactly the same)
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "A similar word already exists"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "una palabra"
-
-#. Dialog title
-#: src/lib/about/AboutDialog.svelte
-msgid "About"
-msgstr "Acerca de"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -240,7 +277,10 @@ msgstr "Añadir nueva palabra"
 msgid "Add part of"
 msgstr "Añadir parte de"
 
-#. Submit button in the "New plugin" dialog, saves a newly-created plugin.
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Add Picture"
+msgstr ""
+
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Add plugin"
 msgstr ""
@@ -252,6 +292,14 @@ msgstr ""
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Sense"
 msgstr "Añadir acepción"
+
+#: src/project/tasks/TaskList.svelte
+msgid "Add some entries first."
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "Add some words first."
+msgstr ""
 
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
@@ -270,6 +318,7 @@ msgstr ""
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Todos"
@@ -288,7 +337,6 @@ msgstr ""
 msgid "All authors"
 msgstr ""
 
-#. Button in the write-confirmation dialog: approves this write AND grants blanket future approval for this plugin (see "Edits without asking" badge).
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Always allow for this plugin"
 msgstr ""
@@ -313,6 +361,10 @@ msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
+msgstr ""
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Analytics are turned off."
 msgstr ""
 
 #. Relevant view: Classic
@@ -363,7 +415,6 @@ msgstr ""
 msgid "Are you sure you want to delete {0}?"
 msgstr "¿Estás seguro de que quieres borrar {0}?"
 
-#. Empty-state hint on the Plugins page when no plugins are installed yet. "Get AI prompt" and "New plugin" are the two buttons above this text.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Ask an AI to build one for you — click “Get AI prompt”, describe your idea, and paste the result into “New plugin”. Or start from a built-in example."
 msgstr ""
@@ -372,6 +423,11 @@ msgstr ""
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Ask questions and get help on our community forum."
 msgstr "Haz preguntas y recibe ayuda en nuestro foro de la comunidad."
+
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "Audio"
+msgstr ""
 
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
@@ -388,6 +444,10 @@ msgstr "Audio guardado y subido a Lexbox"
 msgid "Audio saved locally"
 msgstr "Audio guardado localmente"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Author"
+msgstr ""
+
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Author:"
@@ -403,17 +463,22 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Sincronización automática"
 
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Back"
 msgstr ""
 
-#. Button to leave a running plugin and return to the Plugins list page.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Back to plugins"
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "Back to tasks"
 msgstr ""
 
 #. Section label in custom view form.
@@ -440,6 +505,7 @@ msgstr "azul"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Browse"
 msgstr "Visite"
 
@@ -447,11 +513,11 @@ msgstr "Visite"
 msgid "Browse view failed"
 msgstr ""
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Camera"
 msgstr ""
 
-#. List item in the plugin permission/consent screen, shown before first running a plugin that requests internet access.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Can access the internet (and could send dictionary data there)"
 msgstr ""
@@ -460,7 +526,6 @@ msgstr ""
 msgid "Can change the dictionary"
 msgstr ""
 
-#. List item in the plugin consent card (shown before first running a plugin), when the plugin has edit permission. Contrast: "Read-only: cannot change your dictionary".
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Can change your dictionary — it will ask you first"
 msgstr ""
@@ -478,9 +543,12 @@ msgstr ""
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -488,6 +556,7 @@ msgstr ""
 msgid "Cancel"
 msgstr "Cancelar"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr ""
@@ -505,6 +574,20 @@ msgstr "Los cambios también pueden ser el resultado de que los campos sean agre
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Cambiar el mismo campo dos veces, por ejemplo, puede resultar en dos commits pero sólo un cambio que necesita ser aplicado a FieldWorks Classic. Los commits también pueden consistir en varios cambios."
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Checking for similar words…"
+#. Status line in the New Entry dialog while searching for possible duplicate entries
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Checking for similar entries…"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Checking for similar entries…"
+#. Status line in the New Word dialog while searching for possible duplicate words
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Checking for similar words…"
+msgstr ""
 
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -543,12 +626,10 @@ msgid "Clear"
 msgstr ""
 
 #. Button to close popup
-#: src/lib/about/AboutDialog.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
@@ -559,10 +640,6 @@ msgstr "Cerrar"
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Cerrar Diccionario"
-
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Closed"
-msgstr ""
 
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
@@ -578,13 +655,21 @@ msgstr ""
 msgid "Color"
 msgstr "Color"
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Comment"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Comments for {0}"
+#: src/project/browse/EntryView.svelte
+msgid "Comments, {0} unread"
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "Complete"
 msgstr ""
 
 #: src/lib/plugins/plugin-api-adapter.ts
@@ -648,6 +733,10 @@ msgstr "Componentes"
 msgid "Contains"
 msgstr "Contiene"
 
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Conversation"
+msgstr ""
+
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Copied"
 msgstr ""
@@ -661,7 +750,6 @@ msgstr "Copiado al portapapeles"
 msgid "Copy prompt"
 msgstr ""
 
-#. Step 3 of a numbered list in the "Create a plugin with AI" dialog. "New plugin" names the button used to add the result.
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Copy the HTML file the AI produces, then add it here via “New plugin”."
 msgstr ""
@@ -675,22 +763,33 @@ msgstr ""
 msgid "Copy version"
 msgstr "Copiar versión"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Could not check for similar words"
+#. Status line in the New Entry dialog when the background duplicate search failed (e.g. connection lost); typing again retries
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Could not check for similar entries"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Could not check for similar entries"
+#. Status line in the New Word dialog when the background duplicate search failed (e.g. connection lost); typing again retries
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Could not check for similar words"
+msgstr ""
+
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Couldn't load that example. Please try again."
 msgstr ""
 
-#. Error banner/toast when fetching a plugin's HTML file fails (not an offline case) while editing, exporting, or duplicating it; {0} is the underlying error message.
 #: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "Couldn't load the plugin file. {0}"
 msgstr ""
 
-#. Heading shown when a plugin's file failed to load for a reason other than being offline; an optional detail message may follow beneath it.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Couldn't load this plugin"
 msgstr ""
 
-#. Error banner in the plugin editor dialog when creating/updating a plugin fails; {0} is the underlying error message.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Couldn't save the plugin. {0}"
 msgstr ""
@@ -711,7 +810,6 @@ msgstr ""
 msgid "Create a new FieldWorks Lite project"
 msgstr ""
 
-#. Dialog title. Walks the user through generating a plugin (a custom HTML mini-app) using an external AI assistant.
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Create a plugin with AI"
 msgstr ""
@@ -808,6 +906,7 @@ msgstr "Definición"
 #. Appears in project card; removes local project cache (not server copy)
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "Delete"
 msgstr "Borrar"
@@ -824,6 +923,10 @@ msgstr "Borrar {0}"
 #: src/project/browse/EntryMenu.svelte
 msgid "Delete Entry"
 msgstr "Borrar entrada"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Delete Picture"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Delete Entry"
@@ -905,6 +1008,7 @@ msgstr "Hecho"
 #. Notification action button
 #: src/home/Server.svelte
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "Download"
 msgstr "Descargar"
@@ -918,6 +1022,10 @@ msgstr "Descargar {0}"
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Download page"
 msgstr "Página de descarga"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Download Picture"
+msgstr ""
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -945,12 +1053,15 @@ msgstr "Descargado {0}"
 msgid "Downloading {0}..."
 msgstr "Descargando {0}..."
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Downloading update..."
+msgstr ""
+
 #. Generic progress message
 #: src/home/Server.svelte
 msgid "Downloading..."
 msgstr "Descargando..."
 
-#. Dropdown menu item on a plugin card; creates a copy of that plugin (see "{0} (copy)" for its default name).
 #: src/lib/plugins/PluginsView.svelte
 msgid "Duplicate"
 msgstr ""
@@ -963,7 +1074,6 @@ msgstr ""
 msgid "e.g. Dashboard of dictionary statistics"
 msgstr ""
 
-#. Placeholder text in the plugin name input field, an example plugin name.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "e.g. Dictionary stats"
 msgstr ""
@@ -973,13 +1083,14 @@ msgstr ""
 msgid "e.g. th, sw"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "Edit"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
 msgstr ""
 
@@ -987,6 +1098,10 @@ msgstr ""
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Editar vista personalizada"
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Edit Picture"
+msgstr ""
 
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Edit plugin"
@@ -997,17 +1112,15 @@ msgstr ""
 msgid "Editor"
 msgstr "Editor"
 
-#. Badge on a plugin's card in the Plugins list: default state, before the user grants "Always allow for this plugin". Contrast: "Edits without asking", "Read-only".
 #: src/lib/plugins/PluginsView.svelte
 msgid "Edits — asks first"
 msgstr ""
 
-#. Badge on a plugin's card in the Plugins list, shown once the plugin has been granted "Always allow" and no longer prompts before writes. Contrast: "Edits — asks first", "Read-only".
 #: src/lib/plugins/PluginsView.svelte
 msgid "Edits without asking"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
 msgstr ""
 
@@ -1020,6 +1133,10 @@ msgstr "Termina con"
 
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Enrich & clean up"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Entries missing both Lexeme form and Citation form"
 msgstr ""
 
 #. Filter option label
@@ -1095,6 +1212,14 @@ msgstr "Error al obtener el estado de sincronización"
 msgid "Error getting sync status."
 msgstr "Error al obtener el estado de sincronización."
 
+#: src/project/tasks/TaskView.svelte
+msgid "Every entry already has this field filled in."
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+msgid "Every word already has this field filled in."
+msgstr ""
+
 #. Section header
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
@@ -1108,6 +1233,7 @@ msgstr "Ejemplo"
 #. Sentence/phrase showing usage of a word
 #. Appears under each Sense/Meaning; can have multiple examples per meaning
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Example sentence"
 msgstr "Ejemplo de frase"
 
@@ -1115,7 +1241,6 @@ msgstr "Ejemplo de frase"
 msgid "Example sentences"
 msgstr ""
 
-#. Icon button toggling fullscreen for the running plugin's content (an iframe), not the whole app window.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Exit fullscreen"
@@ -1125,7 +1250,6 @@ msgstr ""
 msgid "Explore & analyze"
 msgstr ""
 
-#. Dropdown menu item on a plugin card; downloads the plugin as an .html file.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Export"
 msgstr ""
@@ -1152,6 +1276,22 @@ msgstr ""
 msgid "Failed to load entries"
 msgstr "Error al cargar entradas"
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load file"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load files"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to load media files"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Failed to load metadata"
+msgstr ""
+
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to open data directory, use the path in the text field instead"
@@ -1172,10 +1312,18 @@ msgstr ""
 msgid "Failed to regenerate search index"
 msgstr ""
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Failed to save file"
+msgstr ""
+
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
 msgstr "Error de sincronización"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Failed to upload files"
+msgstr ""
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -1201,10 +1349,13 @@ msgstr "Campos"
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
-#. Success notification shown after FieldWorks Lite auto-updates. "FieldWorks Lite" is a product name — do not translate.
+#: src/home/HomeView.svelte
+msgid "FieldWorks Lite collects usage data to help us improve it."
+msgstr ""
+
 #: src/lib/notifications/NotificationOutlet.svelte
-msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
-msgstr "FieldWorks Lite se ha actualizado correctamente. Reinicie la aplicación para aplicar los cambios."
+msgid "FieldWorks Lite has been updated. Restart to finish installing."
+msgstr ""
 
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
@@ -1243,6 +1394,7 @@ msgstr "Nombre del fichero:"
 
 #. Error message when file is missing
 #: src/lib/components/field-editors/audio-input.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 msgid "File not found"
 msgstr "Archivo no encontrado"
 
@@ -1256,6 +1408,18 @@ msgstr "Guardado de archivos no soportado"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File too big"
 msgstr "Archivo demasiado grande"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Filename"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Display as"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Word or Display as"
+msgstr ""
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1344,7 +1508,6 @@ msgstr "Para cualquier otra consulta, no dude en enviarnos un correo electrónic
 msgid "From active filter"
 msgstr "De filtro activo"
 
-#. Icon button toggling fullscreen for the running plugin's content (an iframe), not the whole app window.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Fullscreen"
@@ -1373,7 +1536,6 @@ msgstr "Obtener soporte"
 msgid "Gloss"
 msgstr "Glosa"
 
-#. Button in the plugin permission/consent screen that declines to run the plugin and returns to the Plugins list.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Go back"
 msgstr ""
@@ -1385,6 +1547,20 @@ msgstr ""
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Visite {0}"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Go to word"
+#. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Go to entry"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Go to entry"
+#. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Go to word"
+msgstr ""
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1409,12 +1585,29 @@ msgstr ""
 msgid "Harmony snapshots regenerated successfully"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Has comments"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unread comments"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unresolved comments"
+msgstr ""
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
 #: src/project/browse/sort/SortMenu.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Headword"
 msgstr "Palabra clave"
+
+#: src/project/ProjectSidebar.svelte
+msgid "Help & More"
+msgstr ""
 
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
@@ -1448,17 +1641,21 @@ msgstr "No veo mi proyecto"
 msgid "I understand that this can't be undone"
 msgstr "Entiendo que esto no se puede deshacer"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "ID"
+msgstr ""
+
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
 msgstr "Importar"
 
-#. Button in the plugin editor dialog; loads a plugin's HTML content from a file picked from disk.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Import from file"
 msgstr ""
 
 #. Future relative date format. {0} = formatted duration string (e.g., "3 hours", "2 days"). Paired with "{0} ago" for past dates.
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "en {0}"
@@ -1483,11 +1680,15 @@ msgstr "Instalar actualización"
 msgid "Installing Update..."
 msgstr "Instalando actualización..."
 
-#. Badge label shown on a plugin that requests internet access. Short noun, not a verb/instruction.
 #: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "Internet"
+msgstr ""
+
+#. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
+#: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
+msgid "just now"
 msgstr ""
 
 #. Button to continue to next task
@@ -1505,6 +1706,15 @@ msgstr "Último cambio: #"
 #: src/project/sync/SyncStatusPrimitive.svelte
 msgid "Last sync: #"
 msgstr "Última sincronización: #"
+
+#: src/home/HomeView.svelte
+msgid "Learn more"
+msgstr ""
+
+#. Placeholder for the release channel text box. Production has no feature flags.
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Leave empty for production"
+msgstr ""
 
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
@@ -1562,12 +1772,37 @@ msgstr "Modo lista"
 msgid "Literal meaning"
 msgstr "Significado literal"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Load"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Load all"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Load it to preview or export."
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Load picture"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loaded {0} file(s)"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loaded file"
+msgstr ""
+
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
 msgstr ""
 
@@ -1576,13 +1811,25 @@ msgstr ""
 msgid "Loading Dictionaries..."
 msgstr "Cargando diccionarios..."
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Loading metadata..."
+msgstr ""
+
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Loading plugin file…"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Loading preview..."
 msgstr ""
 
 #: src/home/HomeView.svelte
 msgid "loading..."
 msgstr "cargando..."
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Loading..."
+msgstr ""
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
@@ -1590,8 +1837,13 @@ msgstr "cargando..."
 msgid "Local"
 msgstr "Local"
 
+#: src/lib/media-manager/media-file-utils.ts
+msgid "Local and remote"
+msgstr ""
+
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
+#: src/lib/media-manager/media-file-utils.ts
 msgid "Local only"
 msgstr "Sólo local"
 
@@ -1662,17 +1914,35 @@ msgstr "Se requiere una actualización manual. Siga las instrucciones proporcion
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Meaning"
 msgstr "Significado"
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Media file details"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Media Manager"
+msgstr ""
+
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Microphone"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Citation form {0}"
 msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
 msgstr "Definición {0} perdida"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Display as {0}"
+msgstr ""
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1684,10 +1954,29 @@ msgstr "Frase de ejemplo {0} perdida"
 msgid "Missing Gloss {0}"
 msgstr "Glosa {0} perdida"
 
-#. Task subject label in the task list. Identifies senses/meanings that have no part-of-speech (grammatical category) assigned.
 #: src/project/tasks/tasks-service.ts
-msgid "Missing Part of Speech"
-msgstr "Parte de la oración perdido"
+msgid "Missing Grammatical info."
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Headword {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Lexeme form {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Part of speech"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Semantic domains"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Word {0}"
+msgstr ""
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1701,7 +1990,6 @@ msgstr "Falta: {0}"
 msgid "Mode"
 msgstr "Modo"
 
-#. Aria-label/tooltip for the "..." dropdown trigger button on a plugin card, which opens the Export/Duplicate/Delete menu.
 #: src/lib/plugins/PluginsView.svelte
 msgid "More"
 msgstr ""
@@ -1733,7 +2021,6 @@ msgstr "Nombre"
 msgid "Name is required"
 msgstr "Se requiere nombre"
 
-#. List item in the plugin consent card; {0} is a capability/feature name the plugin declares it needs (e.g. "comments", "history") that this project doesn't have enabled.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Needs “{0}”, which this project doesn't support — it may not work properly"
 msgstr ""
@@ -1745,6 +2032,7 @@ msgid "Never"
 msgstr "Nunca"
 
 #. Badge label on the primary "New Entry" / "New Word" button indicating it creates a new item.
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New"
 msgstr "Nuevo"
@@ -1763,6 +2051,7 @@ msgstr "Nuevos datos"
 #. Lite view equivalent: "New Word"
 #. Dialog title for creating new entry
 #: src/lib/entry-editor/NewEntryDialog.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 #: src/project/PrimaryNewEntryButton.svelte
 msgid "New Entry"
 msgstr "Nueva entrada"
@@ -1786,6 +2075,7 @@ msgstr ""
 #. Dialog title for creating new word
 #: src/lib/entry-editor/NewEntryDialog.svelte
 #: src/project/PrimaryNewEntryButton.svelte
+#: src/project/PrimaryNewEntryButton.svelte
 msgid "New Word"
 msgstr "Nueva palabra"
 
@@ -1800,6 +2090,11 @@ msgstr "Siguiente"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Next milestone: {0}. {1} to go."
+msgstr ""
+
+#. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Next picture"
 msgstr ""
 
 #. Empty state when activity list filters exclude every commit.
@@ -1825,13 +2120,8 @@ msgstr "Sin audio"
 msgid "No authors"
 msgstr ""
 
-#. Dialog subtitle in "Create a plugin with AI". "Plugin" here means a small custom HTML mini-app for the dictionary.
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "No coding needed — an AI assistant can write the plugin for you."
-msgstr ""
-
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "No comment threads yet."
 msgstr ""
 
 #. Empty state message in the manage custom views dialog when none exist.
@@ -1868,12 +2158,25 @@ msgstr "No se han encontrado antecedentes"
 msgid "No items found"
 msgstr "No se han encontrado artículos"
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "No media files found"
+msgstr ""
+
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwLiteToFwMergeDetails.svelte
 msgid "No new data"
 msgstr "No hay nuevos datos"
 
-#. Empty-state heading on the Plugins page when the project has no plugins installed.
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "No open conversations"
+msgstr ""
+
+#. Empty state shown read-only in the Pictures field when a sense has no pictures
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "No pictures"
+msgstr ""
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "No plugins yet"
 msgstr ""
@@ -1888,6 +2191,20 @@ msgstr "Sin servidor"
 msgid "No server configured"
 msgstr "Ningún servidor configurado"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "No similar words found"
+#. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "No similar entries found"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "No similar entries found"
+#. Status line in the New Word dialog: the duplicate check found no existing words like the one being typed
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "No similar words found"
+msgstr ""
+
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte
 msgid "No subject, unable to create a new {0}"
@@ -1897,7 +2214,6 @@ msgstr "No hay tema, no se puede crear un nuevo {0}"
 msgid "No vernacular writing systems configured."
 msgstr ""
 
-#. Shown in the plugin write-confirmation dialog when the proposed change has no human-readable summary lines to display.
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "No visible changes"
 msgstr ""
@@ -1913,10 +2229,10 @@ msgstr "No se han encontrado palabras"
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
 msgid "None"
 msgstr "Ninguno"
 
-#. List item in the plugin consent card, shown when the plugin does NOT request internet access. Deliberately worded as an enforced restriction ("not allowed"), not just an absent capability. Contrast: "Can access the internet (and could send dictionary data there)".
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Not allowed to use the internet"
 msgstr ""
@@ -1972,6 +2288,10 @@ msgstr "Fuera de línea"
 msgid "Offline, unable to download"
 msgstr "Desconectado, no se puede descargar"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Offline, unable to open file"
+msgstr ""
+
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Oldest first"
@@ -1994,7 +2314,6 @@ msgstr "Un commit de FieldWorks Classic puede consistir en cambios en múltiples
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
-#: src/lib/entry-editor/CommentDialog.svelte
 msgid "Open"
 msgstr "Abrir"
 
@@ -2003,7 +2322,6 @@ msgstr "Abrir"
 msgid "Open Data Directory"
 msgstr "Directorio de datos abiertos"
 
-#. Item in an entry's action menu; {0} is the name of a user-created plugin. Opens that plugin, passing it the current entry.
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in {0}"
 msgstr ""
@@ -2034,6 +2352,10 @@ msgstr "Abrir archivo Log"
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Opening in FieldWorks…"
 msgstr "Abriendo en FieldWorks…"
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Opt out of analytics"
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -2071,7 +2393,6 @@ msgstr "Parte de"
 msgid "Part of speech"
 msgstr "Parte de la oración"
 
-#. Placeholder text in the plugin HTML textarea of the plugin editor dialog.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Paste the plugin HTML here"
 msgstr ""
@@ -2082,17 +2403,43 @@ msgstr ""
 msgid "Pending"
 msgstr "Pendiente"
 
-#. Task instruction
 #: src/project/tasks/tasks-service.ts
-msgid "Pick a Part of Speech"
-msgstr "Escoge una parte de la voz"
+msgid "Pick a Part of speech"
+msgstr ""
 
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Pick a starting point — you can edit everything afterwards."
 msgstr ""
 
+#: src/project/tasks/tasks-service.ts
+msgid "Pick Grammatical info."
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick one or more Semantic domains"
+msgstr ""
+
+#. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Picture"
+msgstr ""
+
+#. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
+#: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+msgid "Picture actions"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Picture not found"
+msgstr ""
+
+#. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
+#: src/lib/views/entity-config.ts
+msgid "Pictures"
 msgstr ""
 
 #. View option
@@ -2112,19 +2459,16 @@ msgstr "Plataforma"
 msgid "Play & learn"
 msgstr ""
 
-#. Generic fallback label for a plugin (a small custom HTML mini-app) when its name is unavailable, and as the noun in delete-confirmation prompts.
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "Plugin"
 msgstr ""
 
-#. Field label above the textarea where the plugin's HTML source code is pasted, in the plugin editor dialog.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Plugin HTML"
 msgstr ""
 
-#. Heading shown when a plugin is force-stopped for trying to navigate its sandboxed iframe away from its own page (a possible data-exfiltration attempt or bug). Paired with the "tried to leave its sandbox page" message.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Plugin stopped"
 msgstr ""
@@ -2141,23 +2485,19 @@ msgstr ""
 msgid "Plugin wants to make {0} changes"
 msgstr ""
 
-#. Sidebar navigation item leading to the list of installed plugins (small custom HTML mini-apps) for the current project.
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Plugins"
 msgstr ""
 
-#. Warning banner in the plugin editor dialog, shown when adding or editing a plugin.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Plugins are code and run for everyone on this project. Only add plugins you or your team created, or that come from someone you trust."
 msgstr ""
 
-#. Body text in the permission/consent screen shown the first time a plugin runs on this device, or after its content changed.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
 msgstr ""
 
-#. Warning banner at the top of the Plugins list page.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
 msgstr ""
@@ -2168,6 +2508,7 @@ msgstr ""
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Vista previa"
@@ -2177,8 +2518,27 @@ msgstr "Vista previa"
 msgid "Preview not available"
 msgstr "Vista previa no disponible"
 
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Preview not available for this file type."
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Preview not supported"
+msgstr ""
+
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Preview the full prompt"
+msgstr ""
+
+#. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Previous picture"
+msgstr ""
+
+#: src/home/HomeView.svelte
+#: src/lib/about/PrivacyDialog.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Privacy"
 msgstr ""
 
 #. Label in project card
@@ -2229,18 +2589,54 @@ msgstr ""
 msgid "Publish Word in"
 msgstr "Publicar palabra en"
 
-#. Badge on a plugin's card in the Plugins list, shown when the plugin has no permission to change the dictionary at all. Contrast: "Edits — asks first", "Edits without asking".
 #: src/lib/plugins/PluginsView.svelte
+#: src/project/ProjectDropdown.svelte
+#: src/project/ProjectDropdown.svelte
 msgid "Read-only"
 msgstr ""
 
-#. List item in the plugin consent card (shown before first running a plugin), when the plugin has no edit permission. Contrast: "Can change your dictionary — it will ask you first".
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Read-only: cannot change your dictionary"
 msgstr ""
 
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Record & illustrate"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Definition"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Gloss"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Lexeme form or Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Word"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record an example sentence"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record Display as"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record Word or Display as"
 msgstr ""
 
 #. Field label for citation source
@@ -2256,6 +2652,10 @@ msgstr "Referencia"
 #: src/lib/components/field-editors/select.svelte
 msgid "Refine your filter to see more..."
 msgstr "Afine su filtro para ver más..."
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Refresh"
+msgstr ""
 
 #. Button to reload project list
 #: src/home/HomeView.svelte
@@ -2299,14 +2699,22 @@ msgstr ""
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr ""
 
+#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Release channel"
+msgstr ""
+
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
 msgstr "Notas de lanzamiento"
 
-#. Icon button in the plugin run view's toolbar; re-executes the currently running plugin from scratch.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Reload plugin"
+msgstr ""
+
+#: src/lib/media-manager/media-file-utils.ts
+msgid "Remote only"
 msgstr ""
 
 #. Button to delete item
@@ -2321,6 +2729,9 @@ msgstr "Eliminar audio"
 
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Reopen"
 msgstr "Vuelva a abrir"
 
@@ -2329,19 +2740,45 @@ msgstr "Vuelva a abrir"
 msgid "Replace audio"
 msgstr "Sustituir audio"
 
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+msgid "Replace Picture"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+msgid "Reply"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentReplyInput.svelte
+msgid "Reply…"
+msgstr ""
+
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
 msgstr "Reportar un problema técnico"
 
-#. Badge shown on a plugin in the editor dialog that requests internet access (contrast with "No internet access").
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Requests internet access"
 msgstr ""
 
-#. Dropdown menu item on a plugin's card; revokes a previously-granted "Always allow" write trust, so the plugin goes back to asking before every change.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Require approval for edits"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Reset"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Resolve"
+msgstr ""
+
+#: src/lib/notifications/NotificationOutlet.svelte
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Restart"
 msgstr ""
 
 #. Button label to restore a deleted Entry or Word inside EntryView
@@ -2367,28 +2804,50 @@ msgstr ""
 msgid "rose"
 msgstr "rosa"
 
-#. Button on a plugin card in the Plugins list; opens and executes that plugin.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Run"
 msgstr ""
 
-#. Button in the permission/consent screen that grants approval and executes the plugin for the first time.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Run plugin"
 msgstr ""
 
-#. Heading of the permission/consent screen shown before a plugin runs for the first time (or after it changed).
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Run this plugin?"
 msgstr ""
 
-#. List item in the plugin permission/consent screen, describing the iframe sandbox the plugin executes in.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Runs in a sandbox, separate from the app"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#. Relevant view: Classic
+#. Lite view equivalent: "Same word"
+#. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same headword"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Same word"
+#. Badge on a possible-duplicate result: only its lexeme form matches the typed text, while its citation form (shown as the headword) differs — deliberately NOT claiming "Same headword"
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same lexeme form"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Same headword"
+#. Badge on a possible-duplicate result: it is spelled exactly like the word being typed in the New Word dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Same word"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Save as"
 msgstr ""
 
 #. Dialog button to save audio with new name
@@ -2401,7 +2860,6 @@ msgstr "Guardar como"
 msgid "Save audio"
 msgstr "Guardar audio"
 
-#. Submit button in the plugin editor dialog when editing an existing plugin (contrast with "Add plugin" for a new one).
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Save changes"
 msgstr ""
@@ -2441,11 +2899,6 @@ msgstr "Seleccionar {0}"
 msgid "Select {0} to view details"
 msgstr "Seleccione {0} para ver los detalles"
 
-#. Empty state message
-#: src/project/tasks/TasksView.svelte
-msgid "Select a new task to work on"
-msgstr "Seleccione una nueva tarea en la que trabajar"
-
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
@@ -2461,6 +2914,10 @@ msgstr "Seleccione al menos un sistema de escritura vernácula"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Select file"
 msgstr "Seleccionar archivo"
+
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Selected"
+msgstr ""
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
@@ -2537,6 +2994,10 @@ msgstr "Mostrar"
 msgid "Show {0} more..."
 msgstr "Mostrar {0} más..."
 
+#: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
+msgid "Show or hide captions"
+msgstr ""
+
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Showing {0} examples"
 msgstr ""
@@ -2545,14 +3006,60 @@ msgstr ""
 msgid "Showing all {0} examples in {1} categories"
 msgstr ""
 
-#: src/lib/entry-editor/CommentDialog.svelte
+#: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Similar words already exist"
+#. Warning banner in the New Entry dialog; expands to a list of possible duplicate entries
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar entries already exist"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Similar meaning"
+#. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar gloss"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Similar word"
+#. Badge on a possible-duplicate result: its headword partly matches the one being typed in the New Entry dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar headword"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Similar gloss"
+#. Badge on a possible-duplicate result: one of its meanings matches the meaning being typed in the New Word dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar meaning"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Similar headword"
+#. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar word"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Similar entries already exist"
+#. Warning banner in the New Word dialog; expands to a list of possible duplicate words
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "Similar words already exist"
 msgstr ""
 
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Simple"
 msgstr "Simple"
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Size"
+msgstr ""
 
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
@@ -2564,7 +3071,6 @@ msgstr "Tamaño:"
 msgid "Skip"
 msgstr "Saltar"
 
-#. Subtitle under the "Plugins" page heading, explaining what plugins are.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
 msgstr ""
@@ -2577,13 +3083,21 @@ msgstr ""
 msgid "Something went wrong"
 msgstr ""
 
+#: src/project/browse/sort/SortWritingSystemMenu.svelte
+msgid "Sort writing system"
+msgstr ""
+
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
 msgid "Specific field"
 msgstr "Campo específico"
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Start a new thread"
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation"
+msgstr ""
+
+#: src/lib/entry-editor/comments/CommentPanel.svelte
+msgid "Start a conversation…"
 msgstr ""
 
 #: src/lib/plugins/PluginEditorDialog.svelte
@@ -2612,6 +3126,7 @@ msgstr "El asunto no tiene un objeto de tipo adecuado: {0}"
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Submit"
 msgstr "Enviar"
 
@@ -2690,11 +3205,6 @@ msgstr "Sistema"
 msgid "Tailor to this project"
 msgstr ""
 
-#. Page title with task name
-#: src/project/tasks/TasksView.svelte
-msgid "Task {0}"
-msgstr "Tarea {0}"
-
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -2706,6 +3216,7 @@ msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "Tareas"
 
@@ -2738,7 +3249,6 @@ msgstr "El número de commits de FieldWorks Classic no necesariamente coincidir�
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "El número de commits de FieldWorks Lite no necesariamente coincidirá con el número de cambios mostrados en el mensaje de resultado de sincronización."
 
-#. Dialog description; {0} is the plugin's display name. Followed by a list of the specific changes it wants to make.
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr ""
@@ -2777,17 +3287,37 @@ msgstr "Este {0} ha sido eliminado"
 msgid "This date # and this emoji # are snippets"
 msgstr "Esta fecha # y este emoji # son fragmentos"
 
-#. Tooltip on the "Trusted" button in the plugin toolbar; clicking it revokes the plugin's "Always allow" write trust.
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "This doesn't look like a complete HTML file. It should start with <!DOCTYPE html> and end with </html>."
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "This word may already exist"
+#. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "This entry may already exist"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "This file is only available remotely."
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
+msgstr ""
+
 #: src/lib/plugins/PluginRunView.svelte
 msgid "This plugin can make changes without asking. Click to make it ask again."
 msgstr ""
 
-#. Heading shown when trying to run a plugin while offline and its file hasn't been cached on this device yet. Paired with the message below it; see similar offline messages in PluginsView and PluginEditorDialog.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "This plugin isn't on this device yet"
 msgstr ""
 
-#. Shown in the plugin run view if the plugin was deleted (e.g. by another user) after this page was opened or linked to.
 #: src/lib/plugins/PluginRunView.svelte
 msgid "This plugin no longer exists."
 msgstr ""
@@ -2807,7 +3337,6 @@ msgstr ""
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr ""
 
-#. Warning detail in the delete-plugin confirmation dialog; plugins are shared project-wide, not per-user.
 #: src/lib/plugins/PluginsView.svelte
 msgid "This removes the plugin for everyone on this project."
 msgstr ""
@@ -2822,8 +3351,11 @@ msgstr "Esta tarea está completa"
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Esto sincronizará las copias de FieldWorks Lite y FieldWorks Classic de su proyecto en Lexbox."
 
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Thread"
+#. Relevant view: Lite
+#. Classic view equivalent: "This entry may already exist"
+#. Warning banner in the New Word dialog when a word with the exact same spelling exists; expands to a list of possible duplicates
+#: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
+msgid "This word may already exist"
 msgstr ""
 
 #. Button to show/hide filter panel
@@ -2862,13 +3394,25 @@ msgstr "Traducción {0}"
 msgid "Troubleshoot"
 msgstr "Solución de problemas"
 
-#. Button/badge in the plugin toolbar shown once the plugin has been granted "Always allow" write trust; clicking it revokes that trust (see tooltip on this same button).
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Trusted"
 msgstr ""
 
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
+msgstr ""
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "Turn analytics back on"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Type"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Citation form"
 msgstr ""
 
 #. Task instruction
@@ -2881,6 +3425,18 @@ msgstr "Escriba una definición"
 msgid "Type a Gloss"
 msgstr "Escriba una glosa"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Lexeme form or Citation form"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Word"
+msgstr ""
+
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
 msgid "Type an example sentence"
@@ -2891,10 +3447,41 @@ msgstr "Escriba una frase de ejemplo"
 msgid "Type:"
 msgstr "Tipo:"
 
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to convert captured image from {0} to a jpeg"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to download the picture"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to export file"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to load audio"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "Unable to load picture"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Unable to open file"
+msgstr ""
+
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Unable to open in FieldWorks"
 msgstr "No se puede abrir en FieldWorks"
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Unable to upload the picture"
+msgstr ""
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
@@ -2934,6 +3521,11 @@ msgstr "Servidor desconocido"
 msgid "Unknown update result"
 msgstr "Resultado de actualización desconocido"
 
+#: src/lib/entry-editor/comments/CommentThread.svelte
+#: src/lib/entry-editor/comments/CommentThread.svelte
+msgid "Unread"
+msgstr ""
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -2965,20 +3557,18 @@ msgstr "Actualizar {0}"
 msgid "Update available: {0}"
 msgstr "Actualización disponible: {0}"
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update downloaded. Restart to apply."
+msgstr ""
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update downloading in the background. Restart to apply once it's finished."
+msgstr ""
+
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "Error al instalar la actualización."
-
-#. Success message after update installs
-#: src/lib/updates/UpdateDialogContent.svelte
-msgid "Update installed successfully! Please restart the application."
-msgstr "¡Actualización instalada con éxito! Por favor, reinicie la aplicación."
-
-#. Info message when update runs in background
-#: src/lib/updates/UpdateDialogContent.svelte
-msgid "Update started in the background. Restart the application after the update is complete."
-msgstr "La actualización comenzó en segundo plano. Reinicie la aplicación después de que la actualización se haya completado."
 
 #. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -2991,6 +3581,22 @@ msgstr "La actualización no fue permitida por la configuración de permisos."
 #: src/project/ProjectSidebar.svelte
 msgid "Updates"
 msgstr "Actualizaciones"
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Upload pending"
+msgstr ""
+
+#: src/lib/media-manager/MediaFileDetail.svelte
+msgid "Uploaded"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "Uploaded pending files"
+msgstr ""
+
+#: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+msgid "Uploading pictures is not supported here"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -3025,10 +3631,23 @@ msgstr "Ver"
 msgid "View {0}"
 msgstr ""
 
+#. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "View Picture"
+msgstr ""
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "View the SIL privacy policy"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "violet"
 msgstr "violeta"
+
+#: src/lib/about/PrivacyDialog.svelte
+msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
+msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
@@ -3085,16 +3704,12 @@ msgstr "Se requiere Palabra o Mostrar como"
 msgid "Word or meaning:"
 msgstr "Palabra o significado:"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Words missing both Word and Display as"
+msgstr ""
+
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Works on phones"
-msgstr ""
-
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Write a reply..."
-msgstr ""
-
-#: src/lib/entry-editor/CommentDialog.svelte
-msgid "Write the first comment..."
 msgstr ""
 
 #. Column header
@@ -3144,17 +3759,18 @@ msgstr "No tiene permiso para descargar el proyecto {0} desde {1}"
 msgid "You have already downloaded the {0} project"
 msgstr "Ya has descargado el proyecto {0}"
 
-#. Body text under the "This plugin isn't on this device yet" heading, shown when trying to run a plugin offline whose file isn't cached locally yet. Keep phrasing consistent with the similar messages in PluginsView and PluginEditorDialog.
+#: src/lib/entry-editor/field-editors/PictureImage.svelte
+msgid "You're offline"
+msgstr ""
+
 #: src/lib/plugins/PluginRunView.svelte
 msgid "You're offline and the plugin file hasn't been downloaded here. Connect to the internet and try again — after that it works offline."
 msgstr ""
 
-#. Toast shown when trying to export/duplicate/import a plugin offline whose file isn't cached on this device yet. Keep phrasing consistent with the similar messages in PluginRunView and PluginEditorDialog.
 #: src/lib/plugins/PluginsView.svelte
 msgid "You're offline and this plugin's file isn't on this device yet."
 msgstr ""
 
-#. Inline error in the plugin editor dialog, shown when opening an existing plugin to edit while offline and its file isn't cached on this device yet. Keep phrasing consistent with the similar messages in PluginRunView and PluginsView.
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "You're offline and this plugin's file isn't on this device yet. Connect and try again."
 msgstr ""

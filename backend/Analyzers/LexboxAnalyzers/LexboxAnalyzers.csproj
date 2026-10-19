@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    In-repo Roslyn analyzers. See backend/Analyzers/README.md.
+    MUST target netstandard2.0 so the assembly loads into both the .NET (CLI) and
+    .NET Framework (Visual Studio) compiler hosts.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <!-- Consumed by backend/Directory.Build.targets to avoid the analyzer referencing itself. -->
+    <IsAnalyzerProject>true</IsAnalyzerProject>
+    <!-- We don't maintain analyzer release-tracking files (AnalyzerReleases.*.md); those exist to
+         manage compatibility for external package consumers, which we don't have. -->
+    <NoWarn>$(NoWarn);RS2008</NoWarn>
+    <!-- Opt out of the backend's central package management: this project pins Roslyn to a
+         deliberately low version, and with CentralPackageTransitivePinningEnabled that pin would
+         collide repo-wide with the newer Roslyn (5.x) pulled transitively by EF Core Design. -->
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Pin Roslyn to a version <= the Roslyn in the lowest supported SDK/IDE; too high fails to
+         load in older tooling. PrivateAssets="all" keeps Roslyn out of consumers' reference graph. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

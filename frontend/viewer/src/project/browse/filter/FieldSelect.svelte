@@ -27,7 +27,10 @@
   type LabeledSelectedField = SelectedField & { label: string };
 
   const labeledValue = $derived(fields.find(f => f.id === value?.id) ?? fields[0]);
-  value ??= untrack(() => labeledValue);
+  // Reactively fall back to the default field so the parent can reset the selection by setting value = null.
+  $effect(() => {
+    if (!value) value = untrack(() => labeledValue);
+  });
 </script>
 
 <Select.Root type="single" bind:value={() => (value ?? fields[0]).id, (newId) => value = fields.find(f => f.id === newId) ?? fields[0]}>

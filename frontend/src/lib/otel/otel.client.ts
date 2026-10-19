@@ -1,10 +1,11 @@
 import {ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION} from '@opentelemetry/semantic-conventions';
 import {BatchSpanProcessor, WebTracerProvider} from '@opentelemetry/sdk-trace-web';
-import {SERVICE_NAME, traceUserAttributes} from '.';
+import {SERVICE_NAME, TRACE_EXPORT_URL_PATTERN, traceUserAttributes} from '.';
 import {defaultResource, resourceFromAttributes} from '@opentelemetry/resources';
 
 import {APP_VERSION} from '$lib/util/version';
-import {OTLPTraceExporterBrowserWithXhrRetry} from './trace-exporter-browser-with-xhr-retry';
+// We explicitly reference the browser version so that we have proper types
+import {OTLPTraceExporter} from '@opentelemetry/exporter-trace-otlp-http/build/src/platform/browser';
 import {ZoneContextManager} from '@opentelemetry/context-zone';
 import {getWebAutoInstrumentations} from '@opentelemetry/auto-instrumentations-web';
 import {instrumentGlobalFetch} from '$lib/util/fetch-proxy';
@@ -22,6 +23,14 @@ instrumentGlobalFetch(() => {
       '@opentelemetry/instrumentation-user-interaction': {
         enabled: false,
       },
+      // Don't trace the exporter's own POSTs to the collector (see TRACE_EXPORT_URL_PATTERN).
+      // traceFetch skips them too; both span-creating layers must, or we loop.
+      '@opentelemetry/instrumentation-fetch': {
+        ignoreUrls: [TRACE_EXPORT_URL_PATTERN],
+      },
+      '@opentelemetry/instrumentation-xml-http-request': {
+        ignoreUrls: [TRACE_EXPORT_URL_PATTERN],
+      },
     })],
   });
 });
@@ -33,7 +42,7 @@ const resource = defaultResource().merge(
   }),
 )
 
-const exporter = new OTLPTraceExporterBrowserWithXhrRetry({
+const exporter = new OTLPTraceExporter({
   url: '/v1/traces'
 });
 
@@ -50,7 +59,9 @@ const provider = new WebTracerProvider({
     },
     new BatchSpanProcessor(exporter, {
       // max number of spans pulled from the queue and exported in a single batch
-      // 30 is often too big for the sendBeacon() API, but we have a fallback to XHR.
+      // keep this small: exports go over fetch with keepalive, and browsers cap in-flight
+      // keepalive bodies at 64KiB *total*. Over ~60KB the transport silently drops
+      // keepalive, so those exports can die with the page on a pagehide flush.
       maxExportBatchSize: 30,
       // minimum time between exports
       scheduledDelayMillis: 1000,

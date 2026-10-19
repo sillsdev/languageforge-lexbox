@@ -18,7 +18,9 @@ export interface BackHandlerConfig {
 }
 
 class BackHandler {
-  static #ignorePopstate = false;
+  // Count, not a flag: closing two layers at once (e.g. a drawer and the dialog under it) queues two
+  // history.back() calls, and the first one's reset must not un-ignore the second one's popstate.
+  static #ignorePopstateCount = 0;
   static #backStack: BackHandler[] = [];
   private get fullKey() {
     return `BackHandler-${this.config.key}`;
@@ -40,7 +42,7 @@ class BackHandler {
     });
     onDestroy(() => this.remove());
     onDestroy(on(window, 'popstate', () => {
-      if (BackHandler.#ignorePopstate) return;
+      if (BackHandler.#ignorePopstateCount > 0) return;
 
       if (this.isNextBack) {
         //setTimeout ensures all popstate events are processed before we call the onBack callback
@@ -77,11 +79,11 @@ class BackHandler {
         );
         return;
       }
-      BackHandler.#ignorePopstate = true;
+      BackHandler.#ignorePopstateCount++;
       history.back();
       void awaitPopstate().finally(() => {
         setTimeout(() => { //setTimeout ensures all popstate events are processed before we stop ignoring
-          BackHandler.#ignorePopstate = false;
+          BackHandler.#ignorePopstateCount--;
         });
       });
       return { triggeredPopstate: true };

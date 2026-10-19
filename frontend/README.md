@@ -6,7 +6,7 @@ Requests come into a node app managed by Sveltekit for static, CSR, or SSR.  Dat
 
 ### Development
 
-Node needs to be installed locally. The `pnpm` package manager should be installed: if you don't already have it, run `corepack enable` and it will be set up.
+Node needs to be installed locally. The `pnpm` package manager should be installed: see [pnpm.io/installation](https://pnpm.io/installation).
 
 Once you've installed dependencies with `pnpm install`, start a development server:
 
@@ -30,6 +30,27 @@ pnpm run build
 You can preview the production build with `pnpm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+#### Bundle analysis
+
+Set `ANALYZE=1` when building to emit [vite-bundle-analyzer](https://github.com/nonzzz/vite-bundle-analyzer) reports (gzip sizes). Use the Vite plugin in `vite.config.ts`, not `pnpm dlx vite-bundle-analyzer`: SvelteKit builds both client and server, and the CLI report is easy to lose under the Node adapter output.
+
+```bash
+ANALYZE=1 pnpm run build
+```
+
+PowerShell:
+
+```powershell
+$env:ANALYZE='1'; pnpm run build
+```
+
+Open the **client** HTML treemap (or the JSON) — ignore the server reports, which include email/mjml:
+
+- `.svelte-kit/output/client/bundle-stats.html`
+- `.svelte-kit/output/client/bundle-stats.json`
+
+The adapter also copies those files to `build/client/`.
 
 #### Testing
 

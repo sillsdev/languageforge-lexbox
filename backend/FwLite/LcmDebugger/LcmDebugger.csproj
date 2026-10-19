@@ -11,5 +11,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting"/>
     <PackageReference Include="Moq"/>
+    <PackageReference Include="NReco.Logging.File"/>
   </ItemGroup>
 </Project>

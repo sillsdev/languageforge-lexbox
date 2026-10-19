@@ -20,6 +20,10 @@ public class FwDataFactory(
     IOptions<FwDataBridgeConfig> config) : IDisposable, IHostedService
 {
     private bool _shuttingDown = false;
+
+    // Sliding window before an idle LcmCache is evicted and disposed. PreventEviction refreshes inside this window.
+    private static readonly TimeSpan CacheSlidingExpiration = TimeSpan.FromMinutes(30);
+
     public FwDataFactory(ILogger<FwDataMiniLcmApi> fwdataLogger,
         IMemoryCache cache,
         ILogger<FwDataFactory> logger,
@@ -51,7 +55,7 @@ public class FwDataFactory(
         var projectService = cache.GetOrCreate(key,
                 entry =>
                 {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                    entry.SlidingExpiration = CacheSlidingExpiration;
                     entry.RegisterPostEvictionCallback(OnLcmProjectCacheEviction, (logger, _projectCacheKeys));
                     logger.LogInformation("Loading project {ProjectFileName}", project.FileName);
                     var projectService = projectLoader.LoadCache(project);
@@ -129,6 +133,24 @@ public class FwDataFactory(
     public IAsyncDisposable DeferCloseAsync(FwDataProject project)
     {
         return Defer.Async(() => CloseProjectAsync(project));
+    }
+
+    /// <summary>
+    /// Keeps the project's LcmCache from being evicted until disposed, by periodically resetting its sliding expiration.
+    /// Use around long-running work that holds one api instance past the expiration window (e.g. a sync paused in a debugger).
+    /// </summary>
+    public IDisposable PreventEviction(FwDataProject project)
+    {
+        var key = CacheKey(project);
+        // Refresh now in case little of the window remains, then every half-window so a tick can't be missed.
+        var period = CacheSlidingExpiration / 2;
+        return new Timer(_ =>
+        {
+            // Best-effort: the shared cache can be disposed during shutdown while a sync is still finishing,
+            // and an unhandled throw on this timer thread would take the process down.
+            try { cache.TryGetValue(key, out _); }
+            catch (ObjectDisposedException) { }
+        }, null, TimeSpan.Zero, period);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)

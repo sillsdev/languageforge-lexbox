@@ -1,4 +1,6 @@
 using FwLiteShared.Services;
+using LcmCrdt.Culture;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 
@@ -43,6 +45,9 @@ public static class MauiProgram
     {
         AppHolder holder = new AppHolder(null);
         var builder = MauiApp.CreateBuilder();
+        // MAUI doesn't load environment variables into configuration by default (unlike ASP.NET Core),
+        // so add them here. This lets config sections like "FwLiteMaui" be set via e.g. FwLiteMaui__BaseDataDir.
+        builder.Configuration.AddEnvironmentVariables();
         builder
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>
@@ -123,6 +128,7 @@ public static class MauiProgram
         holder.App = app;
         var logger = app.Services.GetRequiredService<ILogger<MauiApp>>();
         logger.LogInformation("App started, {Version}", AppVersion.Version);
+        IcuInit.TryInitialize(logger);
         AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
         {
             if (e.ExceptionObject is Exception exception)

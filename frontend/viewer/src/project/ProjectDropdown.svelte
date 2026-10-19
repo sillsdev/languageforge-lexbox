@@ -12,12 +12,15 @@
   import type {IProjectModel} from '$lib/dotnet-types';
   import ProjectTitle from '../home/ProjectTitle.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {useFeatures} from '$lib/services/feature-service';
   import {mergeProps} from 'bits-ui';
 
   let { onSelect } = $props<{
     onSelect: (project: IProjectModel) => void;
   }>();
   const projectContext = useProjectContext();
+  const features = useFeatures();
+  const readonly = $derived(!features.write);
   const projectName = $derived(projectContext.projectName);
   const isCrdt = $derived(projectContext.projectType === 'crdt');
   const projectsService = useProjectsService();
@@ -86,6 +89,9 @@
           <span class="x-ellipsis">
             {projectName}
           </span>
+          {#if readonly}
+            <Icon icon="i-mdi-lock-outline" class="size-4 shrink-0 opacity-60" title={$t`Read-only`} aria-label={$t`Read-only`} />
+          {/if}
         </div>
         <Icon
           icon="i-mdi-chevron-down"

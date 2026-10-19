@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import ErrorBoundary from '$lib/error/ErrorBoundary.svelte';
   import { Layout } from '$lib/layout';
   import { HomeBreadcrumb } from '$lib/layout';
   interface Props {
@@ -11,5 +12,7 @@
 
 <HomeBreadcrumb />
 <Layout>
-  {@render children?.()}
+  <ErrorBoundary>
+    {@render children?.()}
+  </ErrorBoundary>
 </Layout>

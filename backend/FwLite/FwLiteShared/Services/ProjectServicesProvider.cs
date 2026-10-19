@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using FwLiteShared.Sync;
@@ -17,7 +18,8 @@ public class ProjectServicesProvider(
     CrdtProjectsService crdtProjectsService,
     IServiceProvider serviceProvider,
     LexboxProjectService lexboxProjectService,
-    IEnumerable<IProjectProvider> projectProviders
+    IEnumerable<IProjectProvider> projectProviders,
+    IAnalyticsService analytics
 ): IAsyncDisposable
 {
     private IProjectProvider? FwDataProjectProvider =>
@@ -39,10 +41,10 @@ public class ProjectServicesProvider(
     }
 
     [JSInvokable]
-    public Task<string?> TryGetCrdtProjectName(string code)
+    public string? TryGetCrdtProjectName(string code)
     {
         var crdtProject = crdtProjectsService.GetProject(code);
-        return Task.FromResult(crdtProject?.Data?.Name);
+        return crdtProject?.Data?.Name;
     }
 
     [JSInvokable]
@@ -67,9 +69,11 @@ public class ProjectServicesProvider(
                 scope.Server = server;
                 scope.SetCrdtServices(
                     ActivatorUtilities.CreateInstance<HistoryServiceJsInvokable>(scopedServices),
-                    ActivatorUtilities.CreateInstance<SyncServiceJsInvokable>(scopedServices)
+                    ActivatorUtilities.CreateInstance<SyncServiceJsInvokable>(scopedServices),
+                    ActivatorUtilities.CreateInstance<MediaFilesServiceJsInvokable>(scopedServices)
                 );
                 _projectScopes.TryAdd(scope, scope);
+                MixpanelAnalytics.RecordProjectOpened(analytics, projectData, server);
                 return scope;
             }
             catch
@@ -153,6 +157,7 @@ public class ProjectScope
             projectServicesProvider._projectScopes.TryRemove(this, out _);
             HistoryService?.Dispose();
             SyncService?.Dispose();
+            MediaFilesService?.Dispose();
 
             MiniLcm.Value.Dispose();
             MiniLcm.Dispose();
@@ -165,10 +170,12 @@ public class ProjectScope
 
     public void SetCrdtServices(
         HistoryServiceJsInvokable historyService,
-        SyncServiceJsInvokable syncService)
+        SyncServiceJsInvokable syncService,
+        MediaFilesServiceJsInvokable mediaFilesService)
     {
         HistoryService = DotNetObjectReference.Create(historyService);
         SyncService = DotNetObjectReference.Create(syncService);
+        MediaFilesService = DotNetObjectReference.Create(mediaFilesService);
     }
 
     public ValueTask CleanupAsync()
@@ -183,4 +190,5 @@ public class ProjectScope
     public DotNetObjectReference<MiniLcmJsInvokable> MiniLcm { get; set; }
     public DotNetObjectReference<HistoryServiceJsInvokable>? HistoryService { get; set; }
     public DotNetObjectReference<SyncServiceJsInvokable>? SyncService { get; set; }
+    public DotNetObjectReference<MediaFilesServiceJsInvokable>? MediaFilesService { get; set; }
 }

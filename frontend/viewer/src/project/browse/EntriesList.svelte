@@ -91,6 +91,12 @@
     });
   });
 
+  // Only a comment-filtered list can change on a comment event.
+  projectEventBus.onCommentsChanged(() => {
+    if (!gridifyFilter?.includes('Comment')) return;
+    void entryLoader?.quietReset();
+  });
+
   $effect(() => {
     if (entryLoader?.error) {
       AppNotification.error($t`Failed to load entries`, entryLoader.error.message);
@@ -250,6 +256,7 @@
                               class="mb-2"
                               selected={selectedEntryId === entry.id}
                               onclick={() => onSelectEntry(entry)}
+                              sortWs={sort?.writingSystem}
                               {previewDictionary}/>
                   </EntryMenu>
                 {/if}

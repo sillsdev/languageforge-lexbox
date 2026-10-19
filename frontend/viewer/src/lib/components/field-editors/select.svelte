@@ -10,6 +10,7 @@
   import {cn} from '$lib/utils';
   import {watch} from 'runed';
   import {computeCommandScore} from 'bits-ui';
+  import CommandSeparator from '../ui/command/command-separator.svelte';
 
   type Value = ReadonlyDeep<MutableValue>;
 
@@ -20,7 +21,7 @@
     value?: Value;
     options: ReadonlyArray<Value>;
     readonly?: boolean;
-    clearable?: boolean;
+    clearable?: boolean | 'row' | 'button';
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
     labelSelector: ConditionalKeys<Value, string> | ((value: Value) => string);
     placeholder?: string;
@@ -121,11 +122,11 @@
     </Button>
     {#if !readonly}
       <div class="absolute right-0 z-10 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
-        {#if clearable}
+        {#if clearable === true || clearable === 'button'}
           <XButton
             onclick={() => selectValue(undefined)}
             aria-label={$t`clear`}
-            class={cn('pointer-events-auto', value || 'invisible')}
+            class={cn('pointer-events-auto bg-transparent', value || 'invisible')}
           />
         {/if}
         <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
@@ -149,6 +150,14 @@
     </CommandInput>
     <CommandList class="max-md:h-75 md:max-h-[40vh]">
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
+      {#if (clearable === true || clearable === 'row') && value}
+        <CommandGroup>
+          <CommandItem onSelect={() => selectValue(undefined)}>
+            {$t`None`}
+          </CommandItem>
+        </CommandGroup>
+        <CommandSeparator />
+      {/if}
       <CommandGroup>
         {#each renderedOptions as option, i (getId(option))}
           {@const label = getLabel(option)}

@@ -42,7 +42,7 @@ declare global {
 
   type ErrorHandler =
     'client-error' | 'client-unhandledrejection' |
-    'server-error-hook' | 'client-error-hook';
+    'server-error-hook' | 'client-error-hook' | 'svelte-boundary';
 
   function enableDevMode(enable = true): void;
 }

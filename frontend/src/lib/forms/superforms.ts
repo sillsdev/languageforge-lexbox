@@ -59,7 +59,7 @@ export function lexSuperForm<S extends ZodValidationSchema>(
   });
 
   const formState = getFormState(sf);
-  return { formState, ...sf } as LexSuperForm<S>;
+  return { formState, ...sf };
 }
 
 function formHasMessageOrErrors<S extends Record<string, unknown>>(form: SuperForm<S, string>): boolean {

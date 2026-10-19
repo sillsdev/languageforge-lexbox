@@ -17,7 +17,7 @@ Looking for [FieldWorks Lite](backend/FwLite/README.md)?
 
 files related to a specific service should be in a folder named after the service.
 There are some exceptions:
-* `LexBox.sln` visual studio expects the sln to be at the root of the repo and can make things difficult otherwise
+* `LexBox.slnx` visual studio expects the solution to be at the root of the repo and can make things difficult otherwise
 
 ## Development
 
@@ -58,7 +58,7 @@ There are some additional urls below to access specific parts of the system.
 ### Local workflow
 
 #### Prerequisites
-- The SvelteKit UI requires: node v20+
+- The SvelteKit UI requires: node v26+
 - The .NET API requires: dotnet sdk v8+
 
 #### Running the project

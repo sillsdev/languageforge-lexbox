@@ -70,6 +70,7 @@ describe('jwtToUser', () => {
       'emailVerified': true,
       'canCreateProjects': true,
       'createdByAdmin': false,
+      'optedOutOfAnalytics': false,
       'locale': 'en',
       'emailOrUsername': 'editor@test.com',
       'audience': 'LexboxApi',

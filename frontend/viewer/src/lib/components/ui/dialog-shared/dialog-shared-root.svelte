@@ -19,6 +19,11 @@
   export function useDialogSharedRoot(): DialogSharedRootStateProps {
     return dialogSharedRootContext.get();
   }
+
+  /** Module-level dialog count for callers outside dialog context (e.g. global hotkeys). */
+  export function getOpenDialogCount(): number {
+    return openDialogs;
+  }
 </script>
 
 <script lang="ts">

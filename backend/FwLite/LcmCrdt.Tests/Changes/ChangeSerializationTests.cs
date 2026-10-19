@@ -1,8 +1,5 @@
-using System.Buffers;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using FluentAssertions.Execution;
-using LcmCrdt.Changes.Entries;
 using LcmCrdt.Tests.Data;
 using SIL.Harmony.Changes;
 
@@ -10,17 +7,8 @@ namespace LcmCrdt.Tests.Changes;
 
 public class ChangeSerializationTests : BaseSerializationTest
 {
-    private static IEnumerable<IChange> GeneratedChangesForType(Type type)
+    private static IChange GenerateChangeForType(Type type)
     {
-        //can't generate this type because there's no public constructor
-        if (type == typeof(SetComplexFormComponentChange))
-        {
-            yield return SetComplexFormComponentChange.NewComplexForm(Guid.NewGuid(), Guid.NewGuid());
-            yield return SetComplexFormComponentChange.NewComponent(Guid.NewGuid(), Guid.NewGuid());
-            yield return SetComplexFormComponentChange.NewComponentSense(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
-            yield break;
-        }
-
         object change;
         try
         {
@@ -32,18 +20,12 @@ public class ChangeSerializationTests : BaseSerializationTest
         }
 
         change.Should().NotBeNull($"change type {type.Name} should have been generated").And.BeAssignableTo<IChange>();
-        yield return (IChange)change;
+        return (IChange)change;
     }
 
     private static IEnumerable<IChange> GeneratedChanges()
     {
-        foreach (var type in LcmCrdtKernel.AllChangeTypes())
-        {
-            foreach (var change in GeneratedChangesForType(type))
-            {
-                yield return change;
-            }
-        }
+        return LcmCrdtKernel.AllChangeTypes().Select(GenerateChangeForType);
     }
 
     public static IEnumerable<object[]> Changes()
@@ -61,6 +43,20 @@ public class ChangeSerializationTests : BaseSerializationTest
         var type = change.GetType();
         var json = JsonSerializer.Serialize(change, HarmonyJsonOptions);
         var newChange = JsonSerializer.Deserialize(json, type, HarmonyJsonOptions);
+        newChange.Should().BeEquivalentTo(change);
+    }
+
+    [Theory]
+    [MemberData(nameof(Changes))]
+    public void CanRoundTripChangesAsIChangeWithExternalOptions(IChange change)
+    {
+        // The sync client, web host, and debugger all (de)serialize change fields as the abstract IChange
+        // using the external (Web) options. That relies on Harmony's polymorphic converter, not just the
+        // type resolver — regression guard against the "Deserialization of interface or abstract types is
+        // not supported. Type 'IChange'" break when only the resolver was wired onto the external options.
+        var options = TestJsonOptions.External();
+        var json = JsonSerializer.Serialize(change, options);
+        var newChange = JsonSerializer.Deserialize<IChange>(json, options);
         newChange.Should().BeEquivalentTo(change);
     }
 
@@ -101,8 +97,6 @@ public class ChangeSerializationTests : BaseSerializationTest
         }
     }
 
-    private record LegacyChangeRecord(IChange Input, IChange Output);
-
     [Fact]
     public void CanDeserializeLegacyRegressionData()
     {
@@ -114,7 +108,7 @@ public class ChangeSerializationTests : BaseSerializationTest
         // when it detects that they don't stably round-trip and
         // (2) keeps the round-trip output of the changes up to date
         using var jsonFile = File.OpenRead(GetJsonFilePath("ChangeDeserializationRegressionData.legacy.verified.txt"));
-        var changes = JsonSerializer.Deserialize<List<LegacyChangeRecord>>(jsonFile, HarmonyJsonOptions);
+        var changes = JsonSerializer.Deserialize<List<LegacyRecord<IChange>>>(jsonFile, HarmonyJsonOptions);
         changes.Should().NotBeNullOrEmpty().And.NotContainNulls();
         changes.SelectMany(c => new[] { c.Input, c.Output })
             .Should().NotContainNulls()
@@ -123,89 +117,13 @@ public class ChangeSerializationTests : BaseSerializationTest
 
     [Fact]
     [Trait("Category", "Verified")]
-    public async Task RegressionDataUpToDate()
+    public Task RegressionDataUpToDate()
     {
-        var legacyJsonArray = ReadJsonArrayFromFile(GetJsonFilePath("ChangeDeserializationRegressionData.legacy.verified.txt"));
-        var latestJsonArray = ReadJsonArrayFromFile(GetJsonFilePath("ChangeDeserializationRegressionData.latest.verified.txt"));
-        var newLatestJsonArray = new JsonArray();
-
-        // step 1: validate the round-tripping/output of legacy changes
-        foreach (var legacyJsonNode in legacyJsonArray)
-        {
-            legacyJsonNode.Should().NotBeNull();
-            var legacyJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacyChangeRecord.Input)]!);
-            legacyJson.Should().NotBeNullOrWhiteSpace();
-            var legacyOutputJson = ToNormalizedIndentedJsonString(legacyJsonNode[nameof(LegacyChangeRecord.Output)]!);
-            legacyOutputJson.Should().NotBeNullOrWhiteSpace();
-            var change = JsonSerializer.Deserialize<IChange>(legacyJson, HarmonyJsonOptions);
-            change.Should().NotBeNull();
-            var newLegacyOutputJson = JsonSerializer.Serialize(change, IndentedHarmonyJsonOptions);
-            if (legacyOutputJson != newLegacyOutputJson)
-            {
-                //the legacy change no longer round-trips to the same output, so we should verify the new output
-                legacyJsonNode[nameof(LegacyChangeRecord.Output)] = JsonNode.Parse(newLegacyOutputJson);
-            }
-        }
-
-        // step 2: validate the round-tripping/output of latest changes, moving any that don't to legacy
-        var seenChangeTypes = new HashSet<Type>();
-        foreach (var latestJsonNode in latestJsonArray)
-        {
-            latestJsonNode.Should().NotBeNull();
-            var latestJson = ToNormalizedIndentedJsonString(latestJsonNode);
-            latestJson.Should().NotBeNullOrWhiteSpace();
-            var change = JsonSerializer.Deserialize<IChange>(latestJsonNode, HarmonyJsonOptions);
-            change.Should().NotBeNull();
-            seenChangeTypes.Add(change.GetType());
-            var newLatestJson = JsonSerializer.Serialize(change, IndentedHarmonyJsonOptions);
-
-            if (latestJson != newLatestJson)
-            {
-                // The current "latest" json doesn't match it's reserialized form.
-                // I.e. it's no longer the latest. It's now legacy
-                legacyJsonArray.Add(new JsonObject
-                {
-                    [nameof(LegacyChangeRecord.Input)] = latestJsonNode.DeepClone(),
-                    [nameof(LegacyChangeRecord.Output)] = JsonNode.Parse(newLatestJson)
-                });
-                newLatestJsonArray.Add(JsonNode.Parse(newLatestJson));
-                // Additionally we add brand new generated changes of the type.
-                // If the new model only changes the representation of the same data then this might not be helpful.
-                // However, we typically change the model in order to add new data, so the generated change will exercise that new data.
-                // Anyhow, it's much easier for a dev to remove unwanted changes than
-                // to generate and insert them manually. We can remove this if it's too noisy.
-                foreach (var generatedChange in GeneratedChangesForType(change.GetType()))
-                {
-                    var serialized = JsonSerializer.Serialize(generatedChange, IndentedHarmonyJsonOptions);
-                    newLatestJsonArray.Add(JsonNode.Parse(serialized));
-                }
-            }
-            else
-            {
-                // it's still the latest
-                newLatestJsonArray.Add(latestJsonNode.DeepClone());
-            }
-        }
-
-        // step 3: add changes for any change types not already represented
-        foreach (var changeType in LcmCrdtKernel.AllChangeTypes()
-            .Where(changeType => !seenChangeTypes.Contains(changeType)))
-        {
-            foreach (var generatedChange in GeneratedChangesForType(changeType))
-            {
-                var serialized = JsonSerializer.Serialize(generatedChange, IndentedHarmonyJsonOptions);
-                newLatestJsonArray.Add(JsonNode.Parse(serialized));
-            }
-        }
-
-        await Task.WhenAll(
-            Verify(SerializeRegressionData(legacyJsonArray))
-                .UseStrictJson()
-                .UseFileName("ChangeDeserializationRegressionData.legacy"),
-            Verify(SerializeRegressionData(newLatestJsonArray))
-                .UseStrictJson()
-                .UseFileName("ChangeDeserializationRegressionData.latest")
-        );
+        return VerifyRegressionDataUpToDate<IChange>(
+            "ChangeDeserializationRegressionData",
+            LcmCrdtKernel.AllChangeTypes(),
+            change => change.GetType(),
+            GenerateChangeForType);
     }
 
     //helper method, can be called manually to regenerate the json file

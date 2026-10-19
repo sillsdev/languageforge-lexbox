@@ -25,11 +25,15 @@ export function formatRelativeDate(
   const isPast = diffMs <= 0;
   const absDiffMs = Math.abs(diffMs);
 
-  const unit = config.smallestUnit ?? 'seconds';
-  // DurationFormat omits zero fields, so diffs < smallestUnit format as "". Force-display a zero.
-  const duration =
-    formatDuration({milliseconds: absDiffMs}, config.smallestUnit, options, config.maxUnits) ||
-    formatDuration({[unit]: 0}, unit, {...options, [`${unit}Display`]: 'always'});
+  const duration = formatDuration({milliseconds: absDiffMs}, config.smallestUnit, options, config.maxUnits);
+  // DurationFormat omits zero fields, so diffs < smallestUnit format as ""
+  if (!duration) {
+    // digital style has to stay numeric, so force-display a zero there
+    if (options?.style !== 'digital') return gt`just now`;
+    const unit = config.smallestUnit ?? 'seconds';
+    const zero = formatDuration({[unit]: 0}, unit, {...options, [`${unit}Display`]: 'always'});
+    return isPast ? gt`${zero} ago` : gt`in ${zero}`;
+  }
 
   return isPast ? gt`${duration} ago` : gt`in ${duration}`;
 }

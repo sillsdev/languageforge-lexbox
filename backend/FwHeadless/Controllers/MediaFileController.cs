@@ -1,14 +1,13 @@
 using FwHeadless.Models;
 using LexCore.Entities;
 using LexData;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
-using System.Security.Cryptography;
 using Microsoft.Net.Http.Headers;
 using System.Globalization;
 using FwHeadless.Media;
 using LexCore.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using MimeMapping;
 
 namespace FwHeadless.Controllers;
@@ -94,7 +93,6 @@ public static class MediaFileController
         return result;
     }
 
-    [HttpPost]
     public static async Task<Results<Ok<PostFileResult>, Created<PostFileResult>, NotFound, BadRequest<FileUploadErrorMessage>, ProblemHttpResult>> PostFile(
         [FromQuery] Guid projectId,
         [FromForm] Guid? fileId,
@@ -154,7 +152,7 @@ public static class MediaFileController
         // Add ETag to the POST results so uploaders could, in theory, save it and use it later in a GET operation
         var entityTag = mediaFile.Metadata!.Sha256Hash;
         httpContext.Response.Headers.ETag = $"\"{entityTag}\"";
-        var responseBody = new PostFileResult(mediaFile.Id);
+        var responseBody = new PostFileResult(mediaFile.Id, mediaFile.Metadata);
         if (newFile)
         {
             var newLocation = $"{Routes.MediaFileRoutes.RootRoute}/{fileId}";
@@ -177,14 +175,6 @@ public static class MediaFileController
         }
 
         return null;
-    }
-
-    private static async Task AddEntityTagMetadata(MediaFile mediaFile, string filePath)
-    {
-        mediaFile.InitializeMetadataIfNeeded(filePath);
-        await using var stream = File.OpenRead(filePath);
-        var hash = await SHA256.HashDataAsync(stream);
-        mediaFile.Metadata.Sha256Hash = Convert.ToHexStringLower(hash);
     }
 
     private static async Task<bool> AddEntityTagMetadataIfNotPresent(MediaFile mediaFile, string filePath)
@@ -270,7 +260,7 @@ public static class MediaFileController
             mediaFile = new MediaFile()
             {
                 Id = fileId.Value,
-                Filename = Path.Join(LinkedFiles, subfolder, fileId.ToString(), filename),
+                Filename = MediaFilePath.Normalize(Path.Join(LinkedFiles, subfolder, fileId.ToString(), filename)),
                 ProjectId = projectId,
                 Metadata = metadata,
             };
@@ -282,7 +272,7 @@ public static class MediaFileController
             {
                 throw new UploadedFilesCannotBeMovedToNewProjects();
             }
-            if (subfolderOverride is not null && !mediaFile.Filename.StartsWith(Path.Join(LinkedFiles, subfolderOverride)))
+            if (subfolderOverride is not null && !MediaFilePath.Normalize(mediaFile.Filename).StartsWith(MediaFilePath.Normalize(Path.Join(LinkedFiles, subfolderOverride))))
             {
                 throw new UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders();
             }
@@ -304,7 +294,7 @@ public static class MediaFileController
         await mediaFileService.SaveMediaFile(mediaFile, readStream);
     }
 
-    private static string? GuessSubfolderFromMimeType(string? mimeType)
+    internal static string? GuessSubfolderFromMimeType(string? mimeType)
     {
         if (mimeType is null) return null;
         if (mimeType.StartsWith("image/")) return "Pictures";

@@ -12,6 +12,7 @@ export interface IChangeContext
 	changeIndex: number;
 	changeName: string;
 	snapshot?: IObjectWithId;
+	previousSnapshot?: IObjectWithId;
 	affectedEntries: IEntry[];
 	entityType: string;
 }

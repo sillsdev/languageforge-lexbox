@@ -5,7 +5,7 @@
   import {buttonVariants} from '$lib/components/ui/button';
   import type {PopoverTriggerProps, WithChildren, WithoutChildren} from 'bits-ui';
   import {Icon} from '../ui/icon';
-  import type {ComponentProps} from 'svelte';
+  import type {ComponentProps, Snippet} from 'svelte';
   import {cn} from '$lib/utils';
 
   type TriggerSnippet = PopoverTriggerProps['child'];
@@ -15,11 +15,13 @@
     open = $bindable(false),
     children,
     title,
+    titleActions,
     trigger,
     contentProps,
   }: WithChildren<{
     open?: boolean;
     title?: string;
+    titleActions?: Snippet;
     trigger: TriggerSnippet;
     contentProps?: ContentProps;
   }> = $props();
@@ -33,8 +35,15 @@
       class={cn('w-auto mr-4 max-h-[calc(90vh)] overflow-y-auto', contentProps?.class)}
     >
       <div class="space-y-3">
-        {#if title}
-          <h3 class="font-medium">{title}</h3>
+        {#if title || titleActions}
+          <div class="flex items-center justify-between gap-2">
+            {#if title}
+              <h3 class="font-medium">{title}</h3>
+            {/if}
+            {#if titleActions}
+              {@render titleActions()}
+            {/if}
+          </div>
         {/if}
 
         {#if children}
@@ -50,6 +59,11 @@
       <Drawer.Close class={buttonVariants({variant: 'ghost', size: 'icon', class: 'absolute top-4 right-4 z-10'})}>
         <Icon icon="i-mdi-close" />
       </Drawer.Close>
+      {#if titleActions}
+        <div class="absolute top-4 left-4 z-10">
+          {@render titleActions()}
+        </div>
+      {/if}
       <div class="mx-auto w-full max-w-sm p-4 overflow-auto overscroll-contain">
         {#if title}
           <Drawer.Header>

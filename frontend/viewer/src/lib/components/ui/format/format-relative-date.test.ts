@@ -1,4 +1,5 @@
 import {describe, expect, it} from 'vitest';
+
 import {formatRelativeDate} from './format-relative-date-fn.svelte';
 
 function config(now: Date, smallestUnit: 'milliseconds' | 'seconds' | 'minutes' | 'hours' = 'seconds') {
@@ -25,15 +26,26 @@ describe('formatRelativeDate', () => {
     expect(result.startsWith('in 3 ')).toBe(true);
   });
 
-  it('falls back to a zero-duration string when diff is below smallestUnit', () => {
+  it('says "just now" when the diff is below smallestUnit', () => {
     const now = new Date();
-    expect(formatRelativeDate(new Date(now.getTime() - 500), undefined, config(now))).toMatch(/^0 .+ ago$/);
-    expect(formatRelativeDate(new Date(now.getTime() + 500), undefined, config(now))).toMatch(/^in 0 /);
+    expect(formatRelativeDate(new Date(now.getTime() - 500), undefined, config(now))).toBe('just now');
+    expect(formatRelativeDate(new Date(now.getTime() - 30_000), undefined, config(now, 'minutes'))).toBe('just now');
+  });
+
+  it('says "just now" for a future diff below smallestUnit (clock skew)', () => {
+    const now = new Date();
+    expect(formatRelativeDate(new Date(now.getTime() + 500), undefined, config(now))).toBe('just now');
+  });
+
+  it('keeps a numeric zero for style=digital', () => {
+    const now = new Date();
+    const result = formatRelativeDate(new Date(now.getTime() - 500), {style: 'digital'}, config(now));
+    expect(result).toMatch(/^[\d:]+ ago$/);
   });
 
   it('produces the correct plural for zero (style=long)', () => {
     const now = new Date();
-    expect(formatRelativeDate(now, {style: 'long'}, config(now))).toContain('0 seconds');
+    expect(formatRelativeDate(now, {style: 'long', secondsDisplay: 'always'}, config(now))).toContain('0 seconds');
   });
 
   it('accepts ISO-string dates', () => {

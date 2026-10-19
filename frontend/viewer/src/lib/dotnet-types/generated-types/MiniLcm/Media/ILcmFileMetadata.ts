@@ -9,6 +9,8 @@ export interface ILcmFileMetadata
 	mimeType: string;
 	author?: string;
 	uploadDate?: string;
+	sizeInBytes?: number;
 	linkedFilesSubfolder?: string;
+	extraFields: { [key:string]: any };
 }
 /* eslint-enable */

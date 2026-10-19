@@ -1,19 +1,17 @@
 import type { NetworkObject } from '@papi/core';
 import papi, { logger } from '@papi/frontend';
-import { useLocalizedStrings } from '@papi/frontend/react';
 import type { IEntryService, LexiconWebViewProps, PartialEntry } from 'lexicon';
 import { useCallback, useEffect, useState } from 'react';
 import AddNewEntry from '../components/add-new-entry';
-import { LOCALIZED_STRING_KEYS } from '../types/localized-string-keys';
+import displayAddedEntry from '../utils/display-added-entry';
 
 globalThis.webViewComponent = function LexiconAddWord({
   analysisLanguage,
+  lexiconCode,
   projectId,
   vernacularLanguage,
   word,
 }: LexiconWebViewProps) {
-  const [localizedStrings] = useLocalizedStrings(LOCALIZED_STRING_KEYS);
-
   const [lexiconNetworkObject, setLexiconNetworkObject] = useState<
     NetworkObject<IEntryService> | undefined
   >();
@@ -28,31 +26,37 @@ globalThis.webViewComponent = function LexiconAddWord({
         logger.info('Got network object:', networkObject);
         setLexiconNetworkObject(networkObject);
       })
-      .catch((e) => logger.error(`${localizedStrings['%lexicon_error_gettingNetworkObject%']}`, e));
-  }, [localizedStrings]);
+      .catch((e) => logger.error('Error getting network object:', e));
+  }, []);
 
   const addEntry = useCallback(
-    async (entry: PartialEntry) => {
-      if (!projectId || !lexiconNetworkObject) {
-        const errMissingParam = localizedStrings['%lexicon_error_missingParam%'];
-        if (!projectId) logger.warn(`${errMissingParam}projectId`);
-        if (!lexiconNetworkObject) logger.warn(`${errMissingParam}lexiconNetworkObject`);
-        return;
+    async (entry: PartialEntry): Promise<boolean> => {
+      if (!lexiconCode || !projectId || !lexiconNetworkObject) {
+        if (!lexiconCode) logger.warn('Missing required parameter: lexiconCode');
+        if (!projectId) logger.warn('Missing required parameter: projectId');
+        if (!lexiconNetworkObject) logger.warn('Missing required parameter: lexiconNetworkObject');
+        return false;
       }
 
       setIsSubmitted(false);
       setIsSubmitting(true);
       logger.info(`Adding entry: ${JSON.stringify(entry)}`);
-      const entryId = (await lexiconNetworkObject.addEntry(projectId, entry))?.id;
-      setIsSubmitting(false);
-      if (entryId) {
-        setIsSubmitted(true);
-        await papi.commands.sendCommand('lexicon.displayEntry', projectId, entryId);
-      } else {
-        logger.error(`${localizedStrings['%lexicon_error_failedToAddEntry%']}`);
+      let entryId: string | undefined;
+      try {
+        entryId = (await lexiconNetworkObject.addEntry(lexiconCode, entry))?.id;
+      } finally {
+        setIsSubmitting(false);
       }
+      if (!entryId) {
+        logger.error('Failed to add entry!');
+        return false;
+      }
+
+      setIsSubmitted(true);
+      await displayAddedEntry(projectId, lexiconCode, entryId);
+      return true;
     },
-    [lexiconNetworkObject, localizedStrings, projectId],
+    [lexiconCode, lexiconNetworkObject, projectId],
   );
 
   return (

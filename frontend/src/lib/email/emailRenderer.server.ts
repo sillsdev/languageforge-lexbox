@@ -24,7 +24,7 @@ function getSubject(head: string): string {
         subject = node.children?.[0].data as string;
       }
     }
-  } as Parameters<typeof walk>[1]);
+  });
   if (!subject) throw new Error('subject not found');
   console.log(`Subject: ${subject}`);
   return subject;

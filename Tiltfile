@@ -116,7 +116,7 @@ k8s_resource(
     labels=['app'],
     port_forwards=[
         port_forward(8088, name='hg'),
-        port_forward(8034, 80, name='hg-resumable'),
+        port_forward(8034, 8080, name='hg-resumable'),
     ]
 )
 k8s_resource(

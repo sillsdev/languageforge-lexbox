@@ -13,6 +13,7 @@
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
   import {initProjectContext} from '$project/project-context.svelte';
   import {initProjectStorage} from '$lib/storage';
+  import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
 
   const projectServicesProvider = useProjectServicesProvider();
 
@@ -24,6 +25,7 @@
   const projectContext = initProjectContext();
   const code = untrack(() => _code);
   projectContext.projectCode = code;
+  projectContext.inParatext = untrack(() => paratext);
 
   initProjectStorage(code);
 
@@ -56,17 +58,21 @@
     if (projectScope.syncService) {
       syncService = wrapInProxy(projectScope.syncService, DotnetService.SyncService);
     }
+    let mediaFilesService: IMediaFilesServiceJsInvokable | undefined = undefined;
+    if (projectScope.mediaFilesService) {
+      mediaFilesService = wrapInProxy(projectScope.mediaFilesService, DotnetService.MediaFilesService);
+    }
     const api = wrapInProxy(projectScope.miniLcm, DotnetService.MiniLcmApi);
     projectContext.setup({
       api,
       historyService,
       syncService,
+      mediaFilesService,
       projectName,
       projectCode: code,
       projectType,
       server: projectScope.server,
-      projectData: projectScope.projectData,
-      paratext
+      projectData: projectScope.projectData
     });
     serviceLoaded = true;
   });

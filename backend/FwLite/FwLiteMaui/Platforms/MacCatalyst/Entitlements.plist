@@ -9,6 +9,12 @@
         <!-- When App Sandbox is enabled, this value is required to open outgoing network connections. -->
         <key>com.apple.security.network.client</key>
         <true/>
+        <!-- When App Sandbox is enabled, this is required (alongside NSCameraUsageDescription) to use the camera. -->
+        <key>com.apple.security.device.camera</key>
+        <true/>
+        <!-- Required (alongside NSMicrophoneUsageDescription) to record audio. -->
+        <key>com.apple.security.device.audio-input</key>
+        <true/>
     </dict>
 </plist>
 

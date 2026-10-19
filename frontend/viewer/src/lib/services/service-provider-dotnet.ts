@@ -66,7 +66,8 @@ export function wrapInProxy<K extends ServiceKey>(dotnetObject: DotNet.DotNetObj
         console.debug(`[Dotnet Proxy] Calling ${serviceName} method ${dotnetMethodName}`, args);
         args = transformArgs(args);
         try {
-          const result = await target.invokeMethodAsync(dotnetMethodName, ...args);
+          let result = await target.invokeMethodAsync(dotnetMethodName, ...args);
+          if (result === null) result = undefined;//ensure that if the return is null rewrite it to undefined to match the contract
           console.debug(`[Dotnet Proxy] ${serviceName} method ${dotnetMethodName} returned`, result);
           return result;
         } catch (error) {

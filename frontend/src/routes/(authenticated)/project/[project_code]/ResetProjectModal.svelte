@@ -1,3 +1,15 @@
+<script module lang="ts">
+  // Has to live in the module script and be exported: the script transform inlines a
+  // component-local enum away, which leaves the markup's references undefined at runtime.
+  // svelte-ignore non_reactive_update
+  export const enum ResetSteps {
+    Download,
+    Reset,
+    Upload,
+    Finished,
+  }
+</script>
+
 <script lang="ts">
   import {resolve} from '$app/paths';
   import {Checkbox, type ErrorMessage, Form, FormError, Input, lexSuperForm, Button} from '$lib/forms';
@@ -11,14 +23,6 @@
   import {scale} from 'svelte/transition';
   import {bounceIn} from 'svelte/easing';
   import {getErrorMessage} from '$lib/error/utils';
-
-  // svelte-ignore non_reactive_update
-  enum ResetSteps {
-    Download,
-    Reset,
-    Upload,
-    Finished,
-  }
 
   let currentStep = $state(ResetSteps.Download);
   let changingSteps = $state(false); // only some steps set and use this

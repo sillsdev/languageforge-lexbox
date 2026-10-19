@@ -7,8 +7,9 @@ namespace MiniLcm.Tests;
 public abstract class QueryEntryTestsBase : MiniLcmTestBase
 {
     protected readonly Guid appleId = Guid.NewGuid();
-    private readonly string Apple = "Apple";
-    private readonly string Peach = "Peach";
+    protected readonly string Apple = "Apple";
+    protected readonly Guid peachId = Guid.NewGuid();
+    protected readonly string Peach = "Peach";
     private readonly string Banana = "Banana";
     private readonly string Kiwi = "Kiwi";
     private readonly string Null_LexemeForm = string.Empty; // nulls get normalized to empty strings
@@ -21,7 +22,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         await base.InitializeAsync();
         var nounPos = new PartOfSpeech() { Id = Guid.NewGuid(), Name = { { "en", "Noun" } } };
         await Api.CreatePartOfSpeech(nounPos);
-        var semanticDomain = new SemanticDomain() { Id = Guid.NewGuid(), Name = { { "en", "Fruit" } }, Code = "1. Fruit" };
+        var semanticDomain = new SemanticDomain() { Id = Guid.NewGuid(), Name = { { "en", "Fruit" } }, Abbreviation = { { "en", "1. Fruit" } } };
         await Api.CreateSemanticDomain(semanticDomain);
         var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new() { { "en", "Very complex" } } };
         await Api.CreateComplexFormType(complexFormType);
@@ -36,6 +37,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         }, CreateEntryOptions.AsIs);
         await Api.CreateEntry(new Entry()
         {
+            Id = peachId,
             LexemeForm = { { "en", Peach } },
             ComplexFormTypes = [complexFormType],
             Senses =
@@ -94,7 +96,8 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
                     [
                         new ExampleSentence()
                         {
-                            Sentence = { { "en", new RichString("I like eating Kiwis, they taste good") } }
+                            Sentence = { { "en", new RichString("I like eating Kiwis, they taste good") } },
+                            Translations = [new Translation() { Text = { { "en", new RichString("Kiwi translation") } } }]
                         },
                     ]
                 }
@@ -202,6 +205,37 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         //Senses.ExampleSentences=null matches entries which have senses but no examples
         //it does not include Apple because it has no senses, to include it a filter Senses=null is needed
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingTranslations()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations=null" })).ToArrayAsync();
+        //matches entries which have an example sentence with no translations
+        //Kiwi is excluded because its only example sentence has a translation
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingTranslations_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations=null" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingTranslationsWithEmptyArray()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations=[]" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToNotMissingTranslations()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations!=null" })).ToArrayAsync();
+        //matches entries which have an example sentence with a translation; only Kiwi's example has one
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Kiwi);
     }
 
     [Fact]
@@ -639,8 +673,8 @@ public abstract class NullAndEmptyQueryEntryTestsBase : MiniLcmTestBase
         await Api.CreateEntry(new Entry() { LexemeForm = { { "en", Apple } } });
         // null / missing key
         await Api.CreateEntry(new Entry());
-        // blank
-        await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = EmptyString } });
+        // blank - via BaseApi, because validation rejects empty values, but existing projects still contain them
+        await BaseApi.CreateEntry(new Entry() { LexemeForm = { ["en"] = EmptyString } });
         // null string
         await Api.CreateEntry(new Entry() { LexemeForm = { ["en"] = NullString } });
     }

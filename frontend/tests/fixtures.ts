@@ -1,7 +1,7 @@
 import {test as base, expect, type BrowserContext, type BrowserContextOptions, type Page, type TestInfo} from '@playwright/test';
 import * as testEnv from './envVars';
 import {type UUID, randomUUID} from 'crypto';
-import {addUserToOrg, deleteUser, loginAs, registerUser, verifyTempUserEmail} from './utils/authHelpers';
+import {addUserToOrg, createGuestUser, deleteUser, loginAs, registerUser, verifyTempUserEmail, type GuestUser} from './utils/authHelpers';
 import {executeGql, type GqlResult} from './utils/gqlHelpers';
 import {mkdtemp, rm} from 'fs/promises';
 import {join} from 'path';
@@ -39,6 +39,7 @@ type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
   uniqueTestId: string,
   tempUserFactory: (options?: UserFactoryOptions) => Promise<Readonly<TempUser>>,
+  guestUserFactory: (name: string, username: string) => Promise<Readonly<GuestUser>>,
   tempUser: Readonly<TempUser>,
   tempUserVerified: Readonly<TempUser>,
   tempUserInTestOrg: Readonly<TempUser>,
@@ -134,6 +135,22 @@ export const test = base.extend<Fixtures>({
     await loginAs(context.request, 'admin');
     for (const tempUser of tempUsers) {
       await deleteUser(context.request, tempUser.id);
+    }
+    await context.close();
+  },
+  // Cheaper than tempUserFactory (no registration flow, no mailbox) and lets the test choose the
+  // display name, so it's the way to get a user whose *name* matters. Requires an admin login on `page`.
+  guestUserFactory: async ({browser, page}, use) => {
+    const guestUsers: GuestUser[] = [];
+    await use(async (name, username) => {
+      const guestUser = await createGuestUser(page.request, name, username);
+      guestUsers.push(guestUser);
+      return Object.freeze(guestUser);
+    });
+    const context = await browser.newContext();
+    await loginAs(context.request, 'admin');
+    for (const guestUser of guestUsers) {
+      await deleteUser(context.request, guestUser.id);
     }
     await context.close();
   },

@@ -42,6 +42,10 @@ public static class EntryQueryHelpers
     public static Entry? QueryComponentEntry(ComplexFormComponent c) => throw new NotSupportedException();
     public static Sense? QueryComponentSense(ComplexFormComponent c) => throw new NotSupportedException();
     public static Entry? QueryComplexFormEntry(ComplexFormComponent c) => throw new NotSupportedException();
+    public static List<CommentThread> QueryCommentThreads(Entry e) => throw new NotSupportedException();
+    public static List<CommentThread> QueryOpenCommentThreads(Entry e) => throw new NotSupportedException();
+    public static List<UnreadComment> QueryThreadsUnreadComments(CommentThread ct) => throw new NotSupportedException();
+    public static List<UnreadComment> QueryEntryUnreadComments(Entry e) => throw new NotSupportedException();
 
     [Sql.Expression("""
                     (select WsId
@@ -126,7 +130,8 @@ public static class EntryQueryHelpers
         // Iterate all WS keys that have data, not just "current" vernacular WSs,
         // so we don't lose headwords for non-current or future writing systems.
         var wsIds = entry.CitationForm.Values.Keys
-            .Union(entry.LexemeForm.Values.Keys);
+            .Union(entry.LexemeForm.Values.Keys)
+            .Where(ws => !ws.IsAudio);
 
         foreach (var wsId in wsIds)
         {

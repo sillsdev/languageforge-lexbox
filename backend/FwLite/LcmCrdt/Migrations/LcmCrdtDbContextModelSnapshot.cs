@@ -518,6 +518,10 @@ namespace LcmCrdt.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -525,9 +529,19 @@ namespace LcmCrdt.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("LouwNidaCodes")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<string>("OcmCodes")
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("Predefined")
                         .HasColumnType("INTEGER");
@@ -661,6 +675,9 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("IcuCollationRules")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -669,6 +686,9 @@ namespace LcmCrdt.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<Guid?>("SnapshotId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SystemCollationLocale")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
@@ -804,7 +824,7 @@ namespace LcmCrdt.Migrations
                     b.ToTable("LocalResource");
                 });
 
-            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource", b =>
+            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource<MiniLcm.Media.LcmFileMetadata>", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -812,6 +832,9 @@ namespace LcmCrdt.Migrations
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("RemoteId")
                         .HasColumnType("TEXT");
@@ -824,7 +847,7 @@ namespace LcmCrdt.Migrations
                     b.HasIndex("SnapshotId")
                         .IsUnique();
 
-                    b.ToTable("RemoteResource");
+                    b.ToTable("RemoteResource", (string)null);
                 });
 
             modelBuilder.Entity("MiniLcm.Models.CommentThread", b =>
@@ -1001,11 +1024,11 @@ namespace LcmCrdt.Migrations
                     b.Navigation("Commit");
                 });
 
-            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource", b =>
+            modelBuilder.Entity("SIL.Harmony.Resource.RemoteResource<MiniLcm.Media.LcmFileMetadata>", b =>
                 {
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
                         .WithOne()
-                        .HasForeignKey("SIL.Harmony.Resource.RemoteResource", "SnapshotId")
+                        .HasForeignKey("SIL.Harmony.Resource.RemoteResource<MiniLcm.Media.LcmFileMetadata>", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 

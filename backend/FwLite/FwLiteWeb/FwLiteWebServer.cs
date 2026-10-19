@@ -4,16 +4,15 @@ using FwLiteShared;
 using FwLiteShared.Auth;
 using FwLiteShared.Services;
 using LcmCrdt;
+using LcmCrdt.Culture;
 using FwLiteWeb;
 using FwLiteWeb.Components;
-using FwLiteWeb.Hubs;
 using FwLiteWeb.Routes;
 using FwLiteWeb.Utils;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using NReco.Logging.File;
+using Scalar.AspNetCore;
 
 namespace FwLiteWeb;
 
@@ -63,26 +62,15 @@ public static class FwLiteWebServer
         }
         builder.Services.AddCors();
         builder.Services.AddFwLiteWebServices(builder.Environment);
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
-        builder.Services.AddSignalR(options =>
-        {
-            options.AddFilter(new LockedProjectFilter());
-            options.EnableDetailedErrors = true;
-        }).AddJsonProtocol();
+        builder.Services.AddOpenApi();
         builder.Services.AddHealthChecks();
 
         configure?.Invoke(builder);
         var app = builder.Build();
         app.Logger.LogInformation("FwLite FwLiteWeb startup");
+        IcuInit.TryInitialize(app.Logger);
         EnsureDataDirectoriesExist(app);
 // Configure the HTTP request pipeline.
-        app.UseSwagger();
-        app.UseSwaggerUI(o =>
-        {
-            o.ConfigObject.DisplayRequestDuration = true;
-            o.EnableTryItOutByDefault();
-        });
         if (app.Environment.IsDevelopment())
         {
             app.UseDirectoryBrowser();
@@ -115,8 +103,6 @@ public static class FwLiteWebServer
 
             await next(context);
         });
-        app.MapHub<CrdtMiniLcmApiHub>($"/api/hub/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}/lexbox");
-        app.MapHub<FwDataMiniLcmHub>($"/api/hub/{{{FwDataMiniLcmHub.ProjectRouteKey}}}/fwdata");
         app.MapHistoryRoutes();
         app.MapActivities();
         app.MapProjectRoutes();
@@ -127,6 +113,9 @@ public static class FwLiteWebServer
         app.MapAuthRoutes();
         app.MapMiniLcmRoutes("/api/mini-lcm");
         app.MapHealthChecks("/health");
+
+        app.MapOpenApi();
+        app.MapScalarApiReference();
 
         app.MapStaticAssets();
         app.MapRazorComponents<App>()

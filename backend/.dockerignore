@@ -1,6 +1,10 @@
 **/bin
 **/obj
 *Dockerfile
+# Test projects: no image here builds them (each Dockerfile builds a single app csproj via its
+# ProjectReference graph), yet their snapshot data (~20MB of *.verified.txt) dominated the context
+# and, via COPY . ., made every test-data edit invalidate the image build cache.
+**/*.Tests
 Testing
 !Testing/test-template-repo.zip
 FwLite/FwLiteWeb

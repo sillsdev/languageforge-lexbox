@@ -12,6 +12,7 @@ export enum DotnetService {
 	ProjectServicesProvider = "ProjectServicesProvider",
 	HistoryService = "HistoryService",
 	SyncService = "SyncService",
+	MediaFilesService = "MediaFilesService",
 	AppLauncher = "AppLauncher",
 	TroubleshootingService = "TroubleshootingService",
 	TestingService = "TestingService",
@@ -19,6 +20,8 @@ export enum DotnetService {
 	JsEventListener = "JsEventListener",
 	JsInvokableLogger = "JsInvokableLogger",
 	UpdateService = "UpdateService",
-	PreferencesService = "PreferencesService"
+	PreferencesService = "PreferencesService",
+	PlatformFeaturesService = "PlatformFeaturesService",
+	AnalyticsService = "AnalyticsService"
 }
 /* eslint-enable */

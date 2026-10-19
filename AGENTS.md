@@ -12,7 +12,7 @@ This is a monorepo containing:
 - **Backend**: .NET 10, C#, Entity Framework Core, GraphQL (Hot Chocolate)
 - **Frontend**: SvelteKit, TypeScript
 - **Database**: PostgreSQL
-- **Infrastructure**: Docker, Kubernetes, Skaffold, Tilt
+- **Infrastructure**: Docker, Kubernetes, Tilt
 
 ### Structure
 
@@ -43,10 +43,30 @@ Key documentation for this project:
 - `backend/AGENTS.md` - General backend guidelines
 - `backend/LexBoxApi/AGENTS.md` - API & GraphQL specific rules
 - `backend/FwLite/AGENTS.md` - **FwLite/CRDT** (Critical code! Data loss risks!)
+- `CODING_STANDARDS.md` - Judgement calls reviewers enforce (data model, layering, design pressure)
 - `backend/FwHeadless/AGENTS.md` - **FwHeadless guide** (Critical code! Data loss risks! Mercurial sync, FwData processing)
 - `frontend/AGENTS.md` - General frontend/SvelteKit rules
 - `frontend/viewer/AGENTS.md` - **FwLite Viewer** (Specific frontend rules)
 - `deployment/README.md` - Deployment and infrastructure
+
+## 🔒 Privacy and Production Access (non-negotiable)
+
+These two rules override every task. No goal (a bug report, debugging, being thorough or helpful) justifies breaking them.
+
+### NEVER post project or user data online
+
+This repo and its issue tracker are public. Anything you post to GitHub (issues, PRs, comments, reviews, commit messages, branch names) or anywhere else online must contain ZERO identifying information about real projects or people:
+
+- ❌ Project codes (e.g. `abc-flex`) and project or language names tied to real data
+- ❌ User names, emails, org names
+- ❌ Content from real project data (entry text, filenames, media)
+- ❌ Stats or details that identify a specific project even without naming it
+
+Describe real cases generically instead ("a ~9k-entry production project") and give the identifying details to the user privately; they decide what gets shared and where. If you are unsure whether something is identifying, treat it as identifying and leave it out. This applies no matter where the data came from: logs, a database, a screenshot, or earlier in the conversation.
+
+### NEVER access a Kubernetes cluster without explicit permission
+
+Do not run `kubectl`, `helm`, `k9s`, port-forwards, or anything else that reads from or writes to a k8s cluster unless the user has clearly approved it for that specific cluster in the current task. Production is strictly off-limits without an instruction that explicitly names production. The only case that needs no ask is a throwaway local dev cluster (e.g. kind) that you started yourself for the task.
 
 ## Guidelines
 
@@ -54,17 +74,18 @@ Key documentation for this project:
 
 - ✅ **DO run unit tests via the CLI**, filtered to the tests relevant to your changes (e.g. `dotnet test backend/FwLite/FwLiteShared.Tests --filter "FullyQualifiedName~MyTestClass"`). Verify tests you wrote or changed actually pass before handing work back. Never run whole suites just to "see if anything broke".
 - ✅ **`MiniLcm.Tests`, `LcmCrdt.Tests`, `FwDataMiniLcmBridge.Tests` need no infrastructure** — these are the unit/conformance tests for the two `IMiniLcmApi` implementations; run them filtered to your change like any unit test (this is where a `*TestsBase` change should be verified, including its FwData side). The FwData/LCM-backed selections load a real project (a handful of tests = seconds, a whole class = a minute or two), so keep the filter tight; don't reach for the whole class or project.
-- ✅ **FwLite integration tests** (e.g. `FwLiteProjectSync.Tests`) need no infrastructure but are slow. FwData runs **in-process via liblcm** — these tests create real FieldWorks projects with no external setup (e.g. the `ProjectTemplateTests.GenerateTemplate` regen tool). Only FwHeadless's hg/Mercurial sync and the lexbox stack (last bullet) need running infrastructure — *not* FwData itself. Run a **targeted selection** (specific tests, not necessarily whole classes) when you touched critical sync code **and believe the work is finished** — not on every iteration. Waiting on tests burns time; be deliberate about which runs buy real signal.
+- ✅ **FwLite integration tests** (e.g. `FwLiteProjectSync.Tests`) need no infrastructure but are slow. FwData runs **in-process via liblcm** — these tests create real FieldWorks projects with no external setup (e.g. the `ProjectTemplateTests.GenerateTemplate` regen tool). Only FwHeadless's hg/Mercurial sync and the lexbox stack (last bullet) need running infrastructure — *not* FwData itself. Run a **targeted selection** (specific tests, not necessarily whole classes) when you touched critical sync code **and believe the work is finished** — not on every iteration. Slow-suite timings and the `--no-build` loop: `backend/FwLite/AGENTS.md` → Test timings.
 - ✅ **`backend/Testing` contains unit tests too** — only tests marked `Category=Integration|FlakyIntegration|RequiresDb` (and the `Testing.Browser` namespace) need infrastructure. Its unit tests are fine to run: `task test:unit -- <filter>` excludes those categories for you.
-- ✅ **FwLite viewer Playwright tests MAY be run** — they're cheap: `task test:ui-standalone -- <test-name-filter>` (from `frontend/viewer/`) auto-starts the vite dev server with the in-browser demo project; no lexbox stack, chromium only. Always filter to relevant tests; details in `frontend/viewer/AGENTS.md`.
+- ✅ **FwLite viewer Playwright tests MAY be run** — they're cheap: `task test:ui-standalone -- <test-name-filter>` (from `frontend/viewer/`) auto-starts the vite dev server with the in-browser demo project; no lexbox stack. Filter to a file and one browser: `-- sort.test.ts --project=chromium`; details in `frontend/viewer/AGENTS.md`.
 - ❌ **Do NOT run tests that need the lexbox stack** unless the user explicitly asks: LexBox integration tests (`Category=Integration`/`FlakyIntegration`, `Testing.Browser`) and the lexbox frontend Playwright suite (`frontend/tests`). The local stack is usually down or torn down between sessions and results aren't trustworthy — rely on CI for these.
+- ✅ **Before saying frontend work is done**, run `task verify` (svelte-check, eslint, vitest, i18n extract); after backend model/API/GraphQL changes, `task check-generated` (EF, gql, OpenAPI, TS types drift).
+- ⚠️ **Known env-only failures** (pre-existing; report, don't chase): `WritingSystemTests.CreateWritingSystem_IgnoresFont` and `ImportTests.ImportsANewlyCreatedWritingSystem` get `Charis` instead of `Charis SIL` where SLDR data is reachable or cached; `SendReceiveServiceTests.InvalidProjectManagerLogin` is flaky; `HeaderTests.CheckCloudflareHeaderSizeLimit` hits live staging (`Integration`).
 
 ### Questions?
 
 - Check existing issues: `gh issue list --limit 30`
-- Look at recent commits: `git log --oneline -20`
 - Read the docs in `docs/` directory
-- Create a GitHub issue if unsure
+- Create a GitHub issue if unsure (public! — see 🔒 Privacy rules above)
 - Ask the user to clarify
 
 ### Pre-Flight Check
@@ -73,16 +94,17 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 
 ### Important Rules
 
+- ✅ If `AGENTS.local.md` exists at the repo root, read and follow it. It holds personal/local agent config (gitignored; may be absent on other machines) — skip silently when missing.
 - ✅ **ALWAYS read local `AGENTS.md` files** in the directories you are working in (and their parents) before starting.
 - ✅ **ALWAYS review relevant code paths** before asking clarification questions.
 - ✅ New instructions in AGENTS.md files should be SUCCINCT.
-- ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools
-- ✅ When pulling PR comments with `gh` use `api`. It's the only thing that returns review comments.
+- ✅ Use `gh` CLI for GitHub issues/PRs, not browser tools. Review comments need `gh api`; reply/resolve recipes and CI log reading (`.github/scripts/ci-logs.sh`) are in `.github/AGENTS.md`.
 - ✅ If the user asks about "the" PR, but does not explicitly name a PR or branch, assume they mean the PR associated with the current branch.
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
-- ✅ Prefer IDE diagnostics (compiler/lint errors) over CLI tools for identifying issues. Fixing these diagnostics is part of completing any instruction.
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
 - ❌ Do NOT git commit or git push without explicit user approval
+- ❌ Do NOT post project/user identifiers or any real-project data online, and do NOT touch a k8s cluster without explicit permission — see **🔒 Privacy and Production Access** above
+- ⚠️ **Pre-commit hook prettier-formats staged `*.{js,ts,svelte,css,md,json}` files** (yes, incl. `.md`/docs) via lint-staged; the glob lives in `.husky/pre-commit`. The hook first checks staged names in shell and skips Node when none match (e.g. backend-only). If some match and `frontend/viewer/node_modules` is missing (fresh worktree/clone), the hook runs `pnpm install` itself, so the first such commit takes ~45s — no need to install up front. Don't `--no-verify` to dodge the hook, that just defers the format failure to CI.
 
 ### 🛡️ VIGILANCE
 

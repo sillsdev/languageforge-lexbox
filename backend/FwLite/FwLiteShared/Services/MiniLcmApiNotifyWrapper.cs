@@ -123,6 +123,42 @@ public partial class MiniLcmApiNotifyWrapper(
         return result;
     }
 
+    async Task<Picture> IMiniLcmWriteApi.CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.CreatePicture(entryId, senseId, picture, position);
+        NotifyEntryChanged(entryId);
+        return result;
+    }
+
+    async Task<Picture> IMiniLcmWriteApi.UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.UpdatePicture(entryId, senseId, pictureId, update);
+        NotifyEntryChanged(entryId);
+        return result;
+    }
+
+    async Task<Picture> IMiniLcmWriteApi.UpdatePicture(Guid entryId, Guid senseId, Picture before, Picture after, IMiniLcmApi? api)
+    {
+        await using var _ = BeginTrackingChanges();
+        var result = await _api.UpdatePicture(entryId, senseId, before, after, api ?? this);
+        NotifyEntryChanged(entryId);
+        return result;
+    }
+
+    async Task IMiniLcmWriteApi.MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position)
+    {
+        await _api.MovePicture(entryId, senseId, pictureId, position);
+        NotifyEntryChanged(entryId);
+    }
+
+    async Task IMiniLcmWriteApi.DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
+    {
+        await _api.DeletePicture(entryId, senseId, pictureId);
+        NotifyEntryChanged(entryId);
+    }
+
     async Task<ComplexFormComponent> IMiniLcmWriteApi.CreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position)
     {
         var result = await _api.CreateComplexFormComponent(complexFormComponent, position);
@@ -153,6 +189,54 @@ public partial class MiniLcmApiNotifyWrapper(
         await _api.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
         NotifyEntryChanged(entryId);
     }
+
+    private void NotifyCommentsChanged() => bus.PublishCommentsChanged(project);
+
+    async Task<CommentThread> IMiniLcmWriteApi.CreateCommentThread(CommentThread thread, UserComment firstComment)
+    {
+        var result = await _api.CreateCommentThread(thread, firstComment);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task<UserComment> IMiniLcmWriteApi.AddUserComment(Guid threadId, UserComment comment)
+    {
+        var result = await _api.AddUserComment(threadId, comment);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task<UserComment> IMiniLcmWriteApi.EditUserComment(Guid commentId, string text)
+    {
+        var result = await _api.EditUserComment(commentId, text);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task<CommentThread> IMiniLcmWriteApi.SetCommentThreadStatus(Guid threadId, ThreadStatus status)
+    {
+        var result = await _api.SetCommentThreadStatus(threadId, status);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task IMiniLcmWriteApi.DeleteUserComment(Guid commentId)
+    {
+        await _api.DeleteUserComment(commentId);
+        NotifyCommentsChanged();
+    }
+
+    async Task IMiniLcmWriteApi.DeleteCommentThread(Guid threadId)
+    {
+        await _api.DeleteCommentThread(threadId);
+        NotifyCommentsChanged();
+    }
+
+    // Read-status writes stay silent on purpose: marking a thread read shouldn't refresh the entry list.
+    Task IMiniLcmWriteApi.MarkCommentRead(Guid commentId) => _api.MarkCommentRead(commentId);
+    Task IMiniLcmWriteApi.MarkCommentThreadUnread(Guid threadId) => _api.MarkCommentThreadUnread(threadId);
+    Task IMiniLcmWriteApi.MarkCommentThreadRead(Guid threadId) => _api.MarkCommentThreadRead(threadId);
+    Task IMiniLcmWriteApi.MarkAllCommentsRead() => _api.MarkAllCommentsRead();
 
     void IDisposable.Dispose()
     {

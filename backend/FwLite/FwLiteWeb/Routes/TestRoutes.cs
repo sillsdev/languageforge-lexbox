@@ -1,7 +1,6 @@
 using FwLiteShared;
 using FwLiteShared.Events;
 using LcmCrdt;
-using FwLiteWeb.Hubs;
 using FwLiteWeb.Services;
 using Microsoft.OpenApi;
 using MiniLcm;
@@ -17,7 +16,7 @@ public static class TestRoutes
         {
             operation.Parameters?.Add(new OpenApiParameter()
             {
-                Name = CrdtMiniLcmApiHub.ProjectRouteKey,
+                Name = RouteKeys.Project,
                 In = ParameterLocation.Path,
                 Required = true
             });

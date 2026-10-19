@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
+using FwLiteShared.KeepAwake;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using LexCore.Entities;
@@ -43,7 +44,8 @@ public record ServerProjects(LexboxServer Server, ProjectModel[] Projects, bool 
 public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     CrdtProjectsService crdtProjectsService,
     IEnumerable<IProjectProvider> projectProviders,
-    OAuthClientFactory oAuthClientFactory)
+    OAuthClientFactory oAuthClientFactory,
+    IKeepAwake keepAwake)
 {
     private IProjectProvider? FwDataProjectProvider => projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
     [JSInvokable]
@@ -156,6 +158,9 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     [JSInvokable]
     public async Task<DownloadProjectByCodeResult> DownloadProjectByCode(string code, LexboxServer server, UserProjectRole? userRole = null)
     {
+        // Note: the local project might be from a different server, but that's currently only relevant
+        // for devs and we still can't download two projects with the same code
+        if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
         var serverProjects = await ServerProjects(server, false);
         var project = serverProjects.Projects.FirstOrDefault(p => p.Code == code);
         if (project is null)
@@ -164,9 +169,6 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             {
                 var (status, projectId) = await lexboxProjectService.GetLexboxProjectId(server, code);
                 if (status != DownloadProjectByCodeResult.Success) return status;
-                // Note: the project might be from a different server, but that's current only relevant for devs
-                // and we still can't download two projects with the same code
-                if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
                 var role = userRole.HasValue ? FromRole(userRole.Value) : ProjectRole.Editor;
                 project = new ProjectModel(
                     Name: code,
@@ -193,17 +195,19 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         var server = project.Server ?? throw new ArgumentNullException($"{nameof(project.Server)} is null for project {project.Code}");
         var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project {project.Code}");
         var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
-        await Task.Run(async () => await crdtProjectsService.CreateProject(new(project.Name,
-            project.Code,
-            projectId,
-            server.Authority,
-            async (provider, project) =>
-            {
-                await provider.GetRequiredService<SyncService>().ExecuteSync(true);
-            },
-            AuthenticatedUser: currentUser?.Name,
-            AuthenticatedUserId: currentUser?.Id,
-            Role: ToRole(project.Role))));
+        await keepAwake.RunAsync(
+            new($"Downloading project {project.Name}"),
+            async () => await Task.Run(async () => await crdtProjectsService.CreateProject(new(project.Name,
+                project.Code,
+                projectId,
+                server.Authority,
+                async (provider, project) =>
+                {
+                    await provider.GetRequiredService<SyncService>().ExecuteSync(true);
+                },
+                AuthenticatedUser: currentUser?.Name,
+                AuthenticatedUserId: currentUser?.Id,
+                Role: ToRole(project.Role)))));
     }
 
     [JSInvokable]
