@@ -13,6 +13,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
+  import {useFeatures} from '$lib/services/feature-service';
   import MediaManagerView from '$lib/media-manager/MediaManagerView.svelte';
   import {onMount} from 'svelte';
 
@@ -24,6 +25,7 @@
   } & HTMLAttributes<HTMLDivElement> = $props();
 
   initViewService();
+  const features = useFeatures();
 
   // Load idle service into component context for inputs to use
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -68,16 +70,18 @@
       <Route path="/activity">
         <ActivityView />
       </Route>
-      <Route path="/plugins">
-        <PluginsView />
-      </Route>
-      <Route path="/plugins/:id" let:params>
-        <!-- Key includes the query so relaunching the SAME plugin from a different entry restarts
-             it with the new launch context (a running plugin can't be handed a new context). -->
-        {#key `${params.id}${$location.search}`}
-          <PluginRunView pluginId={params.id} />
-        {/key}
-      </Route>
+      {#if features.plugins}
+        <Route path="/plugins">
+          <PluginsView />
+        </Route>
+        <Route path="/plugins/:id" let:params>
+          <!-- Key includes the query so relaunching the SAME plugin from a different entry restarts
+               it with the new launch context (a running plugin can't be handed a new context). -->
+          {#key `${params.id}${$location.search}`}
+            <PluginRunView pluginId={params.id} />
+          {/key}
+        </Route>
+      {/if}
       <Route path="/media-manager">
         <MediaManagerView/>
       </Route>

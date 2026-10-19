@@ -1,12 +1,26 @@
 import {expect, test, type Page} from '@playwright/test';
 import {examplePlugins} from '../../src/lib/plugins/examples';
 import {DemoProjectPage} from './demo-project.page';
+import {STORAGE_KEY as RELEASE_CHANNEL_KEY} from '../../src/lib/feature-flags/feature-flags';
+
+// Plugins are a beta-channel feature
+test.beforeEach(async ({page}) => {
+  await page.addInitScript((key) => localStorage.setItem(key, 'beta'), RELEASE_CHANNEL_KEY);
+});
 
 async function gotoPlugins(page: Page) {
   await new DemoProjectPage(page).goto();
   await page.getByRole('button', {name: 'Plugins'}).click();
   await expect(page.getByRole('heading', {name: 'Plugins'})).toBeVisible();
 }
+
+test('plugins are hidden outside the beta channel', async ({page}) => {
+  await page.addInitScript((key) => localStorage.removeItem(key), RELEASE_CHANNEL_KEY);
+  const demo = new DemoProjectPage(page);
+  await demo.goto();
+  await expect(page.getByRole('button', {name: 'Tasks'})).toBeVisible();
+  await expect(page.getByRole('button', {name: 'Plugins'})).toHaveCount(0);
+});
 
 test('runs the built-in example plugin after consent', async ({page}) => {
   await gotoPlugins(page);
