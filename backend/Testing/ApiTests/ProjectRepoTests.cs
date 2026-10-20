@@ -282,7 +282,8 @@ public class ProjectRepoTests : IClassFixture<IntegrationFixture>
             HgService.ResetProjectsRegex().IsMatch(name).Should().BeTrue($"{name} should be a reset backup");
             HgService.GetResetDate(name).Should().BeBefore(minimumAge);
         });
-        (await DryRunCleanupResetBackups()).Should().Contain(wouldDelete, "a dry run should not delete anything");
+        // BeSubsetOf rather than Contain, which throws when nothing is old enough to list (always the case in CI)
+        wouldDelete.Should().BeSubsetOf(await DryRunCleanupResetBackups(), "a dry run should not delete anything");
     }
 
     private async Task<string[]> DryRunCleanupResetBackups()

@@ -61,9 +61,10 @@ public class DeleteProjectTests(IntegrationFixture fixture) : ApiTestBase, IClas
                 }
             }
             """);
-        var deletedProject = gqlResponse["data"]!["softDeleteProject"]!["project"].Should().BeOfType<JsonObject>().Subject;
-        deletedProject["deletedDate"].Should().NotBeNull();
-        deletedProject["code"]!.GetValue<string>().Should().StartWith(config.Code + "__");
+        // the returned project is always null: the query filter hides soft deleted projects
+        gqlResponse["data"]!["softDeleteProject"]!["errors"].Should().BeNull();
+        var codeAvailable = await HttpClient.GetFromJsonAsync<bool>($"api/project/projectCodeAvailable/{config.Code}");
+        codeAvailable.Should().BeTrue("the soft deleted project's code gets a suffix");
         await this.AssertRepoNotServed(config.Code);
 
         await using var recreated = await this.RegisterProjectInLexBox(config with { Id = Guid.NewGuid() }, waitForRepoReady: true);
