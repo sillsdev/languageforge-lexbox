@@ -44,7 +44,7 @@ jobs:
     # see discussion here: https://github.com/orgs/community/discussions/17401
     # this could result in our push failing if we try to push at the same time as another deploy
     concurrency: ${{ inputs.k8s-environment }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: ${{ inputs.k8s-environment }}
       url: https://${{ inputs.deploy-domain }}
@@ -111,7 +111,7 @@ jobs:
           push: true
   verify-published:
     name: Verify ${{ matrix.verify.name }} Published
-    runs-on: ${{ inputs.k8s-environment == 'develop' && 'self-hosted' || 'ubuntu-latest' }}
+    runs-on: ${{ inputs.k8s-environment == 'develop' && 'self-hosted' || 'ubuntu-24.04' }}
     if: ${{ inputs.image != 'ghcr.io/sillsdev/lexbox-hgweb' }}
     needs: deploy
     strategy:

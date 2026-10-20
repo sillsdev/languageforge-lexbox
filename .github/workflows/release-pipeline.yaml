@@ -24,7 +24,7 @@ env:
 jobs:
   set-version:
     name: Set Version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
       semver-version: ${{ steps.setVersion.outputs.SEMVER_VERSION }}
@@ -99,7 +99,7 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
-          - ubuntu-latest
+          - ubuntu-24.04
           - windows-latest
         hg-version:
           - '3'
@@ -135,7 +135,7 @@ jobs:
     needs: [ deploy-prod, set-version ]
     # we want to generate a release when deployment succeeds, by default this would be cancelled if integration tests failed
     if: ${{ !cancelled() && needs.deploy-prod.result == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:

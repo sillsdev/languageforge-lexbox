@@ -63,7 +63,7 @@ jobs:
   build-and-test:
     name: Build FW Lite and run tests
     timeout-minutes: 30
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
       semver-version: ${{ steps.setVersion.outputs.SEMVER_VERSION }}
@@ -155,7 +155,7 @@ jobs:
     if: ${{ !inputs.release && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
     # Benchmarks take tens of minutes; 60 leaves headroom for hosted-runner variance.
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -182,7 +182,7 @@ jobs:
           if-no-files-found: warn
 
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -269,7 +269,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
 
   frontend-component-unit-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       checks: write
@@ -551,7 +551,7 @@ jobs:
     name: Publish FW Lite app for Linux
     needs: [ build-and-test, frontend ]
     timeout-minutes: 30
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -607,7 +607,7 @@ jobs:
     name: Publish FW Lite app for Android
     needs: [ build-and-test, frontend ]
     timeout-minutes: 30
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       # Signing secrets/vars aren't exposed to workflows triggered from a fork PR,
       # so on those runs we build an unsigned APK instead of failing the job.
@@ -869,7 +869,7 @@ jobs:
     name: Package the Platform.Bible extension
     needs: [ build-and-test, publish-win-web, publish-linux ]
     timeout-minutes: 20
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       paranext-core-revision: ${{ steps.core-revision.outputs.revision }}
     steps:
@@ -956,7 +956,7 @@ jobs:
       url: https://lexbox.org/fw-lite
     name: Create Release
     needs: [ build-and-test, publish-win, publish-win-web, publish-linux, build-apple, launch-mac, publish-android, package-extension]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     env:
@@ -1073,7 +1073,7 @@ jobs:
   e2e-test:
     name: E2E Tests
     needs: [frontend]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       FW_LITE_BINARY_PATH: ${{ github.workspace }}/backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64/FwLiteWeb

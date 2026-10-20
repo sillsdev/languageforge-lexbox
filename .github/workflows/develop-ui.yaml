@@ -19,7 +19,7 @@ on:
 jobs:
   set-version:
     name: Set Version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}
     steps:
@@ -52,7 +52,7 @@ jobs:
       deploy-domain: lexbox.dev.languagetechnology.org
 
   check-and-lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       checks: write # eslint-annotate-action
