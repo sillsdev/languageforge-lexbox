@@ -10,6 +10,7 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {useProjectEventBus} from '$lib/services/event-bus';
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import {Icon} from '$lib/components/ui/icon';
@@ -32,6 +33,11 @@
   );
   let tab = $state<SyncTarget>('lite');
   let syncing = $state<SyncTarget>();
+  // Any sync (from this dialog or in the background) changes both views' status, so they reload when this changes
+  let syncCount = $state(0);
+  useProjectEventBus().onSync(e => {
+    if (e.status === SyncStatus.Success) syncCount++;
+  });
   const cloudIcon = $derived(syncStatus === SyncStatus.Offline ? 'i-mdi-cloud-off-outline' : 'i-mdi-cloud-outline');
 
   // The dialog's content unmounts on close, so each view loads its own status when it's first shown
@@ -45,9 +51,11 @@
     openQueryParam.current = true;
   }
 
-  function onLoginStatusChange(status: 'logged-in' | 'logged-out') {
-    // A successful sync publishes a sync event, which the views refresh on
-    if (status === 'logged-in') void service.triggerCrdtSync();
+  async function onLoginStatusChange(status: 'logged-in' | 'logged-out') {
+    if (status !== 'logged-in') return;
+    const result = await service.triggerCrdtSync();
+    // The sync event fires before the sync date is saved, so reload again now that the sync is done
+    if (result.isSynced) syncCount++;
   }
 </script>
 
@@ -68,6 +76,7 @@
           serverId={projectContext.projectData?.serverId}
           projectCode={projectContext.projectData?.code}
           bind:syncing
+          {syncCount}
           {onLoginStatusChange} />
       </IfOnce>
     </Tabs.Content>
@@ -78,6 +87,7 @@
             {syncStatus}
             {server}
             bind:syncing
+            {syncCount}
             canSync={features?.write}
             {onLoginStatusChange}
             onSyncedAndUpToDate={() => openQueryParam.current = false} />

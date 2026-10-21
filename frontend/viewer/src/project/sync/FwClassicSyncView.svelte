@@ -16,7 +16,6 @@
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import {useSyncStatusService} from '$lib/services/sync-status-service';
-  import {useProjectEventBus} from '$lib/services/event-bus';
   import {resource} from 'runed';
   import {delay} from '$lib/utils/time';
   import type {SyncTarget} from './sync-target';
@@ -25,6 +24,7 @@
     syncStatus,
     server,
     syncing = $bindable(),
+    syncCount = 0,
     canSync,
     onLoginStatusChange = () => {},
     onSyncedAndUpToDate = () => {},
@@ -33,19 +33,14 @@
     server?: ILexboxServer;
     /** Which sync is running, shared with the other tab so only one runs at a time */
     syncing?: SyncTarget;
+    /** Bumped by the dialog after each sync; the status reloads when it changes */
+    syncCount?: number;
     canSync?: boolean;
     onLoginStatusChange?: (status: 'logged-in' | 'logged-out') => void;
     onSyncedAndUpToDate?: () => void;
   } = $props();
 
   const service = useSyncStatusService();
-  const projectEventBus = useProjectEventBus();
-  // A sync changes the pending counts. onSync replays the last event synchronously, before the resource's
-  // first load, so that doesn't cause an extra load.
-  let syncCount = $state(0);
-  projectEventBus.onSync(e => {
-    if (e.status === SyncStatus.Success) syncCount++;
-  });
   // A Lexbox request that can take many seconds, so it only loads once this tab is shown.
   // Errors (e.g. Lexbox unreachable) are expected, so they're shown inline instead of thrown.
   const remote = resource(() => syncCount, async (_, _prev, {signal}) => {

@@ -11,7 +11,6 @@
   import {cn} from '$lib/utils';
   import {AppNotification} from '$lib/notifications/notifications';
   import {useSyncStatusService} from '$lib/services/sync-status-service';
-  import {useProjectEventBus} from '$lib/services/event-bus';
   import {onErrorEvent} from '$lib/errors/global-errors';
   import {resource} from 'runed';
   import type {SyncTarget} from './sync-target';
@@ -23,6 +22,8 @@
     projectCode?: string;
     /** Which sync is running, shared with the other tab so only one runs at a time */
     syncing?: SyncTarget;
+    /** Bumped by the dialog after each sync; the status reloads when it changes */
+    syncCount?: number;
     onLoginStatusChange?: (status: 'logged-in' | 'logged-out') => void;
   }
 
@@ -32,17 +33,11 @@
     serverId,
     projectCode,
     syncing = $bindable(),
+    syncCount = 0,
     onLoginStatusChange = () => {},
   }: Props = $props();
 
   const service = useSyncStatusService();
-  const projectEventBus = useProjectEventBus();
-  // Any sync (this tab's or one in the background) changes the counts. onSync replays the last event
-  // synchronously, before the resource's first load, so that doesn't cause an extra load.
-  let syncCount = $state(0);
-  projectEventBus.onSync(e => {
-    if (e.status === SyncStatus.Success) syncCount++;
-  });
   const status = resource(() => syncCount, async (_, _prev, {signal}) => {
     const [pendingCommits, latestSyncedCommitDate] = await Promise.all([
       service.getLocalStatus(),
