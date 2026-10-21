@@ -110,7 +110,7 @@ public class SyncService(
             UpdateSyncStatus(SyncStatus.Success);
             await ApplySyncedCommentReadStatus(syncResults, project.LastUserId);
             await syncRepository.UpdateSyncDate(syncDate);
-            await RefreshUserRole(server, project, refreshServerProjects);
+            await TryRefreshUserRole(server, project, refreshServerProjects);
             // Best-effort: if the push listener failed to start at project-open (e.g. user was offline), this
             // restarts it now that we know auth + network are healthy. If it's already running, the cache
             // short-circuits and this is effectively a no-op.
@@ -137,17 +137,25 @@ public class SyncService(
     }
 
     // The role can change on the server at any time; the project list is cached, so most syncs don't hit the server.
-    private async Task RefreshUserRole(LexboxServer server, ProjectData project, bool refreshServerProjects)
+    // Best-effort: the sync has already succeeded, so a failure here must not fail it or skip what follows.
+    private async Task TryRefreshUserRole(LexboxServer server, ProjectData project, bool refreshServerProjects)
     {
-        if (refreshServerProjects) lexboxProjectService.InvalidateProjectsCache(server);
-        var serverProject = (await lexboxProjectService.GetLexboxProjects(server)).Projects
-            .FirstOrDefault(p => p.Id == project.Id);
-        // Not listed: either the fetch failed (an empty list) or the user lost access. Keep the current role,
-        // downgrading on a failed fetch would lock users out whenever the list can't be loaded.
-        if (serverProject is null) return;
-        var role = serverProject.Role.ToUserProjectRole();
-        if (await currentProjectService.UpdateUserRole(role))
-            changeEventBus.PublishEvent(currentProjectService.Project, new ProjectRoleChangedEvent(role));
+        try
+        {
+            if (refreshServerProjects) lexboxProjectService.InvalidateProjectsCache(server);
+            var serverProject = (await lexboxProjectService.GetLexboxProjects(server)).Projects
+                .FirstOrDefault(p => p.Id == project.Id);
+            // Not listed: either the fetch failed (an empty list) or the user lost access. Keep the current role,
+            // downgrading on a failed fetch would lock users out whenever the list can't be loaded.
+            if (serverProject is null) return;
+            var role = serverProject.Role.ToUserProjectRole();
+            if (await currentProjectService.UpdateUserRole(role))
+                changeEventBus.PublishEvent(currentProjectService.Project, new ProjectRoleChangedEvent(role));
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to refresh the user's role after sync");
+        }
     }
 
     private async Task TryEnsureProjectChangeListener(ProjectData project, CancellationToken cancellationToken = default)
