@@ -63,6 +63,13 @@ public static class FwLiteSharedKernel
         services.AddScoped<FolderSyncService>();
         services.AddScoped<MediaCopier>();
         services.AddSingleton<LocalSyncHosting>();
+        if (OperatingSystem.IsLinux())
+        {
+            services.TryAddSingleton<ICommandRunner, ProcessCommandRunner>();
+            services.TryAddSingleton<IAccessPoint, LinuxAccessPoint>();
+        }
+        // MAUI adds the Windows one; elsewhere hosts share over a network they're already on
+        services.TryAddSingleton<IAccessPoint, NoAccessPoint>();
         services.AddScoped<LocalSyncJoiner>();
         services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<ILocalAuthorProvider, PreferencesLocalAuthorProvider>();

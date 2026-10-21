@@ -26,7 +26,7 @@ public class LocalSyncOverHttpTests : IAsyncLifetime
         // the joiner starts as a copy of the host's project
         await _joiner.DataModel.SyncWith(_host.DataModel);
         _hosting = await _host.GetService<LocalSyncHosting>()
-            .StartHosting(_host.GetService<CurrentProjectService>().Project, IPAddress.Loopback);
+            .StartHosting(_host.GetService<CurrentProjectService>().Project, new HostingNetwork.Existing(IPAddress.Loopback));
     }
 
     public async Task DisposeAsync()
@@ -152,7 +152,7 @@ public class LocalSyncOverHttpTests : IAsyncLifetime
         var approved = await JoinAndApprove();
         var hosting = _host.GetService<LocalSyncHosting>();
         await hosting.StopHosting();
-        _hosting = await hosting.StartHosting(_host.GetService<CurrentProjectService>().Project, IPAddress.Loopback);
+        _hosting = await hosting.StartHosting(_host.GetService<CurrentProjectService>().Project, new HostingNetwork.Existing(IPAddress.Loopback));
 
         var result = await Joiner.Sync(HostAddress, approved);
 

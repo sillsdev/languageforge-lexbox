@@ -27,6 +27,7 @@ public static class LocalSyncTestHelpers
         services.AddSingleton<IKeepAwakePlatform, RecordingKeepAwakePlatform>();
         services.AddSingleton<IKeepAwake, RefCountedKeepAwake>();
         services.AddSingleton<LocalSyncHosting>();
+        services.AddSingleton<IAccessPoint, FakeAccessPoint>();
         services.AddScoped<LocalSyncJoiner>();
     }
 
