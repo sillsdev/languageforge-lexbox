@@ -129,7 +129,7 @@ public partial class CrdtProjectsService(
         var stopwatch = Stopwatch.StartNew();
         logger.LogInformation("Regenerating Harmony snapshots for project {ProjectCode}", projectCode);
 
-        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project {projectCode} not found");
+        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project '{projectCode}' not found");
 
         await ExecInProject(project, async (services, _) =>
         {
@@ -150,7 +150,7 @@ public partial class CrdtProjectsService(
         var stopwatch = Stopwatch.StartNew();
         logger.LogInformation("Regenerating entry search table for project {ProjectCode}", projectCode);
 
-        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project {projectCode} not found");
+        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project '{projectCode}' not found");
 
         await ExecInProject(project, async (services, _) =>
         {
@@ -380,7 +380,7 @@ public partial class CrdtProjectsService(
             {
                 logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", safeSqliteFile);
                 if (!suppressException)
-                    throw new IOException($"Failed to delete sqlite file {safeSqliteFile} after 10 attempts");
+                    throw new IOException($"Failed to delete sqlite file '{safeSqliteFile}' after 10 attempts");
             }
         });
     }
@@ -389,7 +389,7 @@ public partial class CrdtProjectsService(
 
     public async Task DeleteProject(string code)
     {
-        var project = GetProject(code) ?? throw new InvalidOperationException($"Project {code} not found");
+        var project = GetProject(code) ?? throw new InvalidOperationException($"Project '{code}' not found");
         var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<HarmonyConfig>>().Value);
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await EnsureDeleteProject(project.DbPath);

@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {processErrorIntoDetails, unifyErrorEvent} from './global-errors';
+import {getErrorStack, processErrorIntoDetails, unifyErrorEvent} from './global-errors';
 
 describe('processErrorIntoDetails', () => {
   it('splits a .NET error at the first stack frame', () => {
@@ -76,5 +76,29 @@ describe('unifyErrorEvent', () => {
 
     expect(unified.message).toBe('Script error.');
     expect(unified.error).toBeNull();
+  });
+});
+
+describe('getErrorStack', () => {
+  it('joins location, frames and cause without repeating the message', () => {
+    const error = new TypeError('x is not a function', {cause: {code: 42}});
+    const event = {message: 'Uncaught TypeError: x is not a function', error, filename: 'app.js', lineno: 1, colno: 2};
+    const unified = unifyErrorEvent(event as unknown as ErrorEvent);
+    const {detail} = processErrorIntoDetails(unified);
+
+    const stack = getErrorStack(unified, detail);
+
+    expect(stack.startsWith('at app.js:1:2\n')).toBe(true);
+    expect(stack).toContain('at ');
+    expect(stack).toContain('Cause: {"code":42}');
+    expect(stack).not.toContain('x is not a function');
+  });
+
+  it('keeps a relayed .NET stack', () => {
+    const message = 'System.InvalidOperationException: broken\n   at FwLiteShared.Foo.Bar()';
+    const unified = unifyErrorEvent({reason: message} as unknown as PromiseRejectionEvent);
+    const {detail} = processErrorIntoDetails(unified);
+
+    expect(getErrorStack(unified, detail)).toBe('at FwLiteShared.Foo.Bar()');
   });
 });

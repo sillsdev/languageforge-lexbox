@@ -13,6 +13,7 @@ using LexCore.Analytics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using MiniLcm.Project;
@@ -50,6 +51,7 @@ public static class FwLiteSharedKernel
             });
         services.AddSingleton<IHostedService, AnalyticsIdentityListener>();
         services.AddSingleton<IHostedService, AppLaunchTracker>();
+        services.AddSingleton<ILoggerProvider, AnalyticsErrorLoggerProvider>();
         services.AddAuthHelpers(environment);
         services.AddLcmCrdtClient();
         services.AddLogging();
