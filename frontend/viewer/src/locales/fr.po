@@ -85,8 +85,8 @@ msgid "{0} Server"
 msgstr "{0} Serveur"
 
 #. Number of changes in sync operation
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {# changement} other {# changements}}"
 
@@ -96,12 +96,12 @@ msgid "{num, plural, one {# entry to go} other {# entries to go}}"
 msgstr ""
 
 #. Commit count display
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
 msgstr "{num, plural, one {# nouveau commit FieldWorks Classic} other {# nouveaux commits FieldWorks Classic}}"
 
 #. Commit count display
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, one {# nouveau commit FieldWorks Lite} other {# nouveaux commits FieldWorks Lite}}"
 
@@ -385,7 +385,7 @@ msgid "Auto"
 msgstr "Auto"
 
 #. Status indicator
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Auto syncing"
 msgstr "Synchronisation automatique"
 
@@ -460,12 +460,12 @@ msgid "Caption"
 msgstr ""
 
 #. Explanation of sync behavior
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "Les modifications peuvent également résulter de l'ajout de champs à de nouvelles versions de FieldWorks Lite."
 
 #. Explanation of commits vs changes
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Changer le même champ deux fois, par exemple, peut entraîner deux livraisons mais un seul changement qui doit être appliqué à FieldWorks Classic. Les commits peuvent également comporter de multiples changements."
 
@@ -636,7 +636,7 @@ msgstr ""
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr ""
 
@@ -987,7 +987,7 @@ msgid "Error getting sync status"
 msgstr "Erreur dans l'obtention de l'état de la synchronisation"
 
 #. Error notification
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Error getting sync status."
 msgstr "Erreur dans l'obtention de l'état de la synchronisation."
 
@@ -1110,7 +1110,7 @@ msgid "Fields"
 msgstr "Champs"
 
 #. Product name
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/SyncDialog.svelte
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
@@ -1123,7 +1123,7 @@ msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr ""
 
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "Les utilisateurs de FieldWorks Lite recevront automatiquement les modifications qui ont été apportées dans FieldWorks Classic. Les utilisateurs de FieldWorks Classic verront les changements qui ont été faits dans FieldWorks Lite après avoir fait Envoyer/Recevoir."
 
@@ -1138,8 +1138,8 @@ msgstr "Version de FieldWorks Lite"
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
@@ -1418,13 +1418,13 @@ msgid "Keep going"
 msgstr "Continuez"
 
 #. Label showing the date of the last change in the FwLite↔Classic sync panel. # is replaced by a formatted relative date component (e.g., "3 days ago").
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Last change: #"
 msgstr "Dernier changement : #"
 
 #. Label showing the timestamp of the last local sync in the sync panel. # is replaced by a formatted relative date component (e.g., "5 minutes ago").
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Last sync: #"
 msgstr "Synchronisation la plus récente : #"
 
@@ -1443,7 +1443,7 @@ msgid "Length:"
 msgstr "Longueur :"
 
 #. Product name
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/SyncDialog.svelte
 msgid "Lexbox"
 msgstr "Lexbox"
 
@@ -1541,7 +1541,7 @@ msgstr ""
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Local"
 msgstr "Local"
 
@@ -1556,8 +1556,8 @@ msgid "Local only"
 msgstr "Uniquement au niveau local"
 
 #. Button label in the sync panel when the user is not logged in. Initiates authentication with the server.
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Login"
 msgstr "Connexion"
 
@@ -1712,9 +1712,9 @@ msgstr "Nom"
 msgid "Name is required"
 msgstr "Le nom est requis"
 
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Never"
 msgstr "Jamais"
 
@@ -1730,7 +1730,7 @@ msgid "New Custom View"
 msgstr "Nouvelle vue personnalisée"
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are pending changes waiting to be applied. Paired with "No new data".
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "New data"
 msgstr "Nouvelles données"
 
@@ -1836,7 +1836,7 @@ msgid "No media files found"
 msgstr ""
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "No new data"
 msgstr "Aucune nouvelle donnée"
 
@@ -1851,7 +1851,7 @@ msgid "No pictures"
 msgstr ""
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "No server"
 msgstr "Aucun serveur"
 
@@ -1939,7 +1939,7 @@ msgstr "Observateur"
 
 #. Status indicator
 #: src/project/ProjectSidebar.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Offline"
 msgstr "Déconnecté"
 
@@ -1968,7 +1968,7 @@ msgid "On large projects this may take a while. Do not close the app or interrup
 msgstr ""
 
 #. Explanation of sync behavior
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Un commit FieldWorks Classic peut contenir des modifications à plusieurs entrées ou champs. D'un autre côté, un commit ne peut affecter que les données qui ne sont pas synchronisées avec FieldWorks Lite."
 
@@ -2049,7 +2049,7 @@ msgstr "Partie du discours"
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Pending"
 msgstr "En attente"
 
@@ -2630,7 +2630,7 @@ msgid "Submit"
 msgstr "Soumettre"
 
 #. Button or tab label
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync"
 msgstr "Synchroniser"
 
@@ -2640,17 +2640,17 @@ msgid "Sync Changes"
 msgstr "Synchroniser les modifications"
 
 #. Success message showing change counts
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
 msgstr "Synchronisation terminée. {0} a été appliqué à FieldWorks Classic. {1} ont été appliqués à FieldWorks Lite."
 
 #. Section title
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Synchroniser FieldWorks Lite et FieldWorks Classique"
 
 #. Introductory text for sync status panel
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
 msgstr "Synchronisez vos modifications avec d'autres utilisateurs FieldWorks Lite"
 
@@ -2685,12 +2685,12 @@ msgid "Synchronize"
 msgstr "Synchroniser"
 
 #. Progress message during sync
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Synchronisation de FieldWorks Lite et FieldWorks Classic..."
 
 #. Progress indicator
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "Synchronisation en cours..."
 
@@ -2735,12 +2735,12 @@ msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from
 msgstr "La vue *FieldWorks Lite* est conçue pour les non-linguistes et diffère de la vue *FieldWorks Classic* des manières suivantes :"
 
 #. Explanation note
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Le nombre de commits FieldWorks Classic ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
 
 #. Explanation note
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Le nombre de commits FieldWorks Lite ne correspond pas nécessairement au nombre de modifications affichées dans le message de résultat de synchronisation."
 
@@ -2810,7 +2810,7 @@ msgid "This task is complete"
 msgstr "Cette tâche est terminée"
 
 #. Description of sync operation
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Cela synchronisera les copies FieldWorks Lite et FieldWorks Classic de votre projet dans Lexbox."
 
@@ -2944,8 +2944,8 @@ msgstr ""
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -2970,7 +2970,7 @@ msgid "Unknown error downloading {0}"
 msgstr "Erreur inconnue lors du téléchargement de {0}"
 
 #. Error placeholder
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Unknown server"
 msgstr "Serveur inconnu"
 
@@ -3000,7 +3000,7 @@ msgid "Untitled"
 msgstr "Sans titre"
 
 #. Sync status - no pending changes
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Up to date"
 msgstr "À jour"
 
@@ -3117,8 +3117,8 @@ msgid "Where are my projects?"
 msgstr "Où sont mes projets ?"
 
 #. Expandable help question
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Pourquoi?"
 

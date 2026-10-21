@@ -15,26 +15,46 @@
   import * as Popover from '$lib/components/ui/popover';
   import {cn} from '$lib/utils';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {AppNotification} from '$lib/notifications/notifications';
+  import {useSyncStatusService} from '$lib/services/sync-status-service';
+  import {useProjectEventBus} from '$lib/services/event-bus';
+  import {CoalescedRefresh} from '$lib/utils/coalesced-refresh';
+  import {delay} from '$lib/utils/time';
+  import type {SyncTarget} from './sync-target';
 
   let {
     syncStatus,
-    remoteStatus,
     server,
-    loadingSyncLexboxToFlex = $bindable(false),
-    loadingSyncLexboxToLocal,
-    canSyncLexboxToFlex,
-    syncLexboxToFlex = async () => {},
+    syncing = $bindable(),
+    canSync,
     onLoginStatusChange = () => {},
+    onSyncedAndUpToDate = () => {},
   }: {
     syncStatus: SyncStatus;
-    remoteStatus?: IProjectSyncStatus;
     server?: ILexboxServer;
-    loadingSyncLexboxToFlex: boolean;
-    loadingSyncLexboxToLocal: boolean;
-    canSyncLexboxToFlex?: boolean;
-    syncLexboxToFlex?: () => Promise<void>;
+    /** Which sync is running, shared with the other tab so only one runs at a time */
+    syncing?: SyncTarget;
+    canSync?: boolean;
     onLoginStatusChange?: (status: 'logged-in' | 'logged-out') => void;
+    onSyncedAndUpToDate?: () => void;
   } = $props();
+
+  const service = useSyncStatusService();
+  const projectEventBus = useProjectEventBus();
+  // A Lexbox request that can take many seconds, so it only loads once this tab is shown
+  let remoteStatus = $state<IProjectSyncStatus>();
+  const refresh = new CoalescedRefresh(async () => {
+    remoteStatus = await service.getStatus();
+  });
+
+  // A FW Lite sync changes the pending counts. forceFresh: a refresh already in flight may have started
+  // before the sync. onSync replays the last event synchronously, so subscribing first means the initial
+  // run() below joins that refresh instead of starting a second one.
+  projectEventBus.onSync(e => {
+    if (e.status === SyncStatus.Success) void refresh.run({forceFresh: true});
+  });
+  void refresh.run();
+
   const lastFlexSyncDate = $derived(
     remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined,
   );
@@ -51,10 +71,43 @@
 
   let loading = $derived(remoteStatus === undefined);
 
-  function onSyncLexboxToFlex() {
-    loadingSyncLexboxToFlex = true;
-    void syncLexboxToFlex().finally(() => {
-      loadingSyncLexboxToFlex = false;
+  async function sync() {
+    const syncPromise = service.triggerFwHeadlessSync();
+    AppNotification.promise(syncPromise, {
+      loading: $t`Synchronizing FieldWorks Lite and FieldWorks Classic...`,
+      success: (result) => {
+        const fwdataChangesText = $plural(result.syncResult?.fwdataChanges ?? 0, {one: '# change', other: '# changes'});
+        const crdtChangesText = $plural(result.syncResult?.crdtChanges ?? 0, {one: '# change', other: '# changes'});
+        return $t`Sync complete. ${fwdataChangesText} were applied to FieldWorks Classic. ${crdtChangesText} were applied to FieldWorks Lite.`;
+      },
+      // TODO: Custom component that can expand or collapse the stacktrace
+    });
+
+    try {
+      await syncPromise;
+    } catch (error) {
+      void refresh.run({forceFresh: true});
+      throw error;
+    }
+    if (remoteStatus) {
+      // Optimistically update status, then query it
+      remoteStatus.pendingCrdtChanges = 0;
+      remoteStatus.pendingMercurialChanges = 0;
+    }
+
+    await Promise.all([
+      refresh.run({forceFresh: true}),
+      delay(750)
+    ]);
+    if (remoteStatus?.pendingMercurialChanges === 0 && remoteStatus?.pendingCrdtChanges === 0) {
+      onSyncedAndUpToDate();
+    }
+  }
+
+  function onSyncClick() {
+    syncing = 'classic';
+    void sync().finally(() => {
+      syncing = undefined;
     });
   }
 </script>
@@ -138,9 +191,9 @@
       </span>
       <SyncArrow dir="left" class={cn(hgToCrdtCount && 'text-primary')} tailLength={120} size={1.25} />
       <Button
-        loading={loadingSyncLexboxToFlex}
-        disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex || !remoteStatus}
-        onclick={onSyncLexboxToFlex}
+        loading={syncing === 'classic'}
+        disabled={syncing === 'lite' || !canSync || !remoteStatus}
+        onclick={onSyncClick}
         class="my-1"
         icon="i-mdi-sync"
         iconProps={{ class: 'size-5' }}
