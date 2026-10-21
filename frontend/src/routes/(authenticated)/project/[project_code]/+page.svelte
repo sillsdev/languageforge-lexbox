@@ -59,7 +59,6 @@
   import {_askToJoinProject} from '../create/+page';
 // TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
   import {Duration} from '$lib/util/time';
-  import {hasFeatureFlag} from '$lib/user';
   import {resolve} from '$app/paths';
   import {NewTabLinkMarkdown} from '$lib/components/Markdown';
 
@@ -173,6 +172,8 @@
 
   // Almost mirrors PermissionService.CanAskToJoinProject() in C#, but admins won't be shown the "ask to join" button
   let canAskToJoinProject = $derived(!user.isAdmin && !projectRole && orgRoles.some((_) => true));
+  // Observer and Commenter only apply to FieldWorks Lite
+  let showFwLiteRoles = $derived(project?.type === ProjectType.FlEx && !!project.hasHarmonyCommits);
   let canSyncProject = $derived(user.isAdmin || projectRole == ProjectRole.Manager || projectRole == ProjectRole.Editor || userIsOrgAdmin);
 
   let resetProjectModal: ResetProjectModal | undefined = $state();
@@ -596,7 +597,7 @@
       </OrgList>
       <MembersList
         projectId={project.id}
-        showFwLiteRoles={project.type === ProjectType.FlEx && hasFeatureFlag(user, 'FwLiteBeta')}
+        {showFwLiteRoles}
         {members}
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}
@@ -613,7 +614,7 @@
             {$t('project_page.add_user.add_button')}
           </BadgeButton>
 
-          <AddProjectMember bind:this={addProjectMember} {project} />
+          <AddProjectMember bind:this={addProjectMember} {project} {showFwLiteRoles} />
           <BulkAddProjectMembers projectId={project.id} userLocale={user.locale} />
         {/snippet}
         <UserModal bind:this={userModal} />

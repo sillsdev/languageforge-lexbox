@@ -6,8 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
 
-public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFixture>
+public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFixture>, IAsyncLifetime
 {
+    // The fixture's project is shared by every test here, and some tests switch to a read-only role
+    public async Task InitializeAsync()
+    {
+        await fixture.GetService<CurrentProjectService>().UpdateUserRole(UserProjectRole.Editor);
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
+
     private async Task SetCurrentUser(string userId, string? name = null, UserProjectRole role = UserProjectRole.Editor)
     {
         var projectService = fixture.GetService<CurrentProjectService>();
