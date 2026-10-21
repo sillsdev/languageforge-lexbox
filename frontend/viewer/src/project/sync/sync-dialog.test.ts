@@ -67,13 +67,25 @@ describe('SyncDialog', () => {
     expect(syncService.getSyncStatus).not.toHaveBeenCalled();
   }, 60_000); // first import transforms the dialog's dependencies
 
-  it('loads the FieldWorks Classic status when its tab is first shown', async () => {
-    const syncService = fakeSyncService();
-    await openDialog(syncService);
+  function showClassicTab() {
     const classicTab = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(t => t.textContent?.includes('Lexbox'));
     expect(classicTab).toBeTruthy();
     classicTab!.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
     classicTab!.click();
+  }
+
+  it('loads the FieldWorks Classic status when its tab is first shown', async () => {
+    const syncService = fakeSyncService();
+    await openDialog(syncService);
+    showClassicTab();
     await vi.waitFor(() => expect(syncService.getSyncStatus).toHaveBeenCalledOnce());
+  }, 60_000);
+
+  it('shows a failed FieldWorks Classic status inline', async () => {
+    const syncService = fakeSyncService();
+    syncService.getSyncStatus.mockImplementation(() => Promise.reject(new Error('Lexbox unreachable')));
+    await openDialog(syncService);
+    showClassicTab();
+    await vi.waitFor(() => expect(document.body.textContent).toContain(`Couldn't get the FieldWorks Classic status from Lexbox.`));
   }, 60_000);
 });

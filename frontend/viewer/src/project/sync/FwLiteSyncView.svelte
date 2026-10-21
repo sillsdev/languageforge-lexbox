@@ -4,7 +4,6 @@
   import {Icon} from '$lib/components/ui/icon';
   import LoginButton from '$lib/auth/LoginButton.svelte';
   import {Button} from '$lib/components/ui/button';
-  import type {IPendingCommits} from '$lib/dotnet-types/generated-types/FwLiteShared/Sync/IPendingCommits';
   import type {ILexboxServer} from '$lib/dotnet-types';
   import {fade} from 'svelte/transition';
   import {t, T} from 'svelte-i18n-lingui';
@@ -13,7 +12,8 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {useSyncStatusService} from '$lib/services/sync-status-service';
   import {useProjectEventBus} from '$lib/services/event-bus';
-  import {CoalescedRefresh} from '$lib/utils/coalesced-refresh';
+  import {onErrorEvent} from '$lib/errors/global-errors';
+  import {resource} from 'runed';
   import type {SyncTarget} from './sync-target';
 
   interface Props {
@@ -37,26 +37,29 @@
 
   const service = useSyncStatusService();
   const projectEventBus = useProjectEventBus();
-  let localStatus = $state<IPendingCommits>();
-  let latestSyncedCommitDate = $state<string>();
-  const refresh = new CoalescedRefresh(async () => {
-    await Promise.all([
-      service.getLocalStatus().then(s => localStatus = s),
-      service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
-    ]);
-  });
-
-  // Any sync (this tab's or one in the background) changes the counts. forceFresh: a refresh already in
-  // flight may have started before the sync. onSync replays the last event synchronously, so subscribing
-  // first means the initial run() below joins that refresh instead of starting a second one.
+  // Any sync (this tab's or one in the background) changes the counts. onSync replays the last event
+  // synchronously, before the resource's first load, so that doesn't cause an extra load.
+  let syncCount = $state(0);
   projectEventBus.onSync(e => {
-    if (e.status === SyncStatus.Success) void refresh.run({forceFresh: true});
+    if (e.status === SyncStatus.Success) syncCount++;
   });
-  void refresh.run();
+  const status = resource(() => syncCount, async (_, _prev, {signal}) => {
+    const [pendingCommits, latestSyncedCommitDate] = await Promise.all([
+      service.getLocalStatus(),
+      service.getLatestSyncedCommitDate(),
+    ]);
+    // Our calls can't be cancelled, so drop the result if a newer load has started
+    signal.throwIfAborted();
+    return {pendingCommits, latestSyncedCommitDate};
+  });
+  // Local status shouldn't fail, so report it like any unexpected error
+  $effect(() => {
+    if (status.error) onErrorEvent(status.error);
+  });
 
-  let remoteToLocalCount = $derived(localStatus?.remote);
-  let localToRemoteCount = $derived(localStatus?.local);
-  let lastLocalSyncDate = $derived(latestSyncedCommitDate ? new Date(latestSyncedCommitDate) : undefined);
+  let remoteToLocalCount = $derived(status.current?.pendingCommits?.remote);
+  let localToRemoteCount = $derived(status.current?.pendingCommits?.local);
+  let lastLocalSyncDate = $derived(status.current?.latestSyncedCommitDate ? new Date(status.current.latestSyncedCommitDate) : undefined);
   const serverName = $derived(server?.displayName ?? serverId ?? 'unknown');
   const serverProjectUrl = $derived(`${server?.authority}/project/${encodeURIComponent(projectCode ?? '')}`);
   const cloudIcon = $derived(syncStatus === SyncStatus.Offline ? 'i-mdi-cloud-off-outline' : 'i-mdi-cloud-outline');
@@ -68,15 +71,12 @@
       // real sync status, which re-renders this view, so give gentle feedback instead of optimistically
       // zeroing the counts.
       AppNotification.display($t`Couldn't sync right now — your local changes are safe.`, {type: 'warning', timeout: 'short'});
-      await refresh.run();
+      await status.refetch();
       return;
     }
     // Optimistically update status, then query it
-    if (localStatus) {
-      localStatus.remote = 0;
-      localStatus.local = 0;
-    }
-    await refresh.run({forceFresh: true});
+    if (status.current) status.mutate({...status.current, pendingCommits: {local: 0, remote: 0}});
+    await status.refetch();
   }
 
   function onSyncClick() {

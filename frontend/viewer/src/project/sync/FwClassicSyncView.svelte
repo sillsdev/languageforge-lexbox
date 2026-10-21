@@ -2,7 +2,6 @@
   import { ProjectSyncStatusEnum } from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusEnum';
   import { Button } from '$lib/components/ui/button';
   import { Icon } from '$lib/components/ui/icon';
-  import type { IProjectSyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
   import { plural, t, T } from 'svelte-i18n-lingui';
   import * as Accordion from '$lib/components/ui/accordion';
   import SyncArrow from './SyncArrow.svelte';
@@ -18,7 +17,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {useSyncStatusService} from '$lib/services/sync-status-service';
   import {useProjectEventBus} from '$lib/services/event-bus';
-  import {CoalescedRefresh} from '$lib/utils/coalesced-refresh';
+  import {resource} from 'runed';
   import {delay} from '$lib/utils/time';
   import type {SyncTarget} from './sync-target';
 
@@ -41,19 +40,21 @@
 
   const service = useSyncStatusService();
   const projectEventBus = useProjectEventBus();
-  // A Lexbox request that can take many seconds, so it only loads once this tab is shown
-  let remoteStatus = $state<IProjectSyncStatus>();
-  const refresh = new CoalescedRefresh(async () => {
-    remoteStatus = await service.getStatus();
-  });
-
-  // A FW Lite sync changes the pending counts. forceFresh: a refresh already in flight may have started
-  // before the sync. onSync replays the last event synchronously, so subscribing first means the initial
-  // run() below joins that refresh instead of starting a second one.
+  // A sync changes the pending counts. onSync replays the last event synchronously, before the resource's
+  // first load, so that doesn't cause an extra load.
+  let syncCount = $state(0);
   projectEventBus.onSync(e => {
-    if (e.status === SyncStatus.Success) void refresh.run({forceFresh: true});
+    if (e.status === SyncStatus.Success) syncCount++;
   });
-  void refresh.run();
+  // A Lexbox request that can take many seconds, so it only loads once this tab is shown.
+  // Errors (e.g. Lexbox unreachable) are expected, so they're shown inline instead of thrown.
+  const remote = resource(() => syncCount, async (_, _prev, {signal}) => {
+    const status = await service.getStatus();
+    // Our calls can't be cancelled, so drop the result if a newer load has started
+    signal.throwIfAborted();
+    return status;
+  });
+  const remoteStatus = $derived(remote.current);
 
   const lastFlexSyncDate = $derived(
     remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined,
@@ -69,7 +70,7 @@
     return $t`New data`;
   }
 
-  let loading = $derived(remoteStatus === undefined);
+  let loading = $derived(remoteStatus === undefined && !remote.error);
 
   async function sync() {
     const syncPromise = service.triggerFwHeadlessSync();
@@ -86,20 +87,18 @@
     try {
       await syncPromise;
     } catch (error) {
-      void refresh.run({forceFresh: true});
+      void remote.refetch();
       throw error;
     }
-    if (remoteStatus) {
-      // Optimistically update status, then query it
-      remoteStatus.pendingCrdtChanges = 0;
-      remoteStatus.pendingMercurialChanges = 0;
-    }
+    // Optimistically update status, then query it
+    if (remoteStatus) remote.mutate({...remoteStatus, pendingCrdtChanges: 0, pendingMercurialChanges: 0});
 
-    await Promise.all([
-      refresh.run({forceFresh: true}),
+    const [fresh] = await Promise.all([
+      remote.refetch(),
       delay(750)
     ]);
-    if (remoteStatus?.pendingMercurialChanges === 0 && remoteStatus?.pendingCrdtChanges === 0) {
+    // undefined if the load failed or a newer one replaced it: then we can't tell, so leave the dialog open
+    if (fresh?.pendingMercurialChanges === 0 && fresh?.pendingCrdtChanges === 0) {
       onSyncedAndUpToDate();
     }
   }
@@ -129,6 +128,9 @@
     </Popover.Content>
   </Popover.Root>
 </p>
+{#if remote.error}
+  <p class="mb-4 text-center text-sm text-destructive">{$t`Couldn't get the FieldWorks Classic status from Lexbox.`}</p>
+{/if}
 
 <div class="grid grid-cols-[1fr_auto_1fr] gap-4">
   <div class="border rounded flex flex-col items-center justify-center text-center p-2">

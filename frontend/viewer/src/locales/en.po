@@ -629,6 +629,10 @@ msgstr "Could not check for similar entries"
 msgid "Could not check for similar words"
 msgstr "Could not check for similar words"
 
+#: src/project/sync/FwClassicSyncView.svelte
+msgid "Couldn't get the FieldWorks Classic status from Lexbox."
+msgstr "Couldn't get the FieldWorks Classic status from Lexbox."
+
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/sync/FwLiteSyncView.svelte
