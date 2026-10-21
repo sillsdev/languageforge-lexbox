@@ -12,6 +12,8 @@ import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 import type {IProjectData} from '$lib/dotnet-types/generated-types/LcmCrdt/IProjectData';
 import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
 import {devSettings} from '$lib/layout/dev-settings.svelte';
+import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
+import type {EventBus} from '$lib/services/event-bus';
 
 type ProjectType = 'crdt' | 'fwdata' | undefined;
 
@@ -47,6 +49,11 @@ export class ProjectContext {
   #projectType: ProjectType = $state(undefined);
   #server = $state<ILexboxServer>();
   #projectData = $state<IProjectData>();
+  // Latest role pushed by the backend; wins over the role in #projectData, which is a snapshot from opening the project.
+  #latestRole = $state<UserProjectRole>();
+  #projectDataWithLatestRole = $derived(this.#projectData && this.#latestRole !== undefined
+    ? {...this.#projectData, role: this.#latestRole}
+    : this.#projectData);
   #historyService: IHistoryServiceJsInvokable | undefined = $state(undefined);
   #syncService: ISyncServiceJsInvokable | undefined = $state(undefined);
   #mediaFilesService: IMediaFilesServiceJsInvokable | undefined = $state(undefined);
@@ -93,7 +100,7 @@ export class ProjectContext {
     return this.#server;
   }
   public get projectData(): IProjectData | undefined {
-    return this.#projectData;
+    return this.#projectDataWithLatestRole;
   }
   public get features(): IMiniLcmFeatures {
     const features = this.#features.current;
@@ -155,6 +162,19 @@ export class ProjectContext {
     for (const res of this.#detachedResources) {
       res.onApiChange(args.api);
     }
+  }
+
+  /**
+   * Keep {@link projectData}'s role and {@link features} (write) in sync with role changes from the backend.
+   * Call before opening the project: opening triggers a sync, which can change the role before {@link setup} runs.
+   * A change published before the project's data was read is already in that data, so nothing is missed.
+   */
+  public watchProjectRole(eventBus: EventBus): void {
+    const unsubscribe = eventBus.onProjectRoleChanged(this.projectCode, event => {
+      this.#latestRole = event.role;
+      void this.#features.refetch();
+    });
+    this.#rootCleanups.push(unsubscribe);
   }
 
   public getOrAddAsync<T>(key: symbol, initialValue: T, factory: (api: IMiniLcmJsInvokable) => Promise<T>, options?: GetOrAddAsyncOptions<T>): DetachedResourceReturn<T> {

@@ -9,6 +9,7 @@ import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {onDestroy} from 'svelte';
 import type {ISyncEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/ISyncEvent';
+import type {IProjectRoleChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectRoleChangedEvent';
 
 export enum CloseReason {
   User = 0,
@@ -78,6 +79,15 @@ export class EventBus {
         callback(event as T);
       }
     }));
+  }
+
+  /** Not tied to a component's lifecycle: the caller must call the returned unsubscribe. */
+  public onProjectRoleChanged(projectCode: string, callback: (event: IProjectRoleChangedEvent) => void): () => void {
+    return this.onEvent(event => {
+      if (isProjectEvent(event) && event.project.name === projectCode && isProjectRoleChangedEvent(event.event)) {
+        callback(event.event);
+      }
+    });
   }
 
   public getLastEvent<T extends IFwEvent>(projectCode: string, eventType: FwEventType): T | undefined {
@@ -194,4 +204,8 @@ function isProjectEvent(event: IFwEvent): event is IProjectEvent {
 
 function isSyncEvent(event: IFwEvent): event is ISyncEvent {
   return event.type === FwEventType.Sync;
+}
+
+function isProjectRoleChangedEvent(event: IFwEvent): event is IProjectRoleChangedEvent {
+  return event.type === FwEventType.ProjectRoleChanged;
 }

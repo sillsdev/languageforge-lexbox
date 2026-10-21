@@ -11,6 +11,7 @@ export enum FwEventType {
 	Sync = "Sync",
 	AppUpdate = "AppUpdate",
 	AppUpdateProgress = "AppUpdateProgress",
-	UserNotification = "UserNotification"
+	UserNotification = "UserNotification",
+	ProjectRoleChanged = "ProjectRoleChanged"
 }
 /* eslint-enable */
