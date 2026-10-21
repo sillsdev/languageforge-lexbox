@@ -596,7 +596,7 @@
       </OrgList>
       <MembersList
         projectId={project.id}
-        showObserver={project.type === ProjectType.FlEx && hasFeatureFlag(user, 'FwLiteBeta')}
+        showFwLiteRoles={project.type === ProjectType.FlEx && hasFeatureFlag(user, 'FwLiteBeta')}
         {members}
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}

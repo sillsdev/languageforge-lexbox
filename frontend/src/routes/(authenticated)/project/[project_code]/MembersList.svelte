@@ -29,7 +29,7 @@
     canManageMember: (member: Member) => boolean;
     canManageList: boolean;
     projectId: string;
-    showObserver?: boolean;
+    showFwLiteRoles?: boolean;
     canViewOtherMembers: boolean;
     extraButtons?: Snippet;
     children?: Snippet;
@@ -42,7 +42,7 @@
     canManageMember,
     canManageList,
     projectId,
-    showObserver,
+    showFwLiteRoles,
     canViewOtherMembers,
     extraButtons,
     children,
@@ -168,5 +168,5 @@
 
     {@render children?.()}
   </BadgeList>
-  <ChangeMemberRoleModal {projectId} bind:this={changeMemberRoleModal} {showObserver} />
+  <ChangeMemberRoleModal {projectId} bind:this={changeMemberRoleModal} {showFwLiteRoles} />
 </div>

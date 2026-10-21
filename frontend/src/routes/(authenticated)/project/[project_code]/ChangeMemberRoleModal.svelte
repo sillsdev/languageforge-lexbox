@@ -9,13 +9,13 @@
 
   interface Props {
     projectId: string;
-    showObserver?: boolean;
+    showFwLiteRoles?: boolean;
   }
 
-  const { projectId, showObserver }: Props = $props();
+  const { projectId, showFwLiteRoles }: Props = $props();
 
   const schema = z.object({
-    role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer]),
+    role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer, ProjectRole.Commenter]),
   });
   type Schema = typeof schema;
   let formModal: FormModal<Schema> | undefined = $state();
@@ -51,7 +51,7 @@
     <span>{$t('project_page.change_role_modal.title', { name })}</span>
   {/snippet}
   {#snippet children({ errors })}
-    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} {showObserver} />
+    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} {showFwLiteRoles} />
   {/snippet}
   {#snippet submitText()}
     <span>{$t('project_page.change_role')}</span>

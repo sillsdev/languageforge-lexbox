@@ -34,7 +34,9 @@
   const projectEventBus = useProjectEventBus();
   const projectContext = useProjectContext();
   const currentUserId = $derived(projectContext.projectData?.lastUserId);
-  const canComment = $derived(Boolean(currentUserId) && !!projectContext.features.write);
+  // Commenters can comment but not edit the project, so resolving/reopening threads needs write access
+  const canComment = $derived(Boolean(currentUserId) && !!projectContext.features.commentWrite);
+  const canResolve = $derived(canComment && !!projectContext.features.write);
 
   let saving = $state(false);
   let newThreadText = $state('');
@@ -263,6 +265,7 @@
     {expandedThreadIds}
     bind:mobileThreadId
     {canComment}
+    {canResolve}
     {loading}
     {saving}
     {threadViews}

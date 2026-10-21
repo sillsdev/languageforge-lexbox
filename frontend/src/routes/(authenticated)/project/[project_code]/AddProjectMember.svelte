@@ -22,7 +22,7 @@
       .trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
       .refine((value) => !value.includes('@') || isEmail(value), { error: $t('form.invalid_email') }),
-    role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer]).default(ProjectRole.Editor),
+    role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer, ProjectRole.Commenter]).default(ProjectRole.Editor),
     canInvite: z.boolean().default(false),
   });
   let formModal: FormModal<typeof schema> | undefined = $state();
@@ -98,7 +98,7 @@
       }}
       exclude={project.users.map((m) => m.user.id)}
     />
-    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} showObserver={project.hasHarmonyCommits} />
+    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} showFwLiteRoles={project.hasHarmonyCommits} />
   {/snippet}
   {#snippet extraActions()}
     <Checkbox

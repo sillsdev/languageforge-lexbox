@@ -1556,6 +1556,7 @@ enum ProjectRole {
   MANAGER
   EDITOR
   OBSERVER
+  COMMENTER
 }
 
 enum ProjectType {

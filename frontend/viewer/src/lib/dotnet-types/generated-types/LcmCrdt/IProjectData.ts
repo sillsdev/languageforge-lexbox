@@ -18,5 +18,6 @@ export interface IProjectData
 	role: UserProjectRole;
 	serverId?: string;
 	isReadonly: boolean;
+	canComment: boolean;
 }
 /* eslint-enable */
