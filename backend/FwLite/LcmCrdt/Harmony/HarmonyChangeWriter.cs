@@ -10,19 +10,21 @@ public class HarmonyChangeWriter(
     DataModel dataModel,
     CommitMetadataInterceptor commitMetadataInterceptor,
     IOptions<LcmCrdtConfig> config,
-    CurrentProjectService projectService
+    CurrentProjectService projectService,
+    CurrentAuthorService currentAuthorService
 )
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
     private CommitMetadata NewMetadata()
     {
+        //todo, if a user logs out and in with another account, this will be out of date until the next sync
+        var author = currentAuthorService.GetCurrentAuthor();
         var metadata = new CommitMetadata
         {
             ClientVersion = AppVersion.Version,
-            //todo, if a user logs out and in with another account, this will be out of date until the next sync
-            AuthorName = ProjectData.LastUserName ?? config.Value.DefaultAuthorForCommits,
-            AuthorId = ProjectData.LastUserId
+            AuthorName = author.Name ?? config.Value.DefaultAuthorForCommits,
+            AuthorId = author.Id
         };
         commitMetadataInterceptor.Apply(metadata);
         return metadata;

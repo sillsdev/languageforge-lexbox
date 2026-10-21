@@ -17,6 +17,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 {
     private readonly bool _seedWs = true;
     private readonly Guid? _projectId;
+    private readonly Action<IServiceCollection>? _configureServices;
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
     private SqliteConnection? _keepAliveConnection;
@@ -35,15 +36,16 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
     }
 
-    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null)
+    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null, Action<IServiceCollection>? configureServices = null)
     {
-        return new MiniLcmApiFixture(seedWs, projectId);
+        return new MiniLcmApiFixture(seedWs, projectId, configureServices);
     }
 
-    private MiniLcmApiFixture(bool seedWs = true, Guid? projectId = null)
+    private MiniLcmApiFixture(bool seedWs, Guid? projectId, Action<IServiceCollection>? configureServices)
     {
         _seedWs = seedWs;
         _projectId = projectId;
+        _configureServices = configureServices;
     }
 
     public async Task InitializeAsync()
@@ -65,13 +67,14 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
             }
         }
 
-        var services = new ServiceCollection()
+        var serviceCollection = new ServiceCollection()
             .AddTestLcmCrdtClient()
             .AddLogging(builder => builder.AddDebug()
                 .AddProvider(new LateXUnitLoggerProvider(this))
                 .AddFilter("LinqToDB", LogLevel.Trace)
-                .SetMinimumLevel(LogLevel.Error))
-            .BuildServiceProvider();
+                .SetMinimumLevel(LogLevel.Error));
+        _configureServices?.Invoke(serviceCollection);
+        var services = serviceCollection.BuildServiceProvider();
         _services = services.CreateAsyncScope();
         if (inMemory)
         {
