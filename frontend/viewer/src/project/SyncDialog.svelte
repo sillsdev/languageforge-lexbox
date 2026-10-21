@@ -10,6 +10,7 @@
   import {useSyncStatusService} from '$lib/services/sync-status-service';
   import {watch} from 'runed';
   import {delay} from '$lib/utils/time';
+  import {CoalescedRefresh} from '$lib/utils/coalesced-refresh';
   import {useFeatures} from '$lib/services/feature-service';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import type {IPendingCommits} from '$lib/dotnet-types/generated-types/FwLiteShared/Sync/IPendingCommits';
@@ -43,38 +44,32 @@
     openQueryParam.current = true;
   }
 
-  let pendingRefresh: Promise<unknown> | undefined;
-  let rerunAfterPending = false;
+  // Local status is quick; the remote (FieldWorks Classic) status is a Lexbox request that can take many seconds,
+  // so they refresh independently and nothing that only needs local data waits on the server.
+  const localRefresh = new CoalescedRefresh(async () => {
+    await Promise.all([
+      service.getLocalStatus().then(s => localStatus = s),
+      service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
+    ]);
+  });
+  const remoteRefresh = new CoalescedRefresh(async () => {
+    remoteStatus = await service.getStatus();
+  });
 
   // Catch background syncs (e.g. another client pushing changes) that onOpen alone wouldn't see.
   // forceFresh: an in-flight refresh started before the sync may return pre-sync data, so queue a follow-up.
-  // Must follow pendingRefresh — onSync invokes the callback synchronously with a cached event.
+  // Must follow the refreshers — onSync invokes the callback synchronously with a cached event.
   projectEventBus.onSync(e => {
-    if (openQueryParam.current && e.status === SyncStatus.Success) void refreshStatus({forceFresh: true});
-  });
-
-  function refreshStatus(opts?: {forceFresh?: boolean}) {
-    if (pendingRefresh) {
-      if (opts?.forceFresh) rerunAfterPending = true;
-      return pendingRefresh;
+    if (openQueryParam.current && e.status === SyncStatus.Success) {
+      void localRefresh.run({forceFresh: true});
+      void remoteRefresh.run({forceFresh: true});
     }
-    pendingRefresh = Promise.all([
-      service.getLocalStatus().then(s => localStatus = s),
-      service.getStatus().then(s => remoteStatus = s),
-      service.getLatestSyncedCommitDate().then(s => latestSyncedCommitDate = s),
-    ]).finally(() => {
-      pendingRefresh = undefined;
-      if (rerunAfterPending) {
-        rerunAfterPending = false;
-        void refreshStatus();
-      }
-    });
-    return pendingRefresh;
-  }
+  });
 
   async function onOpen(): Promise<void> {
     await Promise.all([
-      refreshStatus(),
+      localRefresh.run(),
+      remoteRefresh.run(),
       service.getCurrentServer().then(s => server = s),
     ]);
   }
@@ -103,13 +98,13 @@
       }
     } catch (error) {
       safeToCloseDialog = false;
-      void service.getStatus().then(s => remoteStatus = s);
+      void remoteRefresh.run({forceFresh: true});
       throw error;
     }
 
     // Auto-close dialog after successful FieldWorks sync
     await Promise.all([
-      service.getStatus().then(s => remoteStatus = s),
+      remoteRefresh.run({forceFresh: true}),
       delay(750)
     ]);
     if (safeToCloseDialog && remoteStatus?.pendingMercurialChanges === 0 && remoteStatus?.pendingCrdtChanges === 0) {
@@ -125,7 +120,8 @@
       // real sync status, which re-renders this dialog, so give gentle feedback instead of optimistically
       // zeroing the counts.
       AppNotification.display($t`Couldn't sync right now — your local changes are safe.`, {type: 'warning', timeout: 'short'});
-      await refreshStatus();
+      void remoteRefresh.run();
+      await localRefresh.run();
       return;
     }
     // Optimistically update status, then query it
@@ -133,7 +129,9 @@
       localStatus.remote = 0;
       localStatus.local = 0;
     }
-    await refreshStatus();
+    // Don't hold the sync button on the slow remote status; its counts fill in when the server answers
+    void remoteRefresh.run({forceFresh: true});
+    await localRefresh.run({forceFresh: true});
   }
 
   function onLoginStatusChange(status: 'logged-in' | 'logged-out') {
