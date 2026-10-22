@@ -1,0 +1,686 @@
+name: PR CI
+# The PR tier: Linux-only, affected-only checks for every pull request, under 10 minutes for a
+# one-project change. `detect` asks the nx graph what the diff touches (.github/scripts/affected.sh,
+# same answer as `task ci:affected` locally); the gated jobs run only for what is affected;
+# escalation tiers (.github/ci-tiers/README.md) pull full-tier jobs in by path rule or by a
+# `ci:<tier>` label (`ci:full` = all). `summary` is the one check to require at cut-over.
+# Everything else (publishing, signing, stores, Firefox, WebKit by default) stays on develop in
+# fw-lite.yaml and platform.bible-extension.yaml.
+on:
+  pull_request:
+    branches:
+      - develop
+    # labeled/unlabeled so adding `ci:<tier>` re-runs at once; the concurrency group cancels the superseded run.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # nx's own CI default; also skips the daemon's "pull latest nx" network call on start.
+  NX_DAEMON: 'false'
+  VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
+  # Same pin as fw-lite.yaml.
+  MAUI_WORKLOAD_VERSION: 10.0.401
+
+jobs:
+  detect:
+    name: Detect affected projects
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      projects: ${{ steps.affected.outputs.projects }}
+      viewer: ${{ steps.affected.outputs.viewer }}
+      extension: ${{ steps.affected.outputs.extension }}
+      everything: ${{ steps.affected.outputs.everything }}
+      tiers: ${{ steps.affected.outputs.tiers }}
+      fallback: ${{ steps.affected.outputs.fallback }}
+      dotnet: ${{ steps.affected.outputs.dotnet }}
+      test-projects: ${{ steps.affected.outputs.test-projects }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history: the diff is merge-base(base branch, PR head)..PR head, computed locally
+          # with git alone, which also works for fork PRs (no token needed).
+          fetch-depth: 0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: 'package.json'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: './package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './pnpm-lock.yaml'
+      - name: Install nx (repo root)
+        run: pnpm install --frozen-lockfile
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          # @nx/dotnet evaluates every csproj with MSBuild to build the graph.
+          dotnet-version: '10.x'
+
+      - name: Compute affected projects and tiers
+        id: affected
+        env:
+          AFFECTED_BASE: origin/${{ github.base_ref }}
+          AFFECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          set -euo pipefail
+          result="$(bash .github/scripts/affected.sh)"
+          echo "affected.sh: $result"
+          RESULT="$result" node - <<'EOF'
+          const fs = require('node:fs');
+          const r = JSON.parse(process.env.RESULT);
+          const labels = JSON.parse(process.env.PR_LABELS || '[]');
+          const tierNames = fs.readdirSync('.github/ci-tiers', {withFileTypes: true})
+            .filter((d) => d.isDirectory()).map((d) => d.name);
+          // Labels union with the graph's tiers; `full` (label or the PR workflow file) means all of them.
+          const tiers = new Set(r.tiers);
+          for (const label of labels) {
+            if (label === 'ci:full') tiers.add('full');
+            else if (label.startsWith('ci:')) tiers.add(label.slice(3));
+          }
+          let everything = r.everything;
+          if (tiers.has('full')) { everything = true; tierNames.forEach((t) => tiers.add(t)); }
+          // FW Lite projects = FwLiteCore.slnf; the dotnet job builds it whole and tests the affected test projects.
+          const core = JSON.parse(fs.readFileSync('FwLiteCore.slnf', 'utf8')).solution.projects
+            .map((p) => p.split('\\').pop().replace(/\.csproj$/, ''));
+          const coreTests = core.filter((p) => p.endsWith('.Tests'));
+          const dotnet = everything || r.projects.some((p) => core.includes(p));
+          let testProjects = everything ? coreTests : r.projects.filter((p) => coreTests.includes(p));
+          if (dotnet && testProjects.length === 0) testProjects = coreTests; // e.g. only a leaf library changed
+          const out = {
+            projects: JSON.stringify(r.projects),
+            viewer: String(r.viewer || everything),
+            extension: String(r.extension || everything),
+            everything: String(everything),
+            tiers: JSON.stringify([...tiers].sort()),
+            fallback: r.fallback ?? '',
+            dotnet: String(dotnet),
+            'test-projects': JSON.stringify(testProjects),
+          };
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, Object.entries(out).map(([k, v]) => `${k}=${v}\n`).join(''));
+          if (r.fallback) console.log(`::warning::affected detection fell back to everything: ${r.fallback}`);
+          const rows = Object.entries(out).map(([k, v]) => `| ${k} | \`${v}\` |`).join('\n');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### Affected\n\n| key | value |\n|---|---|\n${rows}\n\nLabels: \`${labels.join(', ')}\`\n`);
+          console.log(out);
+          EOF
+
+  dotnet:
+    name: .NET build and tests (affected)
+    needs: detect
+    if: needs.detect.outputs.dotnet == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.x'
+      - name: Cache NuGet packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+      - name: Install Task
+        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dotnet build
+        # Whole FwLiteCore.slnf (~1 min): keeps the two drift checks below unconditional. Tests are the affected subset.
+        run: dotnet build FwLiteCore.slnf -p:BuildAndroid=false
+
+      - name: Check for pending EF model changes
+        run: task fw-lite:has-pending-model-changes -- --no-build
+
+      - name: Check for stale generated TypeScript types
+        run: task fw-lite:has-stale-generated-types -- --no-build
+
+      - name: Select affected test projects
+        env:
+          TEST_PROJECTS: ${{ needs.detect.outputs.test-projects }}
+        run: node .github/scripts/write-test-slnf.mjs
+
+      - name: Dotnet test (PR tier)
+        # Slow and Benchmark run elsewhere: the slow-tests job (same selection, Category=Slow) and develop.
+        # TZ forces a non-UTC timezone so date bugs are observable (see fw-lite.yaml).
+        env:
+          TZ: America/New_York
+        run: dotnet test FwLiteAffectedTests.slnf --logger GitHubActions --logger trx --results-directory "${{ github.workspace }}/TestResults" --no-build -p:BuildAndroid=false --filter "Category!=Slow&Category!=Benchmark"
+
+      - name: Publish test results to TestHistory
+        if: always()
+        continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: TestResults/**/*.trx
+          label: FW Lite .NET
+          on-no-files: ignore # build may fail before any tests run
+
+  slow-tests:
+    name: .NET slow tests (tier slow-tests)
+    needs: detect
+    if: contains(fromJSON(needs.detect.outputs.tiers), 'slow-tests')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.x'
+      - name: Cache NuGet packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Dotnet build
+        run: dotnet build FwLiteCore.slnf -p:BuildAndroid=false
+
+      - name: Select affected test projects
+        env:
+          TEST_PROJECTS: ${{ needs.detect.outputs.test-projects }}
+        run: node .github/scripts/write-test-slnf.mjs
+
+      - name: Dotnet test (Category=Slow)
+        env:
+          TZ: America/New_York
+        run: dotnet test FwLiteAffectedTests.slnf --logger GitHubActions --logger trx --results-directory "${{ github.workspace }}/TestResults" --no-build -p:BuildAndroid=false --filter "Category=Slow"
+
+      - name: Publish test results to TestHistory
+        if: always()
+        continue-on-error: true # telemetry only
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: TestResults/**/*.trx
+          label: FW Lite .NET slow
+          on-no-files: ignore
+
+  viewer-checks:
+    name: Viewer checks (svelte-check, eslint, prettier, i18n, vitest, build)
+    needs: detect
+    if: needs.detect.outputs.viewer == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      checks: write # publish-unit-test-result-action
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: 'frontend/package.json'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: Prepare frontend
+        working-directory: frontend
+        run: pnpm install
+
+      - name: Ensure all i18n strings have been extracted
+        working-directory: frontend/viewer
+        shell: bash
+        run: |
+          set -e
+          # GHA sets -o pipefail when shell is bash but we want to turn it off
+          set +o pipefail
+          rm -f src/locales/en.po.old
+          cp src/locales/en.po src/locales/en.po.old
+          pnpm i18n:extract
+          DIFFCOUNT=$(diff -u src/locales/en.po{.old,} | grep '+msgid' | wc -l)
+          if [ $DIFFCOUNT -gt 0 ]; then
+            # Unextracted strings found, fail the build
+            echo '***'
+            echo $DIFFCOUNT unextracted strings found:
+            echo '***'
+            diff -u src/locales/en.po{.old,} | grep '+msgid' | cut -c2-
+            echo '***'
+            echo Please run pnpm i18n:extract
+            exit 1
+          fi
+          rm -f src/locales/en.po.old
+
+      - name: svelte-check (viewer)
+        working-directory: frontend/viewer
+        run: pnpm run check
+      - name: eslint (viewer)
+        working-directory: frontend/viewer
+        run: pnpm run lint
+      - name: Check code formatting with Prettier
+        working-directory: frontend/viewer
+        run: pnpm run format:check
+
+      # vitest's browser and storybook projects run under Playwright; Chromium only on the PR tier.
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: frontend/viewer
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: frontend/viewer
+        run: pnpm exec playwright install-deps chromium
+      - name: vitest (unit, browser, storybook; Chromium only)
+        working-directory: frontend/viewer
+        env:
+          VITEST_CHROMIUM_ONLY: 'true'
+        run: pnpm run test --retry=2 --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+        if: always()
+        with:
+          check_name: UI unit Tests (PR tier)
+          files: ./frontend/viewer/test-results/*.xml
+          action_fail_on_inconclusive: true
+          comment_mode: off
+      - name: Publish test results to TestHistory
+        if: always()
+        continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: frontend/viewer/test-results/vitest-results.xml
+          label: FW Lite Viewer unit
+          on-no-files: ignore
+
+      - name: Build viewer
+        working-directory: frontend/viewer
+        run: pnpm run build
+
+  viewer-ui-tests:
+    name: Viewer Playwright UI tests
+    needs: detect
+    if: needs.detect.outputs.viewer == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      # Chromium only on the PR tier; `ci:webkit` (tier webkit) adds WebKit.
+      WEBKIT: ${{ contains(fromJSON(needs.detect.outputs.tiers), 'webkit') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: 'frontend/package.json'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: Install Task
+        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Prepare frontend
+        working-directory: frontend
+        run: pnpm install
+      - name: Pick browsers
+        id: browsers
+        run: |
+          if [ "$WEBKIT" = 'true' ]; then
+            echo "list=chromium webkit" >> "$GITHUB_OUTPUT"
+            echo "args=--project=chromium --project=webkit" >> "$GITHUB_OUTPUT"
+            echo "key=chromium-webkit" >> "$GITHUB_OUTPUT"
+          else
+            echo "list=chromium" >> "$GITHUB_OUTPUT"
+            echo "args=--project=chromium" >> "$GITHUB_OUTPUT"
+            echo "key=chromium" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.browsers.outputs.key }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: frontend
+        run: pnpm exec playwright install --with-deps ${{ steps.browsers.outputs.list }}
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: frontend
+        run: pnpm exec playwright install-deps ${{ steps.browsers.outputs.list }}
+      - name: Run UI tests
+        working-directory: frontend/viewer
+        run: task test:ui-standalone -- ${{ steps.browsers.outputs.args }}
+      - name: Publish test results to TestHistory
+        if: always() # run even when the UI tests above failed
+        continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: frontend/viewer/tests/ui/test-results/results.xml
+          label: FW Lite Viewer UI
+          on-no-files: ignore
+
+  extension-lint:
+    name: Platform.Bible extension lint
+    needs: detect
+    if: needs.detect.outputs.extension == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Copied from platform.bible-extension.yaml (which keeps running on develop pushes).
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: lexbox
+          persist-credentials: false
+
+      - name: Checkout paranext-core repo to use its sub-packages
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: paranext-core
+          repository: paranext/paranext-core
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          cache: "npm"
+          cache-dependency-path: |
+            lexbox/platform.bible-extension/package-lock.json
+            paranext-core/package-lock.json
+          node-version-file: lexbox/platform.bible-extension/package.json
+
+      - name: Install extension dependencies
+        working-directory: lexbox/platform.bible-extension
+        run: npm ci --ignore-scripts
+
+      # --ignore-scripts skips core's preinstall (stages the gitignored dev-packages/staging/ that
+      # platform-bible-react imports) and postinstall (verify), so both run as explicit steps.
+      - name: Stage core's dev packages
+        working-directory: paranext-core
+        run: npm run stage-dev-packages
+
+      - name: Install core dependencies
+        working-directory: paranext-core
+        run: npm ci --ignore-scripts
+
+      - name: Verify core's staged dev packages match its lockfile
+        working-directory: paranext-core
+        run: npm run verify:dev-packages
+
+      - name: Run format checking
+        working-directory: lexbox/platform.bible-extension
+        run: npm run format:check
+
+      - name: Run all linters
+        working-directory: lexbox/platform.bible-extension
+        run: npm run lint
+
+  # ---- Escalations: full-tier jobs pulled in by a tier (path rule or `ci:<tier>` label). Compile and
+  # ---- test only: no packaging, signing or store uploads, which stay on develop in fw-lite.yaml.
+
+  maui-windows:
+    name: MAUI Windows build and tests (tier maui-windows)
+    needs: detect
+    if: contains(fromJSON(needs.detect.outputs.tiers), 'maui-windows')
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.x'
+      - name: Cache NuGet packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+      - name: Setup Maui
+        run: dotnet workload install maui-windows --version ${{ env.MAUI_WORKLOAD_VERSION }}
+
+      - name: Build MAUI tests
+        run: dotnet build backend/FwLite/FwLiteMaui.Tests/FwLiteMaui.Tests.csproj -p:BuildAndroid=false
+
+      - name: Test MAUI
+        run: dotnet test backend/FwLite/FwLiteMaui.Tests/FwLiteMaui.Tests.csproj --logger GitHubActions --logger trx --results-directory "${{ github.workspace }}/TestResults" --no-build -p:BuildAndroid=false
+
+      - name: Publish MAUI test results to TestHistory
+        if: always()
+        continue-on-error: true # telemetry only
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: TestResults/**/*.trx
+          label: FW Lite MAUI Windows
+          on-no-files: ignore
+
+  apple:
+    name: iOS simulator and Mac Catalyst builds (tier apple)
+    needs: detect
+    if: contains(fromJSON(needs.detect.outputs.tiers), 'apple')
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.x'
+      - name: Setup Maui
+        run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
+
+      # Same builds as fw-lite.yaml's build-apple, unsigned, no DMG or notarization.
+      - name: Build iOS (simulator)
+        working-directory: backend/FwLite/FwLiteMaui
+        run: dotnet build -f net10.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64
+
+      - name: Build Mac Catalyst (unsigned)
+        working-directory: backend/FwLite/FwLiteMaui
+        run: dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64
+
+  android:
+    name: Android build (tier android)
+    needs: detect
+    if: contains(fromJSON(needs.detect.outputs.tiers), 'android')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.x'
+      - name: Setup Maui
+        run: dotnet workload install maui-android --version ${{ env.MAUI_WORKLOAD_VERSION }}
+
+      - name: Publish Android (unsigned)
+        working-directory: backend/FwLite/FwLiteMaui
+        run: dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts -p:AndroidKeyStore=false
+
+  e2e:
+    name: E2E tests on a kind cluster (tier e2e)
+    needs: detect
+    if: contains(fromJSON(needs.detect.outputs.tiers), 'e2e')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FW_LITE_BINARY_PATH: ${{ github.workspace }}/backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64/FwLiteWeb
+    # Copied from fw-lite.yaml's e2e-test, except the viewer is built here instead of downloaded.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: true
+      - name: Install Task
+        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: 'frontend/package.json'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: './frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: './frontend/pnpm-lock.yaml'
+      - name: Install frontend deps
+        working-directory: frontend
+        run: pnpm install
+      - name: Build viewer
+        working-directory: frontend/viewer
+        run: pnpm run build
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.x'
+      - name: Publish FwLiteWeb (linux-x64)
+        working-directory: backend/FwLite/FwLiteWeb
+        run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true
+      - name: set execute permissions
+        shell: bash
+        run: chmod +x ${{ env.FW_LITE_BINARY_PATH }}
+
+      - uses: ./.github/actions/setup-k8s
+        with:
+          lexbox-api-tag: develop
+          ingress-controller-port: '6579' # http; only used by the action's own curl-verify step
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # MSAL refuses any non-https authority. ingress-nginx serves a snake-oil
+      # cert that FwLite trusts via --environment Development and playwright via
+      # ignoreHTTPSErrors.
+      - name: Forward ingress HTTPS port
+        shell: bash
+        run: |
+          kubectl port-forward service/ingress-nginx-controller 6580:443 -n languagedepot >/tmp/https-port-forward.log 2>&1 &
+          # Wait for the port-forward to actually be listening
+          for i in $(seq 1 30); do
+            if curl -sk https://localhost:6580 >/dev/null 2>&1; then
+              echo "✅ HTTPS port-forward ready on :6580"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "❌ HTTPS port-forward did not become ready"
+          cat /tmp/https-port-forward.log
+          exit 1
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: frontend/viewer
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        working-directory: frontend/viewer
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Run E2E tests
+        working-directory: frontend/viewer
+        env:
+          TEST_SERVER_PROTOCOL: https
+          TEST_SERVER_PORT: 6580
+        run: task test:e2e
+      - name: Publish E2E test results to TestHistory
+        if: always() # run even when the E2E tests above failed
+        continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
+        uses: hahn-kev/TestHistory/.github/actions/upload-results@e5fc439cd7644a145c7553bc3b0077aa643aef8d # master
+        with:
+          server-url: ${{ vars.TESTHISTORY_SERVER_URL }}
+          project-id: ${{ vars.TESTHISTORY_FWLITE_PROJECT_ID }}
+          api-token: ${{ secrets.TESTHISTORY_API_TOKEN }}
+          files: frontend/viewer/tests/e2e/test-results/e2e-results.xml
+          label: FW Lite E2E
+          on-no-files: ignore
+
+      - name: Upload Playwright results/traces (on failure)
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pr-e2e-test-results
+          if-no-files-found: ignore
+          path: frontend/viewer/tests/e2e/test-results/
+
+      - name: Capture k8s pod logs (on failure)
+        if: failure() || cancelled()
+        shell: bash
+        run: |
+          mkdir -p k8s-logs
+          for app in lexbox ui hg db fw-headless; do
+            kubectl describe pods -l "app=${app}" -n languagedepot > k8s-logs/describe-${app}.txt 2>&1 || true
+            kubectl logs -l "app=${app}" -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-${app}.txt 2>&1 || true
+          done
+          kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-ingress.txt 2>&1 || true
+
+      - name: Upload k8s logs (on failure)
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pr-e2e-k8s-logs
+          if-no-files-found: ignore
+          path: k8s-logs/*.txt
+
+  summary:
+    # The one check to mark required at cut-over. A skipped job (not affected, tier off) counts as passed.
+    name: PR CI result
+    if: always()
+    needs: [detect, dotnet, slow-tests, viewer-checks, viewer-ui-tests, extension-lint, maui-windows, apple, android, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check job results
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+          DETECT_PROJECTS: ${{ needs.detect.outputs.projects }}
+          DETECT_TIERS: ${{ needs.detect.outputs.tiers }}
+          DETECT_EVERYTHING: ${{ needs.detect.outputs.everything }}
+          DETECT_FALLBACK: ${{ needs.detect.outputs.fallback }}
+        run: |
+          {
+            echo "### PR CI result"
+            echo
+            echo "| job | result |"
+            echo "|---|---|"
+            echo "$NEEDS" | jq -r 'to_entries[] | "| \(.key) | \(.value.result) |"'
+            echo
+            echo "Affected .NET projects: \`$DETECT_PROJECTS\`; tiers: \`$DETECT_TIERS\`; everything: \`$DETECT_EVERYTHING\`; fallback: \`${DETECT_FALLBACK:-none}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          failed=$(echo "$NEEDS" | jq -r 'to_entries[] | select(.value.result == "failure" or .value.result == "cancelled") | .key' | paste -sd ' ')
+          if [ -n "$failed" ]; then
+            echo "::error::Failed or cancelled jobs: $failed"
+            exit 1
+          fi
+          echo "All jobs passed or were skipped as not affected."
