@@ -61,8 +61,9 @@ depend on it:
 
 - It's the baseline the merge diffs against (see [Merge semantics](#merge-semantics) below). Without a "what it
   was last time", there's no way to tell what each side changed.
-- Its mere presence is how FwHeadless knows a project has synced before. No snapshot means the first-ever sync,
-  which *imports* the whole FwData project into a new Harmony database instead of merging.
+- Its presence decides between merging and importing. No snapshot (normally a project's first sync, but also a
+  lost snapshot) means FwHeadless *imports* the whole FwData project into the Harmony database instead of
+  merging, and skips pulling FieldWorks Lite changes from Lexbox first.
 
 It's rewritten only **after** the post-merge Send/Receive succeeds, and **from the Harmony API**, not from FwData.
 See the long comment in `SyncWorker.ExecuteSync` for why both details matter.

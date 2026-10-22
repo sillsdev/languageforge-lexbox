@@ -39,8 +39,9 @@ letting others discover related projects and ask to join. Its member list stays 
 that is more than you want,
 [mark the project confidential](/lexbox/manage-members#confidential-projects).
 
-Nobody can look up another user's email address on lexbox.org, not even organization
-admins. To add someone, you need their email or login from them.
+lexbox.org has no way to look up a user's email address. Organization admins see the emails
+or logins of their own organization's members, but nobody else's. To add someone, you need
+their email or login from them.
 
 ## Roles
 
