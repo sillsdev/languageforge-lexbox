@@ -49,3 +49,7 @@ AGENTS.local.md
 .claude/scheduled_tasks.lock
 .claude/agent-memory-local/
 screenshots/
+
+# nx (affected detection only): cache/workspace-data and the root node_modules
+.nx/
+/node_modules/

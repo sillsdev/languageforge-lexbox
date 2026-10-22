@@ -1,0 +1,8 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "viewer",
+  "projectType": "application",
+  "sourceRoot": "frontend/viewer/src",
+  "tags": ["pnpm"],
+  "_comment": "Registers the FW Lite viewer as an nx project for affected detection only. The viewer lives in the frontend/ pnpm workspace, which nx cannot see from the repo root, hence this file. No nx targets are defined; pnpm scripts stay the way to build and test it."
+}

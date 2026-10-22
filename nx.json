@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "_comment": "nx is used graph-only here: `nx show projects --affected` answers which .NET projects and which pnpm packages a diff touches (see .github/scripts/affected.sh). Builds and tests still run through dotnet and pnpm; no nx targets are run and nothing is cached.",
+  "_sharedGlobals_comment": "namedInputs.sharedGlobals: a change to any of these marks every .NET project affected. @nx/dotnet's analyzer already declares them as per-project evaluation inputs (verified: same answer with the list removed); listing them keeps the rule explicit and independent of the plugin. They only reach projects whose targets use the `default` input, i.e. the .NET ones, not frontend/viewer: the frontend lockfile and other non-.NET shared files are handled by .github/scripts/affected.sh instead.",
+  "defaultBase": "develop",
+  "plugins": [
+    {
+      "plugin": "@nx/dotnet",
+      "options": {}
+    }
+  ],
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": [
+      "{workspaceRoot}/global.json",
+      "{workspaceRoot}/backend/Directory.Build.props",
+      "{workspaceRoot}/backend/Directory.Build.targets",
+      "{workspaceRoot}/backend/Directory.Packages.props",
+      "{workspaceRoot}/backend/Harmony*.props"
+    ]
+  }
+}
