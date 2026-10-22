@@ -70,9 +70,9 @@ ALL="$all" AFFECTED="$affected" node -e '
   const everything = real(all).every((n) => affected.includes(n));
   // A shared-file change runs the whole PR tier, Linux-only: it never escalates,
   // even though nx also marks tiers for files it treats as global (nx.json, lockfile).
-  const tiers = everything
-    ? []
-    : affected.filter(isTier).map((n) => n.slice("tier-".length)).sort();
+  // The one exception is `full` (the PR workflow file changed): that always escalates.
+  const tiers = affected.filter(isTier).map((n) => n.slice("tier-".length))
+    .filter((t) => !everything || t === "full").sort();
   process.stdout.write(JSON.stringify({
     projects,
     viewer: affected.includes("viewer"),
