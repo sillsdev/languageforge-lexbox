@@ -33,6 +33,8 @@ public class DeleteProjectTests(IntegrationFixture fixture) : ApiTestBase, IClas
             // in case the test fails before deleting it, not asserted so it can't hide the actual failure
             await HttpClient.DeleteAsync($"api/project/{project.Id}");
         });
+        // so the null last commit at the end shows the recreated project doesn't reuse the old repo
+        (await GetProjectLastCommit(config.Code)).Should().NotBeNull();
 
         var response = await HttpClient.DeleteAsync($"api/project/{project.Id}");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -52,6 +54,7 @@ public class DeleteProjectTests(IntegrationFixture fixture) : ApiTestBase, IClas
         // A soft deleted project can't be hard deleted (its code gets a suffix that isn't a valid repo name),
         // so like DeleteProject_NonDevRetentionPolicy_ReturnsForbidden this leaves it behind
         var project = await CreateProjectWithTemplateRepo(config);
+        (await GetProjectLastCommit(config.Code)).Should().NotBeNull();
 
         var gqlResponse = await ExecuteGql($$"""
             mutation {
