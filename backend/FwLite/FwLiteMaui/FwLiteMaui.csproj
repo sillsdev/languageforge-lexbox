@@ -12,7 +12,10 @@
 		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
 		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
     <!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">android-arm;android-arm64;android-x86;android-x64</RuntimeIdentifiers>
+    <!-- Skipped under Dependabot (DEPENDABOT_JOB_ID is set in its updater): its container has no Android workload, so
+         android-arm/android-x86 resolve to Microsoft.NETCore.App.Runtime.linux-bionic-* packs that don't exist on nuget.org
+         and the whole NuGet update job aborts with dependency_not_found. -->
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android' And '$(DEPENDABOT_JOB_ID)' == ''">android-arm;android-arm64;android-x86;android-x64</RuntimeIdentifiers>
     <!-- Universal (Intel + Apple Silicon) Release build. Set here (on the app project) rather than via a
          global -p:RuntimeIdentifiers on the command line, which would leak the multi-RID value into every
          referenced library and fail them with NETSDK1083. Skipped when a single RuntimeIdentifier is
