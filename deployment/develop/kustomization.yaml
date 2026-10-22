@@ -1,6 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: languagedepot
+namespace: languagedepot-dev
 
 resources:
   - ../base
@@ -15,7 +15,3 @@ patches:
       kind: Ingress
       name: proxy
       namespace: languagedepot
-  - path: oauth-cert-retainer-rolebinding.patch.yaml
-    target:
-      kind: RoleBinding
-      name: oauth-cert-retainer
