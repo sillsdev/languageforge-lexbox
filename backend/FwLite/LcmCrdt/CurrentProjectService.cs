@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SIL.Harmony;
 
 namespace LcmCrdt;
 
@@ -105,6 +106,8 @@ public class CurrentProjectService(
             {
                 await using var dbContext = await DbContextFactory.CreateDbContextAsync();
                 await dbContext.Database.MigrateAsync();
+                //replays changes authored under model versions this db hasn't applied yet, must run before the db is used
+                await services.GetRequiredService<DataModel>().ReconcileModelVersions();
 
                 if (EntrySearchServiceFactory is not null)
                 {
