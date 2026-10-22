@@ -77,7 +77,7 @@ public class CurrentProjectService(
         _project = project;
         //migrate will only execute once with a static which tracks if we've already migrated
         await MigrateDb();
-        return project.Data = await RefreshProjectData();
+        return await RefreshProjectData();
     }
 
     public async ValueTask<ProjectData> SetupProjectContext(string projectCode)
@@ -87,8 +87,7 @@ public class CurrentProjectService(
 
     public async ValueTask<ProjectData> RefreshProjectData()
     {
-        var projectData = await GetProjectData(true);
-        return projectData;
+        return Project.Data = await GetProjectData(true);
     }
 
     private static readonly ConcurrentDictionary<string, Lazy<Task>> MigrationTasks = [];
