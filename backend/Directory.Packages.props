@@ -4,7 +4,7 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <NoWarn>$(NoWarn);NU1507</NoWarn>
     <MauiVersion>10.0.60</MauiVersion>
-    <HotChocolateVersion>15.1.16</HotChocolateVersion>
+    <HotChocolateVersion>16.6.9</HotChocolateVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.2" />
