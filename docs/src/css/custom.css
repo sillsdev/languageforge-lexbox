@@ -1,23 +1,27 @@
-/* Lexbox blue, replacing Infima's default green. */
+/* Noto Sans and lexbox.org's blue, to match the apps. */
+@import 'https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400..700;1,400..700&display=swap';
+
 :root {
-  --ifm-color-primary: #1e7fa9;
-  --ifm-color-primary-dark: #1b7298;
-  --ifm-color-primary-darker: #196c8f;
-  --ifm-color-primary-darkest: #155875;
-  --ifm-color-primary-light: #218cba;
-  --ifm-color-primary-lighter: #2293c3;
-  --ifm-color-primary-lightest: #2ba5da;
+  --ifm-font-family-base: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ifm-color-primary: #0058bf;
+  --ifm-color-primary-dark: #004fac;
+  --ifm-color-primary-darker: #004ba2;
+  --ifm-color-primary-darkest: #003e86;
+  --ifm-color-primary-light: #0061d2;
+  --ifm-color-primary-lighter: #0065dc;
+  --ifm-color-primary-lightest: #0072f8;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
 
+/* A lighter tint of the same hue: #0058bf is too dark to read on the dark background. */
 [data-theme='dark'] {
-  --ifm-color-primary: #28aae1;
-  --ifm-color-primary-dark: #1d9cd2;
-  --ifm-color-primary-darker: #1b92c5;
-  --ifm-color-primary-darkest: #1678a1;
-  --ifm-color-primary-light: #3eb3e4;
-  --ifm-color-primary-lighter: #4cb8e6;
-  --ifm-color-primary-lightest: #6bc4ea;
+  --ifm-color-primary: #4d9fff;
+  --ifm-color-primary-dark: #2c8dff;
+  --ifm-color-primary-darker: #1b84ff;
+  --ifm-color-primary-darkest: #006be8;
+  --ifm-color-primary-light: #6eb1ff;
+  --ifm-color-primary-lighter: #7fbaff;
+  --ifm-color-primary-lightest: #b1d5ff;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
