@@ -93,7 +93,7 @@ public class EntityCopyMethodTests
             assertionChain
                 .ForCondition(!ReferenceEquals(comparands.Subject, comparands.Expectation))
                 .BecauseOf(context.Reason)
-                .FailWith("Subject and Expectation for {0} should not reference the same instance in memory.", context.CurrentNode.Description);
+                .FailWith("Subject and Expectation for {0} should not reference the same instance in memory.", context.CurrentNode.Subject.Description);
 
             return EquivalencyResult.ContinueWithNext;
         }
