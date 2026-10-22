@@ -215,6 +215,39 @@ public abstract class PictureTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreatePicture_WrongEntry_ThrowsWithoutCreating()
+    {
+        var otherEntryId = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = otherEntryId, LexemeForm = { { "en", "other" } } });
+
+        var act = () => Api.CreatePicture(otherEntryId, _senseId,
+            new Picture { Id = Guid.NewGuid(), MediaUri = _mediaUri, Caption = { { "en", new RichString("new", "en") } } });
+        await act.Should().ThrowAsync<ParentMismatchException>();
+
+        (await GetPictureIds()).Should().Equal([_pictureId]);
+    }
+
+    [Fact]
+    public async Task UpdatePicture_WrongEntry_ThrowsWithoutUpdating()
+    {
+        var otherEntryId = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = otherEntryId, LexemeForm = { { "en", "other" } } });
+        var before = await Api.GetPicture(_entryId, _senseId, _pictureId);
+        before.Should().NotBeNull();
+        var after = before.Copy();
+        after.Caption["en"] = new RichString("changed", "en");
+
+        var patch = () => Api.UpdatePicture(otherEntryId, _senseId, _pictureId,
+            new UpdateObjectInput<Picture>().Set(p => p.Caption["en"], new RichString("updated", "en")));
+        await patch.Should().ThrowAsync<ParentMismatchException>();
+        var beforeAfter = () => Api.UpdatePicture(otherEntryId, _senseId, before, after);
+        await beforeAfter.Should().ThrowAsync<ParentMismatchException>();
+
+        var fetched = await Api.GetPicture(_entryId, _senseId, _pictureId);
+        fetched.Should().BeEquivalentTo(before);
+    }
+
+    [Fact]
     public async Task MovePicture_ToStart()
     {
         var second = await CreatePicture("second");

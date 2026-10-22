@@ -1962,6 +1962,7 @@ public class FwDataMiniLcmApi(
         if (picture.Id == default) picture.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create picture",
             "Remove picture",
             Cache.ServiceLocator.ActionHandler,
