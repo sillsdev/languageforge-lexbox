@@ -92,6 +92,8 @@ flowchart TD
 
 **Critical steps highlighted** - Steps 4 and 5 are where data loss can occur.
 
+**User docs promise:** the merge runs only when someone presses Sync (no schedule), one project at a time, and a project's first sync can take minutes. Change that? Update `docs/fw-lite/how-sync-works.mdx`, `docs/src/components/SyncExplainer/syncScenarios.ts`, `docs/lexbox/fw-lite.md` and `docs/technical/sync/fwheadless-merge.md` in the same PR.
+
 ### Key Services
 
 | Service | Purpose | Danger Level |

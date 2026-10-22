@@ -186,6 +186,8 @@ flowchart LR
 
 ---
 
+**User docs promise:** device ↔ Lexbox sync runs by itself (after each edit, on project open, on server push), and a field edited on both sides keeps the FieldWorks Classic value. Change either? Update `docs/fw-lite/how-sync-works.mdx`, `docs/src/components/SyncExplainer/syncScenarios.ts` and `docs/technical/sync/` in the same PR.
+
 ## 🔴 CRITICAL AREA: FwData ↔ CRDT Sync
 
 **This is where data loss happens.** The sync between CRDT (SQLite) and FwData (FieldWorks XML) is the most complex code.

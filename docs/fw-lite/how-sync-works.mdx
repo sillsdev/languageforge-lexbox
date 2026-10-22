@@ -1,0 +1,127 @@
+---
+title: How sync works
+sidebar_position: 2
+---
+
+import SyncExplainer from '@site/src/components/SyncExplainer';
+
+If everyone on your team uses FieldWorks Lite, there's nothing to do: your changes sync on
+their own while the app is open and online. The rest of this page matters for teams where
+some people also use FieldWorks Classic.
+
+Lexbox keeps your project in **two copies**: a **FieldWorks Lite copy** and a
+**FieldWorks Classic copy**. An edit reaches a FieldWorks Classic colleague in three steps,
+numbered 1 to 3 below. Only step 1 is automatic.
+
+## See it in action
+
+Pick a question and step through what happens. Tap any colored label (**automatic**,
+**Sync on Lexbox tab**, **their Send/Receive**) to see where you'll find it.
+
+<SyncExplainer />
+
+## If someone doesn't see your changes
+
+Open **Synchronize** in the sidebar (on a phone, tap ☰ first). The dot beside it is green
+when the last sync worked. The **FieldWorks Lite** tab shows one of these:
+
+- **Up to date**: your changes have reached Lexbox.
+- **Pending**: some changes are still waiting. Press **Auto syncing** to send them now.
+- **Offline**: no connection. Your changes are safe on your device and go out the next
+  time the app is open and online.
+- A **Login** button: you were logged out. Log in and your changes go out.
+
+If your colleague uses FieldWorks Lite, ask them to check the same on their device. If they
+use FieldWorks Classic, someone also has to press **Sync** on the **Lexbox** tab, and then
+they run Send/Receive.
+
+## Where you'll see this in the app
+
+<table className="app-map">
+  <tbody>
+    <tr>
+      <td><span className="leg-num leg-num--1">1</span></td>
+      <td>
+        In FieldWorks Lite: <strong>Synchronize</strong> in the sidebar, on the{' '}
+        <strong>FieldWorks Lite</strong> tab. It shows{' '}
+        <span className="app-chip">Up to date</span> or <span className="app-chip">Pending</span>,
+        with counts of changes waiting in each direction. The{' '}
+        <span className="app-chip app-chip--button">Auto syncing</span> button runs this step
+        right now. It is <em>not</em> the Sync button on the Lexbox tab: it only moves changes between your
+        device and Lexbox.
+      </td>
+    </tr>
+    <tr>
+      <td><span className="leg-num leg-num--2">2</span></td>
+      <td>
+        The same dialog's <strong>Lexbox</strong> tab. Its two boxes,{' '}
+        <strong>FieldWorks Lite</strong> and <strong>FieldWorks Classic</strong>, are the two
+        copies inside Lexbox in the diagram above. Between them:{' '}
+        <span className="app-chip">New data</span> or <span className="app-chip">No new data</span>,
+        and the <span className="app-chip app-chip--button">Sync</span> button. Sync only merges
+        what has already reached Lexbox, so first check that the FieldWorks Lite tab says{' '}
+        <strong>Up to date</strong>. People in the FieldWorks Lite beta also see a{' '}
+        <span className="app-chip app-chip--button">Sync FieldWorks Lite</span> button on the
+        project's page on lexbox.org, which does the same thing.
+      </td>
+    </tr>
+    <tr>
+      <td><span className="leg-num leg-num--3">3</span></td>
+      <td>
+        Nothing in FieldWorks Lite. This step happens on your colleague's computer, when they
+        run <strong>Send/Receive</strong> in FieldWorks Classic.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Under the hood
+
+<details>
+<summary>Show the technical detail</summary>
+
+<table>
+  <thead>
+    <tr>
+      <th>On this page</th>
+      <th>Actually</th>
+      <th>Worth knowing</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>FieldWorks Lite copy</td>
+      <td>Harmony, a change database (a CRDT)</td>
+      <td>Every edit is a small change record; merging is automatic and gives the same result on every device.</td>
+    </tr>
+    <tr>
+      <td>Step 1, "automatic"</td>
+      <td>HTTP sync plus a push channel (SignalR)</td>
+      <td>Runs after every edit and when you open a project. While the push channel is connected, other people's changes arrive as they happen, and a check every 5 minutes restarts a dropped channel.</td>
+    </tr>
+    <tr>
+      <td>Step 2, Sync on the Lexbox tab</td>
+      <td>A merge job in the FwHeadless service</td>
+      <td><b>There is no schedule.</b> It runs only when someone presses <i>Sync</i> on the <i>Lexbox</i> tab in FieldWorks Lite or <i>Sync FieldWorks Lite</i> on the Lexbox project page. Jobs queue one project at a time; the very first sync imports the whole project and can take minutes.</td>
+    </tr>
+    <tr>
+      <td>FieldWorks Classic copy</td>
+      <td>A Mercurial repository</td>
+      <td>The same repository FieldWorks Classic's Send/Receive has always used.</td>
+    </tr>
+    <tr>
+      <td>Step 3, "Send/Receive"</td>
+      <td>Chorus over Mercurial</td>
+      <td>Unchanged for FieldWorks Classic users. FieldWorks Lite adds nothing they must learn.</td>
+    </tr>
+    <tr>
+      <td>"The same field" clashes</td>
+      <td>Deterministic merge rules</td>
+      <td>Between two FieldWorks Lite users, the most recent change wins. Between FieldWorks Lite and FieldWorks Classic (since the last Sync on the Lexbox tab), the FieldWorks Classic value wins. The overwritten value stays in the word's <b>History</b>.</td>
+    </tr>
+  </tbody>
+</table>
+
+Full technical documentation: [Sync](/technical/sync/).
+
+</details>

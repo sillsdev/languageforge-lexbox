@@ -1,0 +1,73 @@
+/* Lexbox blue, replacing Infima's default green. */
+:root {
+  --ifm-color-primary: #1e7fa9;
+  --ifm-color-primary-dark: #1b7298;
+  --ifm-color-primary-darker: #196c8f;
+  --ifm-color-primary-darkest: #155875;
+  --ifm-color-primary-light: #218cba;
+  --ifm-color-primary-lighter: #2293c3;
+  --ifm-color-primary-lightest: #2ba5da;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #28aae1;
+  --ifm-color-primary-dark: #1d9cd2;
+  --ifm-color-primary-darker: #1b92c5;
+  --ifm-color-primary-darkest: #1678a1;
+  --ifm-color-primary-light: #3eb3e4;
+  --ifm-color-primary-lighter: #4cb8e6;
+  --ifm-color-primary-lightest: #6bc4ea;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* Sync leg colors, shared by the SyncExplainer and the "Where you'll see this
+   in the app" map. Dark enough for AA text on the explainer's tinted pills. */
+:root {
+  --leg-1: #0d6d65;
+  --leg-2: #a04a06;
+  --leg-3: #6d28d9;
+}
+[data-theme='dark'] {
+  --leg-1: #3fbdb0;
+  --leg-2: #f0a44b;
+  --leg-3: #b79df5;
+}
+
+table.app-map td:first-child {
+  white-space: nowrap;
+  vertical-align: top;
+}
+table.app-map td > p:last-child {
+  margin-bottom: 0;
+}
+
+.leg-num {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: calc(1.5em - 2px);
+  text-align: center;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 0.85em;
+  font-weight: 700;
+}
+.leg-num--1 { color: var(--leg-1); }
+.leg-num--2 { color: var(--leg-2); }
+.leg-num--3 { color: var(--leg-3); }
+
+.app-chip {
+  display: inline-block;
+  padding: 0 0.5em;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 99px;
+  background: var(--ifm-background-surface-color);
+  font-size: 0.85em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.app-chip--button {
+  border-radius: 7px;
+  border-color: var(--ifm-color-emphasis-500);
+}
