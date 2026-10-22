@@ -35,7 +35,20 @@ const config: Config = {
   markdown: {
     mermaid: true,
   },
-  themes: ['@docusaurus/theme-mermaid'],
+  themes: [
+    '@docusaurus/theme-mermaid',
+    [
+      '@easyops-cn/docusaurus-search-local',
+      {
+        hashed: true,
+        docsDir: ['fw-lite', 'lexbox', 'technical'],
+        docsRouteBasePath: ['fw-lite', 'lexbox', 'technical'],
+        indexBlog: false,
+        docsPluginIdForPreferredVersion: 'fw-lite',
+        highlightSearchTermsOnTargetPage: true,
+      },
+    ],
+  ],
 
   presets: [
     [
@@ -60,6 +73,7 @@ const config: Config = {
         routeBasePath: 'fw-lite',
         sidebarPath: './sidebars.ts',
         editUrl,
+        showLastUpdateTime: true,
       } satisfies DocsOptions,
     ],
     [
@@ -70,6 +84,7 @@ const config: Config = {
         routeBasePath: 'lexbox',
         sidebarPath: './sidebars.ts',
         editUrl,
+        showLastUpdateTime: true,
       } satisfies DocsOptions,
     ],
     [
@@ -80,6 +95,7 @@ const config: Config = {
         routeBasePath: 'technical',
         sidebarPath: './sidebars.ts',
         editUrl,
+        showLastUpdateTime: true,
       } satisfies DocsOptions,
     ],
   ],
@@ -87,6 +103,11 @@ const config: Config = {
   themeConfig: {
     colorMode: {
       respectPrefersColorScheme: true,
+    },
+    docs: {
+      sidebar: {
+        hideable: true,
+      },
     },
     navbar: {
       title: 'FieldWorks Lite & Lexbox',
