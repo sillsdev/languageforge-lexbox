@@ -216,7 +216,7 @@ public class CrdtCommitServiceTests
         var commit = await AddTestCommit();
         var syncState = await _crdtCommitService.GetSyncState(commit.ProjectId);
 
-        var commits = await _crdtCommitService.GetMissingCommits(commit.ProjectId, syncState, new SyncState([])).ToArrayAsync();
+        var commits = await _crdtCommitService.GetMissingCommits(commit.ProjectId, syncState, new SyncState([], [])).ToArrayAsync();
         commits.Should().Contain(c => c.Id == commit.Id);
     }
 

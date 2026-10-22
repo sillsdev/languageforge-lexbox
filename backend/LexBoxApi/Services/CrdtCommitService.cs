@@ -37,7 +37,7 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
     {
         return dbContext.CrdtCommits(projectId)
         //don't need to include change entities since they're not owned in lexbox so they will get included automatically
-            .GetMissingCommits<ServerCommit, ServerJsonChange>(localState, remoteState, false);
+            .GetCommitsMissingFromRemote<ServerCommit, ServerJsonChange>(localState, remoteState, false);
     }
 
     public async Task<int> ApproximatelyCountMissingCommits(Guid projectId, SyncState localState, SyncState remoteState)

@@ -778,6 +778,7 @@ input ChangeEntityOfServerJsonChangeFilterInput {
   commitId: UuidOperationFilterInput
   entityId: UuidOperationFilterInput
   change: ServerJsonChangeFilterInput
+  authoredModelVersion: IntOperationFilterInput
 }
 
 input ChangeOrgMemberRoleInput {
