@@ -1,0 +1,17 @@
+{
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "name": "extension",
+  "projectType": "application",
+  "sourceRoot": "platform.bible-extension/src",
+  "tags": ["npm"],
+  "_comment": "Registers the Platform.Bible extension as an nx project for affected detection only (the PR workflow's extension lint job keys on the name `extension`). npm scripts stay the way to build it; the one target below is never run.",
+  "targets": {
+    "ci-affected": {
+      "executor": "nx:noop",
+      "inputs": ["default"],
+      "metadata": {
+        "description": "Never run. Its `default` input (which includes nx.json's sharedGlobals) makes a shared-file change mark this project affected."
+      }
+    }
+  }
+}

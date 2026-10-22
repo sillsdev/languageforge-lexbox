@@ -4,10 +4,12 @@
 #
 #   {
 #     "projects":   [".NET project names affected, transitively, per nx's graph"],
-#     "viewer":     true|false,   // frontend/viewer affected (nx project "viewer")
-#     "extension":  true|false,   // platform.bible-extension/** changed
-#     "everything": true|false,   // a shared file changed: run the whole PR tier
-#     "tiers":      [],           // escalation tiers from path rules (not yet)
+#     "viewer":     true|false,   // nx project "viewer" (frontend/viewer) affected
+#     "extension":  true|false,   // nx project "extension" (platform.bible-extension) affected
+#     "everything": true|false,   // every real project is affected (a shared file changed):
+#                                 // run the whole PR tier
+#     "tiers":      ["slow-tests", ...],  // escalation tiers whose tier-<name> pseudo-project
+#                                         // is affected (.github/ci-tiers/<name>/project.json)
 #     "fallback":   null | "reason"  // set when detection failed; everything is then true
 #   }
 #
@@ -15,9 +17,9 @@
 # to that head. Only committed changes count, like GitHub's three-dot PR diff.
 # Needs a full-depth checkout (fetch-depth: 0) and no token: everything is local git.
 #
-# .NET names and the viewer boolean come from nx (`nx show projects --affected`,
-# @nx/dotnet plugin, graph-only). This script keeps only the glob rules nx does
-# not express: the shared files that mark everything affected, and the extension.
+# Every rule lives in the nx graph (nx.json sharedGlobals, project.json files for
+# the viewer, the extension and the tiers); this script only runs
+# `nx show projects --affected` and shapes its answer. No globs here.
 #
 # Any failure still prints valid JSON with "everything": true and a "fallback"
 # reason, and exits 0, so a broken detector can only over-run CI, never skip it.
@@ -29,27 +31,6 @@ cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" || exit 0
 base_ref="${AFFECTED_BASE:-origin/develop}"
 head_ref="${AFFECTED_HEAD:-HEAD}"
 
-# Shared files: a change to any of these marks everything affected (map decision).
-# Matched as bash globs against repo-relative paths.
-everything_globs=(
-  'global.json'
-  'LexBox.slnx'
-  '*.slnf'
-  'backend/Directory.Build.props'
-  'backend/Directory.Build.targets'
-  'backend/Directory.Packages.props'
-  'backend/Harmony*.props'
-  'frontend/pnpm-lock.yaml'
-  'frontend/pnpm-workspace.yaml'
-  # The detector's own inputs: nx config and this script.
-  'nx.json'
-  'package.json'
-  'pnpm-lock.yaml'
-  'pnpm-workspace.yaml'
-  '.github/scripts/affected.sh'
-)
-extension_globs=('platform.bible-extension/*')
-
 fallback() {
   # $1: reason (kept to printable ASCII, quotes stripped, so it is safe inside JSON)
   local reason
@@ -58,52 +39,46 @@ fallback() {
   exit 0
 }
 
-matches_any() {
-  # $1: path, rest: globs. `*` in a glob also crosses `/` here (pattern matching
-  # in [[ ]] does not treat `/` specially), so 'dir/*' means 'dir/**'.
-  local path=$1; shift
-  local g
-  for g in "$@"; do
-    # shellcheck disable=SC2053
-    [[ $path == $g ]] && return 0
-  done
-  return 1
+# nx prints its JSON array as the last stdout line; banners go to stderr.
+nx_json() {
+  local out
+  out=$("$nx" "$@" --json 2>/dev/null) || return 1
+  out=$(printf '%s\n' "$out" | grep '^\[' | tail -n 1)
+  [ -n "$out" ] || return 1
+  printf '%s' "$out"
 }
 
 merge_base=$(git merge-base "$base_ref" "$head_ref" 2>&1) \
   || fallback "git merge-base $base_ref $head_ref failed: $merge_base"
 
-changed=$(git diff --name-only "$merge_base" "$head_ref" 2>&1) \
-  || fallback "git diff $merge_base..$head_ref failed: $changed"
-
-everything=false
-extension=false
-while IFS= read -r f; do
-  [ -z "$f" ] && continue
-  matches_any "$f" "${everything_globs[@]}" && everything=true
-  matches_any "$f" "${extension_globs[@]}" && extension=true
-done <<<"$changed"
-
 nx=./node_modules/.bin/nx
 [ -x "$nx" ] || fallback "nx is not installed: run 'pnpm install' at the repo root"
 
-# nx prints the JSON array as the last stdout line; banners go to stderr.
-nx_out=$("$nx" show projects --affected --base="$merge_base" --head="$head_ref" --json 2>/dev/null) \
-  || fallback "nx show projects --affected failed (exit $?)"
-nx_json=$(printf '%s\n' "$nx_out" | grep '^\[' | tail -n 1)
-[ -n "$nx_json" ] || fallback "nx printed no JSON array"
+all=$(nx_json show projects) \
+  || fallback "nx show projects failed"
+affected=$(nx_json show projects --affected --base="$merge_base" --head="$head_ref") \
+  || fallback "nx show projects --affected failed"
 
 # Assemble the result with node (nx already requires it), so names are escaped properly.
-NX_JSON="$nx_json" EVERYTHING="$everything" EXTENSION="$extension" node -e '
-  const names = JSON.parse(process.env.NX_JSON);
-  const viewer = names.includes("viewer");
-  const projects = names.filter((n) => n !== "viewer").sort();
+ALL="$all" AFFECTED="$affected" node -e '
+  const isTier = (n) => n.startsWith("tier-");
+  const isSpecial = (n) => n === "viewer" || n === "extension";
+  const all = JSON.parse(process.env.ALL);
+  const affected = JSON.parse(process.env.AFFECTED);
+  const real = (names) => names.filter((n) => !isTier(n));
+  const projects = affected.filter((n) => !isTier(n) && !isSpecial(n)).sort();
+  const everything = real(all).every((n) => affected.includes(n));
+  // A shared-file change runs the whole PR tier, Linux-only: it never escalates,
+  // even though nx also marks tiers for files it treats as global (nx.json, lockfile).
+  const tiers = everything
+    ? []
+    : affected.filter(isTier).map((n) => n.slice("tier-".length)).sort();
   process.stdout.write(JSON.stringify({
     projects,
-    viewer,
-    extension: process.env.EXTENSION === "true",
-    everything: process.env.EVERYTHING === "true",
-    tiers: [],
+    viewer: affected.includes("viewer"),
+    extension: affected.includes("extension"),
+    everything,
+    tiers,
     fallback: null,
   }) + "\n");
 ' || fallback "could not assemble JSON from nx output"
