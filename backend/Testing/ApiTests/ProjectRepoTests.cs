@@ -52,6 +52,20 @@ public class ProjectRepoTests : IClassFixture<IntegrationFixture>
         state.ResetStatus.Should().Be("NONE");
     }
 
+    /// <summary>
+    /// Many tests compare against these constants, so if the template repo zip changes this is the test to fix first.
+    /// </summary>
+    [Fact]
+    public async Task TemplateRepoConstants_MatchTheTemplateRepoZip()
+    {
+        await using var project = await CreateProject();
+        await _adminApiTester.StartResetAndAssertEmpty(project.Code);
+        await _fixture.FinishLexboxProjectResetWithTemplateRepo(project.Code);
+
+        (await _adminApiTester.GetTip(project.Code)).Should().BeEquivalentTo(IntegrationFixture.TemplateRepoTip);
+        (await _adminApiTester.GetProjectRepoState(project.Code)).LastCommit.Should().Be(IntegrationFixture.TemplateRepoLastCommit);
+    }
+
     [Fact]
     public async Task CopyToNewProject_CopiesRepo()
     {
