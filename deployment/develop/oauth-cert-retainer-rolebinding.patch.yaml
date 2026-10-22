@@ -1,0 +1,5 @@
+# Develop is deployed into languagedepot-dev, but that override doesn't rewrite RoleBinding subjects,
+# so without this the binding grants staging's ServiceAccount instead of develop's.
+- op: replace
+  path: /subjects/0/namespace
+  value: languagedepot-dev
