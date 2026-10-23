@@ -6,9 +6,8 @@ public class PictureTests : PictureTestsBase
 
     protected override async Task<IMiniLcmApi> NewApi()
     {
-        await _fixture.InitializeAsync();
-        var api = _fixture.Api;
-        return api;
+        await _fixture.InitializeAsync("picture-test");
+        return _fixture.Api;
     }
 
     public override async Task DisposeAsync()
