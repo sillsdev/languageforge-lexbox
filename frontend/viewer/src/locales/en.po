@@ -540,6 +540,10 @@ msgstr "Color"
 msgid "Comment"
 msgstr "Comment"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Commenter"
+msgstr "Commenter"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"

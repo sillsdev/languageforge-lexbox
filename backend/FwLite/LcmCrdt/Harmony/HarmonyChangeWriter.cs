@@ -41,6 +41,29 @@ public class HarmonyChangeWriter(
         await dataModel.AddManyChanges(ClientId, changes, commitMetadata: NewMetadata);
     }
 
+    /// <summary>
+    /// For comment changes, which roles that can't edit the project (Commenter) may still make.
+    /// </summary>
+    public async Task AddCommentChange(IChange change)
+    {
+        AssertCanComment();
+        await dataModel.AddChange(ClientId, change, commitMetadata: NewMetadata());
+    }
+
+    /// <inheritdoc cref="AddCommentChange"/>
+    public async Task AddCommentChanges(IEnumerable<IChange> changes)
+    {
+        AssertCanComment();
+        await dataModel.AddManyChanges(ClientId, changes, commitMetadata: NewMetadata);
+    }
+
+    private void AssertCanComment()
+    {
+        if (!ProjectData.CanComment)
+            throw new ReadOnlyException(
+                $"you can't comment on this project because you are logged in with the {ProjectData.Role} role.");
+    }
+
     private void AssertWritable()
     {
         if (ProjectData.IsReadonly)

@@ -44,7 +44,7 @@ public class CrdtController(
 
     public async Task<ActionResult> Add(Guid projectId, StreamJsonAsyncEnumerable<ServerCommit> commits, Guid? clientId, CancellationToken token)
     {
-        await permissionService.AssertCanSyncProject(projectId);
+        await permissionService.AssertCanPushCrdtChanges(projectId);
         await crdtCommitService.AddCommits(projectId, commits, token);
 
         await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId, clientId);

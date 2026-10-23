@@ -1286,6 +1286,7 @@ components:
         - Manager
         - Editor
         - Observer
+        - Commenter
     ProjectSyncStatus:
       required:
         - status

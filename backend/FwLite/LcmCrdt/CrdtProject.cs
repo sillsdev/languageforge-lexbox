@@ -38,7 +38,12 @@ public record ProjectData(string Name, string Code, Guid Id, string? OriginDomai
     }
 
     public string? ServerId => Uri.TryCreate(OriginDomain, UriKind.Absolute, out var uri) ? uri.Authority : null;
+    // Not sent to the viewer: it reads permissions from the project's features, which stay current when the role changes
+    [JsonIgnore]
     public bool IsReadonly => Role is not UserProjectRole.Editor and not UserProjectRole.Manager;
+    // Not sent to the viewer either: it uses the commentWrite feature
+    [JsonIgnore]
+    public bool CanComment => Role is UserProjectRole.Editor or UserProjectRole.Manager or UserProjectRole.Commenter;
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -47,5 +52,9 @@ public enum UserProjectRole
     Unknown,
     Manager,
     Editor,
-    Observer
+    Observer,
+    /// <summary>
+    /// Read-only like <see cref="Observer"/>, but can also comment
+    /// </summary>
+    Commenter
 }

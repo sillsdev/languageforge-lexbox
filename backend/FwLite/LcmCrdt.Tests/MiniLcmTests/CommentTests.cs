@@ -1,3 +1,4 @@
+using System.Data;
 using FluentValidation;
 using LcmCrdt.Data;
 using LinqToDB.EntityFrameworkCore;
@@ -5,13 +6,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
 
-public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFixture>
+public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFixture>, IAsyncLifetime
 {
-    private async Task SetCurrentUser(string userId, string? name = null)
+    // The fixture's project is shared by every test here, and some tests switch to a read-only role
+    public async Task InitializeAsync()
+    {
+        await fixture.GetService<CurrentProjectService>().UpdateUserRole(UserProjectRole.Editor);
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
+
+    private async Task SetCurrentUser(string userId, string? name = null, UserProjectRole role = UserProjectRole.Editor)
     {
         var projectService = fixture.GetService<CurrentProjectService>();
         await projectService.UpdateLastUser(name ?? userId, userId);
-        await projectService.UpdateUserRole(UserProjectRole.Editor);
+        await projectService.UpdateUserRole(role);
     }
 
     private Task MarkCommentsUnread(params UserComment[] comments)
@@ -221,6 +230,41 @@ public class CommentTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiF
             var thread = await CreateThreadWithComment(authorId, subjectType, Guid.NewGuid(), subjectType.ToString());
             thread.Thread.SubjectType.Should().Be(subjectType);
         }
+    }
+
+    [Fact]
+    public async Task Commenter_CanWriteOwnCommentsButNotResolveOrDeleteThreads()
+    {
+        var commenterId = $"commenter-{Guid.NewGuid()}";
+        await SetCurrentUser(commenterId, role: UserProjectRole.Commenter);
+
+        var thread = await fixture.Api.CreateCommentThread(NewThread(), NewComment("first"));
+        var reply = await fixture.Api.AddUserComment(thread.Id, NewComment("reply"));
+        var edited = await fixture.Api.EditUserComment(reply.Id, "edited reply");
+        await fixture.Api.DeleteUserComment(reply.Id);
+
+        edited.Text.Should().Be("edited reply");
+        (await fixture.Api.GetUserComments(thread.Id).ToArrayAsync()).Should().ContainSingle(c => c.Text == "first");
+        await Assert.ThrowsAsync<ReadOnlyException>(() => fixture.Api.SetCommentThreadStatus(thread.Id, ThreadStatus.Closed));
+        await Assert.ThrowsAsync<ReadOnlyException>(() => fixture.Api.DeleteCommentThread(thread.Id));
+    }
+
+    [Fact]
+    public async Task Commenter_CannotEditTheProject()
+    {
+        await SetCurrentUser($"commenter-{Guid.NewGuid()}", role: UserProjectRole.Commenter);
+
+        await Assert.ThrowsAsync<ReadOnlyException>(() => fixture.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "commenter entry" } }));
+    }
+
+    [Fact]
+    public async Task Observer_CannotComment()
+    {
+        var (thread, _) = await CreateThreadWithComment($"author-{Guid.NewGuid()}");
+        await SetCurrentUser($"observer-{Guid.NewGuid()}", role: UserProjectRole.Observer);
+
+        await Assert.ThrowsAsync<ReadOnlyException>(() => fixture.Api.CreateCommentThread(NewThread(), NewComment()));
+        await Assert.ThrowsAsync<ReadOnlyException>(() => fixture.Api.AddUserComment(thread.Id, NewComment()));
     }
 
     [Fact]
