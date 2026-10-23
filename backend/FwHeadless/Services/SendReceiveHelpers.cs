@@ -154,9 +154,9 @@ public static class SendReceiveHelpers
         var fileDir = Path.GetDirectoryName(filePath);
         ArgumentNullException.ThrowIfNull(fileDir);
 
-        //a deleted file that hg never tracked (or whose removal is already recorded) has nothing to commit, `hg files` exits with 1 for such a path
+        //nothing to commit if the parent revision doesn't have the file: hg never tracked it, or its removal is already committed
         if (!File.Exists(filePath) &&
-            (await Task.Run(() => HgRunner.Run($"hg files {EscapeShellArg(filePath)}", fileDir, 5, progress))).ExitCode == 1)
+            (await Task.Run(() => HgRunner.Run($"hg files -r . {EscapeShellArg(filePath)}", fileDir, 5, progress))).ExitCode == 1)
             return;
 
         //records the file as added if it exists, or as removed if it was deleted; hg won't commit an untracked file or a deletion it hasn't recorded
