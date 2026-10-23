@@ -59,7 +59,6 @@
   import {_askToJoinProject} from '../create/+page';
 // TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
   import {Duration} from '$lib/util/time';
-  import {hasFeatureFlag} from '$lib/user';
   import {resolve} from '$app/paths';
   import {NewTabLinkMarkdown} from '$lib/components/Markdown';
 
@@ -596,7 +595,6 @@
       </OrgList>
       <MembersList
         projectId={project.id}
-        showObserver={project.type === ProjectType.FlEx && hasFeatureFlag(user, 'FwLiteBeta')}
         {members}
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}

@@ -61,6 +61,16 @@ public class PermissionService(
         return await ManagesOrgThatOwnsProject(projectId);
     }
 
+    /// <summary>
+    /// Push FieldWorks Lite (CRDT) commits. Unlike <see cref="CanSyncProject(Guid)"/> this includes Commenters,
+    /// whose commits FW Lite limits to comments; it does not grant hg send/receive, media upload or FieldWorks sync.
+    /// </summary>
+    public async ValueTask<bool> CanPushCrdtChanges(Guid projectId)
+    {
+        if (User is not null && User.IsProjectMember(projectId, ProjectRole.Commenter)) return true;
+        return await CanSyncProject(projectId);
+    }
+
     public async ValueTask<bool> CanDownloadProject(Guid projectId)
     {
         if (User is null) return false;
@@ -78,6 +88,11 @@ public class PermissionService(
     public async ValueTask AssertCanSyncProject(Guid projectId)
     {
         if (!await CanSyncProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
+    public async ValueTask AssertCanPushCrdtChanges(Guid projectId)
+    {
+        if (!await CanPushCrdtChanges(projectId)) throw new UnauthorizedAccessException();
     }
 
     public async ValueTask AssertCanDownloadProject(Guid projectId)

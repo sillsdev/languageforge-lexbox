@@ -250,6 +250,22 @@ public class LexAuthUserTests
         }
     }
 
+    [Theory]
+    [InlineData(ProjectRole.Manager)]
+    [InlineData(ProjectRole.Editor)]
+    [InlineData(ProjectRole.Observer)]
+    [InlineData(ProjectRole.Commenter)]
+    public void ProjectsJson_RoundTripsEachRole(ProjectRole role)
+    {
+        var project = new AuthUserProject(role, Guid.NewGuid());
+        var user = _user with { Projects = [project] };
+
+        var roundTripped = _user with { Projects = [] };
+        roundTripped.ProjectsJson = user.ProjectsJson;
+
+        roundTripped.Projects.Should().ContainSingle().Which.Should().Be(project);
+    }
+
     [Fact]
     public void SingleElementArraysAreWrittenAsJsonArrays()
     {
