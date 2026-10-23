@@ -82,7 +82,9 @@ public class ActivityChangeInfoResolverCoverageTests : HistoryServiceActivityTes
 
                 if (DetailOmitsOwningEntry.ContainsKey(name))
                 {
-                    if (context.AffectedEntries.All(e => e.Id != owningEntryId)) omitted.Add(name);
+                    context.AffectedEntries.Select(e => e.Id).Should().NotContain(owningEntryId,
+                        $"'{name}' is listed in {nameof(DetailOmitsOwningEntry)} but {changeName} now links its owning entry; remove it from the list");
+                    omitted.Add(name);
                     continue;
                 }
                 context.AffectedEntries.Select(e => e.Id).Should().Contain(owningEntryId,
@@ -92,7 +94,7 @@ public class ActivityChangeInfoResolverCoverageTests : HistoryServiceActivityTes
         }
 
         omitted.Should().BeEquivalentTo(DetailOmitsOwningEntry.Keys,
-            $"each type in {nameof(DetailOmitsOwningEntry)} must be exercised and still omit its owning entry");
+            $"each type in {nameof(DetailOmitsOwningEntry)} must be exercised");
     }
 
     // Entity type name without the CLR generic-arity suffix, so a generic entity (RemoteResource<TMetadata>)
