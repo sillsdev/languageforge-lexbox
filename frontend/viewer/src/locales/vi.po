@@ -258,6 +258,10 @@ msgstr "Thêm Từ"
 msgid "Add your first entry to start building your dictionary."
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Advanced: settings file"
+msgstr ""
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
@@ -806,6 +810,7 @@ msgstr "Xem trước từ điển"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Bỏ"
 
@@ -1027,6 +1032,10 @@ msgstr "Câu ví dụ"
 msgid "Example sentences"
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to change verbose logging"
+msgstr ""
+
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Failed to copy to clipboard"
@@ -1087,6 +1096,10 @@ msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to save file"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to save settings"
 msgstr ""
 
 #. Error notification
@@ -2055,6 +2068,10 @@ msgstr "Một phần của"
 msgid "Part of speech"
 msgstr "Loại từ"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
+msgstr ""
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2386,6 +2403,10 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Save and apply"
+msgstr ""
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Save as"
 msgstr ""
@@ -2491,6 +2512,10 @@ msgstr "Câu"
 #: src/project/ProjectSidebar.svelte
 msgid "Settings"
 msgstr "Cài đặt"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Settings saved and applied"
+msgstr ""
 
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
@@ -3069,6 +3094,10 @@ msgstr ""
 msgid "Uses components as"
 msgstr "Sử dụng các thành phần như"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Verbose logging"
+msgstr ""
+
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
@@ -3171,6 +3200,10 @@ msgstr "Từ hoặc ý nghĩa:"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
 msgstr ""
 
 #. Column header

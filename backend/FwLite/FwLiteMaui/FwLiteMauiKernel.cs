@@ -20,8 +20,8 @@ namespace FwLiteMaui;
 public static class FwLiteMauiKernel
 {
     /// <summary>
-    /// Lowest-precedence configuration, registered before environment variables in MauiProgram so each entry
-    /// can be overridden at runtime (e.g. Logging__LogLevel__FwLiteShared.Auth.LoggerAdapter=Information).
+    /// Lowest-precedence configuration, registered first in FwLiteMauiConfiguration so each entry can be
+    /// overridden by the settings file or at runtime (e.g. Logging__LogLevel__FwLiteShared.Auth.LoggerAdapter=Information).
     /// </summary>
     public static readonly IReadOnlyDictionary<string, string?> DefaultConfiguration = new Dictionary<string, string?>
     {
@@ -35,11 +35,9 @@ public static class FwLiteMauiKernel
         ILoggingBuilder logging)
     {
         services.AddTransient<MainPage>();
-        // MAUI has no built-in appsettings.json loading like ASP.NET Core, so this is a no-op today.
-        // See https://github.com/dotnet/maui/issues/4408
-        //configuration.AddJsonFile("appsettings.json", optional: true);
-        // Environment variables are wired up in MauiProgram (e.g. FwLiteMaui__BaseDataDir), so the
-        // "FwLiteMaui" section bound below can be overridden at runtime without appsettings.json.
+        // Configuration sources are composed in FwLiteMauiConfiguration (called from MauiProgram).
+        // Registered so the troubleshoot dialog can Reload() after writing the settings file.
+        services.AddSingleton<IConfigurationRoot>(configuration);
 
         string environment = "Production";
 #if DEBUG

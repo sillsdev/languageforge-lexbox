@@ -53,6 +53,13 @@ public class WebTroubleshootingService(
     }
 
     public Task ShareLogFile() => throw new NotSupportedException();
+
+    //web is configured through appsettings.json, there is no user-facing settings file to toggle
+    [JSInvokable]
+    public Task<bool?> GetVerboseLogging() => Task.FromResult<bool?>(null);
+    public Task SetVerboseLogging(bool enabled) => throw new NotSupportedException();
+    public Task<string> GetSettingsFile() => throw new NotSupportedException();
+    public Task SetSettingsFile(string contents) => throw new NotSupportedException();
     public Task ShareCrdtProject(string projectCode) => throw new NotSupportedException();
 
     [JSInvokable]
