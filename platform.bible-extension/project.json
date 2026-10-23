@@ -8,9 +8,12 @@
   "targets": {
     "ci-affected": {
       "executor": "nx:noop",
-      "inputs": ["default"],
+      "inputs": [
+        "default",
+        "{workspaceRoot}/frontend/viewer/src/lib/dotnet-types/**/*"
+      ],
       "metadata": {
-        "description": "Never run. Its `default` input (which includes nx.json's sharedGlobals) makes a shared-file change mark this project affected."
+        "description": "Never run. Its `default` input (which includes nx.json's sharedGlobals) makes a shared-file change mark this project affected; the dotnet-types are imported through tsconfig's @dotnet-types path."
       }
     }
   }

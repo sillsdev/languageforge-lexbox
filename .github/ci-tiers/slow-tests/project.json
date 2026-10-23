@@ -2,14 +2,16 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "name": "tier-slow-tests",
   "tags": ["ci-tier"],
-  "_comment": "Escalation: the Slow-trait .NET tests. Path rule: a direct edit in a sync project. (Label: ci:slow-tests.)",
+  "_comment": "Escalation: the Slow-trait .NET tests. Path rule: a direct edit in a sync project, the sync helpers, or a test project holding Slow tests. (Label: ci:slow-tests.)",
   "targets": {
     "ci-affected": {
       "executor": "nx:noop",
       "inputs": [
-        "{workspaceRoot}/backend/FwLite/FwLiteProjectSync/**/*",
-        "{workspaceRoot}/backend/FwLite/LcmCrdt/**/*",
-        "{workspaceRoot}/backend/FwLite/FwDataMiniLcmBridge/**/*"
+        "{workspaceRoot}/backend/FwLite/FwLiteProjectSync*/**/*",
+        "{workspaceRoot}/backend/FwLite/LcmCrdt*/**/*",
+        "{workspaceRoot}/backend/FwLite/FwDataMiniLcmBridge*/**/*",
+        "{workspaceRoot}/backend/FwLite/MiniLcm/SyncHelpers/**/*",
+        "{workspaceRoot}/backend/FwLite/MiniLcm.Tests/**/*"
       ]
     }
   }

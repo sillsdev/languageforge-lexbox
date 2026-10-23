@@ -8,9 +8,13 @@
   "targets": {
     "ci-affected": {
       "executor": "nx:noop",
-      "inputs": ["default"],
+      "inputs": [
+        "default",
+        "{workspaceRoot}/frontend/tests/envVars.ts",
+        "{workspaceRoot}/frontend/tests/pages/**/*"
+      ],
       "metadata": {
-        "description": "Never run. Its `default` input (which includes nx.json's sharedGlobals) makes a shared-file change mark this project affected."
+        "description": "Never run. Its `default` input (which includes nx.json's sharedGlobals) makes a shared-file change mark this project affected; the frontend/tests files are imported by the viewer's Playwright tests."
       }
     }
   }

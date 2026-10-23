@@ -20,11 +20,12 @@ A tier's rule is in its `project.json`, in one of two forms:
 Label-only tiers (`apple`, `android`, `webkit`) have an empty rule and fire only
 by label.
 
-Two rules the script adds on top of the graph:
+Two rules on top of the graph:
 
-- When a shared file marks everything affected (`nx.json`'s `sharedGlobals`),
-  the script reports no tiers: the whole PR tier runs, still Linux-only. Only the
-  PR workflow file itself escalates, to `full`.
+- A shared file (`nx.json`'s `sharedGlobals`) never reaches a tier, so it runs
+  the whole PR tier, still Linux-only. nx itself marks every tier when `nx.json`,
+  the root `package.json` or the root lockfile changes, so the script leaves
+  those files out when it asks nx for tiers.
 - Editing a tier's `project.json` fires that tier (its own folder changed), so a
   rule change proves itself on the PR that makes it.
 

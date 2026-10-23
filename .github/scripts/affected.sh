@@ -22,7 +22,8 @@
 # `nx show projects --affected` and shapes its answer. No globs here.
 #
 # Any failure still prints valid JSON with "everything": true and a "fallback"
-# reason, and exits 0, so a broken detector can only over-run CI, never skip it.
+# reason, and exits 0, so a broken detector can only over-run the PR tier, never
+# skip it. Escalation tiers then come from labels only.
 
 set -u
 
@@ -60,8 +61,17 @@ all=$(nx_json show projects) \
 affected=$(nx_json show projects --affected --base="$merge_base" --head="$head_ref") \
   || fallback "nx show projects --affected failed"
 
+# nx marks every project, tiers included, when nx.json, the root package.json or the root
+# lockfile changes, so tiers are decided on the diff without those files: each tier fires by
+# its own rule only. sharedGlobals never reach a tier (no `default` input), so they don't escalate.
+tier_files=$(git diff --name-only --no-renames "$merge_base" "$head_ref" -- \
+  ':!nx.json' ':!package.json' ':!pnpm-lock.yaml' ':!pnpm-workspace.yaml') \
+  || fallback "git diff $merge_base $head_ref failed"
+tier_affected=$(nx_json show projects --affected --files="$(printf '%s' "$tier_files" | paste -sd, -)") \
+  || fallback "nx show projects --affected --files failed"
+
 # Assemble the result with node (nx already requires it), so names are escaped properly.
-ALL="$all" AFFECTED="$affected" node -e '
+ALL="$all" AFFECTED="$affected" TIER_AFFECTED="$tier_affected" node -e '
   const isTier = (n) => n.startsWith("tier-");
   const isSpecial = (n) => n === "viewer" || n === "extension";
   const all = JSON.parse(process.env.ALL);
@@ -69,11 +79,8 @@ ALL="$all" AFFECTED="$affected" node -e '
   const real = (names) => names.filter((n) => !isTier(n));
   const projects = affected.filter((n) => !isTier(n) && !isSpecial(n)).sort();
   const everything = real(all).every((n) => affected.includes(n));
-  // A shared-file change runs the whole PR tier, Linux-only: it never escalates,
-  // even though nx also marks tiers for files it treats as global (nx.json, lockfile).
-  // The one exception is `full` (the PR workflow file changed): that always escalates.
-  const tiers = affected.filter(isTier).map((n) => n.slice("tier-".length))
-    .filter((t) => !everything || t === "full").sort();
+  const tiers = JSON.parse(process.env.TIER_AFFECTED).filter(isTier)
+    .map((n) => n.slice("tier-".length)).sort();
   process.stdout.write(JSON.stringify({
     projects,
     viewer: affected.includes("viewer"),

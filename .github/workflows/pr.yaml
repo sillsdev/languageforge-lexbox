@@ -319,7 +319,7 @@ jobs:
   viewer-ui-tests:
     name: Viewer Playwright UI tests
     needs: detect
-    if: needs.detect.outputs.viewer == 'true'
+    if: needs.detect.outputs.viewer == 'true' || contains(fromJSON(needs.detect.outputs.tiers), 'webkit')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:

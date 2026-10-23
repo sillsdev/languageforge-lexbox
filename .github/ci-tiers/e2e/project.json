@@ -10,7 +10,9 @@
         "{workspaceRoot}/backend/FwLite/FwLiteProjectSync/**/*",
         "{workspaceRoot}/backend/FwLite/LcmCrdt/**/*",
         "{workspaceRoot}/backend/FwLite/FwLiteShared/Auth/**/*",
-        "{workspaceRoot}/backend/FwLite/FwLiteShared/Sync/**/*"
+        "{workspaceRoot}/backend/FwLite/FwLiteShared/Sync/**/*",
+        "{workspaceRoot}/frontend/viewer/tests/e2e/**/*",
+        "{workspaceRoot}/.github/actions/setup-k8s/**/*"
       ]
     }
   }

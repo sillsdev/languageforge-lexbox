@@ -25,7 +25,10 @@
       "{workspaceRoot}/package.json",
       "{workspaceRoot}/pnpm-lock.yaml",
       "{workspaceRoot}/pnpm-workspace.yaml",
-      "{workspaceRoot}/.github/scripts/affected.sh"
+      "{workspaceRoot}/.github/scripts/affected.sh",
+      "{workspaceRoot}/.github/scripts/write-test-slnf.mjs",
+      "{workspaceRoot}/backend/FwLite/Taskfile.yml",
+      "{workspaceRoot}/backend/FwLite/scripts/**/*"
     ]
   }
 }
