@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-23 17:48\n"
+"PO-Revision-Date: 2026-10-23 18:34\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -73,7 +73,7 @@ msgstr "{0} MB"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
-msgstr "{0} menjawab"
+msgstr "{0} balasan"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "{0} resolved"
@@ -93,7 +93,7 @@ msgstr "{num, plural, other {# perubahan}}"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
-msgstr "{num, plural, one {# satu penyertaan lagi} other {# penyertaan lagi}}"
+msgstr "{num, plural, one {# entri lagi} other {# entri lagi}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -112,7 +112,7 @@ msgstr "{num, plural, one {# komen belum dibaca} other {# komen belum dibaca}}"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
-msgstr "{num, plural, one {# perkataan untuk pergi} other {# perkataan untuk pergi}}"
+msgstr "{num, plural, one {# perkataan lagi} other {# perkataan lagi}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
@@ -299,11 +299,11 @@ msgstr "Analisis"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr "Penulisan analisis sistem kod"
+msgstr "Kod sistem penulisan analisis"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr "Analisis sistem penulisan"
+msgstr "Sistem penulisan analisis"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
@@ -734,7 +734,7 @@ msgstr "Papan Pemuka"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard failed to load"
-msgstr "Paparan pemuka gagal memuatkan"
+msgstr "Papan pemuka gagal dimuatkan"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -934,7 +934,7 @@ msgstr "Berakhir dengan"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Entries missing both Lexeme form and Citation form"
-msgstr "Kemasukan yang hilang kedua-dua bentuk Lexeme dan bentuk Petikan"
+msgstr "Entri yang hilang kedua-dua bentuk leksem dan bentuk petikan"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -945,11 +945,11 @@ msgstr "Entri yang hilang..."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
-msgstr "Kandungan dengan contoh"
+msgstr "Entri dengan contoh"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
-msgstr "Kandungan dengan makna"
+msgstr "Entri dengan makna"
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
@@ -1197,11 +1197,11 @@ msgstr "Nama fail"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
-msgstr "Isikan Tampilkan sebagai"
+msgstr "Isikan Papar sebagai"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
-msgstr "Isikan dalam Word atau Tunjukkan sebagai"
+msgstr "Isikan Perkataan atau Papar sebagai"
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1339,7 +1339,7 @@ msgstr "hijau"
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
-msgstr "Snapshot keserasian telah dijana semula dengan jayanya"
+msgstr "Snapshot Harmony telah dijana semula dengan jayanya"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has comments"
@@ -1516,7 +1516,7 @@ msgstr "Muat semua"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Load it to preview or export."
-msgstr "Muat naiknya untuk pratonton atau eksport."
+msgstr "Muatkannya untuk pratonton atau eksport."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Load picture"
@@ -1524,7 +1524,7 @@ msgstr "Muat gambar"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded {0} file(s)"
-msgstr "Muat fail {0}"
+msgstr "{0} fail dimuatkan"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded file"
@@ -1533,7 +1533,7 @@ msgstr "Fail dimuat"
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr "Muat aktiviti"
+msgstr "Memuatkan aktiviti"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
@@ -1654,7 +1654,7 @@ msgstr "Pengurus Media"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
-msgstr "Borang Petikan Hilang {0}"
+msgstr "Bentuk petikan hilang {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1663,7 +1663,7 @@ msgstr "Definisi hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Display as {0}"
-msgstr "Paparan hilang sebagai {0}"
+msgstr "Papar sebagai hilang {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1689,7 +1689,7 @@ msgstr "Bentuk leksem hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of speech"
-msgstr "Bahagian kata yang hilang"
+msgstr "Jenis Perkataan hilang"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Semantic domains"
@@ -1697,7 +1697,7 @@ msgstr "Domain semantik yang hilang"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Word {0}"
-msgstr "Kata yang hilang {0}"
+msgstr "Perkataan hilang {0}"
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -2080,7 +2080,7 @@ msgstr "Tertunda"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
-msgstr "Pilih satu bahagian ujaran"
+msgstr "Pilih Jenis Perkataan"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick Grammatical info."
@@ -2101,7 +2101,7 @@ msgstr "Gambar"
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
-msgstr "Bayangkan tindakan"
+msgstr "Tindakan gambar"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Picture not found"
@@ -2139,11 +2139,11 @@ msgstr "Pratonton tidak tersedia"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not available for this file type."
-msgstr "Pratinjau tidak tersedia untuk jenis fail ini."
+msgstr "Pratonton tidak tersedia untuk jenis fail ini."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
-msgstr "Praperintian tidak disokong"
+msgstr "Pratonton tidak disokong"
 
 #. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
@@ -2154,7 +2154,7 @@ msgstr "Gambar sebelumnya"
 #: src/lib/about/PrivacyDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
-msgstr "Kerahsiaan"
+msgstr "Privasi"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2199,7 +2199,7 @@ msgstr "Hanya baca"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
-msgstr "Rakam borang petikan"
+msgstr "Rakam bentuk petikan"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Definition"
@@ -2227,11 +2227,11 @@ msgstr "Rakam satu ayat contoh"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
-msgstr "Paparan Rekod sebagai"
+msgstr "Rakam Papar sebagai"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
-msgstr "Rakam Kata atau Paparkan sebagai"
+msgstr "Rakam Perkataan atau Papar sebagai"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2265,7 +2265,7 @@ msgstr "Jana semula"
 #. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots"
-msgstr "Jana semula snapshot Harmoni"
+msgstr "Jana semula snapshot Harmony"
 
 #. Alert dialog title before starting Harmony snapshot regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2275,22 +2275,22 @@ msgstr "Jana semula snapshot Harmony?"
 #. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index"
-msgstr "Generasi semula indeks carian"
+msgstr "Jana semula indeks carian"
 
 #. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
-msgstr "Generasi semula indeks carian?"
+msgstr "Jana semula indeks carian?"
 
 #. Blocking progress message while Harmony snapshots are being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
-msgstr "Snapshot Pemulihan Keharmonian. Ini mungkin mengambil masa yang lama — jangan tutup aplikasi."
+msgstr "Menjana semula snapshot Harmony. Ini mungkin mengambil masa yang lama — jangan tutup aplikasi."
 
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
-msgstr "Menggenerasi semula indeks carian. Ini mungkin mengambil sedikit masa — jangan tutup aplikasi."
+msgstr "Menjana semula indeks carian. Ini mungkin mengambil sedikit masa — jangan tutup aplikasi."
 
 #. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2397,7 +2397,7 @@ msgstr "Bentuk leksem yang sama"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same word"
-msgstr "Kata yang sama"
+msgstr "Perkataan yang sama"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
@@ -2560,14 +2560,14 @@ msgstr "Log masuk untuk menambah komen."
 #. Warning banner in the New Entry dialog; expands to a list of possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar entries already exist"
-msgstr "Kemasukan yang serupa sudah wujud"
+msgstr "Entri yang serupa sudah wujud"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar meaning"
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
-msgstr "Kilauan serupa"
+msgstr "Glos serupa"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
@@ -2581,21 +2581,21 @@ msgstr "Kata utama yang serupa"
 #. Badge on a possible-duplicate result: one of its meanings matches the meaning being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar meaning"
-msgstr "Maksud yang sama"
+msgstr "Makna serupa"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar headword"
 #. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar word"
-msgstr "Kata yang serupa"
+msgstr "Perkataan yang serupa"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar entries already exist"
 #. Warning banner in the New Word dialog; expands to a list of possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar words already exist"
-msgstr "Kata-kata yang serupa sudah wujud."
+msgstr "Perkataan yang serupa sudah wujud"
 
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
@@ -2740,7 +2740,7 @@ msgstr "Tugasan tidak ditemui: {0}"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task view failed"
-msgstr "Tinjauan tugas gagal"
+msgstr "Paparan tugas gagal"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -2808,7 +2808,7 @@ msgstr "Tarikh ini # dan emoji ini # adalah coretan"
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This entry may already exist"
-msgstr "Kemasukan ini mungkin sudah wujud"
+msgstr "Entri ini mungkin sudah wujud"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
@@ -2868,7 +2868,7 @@ msgstr "Togol disemat"
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
-msgstr "Jumlah penyertaan"
+msgstr "Jumlah entri"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -3083,7 +3083,7 @@ msgstr "Dimuat naik"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Uploaded pending files"
-msgstr "Fail yang sedang dimuat naik"
+msgstr "Fail belum selesai telah dimuat naik"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
@@ -3111,7 +3111,7 @@ msgstr "Kod sistem penulisan Vernakular"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
-msgstr "Sistem tulisan vernacular diperlukan"
+msgstr "Sistem tulisan vernakular diperlukan"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
@@ -3200,7 +3200,7 @@ msgstr "Perkataan atau makna:"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
-msgstr "Kata yang hilang kedua-dua Word dan Display sebagai"
+msgstr "Perkataan yang hilang kedua-dua Perkataan dan Papar sebagai"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
