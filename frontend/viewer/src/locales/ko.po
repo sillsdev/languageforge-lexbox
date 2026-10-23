@@ -3264,4 +3264,3 @@ msgstr "모든 이정표를 하나하나 달성하셨군요. 정말 대단한 �
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "여러분의 사전은 여기서 시작됩니다"
-

@@ -3264,4 +3264,3 @@ msgstr "Has superado cada hito. ¡Qué logro!"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Tu diccionario comienza aquí"
-

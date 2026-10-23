@@ -3264,4 +3264,3 @@ msgstr "Umefikia kila hatua muhimu. Ni mafanikio makubwa!"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Kamusi yako inaanza hapa"
-

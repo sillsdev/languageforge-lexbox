@@ -3264,4 +3264,3 @@ msgstr "Bạn đã vượt qua mọi cột mốc. Thật là một thành tựu 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Từ điển của bạn bắt đầu từ đây"
-

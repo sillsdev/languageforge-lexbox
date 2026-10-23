@@ -3264,4 +3264,3 @@ msgstr "Anda telah mencapai setiap pencapaian penting. Betapa hebatnya pencapaia
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Kamus anda bermula di sini"
-
