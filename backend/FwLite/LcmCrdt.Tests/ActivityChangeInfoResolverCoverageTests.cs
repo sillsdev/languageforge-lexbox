@@ -55,6 +55,46 @@ public class ActivityChangeInfoResolverCoverageTests : HistoryServiceActivityTes
         }
     }
 
+    // Entity types whose list row names an owning entry that the detail view doesn't link to
+    private static readonly Dictionary<string, string> DetailOmitsOwningEntry = new()
+    {
+        ["CommentThread"] = "The detail preview has no comment layout; linking the entry would show it as deleted.",
+        ["UserComment"] = "The detail preview has no comment layout; linking the entry would show it as deleted.",
+    };
+
+    [Fact]
+    public async Task EveryChange_LoadsADetailContext_LinkedToTheListRowsOwningEntry()
+    {
+        await DataModel.AddChanges(ClientId, UseChangesTests.AllChangesInDependencyOrder());
+        var activities = await Service.ProjectActivity(0, take: 1000, new ActivityQuery());
+
+        var omitted = new HashSet<string>();
+        using var _ = new AssertionScope();
+        foreach (var activity in activities)
+        {
+            foreach (var change in activity.Changes)
+            {
+                var name = EntityTypeName(change.Entity.Change.EntityType);
+                var changeName = change.Entity.Change.GetType().Name;
+                var context = (await Service.Awaiting(s => s.LoadChangeContext(activity.CommitId, change.Entity.Index))
+                    .Should().NotThrowAsync($"the detail view must open for {changeName}")).Which;
+                if (context is null || change.Info.OwningEntryId is not { } owningEntryId) continue;
+
+                if (DetailOmitsOwningEntry.ContainsKey(name))
+                {
+                    if (context.AffectedEntries.All(e => e.Id != owningEntryId)) omitted.Add(name);
+                    continue;
+                }
+                context.AffectedEntries.Select(e => e.Id).Should().Contain(owningEntryId,
+                    $"the list row for {changeName} names an owning entry, so the detail view should link to it; " +
+                    $"handle '{name}' in HistoryService.GetAffectedEntryIds or list it in {nameof(DetailOmitsOwningEntry)} with a reason");
+            }
+        }
+
+        omitted.Should().BeEquivalentTo(DetailOmitsOwningEntry.Keys,
+            $"each type in {nameof(DetailOmitsOwningEntry)} must be exercised and still omit its owning entry");
+    }
+
     // Entity type name without the CLR generic-arity suffix, so a generic entity (RemoteResource<TMetadata>)
     // reads as "RemoteResource". The resolved entity types are all non-generic, so stripping is harmless there.
     // EntityType is null for opaque/unknown changes; none are expected in these fixtures, so bucket them
