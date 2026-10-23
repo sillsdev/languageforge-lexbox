@@ -29,6 +29,9 @@ export function useFeatures(): LexboxFeatures {
     get comments() {
       return !!context.features.comments;
     },
+    get commentWrite() {
+      return !!context.features.commentWrite;
+    },
     get customViews() {
       return !!context.features.customViews;
     },

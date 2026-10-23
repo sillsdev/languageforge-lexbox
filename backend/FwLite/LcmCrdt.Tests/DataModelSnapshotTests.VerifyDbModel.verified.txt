@@ -491,6 +491,7 @@
       Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
       ClientId (Guid) Required
       Hash (string) Required
+      IsSnapshotCheckpoint (bool) Required
       Metadata (CommitMetadata) Required
         Annotations: 
           Relational:ColumnType: jsonb
@@ -511,7 +512,7 @@
     Keys: 
       Id PK
     Annotations: 
-      CustomIndex:CompositeIndexes: [{"paths":["HybridDateTime.DateTime","HybridDateTime.Counter","Id"],"unique":false,"name":"IX_Commits_DateTime_Counter_Id"}]
+      CustomIndex:CompositeIndexes: [{"paths":["HybridDateTime.DateTime","HybridDateTime.Counter","Id"],"unique":false,"name":"IX_Commits_DateTime_Counter_Id"},{"paths":["HybridDateTime.DateTime","HybridDateTime.Counter","Id"],"unique":false,"filter":"\u0022IsSnapshotCheckpoint\u0022","name":"IX_Commits_Checkpoint"}]
       Relational:FunctionName: 
       Relational:Schema: 
       Relational:SqlQuery: 
@@ -522,6 +523,9 @@
     Properties: 
       CommitId (Guid) Required PK FK AfterSave:Throw
       Index (int) Required PK AfterSave:Throw
+      AuthoredModelVersion (int) Required ValueGenerated.OnAdd
+        Annotations: 
+          Relational:DefaultValue: 0
       Change (IChange)
         Annotations: 
           Relational:ColumnType: jsonb
@@ -535,6 +539,19 @@
       Relational:Schema: 
       Relational:SqlQuery: 
       Relational:TableName: ChangeEntities
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: LocalStateEntry
+    Properties: 
+      Key (string) Required PK AfterSave:Throw
+      Value (string) Required
+    Keys: 
+      Key PK
+    Annotations: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: LocalState
       Relational:ViewName: 
       Relational:ViewSchema: 
   EntityType: ObjectSnapshot
@@ -603,4 +620,4 @@
       Relational:ViewName: 
       Relational:ViewSchema: 
 Annotations: 
-  ProductVersion: 10.0.8
+  ProductVersion: 10.0.13

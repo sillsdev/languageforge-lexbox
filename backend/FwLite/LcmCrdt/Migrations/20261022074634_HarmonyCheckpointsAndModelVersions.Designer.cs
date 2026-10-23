@@ -12,14 +12,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LcmCrdt.Migrations
 {
     [DbContext(typeof(LcmCrdtDbContext))]
-    [Migration("20261019073845_AddPlugins")]
-    partial class AddPlugins
+    [Migration("20261022074634_HarmonyCheckpointsAndModelVersions")]
+    partial class HarmonyCheckpointsAndModelVersions
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.13");
 
             modelBuilder.Entity("LcmCrdt.Data.UnreadComment", b =>
                 {
@@ -442,52 +442,6 @@ namespace LcmCrdt.Migrations
                     b.ToTable("PartOfSpeech");
                 });
 
-            modelBuilder.Entity("MiniLcm.Models.Plugin", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Contexts")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("FileUri")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Permissions")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("Requires")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<Guid?>("SnapshotId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SnapshotId")
-                        .IsUnique();
-
-                    b.ToTable("Plugin");
-                });
-
             modelBuilder.Entity("MiniLcm.Models.Publication", b =>
                 {
                     b.Property<Guid>("Id")
@@ -725,6 +679,9 @@ namespace LcmCrdt.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsSnapshotCheckpoint")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Metadata")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -750,7 +707,7 @@ namespace LcmCrdt.Migrations
 
                     b.ToTable("Commits", (string)null);
 
-                    b.HasAnnotation("CustomIndex:CompositeIndexes", "[{\"paths\":[\"HybridDateTime.DateTime\",\"HybridDateTime.Counter\",\"Id\"],\"unique\":false,\"name\":\"IX_Commits_DateTime_Counter_Id\"}]");
+                    b.HasAnnotation("CustomIndex:CompositeIndexes", "[{\"paths\":[\"HybridDateTime.DateTime\",\"HybridDateTime.Counter\",\"Id\"],\"unique\":false,\"name\":\"IX_Commits_DateTime_Counter_Id\"},{\"paths\":[\"HybridDateTime.DateTime\",\"HybridDateTime.Counter\",\"Id\"],\"unique\":false,\"filter\":\"\\u0022IsSnapshotCheckpoint\\u0022\",\"name\":\"IX_Commits_Checkpoint\"}]");
                 });
 
             modelBuilder.Entity("SIL.Harmony.Core.ChangeEntity<SIL.Harmony.Changes.IChange>", b =>
@@ -761,6 +718,11 @@ namespace LcmCrdt.Migrations
                     b.Property<int>("Index")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("AuthoredModelVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("Change")
                         .HasColumnType("jsonb");
 
@@ -770,6 +732,20 @@ namespace LcmCrdt.Migrations
                     b.HasKey("CommitId", "Index");
 
                     b.ToTable("ChangeEntities", (string)null);
+                });
+
+            modelBuilder.Entity("SIL.Harmony.Db.LocalStateEntry", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("LocalState", (string)null);
                 });
 
             modelBuilder.Entity("SIL.Harmony.Db.ObjectSnapshot", b =>
@@ -937,14 +913,6 @@ namespace LcmCrdt.Migrations
                     b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
                         .WithOne()
                         .HasForeignKey("MiniLcm.Models.PartOfSpeech", "SnapshotId")
-                        .OnDelete(DeleteBehavior.SetNull);
-                });
-
-            modelBuilder.Entity("MiniLcm.Models.Plugin", b =>
-                {
-                    b.HasOne("SIL.Harmony.Db.ObjectSnapshot", null)
-                        .WithOne()
-                        .HasForeignKey("MiniLcm.Models.Plugin", "SnapshotId")
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 

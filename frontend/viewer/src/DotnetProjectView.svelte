@@ -13,6 +13,7 @@
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
   import {initProjectContext} from '$project/project-context.svelte';
   import {initProjectStorage} from '$lib/storage';
+  import {useEventBus} from '$lib/services/event-bus';
   import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
 
   const projectServicesProvider = useProjectServicesProvider();
@@ -26,6 +27,8 @@
   const code = untrack(() => _code);
   projectContext.projectCode = code;
   projectContext.inParatext = untrack(() => paratext);
+  // Before openCrdtProject (in onMount): opening triggers a sync that can change the role.
+  projectContext.watchProjectRole(useEventBus());
 
   initProjectStorage(code);
 

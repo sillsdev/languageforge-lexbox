@@ -85,17 +85,20 @@ public partial class CrdtProjectsService(
         await Task.WhenAll(tasks);
     }
 
-    public async ValueTask UpdateProjectServerInfo(CrdtProject project,
+    /// <returns>true if the role changed</returns>
+    public async ValueTask<bool> UpdateProjectServerInfo(CrdtProject project,
         string? userName,
         string? userId,
         UserProjectRole role)
     {
-        if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return;
+        if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return false;
+        var roleChanged = false;
         await ExecInProject(project, async (scopedServices, currentProjectService) =>
         {
             await currentProjectService.UpdateLastUser(userName, userId);
-            await currentProjectService.UpdateUserRole(role);
+            roleChanged = await currentProjectService.UpdateUserRole(role);
         });
+        return roleChanged;
     }
 
     public IEnumerable<CrdtProject> ListProjects()

@@ -629,7 +629,9 @@ If you don't see a dialog or already closed it, click the button below:",
     "manager": "Manager",
     "manager_description": "Manager (can send/receive & add new users)",
     "observer": "Viewer",
-    "observer_description": "Viewer (FieldWorks Lite only)"
+    "observer_description": "Viewer (FieldWorks Lite only)",
+    "commenter": "Commenter",
+    "commenter_description": "Commenter (can view and comment, FieldWorks Lite only)"
   },
   "system_role": {
     "label": "Role",

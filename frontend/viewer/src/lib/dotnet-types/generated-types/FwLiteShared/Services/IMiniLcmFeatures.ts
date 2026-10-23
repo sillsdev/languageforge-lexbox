@@ -13,6 +13,7 @@ export interface IMiniLcmFeatures
 	audio?: boolean;
 	customViews?: boolean;
 	comments?: boolean;
+	commentWrite?: boolean;
 	plugins?: boolean;
 }
 /* eslint-enable */

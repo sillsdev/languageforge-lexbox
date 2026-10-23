@@ -21,19 +21,19 @@ public class MiniLcmJsInvokable(
 {
     private readonly IMiniLcmApi _wrappedApi = userFacingWrappers.Apply(api, project, notificationWrapperFactory);
 
-    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews, bool? Comments, bool? Plugins);
+    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews, bool? Comments, bool? CommentWrite, bool? Plugins);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()
     {
         var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
         var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
-        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject, Comments: isCrdtProject, Plugins: isCrdtProject);
+        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject, Comments: isCrdtProject, CommentWrite: CanComment, Plugins: isCrdtProject);
     }
 
-    private bool CanWrite =>
-        project is not CrdtProject crdt ||
-        (crdt.Data?.Role ?? UserProjectRole.Editor) is UserProjectRole.Editor or UserProjectRole.Manager;
+    // Not CrdtProject.Data: that's a snapshot from when the project was opened, and a sync can update the role afterwards.
+    private bool CanWrite => api is not CrdtMiniLcmApi crdtApi || !crdtApi.ProjectData.IsReadonly;
+    private bool CanComment => api is CrdtMiniLcmApi crdtApi && crdtApi.ProjectData.CanComment;
 
     //todo move info notify wrapper factory
     private void OnDataChanged()
