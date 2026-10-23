@@ -202,6 +202,12 @@ jobs:
         working-directory: frontend
         run: |
           pnpm install
+      - name: svelte-check (viewer)
+        working-directory: frontend/viewer
+        run: pnpm run check
+      - name: eslint (viewer)
+        working-directory: frontend/viewer
+        run: pnpm run lint
       - name: Ensure all i18n strings have been extracted
         working-directory: frontend/viewer
         shell: bash

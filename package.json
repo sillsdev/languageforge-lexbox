@@ -1,0 +1,14 @@
+{
+  "name": "languageforge-lexbox",
+  "private": true,
+  "description": "Repo-root package: hosts nx + @nx/dotnet for affected-project detection only (graph-only; builds and tests still run through dotnet and pnpm). The web apps live in the separate pnpm workspace under frontend/.",
+  "packageManager": "pnpm@12.3.4",
+  "engines": {
+    "node": ">=26",
+    "pnpm": ">=12"
+  },
+  "devDependencies": {
+    "@nx/dotnet": "23.3.0",
+    "nx": "23.3.0"
+  }
+}
