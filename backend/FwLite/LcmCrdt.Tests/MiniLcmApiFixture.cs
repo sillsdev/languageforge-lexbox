@@ -16,6 +16,8 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 {
     private readonly bool _seedWs = true;
     private readonly Guid? _projectId;
+    // fixtures run in parallel and share project codes, so each gets its own folder (media cache) to delete on dispose
+    private readonly string _projectPath = Path.GetFullPath($"fixture-{Guid.NewGuid():N}");
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
     private SqliteConnection? _keepAliveConnection;
@@ -66,9 +68,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 
         var services = new ServiceCollection()
             .AddTestLcmCrdtClient()
-            // fixtures run in parallel and share project codes, so each needs its own media folder to delete on dispose
-            .PostConfigure<HarmonyConfig>(config =>
-                config.LocalResourceCachePath = Path.Combine(config.LocalResourceCachePath, Guid.NewGuid().ToString("N")))
+            .Configure<LcmCrdtConfig>(config => config.ProjectPath = _projectPath)
             .AddLogging(builder => builder.AddDebug()
                 .AddProvider(new LateXUnitLoggerProvider(this))
                 .AddFilter("LinqToDB", LogLevel.Trace)
@@ -149,11 +149,10 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 
     public async Task DisposeAsync()
     {
-        var resourceCachePath = HarmonyConfig.LocalResourceCachePath;
-        if (Directory.Exists(resourceCachePath)) Directory.Delete(resourceCachePath, true);
         await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
         await (_keepAliveConnection?.DisposeAsync() ?? ValueTask.CompletedTask);
+        if (Directory.Exists(_projectPath)) Directory.Delete(_projectPath, true);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
