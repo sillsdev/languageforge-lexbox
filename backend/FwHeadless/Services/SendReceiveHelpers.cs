@@ -157,7 +157,8 @@ public static class SendReceiveHelpers
 
         //we need to track the file, otherwise hg will not commit it
         await ExecuteHgSuccess($"hg add --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
-        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", fileDir, progress);
+        //hg commit exits with 1 when nothing changed, e.g. the same content was uploaded again
+        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", fileDir, progress, allowedExitCodes: [0, 1]);
     }
 
     private static string EscapeShellArg(string arg)
@@ -173,11 +174,11 @@ public static class SendReceiveHelpers
         return $"{quote}{escaped}{quote}";
     }
 
-    private static async Task ExecuteHgSuccess(string cmd, string folder, IProgress? progress = null)
+    private static async Task ExecuteHgSuccess(string cmd, string folder, IProgress? progress = null, int[]? allowedExitCodes = null)
     {
         var result = await Task.Run(() => HgRunner.Run(cmd, folder, 5, progress));
         //not using HgRepository because it does not fail when exit code is 1 because that means not added.
-        if (result.ExitCode != 0)
+        if (!(allowedExitCodes ?? [0]).Contains(result.ExitCode))
         {
             throw new Exception($"""
                                  Failed to execute command {cmd}, with exit code {result.ExitCode},
