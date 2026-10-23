@@ -37,15 +37,17 @@ describe('SyncDialog', () => {
     document.body.innerHTML = '';
   });
 
-  async function openDialog(syncService: ISyncServiceJsInvokable) {
+  async function openDialog(syncService: ISyncServiceJsInvokable, fieldWorksSync = true) {
+    const supportedFeatures = vi.fn(() => Promise.resolve({sync: true, write: true, fieldWorksSync}));
     // Imported after the stubs above: the dialog reads matchMedia when its module loads
     const syncDialogHost = (await import('./test/SyncDialogHost.svelte')).default;
     const target = document.createElement('div');
     document.body.appendChild(target);
-    app = mount(syncDialogHost, {target, props: {syncService}});
+    app = mount(syncDialogHost, {target, props: {syncService, supportedFeatures}});
     flushSync();
     (app as {open: () => void}).open();
     flushSync();
+    return supportedFeatures;
   }
 
   function getButton(name: RegExp): HTMLButtonElement {
@@ -69,19 +71,23 @@ describe('SyncDialog', () => {
     expect(syncService.getSyncStatus).not.toHaveBeenCalled();
   }, 60_000); // first import transforms the dialog's dependencies
 
-  function showTab(name: 'FieldWorks Lite' | 'Lexbox') {
-    const tab = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(t => t.textContent?.includes(name));
-    expect(tab).toBeTruthy();
-    tab!.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
-    tab!.click();
+  // The tabs show once the project's features have loaded
+  async function showTab(name: 'FieldWorks Lite' | 'Lexbox') {
+    const tab = await vi.waitFor(() => {
+      const tab = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(t => t.textContent?.includes(name));
+      expect(tab).toBeTruthy();
+      return tab!;
+    });
+    tab.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+    tab.click();
     flushSync();
-    expect(tab!.getAttribute('aria-selected')).toBe('true');
+    expect(tab.getAttribute('aria-selected')).toBe('true');
   }
 
   it('loads the FieldWorks Classic status when its tab is first shown', async () => {
     const syncService = fakeSyncService();
     await openDialog(syncService);
-    showTab('Lexbox');
+    await showTab('Lexbox');
     await vi.waitFor(() => expect(syncService.getSyncStatus).toHaveBeenCalledOnce());
   }, 60_000);
 
@@ -89,7 +95,7 @@ describe('SyncDialog', () => {
     const syncService = fakeSyncService();
     syncService.getSyncStatus.mockImplementation(() => Promise.reject(new Error('Lexbox unreachable')));
     await openDialog(syncService);
-    showTab('Lexbox');
+    await showTab('Lexbox');
     await vi.waitFor(() => expect(document.body.textContent).toContain(`Couldn't get the FieldWorks Classic status from Lexbox.`));
   }, 60_000);
 
@@ -101,11 +107,23 @@ describe('SyncDialog', () => {
       pendingMercurialChanges: 5,
     }));
     await openDialog(syncService);
-    showTab('Lexbox');
+    await showTab('Lexbox');
     await vi.waitFor(() => expect(document.body.textContent).toContain('New data'));
-    showTab('FieldWorks Lite');
-    showTab('Lexbox');
+    await showTab('FieldWorks Lite');
+    await showTab('Lexbox');
     expect(document.body.textContent).toContain('New data');
     expect(syncService.getSyncStatus).toHaveBeenCalledOnce();
+  }, 60_000);
+
+  it('shows only the FW Lite sync without FieldWorks sync', async () => {
+    const syncService = fakeSyncService();
+    const supportedFeatures = await openDialog(syncService, false);
+    await vi.waitFor(() => expect(supportedFeatures).toHaveBeenCalled());
+    await supportedFeatures.mock.results[0].value;
+    await new Promise(resolve => setTimeout(resolve));
+    flushSync();
+    expect(document.body.textContent).toContain('Pending');
+    expect(document.querySelectorAll('[role="tab"]')).toHaveLength(0);
+    expect(syncService.getSyncStatus).not.toHaveBeenCalled();
   }, 60_000);
 });

@@ -44,6 +44,9 @@ public record ProjectData(string Name, string Code, Guid Id, string? OriginDomai
     // Not sent to the viewer either: it uses the commentWrite feature
     [JsonIgnore]
     public bool CanComment => Role is UserProjectRole.Editor or UserProjectRole.EditorLite or UserProjectRole.Manager or UserProjectRole.Commenter;
+    // Not sent to the viewer either: it uses the fieldWorksSync feature
+    [JsonIgnore]
+    public bool CanSyncFieldWorks => Role is UserProjectRole.Editor or UserProjectRole.Manager;
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

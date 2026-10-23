@@ -12,7 +12,7 @@ public enum ProjectRole
     /// </summary>
     Commenter = 5,
     /// <summary>
-    /// Can edit like <see cref="Editor"/>, but only in FieldWorks Lite: no hg send/receive, media upload or FieldWorks sync.
+    /// Can edit like <see cref="Editor"/>, including media, but only in FieldWorks Lite: no hg send/receive or FieldWorks sync.
     /// </summary>
     EditorLite = 6,
 }
