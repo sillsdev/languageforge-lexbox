@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-23 17:48\n"
+"PO-Revision-Date: 2026-10-23 18:34\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -112,7 +112,7 @@ msgstr "{num, plural, one {# komentar yang belum dibaca} other {# komentar yang 
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
-msgstr "{num, plural, one {# kata berikutnya} other {# kata-kata berikutnya}}"
+msgstr "{num, plural, one {# sisa kata} other {# sisa kata}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
@@ -299,11 +299,11 @@ msgstr "Analisis"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr "Analisis penulisan kode sistem"
+msgstr "Kode sistem penulisan analisis"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr "Analisis sistem penulisan"
+msgstr "Sistem penulisan analisis"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
@@ -1201,7 +1201,7 @@ msgstr "Isi kolom \"Tampilkan sebagai\""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
-msgstr "Isi di Word atau Tampilkan sebagai"
+msgstr "Isi Kata atau Tampilkan sebagai"
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1320,7 +1320,7 @@ msgstr "Buka entri"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
-msgstr "Buka Word"
+msgstr "Buka kata"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1339,7 +1339,7 @@ msgstr "hijau"
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
-msgstr "Cuplikan Harmony telah dibuat ulang dengan sukses"
+msgstr "Snapshot Harmony telah dibuat ulang dengan sukses"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has comments"
@@ -1516,7 +1516,7 @@ msgstr "Muat semua"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Load it to preview or export."
-msgstr "Unggah untuk melihat pratinjau atau mengekspor."
+msgstr "Muat untuk melihat pratinjau atau mengekspor."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Load picture"
@@ -1524,7 +1524,7 @@ msgstr "Muat gambar"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded {0} file(s)"
-msgstr "Telah dimuat  berkas {0}"
+msgstr "{0} berkas telah dimuat"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded file"
@@ -1533,7 +1533,7 @@ msgstr "Berkas telah dimuat"
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr "Aktivitas pemuatan"
+msgstr "Memuat aktivitas"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
@@ -1663,7 +1663,7 @@ msgstr "Definisi yang hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Display as {0}"
-msgstr "Tampilan Hilang sebagai {0}"
+msgstr "Tampilkan sebagai yang hilang {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1770,7 +1770,7 @@ msgstr "Proyek Baru"
 
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
-msgstr "Proyek Baru (Hanya untuk wilayah lokal)"
+msgstr "Proyek Baru (Hanya lokal)"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1854,7 +1854,7 @@ msgstr "Tidak ada barang yang ditemukan"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
-msgstr "Tidak ditemukan file media"
+msgstr "Tidak ditemukan berkas media"
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1869,7 +1869,7 @@ msgstr "Tidak ada percakapan terbuka"
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
-msgstr "Tidak ada foto"
+msgstr "Tidak ada gambar"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2139,7 +2139,7 @@ msgstr "Pratinjau tidak tersedia"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not available for this file type."
-msgstr "Pratinjau tidak tersedia untuk jenis file ini."
+msgstr "Pratinjau tidak tersedia untuk jenis berkas ini."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
@@ -2199,23 +2199,23 @@ msgstr "Hanya Baca"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
-msgstr "Formulir Pencatatan Kutipan"
+msgstr "Rekam formulir kutipan"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Definition"
-msgstr "Merekam Definisi"
+msgstr "Rekam Definisi"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Gloss"
-msgstr "Rekam Definisi Istilah"
+msgstr "Rekam Arti Singkat"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form"
-msgstr "Merekam bentuk leksem"
+msgstr "Rekam bentuk leksem"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form or Citation form"
-msgstr "Mencatat bentuk leksem atau bentuk kutipan"
+msgstr "Rekam bentuk leksem atau bentuk kutipan"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
@@ -2227,11 +2227,11 @@ msgstr "Rekam sebuah kalimat contoh"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
-msgstr "Tampilkan Rekaman sebagai"
+msgstr "Rekam Tampilkan sebagai"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
-msgstr "Catat Kata atau Tampilkan sebagai"
+msgstr "Rekam Kata atau Tampilkan sebagai"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2285,12 +2285,12 @@ msgstr "Apakah perlu memperbarui indeks pencarian?"
 #. Blocking progress message while Harmony snapshots are being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
-msgstr "Sedang memuat kembali cuplikan Harmony. Proses ini mungkin memakan waktu lama — jangan tutup aplikasi ini."
+msgstr "Sedang memperbarui snapshot Harmony. Proses ini mungkin memakan waktu lama � jangan tutup aplikasi ini."
 
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
-msgstr "Sedang memuat ulang indeks pencarian. Proses ini mungkin akan memakan waktu — jangan tutup aplikasi ini."
+msgstr "Sedang memperbarui indeks pencarian. Proses ini mungkin akan memakan waktu � jangan tutup aplikasi ini."
 
 #. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2304,7 +2304,7 @@ msgstr "Catatan rilis"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
-msgstr "Hanya daring"
+msgstr "Hanya jarak jauh"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -2355,7 +2355,7 @@ msgstr "Atur Ulang"
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
-msgstr "Tekad"
+msgstr "Selesaikan"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -2549,7 +2549,7 @@ msgstr "Tampilkan {0} selengkapnya..."
 
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
-msgstr "Tampilkan atau sembunyikan teks terjemahan"
+msgstr "Tampilkan atau sembunyikan keterangan"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
@@ -2567,7 +2567,7 @@ msgstr "Entri serupa sudah ada"
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
-msgstr "Kilap yang serupa"
+msgstr "Arti singkat yang serupa"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
@@ -2904,7 +2904,7 @@ msgstr "Jenis"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Citation form"
-msgstr "Isi formulir kutipan"
+msgstr "Ketik formulir kutipan"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -3054,7 +3054,7 @@ msgstr "Pembaruan telah diunduh. Silakan mulai ulang untuk menerapkan pembaruan 
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update downloading in the background. Restart to apply once it's finished."
-msgstr "Pembaruan sedang diunduh di latar belakang. Silakan mulai ulang perangkat untuk menerapkan pembaruan setelah proses selesai."
+msgstr "Pembaruan sedang diunduh di latar belakang. Silakan mulai ulang aplikasi untuk menerapkan pembaruan setelah proses selesai."
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3138,7 +3138,7 @@ msgstr "violet"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
-msgstr "Kami juga mengumpulkan laporan kesalahan yang berisi rincian teknis mengenai masalah yang terjadi. Sebelum mengirimkannya, kami berusaha menghapus segala hal yang mungkin berupa teks dari kamus, nama file, atau detail pribadi lainnya."
+msgstr "Kami juga mengumpulkan laporan kesalahan yang berisi rincian teknis mengenai masalah yang terjadi. Sebelum mengirimkannya, kami berusaha menghapus segala hal yang mungkin berupa teks dari kamus, nama berkas, atau detail pribadi lainnya."
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
@@ -3200,7 +3200,7 @@ msgstr "Kata atau makna:"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
-msgstr "Kata-kata yang tidak memiliki baik Word maupun Display sebagai"
+msgstr "Kata yang tidak memiliki Kata maupun Tampilkan sebagai"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
@@ -3255,11 +3255,11 @@ msgstr "Anda telah mengunduh proyek {0}"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
-msgstr "Kamu sedang offline"
+msgstr "Anda sedang offline"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
-msgstr "Kamu telah melewati setiap tahap penting. Sungguh sebuah prestasi yang luar biasa!"
+msgstr "Anda telah melewati setiap tahap penting. Sungguh sebuah prestasi yang luar biasa!"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
