@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-23 15:10\n"
+"PO-Revision-Date: 2026-10-23 17:48\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -148,14 +148,14 @@ msgstr "새 버전의 FieldWorks Lite를 사용할 수 있습니다."
 #. Warning banner in the New Entry dialog when exactly one possible duplicate was found (none an exact headword match)
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar entry already exists"
-msgstr ""
+msgstr "비슷한 항목이 이미 존재합니다."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "A similar entry already exists"
 #. Warning banner in the New Word dialog when exactly one possible duplicate was found (none spelled exactly the same)
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar word already exists"
-msgstr ""
+msgstr "이미 비슷한 단어가 있습니다"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
@@ -225,7 +225,7 @@ msgstr "의 일부를 추가합니다."
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Add Picture"
-msgstr ""
+msgstr "사진 추가"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -237,11 +237,11 @@ msgstr "센스 추가"
 
 #: src/project/tasks/TaskList.svelte
 msgid "Add some entries first."
-msgstr ""
+msgstr "먼저 몇 가지 항목을 추가해 보세요."
 
 #: src/project/tasks/TaskList.svelte
 msgid "Add some words first."
-msgstr ""
+msgstr "먼저 몇 마디를 적어보세요."
 
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
@@ -260,7 +260,7 @@ msgstr "사전 작성을 시작하려면 첫 번째 항목을 추가하세요."
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
-msgstr ""
+msgstr "고급: 설정 파일"
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
@@ -307,7 +307,7 @@ msgstr "분석 작성 시스템"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
-msgstr ""
+msgstr "분석 기능이 비활성화되어 있습니다."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -357,7 +357,7 @@ msgstr "커뮤니티 포럼에서 질문하고 도움을 받으세요."
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
-msgstr ""
+msgstr "오디오"
 
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
@@ -376,7 +376,7 @@ msgstr "로컬에 저장된 오디오"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
-msgstr ""
+msgstr "저자"
 
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
@@ -395,12 +395,12 @@ msgstr "자동 동기화"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Back"
-msgstr ""
+msgstr "뒤로"
 
 #: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
-msgstr ""
+msgstr "작업으로 돌아가기"
 
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
@@ -436,7 +436,7 @@ msgstr "찾아보기 실패"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Camera"
-msgstr ""
+msgstr "카메라"
 
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
@@ -461,7 +461,7 @@ msgstr "취소"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Caption"
-msgstr ""
+msgstr "설명"
 
 #. Explanation of sync behavior
 #: src/project/sync/FwClassicSyncView.svelte
@@ -478,14 +478,14 @@ msgstr "예를 들어 동일한 필드를 두 번 변경하면 두 개의 커밋
 #. Status line in the New Entry dialog while searching for possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar entries…"
-msgstr ""
+msgstr "유사한 항목 확인…"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Checking for similar entries…"
 #. Status line in the New Word dialog while searching for possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar words…"
-msgstr ""
+msgstr "유사한 단어 확인하기…"
 
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -543,11 +543,11 @@ msgstr "색상"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Comment"
-msgstr ""
+msgstr "댓글"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Commenter"
-msgstr ""
+msgstr "댓글 작성자"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
@@ -556,11 +556,11 @@ msgstr "댓글"
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
-msgstr ""
+msgstr "댓글, {0} 읽지 않음"
 
 #: src/project/tasks/TaskList.svelte
 msgid "Complete"
-msgstr ""
+msgstr "완료"
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -616,7 +616,7 @@ msgstr "포함 사항"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
-msgstr ""
+msgstr "대화"
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
@@ -633,18 +633,18 @@ msgstr "복사 버전"
 #. Status line in the New Entry dialog when the background duplicate search failed (e.g. connection lost); typing again retries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar entries"
-msgstr ""
+msgstr "유사한 항목을 확인할 수 없습니다."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Could not check for similar entries"
 #. Status line in the New Word dialog when the background duplicate search failed (e.g. connection lost); typing again retries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
-msgstr ""
+msgstr "유사한 단어를 확인할 수 없습니다."
 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
-msgstr ""
+msgstr "Lexbox에서 FieldWorks Classic의 상태를 확인할 수 없었습니다."
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
@@ -772,7 +772,7 @@ msgstr "항목 삭제"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Delete Picture"
-msgstr ""
+msgstr "사진 삭제"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Delete Entry"
@@ -856,7 +856,7 @@ msgstr "다운로드 페이지"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Download Picture"
-msgstr ""
+msgstr "사진 다운로드"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -886,7 +886,7 @@ msgstr "다운로드 {0}..."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
-msgstr ""
+msgstr "업데이트 다운로드 중..."
 
 #. Generic progress message
 #: src/home/Server.svelte
@@ -914,7 +914,7 @@ msgstr "사용자 지정 보기 편집"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Edit Picture"
-msgstr ""
+msgstr "사진 편집"
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -934,7 +934,7 @@ msgstr "로 끝납니다."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Entries missing both Lexeme form and Citation form"
-msgstr ""
+msgstr "어휘형과 인용형이 모두 누락된 항목"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -1006,11 +1006,11 @@ msgstr "동기화 상태를 가져오는 중 오류가 발생했습니다."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every entry already has this field filled in."
-msgstr ""
+msgstr "모든 항목에는 이미 이 필드가 입력되어 있습니다."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every word already has this field filled in."
-msgstr ""
+msgstr "모든 단어에 대해 이 필드는 이미 채워져 있습니다."
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1034,7 +1034,7 @@ msgstr "예문"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
-msgstr ""
+msgstr "자세한 로깅 설정 변경에 실패했습니다."
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1060,19 +1060,19 @@ msgstr "항목을 로드하지 못했습니다."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load file"
-msgstr ""
+msgstr "파일 불러오기에 실패했습니다."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load files"
-msgstr ""
+msgstr "파일 불러오기에 실패했습니다."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load media files"
-msgstr ""
+msgstr "미디어 파일을 불러오지 못했습니다."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to load metadata"
-msgstr ""
+msgstr "메타데이터를 불러오지 못했습니다."
 
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1087,20 +1087,20 @@ msgstr "URL을 열지 못했습니다: {0}"
 #. Error toast when snapshot regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate Harmony snapshots"
-msgstr ""
+msgstr "Harmony 스냅샷 재생성에 실패했습니다."
 
 #. Error toast when search index regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate search index"
-msgstr ""
+msgstr "검색 인덱스 재생성에 실패했습니다."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to save file"
-msgstr ""
+msgstr "파일 저장에 실패했습니다."
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to save settings"
-msgstr ""
+msgstr "설정 저장에 실패했습니다."
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
@@ -1109,7 +1109,7 @@ msgstr "동기화 실패"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to upload files"
-msgstr ""
+msgstr "파일 업로드에 실패했습니다."
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -1137,11 +1137,11 @@ msgstr "FieldWorks Lite"
 
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
-msgstr ""
+msgstr "FieldWorks Lite는 서비스 개선을 위해 사용 현황 데이터를 수집합니다."
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
-msgstr ""
+msgstr "FieldWorks Lite가 업데이트되었습니다. 설치를 완료하려면 다시 시작하십시오."
 
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1193,15 +1193,15 @@ msgstr "파일이 너무 큼"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Filename"
-msgstr ""
+msgstr "파일 이름"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
-msgstr ""
+msgstr "‘표시 방식’에 다음을 입력하세요"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
-msgstr ""
+msgstr "Word에 입력하거나 다음 형식으로 표시"
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1313,14 +1313,14 @@ msgstr "{0}으로 이동"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to entry"
-msgstr ""
+msgstr "항목으로 이동"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
-msgstr ""
+msgstr "Word로 이동"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1339,19 +1339,19 @@ msgstr "녹색"
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
-msgstr ""
+msgstr "하모니 스냅샷이 성공적으로 재생성되었습니다."
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has comments"
-msgstr ""
+msgstr "댓글이 있습니다"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unread comments"
-msgstr ""
+msgstr "읽지 않은 댓글이 있습니다"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unresolved comments"
-msgstr ""
+msgstr "해결되지 않은 댓글이 있습니다"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1363,7 +1363,7 @@ msgstr "헤드워드"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Help & More"
-msgstr ""
+msgstr "도움말 및 기타 정보"
 
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
@@ -1395,7 +1395,7 @@ msgstr "이 작업은 되돌릴 수 없다는 것을 이해합니다."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
@@ -1431,7 +1431,7 @@ msgstr "업데이트 설치 중..."
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
-msgstr ""
+msgstr "방금"
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1451,12 +1451,12 @@ msgstr "마지막 동기화: #"
 
 #: src/home/HomeView.svelte
 msgid "Learn more"
-msgstr ""
+msgstr "자세히 알아보기"
 
 #. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
-msgstr ""
+msgstr "실제 운영 환경에서는 비워 두십시오"
 
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
@@ -1508,27 +1508,27 @@ msgstr "문자 그대로의 의미"
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Load"
-msgstr ""
+msgstr "로드"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Load all"
-msgstr ""
+msgstr "모두 불러오기"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Load it to preview or export."
-msgstr ""
+msgstr "미리 보거나 내보내려면 파일을 불러오세요."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Load picture"
-msgstr ""
+msgstr "사진 불러오기"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded {0} file(s)"
-msgstr ""
+msgstr "{0} 파일(들)을 불러왔습니다."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded file"
-msgstr ""
+msgstr "파일 불러옴"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
@@ -1546,11 +1546,11 @@ msgstr "사전 로드 중..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Loading metadata..."
-msgstr ""
+msgstr "메타데이터 불러오는 중..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Loading preview..."
-msgstr ""
+msgstr "미리보기 불러오는 중..."
 
 #: src/home/HomeView.svelte
 msgid "loading..."
@@ -1558,7 +1558,7 @@ msgstr "로딩 중..."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loading..."
-msgstr ""
+msgstr "로딩 중..."
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
@@ -1568,7 +1568,7 @@ msgstr "로컬"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Local and remote"
-msgstr ""
+msgstr "로컬 및 원격"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
@@ -1645,16 +1645,16 @@ msgstr "의미"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Media file details"
-msgstr ""
+msgstr "미디어 파일 세부 정보"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Media Manager"
-msgstr ""
+msgstr "미디어 매니저"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
-msgstr ""
+msgstr "인용 정보 누락 양식 {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1663,7 +1663,7 @@ msgstr "정의 누락 {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Display as {0}"
-msgstr ""
+msgstr "표시되지 않는 항목: {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1677,27 +1677,27 @@ msgstr "누락된 광택 {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Grammatical info."
-msgstr ""
+msgstr "문법 정보가 누락되었습니다."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Headword {0}"
-msgstr ""
+msgstr "제목어 누락 {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Lexeme form {0}"
-msgstr ""
+msgstr "누락된 어소 양식 {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of speech"
-msgstr ""
+msgstr "품사 누락"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Semantic domains"
-msgstr ""
+msgstr "누락된 의미 영역"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Word {0}"
-msgstr ""
+msgstr "누락된 단어 {0}"
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1797,7 +1797,7 @@ msgstr "다음 이정표: {0}. {1} 남았습니다."
 #. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Next picture"
-msgstr ""
+msgstr "다음 사진"
 
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
@@ -1854,7 +1854,7 @@ msgstr "항목을 찾을 수 없습니다."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
-msgstr ""
+msgstr "미디어 파일이 없습니다."
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1864,12 +1864,12 @@ msgstr "새 데이터 없음"
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "No open conversations"
-msgstr ""
+msgstr "공개적인 대화 없음"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
-msgstr ""
+msgstr "사진 없음"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/FwLiteSyncView.svelte
@@ -1886,14 +1886,14 @@ msgstr "구성된 서버 없음"
 #. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar entries found"
-msgstr ""
+msgstr "해당 항목과 일치하는 항목이 없습니다."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No similar entries found"
 #. Status line in the New Word dialog: the duplicate check found no existing words like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar words found"
-msgstr ""
+msgstr "유사한 단어가 없습니다."
 
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte
@@ -1971,7 +1971,7 @@ msgstr "오프라인 상태, 다운로드할 수 없음"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
-msgstr ""
+msgstr "오프라인 상태라 파일을 열 수 없습니다"
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -1981,12 +1981,12 @@ msgstr "가장 오래된 순서대로"
 #. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
-msgstr ""
+msgstr "대규모 프로젝트의 경우 이 작업에 시간이 오래 걸릴 수 있습니다. 앱을 종료하거나 진행 중인 과정을 중단하지 마십시오."
 
 #. Warning in regenerate-search-index confirm dialog: operation may be slow
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a while. Do not close the app or interrupt the process."
-msgstr ""
+msgstr "대규모 프로젝트의 경우 이 작업에 다소 시간이 걸릴 수 있습니다. 앱을 종료하거나 진행 중인 과정을 중단하지 마십시오."
 
 #. Explanation of sync behavior
 #: src/project/sync/FwClassicSyncView.svelte
@@ -2032,7 +2032,7 @@ msgstr "FieldWorks에서 열기…"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Opt out of analytics"
-msgstr ""
+msgstr "분석 기능 사용 거부"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -2070,7 +2070,7 @@ msgstr "품사"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
-msgstr ""
+msgstr "여기에서 지원팀의 설정을 붙여넣으세요. 저장하면 파일이 덮어쓰여 즉시 적용되며, 비워두면 파일이 삭제됩니다. 로그 파일의 크기와 개수는 재시작 후에만 변경됩니다."
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
@@ -2080,15 +2080,15 @@ msgstr "보류 중"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
-msgstr ""
+msgstr "품사를 선택하세요"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick Grammatical info."
-msgstr ""
+msgstr "‘문법 정보’를 선택하세요."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick one or more Semantic domains"
-msgstr ""
+msgstr "하나 이상의 의미 영역을 선택하세요"
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
@@ -2096,21 +2096,21 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
-msgstr ""
+msgstr "사진"
 
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
-msgstr ""
+msgstr "그림 동작"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Picture not found"
-msgstr ""
+msgstr "사진을 찾을 수 없습니다"
 
 #. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
 #: src/lib/views/entity-config.ts
 msgid "Pictures"
-msgstr ""
+msgstr "사진"
 
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
@@ -2139,22 +2139,22 @@ msgstr "미리 보기를 사용할 수 없습니다."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not available for this file type."
-msgstr ""
+msgstr "이 파일 형식에는 미리 보기가 제공되지 않습니다."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
-msgstr ""
+msgstr "미리보기가 지원되지 않습니다."
 
 #. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Previous picture"
-msgstr ""
+msgstr "이전 사진"
 
 #: src/home/HomeView.svelte
 #: src/lib/about/PrivacyDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
-msgstr ""
+msgstr "개인정보 보호"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2195,43 +2195,43 @@ msgstr "단어를 다음 위치에 게시"
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
-msgstr ""
+msgstr "읽기 전용"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
-msgstr ""
+msgstr "인용 양식 작성하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Definition"
-msgstr ""
+msgstr "정의 기록하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Gloss"
-msgstr ""
+msgstr "용어 설명 기록하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form"
-msgstr ""
+msgstr "어휘형 기록하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form or Citation form"
-msgstr ""
+msgstr "어휘형 또는 인용형을 기록하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
-msgstr ""
+msgstr "단어 녹음하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record an example sentence"
-msgstr ""
+msgstr "예문을 녹음하세요"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
-msgstr ""
+msgstr "기록을 다음과 같이 표시"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
-msgstr ""
+msgstr "단어 기록 또는 다음과 같이 표시"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2248,7 +2248,7 @@ msgstr "필터를 세분화하여 자세히 보기..."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Refresh"
-msgstr ""
+msgstr "새로 고침"
 
 #. Button to reload project list
 #: src/home/HomeView.svelte
@@ -2260,42 +2260,42 @@ msgstr "프로젝트 새로 고침"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate"
-msgstr ""
+msgstr "재생"
 
 #. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots"
-msgstr ""
+msgstr "하모니 스냅샷 재생성"
 
 #. Alert dialog title before starting Harmony snapshot regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots?"
-msgstr ""
+msgstr "하모니 스냅샷을 다시 생성할까요?"
 
 #. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index"
-msgstr ""
+msgstr "검색 인덱스 재생성"
 
 #. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
-msgstr ""
+msgstr "검색 인덱스를 다시 생성할까요?"
 
 #. Blocking progress message while Harmony snapshots are being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
-msgstr ""
+msgstr "하모니 스냅샷을 다시 생성 중입니다. 이 작업에는 시간이 오래 걸릴 수 있으니 앱을 닫지 마십시오."
 
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
-msgstr ""
+msgstr "검색 색인을 다시 생성 중입니다. 시간이 다소 걸릴 수 있으니 앱을 종료하지 마세요."
 
 #. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Release channel"
-msgstr ""
+msgstr "릴리스 채널"
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -2304,7 +2304,7 @@ msgstr "릴리스 노트"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
-msgstr ""
+msgstr "오직 원격으로만"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -2331,16 +2331,16 @@ msgstr "오디오 교체"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Replace Picture"
-msgstr ""
+msgstr "사진 교체"
 
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply"
-msgstr ""
+msgstr "답글"
 
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply…"
-msgstr ""
+msgstr "답글…"
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
@@ -2349,18 +2349,18 @@ msgstr "기술 문제 신고하기"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
-msgstr ""
+msgstr "초기화"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
-msgstr ""
+msgstr "결의"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Restart"
-msgstr ""
+msgstr "다시 시작"
 
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
@@ -2382,14 +2382,14 @@ msgstr "rose"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
-msgstr ""
+msgstr "동일한 표제어"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: only its lexeme form matches the typed text, while its citation form (shown as the headword) differs — deliberately NOT claiming "Same headword"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same lexeme form"
-msgstr ""
+msgstr "동일한 어휘형"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Same headword"
@@ -2397,7 +2397,7 @@ msgstr ""
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same word"
-msgstr ""
+msgstr "같은 단어"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
@@ -2405,11 +2405,11 @@ msgstr "저장"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Save and apply"
-msgstr ""
+msgstr "저장하고 적용"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Save as"
-msgstr ""
+msgstr "다른 이름으로 저장"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -2439,7 +2439,7 @@ msgstr "사전 검색"
 #. Success toast after rebuilding the FTS entry search index
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
-msgstr ""
+msgstr "검색 인덱스가 성공적으로 재생성되었습니다."
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2469,7 +2469,7 @@ msgstr "파일 선택"
 
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Selected"
-msgstr ""
+msgstr "선택됨"
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
@@ -2515,7 +2515,7 @@ msgstr "설정"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Settings saved and applied"
-msgstr ""
+msgstr "설정이 저장되고 적용되었습니다."
 
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
@@ -2549,7 +2549,7 @@ msgstr "보기 {0} 더보기..."
 
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
-msgstr ""
+msgstr "자막 표시 또는 숨기기"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
@@ -2560,42 +2560,42 @@ msgstr "댓글을 달려면 로그인하세요."
 #. Warning banner in the New Entry dialog; expands to a list of possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar entries already exist"
-msgstr ""
+msgstr "이미 유사한 항목이 있습니다."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar meaning"
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
-msgstr ""
+msgstr "비슷한 광택"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
 #. Badge on a possible-duplicate result: its headword partly matches the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar headword"
-msgstr ""
+msgstr "유사한 표제어"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar gloss"
 #. Badge on a possible-duplicate result: one of its meanings matches the meaning being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar meaning"
-msgstr ""
+msgstr "비슷한 의미"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar headword"
 #. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar word"
-msgstr ""
+msgstr "유사한 단어"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar entries already exist"
 #. Warning banner in the New Word dialog; expands to a list of possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar words already exist"
-msgstr ""
+msgstr "비슷한 단어가 이미 존재합니다"
 
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
@@ -2604,7 +2604,7 @@ msgstr "Simple"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Size"
-msgstr ""
+msgstr "크기"
 
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
@@ -2622,7 +2622,7 @@ msgstr "문제가 발생했습니다."
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
-msgstr ""
+msgstr "문자 체계 정렬"
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
@@ -2631,11 +2631,11 @@ msgstr "특정 필드"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation"
-msgstr ""
+msgstr "대화를 시작해 보세요"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation…"
-msgstr ""
+msgstr "대화를 시작해 보세요…"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2808,19 +2808,19 @@ msgstr "이 날짜 #와 이 이모티콘 #은 스니펫입니다."
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This entry may already exist"
-msgstr ""
+msgstr "이 항목은 이미 존재할 수 있습니다."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
-msgstr ""
+msgstr "이 파일은 원격으로만 이용할 수 있습니다."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
-msgstr ""
+msgstr "이 사진은 크기가 너무 커서 업로드할 수 없습니다. 해상도를 낮춰서 다시 업로드해 보세요."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
-msgstr ""
+msgstr "이 사진은 크기가 너무 커서 업로드할 수 없습니다. JPEG 화질을 낮춰서 저장한 후 다시 업로드해 보세요."
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2830,12 +2830,12 @@ msgstr "이제 이 프로젝트가 FieldWorks에서 열렸습니다. FieldWorks 
 #. Warning in regenerate-snapshots confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds snapshot and projected tables from commit history."
-msgstr ""
+msgstr "이 작업은 커밋 내역을 기반으로 스냅샷 및 예측 테이블을 다시 생성합니다."
 
 #. Warning in regenerate-search-index confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
-msgstr ""
+msgstr "이 작업은 사전 항목을 기반으로 전체 텍스트 검색 인덱스를 다시 생성합니다."
 
 #. Status message
 #: src/project/tasks/TaskView.svelte
@@ -2852,7 +2852,7 @@ msgstr "이렇게 하면 렉스박스에서 프로젝트의 FieldWorks Lite 및 
 #. Warning banner in the New Word dialog when a word with the exact same spelling exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This word may already exist"
-msgstr ""
+msgstr "이 단어는 이미 존재할 수도 있습니다"
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
@@ -2896,15 +2896,15 @@ msgstr "다시 시도"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
-msgstr ""
+msgstr "분석 기능을 다시 켜기"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
-msgstr ""
+msgstr "유형"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Citation form"
-msgstr ""
+msgstr "인용 양식 작성하기"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2918,15 +2918,15 @@ msgstr "광택 입력"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form"
-msgstr ""
+msgstr "어휘형식을 입력하세요"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form or Citation form"
-msgstr ""
+msgstr "어휘형 또는 인용형을 입력하세요"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Word"
-msgstr ""
+msgstr "단어를 입력하세요"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2940,30 +2940,30 @@ msgstr "유형:"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to convert captured image from {0} to a jpeg"
-msgstr ""
+msgstr "{0} 에서 캡처한 이미지를 jpeg로 변환할 수 없습니다."
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to download the picture"
-msgstr ""
+msgstr "사진을 다운로드할 수 없습니다."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to export file"
-msgstr ""
+msgstr "파일을 내보낼 수 없습니다"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to load audio"
-msgstr ""
+msgstr "오디오를 불러올 수 없습니다"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load picture"
-msgstr ""
+msgstr "사진을 불러올 수 없습니다"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to open file"
-msgstr ""
+msgstr "파일을 열 수 없습니다"
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2972,7 +2972,7 @@ msgstr "FieldWorks에서 열 수 없음"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to upload the picture"
-msgstr ""
+msgstr "사진을 업로드할 수 없습니다."
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
@@ -3015,7 +3015,7 @@ msgstr "알 수 없는 업데이트 결과"
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
-msgstr ""
+msgstr "읽지 않음"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -3050,11 +3050,11 @@ msgstr "업데이트 사용 가능: {0}"
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update downloaded. Restart to apply."
-msgstr ""
+msgstr "업데이트가 다운로드되었습니다. 적용하려면 재시작하십시오."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update downloading in the background. Restart to apply once it's finished."
-msgstr ""
+msgstr "백그라운드에서 업데이트를 다운로드 중입니다. 다운로드가 완료되면 재시작하여 적용하십시오."
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3075,19 +3075,19 @@ msgstr "업데이트"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
-msgstr ""
+msgstr "업로드 대기 중"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Uploaded"
-msgstr ""
+msgstr "업로드됨"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Uploaded pending files"
-msgstr ""
+msgstr "업로드 대기 중인 파일"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
-msgstr ""
+msgstr "이곳에서는 사진 업로드가 지원되지 않습니다."
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -3096,7 +3096,7 @@ msgstr "구성 요소를 다음과 같이 사용합니다."
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Verbose logging"
-msgstr ""
+msgstr "상세 로깅"
 
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
@@ -3125,11 +3125,11 @@ msgstr "보기"
 #. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "View Picture"
-msgstr ""
+msgstr "사진 보기"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "View the SIL privacy policy"
-msgstr ""
+msgstr "SIL 개인정보 처리방침 보기"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -3138,11 +3138,11 @@ msgstr "바이올렛"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
-msgstr ""
+msgstr "또한, 어떤 문제가 발생했는지에 대한 기술적 세부 정보가 포함된 오류 보고서를 수집합니다. 보고서를 전송하기 전에, 사전 내용이나 파일 이름, 기타 개인 정보로 추정되는 내용은 모두 삭제하도록 노력합니다."
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
-msgstr ""
+msgstr "당사는 FieldWorks Lite가 어떻게 사용되고 있는지 파악하고 개선이 필요한 부분을 확인하기 위해 사용 현황 데이터를 수집합니다. Lexbox에 로그인되어 있을 경우 해당 데이터는 귀하의 계정과 연동되며, 귀하의 사전 내용은 절대 포함되지 않습니다."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
@@ -3200,11 +3200,11 @@ msgstr "단어 또는 의미:"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
-msgstr ""
+msgstr "'Word'와 'Display'가 모두 누락된 단어는 다음과 같습니다."
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
-msgstr ""
+msgstr "로그 파일에 로그인 진단 정보를 포함한 상세한 로그를 기록합니다. 지원팀에서 필요한 정보를 모두 확보한 후에는 이 기능을 다시 비활성화하십시오."
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
@@ -3255,7 +3255,7 @@ msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
-msgstr ""
+msgstr "현재 오프라인 상태입니다."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
