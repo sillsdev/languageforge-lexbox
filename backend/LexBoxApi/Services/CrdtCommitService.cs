@@ -37,7 +37,7 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
     {
         return dbContext.CrdtCommits(projectId)
         //don't need to include change entities since they're not owned in lexbox so they will get included automatically
-            .GetMissingCommits<ServerCommit, ServerJsonChange>(localState, remoteState, false);
+            .GetCommitsMissingFromRemote<ServerCommit, ServerJsonChange>(localState, remoteState, false);
     }
 
     public async Task<int> ApproximatelyCountMissingCommits(Guid projectId, SyncState localState, SyncState remoteState)
@@ -45,24 +45,27 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         var linqToDbContext = dbContext.CreateLinqToDBContext();
         var commits = linqToDbContext.GetTable<ServerCommit>().Where(c => c.ProjectId == projectId);
         var count = 0;
-        foreach (var (clientId, localTimestamp) in localState.ClientHeads)
+        //mirrors the send decision in Harmony's QueryHelpers.GetCommitsMissingFromRemote
+        foreach (var local in localState.ClientStates)
         {
+            var remote = remoteState.GetClientState(local.ClientId);
             //client is new to the other history
-            if (!remoteState.ClientHeads.TryGetValue(clientId, out var otherTimestamp))
+            if (remote is null)
             {
+                count += local.CommitCount;
+            }
+            //client has newer history than the other history, an older peer only reports its timestamp
+            else if (local.MaxTimestamp > remote.MaxTimestamp)
+            {
+                var otherDt = DateTimeOffset.FromUnixTimeMilliseconds(remote.MaxTimestamp);
                 count += await commits
-                    .DefaultOrder()
-                    .Where(c => c.ClientId == clientId)
+                    .Where(c => c.ClientId == local.ClientId && c.HybridDateTime.DateTime > otherDt)
                     .CountAsync();
             }
-            //client has newer history than the other history
-            else if (localTimestamp > otherTimestamp)
+            //same head but different commits, the whole client history is sent
+            else if (!remote.OnlyHasTimestamp && local != remote && local.CommitCount >= remote.CommitCount)
             {
-                var otherDt = DateTimeOffset.FromUnixTimeMilliseconds(otherTimestamp);
-                count += await commits
-                    .DefaultOrder()
-                    .Where(c => c.ClientId == clientId && c.HybridDateTime.DateTime > otherDt)
-                    .CountAsync();
+                count += local.CommitCount;
             }
         }
         return count;

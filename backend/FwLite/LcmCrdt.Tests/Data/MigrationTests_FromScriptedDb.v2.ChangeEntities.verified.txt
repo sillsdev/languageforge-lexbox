@@ -10,7 +10,8 @@
       "ComponentEntryId": "00edefeb-173e-45cd-836c-eea2ba514429",
       "ComponentSenseId": null,
       "EntityId": "a4a74738-3914-43ca-8c25-bee34eb517b7"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -22,7 +23,8 @@
         "en": "Compound"
       },
       "EntityId": "c36f55ed-d1ea-4069-90b3-3f35ff696273"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 1,
@@ -34,7 +36,8 @@
         "en": "Unspecified"
       },
       "EntityId": "eeb78fce-6009-4932-aaa6-85faeb180c69"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -62,7 +65,8 @@
       "MorphType": "Stem",
       "HomographNumber": 0,
       "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -78,7 +82,8 @@
         }
       ],
       "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -94,7 +99,8 @@
         }
       ],
       "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -110,7 +116,8 @@
         "DeletedAt": null
       },
       "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -133,7 +140,8 @@
         }
       ],
       "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -156,7 +164,8 @@
         }
       ],
       "EntityId": "00edefeb-173e-45cd-836c-eea2ba514429"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -184,7 +193,8 @@
       "MorphType": "Stem",
       "HomographNumber": 0,
       "EntityId": "75050583-70d7-4605-a6e6-872b8f36c482"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -212,7 +222,8 @@
       "MorphType": "Stem",
       "HomographNumber": 0,
       "EntityId": "9e84db09-1885-4bbb-9482-4891a46f6f49"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -240,7 +251,8 @@
       "MorphType": "Stem",
       "HomographNumber": 0,
       "EntityId": "d9f70cf9-a479-4141-92e5-44155d063da2"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 2,
@@ -264,7 +276,8 @@
       "Translation": {},
       "Reference": null,
       "EntityId": "135d7c84-95d8-4707-a400-e1f3619d90fb"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -287,7 +300,8 @@
         }
       ],
       "EntityId": "135d7c84-95d8-4707-a400-e1f3619d90fb"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -310,7 +324,8 @@
         }
       ],
       "EntityId": "135d7c84-95d8-4707-a400-e1f3619d90fb"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -333,7 +348,8 @@
         }
       ],
       "EntityId": "135d7c84-95d8-4707-a400-e1f3619d90fb"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 2,
@@ -357,7 +373,8 @@
       "Translation": {},
       "Reference": null,
       "EntityId": "288d64c3-93f9-48a2-a014-d8773369b4a8"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 2,
@@ -381,7 +398,8 @@
       "Translation": {},
       "Reference": null,
       "EntityId": "9aa9f5a4-faea-45e9-bee7-42929eebf691"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 2,
@@ -405,7 +423,8 @@
       "Translation": {},
       "Reference": null,
       "EntityId": "d9d515e8-d695-44c3-9766-afbeab8c470f"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -418,7 +437,8 @@
       },
       "Predefined": true,
       "EntityId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 3,
@@ -436,7 +456,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "1bd42665-0610-4442-8d8d-7c666fee3a6d"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 4,
@@ -454,7 +475,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 5,
@@ -472,7 +494,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 6,
@@ -490,7 +513,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -508,7 +532,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "63403699-07c1-43f3-a47c-069d6e4316e5"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 1,
@@ -526,7 +551,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "999581c4-1611-4acb-ae1b-5e6c1dfe6f0c"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 2,
@@ -544,7 +570,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "dc1a2c6f-1b32-4631-8823-36dacc8cb7bb"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 1,
@@ -571,7 +598,8 @@
       "SemanticDomains": [],
       "Pictures": null,
       "EntityId": "1b423127-deb2-468d-8100-e1f1bff20826"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 1,
@@ -598,7 +626,8 @@
       "SemanticDomains": [],
       "Pictures": null,
       "EntityId": "241d95a7-6d90-411b-8569-5648cc40b42b"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 1,
@@ -625,7 +654,8 @@
       "SemanticDomains": [],
       "Pictures": null,
       "EntityId": "b9440091-a9fc-4769-82b1-2ee8d030808d"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -641,7 +671,8 @@
         }
       ],
       "EntityId": "b9440091-a9fc-4769-82b1-2ee8d030808d"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -664,7 +695,8 @@
         }
       ],
       "EntityId": "b9440091-a9fc-4769-82b1-2ee8d030808d"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -674,7 +706,8 @@
       "$type": "SetPartOfSpeechChange",
       "PartOfSpeechId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
       "EntityId": "b9440091-a9fc-4769-82b1-2ee8d030808d"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -696,7 +729,8 @@
         "Predefined": true
       },
       "EntityId": "b9440091-a9fc-4769-82b1-2ee8d030808d"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 1,
@@ -723,7 +757,8 @@
       "SemanticDomains": [],
       "Pictures": null,
       "EntityId": "c77d7553-209d-45be-a83e-d07e69808873"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -768,7 +803,8 @@
       "Type": 1,
       "Order": 1,
       "EntityId": "0b76099f-a102-4d24-8fd7-2c44b6eb3623"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -813,7 +849,8 @@
       "Type": 0,
       "Order": 1,
       "EntityId": "33c8a15a-1bd4-429e-a400-3304a3e1d997"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -858,7 +895,8 @@
       "Type": 0,
       "Order": 3,
       "EntityId": "485bd12f-976e-40df-b66c-16d70ee916fa"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -903,7 +941,8 @@
       "Type": 0,
       "Order": 2,
       "EntityId": "9fd79197-95ef-46d7-81a8-bb21aa2579c0"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -948,7 +987,8 @@
       "Type": 1,
       "Order": 3,
       "EntityId": "abeaeb03-1a56-49d5-8cc8-a3afe5ffe89e"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -993,6 +1033,7 @@
       "Type": 1,
       "Order": 2,
       "EntityId": "d4078989-6c7b-4cc5-8501-ce968405484a"
-    }
+    },
+    "AuthoredModelVersion": 0
   }
 ]
