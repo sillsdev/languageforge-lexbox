@@ -78,6 +78,7 @@
           bind:value={sense.partOfSpeech}
           options={partsOfSpeech.current}
           labelSelector={(pos) => partsOfSpeech.getLabel(pos)}
+          clearable="row"
           idSelector="id"
           {readonly} />
       {@render partOfSpeechDescription?.()}

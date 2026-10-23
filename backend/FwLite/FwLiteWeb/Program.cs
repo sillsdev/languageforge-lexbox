@@ -1,4 +1,5 @@
 
+using FwLiteShared.Analytics;
 using FwLiteShared.Services;
 using FwLiteWeb;
 using Microsoft.Extensions.Options;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Options;
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 
 var app = FwLiteWebServer.SetupAppServer(new() { Args = args });
+UnhandledExceptionLogging.Register(app.Services, app.Logger);
 await using (app)
 {
     await app.StartAsync();

@@ -4,16 +4,11 @@
 
 ## Build & Test
 
+`dotnet build` takes one project: pass the `.csproj` you need (the test project when testing), never a folder (MSB1003/MSB1008). Fast FwLite builds and test timings are in `FwLite/AGENTS.md`.
+
 ```bash
-# Build all backend
-dotnet build
-
-# Run all tests
-dotnet test
-
-# Build specific project
 dotnet build LexBoxApi/LexBoxApi.csproj
-dotnet build FwLite/FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0.19041.0
+dotnet test Testing/Testing.csproj --filter "FullyQualifiedName~MyTestClass"
 ```
 
 ## Project Structure
@@ -33,6 +28,7 @@ dotnet build FwLite/FwLiteMaui/FwLiteMaui.csproj --framework net10.0-windows10.0
 Harmony is consumed as a **NuGet package** by default (`SIL.Harmony`, `SIL.Harmony.Core`, `SIL.Harmony.Linq2db` — versions pinned in `Directory.Packages.props`).
 
 To build against local Harmony source (e.g. when developing the CRDT substrate), clone [sillsdev/harmony](https://github.com/sillsdev/harmony) as a sibling repo (`../harmony`), copy `Directory.Build.props.user.example` to `Directory.Build.props.user`, and set `UseHarmonySource=true`. Or pass `-p:UseHarmonySource=true` for a one-off build.
+
 
 ## Code Conventions
 

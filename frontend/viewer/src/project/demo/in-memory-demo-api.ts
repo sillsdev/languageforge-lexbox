@@ -48,6 +48,7 @@ import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-b
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import {initProjectStorage} from '$lib/storage';
 import {MorphTypesService} from '$project/data/morph-types.svelte';
+import {useCustomViewService} from '$project/data/custom-view-service.svelte';
 import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
 import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
 import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
@@ -56,6 +57,17 @@ import type {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Model
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
 }
+
+// The clauses SearchFilter.svelte emits for "Entries missing...", with the backend's
+// semantics: a nested collection clause matches when any sense/example lacks the thing.
+const missingFilters: Record<string, (entry: IEntry) => boolean> = {
+  'Senses=null': e => !e.senses.length,
+  'Senses.SemanticDomains=null': e => e.senses.some(s => !s.semanticDomains?.length),
+  'Senses.PartOfSpeechId=': e => e.senses.some(s => !s.partOfSpeechId),
+  'Senses.ExampleSentences=null': e => e.senses.some(s => !s.exampleSentences?.length),
+  'Senses.ExampleSentences.Translations=null': e => e.senses.some(s => s.exampleSentences?.some(ex => !ex.translations?.length)),
+  'PublishIn=null': e => !e.publishIn?.length,
+};
 
 /** The demo plays the role of the server; it mirrors the backend's 10 MB upload limit. */
 const DEMO_FILE_SIZE_LIMIT = 10 * 1024 * 1024;
@@ -131,6 +143,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     });
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
+    const customViewService = useCustomViewService();
     window.__PLAYWRIGHT_UTILS__ = {
       demoApi: inMemoryLexboxApi,
       async setWrite(write: boolean) {
@@ -141,6 +154,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         hasHardwareKeyboard = value;
         refreshPlatformFeatures();
       },
+      addCustomView: (customView: ICustomView) => customViewService.add(customView),
     };
 
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
@@ -503,6 +517,14 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         (entry.citationForm[exemplarWs] ?? entry.lexemeForm[exemplarWs] ?? '')
           ?.toLocaleLowerCase()
           ?.startsWith(lowerExemplar));
+    }
+    const gridifyFilter = options.filter?.gridifyFilter;
+    if (gridifyFilter) {
+      // Only the "Missing ..." clauses are emulated; other clauses are ignored.
+      for (const clause of gridifyFilter.split(',').map(c => c.trim())) {
+        const matches = missingFilters[clause];
+        if (matches) entries = entries.filter(matches);
+      }
     }
     return entries;
   }

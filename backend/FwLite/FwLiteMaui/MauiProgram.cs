@@ -1,4 +1,6 @@
+using FwLiteShared.Analytics;
 using FwLiteShared.Services;
+using LcmCrdt.Culture;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -129,21 +131,8 @@ public static class MauiProgram
         logger.LogInformation("App started, {Version}", AppVersion.Version);
         FwLiteMauiConfiguration.LogSettingsFile(
             app.Services.GetRequiredService<IOptions<FwLiteMauiConfig>>().Value.SettingsFilePath, logger);
-        AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-        {
-            if (e.ExceptionObject is Exception exception)
-            {
-                logger.LogError(exception, "Unhandled exception");
-            }
-            else
-            {
-                logger.LogError("Unhandled exception");
-            }
-        };
-        TaskScheduler.UnobservedTaskException += (sender, e) =>
-        {
-            logger.LogError(e.Exception, "Unobserved task exception");
-        };
+        IcuInit.TryInitialize(logger);
+        UnhandledExceptionLogging.Register(app.Services, logger);
         return app;
     }
 }

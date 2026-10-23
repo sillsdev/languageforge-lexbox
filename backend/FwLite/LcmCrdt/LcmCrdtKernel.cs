@@ -62,6 +62,7 @@ public static class LcmCrdtKernel
 
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
+        services.AddSingleton<IWritingSystemCollatorProvider, WritingSystemCollatorProvider>();
         services.AddSingleton<ProjectImporter>();
         services.AddScoped<SnapshotAtCommitService>();
         services.AddSingleton<SetupCollationInterceptor>();
@@ -90,6 +91,13 @@ public static class LcmCrdtKernel
         services.AddScoped<CrdtMorphTypeApi>();
         services.AddScoped<CrdtPartsOfSpeechApi>();
         services.AddScoped<CrdtComplexFormTypesApi>();
+        services.AddScoped<CrdtEntryApi>();
+        services.AddScoped<CrdtSenseApi>();
+        services.AddScoped<CrdtExampleSentenceApi>();
+        services.AddScoped<CrdtPictureApi>();
+        services.AddScoped<CrdtMediaApi>();
+        services.AddScoped<CrdtCustomViewApi>();
+        services.AddScoped<CrdtCommentApi>();
 
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
@@ -416,6 +424,73 @@ public static class LcmCrdtKernel
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
+
+        // Released model versions must never change: list a new or modified change type in a new version.
+        config.ModelVersionBuilder
+            .Add(0, "Before model versions", v => v
+                .Change<JsonPatchChange<Entry>>()
+                .Change<JsonPatchChange<Sense>>()
+                .Change<JsonPatchChange<WritingSystem>>()
+                .Change<JsonPatchChange<PartOfSpeech>>()
+                .Change<JsonPatchChange<SemanticDomain>>()
+                .Change<JsonPatchChange<ComplexFormType>>()
+                .Change<JsonPatchChange<MorphType>>()
+                .Change<JsonPatchChange<Publication>>()
+                .Change<DeleteChange<Entry>>()
+                .Change<DeleteChange<Sense>>()
+                .Change<DeleteChange<WritingSystem>>()
+                .Change<DeleteChange<PartOfSpeech>>()
+                .Change<DeleteChange<SemanticDomain>>()
+                .Change<DeleteChange<ComplexFormType>>()
+                .Change<DeleteChange<ComplexFormComponent>>()
+                .Change<DeleteChange<Publication>>()
+                .Change<SetPartOfSpeechChange>()
+                .Change<MoveSenseToEntryChange>()
+                .Change<AddSemanticDomainChange>()
+                .Change<RemoveSemanticDomainChange>()
+                .Change<ReplaceSemanticDomainChange>()
+                .Change<CreateEntryChange>()
+                .Change<CreateSenseChange>()
+                .Change<CreateExampleSentenceChange>()
+                .Change<JsonPatchExampleSentenceChange>()
+                .Change<Changes.SetOrderChange<ExampleSentence>>()
+                .Change<MoveExampleSentenceToSenseChange>()
+                .Change<DeleteChange<ExampleSentence>>()
+                .Change<AddTranslationChange>()
+                .Change<RemoveTranslationChange>()
+                .Change<UpdateTranslationChange>()
+                .Change<SetFirstTranslationIdChange>()
+                .Change<CreateSensePictureChange>()
+                .Change<UpdateSensePictureChange>()
+                .Change<ReorderSensePictureChange>()
+                .Change<RemoveSensePictureChange>()
+                .Change<CreatePartOfSpeechChange>()
+                .Change<CreateSemanticDomainChange>()
+                .Change<CreateWritingSystemChange>()
+                .Change<CreatePublicationChange>()
+                .Change<SetMainPublicationChange>()
+                .Change<AddComplexFormTypeChange>()
+                .Change<AddEntryComponentChange>()
+                .Change<RemoveComplexFormTypeChange>()
+                .Change<AddPublicationChange>()
+                .Change<RemovePublicationChange>()
+                .Change<ReplacePublicationChange>()
+                .Change<CreateComplexFormType>()
+                .Change<CreateCustomViewChange>()
+                .Change<EditCustomViewChange>()
+                .Change<DeleteChange<CustomView>>()
+                .Change<CreateCommentThreadChange>()
+                .Change<CreateUserCommentChange>()
+                .Change<EditUserCommentChange>()
+                .Change<SetCommentThreadStatusChange>()
+                .Change<DeleteChange<CommentThread>>()
+                .Change<DeleteChange<UserComment>>()
+                .Change<CreateMorphTypeChange>()
+                .Change<Changes.SetOrderChange<Sense>>()
+                .Change<Changes.SetOrderChange<ComplexFormComponent>>()
+                .Change<Changes.SetOrderChange<WritingSystem>>()
+                //registered by AddRemoteResourceEntity below, or AddCrdtRemoteResources in DI
+                .RemoteResourceChanges<LcmFileMetadata>());
 
         // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
         // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the

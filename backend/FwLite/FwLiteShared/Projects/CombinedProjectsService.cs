@@ -192,8 +192,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     [JSInvokable]
     public async Task DownloadProject(ProjectModel project)
     {
-        var server = project.Server ?? throw new ArgumentNullException($"{nameof(project.Server)} is null for project {project.Code}");
-        var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project {project.Code}");
+        var server = project.Server ?? throw new ArgumentNullException($"{nameof(project.Server)} is null for project '{project.Code}'");
+        var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project '{project.Code}'");
         var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
         await keepAwake.RunAsync(
             new($"Downloading project {project.Name}"),

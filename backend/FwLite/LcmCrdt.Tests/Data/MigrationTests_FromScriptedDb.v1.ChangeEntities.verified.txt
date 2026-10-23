@@ -9,7 +9,8 @@
         "en": "Compound"
       },
       "EntityId": "c36f55ed-d1ea-4069-90b3-3f35ff696273"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 1,
@@ -21,7 +22,8 @@
         "en": "Unspecified"
       },
       "EntityId": "eeb78fce-6009-4932-aaa6-85faeb180c69"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -49,7 +51,8 @@
       "MorphType": null,
       "HomographNumber": 0,
       "EntityId": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 2,
@@ -73,7 +76,8 @@
       "Translation": {},
       "Reference": null,
       "EntityId": "30a0dcc4-06b1-4402-b78e-745712c4cd2d"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -86,7 +90,8 @@
       },
       "Predefined": true,
       "EntityId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -104,7 +109,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d0"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 1,
@@ -122,7 +128,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d1"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 2,
@@ -140,7 +147,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d2"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 3,
@@ -158,7 +166,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d3"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 4,
@@ -176,7 +185,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 5,
@@ -194,7 +204,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 6,
@@ -212,7 +223,8 @@
       "OcmCodes": null,
       "LouwNidaCodes": null,
       "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 1,
@@ -239,7 +251,8 @@
       "SemanticDomains": [],
       "Pictures": null,
       "EntityId": "d510aa82-5557-4dd4-8b1f-1ec89facb979"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -279,10 +292,13 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 1,
       "Order": 0,
       "EntityId": "1d6f788d-b5a7-4dd8-bdbc-e10b6ac78ef7"
-    }
+    },
+    "AuthoredModelVersion": 0
   },
   {
     "Index": 0,
@@ -322,9 +338,12 @@
         "Y",
         "Z"
       ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
       "Type": 0,
       "Order": 0,
       "EntityId": "e8b2b514-e1ee-4a2b-9b52-6e32291aa407"
-    }
+    },
+    "AuthoredModelVersion": 0
   }
 ]

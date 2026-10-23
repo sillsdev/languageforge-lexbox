@@ -118,7 +118,7 @@ public class MauiTroubleshootingService(
     public async Task ShareCrdtProject(string projectCode)
     {
         var crdtProject = projectsService.GetProject(projectCode);
-        if (crdtProject is null) throw new ArgumentException($"Project {projectCode} not found");
+        if (crdtProject is null) throw new ArgumentException($"Project '{projectCode}' not found");
         var filePath = crdtProject.DbPath;
         var shareTitle = $"FieldWorks Lite project {projectCode}";
         await _share.RequestAsync(new ShareFileRequest(shareTitle, new ShareFile(filePath, "application/x-sqlite3"))

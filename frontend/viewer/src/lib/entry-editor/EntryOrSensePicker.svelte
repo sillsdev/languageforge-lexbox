@@ -63,7 +63,7 @@
   const collapsedSelectionPreview = $derived.by(() => {
     if (!selectedEntry) return '';
     if (!selectedSense) {
-      return writingSystemService.headword(selectedEntry) || '';
+      return writingSystemService.viewBestHeadword(selectedEntry, viewService.currentView) || '';
     }
     return writingSystemService.firstGloss(selectedSense) || writingSystemService.firstDef(selectedSense) || '';
   });

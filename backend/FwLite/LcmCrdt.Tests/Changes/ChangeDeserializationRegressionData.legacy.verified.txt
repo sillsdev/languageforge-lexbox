@@ -1470,5 +1470,35 @@
       "LouwNidaCodes": null,
       "EntityId": "61d1a336-fe39-18b5-452a-4b192946cc51"
     }
+  },
+  {
+    "Input": {
+      "$type": "CreateWritingSystemChange",
+      "WsId": "zms",
+      "Name": "quantify",
+      "Abbreviation": "Ergonomic",
+      "Font": "software",
+      "Exemplars": [
+        "Berkshire"
+      ],
+      "Type": 1,
+      "Order": 0.7988004089201804,
+      "EntityId": "0fccfaaa-1e55-f6fb-966f-5c1e6caedf45"
+    },
+    "Output": {
+      "$type": "CreateWritingSystemChange",
+      "WsId": "zms",
+      "Name": "quantify",
+      "Abbreviation": "Ergonomic",
+      "Font": "software",
+      "Exemplars": [
+        "Berkshire"
+      ],
+      "IcuCollationRules": null,
+      "SystemCollationLocale": null,
+      "Type": 1,
+      "Order": 0.7988004089201804,
+      "EntityId": "0fccfaaa-1e55-f6fb-966f-5c1e6caedf45"
+    }
   }
 ]
