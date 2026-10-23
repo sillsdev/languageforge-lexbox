@@ -1,4 +1,5 @@
 using FwLiteMaui.Services;
+using LcmCrdt;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -28,6 +29,7 @@ public class MauiTroubleshootingServiceTests
 
         _service = new MauiTroubleshootingService(
             _configMock.Object,
+            Options.Create(new LcmCrdtConfig { ProjectPath = "test_project_dir" }),
             Mock.Of<ILogger<MauiTroubleshootingService>>(),
             null!, // passing null for CrdtProjectsService as we aren't testing ShareCrdtProject yet
             _launcherMock.Object,
@@ -42,7 +44,7 @@ public class MauiTroubleshootingServiceTests
         var result = await _service.TryOpenDataDirectory();
 
         result.Should().BeTrue();
-        var expectedUri = "file://" + _configMock.Object.Value.BaseDataDir;
+        var expectedUri = "file://test_project_dir";
         _browserMock.Verify(b => b.OpenAsync(It.Is<Uri>(u => u.OriginalString == expectedUri), It.IsAny<BrowserLaunchOptions>()), Times.Once);
     }
 
