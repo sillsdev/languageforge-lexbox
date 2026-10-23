@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-28 10:55\n"
+"PO-Revision-Date: 2026-10-23 15:10\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -23,16 +23,16 @@ msgstr ""
 #. {0} = number of changes (e.g., 1, 5, 10)
 #: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
-msgstr "– ({0} thay đổi)"
+msgstr "– ({0} các thay đổi)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
-msgstr ""
+msgstr "(đã chỉnh sửa)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
-msgstr ""
+msgstr "(không rõ)"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -54,7 +54,7 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
-msgstr ""
+msgstr "{0} các loại hoạt động"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -64,7 +64,7 @@ msgstr "{0} trước"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
-msgstr ""
+msgstr "{0} tác giả"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -73,11 +73,11 @@ msgstr "{0} MB"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
-msgstr ""
+msgstr "{0} các câu trả lời"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "{0} resolved"
-msgstr ""
+msgstr "{0} đã giải quyết"
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -93,7 +93,7 @@ msgstr "{num, plural, other {# thay đổi}}"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
-msgstr ""
+msgstr "{num, plural, one {# còn 1 lượt tham gia} other {# còn 1 lượt tham gia}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -107,17 +107,17 @@ msgstr "{num, plural, other {# commit FieldWorks Lite mới}}"
 
 #: src/project/browse/filter/UnreadCommentBadge.svelte
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
-msgstr ""
+msgstr "{num, plural, one {# bình luận chưa đọc} other {# bình luận chưa đọc}}"
 
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
-msgstr ""
+msgstr "{num, plural, one {# từ tiếp theo} other {# các từ tiếp theo}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
-msgstr ""
+msgstr "{num, plural, one {Xem thêm #...} other {Xem thêm #...}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -136,7 +136,7 @@ msgstr "**Thuật ngữ đơn giản hơn** (ví dụ *Từ* thay vì *Hình th�
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
-msgstr ""
+msgstr "1 bình luận"
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -247,7 +247,7 @@ msgstr ""
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
 #: src/project/browse/EntriesList.svelte
 msgid "Add to dictionary"
-msgstr ""
+msgstr "Thêm vào từ điển"
 
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -256,7 +256,7 @@ msgstr "Thêm Từ"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
-msgstr ""
+msgstr "Hãy thêm mục từ đầu tiên để bắt đầu xây dựng từ điển của bạn."
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
@@ -274,14 +274,14 @@ msgstr "Tất cả"
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All activity types"
-msgstr ""
+msgstr "Tất cả các loại hoạt động"
 
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
-msgstr ""
+msgstr "Tất cả các tác giả"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -299,11 +299,11 @@ msgstr "Phân tích"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr ""
+msgstr "Phân tích mã nguồn hệ thống"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr ""
+msgstr "Các hệ thống viết phân tích"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
@@ -432,7 +432,7 @@ msgstr "Duyệt"
 
 #: src/project/browse/BrowseView.svelte
 msgid "Browse view failed"
-msgstr ""
+msgstr "Không thể hiển thị chế độ xem"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Camera"
@@ -534,7 +534,7 @@ msgstr "Đóng Từ điển"
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 msgid "Code"
-msgstr ""
+msgstr "Mã"
 
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
@@ -552,7 +552,7 @@ msgstr ""
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
-msgstr ""
+msgstr "Bình luận"
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
@@ -650,17 +650,17 @@ msgstr ""
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
-msgstr ""
+msgstr "Hiện tại không thể đồng bộ hóa — các thay đổi trên máy của bạn vẫn được lưu giữ an toàn."
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
 msgid "Create"
-msgstr ""
+msgstr "Tạo"
 
 #. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
-msgstr ""
+msgstr "Tạo một dự án FieldWorks Lite mới"
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -734,7 +734,7 @@ msgstr "Bảng điều khiển"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard failed to load"
-msgstr ""
+msgstr "Không thể tải trang tổng quan"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -896,16 +896,16 @@ msgstr "Đang tải xuống..."
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
-msgstr ""
+msgstr "ví dụ: th, sw"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
-msgstr ""
+msgstr "Chỉnh sửa"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
-msgstr ""
+msgstr "Chỉnh sửa bình luận"
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -923,7 +923,7 @@ msgstr "Biên tập viên"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
-msgstr ""
+msgstr "Bình luận trống"
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -945,11 +945,11 @@ msgstr "Các mục còn thiếu..."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
-msgstr ""
+msgstr "Các mục có ví dụ"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
-msgstr ""
+msgstr "Các mục từ có nghĩa"
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
@@ -1030,7 +1030,7 @@ msgstr "Câu ví dụ"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
-msgstr ""
+msgstr "Các câu ví dụ"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -1050,7 +1050,7 @@ msgstr "Tải xuống {0} thất bại"
 #: src/lib/activity/ActivityView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "Failed to load activity"
-msgstr ""
+msgstr "Không thể tải hoạt động"
 
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
@@ -1533,11 +1533,11 @@ msgstr ""
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr ""
+msgstr "Hoạt động đang tải"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
-msgstr ""
+msgstr "Đang tải bình luận..."
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1585,7 +1585,7 @@ msgstr "Đăng nhập"
 #. Toast shown when the user closes or cancels the login dialog before signing in.
 #: src/lib/auth/LoginButton.svelte
 msgid "Login cancelled."
-msgstr ""
+msgstr "Việc đăng nhập đã bị hủy."
 
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
@@ -1766,11 +1766,11 @@ msgstr "Mục mới"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
-msgstr ""
+msgstr "Dự án mới"
 
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
-msgstr ""
+msgstr "Dự án mới (Chỉ dành cho người dùng trong nước)"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1784,7 +1784,7 @@ msgstr "Từ mới"
 #. Sort option in activity view — most recent commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Newest first"
-msgstr ""
+msgstr "Hiển thị theo thứ tự từ mới nhất"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
@@ -1792,7 +1792,7 @@ msgstr "Tiếp theo"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Next milestone: {0}. {1} to go."
-msgstr ""
+msgstr "Cột mốc tiếp theo: {0}.  Còn {1} nữa."
 
 #. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
@@ -1802,15 +1802,15 @@ msgstr ""
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
-msgstr ""
+msgstr "Không có hoạt động nào phù hợp với các tiêu chí lọc này"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
-msgstr ""
+msgstr "Không có loại hoạt động nào"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
-msgstr ""
+msgstr "Chưa có hệ thống viết phân tích nào được cấu hình."
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -1820,7 +1820,7 @@ msgstr "Không có âm thanh"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
-msgstr ""
+msgstr "Không có tác giả"
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1902,7 +1902,7 @@ msgstr "Không có chủ đề, không thể tạo mới {0}"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
-msgstr ""
+msgstr "Chưa có hệ thống chữ viết bản địa nào được cấu hình."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1976,7 +1976,7 @@ msgstr ""
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Oldest first"
-msgstr ""
+msgstr "Xếp theo thứ tự từ cũ nhất"
 
 #. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2006,7 +2006,7 @@ msgstr "Mở Thư mục Dữ liệu"
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
 msgid "Open in browser"
-msgstr ""
+msgstr "Mở trong trình duyệt"
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2401,7 +2401,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
-msgstr ""
+msgstr "Lưu"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Save and apply"
@@ -2553,7 +2553,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
-msgstr ""
+msgstr "Vui lòng đăng nhập để thêm bình luận."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar words already exist"
@@ -2618,7 +2618,7 @@ msgstr "Bỏ qua"
 
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
-msgstr ""
+msgstr "Đã xảy ra sự cố"
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
@@ -2695,12 +2695,12 @@ msgstr "Đã đồng bộ"
 #. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced newest"
-msgstr ""
+msgstr "Đã đồng bộ hóa phiên bản mới nhất"
 
 #. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced oldest"
-msgstr ""
+msgstr "Đã đồng bộ hóa bản cũ nhất"
 
 #. Status showing sync source server
 #: src/home/HomeView.svelte
@@ -2740,7 +2740,7 @@ msgstr "Không tìm thấy nhiệm vụ: {0}"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task view failed"
-msgstr ""
+msgstr "Không thể hiển thị chế độ xem tác vụ"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -2755,7 +2755,7 @@ msgstr "Hãy cho chúng tôi biết về lỗi hoặc vấn đề bạn gặp ph
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Tell us how you work and what would help most. Your ideas guide what we build."
-msgstr ""
+msgstr "Hãy chia sẻ với chúng tôi cách bạn làm việc và điều gì sẽ hữu ích nhất đối với bạn. Những ý tưởng của bạn sẽ định hướng cho những gì chúng tôi phát triển."
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
@@ -2868,7 +2868,7 @@ msgstr "Chuyển trạng thái ghim"
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
-msgstr ""
+msgstr "Tổng số bài dự thi"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -2892,7 +2892,7 @@ msgstr "Khắc phục sự cố"
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
-msgstr ""
+msgstr "Hãy thử lại"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
@@ -2995,7 +2995,7 @@ msgstr "Lỗi không xác định {0}"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Unknown error creating project"
-msgstr ""
+msgstr "Xảy ra lỗi không xác định khi tạo dự án"
 
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -3107,15 +3107,15 @@ msgstr "Tiếng địa phương"
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
-msgstr ""
+msgstr "Mã hệ thống chữ viết bản địa"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
-msgstr ""
+msgstr "Phải có hệ thống chữ viết bản địa"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
-msgstr ""
+msgstr "Các hệ thống chữ viết bản địa"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -3146,7 +3146,7 @@ msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
-msgstr ""
+msgstr "Bạn muốn xem gì ở đây?"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -3230,7 +3230,7 @@ msgstr "Các hệ chữ"
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
 msgid "You appear to be offline. Can you connect to {0}?"
-msgstr ""
+msgstr "Có vẻ như bạn đang ở chế độ ngoại tuyến. Bạn có thể truy cập vào trang {0} không?"
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3259,8 +3259,9 @@ msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
-msgstr ""
+msgstr "Bạn đã vượt qua mọi cột mốc. Thật là một thành tựu đáng tự hào!"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
-msgstr ""
+msgstr "Từ điển của bạn bắt đầu từ đây"
+
