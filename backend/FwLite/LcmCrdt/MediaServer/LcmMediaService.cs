@@ -9,6 +9,7 @@ using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Resource;
 using LcmCrdt.RemoteSync;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Media;
 
@@ -20,6 +21,7 @@ public class LcmMediaService(
     IOptions<HarmonyConfig> options,
     IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider,
+    IDbContextFactory<LcmCrdtDbContext> dbContextFactory,
     ILogger<LcmMediaService> logger
 ) : IRemoteResourceService<LcmFileMetadata>
 {
@@ -244,6 +246,98 @@ public class LcmMediaService(
             File.Delete(localPath);
             throw;
         }
+    }
+
+    /// <summary>
+    /// What local sync needs to know about this project's media, from one snapshot.
+    /// </summary>
+    /// <returns>Cached: resources whose files this device has, to offer to another device.
+    /// NotCached: resources the project uses whose files this device doesn't have yet.</returns>
+    public async Task<(HarmonyResource<LcmFileMetadata>[] Cached, Guid[] NotCached)> MediaForLocalSync()
+    {
+        // AllResources is a full outer join of live resources and local copies: a local copy with no resource is a
+        // deleted picture's leftover file (the deletion came in by sync), which mustn't travel to other devices.
+        var all = await resourceService.AllResources();
+        var pendingUpload = (await resourceService.ListResourcesPendingUpload()).Select(r => r.Id).ToHashSet();
+        HarmonyResource<LcmFileMetadata>[] cached = [.. all.Where(r => r.Local && (r.Remote || pendingUpload.Contains(r.Id)) && File.Exists(r.LocalPath))];
+        Guid[] notCached = [.. all.Where(r => !r.Local).Select(r => r.Id)];
+        return (cached, notCached);
+    }
+
+    /// <summary>
+    /// Stores a file another device sent for a resource this project already knows, and records the local copy.
+    /// This makes no commit and leaves the resource's upload state alone: a picture still waiting to upload to
+    /// Lexbox stays pending, so it uploads from whichever device reaches Lexbox first.
+    /// </summary>
+    /// <returns>false if the resource is unknown or already cached here</returns>
+    public async Task<bool> AddLocalCopy(Guid resourceId, Stream content, string fileName)
+    {
+        var resource = await resourceService.GetResource(resourceId);
+        if (resource is null || resource.Local) return false;
+
+        var projectResourceCachePath = ProjectResourceCachePath;
+        Directory.CreateDirectory(projectResourceCachePath);
+        var name = MediaFileNames.MakeSafe(Path.GetFileName(resource.Metadata?.Filename ?? fileName));
+        var tempPath = Path.Combine(projectResourceCachePath, MediaFileNames.PartialPrefix + Guid.NewGuid().ToString("N"));
+        string? localPath = null;
+        try
+        {
+            await using (var localFile = File.Create(tempPath))
+            {
+                await content.CopyToAsync(localFile);
+            }
+            localPath = MoveToUniqueName(tempPath, Path.Combine(projectResourceCachePath, name));
+            await RecordLocalCopy(resourceId, localPath);
+            return true;
+        }
+        catch (DbUpdateException e)
+        {
+            // another copy (e.g. a download) recorded one first
+            logger.LogInformation(e, "Resource {ResourceId} was cached concurrently, discarding this copy", resourceId);
+            DeleteIfExists(localPath);
+            return false;
+        }
+        catch
+        {
+            DeleteIfExists(localPath);
+            throw;
+        }
+        finally
+        {
+            DeleteIfExists(tempPath);
+        }
+    }
+
+    // a download can take the same name between choosing it and moving there, so retry on a clash
+    private string MoveToUniqueName(string fromPath, string preferredPath)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            var localPath = EnsureUnique(preferredPath);
+            try
+            {
+                File.Move(fromPath, localPath);
+                return localPath;
+            }
+            catch (IOException) when (attempt < 5 && File.Exists(localPath))
+            {
+            }
+        }
+    }
+
+    private static void DeleteIfExists(string? path)
+    {
+        if (path is not null && File.Exists(path)) File.Delete(path);
+    }
+
+    // Workaround until Harmony has a public way to record a local copy without a commit (planned
+    // ResourceService.AddLocalCopy): ResourceService.DownloadResource does this internally, but needs a RemoteId,
+    // which a resource still waiting to upload doesn't have.
+    private async Task RecordLocalCopy(Guid resourceId, string localPath)
+    {
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        dbContext.Set<LocalResource>().Add(new LocalResource { Id = resourceId, LocalPath = Path.GetFullPath(localPath) });
+        await dbContext.SaveChangesAsync();
     }
 
     private string EnsureUnique(string filePath)

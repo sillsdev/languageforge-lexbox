@@ -14,6 +14,8 @@
   import {onErrorEvent} from '$lib/errors/global-errors';
   import {resource} from 'runed';
   import type {SyncTarget} from './sync-target';
+  import FolderSyncSection from './FolderSyncSection.svelte';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
 
   interface Props {
     syncStatus: SyncStatus;
@@ -38,6 +40,7 @@
   }: Props = $props();
 
   const service = useSyncStatusService();
+  const platformFeatures = usePlatformFeaturesService();
   const status = resource(() => syncCount, async (_, _prev, {signal}) => {
     const [pendingCommits, latestSyncedCommitDate] = await Promise.all([
       service.getLocalStatus(),
@@ -123,7 +126,7 @@
             variant="outline"
             class="border-primary text-primary hover:text-primary"
             loading={syncing === 'lite'}
-            disabled={syncing === 'classic'}
+            disabled={!!syncing && syncing !== 'lite'}
             onclick={onSyncClick}
             icon="i-mdi-sync"
             iconProps={{ class: 'size-5' }}>
@@ -164,3 +167,6 @@
     <p>{$t`Local`}</p>
   </div>
 </div>
+{#if platformFeatures.features.supportsFolderSync}
+  <FolderSyncSection bind:syncing onSynced={() => void status.refetch()} />
+{/if}

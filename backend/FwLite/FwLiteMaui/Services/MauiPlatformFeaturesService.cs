@@ -87,4 +87,37 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share)
         return Task.FromResult(true);
 #endif
     }
+
+    //Android needs storage access framework support first (deferred), and Apple hosts aren't desktop targets yet.
+    [JSInvokable]
+    public Task<bool> SupportsFolderSync()
+    {
+#if WINDOWS
+        return Task.FromResult(true);
+#else
+        return Task.FromResult(false);
+#endif
+    }
+
+    [JSInvokable]
+    public async Task<string?> PickFolder()
+    {
+#if WINDOWS
+        return await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+            var window = Application.Current?.Windows.FirstOrDefault()?.Handler?.PlatformView as Microsoft.UI.Xaml.Window
+                         ?? throw new InvalidOperationException("Could not find window");
+            var picker = new Windows.Storage.Pickers.FolderPicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder,
+            };
+            //WinUI pickers need an owner window, or they throw
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+            var folder = await picker.PickSingleFolderAsync();
+            return folder?.Path;
+        });
+#else
+        throw new NotSupportedException("Folder picking is only available on Windows");
+#endif
+    }
 }

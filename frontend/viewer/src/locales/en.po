@@ -133,10 +133,22 @@ msgstr "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning*
 msgid "1 reply"
 msgstr "1 reply"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "A different project with the code {0} is already on this device."
+msgstr "A different project with the code {0} is already on this device."
+
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "A new version of FieldWorks Lite is available."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it."
+msgstr "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
+msgstr "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "A similar word already exists"
@@ -638,6 +650,10 @@ msgstr "Couldn't get the FieldWorks Classic status from Lexbox."
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr "Couldn't sync right now — your local changes are safe."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Couldn't sync with the folder. Your local changes are safe."
+msgstr "Couldn't sync with the folder. Your local changes are safe."
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
@@ -1263,6 +1279,10 @@ msgstr "For any other inquiries, feel free to send us an email."
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
 msgstr "From active filter"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Get a project from a USB drive or another folder"
+msgstr "Get a project from a USB drive or another folder"
 
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
@@ -1981,6 +2001,10 @@ msgstr "Open"
 msgid "Open Data Directory"
 msgstr "Open Data Directory"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Open from folder..."
+msgstr "Open from folder..."
+
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
 msgid "Open in browser"
@@ -2002,6 +2026,10 @@ msgstr "Open in new Window"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Open Log file"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Opened {0} from the folder. You can remove the drive."
+msgstr "Opened {0} from the folder. You can remove the drive."
 
 #. Status message shown after the user clicks "Open in FieldWorks" while the handoff is in progress. "FieldWorks" is a product name — do not translate.
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2582,6 +2610,10 @@ msgstr "Size:"
 msgid "Skip"
 msgstr "Skip"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "Some media files couldn't be copied. They will be copied the next time you sync."
+msgstr "Some media files couldn't be copied. They will be copied the next time you sync."
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr "Something went wrong"
@@ -2648,6 +2680,18 @@ msgstr "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied 
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Sync FieldWorks Lite and FieldWorks Classic"
 
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with {0} again"
+msgstr "Sync with {0} again"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a USB drive or another folder"
+msgstr "Sync with a USB drive or another folder"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with folder..."
+msgstr "Sync with folder..."
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -2672,6 +2716,10 @@ msgstr "Synced oldest"
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
 msgstr "Synced with {0}"
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Synced with the folder. You can remove the drive."
+msgstr "Synced with the folder. You can remove the drive."
 
 #. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
@@ -2779,6 +2827,30 @@ msgstr "This entry may already exist"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "This file is only available remotely."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder doesn't hold a FieldWorks Lite project."
+msgstr "This folder doesn't hold a FieldWorks Lite project."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder has other files in it. Choose an empty folder or one used for syncing before."
+msgstr "This folder has other files in it. Choose an empty folder or one used for syncing before."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder holds a different project: {0}. Use Open from folder on the home screen to open it."
+msgstr "This folder holds a different project: {0}. Use Open from folder on the home screen to open it."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder holds a separate copy of this project that can't be merged with yours. Choose another folder."
+msgstr "This folder holds a separate copy of this project that can't be merged with yours. Choose another folder."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder is empty. Sync a project with it first, from the project's sync dialog."
+msgstr "This folder is empty. Sync a project with it first, from the project's sync dialog."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder's copy of the project shares no writing system with yours, so it can't be synced."
+msgstr "This folder's copy of the project shares no writing system with yours, so it can't be synced."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."

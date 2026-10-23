@@ -138,10 +138,22 @@ msgstr "**Terminología más simple** (p. ej. *Palabra* en lugar de *Forma del l
 msgid "1 reply"
 msgstr ""
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "A different project with the code {0} is already on this device."
+msgstr ""
+
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Una nueva versión de FieldWorks Lite está disponible."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "A similar word already exists"
@@ -642,6 +654,10 @@ msgstr ""
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Couldn't sync with the folder. Your local changes are safe."
 msgstr ""
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
@@ -1268,6 +1284,10 @@ msgstr "Para cualquier otra consulta, no dude en enviarnos un correo electrónic
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
 msgstr "De filtro activo"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Get a project from a USB drive or another folder"
+msgstr ""
 
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
@@ -1986,6 +2006,10 @@ msgstr "Abrir"
 msgid "Open Data Directory"
 msgstr "Directorio de datos abiertos"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Open from folder..."
+msgstr ""
+
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
 msgid "Open in browser"
@@ -2007,6 +2031,10 @@ msgstr "Abrir en una ventana nueva"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Abrir archivo Log"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Opened {0} from the folder. You can remove the drive."
+msgstr ""
 
 #. Status message shown after the user clicks "Open in FieldWorks" while the handoff is in progress. "FieldWorks" is a product name — do not translate.
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2587,6 +2615,10 @@ msgstr "Tamaño:"
 msgid "Skip"
 msgstr "Saltar"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "Some media files couldn't be copied. They will be copied the next time you sync."
+msgstr ""
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr ""
@@ -2653,6 +2685,18 @@ msgstr "Sincronización completa. {0} se aplicaron a FieldWorks Classic. {1} se 
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Sync FieldWorks Lite y FieldWorks Clásico"
 
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with {0} again"
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a USB drive or another folder"
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with folder..."
+msgstr ""
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -2677,6 +2721,10 @@ msgstr ""
 #: src/home/HomeView.svelte
 msgid "Synced with {0}"
 msgstr "Sincronizado con {0}"
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Synced with the folder. You can remove the drive."
+msgstr ""
 
 #. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
@@ -2783,6 +2831,30 @@ msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
+msgstr ""
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder doesn't hold a FieldWorks Lite project."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder has other files in it. Choose an empty folder or one used for syncing before."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder holds a different project: {0}. Use Open from folder on the home screen to open it."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder holds a separate copy of this project that can't be merged with yours. Choose another folder."
+msgstr ""
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder is empty. Sync a project with it first, from the project's sync dialog."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder's copy of the project shares no writing system with yours, so it can't be synced."
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
