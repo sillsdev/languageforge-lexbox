@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-23 17:48\n"
+"PO-Revision-Date: 2026-10-23 18:34\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -93,7 +93,7 @@ msgstr "{num, plural, other {#개 변경}}"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
-msgstr "{num, plural, one {남은 응모 건수 1건} other {남은 응모 건수}}"
+msgstr "{num, plural, one {남은 항목 #개} other {남은 항목 #개}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -117,7 +117,7 @@ msgstr "{num, plural, one {# 남은 단어 수} other {# 남은 단어 수}}"
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
-msgstr "{num, plural, one {더 보기...} other {더 보기...}}"
+msgstr "{num, plural, one {#개 더 보기...} other {#개 더 보기...}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -241,7 +241,7 @@ msgstr "먼저 몇 가지 항목을 추가해 보세요."
 
 #: src/project/tasks/TaskList.svelte
 msgid "Add some words first."
-msgstr "먼저 몇 마디를 적어보세요."
+msgstr "먼저 단어를 몇 개 추가해 보세요."
 
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
@@ -299,11 +299,11 @@ msgstr "분석"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr "시스템 코드 분석 작성"
+msgstr "분석 쓰기 시스템 코드"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr "분석 작성 시스템"
+msgstr "분석 쓰기 시스템"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
@@ -1201,7 +1201,7 @@ msgstr "‘표시 방식’에 다음을 입력하세요"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
-msgstr "Word에 입력하거나 다음 형식으로 표시"
+msgstr "'단어' 또는 '표시 방식'을 입력하세요"
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1320,7 +1320,7 @@ msgstr "항목으로 이동"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
-msgstr "Word로 이동"
+msgstr "단어로 이동"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1339,7 +1339,7 @@ msgstr "녹색"
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
-msgstr "하모니 스냅샷이 성공적으로 재생성되었습니다."
+msgstr "Harmony 스냅샷이 성공적으로 재생성되었습니다."
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has comments"
@@ -1533,7 +1533,7 @@ msgstr "파일 불러옴"
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr "로딩 중"
+msgstr "활동 불러오는 중"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
@@ -1654,7 +1654,7 @@ msgstr "미디어 매니저"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
-msgstr "인용 정보 누락 양식 {0}"
+msgstr "인용형 누락 {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1663,7 +1663,7 @@ msgstr "정의 누락 {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Display as {0}"
-msgstr "표시되지 않는 항목: {0}"
+msgstr "'표시 방식' 누락 {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1681,11 +1681,11 @@ msgstr "문법 정보가 누락되었습니다."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Headword {0}"
-msgstr "제목어 누락 {0}"
+msgstr "표제어 누락 {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Lexeme form {0}"
-msgstr "누락된 어소 양식 {0}"
+msgstr "어휘형 누락 {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of speech"
@@ -1770,7 +1770,7 @@ msgstr "새로운 프로젝트"
 
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
-msgstr "새로운 프로젝트 (지역 한정)"
+msgstr "새 프로젝트 (로컬 전용)"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1810,7 +1810,7 @@ msgstr "활동 유형 없음"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
-msgstr "분석 작성 시스템이 구성되어 있지 않습니다."
+msgstr "구성된 분석 쓰기 시스템이 없습니다."
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -1864,7 +1864,7 @@ msgstr "새 데이터 없음"
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "No open conversations"
-msgstr "공개적인 대화 없음"
+msgstr "열린 대화 없음"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
@@ -1886,7 +1886,7 @@ msgstr "구성된 서버 없음"
 #. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar entries found"
-msgstr "해당 항목과 일치하는 항목이 없습니다."
+msgstr "유사한 항목이 없습니다."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No similar entries found"
@@ -1902,7 +1902,7 @@ msgstr "제목이 없습니다, 새로 만들 수 없습니다 {0}"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
-msgstr "구성된 토착 문자 체계가 없습니다."
+msgstr "구성된 토착어 쓰기 시스템이 없습니다."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -2101,7 +2101,7 @@ msgstr "사진"
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
-msgstr "그림 동작"
+msgstr "사진 작업"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Picture not found"
@@ -2207,7 +2207,7 @@ msgstr "정의 기록하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Gloss"
-msgstr "용어 설명 기록하기"
+msgstr "글로스 기록하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form"
@@ -2219,19 +2219,19 @@ msgstr "어휘형 또는 인용형을 기록하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
-msgstr "단어 녹음하기"
+msgstr "단어 기록하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record an example sentence"
-msgstr "예문을 녹음하세요"
+msgstr "예문 기록하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
-msgstr "기록을 다음과 같이 표시"
+msgstr "표시 방식 기록하기"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
-msgstr "단어 기록 또는 다음과 같이 표시"
+msgstr "단어 또는 표시 방식 기록하기"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2260,17 +2260,17 @@ msgstr "프로젝트 새로 고침"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate"
-msgstr "재생"
+msgstr "다시 생성"
 
 #. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots"
-msgstr "하모니 스냅샷 재생성"
+msgstr "Harmony 스냅샷 재생성"
 
 #. Alert dialog title before starting Harmony snapshot regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots?"
-msgstr "하모니 스냅샷을 다시 생성할까요?"
+msgstr "Harmony 스냅샷을 다시 생성할까요?"
 
 #. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2285,12 +2285,12 @@ msgstr "검색 인덱스를 다시 생성할까요?"
 #. Blocking progress message while Harmony snapshots are being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
-msgstr "하모니 스냅샷을 다시 생성 중입니다. 이 작업에는 시간이 오래 걸릴 수 있으니 앱을 닫지 마십시오."
+msgstr "Harmony 스냅샷을 다시 생성 중입니다. 이 작업에는 시간이 오래 걸릴 수 있으니 앱을 닫지 마십시오."
 
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
-msgstr "검색 색인을 다시 생성 중입니다. 시간이 다소 걸릴 수 있으니 앱을 종료하지 마세요."
+msgstr "검색 인덱스를 다시 생성 중입니다. 시간이 다소 걸릴 수 있으니 앱을 종료하지 마세요."
 
 #. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2355,7 +2355,7 @@ msgstr "초기화"
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
-msgstr "결의"
+msgstr "해결"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -2549,7 +2549,7 @@ msgstr "보기 {0} 더보기..."
 
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
-msgstr "자막 표시 또는 숨기기"
+msgstr "설명 표시 또는 숨기기"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
@@ -2567,7 +2567,7 @@ msgstr "이미 유사한 항목이 있습니다."
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
-msgstr "비슷한 광택"
+msgstr "비슷한 글로스"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
@@ -2622,7 +2622,7 @@ msgstr "문제가 발생했습니다."
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
-msgstr "문자 체계 정렬"
+msgstr "정렬 쓰기 시스템"
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
@@ -2868,7 +2868,7 @@ msgstr "고정 토글"
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
-msgstr "총 응모 건수"
+msgstr "총 항목 수"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -3107,15 +3107,15 @@ msgstr "토착어"
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
-msgstr "토착 문자 체계 코드"
+msgstr "토착어 쓰기 시스템 코드"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
-msgstr "현지 언어 문자 체계가 필요합니다"
+msgstr "토착어 쓰기 시스템이 필요합니다"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
-msgstr "지역별 문자 체계"
+msgstr "토착어 쓰기 시스템"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -3200,7 +3200,7 @@ msgstr "단어 또는 의미:"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
-msgstr "'Word'와 'Display'가 모두 누락된 단어는 다음과 같습니다."
+msgstr "'단어'와 '표시 방식'이 모두 누락된 단어"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
