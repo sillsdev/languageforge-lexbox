@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-23 17:48\n"
+"PO-Revision-Date: 2026-10-23 18:34\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -93,7 +93,7 @@ msgstr "{num, plural, other {# thay đổi}}"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
-msgstr "{num, plural, one {# còn 1 lượt tham gia} other {# còn 1 lượt tham gia}}"
+msgstr "{num, plural, one {Còn # mục} other {Còn # mục}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -112,7 +112,7 @@ msgstr "{num, plural, one {# bình luận chưa đọc} other {# bình luận ch
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
-msgstr "{num, plural, one {# từ tiếp theo} other {# các từ tiếp theo}}"
+msgstr "{num, plural, one {Còn # từ} other {Còn # từ}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
@@ -136,7 +136,7 @@ msgstr "**Thuật ngữ đơn giản hơn** (ví dụ *Từ* thay vì *Hình th�
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
-msgstr "1 bình luận"
+msgstr "1 câu trả lời"
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -299,11 +299,11 @@ msgstr "Phân tích"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr "Phân tích mã nguồn hệ thống"
+msgstr "Mã hệ thống chữ viết phân tích"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr "Các hệ thống viết phân tích"
+msgstr "Các hệ thống chữ viết phân tích"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
@@ -934,7 +934,7 @@ msgstr "Kết thúc bằng"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Entries missing both Lexeme form and Citation form"
-msgstr "Các mục từ thiếu cả dạng từ tố và dạng trích dẫn"
+msgstr "Các mục thiếu cả Hình thức lexeme và Hình thức trích dẫn"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -1201,7 +1201,7 @@ msgstr "Điền vào mục “Hiển thị dưới dạng”"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
-msgstr "Điền vào Word hoặc Hiển thị dưới dạng"
+msgstr "Điền vào Từ hoặc Hiển thị dưới dạng"
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1320,7 +1320,7 @@ msgstr "Chuyển đến mục"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
-msgstr "Chuyển sang Word"
+msgstr "Chuyển đến từ"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1524,7 +1524,7 @@ msgstr "Tải ảnh lên"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded {0} file(s)"
-msgstr "Đã tải tệp(các tệp) từ địa chỉ {0}"
+msgstr "Đã tải {0} tệp"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded file"
@@ -1533,7 +1533,7 @@ msgstr "Đã tải tệp"
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr "Hoạt động đang tải"
+msgstr "Đang tải hoạt động"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
@@ -1650,11 +1650,11 @@ msgstr "Chi tiết tệp phương tiện"
 #: src/lib/media-manager/MediaManagerView.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Media Manager"
-msgstr "Quản lý Truyền thông"
+msgstr "Trình quản lý phương tiện"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
-msgstr "Mẫu thông tin trích dẫn còn thiếu {0}"
+msgstr "Thiếu hình thức trích dẫn {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1681,11 +1681,11 @@ msgstr "Thiếu thông tin ngữ pháp."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Headword {0}"
-msgstr "Thiếu từ khóa {0}"
+msgstr "Thiếu từ đầu mục {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Lexeme form {0}"
-msgstr "Thiếu dạng từ vị {0}"
+msgstr "Thiếu hình thức lexeme {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of speech"
@@ -1693,7 +1693,7 @@ msgstr "Thiếu loại từ"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Semantic domains"
-msgstr "Các lĩnh vực ngữ nghĩa còn thiếu"
+msgstr "Thiếu các miền ngữ nghĩa"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Word {0}"
@@ -1770,7 +1770,7 @@ msgstr "Dự án mới"
 
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
-msgstr "Dự án mới (Chỉ dành cho người dùng trong nước)"
+msgstr "Dự án mới (Chỉ cục bộ)"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1810,7 +1810,7 @@ msgstr "Không có loại hoạt động nào"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
-msgstr "Chưa có hệ thống viết phân tích nào được cấu hình."
+msgstr "Chưa có hệ thống chữ viết phân tích nào được cấu hình."
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -2088,7 +2088,7 @@ msgstr "Chọn “Thông tin ngữ pháp”."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick one or more Semantic domains"
-msgstr "Chọn một hoặc nhiều lĩnh vực ngữ nghĩa"
+msgstr "Chọn một hoặc nhiều miền ngữ nghĩa"
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
@@ -2199,7 +2199,7 @@ msgstr "Chỉ đọc"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
-msgstr "Điền vào mẫu trích dẫn"
+msgstr "Ghi lại hình thức trích dẫn"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Definition"
@@ -2211,11 +2211,11 @@ msgstr "Ghi lại định nghĩa thuật ngữ"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form"
-msgstr "Ghi lại dạng của một đơn vị từ vựng"
+msgstr "Ghi lại hình thức lexeme"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form or Citation form"
-msgstr "Ghi lại dạng từ vị hoặc dạng trích dẫn"
+msgstr "Ghi lại hình thức lexeme hoặc hình thức trích dẫn"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
@@ -2227,7 +2227,7 @@ msgstr "Ghi lại một câu ví dụ"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
-msgstr "Hiển thị bản ghi dưới dạng"
+msgstr "Ghi lại Hiển thị dưới dạng"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
@@ -2260,12 +2260,12 @@ msgstr "Làm mới Dự án"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate"
-msgstr "Tái tạo"
+msgstr "Tạo lại"
 
 #. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots"
-msgstr "Tái tạo các bản chụp nhanh Harmony"
+msgstr "Tạo lại các bản chụp nhanh Harmony"
 
 #. Alert dialog title before starting Harmony snapshot regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2280,12 +2280,12 @@ msgstr "Tạo lại chỉ mục tìm kiếm"
 #. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
-msgstr "Tái tạo chỉ mục tìm kiếm?"
+msgstr "Tạo lại chỉ mục tìm kiếm?"
 
 #. Blocking progress message while Harmony snapshots are being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
-msgstr "Đang khôi phục các bản chụp nhanh Harmony. Quá trình này có thể mất nhiều thời gian — xin đừng đóng ứng dụng."
+msgstr "Đang tạo lại các bản chụp nhanh Harmony. Quá trình này có thể mất nhiều thời gian — xin đừng đóng ứng dụng."
 
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2382,14 +2382,14 @@ msgstr "hoa hồng"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
-msgstr "Cùng một từ khóa"
+msgstr "Cùng từ đầu mục"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: only its lexeme form matches the typed text, while its citation form (shown as the headword) differs — deliberately NOT claiming "Same headword"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same lexeme form"
-msgstr "Cùng một dạng từ nguyên"
+msgstr "Cùng hình thức lexeme"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Same headword"
@@ -2549,7 +2549,7 @@ msgstr "Hiển thị thêm {0}..."
 
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
-msgstr "Hiển thị hoặc ẩn phụ đề"
+msgstr "Hiển thị hoặc ẩn chú thích"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
@@ -2567,14 +2567,14 @@ msgstr "Đã có các mục tương tự"
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
-msgstr "Độ bóng tương tự"
+msgstr "Ghi chú tương tự"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
 #. Badge on a possible-duplicate result: its headword partly matches the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar headword"
-msgstr "Từ khóa tương tự"
+msgstr "Từ đầu mục tương tự"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar gloss"
@@ -2635,7 +2635,7 @@ msgstr "Bắt đầu một cuộc trò chuyện"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation…"
-msgstr "Bắt đầu cuộc trò chuyện tại…"
+msgstr "Bắt đầu một cuộc trò chuyện…"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2868,7 +2868,7 @@ msgstr "Chuyển trạng thái ghim"
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
-msgstr "Tổng số bài dự thi"
+msgstr "Tổng số mục"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -2904,7 +2904,7 @@ msgstr "Loại"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Citation form"
-msgstr "Nhập mẫu trích dẫn"
+msgstr "Nhập hình thức trích dẫn"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2918,11 +2918,11 @@ msgstr "Gõ một Ghi chú"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form"
-msgstr "Nhập dạng của một đơn vị từ vựng"
+msgstr "Nhập hình thức lexeme"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form or Citation form"
-msgstr "Nhập dạng từ nguyên hoặc dạng trích dẫn"
+msgstr "Nhập hình thức lexeme hoặc hình thức trích dẫn"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Word"
@@ -3200,7 +3200,7 @@ msgstr "Từ hoặc ý nghĩa:"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
-msgstr "Các từ thiếu cả trường “Word” và “Display” như"
+msgstr "Các từ thiếu cả “Từ” và “Hiển thị dưới dạng”"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
