@@ -99,6 +99,7 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          TEST_EXPECTED_HG_VERSION: ${{ inputs.hg-version }}
 
         run: dotnet test LexBoxOnly.slnf -p:MercurialVersion=${{ inputs.hg-version }} --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
 
@@ -111,6 +112,7 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          TEST_EXPECTED_HG_VERSION: ${{ inputs.hg-version }}
 
         run: dotnet test LexBoxOnly.slnf -p:MercurialVersion=${{ inputs.hg-version }} --output ./bin --logger trx --results-directory ./test-results --filter Category=FlakyIntegration
 
