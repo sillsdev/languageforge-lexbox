@@ -5,6 +5,8 @@ on:
       - 'frontend/**'
       # The viewer (FW Lite) is covered by pr.yaml / fw-lite.yaml and ships via FwLiteShared/wwwroot, not the UI image.
       - '!frontend/viewer/**'
+      # frontend/src/lib/icons/index.ts imports this one viewer file
+      - 'frontend/viewer/src/lib/icon-class.ts'
       - '.github/workflows/develop-ui.yaml'
       - '.github/workflows/lexbox-ui.yaml'
       - '.github/workflows/deploy.yaml'
@@ -14,6 +16,7 @@ on:
     paths:
       - 'frontend/**'
       - '!frontend/viewer/**'
+      - 'frontend/viewer/src/lib/icon-class.ts'
       - '.github/workflows/develop-ui.yaml'
       - '.github/workflows/lexbox-ui.yaml'
       - '.github/workflows/deploy.yaml'
