@@ -39,10 +39,11 @@ fallback() {
   exit 0
 }
 
-# nx prints its JSON array as the last stdout line; banners go to stderr.
+# nx prints its JSON array as the last stdout line; banners and errors go to stderr,
+# which is left visible so a fallback can be diagnosed from the log.
 nx_json() {
   local out
-  out=$("$nx" "$@" --json 2>/dev/null) || return 1
+  out=$("$nx" "$@" --json) || return 1
   out=$(printf '%s\n' "$out" | grep '^\[' | tail -n 1)
   [ -n "$out" ] || return 1
   printf '%s' "$out"

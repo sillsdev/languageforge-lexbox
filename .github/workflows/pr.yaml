@@ -93,7 +93,8 @@ jobs:
           const coreTests = core.filter((p) => p.endsWith('.Tests'));
           const dotnet = everything || r.projects.some((p) => core.includes(p));
           let testProjects = everything ? coreTests : r.projects.filter((p) => coreTests.includes(p));
-          if (dotnet && testProjects.length === 0) testProjects = coreTests; // e.g. only a leaf library changed
+          // e.g. only a leaf library changed, or a ci:slow-tests label on a PR with no .NET change
+          if (testProjects.length === 0) testProjects = coreTests;
           const out = {
             projects: JSON.stringify(r.projects),
             viewer: String(r.viewer || everything),
