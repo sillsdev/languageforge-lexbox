@@ -73,6 +73,7 @@
       {:else}
         <AudioInput
           bind:audioId={() => getAudioId(value[ws.wsId]), (audioId) => setAudioId(audioId, ws.wsId)}
+          wsId={ws.wsId}
           wsLabel={ws.abbreviation}
           {readonly}
         />
