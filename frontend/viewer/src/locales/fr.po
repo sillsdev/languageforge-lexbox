@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-23 17:48\n"
+"PO-Revision-Date: 2026-10-23 18:34\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -54,7 +54,7 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
-msgstr "Types d'activité {0}"
+msgstr "{0} types d'activité"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -64,7 +64,7 @@ msgstr "il y a {0}"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
-msgstr "Auteurs {0}"
+msgstr "{0} auteurs"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -73,7 +73,7 @@ msgstr "{0} MB"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
-msgstr "Réponses {0}"
+msgstr "{0} réponses"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "{0} resolved"
@@ -93,7 +93,7 @@ msgstr "{num, plural, one {# changement} other {# changements}}"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
-msgstr "{num, plural, one {# entrée pour aller} other {# entrées pour aller}}"
+msgstr "{num, plural, one {# entrée restante} other {# entrées restantes}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -112,7 +112,7 @@ msgstr "{num, plural, one {# commentaire non lu} other {# commentaires non lus}}
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
-msgstr "{num, plural, one {# mot pour aller} other {# mots pour aller}}"
+msgstr "{num, plural, one {# mot restant} other {# mots restants}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
@@ -901,7 +901,7 @@ msgstr "par exemple th, sw"
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
-msgstr "Editer"
+msgstr "Modifier"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
@@ -934,7 +934,7 @@ msgstr "Se termine par"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Entries missing both Lexeme form and Citation form"
-msgstr "Entrées manquantes à la fois la forme de lexème et la forme de citation"
+msgstr "Entrées sans forme de lexème ni autonyme"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -1006,11 +1006,11 @@ msgstr "Erreur dans l'obtention de l'état de la synchronisation."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every entry already has this field filled in."
-msgstr "Chaque entrée a déjà rempli ce champ."
+msgstr "Ce champ est déjà renseigné pour chaque entrée."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every word already has this field filled in."
-msgstr "Chaque mot a déjà rempli ce champ."
+msgstr "Ce champ est déjà renseigné pour chaque mot."
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1030,7 +1030,7 @@ msgstr "Phrase exemplaire"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
-msgstr "Exemple de phrases"
+msgstr "Exemples de phrases"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -1087,7 +1087,7 @@ msgstr "Impossible d'ouvrir l'URL : {0}"
 #. Error toast when snapshot regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate Harmony snapshots"
-msgstr "Échec de la régénération des instantanés d'harmonie"
+msgstr "Échec de la régénération des instantanés Harmony"
 
 #. Error toast when search index regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1109,7 +1109,7 @@ msgstr "Synchronisation échouée"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to upload files"
-msgstr "Impossible de télécharger les fichiers"
+msgstr "Échec de l'envoi des fichiers"
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -1197,11 +1197,11 @@ msgstr "Nom du fichier"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
-msgstr "Remplir Affichage en tant que"
+msgstr "Renseignez Afficher comme"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
-msgstr "Remplissez le mot ou affichez comme"
+msgstr "Renseignez Mot ou Afficher comme"
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1339,7 +1339,7 @@ msgstr "Vert"
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
-msgstr "Instantanés harmoniques régénérés avec succès"
+msgstr "Instantanés Harmony régénérés avec succès"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has comments"
@@ -1524,7 +1524,7 @@ msgstr "Charger une image"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded {0} file(s)"
-msgstr "Fichier(s) chargé(s) {0}"
+msgstr "{0} fichier(s) chargé(s)"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded file"
@@ -1654,7 +1654,7 @@ msgstr "Gestionnaire de médias"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
-msgstr "Formulaire de référence {0} manquant"
+msgstr "Autonyme {0} manquant"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1663,7 +1663,7 @@ msgstr "Définition manquante {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Display as {0}"
-msgstr "Affichage manquant en tant que {0}"
+msgstr "Afficher comme {0} manquant"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1689,7 +1689,7 @@ msgstr "Forme de lexème {0} manquante"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of speech"
-msgstr "Partie manquante du discours"
+msgstr "Partie du discours manquante"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Semantic domains"
@@ -1792,12 +1792,12 @@ msgstr "Suivant"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Next milestone: {0}. {1} to go."
-msgstr "Prochain jalon : {0}. {1} pour y aller."
+msgstr "Prochain jalon : {0}. Encore {1}."
 
 #. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Next picture"
-msgstr "Photo suivante"
+msgstr "Image suivante"
 
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
@@ -1869,7 +1869,7 @@ msgstr "Aucune conversation ouverte"
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
-msgstr "Aucune photo"
+msgstr "Aucune image"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2070,7 +2070,7 @@ msgstr "Partie du discours"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
-msgstr "Collez les paramètres de la prise en charge ici. L'enregistrement remplace le fichier et l'applique immédiatement; laissez vide pour supprimer le fichier. Enregistrer la taille du fichier et ne compter que les changements après un redémarrage."
+msgstr "Collez ici les paramètres fournis par le support. L'enregistrement remplace le fichier et l'applique immédiatement ; laissez vide pour supprimer le fichier. La taille et le nombre des fichiers journaux ne changent qu'après un redémarrage."
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
@@ -2080,7 +2080,7 @@ msgstr "En attente"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
-msgstr "Choisir une partie de la parole"
+msgstr "Choisir une partie du discours"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick Grammatical info."
@@ -2199,7 +2199,7 @@ msgstr "Lecture seule"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
-msgstr "Enregistrer un formulaire de référence"
+msgstr "Enregistrer un autonyme"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Definition"
@@ -2215,7 +2215,7 @@ msgstr "Enregistrer une forme de lexème"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form or Citation form"
-msgstr "Enregistrer une forme de lexème ou de Citation"
+msgstr "Enregistrer une forme de lexème ou un autonyme"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
@@ -2227,11 +2227,11 @@ msgstr "Enregistrer une phrase d'exemple"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
-msgstr "Enregistrer l'affichage en tant que"
+msgstr "Enregistrer Afficher comme"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
-msgstr "Enregistrer un mot ou afficher en tant que"
+msgstr "Enregistrer Mot ou Afficher comme"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2265,12 +2265,12 @@ msgstr "Régénérer"
 #. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots"
-msgstr "Régénérer les instantanés harmoniques"
+msgstr "Régénérer les instantanés Harmony"
 
 #. Alert dialog title before starting Harmony snapshot regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots?"
-msgstr "Régénérer des instantanés harmoniques ?"
+msgstr "Régénérer les instantanés Harmony ?"
 
 #. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2290,7 +2290,7 @@ msgstr "Régénération des instantanés Harmony. Cela peut prendre beaucoup de 
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
-msgstr "Regénération de l'index de recherche. Cela peut prendre un certain temps — ne fermez pas l'application."
+msgstr "Régénération de l'index de recherche. Cela peut prendre un certain temps — ne fermez pas l'application."
 
 #. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2304,7 +2304,7 @@ msgstr "Notes de version"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
-msgstr "Distante seulement"
+msgstr "Distant uniquement"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -2349,7 +2349,7 @@ msgstr "Signaler un problème technique"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
-msgstr "Reset"
+msgstr "Réinitialiser"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
@@ -2382,7 +2382,7 @@ msgstr "rose"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
-msgstr "Mêmes mots-clés"
+msgstr "Même mot-clé"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
@@ -2549,7 +2549,7 @@ msgstr "Afficher {0} plus..."
 
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
-msgstr "Afficher/Masquer les sous-titres"
+msgstr "Afficher ou masquer les légendes"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
@@ -2567,7 +2567,7 @@ msgstr "Des entrées similaires existent déjà"
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
-msgstr "Brillant similaire"
+msgstr "Glose similaire"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
@@ -2588,7 +2588,7 @@ msgstr "Signification similaire"
 #. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar word"
-msgstr "Mots similaires"
+msgstr "Mot similaire"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar entries already exist"
@@ -2755,7 +2755,7 @@ msgstr "Parlez-nous d'un bug ou d'un problème que vous avez rencontré."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Tell us how you work and what would help most. Your ideas guide what we build."
-msgstr "Dites-nous comment vous travaillez et ce qui vous aiderait le plus."
+msgstr "Dites-nous comment vous travaillez et ce qui vous aiderait le plus. Vos idées orientent ce que nous développons."
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
@@ -2816,11 +2816,11 @@ msgstr "Ce fichier n'est disponible qu'à distance."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
-msgstr "Cette image est trop volumineuse pour être téléchargée. Essayez de réduire la résolution et de télécharger à nouveau."
+msgstr "Cette image est trop volumineuse pour être envoyée. Essayez de réduire la résolution et de l'envoyer à nouveau."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
-msgstr "Cette image est trop volumineuse pour être téléchargée. Essayez de l'enregistrer avec une qualité JPEG inférieure et téléchargez à nouveau."
+msgstr "Cette image est trop volumineuse pour être envoyée. Essayez de l'enregistrer avec une qualité JPEG inférieure et de l'envoyer à nouveau."
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2972,7 +2972,7 @@ msgstr "Impossible d'ouvrir FieldWorks"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to upload the picture"
-msgstr "Impossible de télécharger la photo"
+msgstr "Impossible d'envoyer l'image"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
@@ -3054,7 +3054,7 @@ msgstr "Mise à jour téléchargée. Redémarrez pour appliquer."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update downloading in the background. Restart to apply once it's finished."
-msgstr "Mettre à jour le téléchargement en arrière-plan. Redémarrez pour appliquer une fois terminé."
+msgstr "Mise à jour en cours de téléchargement en arrière-plan. Redémarrez pour l'appliquer une fois terminé."
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3079,15 +3079,15 @@ msgstr "Envoi en attente"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Uploaded"
-msgstr "Téléchargé"
+msgstr "Envoyé"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Uploaded pending files"
-msgstr "Fichiers en attente téléchargés"
+msgstr "Fichiers en attente envoyés"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
-msgstr "Le téléchargement de photos n'est pas pris en charge ici"
+msgstr "L'envoi d'images n'est pas pris en charge ici"
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -3200,7 +3200,7 @@ msgstr "Mot ou sens :"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
-msgstr "Les mots manquent à la fois Word et s'affichent comme"
+msgstr "Mots sans Mot ni Afficher comme"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
@@ -3259,7 +3259,7 @@ msgstr "Vous êtes hors ligne"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
-msgstr "« Vous avez franchi tous les jalons. Quelle réussite! »"
+msgstr "Vous avez franchi tous les jalons. Quelle réussite !"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
