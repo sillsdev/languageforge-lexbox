@@ -1,7 +1,6 @@
 using SIL.Harmony.Config;
 using System.Diagnostics;
 using LcmCrdt.Changes;
-using LcmCrdt.MediaServer;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -67,6 +66,9 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 
         var services = new ServiceCollection()
             .AddTestLcmCrdtClient()
+            // fixtures run in parallel and share project codes, so each needs its own media folder to delete on dispose
+            .PostConfigure<HarmonyConfig>(config =>
+                config.LocalResourceCachePath = Path.Combine(config.LocalResourceCachePath, Guid.NewGuid().ToString("N")))
             .AddLogging(builder => builder.AddDebug()
                 .AddProvider(new LateXUnitLoggerProvider(this))
                 .AddFilter("LinqToDB", LogLevel.Trace)
@@ -147,8 +149,8 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 
     public async Task DisposeAsync()
     {
-        var projectResourceCachePath = _services.ServiceProvider.GetRequiredService<LcmMediaService>().ProjectResourceCachePath;
-        if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
+        var resourceCachePath = HarmonyConfig.LocalResourceCachePath;
+        if (Directory.Exists(resourceCachePath)) Directory.Delete(resourceCachePath, true);
         await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
         await (_keepAliveConnection?.DisposeAsync() ?? ValueTask.CompletedTask);
