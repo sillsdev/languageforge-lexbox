@@ -31,9 +31,8 @@ public class MiniLcmJsInvokable(
         return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject, Comments: isCrdtProject);
     }
 
-    private bool CanWrite =>
-        project is not CrdtProject crdt ||
-        (crdt.Data?.Role ?? UserProjectRole.Editor) is UserProjectRole.Editor or UserProjectRole.Manager;
+    // Not CrdtProject.Data: that's a snapshot from when the project was opened, and a sync can update the role afterwards.
+    private bool CanWrite => api is not CrdtMiniLcmApi crdtApi || !crdtApi.ProjectData.IsReadonly;
 
     //todo move info notify wrapper factory
     private void OnDataChanged()
