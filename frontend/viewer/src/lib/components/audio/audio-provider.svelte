@@ -40,6 +40,32 @@
   }
 
   const recordingMode = $derived(recording || digitalDuration);
+
+  // No bare "audio/*": WebKit on iOS/Mac Catalyst maps it to movies (UTTypeMovie), which greys out audio files
+  // in the document picker and adds "Take Video"/"Photo Library" to the picker menu. Concrete types map to real
+  // audio UTIs, and with no image/movie types WebKit skips that menu and opens Files directly. Leave out
+  // audio/webm and audio/3gpp: Apple maps both to movie UTIs, which would bring the menu back.
+  const acceptedAudioTypes = [
+    'audio/mpeg',
+    'audio/wav',
+    'audio/x-wav',
+    'audio/mp4',
+    'audio/x-m4a',
+    'audio/aac',
+    'audio/flac',
+    'audio/ogg',
+    'audio/opus',
+    'audio/aiff',
+    '.mp3',
+    '.wav',
+    '.m4a',
+    '.aac',
+    '.flac',
+    '.ogg',
+    '.opus',
+    '.aif',
+    '.aiff',
+  ].join(',');
 </script>
 
 <div
@@ -73,30 +99,40 @@
         {/if}
       </Button>
     </div>
-    <Recorder.Root
-      container={recorderContainerElem}
-      onRecordingComplete={(b) => onRecordingComplete(b)}
-      bind:recording
-      bind:duration
-    >
-      <div class="flex flex-col items-center gap-2">
-        {#if digitalDuration}
-          <span>{digitalDuration}</span>
-        {:else}
-          <span class={cn('text-muted-foreground text-sm mx-4 whitespace-pre-wrap', recording && 'invisible')}>
-            <T msg="Hold to record or#press and release to start recording.">
-              <br />
-            </T>
-          </span>
-        {/if}
-        <Recorder.Trigger autofocus bind:walkieTalkieMode />
-      </div>
-    </Recorder.Root>
+    {#if Recorder.recordingSupported}
+      <Recorder.Root
+        container={recorderContainerElem}
+        onRecordingComplete={(b) => onRecordingComplete(b)}
+        bind:recording
+        bind:duration
+      >
+        <div class="flex flex-col items-center gap-2">
+          {#if digitalDuration}
+            <span>{digitalDuration}</span>
+          {:else}
+            <span class={cn('text-muted-foreground text-sm mx-4 whitespace-pre-wrap', recording && 'invisible')}>
+              <T msg="Hold to record or#press and release to start recording.">
+                <br />
+              </T>
+            </span>
+          {/if}
+          <Recorder.Trigger autofocus bind:walkieTalkieMode />
+        </div>
+      </Recorder.Root>
+    {:else}
+      <span class="text-muted-foreground text-sm mx-4">{$t`Recording isn't available on this device.`}</span>
+    {/if}
   </div>
 
   <!--
   Hidden file input.
   Should not be at root level as it might trigger a margin/gap.
   -->
-  <input bind:this={fileInputElement} type="file" accept="audio/*" onchange={handleFileSelection} class="hidden" />
+  <input
+    bind:this={fileInputElement}
+    type="file"
+    accept={acceptedAudioTypes}
+    onchange={handleFileSelection}
+    class="hidden"
+  />
 </div>
