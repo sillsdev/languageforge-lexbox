@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-14 10:19\n"
+"PO-Revision-Date: 2026-10-23 15:10\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -28,11 +28,11 @@ msgstr "– ({0} changements)"
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
-msgstr ""
+msgstr "(modifié)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
-msgstr ""
+msgstr "(inconnu)"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -54,7 +54,7 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
-msgstr ""
+msgstr "Types d'activité {0}"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -64,7 +64,7 @@ msgstr "il y a {0}"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
-msgstr ""
+msgstr "Auteurs {0}"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -247,7 +247,7 @@ msgstr ""
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
 #: src/project/browse/EntriesList.svelte
 msgid "Add to dictionary"
-msgstr ""
+msgstr "Ajouter au dictionnaire"
 
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -256,7 +256,7 @@ msgstr "Ajouter un mot"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
-msgstr ""
+msgstr "Ajoutez votre première entrée pour commencer à construire votre dictionnaire."
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
@@ -274,14 +274,14 @@ msgstr "Tous"
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All activity types"
-msgstr ""
+msgstr "Tous les types d'activité"
 
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
-msgstr ""
+msgstr "Tous les auteurs"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -299,11 +299,11 @@ msgstr "Analyse"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr ""
+msgstr "Code du système d'écriture d'analyse"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr ""
+msgstr "Systèmes d'écriture d'analyse"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
@@ -432,7 +432,7 @@ msgstr "Parcourir"
 
 #: src/project/browse/BrowseView.svelte
 msgid "Browse view failed"
-msgstr ""
+msgstr "La vue de la navigation a échoué"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Camera"
@@ -534,7 +534,7 @@ msgstr "Fermer le dictionnaire"
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 msgid "Code"
-msgstr ""
+msgstr "Code"
 
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
@@ -552,7 +552,7 @@ msgstr ""
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
-msgstr ""
+msgstr "Commentaires"
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
@@ -650,17 +650,17 @@ msgstr ""
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
-msgstr ""
+msgstr "Échec de la synchronisation pour le moment, vos modifications locales sont sécurisées."
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
 msgid "Create"
-msgstr ""
+msgstr "Créer"
 
 #. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
-msgstr ""
+msgstr "Créer un nouveau projet FieldWorks Lite"
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -734,7 +734,7 @@ msgstr "Tableau de bord"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard failed to load"
-msgstr ""
+msgstr "Le tableau de bord n'a pas pu être chargé"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -896,16 +896,16 @@ msgstr "Téléchargement en cours..."
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
-msgstr ""
+msgstr "par exemple th, sw"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
-msgstr ""
+msgstr "Editer"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
-msgstr ""
+msgstr "Modifier le commentaire"
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -923,7 +923,7 @@ msgstr "Editeur"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
-msgstr ""
+msgstr "Commentaire vide"
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -945,11 +945,11 @@ msgstr "Entrées manquantes..."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
-msgstr ""
+msgstr "Entrées avec des exemples"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
-msgstr ""
+msgstr "Entrées avec sens"
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
@@ -1030,7 +1030,7 @@ msgstr "Phrase exemplaire"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
-msgstr ""
+msgstr "Exemple de phrases"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -1050,7 +1050,7 @@ msgstr "Téléchargement échoué {0}"
 #: src/lib/activity/ActivityView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "Failed to load activity"
-msgstr ""
+msgstr "Impossible de charger l'activité"
 
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
@@ -1533,11 +1533,11 @@ msgstr ""
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr ""
+msgstr "Chargement de l'activité"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
-msgstr ""
+msgstr "Chargement des commentaires..."
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1585,7 +1585,7 @@ msgstr "Connexion"
 #. Toast shown when the user closes or cancels the login dialog before signing in.
 #: src/lib/auth/LoginButton.svelte
 msgid "Login cancelled."
-msgstr ""
+msgstr "Connexion annulée."
 
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
@@ -1766,11 +1766,11 @@ msgstr "Nouvelle entrée"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
-msgstr ""
+msgstr "Nouveau projet"
 
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
-msgstr ""
+msgstr "Nouveau projet (local uniquement)"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1784,7 +1784,7 @@ msgstr "Nouveau mot"
 #. Sort option in activity view — most recent commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Newest first"
-msgstr ""
+msgstr "Plus récent en premier"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
@@ -1792,7 +1792,7 @@ msgstr "Suivant"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Next milestone: {0}. {1} to go."
-msgstr ""
+msgstr "Prochain jalon : {0}. {1} pour y aller."
 
 #. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
@@ -1802,15 +1802,15 @@ msgstr ""
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
-msgstr ""
+msgstr "Aucune activité ne correspond à ces filtres"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
-msgstr ""
+msgstr "Aucun type d'activité"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
-msgstr ""
+msgstr "Aucun système d'écriture d'analyse configuré."
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -1820,7 +1820,7 @@ msgstr "Aucun contenu audio"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
-msgstr ""
+msgstr "Aucun auteur"
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1902,7 +1902,7 @@ msgstr "Aucun sujet, impossible de créer un nouveau {0}"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
-msgstr ""
+msgstr "Aucun système d'écriture vernaculaire configuré."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1976,7 +1976,7 @@ msgstr ""
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Oldest first"
-msgstr ""
+msgstr "Le plus ancien en premier"
 
 #. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2006,7 +2006,7 @@ msgstr "Répertoire des données ouvertes"
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
 msgid "Open in browser"
-msgstr ""
+msgstr "Ouvrir dans le navigateur"
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2401,7 +2401,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
-msgstr ""
+msgstr "Enregistrer"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Save and apply"
@@ -2553,7 +2553,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
-msgstr ""
+msgstr "Connectez-vous pour ajouter des commentaires."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar words already exist"
@@ -2618,7 +2618,7 @@ msgstr "Ignorer"
 
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
-msgstr ""
+msgstr "Quelque chose s'est mal passé"
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
@@ -2695,12 +2695,12 @@ msgstr "Synchronisé"
 #. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced newest"
-msgstr ""
+msgstr "Récemment synchronisé"
 
 #. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced oldest"
-msgstr ""
+msgstr "Plus ancien synchronisé"
 
 #. Status showing sync source server
 #: src/home/HomeView.svelte
@@ -2740,7 +2740,7 @@ msgstr "Tâche introuvable : {0}"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task view failed"
-msgstr ""
+msgstr "La vue des tâches a échoué"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -2755,7 +2755,7 @@ msgstr "Parlez-nous d'un bug ou d'un problème que vous avez rencontré."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Tell us how you work and what would help most. Your ideas guide what we build."
-msgstr ""
+msgstr "Dites-nous comment vous travaillez et ce qui vous aiderait le plus."
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
@@ -2868,7 +2868,7 @@ msgstr "Activer/désactiver épinglé"
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
-msgstr ""
+msgstr "Total des entrées"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -2892,7 +2892,7 @@ msgstr "Dépannage"
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
-msgstr ""
+msgstr "Réessayez"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
@@ -2995,7 +2995,7 @@ msgstr "Erreur inconnue {0}"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Unknown error creating project"
-msgstr ""
+msgstr "Erreur inconnue lors de la création du projet"
 
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -3107,15 +3107,15 @@ msgstr "Vernaculaire"
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
-msgstr ""
+msgstr "Code du système d'écriture vernaculaire"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
-msgstr ""
+msgstr "Un système d'écriture vernaculaire est requis"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
-msgstr ""
+msgstr "Systèmes d'écriture vernaculaire"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -3146,7 +3146,7 @@ msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
-msgstr ""
+msgstr "Que voulez-vous voir ici?"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -3230,7 +3230,7 @@ msgstr "Systèmes d'écriture"
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
 msgid "You appear to be offline. Can you connect to {0}?"
-msgstr ""
+msgstr "Vous semblez être hors ligne. Pouvez-vous vous connecter à {0}?"
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3259,8 +3259,9 @@ msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
-msgstr ""
+msgstr "« Vous avez franchi tous les jalons. Quelle réussite! »"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
-msgstr ""
+msgstr "Votre dictionnaire commence ici"
+
