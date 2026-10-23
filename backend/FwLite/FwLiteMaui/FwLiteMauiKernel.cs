@@ -156,7 +156,11 @@ public static class FwLiteMauiKernel
         {
             config.CacheFileName = fwLiteMauiConfig.AuthCacheFilePath;
             config.SystemWebViewLogin = true;
-            config.OpenSystemBrowser = uri => Launcher.Default.OpenAsync(uri);
+            config.OpenSystemBrowser = async uri =>
+            {
+                //OpenAsync returns false instead of throwing, which would leave sign-in waiting for a redirect forever
+                if (!await Launcher.Default.OpenAsync(uri)) throw new InvalidOperationException("Could not open the system browser");
+            };
         });
         services.Configure<HarmonyConfig>(config =>
         {
