@@ -310,6 +310,11 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException($"Change {changeIndex} not found in commit {commitId}");
 
+        // An OpaqueChange is a change type this client doesn't have registered: we can't tell what it did,
+        // and an opaque create has no snapshot to load (the entity was never materialized here).
+        if (change.Change is OpaqueChange)
+            return new ChangeContext(change, null, null, []);
+
         // These branches are independent read-only lookups that each open their own
         // DbContext (via the repository factories), so run them concurrently.
         //todo needs optimizing: when a sync pruned this change's snapshot, this replays every commit since the entity's last one (median 22k on a 100k-commit project)
