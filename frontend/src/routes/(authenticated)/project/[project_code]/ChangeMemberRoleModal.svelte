@@ -14,7 +14,7 @@
   const { projectId }: Props = $props();
 
   const schema = z.object({
-    role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer, ProjectRole.Commenter]),
+    role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.EditorLite, ProjectRole.Observer, ProjectRole.Commenter]),
   });
   type Schema = typeof schema;
   let formModal: FormModal<Schema> | undefined = $state();

@@ -11,4 +11,8 @@ public enum ProjectRole
     /// Read-only like <see cref="Observer"/>, but can also comment. FieldWorks Lite only.
     /// </summary>
     Commenter = 5,
+    /// <summary>
+    /// Can edit like <see cref="Editor"/>, but only in FieldWorks Lite: no hg send/receive, media upload or FieldWorks sync.
+    /// </summary>
+    EditorLite = 6,
 }

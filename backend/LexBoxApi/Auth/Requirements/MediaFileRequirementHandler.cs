@@ -31,7 +31,7 @@ public class MediaFileRequirementHandler(IHttpContextAccessor httpContextAccesso
         var permissionService = httpContext.RequestServices.GetRequiredService<IPermissionService>();
         var hasAccess =
             requirement.WriteAccessRequired
-                ? await permissionService.CanSyncProject(projectId.Value)
+                ? await permissionService.CanEditMediaFiles(projectId.Value)
                 : await permissionService.CanViewProject(projectId.Value);
         if (!hasAccess)
         {

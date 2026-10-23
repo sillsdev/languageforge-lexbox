@@ -12,6 +12,7 @@ public static class ProjectRoleMapping
             ProjectRole.Editor => UserProjectRole.Editor,
             ProjectRole.Manager => UserProjectRole.Manager,
             ProjectRole.Commenter => UserProjectRole.Commenter,
+            ProjectRole.EditorLite => UserProjectRole.EditorLite,
             _ => UserProjectRole.Unknown
         };
 
@@ -22,6 +23,7 @@ public static class ProjectRoleMapping
             UserProjectRole.Editor => ProjectRole.Editor,
             UserProjectRole.Manager => ProjectRole.Manager,
             UserProjectRole.Commenter => ProjectRole.Commenter,
+            UserProjectRole.EditorLite => ProjectRole.EditorLite,
             _ => ProjectRole.Unknown
         };
 }

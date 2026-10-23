@@ -12,6 +12,7 @@ public interface IPermissionService
     ValueTask AssertCanSyncProject(Guid projectId);
     ValueTask<bool> CanPushCrdtChanges(Guid projectId);
     ValueTask AssertCanPushCrdtChanges(Guid projectId);
+    ValueTask<bool> CanEditMediaFiles(Guid projectId);
     ValueTask<bool> CanDownloadProject(Guid projectId);
     ValueTask AssertCanDownloadProject(Guid projectId);
     ValueTask<bool> CanViewProject(Guid projectId, LexAuthUser? overrideUser = null);

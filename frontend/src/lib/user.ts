@@ -287,6 +287,9 @@ function projectsStringToProjects(projectsString: string | undefined): AuthUserP
       case 'c':
         role = ProjectRole.Commenter;
         break;
+      case 'l':
+        role = ProjectRole.EditorLite;
+        break;
     }
     //substring to remove the first character which is the role code plus the colon
     projects.push(...pString.substring(2).split('|').map(id => ({projectId: stringToUuid(id), role})));

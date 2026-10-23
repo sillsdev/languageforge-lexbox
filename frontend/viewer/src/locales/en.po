@@ -916,6 +916,10 @@ msgstr "Edit Picture"
 msgid "Editor"
 msgstr "Editor"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor Lite"
+msgstr "Editor Lite"
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
 msgstr "Empty comment"
