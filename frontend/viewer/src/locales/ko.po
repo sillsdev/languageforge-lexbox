@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-14 10:19\n"
+"PO-Revision-Date: 2026-10-23 15:10\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -28,11 +28,11 @@ msgstr "- ({0}개 변경)"
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
-msgstr ""
+msgstr "(수정됨)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
-msgstr ""
+msgstr "(알 수 없음)"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -54,7 +54,7 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
-msgstr ""
+msgstr "{0} 활동 유형"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -64,7 +64,7 @@ msgstr "{0} 전"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
-msgstr ""
+msgstr "{0} 저자"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -73,11 +73,11 @@ msgstr "{0} MB"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
-msgstr ""
+msgstr "{0} 답글"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "{0} resolved"
-msgstr ""
+msgstr "{0} 해결됨"
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -93,7 +93,7 @@ msgstr "{num, plural, other {#개 변경}}"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
-msgstr ""
+msgstr "{num, plural, one {남은 응모 건수 1건} other {남은 응모 건수}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -107,17 +107,17 @@ msgstr "{num, plural, other {# 새 FieldWorks Lite 커밋}}"
 
 #: src/project/browse/filter/UnreadCommentBadge.svelte
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
-msgstr ""
+msgstr "{num, plural, one {# 읽지 않은 댓글} other {# 읽지 않은 댓글들}}"
 
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
-msgstr ""
+msgstr "{num, plural, one {# 남은 단어 수} other {# 남은 단어 수}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
-msgstr ""
+msgstr "{num, plural, one {더 보기...} other {더 보기...}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -136,7 +136,7 @@ msgstr "**간단한 용어 사용** (예: *어휘 형태* 대신 *단어*, *의�
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
-msgstr ""
+msgstr "답글 1개"
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -247,7 +247,7 @@ msgstr ""
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
 #: src/project/browse/EntriesList.svelte
 msgid "Add to dictionary"
-msgstr ""
+msgstr "사전에 추가"
 
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -256,7 +256,7 @@ msgstr "단어 추가"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
-msgstr ""
+msgstr "사전 작성을 시작하려면 첫 번째 항목을 추가하세요."
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
@@ -274,14 +274,14 @@ msgstr "모두"
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All activity types"
-msgstr ""
+msgstr "모든 활동 유형"
 
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
-msgstr ""
+msgstr "모든 저자"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -299,11 +299,11 @@ msgstr "분석"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr ""
+msgstr "시스템 코드 분석 작성"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr ""
+msgstr "분석 작성 시스템"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
@@ -432,7 +432,7 @@ msgstr "찾아보기"
 
 #: src/project/browse/BrowseView.svelte
 msgid "Browse view failed"
-msgstr ""
+msgstr "찾아보기 실패"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Camera"
@@ -534,7 +534,7 @@ msgstr "사전 닫기"
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 msgid "Code"
-msgstr ""
+msgstr "코드"
 
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
@@ -552,7 +552,7 @@ msgstr ""
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
-msgstr ""
+msgstr "댓글"
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
@@ -650,17 +650,17 @@ msgstr ""
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
-msgstr ""
+msgstr "지금은 동기화할 수 없습니다. 로컬에서 변경한 내용은 안전하게 보관됩니다."
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
 msgid "Create"
-msgstr ""
+msgstr "만들기"
 
 #. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
-msgstr ""
+msgstr "새로운 FieldWorks Lite 프로젝트 만들기"
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -734,7 +734,7 @@ msgstr "대시보드"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard failed to load"
-msgstr ""
+msgstr "대시보드가 로드되지 않았습니다."
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -896,16 +896,16 @@ msgstr "다운로드 중..."
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
-msgstr ""
+msgstr "예: th, sw"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
-msgstr ""
+msgstr "편집"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
-msgstr ""
+msgstr "댓글 수정"
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -923,7 +923,7 @@ msgstr "편집기"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
-msgstr ""
+msgstr "비어 있는 댓글"
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -945,11 +945,11 @@ msgstr "항목이 누락되었습니다..."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
-msgstr ""
+msgstr "예시가 포함된 항목"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
-msgstr ""
+msgstr "의미가 포함된 항목"
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
@@ -1030,7 +1030,7 @@ msgstr "문장 예시"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
-msgstr ""
+msgstr "예문"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -1050,7 +1050,7 @@ msgstr "다운로드에 실패했습니다 {0}"
 #: src/lib/activity/ActivityView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "Failed to load activity"
-msgstr ""
+msgstr "활동을 불러오는 데 실패했습니다."
 
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
@@ -1533,11 +1533,11 @@ msgstr ""
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr ""
+msgstr "로딩 중"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
-msgstr ""
+msgstr "댓글 불러오는 중..."
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1585,7 +1585,7 @@ msgstr "로그인"
 #. Toast shown when the user closes or cancels the login dialog before signing in.
 #: src/lib/auth/LoginButton.svelte
 msgid "Login cancelled."
-msgstr ""
+msgstr "로그인이 취소되었습니다."
 
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
@@ -1766,11 +1766,11 @@ msgstr "새 항목"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
-msgstr ""
+msgstr "새로운 프로젝트"
 
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
-msgstr ""
+msgstr "새로운 프로젝트 (지역 한정)"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1784,7 +1784,7 @@ msgstr "새 단어"
 #. Sort option in activity view — most recent commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Newest first"
-msgstr ""
+msgstr "최신순"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
@@ -1792,7 +1792,7 @@ msgstr "다음"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Next milestone: {0}. {1} to go."
-msgstr ""
+msgstr "다음 이정표: {0}. {1} 남았습니다."
 
 #. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
@@ -1802,15 +1802,15 @@ msgstr ""
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
-msgstr ""
+msgstr "이 필터 조건에 맞는 활동이 없습니다."
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
-msgstr ""
+msgstr "활동 유형 없음"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
-msgstr ""
+msgstr "분석 작성 시스템이 구성되어 있지 않습니다."
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -1820,7 +1820,7 @@ msgstr "오디오 없음"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
-msgstr ""
+msgstr "저자 없음"
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1902,7 +1902,7 @@ msgstr "제목이 없습니다, 새로 만들 수 없습니다 {0}"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
-msgstr ""
+msgstr "구성된 토착 문자 체계가 없습니다."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1976,7 +1976,7 @@ msgstr ""
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Oldest first"
-msgstr ""
+msgstr "가장 오래된 순서대로"
 
 #. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -2006,7 +2006,7 @@ msgstr "오픈 데이터 디렉터리"
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
 msgid "Open in browser"
-msgstr ""
+msgstr "브라우저에서 열기"
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2401,7 +2401,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
-msgstr ""
+msgstr "저장"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Save and apply"
@@ -2553,7 +2553,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
-msgstr ""
+msgstr "댓글을 달려면 로그인하세요."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar words already exist"
@@ -2618,7 +2618,7 @@ msgstr "건너뛰기"
 
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
-msgstr ""
+msgstr "문제가 발생했습니다."
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
@@ -2695,12 +2695,12 @@ msgstr "동기화"
 #. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced newest"
-msgstr ""
+msgstr "최신 버전과 동기화됨"
 
 #. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced oldest"
-msgstr ""
+msgstr "동기화된 가장 오래된 항목"
 
 #. Status showing sync source server
 #: src/home/HomeView.svelte
@@ -2740,7 +2740,7 @@ msgstr "작업을 찾을 수 없음: {0}"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task view failed"
-msgstr ""
+msgstr "작업 보기 실패"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -2755,7 +2755,7 @@ msgstr "발생한 버그나 문제에 대해 알려주세요."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Tell us how you work and what would help most. Your ideas guide what we build."
-msgstr ""
+msgstr "여러분의 업무 방식과 가장 도움이 될 만한 점이 무엇인지 알려주세요. 여러분의 아이디어가 우리가 개발할 방향을 결정합니다."
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
@@ -2868,7 +2868,7 @@ msgstr "고정 토글"
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
-msgstr ""
+msgstr "총 응모 건수"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -2892,7 +2892,7 @@ msgstr "문제 해결"
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
-msgstr ""
+msgstr "다시 시도"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
@@ -2995,7 +2995,7 @@ msgstr "알 수 없는 오류 {0}"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Unknown error creating project"
-msgstr ""
+msgstr "프로젝트 생성 중 알 수 없는 오류가 발생했습니다."
 
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -3107,15 +3107,15 @@ msgstr "토착어"
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
-msgstr ""
+msgstr "토착 문자 체계 코드"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
-msgstr ""
+msgstr "현지 언어 문자 체계가 필요합니다"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
-msgstr ""
+msgstr "지역별 문자 체계"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -3146,7 +3146,7 @@ msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
-msgstr ""
+msgstr "이곳에 어떤 내용을 보고 싶으신가요?"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -3230,7 +3230,7 @@ msgstr "쓰기 시스템"
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
 msgid "You appear to be offline. Can you connect to {0}?"
-msgstr ""
+msgstr "현재 오프라인 상태인 것 같습니다. {0} 에 접속할 수 있나요?"
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3259,8 +3259,9 @@ msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
-msgstr ""
+msgstr "모든 이정표를 하나하나 달성하셨군요. 정말 대단한 성과입니다!"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
-msgstr ""
+msgstr "여러분의 사전은 여기서 시작됩니다"
+
