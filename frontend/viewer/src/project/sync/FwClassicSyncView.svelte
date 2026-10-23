@@ -2,7 +2,6 @@
   import { ProjectSyncStatusEnum } from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusEnum';
   import { Button } from '$lib/components/ui/button';
   import { Icon } from '$lib/components/ui/icon';
-  import type { IProjectSyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
   import { plural, t, T } from 'svelte-i18n-lingui';
   import * as Accordion from '$lib/components/ui/accordion';
   import SyncArrow from './SyncArrow.svelte';
@@ -15,26 +14,43 @@
   import * as Popover from '$lib/components/ui/popover';
   import {cn} from '$lib/utils';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {AppNotification} from '$lib/notifications/notifications';
+  import {useSyncStatusService} from '$lib/services/sync-status-service';
+  import {resource} from 'runed';
+  import {delay} from '$lib/utils/time';
+  import type {SyncTarget} from './sync-target';
 
   let {
     syncStatus,
-    remoteStatus,
     server,
-    loadingSyncLexboxToFlex = $bindable(false),
-    loadingSyncLexboxToLocal,
-    canSyncLexboxToFlex,
-    syncLexboxToFlex = async () => {},
+    syncing = $bindable(),
+    syncCount = 0,
+    canSync,
     onLoginStatusChange = () => {},
+    onSyncedAndUpToDate = () => {},
   }: {
     syncStatus: SyncStatus;
-    remoteStatus?: IProjectSyncStatus;
     server?: ILexboxServer;
-    loadingSyncLexboxToFlex: boolean;
-    loadingSyncLexboxToLocal: boolean;
-    canSyncLexboxToFlex?: boolean;
-    syncLexboxToFlex?: () => Promise<void>;
+    /** Which sync is running, shared with the other tab so only one runs at a time */
+    syncing?: SyncTarget;
+    /** Bumped by the dialog after each sync; the status reloads when it changes */
+    syncCount?: number;
+    canSync?: boolean;
     onLoginStatusChange?: (status: 'logged-in' | 'logged-out') => void;
+    onSyncedAndUpToDate?: () => void;
   } = $props();
+
+  const service = useSyncStatusService();
+  // A Lexbox request that can take many seconds, so it only loads once this tab is shown.
+  // Errors (e.g. Lexbox unreachable) are expected, so they're shown inline instead of thrown.
+  const remote = resource(() => syncCount, async (_, _prev, {signal}) => {
+    const status = await service.getStatus();
+    // Our calls can't be cancelled, so drop the result if a newer load has started
+    signal.throwIfAborted();
+    return status;
+  });
+  const remoteStatus = $derived(remote.current);
+
   const lastFlexSyncDate = $derived(
     remoteStatus?.lastMercurialCommitDate ? new Date(remoteStatus.lastMercurialCommitDate) : undefined,
   );
@@ -49,12 +65,43 @@
     return $t`New data`;
   }
 
-  let loading = $derived(remoteStatus === undefined);
+  let loading = $derived(remoteStatus === undefined && !remote.error);
 
-  function onSyncLexboxToFlex() {
-    loadingSyncLexboxToFlex = true;
-    void syncLexboxToFlex().finally(() => {
-      loadingSyncLexboxToFlex = false;
+  async function sync() {
+    const syncPromise = service.triggerFwHeadlessSync();
+    AppNotification.promise(syncPromise, {
+      loading: $t`Synchronizing FieldWorks Lite and FieldWorks Classic...`,
+      success: (result) => {
+        const fwdataChangesText = $plural(result.syncResult?.fwdataChanges ?? 0, {one: '# change', other: '# changes'});
+        const crdtChangesText = $plural(result.syncResult?.crdtChanges ?? 0, {one: '# change', other: '# changes'});
+        return $t`Sync complete. ${fwdataChangesText} were applied to FieldWorks Classic. ${crdtChangesText} were applied to FieldWorks Lite.`;
+      },
+      // TODO: Custom component that can expand or collapse the stacktrace
+    });
+
+    try {
+      await syncPromise;
+    } catch (error) {
+      void remote.refetch();
+      throw error;
+    }
+    // Optimistically update status, then query it
+    if (remoteStatus) remote.mutate({...remoteStatus, pendingCrdtChanges: 0, pendingMercurialChanges: 0});
+
+    const [fresh] = await Promise.all([
+      remote.refetch(),
+      delay(750)
+    ]);
+    // undefined if the load failed or a newer one replaced it: then we can't tell, so leave the dialog open
+    if (fresh?.pendingMercurialChanges === 0 && fresh?.pendingCrdtChanges === 0) {
+      onSyncedAndUpToDate();
+    }
+  }
+
+  function onSyncClick() {
+    syncing = 'classic';
+    void sync().finally(() => {
+      syncing = undefined;
     });
   }
 </script>
@@ -76,6 +123,9 @@
     </Popover.Content>
   </Popover.Root>
 </p>
+{#if remote.error}
+  <p class="mb-4 text-center text-sm text-destructive">{$t`Couldn't get the FieldWorks Classic status from Lexbox.`}</p>
+{/if}
 
 <div class="grid grid-cols-[1fr_auto_1fr] gap-4">
   <div class="border rounded flex flex-col items-center justify-center text-center p-2">
@@ -138,9 +188,9 @@
       </span>
       <SyncArrow dir="left" class={cn(hgToCrdtCount && 'text-primary')} tailLength={120} size={1.25} />
       <Button
-        loading={loadingSyncLexboxToFlex}
-        disabled={loadingSyncLexboxToLocal || !canSyncLexboxToFlex || !remoteStatus}
-        onclick={onSyncLexboxToFlex}
+        loading={syncing === 'classic'}
+        disabled={syncing === 'lite' || !canSync || !remoteStatus}
+        onclick={onSyncClick}
         class="my-1"
         icon="i-mdi-sync"
         iconProps={{ class: 'size-5' }}

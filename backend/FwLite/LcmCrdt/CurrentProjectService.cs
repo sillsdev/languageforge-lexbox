@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SIL.Harmony;
 
 namespace LcmCrdt;
 
@@ -34,7 +35,7 @@ public class CurrentProjectService(
             result = await dbContext.ProjectData.AsNoTracking().FirstAsync();
             projectDataCache.SetProjectData(Project, result);
         }
-        if (result is null) throw new InvalidOperationException($"Project data not found for project {MaybeProject?.Name}");
+        if (result is null) throw new InvalidOperationException($"Project data not found for project '{MaybeProject?.Name}'");
 
         return result;
     }
@@ -42,7 +43,7 @@ public class CurrentProjectService(
     public void ValidateProjectScope()
     {
         if (Project is null)
-            throw new InvalidOperationException($"Project is null for project {MaybeProject?.Name}, there's a bug and {nameof(SetupProjectContext)} was not called");
+            throw new InvalidOperationException($"Project is null for project '{MaybeProject?.Name}', there's a bug and {nameof(SetupProjectContext)} was not called");
     }
 
     private static string CacheKey(CrdtProject project)
@@ -73,22 +74,21 @@ public class CurrentProjectService(
         using var activity = LcmCrdtActivitySource.Value.StartActivity();
         activity?.SetTag("app.project_code", project.Name);
         if (_project != null && project != _project)
-            throw new InvalidOperationException($"Can't setup project context for {project.Name} when already in context of project {_project.Name}");
+            throw new InvalidOperationException($"Cannot setup project context for '{project.Name}' when already in context of project '{_project.Name}'");
         _project = project;
         //migrate will only execute once with a static which tracks if we've already migrated
         await MigrateDb();
-        return project.Data = await RefreshProjectData();
+        return await RefreshProjectData();
     }
 
     public async ValueTask<ProjectData> SetupProjectContext(string projectCode)
     {
-        return await SetupProjectContext(crdtProjectsService.GetProject(projectCode) ?? throw new InvalidOperationException($"Crdt Project {projectCode} not found"));
+        return await SetupProjectContext(crdtProjectsService.GetProject(projectCode) ?? throw new InvalidOperationException($"Crdt Project '{projectCode}' not found"));
     }
 
     public async ValueTask<ProjectData> RefreshProjectData()
     {
-        var projectData = await GetProjectData(true);
-        return projectData;
+        return Project.Data = await GetProjectData(true);
     }
 
     private static readonly ConcurrentDictionary<string, Lazy<Task>> MigrationTasks = [];
@@ -105,6 +105,8 @@ public class CurrentProjectService(
             {
                 await using var dbContext = await DbContextFactory.CreateDbContextAsync();
                 await dbContext.Database.MigrateAsync();
+                //replays changes authored under model versions this db hasn't applied yet, must run before the db is used
+                await services.GetRequiredService<DataModel>().ReconcileModelVersions();
 
                 if (EntrySearchServiceFactory is not null)
                 {
@@ -153,12 +155,14 @@ public class CurrentProjectService(
         }
     }
 
-    public async Task UpdateUserRole(UserProjectRole role)
+    /// <returns>true if the role changed</returns>
+    public async Task<bool> UpdateUserRole(UserProjectRole role)
     {
-        if (ProjectData.Role == role) return;
+        if (ProjectData.Role == role) return false;
         await using var dbContext = await DbContextFactory.CreateDbContextAsync();
         await dbContext.ProjectData.ExecuteUpdateAsync(calls => calls
             .SetProperty(p => p.Role, role));
         await RefreshProjectData();
+        return true;
     }
 }

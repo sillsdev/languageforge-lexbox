@@ -85,8 +85,8 @@ msgid "{0} Server"
 msgstr "Seva ya {0}"
 
 #. Number of changes in sync operation
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# mabadiliko}}"
 
@@ -96,12 +96,12 @@ msgid "{num, plural, one {# entry to go} other {# entries to go}}"
 msgstr ""
 
 #. Commit count display
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
 msgstr "{num, plural, one {# kumbuka mpya ya FieldWorks Classic} other {# kumbukas mpya za FieldWorks Classic}}"
 
 #. Commit count display
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, one {# kumbuka mpya ya FieldWorks Lite} other {# kumbukas mpya za FieldWorks Lite}}"
 
@@ -385,7 +385,7 @@ msgid "Auto"
 msgstr "Otomatiki"
 
 #. Status indicator
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Auto syncing"
 msgstr "Kuoanisha otomatiki"
 
@@ -460,12 +460,12 @@ msgid "Caption"
 msgstr ""
 
 #. Explanation of sync behavior
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "Mabadiliko yanaweza pia kuwa matokeo ya sehemu kuongezwa kwa matoleo mapya ya FieldWorks Lite."
 
 #. Explanation of commits vs changes
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Kubadilisha sehemu sawa mara mbili, kwa mfano, kunaweza kusababisha kumbukas mbili lakini badiliko moja tu linayohitaji kutumwa kwa FieldWorks Classic. Kumbukas kunaweza pia kuwa na mabadiliko mengi."
 
@@ -539,6 +539,10 @@ msgstr "Rangi"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Comment"
+msgstr ""
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Commenter"
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -634,9 +638,13 @@ msgstr ""
 msgid "Could not check for similar words"
 msgstr ""
 
+#: src/project/sync/FwClassicSyncView.svelte
+msgid "Couldn't get the FieldWorks Classic status from Lexbox."
+msgstr ""
+
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr ""
 
@@ -987,7 +995,7 @@ msgid "Error getting sync status"
 msgstr "Hitilafu katika kupata hali ya kuoanisha"
 
 #. Error notification
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Error getting sync status."
 msgstr "Hitilafu katika kupata hali ya kuoanisha."
 
@@ -1110,7 +1118,7 @@ msgid "Fields"
 msgstr "Maeneo"
 
 #. Product name
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/SyncDialog.svelte
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
@@ -1123,7 +1131,7 @@ msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr ""
 
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "Watumiaji wa FieldWorks Lite watapokea otomatiki mabadiliko yaliyofanywa katika FieldWorks Classic. Watumiaji wa FieldWorks Classic watakuona mabadiliko yaliyofanywa katika FieldWorks Lite baada ya kufanya Tuma/Pokea."
 
@@ -1138,8 +1146,8 @@ msgstr "Toleo la FieldWorks Lite"
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Nembo ya FieldWorks"
 
@@ -1418,13 +1426,13 @@ msgid "Keep going"
 msgstr "Endelea"
 
 #. Label showing the date of the last change in the FwLite↔Classic sync panel. # is replaced by a formatted relative date component (e.g., "3 days ago").
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Last change: #"
 msgstr "Badiliko la mwisho: #"
 
 #. Label showing the timestamp of the last local sync in the sync panel. # is replaced by a formatted relative date component (e.g., "5 minutes ago").
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Last sync: #"
 msgstr "Kuoanisha kwa mwisho: #"
 
@@ -1443,7 +1451,7 @@ msgid "Length:"
 msgstr "Urefu:"
 
 #. Product name
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/SyncDialog.svelte
 msgid "Lexbox"
 msgstr "Lexbox"
 
@@ -1541,7 +1549,7 @@ msgstr ""
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Local"
 msgstr "Mitaa"
 
@@ -1556,8 +1564,8 @@ msgid "Local only"
 msgstr "Mitaa tu"
 
 #. Button label in the sync panel when the user is not logged in. Initiates authentication with the server.
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Login"
 msgstr "Ingia"
 
@@ -1712,9 +1720,9 @@ msgstr "Jina"
 msgid "Name is required"
 msgstr "Jina linahitajika"
 
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Never"
 msgstr "Kamwe"
 
@@ -1730,7 +1738,7 @@ msgid "New Custom View"
 msgstr "Mtazamo Mpya Uliobinafsishwa"
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are pending changes waiting to be applied. Paired with "No new data".
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "New data"
 msgstr "Data mpya"
 
@@ -1836,7 +1844,7 @@ msgid "No media files found"
 msgstr ""
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "No new data"
 msgstr "Hakuna data mpya"
 
@@ -1851,7 +1859,7 @@ msgid "No pictures"
 msgstr ""
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "No server"
 msgstr "Hakuna seva"
 
@@ -1893,6 +1901,7 @@ msgstr "Hakuna neno liliyopatikana"
 #. Selection option for optional fields
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
 msgstr "Hamna"
@@ -1938,7 +1947,7 @@ msgstr "Mwangalizi"
 
 #. Status indicator
 #: src/project/ProjectSidebar.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Offline"
 msgstr "Nyuma ya mtandao"
 
@@ -1967,7 +1976,7 @@ msgid "On large projects this may take a while. Do not close the app or interrup
 msgstr ""
 
 #. Explanation of sync behavior
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Kumbuka moja ya FieldWorks Classic inaweza kuwa na mabadiliko kwa ingizo au sehemu kadhaa. Kwa upande mwingine, kumbuka inaweza tu kuathiri data ambayo haijaoanishwa kwa FieldWorks Lite."
 
@@ -2048,7 +2057,7 @@ msgstr "Sehemu za mazungumzo"
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Pending"
 msgstr "Inasubiri"
 
@@ -2629,7 +2638,7 @@ msgid "Submit"
 msgstr "Wasilisha"
 
 #. Button or tab label
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync"
 msgstr "Kuoanisha"
 
@@ -2639,17 +2648,17 @@ msgid "Sync Changes"
 msgstr "Kuoanisha Mabadiliko"
 
 #. Success message showing change counts
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
 msgstr "Kuoanisha kumekamilika. {0} ilitumiwa kwa FieldWorks Classic. {1} ilitumiwa kwa FieldWorks Lite."
 
 #. Section title
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Kuoanisha FieldWorks Lite na FieldWorks Classic"
 
 #. Introductory text for sync status panel
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
 msgstr "Kuoanisha mabadiliko yako na watumiaji wengine wa FieldWorks Lite"
 
@@ -2684,12 +2693,12 @@ msgid "Synchronize"
 msgstr "Kuoanisha"
 
 #. Progress message during sync
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Inaoanisha FieldWorks Lite na FieldWorks Classic..."
 
 #. Progress indicator
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "Inaoanisha..."
 
@@ -2734,12 +2743,12 @@ msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from
 msgstr "Muonekano wa *FieldWorks Lite* umeuundwa kwa watu ambao si wafahamu wa lugha na hutofautiana na muonekano wa *FieldWorks Classic* kwa njia zifuatazo:"
 
 #. Explanation note
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Idadi ya kumbukas za FieldWorks Classic haitabindanishi lazima na idadi ya mabadiliko yaliyoonyeshwa katika ujumbe wa matokeo ya kuoanisha."
 
 #. Explanation note
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Idadi ya kumbukas za FieldWorks Lite haitabindanishi lazima na idadi ya mabadiliko yaliyoonyeshwa katika ujumbe wa matokeo ya kuoanisha."
 
@@ -2809,7 +2818,7 @@ msgid "This task is complete"
 msgstr "Jukumu hili limekamilika"
 
 #. Description of sync operation
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Hii itaoanisha kopia za FieldWorks Lite na FieldWorks Classic za mradi wako kwenye Lexbox."
 
@@ -2943,8 +2952,8 @@ msgstr ""
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Unknown"
 msgstr "Haijulikani"
 
@@ -2969,7 +2978,7 @@ msgid "Unknown error downloading {0}"
 msgstr "Hitilafu isiyojulikana katika kupakua {0}"
 
 #. Error placeholder
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Unknown server"
 msgstr "Seva isiyojulikana"
 
@@ -2999,7 +3008,7 @@ msgid "Untitled"
 msgstr "Bila Jina"
 
 #. Sync status - no pending changes
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Up to date"
 msgstr "Iliyosasishwa"
 
@@ -3099,6 +3108,10 @@ msgid "violet"
 msgstr "zambarau"
 
 #: src/lib/about/PrivacyDialog.svelte
+msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
+msgstr ""
+
+#: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr ""
 
@@ -3112,8 +3125,8 @@ msgid "Where are my projects?"
 msgstr "Miradi yangu iko wapi?"
 
 #. Expandable help question
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Kwa nini hiyo?"
 

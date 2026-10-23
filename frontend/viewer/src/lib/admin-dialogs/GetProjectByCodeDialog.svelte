@@ -39,9 +39,10 @@
   const roleSelections: {role: UserProjectRole, label: string}[] = [
     { role: UserProjectRole.Manager, label: $t`Manager` },
     { role: UserProjectRole.Editor, label: $t`Editor` },
+    { role: UserProjectRole.Commenter, label: $t`Commenter` },
     { role: UserProjectRole.Observer, label: $t`Observer` },
   ];
-  const observerSelection = roleSelections[2];
+  const observerSelection = roleSelections.find(r => r.role === UserProjectRole.Observer)!;
   let selectedRole: {role: UserProjectRole, label: string} = $state(observerSelection);
 
   export function openDialog() {

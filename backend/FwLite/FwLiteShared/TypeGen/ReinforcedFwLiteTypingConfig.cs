@@ -181,7 +181,6 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(PendingCommits),
             typeof(LexboxServer),
             typeof(CrdtProject),
-            typeof(ProjectData),
             typeof(IProjectIdentifier),
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
@@ -202,6 +201,11 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(HarmonyResource<LcmFileMetadata>),
             typeof(CameraResult),
         ], exportBuilder => exportBuilder.WithPublicProperties());
+        builder.ExportAsInterface<ProjectData>().WithPublicProperties(propertyBuilder =>
+        {
+            if (propertyBuilder.Member.GetCustomAttribute<JsonIgnoreAttribute>() is { Condition: JsonIgnoreCondition.Always })
+                propertyBuilder.Ignore();
+        });
 
         builder.ExportAsClass<ChangeType>().WithCodeGenerator<ChangeTypesCodeGenerator>();
         builder.ExportAsInterface<ActivityChangeType>()

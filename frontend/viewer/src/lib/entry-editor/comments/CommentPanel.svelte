@@ -19,6 +19,7 @@
 
   let {
     canComment,
+    canResolve,
     loading,
     saving,
     threadViews,
@@ -41,6 +42,7 @@
     onMarkUnread,
   }: {
     canComment: boolean;
+    canResolve: boolean;
     loading: boolean;
     saving: boolean;
     threadViews: ThreadView[];
@@ -179,6 +181,7 @@
         >
           {$t`Back`}
         </Button>
+        {#if canResolve}
         <Button
           variant="outline"
           size="xs"
@@ -192,6 +195,7 @@
         >
           {mobileResolved ? $t`Reopen` : $t`Resolve`}
         </Button>
+        {/if}
       </div>
 
       <div class="min-h-0 flex-1 overflow-y-auto px-2 py-3.5">
@@ -246,6 +250,7 @@
               <CommentThread
                 {threadView}
                 {canComment}
+                {canResolve}
                 {saving}
                 {currentUserId}
                 {editingCommentId}
@@ -279,6 +284,7 @@
                     <CommentThread
                       {threadView}
                       {canComment}
+                      {canResolve}
                       {saving}
                       {currentUserId}
                       {editingCommentId}

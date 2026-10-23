@@ -162,7 +162,8 @@ public static class SendReceiveHelpers
         //records the file as added if it exists, or as removed if it was deleted; hg won't commit an untracked file or a deletion it hasn't recorded
         await ExecuteHgSuccess($"hg addremove --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
         //only commit this file, other pending changes in the working copy (e.g. from a Send/Receive in progress) must not be swept into it
-        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)} {EscapeShellArg(filePath)}", fileDir, progress);
+        //hg commit exits with 1 when nothing changed, e.g. the same content was uploaded again
+        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)} {EscapeShellArg(filePath)}", fileDir, progress, allowedExitCodes: [0, 1]);
     }
 
     private static string EscapeShellArg(string arg)
@@ -178,11 +179,11 @@ public static class SendReceiveHelpers
         return $"{quote}{escaped}{quote}";
     }
 
-    private static async Task ExecuteHgSuccess(string cmd, string folder, IProgress? progress = null)
+    private static async Task ExecuteHgSuccess(string cmd, string folder, IProgress? progress = null, int[]? allowedExitCodes = null)
     {
         var result = await Task.Run(() => HgRunner.Run(cmd, folder, 5, progress));
         //not using HgRepository because it does not fail when exit code is 1 because that means not added.
-        if (result.ExitCode != 0)
+        if (!(allowedExitCodes ?? [0]).Contains(result.ExitCode))
         {
             throw new Exception($"""
                                  Failed to execute command {cmd}, with exit code {result.ExitCode},

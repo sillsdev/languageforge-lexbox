@@ -343,6 +343,22 @@ public class MediaFileServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task SaveMediaFile_SameContentTwice_Succeeds()
+    {
+        var mediaFile = new MediaFile { Filename = "test.txt", ProjectId = _projectId };
+        await _service.SaveMediaFile(mediaFile, SimpleStream("test"));
+        _lexBoxDbContext.ChangeTracker.Clear();
+        var actualFile = await _service.FindMediaFileAsync(mediaFile.Id);
+        actualFile.Should().NotBeNull();
+
+        //hg commit exits with 1 when nothing changed, which must not fail the save
+        await _service.SaveMediaFile(actualFile, SimpleStream("test"));
+
+        (await File.ReadAllTextAsync(_service.FilePath(actualFile))).Should().Be("test");
+        CurrentRev().Should().Be(0, "re-saving identical content should not create a new commit");
+    }
+
+    [Fact]
     public async Task SaveMediaFile_ThrowsWhenTheFileIsTooBig()
     {
         var memoryStream = new MemoryStream();

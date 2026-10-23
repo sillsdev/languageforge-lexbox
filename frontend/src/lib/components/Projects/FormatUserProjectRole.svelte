@@ -3,6 +3,7 @@
     [ProjectRole.Manager]: 'project_role.manager',
     [ProjectRole.Editor]: 'project_role.editor',
     [ProjectRole.Observer]: 'project_role.observer',
+    [ProjectRole.Commenter]: 'project_role.commenter',
     [ProjectRole.Unknown]: 'unknown',
   };
 
