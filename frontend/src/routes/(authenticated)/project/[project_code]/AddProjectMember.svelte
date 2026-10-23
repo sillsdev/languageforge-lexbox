@@ -13,10 +13,9 @@
 
   interface Props {
     project: Project;
-    showFwLiteRoles: boolean;
   }
 
-  const { project, showFwLiteRoles }: Props = $props();
+  const { project }: Props = $props();
   const schema = z.object({
     usernameOrEmail: z
       .string()
@@ -99,7 +98,7 @@
       }}
       exclude={project.users.map((m) => m.user.id)}
     />
-    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} {showFwLiteRoles} />
+    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} />
   {/snippet}
   {#snippet extraActions()}
     <Checkbox

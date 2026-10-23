@@ -172,8 +172,6 @@
 
   // Almost mirrors PermissionService.CanAskToJoinProject() in C#, but admins won't be shown the "ask to join" button
   let canAskToJoinProject = $derived(!user.isAdmin && !projectRole && orgRoles.some((_) => true));
-  // Observer and Commenter only apply to FieldWorks Lite
-  let showFwLiteRoles = $derived(project?.type === ProjectType.FlEx && !!project.hasHarmonyCommits);
   let canSyncProject = $derived(user.isAdmin || projectRole == ProjectRole.Manager || projectRole == ProjectRole.Editor || userIsOrgAdmin);
 
   let resetProjectModal: ResetProjectModal | undefined = $state();
@@ -597,7 +595,6 @@
       </OrgList>
       <MembersList
         projectId={project.id}
-        {showFwLiteRoles}
         {members}
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}
@@ -614,7 +611,7 @@
             {$t('project_page.add_user.add_button')}
           </BadgeButton>
 
-          <AddProjectMember bind:this={addProjectMember} {project} {showFwLiteRoles} />
+          <AddProjectMember bind:this={addProjectMember} {project} />
           <BulkAddProjectMembers projectId={project.id} userLocale={user.locale} />
         {/snippet}
         <UserModal bind:this={userModal} />

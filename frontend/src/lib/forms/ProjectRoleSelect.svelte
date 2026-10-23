@@ -7,11 +7,9 @@
   interface Props extends Omit<SelectProps, 'label'> {
     id?: string;
     value: ProjectRole;
-    /** Roles that only apply to FieldWorks Lite */
-    showFwLiteRoles?: boolean;
   }
 
-  let { id = 'role', value = $bindable(), showFwLiteRoles = false, ...rest }: Props = $props();
+  let { id = 'role', value = $bindable(), ...rest }: Props = $props();
 </script>
 
 <Select {...rest} {id} bind:value label={$t('project_role.label')}>
@@ -21,12 +19,11 @@
   <option value={ProjectRole.Manager}>
     {$t('project_role.manager_description')}
   </option>
-  {#if showFwLiteRoles}
-    <option value={ProjectRole.Commenter}>
-      {$t('project_role.commenter_description')}
-    </option>
-    <option value={ProjectRole.Observer}>
-      {$t('project_role.observer_description')}
-    </option>
-  {/if}
+  <!-- FieldWorks Lite only roles, offered on every project (their labels say so) -->
+  <option value={ProjectRole.Commenter}>
+    {$t('project_role.commenter_description')}
+  </option>
+  <option value={ProjectRole.Observer}>
+    {$t('project_role.observer_description')}
+  </option>
 </Select>

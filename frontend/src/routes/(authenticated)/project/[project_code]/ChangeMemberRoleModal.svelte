@@ -9,10 +9,9 @@
 
   interface Props {
     projectId: string;
-    showFwLiteRoles?: boolean;
   }
 
-  const { projectId, showFwLiteRoles }: Props = $props();
+  const { projectId }: Props = $props();
 
   const schema = z.object({
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager, ProjectRole.Observer, ProjectRole.Commenter]),
@@ -51,7 +50,7 @@
     <span>{$t('project_page.change_role_modal.title', { name })}</span>
   {/snippet}
   {#snippet children({ errors })}
-    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} {showFwLiteRoles} />
+    <ProjectRoleSelect bind:value={$form!.role} error={errors.role} />
   {/snippet}
   {#snippet submitText()}
     <span>{$t('project_page.change_role')}</span>
