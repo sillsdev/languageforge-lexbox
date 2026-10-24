@@ -69,6 +69,7 @@ describe('SyncDialog', () => {
     expect(syncService.executeSync).toHaveBeenCalledOnce();
     // Only loaded once the Lexbox tab is shown
     expect(syncService.getSyncStatus).not.toHaveBeenCalled();
+    expect([...document.querySelectorAll('button')].some(b => b.textContent?.includes('Sync your changes'))).toBe(false);
   }, 60_000); // first import transforms the dialog's dependencies
 
   // The tabs show once the project's features have loaded
@@ -125,5 +126,8 @@ describe('SyncDialog', () => {
     expect(document.body.textContent).toContain('Pending');
     expect(document.querySelectorAll('[role="tab"]')).toHaveLength(0);
     expect(syncService.getSyncStatus).not.toHaveBeenCalled();
+
+    getButton(/Sync your changes with other FieldWorks Lite users/).click();
+    await vi.waitFor(() => expect(document.body.textContent).toContain('when someone with permission syncs them'));
   }, 60_000);
 });

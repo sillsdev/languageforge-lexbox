@@ -78,6 +78,7 @@
           projectCode={projectContext.projectData?.code}
           bind:syncing
           {syncCount}
+          explainFieldWorksSync={!!server && !features.fieldWorksSync}
           {onLoginStatusChange} />
       </IfOnce>
     </Tabs.Content>
