@@ -921,6 +921,10 @@ msgstr "Modifier l'image"
 msgid "Editor"
 msgstr "Editeur"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor Lite"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
 msgstr "Commentaire vide"
@@ -2615,6 +2619,11 @@ msgstr "Taille :"
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Skip"
 msgstr "Ignorer"
+
+#. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
+msgstr ""
 
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"

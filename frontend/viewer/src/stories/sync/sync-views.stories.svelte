@@ -45,6 +45,11 @@ const server = {
     <FwLiteSyncView syncStatus={SyncStatus.Success} {server} serverId="test-server" projectCode="test-project" />
   </FakeSyncService>
 </Story>
+<Story name="FW Lite: Can't sync FieldWorks Classic">
+  <FakeSyncService data={{localStatus: {local: 1, remote: 2}, latestSyncedCommitDate: oneHourAgo.toISOString()}}>
+    <FwLiteSyncView syncStatus={SyncStatus.Success} {server} serverId="test-server" projectCode="test-project" explainFieldWorksSync />
+  </FakeSyncService>
+</Story>
 <Story name="FW Lite: No Changes">
   <FakeSyncService data={{localStatus: {local: 0, remote: 0}, latestSyncedCommitDate: now.toISOString()}}>
     <FwLiteSyncView syncStatus={SyncStatus.Success} {server} serverId="test-server" projectCode="test-project" />

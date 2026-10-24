@@ -27,6 +27,7 @@
   const service = useSyncStatusService();
   const features = useFeatures();
   let server = $derived(projectContext.server);
+  const showClassic = $derived(!!server && features.fieldWorksSync);
   const openQueryParam = new QueryParamStateBool(
     { key: SYNC_DIALOG_QUERY_PARAM, replaceOnDefaultValue: true, allowBack: true },
     false,
@@ -62,7 +63,7 @@
 <ResponsiveDialog bind:open={openQueryParam.current} disableBackHandler title={$t`Sync Changes`}
   contentProps={{ class: 'sm:min-w-140 grid-rows-[auto_1fr] items-center' }}>
   <Tabs.Root bind:value={tab} class="flex md:flex-col flex-col-reverse">
-    {#if server}
+    {#if showClassic}
       <Tabs.List class="w-full md:mb-2 max-md:mt-4 max-md:sticky bottom-0 z-1">
         <Tabs.Trigger class="flex-1" value="lite">{$t`FieldWorks Lite`}</Tabs.Trigger>
         <Tabs.Trigger class="flex-1 gap-2" value="classic"><Icon icon={cloudIcon} class="-my-1" /> {$t`Lexbox`}</Tabs.Trigger>
@@ -77,10 +78,11 @@
           projectCode={projectContext.projectData?.code}
           bind:syncing
           {syncCount}
+          explainFieldWorksSync={!!server && !features.fieldWorksSync}
           {onLoginStatusChange} />
       </IfOnce>
     </Tabs.Content>
-    {#if server}
+    {#if showClassic}
       <Tabs.Content value="classic">
         <IfOnce show={tab === 'classic'}>
           <FwClassicSyncView

@@ -17,8 +17,8 @@ public class ListProjectsJsonTests
     [Fact]
     public void ReadsKnownRoles()
     {
-        Parse("Editor", "Commenter", "observer").Projects.Select(p => p.Role)
-            .Should().Equal(ProjectRole.Editor, ProjectRole.Commenter, ProjectRole.Observer);
+        Parse("Editor", "Commenter", "observer", "EditorLite").Projects.Select(p => p.Role)
+            .Should().Equal(ProjectRole.Editor, ProjectRole.Commenter, ProjectRole.Observer, ProjectRole.EditorLite);
     }
 
     [Fact]

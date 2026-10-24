@@ -1287,6 +1287,7 @@ components:
         - Editor
         - Observer
         - Commenter
+        - EditorLite
     ProjectSyncStatus:
       required:
         - status
