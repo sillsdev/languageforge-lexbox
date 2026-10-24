@@ -27,6 +27,7 @@ languageforge-lexbox/
 │   └── Testing/         # Test projects
 ├── frontend/            # Lexbox SvelteKit web app
 ├── frontend/viewer/     # FieldWorks Lite frontend Svelte code
+├── docs/                # Docs site: fw-lite/, lexbox/, technical/ (see docs/AGENTS.md)
 └── deployment/          # K8s/Docker configs
 ```
 
@@ -36,6 +37,7 @@ Key documentation for this project:
 - `README.md` - Project overview and setup
 - `AGENTS.md` - You are here! Agent instructions
 - `.github/AGENTS.md` - **CI/CD and deployment guide** (workflows, K8s, Docker)
+- `docs/AGENTS.md` - **Docs site** (user guides + technical docs): which page covers what, writing rules, links that must not break
 - `docs/DEVELOPER-win.md` - Windows development setup
 - `docs/DEVELOPER-linux.md` - Linux development setup
 - `docs/DEVELOPER-osx.md` - macOS development setup
@@ -84,7 +86,7 @@ Do not run `kubectl`, `helm`, `k9s`, port-forwards, or anything else that reads 
 ### Questions?
 
 - Check existing issues: `gh issue list --limit 30`
-- Read the docs in `docs/` directory
+- Read `docs/technical/` (architecture, sync, CI) and `docs/adr/` (decisions)
 - Create a GitHub issue if unsure (public! — see 🔒 Privacy rules above)
 - Ask the user to clarify
 
@@ -102,6 +104,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ If the user asks about "the" PR, but does not explicitly name a PR or branch, assume they mean the PR associated with the current branch.
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
+- ✅ **Update the docs in the same PR** when you change what FW Lite or lexbox.org users see or do (a label, a flow, sync behavior, roles) or how the system is built or run: `git grep` the old wording under `docs/` and fix every hit. Page map and writing rules: `docs/AGENTS.md`.
 - ❌ Do NOT git commit or git push without explicit user approval
 - ❌ Do NOT post project/user identifiers or any real-project data online, and do NOT touch a k8s cluster without explicit permission — see **🔒 Privacy and Production Access** above
 - ⚠️ **Pre-commit hook prettier-formats staged `*.{js,ts,svelte,css,md,json}` files** (yes, incl. `.md`/docs) via lint-staged; the glob lives in `.husky/pre-commit`. The hook first checks staged names in shell and skips Node when none match (e.g. backend-only). If some match and `frontend/viewer/node_modules` is missing (fresh worktree/clone), the hook runs `pnpm install` itself, so the first such commit takes ~45s — no need to install up front. Don't `--no-verify` to dodge the hook, that just defers the format failure to CI.

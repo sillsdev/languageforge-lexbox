@@ -17,6 +17,8 @@ pnpm run dev
 
 **Before saying done or committing**, run `task verify` from the repo root once (svelte-check, eslint, vitest unit, i18n extract; 3 to 7 min for both apps). `src/project/demo/demo-project-view.test.ts` mounts the whole demo app there, so a component that breaks the demo fails fast instead of in 60+ Playwright tests.
 
+**User docs** (`docs/fw-lite/`, `docs/src/components/SyncExplainer/syncScenarios.ts`) quote UI labels verbatim. Renamed a label or changed a flow? `git grep` the old text under `docs/` and update it in the same PR; rules in `docs/AGENTS.md`.
+
 ### Dev server: one per worktree
 
 Vite and Playwright default to port 5173, and Playwright **reuses whatever already listens there**: another checkout's server gives stale code and a false pass. Per worktree, set `FwLite__DevAssetsPort` to a free port before `pnpm run dev` or `task test:ui-standalone`; `vite.config.ts`, the Playwright config and FwLiteWeb all follow it. Check first with `netstat -ano | findstr :5173` and stop stray vite processes. EACCES on a port means Windows reserved it (`netsh interface ipv4 show excludedportrange protocol=tcp`); pick another.
