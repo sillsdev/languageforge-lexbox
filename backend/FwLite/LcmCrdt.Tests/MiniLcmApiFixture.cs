@@ -82,7 +82,8 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
             // cached process-wide (first fixture wins). Opt this fixture out of both caches so its config applies.
             serviceCollection.AddDbContextFactory<LcmCrdtDbContext>(builder => builder
                 .EnableServiceProviderCaching(false)
-                .UseLinqToDB(linq2db => linq2db.AddCustomOptions(options => options.UseDisableQueryCache(true))));
+                .UseLinqToDB(linq2db => linq2db.AddCustomOptions(options => options.UseDisableQueryCache(true))),
+                ServiceLifetime.Scoped);
         }
         var services = serviceCollection.BuildServiceProvider();
         _services = services.CreateAsyncScope();

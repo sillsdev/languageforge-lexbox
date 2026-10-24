@@ -310,8 +310,8 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException($"Change {changeIndex} not found in commit {commitId}");
 
-        // An OpaqueChange is a change type this client doesn't have registered: we can't tell what it did,
-        // and an opaque create has no snapshot to load (the entity was never materialized here).
+        // Opaque create: no snapshot, the entity was never materialized here. Opaque edit: the snapshot
+        // predates the change being viewed, so it would mislead. Show nothing for both.
         if (change.Change is OpaqueChange)
             return new ChangeContext(change, null, null, []);
 
