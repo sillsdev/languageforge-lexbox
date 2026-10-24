@@ -34,6 +34,8 @@ describe('SyncDialog', () => {
   afterEach(async () => {
     if (app) await unmount(app);
     app = undefined;
+    // bits-ui restores the body style 24ms after the dialog unmounts; let it run before jsdom is torn down
+    await new Promise(resolve => setTimeout(resolve, 50));
     document.body.innerHTML = '';
   });
 
