@@ -1,9 +1,7 @@
 name: Setup and run lexbox k8s
-description: Create a local k8s cluster, deploy lexbox to it at the given image tags, and expose its ingress for tests
+description: Create a local k8s cluster, deploy lexbox to it at the given image tags, and expose its gateway for tests
 inputs:
   lexbox-api-tag:
-    required: true
-  ingress-controller-port:
     required: true
   repo-token:
     required: true
@@ -18,9 +16,12 @@ runs:
     - run: task setup-local-env
       shell: bash
     - name: setup k8s
-      uses: helm/kind-action@0025e74a8c7512023d06dc019c617aa3cf561fde # v1.10.0
+      uses: helm/kind-action@06c1ae10762d3b9c1644e7fe69596ae519e015a2 # v1.15.0
       with:
         config: deployment/gha/kind.yaml
+        # Gateway API v1.6 CRDs need k8s >= 1.31 (CEL isIP(), ValidatingAdmissionPolicy v1); pinned so CI doesn't drift with the action's default
+        node_image: kindest/node:v1.34.11@sha256:44e222ee2132dab25ff87301682f89eb82c7880ea3a1bf543bfe9708fd08d67d
+        kubectl_version: v1.34.12
     - name: Verify k8s
       shell: bash
       run: |
@@ -95,14 +96,15 @@ runs:
         chmod +x /tmp/cmctl
         sudo mv /tmp/cmctl /usr/local/bin/cmctl
         cmctl check api --wait=2m
+        kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.2/standard-install.yaml
+        kubectl wait --for=condition=Established --timeout=60s crd/gatewayclasses.gateway.networking.k8s.io crd/gateways.gateway.networking.k8s.io crd/httproutes.gateway.networking.k8s.io
         kubectl apply -k ./deployment/gha
-        kubectl wait --for=condition=Ready --timeout=120s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
+        kubectl wait --for=condition=Ready --timeout=120s pod -l 'app.kubernetes.io/name=traefik' -n languagedepot
         kubectl wait --for=condition=Ready --timeout=120s pod -l 'app in (lexbox, ui, hg, db, fw-headless)' -n languagedepot
-    - name: forward ingress
+    - name: forward maildev
       shell: bash
-      run: |
-        kubectl port-forward service/ingress-nginx-controller ${{inputs.ingress-controller-port}}:80 -n languagedepot &
-        kubectl port-forward service/lexbox 1080:1080 -n languagedepot &
-    - name: verify ingress
+      run: kubectl port-forward service/lexbox 1080:1080 -n languagedepot &
+    # the gateway is on localhost:6579 (http) and localhost:6580 (https) via deployment/gha/kind.yaml port mappings
+    - name: verify gateway
       shell: bash
-      run: curl -v http://localhost:${{inputs.ingress-controller-port}}
+      run: curl -v --retry 10 --retry-delay 2 --retry-all-errors http://localhost:6579

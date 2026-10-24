@@ -1,0 +1,54 @@
+# https://gateway-api.sigs.k8s.io/api-types/httproute/
+# Replaces the `proxy` Ingress. The Gateway (listeners, TLS, http->https redirect) is owned by LTOps in the clusters
+# and by local-dev/gateway.yaml locally. Each env replaces /spec/hostnames via http-routes.patch.yaml.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: lexbox-web
+  namespace: languagedepot
+spec:
+  parentRefs:
+  # TODO(LTOps): name/namespace of the shared Gateway in the develop/staging/prod clusters
+  - name: traefik
+    namespace: ltops-gateway
+  hostnames:
+  - localhost
+  rules:
+  - matches:
+    - path: { type: PathPrefix, value: /api }
+    - path: { type: PathPrefix, value: /hg }
+    - path: { type: PathPrefix, value: /security.txt }
+    - path: { type: PathPrefix, value: /.well-known }
+    backendRefs:
+    - name: lexbox
+      port: 5158 # http
+  - matches:
+    - path: { type: PathPrefix, value: /v1/traces }
+    backendRefs:
+    - name: lexbox
+      port: 4318 # otel
+  - matches:
+    - path: { type: PathPrefix, value: / }
+    backendRefs:
+    - name: ui
+      port: 3000 # sveltekit
+---
+# hosts that are served entirely by lexbox (hg, resumable, admin)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: lexbox-hosts
+  namespace: languagedepot
+spec:
+  parentRefs:
+  # TODO(LTOps): keep in sync with lexbox-web above
+  - name: traefik
+    namespace: ltops-gateway
+  hostnames:
+  - hg.localhost
+  - resumable.localhost
+  - admin.localhost
+  rules:
+  - backendRefs:
+    - name: lexbox
+      port: 5158 # http

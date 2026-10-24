@@ -1,0 +1,7 @@
+# The old ingress-nginx Ingress, kept alongside the Gateway API HTTPRoutes (base/http-routes.yaml)
+# until each cluster has been cut over to the LTOps Gateway. Delete this component once that's done.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+- proxy-ingress.yaml
