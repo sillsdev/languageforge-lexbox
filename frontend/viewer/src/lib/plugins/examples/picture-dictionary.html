@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picture Dictionary</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --danger: #b45309;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --shadow-lift: 0 6px 20px rgba(16, 24, 40, 0.14);
+    --radius: 14px;
+    --skeleton-a: #e9eaee;
+    --skeleton-b: #f4f5f7;
+    --vern-font: inherit;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --danger: #fbbf74;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --shadow-lift: 0 8px 26px rgba(0, 0, 0, 0.55);
+    --skeleton-a: #2a2c32;
+    --skeleton-b: #33353c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 18px 16px 40px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 3px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; font-size: 0.92rem; }
+
+  /* Toolbar */
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+  .field select, .field input {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 8px 10px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    min-width: 150px;
+    max-width: 100%;
+  }
+  .field.grow { flex: 1 1 200px; }
+  .field.grow input { min-width: 0; width: 100%; }
+  .coverage {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin: 0 2px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    align-items: center;
+  }
+  .coverage strong { color: var(--text); font-weight: 700; }
+  .cap-note {
+    display: inline-block;
+    font-size: 0.76rem;
+    color: var(--danger);
+    background: var(--surface-alt);
+    padding: 2px 9px;
+    border-radius: 999px;
+  }
+
+  /* Gallery grid */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 16px;
+  }
+  @media (max-width: 440px) {
+    .gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  }
+  .card {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    text-align: left;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    width: 100%;
+  }
+  .card:hover, .card:focus-visible {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px);
+    outline: none;
+  }
+  .card:focus-visible { border-color: var(--accent); }
+  .media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: var(--surface-alt);
+    overflow: hidden;
+  }
+  .media img {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .media img.loaded { opacity: 1; }
+  .skeleton {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, var(--skeleton-a) 30%, var(--skeleton-b) 50%, var(--skeleton-a) 70%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .broken {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    padding: 10px;
+    text-align: center;
+  }
+  .broken svg { width: 26px; height: 26px; opacity: 0.6; }
+  .audio-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .audio-dot svg { width: 14px; height: 14px; }
+  .card-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 3px; }
+  .hw { font-family: var(--vern-font); font-weight: 700; font-size: 1rem; line-height: 1.2; }
+  .gloss { color: var(--text); font-size: 0.86rem; line-height: 1.25; }
+  .cap { color: var(--text-muted); font-size: 0.78rem; line-height: 1.25; font-style: italic; }
+
+  /* Shared async states */
+  .center-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .center-state .big { font-size: 1.05rem; color: var(--text); margin-bottom: 6px; }
+  .spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+  }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(10, 12, 18, 0.72);
+    backdrop-filter: blur(3px);
+  }
+  .lightbox.open { display: flex; }
+  .lb-panel {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lift);
+    width: min(720px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .lb-media {
+    position: relative;
+    background: var(--surface-alt);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    max-height: 56vh;
+  }
+  .lb-media img {
+    max-width: 100%;
+    max-height: 56vh;
+    object-fit: contain;
+    display: block;
+  }
+  .lb-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .lb-hw { font-family: var(--vern-font); font-weight: 700; font-size: 1.35rem; line-height: 1.15; }
+  .lb-gloss { font-size: 1rem; }
+  .lb-cap { color: var(--text-muted); font-style: italic; font-size: 0.9rem; }
+  .lb-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .btn {
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+  .btn svg { width: 15px; height: 15px; }
+  .btn[disabled] { opacity: 0.6; cursor: default; }
+  .lb-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lb-close:hover { background: rgba(0, 0, 0, 0.75); }
+  .sr-note { color: var(--text-muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Picture Dictionary</h1>
+  <p class="subtitle" id="subtitle">A visual gallery of your illustrated entries.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Scanning entries&hellip;</div>
+  </div>
+
+  <div id="empty" class="center-state" style="display:none;">
+    <div class="big">No illustrated entries yet</div>
+    <div>Add a picture to a sense in the entry editor, and it will appear here.</div>
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="main" style="display:none;">
+    <div class="controls">
+      <div class="field">
+        <label for="domain">Semantic domain</label>
+        <select id="domain"></select>
+      </div>
+      <div class="field grow">
+        <label for="search">Search headword or meaning</label>
+        <input id="search" type="text" placeholder="e.g. bird" autocomplete="off">
+      </div>
+    </div>
+    <div class="coverage" id="coverage"></div>
+    <div class="gallery" id="gallery"></div>
+  </div>
+</div>
+
+<!-- Lightbox overlay (inside the iframe) -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Illustrated entry">
+  <div class="lb-panel" id="lb-panel">
+    <div class="lb-media" id="lb-media">
+      <button class="lb-close" id="lb-close" aria-label="Close" title="Close">&times;</button>
+    </div>
+    <div class="lb-body">
+      <div class="lb-hw" id="lb-hw"></div>
+      <div class="lb-gloss" id="lb-gloss"></div>
+      <div class="lb-cap" id="lb-cap"></div>
+      <div class="lb-actions" id="lb-actions"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var fw = window.fwlite;
+  var PAGE_SIZE = 1000;   // API max per call
+  var ENTRY_CAP = 5000;
+
+  var state = {
+    totalEntries: 0,
+    capped: false,
+    items: [],             // {entry, sense, picture, glossText, captionText, search, domainCodes}
+    illustratedEntries: 0, // distinct entries with >= 1 picture
+    analysisWs: [],        // wsIds, non-audio
+    vernacularWs: [],
+    audioWs: [],           // wsIds where isAudio
+    domains: [],           // [{code, label}] present among illustrated entries
+    filter: {domain: '', search: ''},
+  };
+
+  // mediaUri -> {status:'ok'|'null'|'error', url?}  (blob URLs cached for the session, revoked on unload)
+  var mediaCache = {};
+  var lightboxAudioUrl = null;
+  var observer = null;
+
+  function el(id) { return document.getElementById(id); }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    el('loading').style.display = 'none';
+    el('main').style.display = 'none';
+    var box = el('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function hasText(multiString) {
+    return multiString && Object.keys(multiString).some(function (ws) { return !!multiString[ws]; });
+  }
+
+  function wsIds(list) { return (list || []).map(function (ws) { return ws.wsId; }); }
+
+  // First non-empty gloss for a sense, else across the whole entry.
+  function glossFor(entry, sense) {
+    var g = fw.firstValue(sense.gloss, state.analysisWs);
+    if (g) return g;
+    var senses = entry.senses || [];
+    for (var i = 0; i < senses.length; i++) {
+      var v = fw.firstValue(senses[i].gloss, state.analysisWs);
+      if (v) return v;
+    }
+    return '';
+  }
+
+  // Picture captions may arrive as a RichString, a plain string, or a RichMultiString.
+  // asText handles the first two; for a multistring, pick a value first.
+  function captionFor(picture) {
+    var c = picture && picture.caption;
+    if (!c) return '';
+    if (typeof c === 'string' || c.spans) return fw.asText(c);
+    var order = state.analysisWs.concat(Object.keys(c));
+    for (var i = 0; i < order.length; i++) {
+      if (c[order[i]]) return fw.asText(c[order[i]]);
+    }
+    return '';
+  }
+
+  // First audio-file reference on an entry (pronunciation etc.), or null.
+  function audioRefFor(entry) {
+    var sources = [entry.lexemeForm, entry.citationForm];
+    (entry.senses || []).forEach(function (s) { sources.push(s.gloss); });
+    for (var i = 0; i < sources.length; i++) {
+      var ms = sources[i];
+      if (!ms) continue;
+      for (var j = 0; j < state.audioWs.length; j++) {
+        var v = ms[state.audioWs[j]];
+        if (typeof v === 'string' && v) return v;
+      }
+    }
+    return null;
+  }
+
+  function entryDomainCodes(entry) {
+    var codes = {};
+    (entry.senses || []).forEach(function (s) {
+      (s.semanticDomains || []).forEach(function (d) { if (d && d.code) codes[d.code] = true; });
+    });
+    return codes;
+  }
+
+  /** Pages through getEntries until countEntries or ENTRY_CAP is reached, updating scan progress. */
+  function fetchAll(total) {
+    var target = Math.min(total, ENTRY_CAP);
+    var out = [];
+    function loadNext() {
+      if (out.length >= target) return Promise.resolve(out);
+      var limit = Math.min(PAGE_SIZE, target - out.length);
+      return fw.getEntries({limit: limit, offset: out.length}).then(function (page) {
+        out = out.concat(page);
+        el('loading-text').textContent = 'Scanned ' + out.length.toLocaleString() + ' of ' + target.toLocaleString() + ' entries…';
+        if (!page.length || out.length >= target) return out;
+        return loadNext();
+      });
+    }
+    return loadNext();
+  }
+
+  // Build one gallery item per (entry, sense-picture); track distinct illustrated entries.
+  function buildItems(entries) {
+    var items = [];
+    var illustrated = 0;
+    var domainSet = {};
+    entries.forEach(function (entry) {
+      var codes = entryDomainCodes(entry);
+      var hadPicture = false;
+      var hw = fw.headword(entry) || '';
+      (entry.senses || []).forEach(function (sense) {
+        (sense.pictures || []).forEach(function (picture) {
+          if (!picture || !picture.mediaUri) return;
+          hadPicture = true;
+          var gloss = glossFor(entry, sense);
+          var caption = captionFor(picture);
+          items.push({
+            entry: entry,
+            picture: picture,
+            headword: hw,
+            gloss: gloss,
+            caption: caption,
+            domainCodes: codes,
+            search: (hw + ' ' + gloss + ' ' + caption).toLocaleLowerCase(),
+          });
+        });
+      });
+      if (hadPicture) {
+        illustrated++;
+        Object.keys(codes).forEach(function (code) { domainSet[code] = true; });
+      }
+    });
+    state.items = items;
+    state.illustratedEntries = illustrated;
+    return domainSet;
+  }
+
+  function buildDomainList(domainSet, allDomains) {
+    var byCode = {};
+    allDomains.forEach(function (d) {
+      byCode[d.code] = fw.firstValue(d.name, state.analysisWs) || Object.values(d.name || {})[0] || d.code;
+    });
+    state.domains = Object.keys(domainSet)
+      .map(function (code) { return {code: code, label: byCode[code] || code}; })
+      .sort(function (a, b) { return a.code.localeCompare(b.code, undefined, {numeric: true}); });
+  }
+
+  function fillDomainSelect() {
+    var sel = el('domain');
+    sel.innerHTML = '';
+    var all = document.createElement('option');
+    all.value = '';
+    all.textContent = 'All domains';
+    sel.appendChild(all);
+    state.domains.forEach(function (d) {
+      var opt = document.createElement('option');
+      opt.value = d.code;
+      opt.textContent = d.code + ' — ' + d.label;
+      sel.appendChild(opt);
+    });
+    if (state.filter.domain && byCodeExists(state.filter.domain)) sel.value = state.filter.domain;
+    else state.filter.domain = '';
+    sel.disabled = state.domains.length === 0;
+  }
+
+  function byCodeExists(code) {
+    return state.domains.some(function (d) { return d.code === code; });
+  }
+
+  function filteredItems() {
+    var domain = state.filter.domain;
+    var search = state.filter.search.trim().toLocaleLowerCase();
+    return state.items.filter(function (item) {
+      if (domain && !item.domainCodes[domain]) return false;
+      if (search && item.search.indexOf(search) < 0) return false;
+      return true;
+    });
+  }
+
+  // --- Media loading (lazy, via IntersectionObserver) ---
+
+  function ensureObserver() {
+    if (observer || !('IntersectionObserver' in window)) return;
+    observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          observer.unobserve(e.target);
+          loadMedia(e.target);
+        }
+      });
+    }, {rootMargin: '200px'});
+  }
+
+  function setImg(mediaEl, url, alt) {
+    if (mediaEl.dataset.done) return;
+    mediaEl.dataset.done = '1';
+    var sk = mediaEl.querySelector('.skeleton');
+    var img = document.createElement('img');
+    img.alt = alt || '';
+    img.decoding = 'async';
+    img.addEventListener('load', function () {
+      img.classList.add('loaded');
+      if (sk) sk.remove();
+    });
+    img.src = url;
+    mediaEl.insertBefore(img, mediaEl.firstChild);
+  }
+
+  function setBroken(mediaEl, message) {
+    if (mediaEl.dataset.done) return;
+    mediaEl.dataset.done = '1';
+    var sk = mediaEl.querySelector('.skeleton');
+    if (sk) sk.remove();
+    var box = document.createElement('div');
+    box.className = 'broken';
+    box.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+    var text = document.createElement('span');
+    text.textContent = message || 'Image unavailable';
+    box.appendChild(text);
+    mediaEl.insertBefore(box, mediaEl.firstChild);
+  }
+
+  function loadMedia(mediaEl) {
+    var uri = mediaEl.dataset.uri;
+    var alt = mediaEl.dataset.alt || '';
+    var cached = mediaCache[uri];
+    if (cached) {
+      if (cached.status === 'ok') setImg(mediaEl, cached.url, alt);
+      else setBroken(mediaEl, cached.status === 'null' ? 'Not available offline' : 'Could not load image');
+      return;
+    }
+    fw.getMedia(uri).then(function (media) {
+      if (!media || !media.data) {
+        mediaCache[uri] = {status: 'null'};
+        // The lightbox reuses one element; skip if it has since moved to another picture.
+        if (mediaEl.dataset.uri === uri) setBroken(mediaEl, 'Not available offline');
+        return;
+      }
+      var url = URL.createObjectURL(new Blob([media.data], {type: media.mimeType || ''}));
+      mediaCache[uri] = {status: 'ok', url: url};
+      if (mediaEl.dataset.uri === uri) setImg(mediaEl, url, alt);
+    }).catch(function () {
+      mediaCache[uri] = {status: 'error'};
+      if (mediaEl.dataset.uri === uri) setBroken(mediaEl, 'Could not load image');
+    });
+  }
+
+  // --- Rendering ---
+
+  var ICON_AUDIO = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 9v6h4l5 5V4L9 9H5z"/></svg>';
+
+  function makeCard(item) {
+    var card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'card';
+    card.setAttribute('aria-label', 'Open ' + (item.headword || 'entry'));
+
+    var media = document.createElement('div');
+    media.className = 'media';
+    media.dataset.uri = item.picture.mediaUri;
+    media.dataset.alt = item.headword;
+    var sk = document.createElement('div');
+    sk.className = 'skeleton';
+    media.appendChild(sk);
+    if (audioRefFor(item.entry)) {
+      var dot = document.createElement('span');
+      dot.className = 'audio-dot';
+      dot.title = 'Has audio';
+      dot.innerHTML = ICON_AUDIO;
+      media.appendChild(dot);
+    }
+    card.appendChild(media);
+
+    var body = document.createElement('div');
+    body.className = 'card-body';
+    var hw = document.createElement('div');
+    hw.className = 'hw';
+    hw.textContent = item.headword || '—';
+    body.appendChild(hw);
+    if (item.gloss) {
+      var gloss = document.createElement('div');
+      gloss.className = 'gloss';
+      gloss.textContent = item.gloss;
+      body.appendChild(gloss);
+    }
+    if (item.caption) {
+      var cap = document.createElement('div');
+      cap.className = 'cap';
+      cap.textContent = item.caption;
+      body.appendChild(cap);
+    }
+    card.appendChild(body);
+
+    card.addEventListener('click', function () { openLightbox(item); });
+
+    // Lazy-load the image; fall back to eager load if IntersectionObserver is unavailable.
+    if (observer) observer.observe(media);
+    else loadMedia(media);
+
+    return card;
+  }
+
+  function updateCoverage(shown) {
+    var cov = el('coverage');
+    cov.innerHTML = '';
+    var strong1 = document.createElement('strong');
+    strong1.textContent = state.illustratedEntries.toLocaleString();
+    var strong2 = document.createElement('strong');
+    strong2.textContent = state.totalEntries.toLocaleString();
+    cov.appendChild(strong1);
+    cov.appendChild(document.createTextNode(' of '));
+    cov.appendChild(strong2);
+    cov.appendChild(document.createTextNode(
+      ' entr' + (state.totalEntries === 1 ? 'y is' : 'ies are') + ' illustrated'));
+
+    var showing = document.createElement('span');
+    showing.textContent = '· showing ' + shown.toLocaleString() + ' picture' + (shown === 1 ? '' : 's');
+    cov.appendChild(showing);
+
+    if (state.capped) {
+      var cap = document.createElement('span');
+      cap.className = 'cap-note';
+      cap.textContent = 'scanned first ' + ENTRY_CAP.toLocaleString() + ' entries only';
+      cov.appendChild(cap);
+    }
+  }
+
+  function render() {
+    var gallery = el('gallery');
+    gallery.innerHTML = '';
+    var list = filteredItems();
+    updateCoverage(list.length);
+
+    if (!list.length) {
+      var msg = document.createElement('div');
+      msg.className = 'center-state';
+      msg.style.gridColumn = '1 / -1';
+      msg.textContent = (state.filter.domain || state.filter.search)
+        ? 'No illustrated entries match your filter.'
+        : 'Nothing to show.';
+      gallery.appendChild(msg);
+      return;
+    }
+
+    ensureObserver();
+    var frag = document.createDocumentFragment();
+    list.forEach(function (item) { frag.appendChild(makeCard(item)); });
+    gallery.appendChild(frag);
+  }
+
+  // --- Lightbox ---
+
+  var ICON_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
+
+  function lightboxMediaFor(item) {
+    var mediaBox = el('lb-media');
+    // Clear everything except the close button.
+    Array.prototype.slice.call(mediaBox.querySelectorAll(':scope > :not(#lb-close)')).forEach(function (n) { n.remove(); });
+    mediaBox.dataset.uri = item.picture.mediaUri;
+    mediaBox.dataset.alt = item.headword;
+    delete mediaBox.dataset.done;
+    var cached = mediaCache[item.picture.mediaUri];
+    if (cached && cached.status === 'ok') { setImg(mediaBox, cached.url, item.headword); return; }
+    if (cached) { setBroken(mediaBox, cached.status === 'null' ? 'Not available offline' : 'Could not load image'); return; }
+    var sk = document.createElement('div');
+    sk.className = 'skeleton';
+    mediaBox.appendChild(sk);
+    loadMedia(mediaBox);
+  }
+
+  function openLightbox(item) {
+    lightboxMediaFor(item);
+    el('lb-hw').textContent = item.headword || '—';
+    var gloss = el('lb-gloss');
+    gloss.textContent = item.gloss || '';
+    gloss.style.display = item.gloss ? '' : 'none';
+    var cap = el('lb-cap');
+    cap.textContent = item.caption || '';
+    cap.style.display = item.caption ? '' : 'none';
+
+    var actions = el('lb-actions');
+    actions.innerHTML = '';
+
+    var audioRef = audioRefFor(item.entry);
+    if (audioRef) actions.appendChild(makeAudioButton(audioRef));
+
+    var view = document.createElement('button');
+    view.type = 'button';
+    view.className = 'btn';
+    view.innerHTML = ICON_EYE;
+    view.appendChild(document.createTextNode('View'));
+    view.addEventListener('click', function () {
+      fw.openEntry(item.entry.id, {mode: 'view'}).catch(function () {});
+    });
+    actions.appendChild(view);
+
+    var caps = fw.capabilities;
+    var canEdit = !caps || !caps.openEntryModes || caps.openEntryModes.indexOf('edit') >= 0;
+    if (canEdit) {
+      var edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'btn primary';
+      edit.innerHTML = ICON_EDIT;
+      edit.appendChild(document.createTextNode('Edit'));
+      edit.addEventListener('click', function () {
+        fw.openEntry(item.entry.id, {mode: 'edit'}).catch(function () {});
+      });
+      actions.appendChild(edit);
+    }
+
+    var lb = el('lightbox');
+    lb.classList.add('open');
+    el('lb-close').focus();
+  }
+
+  function makeAudioButton(audioRef) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn';
+    btn.innerHTML = ICON_AUDIO;
+    btn.appendChild(document.createTextNode('Play audio'));
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      var label = btn.lastChild;
+      label.textContent = 'Loading…';
+      fw.getMedia(audioRef).then(function (media) {
+        if (!media || !media.data) {
+          fw.notify('Audio is not available offline.');
+          btn.disabled = false;
+          label.textContent = 'Play audio';
+          return;
+        }
+        if (lightboxAudioUrl) URL.revokeObjectURL(lightboxAudioUrl);
+        lightboxAudioUrl = URL.createObjectURL(new Blob([media.data], {type: media.mimeType || 'audio/*'}));
+        var audio = new Audio(lightboxAudioUrl);
+        audio.addEventListener('ended', function () { btn.disabled = false; label.textContent = 'Play audio'; });
+        audio.play().then(function () { label.textContent = 'Playing…'; }).catch(function () {
+          btn.disabled = false;
+          label.textContent = 'Play audio';
+        });
+      }).catch(function () {
+        fw.notify('Could not load the audio.');
+        btn.disabled = false;
+        label.textContent = 'Play audio';
+      });
+    });
+    return btn;
+  }
+
+  function closeLightbox() {
+    el('lightbox').classList.remove('open');
+    if (lightboxAudioUrl) { URL.revokeObjectURL(lightboxAudioUrl); lightboxAudioUrl = null; }
+  }
+
+  // --- Persistence & events ---
+
+  function persistFilter() {
+    fw.storage.set('filter', state.filter).catch(function () {});
+  }
+
+  function wireEvents() {
+    el('domain').addEventListener('change', function () {
+      state.filter.domain = this.value;
+      persistFilter();
+      render();
+    });
+    var timer = null;
+    el('search').addEventListener('input', function () {
+      state.filter.search = this.value;
+      clearTimeout(timer);
+      timer = setTimeout(function () { persistFilter(); render(); }, 150);
+    });
+    el('lb-close').addEventListener('click', closeLightbox);
+    el('lightbox').addEventListener('click', function (e) {
+      if (e.target === el('lightbox')) closeLightbox();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && el('lightbox').classList.contains('open')) closeLightbox();
+    });
+    window.addEventListener('pagehide', function () {
+      Object.keys(mediaCache).forEach(function (uri) {
+        if (mediaCache[uri].url) URL.revokeObjectURL(mediaCache[uri].url);
+      });
+      if (lightboxAudioUrl) URL.revokeObjectURL(lightboxAudioUrl);
+    });
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+    el('subtitle').textContent = 'A visual gallery of illustrated entries in ' + context.project.projectName + '.';
+
+    Promise.all([
+      fw.getWritingSystems(),
+      fw.getSemanticDomains(),
+      fw.countEntries({}),
+      fw.storage.get('filter'),
+    ]).then(function (results) {
+      var ws = results[0];
+      var allDomains = results[1] || [];
+      var total = results[2];
+      var savedFilter = results[3];
+
+      state.totalEntries = total;
+      state.vernacularWs = wsIds((ws.vernacular || []).filter(function (w) { return !w.isAudio; }));
+      state.analysisWs = wsIds((ws.analysis || []).filter(function (w) { return !w.isAudio; }));
+      state.audioWs = wsIds((ws.vernacular || []).concat(ws.analysis || []).filter(function (w) { return w.isAudio; }));
+
+      var vernFont = (ws.vernacular || []).map(function (w) { return w.font; }).filter(Boolean)[0];
+      if (vernFont) {
+        document.documentElement.style.setProperty('--vern-font',
+          '"' + vernFont.replace(/"/g, '') + '", inherit');
+      }
+
+      if (savedFilter && typeof savedFilter === 'object') {
+        state.filter.domain = typeof savedFilter.domain === 'string' ? savedFilter.domain : '';
+        state.filter.search = typeof savedFilter.search === 'string' ? savedFilter.search : '';
+      }
+
+      if (total === 0) {
+        el('loading').style.display = 'none';
+        el('empty').style.display = 'block';
+        el('empty').querySelector('.big').textContent = 'This project has no entries yet';
+        el('empty').lastElementChild.textContent = 'Add entries and pictures in the editor, then they will appear here.';
+        return;
+      }
+      state.capped = total > ENTRY_CAP;
+
+      return fetchAll(total).then(function (entries) {
+        var domainSet = buildItems(entries);
+
+        if (!state.items.length) {
+          el('loading').style.display = 'none';
+          el('empty').style.display = 'block';
+          return;
+        }
+
+        buildDomainList(domainSet, allDomains);
+        ensureObserver();
+        fillDomainSelect();
+        el('search').value = state.filter.search;
+        wireEvents();
+
+        el('loading').style.display = 'none';
+        el('main').style.display = 'block';
+        render();
+      });
+    }).catch(function (err) {
+      showError('Could not build the picture dictionary: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  fw.ready.then(init);
+})();
+</script>
+</body>
+</html>

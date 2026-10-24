@@ -45,6 +45,7 @@ internal static class ActivityChangeInfoResolver
         var morphTypeIds = new HashSet<Guid>();
         var writingSystemIds = new HashSet<Guid>();
         var customViewIds = new HashSet<Guid>();
+        var pluginIds = new HashSet<Guid>();
         var commentThreadIds = new HashSet<Guid>();
         var userCommentIds = new HashSet<Guid>();
 
@@ -63,6 +64,7 @@ internal static class ActivityChangeInfoResolver
                 case nameof(MorphType): morphTypeIds.Add(change.EntityId); break;
                 case nameof(WritingSystem): writingSystemIds.Add(change.EntityId); break;
                 case nameof(CustomView): customViewIds.Add(change.EntityId); break;
+                case nameof(Plugin): pluginIds.Add(change.EntityId); break;
                 case nameof(CommentThread): commentThreadIds.Add(change.EntityId); break;
                 case nameof(UserComment): userCommentIds.Add(change.EntityId); break;
             }
@@ -125,6 +127,7 @@ internal static class ActivityChangeInfoResolver
         var writingSystemsById = await LoadNamed<WritingSystem>(db, writingSystemIds,
             w => new WritingSystem { Id = w.Id, WsId = w.WsId, Name = w.Name, Abbreviation = w.Abbreviation, Font = w.Font, Type = w.Type });
         var customViews = await LoadNamed<CustomView>(db, customViewIds, v => new CustomView { Id = v.Id, Name = v.Name });
+        var plugins = await LoadNamed<Plugin>(db, pluginIds, p => new Plugin { Id = p.Id, Name = p.Name, FileUri = p.FileUri });
 
         // Used to render headwords, so skip the load entirely when no entry is being resolved.
         var morphLookup = entryIds.Count == 0
@@ -204,6 +207,8 @@ internal static class ActivityChangeInfoResolver
                     return (NullIfEmpty(ws.Name), null);
                 case nameof(CustomView) when customViews.TryGetValue(id, out var view):
                     return (NullIfEmpty(view.Name), null);
+                case nameof(Plugin) when plugins.TryGetValue(id, out var plugin):
+                    return (NullIfEmpty(plugin.Name), null);
                 case nameof(CommentThread) when commentThreads.TryGetValue(id, out var thread):
                     return CommentSubject(thread);
                 case nameof(UserComment) when userComments.TryGetValue(id, out var comment)
@@ -314,8 +319,8 @@ internal static class ActivityChangeInfoResolver
         return loaded;
     }
 
-    // Objects the resolver labels only by name (possibilities like parts of speech, plus writing systems and
-    // custom views). Recovers deleted ids like the per-type loads, so a removed item can still be named.
+    // Objects the resolver labels only by name (possibilities like parts of speech, plus writing systems,
+    // custom views and plugins). Recovers deleted ids like the per-type loads, so a removed item can still be named.
     private static async Task<Dictionary<Guid, T>> LoadNamed<T>(ICrdtDbContext db, HashSet<Guid> ids, Expression<Func<T, T>> project)
         where T : class, IObjectWithId
     {

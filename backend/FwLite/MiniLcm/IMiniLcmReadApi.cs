@@ -49,6 +49,14 @@ public interface IMiniLcmReadApi
     {
         throw new NotSupportedException("Custom views are only supported by CRDT projects");
     }
+    IAsyncEnumerable<Plugin> GetPlugins()
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
+    }
+    Task<Plugin?> GetPlugin(Guid id)
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
+    }
     IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId, bool includeComments = false)
     {
         throw new NotSupportedException("Comments are only supported by CRDT projects");

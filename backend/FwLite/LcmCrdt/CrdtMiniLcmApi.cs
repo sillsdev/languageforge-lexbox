@@ -19,7 +19,8 @@ public class CrdtMiniLcmApi(
     CrdtPictureApi pictureApi,
     CrdtMediaApi mediaApi,
     CrdtCustomViewApi customViewApi,
-    CrdtCommentApi commentApi) : IMiniLcmApi
+    CrdtCommentApi commentApi,
+    CrdtPluginApi pluginApi) : IMiniLcmApi
 {
     public ProjectData ProjectData => projectService.ProjectData;
     public CrdtProject Project => projectService.Project;
@@ -594,6 +595,33 @@ public class CrdtMiniLcmApi(
     public async Task DeleteCustomView(Guid id)
     {
         await customViewApi.DeleteCustomView(id);
+    }
+    #endregion
+
+    #region PluginApi
+    public IAsyncEnumerable<Plugin> GetPlugins()
+    {
+        return pluginApi.GetPlugins();
+    }
+
+    public async Task<Plugin?> GetPlugin(Guid id)
+    {
+        return await pluginApi.GetPlugin(id);
+    }
+
+    public async Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        return await pluginApi.CreatePlugin(plugin);
+    }
+
+    public async Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        return await pluginApi.UpdatePlugin(plugin);
+    }
+
+    public async Task DeletePlugin(Guid id)
+    {
+        await pluginApi.DeletePlugin(id);
     }
     #endregion
 

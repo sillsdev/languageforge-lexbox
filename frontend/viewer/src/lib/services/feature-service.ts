@@ -1,4 +1,5 @@
 import type {IMiniLcmFeatures} from '$lib/dotnet-types';
+import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
 import {useProjectContext} from '$project/project-context.svelte';
 
 export type LexboxFeatures = IMiniLcmFeatures;
@@ -33,6 +34,9 @@ export function useFeatures(): LexboxFeatures {
     },
     get customViews() {
       return !!context.features.customViews;
+    },
+    get plugins() {
+      return !!context.features.plugins && hasFlag('plugins');
     },
   } satisfies Required<IMiniLcmFeatures>;
 }

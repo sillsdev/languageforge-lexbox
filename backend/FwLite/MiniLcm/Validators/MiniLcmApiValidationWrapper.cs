@@ -515,6 +515,27 @@ public partial class MiniLcmApiValidationWrapper(
 
     #endregion
 
+    #region Plugin
+
+    public async Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        await validators.ValidateAndThrow(plugin);
+        return await _api.CreatePlugin(plugin);
+    }
+
+    public async Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        await validators.ValidateAndThrow(plugin);
+        return await _api.UpdatePlugin(plugin);
+    }
+
+    public Task DeletePlugin(Guid id)
+    {
+        return _api.DeletePlugin(id);
+    }
+
+    #endregion
+
     #region Comments
 
     public Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)

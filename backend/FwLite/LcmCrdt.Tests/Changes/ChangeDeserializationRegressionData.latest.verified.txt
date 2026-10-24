@@ -2405,5 +2405,43 @@
     "Type": 1,
     "Order": 0.26752684125181847,
     "EntityId": "ff400435-e634-d4fe-8ef0-7db95241cced"
+  },
+  {
+    "$type": "CreatePluginChange",
+    "Name": "Cambridgeshire",
+    "Description": "firewall",
+    "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+    "FileSize": 2887990446864026234,
+    "Permissions": [
+      "Drive"
+    ],
+    "Contexts": [
+      "Eritrea"
+    ],
+    "Requires": [
+      "Tools"
+    ],
+    "EntityId": "ab00017f-0de2-a45f-ef10-ff3a59c60015"
+  },
+  {
+    "$type": "EditPluginChange",
+    "Name": "Factors",
+    "Description": "Implemented",
+    "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+    "FileSize": -5410298635370337575,
+    "Permissions": [
+      "Human"
+    ],
+    "Contexts": [
+      "Generic"
+    ],
+    "Requires": [
+      "Ridges"
+    ],
+    "EntityId": "816d242e-16e8-2461-1a06-771518b0ca91"
+  },
+  {
+    "$type": "delete:Plugin",
+    "EntityId": "13ced028-f898-d4db-113c-5ed794c2f9b5"
   }
 ]

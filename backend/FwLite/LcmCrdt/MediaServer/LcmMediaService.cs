@@ -23,6 +23,9 @@ public class LcmMediaService(
     ILogger<LcmMediaService> logger
 ) : IRemoteResourceService<LcmFileMetadata>
 {
+    private static readonly System.Buffers.SearchValues<char> ValidSubfolderChars =
+        System.Buffers.SearchValues.Create("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_");
+
     public async Task<HarmonyResource<LcmFileMetadata>[]> AllResources()
     {
         var resources = await resourceService.AllResources();
@@ -203,18 +206,39 @@ public class LcmMediaService(
             new FileInfoPart(new FileInfo(localPath), fileName),
             projectId: currentProjectService.ProjectData.Id,
             fileId: resourceId.ToString("D"),
-            filename: fileName);
+            filename: fileName,
+            linkedFilesSubfolderOverride: LinkedFilesSubfolder(localPath));
         var uploadedMetadata = new LcmFileMetadata(fileName,
             response.Metadata?.MimeType ?? metadata?.MimeType ?? MediaTypeNames.Application.Octet,
             response.Metadata?.Author ?? metadata?.Author,
             response.Metadata?.UploadDate ?? metadata?.UploadDate,
-            response.Metadata?.SizeInBytes ?? metadata?.SizeInBytes);
+            response.Metadata?.SizeInBytes ?? metadata?.SizeInBytes,
+            metadata?.LinkedFilesSubfolder);
         return new UploadResult<LcmFileMetadata>(resourceId.ToString("N"), uploadedMetadata);
+    }
+
+    /// <summary>
+    /// The LinkedFiles subfolder a file should upload into, carried as its directory within the
+    /// local cache (SaveFile puts it there). Uploads can run long after SaveFile — e.g. pending
+    /// resources flushed when back online — so the path is the only place it can live.
+    /// </summary>
+    private string? LinkedFilesSubfolder(string localPath)
+    {
+        var relativeDir = Path.GetDirectoryName(Path.GetRelativePath(ProjectResourceCachePath, localPath));
+        if (string.IsNullOrEmpty(relativeDir) || relativeDir == "." || relativeDir.StartsWith("..")) return null;
+        return relativeDir.Replace('\\', '/');
     }
 
     public async Task<(HarmonyResource<LcmFileMetadata> resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         var projectResourceCachePath = ProjectResourceCachePath;
+        if (metadata.LinkedFilesSubfolder is not null)
+        {
+            // Single trusted path segment only ("Plugins") — this ends up in server file paths.
+            if (metadata.LinkedFilesSubfolder.AsSpan().ContainsAnyExcept(ValidSubfolderChars))
+                throw new ArgumentException($"Invalid LinkedFiles subfolder: {metadata.LinkedFilesSubfolder}", nameof(metadata));
+            projectResourceCachePath = Path.Combine(projectResourceCachePath, metadata.LinkedFilesSubfolder);
+        }
         Directory.CreateDirectory(projectResourceCachePath);
         var localPath = Path.Combine(projectResourceCachePath, Path.GetFileName(metadata.Filename));
         if (File.Exists(localPath)) return ((await resourceService.AllResources()).First(r => r.LocalPath == localPath), newResource: false);
