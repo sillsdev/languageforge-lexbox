@@ -57,6 +57,11 @@ tasks:
       MARKETING_SCREENSHOTS: true
     cmd: pnpm run test:ui snapshots {{.CLI_ARGS}}
 
+  docs:screenshots:
+    desc: 'regenerates the screenshots embedded in the docs site (docs/static/img/fw-lite); starts vite + storybook itself'
+    deps: [ install ]
+    cmd: pnpm run screenshots:docs {{.CLI_ARGS}}
+
   test:e2e:
     cmd: pnpm run test:e2e {{.CLI_ARGS}}
   test:launcher:
