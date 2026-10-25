@@ -1,5 +1,5 @@
 import {defineConfig, devices, type ReporterDescription} from '@playwright/test';
-import * as testEnv from '../../../tests/envVars';
+import {WHATS_NEW_VERSION} from '../../src/lib/whats-new/whats-new';
 
 // Same override and validation as vite.config.ts, so a worktree on its own port tests its own dev server.
 const parsedDevPort = Number(process.env.FwLite__DevAssetsPort);
@@ -39,11 +39,16 @@ export default defineConfig({
       cookies: [],
       origins: [
         {
-          origin: testEnv.serverHostname,
+          origin: `http://localhost:${serverPort}`,
           localStorage: [
             {
               name: 'isPlaywright',
               value: 'true',
+            },
+            {
+              // Otherwise the "What's new" toast covers every test; whats-new.test.ts clears it on purpose.
+              name: 'WhatsNewSeenVersion',
+              value: WHATS_NEW_VERSION,
             },
           ],
         },

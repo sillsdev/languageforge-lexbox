@@ -9,8 +9,9 @@
   import UpdateDialogContent from './UpdateDialogContent.svelte';
   import {useEventBus} from '$lib/services/event-bus';
   import {FwEventType, type IAppUpdateProgressEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events';
-  import {downloadPageUrl, releaseNotesUrl} from './utils';
+  import {downloadPageUrl} from './utils';
   import Anchor from '$lib/components/ui/anchor/anchor.svelte';
+  import ReleaseNotesLink from './ReleaseNotesLink.svelte';
 
   let {open = $bindable()}: { open: boolean } = $props();
   const config = useFwLiteConfig();
@@ -87,16 +88,7 @@
         {$t`Download page`}
         <Icon icon="i-mdi-open-in-new" class="size-4" />
       </Anchor>
-      <Anchor
-        variant="text"
-        class="text-sm"
-        href={releaseNotesUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {$t`Release notes`}
-        <Icon icon="i-mdi-open-in-new" class="size-4" />
-      </Anchor>
+      <ReleaseNotesLink />
     </div>
   </div>
 </ResponsiveDialog>

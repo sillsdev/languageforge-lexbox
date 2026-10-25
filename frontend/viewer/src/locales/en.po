@@ -222,6 +222,12 @@ msgstr "Add part of"
 msgid "Add Picture"
 msgstr "Add Picture"
 
+#. Feature description in the What's new dialog.
+#. "Meaning" is the Lite-view word for a sense of a word.
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Add pictures to a meaning, take them with your device's camera, and use the media manager to download media for offline use."
+msgstr "Add pictures to a meaning, take them with your device's camera, and use the media manager to download media for offline use."
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
 #. Small button to add another sense/meaning for a word
@@ -256,6 +262,10 @@ msgstr "Add your first entry to start building your dictionary."
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
 msgstr "Advanced: settings file"
+
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "After this update each dictionary is converted to a new format the first time you edit or sync it. FieldWorks Lite may seem frozen for a few minutes on a large dictionary; keep the app open while it works."
+msgstr "After this update each dictionary is converted to a new format the first time you edit or sync it. FieldWorks Lite may seem frozen for a few minutes on a large dictionary; keep the app open while it works."
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
@@ -343,6 +353,10 @@ msgstr "Any Ws"
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
+
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Ask a question, flag a problem or agree on a change without editing the entry. Comments from teammates appear as soon as they sync, and you can filter the list to entries with unread comments."
+msgstr "Ask a question, flag a problem or agree on a change without editing the entry. Comments from teammates appear as soon as they sync, and you can filter the list to entries with unread comments."
 
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
@@ -544,10 +558,20 @@ msgstr "Comment"
 msgid "Commenter"
 msgstr "Commenter"
 
+#. Feature title in the What's new dialog. "Commenter" is a Lexbox project role (can read and comment, not edit); match the "Commenter" translation.
+#. "Lexbox" is a product name — do not translate.
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Commenter role"
+msgstr "Commenter role"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
 msgstr "Comments"
+
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Comments on entries"
+msgstr "Comments on entries"
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
@@ -793,6 +817,10 @@ msgstr "Details"
 msgid "Dictionaries"
 msgstr "Dictionaries"
 
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Dictionaries are converted once"
+msgstr "Dictionaries are converted once"
+
 #. Sidebar header
 #: src/project/ProjectSidebar.svelte
 msgid "Dictionary"
@@ -927,6 +955,11 @@ msgstr "Empty comment"
 msgid "Ends with"
 msgstr "Ends with"
 
+#. Feature description in the What's new dialog. "FieldWorks" is a product name — do not translate.
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Entries are sorted with the same custom sort order (collation) that is set up for each writing system in FieldWorks."
+msgstr "Entries are sorted with the same custom sort order (collation) that is set up for each writing system in FieldWorks."
+
 #: src/project/tasks/tasks-service.ts
 msgid "Entries missing both Lexeme form and Citation form"
 msgstr "Entries missing both Lexeme form and Citation form"
@@ -998,6 +1031,10 @@ msgstr "Error getting sync status"
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Error getting sync status."
 msgstr "Error getting sync status."
+
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Error reports"
+msgstr "Error reports"
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every entry already has this field filled in."
@@ -1133,6 +1170,11 @@ msgstr "FieldWorks Lite"
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite collects usage data to help us improve it."
+
+#. Toast shown after an app update, with a "What's new" action button. "FieldWorks Lite" is a product name — do not translate.
+#: src/lib/whats-new/whats-new-announcer.ts
+msgid "FieldWorks Lite has been updated."
+msgstr "FieldWorks Lite has been updated."
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
@@ -1275,6 +1317,11 @@ msgstr "Finish"
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "For any other inquiries, feel free to send us an email."
+
+#. Small caption under a feature title in the What's new dialog, saying who the feature is for (users who manage a project's members on Lexbox).
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "For project managers"
+msgstr "For project managers"
 
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -1944,6 +1991,10 @@ msgstr "Not synced"
 msgid "Note"
 msgstr "Note"
 
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Nothing new in the last few months."
+msgstr "Nothing new in the last few months."
+
 #. Error tooltip/message on the copy button when there is no text content available to copy to the clipboard.
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
@@ -1982,6 +2033,12 @@ msgstr "On large projects this may take a long time. Do not close the app or int
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a while. Do not close the app or interrupt the process."
 msgstr "On large projects this may take a while. Do not close the app or interrupt the process."
+
+#. Feature description in the What's new dialog. "Lexbox" is a product name — do not translate.
+#. "Commenter" is a Lexbox role; match the "Commenter" translation.
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "On Lexbox you can now give someone the Commenter role: they can read the dictionary and comment on it, but not edit it."
+msgstr "On Lexbox you can now give someone the Commenter role: they can read the dictionary and comment on it, but not edit it."
 
 #. Explanation of sync behavior
 #: src/project/sync/FwClassicSyncView.svelte
@@ -2106,6 +2163,11 @@ msgstr "Picture not found"
 #: src/lib/views/entity-config.ts
 msgid "Pictures"
 msgstr "Pictures"
+
+#. Feature title in the What's new dialog. "Meaning" is the Lite-view word for a sense of a word.
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Pictures on meanings"
+msgstr "Pictures on meanings"
 
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
@@ -2293,7 +2355,7 @@ msgid "Release channel"
 msgstr "Release channel"
 
 #. Link label to open release notes
-#: src/lib/updates/UpdateDialog.svelte
+#: src/lib/updates/ReleaseNotesLink.svelte
 msgid "Release notes"
 msgstr "Release notes"
 
@@ -2618,6 +2680,11 @@ msgstr "Something went wrong"
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
 msgstr "Sort writing system"
+
+#. Feature title in the What's new dialog. "FieldWorks" is a product name — do not translate.
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Sorting matches FieldWorks"
+msgstr "Sorting matches FieldWorks"
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
@@ -3142,6 +3209,24 @@ msgstr "We collect usage data to understand how FieldWorks Lite is used and wher
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
 msgstr "What would you like to see here?"
+
+#. Short label: menu item that opens the What's new dialog (home menu and project sidebar), and the action button on the update toast.
+#: src/home/HomeView.svelte
+#: src/lib/whats-new/whats-new-announcer.ts
+#: src/project/ProjectSidebar.svelte
+msgid "What's new"
+msgstr "What's new"
+
+#. Dialog title. "FieldWorks Lite" is a product name — do not translate.
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "What's new in FieldWorks Lite"
+msgstr "What's new in FieldWorks Lite"
+
+#. Feature description in the What's new dialog. "FieldWorks Lite" is a product name — do not translate.
+#. "Privacy" is the name of a menu item/dialog; match its existing translation.
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "When something goes wrong, FieldWorks Lite now sends an anonymous error report along with the usage data it already collects. Dictionary text and personal details are removed first. You can turn this off under Privacy."
+msgstr "When something goes wrong, FieldWorks Lite now sends an anonymous error report along with the usage data it already collects. Dictionary text and personal details are removed first. You can turn this off under Privacy."
 
 #. External link button text for help
 #: src/home/Server.svelte

@@ -27,6 +27,8 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import DevToolsDialog from '$lib/layout/DevToolsDialog.svelte';
   import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
+  import {announceWhatsNewIfNeeded} from '$lib/whats-new/whats-new-announcer';
+  import {openWhatsNew} from '$lib/whats-new/whats-new-state.svelte';
   import * as Collapsible from '$lib/components/ui/collapsible';
   import {cn} from '$lib/utils';
   import {PersistedState} from 'runed';
@@ -59,6 +61,8 @@
   let troubleshootDialog = $state<TroubleshootDialog>();
   let syncDialog = $state<SyncDialog>();
   let updateDialogOpen = $state(false);
+  // A fresh install lands on the home view first, which marks the version seen before any project exists
+  if (!projectContext.inParatext) void announceWhatsNewIfNeeded(true);
   let feedbackOpen = $state(false);
   let privacyOpen = $state(false);
 
@@ -207,6 +211,12 @@
                 <Sidebar.MenuButton onclick={() => updateDialogOpen = true}>
                   <Icon icon="i-mdi-update" />
                   {$t`Updates`}
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton onclick={openWhatsNew}>
+                  <Icon icon="i-mdi-new-box" />
+                  <span>{$t`What's new`}</span>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
               <Sidebar.MenuItem>

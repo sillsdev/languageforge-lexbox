@@ -30,6 +30,8 @@
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import CreateProjectDialog from './CreateProjectDialog.svelte';
   import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
+  import {announceWhatsNewIfNeeded} from '$lib/whats-new/whats-new-announcer';
+  import {openWhatsNew} from '$lib/whats-new/whats-new-state.svelte';
   import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
   const projectsService = useProjectsService();
@@ -87,7 +89,10 @@
 
   let projectsPromise = $state(projectsService
     .localProjects()
-    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name))));
+    .then((projects) => {
+      void announceWhatsNewIfNeeded(projects.length > 0);
+      return projects.sort((p1, p2) => p1.name.localeCompare(p2.name));
+    }));
 
   async function refreshProjects() {
     let promise = projectsService.localProjects().then((p) => p.sort((p1, p2) => p1.name.localeCompare(p2.name)));
@@ -132,6 +137,9 @@
         <ResponsiveMenu.Content>
           <ResponsiveMenu.Item onSelect={() => updateDialogOpen = true} icon="i-mdi-update">
             {$t`Updates`}
+          </ResponsiveMenu.Item>
+          <ResponsiveMenu.Item onSelect={openWhatsNew} icon="i-mdi-new-box">
+            {$t`What's new`}
           </ResponsiveMenu.Item>
           <ResponsiveMenu.Item onSelect={() => feedbackOpen = true} icon="i-mdi-message">
             {$t`Feedback & Support`}

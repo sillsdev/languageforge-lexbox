@@ -5,6 +5,7 @@
   import {Router} from 'svelte-routing';
   import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
   import AppRoutes from './AppRoutes.svelte';
+  import WhatsNewDialog from '$lib/whats-new/WhatsNewDialog.svelte';
 
   setupGlobalErrorHandlers();
 </script>
@@ -18,5 +19,6 @@
       <AppRoutes />
     </Router>
     <NotificationOutlet/>
+    <WhatsNewDialog/>
   </div>
 </TooltipProvider>
