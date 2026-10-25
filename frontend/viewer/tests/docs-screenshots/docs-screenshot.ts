@@ -11,6 +11,8 @@ export type ColorScheme = 'light' | 'dark';
 // Per-build and environment-dependent content that would churn the images between runs.
 const hideChurnCss = `
   [data-testid="app-version"], [data-testid="made-with"] { visibility: hidden !important; }
+  /* dev-only Storybook shortcut in the home app bar */
+  a:has(> img[alt="Storybook icon"]), a:has(img[alt="Storybook icon"]) { display: none !important; }
   *, *::before, *::after { caret-color: transparent !important; }
 `;
 
