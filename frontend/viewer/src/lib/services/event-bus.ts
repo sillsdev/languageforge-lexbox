@@ -10,6 +10,7 @@ import {type ProjectContext, useProjectContext} from '$project/project-context.s
 import {onDestroy} from 'svelte';
 import type {ISyncEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/ISyncEvent';
 import type {IProjectRoleChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectRoleChangedEvent';
+import type {IProjectRebuildEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectRebuildEvent';
 
 export enum CloseReason {
   User = 0,
@@ -170,6 +171,17 @@ export class ProjectEventBus {
     });
   }
 
+  // A background sync can start the rebuild before this view exists, so replay the last event.
+  public onProjectRebuild(callback: (event: IProjectRebuildEvent) => void) {
+    const lastEvent = this.eventBus.getLastEvent<IProjectRebuildEvent>(this.projectCode, FwEventType.ProjectRebuild);
+    if (lastEvent) callback(lastEvent);
+    this.onProjectEvent(event => {
+      if (isProjectRebuildEvent(event)) {
+        callback(event);
+      }
+    });
+  }
+
   private onProjectEvent(callback: (event: IFwEvent) => void) {
     const onProjectEventCallback = (event: IFwEvent) => {
       if (isProjectEvent(event) && event.project.name === this.projectCode) {
@@ -208,4 +220,8 @@ function isSyncEvent(event: IFwEvent): event is ISyncEvent {
 
 function isProjectRoleChangedEvent(event: IFwEvent): event is IProjectRoleChangedEvent {
   return event.type === FwEventType.ProjectRoleChanged;
+}
+
+function isProjectRebuildEvent(event: IFwEvent): event is IProjectRebuildEvent {
+  return event.type === FwEventType.ProjectRebuild;
 }

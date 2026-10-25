@@ -1,5 +1,7 @@
 <script lang="ts">
   import ProjectView from './ProjectView.svelte';
+  import ProjectLoader from './ProjectLoader.svelte';
+  import ProjectRebuildStatus from '$project/ProjectRebuildStatus.svelte';
   import {onDestroy, onMount, untrack} from 'svelte';
   import {DotnetService} from '$lib/dotnet-types';
   import {useProjectServicesProvider} from '$lib/services/service-provider';
@@ -13,7 +15,7 @@
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
   import {initProjectContext} from '$project/project-context.svelte';
   import {initProjectStorage} from '$lib/storage';
-  import {useEventBus} from '$lib/services/event-bus';
+  import {useEventBus, useProjectEventBus} from '$lib/services/event-bus';
   import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
 
   const projectServicesProvider = useProjectServicesProvider();
@@ -32,6 +34,8 @@
 
   initProjectStorage(code);
 
+  let rebuilding = $state(false);
+  useProjectEventBus().onProjectRebuild(event => rebuilding = event.running);
 
   let projectName = $state<string>(code);
   let projectScope: IProjectScope;
@@ -95,6 +99,11 @@
 </script>
 
 
-<ProjectView data-paratext={paratext}/>
+<ProjectLoader {projectName} loading={rebuilding}>
+  {#snippet status()}
+    <ProjectRebuildStatus {projectName} />
+  {/snippet}
+  <ProjectView data-paratext={paratext}/>
+</ProjectLoader>
 
 

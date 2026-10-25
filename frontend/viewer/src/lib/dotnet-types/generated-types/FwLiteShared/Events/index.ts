@@ -8,6 +8,7 @@ export * from './IEntriesChangedEvent';
 export * from './IFwEvent';
 export * from './IJsEventListener';
 export * from './IProjectEvent';
+export * from './IProjectRebuildEvent';
 export * from './IProjectRoleChangedEvent';
 export * from './ISyncEvent';
 export * from './IUserNotificationEvent';

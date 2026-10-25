@@ -64,6 +64,7 @@ public static class FwLiteSharedKernel
         services.AddSingleton<CombinedProjectsService>();
         services.AddSingleton<GlobalEventBus>();
         services.AddSingleton<ProjectEventBus>();
+        services.AddSingleton<ISnapshotRebuildListener, ProjectRebuildEventPublisher>();
         services.AddSingleton<MiniLcmApiNotifyWrapperFactory>();
         services.AddScoped<JsEventListener>();
         services.AddScoped<JsInvokableLogger>();

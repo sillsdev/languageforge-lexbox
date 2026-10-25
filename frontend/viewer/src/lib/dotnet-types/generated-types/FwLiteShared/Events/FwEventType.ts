@@ -12,6 +12,7 @@ export enum FwEventType {
 	AppUpdate = "AppUpdate",
 	AppUpdateProgress = "AppUpdateProgress",
 	UserNotification = "UserNotification",
-	ProjectRoleChanged = "ProjectRoleChanged"
+	ProjectRoleChanged = "ProjectRoleChanged",
+	ProjectRebuild = "ProjectRebuild"
 }
 /* eslint-enable */

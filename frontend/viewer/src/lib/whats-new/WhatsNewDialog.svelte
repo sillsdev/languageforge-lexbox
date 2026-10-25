@@ -41,7 +41,7 @@
     'project-upgrade': {
       icon: 'i-mdi-database-refresh-outline',
       title: $t`Dictionaries are converted once`,
-      description: $t`After this update each dictionary is converted to a new format the first time you edit or sync it. FieldWorks Lite may seem frozen for a few minutes on a large dictionary; keep the app open while it works.`,
+      description: $t`After this update each dictionary is converted to a new format the first time you open it. This can take a few minutes for a large dictionary; keep the app open while it works.`,
     },
   });
 </script>

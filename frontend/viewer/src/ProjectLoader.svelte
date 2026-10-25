@@ -7,18 +7,24 @@
     readyToLoadProject?: boolean;
     projectName: string;
     loading: boolean;
+    /** Replaces the default "Loading..." content. */
+    status?: Snippet;
     children: Snippet;
   }
 
-  let {readyToLoadProject = true, projectName, children, loading}: Props = $props();
+  let {readyToLoadProject = true, projectName, children, loading, status}: Props = $props();
 </script>
 
 {#if loading}
   <div class="absolute w-full h-full z-10 flex grow items-center justify-center" out:fade={{duration: 800}}>
-    <div class="inline-flex flex-col items-center text-4xl gap-4 opacity-75 m-auto p-4 text-center">
-      <span>Loading <span class="text-primary">{projectName}</span>...</span>
-      <Loading class="size-14"/>
-    </div>
+    {#if status}
+      {@render status()}
+    {:else}
+      <div class="inline-flex flex-col items-center text-4xl gap-4 opacity-75 m-auto p-4 text-center">
+        <span>Loading <span class="text-primary">{projectName}</span>...</span>
+        <Loading class="size-14"/>
+      </div>
+    {/if}
   </div>
 {/if}
 

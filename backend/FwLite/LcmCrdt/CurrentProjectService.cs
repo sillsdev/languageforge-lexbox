@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using LcmCrdt.FullTextSearch;
 using LcmCrdt.Project;
 using Microsoft.EntityFrameworkCore;
@@ -105,8 +106,11 @@ public class CurrentProjectService(
             {
                 await using var dbContext = await DbContextFactory.CreateDbContextAsync();
                 await dbContext.Database.MigrateAsync();
+                var dataModel = services.GetRequiredService<DataModel>();
+                //first, so that reconcile can resume from a checkpoint instead of replaying everything a second time
+                await RebuildSnapshotsIfNoCheckpoints(dbContext, dataModel);
                 //replays changes authored under model versions this db hasn't applied yet, must run before the db is used
-                await services.GetRequiredService<DataModel>().ReconcileModelVersions();
+                await dataModel.ReconcileModelVersions();
 
                 if (EntrySearchServiceFactory is not null)
                 {
@@ -121,6 +125,30 @@ public class CurrentProjectService(
             }
         }
 
+    }
+
+    /// <summary>
+    /// Harmony replays all of history on the first write to a db that has commits but no snapshot checkpoint
+    /// (every db written before checkpoints existed). Doing that here instead moves the one-time cost to a
+    /// predictable moment that the host can explain to the user.
+    /// </summary>
+    private async Task RebuildSnapshotsIfNoCheckpoints(LcmCrdtDbContext dbContext, DataModel dataModel)
+    {
+        var commits = dbContext.Set<Commit>();
+        if (await commits.AnyAsync(c => c.IsSnapshotCheckpoint) || !await commits.AnyAsync()) return;
+
+        var listeners = services.GetServices<ISnapshotRebuildListener>().ToArray();
+        foreach (var listener in listeners) listener.RebuildStarted(Project);
+        var stopwatch = Stopwatch.StartNew();
+        try
+        {
+            await dataModel.RegenerateSnapshots();
+            logger.LogInformation("Rebuilt snapshots for project {Project} in {ElapsedMs}ms", Project.Name, stopwatch.ElapsedMilliseconds);
+        }
+        finally
+        {
+            foreach (var listener in listeners) listener.RebuildFinished(Project);
+        }
     }
 
     public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)
