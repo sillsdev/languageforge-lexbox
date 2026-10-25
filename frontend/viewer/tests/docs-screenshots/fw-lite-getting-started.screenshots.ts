@@ -45,3 +45,31 @@ test.describe('components', () => {
     await docsScreenshot(page, 'editor-multi-ws-input', pane);
   });
 });
+
+test.describe('project view details', () => {
+  test.beforeEach(async ({page}) => {
+    await page.goto('/testing/project-view');
+    await expect(page.locator('[role="table"]')).toBeVisible({timeout: 10_000});
+    await expect(page.getByRole('textbox', {name: 'Filter'})).toBeVisible();
+  });
+
+  test('view options with the View chooser', async ({page}) => {
+    await page.locator('button:has(.i-mdi-layers)').first().click();
+    await expect(page.getByRole('radio', {name: 'FieldWorks Classic'})).toBeVisible();
+    await docsScreenshot(page, 'view-options');
+  });
+
+  test('Help & More with Feedback & Support', async ({page}) => {
+    await page.getByRole('button', {name: 'Help & More'}).click();
+    await expect(page.getByRole('button', {name: 'Feedback & Support'})).toBeVisible();
+    await docsScreenshot(page, 'help-and-more');
+  });
+
+  test('read-only project', async ({page}) => {
+    await page.evaluate(() => window.__PLAYWRIGHT_UTILS__.setWrite(false));
+    await expect(page.getByLabel('Read-only')).toBeVisible();
+    await page.getByRole('row', {name: 'ambuka to cross a body of'}).click();
+    await expect(page.getByRole('heading', {name: 'ambuka'})).toBeVisible();
+    await docsScreenshot(page, 'project-view-read-only');
+  });
+});

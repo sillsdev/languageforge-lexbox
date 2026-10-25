@@ -33,6 +33,23 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   carry realistic fake data, so screens that normally need a server (e.g. the home page project
   list) can still be captured. The story id is the one in the Storybook URL.
 
+## What is captured
+
+| File (`docs/static/img/fw-lite/`) | Shows | For |
+| --- | --- | --- |
+| `home-logged-out` | Create Example Project, Login to see projects | Getting started: Try it first |
+| `home-logged-in`, `home-server-projects` | Lexbox Server list with Download, Refresh Projects, I don't see my project | Getting started: Download your project |
+| `home-project-menu` | Project context menu with Delete | FAQ: remove a project |
+| `project-view`, `project-view-entry`, `project-view-entry-mobile` | Browse view, an entry open, phone layout | Getting started: Open it and edit a word |
+| `project-view-read-only` | Lock next to the project name | Getting started: Viewer/Commenter tip |
+| `view-options` | View options popover with the View chooser | Getting started: FieldWorks Classic tip |
+| `help-and-more` | Help & More with Feedback & Support | FAQ: report a problem |
+| `sync-up-to-date`, `sync-pending`, `sync-offline`, `sync-not-logged-in` | Synchronize dialog, FieldWorks Lite tab | How sync works: If someone doesn't see your changes |
+| `sync-lexbox-tab` | Lexbox tab with the Sync button | How sync works: app map step 2 |
+| `editor-multi-ws-input` | One multi writing system field | Component example |
+
+Each row also has a `-dark` variant.
+
 ## Keeping them fresh
 
 The screenshot names are the contract with the docs: a doc page references `/img/fw-lite/<name>.png`,
