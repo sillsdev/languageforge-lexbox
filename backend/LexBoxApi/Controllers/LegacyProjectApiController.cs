@@ -49,8 +49,8 @@ public class LegacyProjectApiController : ControllerBase
             {
                 user.Salt,
                 user.PasswordHash,
-                //FLEx does not support the observer or commenter roles, so we need to exclude those projects from the list
-                projects = user.Projects.Where(m => m.Role != ProjectRole.Observer && m.Role != ProjectRole.Commenter)
+                //FLEx does not support the observer, commenter or editor lite roles (none can send/receive), so we need to exclude those projects from the list
+                projects = user.Projects.Where(m => m.Role != ProjectRole.Observer && m.Role != ProjectRole.Commenter && m.Role != ProjectRole.EditorLite)
                     .Select(member => new LegacyApiProject(member.Project!.Code,
                     member.Project.Name,
                     //it seems this is largely ignored by the client as it uses the LF domain instead

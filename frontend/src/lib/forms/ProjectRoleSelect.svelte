@@ -20,6 +20,9 @@
     {$t('project_role.manager_description')}
   </option>
   <!-- FieldWorks Lite only roles, offered on every project (their labels say so) -->
+  <option value={ProjectRole.EditorLite}>
+    {$t('project_role.editor_lite_description')}
+  </option>
   <option value={ProjectRole.Commenter}>
     {$t('project_role.commenter_description')}
   </option>

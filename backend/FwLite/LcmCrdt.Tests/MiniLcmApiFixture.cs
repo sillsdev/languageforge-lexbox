@@ -1,7 +1,6 @@
 using SIL.Harmony.Config;
 using System.Diagnostics;
 using LcmCrdt.Changes;
-using LcmCrdt.MediaServer;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using Meziantou.Extensions.Logging.Xunit;
@@ -20,6 +19,8 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     private readonly bool _seedWs = true;
     private readonly Guid? _projectId;
     private readonly Action<IServiceCollection>? _configureServices;
+    // fixtures run in parallel and share project codes, so each gets its own folder (media cache) to delete on dispose
+    private readonly string _projectPath = Path.GetFullPath($"fixture-{Guid.NewGuid():N}");
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
     private SqliteConnection? _keepAliveConnection;
@@ -71,6 +72,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 
         var serviceCollection = new ServiceCollection()
             .AddTestLcmCrdtClient()
+            .Configure<LcmCrdtConfig>(config => config.ProjectPath = _projectPath)
             .AddLogging(builder => builder.AddDebug()
                 .AddProvider(new LateXUnitLoggerProvider(this))
                 .AddFilter("LinqToDB", LogLevel.Trace)
@@ -161,11 +163,10 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 
     public async Task DisposeAsync()
     {
-        var projectResourceCachePath = _services.ServiceProvider.GetRequiredService<LcmMediaService>().ProjectResourceCachePath;
-        if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
         await (_keepAliveConnection?.DisposeAsync() ?? ValueTask.CompletedTask);
+        if (Directory.Exists(_projectPath)) Directory.Delete(_projectPath, true);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()

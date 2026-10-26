@@ -39,6 +39,7 @@
   const roleSelections: {role: UserProjectRole, label: string}[] = [
     { role: UserProjectRole.Manager, label: $t`Manager` },
     { role: UserProjectRole.Editor, label: $t`Editor` },
+    { role: UserProjectRole.EditorLite, label: $t`Editor Lite` },
     { role: UserProjectRole.Commenter, label: $t`Commenter` },
     { role: UserProjectRole.Observer, label: $t`Observer` },
   ];
