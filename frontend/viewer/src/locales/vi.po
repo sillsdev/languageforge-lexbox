@@ -163,6 +163,11 @@ msgstr "Đã có một từ tương tự rồi"
 msgid "a word"
 msgstr "một từ"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Abbreviation"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -258,6 +263,10 @@ msgstr "Thêm Từ"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Hãy thêm mục từ đầu tiên để bắt đầu xây dựng từ điển của bạn."
 
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Added"
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
 msgstr "Nâng cao: tệp cài đặt"
@@ -292,6 +301,7 @@ msgstr "một mục"
 
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Phân tích"
@@ -301,6 +311,7 @@ msgstr "Phân tích"
 msgid "Analysis writing system code"
 msgstr "Mã hệ thống chữ viết phân tích"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
 msgstr "Các hệ thống chữ viết phân tích"
@@ -354,6 +365,7 @@ msgstr "Bạn có chắc chắn muốn xóa {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Hỏi câu hỏi và nhận trợ giúp trên diễn đàn cộng đồng của chúng tôi."
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
@@ -401,6 +413,10 @@ msgstr "Quay lại"
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
 msgstr "Quay lại danh sách nhiệm vụ"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Base view"
+msgstr ""
 
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
@@ -533,6 +549,7 @@ msgstr "Đóng Từ điển"
 
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Code"
 msgstr "Mã"
 
@@ -787,6 +804,10 @@ msgstr "Xóa từ"
 msgid "Deleted"
 msgstr "Đã xóa"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Description"
+msgstr ""
+
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
@@ -972,6 +993,10 @@ msgstr "nhập"
 msgid "Entry"
 msgstr "Mục"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Entry fields"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word only"
 #. Label for picker when creating relationships: select only the entry itself (not a specific sense/meaning)
@@ -1024,6 +1049,10 @@ msgstr "Mỗi từ đều đã được điền sẵn vào trường này."
 msgid "Example"
 msgstr "Ví dụ"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Example fields"
+msgstr ""
+
 #. Field label
 #. Sentence/phrase showing usage of a word
 #. Appears under each Sense/Meaning; can have multiple examples per meaning
@@ -1035,6 +1064,10 @@ msgstr "Câu ví dụ"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
 msgstr "Các câu ví dụ"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Exemplars"
+msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -1280,6 +1313,10 @@ msgstr "Tìm từ..."
 msgid "Finish"
 msgstr "Hoàn tất"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Font"
+msgstr ""
+
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
@@ -1385,6 +1422,10 @@ msgstr "Lịch sử"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or#press and release to start recording."
 msgstr "Giữ nút để ghi âm hoặc#nhấn và thả nút để bắt đầu ghi âm."
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Homograph number"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1601,10 +1642,18 @@ msgstr "Đăng nhập để xem dự án"
 msgid "Logout"
 msgstr "Đăng xuất"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Louw-Nida codes"
+msgstr ""
+
 #. Footer text in the project sidebar. The emoji flags are the countries of origin of the development team — do not translate.
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Được tạo với ❤️ từ 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Main publication"
+msgstr ""
 
 #. Button label in the Feedback & Support dialog. Opens an external link to submit a feature suggestion.
 #: src/lib/about/FeedbackDialog.svelte
@@ -1715,6 +1764,10 @@ msgstr "Thiếu: {0}"
 msgid "Mode"
 msgstr "Chế độ"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Morph type"
+msgstr ""
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1727,6 +1780,9 @@ msgstr "Chế độ xem tùy chỉnh của tôi..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Tên"
@@ -1803,6 +1859,10 @@ msgstr "Cột mốc tiếp theo: {0}.  Còn {1} nữa."
 msgid "Next picture"
 msgstr "Hình tiếp theo"
 
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "No"
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1871,6 +1931,7 @@ msgid "No open conversations"
 msgstr "Không có cuộc trò chuyện đang diễn ra"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
+#: src/lib/entry-editor/diff-view/DiffPictures.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
 msgstr "Không có hình ảnh"
@@ -1961,6 +2022,10 @@ msgstr "Không có gì để sao chép"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
 msgstr "Quan sát viên"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "OCM codes"
+msgstr ""
 
 #. Status indicator
 #: src/project/ProjectSidebar.svelte
@@ -2128,6 +2193,14 @@ msgstr "Đã ghim"
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
 msgstr "Nền tảng"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Postfix"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Prefix"
+msgstr ""
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -2320,6 +2393,10 @@ msgstr "Gỡ bỏ"
 msgid "Remove audio"
 msgstr "Xóa âm thanh"
 
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Removed"
+msgstr ""
+
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -2505,6 +2582,10 @@ msgstr "Gửi cho chúng tôi một tin nhắn"
 msgid "Sense"
 msgstr "Ý nghĩa (sense)"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sense fields"
+msgstr ""
+
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
@@ -2628,6 +2709,14 @@ msgstr ""
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr "Đã xảy ra sự cố"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sort language"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sort rules"
+msgstr ""
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
@@ -2880,12 +2969,14 @@ msgid "Total entries"
 msgstr "Tổng số mục"
 
 #. Field label
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Bản dịch"
 
 #. Field title in the example editor when an entry has multiple translations. {0} = 1-based index number (e.g., "Translation 1", "Translation 2"). When there is only one translation, "Translation" is used instead.
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Bản dịch {0}"
@@ -2907,6 +2998,7 @@ msgstr "Hãy thử lại"
 msgid "Turn analytics back on"
 msgstr "Bật lại tính năng phân tích"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
 msgstr "Loại"
@@ -3035,6 +3127,8 @@ msgstr "Chưa đọc"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
+#: src/lib/entry-editor/diff-view/DiffSelect.svelte
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryView.svelte
@@ -3109,6 +3203,7 @@ msgstr "Ghi nhật ký chi tiết"
 
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Tiếng địa phương"
@@ -3122,6 +3217,7 @@ msgstr "Mã hệ thống chữ viết bản địa"
 msgid "Vernacular writing system is required"
 msgstr "Phải có hệ thống chữ viết bản địa"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
 msgstr "Các hệ thống chữ viết bản địa"
@@ -3220,6 +3316,10 @@ msgstr "Ghi nhật ký chi tiết, bao gồm các thông tin chẩn đoán về 
 msgid "Writing System"
 msgstr "Hệ chữ"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Writing system code"
+msgstr ""
+
 #. Tooltip on a text span in the rich-text editor. {0} = writing system code (e.g., "en", "fr-IPA"). Identifies which writing system the span belongs to.
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
@@ -3235,6 +3335,10 @@ msgstr "Hệ thống chữ viết"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Các hệ chữ"
+
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "Yes"
+msgstr ""
 
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte

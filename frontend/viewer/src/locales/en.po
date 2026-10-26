@@ -158,6 +158,11 @@ msgstr "A similar word already exists"
 msgid "a word"
 msgstr "a word"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Abbreviation"
+msgstr "Abbreviation"
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -253,6 +258,10 @@ msgstr "Add Word"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
 
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Added"
+msgstr "Added"
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
 msgstr "Advanced: settings file"
@@ -287,6 +296,7 @@ msgstr "an entry"
 
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Analysis"
@@ -296,6 +306,7 @@ msgstr "Analysis"
 msgid "Analysis writing system code"
 msgstr "Analysis writing system code"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
 msgstr "Analysis writing systems"
@@ -349,6 +360,7 @@ msgstr "Are you sure you want to delete {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Ask questions and get help on our community forum."
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
@@ -396,6 +408,10 @@ msgstr "Back"
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
 msgstr "Back to tasks"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Base view"
+msgstr "Base view"
 
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
@@ -528,6 +544,7 @@ msgstr "Close Dictionary"
 
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Code"
 msgstr "Code"
 
@@ -782,6 +799,10 @@ msgstr "Delete Word"
 msgid "Deleted"
 msgstr "Deleted"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Description"
+msgstr "Description"
+
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
@@ -967,6 +988,10 @@ msgstr "entry"
 msgid "Entry"
 msgstr "Entry"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Entry fields"
+msgstr "Entry fields"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word only"
 #. Label for picker when creating relationships: select only the entry itself (not a specific sense/meaning)
@@ -1019,6 +1044,10 @@ msgstr "Every word already has this field filled in."
 msgid "Example"
 msgstr "Example"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Example fields"
+msgstr "Example fields"
+
 #. Field label
 #. Sentence/phrase showing usage of a word
 #. Appears under each Sense/Meaning; can have multiple examples per meaning
@@ -1030,6 +1059,10 @@ msgstr "Example sentence"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
 msgstr "Example sentences"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Exemplars"
+msgstr "Exemplars"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -1275,6 +1308,10 @@ msgstr "Find word..."
 msgid "Finish"
 msgstr "Finish"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Font"
+msgstr "Font"
+
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
@@ -1380,6 +1417,10 @@ msgstr "History"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or#press and release to start recording."
 msgstr "Hold to record or#press and release to start recording."
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Homograph number"
+msgstr "Homograph number"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1596,10 +1637,18 @@ msgstr "Login to see projects"
 msgid "Logout"
 msgstr "Logout"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Louw-Nida codes"
+msgstr "Louw-Nida codes"
+
 #. Footer text in the project sidebar. The emoji flags are the countries of origin of the development team — do not translate.
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Main publication"
+msgstr "Main publication"
 
 #. Button label in the Feedback & Support dialog. Opens an external link to submit a feature suggestion.
 #: src/lib/about/FeedbackDialog.svelte
@@ -1710,6 +1759,10 @@ msgstr "Missing: {0}"
 msgid "Mode"
 msgstr "Mode"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Morph type"
+msgstr "Morph type"
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
@@ -1722,6 +1775,9 @@ msgstr "My custom view..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Name"
@@ -1798,6 +1854,10 @@ msgstr "Next milestone: {0}. {1} to go."
 msgid "Next picture"
 msgstr "Next picture"
 
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "No"
+msgstr "No"
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1866,6 +1926,7 @@ msgid "No open conversations"
 msgstr "No open conversations"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
+#: src/lib/entry-editor/diff-view/DiffPictures.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
 msgstr "No pictures"
@@ -1956,6 +2017,10 @@ msgstr "Nothing to copy"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
 msgstr "Observer"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "OCM codes"
+msgstr "OCM codes"
 
 #. Status indicator
 #: src/project/ProjectSidebar.svelte
@@ -2123,6 +2188,14 @@ msgstr "Pinned"
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
 msgstr "Platform"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Postfix"
+msgstr "Postfix"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Prefix"
+msgstr "Prefix"
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -2315,6 +2388,10 @@ msgstr "Remove"
 msgid "Remove audio"
 msgstr "Remove audio"
 
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Removed"
+msgstr "Removed"
+
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -2500,6 +2577,10 @@ msgstr "Send us a message"
 msgid "Sense"
 msgstr "Sense"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sense fields"
+msgstr "Sense fields"
+
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
@@ -2623,6 +2704,14 @@ msgstr "Some people may work on this project in FieldWorks Classic. Changes only
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr "Something went wrong"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sort language"
+msgstr "Sort language"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sort rules"
+msgstr "Sort rules"
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
@@ -2875,12 +2964,14 @@ msgid "Total entries"
 msgstr "Total entries"
 
 #. Field label
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Translation"
 
 #. Field title in the example editor when an entry has multiple translations. {0} = 1-based index number (e.g., "Translation 1", "Translation 2"). When there is only one translation, "Translation" is used instead.
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Translation {0}"
@@ -2902,6 +2993,7 @@ msgstr "Try again"
 msgid "Turn analytics back on"
 msgstr "Turn analytics back on"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
 msgstr "Type"
@@ -3030,6 +3122,8 @@ msgstr "Unread"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
+#: src/lib/entry-editor/diff-view/DiffSelect.svelte
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryView.svelte
@@ -3104,6 +3198,7 @@ msgstr "Verbose logging"
 
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Vernacular"
@@ -3117,6 +3212,7 @@ msgstr "Vernacular writing system code"
 msgid "Vernacular writing system is required"
 msgstr "Vernacular writing system is required"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
 msgstr "Vernacular writing systems"
@@ -3215,6 +3311,10 @@ msgstr "Writes detailed logs, including sign-in diagnostics, to the log file. Tu
 msgid "Writing System"
 msgstr "Writing System"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Writing system code"
+msgstr "Writing system code"
+
 #. Tooltip on a text span in the rich-text editor. {0} = writing system code (e.g., "en", "fr-IPA"). Identifies which writing system the span belongs to.
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
@@ -3230,6 +3330,10 @@ msgstr "Writing systems"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Writing Systems"
+
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "Yes"
+msgstr "Yes"
 
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
