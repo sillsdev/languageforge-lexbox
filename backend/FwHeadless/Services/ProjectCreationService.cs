@@ -1,11 +1,9 @@
 using System.Xml;
-using System.Xml.Linq;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
 using LexCore.Exceptions;
 using LexCore.Sync;
 using Microsoft.Extensions.Options;
-using SIL.Xml;
 
 namespace FwHeadless.Services;
 
@@ -126,6 +124,7 @@ public class ProjectCreationService(
 
         var sourcePath = fwDataProject.FilePath;
         var tempPath = sourcePath + ".tmp";
+        var madeChanges = false;
         using (var reader = new StreamReader(sourcePath))
         using (var writer = new StreamWriter(tempPath))
         {
@@ -136,7 +135,14 @@ public class ProjectCreationService(
             {
                 if (nextLineIsValue)
                 {
-                    line = line.Replace(forwardSlashValue, backslashValue);
+                    var changedLine = line.Replace(forwardSlashValue, backslashValue);
+                    if (string.Equals(changedLine, line, StringComparison.InvariantCulture))
+                    {
+                        // Exit early and don't overwrite since we dind't need this change
+                        break;
+                    }
+                    madeChanges = true;
+                    line = changedLine;
                     nextLineIsValue = false;
                     done = true;
                 }
@@ -147,17 +153,19 @@ public class ProjectCreationService(
                 writer.WriteLine(line);
             }
         }
-        File.Move(tempPath, sourcePath, overwrite: true);
+        if (madeChanges)
+            File.Move(tempPath, sourcePath, overwrite: true);
+        else
+            File.Delete(tempPath);
     }
 
     private string WriteInitialCustomPropertiesFile(FwDataProject fwDataProject)
     {
         var path = Path.Join(fwDataProject.ProjectFolder, CustomPropertiesFilename);
-        using (var writer = XmlWriter.Create(path, CanonicalXmlSettings.CreateXmlWriterSettings()))
-        {
-            writer.WriteStartDocument();
-            new XElement("AdditionalFields").WriteTo(writer);
-        }
+        File.WriteAllText(path, """
+            <?xml version="1.0" encoding="utf-8"?>
+            <AdditionalFields />
+            """);
         return path;
     }
 
