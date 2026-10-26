@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
-  import type {ISense} from '$lib/dotnet-types';
+  import type {IPartOfSpeech, ISense} from '$lib/dotnet-types';
   import {objectTemplateAreas, useViewService} from '$lib/views/view-service.svelte';
   import {fieldRecord} from '$lib/views/view-data';
   import {entityConfig} from '$lib/views/entity-config';
@@ -23,6 +23,14 @@
 
   const senseFields = $derived(viewService.currentView.senseFields);
   const fields = $derived(fieldRecord(senseFields));
+
+  // The id is the source of truth: a legacy snapshot can carry an id without the object.
+  function partOfSpeech(sense: ISense | undefined): IPartOfSpeech | undefined {
+    const id = sense?.partOfSpeechId;
+    if (!id) return undefined;
+    if (sense.partOfSpeech?.id === id) return sense.partOfSpeech;
+    return partsOfSpeech.current.find((pos) => pos.id === id) ?? {id, name: {}, predefined: false};
+  }
 </script>
 
 <Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas(senseFields)}">
@@ -45,7 +53,7 @@
   <Editor.Field.Root fieldId="partOfSpeechId" class={cn(fields.partOfSpeechId?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.sense.partOfSpeechId.label)} helpId={entityConfig.sense.partOfSpeechId.helpId} />
     <Editor.Field.Body>
-      <DiffSelect before={before?.partOfSpeech} after={after?.partOfSpeech}
+      <DiffSelect before={partOfSpeech(before)} after={partOfSpeech(after)}
                   idSelector={(pos) => pos.id}
                   labelSelector={(pos) => partsOfSpeech.getLabel(pos)} />
     </Editor.Field.Body>

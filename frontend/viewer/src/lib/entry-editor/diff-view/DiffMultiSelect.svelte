@@ -20,14 +20,22 @@
 
   // Kept items come from `after`, so a renamed item shows its current name.
   const items = $derived.by(() => {
-    const beforeIds = new Set(before?.map(idSelector));
-    const afterIds = new Set(after?.map(idSelector));
+    const beforeItems = uniqueById(before);
+    const afterItems = uniqueById(after);
+    const beforeIds = new Set(beforeItems.map(idSelector));
+    const afterIds = new Set(afterItems.map(idSelector));
     const merged = [
-      ...(after ?? []).map((item): Item => ({item, state: beforeIds.has(idSelector(item)) ? 'kept' : 'added'})),
-      ...(before ?? []).filter((item) => !afterIds.has(idSelector(item))).map((item): Item => ({item, state: 'removed'})),
+      ...afterItems.map((item): Item => ({item, state: beforeIds.has(idSelector(item)) ? 'kept' : 'added'})),
+      ...beforeItems.filter((item) => !afterIds.has(idSelector(item))).map((item): Item => ({item, state: 'removed'})),
     ];
-    return sortValuesBy === 'label' ? merged.sort((a, b) => label(a.item).localeCompare(label(b.item))) : merged;
+    // Numeric, so semantic domain 2.1 sorts before 10.1
+    return sortValuesBy === 'label' ? merged.sort((a, b) => label(a.item).localeCompare(label(b.item), undefined, {numeric: true})) : merged;
   });
+
+  // A duplicate id would crash the keyed each
+  function uniqueById(list: readonly T[] | null | undefined): T[] {
+    return [...new Map((list ?? []).map((item) => [idSelector(item), item])).values()];
+  }
 
   function label(item: T): string {
     return labelSelector(item) || $t`Untitled`;

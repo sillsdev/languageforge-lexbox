@@ -28,8 +28,8 @@
     if (!ids.length) return [{id: '', before: undefined, after: undefined}];
     return ids.map((id) => ({
       id,
-      before: before?.translations.find((tr) => tr.id === id)?.text,
-      after: after?.translations.find((tr) => tr.id === id)?.text,
+      before: (before?.translations ?? []).find((tr) => tr.id === id)?.text,
+      after: (after?.translations ?? []).find((tr) => tr.id === id)?.text,
     }));
   });
 </script>

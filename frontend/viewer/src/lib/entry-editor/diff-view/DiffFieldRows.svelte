@@ -48,7 +48,7 @@
       case 'boolean':
         return value ? $t`Yes` : $t`No`;
       case 'wsType':
-        return value === WritingSystemType.Analysis ? $t`Analysis` : $t`Vernacular`;
+        return value === WritingSystemType.Analysis || value === 'Analysis' ? $t`Analysis` : $t`Vernacular`;
       case 'viewBase':
         return value === FW_CLASSIC_VIEW.base ? FW_CLASSIC_VIEW.name : value === FW_LITE_VIEW.base ? FW_LITE_VIEW.name : String(value);
       case 'morphType': {
