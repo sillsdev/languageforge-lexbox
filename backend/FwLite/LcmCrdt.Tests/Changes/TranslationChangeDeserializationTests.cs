@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using LcmCrdt.Changes;
 using LcmCrdt.Objects;
 using Moq;
@@ -59,6 +60,33 @@ public class TranslationChangeDeserializationTests
         var exampleSentence = adapter.Should().BeOfType<ExampleSentence>().Subject;
         var translation = exampleSentence.Translations.Should().ContainSingle().Subject;
         translation.Text["en"].Should().BeEquivalentTo(new RichString("test", "en"));
+    }
+
+    [Fact]
+    public async Task NewCreateExampleChange_DoesNotWriteLegacyTranslation()
+    {
+        var translationId = Guid.NewGuid();
+        var change = new CreateExampleSentenceChange(new ExampleSentence
+        {
+            Id = Guid.NewGuid(),
+            Sentence = { ["en"] = new RichString("sentence", "en") },
+            Translations = [new Translation { Id = translationId, Text = { ["en"] = new RichString("translation", "en") } }],
+        }, Guid.NewGuid());
+
+        var json = JsonSerializer.Serialize<IChange>(change, _options);
+        var node = JsonNode.Parse(json)!.AsObject();
+        node.ContainsKey("Translation").Should().BeFalse();
+        node.ContainsKey("Translations").Should().BeTrue();
+
+        var roundTripped = JsonSerializer.Deserialize<IChange>(json, _options);
+        roundTripped.Should().BeOfType<CreateExampleSentenceChange>().And.BeEquivalentTo(change);
+
+        var mockContext = new Mock<IChangeContext>(MockBehavior.Strict);
+        mockContext.Setup(c => c.IsObjectDeleted(It.IsAny<Guid>())).ReturnsAsync(false);
+        var exampleSentence = await ((CreateExampleSentenceChange)roundTripped).NewEntity(null!, mockContext.Object);
+        var translation = exampleSentence.Translations.Should().ContainSingle().Subject;
+        translation.Id.Should().Be(translationId);
+        translation.Text["en"].Should().BeEquivalentTo(new RichString("translation", "en"));
     }
 
     private const string JsonPatchTranslationAdd = /*lang=json,strict*/ """
