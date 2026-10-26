@@ -492,7 +492,8 @@ public static class LcmCrdtKernel
                 //registered by AddRemoteResourceEntity below, or AddCrdtRemoteResources in DI
                 .RemoteResourceChanges<LcmFileMetadata>())
             // Snapshots made before checkpoints would otherwise be rebuilt in full on the first new commit
-            .AddMajor(1, "Rebuild snapshots with checkpoints");
+            .AddMajor(1, "Rebuild snapshots with checkpoints", v => v
+                .Change<JsonPatchExampleSentenceChange>());
 
         // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
         // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the

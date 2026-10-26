@@ -274,6 +274,8 @@ public partial class CrdtProjectsService(
                 Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId, request.Role ?? UserProjectRole.Editor);
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
+            // Marks the empty db as current, or the first open would rebuild every snapshot AfterCreate writes
+            await serviceScope.ServiceProvider.GetRequiredService<DataModel>().ReconcileModelVersions();
             await currentProjectService.RefreshProjectData();
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
             // Run EF migrate + FTS regenerate-if-missing (same path as opening an existing project).

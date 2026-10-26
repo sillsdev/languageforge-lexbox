@@ -87,7 +87,10 @@ public class MigrationTests : IAsyncLifetime
             .ToArray();
         var project = await TakeProjectSnapshot(api);
 
-        var snapshotsJson = JsonSerializer.Serialize(snapshots, IndentedHarmonyJsonOptions);
+        // Opening regenerates every snapshot (model version 1), which gives them new ids
+        var snapshotNodes = JsonSerializer.SerializeToNode(snapshots, IndentedHarmonyJsonOptions)!.AsArray();
+        foreach (var snapshot in snapshotNodes) snapshot!.AsObject().Remove(nameof(ObjectSnapshot.Id));
+        var snapshotsJson = snapshotNodes.ToJsonString(IndentedHarmonyJsonOptions);
         var changesJson = JsonSerializer.Serialize(changes, IndentedHarmonyJsonOptions);
         var projectJson = JsonSerializer.Serialize(project, IndentedHarmonyJsonOptions);
 
