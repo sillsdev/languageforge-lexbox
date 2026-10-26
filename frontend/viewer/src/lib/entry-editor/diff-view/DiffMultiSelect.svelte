@@ -3,7 +3,8 @@
   import {Badge} from '$lib/components/ui/badge';
   import DiffShell from './DiffShell.svelte';
   import DiffMarker from './DiffMarker.svelte';
-  import {diffAdded, diffEmpty, diffKept, diffRemoved} from './diff-classes';
+  import {diffAdded, diffEmpty, diffKept, diffRemoved, diffTouched} from './diff-classes';
+  import {movedIds} from './moved-ids';
 
   let {before, after, idSelector, labelSelector, sortValuesBy = 'label'}: {
     before?: readonly T[] | null;
@@ -14,9 +15,9 @@
     sortValuesBy?: 'label' | 'selectionOrder';
   } = $props();
 
-  type State = 'kept' | 'added' | 'removed';
+  type State = 'kept' | 'moved' | 'added' | 'removed';
   type Item = {item: T; state: State};
-  const stateClass: Record<State, string> = {kept: diffKept, added: diffAdded, removed: diffRemoved};
+  const stateClass: Record<State, string> = {kept: diffKept, moved: diffTouched, added: diffAdded, removed: diffRemoved};
 
   // Kept items come from `after`, so a renamed item shows its current name.
   const items = $derived.by(() => {
@@ -24,8 +25,12 @@
     const afterItems = uniqueById(after);
     const beforeIds = new Set(beforeItems.map(idSelector));
     const afterIds = new Set(afterItems.map(idSelector));
+    const moved = sortValuesBy === 'selectionOrder' ? movedIds(beforeItems.map(idSelector), afterItems.map(idSelector)) : new Set();
     const merged = [
-      ...afterItems.map((item): Item => ({item, state: beforeIds.has(idSelector(item)) ? 'kept' : 'added'})),
+      ...afterItems.map((item): Item => {
+        const id = idSelector(item);
+        return {item, state: !beforeIds.has(id) ? 'added' : moved.has(id) ? 'moved' : 'kept'};
+      }),
       ...beforeItems.filter((item) => !afterIds.has(idSelector(item))).map((item): Item => ({item, state: 'removed'})),
     ];
     // Numeric, so semantic domain 2.1 sorts before 10.1

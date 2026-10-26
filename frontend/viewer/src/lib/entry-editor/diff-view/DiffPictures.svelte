@@ -5,6 +5,7 @@
   import PictureImage from '../field-editors/PictureImage.svelte';
   import DiffMarker from './DiffMarker.svelte';
   import {diffAddedSurface, diffRemovedSurface, diffTouched} from './diff-classes';
+  import {movedIds} from './moved-ids';
 
   let {before = [], after = []}: {before?: readonly IPicture[]; after?: readonly IPicture[]} = $props();
 
@@ -15,15 +16,12 @@
   const rows = $derived.by(() => {
     const beforeById = new Map(before.map((picture) => [picture.id, picture]));
     const afterIds = new Set(after.map((picture) => picture.id));
-    // A reorder only shows as pictures whose place among the kept ones changed
-    const keptBefore = before.filter((picture) => afterIds.has(picture.id)).map((picture) => picture.id);
-    const keptAfter = after.filter((picture) => beforeById.has(picture.id)).map((picture) => picture.id);
+    const moved = movedIds(before.map((picture) => picture.id), after.map((picture) => picture.id));
     const rows: Row[] = [];
     for (const picture of after) {
       const old = beforeById.get(picture.id);
       if (old && isSame(old, picture)) {
-        const moved = keptBefore.indexOf(picture.id) !== keptAfter.indexOf(picture.id);
-        rows.push({picture, state: moved ? 'moved' : undefined});
+        rows.push({picture, state: moved.has(picture.id) ? 'moved' : undefined});
       } else {
         if (old) rows.push({picture: old, state: 'removed'});
         rows.push({picture, state: 'added'});
