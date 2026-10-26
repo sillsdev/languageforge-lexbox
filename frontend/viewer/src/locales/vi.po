@@ -268,10 +268,6 @@ msgstr "Hãy thêm mục từ đầu tiên để bắt đầu xây dựng từ �
 msgid "Advanced: settings file"
 msgstr "Nâng cao: tệp cài đặt"
 
-#: src/lib/whats-new/WhatsNewDialog.svelte
-msgid "After this update each dictionary is converted to a new format the first time you edit or sync it. FieldWorks Lite may seem frozen for a few minutes on a large dictionary; keep the app open while it works."
-msgstr ""
-
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
@@ -824,6 +820,10 @@ msgstr "Các từ điển"
 
 #: src/lib/whats-new/WhatsNewDialog.svelte
 msgid "Dictionaries are converted once"
+msgstr ""
+
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Dictionaries that were already on this device are converted to a new format the first time you edit or sync them after this update. FieldWorks Lite may seem frozen for a few minutes on a large dictionary. Keep the app open until it finishes."
 msgstr ""
 
 #. Sidebar header

@@ -61,7 +61,7 @@
   let troubleshootDialog = $state<TroubleshootDialog>();
   let syncDialog = $state<SyncDialog>();
   let updateDialogOpen = $state(false);
-  // A fresh install lands on the home view first, which marks the version seen before any project exists
+  // Being in a project means there are local projects
   if (!projectContext.inParatext) void announceWhatsNewIfNeeded(true);
   let feedbackOpen = $state(false);
   let privacyOpen = $state(false);

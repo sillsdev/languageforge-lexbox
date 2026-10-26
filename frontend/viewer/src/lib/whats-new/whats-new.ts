@@ -1,14 +1,15 @@
 /**
- * What WhatsNewDialog shows, newest first. Add an entry (and its text in the dialog) when something big
- * ships, dated the day it is added; delete entries once they are old news.
+ * What WhatsNewDialog shows, in this order: entries that ask the user to do something first, then newest first.
+ * Add an entry (and its text in the dialog) when something big ships, dated the day it is added; delete entries
+ * once they are old news.
  */
 export const WHATS_NEW_ENTRIES = [
+  {id: 'project-upgrade', since: '2026-10-25'},
   {id: 'comments', since: '2026-10-25'},
   {id: 'commenter-role', since: '2026-10-25'},
   {id: 'flex-collation', since: '2026-10-25'},
   {id: 'pictures', since: '2026-10-25'},
   {id: 'error-reports', since: '2026-10-25'},
-  {id: 'project-upgrade', since: '2026-10-25'},
 ] as const;
 
 export type WhatsNewEntryId = (typeof WHATS_NEW_ENTRIES)[number]['id'];
