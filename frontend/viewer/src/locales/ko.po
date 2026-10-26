@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-23 18:34\n"
+"PO-Revision-Date: 2026-10-26 21:05\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -920,6 +920,10 @@ msgstr "사진 편집"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "편집기"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor Lite"
+msgstr "에디터 라이트"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
@@ -2616,6 +2620,11 @@ msgstr "크기:"
 msgid "Skip"
 msgstr "건너뛰기"
 
+#. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
+msgstr "일부 사용자는 FieldWorks Classic에서 이 프로젝트를 진행할 수도 있습니다. 변경 사항은 권한이 있는 사용자가 동기화할 때만 FieldWorks Lite와 FieldWorks Classic 간에 반영됩니다."
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr "문제가 발생했습니다."
@@ -3264,3 +3273,4 @@ msgstr "모든 이정표를 하나하나 달성하셨군요. 정말 대단한 �
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "여러분의 사전은 여기서 시작됩니다"
+
