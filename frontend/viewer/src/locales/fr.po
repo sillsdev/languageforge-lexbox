@@ -274,6 +274,7 @@ msgstr "Avancé : fichier de paramètres"
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Tous"
@@ -1772,6 +1773,10 @@ msgstr ""
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Déplacer"
+
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Moved"
+msgstr ""
 
 #. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte

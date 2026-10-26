@@ -60,6 +60,10 @@
     }
   }
 
+  function wsList(value: unknown): IViewWritingSystem[] {
+    return (value as IViewWritingSystem[] | undefined) ?? [{wsId: ''}];
+  }
+
   // The label the entry editor shows for a custom view's field, or the raw id for a field entityConfig doesn't know.
   function viewFieldLabel(entity: EntityType, fieldId: string): string {
     const field = fieldId === '$label' ? undefined : (getEntityConfig(entity)[fieldId] as {label: ViewText} | undefined);
@@ -83,8 +87,9 @@
             <DiffMultiSelect before={old as IViewField[]} after={now as IViewField[]} sortValuesBy="selectionOrder"
                              idSelector={(f) => f.fieldId} labelSelector={(f) => viewFieldLabel(row.entity, f.fieldId)} />
           {:else if row.kind === 'wsList'}
-            <DiffMultiSelect before={old as IViewWritingSystem[]} after={now as IViewWritingSystem[]} sortValuesBy="selectionOrder"
-                             idSelector={(ws) => ws.wsId} labelSelector={(ws) => ws.wsId} />
+            <!-- No list means every writing system, which an empty list would otherwise look like -->
+            <DiffMultiSelect before={wsList(old)} after={wsList(now)} sortValuesBy="selectionOrder"
+                             idSelector={(ws) => ws.wsId} labelSelector={(ws) => ws.wsId || $t`All`} />
           {:else if row.kind === 'stringList'}
             <DiffMultiSelect before={old as string[]} after={now as string[]} sortValuesBy="selectionOrder"
                              idSelector={(s) => s} labelSelector={(s) => s} />

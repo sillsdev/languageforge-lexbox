@@ -42,7 +42,7 @@
     senseFields: [{fieldId: 'gloss'}],
     exampleFields: [],
   };
-  const viewAfter: ICustomView = {...viewBefore, entryFields: [{fieldId: 'lexemeForm'}], senseFields: [{fieldId: 'gloss'}, {fieldId: 'definition'}]};
+  const viewAfter: ICustomView = {...viewBefore, entryFields: [{fieldId: 'lexemeForm'}], senseFields: [{fieldId: 'gloss'}, {fieldId: 'definition'}], analysis: []};
 </script>
 
 <Story name="Entities and objects">
