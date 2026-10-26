@@ -534,7 +534,9 @@ jobs:
     timeout-minutes: 30
     env:
       FW_LITE_BINARY_PATH: ${{ github.workspace }}/backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64/FwLiteWeb
-    # Copied from fw-lite.yaml's e2e-test, except the viewer is built here instead of downloaded.
+    # Copied from fw-lite.yaml's e2e-test, with two differences: the viewer is built here
+    # instead of downloaded, and the "Test FwLite launcher" vitest step is left out. The
+    # smoke test below launches the same binary; the launcher's own cases stay on develop.
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
