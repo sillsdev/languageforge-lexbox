@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-23 18:34\n"
+"PO-Revision-Date: 2026-10-26 21:05\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -920,6 +920,10 @@ msgstr "Modifier l'image"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Editeur"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor Lite"
+msgstr "Éditeur Lite"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
@@ -2616,6 +2620,11 @@ msgstr "Taille :"
 msgid "Skip"
 msgstr "Ignorer"
 
+#. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
+msgstr "Certaines personnes peuvent travailler sur ce projet dans FieldWorks Classic. Les modifications ne se déplacent entre FieldWorks Lite et FieldWorks Classic que si quelqu'un avec l'autorisation les synchronise."
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr "Quelque chose s'est mal passé"
@@ -3264,3 +3273,4 @@ msgstr "Vous avez franchi tous les jalons. Quelle réussite !"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Votre dictionnaire commence ici"
+
