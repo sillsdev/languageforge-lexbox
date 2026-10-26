@@ -490,7 +490,9 @@ public static class LcmCrdtKernel
                 .Change<Changes.SetOrderChange<ComplexFormComponent>>()
                 .Change<Changes.SetOrderChange<WritingSystem>>()
                 //registered by AddRemoteResourceEntity below, or AddCrdtRemoteResources in DI
-                .RemoteResourceChanges<LcmFileMetadata>());
+                .RemoteResourceChanges<LcmFileMetadata>())
+            // Snapshots made before checkpoints would otherwise be rebuilt in full on the first new commit
+            .AddMajor(1, "Rebuild snapshots with checkpoints");
 
         // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
         // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the
