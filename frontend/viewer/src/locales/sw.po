@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-23 18:34\n"
+"PO-Revision-Date: 2026-10-26 21:05\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -920,6 +920,10 @@ msgstr "Hariri picha"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Mhariri"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor Lite"
+msgstr "Mhariri Mwepesi"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
@@ -2616,6 +2620,11 @@ msgstr "Ukubwa:"
 msgid "Skip"
 msgstr "Ruka"
 
+#. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
+msgstr "Baadhi ya watu wanaweza kufanya kazi kwenye mradi huu katika FieldWorks Classic. Mabadiliko huhamishwa tu kati ya FieldWorks Lite na FieldWorks Classic pale mtu mwenye ruhusa anapoyasawazisha."
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr "Kuna tatizo limetokea"
@@ -3264,3 +3273,4 @@ msgstr "Umefikia kila hatua muhimu. Ni mafanikio makubwa!"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Kamusi yako inaanza hapa"
+
