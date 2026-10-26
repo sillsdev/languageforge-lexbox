@@ -139,7 +139,7 @@ public class TranslationChangeDeserializationTests
         await change.ApplyChange(new MiniLcmCrdtAdapter(exampleSentence), null!);
         var translation = exampleSentence.Translations.Should().ContainSingle().Subject;
         translation.Text["en"].Should().BeEquivalentTo(new RichString("updated", "en"));
-        translation.Id.Should().NotBeEmpty();
+        Translation.IsMissingTranslationId(translation.Id).Should().BeTrue("the read API maps it to the deterministic DefaultFirstTranslationId");
     }
 
     private const string JsonPatchTranslationRemove = /*lang=json,strict*/ """
