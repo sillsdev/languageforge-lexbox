@@ -268,10 +268,6 @@ msgstr "Añade tu primera entrada para comenzar a construir tu diccionario."
 msgid "Advanced: settings file"
 msgstr "Avanzado: archivo de configuración"
 
-#: src/lib/whats-new/WhatsNewDialog.svelte
-msgid "After this update each dictionary is converted to a new format the first time you open it. This can take a few minutes for a large dictionary; keep the app open while it works."
-msgstr ""
-
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
@@ -824,6 +820,10 @@ msgstr "Diccionarios"
 
 #: src/lib/whats-new/WhatsNewDialog.svelte
 msgid "Dictionaries are converted once"
+msgstr ""
+
+#: src/lib/whats-new/WhatsNewDialog.svelte
+msgid "Dictionaries that were already on this device are converted to a new format the first time you open them after this update. On a large dictionary this can take a few minutes. Keep the app open until it finishes."
 msgstr ""
 
 #. Sidebar header
@@ -2874,7 +2874,6 @@ msgstr "Este {0} ha sido eliminado"
 msgid "This date # and this emoji # are snippets"
 msgstr "Esta fecha # y este emoji # son fragmentos"
 
-#. Explanation under the "Updating {0}" heading. "FieldWorks Lite" is a product name — do not translate.
 #: src/project/ProjectRebuildStatus.svelte
 msgid "This dictionary is being updated for the new version of FieldWorks Lite. It usually takes under a minute, but can take a few minutes for large dictionaries."
 msgstr ""
@@ -3149,7 +3148,6 @@ msgstr "La actualización no fue permitida por la configuración de permisos."
 msgid "Updates"
 msgstr "Actualizaciones"
 
-#. Heading of the full-screen status shown while a dictionary's local database is rebuilt after an app update. {0} is the dictionary name.
 #: src/project/ProjectRebuildStatus.svelte
 msgid "Updating {0}"
 msgstr ""

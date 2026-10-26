@@ -41,7 +41,7 @@
     'project-upgrade': {
       icon: 'i-mdi-database-refresh-outline',
       title: $t`Dictionaries are converted once`,
-      description: $t`After this update each dictionary is converted to a new format the first time you open it. This can take a few minutes for a large dictionary; keep the app open while it works.`,
+      description: $t`Dictionaries that were already on this device are converted to a new format the first time you open them after this update. On a large dictionary this can take a few minutes. Keep the app open until it finishes.`,
     },
   });
 </script>
