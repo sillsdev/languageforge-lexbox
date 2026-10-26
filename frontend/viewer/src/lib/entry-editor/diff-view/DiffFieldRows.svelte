@@ -60,7 +60,8 @@
     }
   }
 
-  function wsList(value: unknown): IViewWritingSystem[] {
+  function wsList(view: object | undefined, value: unknown): IViewWritingSystem[] | undefined {
+    if (!view) return undefined;
     return (value as IViewWritingSystem[] | undefined) ?? [{wsId: ''}];
   }
 
@@ -88,7 +89,7 @@
                              idSelector={(f) => f.fieldId} labelSelector={(f) => viewFieldLabel(row.entity, f.fieldId)} />
           {:else if row.kind === 'wsList'}
             <!-- No list means every writing system, which an empty list would otherwise look like -->
-            <DiffMultiSelect before={wsList(old)} after={wsList(now)} sortValuesBy="selectionOrder"
+            <DiffMultiSelect before={wsList(b, old)} after={wsList(a, now)} sortValuesBy="selectionOrder"
                              idSelector={(ws) => ws.wsId} labelSelector={(ws) => ws.wsId || $t`All`} />
           {:else if row.kind === 'stringList'}
             <DiffMultiSelect before={old as string[]} after={now as string[]} sortValuesBy="selectionOrder"
