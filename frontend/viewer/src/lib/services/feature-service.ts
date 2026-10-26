@@ -35,6 +35,9 @@ export function useFeatures(): LexboxFeatures {
     get customViews() {
       return !!context.features.customViews;
     },
+    get fieldWorksSync() {
+      return !!context.features.fieldWorksSync;
+    },
     get plugins() {
       return !!context.features.plugins && hasFlag('plugins');
     },

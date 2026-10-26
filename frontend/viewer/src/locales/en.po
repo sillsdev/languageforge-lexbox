@@ -1120,6 +1120,10 @@ msgstr "Edit plugin"
 msgid "Editor"
 msgstr "Editor"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor Lite"
+msgstr "Editor Lite"
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "Edits — asks first"
 msgstr "Edits — asks first"
@@ -3102,6 +3106,11 @@ msgstr "Skip"
 #: src/lib/plugins/PluginsView.svelte
 msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
 msgstr "Small custom apps that work with this project's dictionary — shared with the whole team."
+
+#. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
+msgstr "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
 
 #: src/lib/plugins/PluginAiPromptDialog.svelte
 msgid "Some words may be sacred or sensitive, and a plugin can't tell which — so it treats all the language data respectfully and won't trivialize or gamify it."

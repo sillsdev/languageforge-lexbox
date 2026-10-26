@@ -62,12 +62,22 @@ public class PermissionService(
     }
 
     /// <summary>
-    /// Push FieldWorks Lite (CRDT) commits. Unlike <see cref="CanSyncProject(Guid)"/> this includes Commenters,
-    /// whose commits FW Lite limits to comments; it does not grant hg send/receive, media upload or FieldWorks sync.
+    /// Push FieldWorks Lite (CRDT) commits. Unlike <see cref="CanSyncProject(Guid)"/> this includes Editor Lites and
+    /// Commenters (whose commits FW Lite limits to comments); it does not grant hg send/receive, media upload or FieldWorks sync.
     /// </summary>
     public async ValueTask<bool> CanPushCrdtChanges(Guid projectId)
     {
-        if (User is not null && User.IsProjectMember(projectId, ProjectRole.Commenter)) return true;
+        if (User is not null && User.IsProjectMember(projectId, ProjectRole.EditorLite, ProjectRole.Commenter)) return true;
+        return await CanSyncProject(projectId);
+    }
+
+    /// <summary>
+    /// Upload, replace or delete media files. Like <see cref="CanPushCrdtChanges"/> this includes Editor Lites (FW Lite records audio),
+    /// but not Commenters.
+    /// </summary>
+    public async ValueTask<bool> CanEditMediaFiles(Guid projectId)
+    {
+        if (User is not null && User.IsProjectMember(projectId, ProjectRole.EditorLite)) return true;
         return await CanSyncProject(projectId);
     }
 

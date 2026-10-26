@@ -255,6 +255,7 @@ public class LexAuthUserTests
     [InlineData(ProjectRole.Editor)]
     [InlineData(ProjectRole.Observer)]
     [InlineData(ProjectRole.Commenter)]
+    [InlineData(ProjectRole.EditorLite)]
     public void ProjectsJson_RoundTripsEachRole(ProjectRole role)
     {
         var project = new AuthUserProject(role, Guid.NewGuid());

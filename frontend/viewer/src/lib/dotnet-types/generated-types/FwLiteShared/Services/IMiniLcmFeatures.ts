@@ -14,6 +14,7 @@ export interface IMiniLcmFeatures
 	customViews?: boolean;
 	comments?: boolean;
 	commentWrite?: boolean;
+	fieldWorksSync?: boolean;
 	plugins?: boolean;
 }
 /* eslint-enable */

@@ -2,8 +2,9 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
-    <!-- To switch Mercurial versions, do dotnet build /p:MercurialVersion=3 followed by dotnet test -->
-    <!-- Note that if you run dotnet test /p:MercurialVersion=3 it will not work as expected; you must run dotnet build first in order to switch Mercurial versions -->
+    <!-- To switch Mercurial versions, do dotnet build -p:MercurialVersion=3 followed by dotnet test -p:MercurialVersion=3 -->
+    <!-- Both need the property: dotnet test restores and builds again, and without it switches back to Mercurial 6 -->
+    <!-- Run the build first: Mercurial is staged into this folder during build, after the Content glob below was evaluated -->
     <MercurialVersion Condition=" '$(MercurialVersion)' == '' ">6</MercurialVersion>
   </PropertyGroup>
   <Choose>
@@ -15,8 +16,10 @@
     </When>
     <Otherwise>
       <ItemGroup>
+        <!-- LibChorus stays on the central version: the old hg 3 pin (6.0.0-beta0041) needs SIL.Core 12,
+             and LfMergeBridge and ChorusMerge (via FwHeadless) require a newer LibChorus -->
         <PackageReference Include="SIL.Chorus.LibChorus" />
-        <PackageReference Include="SIL.Chorus.Mercurial" />
+        <PackageReference Include="SIL.Chorus.Mercurial" VersionOverride="3.0.3.11" NoWarn="NU1605" />
       </ItemGroup>
     </Otherwise>
   </Choose>

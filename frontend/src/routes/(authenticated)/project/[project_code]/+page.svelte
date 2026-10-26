@@ -170,8 +170,8 @@
       userIsOrgAdmin,
   );
 
-  // Almost mirrors PermissionService.CanAskToJoinProject() in C#, but admins won't be shown the "ask to join" button
-  let canAskToJoinProject = $derived(!user.isAdmin && !projectRole && orgRoles.some((_) => true));
+  // Almost mirrors PermissionService.CanAskToJoinProject() in C#, but site and org admins, who already have access, aren't shown the "ask to join" button
+  let canAskToJoinProject = $derived(!user.isAdmin && !userIsOrgAdmin && !projectRole && orgRoles.some((_) => true));
   let canSyncProject = $derived(user.isAdmin || projectRole == ProjectRole.Manager || projectRole == ProjectRole.Editor || userIsOrgAdmin);
 
   let resetProjectModal: ResetProjectModal | undefined = $state();
