@@ -14,6 +14,7 @@
   import {onErrorEvent} from '$lib/errors/global-errors';
   import {resource} from 'runed';
   import type {SyncTarget} from './sync-target';
+  import * as Popover from '$lib/components/ui/popover';
 
   interface Props {
     syncStatus: SyncStatus;
@@ -24,6 +25,8 @@
     syncing?: SyncTarget;
     /** Bumped by the dialog after each sync; the status reloads when it changes */
     syncCount?: number;
+    /** The user can't sync with FieldWorks Classic, so tell them how its changes still reach them */
+    explainFieldWorksSync?: boolean;
     onLoginStatusChange?: (status: 'logged-in' | 'logged-out') => void;
   }
 
@@ -34,6 +37,7 @@
     projectCode,
     syncing = $bindable(),
     syncCount = 0,
+    explainFieldWorksSync = false,
     onLoginStatusChange = () => {},
   }: Props = $props();
 
@@ -57,6 +61,7 @@
   let lastLocalSyncDate = $derived(status.current?.latestSyncedCommitDate ? new Date(status.current.latestSyncedCommitDate) : undefined);
   const serverName = $derived(server?.displayName ?? serverId ?? 'unknown');
   const serverProjectUrl = $derived(`${server?.authority}/project/${encodeURIComponent(projectCode ?? '')}`);
+  const heading = $derived($t`Sync your changes with other FieldWorks Lite users`);
   const cloudIcon = $derived(syncStatus === SyncStatus.Offline ? 'i-mdi-cloud-off-outline' : 'i-mdi-cloud-outline');
 
   async function sync() {
@@ -82,7 +87,18 @@
   }
 </script>
 <p class="mb-6 text-lg text-center">
-  {$t`Sync your changes with other FieldWorks Lite users`}
+  {#if explainFieldWorksSync}
+    <Popover.Root>
+      <Popover.InfoTrigger>
+        {heading}
+      </Popover.InfoTrigger>
+      <Popover.Content class="max-w-md text-sm">
+        {$t`Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them.`}
+      </Popover.Content>
+    </Popover.Root>
+  {:else}
+    {heading}
+  {/if}
 </p>
 <div class="text-center my-2">
   <span class="text-foreground/80">

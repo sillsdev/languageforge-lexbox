@@ -1558,6 +1558,7 @@ enum ProjectRole {
   EDITOR
   OBSERVER
   COMMENTER
+  EDITOR_LITE
 }
 
 enum ProjectType {
