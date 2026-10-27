@@ -17,7 +17,7 @@ GitHub Actions workflows and deployment. Full runs take 30-60+ min across Linux,
 | Workflow | Triggers | What it does | Time |
 |----------|----------|--------------|------|
 | `pr.yaml` (`PR CI`) | Every PR to develop (also `labeled`/`unlabeled`) | The **PR tier**: detects affected projects with nx, then runs only the affected Linux jobs (.NET build + affected tests, viewer checks, viewer Playwright on Chromium, extension lint); escalation tiers add full-tier jobs. See [PR tier](#pr-tier-pryaml) | target < 10 min |
-| `fw-lite.yaml` | FwLite code changes | Build .NET, run tests, build viewer, publish apps (the **full tier**; still on PRs during the shadow phase) | ~40 min |
+| `fw-lite.yaml` | FwLite code changes | Build .NET, run tests, build viewer, publish apps (the **full tier**, develop only; pull requests run `pr.yaml`) | ~40 min |
 | `lexbox-api.yaml` | Called by others | Build API, run unit tests, build Docker image | ~15 min |
 | `lexbox-ui.yaml` | Called by others | Build SvelteKit UI, build Docker image | ~10 min |
 | `lexbox-fw-headless.yaml` | Called by others | Build FwHeadless Docker image | ~10 min |
@@ -101,7 +101,7 @@ flowchart TD
 
 ### FwLite
 
-`fw-lite.yaml` runs on its own for CI (develop pushes, PRs, manual dispatch). Releases call it from `release-pipeline.yaml` with `release: true` and the shared `version`/`semver-version`; that's the only way to publish the GitHub/Play Store release. Its own manual dispatch can't release (it declares no inputs). The LexBox and FW Lite releases run in parallel; neither blocks the other.
+`fw-lite.yaml` runs on its own for CI (develop pushes and manual dispatch; pull requests run `pr.yaml` instead). Releases call it from `release-pipeline.yaml` with `release: true` and the shared `version`/`semver-version`; that's the only way to publish the GitHub/Play Store release. Its own manual dispatch can't release (it declares no inputs). The LexBox and FW Lite releases run in parallel; neither blocks the other.
 
 - Core .NET build/tests run on Linux (`FwLiteCore.slnf`); MAUI build/tests on Windows only
 - Has its own test suite
@@ -110,12 +110,12 @@ flowchart TD
 
 ### PR tier (`pr.yaml`)
 
-`PR CI` is the trimmed, Linux-only job set every pull request runs; `fw-lite.yaml` is the full tier on develop (and, during the shadow phase, still on PRs too). Its summary job `PR CI result` is the check to require at cut-over: a job skipped as "not affected" counts as passed.
+`PR CI` is the trimmed, Linux-only job set every pull request runs; `fw-lite.yaml` and `platform.bible-extension.yaml` are the full tier, on develop pushes only. Its summary job `PR CI result` is the check to require on develop: a job skipped as "not affected" counts as passed.
 
 - **Affected detection** is the nx graph (`nx` + `@nx/dotnet` at the repo root, graph-only: nothing builds or caches through nx). `.github/scripts/affected.sh` prints one JSON object (`projects`, `viewer`, `extension`, `everything`, `tiers`, `fallback`); `task ci:affected` runs the same script locally against `origin/develop` (`AFFECTED_BASE=<ref>` to override) and must give the same answer as the `detect` job. Any detector failure falls back to everything affected with a warning annotation. Rules live in the graph: `nx.json` `sharedGlobals` lists the shared files (props, `global.json`, solution files, lockfiles, nx config) that mark everything affected; `frontend/viewer/project.json` and `platform.bible-extension/project.json` register the two npm projects.
 - **.NET**: `dotnet` builds `FwLiteCore.slnf` whole (EF-model and generated-TS drift checks stay unconditional) and tests only the affected test projects through a generated `FwLiteAffectedTests.slnf` (`.github/scripts/write-test-slnf.mjs`) with `--filter "Category!=Slow&Category!=Benchmark"`. `Slow` marks tests over ~20 s (`Sena3SyncTests`, `CanSyncRandomEntries`, `BulkCreateEntriesPerformance`, `GetEntryIndex_LargeList_ReturnsCorrectIndex`); the `slow-tests` tier runs them in a parallel job.
 - **Viewer**: two jobs so wall clock is max, not sum: `viewer-checks` (i18n extract drift, viewer-only svelte-check and eslint, prettier, vitest on Chromium only via `VITEST_CHROMIUM_ONLY`, vite build) and `viewer-ui-tests` (Playwright, Chromium; `ci:webkit` adds WebKit). Firefox vitest stays on develop.
-- **Escalation tiers** (`.github/ci-tiers/<name>/project.json`, README there): `slow-tests`, `maui-windows`, `e2e` fire by path rule; `apple`, `android`, `webkit` by label only; `full` on `pr.yaml` itself. A `ci:<tier>` label does the same (`ci:full` = all) and re-triggers the run; shared-file changes run the whole PR tier but never escalate. A shadow-phase miss is a one-line rule edit.
+- **Escalation tiers** (`.github/ci-tiers/<name>/project.json`, README there): `slow-tests`, `maui-windows`, `e2e` fire by path rule; `apple`, `android`, `webkit` by label only; `full` on `pr.yaml` itself. A `ci:<tier>` label does the same (`ci:full` = all) and re-triggers the run; shared-file changes run the whole PR tier but never escalate. When develop goes red on something the PR tier skipped, the fix is a one-line rule edit.
 - **CI calls the script directly**, not `task ci:affected` (Taskfile prefixes output with the task name).
 - History: dotnet-affected was prototyped against nx for this role (branch `claude/proto-affected-dotnet-affected-febda6`, commit `978a92bb7`) and lost: it is three files and ~3 s, but it missed a `Directory.Packages.props` bump entirely and cannot see the viewer; nx's MSBuild evaluation inputs attribute shared props to every project and the viewer is a real graph node. Delete that branch once `pr.yaml` is merged.
 
