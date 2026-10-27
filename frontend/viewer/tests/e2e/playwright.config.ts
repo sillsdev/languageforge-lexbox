@@ -19,7 +19,8 @@ export default defineConfig({
       ['junit', {outputFile: 'test-results/e2e-results.xml'}],
       ['html', {outputFolder: 'e2e-html-report', open: 'never'}],
       // Distinct buildName: under the shared default, Argos compares this suite against the ui suite's baseline and marks its screenshots "removed".
-      ['@argos-ci/playwright/reporter', {uploadToArgos: true, buildName: 'e2e'}],
+      // ignoreUploadFailures: a rejected upload (e.g. screenshot quota exhausted) only logs a warning.
+      ['@argos-ci/playwright/reporter', {uploadToArgos: true, buildName: 'e2e', ignoreUploadFailures: true}],
     ]
     : [['list'], ['html', {outputFolder: 'e2e-html-report', open: 'never'}]],
   use: {

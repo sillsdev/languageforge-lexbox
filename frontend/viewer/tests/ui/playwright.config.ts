@@ -14,8 +14,10 @@ const ciReporters: ReporterDescription[] = [['github'], ['junit', {outputFile: '
   {
     //by only using the argos reporter in CI, screenshots will be placed in the screenshots folder when run locally
     // Upload to Argos on CI only.
-    uploadToArgos: !!process.env.CI
+    uploadToArgos: !!process.env.CI,
     // Argos token not required when using GitHub Actions.
+    // A rejected upload (e.g. screenshot quota exhausted) only logs a warning, so CI reflects test results.
+    ignoreUploadFailures: true,
   }
 ]];
 export default defineConfig({
