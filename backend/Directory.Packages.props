@@ -36,7 +36,7 @@
     <PackageVersion Include="L10NSharp" Version="10.0.0-beta0014" />
     <PackageVersion Include="L10NSharp.Windows.Forms" Version="10.0.0-beta0014" />
     <PackageVersion Include="MailKit" Version="4.16.0" />
-    <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="2.0.0" />
+    <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="3.0.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.13" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.13" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.13" />
@@ -152,7 +152,7 @@
     <PackageVersion Include="Xamarin.Google.Android.Play.App.Update" Version="2.1.0.20" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
-    <PackageVersion Include="XunitXml.TestLogger" Version="8.0.0" />
+    <PackageVersion Include="XunitXml.TestLogger" Version="8.1.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
     <PackageVersion Include="Yarp.Telemetry.Consumption" Version="2.3.0" />
     <PackageVersion Include="zxcvbn-core" Version="7.0.92" />
