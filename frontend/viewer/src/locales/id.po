@@ -66,6 +66,11 @@ msgstr "{0} yang lalu"
 msgid "{0} authors"
 msgstr "{0} penulis"
 
+#. Notification after a slow project open finishes. {0} is the project name.
+#: src/DotnetProjectView.svelte
+msgid "{0} is ready"
+msgstr ""
+
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -1616,6 +1621,11 @@ msgstr "Berikan saran"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Pastikan [perubahan telah disinkronkan]({0}) ke Lexbox."
 
+#. Title of a loading notification shown when opening a project takes a while. {0} is the project name.
+#: src/DotnetProjectView.svelte
+msgid "Making sure {0} is up to date"
+msgstr ""
+
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
@@ -2028,6 +2038,11 @@ msgstr "Buka di jendela baru"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Buka file Log"
+
+#. Loading notification shown while a project opens. {0} is the project name.
+#: src/DotnetProjectView.svelte
+msgid "Opening {0}..."
+msgstr ""
 
 #. Status message shown after the user clicks "Open in FieldWorks" while the handoff is in progress. "FieldWorks" is a product name — do not translate.
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2806,6 +2821,11 @@ msgstr "Perubahan ini belum diunggah. Pastikan Anda online dan masuk untuk memba
 #: src/project/browse/EntryView.svelte
 msgid "This {0} was deleted"
 msgstr "{0} ini telah dihapus"
+
+#. Detail under "Making sure {0} is up to date". After an app update, opening a project can rebuild its data, and closing the app restarts that work.
+#: src/DotnetProjectView.svelte
+msgid "This can take a few minutes after an update, so please keep the app open."
+msgstr ""
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte

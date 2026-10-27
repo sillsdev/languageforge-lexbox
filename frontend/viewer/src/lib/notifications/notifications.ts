@@ -6,6 +6,13 @@ interface NotificationAction {
   callback: () => {dismiss: boolean} | void;
 }
 
+export interface LoadingNotification {
+  update(message: string, description?: string): void;
+  /** Replaces the spinner with a success message that closes itself */
+  succeed(message: string): void;
+  dismiss(): void;
+}
+
 type NotificationType = 'plain' | 'success' | 'error' | 'info' | 'warning';
 type ToasterFn = typeof toast['info'];
 
@@ -68,6 +75,16 @@ export class AppNotification {
         },
       },
     });
+  }
+
+  /** A spinner toast the user can't close: the caller updates it in place and ends it with `succeed` or `dismiss` */
+  public static loading(message: string, description?: string): LoadingNotification {
+    const id = toast.loading(message, {description, duration: INFINITY, dismissable: false});
+    return {
+      update: (message, description) => toast.loading(message, {id, description, duration: INFINITY, dismissable: false}),
+      succeed: (message) => toast.success(message, {id, description: undefined, duration: NAMED_DURATIONS.min, dismissable: true}),
+      dismiss: () => toast.dismiss(id),
+    };
   }
 
   public static promise<T>(promise: Promise<T>, options: PromiseToastOptions<T>) {

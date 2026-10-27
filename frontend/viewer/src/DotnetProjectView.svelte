@@ -15,6 +15,8 @@
   import {initProjectStorage} from '$lib/storage';
   import {useEventBus} from '$lib/services/event-bus';
   import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
+  import {AppNotification, type LoadingNotification} from '$lib/notifications/notifications';
+  import {t} from 'svelte-i18n-lingui';
 
   const projectServicesProvider = useProjectServicesProvider();
 
@@ -37,6 +39,7 @@
   let projectScope: IProjectScope;
   let serviceLoaded = $state(false);
   let destroyed = false;
+  let endOpeningNotice: ((opened: boolean) => void) | undefined;
   onMount(async () => {
     console.debug('ProjectView mounted');
     projectContext.projectCode = code;
@@ -44,7 +47,14 @@
     if (projectType === 'crdt') {
       const maybeProjectName = await projectServicesProvider.tryGetCrdtProjectName(code);
       projectName = maybeProjectName ? maybeProjectName : code;
-      projectScope = await projectServicesProvider.openCrdtProject(code);
+      if (!destroyed) endOpeningNotice = showOpeningNotice(projectName);
+      let opened = false;
+      try {
+        projectScope = await projectServicesProvider.openCrdtProject(code);
+        opened = true;
+      } finally {
+        endOpeningNotice?.(opened);
+      }
     } else {
       projectName = code;
       projectScope = await projectServicesProvider.openFwDataProject(code);
@@ -81,10 +91,30 @@
   });
   onDestroy(() => {
     destroyed = true;
+    endOpeningNotice?.(false);
     if (serviceLoaded) {
       cleanup();
     }
   });
+
+  // Opening can rebuild the whole project after an update, which can look stuck without an explanation
+  function showOpeningNotice(name: string): (opened: boolean) => void {
+    let notice: LoadingNotification | undefined;
+    let slow = false;
+    const noticeTimer = setTimeout(() => notice = AppNotification.loading($t`Opening ${name}...`), 1500);
+    const slowTimer = setTimeout(() => {
+      slow = true;
+      notice?.update($t`Making sure ${name} is up to date`,
+        $t`This can take a few minutes after an update, so please keep the app open.`);
+    }, 8000);
+    return (opened) => {
+      clearTimeout(noticeTimer);
+      clearTimeout(slowTimer);
+      if (opened && slow) notice?.succeed($t`${name} is ready`);
+      else notice?.dismiss();
+      notice = undefined;
+    };
+  }
 
   function cleanup() {
     setTimeout(() => {
