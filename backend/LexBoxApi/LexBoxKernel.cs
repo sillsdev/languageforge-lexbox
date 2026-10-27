@@ -82,8 +82,9 @@ public static class LexBoxKernel
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
+        // Uploading a reset zip or copying a large repo can far outlast HttpClient's 100s default
+        services.AddHttpClient(HgService.ManageClientName, client => client.Timeout = TimeSpan.FromMinutes(30));
         services.AddSingleton<FwLiteReleaseService>();
-        services.AddHostedService<HgService>();
         services.AddTransient<HgWebHealthCheck>();
         services.AddTransient<FwHeadlessHealthCheck>();
         services.AddScoped<ILexProxyService, LexProxyService>();

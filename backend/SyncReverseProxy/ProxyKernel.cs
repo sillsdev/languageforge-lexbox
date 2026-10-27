@@ -112,7 +112,7 @@ public static class ProxyKernel
                     break;
             }
 
-            if (hgService.HasAbandonedTransactions(projectCode))
+            if (await hgService.HasAbandonedTransactions(projectCode))
                 Activity.Current?.AddTag("app.abandoned_transaction_detected", true);
         }
         catch (Exception e)

@@ -81,8 +81,6 @@ spec:
           - containerPort: 5158
 
         volumeMounts:
-        - name: repos
-          mountPath: /hg-repos
         - name: oauth-signing-cert
           mountPath: /oauth-certs/signing
           readOnly: true
@@ -172,8 +170,6 @@ spec:
             value: "10.42.0.0/16"
           - name: MediaFileConfig__FwHeadlessUrl
             value: http://fw-headless:8081/
-          - name: HgConfig__RepoPath
-            value: /hg-repos
           - name: HgConfig__SendReceiveDomain
             valueFrom:
               configMapKeyRef:
@@ -185,6 +181,11 @@ spec:
             value: http://hg:8088/command/
           - name: HgConfig__HgResumableUrl
             value: http://hg:8080/
+          - name: HgConfig__HgResumeManageSecret
+            valueFrom:
+              secretKeyRef:
+                key: HGRESUME_MANAGE_SECRET
+                name: hgresume
           - name: HgConfig__AutoUpdateLexEntryCountOnSendReceive
             value: "true"
           # Mixpanel analytics off by default everywhere; production opts in via its overlay.
@@ -263,9 +264,6 @@ spec:
             value: '' # should be YAML, will be merged with the base config file
 
       volumes:
-      - name: repos
-        persistentVolumeClaim:
-          claimName: hg-repos # established in hg-repos-pvc.yaml
       - name: otel-config
         configMap:
           name: otel-config
@@ -331,21 +329,3 @@ spec:
               configMapKeyRef:
                 name: app-config
                 key: enable-oauth
-      - name: set-repo-structure-owner-to-www-data
-        securityContext:
-          # Make sure we're authorized to set ownership
-          runAsUser: 0
-          runAsGroup: 0
-          runAsNonRoot: false
-        image: busybox:1.36.1
-        command:
-          - 'sh'
-          - '-c'
-          - |
-            cd /repos
-            chown www-data:www-data .
-            # Only necessary if directories already exist with the wrong ownership
-            find . -maxdepth 1 -type d ! -name lost+found -exec chown www-data:www-data {} +
-        volumeMounts:
-          - name: repos
-            mountPath: /repos

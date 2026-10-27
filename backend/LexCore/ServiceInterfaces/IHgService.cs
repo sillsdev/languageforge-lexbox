@@ -16,7 +16,7 @@ public interface IHgService
     Task<ProjectWritingSystems?> GetProjectWritingSystems(ProjectCode code, CancellationToken token = default);
     Task<Guid?> GetProjectIdOfFlexProject(ProjectCode code, CancellationToken token = default);
     Task<int?> GetModelVersionOfFlexProject(ProjectCode code, CancellationToken token = default);
-    BackupExecutor? BackupRepo(ProjectCode code);
+    Task<BackupExecutor?> BackupRepo(ProjectCode code);
     Task ResetRepo(ProjectCode code);
     Task FinishReset(ProjectCode code, Stream zipFile);
     Task<HttpContent> VerifyRepo(ProjectCode code, CancellationToken token);
@@ -28,7 +28,7 @@ public interface IHgService
     Task<ZipArchive?> GetLdmlZip(ProjectCode code, CancellationToken token = default);
     Task<HttpContent> ExecuteHgRecover(ProjectCode code, CancellationToken token);
     Task<HttpContent?> InvalidateDirCache(ProjectCode code, CancellationToken token = default);
-    bool HasAbandonedTransactions(ProjectCode projectCode);
+    Task<bool> HasAbandonedTransactions(ProjectCode projectCode);
     Task<string> HgCommandHealth();
 
     Task<string[]> CleanupResetBackups(bool dryRun = false);

@@ -172,7 +172,7 @@ public class ProjectService(
         var exists = await dbContext.Projects.Where(p => p.Code == code)
             .AnyAsync();
         if (!exists) return null;
-        var backupExecutor = hgService.BackupRepo(code);
+        var backupExecutor = await hgService.BackupRepo(code);
         return backupExecutor;
     }
 
