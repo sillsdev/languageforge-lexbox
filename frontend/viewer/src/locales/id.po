@@ -1424,10 +1424,6 @@ msgstr "Sejarah"
 msgid "Hold to record or#press and release to start recording."
 msgstr "Tahan untuk merekam atau#tekan dan lepaskan untuk mulai merekam."
 
-#: src/lib/entry-editor/diff-view/diff-fields.ts
-msgid "Homograph number"
-msgstr ""
-
 #. External link button text for help
 #: src/home/Server.svelte
 msgid "I don't see my project"
@@ -1765,7 +1761,7 @@ msgstr "Hilang: {0}"
 msgid "Mode"
 msgstr "Mode"
 
-#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 msgid "Morph type"
 msgstr ""
 

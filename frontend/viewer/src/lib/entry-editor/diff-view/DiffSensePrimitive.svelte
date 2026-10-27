@@ -12,8 +12,6 @@
   import DiffSelect from './DiffSelect.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
   import DiffPictures from './DiffPictures.svelte';
-  import DiffFieldRows from './DiffFieldRows.svelte';
-  import {senseExtraRows} from './diff-fields';
 
   let {before, after}: {before?: ISense; after?: ISense} = $props();
 
@@ -75,4 +73,3 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
-<DiffFieldRows rows={senseExtraRows} {before} {after} changedOnly />

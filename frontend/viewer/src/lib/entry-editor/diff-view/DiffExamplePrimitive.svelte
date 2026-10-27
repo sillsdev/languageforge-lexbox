@@ -11,8 +11,6 @@
   import DiffRichText from './DiffRichText.svelte';
   import DiffText from './DiffText.svelte';
   import DiffShell from './DiffShell.svelte';
-  import DiffFieldRows from './DiffFieldRows.svelte';
-  import {exampleExtraRows} from './diff-fields';
 
   let {before, after}: {before?: IExampleSentence; after?: IExampleSentence} = $props();
 
@@ -66,4 +64,3 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
-<DiffFieldRows rows={exampleExtraRows} {before} {after} changedOnly />

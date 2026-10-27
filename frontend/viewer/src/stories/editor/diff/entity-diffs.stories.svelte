@@ -6,18 +6,18 @@
   import DiffEntryPrimitive from '$lib/entry-editor/diff-view/DiffEntryPrimitive.svelte';
   import DiffSensePrimitive from '$lib/entry-editor/diff-view/DiffSensePrimitive.svelte';
   import DiffFieldRows from '$lib/entry-editor/diff-view/DiffFieldRows.svelte';
+  import DiffEntryLinkList from '$lib/entry-editor/diff-view/DiffEntryLinkList.svelte';
   import {objectDiffRows} from '$lib/entry-editor/diff-view/diff-fields';
 
   const {Story} = defineMeta({
     title: 'editor/diff/entities',
   });
 
-  const entryBefore: IEntry = {..._entries[0], homographNumber: 0};
+  const entryBefore: IEntry = _entries[0];
   const entryAfter: IEntry = {
     ...entryBefore,
     lexemeForm: {...entryBefore.lexemeForm, seh: 'nyumbo'},
     morphType: MorphTypeKind.BoundStem,
-    homographNumber: 1,
   };
 
   const senseBefore: ISense = _entries[0].senses[0];
@@ -34,6 +34,12 @@
   const wsBefore: IWritingSystem = writingSystems.vernacular[0];
   const wsAfter: IWritingSystem = {...wsBefore, abbreviation: 'Sen', icuCollationRules: '&a < b'};
 
+  function link(id: string, headword: string) {
+    return {id, headword};
+  }
+  const componentsBefore = [link('1', 'nyumba'), link('2', 'ya'), link('3', 'kale')];
+  const componentsAfter = [link('1', 'nyumba'), link('3', 'kale'), link('4', 'kulu')];
+
   const viewBefore: ICustomView = {
     id: 'view',
     name: 'Quick gloss',
@@ -49,8 +55,17 @@
   {#snippet template()}
     <Editor.Root>
       <Editor.Grid>
-        <div class="col-span-full font-bold">Entry (morph type and homograph number aren't editor fields)</div>
+        <div class="col-span-full font-bold">Entry (morph type isn't an editor field)</div>
         <DiffEntryPrimitive before={entryBefore} after={entryAfter} />
+
+        <div class="col-span-full font-bold">Components (links between entries)</div>
+        <Editor.Field.Root>
+          <Editor.Field.Title name="Components" />
+          <Editor.Field.Body>
+            <DiffEntryLinkList before={componentsBefore} after={componentsAfter}
+                               getKey={(l) => l.id} getHeadword={(l) => l.headword} touched={(l) => l.id === '3'} />
+          </Editor.Field.Body>
+        </Editor.Field.Root>
 
         <div class="col-span-full font-bold">Sense</div>
         <DiffSensePrimitive before={senseBefore} after={senseAfter} />

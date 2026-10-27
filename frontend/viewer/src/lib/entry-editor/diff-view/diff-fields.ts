@@ -2,56 +2,30 @@ import {msg} from 'svelte-i18n-lingui';
 import type {
   IComplexFormType,
   ICustomView,
-  IEntry,
-  IExampleSentence,
   IMorphType,
   IPartOfSpeech,
   IPublication,
   ISemanticDomain,
-  ISense,
   IWritingSystem,
 } from '$lib/dotnet-types';
-import type {EntityType, EntryFieldId, ExampleFieldId, SenseFieldId} from '$lib/views/entity-config';
+import type {EntityType} from '$lib/views/entity-config';
 
-// 'text' is diffed character by character, 'value' and the other scalars are replaced whole.
+// 'text' is diffed character by character; the other scalars are replaced whole.
 export type DiffRow = {label: string} & (
-  | {kind: 'text' | 'value' | 'multiString' | 'richMultiString' | 'boolean' | 'wsType' | 'viewBase' | 'morphType' | 'wsList' | 'stringList'}
+  | {kind: 'text' | 'multiString' | 'richMultiString' | 'boolean' | 'wsType' | 'viewBase' | 'wsList' | 'stringList'}
   | {kind: 'viewFields'; entity: EntityType}
 );
 
 /**
  * A row for every field of a generated model, or null for one a diff shouldn't show. Typed against the model,
- * so a new backend field fails type-checking until someone decides how its changes are shown.
+ * so a new backend field fails type-checking until someone decides how its changes are shown. Entry, sense and
+ * example fields are covered by entityConfig instead.
  */
 export type DiffRows<T> = {[K in keyof T]-?: DiffRow | null};
 
 const name = {label: msg`Name`, kind: 'multiString'} as const;
 const abbreviation = {label: msg`Abbreviation`, kind: 'multiString'} as const;
 const description = {label: msg`Description`, kind: 'richMultiString'} as const;
-
-// The fields the editor doesn't show. Entry, sense and example diffs render the rest in the editor's layout.
-export const entryExtraRows: DiffRows<Omit<IEntry, EntryFieldId>> = {
-  morphType: {label: msg`Morph type`, kind: 'morphType'},
-  homographNumber: {label: msg`Homograph number`, kind: 'value'},
-  id: null,
-  deletedAt: null,
-  senses: null,
-};
-
-export const senseExtraRows: DiffRows<Omit<ISense, SenseFieldId>> = {
-  id: null,
-  deletedAt: null,
-  entryId: null,
-  // Diffed through partOfSpeechId
-  partOfSpeech: null,
-  exampleSentences: null,
-};
-
-export const exampleExtraRows: DiffRows<Omit<IExampleSentence, ExampleFieldId>> = {
-  id: null,
-  deletedAt: null,
-  senseId: null,
-};
 
 /** Rows for the objects without an editor layout, keyed by the entity type the backend reports for a snapshot. */
 /* eslint-disable @typescript-eslint/naming-convention */ // C# type names

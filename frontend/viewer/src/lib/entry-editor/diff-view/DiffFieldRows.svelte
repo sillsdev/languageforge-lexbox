@@ -2,7 +2,6 @@
   import * as Editor from '$lib/components/editor';
   import {WritingSystemType, type IMultiString, type IRichMultiString, type IViewField, type IViewWritingSystem} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$project/data';
-  import {useMorphTypesService} from '$project/data/morph-types.svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {FW_CLASSIC_VIEW, FW_LITE_VIEW} from '$lib/views/view-data';
   import {getEntityConfig, type EntityType} from '$lib/views/entity-config';
@@ -16,16 +15,13 @@
   import DiffMultiSelect from './DiffMultiSelect.svelte';
   import type {DiffRow} from './diff-fields';
 
-  let {rows, before, after, changedOnly = false}: {
+  let {rows, before, after}: {
     rows: Readonly<Record<string, DiffRow | null>>;
     before?: object;
     after?: object;
-    /** For fields the editor doesn't show, which would only add noise when unchanged. */
-    changedOnly?: boolean;
   } = $props();
 
   const writingSystemService = useWritingSystemService();
-  const morphTypes = useMorphTypesService();
   const viewService = useViewService();
   const analysisWss = $derived(writingSystemService.viewAnalysis(viewService.currentView));
 
@@ -33,9 +29,7 @@
   const a = $derived(after as Record<string, unknown> | undefined);
   const shown = $derived(Object.entries(rows).filter((entry): entry is [string, DiffRow] => {
     const [field, row] = entry;
-    if (!row) return false;
-    if (changedOnly) return JSON.stringify(b?.[field]) !== JSON.stringify(a?.[field]);
-    return isSet(b?.[field]) || isSet(a?.[field]);
+    return !!row && (isSet(b?.[field]) || isSet(a?.[field]));
   }));
 
   function isSet(value: unknown): boolean {
@@ -51,10 +45,6 @@
         return value === WritingSystemType.Analysis || value === 'Analysis' ? $t`Analysis` : $t`Vernacular`;
       case 'viewBase':
         return value === FW_CLASSIC_VIEW.base ? FW_CLASSIC_VIEW.name : value === FW_LITE_VIEW.base ? FW_LITE_VIEW.name : String(value);
-      case 'morphType': {
-        const morphType = morphTypes.current.find((m) => m.kind === value);
-        return (morphType && writingSystemService.pickBestAlternative(morphType.name, 'analysis')) || String(value);
-      }
       default:
         return String(value);
     }

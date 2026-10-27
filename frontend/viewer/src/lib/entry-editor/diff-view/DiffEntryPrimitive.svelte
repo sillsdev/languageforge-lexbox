@@ -1,34 +1,53 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
-  import type {IEntry} from '$lib/dotnet-types';
+  import type {IEntry, MorphTypeKind} from '$lib/dotnet-types';
   import {objectTemplateAreas, useViewService} from '$lib/views/view-service.svelte';
   import {fieldRecord} from '$lib/views/view-data';
   import {entityConfig} from '$lib/views/entity-config';
   import {tvt} from '$lib/views/view-text';
   import {cn} from '$lib/utils';
   import {usePublications, useWritingSystemService} from '$project/data';
+  import {useMorphTypesService} from '$project/data/morph-types.svelte';
+  import {t} from 'svelte-i18n-lingui';
   import DiffMultiString from './DiffMultiString.svelte';
   import DiffRichText from './DiffRichText.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
-  import DiffFieldRows from './DiffFieldRows.svelte';
-  import {entryExtraRows} from './diff-fields';
+  import DiffSelect from './DiffSelect.svelte';
 
   let {before, after}: {before?: IEntry; after?: IEntry} = $props();
 
   const writingSystemService = useWritingSystemService();
   const publications = usePublications();
+  const morphTypes = useMorphTypesService();
   const viewService = useViewService();
 
   const entryFields = $derived(viewService.currentView.entryFields);
   const fields = $derived(fieldRecord(entryFields));
+
+  // The editor has no morph type field yet. A change to it shows right under the lexeme form, like in FLEx.
+  const morphTypeChanged = $derived(before?.morphType !== after?.morphType);
+  const layoutFields = $derived(entryFields.flatMap((field) =>
+    field.fieldId === 'lexemeForm' ? [field, {fieldId: 'morphType', show: morphTypeChanged}] : [field]));
+
+  function morphTypeLabel(kind: MorphTypeKind): string {
+    const morphType = morphTypes.current.find((m) => m.kind === kind);
+    return (morphType && writingSystemService.pickBestAlternative(morphType.name, 'analysis')) || kind;
+  }
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas(entryFields)}">
+<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas(layoutFields)}">
   <Editor.Field.Root fieldId="lexemeForm" class={cn(fields.lexemeForm?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.entry.lexemeForm.label)} helpId={entityConfig.entry.lexemeForm.helpId} />
     <Editor.Field.Body subGrid>
       <DiffMultiString before={before?.lexemeForm} after={after?.lexemeForm}
                        writingSystems={writingSystemService.viewVernacular(viewService.currentView)} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+
+  <Editor.Field.Root style="grid-area: morphType" class={cn(morphTypeChanged || 'hidden')}>
+    <Editor.Field.Title name={$t`Morph type`} />
+    <Editor.Field.Body>
+      <DiffSelect before={before?.morphType} after={after?.morphType} idSelector={(kind) => kind} labelSelector={morphTypeLabel} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 
@@ -75,4 +94,3 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
-<DiffFieldRows rows={entryExtraRows} {before} {after} changedOnly />
