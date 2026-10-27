@@ -63,6 +63,17 @@ public class InitFwDataProjectValidationTests
     }
 
     [Fact]
+    public async Task Rejects_a_too_long_UI_writing_system_before_creating_anything()
+    {
+        var wsUi = "qaa-x-" + new string('a', InitFwDataProjectInput.MaxWritingSystemTagLength);
+        var result = await NewController().InitFwDataProject("myproj", wsVernacular: ["fr"], wsUi: wsUi);
+        var problem = result.Result.Should().BeOfType<ObjectResult>()
+            .Which.Value.Should().BeOfType<ProblemDetails>().Which;
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Detail.Should().Contain("UI writing system code is longer than");
+    }
+
+    [Fact]
     public async Task Rejects_an_invalid_project_code()
     {
         var result = await NewController().InitFwDataProject("Bad Code!", wsVernacular: ["fr"]);

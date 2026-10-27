@@ -31,16 +31,15 @@ public static class ProjectRoutes
     {
         // Null-safe against a malformed body (System.Text.Json leaves an absent list null).
         var wsError = InitFwDataProjectInput.ValidateWritingSystemList("vernacular", input.WsVernacular)
-            ?? InitFwDataProjectInput.ValidateWritingSystemList("analysis", input.WsAnalysis);
+            ?? InitFwDataProjectInput.ValidateWritingSystemList("analysis", input.WsAnalysis)
+            ?? InitFwDataProjectInput.ValidateUiWritingSystem(input.WsUi);
         if (wsError is not null)
             return TypedResults.Problem(wsError, statusCode: StatusCodes.Status400BadRequest);
         var invalidWs = input.WsVernacular.Concat(input.WsAnalysis).FirstOrDefault(ws => !IetfLanguageTag.IsValid(ws));
         if (invalidWs is not null)
             return TypedResults.Problem($"Invalid writing system code: {invalidWs}",
                 statusCode: StatusCodes.Status400BadRequest);
-        if (string.IsNullOrEmpty(input.WsUi)
-            || input.WsUi.Length > InitFwDataProjectInput.MaxWritingSystemTagLength
-            || !IetfLanguageTag.IsValid(input.WsUi))
+        if (!IetfLanguageTag.IsValid(input.WsUi))
             return TypedResults.Problem($"Invalid UI writing system code: {input.WsUi}",
                 statusCode: StatusCodes.Status400BadRequest);
 

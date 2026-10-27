@@ -72,4 +72,35 @@ public class InitFwDataProjectInputTests
     {
         Validate(first, "en", second).Should().Contain($"Duplicate vernacular writing system: {first}");
     }
+
+    [Fact]
+    public void Accepts_a_typical_UI_writing_system()
+    {
+        InitFwDataProjectInput.ValidateUiWritingSystem("en").Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void Rejects_a_missing_UI_writing_system(string? tag)
+    {
+        InitFwDataProjectInput.ValidateUiWritingSystem(tag).Should().Contain("A UI writing system is required");
+    }
+
+    [Fact]
+    public void Accepts_a_UI_writing_system_of_the_maximum_length()
+    {
+        var tag = "qaa-x-" + new string('a', InitFwDataProjectInput.MaxWritingSystemTagLength - "qaa-x-".Length);
+        InitFwDataProjectInput.ValidateUiWritingSystem(tag).Should().BeNull();
+    }
+
+    [Fact]
+    public void Rejects_a_UI_writing_system_longer_than_the_maximum_and_shows_its_start()
+    {
+        var tag = "qaa-x-" + new string('a', InitFwDataProjectInput.MaxWritingSystemTagLength);
+        var error = InitFwDataProjectInput.ValidateUiWritingSystem(tag);
+        error.Should().Contain($"longer than {InitFwDataProjectInput.MaxWritingSystemTagLength} characters");
+        error.Should().Contain(tag[..32]).And.NotContain(tag[..33]);
+    }
 }

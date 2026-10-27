@@ -35,4 +35,17 @@ public record InitFwDataProjectInput(
             return $"Duplicate {kind} writing system: {duplicate.Key}";
         return null;
     }
+
+    /// <summary>
+    /// Shape checks for the UI writing system, shared like <see cref="ValidateWritingSystemList"/>. Returns an
+    /// error message, or null if the tag is acceptable. FwHeadless additionally checks that it is valid BCP 47.
+    /// </summary>
+    public static string? ValidateUiWritingSystem(string? tag)
+    {
+        if (string.IsNullOrWhiteSpace(tag))
+            return "A UI writing system is required";
+        if (tag.Length > MaxWritingSystemTagLength)
+            return $"The UI writing system code is longer than {MaxWritingSystemTagLength} characters: {tag[..32]}…";
+        return null;
+    }
 }

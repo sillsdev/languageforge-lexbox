@@ -58,7 +58,8 @@ public class ProjectController(
         // Validate before anything is created, so a bad request never leaves a project to tear down.
         var wsAnalysisOrDefault = AnalysisWritingSystemsOrDefault(wsAnalysis);
         var wsError = InitFwDataProjectInput.ValidateWritingSystemList("vernacular", wsVernacular)
-            ?? InitFwDataProjectInput.ValidateWritingSystemList("analysis", wsAnalysisOrDefault);
+            ?? InitFwDataProjectInput.ValidateWritingSystemList("analysis", wsAnalysisOrDefault)
+            ?? InitFwDataProjectInput.ValidateUiWritingSystem(wsUi);
         if (wsError is not null)
             return Problem(wsError, statusCode: StatusCodes.Status400BadRequest);
         if (code is null || code.Length < 4 || !Regex.IsMatch(code, Project.ProjectCodeRegex))
