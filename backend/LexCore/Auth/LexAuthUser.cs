@@ -210,6 +210,8 @@ public record LexAuthUser
                         ProjectRole.Manager => "m",
                         ProjectRole.Editor => "e",
                         ProjectRole.Observer => "o",
+                        ProjectRole.Commenter => "c",
+                        ProjectRole.EditorLite => "l",
                         _ => "u"
                     };
 
@@ -232,6 +234,8 @@ public record LexAuthUser
                     'm' => ProjectRole.Manager,
                     'e' => ProjectRole.Editor,
                     'o' => ProjectRole.Observer,
+                    'c' => ProjectRole.Commenter,
+                    'l' => ProjectRole.EditorLite,
                     _ => ProjectRole.Unknown
                 };
                 return p[2..].Split("|").Select(Guid.Parse).Select(pId => new AuthUserProject(role, pId));

@@ -32,6 +32,10 @@ For .Net tests, you can run them from the command line, in the repo root:
 dotnet test FwLiteOnly.slnf 
 ```
 
+### Logs and settings (desktop/mobile app)
+See [docs/FWLITE-TROUBLESHOOTING.md](../../docs/FWLITE-TROUBLESHOOTING.md) for where the app log lives, the
+optional `fw-lite-settings.json`, and how to turn on verbose logging.
+
 ### Building for a specific framework
 ```bash
 dotnet build -f net10.0-ios

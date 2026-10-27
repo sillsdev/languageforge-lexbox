@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
+using SIL.Harmony.Core;
 
 namespace LexBoxApi;
 
@@ -75,6 +76,7 @@ public static class LexboxOpenApi
                 options =>
                 {
                     options.ShouldInclude = (api) => api.GroupName == LexboxOpenApi.OpenApiPublicDocumentName;
+                    options.AddSchemaTransformer(DescribeSyncState);
                     options.AddDocumentTransformer((document, context, _) =>
                     {
                         document.Info.Title = "Lexbox Public Api";
@@ -100,6 +102,7 @@ public static class LexboxOpenApi
                 options =>
                 {
                     options.ShouldInclude = (_) => true;
+                    options.AddSchemaTransformer(DescribeSyncState);
                     options.AddDocumentTransformer((document, context, _) =>
                     {
                         document.Info.Title = "Lexbox Api";
@@ -109,6 +112,19 @@ public static class LexboxOpenApi
                 });
             return services;
         }
+    }
+
+    //Harmony serializes SyncState with a custom JsonConverter, which the generator can't see into and describes as {}
+    private static async Task DescribeSyncState(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken token)
+    {
+        if (context.JsonTypeInfo.Type != typeof(SyncState)) return;
+        schema.Type = JsonSchemaType.Object;
+        schema.Required = new HashSet<string> { "clientHeads", "clientStates" };
+        schema.Properties = new Dictionary<string, IOpenApiSchema>
+        {
+            ["clientHeads"] = await context.GetOrCreateSchemaAsync(typeof(Dictionary<Guid, long>), cancellationToken: token),
+            ["clientStates"] = await context.GetOrCreateSchemaAsync(typeof(ClientState[]), cancellationToken: token),
+        };
     }
 
     extension(IEndpointRouteBuilder endpoints)

@@ -169,7 +169,7 @@ public class FwDataMiniLcmApi(
         var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
         if (exitingWs.Any(ws => ws.Id == writingSystem.WsId))
         {
-            throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
+            throw new DuplicateObjectException($"Writing system '{writingSystem.WsId.Code}' already exists");
         }
         CoreWritingSystemDefinition? ws = null;
         await Cache.DoUsingNewOrCurrentUOW("Create Writing System",
@@ -209,7 +209,7 @@ public class FwDataMiniLcmApi(
     {
         if (!Cache.ServiceLocator.WritingSystemManager.TryGet(id.Code, out var lcmWritingSystem))
         {
-            throw new InvalidOperationException($"Writing system {id.Code} not found");
+            throw new InvalidOperationException($"Writing system '{id.Code}' not found");
         }
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",
@@ -1897,6 +1897,7 @@ public class FwDataMiniLcmApi(
         if (lcmPicture.Owner is ILexSense sense)
         {
             if (sense.Guid != senseId) throw ParentMismatchException.ForType<Picture>(lcmPicture.Guid, senseId, sense.Guid);
+            if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
         }
         else
         {
@@ -1961,6 +1962,7 @@ public class FwDataMiniLcmApi(
         if (picture.Id == default) picture.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create picture",
             "Remove picture",
             Cache.ServiceLocator.ActionHandler,

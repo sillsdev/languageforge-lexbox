@@ -37,6 +37,8 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var version = await _sendReceiveService.GetHgVersion();
         version.Should().StartWith("Mercurial Distributed SCM");
         _output.WriteLine("Hg version: " + version);
+        if (TestingEnvironmentVariables.ExpectedHgMajorVersion is { } expectedMajor)
+            version.Should().Contain($"(version {expectedMajor}.");
         HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) { ShowVerbose = true });
         HgRepository.GetEnvironmentReadinessMessage("en").Should().BeNull();
     }
@@ -61,14 +63,24 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         // Create a fresh project
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
+        var stateBeforePush = await _adminApiTester.GetProjectRepoState(projectConfig.Code);
+        stateBeforePush.LastCommit.Should().BeNull();
+        stateBeforePush.RepoSizeInKb.Should().BeNull();
+        stateBeforePush.LexEntryCount.Should().BeNull();
 
         // Push the project to the server
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
         _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
 
-        // Verify pushed and store last commit
-        var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
+        // Verify pushed and store last commit. The push queues UpdateProjectMetadataJob, which updates the last commit,
+        // repo size and entry count
+        var stateAfterPush = await _adminApiTester.WaitForProjectRepoState(projectConfig.Code,
+            s => s.LastCommit is not null && s.RepoSizeInKb > 0 && s.LexEntryCount is not null);
+        var lastCommitDate = stateAfterPush.LastCommit;
         lastCommitDate.Should().NotBeNull();
+        stateAfterPush.RepoSizeInKb.Should().BeGreaterThan(0);
+        stateAfterPush.LexEntryCount.Should().Be(1, "the template project contains a single entry");
+        stateAfterPush.HasAbandonedTransactions.Should().BeFalse();
 
         // Modify
         var fwDataFileInfo = new FileInfo(sendReceiveParams.FwDataFile);

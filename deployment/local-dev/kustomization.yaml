@@ -9,6 +9,7 @@ resources:
 - gateway.yaml
 - db-secrets.yaml
 - lf-classic-secrets.yaml
+- hgresume-secrets.yaml
 - self-signed-ssl.yaml
 - pgadmin-deployment.yaml
 
