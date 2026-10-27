@@ -2,6 +2,7 @@ using LcmCrdt.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SIL.Harmony.Db;
 using static LcmCrdt.CrdtProjectsService;
 
 namespace LcmCrdt.Tests;
@@ -171,6 +172,26 @@ public class OpenProjectTests
             await api.CreateEntry(new() { LexemeForm = { ["fr"] = "after scope" } });
             (await LatestCommitAuthorId(historyService)).Should().BeNull();
         });
+    }
+
+    [Fact]
+    public async Task CreatingAProjectKeepsTheSnapshotsItWrote()
+    {
+        Guid[] createdSnapshotIds = [];
+        var request = new CreateProjectRequest("Keeps Snapshots", $"keeps-snapshots-{Guid.NewGuid():N}",
+            AfterCreate: async (services, _) => createdSnapshotIds = await SnapshotIds(services));
+
+        await WithProjectFromTemplate(request, "fr", async (services, _) =>
+        {
+            createdSnapshotIds.Should().NotBeEmpty();
+            (await SnapshotIds(services)).Should().BeEquivalentTo(createdSnapshotIds);
+        });
+    }
+
+    private static async Task<Guid[]> SnapshotIds(IServiceProvider services)
+    {
+        await using var dbContext = await services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        return await ((ICrdtDbContext)dbContext).Snapshots.Select(s => s.Id).ToArrayAsync();
     }
 
     private static async Task<string?> LatestCommitAuthorId(HistoryService historyService)
