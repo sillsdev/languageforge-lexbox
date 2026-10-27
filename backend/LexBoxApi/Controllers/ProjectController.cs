@@ -78,17 +78,27 @@ public class ProjectController(
         if (await projectService.ProjectExists(code))
             return Problem($"A project with code '{code}' already exists", statusCode: StatusCodes.Status409Conflict);
 
-        var projectId = await projectService.CreateProject(new CreateProjectInput(
-            Id: null,
-            Name: string.IsNullOrWhiteSpace(name) ? code : name,
-            Description: string.Empty,
-            Code: code,
-            Type: ProjectType.FLEx,
-            RetentionPolicy: RetentionPolicy.Verified,
-            IsConfidential: false,
-            ProjectManagerId: null,
-            OrgId: null),
-            projectOrigin: origin);
+        Guid projectId;
+        try
+        {
+            projectId = await projectService.CreateProject(new CreateProjectInput(
+                Id: null,
+                Name: string.IsNullOrWhiteSpace(name) ? code : name,
+                Description: string.Empty,
+                Code: code,
+                Type: ProjectType.FLEx,
+                RetentionPolicy: RetentionPolicy.Verified,
+                IsConfidential: false,
+                ProjectManagerId: null,
+                OrgId: null),
+                projectOrigin: origin);
+        }
+        catch (DbUpdateException e) when (DbError.CreateErrorFrom(e).Code == DbErrorCode.DuplicateProjectCode)
+        {
+            // ProjectExists above is only a fast path: a concurrent request can take the code after that check,
+            // and the unique index on Project.Code is what actually catches it. Nothing was created by this request.
+            return Problem($"A project with code '{code}' already exists", statusCode: StatusCodes.Status409Conflict);
+        }
 
         // At this point, the project row and empty repo exist. Have FwHeadless populate the repo with
         // the initial .fwdata; if that fails, compensate by tearing the project back down.
