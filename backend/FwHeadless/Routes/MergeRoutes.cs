@@ -85,6 +85,9 @@ public static class MergeRoutes
             case QueueJobResult.QueueFull:
                 activity?.SetStatus(ActivityStatusCode.Error, "Sync queue is full");
                 return TypedResults.Problem("Unable to queue sync job", statusCode: StatusCodes.Status503ServiceUnavailable);
+            // case QueueJobResult.AlreadyQueued:
+            //     // Not handled, fall through to returning HTTP 200 "Sync job queued"
+            //     break;
         }
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync job queued");
         return TypedResults.Ok();
