@@ -57,6 +57,21 @@ public class SyncHostedServiceCreationReservationTests
     }
 
     [Fact]
+    public void QueueJob_is_refused_while_a_sync_is_running()
+    {
+        var svc = NewService();
+        var projectId = Guid.NewGuid();
+
+        svc.QueueJob(projectId).Should().Be(QueueJobResult.Queued);
+        svc.MarkSyncStarted(projectId);
+
+        svc.QueueJob(projectId).Should().Be(QueueJobResult.SyncAlreadyRunning,
+            "the running sync may have missed the caller's changes, so it must not be reported as covering them");
+        svc.IsJobQueuedOrRunning(projectId).Should().BeTrue();
+        svc.TryStartProjectCreation(projectId).Should().BeFalse("a sync is running for this project");
+    }
+
+    [Fact]
     public async Task AwaitCreationFinished_returns_the_outcome_the_creation_reported()
     {
         var svc = NewService();

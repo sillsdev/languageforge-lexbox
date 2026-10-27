@@ -78,6 +78,10 @@ public static class MergeRoutes
                 activity?.SetStatus(ActivityStatusCode.Ok, "Project is still being created");
                 return TypedResults.Problem("Project is still being created, try again once creation has finished",
                     statusCode: StatusCodes.Status409Conflict);
+            case QueueJobResult.SyncAlreadyRunning:
+                activity?.SetStatus(ActivityStatusCode.Ok, "Sync already running");
+                return TypedResults.Problem("A sync is already running for this project, try again once it has finished",
+                    statusCode: StatusCodes.Status429TooManyRequests);
             case QueueJobResult.QueueFull:
                 activity?.SetStatus(ActivityStatusCode.Error, "Sync queue is full");
                 return TypedResults.Problem("Unable to queue sync job", statusCode: StatusCodes.Status503ServiceUnavailable);

@@ -21,6 +21,8 @@ public enum QueueJobResult
     AlreadyQueued,
     // A sync must not race a project that's still being created from a template; the caller should retry later
     ProjectBeingCreated,
+    // The running sync may already have read the repo before the caller's changes arrived; the caller should retry once it finishes
+    SyncAlreadyRunning,
     QueueFull,
 }
 
@@ -37,10 +39,13 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     /// <summary>
     /// Exactly one of <see cref="Sync"/> or <see cref="Creation"/> is set. The TaskCompletionSource carries the
     /// outcome to anyone long-polling AwaitSyncFinished or AwaitCreationFinished.
+    /// <see cref="SyncStarted"/> distinguishes a queued sync (which will pick up any changes made before it starts)
+    /// from a running one (which might not).
     /// </summary>
     private record ProjectJob(
         TaskCompletionSource<SyncJobResult>? Sync,
-        TaskCompletionSource<ProjectCreationStatus>? Creation)
+        TaskCompletionSource<ProjectCreationStatus>? Creation,
+        bool SyncStarted = false)
     {
         public static ProjectJob ForSync() => new(new TaskCompletionSource<SyncJobResult>(), null);
 
@@ -63,6 +68,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     {
         await foreach (var projectId in _projectsToSync.Reader.ReadAllAsync(stoppingToken))
         {
+            MarkSyncStarted(projectId);
             using var activity = FwHeadlessActivitySource.Value.StartActivity("SyncHostedService.ExecuteAsync");
             await using var scope = services.CreateAsyncScope();
             var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(scope.ServiceProvider, projectId);
@@ -89,6 +95,13 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
             if (_projectJobs.TryGetValue(projectId, out var job) && job.Sync is { } tcs && TryRemoveJob(projectId, job))
                 tcs.TrySetResult(result);
         }
+    }
+
+    // QueueJob never modifies an existing sync entry, and only ExecuteAsync removes one, so nothing can race this update
+    internal void MarkSyncStarted(Guid projectId)
+    {
+        if (_projectJobs.TryGetValue(projectId, out var job) && job.Sync is not null)
+            _projectJobs.TryUpdate(projectId, job with { SyncStarted = true }, job);
     }
 
     public virtual bool IsJobQueuedOrRunning(Guid projectId)
@@ -165,6 +178,11 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         //will only queue job if it's not already queued
         if (!ReferenceEquals(job, newJob))
         {
+            if (job.SyncStarted)
+            {
+                logger.LogInformation("Project {ProjectId} is already syncing, not queueing another sync job", projectId);
+                return QueueJobResult.SyncAlreadyRunning;
+            }
             logger.LogInformation("Project {ProjectId} is already queued", projectId);
             return QueueJobResult.AlreadyQueued;
         }
