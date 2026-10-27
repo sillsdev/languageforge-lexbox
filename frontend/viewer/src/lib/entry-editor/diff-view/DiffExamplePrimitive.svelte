@@ -11,13 +11,14 @@
   import DiffRichText from './DiffRichText.svelte';
   import DiffText from './DiffText.svelte';
   import DiffShell from './DiffShell.svelte';
+  import {showChangedFields} from './changed-fields';
 
   let {before, after}: {before?: IExampleSentence; after?: IExampleSentence} = $props();
 
   const writingSystemService = useWritingSystemService();
   const viewService = useViewService();
 
-  const exampleFields = $derived(viewService.currentView.exampleFields);
+  const exampleFields = $derived(showChangedFields(viewService.currentView.exampleFields, before, after));
   const fields = $derived(fieldRecord(exampleFields));
 
   // Paired by id, current order first. Like the editor's draft translation, an example without any still gets one empty row.

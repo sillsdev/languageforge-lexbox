@@ -12,6 +12,7 @@
   import DiffSelect from './DiffSelect.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
   import DiffPictures from './DiffPictures.svelte';
+  import {showChangedFields} from './changed-fields';
 
   let {before, after}: {before?: ISense; after?: ISense} = $props();
 
@@ -19,7 +20,7 @@
   const partsOfSpeech = usePartsOfSpeech();
   const viewService = useViewService();
 
-  const senseFields = $derived(viewService.currentView.senseFields);
+  const senseFields = $derived(showChangedFields(viewService.currentView.senseFields, before, after));
   const fields = $derived(fieldRecord(senseFields));
 
   // The id is the source of truth: a legacy snapshot can carry an id without the object.
