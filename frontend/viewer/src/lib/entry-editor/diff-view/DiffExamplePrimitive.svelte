@@ -18,7 +18,8 @@
   const writingSystemService = useWritingSystemService();
   const viewService = useViewService();
 
-  const exampleFields = $derived(showChangedFields(viewService.currentView.exampleFields, before, after));
+  const exampleFields = $derived(showChangedFields(viewService.currentView.exampleFields, before, after,
+    {translations: (translations) => Object.fromEntries(translations.map((tr) => [tr.id, tr.text]))}));
   const fields = $derived(fieldRecord(exampleFields));
 
   // Paired by id, current order first. Like the editor's draft translation, an example without any still gets one empty row.

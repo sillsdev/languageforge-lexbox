@@ -13,7 +13,7 @@
   import DiffRichText from './DiffRichText.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
   import DiffSelect from './DiffSelect.svelte';
-  import {showChangedFields} from './changed-fields';
+  import {ids, showChangedFields, sortedIds} from './changed-fields';
 
   let {before, after}: {before?: IEntry; after?: IEntry} = $props();
 
@@ -22,7 +22,8 @@
   const morphTypes = useMorphTypesService();
   const viewService = useViewService();
 
-  const entryFields = $derived(showChangedFields(viewService.currentView.entryFields, before, after));
+  const entryFields = $derived(showChangedFields(viewService.currentView.entryFields, before, after,
+    {complexFormTypes: ids, publishIn: sortedIds}));
   const fields = $derived(fieldRecord(entryFields));
 
   // The editor has no morph type field yet. A change to it shows right under the lexeme form, like in FLEx.

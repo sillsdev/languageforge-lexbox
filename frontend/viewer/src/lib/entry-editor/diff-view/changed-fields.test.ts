@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {showChangedFields, valueChanged} from './changed-fields';
+import {showChangedFields, sortedIds, valueChanged} from './changed-fields';
 
 describe('valueChanged', () => {
   it('treats empty values as missing', () => {
@@ -35,6 +35,15 @@ describe('showChangedFields', () => {
     const before = {literalMeaning: {en: {spans: [{text: 'old'}]}}, publishIn: [{id: 'p'}]};
     const after = {literalMeaning: {en: {spans: [{text: 'new'}]}}, publishIn: [{id: 'p'}]};
     expect(showChangedFields(fields, before, after).map((f) => f.show)).toEqual([true, true, false]);
+  });
+
+  it('compares a field the way compareAs reduces it', () => {
+    const before = {publishIn: [{id: 'p', name: {en: 'Old'}}, {id: 'q', name: {}}]};
+    const after = {publishIn: [{id: 'q', name: {}}, {id: 'p', name: {en: 'New'}}]};
+    expect(showChangedFields(fields, before, after).map((f) => f.show)).toEqual([true, false, true]);
+    expect(showChangedFields(fields, before, after, {publishIn: sortedIds}).map((f) => f.show)).toEqual([true, false, false]);
+    expect(showChangedFields(fields, before, {publishIn: [{id: 'p', name: {}}]}, {publishIn: sortedIds}).map((f) => f.show))
+      .toEqual([true, false, true]);
   });
 
   it('shows a hidden field with content on a new entry', () => {
