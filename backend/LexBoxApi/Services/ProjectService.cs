@@ -244,17 +244,25 @@ public class ProjectService(
         // do this first, because it throws if a creation or sync is in progress, which stops us from
         // tearing down an active or already-completed creation (mirrors DeleteProjectPermanently)
         await fwHeadless.DeleteProject(projectId);
-        var project = await dbContext.Projects.FindAsync(projectId);
-        if (project is not null)
+        try
         {
-            dbContext.Projects.Remove(project);
-            await dbContext.SaveChangesAsync();
+            // Repo before row: if deleting the repo fails, the project row survives for an admin to see and
+            // delete, instead of an orphaned repo with no row pointing at it
+            await hgService.DeleteRepoIfExists(code);
+            var project = await dbContext.Projects.FindAsync(projectId);
+            if (project is not null)
+            {
+                dbContext.Projects.Remove(project);
+                await dbContext.SaveChangesAsync();
+            }
         }
-        await hgService.DeleteRepoIfExists(code);
-        // Don't forget to add more Invalidate calls here if we add new caches
-        InvalidateProjectCodeCache(code);
-        InvalidateProjectConfidentialityCache(projectId);
-        InvalidateProjectOrgIdsCache(projectId);
+        finally
+        {
+            // Don't forget to add more Invalidate calls here if we add new caches
+            InvalidateProjectCodeCache(code);
+            InvalidateProjectConfidentialityCache(projectId);
+            InvalidateProjectOrgIdsCache(projectId);
+        }
     }
 
     public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
