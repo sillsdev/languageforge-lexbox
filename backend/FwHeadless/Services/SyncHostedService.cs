@@ -47,10 +47,11 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         TaskCompletionSource<ProjectCreationStatus>? Creation,
         bool SyncStarted = false)
     {
-        public static ProjectJob ForSync() => new(new TaskCompletionSource<SyncJobResult>(), null);
-
         // RunContinuationsAsynchronously so a long-polling awaiter's continuation can't run inline on
-        // the thread that finished the creation.
+        // the thread that finished the sync or creation.
+        public static ProjectJob ForSync() =>
+            new(new TaskCompletionSource<SyncJobResult>(TaskCreationOptions.RunContinuationsAsynchronously), null);
+
         public static ProjectJob ForCreation() =>
             new(null, new TaskCompletionSource<ProjectCreationStatus>(TaskCreationOptions.RunContinuationsAsynchronously));
     }
