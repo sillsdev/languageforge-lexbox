@@ -1,0 +1,12 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "tier-full",
+  "tags": ["ci-tier"],
+  "_comment": "Escalation: every full-tier job. Path-only rule: fires when the PR workflow itself changes. The target is never run; only its inputs matter.",
+  "targets": {
+    "ci-affected": {
+      "executor": "nx:noop",
+      "inputs": ["{workspaceRoot}/.github/workflows/pr.yaml"]
+    }
+  }
+}

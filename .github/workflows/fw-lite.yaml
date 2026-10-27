@@ -31,26 +31,11 @@ on:
       - 'global.json'
     branches:
       - develop
-  pull_request:
-    paths:
-      - 'backend/FwLite/**'
-      - 'backend/Directory.Packages.props'
-      - 'backend/Harmony*.props'
-      - 'frontend/viewer/**'
-      - 'platform.bible-extension/**'
-      - '.github/workflows/fw-lite.yaml'
-      - '.github/actions/setup-k8s/**'
-      - 'FwLiteCore.slnf'
-      - 'FwLiteOnly.slnf'
-      - 'global.json'
-    branches:
-      - develop
-      - feat/sync-morph-types #just for now ensure PRs to this branch have checks run
 
-# Only cancel superseded PR runs; never cancel develop or release builds.
+# Never cancel develop or release builds. Pull requests run pr.yaml (the PR tier), not this workflow.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -202,6 +187,12 @@ jobs:
         working-directory: frontend
         run: |
           pnpm install
+      - name: svelte-check (viewer)
+        working-directory: frontend/viewer
+        run: pnpm run check
+      - name: eslint (viewer)
+        working-directory: frontend/viewer
+        run: pnpm run lint
       - name: Ensure all i18n strings have been extracted
         working-directory: frontend/viewer
         shell: bash
