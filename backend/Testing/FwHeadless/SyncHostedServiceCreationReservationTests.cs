@@ -39,10 +39,10 @@ public class SyncHostedServiceCreationReservationTests
         var projectId = Guid.NewGuid();
 
         svc.TryStartProjectCreation(projectId).Should().BeTrue();
-        svc.QueueJob(projectId).Should().BeFalse("a sync must not race a project that's still being created");
+        svc.QueueJob(projectId).Should().Be(QueueJobResult.ProjectBeingCreated, "a sync must not race a project that's still being created");
 
         svc.EndProjectCreation(projectId, ProjectCreationStatus.Created);
-        svc.QueueJob(projectId).Should().BeTrue("syncing is allowed once creation has finished");
+        svc.QueueJob(projectId).Should().Be(QueueJobResult.Queued, "syncing is allowed once creation has finished");
     }
 
     [Fact]
@@ -51,7 +51,8 @@ public class SyncHostedServiceCreationReservationTests
         var svc = NewService();
         var projectId = Guid.NewGuid();
 
-        svc.QueueJob(projectId).Should().BeTrue();
+        svc.QueueJob(projectId).Should().Be(QueueJobResult.Queued);
+        svc.QueueJob(projectId).Should().Be(QueueJobResult.AlreadyQueued);
         svc.TryStartProjectCreation(projectId).Should().BeFalse("a sync is already queued for this project");
     }
 

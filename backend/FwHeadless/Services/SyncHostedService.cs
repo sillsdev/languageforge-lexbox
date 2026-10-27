@@ -15,6 +15,15 @@ using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Services;
 
+public enum QueueJobResult
+{
+    Queued,
+    AlreadyQueued,
+    // A sync must not race a project that's still being created from a template; the caller should retry later
+    ProjectBeingCreated,
+    QueueFull,
+}
+
 public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedService> logger, IMemoryCache memoryCache) : BackgroundService
 {
     private readonly Channel<Guid> _projectsToSync = Channel.CreateUnbounded<Guid>();
@@ -143,7 +152,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         memoryCache.Set($"CreationResult|{projectId}", result, TimeSpan.FromMinutes(5));
     }
 
-    public bool QueueJob(Guid projectId)
+    public QueueJobResult QueueJob(Guid projectId)
     {
         var newJob = ProjectJob.ForSync();
         var job = _projectJobs.GetOrAdd(projectId, newJob);
@@ -151,27 +160,24 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         if (job.Creation is not null)
         {
             logger.LogInformation("Project {ProjectId} is being created, not queueing a sync job", projectId);
-            return false;
+            return QueueJobResult.ProjectBeingCreated;
         }
         //will only queue job if it's not already queued
-        var addedToQueue = ReferenceEquals(job, newJob);
-        if (addedToQueue)
-        {
-            if (!_projectsToSync.Writer.TryWrite(projectId))
-            {
-                logger.LogError("Failed to queue sync job for project {ProjectId}, the channel is full", projectId);
-                TryRemoveJob(projectId, newJob);
-                return false;
-            }
-
-            logger.LogInformation("Queued sync job for project {ProjectId}", projectId);
-        }
-        else
+        if (!ReferenceEquals(job, newJob))
         {
             logger.LogInformation("Project {ProjectId} is already queued", projectId);
+            return QueueJobResult.AlreadyQueued;
         }
 
-        return addedToQueue;
+        if (!_projectsToSync.Writer.TryWrite(projectId))
+        {
+            logger.LogError("Failed to queue sync job for project {ProjectId}, the channel is full", projectId);
+            TryRemoveJob(projectId, newJob);
+            return QueueJobResult.QueueFull;
+        }
+
+        logger.LogInformation("Queued sync job for project {ProjectId}", projectId);
+        return QueueJobResult.Queued;
     }
 
     private void CacheRecentSyncResult(Guid projectId, SyncJobResult result)
