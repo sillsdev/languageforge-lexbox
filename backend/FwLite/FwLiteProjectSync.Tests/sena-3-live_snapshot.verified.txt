@@ -157554,147 +157554,27 @@
   ],
   "MorphTypes": [
     {
-      "Id": "3433683d-08a9-4bae-ae53-2a7798f64068",
-      "Kind": "SuffixingInterfix",
+      "Id": "d7f713e4-e8cf-11d3-9764-00c04f186933",
+      "Kind": "BoundRoot",
       "Name": {
-        "en": "suffixing interfix"
+        "en": "bound root"
       },
       "Abbreviation": {
-        "en": "sfxnfx"
+        "en": "bd root"
       },
       "Description": {
         "en": {
           "Spans": [
             {
-              "Text": "A suffixing interfix is an suffix that can occur between two roots or stems.",
+              "Text": "A bound root is a root which cannot occur as a separate word apart from any other morpheme.",
               "Ws": "en"
             }
           ]
         }
       },
-      "Prefix": "-",
+      "Prefix": "*",
       "Postfix": null,
-      "SecondaryOrder": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "d7f713dc-e8cf-11d3-9764-00c04f186933",
-      "Kind": "Simulfix",
-      "Name": {
-        "en": "simulfix"
-      },
-      "Abbreviation": {
-        "en": "smfx"
-      },
-      "Description": {
-        "en": {
-          "Spans": [
-            {
-              "Text": "A simulfix is a change or replacement of vowels or consonants (usually vowels) which changes the meaning of a word.  (Note: the parser does not currently handle simulfixes.)",
-              "Ws": "en"
-            }
-          ]
-        }
-      },
-      "Prefix": "=",
-      "Postfix": "=",
-      "SecondaryOrder": 60,
-      "DeletedAt": null
-    },
-    {
-      "Id": "d7f713de-e8cf-11d3-9764-00c04f186933",
-      "Kind": "Suprafix",
-      "Name": {
-        "en": "suprafix"
-      },
-      "Abbreviation": {
-        "en": "spfx"
-      },
-      "Description": {
-        "en": {
-          "Spans": [
-            {
-              "Text": "A suprafix is a kind of affix in which a suprasegmental is superimposed on one or more syllables of the root or stem, signalling a particular  morphosyntactic operation.  (Note: the parser does not currently handle suprafixes.)",
-              "Ws": "en"
-            }
-          ]
-        }
-      },
-      "Prefix": "~",
-      "Postfix": "~",
-      "SecondaryOrder": 50,
-      "DeletedAt": null
-    },
-    {
-      "Id": "d7f713e1-e8cf-11d3-9764-00c04f186933",
-      "Kind": "Enclitic",
-      "Name": {
-        "en": "enclitic"
-      },
-      "Abbreviation": {
-        "en": "enclit"
-      },
-      "Description": {
-        "en": {
-          "Spans": [
-            {
-              "Text": "An enclitic is a clitic that is phonologically joined at the end of a preceding word to form a single unit.",
-              "Ws": "en"
-            }
-          ]
-        }
-      },
-      "Prefix": "=",
-      "Postfix": null,
-      "SecondaryOrder": 80,
-      "DeletedAt": null
-    },
-    {
-      "Id": "d7f713e2-e8cf-11d3-9764-00c04f186933",
-      "Kind": "Proclitic",
-      "Name": {
-        "en": "proclitic"
-      },
-      "Abbreviation": {
-        "en": "proclit"
-      },
-      "Description": {
-        "en": {
-          "Spans": [
-            {
-              "Text": "A proclitic is a clitic that precedes the word to which it is phonologically joined.",
-              "Ws": "en"
-            }
-          ]
-        }
-      },
-      "Prefix": null,
-      "Postfix": "=",
-      "SecondaryOrder": 30,
-      "DeletedAt": null
-    },
-    {
-      "Id": "d7f713e5-e8cf-11d3-9764-00c04f186933",
-      "Kind": "Root",
-      "Name": {
-        "en": "root"
-      },
-      "Abbreviation": {
-        "en": "ubd root"
-      },
-      "Description": {
-        "en": {
-          "Spans": [
-            {
-              "Text": "A root is the portion of a word that (i) is common to a set of derived or inflected forms, if any, when all affixes are removed, (ii) is not further analyzable into meaningful elements, being morphologically simple, and, (iii) carries the principle portion of meaning of the words in which it functions.",
-              "Ws": "en"
-            }
-          ]
-        }
-      },
-      "Prefix": null,
-      "Postfix": null,
-      "SecondaryOrder": 0,
+      "SecondaryOrder": 10,
       "DeletedAt": null
     },
     {
@@ -157711,54 +157591,6 @@
           "Spans": [
             {
               "Text": "A bound stem is a stem  which cannot occur as a separate word apart from any other morpheme.",
-              "Ws": "en"
-            }
-          ]
-        }
-      },
-      "Prefix": "*",
-      "Postfix": null,
-      "SecondaryOrder": 10,
-      "DeletedAt": null
-    },
-    {
-      "Id": "d7f713e8-e8cf-11d3-9764-00c04f186933",
-      "Kind": "Stem",
-      "Name": {
-        "en": "stem"
-      },
-      "Abbreviation": {
-        "en": "ubd stem"
-      },
-      "Description": {
-        "en": {
-          "Spans": [
-            {
-              "Text": "A stem is the root or roots of a word, together with any derivational affixes, to which inflectional affixes are added.\u0022 (LinguaLinks Library).  A stem \u0022may consist solely of a single root morpheme (i.e. a \u0027simple\u0027 stem as in \u0027man\u0027), or of two root morphemes (e.g. a \u0027compound\u0027 stem, as in \u0027blackbird\u0027), or of a root morpheme plus a derivational affix (i.e. a \u0027complex\u0027 stem, as in \u0027manly\u0027, \u0027unmanly\u0027, \u0027manliness\u0027).  All have in common the notion that it is to the stem that inflectional affixes are attached.\u0022 (Crystal, 1997:362)",
-              "Ws": "en"
-            }
-          ]
-        }
-      },
-      "Prefix": null,
-      "Postfix": null,
-      "SecondaryOrder": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "d7f713e4-e8cf-11d3-9764-00c04f186933",
-      "Kind": "BoundRoot",
-      "Name": {
-        "en": "bound root"
-      },
-      "Abbreviation": {
-        "en": "bd root"
-      },
-      "Description": {
-        "en": {
-          "Spans": [
-            {
-              "Text": "A bound root is a root which cannot occur as a separate word apart from any other morpheme.",
               "Ws": "en"
             }
           ]
@@ -157815,6 +157647,30 @@
       "Prefix": null,
       "Postfix": null,
       "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713e1-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Enclitic",
+      "Name": {
+        "en": "enclitic"
+      },
+      "Abbreviation": {
+        "en": "enclit"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "An enclitic is a clitic that is phonologically joined at the end of a preceding word to form a single unit.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Prefix": "=",
+      "Postfix": null,
+      "SecondaryOrder": 80,
       "DeletedAt": null
     },
     {
@@ -157890,6 +157746,102 @@
       "DeletedAt": null
     },
     {
+      "Id": "d7f713e2-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Proclitic",
+      "Name": {
+        "en": "proclitic"
+      },
+      "Abbreviation": {
+        "en": "proclit"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A proclitic is a clitic that precedes the word to which it is phonologically joined.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Prefix": null,
+      "Postfix": "=",
+      "SecondaryOrder": 30,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713e5-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Root",
+      "Name": {
+        "en": "root"
+      },
+      "Abbreviation": {
+        "en": "ubd root"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A root is the portion of a word that (i) is common to a set of derived or inflected forms, if any, when all affixes are removed, (ii) is not further analyzable into meaningful elements, being morphologically simple, and, (iii) carries the principle portion of meaning of the words in which it functions.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Prefix": null,
+      "Postfix": null,
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713dc-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Simulfix",
+      "Name": {
+        "en": "simulfix"
+      },
+      "Abbreviation": {
+        "en": "smfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A simulfix is a change or replacement of vowels or consonants (usually vowels) which changes the meaning of a word.  (Note: the parser does not currently handle simulfixes.)",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Prefix": "=",
+      "Postfix": "=",
+      "SecondaryOrder": 60,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713e8-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Stem",
+      "Name": {
+        "en": "stem"
+      },
+      "Abbreviation": {
+        "en": "ubd stem"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A stem is the root or roots of a word, together with any derivational affixes, to which inflectional affixes are added.\u0022 (LinguaLinks Library).  A stem \u0022may consist solely of a single root morpheme (i.e. a \u0027simple\u0027 stem as in \u0027man\u0027), or of two root morphemes (e.g. a \u0027compound\u0027 stem, as in \u0027blackbird\u0027), or of a root morpheme plus a derivational affix (i.e. a \u0027complex\u0027 stem, as in \u0027manly\u0027, \u0027unmanly\u0027, \u0027manliness\u0027).  All have in common the notion that it is to the stem that inflectional affixes are attached.\u0022 (Crystal, 1997:362)",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Prefix": null,
+      "Postfix": null,
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
       "Id": "d7f713dd-e8cf-11d3-9764-00c04f186933",
       "Kind": "Suffix",
       "Name": {
@@ -157911,6 +157863,30 @@
       "Prefix": "-",
       "Postfix": null,
       "SecondaryOrder": 70,
+      "DeletedAt": null
+    },
+    {
+      "Id": "d7f713de-e8cf-11d3-9764-00c04f186933",
+      "Kind": "Suprafix",
+      "Name": {
+        "en": "suprafix"
+      },
+      "Abbreviation": {
+        "en": "spfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A suprafix is a kind of affix in which a suprasegmental is superimposed on one or more syllables of the root or stem, signalling a particular  morphosyntactic operation.  (Note: the parser does not currently handle suprafixes.)",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Prefix": "~",
+      "Postfix": "~",
+      "SecondaryOrder": 50,
       "DeletedAt": null
     },
     {
@@ -157958,6 +157934,30 @@
       },
       "Prefix": null,
       "Postfix": "-",
+      "SecondaryOrder": 0,
+      "DeletedAt": null
+    },
+    {
+      "Id": "3433683d-08a9-4bae-ae53-2a7798f64068",
+      "Kind": "SuffixingInterfix",
+      "Name": {
+        "en": "suffixing interfix"
+      },
+      "Abbreviation": {
+        "en": "sfxnfx"
+      },
+      "Description": {
+        "en": {
+          "Spans": [
+            {
+              "Text": "A suffixing interfix is an suffix that can occur between two roots or stems.",
+              "Ws": "en"
+            }
+          ]
+        }
+      },
+      "Prefix": "-",
+      "Postfix": null,
       "SecondaryOrder": 0,
       "DeletedAt": null
     },
