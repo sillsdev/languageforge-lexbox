@@ -18,17 +18,37 @@ namespace FwHeadless.Services;
 public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedService> logger, IMemoryCache memoryCache) : BackgroundService
 {
     private readonly Channel<Guid> _projectsToSync = Channel.CreateUnbounded<Guid>();
-    private readonly ConcurrentDictionary<Guid, TaskCompletionSource<SyncJobResult>> _projectsQueuedOrRunning = new();
 
-    // Projects currently being created and populated with an initial .fwdata file. Tracked here (not just in ProjectCreationService)
-    // so a sync job can't be queued for a project mid-creation and race on the same fw/ folder and repo.
-    // The TaskCompletionSource carries the outcome to anyone long-polling AwaitCreationFinished.
-    private readonly ConcurrentDictionary<Guid, TaskCompletionSource<ProjectCreationStatus>> _projectsBeingCreated = new();
+    // Projects with a sync queued or running, or currently being created and populated with an initial .fwdata file.
+    // Creations are tracked here (not just in ProjectCreationService) so a sync job can't be queued for a project
+    // mid-creation and race on the same fw/ folder and repo. Keeping both in one dictionary means a single atomic
+    // TryAdd/GetOrAdd decides who gets the project, so no lock is needed (this requires that SyncHostedService be a singleton).
+    private readonly ConcurrentDictionary<Guid, ProjectJob> _projectJobs = new();
 
-    // Serialises the check-then-add across the two dictionaries above, so a creation and a sync can't
-    // both slip through by interleaving their checks.
-    // This requires that SyncHostedService be a singleton, of course
-    private readonly Lock _reservationLock = new();
+    /// <summary>
+    /// Exactly one of <see cref="Sync"/> or <see cref="Creation"/> is set. The TaskCompletionSource carries the
+    /// outcome to anyone long-polling AwaitSyncFinished or AwaitCreationFinished.
+    /// </summary>
+    private record ProjectJob(
+        TaskCompletionSource<SyncJobResult>? Sync,
+        TaskCompletionSource<ProjectCreationStatus>? Creation)
+    {
+        public static ProjectJob ForSync() => new(new TaskCompletionSource<SyncJobResult>(), null);
+
+        // RunContinuationsAsynchronously so a long-polling awaiter's continuation can't run inline on
+        // the thread that finished the creation.
+        public static ProjectJob ForCreation() =>
+            new(null, new TaskCompletionSource<ProjectCreationStatus>(TaskCreationOptions.RunContinuationsAsynchronously));
+    }
+
+    private TaskCompletionSource<SyncJobResult>? GetSyncJob(Guid projectId) =>
+        _projectJobs.TryGetValue(projectId, out var job) ? job.Sync : null;
+
+    private TaskCompletionSource<ProjectCreationStatus>? GetCreationJob(Guid projectId) =>
+        _projectJobs.TryGetValue(projectId, out var job) ? job.Creation : null;
+
+    // Only removes the entry if it's still the given job, so ending one kind of job can never clear the other kind
+    private bool TryRemoveJob(Guid projectId, ProjectJob job) => _projectJobs.TryRemove(KeyValuePair.Create(projectId, job));
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -57,14 +77,14 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
 
             // Give clients a bit more time to poll the status
             CacheRecentSyncResult(projectId, result);
-            _projectsQueuedOrRunning.TryRemove(projectId, out var tcs);
-            tcs?.TrySetResult(result);
+            if (_projectJobs.TryGetValue(projectId, out var job) && job.Sync is { } tcs && TryRemoveJob(projectId, job))
+                tcs.TrySetResult(result);
         }
     }
 
     public virtual bool IsJobQueuedOrRunning(Guid projectId)
     {
-        return _projectsQueuedOrRunning.ContainsKey(projectId) || _projectsBeingCreated.ContainsKey(projectId);
+        return _projectJobs.ContainsKey(projectId);
     }
 
     /// <summary>
@@ -74,14 +94,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     /// </summary>
     public bool TryStartProjectCreation(Guid projectId)
     {
-        lock (_reservationLock)
-        {
-            if (_projectsQueuedOrRunning.ContainsKey(projectId)) return false;
-            // RunContinuationsAsynchronously so a long-polling awaiter's continuation can't run inline on
-            // the thread that finished the creation.
-            return _projectsBeingCreated.TryAdd(projectId,
-                new TaskCompletionSource<ProjectCreationStatus>(TaskCreationOptions.RunContinuationsAsynchronously));
-        }
+        return _projectJobs.TryAdd(projectId, ProjectJob.ForCreation());
     }
 
     /// <summary>
@@ -93,15 +106,15 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         // Cache before removing the reservation, so a poller that sees "not in flight" always finds the
         // result waiting for it rather than a gap.
         CacheRecentCreationResult(projectId, result);
-        _projectsBeingCreated.TryRemove(projectId, out var tcs);
-        tcs?.TrySetResult(result);
+        if (_projectJobs.TryGetValue(projectId, out var job) && job.Creation is { } tcs && TryRemoveJob(projectId, job))
+            tcs.TrySetResult(result);
     }
 
-    public bool IsProjectBeingCreated(Guid projectId) => _projectsBeingCreated.ContainsKey(projectId);
+    public bool IsProjectBeingCreated(Guid projectId) => GetCreationJob(projectId) is not null;
 
     public async Task<SyncJobResult?> AwaitSyncFinished(Guid projectId, CancellationToken cancellationToken)
     {
-        if (_projectsQueuedOrRunning.TryGetValue(projectId, out var tcs))
+        if (GetSyncJob(projectId) is { } tcs)
             return await tcs.Task.WaitAsync(cancellationToken);
         return TryGetRecentSyncResult(projectId);
     }
@@ -113,7 +126,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
     /// </summary>
     public async Task<ProjectCreationStatus?> AwaitCreationFinished(Guid projectId, CancellationToken cancellationToken)
     {
-        if (_projectsBeingCreated.TryGetValue(projectId, out var tcs))
+        if (GetCreationJob(projectId) is { } tcs)
             return await tcs.Task.WaitAsync(cancellationToken);
         return TryGetRecentCreationResult(projectId);
     }
@@ -132,24 +145,22 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
 
     public bool QueueJob(Guid projectId)
     {
-        bool addedToQueue;
-        lock (_reservationLock)
+        var newJob = ProjectJob.ForSync();
+        var job = _projectJobs.GetOrAdd(projectId, newJob);
+        //don't sync a project while it's still being created and populated with initial .fwdata (would race on the repo)
+        if (job.Creation is not null)
         {
-            //don't sync a project while it's still being created and populated with initial .fwdata (would race on the repo)
-            if (_projectsBeingCreated.ContainsKey(projectId))
-            {
-                logger.LogInformation("Project {ProjectId} is being created, not queueing a sync job", projectId);
-                return false;
-            }
-            //will only queue job if it's not already queued
-            addedToQueue = _projectsQueuedOrRunning.TryAdd(projectId, new());
+            logger.LogInformation("Project {ProjectId} is being created, not queueing a sync job", projectId);
+            return false;
         }
+        //will only queue job if it's not already queued
+        var addedToQueue = ReferenceEquals(job, newJob);
         if (addedToQueue)
         {
             if (!_projectsToSync.Writer.TryWrite(projectId))
             {
                 logger.LogError("Failed to queue sync job for project {ProjectId}, the channel is full", projectId);
-                _projectsQueuedOrRunning.TryRemove(projectId, out _);
+                TryRemoveJob(projectId, newJob);
                 return false;
             }
 
