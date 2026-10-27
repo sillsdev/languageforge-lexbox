@@ -240,7 +240,8 @@ jobs:
         run: pnpm exec playwright install-deps chromium webkit
       - name: Run UI tests
         working-directory: frontend/viewer
-        run: task test:ui-standalone
+        # interleaved: the prefixed output would hide ::warning/::error workflow commands from GitHub.
+        run: task --output interleaved test:ui-standalone
       - name: Publish test results to TestHistory
         if: always() # run even when the UI tests above failed
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
