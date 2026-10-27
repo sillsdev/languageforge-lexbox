@@ -55,8 +55,12 @@ public class ProjectController(
         string? name = null,
         string? projectOrigin = null)
     {
-        if (wsVernacular is null || wsVernacular.Length == 0)
-            return Problem("At least one vernacular writing system is required", statusCode: StatusCodes.Status400BadRequest);
+        // Validate before anything is created, so a bad request never leaves a project to tear down.
+        var wsAnalysisOrDefault = AnalysisWritingSystemsOrDefault(wsAnalysis);
+        var wsError = InitFwDataProjectInput.ValidateWritingSystemList("vernacular", wsVernacular)
+            ?? InitFwDataProjectInput.ValidateWritingSystemList("analysis", wsAnalysisOrDefault);
+        if (wsError is not null)
+            return Problem(wsError, statusCode: StatusCodes.Status400BadRequest);
         if (code is null || code.Length < 4 || !Regex.IsMatch(code, Project.ProjectCodeRegex))
             return Problem($"Invalid project code '{code}'", statusCode: StatusCodes.Status400BadRequest);
 
@@ -72,8 +76,6 @@ public class ProjectController(
         }
         if (await projectService.ProjectExists(code))
             return Problem($"A project with code '{code}' already exists", statusCode: StatusCodes.Status409Conflict);
-
-        var wsAnalysisOrDefault = AnalysisWritingSystemsOrDefault(wsAnalysis);
 
         var projectId = await projectService.CreateProject(new CreateProjectInput(
             Id: null,

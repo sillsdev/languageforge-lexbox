@@ -40,6 +40,28 @@ public class InitFwDataProjectValidationTests
         problem.Detail.Should().Contain("vernacular");
     }
 
+    // The controller's services are all null, so reaching the 400 proves nothing was created first
+    [Fact]
+    public async Task Rejects_a_duplicate_vernacular_writing_system_before_creating_anything()
+    {
+        var result = await NewController().InitFwDataProject("myproj", wsVernacular: ["fr", "fr"]);
+        var problem = result.Result.Should().BeOfType<ObjectResult>()
+            .Which.Value.Should().BeOfType<ProblemDetails>().Which;
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Detail.Should().Contain("Duplicate vernacular writing system");
+    }
+
+    [Fact]
+    public async Task Rejects_too_many_analysis_writing_systems_before_creating_anything()
+    {
+        var analysis = Enumerable.Range(0, InitFwDataProjectInput.MaxWritingSystemsPerList + 1).Select(i => $"qaa-x-ws{i}").ToArray();
+        var result = await NewController().InitFwDataProject("myproj", wsVernacular: ["fr"], wsAnalysis: analysis);
+        var problem = result.Result.Should().BeOfType<ObjectResult>()
+            .Which.Value.Should().BeOfType<ProblemDetails>().Which;
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Detail.Should().Contain("analysis writing systems are allowed");
+    }
+
     [Fact]
     public async Task Rejects_an_invalid_project_code()
     {

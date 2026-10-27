@@ -30,17 +30,17 @@ public static class ProjectRoutes
         ILogger<Program> logger)
     {
         // Null-safe against a malformed body (System.Text.Json leaves an absent list null).
-        if (input.WsVernacular is not { Count: > 0 })
-            return TypedResults.Problem("At least one vernacular writing system is required",
-                statusCode: StatusCodes.Status400BadRequest);
-        if (input.WsAnalysis is not { Count: > 0 })
-            return TypedResults.Problem("At least one analysis writing system is required",
-                statusCode: StatusCodes.Status400BadRequest);
+        var wsError = InitFwDataProjectInput.ValidateWritingSystemList("vernacular", input.WsVernacular)
+            ?? InitFwDataProjectInput.ValidateWritingSystemList("analysis", input.WsAnalysis);
+        if (wsError is not null)
+            return TypedResults.Problem(wsError, statusCode: StatusCodes.Status400BadRequest);
         var invalidWs = input.WsVernacular.Concat(input.WsAnalysis).FirstOrDefault(ws => !IetfLanguageTag.IsValid(ws));
         if (invalidWs is not null)
             return TypedResults.Problem($"Invalid writing system code: {invalidWs}",
                 statusCode: StatusCodes.Status400BadRequest);
-        if (string.IsNullOrEmpty(input.WsUi) || !IetfLanguageTag.IsValid(input.WsUi))
+        if (string.IsNullOrEmpty(input.WsUi)
+            || input.WsUi.Length > InitFwDataProjectInput.MaxWritingSystemTagLength
+            || !IetfLanguageTag.IsValid(input.WsUi))
             return TypedResults.Problem($"Invalid UI writing system code: {input.WsUi}",
                 statusCode: StatusCodes.Status400BadRequest);
 
