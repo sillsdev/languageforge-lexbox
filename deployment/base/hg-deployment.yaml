@@ -179,7 +179,8 @@ spec:
 
 
       - name: hgresumable
-        image: ghcr.io/sillsdev/hgresume:v2026-09-30
+        # TEMPORARY: pr-32 has the manage API backup and hgrc fixes; swap to the dated tag once sillsdev/hgresume#32 merges
+        image: ghcr.io/sillsdev/hgresume:pr-32
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
