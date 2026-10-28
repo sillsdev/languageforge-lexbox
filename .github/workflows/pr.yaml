@@ -121,20 +121,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: ./.github/actions/setup-dotnet-build
         with:
-          dotnet-version: '10.x'
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
-          restore-keys: |
-            nuget-${{ runner.os }}-
-      - name: Install Task
-        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          install-task: 'true'
 
       - name: Dotnet build
         # Whole FwLiteCore.slnf (~1 min): keeps the two drift checks below unconditional. Tests are the affected subset.
@@ -179,16 +168,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          dotnet-version: '10.x'
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
-          restore-keys: |
-            nuget-${{ runner.os }}-
+      - uses: ./.github/actions/setup-dotnet-build
 
       - name: Dotnet build
         run: dotnet build FwLiteCore.slnf -p:BuildAndroid=false
@@ -227,17 +207,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          package_json_file: 'frontend/package.json'
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: './frontend/package.json'
-          cache: 'pnpm'
-          cache-dependency-path: './frontend/pnpm-lock.yaml'
-      - name: Prepare frontend
-        working-directory: frontend
-        run: pnpm install
+      - uses: ./.github/actions/setup-frontend
 
       - name: Ensure all i18n strings have been extracted
         working-directory: frontend/viewer
@@ -273,20 +243,9 @@ jobs:
         run: pnpm run format:check
 
       # vitest's browser and storybook projects run under Playwright; Chromium only on the PR tier.
-      - name: Cache Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: playwright-cache
+      - uses: ./.github/actions/setup-playwright
         with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        working-directory: frontend/viewer
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Install Playwright system deps
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        working-directory: frontend/viewer
-        run: pnpm exec playwright install-deps chromium
+          working-directory: frontend/viewer
       - name: vitest (unit, browser, storybook; Chromium only)
         working-directory: frontend/viewer
         env:
@@ -328,47 +287,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: ./.github/actions/setup-frontend
         with:
-          package_json_file: 'frontend/package.json'
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: './frontend/package.json'
-          cache: 'pnpm'
-          cache-dependency-path: './frontend/pnpm-lock.yaml'
-      - name: Install Task
-        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Prepare frontend
-        working-directory: frontend
-        run: pnpm install
+          install-task: 'true'
       - name: Pick browsers
         id: browsers
         run: |
           if [ "$WEBKIT" = 'true' ]; then
             echo "list=chromium webkit" >> "$GITHUB_OUTPUT"
             echo "args=--project=chromium --project=webkit" >> "$GITHUB_OUTPUT"
-            echo "key=chromium-webkit" >> "$GITHUB_OUTPUT"
           else
             echo "list=chromium" >> "$GITHUB_OUTPUT"
             echo "args=--project=chromium" >> "$GITHUB_OUTPUT"
-            echo "key=chromium" >> "$GITHUB_OUTPUT"
           fi
-      - name: Cache Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: playwright-cache
+      - uses: ./.github/actions/setup-playwright
         with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.browsers.outputs.key }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        working-directory: frontend
-        run: pnpm exec playwright install --with-deps ${{ steps.browsers.outputs.list }}
-      - name: Install Playwright system deps
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        working-directory: frontend
-        run: pnpm exec playwright install-deps ${{ steps.browsers.outputs.list }}
+          browsers: ${{ steps.browsers.outputs.list }}
       - name: Run UI tests
         working-directory: frontend/viewer
         run: task test:ui-standalone -- ${{ steps.browsers.outputs.args }}
@@ -452,16 +386,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          dotnet-version: '10.x'
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
-          restore-keys: |
-            nuget-${{ runner.os }}-
+      - uses: ./.github/actions/setup-dotnet-build
       - name: Setup Maui
         run: dotnet workload install maui-windows --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
@@ -542,21 +467,9 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
-      - name: Install Task
-        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+      - uses: ./.github/actions/setup-frontend
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          package_json_file: 'frontend/package.json'
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: './frontend/package.json'
-          cache: 'pnpm'
-          cache-dependency-path: './frontend/pnpm-lock.yaml'
-      - name: Install frontend deps
-        working-directory: frontend
-        run: pnpm install
+          install-task: 'true'
       - name: Build viewer
         working-directory: frontend/viewer
         run: pnpm run build
@@ -596,20 +509,9 @@ jobs:
           cat /tmp/https-port-forward.log
           exit 1
 
-      - name: Cache Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: playwright-cache
+      - uses: ./.github/actions/setup-playwright
         with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        working-directory: frontend/viewer
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Install Playwright system deps
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        working-directory: frontend/viewer
-        run: pnpm exec playwright install-deps chromium
+          working-directory: frontend/viewer
 
       - name: Run E2E tests
         working-directory: frontend/viewer
