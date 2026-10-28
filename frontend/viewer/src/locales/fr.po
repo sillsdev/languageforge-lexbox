@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-26 21:05\n"
+"PO-Revision-Date: 2026-10-28 21:30\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -1616,6 +1616,11 @@ msgstr "Faire une suggestion"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Assurez-vous que vos [changements sont synchronisés]({0}) vers Lexbox."
 
+#. Detail under "Still opening the project...". After an app update, opening a project can rebuild its data, and closing the app restarts that work.
+#: src/DotnetProjectView.svelte
+msgid "Making sure the project is up to date can take a few minutes. Please keep the app open."
+msgstr "S'assurer que le projet est à jour peut prendre quelques minutes. Veuillez garder l'application ouverte."
+
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
@@ -2033,6 +2038,11 @@ msgstr "Ouvrir le fichier journal"
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Opening in FieldWorks…"
 msgstr "Ouverture dans FieldWorks…"
+
+#. Loading notification shown while a project opens.
+#: src/DotnetProjectView.svelte
+msgid "Opening project..."
+msgstr "Ouverture du projet..."
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Opt out of analytics"
@@ -2652,6 +2662,11 @@ msgstr "Démarrer une conversation…"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Commence par"
+
+#. Title of a loading notification shown when opening a project takes a while.
+#: src/DotnetProjectView.svelte
+msgid "Still opening the project..."
+msgstr "Ouverture du projet en cours..."
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
