@@ -27,9 +27,7 @@
 
 <div class="grid grid-cols-subgrid col-span-full gap-y-2">
   {#each shown as ws (ws.wsId)}
-    <!-- Label always beside its value: the editor's rows only do that once the editor container reaches
-         @lg (32rem), and diffs often render in a narrower pane. -->
-    <div class="grid gap-x-2 gap-y-1 grid-cols-[max-content_1fr] col-span-full items-baseline" title={`${ws.name} (${ws.wsId})`}>
+    <div class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline" title={`${ws.name} (${ws.wsId})`}>
       <Label>{ws.abbreviation}</Label>
       {#if ws.isAudio}
         <DiffAudio before={before?.[ws.wsId]} after={after?.[ws.wsId]} />
