@@ -132,9 +132,9 @@ public class MauiTroubleshootingService(
 
     [JSInvokable]
     public Task RegenerateHarmonySnapshots(string projectCode) =>
-        projectsService.RegenerateHarmonySnapshotsAsync(projectCode);
+        Task.Run(async () => await projectsService.RegenerateHarmonySnapshotsAsync(projectCode));
 
     [JSInvokable]
     public Task RegenerateEntrySearchTable(string projectCode) =>
-        projectsService.RegenerateEntrySearchTableAsync(projectCode);
+        Task.Run(async () => await projectsService.RegenerateEntrySearchTableAsync(projectCode));
 }
