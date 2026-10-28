@@ -39,21 +39,19 @@
   let projectScope: IProjectScope;
   let serviceLoaded = $state(false);
   let destroyed = false;
-  let endOpeningNotice: ((opened: boolean) => void) | undefined;
+  let endOpeningNotice: (() => void) | undefined;
   onMount(async () => {
     console.debug('ProjectView mounted');
     projectContext.projectCode = code;
     projectContext.projectType = projectType;
     if (projectType === 'crdt') {
-      const maybeProjectName = await projectServicesProvider.tryGetCrdtProjectName(code);
-      projectName = maybeProjectName ? maybeProjectName : code;
-      if (!destroyed) endOpeningNotice = showOpeningNotice(projectName);
-      let opened = false;
+      endOpeningNotice = showOpeningNotice();
       try {
+        const maybeProjectName = await projectServicesProvider.tryGetCrdtProjectName(code);
+        projectName = maybeProjectName ? maybeProjectName : code;
         projectScope = await projectServicesProvider.openCrdtProject(code);
-        opened = true;
       } finally {
-        endOpeningNotice?.(opened);
+        endOpeningNotice();
       }
     } else {
       projectName = code;
@@ -91,27 +89,22 @@
   });
   onDestroy(() => {
     destroyed = true;
-    endOpeningNotice?.(false);
+    endOpeningNotice?.();
     if (serviceLoaded) {
       cleanup();
     }
   });
 
   // Opening can rebuild the whole project after an update, which can look stuck without an explanation
-  function showOpeningNotice(name: string): (opened: boolean) => void {
+  function showOpeningNotice(): () => void {
     let notice: LoadingNotification | undefined;
-    let slow = false;
-    const noticeTimer = setTimeout(() => notice = AppNotification.loading($t`Opening ${name}...`), 1500);
-    const slowTimer = setTimeout(() => {
-      slow = true;
-      notice?.update($t`Making sure ${name} is up to date`,
-        $t`This can take a few minutes after an update, so please keep the app open.`);
-    }, 8000);
-    return (opened) => {
+    const noticeTimer = setTimeout(() => notice = AppNotification.loading($t`Opening project...`), 1500);
+    const slowTimer = setTimeout(() => notice?.update($t`Still opening the project...`,
+      $t`Making sure the project is up to date can take a few minutes. Please keep the app open.`), 8000);
+    return () => {
       clearTimeout(noticeTimer);
       clearTimeout(slowTimer);
-      if (opened && slow) notice?.succeed($t`${name} is ready`);
-      else notice?.dismiss();
+      notice?.dismiss();
       notice = undefined;
     };
   }
