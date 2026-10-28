@@ -1,6 +1,8 @@
 # yaml-language-server: $schema=https://json.schemastore.org/dependabot.json
 # Dependabot for languageforge-lexbox
-# Target: develop | Schedule: weekly Monday | No ignore rules
+# Target: develop | Schedule: weekly Monday
+# NuGet and /frontend npm: majors land in a separate "majors" group PR; the
+# other groups take minor and patch only, so they stay mergeable.
 # platform.bible-extension is intentionally excluded (separate npm tree).
 version: 2
 updates:
@@ -22,16 +24,32 @@ updates:
       - dependency-name: Microsoft.CodeAnalysis.Analyzers
     groups:
       # More specific groups first — earlier matches win.
+      # Majors are collected into one PR so they can't sneak into the
+      # minor/patch groups below; upgrade them deliberately from there.
+      majors:
+        patterns:
+          - "*"
+        update-types:
+          - major
       maui:
         patterns:
           - Microsoft.Maui*
           - Microsoft.AspNetCore.Components.WebView.Maui
+        update-types:
+          - minor
+          - patch
       hotchocolate:
         patterns:
           - HotChocolate*
+        update-types:
+          - minor
+          - patch
       sil:
         patterns:
           - SIL.*
+        update-types:
+          - minor
+          - patch
       test:
         patterns:
           - xunit*
@@ -45,13 +63,42 @@ updates:
           - Soenneker.Utils.AutoBogus*
           - Microsoft.NET.Test.Sdk
           - BenchmarkDotNet*
+        update-types:
+          - minor
+          - patch
       microsoft-dotnet:
         patterns:
           - Microsoft.*
           - System.*
+        update-types:
+          - minor
+          - patch
+      # Dependabot runs this entry as two discovered directories (/backend for
+      # the projects, /.config for dotnet-tools.json). The /.config job sees
+      # every CPM package too, and its catch-all swallowed the groups above and
+      # superseded their PRs. Excluding them explicitly keeps "other" to the
+      # packages no other group claims.
       other:
         patterns:
           - "*"
+        exclude-patterns:
+          - Microsoft.*
+          - System.*
+          - HotChocolate*
+          - SIL.*
+          - xunit*
+          - Xunit*
+          - FluentAssertions*
+          - Moq*
+          - Verify*
+          - coverlet*
+          - GitHubActionsTestLogger*
+          - Meziantou.Extensions.Logging.Xunit*
+          - Soenneker.Utils.AutoBogus*
+          - BenchmarkDotNet*
+        update-types:
+          - minor
+          - patch
 
   # --- pnpm workspace (frontend + viewer + https-proxy) ---
   - package-ecosystem: npm
@@ -64,10 +111,23 @@ updates:
     labels:
       - dependencies
     groups:
+      # Majors (SvelteKit, Tailwind, TypeScript, vitest, ...) go to one PR of
+      # their own; the production/development groups stay mergeable.
+      majors:
+        patterns:
+          - "*"
+        update-types:
+          - major
       production-dependencies:
         dependency-type: production
+        update-types:
+          - minor
+          - patch
       development-dependencies:
         dependency-type: development
+        update-types:
+          - minor
+          - patch
 
   # --- Repo-root npm: nx + @nx/dotnet, used only for affected detection (pr.yaml) ---
   - package-ecosystem: npm
