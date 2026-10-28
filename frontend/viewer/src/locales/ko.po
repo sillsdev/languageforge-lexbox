@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-26 21:05\n"
+"PO-Revision-Date: 2026-10-28 21:30\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -1616,6 +1616,11 @@ msgstr "제안하기"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "변경 사항이 렉스박스에 [동기화되었는지]({0}) 확인합니다."
 
+#. Detail under "Still opening the project...". After an app update, opening a project can rebuild its data, and closing the app restarts that work.
+#: src/DotnetProjectView.svelte
+msgid "Making sure the project is up to date can take a few minutes. Please keep the app open."
+msgstr "프로젝트가 최신 상태인지 확인하는 데 몇 분 정도 걸릴 수 있습니다. 앱을 계속 열어 두시기 바랍니다."
+
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
@@ -2033,6 +2038,11 @@ msgstr "로그 파일 열기"
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Opening in FieldWorks…"
 msgstr "FieldWorks에서 열기…"
+
+#. Loading notification shown while a project opens.
+#: src/DotnetProjectView.svelte
+msgid "Opening project..."
+msgstr "개막 프로젝트..."
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Opt out of analytics"
@@ -2652,6 +2662,11 @@ msgstr "대화를 시작해 보세요…"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "다음으로 시작"
+
+#. Title of a loading notification shown when opening a project takes a while.
+#: src/DotnetProjectView.svelte
+msgid "Still opening the project..."
+msgstr "아직 프로젝트를 여는 중입니다..."
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
