@@ -77,8 +77,11 @@ public class MauiTroubleshootingService(
     }
 
     [JSInvokable]
-    public Task<bool?> GetVerboseLogging() =>
-        Task.FromResult<bool?>(FwLiteMauiConfiguration.IsVerboseLogging(configuration));
+    public Task<bool> GetCanManageSettingsFile() => Task.FromResult(true);
+
+    [JSInvokable]
+    public Task<bool> GetVerboseLogging() =>
+        Task.FromResult(FwLiteMauiConfiguration.IsVerboseLogging(configuration));
 
     [JSInvokable]
     public Task SetVerboseLogging(bool enabled)
