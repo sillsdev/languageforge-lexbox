@@ -490,7 +490,10 @@ public static class LcmCrdtKernel
                 .Change<Changes.SetOrderChange<ComplexFormComponent>>()
                 .Change<Changes.SetOrderChange<WritingSystem>>()
                 //registered by AddRemoteResourceEntity below, or AddCrdtRemoteResources in DI
-                .RemoteResourceChanges<LcmFileMetadata>());
+                .RemoteResourceChanges<LcmFileMetadata>())
+            .AddMajor(1, "Regenerate snapshots", v => v
+                //legacy translation patches created the first translation with a random id
+                .Change<JsonPatchExampleSentenceChange>(invalidateFrom: 0));
 
         // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
         // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the

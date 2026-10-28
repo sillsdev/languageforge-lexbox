@@ -39,7 +39,10 @@ public class JsonPatchExampleSentenceChange : JsonPatchChange<ExampleSentence>
         {
             if (op.Op == "remove")
                 return; //nothing to remove
-            entity.Translations.Add(new Translation() { Id = Guid.NewGuid() });
+            //must be deterministic, a random id would differ every time snapshots are regenerated
+#pragma warning disable CS0618 // Type or member is obsolete
+            entity.Translations.Add(Translation.FromMultiString(new()));
+#pragma warning restore CS0618 // Type or member is obsolete
         }
         var translation = entity.Translations[0];
         var newOp = new Operation(op.Op ?? "replace", "/Text/" + wsId, null, richString);
