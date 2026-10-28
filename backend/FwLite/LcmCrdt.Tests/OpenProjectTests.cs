@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using LcmCrdt.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -188,6 +190,39 @@ public class OpenProjectTests
         });
     }
 
+    private const string ModelVersionsKey = "harmony:modelVersions";
+
+    // An edited released model version makes ReconcileModelVersions throw
+    private static JsonNode? EditedModelVersions() =>
+        JsonSerializer.SerializeToNode(new { Version = 1, Versions = new[] { new { Major = true, Changes = Array.Empty<object>() } } });
+
+    [Fact]
+    public async Task ProjectOpensWhenReconcilingModelVersionsFails()
+    {
+        var editedVersions = EditedModelVersions();
+        var request = new CreateProjectRequest("Reconcile Fails", $"reconcile-fails-{Guid.NewGuid():N}",
+            AfterCreate: (services, _) => services.GetRequiredService<DataModel>().SetLocalState(ModelVersionsKey, editedVersions));
+
+        await WithProjectFromTemplate(request, "fr", async (services, api) =>
+        {
+            (await api.GetWritingSystems()).Vernacular.Should().ContainSingle();
+            var storedVersions = await services.GetRequiredService<DataModel>().GetLocalState<JsonNode>(ModelVersionsKey);
+            JsonNode.DeepEquals(storedVersions, editedVersions).Should().BeTrue("a failed reconcile stores nothing, so it is retried");
+        });
+    }
+
+    [Fact]
+    public async Task OpeningThrowsWhenReconcilingModelVersionsFailsAndConfiguredToThrow()
+    {
+        var request = new CreateProjectRequest("Reconcile Throws", $"reconcile-throws-{Guid.NewGuid():N}",
+            AfterCreate: (services, _) => services.GetRequiredService<DataModel>().SetLocalState(ModelVersionsKey, EditedModelVersions()));
+
+        var open = () => WithProjectFromTemplate(request, "fr", (_, _) => Task.CompletedTask,
+            config => config.ThrowOnModelVersionReconcileFailure = true);
+
+        await open.Should().ThrowAsync<Exception>();
+    }
+
     private static async Task<Guid[]> SnapshotIds(IServiceProvider services)
     {
         await using var dbContext = await services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
@@ -204,10 +239,12 @@ public class OpenProjectTests
     private static async Task WithProjectFromTemplate(
         CreateProjectRequest request,
         WritingSystemId vernacularWs,
-        Func<IServiceProvider, IMiniLcmApi, Task> test)
+        Func<IServiceProvider, IMiniLcmApi, Task> test,
+        Action<LcmCrdtConfig>? configure = null)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddTestLcmCrdtClient();
+        if (configure is not null) builder.Services.Configure(configure);
         using var host = builder.Build();
         await using var scope = host.Services.CreateAsyncScope();
         var services = scope.ServiceProvider;
