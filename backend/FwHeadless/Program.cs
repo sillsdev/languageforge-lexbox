@@ -7,6 +7,7 @@ using LcmCrdt;
 using LexCore.Exceptions;
 using LexData;
 using Scalar.AspNetCore;
+using SIL.Harmony.Core;
 using Npgsql;
 using OpenTelemetry.Trace;
 using WebServiceDefaults;
@@ -49,7 +50,8 @@ builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalO
         .AddSource(FwHeadlessActivitySource.ActivitySourceName,
             FwLiteProjectSyncActivitySource.ActivitySourceName,
             FwDataMiniLcmBridgeActivitySource.ActivitySourceName,
-            LcmCrdtActivitySource.ActivitySourceName));
+            LcmCrdtActivitySource.ActivitySourceName,
+            HarmonyActivitySource.ActivitySourceName));
 });
 
 var app = builder.Build();

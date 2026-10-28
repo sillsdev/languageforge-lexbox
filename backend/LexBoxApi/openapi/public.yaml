@@ -1432,6 +1432,7 @@ components:
       required:
         - id
         - hybridDateTime
+        - clientId
       type: object
       properties:
         projectId:
