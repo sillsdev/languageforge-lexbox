@@ -1,0 +1,44 @@
+# Local stand-in for the LTOps shared Gateway, served by the vendored Traefik in traefik/traefik.yaml.
+# Gateway API CRDs are a cluster prerequisite (see `task setup-k8s`), like cert-manager.
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: traefik
+spec:
+  controllerName: traefik.io/gateway-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: lexbox
+  namespace: languagedepot
+spec:
+  gatewayClassName: traefik
+  listeners:
+  # ports are Traefik's entrypoint ports; the traefik Service maps 80/443 to them
+  # no http->https redirect, so plain http://localhost keeps working
+  - name: web
+    port: 8000
+    protocol: HTTP
+  - name: websecure
+    port: 8443
+    protocol: HTTPS
+    tls:
+      certificateRefs:
+      - name: languagedepot-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: languagedepot-tls
+  namespace: languagedepot
+spec:
+  secretName: languagedepot-tls
+  issuerRef:
+    kind: ClusterIssuer
+    name: selfsigned-issuer
+  dnsNames:
+  - localhost
+  - hg.localhost
+  - resumable.localhost
+  - admin.localhost

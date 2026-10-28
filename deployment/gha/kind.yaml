@@ -1,2 +1,13 @@
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  # Expose the traefik NodePorts (gha/traefik-service.patch.yaml) on the runner directly.
+  # kubectl port-forward exits when a forwarded stream is reset (e.g. a 413 on a large upload), taking the tests down with it.
+  extraPortMappings:
+  - containerPort: 30080 # http
+    hostPort: 6579
+    listenAddress: 127.0.0.1
+  - containerPort: 30443 # https
+    hostPort: 6580
+    listenAddress: 127.0.0.1
