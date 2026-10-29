@@ -1,7 +1,7 @@
 # Evaluate /polish on recent PRs
 
 Type: task
-Status: open
+Status: claimed
 Blocked by:
 
 ## Question
