@@ -1,7 +1,7 @@
 # Calibrate verdicts on real PRs
 
 Type: prototype
-Status: open
+Status: claimed
 Blocked by: 01, 03, 04
 
 ## Question

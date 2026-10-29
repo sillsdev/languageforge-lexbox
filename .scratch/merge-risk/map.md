@@ -27,6 +27,7 @@ A spec for a lexbox skill (`.claude/skills/<name>/`) that decides whether a PR (
 - [Risk tier map for lexbox](issues/03-risk-tier-map.md): no tier map or strict rules; the agent judges each change by how painful its worst outcome is to repair (data corruption, breaking app updates, long-term pain). Critical code can still merge.
 - [Evaluate /polish on recent PRs](issues/02-evaluate-polish.md): good recall (plus one real bug humans missed), poor precision and ~875k tokens; test-auditor, ripple-detector, fwlite-sentinel earn their keep.
 - [How to infer test coverage for a change](issues/04-coverage-inference.md): agent asks "would a test fail if this went wrong?" only for changes that are both plausible and painful to repair; no test asks for unlikely or low-damage ones.
+- [Relationship to /polish](issues/05-relationship-to-polish.md): separate skill sharing `_shared/apply-rules.md` and the test-command table; reuses test-auditor, ripple-detector, domain sentinels; not the dispatch matrix.
 
 ## Not yet specified
 
@@ -36,5 +37,7 @@ A spec for a lexbox skill (`.claude/skills/<name>/`) that decides whether a PR (
 - How it should test itself (a few saved PRs with known-good verdicts?).
 
 ## Out of scope
+
+- Fixing `/polish`'s Phase 0 `||` fallback and shallow-clone merge-base bugs (separate small task).
 
 - Repos other than lexbox (harmony, fwlite-trailmap).
