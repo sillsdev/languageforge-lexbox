@@ -71,3 +71,10 @@
 ## Verified: validation-wrapper gap was real
 - Flagged by rename-detector, dotnet-stylist, intent-check on #2514. Fixed later in follow-up PR #2519 "Add and enforce missing validation calls in wrapper" (commit 42f82f2d). No human reviewer on #2514 raised it.
 - Notify wrapper still has no SubmitUpdatePicture override on develop today (grep). Unverified whether that matters (BeaKona forwards it without notifying).
+
+## 2514 ripple-detector (deepest on this PR)
+- ⚠️ UI path: writeNorm now forwards to notify.Submit*, which has no override, so the linked entry in a complex-form link gets no change notification (stale UI). Reasoned from code, not built.
+- ⚠️ UI edits to a concurrently deleted sense/entry now silently dropped (delete-wins) instead of throwing; not in PR title
+- 💭 RichString.ToString puts user text in logs
+- checked and cleared: all implementers define or auto-forward all 12 Submit*
+- Possible live bug: `MiniLcmApiNotifyWrapper` on develop today has no Submit* overrides at all (grep), while writeNorm forwards SubmitCreateComplexFormComponent to it. If BeaKona forwards without notifying, the linked entry goes stale in the UI. Not built or reproduced.
