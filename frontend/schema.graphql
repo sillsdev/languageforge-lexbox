@@ -778,6 +778,7 @@ input ChangeEntityOfServerJsonChangeFilterInput {
   commitId: UuidOperationFilterInput
   entityId: UuidOperationFilterInput
   change: ServerJsonChangeFilterInput
+  authoredModelVersion: IntOperationFilterInput
 }
 
 input ChangeOrgMemberRoleInput {
@@ -1556,6 +1557,8 @@ enum ProjectRole {
   MANAGER
   EDITOR
   OBSERVER
+  COMMENTER
+  EDITOR_LITE
 }
 
 enum ProjectType {

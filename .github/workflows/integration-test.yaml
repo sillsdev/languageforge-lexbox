@@ -85,10 +85,10 @@ jobs:
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Build for tests
-        run: "dotnet build LexBoxOnly.slnf /p:MercurialVersion=$MERCURIAL_VERSION"
+        # dotnet test below restores and builds again, so it needs the same MercurialVersion or it switches back to hg 6.
+        # Inlined rather than read from env because $VAR is not an env var in pwsh on windows-latest.
+        run: dotnet build LexBoxOnly.slnf -p:MercurialVersion=${{ inputs.hg-version }}
         id: build
-        env:
-          MERCURIAL_VERSION: ${{ inputs.hg-version }}
 
       - name: Integration tests (.NET)
         id: integration-tests
@@ -99,8 +99,9 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          TEST_EXPECTED_HG_VERSION: ${{ inputs.hg-version }}
 
-        run: dotnet test LexBoxOnly.slnf --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
+        run: dotnet test LexBoxOnly.slnf -p:MercurialVersion=${{ inputs.hg-version }} --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
 
       - name: Flaky Integration tests (.NET)
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
@@ -111,11 +112,12 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          TEST_EXPECTED_HG_VERSION: ${{ inputs.hg-version }}
 
-        run: dotnet test LexBoxOnly.slnf --output ./bin --logger trx --results-directory ./test-results --filter Category=FlakyIntegration
+        run: dotnet test LexBoxOnly.slnf -p:MercurialVersion=${{ inputs.hg-version }} --output ./bin --logger trx --results-directory ./test-results --filter Category=FlakyIntegration
 
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action/composite@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+        uses: EnricoMi/publish-unit-test-result-action/composite@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
         if: ${{ always() && !env.act }}
         with:
           check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}

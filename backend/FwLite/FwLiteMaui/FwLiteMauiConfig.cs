@@ -26,4 +26,5 @@ public class FwLiteMauiConfig
     public string AppLogFilePath => Path.Combine(BaseDataDir, "app.log");
     public string AppLogAlternateFilePath => Path.Combine(BaseDataDir, "app1.log");
     public string AuthCacheFilePath => Path.Combine(BaseDataDir, "msal.cache");
+    public string SettingsFilePath => Path.Combine(BaseDataDir, FwLiteMauiConfiguration.SettingsFileName);
 }

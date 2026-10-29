@@ -462,19 +462,6 @@ paths:
       responses:
         '200':
           description: OK
-  /api/fwlite-release/FieldWorksLite.appinstaller:
-    get:
-      tags:
-        - FwLiteRelease
-      responses:
-        '200':
-          description: OK
-    head:
-      tags:
-        - FwLiteRelease
-      responses:
-        '200':
-          description: OK
   /api/fwlite-release/download-latest:
     get:
       tags:
@@ -938,6 +925,12 @@ components:
                 - null
               nullable: true
             - $ref: '#/components/schemas/ServerJsonChange'
+        authoredModelVersion:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
     ChangesResult:
       required:
         - missingFromClient
@@ -950,6 +943,37 @@ components:
             $ref: '#/components/schemas/ServerCommit'
         serverSyncState:
           $ref: '#/components/schemas/SyncState'
+    ClientState:
+      required:
+        - clientId
+        - maxTimestamp
+        - commitCount
+        - hash
+      type: object
+      properties:
+        clientId:
+          type: string
+          format: uuid
+        maxTimestamp:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int64
+        commitCount:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
+        hash:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: uint64
+        onlyHasTimestamp:
+          type: boolean
     CommitMetadata:
       type: object
       properties:
@@ -1126,7 +1150,6 @@ components:
         - Android
         - iOS
         - Mac
-        - WindowsAppInstaller
     FwLiteRelease:
       required:
         - version
@@ -1249,6 +1272,8 @@ components:
         - Manager
         - Editor
         - Observer
+        - Commenter
+        - EditorLite
     ProjectSyncStatus:
       required:
         - status
@@ -1393,6 +1418,7 @@ components:
       required:
         - id
         - hybridDateTime
+        - clientId
       type: object
       properties:
         projectId:
@@ -1525,6 +1551,7 @@ components:
     SyncState:
       required:
         - clientHeads
+        - clientStates
       type: object
       properties:
         clientHeads:
@@ -1535,6 +1562,10 @@ components:
               - type: integer
               - type: string
             format: int64
+        clientStates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientState'
     Translation:
       type: object
       properties:

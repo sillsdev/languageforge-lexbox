@@ -348,6 +348,5 @@ Tests tagged `Category=Verified` (`task fw-lite:test-verified`) compare against 
 ## Further reading
 
 - `FwLiteMaui/Platforms/README.md`: verified Windows (MSIX, restart) and Android (Play in-app update) API gotchas.
-- `docs/research/msix-appinstaller-fwlite.md`: MSIX / App Installer update research.
 - `backend/FwLite/testing/README.md`: end-to-end Windows auto-update test harness (`task fw-lite:test-update`).
 

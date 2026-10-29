@@ -1,6 +1,9 @@
 # yaml-language-server: $schema=https://json.schemastore.org/dependabot.json
 # Dependabot for languageforge-lexbox
-# Target: develop | Schedule: weekly Monday | No ignore rules
+# Target: develop | Schedule: weekly Monday
+# NuGet and /frontend npm ignore major versions: we upgrade those by hand, so
+# the group PRs stay mergeable. (Ignore rules also apply to security updates;
+# a fix only shipped in a new major has to be picked up manually.)
 # platform.bible-extension is intentionally excluded (separate npm tree).
 version: 2
 updates:
@@ -15,6 +18,9 @@ updates:
     labels:
       - dependencies
     ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
       # LexboxAnalyzers pins Roslyn <= the Roslyn of the lowest supported SDK/IDE (see its csproj);
       # a newer Microsoft.CodeAnalysis fails to load in older tooling, so bump it by hand.
       - dependency-name: Microsoft.CodeAnalysis.CSharp
@@ -49,9 +55,29 @@ updates:
         patterns:
           - Microsoft.*
           - System.*
+      # Dependabot runs this entry as two discovered directories (/backend for
+      # the projects, /.config for dotnet-tools.json). The /.config job sees
+      # every CPM package too, and its catch-all swallowed the groups above and
+      # superseded their PRs. Excluding them explicitly keeps "other" to the
+      # packages no other group claims.
       other:
         patterns:
           - "*"
+        exclude-patterns:
+          - Microsoft.*
+          - System.*
+          - HotChocolate*
+          - SIL.*
+          - xunit*
+          - Xunit*
+          - FluentAssertions*
+          - Moq*
+          - Verify*
+          - coverlet*
+          - GitHubActionsTestLogger*
+          - Meziantou.Extensions.Logging.Xunit*
+          - Soenneker.Utils.AutoBogus*
+          - BenchmarkDotNet*
 
   # --- pnpm workspace (frontend + viewer + https-proxy) ---
   - package-ecosystem: npm
@@ -63,11 +89,32 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - dependencies
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
     groups:
       production-dependencies:
         dependency-type: production
       development-dependencies:
         dependency-type: development
+
+  # --- Repo-root npm: nx + @nx/dotnet, used only for affected detection (pr.yaml) ---
+  - package-ecosystem: npm
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 2
+    labels:
+      - dependencies
+    groups:
+      # nx and its plugins must move together (exact pins, same version).
+      nx:
+        patterns:
+          - nx
+          - "@nx/*"
 
   # --- docs site ---
   - package-ecosystem: npm

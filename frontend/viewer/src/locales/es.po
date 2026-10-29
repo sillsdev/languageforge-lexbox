@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-14 10:19\n"
+"PO-Revision-Date: 2026-10-23 18:34\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -28,11 +28,11 @@ msgstr "– ({0} cambios)"
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
-msgstr ""
+msgstr "(editado)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
-msgstr ""
+msgstr "(desconocido)"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -54,7 +54,7 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
-msgstr ""
+msgstr "{0} tipos de actividad"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -64,7 +64,7 @@ msgstr "{0} hace"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
-msgstr ""
+msgstr "{0} autores"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -73,11 +73,11 @@ msgstr "{0} MB"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
-msgstr ""
+msgstr "{0} respuestas"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "{0} resolved"
-msgstr ""
+msgstr "{0} resuelto"
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -93,7 +93,7 @@ msgstr "{num, plural, one {# cambio} other {# cambios}}"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
-msgstr ""
+msgstr "{num, plural, one {Falta # entrada} other {Faltan # entradas}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -107,17 +107,17 @@ msgstr "{num, plural, one {# nuevo commit de FieldWorks Lite} other {# nuevos co
 
 #: src/project/browse/filter/UnreadCommentBadge.svelte
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
-msgstr ""
+msgstr "{num, plural, one {# comentario sin leer} other {# comentarios sin leer}}"
 
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
-msgstr ""
+msgstr "{num, plural, one {Falta # palabra} other {Faltan # palabras}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
-msgstr ""
+msgstr "{num, plural, one {Mostrar # más} other {Mostrar # más}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -136,7 +136,7 @@ msgstr "**Terminología más simple** (p. ej. *Palabra* en lugar de *Forma del l
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
-msgstr ""
+msgstr "1 respuesta"
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -148,14 +148,14 @@ msgstr "Una nueva versión de FieldWorks Lite está disponible."
 #. Warning banner in the New Entry dialog when exactly one possible duplicate was found (none an exact headword match)
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar entry already exists"
-msgstr ""
+msgstr "Ya existe una entrada similar"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "A similar entry already exists"
 #. Warning banner in the New Word dialog when exactly one possible duplicate was found (none spelled exactly the same)
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar word already exists"
-msgstr ""
+msgstr "Una palabra similar ya existe"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
@@ -225,7 +225,7 @@ msgstr "Añadir parte de"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Add Picture"
-msgstr ""
+msgstr "Añadir foto"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -237,17 +237,17 @@ msgstr "Añadir acepción"
 
 #: src/project/tasks/TaskList.svelte
 msgid "Add some entries first."
-msgstr ""
+msgstr "Añadir algunas entradas primero."
 
 #: src/project/tasks/TaskList.svelte
 msgid "Add some words first."
-msgstr ""
+msgstr "Añadir algunas palabras primero."
 
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
 #: src/project/browse/EntriesList.svelte
 msgid "Add to dictionary"
-msgstr ""
+msgstr "Añadir al diccionario"
 
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -256,7 +256,11 @@ msgstr "Añadir palabra"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
-msgstr ""
+msgstr "Añade tu primera entrada para comenzar a construir tu diccionario."
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Advanced: settings file"
+msgstr "Avanzado: archivo de configuración"
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
@@ -270,14 +274,14 @@ msgstr "Todos"
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All activity types"
-msgstr ""
+msgstr "Todos los tipos de actividad"
 
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
-msgstr ""
+msgstr "Todos los autores"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -295,15 +299,15 @@ msgstr "Análisis"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr ""
+msgstr "Código del sistema de análisis"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr ""
+msgstr "Sistemas de análisis de escritura"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
-msgstr ""
+msgstr "Los análisis están desactivados."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -353,7 +357,7 @@ msgstr "Haz preguntas y recibe ayuda en nuestro foro de la comunidad."
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
-msgstr ""
+msgstr "Audio"
 
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
@@ -372,7 +376,7 @@ msgstr "Audio guardado localmente"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
@@ -391,12 +395,12 @@ msgstr "Sincronización automática"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Back"
-msgstr ""
+msgstr "Atrás"
 
 #: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
-msgstr ""
+msgstr "Volver a tareas"
 
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
@@ -428,11 +432,11 @@ msgstr "Visite"
 
 #: src/project/browse/BrowseView.svelte
 msgid "Browse view failed"
-msgstr ""
+msgstr "Vista de navegación fallida"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Camera"
-msgstr ""
+msgstr "Cámara"
 
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
@@ -457,7 +461,7 @@ msgstr "Cancelar"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Caption"
-msgstr ""
+msgstr "Leyenda"
 
 #. Explanation of sync behavior
 #: src/project/sync/FwClassicSyncView.svelte
@@ -474,14 +478,14 @@ msgstr "Cambiar el mismo campo dos veces, por ejemplo, puede resultar en dos com
 #. Status line in the New Entry dialog while searching for possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar entries…"
-msgstr ""
+msgstr "Comprobando entradas similares…"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Checking for similar entries…"
 #. Status line in the New Word dialog while searching for possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar words…"
-msgstr ""
+msgstr "Comprobando palabras similares…"
 
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -530,7 +534,7 @@ msgstr "Cerrar Diccionario"
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 msgid "Code"
-msgstr ""
+msgstr "Código"
 
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
@@ -539,20 +543,24 @@ msgstr "Color"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Comment"
-msgstr ""
+msgstr "Comentario"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Commenter"
+msgstr "Autor del comentario"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
-msgstr ""
+msgstr "Comentarios"
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
-msgstr ""
+msgstr "Comentarios, {0} no leídos"
 
 #: src/project/tasks/TaskList.svelte
 msgid "Complete"
-msgstr ""
+msgstr "Complete"
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -608,7 +616,7 @@ msgstr "Contiene"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
-msgstr ""
+msgstr "Conversación"
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
@@ -625,34 +633,34 @@ msgstr "Copiar versión"
 #. Status line in the New Entry dialog when the background duplicate search failed (e.g. connection lost); typing again retries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar entries"
-msgstr ""
+msgstr "No se pudo comprobar si hay entradas similares"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Could not check for similar entries"
 #. Status line in the New Word dialog when the background duplicate search failed (e.g. connection lost); typing again retries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
-msgstr ""
+msgstr "No se pudo comprobar palabras similares"
 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
-msgstr ""
+msgstr "No se pudo obtener el estado de FieldWorks Classic de Lexbox."
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
-msgstr ""
+msgstr "No se pudo sincronizar ahora mismo, los cambios locales están seguros."
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
 msgid "Create"
-msgstr ""
+msgstr "Crear"
 
 #. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
-msgstr ""
+msgstr "Crear un nuevo proyecto FieldWorks Lite"
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -726,7 +734,7 @@ msgstr "Cuadro de mandos"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard failed to load"
-msgstr ""
+msgstr "No se pudo cargar el panel"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -764,7 +772,7 @@ msgstr "Borrar entrada"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Delete Picture"
-msgstr ""
+msgstr "Eliminar foto"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Delete Entry"
@@ -802,6 +810,7 @@ msgstr "Vista previa del diccionario"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Descartar"
 
@@ -847,7 +856,7 @@ msgstr "Página de descarga"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Download Picture"
-msgstr ""
+msgstr "Descargar foto"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -877,7 +886,7 @@ msgstr "Descargando {0}..."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
-msgstr ""
+msgstr "Descargando actualización..."
 
 #. Generic progress message
 #: src/home/Server.svelte
@@ -887,16 +896,16 @@ msgstr "Descargando..."
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
-msgstr ""
+msgstr "ej. th, sw"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
-msgstr ""
+msgstr "Editar"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
-msgstr ""
+msgstr "Editar comentario"
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -905,16 +914,20 @@ msgstr "Editar vista personalizada"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Edit Picture"
-msgstr ""
+msgstr "Editar foto"
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Editor"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor Lite"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
-msgstr ""
+msgstr "Vaciar comentario"
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -925,7 +938,7 @@ msgstr "Termina con"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Entries missing both Lexeme form and Citation form"
-msgstr ""
+msgstr "Entradas sin forma del lexema ni formulario de cita"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -936,11 +949,11 @@ msgstr "Entradas faltantes..."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
-msgstr ""
+msgstr "Entradas con ejemplos"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
-msgstr ""
+msgstr "Entradas con acepciones"
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
@@ -997,11 +1010,11 @@ msgstr "Error al obtener el estado de sincronización."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every entry already has this field filled in."
-msgstr ""
+msgstr "Cada entrada ya tiene este campo rellenado."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every word already has this field filled in."
-msgstr ""
+msgstr "Cada palabra ya tiene este campo rellenado."
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1021,7 +1034,11 @@ msgstr "Ejemplo de frase"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
-msgstr ""
+msgstr "Ejemplos de frases"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to change verbose logging"
+msgstr "Error al cambiar el registro detallado"
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1037,7 +1054,7 @@ msgstr "Error al descargar {0}"
 #: src/lib/activity/ActivityView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "Failed to load activity"
-msgstr ""
+msgstr "Error al cargar la actividad"
 
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
@@ -1047,19 +1064,19 @@ msgstr "Error al cargar entradas"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load file"
-msgstr ""
+msgstr "Error al cargar el archivo"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load files"
-msgstr ""
+msgstr "Error al cargar archivos"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load media files"
-msgstr ""
+msgstr "Error al cargar archivos multimedia"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to load metadata"
-msgstr ""
+msgstr "Error al cargar los metadatos"
 
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1074,16 +1091,20 @@ msgstr "Error al abrir la URL: {0}"
 #. Error toast when snapshot regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate Harmony snapshots"
-msgstr ""
+msgstr "Error al regenerar instantáneas de Harmony"
 
 #. Error toast when search index regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate search index"
-msgstr ""
+msgstr "Error al regenerar el índice de búsqueda"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to save file"
-msgstr ""
+msgstr "Error al guardar el archivo"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to save settings"
+msgstr "Error al guardar la configuración"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
@@ -1092,7 +1113,7 @@ msgstr "Error de sincronización"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to upload files"
-msgstr ""
+msgstr "Error al subir archivos"
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -1120,11 +1141,11 @@ msgstr "FieldWorks Lite"
 
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
-msgstr ""
+msgstr "FieldWorks Lite recopila datos de uso para ayudarnos a mejorarlos."
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
-msgstr ""
+msgstr "FieldWorks Lite ha sido actualizado. Reinicie para terminar de instalar."
 
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1176,15 +1197,15 @@ msgstr "Archivo demasiado grande"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Filename"
-msgstr ""
+msgstr "Nombre de archivo"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
-msgstr ""
+msgstr "Rellenar Mostrar como"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
-msgstr ""
+msgstr "Rellenar Palabra o Mostrar como"
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1296,14 +1317,14 @@ msgstr "Visite {0}"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to entry"
-msgstr ""
+msgstr "Ir a la entrada"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
-msgstr ""
+msgstr "Ir a la palabra"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1322,19 +1343,19 @@ msgstr "verde"
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
-msgstr ""
+msgstr "Las instantáneas de Harmony se regeneraron con éxito"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has comments"
-msgstr ""
+msgstr "Tiene comentarios"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unread comments"
-msgstr ""
+msgstr "Tiene comentarios no leídos"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unresolved comments"
-msgstr ""
+msgstr "Tiene comentarios sin resolver"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1346,7 +1367,7 @@ msgstr "Palabra clave"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Help & More"
-msgstr ""
+msgstr "Ayuda y más"
 
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
@@ -1378,7 +1399,7 @@ msgstr "Entiendo que esto no se puede deshacer"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
@@ -1414,7 +1435,7 @@ msgstr "Instalando actualización..."
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
-msgstr ""
+msgstr "justo ahora"
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1434,12 +1455,12 @@ msgstr "Última sincronización: #"
 
 #: src/home/HomeView.svelte
 msgid "Learn more"
-msgstr ""
+msgstr "Aprende más"
 
 #. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
-msgstr ""
+msgstr "Dejar vacío para producción"
 
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
@@ -1491,36 +1512,36 @@ msgstr "Significado literal"
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Load"
-msgstr ""
+msgstr "Cargar"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Load all"
-msgstr ""
+msgstr "Cargar todo"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Load it to preview or export."
-msgstr ""
+msgstr "Cargarlo para previsualizar o exportar."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Load picture"
-msgstr ""
+msgstr "Cargar imagen"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded {0} file(s)"
-msgstr ""
+msgstr "Se cargaron {0} archivo(s)"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded file"
-msgstr ""
+msgstr "Archivo cargado"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr ""
+msgstr "Cargando actividad"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
-msgstr ""
+msgstr "Cargando comentarios..."
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1529,11 +1550,11 @@ msgstr "Cargando diccionarios..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Loading metadata..."
-msgstr ""
+msgstr "Cargando metadatos..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Loading preview..."
-msgstr ""
+msgstr "Cargando vista previa..."
 
 #: src/home/HomeView.svelte
 msgid "loading..."
@@ -1541,7 +1562,7 @@ msgstr "cargando..."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loading..."
-msgstr ""
+msgstr "Cargando..."
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
@@ -1551,7 +1572,7 @@ msgstr "Local"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Local and remote"
-msgstr ""
+msgstr "Local y remoto"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
@@ -1568,7 +1589,7 @@ msgstr "Inicio de sesión"
 #. Toast shown when the user closes or cancels the login dialog before signing in.
 #: src/lib/auth/LoginButton.svelte
 msgid "Login cancelled."
-msgstr ""
+msgstr "Inicio de sesión cancelado."
 
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
@@ -1594,6 +1615,11 @@ msgstr "Haz una sugerencia"
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Asegúrese de que su [cambios están sincronizados]({0}) en Lexbox."
+
+#. Detail under "Still opening the project...". After an app update, opening a project can rebuild its data, and closing the app restarts that work.
+#: src/DotnetProjectView.svelte
+msgid "Making sure the project is up to date can take a few minutes. Please keep the app open."
+msgstr ""
 
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
@@ -1628,16 +1654,16 @@ msgstr "Significado"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Media file details"
-msgstr ""
+msgstr "Detalles del archivo multimedia"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Media Manager"
-msgstr ""
+msgstr "Gestor de medios"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
-msgstr ""
+msgstr "Falta el formulario de cita {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1646,7 +1672,7 @@ msgstr "Definición {0} perdida"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Display as {0}"
-msgstr ""
+msgstr "Falta mostrar como {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1660,27 +1686,27 @@ msgstr "Glosa {0} perdida"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Grammatical info."
-msgstr ""
+msgstr "Falta información gramatical."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Headword {0}"
-msgstr ""
+msgstr "Falta la palabra clave {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Lexeme form {0}"
-msgstr ""
+msgstr "Falta la forma del lexema {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of speech"
-msgstr ""
+msgstr "Falta parte de la oración"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Semantic domains"
-msgstr ""
+msgstr "Faltan dominios semánticos"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Word {0}"
-msgstr ""
+msgstr "Falta la palabra {0}"
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1749,11 +1775,11 @@ msgstr "Nueva entrada"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
-msgstr ""
+msgstr "Nuevo proyecto"
 
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
-msgstr ""
+msgstr "Nuevo proyecto (sólo local)"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1767,7 +1793,7 @@ msgstr "Nueva palabra"
 #. Sort option in activity view — most recent commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Newest first"
-msgstr ""
+msgstr "Más nuevo primero"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
@@ -1775,25 +1801,25 @@ msgstr "Siguiente"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Next milestone: {0}. {1} to go."
-msgstr ""
+msgstr "Siguiente hito: {0}. Faltan {1}."
 
 #. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Next picture"
-msgstr ""
+msgstr "Siguiente imagen"
 
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
-msgstr ""
+msgstr "Ninguna actividad coincide con estos filtros"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
-msgstr ""
+msgstr "No hay tipos de actividad"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
-msgstr ""
+msgstr "No hay sistemas de escritura de análisis configurados."
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -1803,7 +1829,7 @@ msgstr "Sin audio"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
-msgstr ""
+msgstr "No hay autores"
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1837,7 +1863,7 @@ msgstr "No se han encontrado artículos"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
-msgstr ""
+msgstr "No se encontraron archivos multimedia"
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1847,12 +1873,12 @@ msgstr "No hay nuevos datos"
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "No open conversations"
-msgstr ""
+msgstr "No hay conversaciones abiertas"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
-msgstr ""
+msgstr "No hay fotos"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/FwLiteSyncView.svelte
@@ -1869,14 +1895,14 @@ msgstr "Ningún servidor configurado"
 #. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar entries found"
-msgstr ""
+msgstr "No se encontraron entradas similares"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No similar entries found"
 #. Status line in the New Word dialog: the duplicate check found no existing words like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar words found"
-msgstr ""
+msgstr "No se encontraron palabras similares"
 
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte
@@ -1885,7 +1911,7 @@ msgstr "No hay tema, no se puede crear un nuevo {0}"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
-msgstr ""
+msgstr "No hay sistemas vernáculos de escritura configurados."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1954,22 +1980,22 @@ msgstr "Desconectado, no se puede descargar"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
-msgstr ""
+msgstr "Desconectado, no se puede abrir el archivo"
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Oldest first"
-msgstr ""
+msgstr "Lo más antiguo primero"
 
 #. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
-msgstr ""
+msgstr "En proyectos grandes esto puede llevar mucho tiempo. No cierre la aplicación o interrumpa el proceso."
 
 #. Warning in regenerate-search-index confirm dialog: operation may be slow
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a while. Do not close the app or interrupt the process."
-msgstr ""
+msgstr "En proyectos grandes esto puede tardar un tiempo. No cierre la aplicación o interrumpa el proceso."
 
 #. Explanation of sync behavior
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1989,7 +2015,7 @@ msgstr "Directorio de datos abiertos"
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
 msgid "Open in browser"
-msgstr ""
+msgstr "Abrir en el navegador"
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2013,9 +2039,14 @@ msgstr "Abrir archivo Log"
 msgid "Opening in FieldWorks…"
 msgstr "Abriendo en FieldWorks…"
 
+#. Loading notification shown while a project opens.
+#: src/DotnetProjectView.svelte
+msgid "Opening project..."
+msgstr ""
+
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Opt out of analytics"
-msgstr ""
+msgstr "Desactivar los análisis"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -2051,6 +2082,10 @@ msgstr "Parte de"
 msgid "Part of speech"
 msgstr "Parte de la oración"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
+msgstr "Pegue aquí la configuración que le dio el soporte. Al guardar se reemplaza el archivo y se aplica de inmediato; déjelo vacío para eliminar el archivo. El tamaño y el número de archivos de registro solo cambian después de reiniciar."
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2059,15 +2094,15 @@ msgstr "Pendiente"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
-msgstr ""
+msgstr "Escoge una parte de la oración"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick Grammatical info."
-msgstr ""
+msgstr "Escoger información gramatical."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick one or more Semantic domains"
-msgstr ""
+msgstr "Elige uno o más dominios semánticos"
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
@@ -2075,21 +2110,21 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
-msgstr ""
+msgstr "Foto"
 
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
-msgstr ""
+msgstr "Acciones de imagen"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Picture not found"
-msgstr ""
+msgstr "Imagen no encontrada"
 
 #. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
 #: src/lib/views/entity-config.ts
 msgid "Pictures"
-msgstr ""
+msgstr "Fotos"
 
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
@@ -2118,22 +2153,22 @@ msgstr "Vista previa no disponible"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not available for this file type."
-msgstr ""
+msgstr "Vista previa no disponible para este tipo de archivo."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
-msgstr ""
+msgstr "Vista previa no soportada"
 
 #. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Previous picture"
-msgstr ""
+msgstr "Imagen anterior"
 
 #: src/home/HomeView.svelte
 #: src/lib/about/PrivacyDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
-msgstr ""
+msgstr "Privacidad"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2174,43 +2209,43 @@ msgstr "Publicar palabra en"
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
-msgstr ""
+msgstr "Sólo lectura"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
-msgstr ""
+msgstr "Grabar un formulario de cita"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Definition"
-msgstr ""
+msgstr "Grabar una definición"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Gloss"
-msgstr ""
+msgstr "Grabar una glosa"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form"
-msgstr ""
+msgstr "Grabar una forma del lexema"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form or Citation form"
-msgstr ""
+msgstr "Grabar una forma del lexema o formulario de cita"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
-msgstr ""
+msgstr "Grabar una palabra"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record an example sentence"
-msgstr ""
+msgstr "Grabar una frase de ejemplo"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
-msgstr ""
+msgstr "Grabar Mostrar como"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
-msgstr ""
+msgstr "Grabar Palabra o Mostrar como"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2227,7 +2262,7 @@ msgstr "Afine su filtro para ver más..."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Refresh"
-msgstr ""
+msgstr "Refrescar"
 
 #. Button to reload project list
 #: src/home/HomeView.svelte
@@ -2239,42 +2274,42 @@ msgstr "Actualizar proyectos"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate"
-msgstr ""
+msgstr "Regenerar"
 
 #. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots"
-msgstr ""
+msgstr "Regenerar instantáneas de Harmony"
 
 #. Alert dialog title before starting Harmony snapshot regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots?"
-msgstr ""
+msgstr "¿Regenerar instantáneas de Harmony?"
 
 #. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index"
-msgstr ""
+msgstr "Regenerar índice de búsqueda"
 
 #. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
-msgstr ""
+msgstr "¿Regenerar el índice de búsqueda?"
 
 #. Blocking progress message while Harmony snapshots are being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
-msgstr ""
+msgstr "Regenerando instantáneas de Harmony. Esto puede llevar mucho tiempo — no cierre la aplicación."
 
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
-msgstr ""
+msgstr "Regenerando el índice de búsqueda. Esto puede tardar un rato — no cierre la aplicación."
 
 #. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Release channel"
-msgstr ""
+msgstr "Canal de lanzamiento"
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -2283,7 +2318,7 @@ msgstr "Notas de lanzamiento"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
-msgstr ""
+msgstr "Solo remoto"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -2310,16 +2345,16 @@ msgstr "Sustituir audio"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Replace Picture"
-msgstr ""
+msgstr "Reemplazar foto"
 
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply"
-msgstr ""
+msgstr "Responder"
 
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply…"
-msgstr ""
+msgstr "Responder…"
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
@@ -2328,18 +2363,18 @@ msgstr "Reportar un problema técnico"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
-msgstr ""
+msgstr "Reset"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
-msgstr ""
+msgstr "Resolver"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Restart"
-msgstr ""
+msgstr "Reiniciar"
 
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
@@ -2361,14 +2396,14 @@ msgstr "rosa"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
-msgstr ""
+msgstr "Misma palabra clave"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: only its lexeme form matches the typed text, while its citation form (shown as the headword) differs — deliberately NOT claiming "Same headword"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same lexeme form"
-msgstr ""
+msgstr "Misma forma del lexema"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Same headword"
@@ -2376,15 +2411,19 @@ msgstr ""
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same word"
-msgstr ""
+msgstr "Misma palabra"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Save and apply"
+msgstr "Guardar y aplicar"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Save as"
-msgstr ""
+msgstr "Guardar como"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -2414,7 +2453,7 @@ msgstr "Buscar en diccionarios"
 #. Success toast after rebuilding the FTS entry search index
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
-msgstr ""
+msgstr "Índice de búsqueda regenerado con éxito"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2444,7 +2483,7 @@ msgstr "Seleccionar archivo"
 
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Selected"
-msgstr ""
+msgstr "Seleccionado"
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
@@ -2488,6 +2527,10 @@ msgstr "Sentencia"
 msgid "Settings"
 msgstr "Ajustes"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Settings saved and applied"
+msgstr "Ajustes guardados y aplicados"
+
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
 msgid "Shadcn Sandbox # #"
@@ -2520,53 +2563,53 @@ msgstr "Mostrar {0} más..."
 
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
-msgstr ""
+msgstr "Mostrar u ocultar leyendas"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
-msgstr ""
+msgstr "Inicia sesión para añadir comentarios."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar words already exist"
 #. Warning banner in the New Entry dialog; expands to a list of possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar entries already exist"
-msgstr ""
+msgstr "Ya existen entradas similares"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar meaning"
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
-msgstr ""
+msgstr "Glosa similar"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
 #. Badge on a possible-duplicate result: its headword partly matches the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar headword"
-msgstr ""
+msgstr "Palabra clave similar"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar gloss"
 #. Badge on a possible-duplicate result: one of its meanings matches the meaning being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar meaning"
-msgstr ""
+msgstr "Significado similar"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar headword"
 #. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar word"
-msgstr ""
+msgstr "Palabra similar"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar entries already exist"
 #. Warning banner in the New Word dialog; expands to a list of possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar words already exist"
-msgstr ""
+msgstr "Palabras similares ya existen"
 
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
@@ -2575,7 +2618,7 @@ msgstr "Simple"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Size"
-msgstr ""
+msgstr "Tamaño"
 
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
@@ -2587,13 +2630,18 @@ msgstr "Tamaño:"
 msgid "Skip"
 msgstr "Saltar"
 
+#. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
+msgstr ""
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
-msgstr ""
+msgstr "Algo salió mal"
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
-msgstr ""
+msgstr "Ordenar sistema"
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
@@ -2602,11 +2650,11 @@ msgstr "Campo específico"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation"
-msgstr ""
+msgstr "Iniciar una conversación"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation…"
-msgstr ""
+msgstr "Iniciar una conversación…"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2614,6 +2662,11 @@ msgstr ""
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Empieza por"
+
+#. Title of a loading notification shown when opening a project takes a while.
+#: src/DotnetProjectView.svelte
+msgid "Still opening the project..."
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -2666,12 +2719,12 @@ msgstr "Sincronizado"
 #. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced newest"
-msgstr ""
+msgstr "Sincronizado más reciente"
 
 #. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced oldest"
-msgstr ""
+msgstr "Sincronizado más antiguo"
 
 #. Status showing sync source server
 #: src/home/HomeView.svelte
@@ -2711,7 +2764,7 @@ msgstr "Tarea no encontrada: {0}"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task view failed"
-msgstr ""
+msgstr "Vista de tarea fallida"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -2726,7 +2779,7 @@ msgstr "Cuéntanos acerca de un error o problema que hayas encontrado."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Tell us how you work and what would help most. Your ideas guide what we build."
-msgstr ""
+msgstr "Cuéntanos cómo trabajas y qué te ayudaría. Tus ideas guían lo que construimos."
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
@@ -2779,19 +2832,19 @@ msgstr "Esta fecha # y este emoji # son fragmentos"
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This entry may already exist"
-msgstr ""
+msgstr "Es posible que esta entrada ya exista"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
-msgstr ""
+msgstr "Este archivo sólo está disponible de forma remota."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
-msgstr ""
+msgstr "Esta imagen es demasiado grande para subirla. Intenta reducir la resolución y subirla de nuevo."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
-msgstr ""
+msgstr "Esta imagen es demasiado grande para subir. Intente guardarla con una calidad JPEG más baja y subirla de nuevo."
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2801,12 +2854,12 @@ msgstr "Este proyecto está ahora abierto en FieldWorks. Para continuar trabajan
 #. Warning in regenerate-snapshots confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds snapshot and projected tables from commit history."
-msgstr ""
+msgstr "Esto reconstruye las instantáneas y las tablas proyectadas a partir del historial de confirmaciones."
 
 #. Warning in regenerate-search-index confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
-msgstr ""
+msgstr "Esto reconstruye el índice de búsqueda de texto completo desde entradas de diccionario."
 
 #. Status message
 #: src/project/tasks/TaskView.svelte
@@ -2823,7 +2876,7 @@ msgstr "Esto sincronizará las copias de FieldWorks Lite y FieldWorks Classic de
 #. Warning banner in the New Word dialog when a word with the exact same spelling exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This word may already exist"
-msgstr ""
+msgstr "Es posible que esta palabra ya exista"
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
@@ -2839,7 +2892,7 @@ msgstr "Alternar fijado"
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
-msgstr ""
+msgstr "Total de entradas"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -2863,19 +2916,19 @@ msgstr "Solución de problemas"
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
-msgstr ""
+msgstr "Inténtalo de nuevo"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
-msgstr ""
+msgstr "Volver a encender análisis"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Citation form"
-msgstr ""
+msgstr "Escriba un formulario de cita"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2889,15 +2942,15 @@ msgstr "Escriba una glosa"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form"
-msgstr ""
+msgstr "Escriba un formulario de Lexema"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form or Citation form"
-msgstr ""
+msgstr "Escriba un formulario de Lexema o Citación"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Word"
-msgstr ""
+msgstr "Escribe una palabra"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2911,30 +2964,30 @@ msgstr "Tipo:"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to convert captured image from {0} to a jpeg"
-msgstr ""
+msgstr "No se puede convertir la imagen capturada de {0} a un jpeg"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to download the picture"
-msgstr ""
+msgstr "No se puede descargar la imagen"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to export file"
-msgstr ""
+msgstr "No se puede exportar el archivo"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to load audio"
-msgstr ""
+msgstr "No se puede cargar el audio"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load picture"
-msgstr ""
+msgstr "No se puede cargar la imagen"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to open file"
-msgstr ""
+msgstr "No se puede abrir el archivo"
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2943,7 +2996,7 @@ msgstr "No se puede abrir en FieldWorks"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to upload the picture"
-msgstr ""
+msgstr "No se puede subir la imagen"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
@@ -2966,7 +3019,7 @@ msgstr "Error desconocido {0}"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Unknown error creating project"
-msgstr ""
+msgstr "Error desconocido al crear el proyecto"
 
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -2986,7 +3039,7 @@ msgstr "Resultado de actualización desconocido"
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
-msgstr ""
+msgstr "No leídos"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -3021,11 +3074,11 @@ msgstr "Actualización disponible: {0}"
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update downloaded. Restart to apply."
-msgstr ""
+msgstr "Actualización descargada. Reinicie para aplicar."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update downloading in the background. Restart to apply once it's finished."
-msgstr ""
+msgstr "La actualización se está descargando en segundo plano. Reinicie para aplicarla cuando termine."
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3046,24 +3099,28 @@ msgstr "Actualizaciones"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
-msgstr ""
+msgstr "Subida pendiente"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Uploaded"
-msgstr ""
+msgstr "Subido"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Uploaded pending files"
-msgstr ""
+msgstr "Archivos pendientes cargados"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
-msgstr ""
+msgstr "La carga de imágenes no está soportada aquí"
 
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Utiliza componentes como"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Verbose logging"
+msgstr "Registro detallado"
 
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
@@ -3074,15 +3131,15 @@ msgstr "Vernáculo"
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
-msgstr ""
+msgstr "Código del sistema de escritura vernacular"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
-msgstr ""
+msgstr "El sistema de escritura vernácular es requerido"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
-msgstr ""
+msgstr "Sistemas de escritura vernáculares"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -3092,11 +3149,11 @@ msgstr "Ver"
 #. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "View Picture"
-msgstr ""
+msgstr "Ver foto"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "View the SIL privacy policy"
-msgstr ""
+msgstr "Ver la política de privacidad de SIL"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -3105,15 +3162,15 @@ msgstr "violeta"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
-msgstr ""
+msgstr "También recopilamos informes de errores con detalles técnicos sobre lo que salió mal. Antes de enviarlos, tratamos de eliminar cualquier cosa que pueda ser texto del diccionario, nombres de archivos u otros datos personales."
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
-msgstr ""
+msgstr "Recogemos datos de uso para entender cómo se utiliza FieldWorks Lite y dónde mejorarlo. Cuando has iniciado sesión en Lexbox está vinculado a tu cuenta, y nunca incluye el contenido de tu diccionario."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
-msgstr ""
+msgstr "¿Qué te gustaría ver aquí?"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -3167,7 +3224,11 @@ msgstr "Palabra o significado:"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
-msgstr ""
+msgstr "Palabras sin Palabra ni Mostrar como"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
+msgstr "Escribe registros detallados, incluyendo el diagnóstico de inicio de sesión, en el archivo de registro. Desactívalo una vez que el soporte tenga lo que necesitan."
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
@@ -3193,7 +3254,7 @@ msgstr "Sistemas de escritura"
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
 msgid "You appear to be offline. Can you connect to {0}?"
-msgstr ""
+msgstr "Pareces estar desconectado. ¿Puedes conectarte a {0}?"
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3218,12 +3279,12 @@ msgstr "Ya has descargado el proyecto {0}"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
-msgstr ""
+msgstr "Estás desconectado"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
-msgstr ""
+msgstr "Has superado cada hito. ¡Qué logro!"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
-msgstr ""
+msgstr "Tu diccionario comienza aquí"

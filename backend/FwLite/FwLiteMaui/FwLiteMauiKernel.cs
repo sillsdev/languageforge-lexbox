@@ -19,16 +19,25 @@ namespace FwLiteMaui;
 
 public static class FwLiteMauiKernel
 {
+    /// <summary>
+    /// Lowest-precedence configuration, registered first in FwLiteMauiConfiguration so each entry can be
+    /// overridden by the settings file or at runtime (e.g. Logging__LogLevel__FwLiteShared.Auth.LoggerAdapter=Information).
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string?> DefaultConfiguration = new Dictionary<string, string?>
+    {
+        //MSAL is chatty at Information; Warning still surfaces listener and token failures
+        ["Logging:LogLevel:FwLiteShared.Auth.LoggerAdapter"] = "Warning",
+        ["Logging:LogLevel:Microsoft.EntityFrameworkCore.Database"] = "Warning",
+    };
+
     public static void AddFwLiteMauiServices(this IServiceCollection services,
         ConfigurationManager configuration,
         ILoggingBuilder logging)
     {
         services.AddTransient<MainPage>();
-        // MAUI has no built-in appsettings.json loading like ASP.NET Core, so this is a no-op today.
-        // See https://github.com/dotnet/maui/issues/4408
-        //configuration.AddJsonFile("appsettings.json", optional: true);
-        // Environment variables are wired up in MauiProgram (e.g. FwLiteMaui__BaseDataDir), so the
-        // "FwLiteMaui" section bound below can be overridden at runtime without appsettings.json.
+        // Configuration sources are composed in FwLiteMauiConfiguration (called from MauiProgram).
+        // Registered so the troubleshoot dialog can Reload() after writing the settings file.
+        services.AddSingleton<IConfigurationRoot>(configuration);
 
         string environment = "Production";
 #if DEBUG
@@ -135,8 +144,9 @@ public static class FwLiteMauiKernel
         services.AddOptions<FwLiteMauiConfig>().BindConfiguration("FwLiteMaui");
         var fwLiteMauiConfig = configuration.GetSection("FwLiteMaui").Get<FwLiteMauiConfig>() ?? new();
         var baseDataPath = fwLiteMauiConfig.BaseDataDir;
-        logging.AddFilter("FwLiteShared.Auth.LoggerAdapter", LogLevel.Warning);
-        logging.AddFilter("Microsoft.EntityFrameworkCore.Database", LogLevel.Warning);
+        //filters come from configuration (defaults in DefaultConfiguration) so a user can raise a category at
+        //runtime, e.g. Logging__LogLevel__FwLiteShared.Auth.LoggerAdapter=Information for MSAL sign in details
+        logging.AddConfiguration(configuration.GetSection("Logging"));
         Directory.CreateDirectory(baseDataPath);
         services.Configure<LcmCrdtConfig>(config =>
         {
@@ -146,6 +156,11 @@ public static class FwLiteMauiKernel
         {
             config.CacheFileName = fwLiteMauiConfig.AuthCacheFilePath;
             config.SystemWebViewLogin = true;
+            config.OpenSystemBrowser = async uri =>
+            {
+                //OpenAsync returns false instead of throwing, which would leave sign-in waiting for a redirect forever
+                if (!await Launcher.Default.OpenAsync(uri)) throw new InvalidOperationException("Could not open the system browser");
+            };
         });
         services.Configure<HarmonyConfig>(config =>
         {
