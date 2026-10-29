@@ -15,6 +15,7 @@
   import {resource} from 'runed';
   import type {SyncTarget} from './sync-target';
   import FolderSyncSection from './FolderSyncSection.svelte';
+  import WifiSyncSection from './WifiSyncSection.svelte';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
 
   interface Props {
@@ -169,4 +170,7 @@
 </div>
 {#if platformFeatures.features.supportsFolderSync}
   <FolderSyncSection bind:syncing onSynced={() => void status.refetch()} />
+{/if}
+{#if platformFeatures.features.supportsWifiSync}
+  <WifiSyncSection bind:syncing onSynced={() => void status.refetch()} />
 {/if}

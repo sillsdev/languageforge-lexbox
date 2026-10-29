@@ -32,6 +32,7 @@ public record HostedProject(
 
 public record JoinResponse(Guid RequestId);
 
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
 public enum JoinState
 {
     Pending,
@@ -39,6 +40,7 @@ public enum JoinState
     Rejected,
 }
 
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
 public enum JoinRejection
 {
     /// <summary>The host user declined.</summary>

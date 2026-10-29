@@ -29,6 +29,8 @@ public static class LocalSyncTestHelpers
         services.AddSingleton<LocalSyncHosting>();
         services.AddSingleton<IAccessPoint, FakeAccessPoint>();
         services.AddScoped<LocalSyncJoiner>();
+        services.AddScoped<LocalSyncJoinSession>();
+        services.AddSingleton<ILocalNetworkAccess, RecordingLocalNetworkAccess>();
     }
 
     public static MiniLcmApiFixture CreateFixture(Guid projectId, bool seedWs = true) =>

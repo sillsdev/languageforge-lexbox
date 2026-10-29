@@ -175,6 +175,14 @@ msgstr ""
 msgid "a word"
 msgstr "한 마디"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept everyone who joins"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -268,6 +276,14 @@ msgstr "단어 추가"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address, e.g. 192.168.137.1"
 msgstr ""
 
 #. Radio option in custom view writing system picker.
@@ -446,6 +462,10 @@ msgstr ""
 msgid "Camera"
 msgstr ""
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Can't reach the other device. Check that you're on its Wi-Fi network. Retrying..."
+msgstr ""
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -611,6 +631,10 @@ msgstr "컴포넌트:"
 msgid "Components"
 msgstr "구성 요소"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Connected to {0} at {1}"
+msgstr ""
+
 #. Filter operator
 #. Search operator: matches fields containing the search term anywhere
 #. Related operators: "Starts with", "Ends with", "Equals"
@@ -658,6 +682,10 @@ msgstr ""
 
 #: src/project/sync/folder-sync-messages.ts
 msgid "Couldn't sync with the folder. Your local changes are safe."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't sync with the other device. Your changes are safe."
 msgstr ""
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
@@ -749,6 +777,10 @@ msgstr ""
 msgid "Data Directory"
 msgstr "데이터 디렉토리"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Decline"
+msgstr ""
+
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
@@ -815,6 +847,15 @@ msgstr "사전"
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "사전 미리보기"
+
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different app version"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different project"
+msgstr ""
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
@@ -1263,6 +1304,10 @@ msgstr "필터"
 msgid "Find entry..."
 msgstr "항목 찾기..."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Find nearby devices"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Find entry..."
 #. Search field placeholder in picker
@@ -1431,6 +1476,15 @@ msgstr "업데이트 설치"
 msgid "Installing Update..."
 msgstr "업데이트 설치 중..."
 
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Join"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Joined"
+msgstr ""
+
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
@@ -1452,8 +1506,16 @@ msgstr "마지막 변경 사항: #"
 msgid "Last sync: #"
 msgstr "마지막 동기화: #"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Last synced"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "Learn more"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Leave"
 msgstr ""
 
 #. Placeholder for the release channel text box. Production has no feature flags.
@@ -1736,6 +1798,10 @@ msgstr "이름"
 msgid "Name is required"
 msgstr "이름은 필수 입력 사항입니다."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Network"
+msgstr ""
+
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
@@ -1830,6 +1896,10 @@ msgstr ""
 msgid "No custom views yet."
 msgstr "아직 사용자 지정 보기가 없습니다."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No devices found. Make sure you're on the same Wi-Fi network."
+msgstr ""
+
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "사전을 찾을 수 없습니다."
@@ -1863,6 +1933,10 @@ msgstr ""
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "No new data"
 msgstr "새 데이터 없음"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No one has joined yet."
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -2050,6 +2124,10 @@ msgstr ""
 msgid "orange"
 msgstr "오렌지"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Other devices on this network can join at"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
 #. Column header
@@ -2078,6 +2156,10 @@ msgstr "의 일부"
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "품사"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Password"
+msgstr ""
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
@@ -2429,6 +2511,10 @@ msgstr "오디오 저장"
 msgid "Save View"
 msgstr "보기 저장"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Scan with a phone camera to join this device's Wi-Fi, or join it in Wi-Fi settings:"
+msgstr ""
+
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
@@ -2531,10 +2617,18 @@ msgstr "아이디어를 공유하고 새로운 기능이나 개선 사항에 투
 msgid "Share Log file"
 msgstr "로그 파일 공유"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share on {0} ({1})"
+msgstr ""
+
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "프로젝트 데이터 파일 공유"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share this project on a new Wi-Fi network"
+msgstr ""
 
 #. Button label
 #: src/project/browse/EditorViewOptions.svelte
@@ -2652,6 +2746,10 @@ msgstr "다음으로 시작"
 msgid "stone"
 msgstr "돌"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Stop sharing"
+msgstr ""
+
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
@@ -2685,6 +2783,10 @@ msgstr "동기화 완료. {0} 는 FieldWorks Classic에 적용되었습니다. {
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "FieldWorks Lite와 FieldWorks Classic 동기화"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Sync now"
+msgstr ""
+
 #: src/project/sync/FolderSyncSection.svelte
 msgid "Sync with {0} again"
 msgstr ""
@@ -2697,6 +2799,10 @@ msgstr ""
 msgid "Sync with folder..."
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Sync with nearby devices over Wi-Fi"
+msgstr ""
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -2704,6 +2810,7 @@ msgstr "다른 FieldWorks Lite 사용자와 변경 사항 동기화"
 
 #. Sync status label in the project sidebar indicating all changes are in sync with the server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Synced"
 msgstr "동기화"
 
@@ -2743,6 +2850,7 @@ msgstr "FieldWorks Lite와 FieldWorks Classic 동기화..."
 
 #. Progress indicator
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Syncing..."
 msgstr "동기화..."
 
@@ -2796,6 +2904,35 @@ msgstr "FieldWorks Classic 커밋 수가 동기화 결과 메시지에 표시되
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "FieldWorks Lite 커밋 수가 동기화 결과 메시지에 표시되는 변경 사항 수와 반드시 일치하지는 않습니다."
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device declined."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device didn't let this one join."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device has a separate copy of this project that can't be merged with yours."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device is sharing a different project."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device stopped sharing."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device's copy of this project shares no writing system with yours."
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "The sync session ended."
+msgstr ""
+
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
@@ -2821,6 +2958,10 @@ msgstr "이 {0} 삭제됨"
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "이 날짜 #와 이 이모티콘 #은 스니펫입니다."
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "This device is sharing {0}. Stop sharing it to share this project."
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "This word may already exist"
@@ -3175,6 +3316,10 @@ msgstr ""
 msgid "violet"
 msgstr "바이올렛"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Waiting for {0} to accept..."
+msgstr ""
+
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
 msgstr ""
@@ -3197,6 +3342,10 @@ msgstr "내 프로젝트는 어디에 있나요?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "왜 그럴까요?"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Wi-Fi QR code"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/project/browse/EntryView.svelte

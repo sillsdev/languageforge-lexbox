@@ -170,6 +170,14 @@ msgstr "A similar word already exists"
 msgid "a word"
 msgstr "a word"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept"
+msgstr "Accept"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept everyone who joins"
+msgstr "Accept everyone who joins"
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -264,6 +272,14 @@ msgstr "Add Word"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address"
+msgstr "Address"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address, e.g. 192.168.137.1"
+msgstr "Address, e.g. 192.168.137.1"
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
@@ -441,6 +457,10 @@ msgstr "Browse view failed"
 msgid "Camera"
 msgstr "Camera"
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Can't reach the other device. Check that you're on its Wi-Fi network. Retrying..."
+msgstr "Can't reach the other device. Check that you're on its Wi-Fi network. Retrying..."
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -606,6 +626,10 @@ msgstr "Component:"
 msgid "Components"
 msgstr "Components"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Connected to {0} at {1}"
+msgstr "Connected to {0} at {1}"
+
 #. Filter operator
 #. Search operator: matches fields containing the search term anywhere
 #. Related operators: "Starts with", "Ends with", "Equals"
@@ -654,6 +678,10 @@ msgstr "Couldn't sync right now — your local changes are safe."
 #: src/project/sync/folder-sync-messages.ts
 msgid "Couldn't sync with the folder. Your local changes are safe."
 msgstr "Couldn't sync with the folder. Your local changes are safe."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't sync with the other device. Your changes are safe."
+msgstr "Couldn't sync with the other device. Your changes are safe."
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
@@ -744,6 +772,10 @@ msgstr "Dashboard failed to load"
 msgid "Data Directory"
 msgstr "Data Directory"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Decline"
+msgstr "Decline"
+
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
@@ -810,6 +842,15 @@ msgstr "Dictionary"
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "Dictionary Preview"
+
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different app version"
+msgstr "different app version"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different project"
+msgstr "different project"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
@@ -1258,6 +1299,10 @@ msgstr "Filters"
 msgid "Find entry..."
 msgstr "Find entry..."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Find nearby devices"
+msgstr "Find nearby devices"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Find entry..."
 #. Search field placeholder in picker
@@ -1426,6 +1471,15 @@ msgstr "Install Update"
 msgid "Installing Update..."
 msgstr "Installing Update..."
 
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Join"
+msgstr "Join"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Joined"
+msgstr "Joined"
+
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
@@ -1447,9 +1501,17 @@ msgstr "Last change: #"
 msgid "Last sync: #"
 msgstr "Last sync: #"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Last synced"
+msgstr "Last synced"
+
 #: src/home/HomeView.svelte
 msgid "Learn more"
 msgstr "Learn more"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Leave"
+msgstr "Leave"
 
 #. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1731,6 +1793,10 @@ msgstr "Name"
 msgid "Name is required"
 msgstr "Name is required"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Network"
+msgstr "Network"
+
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
@@ -1825,6 +1891,10 @@ msgstr "No authors"
 msgid "No custom views yet."
 msgstr "No custom views yet."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No devices found. Make sure you're on the same Wi-Fi network."
+msgstr "No devices found. Make sure you're on the same Wi-Fi network."
+
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "No Dictionaries found"
@@ -1858,6 +1928,10 @@ msgstr "No media files found"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "No new data"
 msgstr "No new data"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No one has joined yet."
+msgstr "No one has joined yet."
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -2045,6 +2119,10 @@ msgstr "Opt out of analytics"
 msgid "orange"
 msgstr "orange"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Other devices on this network can join at"
+msgstr "Other devices on this network can join at"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
 #. Column header
@@ -2073,6 +2151,10 @@ msgstr "Part of"
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Part of speech"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Password"
+msgstr "Password"
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
@@ -2424,6 +2506,10 @@ msgstr "Save audio"
 msgid "Save View"
 msgstr "Save View"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Scan with a phone camera to join this device's Wi-Fi, or join it in Wi-Fi settings:"
+msgstr "Scan with a phone camera to join this device's Wi-Fi, or join it in Wi-Fi settings:"
+
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
@@ -2526,10 +2612,18 @@ msgstr "Share ideas and vote on new features or improvements."
 msgid "Share Log file"
 msgstr "Share Log file"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share on {0} ({1})"
+msgstr "Share on {0} ({1})"
+
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "Share project data file"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share this project on a new Wi-Fi network"
+msgstr "Share this project on a new Wi-Fi network"
 
 #. Button label
 #: src/project/browse/EditorViewOptions.svelte
@@ -2647,6 +2741,10 @@ msgstr "Starts with"
 msgid "stone"
 msgstr "stone"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Stop sharing"
+msgstr "Stop sharing"
+
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
@@ -2680,6 +2778,10 @@ msgstr "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied 
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Sync FieldWorks Lite and FieldWorks Classic"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Sync now"
+msgstr "Sync now"
+
 #: src/project/sync/FolderSyncSection.svelte
 msgid "Sync with {0} again"
 msgstr "Sync with {0} again"
@@ -2692,6 +2794,10 @@ msgstr "Sync with a USB drive or another folder"
 msgid "Sync with folder..."
 msgstr "Sync with folder..."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Sync with nearby devices over Wi-Fi"
+msgstr "Sync with nearby devices over Wi-Fi"
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -2699,6 +2805,7 @@ msgstr "Sync your changes with other FieldWorks Lite users"
 
 #. Sync status label in the project sidebar indicating all changes are in sync with the server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Synced"
 msgstr "Synced"
 
@@ -2738,6 +2845,7 @@ msgstr "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 
 #. Progress indicator
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Syncing..."
 msgstr "Syncing..."
 
@@ -2791,6 +2899,35 @@ msgstr "The number of FieldWorks Classic commits will not necessarily match the 
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device declined."
+msgstr "The other device declined."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device didn't let this one join."
+msgstr "The other device didn't let this one join."
+
+#: src/project/sync/wifi-sync-messages.ts
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device has a separate copy of this project that can't be merged with yours."
+msgstr "The other device has a separate copy of this project that can't be merged with yours."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device is sharing a different project."
+msgstr "The other device is sharing a different project."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device stopped sharing."
+msgstr "The other device stopped sharing."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device's copy of this project shares no writing system with yours."
+msgstr "The other device's copy of this project shares no writing system with yours."
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "The sync session ended."
+msgstr "The sync session ended."
+
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
@@ -2816,6 +2953,10 @@ msgstr "This {0} was deleted"
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "This date # and this emoji # are snippets"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "This device is sharing {0}. Stop sharing it to share this project."
+msgstr "This device is sharing {0}. Stop sharing it to share this project."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "This word may already exist"
@@ -3170,6 +3311,10 @@ msgstr "View the SIL privacy policy"
 msgid "violet"
 msgstr "violet"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Waiting for {0} to accept..."
+msgstr "Waiting for {0} to accept..."
+
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
 msgstr "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
@@ -3192,6 +3337,10 @@ msgstr "Where are my projects?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Why is that?"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Wi-Fi QR code"
+msgstr "Wi-Fi QR code"
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/project/browse/EntryView.svelte

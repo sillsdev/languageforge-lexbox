@@ -15,5 +15,7 @@ export interface IPlatformFeaturesService
 	hasHardwareKeyboard() : Promise<boolean>;
 	supportsFolderSync() : Promise<boolean>;
 	pickFolder() : Promise<string | undefined>;
+	supportsWifiSync() : Promise<boolean>;
+	supportsWifiSyncHosting() : Promise<boolean>;
 }
 /* eslint-enable */

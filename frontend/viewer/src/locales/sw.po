@@ -175,6 +175,14 @@ msgstr ""
 msgid "a word"
 msgstr "neno"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept everyone who joins"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -268,6 +276,14 @@ msgstr "Ongeza Neno"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address, e.g. 192.168.137.1"
 msgstr ""
 
 #. Radio option in custom view writing system picker.
@@ -446,6 +462,10 @@ msgstr ""
 msgid "Camera"
 msgstr ""
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Can't reach the other device. Check that you're on its Wi-Fi network. Retrying..."
+msgstr ""
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -611,6 +631,10 @@ msgstr "Sehemu:"
 msgid "Components"
 msgstr "Sehemu"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Connected to {0} at {1}"
+msgstr ""
+
 #. Filter operator
 #. Search operator: matches fields containing the search term anywhere
 #. Related operators: "Starts with", "Ends with", "Equals"
@@ -658,6 +682,10 @@ msgstr ""
 
 #: src/project/sync/folder-sync-messages.ts
 msgid "Couldn't sync with the folder. Your local changes are safe."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't sync with the other device. Your changes are safe."
 msgstr ""
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
@@ -749,6 +777,10 @@ msgstr ""
 msgid "Data Directory"
 msgstr "Faharasa ya Data"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Decline"
+msgstr ""
+
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
@@ -815,6 +847,15 @@ msgstr "Kamusi"
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "Mjumbe wa Kamusi"
+
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different app version"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different project"
+msgstr ""
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
@@ -1263,6 +1304,10 @@ msgstr "Vichujio"
 msgid "Find entry..."
 msgstr "Tafuta ingizo..."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Find nearby devices"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Find entry..."
 #. Search field placeholder in picker
@@ -1431,6 +1476,15 @@ msgstr "Sakinisha Sasisho"
 msgid "Installing Update..."
 msgstr "Inasakinisha Sasisho..."
 
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Join"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Joined"
+msgstr ""
+
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
@@ -1452,8 +1506,16 @@ msgstr "Badiliko la mwisho: #"
 msgid "Last sync: #"
 msgstr "Kuoanisha kwa mwisho: #"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Last synced"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "Learn more"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Leave"
 msgstr ""
 
 #. Placeholder for the release channel text box. Production has no feature flags.
@@ -1736,6 +1798,10 @@ msgstr "Jina"
 msgid "Name is required"
 msgstr "Jina linahitajika"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Network"
+msgstr ""
+
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
@@ -1830,6 +1896,10 @@ msgstr ""
 msgid "No custom views yet."
 msgstr "Hakuna mitazamo maalum bado."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No devices found. Make sure you're on the same Wi-Fi network."
+msgstr ""
+
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "Hakuna kamusi iliyopatikana"
@@ -1863,6 +1933,10 @@ msgstr ""
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "No new data"
 msgstr "Hakuna data mpya"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No one has joined yet."
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -2050,6 +2124,10 @@ msgstr ""
 msgid "orange"
 msgstr "machungwa"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Other devices on this network can join at"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
 #. Column header
@@ -2078,6 +2156,10 @@ msgstr "Sehemu ya"
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Sehemu za mazungumzo"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Password"
+msgstr ""
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
@@ -2429,6 +2511,10 @@ msgstr "Hifadhi sauti"
 msgid "Save View"
 msgstr "Hifadhi Muonekano"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Scan with a phone camera to join this device's Wi-Fi, or join it in Wi-Fi settings:"
+msgstr ""
+
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
@@ -2531,10 +2617,18 @@ msgstr "Shiriki mawazo na kura kwa sifa au maboresho mapya."
 msgid "Share Log file"
 msgstr "Shiriki faili la logi"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share on {0} ({1})"
+msgstr ""
+
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "Shiriki faili la data ya mradi"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share this project on a new Wi-Fi network"
+msgstr ""
 
 #. Button label
 #: src/project/browse/EditorViewOptions.svelte
@@ -2652,6 +2746,10 @@ msgstr "Inaanza na"
 msgid "stone"
 msgstr "jiwe"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Stop sharing"
+msgstr ""
+
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
@@ -2685,6 +2783,10 @@ msgstr "Kuoanisha kumekamilika. {0} ilitumiwa kwa FieldWorks Classic. {1} ilitum
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Kuoanisha FieldWorks Lite na FieldWorks Classic"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Sync now"
+msgstr ""
+
 #: src/project/sync/FolderSyncSection.svelte
 msgid "Sync with {0} again"
 msgstr ""
@@ -2697,6 +2799,10 @@ msgstr ""
 msgid "Sync with folder..."
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Sync with nearby devices over Wi-Fi"
+msgstr ""
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -2704,6 +2810,7 @@ msgstr "Kuoanisha mabadiliko yako na watumiaji wengine wa FieldWorks Lite"
 
 #. Sync status label in the project sidebar indicating all changes are in sync with the server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Synced"
 msgstr "Kuoanishwa"
 
@@ -2743,6 +2850,7 @@ msgstr "Inaoanisha FieldWorks Lite na FieldWorks Classic..."
 
 #. Progress indicator
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Syncing..."
 msgstr "Inaoanisha..."
 
@@ -2796,6 +2904,35 @@ msgstr "Idadi ya kumbukas za FieldWorks Classic haitabindanishi lazima na idadi 
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Idadi ya kumbukas za FieldWorks Lite haitabindanishi lazima na idadi ya mabadiliko yaliyoonyeshwa katika ujumbe wa matokeo ya kuoanisha."
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device declined."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device didn't let this one join."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device has a separate copy of this project that can't be merged with yours."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device is sharing a different project."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device stopped sharing."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device's copy of this project shares no writing system with yours."
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "The sync session ended."
+msgstr ""
+
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "The task you are looking for does not exist."
@@ -2821,6 +2958,10 @@ msgstr "Hili {0} limefutwa"
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "Tarehe hii # na emoji hii # ni vigezo"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "This device is sharing {0}. Stop sharing it to share this project."
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "This word may already exist"
@@ -3175,6 +3316,10 @@ msgstr ""
 msgid "violet"
 msgstr "zambarau"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Waiting for {0} to accept..."
+msgstr ""
+
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
 msgstr ""
@@ -3197,6 +3342,10 @@ msgstr "Miradi yangu iko wapi?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Kwa nini hiyo?"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Wi-Fi QR code"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/project/browse/EntryView.svelte

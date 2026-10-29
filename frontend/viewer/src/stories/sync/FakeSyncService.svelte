@@ -18,6 +18,7 @@
   import {FolderSyncStatus} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/FolderSyncStatus';
   import {initProjectContext, useProjectContext} from '$project/project-context.svelte';
   import {delay} from '$lib/utils/time';
+  import {idleWifiSync} from '$project/sync/test/idle-wifi-sync';
 
   const {data, children}: {data: FakeSyncData; children: Snippet} = $props();
 
@@ -30,6 +31,7 @@
     getCurrentServer: () => Promise.resolve(undefined),
     syncWithFolder: () => delay(1000).then(() => ({status: FolderSyncStatus.Synced, mediaSent: 2, mediaReceived: 3, mediaFailed: 0})),
     getRememberedSyncFolder: () => Promise.resolve(data.rememberedSyncFolder),
+    ...idleWifiSync,
   };
 
   // Nested over the demo project's context, adding the sync service the demo doesn't have

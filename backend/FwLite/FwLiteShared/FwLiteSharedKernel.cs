@@ -73,6 +73,9 @@ public static class FwLiteSharedKernel
         // MAUI adds the Windows one; elsewhere hosts share over a network they're already on
         services.TryAddSingleton<IAccessPoint, NoAccessPoint>();
         services.AddScoped<LocalSyncJoiner>();
+        services.AddScoped<LocalSyncJoinSession>();
+        // MAUI adds Android's; desktops already route local addresses
+        services.TryAddSingleton<ILocalNetworkAccess, NoLocalNetworkAccess>();
         services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<ILocalAuthorProvider, PreferencesLocalAuthorProvider>();
         services.AddScoped<ProjectServicesProvider>();

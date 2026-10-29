@@ -39,6 +39,14 @@ public interface IPlatformFeaturesService
     //Null when the user cancels.
     [JSInvokable]
     Task<string?> PickFolder();
+
+    //Joining a nearby device's sync session over Wi-Fi
+    [JSInvokable]
+    Task<bool> SupportsWifiSync();
+
+    //Sharing a project for nearby devices to join; needs a host that can listen on the network (laptops for now)
+    [JSInvokable]
+    Task<bool> SupportsWifiSyncHosting();
 }
 
 internal class DummyPlatformFeaturesService : IPlatformFeaturesService
@@ -72,4 +80,10 @@ internal class DummyPlatformFeaturesService : IPlatformFeaturesService
     [JSInvokable]
     public Task<string?> PickFolder() =>
         throw new NotSupportedException("Folder picking is only available in the Windows MAUI host");
+
+    [JSInvokable]
+    public Task<bool> SupportsWifiSync() => Task.FromResult(false);
+
+    [JSInvokable]
+    public Task<bool> SupportsWifiSyncHosting() => Task.FromResult(false);
 }

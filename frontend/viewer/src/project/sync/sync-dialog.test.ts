@@ -1,4 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {idleWifiSync} from './test/idle-wifi-sync';
 import {flushSync, mount, unmount} from 'svelte';
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {DotnetService, SyncJobStatusEnum} from '$lib/dotnet-types';
@@ -24,6 +25,7 @@ function fakeSyncService() {
     getCurrentServer: vi.fn(() => Promise.resolve({id: 'test-server', displayName: 'Lexbox', authority: 'https://test-server.com'})),
     syncWithFolder: vi.fn(() => Promise.resolve({status: FolderSyncStatus.Synced, mediaSent: 0, mediaReceived: 0, mediaFailed: 0})),
     getRememberedSyncFolder: vi.fn(() => Promise.resolve<string | undefined>(undefined)),
+    ...idleWifiSync,
   } satisfies ISyncServiceJsInvokable;
 }
 
