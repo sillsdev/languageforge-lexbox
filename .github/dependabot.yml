@@ -1,8 +1,9 @@
 # yaml-language-server: $schema=https://json.schemastore.org/dependabot.json
 # Dependabot for languageforge-lexbox
 # Target: develop | Schedule: weekly Monday
-# NuGet and /frontend npm: majors land in a separate "majors" group PR; the
-# other groups take minor and patch only, so they stay mergeable.
+# NuGet and /frontend npm ignore major versions: we upgrade those by hand, so
+# the group PRs stay mergeable. (Ignore rules also apply to security updates;
+# a fix only shipped in a new major has to be picked up manually.)
 # platform.bible-extension is intentionally excluded (separate npm tree).
 version: 2
 updates:
@@ -17,6 +18,9 @@ updates:
     labels:
       - dependencies
     ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
       # LexboxAnalyzers pins Roslyn <= the Roslyn of the lowest supported SDK/IDE (see its csproj);
       # a newer Microsoft.CodeAnalysis fails to load in older tooling, so bump it by hand.
       - dependency-name: Microsoft.CodeAnalysis.CSharp
@@ -24,32 +28,16 @@ updates:
       - dependency-name: Microsoft.CodeAnalysis.Analyzers
     groups:
       # More specific groups first — earlier matches win.
-      # Majors are collected into one PR so they can't sneak into the
-      # minor/patch groups below; upgrade them deliberately from there.
-      majors:
-        patterns:
-          - "*"
-        update-types:
-          - major
       maui:
         patterns:
           - Microsoft.Maui*
           - Microsoft.AspNetCore.Components.WebView.Maui
-        update-types:
-          - minor
-          - patch
       hotchocolate:
         patterns:
           - HotChocolate*
-        update-types:
-          - minor
-          - patch
       sil:
         patterns:
           - SIL.*
-        update-types:
-          - minor
-          - patch
       test:
         patterns:
           - xunit*
@@ -63,16 +51,10 @@ updates:
           - Soenneker.Utils.AutoBogus*
           - Microsoft.NET.Test.Sdk
           - BenchmarkDotNet*
-        update-types:
-          - minor
-          - patch
       microsoft-dotnet:
         patterns:
           - Microsoft.*
           - System.*
-        update-types:
-          - minor
-          - patch
       # Dependabot runs this entry as two discovered directories (/backend for
       # the projects, /.config for dotnet-tools.json). The /.config job sees
       # every CPM package too, and its catch-all swallowed the groups above and
@@ -96,9 +78,6 @@ updates:
           - Meziantou.Extensions.Logging.Xunit*
           - Soenneker.Utils.AutoBogus*
           - BenchmarkDotNet*
-        update-types:
-          - minor
-          - patch
 
   # --- pnpm workspace (frontend + viewer + https-proxy) ---
   - package-ecosystem: npm
@@ -110,24 +89,15 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - dependencies
-    groups:
-      # Majors (SvelteKit, Tailwind, TypeScript, vitest, ...) go to one PR of
-      # their own; the production/development groups stay mergeable.
-      majors:
-        patterns:
-          - "*"
+    ignore:
+      - dependency-name: "*"
         update-types:
-          - major
+          - version-update:semver-major
+    groups:
       production-dependencies:
         dependency-type: production
-        update-types:
-          - minor
-          - patch
       development-dependencies:
         dependency-type: development
-        update-types:
-          - minor
-          - patch
 
   # --- Repo-root npm: nx + @nx/dotnet, used only for affected detection (pr.yaml) ---
   - package-ecosystem: npm
