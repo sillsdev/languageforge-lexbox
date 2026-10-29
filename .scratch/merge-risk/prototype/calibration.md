@@ -27,8 +27,21 @@ Tim's call:
 
 ## #2821 (hg repo ops move to hgresume's manage API)
 
-Pending agents (parity of ported ops, rollout order, test coverage). Checked by hand: hgresume keeps the 5-day reset-backup cleanup minimum and strips uploaded hgrc. CI fully green, including GHA integration tests. lexbox's `ResetCleanupAgeDays` setting is now unused (hgresume reads its own env var, default 31).
+**Verdict: Do X, then merge.** X = create a non-empty `hgresume` secret in the develop, staging and production namespaces before this deploys (no overlay creates it; without it the rollout stalls). Optional follow-up in hgresume: a cleanup test that a recent reset backup, a non-reset deleted project and a dry run all survive.
 
-Tim's call:
+| Change | What could go wrong | Likelihood | Repair cost | Covered by |
+|---|---|---|---|---|
+| reset-backup cleanup moved to hgresume | deletes backups it shouldn't | low: same regex, same 5-day floor, line-for-line port | high: permanent delete of user data | only "old reset folder is deleted"; nothing checks what must survive |
+| ResetRepo / FinishReset moved | old repo lost during reset | low: same order, no cancel point between delete and move | high | FinishReset bad-zip tests; nothing checks the reset backup exists |
+| repo ops need a new secret | rollout stalls on develop/staging/prod | medium | low (create secret or roll back) | n/a |
+
+Not scary, one line: soft-deleting a project whose repo folder is missing now fails instead of logging (map 404 to `DirectoryNotFoundException`); lexbox's `ResetCleanupAgeDays` setting is now ignored.
+
+Checked by hand: hgresume keeps the 5-day reset-backup cleanup minimum and strips uploaded hgrc. CI fully green, including GHA integration tests. lexbox's `ResetCleanupAgeDays` setting is now unused (hgresume reads its own env var, default 31).
+
+Agent notes:
 - deployment-infra: no data-loss path. Rollback safe; no repo writes left in lexbox. Two low-repair-cost items: the `hgresume` secret isn't created by any develop/staging/production overlay (rollout stalls until someone creates it), and lexbox-before-hgresume rollout briefly fails repo operations.
 - test-auditor: two irreversible ops have no test that would fail: reset-backup cleanup deleting the wrong folders (only "old reset folder is deleted" is tested; nothing checks recent resets, non-reset deleted projects, the 5-day minimum, or dryRun survive) and ResetRepo keeping the old repo as a backup (no hgresume test). Both ports look line-for-line. FinishReset bad zip, CopyRepo non-empty guard and backup round-trip are covered. Both missing tests belong in hgresume, not this PR.
+- ripple-detector: faithful port of every data-handling op; no item meets the bar.
+
+Tim's call:
