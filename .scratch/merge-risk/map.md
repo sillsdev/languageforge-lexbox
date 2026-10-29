@@ -29,15 +29,16 @@ A spec for a lexbox skill (`.claude/skills/<name>/`) that decides whether a PR (
 - [How to infer test coverage for a change](issues/04-coverage-inference.md): agent asks "would a test fail if this went wrong?" only for changes that are both plausible and painful to repair; no test asks for unlikely or low-damage ones.
 - [Relationship to /polish](issues/05-relationship-to-polish.md): separate skill sharing `_shared/apply-rules.md` and the test-command table; reuses test-auditor, ripple-detector, domain sentinels; not the dispatch matrix.
 - [Calibrate verdicts on real PRs](issues/06-calibrate-verdicts.md): verdict scale confirmed; X can be an ops step; red CI checked against develop; missing data-loss tests lean into X; output leads with "Worst things that could happen".
+- [Which to-dos the skill does itself](issues/07-auto-fix-boundary.md): writes X's code and tests itself, may check out the branch and commit (no push); asks first for architecture and sync-flow changes; never does ops steps.
 
 ## Not yet specified
 
-- How it reads bot findings and CI on both the sillsdev repo and the sandbox fork.
-- Skill name, trigger phrasing, and whether it hands off to the fork-stage/promote flow.
-- Measuring real line coverage (coverlet / vitest) if inferred coverage turns out too weak.
-- How it should test itself (a few saved PRs with known-good verdicts?).
+Settled as defaults in the spec (no ticket needed): CI and bot findings via `gh pr view <url>` (works for sillsdev and the fork); name `merge-risk`; the calibration runs are its reference cases.
 
 ## Out of scope
+
+- Measuring real line coverage (coverlet/vitest) in v1.
+- Hand-off into the fork-stage/promote flow.
 
 - Fixing `/polish`'s Phase 0 `||` fallback and shallow-clone merge-base bugs (separate small task).
 

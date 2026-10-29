@@ -105,7 +105,7 @@ After collecting agent advisory:
 Execute the plan step-by-step. After each meaningful chunk:
 
 1. Run the **narrowest relevant test** for what you just changed. The
-   canonical test-command table is `polish/SKILL.md` Phase 5;
+   canonical test-command table is `_shared/test-commands.md`;
    `fwlite-sentinel.md` adds sync-specific commands.
 2. If a test fails, **diagnose and fix the root cause** before moving
    on. Root `AGENTS.md` §VIGILANCE is explicit:

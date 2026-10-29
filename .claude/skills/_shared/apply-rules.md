@@ -1,6 +1,6 @@
 # Apply rules
 
-Shared rules for `/polish` and `/implement` when acting on agent
+Shared rules for `/polish`, `/implement` and `/merge-risk` when acting on agent
 findings — what to apply directly, what to ask first, what's
 off-limits, and how to re-validate after fixes.
 

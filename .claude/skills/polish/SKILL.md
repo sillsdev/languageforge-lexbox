@@ -57,16 +57,5 @@ Per `.claude/skills/_shared/apply-rules.md` §Re-validate.
 - 🟡 **One pass away** — important findings or open questions.
 - 🔴 **Substantive work remaining** — blocking findings.
 
-Recommend the right narrow test command; offer to run it.
-
-| Touched | Command |
-| --- | --- |
-| FwLite sync (`MiniLcm/SyncHelpers/**`, `FwLiteProjectSync/**`) | `dotnet test backend/FwLite/FwLiteProjectSync.Tests --filter Sena3` (~2 min) |
-| FwLite (other) | `task fw-lite:test-quick` |
-| viewer | `cd frontend && pnpm --filter viewer run check && pnpm --filter viewer run test:unit` |
-| lexbox frontend | `cd frontend && pnpm run check && pnpm run test:unit` |
-| LexBox API | `dotnet test LexBoxOnly.slnf --filter "Category!=Integration&Category!=FlakyIntegration&Category!=RequiresDb"` |
-| LexBox API + GraphQL schema | also `task api:generate-gql-schema` |
-| viewer + .NET types | `dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj` |
-
-Don't suggest integration tests unless the user asks.
+Recommend the right narrow test command from
+`.claude/skills/_shared/test-commands.md`; offer to run it.
