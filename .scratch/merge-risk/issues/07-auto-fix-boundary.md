@@ -1,7 +1,7 @@
 # Which to-dos the skill does itself
 
 Type: grilling
-Status: open
+Status: claimed
 Blocked by: 05, 06
 
 ## Question

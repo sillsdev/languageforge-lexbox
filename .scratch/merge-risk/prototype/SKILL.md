@@ -19,4 +19,6 @@ Everything else is fixable by a follow-up release: mention it only if it truly h
    - **Needs a real review** (say why)
 
 ## Output
-Verdict first, then one row per scary change: change · what could go wrong · likelihood · repair cost · covered by. Then anything not scary but worth a line. Nothing else.
+1. **Verdict** and X (if any) in one or two lines.
+2. **Worst things that could happen**: painful outcomes only, worst first. Each: outcome · the change that could cause it · likelihood · repair cost · what would catch it (test name, CI, or "nothing"). Say "nothing painful" if empty.
+3. **Also noted**: one line per non-scary item that truly helps. Often empty.

@@ -28,6 +28,7 @@ A spec for a lexbox skill (`.claude/skills/<name>/`) that decides whether a PR (
 - [Evaluate /polish on recent PRs](issues/02-evaluate-polish.md): good recall (plus one real bug humans missed), poor precision and ~875k tokens; test-auditor, ripple-detector, fwlite-sentinel earn their keep.
 - [How to infer test coverage for a change](issues/04-coverage-inference.md): agent asks "would a test fail if this went wrong?" only for changes that are both plausible and painful to repair; no test asks for unlikely or low-damage ones.
 - [Relationship to /polish](issues/05-relationship-to-polish.md): separate skill sharing `_shared/apply-rules.md` and the test-command table; reuses test-auditor, ripple-detector, domain sentinels; not the dispatch matrix.
+- [Calibrate verdicts on real PRs](issues/06-calibrate-verdicts.md): verdict scale confirmed; X can be an ops step; red CI checked against develop; missing data-loss tests lean into X; output leads with "Worst things that could happen".
 
 ## Not yet specified
 
