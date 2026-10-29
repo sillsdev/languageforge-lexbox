@@ -164,11 +164,15 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             pipeline = AppendSearchAndFilter(search, pipeline);
         }
 
+        var sort = Builders<HeadwordEntry>.Sort;
         var sortedPipeline = AppendHeadWord(sortWs, pipeline)
-            .Sort(Builders<HeadwordEntry>.Sort
-                .Ascending(entry => entry.headword)
-                .Ascending(entry => entry.MorphologyType)
-                .Ascending(entry => entry.Guid))
+            .Sort(options.Order.Ascending
+                ? sort.Ascending(entry => entry.headword)
+                    .Ascending(entry => entry.MorphologyType)
+                    .Ascending(entry => entry.Guid)
+                : sort.Descending(entry => entry.headword)
+                    .Descending(entry => entry.MorphologyType)
+                    .Descending(entry => entry.Guid))
             .Skip(options.Offset);
         // the aggregation $limit stage rejects 0, so omit it entirely to return all entries
         if (options.Count != QueryOptions.QueryAll)

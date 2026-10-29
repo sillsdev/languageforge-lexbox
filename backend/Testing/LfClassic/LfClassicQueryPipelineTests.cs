@@ -13,8 +13,7 @@ public class LfClassicQueryPipelineTests
     {
         var pipeline = LfClassicMiniLcmApi.BuildQueryPipeline(options, "en", search: null);
         var registry = BsonSerializer.SerializerRegistry;
-        return pipeline.Render(new RenderArgs<Entry>(registry.GetSerializer<Entry>(), registry))
-            .Documents.ToList();
+        return [.. pipeline.Render(new RenderArgs<Entry>(registry.GetSerializer<Entry>(), registry)).Documents];
     }
 
     [Fact]
@@ -36,5 +35,17 @@ public class LfClassicQueryPipelineTests
             .Which["$skip"].ToInt32().Should().Be(10);
         stages.Should().ContainSingle(stage => stage.Contains("$limit"))
             .Which["$limit"].ToInt32().Should().Be(25);
+    }
+
+    [Theory]
+    [InlineData(true, 1)]
+    [InlineData(false, -1)]
+    public void SortFollowsRequestedDirection(bool ascending, int direction)
+    {
+        var stages = RenderStages(new QueryOptions(new SortOptions(SortField.Headword, "en", ascending)));
+
+        var sort = stages.Should().ContainSingle(stage => stage.Contains("$sort")).Which["$sort"].AsBsonDocument;
+        sort.Names.Should().HaveCount(3);
+        sort.Values.Should().AllSatisfy(value => value.ToInt32().Should().Be(direction));
     }
 }
