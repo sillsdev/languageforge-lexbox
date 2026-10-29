@@ -146,6 +146,17 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             throw new NotSupportedException($"Sorting by {options.Order.Field} is not supported");
         }
 
+        var pipeline = BuildQueryPipeline(options, sortWs, search);
+        await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
+        {
+            yield return await ToEntry(entry);
+        }
+    }
+
+    internal static PipelineDefinition<Entities.Entry, Entities.Entry> BuildQueryPipeline(QueryOptions options,
+        WritingSystemId sortWs,
+        string? search)
+    {
         PipelineDefinition<Entities.Entry, Entities.Entry> pipeline = new EmptyPipelineDefinition<Entities.Entry>();
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -164,15 +175,10 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         {
             sortedPipeline = sortedPipeline.Limit(options.Count);
         }
-        pipeline = sortedPipeline.Project(entry => entry as Entities.Entry);
-
-        await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
-        {
-            yield return await ToEntry(entry);
-        }
+        return sortedPipeline.Project(entry => entry as Entities.Entry);
     }
 
-    private PipelineDefinition<Entities.Entry, Entities.Entry> AppendSearchAndFilter(string search,
+    private static PipelineDefinition<Entities.Entry, Entities.Entry> AppendSearchAndFilter(string search,
         PipelineDefinition<Entities.Entry, Entities.Entry> pipeline)
     {
         var emptyDoc = new BsonDocument();
@@ -205,7 +211,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                 ));
     }
 
-    private PipelineDefinition<Entities.Entry, HeadwordEntry> AppendHeadWord(WritingSystemId sortWs,
+    private static PipelineDefinition<Entities.Entry, HeadwordEntry> AppendHeadWord(WritingSystemId sortWs,
         PipelineDefinition<Entities.Entry, Entities.Entry> pipeline)
     {
         //this effectively does:
