@@ -58,3 +58,16 @@
 - ⚠️ record-wording claim untested; concrete cheap test
 - ⚠️ 10 normalization Submit* forwarders untested; names the two tests
 - 💭 Summarize one-line promise untested (adjacent to multi-line defect); 💭 RichString.ToString untested
+
+## 2514 dotnet-stylist
+- ⚠️ MiniLcmApiValidationWrapper auto-forwards SubmitCreateSense/SubmitCreateExampleSentence without validation (2nd agent to raise it; check generated source)
+- 💭 Summarize ", " join ambiguous, non-scalar values print as type names (adjacent to multi-line defect); 💭 UpdatePublication record lacks name; 💭 async wrappers; 💭 RichString.ToString
+
+## 2514 intent-check
+- ⚠️ Validation + Notify wrappers not covered by the PR's own "no silent inheritance" goal (3rd agent on this)
+- ⚠️ normalization wrapper Submit* now delete-wins instead of throwing: behavior change not in title
+- 💭 "standardize" incomplete for PoS/semdom/etc records; 💭 RichString.ToString; 💭 Summarize format change; 💭 MovePicture rename out of scope
+
+## Verified: validation-wrapper gap was real
+- Flagged by rename-detector, dotnet-stylist, intent-check on #2514. Fixed later in follow-up PR #2519 "Add and enforce missing validation calls in wrapper" (commit 42f82f2d). No human reviewer on #2514 raised it.
+- Notify wrapper still has no SubmitUpdatePicture override on develop today (grep). Unverified whether that matters (BeaKona forwards it without notifying).
