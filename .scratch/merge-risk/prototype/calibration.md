@@ -30,3 +30,4 @@ Tim's call:
 Pending agents (parity of ported ops, rollout order, test coverage). Checked by hand: hgresume keeps the 5-day reset-backup cleanup minimum and strips uploaded hgrc. CI fully green, including GHA integration tests. lexbox's `ResetCleanupAgeDays` setting is now unused (hgresume reads its own env var, default 31).
 
 Tim's call:
+- deployment-infra: no data-loss path. Rollback safe; no repo writes left in lexbox. Two low-repair-cost items: the `hgresume` secret isn't created by any develop/staging/production overlay (rollout stalls until someone creates it), and lexbox-before-hgresume rollout briefly fails repo operations.
