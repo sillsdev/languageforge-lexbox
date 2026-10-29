@@ -63,7 +63,7 @@ public static class LexiconProxy
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         // Parameters are bound only so the OpenAPI document describes them; FwHeadless reads the forwarded request.
-        var read = project.MapGroup("").RequireAuthorization(ReadPolicy);
+        var read = project.MapGroup("").RequireAuthorization(ReadPolicy).WithGridifyFilterDocs();
         read.MapGet("/writing-systems", ForwardProject).Produces<WritingSystems>();
         read.MapGet("/entries",
                 (Guid projectId, [FromQuery] string? search, [AsParameters] MiniLcmQueryOptions options, HttpContext context) => Forward(context))

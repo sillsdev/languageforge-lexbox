@@ -45,7 +45,8 @@ public static class MiniLcmRoutes
                 if (resolution.Error is not null) return resolution.Error;
                 miniLcmHolder.MiniLcmApi = resolution.Api ?? throw new InvalidOperationException("MiniLcm api resolver returned neither an api nor an error");
                 return await next(context);
-            });
+            })
+            .WithGridifyFilterDocs();
 
         api.MapGet("/writing-systems", MiniLcm.GetWritingSystems);
         api.MapGet("/entries", MiniLcm.GetEntries);
