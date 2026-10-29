@@ -23,6 +23,8 @@ A spec for a lexbox skill (`.claude/skills/<name>/`) that decides whether a PR (
 
 ## Decisions so far
 
+- [Prior art for PR risk-vs-coverage triage](issues/01-prior-art.md): nobody does the coverage weighing; copy "path floor that evidence can only raise" and keep risk and coverage as separate columns.
+
 ## Not yet specified
 
 - How it reads bot findings and CI on both the sillsdev repo and the sandbox fork.
