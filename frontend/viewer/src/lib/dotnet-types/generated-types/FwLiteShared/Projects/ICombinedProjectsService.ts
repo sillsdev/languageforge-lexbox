@@ -8,6 +8,7 @@ import type {IProjectModel} from './IProjectModel';
 import type {DownloadProjectByCodeResult} from './DownloadProjectByCodeResult';
 import type {ILexboxServer} from '../Auth/ILexboxServer';
 import type {UserProjectRole} from '../../LcmCrdt/UserProjectRole';
+import type {IOpenFromFolderSummary} from '../LocalSync/IOpenFromFolderSummary';
 
 export interface ICombinedProjectsService
 {
@@ -17,6 +18,7 @@ export interface ICombinedProjectsService
 	localProjects() : Promise<IProjectModel[]>;
 	downloadProjectByCode(code: string, server: ILexboxServer, userRole?: UserProjectRole) : Promise<DownloadProjectByCodeResult>;
 	downloadProject(project: IProjectModel) : Promise<void>;
+	openFromFolder(path: string) : Promise<IOpenFromFolderSummary>;
 	createProject(name: string, code: string, vernacularWs: string, analysisWs?: string) : Promise<void>;
 	createDemoProject(name: string) : Promise<void>;
 	deleteProject(code: string) : Promise<void>;

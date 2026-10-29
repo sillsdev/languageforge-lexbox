@@ -110,6 +110,29 @@ public class HgServiceTests
     }
 
     [Theory]
+    [InlineData("")]
+    [InlineData("unzip-test/")]
+    public async Task FinishResetDropsUploadedHgrc(string prefix)
+    {
+        var code = "unzip-test-hgrc";
+        await _hgService.InitRepo(code);
+
+        using var stream = new MemoryStream();
+        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+        {
+            CreateSimpleEntry(zipArchive, prefix + ".hg/hgrc");
+            CreateSimpleEntry(zipArchive, prefix + ".hg/important-file.bin");
+        }
+        stream.Position = 0;
+        await _hgService.FinishReset(code, stream);
+
+        var repoPath = Path.GetFullPath(Path.Join(_hgConfig.RepoPath, "u", code));
+        Directory.EnumerateFiles(repoPath, "*", SearchOption.AllDirectories)
+            .Select(p => Path.GetRelativePath(repoPath, p))
+            .Should().ContainSingle().Which.Should().Be(Path.Join(".hg", "important-file.bin"));
+    }
+
+    [Theory]
     [InlineData("-xy")]
     [InlineData("-x-y-z")]
     [InlineData("-123")]

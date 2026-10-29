@@ -27,6 +27,12 @@ public interface IAnalyticsService
         IReadOnlyDictionary<string, object?>? properties = null,
         DateTimeOffset? time = null);
 
+    /// <summary>
+    /// Wait up to <paramref name="timeout"/> for queued events to be sent. For a process about to die
+    /// (unhandled exception), where fire-and-forget sends would otherwise be lost. Never throws.
+    /// </summary>
+    Task FlushAsync(TimeSpan timeout);
+
     /// <summary>Attach Mixpanel <c>$user_id</c> (persisted). A different user rotates <c>$device_id</c>. Empty values are ignored.</summary>
     void Identify(string userId);
 

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
 using FwLiteShared.KeepAwake;
+using FwLiteShared.LocalSync;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using LexCore.Entities;
@@ -45,6 +46,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     CrdtProjectsService crdtProjectsService,
     IEnumerable<IProjectProvider> projectProviders,
     OAuthClientFactory oAuthClientFactory,
+    FolderProjectOpener folderProjectOpener,
     IKeepAwake keepAwake)
 {
     private IProjectProvider? FwDataProjectProvider => projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
@@ -192,8 +194,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     [JSInvokable]
     public async Task DownloadProject(ProjectModel project)
     {
-        var server = project.Server ?? throw new ArgumentNullException($"{nameof(project.Server)} is null for project {project.Code}");
-        var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project {project.Code}");
+        var server = project.Server ?? throw new ArgumentNullException($"{nameof(project.Server)} is null for project '{project.Code}'");
+        var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project '{project.Code}'");
         var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
         await keepAwake.RunAsync(
             new($"Downloading project {project.Name}"),
@@ -208,6 +210,15 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 AuthenticatedUser: currentUser?.Name,
                 AuthenticatedUserId: currentUser?.Id,
                 Role: ToRole(project.Role)))));
+    }
+
+    /// <summary>Downloads the project in a sync folder, or syncs with it when this device already has it.</summary>
+    [JSInvokable]
+    public async Task<OpenFromFolderSummary> OpenFromFolder(string path)
+    {
+        var result = await keepAwake.RunAsync(new("Opening a project from a folder"),
+            async () => await Task.Run(async () => await folderProjectOpener.OpenFromFolder(path)));
+        return OpenFromFolderSummary.From(result);
     }
 
     [JSInvokable]

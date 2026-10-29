@@ -29,6 +29,7 @@
   import PrivacyDialog from '$lib/about/PrivacyDialog.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import CreateProjectDialog from './CreateProjectDialog.svelte';
+  import OpenFromFolderItem from './OpenFromFolderItem.svelte';
   import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
   import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
 
@@ -220,6 +221,7 @@
                 <span>{$t`Create Example Project`}</span>
               </ListItem>
             {/if}
+            <OpenFromFolderItem {refreshProjects}/>
             <DevContent>
               <ListItem
                 icon="i-mdi-book-plus-outline"

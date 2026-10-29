@@ -22,7 +22,7 @@
   import {Switch} from '$lib/components/ui/switch';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, XButton} from '$lib/components/ui/button';
   import Hotkey from '$lib/components/hotkey/hotkey.svelte';
   import {useFeatures} from '$lib/services/feature-service';
 
@@ -181,6 +181,9 @@
   <Sidebar.Trigger icon="i-mdi-menu" class="aspect-square p-0" />
   <ComposableInput bind:value={search} bind:inputRef inputProps={{ 'aria-label': $t`Filter` }} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
     {#snippet after()}
+      {#if search}
+        <XButton onclick={() => search = ''} class="bg-transparent"/>
+      {/if}
       <ResponsivePopup
         bind:open={filtersExpanded}
         title={$t`Filters`}

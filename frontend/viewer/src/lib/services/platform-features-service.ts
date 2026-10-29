@@ -7,7 +7,7 @@ import {SvelteMap} from 'svelte/reactivity';
 import type {ICameraResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ICameraResult';
 
 const cache = new SvelteMap<string, boolean>();
-const features = ['supportsImageCapture', 'hasHardwareKeyboard'] as const satisfies (keyof Pick<IPlatformFeaturesService, {
+const features = ['supportsImageCapture', 'hasHardwareKeyboard', 'supportsFolderSync'] as const satisfies (keyof Pick<IPlatformFeaturesService, {
   [K in keyof IPlatformFeaturesService]: IPlatformFeaturesService[K] extends () => Promise<boolean> ? K : never
 }[keyof IPlatformFeaturesService]>)[];
 type Features = typeof features[number];
@@ -30,6 +30,12 @@ export const fallbackPlatformFeaturesService: IPlatformFeaturesService = {
   },
   hasHardwareKeyboard(): Promise<boolean> {
     return Promise.resolve(true);
+  },
+  supportsFolderSync(): Promise<boolean> {
+    return Promise.resolve(false);
+  },
+  pickFolder(): Promise<string | undefined> {
+    return Promise.reject(new Error('Folder picking is not available'));
   }
 };
 

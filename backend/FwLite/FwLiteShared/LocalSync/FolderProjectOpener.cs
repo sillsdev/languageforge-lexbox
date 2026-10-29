@@ -1,8 +1,10 @@
+using System.Text.Json.Serialization;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FwLiteShared.LocalSync;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum OpenFromFolderOutcome
 {
     EmptyFolder,

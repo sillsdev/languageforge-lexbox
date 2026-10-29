@@ -1,5 +1,6 @@
 using FwHeadless.Services;
 using LexCore.Sync;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Moq;
 using static Testing.FwHeadless.Services.SyncStep;
@@ -20,6 +21,20 @@ public class SyncWorkerTests
 
         result.Result.Should().BeOfType<Ok>();
         h.Steps.Should().Contain(HarmonySync);
+    }
+
+    [Fact]
+    public async Task SyncHarmonyRoute_ProjectBlocked_Returns423()
+    {
+        using var h = new SyncWorkerTestHarness();
+        h.SetSyncBlockedInfo(new SyncBlockedInfo { IsBlocked = true, Reason = "maintenance" });
+
+        var result = await h.RunHarmonyRouteWithPrePopulatedContextAsync();
+
+        var problem = result.Result.Should().BeOfType<ProblemHttpResult>().Subject;
+        problem.StatusCode.Should().Be(StatusCodes.Status423Locked);
+        problem.ProblemDetails.Detail.Should().Contain("maintenance");
+        h.Steps.Should().NotContain(HarmonySync);
     }
 
     [Fact]

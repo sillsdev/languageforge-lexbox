@@ -49,6 +49,33 @@ public static class LocalSyncTestHelpers
 }
 
 /// <summary>
+/// Another copy of the project, with every commit crossing a JSON boundary as it does on its way through a sync folder.
+/// </summary>
+public class OverJson(ISyncable inner, JsonSerializerOptions options) : ISyncable
+{
+    public async Task AddRangeFromSync(IEnumerable<Commit> commits) =>
+        await inner.AddRangeFromSync(LocalSyncTestHelpers.JsonRoundTrip(commits.ToArray(), options));
+
+    public async Task<SyncState> GetSyncState() =>
+        LocalSyncTestHelpers.JsonRoundTrip(await inner.GetSyncState(), options);
+
+    public async Task<ChangesResult<Commit>> GetChanges(SyncState otherHeads) =>
+        LocalSyncTestHelpers.JsonRoundTrip(await inner.GetChanges(otherHeads), options);
+
+    public Task<SyncResults> SyncWith(ISyncable remoteModel) => remoteModel.SyncWith(this);
+    public Task SyncMany(ISyncable[] remotes) => throw new NotSupportedException();
+    public ValueTask<bool> ShouldSync() => ValueTask.FromResult(true);
+}
+
+public class InMemoryPreferencesService : IPreferencesService
+{
+    private readonly Dictionary<string, string> _values = [];
+    public string? Get(string key) => _values.GetValueOrDefault(key);
+    public void Set(string key, string value) => _values[key] = value;
+    public void Remove(string key) => _values.Remove(key);
+}
+
+/// <summary>
 /// What a joiner talks to: the host's handlers, with every commit crossing a JSON boundary as it will over HTTP.
 /// </summary>
 public class HostOverTheWire(LocalSyncHost host, Guid projectId, JsonSerializerOptions options) : ISyncable
@@ -65,12 +92,4 @@ public class HostOverTheWire(LocalSyncHost host, Guid projectId, JsonSerializerO
     public Task<SyncResults> SyncWith(ISyncable remoteModel) => remoteModel.SyncWith(this);
     public Task SyncMany(ISyncable[] remotes) => throw new NotSupportedException();
     public ValueTask<bool> ShouldSync() => ValueTask.FromResult(true);
-}
-
-public class InMemoryPreferencesService : IPreferencesService
-{
-    private readonly Dictionary<string, string> _values = [];
-    public string? Get(string key) => _values.GetValueOrDefault(key);
-    public void Set(string key, string value) => _values[key] = value;
-    public void Remove(string key) => _values.Remove(key);
 }

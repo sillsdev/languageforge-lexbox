@@ -8,5 +8,6 @@ import type {LogLevel} from '../../Microsoft/Extensions/Logging/LogLevel';
 export interface IJsInvokableLogger
 {
 	log(level: LogLevel, message: string) : Promise<void>;
+	logError(message: string, stack?: string) : Promise<void>;
 }
 /* eslint-enable */

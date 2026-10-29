@@ -31,6 +31,14 @@ public interface IPlatformFeaturesService
     //Screen size is deliberately not a factor: tablets and landscape phones are wide, but still touch-first.
     [JSInvokable]
     Task<bool> HasHardwareKeyboard();
+
+    //Sync folders need a real path; only hosts with a native folder picker can supply one (a browser can't).
+    [JSInvokable]
+    Task<bool> SupportsFolderSync();
+
+    //Null when the user cancels.
+    [JSInvokable]
+    Task<string?> PickFolder();
 }
 
 internal class DummyPlatformFeaturesService : IPlatformFeaturesService
@@ -57,4 +65,11 @@ internal class DummyPlatformFeaturesService : IPlatformFeaturesService
 
     [JSInvokable]
     public Task<bool> HasHardwareKeyboard() => Task.FromResult(true);
+
+    [JSInvokable]
+    public Task<bool> SupportsFolderSync() => Task.FromResult(false);
+
+    [JSInvokable]
+    public Task<string?> PickFolder() =>
+        throw new NotSupportedException("Folder picking is only available in the Windows MAUI host");
 }

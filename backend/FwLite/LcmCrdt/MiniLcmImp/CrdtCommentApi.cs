@@ -14,7 +14,6 @@ public class CrdtCommentApi(
     CurrentAuthorService currentAuthorService,
     LocalCommentReadStatusService commentReadStatusService)
 {
-
     public async IAsyncEnumerable<CommentThread> GetCommentThreads(SubjectType subjectType, Guid subjectId, bool includeComments = false)
     {
         await using var repo = await repoFactory.CreateRepoAsync();

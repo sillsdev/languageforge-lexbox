@@ -504,6 +504,14 @@ jobs:
         with:
           name: fw-lite-apple
 
+      # stapler talks to api.apple-cloudkit.com over HTTP/3 (UDP 443), which the Intel runners drop about half the
+      # time since 2026-10-12 ("The network connection was lost", Error 68). Blocking UDP 443 makes it fall back to
+      # HTTPS over TCP, which works. Remove once actions/runner-images#14924 is fixed.
+      - name: Work around stapler network failures (actions/runner-images#14924)
+        run: |
+          echo "block return out quick proto udp from any to any port 443" | sudo pfctl -f -
+          sudo pfctl -E
+
       - name: Check Gatekeeper accepts the DMG and the app
         run: |
           set -euo pipefail
