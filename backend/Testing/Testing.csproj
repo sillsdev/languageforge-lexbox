@@ -3,12 +3,12 @@
     <IsPackable>false</IsPackable>
     <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
     <!-- To switch Mercurial versions, do dotnet build -p:MercurialVersion=3 followed by dotnet test -p:MercurialVersion=3 -->
-    <!-- Both need the property: dotnet test restores and builds again, and without it switches back to Mercurial 6 -->
+    <!-- Both need the property: dotnet test restores and builds again, and without it switches back to Mercurial 7 -->
     <!-- Run the build first: Mercurial is staged into this folder during build, after the Content glob below was evaluated -->
-    <MercurialVersion Condition=" '$(MercurialVersion)' == '' ">6</MercurialVersion>
+    <MercurialVersion Condition=" '$(MercurialVersion)' == '' ">7</MercurialVersion>
   </PropertyGroup>
   <Choose>
-    <When Condition=" '$(MercurialVersion)' == '6' ">
+    <When Condition=" '$(MercurialVersion)' == '7' ">
       <ItemGroup>
         <PackageReference Include="SIL.Chorus.LibChorus" />
         <PackageReference Include="SIL.Chorus.Mercurial" />

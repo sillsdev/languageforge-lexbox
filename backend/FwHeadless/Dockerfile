@@ -47,7 +47,7 @@ WORKDIR /app
 #
 # Copy the published app in, and in the SAME layer drop the compiled Mercurial extension modules
 # (zstd et al.) built for Python versions other than this image's python3 — the package ships them
-# for 3.8–3.13, but hg only ever loads the set matching /usr/bin/python3. Pruning during the copy
+# for 3.9–3.15, but hg only ever loads the set matching /usr/bin/python3. Pruning during the copy
 # (not after) actually reclaims the space instead of hiding it under a whiteout. Keyed to the live
 # python3 so a base-image Python bump keeps the right set by construction; the hg debuginstall
 # smoke-test below fails the build if the wrong set were ever kept.
