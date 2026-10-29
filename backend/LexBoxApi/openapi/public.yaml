@@ -462,19 +462,6 @@ paths:
       responses:
         '200':
           description: OK
-  /api/fwlite-release/FieldWorksLite.appinstaller:
-    get:
-      tags:
-        - FwLiteRelease
-      responses:
-        '200':
-          description: OK
-    head:
-      tags:
-        - FwLiteRelease
-      responses:
-        '200':
-          description: OK
   /api/fwlite-release/download-latest:
     get:
       tags:
@@ -1163,7 +1150,6 @@ components:
         - Android
         - iOS
         - Mac
-        - WindowsAppInstaller
     FwLiteRelease:
       required:
         - version
