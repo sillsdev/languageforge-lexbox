@@ -67,6 +67,8 @@ app.Use(async (context, next) =>
 // Load project ID from request
 app.Use((context, next) =>
 {
+    // the lexicon routes open their project from the route instead
+    if (context.Request.Path.StartsWithSegments("/api/lexicon")) return next();
     var renameThisService = context.RequestServices.GetRequiredService<ProjectContextFromIdService>();
     return renameThisService.PopulateProjectContext(context, next);
 });
@@ -85,6 +87,7 @@ app.UseHttpsRedirection();
 app.MapDefaultEndpoints();
 app.MapMediaFileRoutes();
 app.MapMergeRoutes();
+app.MapLexiconRoutes();
 
 // DELETE endpoint to delete the FieldWorks repo/project (and nothing else)
 app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId, ProjectDeletionService deletionService) =>

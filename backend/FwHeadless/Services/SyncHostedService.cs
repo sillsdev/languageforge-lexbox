@@ -124,6 +124,10 @@ public class SyncWorker(
 
         syncStatusService.StartSyncing(projectId);
         using var stopSyncing = Defer.Action(() => syncStatusService.StopSyncing(projectId));
+        // Every commit this merge writes carries FieldWorks' changes. Keep the literal: SnapshotAtCommitService
+        // and the viewer's activity view recognise FieldWorks commits by it.
+        using var stampFieldWorks = services.GetRequiredService<CommitMetadataInterceptor>()
+            .Intercept(metadata => metadata.AuthorName = "FieldWorks");
 
         var projectCode = await projectLookupService.GetProjectCode(projectId);
         if (projectCode is null)

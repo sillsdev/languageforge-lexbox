@@ -177,6 +177,29 @@ public class OpenProjectTests
     }
 
     [Fact]
+    public async Task RequireCommitAuthorRefusesCommitsWithNoAuthor()
+    {
+        var request = new CreateProjectRequest("Require Author", $"require-author-{Guid.NewGuid():N}",
+            Role: UserProjectRole.Manager);
+
+        await WithProjectFromTemplate(request, "fr", async (services, api) =>
+        {
+            var interceptor = services.GetRequiredService<CommitMetadataInterceptor>();
+            var historyService = services.GetRequiredService<HistoryService>();
+
+            var noAuthor = () => api.CreateEntry(new() { LexemeForm = { ["fr"] = "no author" } });
+            await noAuthor.Should().ThrowAsync<InvalidOperationException>();
+
+            using (interceptor.Intercept(metadata => metadata.AuthorName = "FieldWorks"))
+            {
+                await api.CreateEntry(new() { LexemeForm = { ["fr"] = "named author" } });
+            }
+            var latest = await historyService.ProjectActivity(skip: 0, take: 1);
+            latest.Single().Metadata.AuthorName.Should().Be("FieldWorks");
+        }, config => config.RequireCommitAuthor = true);
+    }
+
+    [Fact]
     public async Task CreatingAProjectKeepsTheSnapshotsItWrote()
     {
         Guid[] createdSnapshotIds = [];

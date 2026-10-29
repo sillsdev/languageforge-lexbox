@@ -70,9 +70,26 @@ public class FwHeadlessConfig
     }
     private const string FwDataSubFolder = "fw";
 
+    private const string CrdtFileName = "crdt.sqlite";
+
     public string GetCrdtFile(string projectCode, Guid projectId)
     {
-        return Path.Join(GetProjectFolder(projectCode, projectId), "crdt.sqlite");
+        return Path.Join(GetProjectFolder(projectCode, projectId), CrdtFileName);
+    }
+
+    /// <summary>
+    /// Ids of every project with a CRDT copy (headless harmony project) on disk.
+    /// </summary>
+    public IEnumerable<Guid> HeadlessHarmonyProjectIds()
+    {
+        if (!Directory.Exists(ProjectStorageRoot)) yield break;
+        foreach (var projectFolder in Directory.EnumerateDirectories(ProjectStorageRoot))
+        {
+            if (projectFolder.Length < GuidLength
+                || !Guid.TryParse(projectFolder.AsSpan()[^GuidLength..], out var projectId)
+                || !File.Exists(Path.Join(projectFolder, CrdtFileName))) continue;
+            yield return projectId;
+        }
     }
 
     public FwDataProject GetFwDataProject(Guid projectId)

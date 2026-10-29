@@ -15,6 +15,13 @@ public class ProjectLookupService(LexBoxDbContext dbContext) : IProjectLookupSer
         return projectCode;
     }
 
+    public virtual async Task<Dictionary<Guid, string>> GetProjectCodes(IReadOnlyCollection<Guid> projectIds)
+    {
+        return await dbContext.Projects
+            .Where(p => projectIds.Contains(p.Id))
+            .ToDictionaryAsync(p => p.Id, p => p.Code);
+    }
+
     public virtual async Task<bool> ProjectExists(Guid projectId)
     {
         return await dbContext.Projects.AnyAsync(p => p.Id == projectId);

@@ -10,19 +10,23 @@ public class ProjectContextFromIdService(IOptions<FwHeadlessConfig> config, IPro
 {
     public async Task PopulateProjectContext(HttpContext context, Func<Task> next)
     {
-        if (context.GetProjectId() is Guid projectId)
+        if (context.GetProjectId() is Guid projectId && await FindCrdtProject(projectId) is { } project)
         {
-            var projectCode = await projectLookupService.GetProjectCode(projectId);
-            if (projectCode is not null)
-            {
-                var crdtFile = config.Value.GetCrdtFile(projectCode, projectId);
-                if (File.Exists(crdtFile))
-                {
-                    var project = new CrdtProject("crdt", crdtFile, projectDataCache);
-                    await context.RequestServices.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
-                }
-            }
+            await context.RequestServices.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
         }
         await next();
+    }
+
+    /// <summary>
+    /// The headless harmony project for <paramref name="projectId"/>, or null when Lexbox doesn't know the project
+    /// or FwHeadless holds no CRDT copy of it yet.
+    /// </summary>
+    public async Task<CrdtProject?> FindCrdtProject(Guid projectId)
+    {
+        var projectCode = await projectLookupService.GetProjectCode(projectId);
+        if (projectCode is null) return null;
+        var crdtFile = config.Value.GetCrdtFile(projectCode, projectId);
+        if (!File.Exists(crdtFile)) return null;
+        return new CrdtProject("crdt", crdtFile, projectDataCache);
     }
 }

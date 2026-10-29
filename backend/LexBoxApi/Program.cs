@@ -179,6 +179,7 @@ app.Map("/api/{**catch-all}", () => Results.NotFound()).AllowAnonymous();
 app.Map("/login", Results.Unauthorized).AllowAnonymous();
 
 app.MapFileUploadProxy();
+app.MapLexiconProxy();
 app.MapSyncProxy(AuthKernel.DefaultScheme);
 
 if (generatingOpenApiSchema)
