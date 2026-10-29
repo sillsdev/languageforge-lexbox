@@ -11,19 +11,20 @@ A spec for a lexbox skill (`.claude/skills/<name>/`) that decides whether a PR (
 - Scope: the whole lexbox repo. Other repos are out of scope for now.
 - Settled while charting:
   - Input: the current branch against `develop` by default, or a PR number.
-  - Risk: a checked-in tier map by path, adjusted by diff shape (deleted logic, serialized/public contracts, concurrency).
+  - Risk: judged by the agent from the change itself, focused on consequences that are painful to repair (see Risk tier map ticket).
   - Coverage: inferred in v1 (tests added or changed per risky hunk, and existing tests that exercise the changed code), not measured.
   - Tests: run only tests the PR adds or changes, filtered, per AGENTS.md. Everything else comes from CI.
   - Trust signals: CI status and open bot findings (Devin, CodeRabbit, Claude review). Who wrote the code doesn't count.
   - Verdicts include "do X, then it's good to merge" (X can be a small change or a fast test case), along with merge / spot-check these hunks / needs a real review.
   - May do clear to-dos itself and report afterwards. Tim no longer trusts `/polish` as is, so it gets evaluated before we reuse it.
-  - Fast: a few minutes and a handful of subagents. Domain agents (`fwlite-sentinel` etc.) only for high-tier files.
+  - Fast: a few minutes and a handful of subagents. Domain agents (`fwlite-sentinel` etc.) only where the change looks risky.
 - Skills to consult: grilling, domain-modeling (mattpocock/skills).
 - Tracker: local markdown in `.scratch/merge-risk/`, committed to the session branch.
 
 ## Decisions so far
 
 - [Prior art for PR risk-vs-coverage triage](issues/01-prior-art.md): nobody does the coverage weighing; copy "path floor that evidence can only raise" and keep risk and coverage as separate columns.
+- [Risk tier map for lexbox](issues/03-risk-tier-map.md): no tier map or strict rules; the agent judges each change by how painful its worst outcome is to repair (data corruption, breaking app updates, long-term pain). Critical code can still merge.
 
 ## Not yet specified
 
