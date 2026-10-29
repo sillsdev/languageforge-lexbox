@@ -157,6 +157,13 @@ public static class MiniLcmRoutes
             [FromBody] UpdateEntryRequest request,
             [FromServices] MiniLcmHolder holder)
         {
+            //null when missing from the body, despite the non-nullable types
+            if (request.Before is null || request.After is null)
+            {
+                return TypedResults.Problem("Both 'before' and 'after' entries are required",
+                    statusCode: StatusCodes.Status400BadRequest);
+            }
+
             if (request.Before.Id != id || request.After.Id != id)
             {
                 return TypedResults.Problem($"Entry ids in the body must match the route id '{id}'",

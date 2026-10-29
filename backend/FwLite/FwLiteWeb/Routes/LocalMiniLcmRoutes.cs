@@ -46,7 +46,7 @@ public static class LocalMiniLcmRoutes
     private static async ValueTask<MiniLcmApiResolution> ResolveProject(HttpContext context)
     {
         var typeString = context.Request.RouteValues.GetValueOrDefault("projectType")?.ToString();
-        if (!Enum.TryParse<ProjectDataFormat>(typeString, out var type))
+        if (!Enum.TryParse<ProjectDataFormat>(typeString, out var type) || !Enum.IsDefined(type))
         {
             return MiniLcmApiResolution.Failed(Results.Problem($"Invalid project type '{typeString}'",
                 statusCode: StatusCodes.Status400BadRequest));
@@ -70,8 +70,10 @@ public static class LocalMiniLcmRoutes
                 statusCode: StatusCodes.Status404NotFound));
         }
 
+        var api = await projectProvider.OpenProject(project, services);
+        //FwData saves on dispose
+        context.Response.RegisterForDispose(api);
         var userFacingWrappers = services.GetRequiredService<MiniLcmApiUserFacingWrappers>();
-        return MiniLcmApiResolution.Resolved(userFacingWrappers.Apply(
-            await projectProvider.OpenProject(project, services), project));
+        return MiniLcmApiResolution.Resolved(userFacingWrappers.Apply(api, project));
     }
 }
