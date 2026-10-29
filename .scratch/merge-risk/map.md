@@ -25,6 +25,7 @@ A spec for a lexbox skill (`.claude/skills/<name>/`) that decides whether a PR (
 
 - [Prior art for PR risk-vs-coverage triage](issues/01-prior-art.md): nobody does the coverage weighing; copy "path floor that evidence can only raise" and keep risk and coverage as separate columns.
 - [Risk tier map for lexbox](issues/03-risk-tier-map.md): no tier map or strict rules; the agent judges each change by how painful its worst outcome is to repair (data corruption, breaking app updates, long-term pain). Critical code can still merge.
+- [Evaluate /polish on recent PRs](issues/02-evaluate-polish.md): good recall (plus one real bug humans missed), poor precision and ~875k tokens; test-auditor, ripple-detector, fwlite-sentinel earn their keep.
 
 ## Not yet specified
 

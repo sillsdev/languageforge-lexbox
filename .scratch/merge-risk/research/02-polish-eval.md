@@ -1,12 +1,6 @@
 # /polish retro-eval: status and ground truth
 
-**Result: the reviewer phase did NOT run.** This was executed by a subagent that has
-no `Agent` tool (all 16 dispatch calls failed with "No such tool available: Agent").
-No reviewer agent produced a finding, so there are no caught/missed numbers.
-Nothing below is a simulated review. What is here: the PR picks, the pinned
-pre-review commits, the human-review ground truth, and skill problems found by
-reading SKILL.md and the matrix. The eval needs re-dispatch from a session that
-can spawn agents; worktrees are left in place for that.
+The first subagent could not spawn agents, so it picked the PRs and gathered ground truth; the 16 reviewers were then dispatched from the root session exactly as `/polish` Phase 1 would (8 per PR, parallel, short briefs). Raw findings: [02-polish-raw.md](02-polish-raw.md). Phases 2+ (aggregate, fix) were not run.
 
 ## PRs used
 
@@ -55,63 +49,35 @@ Follow-up: `f0c0012a` (rename only).
 - Candidates #2605 and #2470 have richer bot findings (nested `<button>`, stale draft in
   `$effect`, duplicate submit, path-prefix `..` check) but are over the size cap.
 
-## Per PR: caught / missed / noise, runtime, agents run
+## Per PR: caught / missed / noise
 
-| | #2514 | #2618 |
-| --- | --- | --- |
-| Agents the matrix selects | 8: diff-hygiene, rename-detector, ripple-detector, test-auditor, pr-narrative, intent-check, fwlite-sentinel, dotnet-stylist | 8: diff-hygiene, rename-detector, ripple-detector, test-auditor, pr-narrative, intent-check, viewer-watcher, i18n-completeness |
-| Agents actually run | 0 | 0 |
-| Caught / missed / noise | not measured | not measured |
-| Runtime | not measured | not measured |
+**#2514 (backend/FwLite)**
+- Caught: no tests on the pre-review state (4 agents, test-auditor named the exact tests to write). The multi-line defect CodeRabbit found (fwlite-sentinel and rename-detector, but only as 💭 nits).
+- Caught, beyond human review: the validation wrapper silently skipping validation for `SubmitCreateSense`/`SubmitCreateExampleSentence` (4 agents). Real: fixed later in follow-up PR #2519. Also a *possible live bug today*: `MiniLcmApiNotifyWrapper` has no `Submit*` overrides, so a linked complex-form entry may not get a change notification (ripple-detector; not built or reproduced).
+- Missed: the neighbourless-position logging fix (author found it).
+- Noise: "check all 12 Submit* exist" (the build catches that), several unverified "check whether" items, async-wrapper and comment nits.
 
-Matrix selection was derived from the touched paths and is deterministic. Not selected
-in either: graphql, harmony-sentinel, fwheadless-sentinel, lexbox-frontend, migration-detective,
-bash-discipline, ci-workflow, deployment-infra.
+**#2618 (viewer)**
+- Caught: the human "doubt the fallback" concern, best by ripple-detector with backend evidence (sort key has no fallback, rows look unsorted). The approval-review "should the ws propagate elsewhere" (4 agents). A never-failing test assertion and no test of sort order at all (test-auditor).
+- Partly caught: the `sortedHeadword` rename (intent-check flagged the confusing near-duplicate name; viewer-watcher praised the name).
+- Noise: empty msgstr in non-en locales, change-relative comment nits, one wrong worry (viewer-watcher's reload concern, cleared by ripple-detector).
 
-## Agents: keep / drop
+## Cost and runtime
+- 16 agents, about 875k subagent tokens (2618: ~320k, 2514: ~555k). Per agent 11 s to 218 s; wall clock about 4 min with all in parallel (fwlite-sentinel slowest).
 
-No evidence collected. Only a structural note: `i18n-context-writer` and
-`i18n-translation-reviewer` are not in the dispatch matrix (they are used by
-`crowdin-merge`), so `/polish` never runs them. Not a defect, but the agents directory
-and the matrix do not match one-to-one.
+## Agents: keep / drop (for a merge-risk skill)
+- Keep: **test-auditor** (best on both PRs, concrete cheap tests), **ripple-detector** (found the deepest real issues), **fwlite-sentinel** (domain depth on the risky PR).
+- Useful but overlapping: intent-check, dotnet-stylist, viewer-watcher.
+- Drop for this purpose: pr-narrative, diff-hygiene, i18n-completeness, rename-detector. rename-detector and pr-narrative ignored their specialty and did a general review, which is most of the duplication.
 
-## Skill problems found (by reading, not by a run)
-
-1. **Phase 0 fallbacks never fire.** `git diff origin/develop...HEAD 2>/dev/null | tail -40 || git diff --stat HEAD`:
-   the pipeline's exit status is `tail`'s, so `||` is never taken. Same for the `git log ... | head -30 || ...` line.
-   When `origin/develop` is missing or unrelated, the grounding is silently empty and the
-   skill's rule "if the diff is empty, say so and stop" would stop a real review.
-2. **Shallow clones break it.** This cloud checkout is shallow. `git merge-base origin/develop <pr>`
-   returned nothing until I ran `git fetch --deepen=400 origin develop`. Phase 0 has no
-   step to detect or fix that, and (1) hides the failure.
-3. **Base is hardcoded to `origin/develop`.** Fine for the normal case, but wrong for
-   stacked branches (AGENTS.md says stacked PRs are the norm) and for a worktree whose
-   `origin/develop` has moved: the diff then includes unrelated develop commits.
-4. **Needs a root session.** `allowed-tools` lists `Agent`, and Phase 1 spawns up to ~10
-   agents. Run from inside a subagent it cannot work and the skill has no fallback or
-   message for that case.
-5. **Linked issue / PR lookup has no concrete step.** Phase 0 says to find the PR and
-   `Resolves #N` but gives no command (only `gh api` in allowed-tools). `intent-check` and
-   `pr-narrative` depend on that input and the invocation contract does not say what to pass
-   when no PR exists yet.
-6. **"New `$t` / `msg` strings" trigger is vague.** The matrix does not say how to detect
-   them (grep the diff for `$t\``? check `.po` changes?). Easy to skip or over-dispatch.
-7. **Verdict emoji vs severity wording.** The report header example uses "blocking / important /
-   nit / praise" counts, while Phase 5 maps verdicts to "blocking" and "important" only; nits
-   never affect the verdict. Probably intended, but unstated.
-8. Phase 5 test table commands exist (`task fw-lite:test-quick` in `backend/FwLite/Taskfile.yml`,
-   `task api:generate-gql-schema` resolves via `backend/Taskfile.yml`). No staleness found there.
-   Not checked: whether `--filter Sena3` still matches a test name.
+## Skill problems found
+- Phase 0's `|| fallback` after a pipe never fires, so grounding can come back empty and the skill stops on "empty diff".
+- Shallow clones break the merge-base (needed `git fetch --deepen`). Base is hardcoded to `origin/develop`.
+- Needs a root session: subagents cannot run it.
+- Always-on agents drift out of their lane, so the same finding arrives 3-4 times; aggregation has to dedupe heavily.
+- Severity is uncalibrated for merge risk: a real one-line-log defect came back as 💭 nit while several unverified guesses were ⚠️ important.
 
 ## Bottom line
-
-- The eval could not be completed here: subagents cannot spawn agents, so 0 of 16 planned reviewer runs happened.
-- Two PRs are pinned and ready (#2514 backend, #2618 frontend) with worktrees, base SHAs and
-  the matrix-derived agent list (8 each). Re-dispatch is about 16 `Agent` calls plus aggregation.
-- Ground truth for both is thin: mostly naming and design, one concrete defect (multi-line
-  record text) found by a bot. Recall numbers from these two will be low-signal; a third
-  PR with real bug-class review would help.
-- Two real skill defects are already confirmed by reading: the dead `||` fallbacks in Phase 0
-  and no handling of shallow clones.
-- Cleanup not done on purpose (worktrees needed for the retry). Remove with
-  `git worktree remove --force <path>` for each, then `git update-ref -d refs/eval/<n>`.
+- Recall on real issues was good: every human-raised substantive point was caught or partly caught, plus one real bug humans missed.
+- Precision is poor for a "merge fast" goal: ~70 findings across 2 PRs, mostly nits and duplicates, with severity not tracking repair cost.
+- Cost is high (~875k tokens, 16 agents). A merge-risk skill should run 2-4 agents chosen by what the change does, not 8 by path.
