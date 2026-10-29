@@ -31,3 +31,4 @@ Pending agents (parity of ported ops, rollout order, test coverage). Checked by 
 
 Tim's call:
 - deployment-infra: no data-loss path. Rollback safe; no repo writes left in lexbox. Two low-repair-cost items: the `hgresume` secret isn't created by any develop/staging/production overlay (rollout stalls until someone creates it), and lexbox-before-hgresume rollout briefly fails repo operations.
+- test-auditor: two irreversible ops have no test that would fail: reset-backup cleanup deleting the wrong folders (only "old reset folder is deleted" is tested; nothing checks recent resets, non-reset deleted projects, the 5-day minimum, or dryRun survive) and ResetRepo keeping the old repo as a backup (no hgresume test). Both ports look line-for-line. FinishReset bad zip, CopyRepo non-empty guard and backup round-trip are covered. Both missing tests belong in hgresume, not this PR.
