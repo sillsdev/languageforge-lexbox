@@ -9,6 +9,7 @@ using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
 using FwLiteShared.Services;
 using FwLiteWeb.Routes;
+using MiniLcmWeb;
 using LcmCrdt;
 using FwLiteWeb.Services;
 using Microsoft.AspNetCore.Http.Json;
