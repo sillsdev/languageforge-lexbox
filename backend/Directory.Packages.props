@@ -7,12 +7,12 @@
     <HotChocolateVersion>15.1.16</HotChocolateVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.2" />
+    <PackageVersion Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.6.2" />
     <PackageVersion Include="BeaKona.AutoInterfaceGenerator" Version="1.0.46" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
     <PackageVersion Include="CrystalQuartz.AspNetCore" Version="7.3.0" />
-    <PackageVersion Include="DataAnnotatedModelValidations" Version="10.0.0" />
+    <PackageVersion Include="DataAnnotatedModelValidations" Version="10.0.1" />
     <!-- 8.x is under the Xceed community license (free for open-source projects). Before 8.10 its
          BeEquivalentTo was far slower on large collections (pushed FwLite CI past 60 min); watch the
          FW Lite test job duration when bumping. -->
@@ -29,7 +29,7 @@
     <PackageVersion Include="HotChocolate.Types.Analyzers" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="HotChocolate.Types.OffsetPagination" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
-    <PackageVersion Include="icu.net" Version="3.0.3-beta.34" />
+    <PackageVersion Include="icu.net" Version="3.0.3-beta.35" />
     <PackageVersion Include="Icu4c.Android.Fw.Lib" Version="70.1.182" />
     <PackageVersion Include="linq2db.Extensions" Version="6.5.1" />
     <PackageVersion Include="linq2db.EntityFrameworkCore" Version="10.7.0" />
@@ -89,9 +89,9 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageVersion Include="Npgsql.OpenTelemetry" Version="10.0.3" />
     <PackageVersion Include="NReco.Logging.File" Version="1.4.0" />
-    <PackageVersion Include="OpenIddict.AspNetCore" Version="7.5.0" />
-    <PackageVersion Include="OpenIddict.EntityFrameworkCore" Version="7.5.0" />
-    <PackageVersion Include="OpenIddict.Quartz" Version="7.5.0" />
+    <PackageVersion Include="OpenIddict.AspNetCore" Version="7.7.2" />
+    <PackageVersion Include="OpenIddict.EntityFrameworkCore" Version="7.7.2" />
+    <PackageVersion Include="OpenIddict.Quartz" Version="7.7.2" />
     <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.20.1" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.20.1" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.20.1" />
@@ -99,14 +99,14 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.15.1-beta.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.20.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Quartz" Version="1.15.1-beta.1" />
-    <PackageVersion Include="Polly" Version="8.8.1" />
-    <PackageVersion Include="Polly.Extensions" Version="8.8.1" />
-    <PackageVersion Include="Quartz.AspNetCore" Version="3.18.1" />
-    <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="3.18.1" />
+    <PackageVersion Include="Polly" Version="8.9.0" />
+    <PackageVersion Include="Polly.Extensions" Version="8.9.0" />
+    <PackageVersion Include="Quartz.AspNetCore" Version="3.22.9" />
+    <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="3.22.9" />
     <PackageVersion Include="Refit" Version="10.2.0" />
     <PackageVersion Include="Refit.HttpClientFactory" Version="10.2.0" />
     <PackageVersion Include="Reinforced.Typings" Version="1.6.7" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.18.3" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.18.5" />
     <PackageVersion Include="SharpCompress" Version="0.49.1" />
     <PackageVersion Include="SIL.Chorus.ChorusMerge" Version="6.0.0-beta0074" />
     <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0074" />
