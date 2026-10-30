@@ -49,6 +49,7 @@ RUN chown -R www-data:www-data /usr/local/apache2/logs
 COPY hgweb.hgrc /var/hg/
 COPY hgweb.wsgi /usr/local/www/wsgi-scripts/
 COPY --chmod=755 command-runner.sh /usr/local/www/commands/
+COPY diffguard.py /usr/local/www/hgext/
 COPY json-lex /usr/lib/python3/dist-packages/mercurial/templates/json-lex
 
 VOLUME /var/hg/repos
