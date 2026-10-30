@@ -3,6 +3,7 @@
   import type WaveSurfer from 'wavesurfer.js';
   import {watch} from 'runed';
   import type {HTMLAttributes} from 'svelte/elements';
+  import {blobMediaUrlsWork, createMediaUrl} from '../media-url';
 
   type AudioUrl = string;
 
@@ -79,7 +80,13 @@
     if (typeof audio === 'string') {
       await wavesurfer.load(audio);
     } else if (audio instanceof Blob) {
-      await wavesurfer.loadBlob(audio);
+      if (await blobMediaUrlsWork()) {
+        await wavesurfer.loadBlob(audio);
+      } else {
+        // Where blob: media doesn't load (Mac Catalyst), WebKit also can't decode FLAC/MP3 for peaks,
+        // so play from a data: URL and pass flat peaks, which makes wavesurfer skip fetching and decoding.
+        await wavesurfer.load(await createMediaUrl(audio), [[0]]);
+      }
     } else {
       throw new Error('Invalid audio type');
     }

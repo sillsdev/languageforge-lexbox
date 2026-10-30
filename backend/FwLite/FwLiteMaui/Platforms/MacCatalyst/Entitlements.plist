@@ -12,6 +12,9 @@
         <!-- When App Sandbox is enabled, this is required (alongside NSCameraUsageDescription) to use the camera. -->
         <key>com.apple.security.device.camera</key>
         <true/>
+        <!-- Lets the sandboxed app read files the user picks in an open panel (audio and image file inputs). -->
+        <key>com.apple.security.files.user-selected.read-only</key>
+        <true/>
         <!-- Required (alongside NSMicrophoneUsageDescription) to record audio. -->
         <key>com.apple.security.device.audio-input</key>
         <true/>

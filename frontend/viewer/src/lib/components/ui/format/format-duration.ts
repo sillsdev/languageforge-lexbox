@@ -1,4 +1,4 @@
-import '@formatjs/intl-durationformat/polyfill.js';
+import './duration-format-polyfill';
 
 import {fromStore} from 'svelte/store';
 import {locale} from 'svelte-i18n-lingui';
