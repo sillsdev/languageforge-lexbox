@@ -21,12 +21,23 @@ public class ProjectContextFromIdService(IOptions<FwHeadlessConfig> config, IPro
     /// The headless harmony project for <paramref name="projectId"/>, or null when Lexbox doesn't know the project
     /// or FwHeadless holds no CRDT copy of it yet.
     /// </summary>
-    public async Task<CrdtProject?> FindCrdtProject(Guid projectId)
+    private async Task<CrdtProject?> FindCrdtProject(Guid projectId)
     {
         var projectCode = await projectLookupService.GetProjectCode(projectId);
         if (projectCode is null) return null;
         var crdtFile = config.Value.GetCrdtFile(projectCode, projectId);
         if (!File.Exists(crdtFile)) return null;
         return new CrdtProject("crdt", crdtFile, projectDataCache);
+    }
+
+    /// <summary>
+    /// Like <see cref="FindCrdtProject"/>, but also null until a merge has finished, since before that the CRDT copy
+    /// may hold a partial import.
+    /// </summary>
+    public async Task<CrdtProject?> FindReadyCrdtProject(Guid projectId)
+    {
+        var projectCode = await projectLookupService.GetProjectCode(projectId);
+        if (projectCode is null || !config.Value.IsHeadlessHarmonyProjectReady(projectCode, projectId)) return null;
+        return new CrdtProject("crdt", config.Value.GetCrdtFile(projectCode, projectId), projectDataCache);
     }
 }

@@ -28,6 +28,11 @@ builder.Services.AddExceptionHandler(options =>
     {
         if (exception is ProjectSyncInProgressException)
             return StatusCodes.Status409Conflict;
+        // the lexicon API's MiniLcm routes
+        if (exception is FluentValidation.ValidationException)
+            return StatusCodes.Status400BadRequest;
+        if (exception is MiniLcm.Exceptions.NotFoundException)
+            return StatusCodes.Status404NotFound;
         return StatusCodes.Status500InternalServerError;
     };
 });

@@ -19,6 +19,7 @@ public class ProjectLookupService(LexBoxDbContext dbContext) : IProjectLookupSer
     {
         return await dbContext.Projects
             .Where(p => projectIds.Contains(p.Id))
+            .Select(p => new { p.Id, p.Code })
             .ToDictionaryAsync(p => p.Id, p => p.Code);
     }
 

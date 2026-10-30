@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using FwDataMiniLcmBridge;
+using FwLiteProjectSync;
 using SIL.LCModel;
 
 namespace FwHeadless;
@@ -76,6 +77,15 @@ public class FwHeadlessConfig
     {
         return Path.Join(GetProjectFolder(projectCode, projectId), CrdtFileName);
     }
+
+    /// <summary>
+    /// Whether the headless harmony project may be served and synced: it exists and a merge has finished,
+    /// the same condition SyncWorker checks before pushing it.
+    /// Would need revisiting for fwl-only projects.
+    /// </summary>
+    public bool IsHeadlessHarmonyProjectReady(string projectCode, Guid projectId) =>
+        File.Exists(GetCrdtFile(projectCode, projectId))
+        && ProjectSnapshotService.HasSyncedSuccessfully(GetFwDataProject(projectCode, projectId));
 
     /// <summary>
     /// Ids of every project with a CRDT copy (headless harmony project) on disk.

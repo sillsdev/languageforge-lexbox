@@ -1,6 +1,8 @@
 using FwHeadless.Services;
 using LcmCrdt;
+using LexCore.Sync;
 using Microsoft.Extensions.Options;
+using MiniLcm.Wrappers;
 using MiniLcmWeb;
 
 namespace FwHeadless.Routes;
@@ -11,13 +13,7 @@ namespace FwHeadless.Routes;
 /// </summary>
 public static class LexiconRoutes
 {
-    public const string UserIdHeader = "X-Lexbox-User-Id";
-    /// <summary>Percent-encoded UTF-8, since display names aren't limited to ASCII.</summary>
-    public const string UserNameHeader = "X-Lexbox-User-Name";
-    public const string ClientIdHeader = "X-Lexbox-Client-Id";
     public const string OAuthClientIdMetadataKey = "OAuthClientId";
-    public const string ProjectNotReadyProblemType = "/problems/project-not-ready";
-    public const string SyncInProgressProblemType = "/problems/sync-in-progress";
 
     public static IEndpointConventionBuilder MapLexiconRoutes(this WebApplication app)
     {
@@ -37,7 +33,7 @@ public static class LexiconRoutes
         IOptions<FwHeadlessConfig> config)
     {
         var codes = await projectLookupService.GetProjectCodes(projectIds);
-        return codes.Where(p => File.Exists(config.Value.GetCrdtFile(p.Value, p.Key))).Select(p => p.Key).ToArray();
+        return codes.Where(p => config.Value.IsHeadlessHarmonyProjectReady(p.Value, p.Key)).Select(p => p.Key).ToArray();
     }
 
     private static bool IsWrite(HttpContext context) =>
@@ -47,7 +43,7 @@ public static class LexiconRoutes
     {
         var projectId = Guid.Parse(context.Request.RouteValues["projectId"]!.ToString()!);
         var services = context.RequestServices;
-        var project = await services.GetRequiredService<ProjectContextFromIdService>().FindCrdtProject(projectId);
+        var project = await services.GetRequiredService<ProjectContextFromIdService>().FindReadyCrdtProject(projectId);
         if (project is null)
         {
             if (!await services.GetRequiredService<IProjectLookupService>().ProjectExists(projectId))
@@ -59,7 +55,7 @@ public static class LexiconRoutes
                 "This project has not been synced to FieldWorks Lite on Lexbox yet. Trigger a sync from the project page, then retry.",
                 statusCode: StatusCodes.Status409Conflict,
                 title: "Project not ready",
-                type: ProjectNotReadyProblemType));
+                type: LexiconApi.ProjectNotReadyProblemType));
         }
 
         if (IsWrite(context) && services.GetRequiredService<SyncHostedService>().IsJobQueuedOrRunning(projectId))
@@ -68,10 +64,11 @@ public static class LexiconRoutes
                 "The project is being synced with FieldWorks, retry once the sync has finished.",
                 statusCode: StatusCodes.Status409Conflict,
                 title: "Sync in progress",
-                type: SyncInProgressProblemType));
+                type: LexiconApi.SyncInProgressProblemType));
         }
 
-        return MiniLcmApiResolution.Resolved(await services.OpenCrdtProject(project));
+        var userFacingWrappers = services.GetRequiredService<MiniLcmApiUserFacingWrappers>();
+        return MiniLcmApiResolution.Resolved(userFacingWrappers.Apply(await services.OpenCrdtProject(project), project));
     }
 
     /// <summary>
@@ -83,12 +80,12 @@ public static class LexiconRoutes
         var context = invocationContext.HttpContext;
         if (!IsWrite(context)) return await next(invocationContext);
 
-        var userId = context.Request.Headers[UserIdHeader].ToString();
-        var userName = Uri.UnescapeDataString(context.Request.Headers[UserNameHeader].ToString());
-        var clientId = context.Request.Headers[ClientIdHeader].ToString();
+        var userId = context.Request.Headers[LexiconApi.UserIdHeader].ToString();
+        var userName = Uri.UnescapeDataString(context.Request.Headers[LexiconApi.UserNameHeader].ToString());
+        var clientId = context.Request.Headers[LexiconApi.ClientIdHeader].ToString();
         if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(clientId))
         {
-            return Results.Problem($"Writes need the {UserIdHeader}, {UserNameHeader} and {ClientIdHeader} headers",
+            return Results.Problem($"Writes need the {LexiconApi.UserIdHeader}, {LexiconApi.UserNameHeader} and {LexiconApi.ClientIdHeader} headers",
                 statusCode: StatusCodes.Status401Unauthorized);
         }
 
