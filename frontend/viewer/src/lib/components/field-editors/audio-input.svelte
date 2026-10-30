@@ -66,6 +66,7 @@
     audioId = $bindable(),
     onchange = () => {},
     readonly = false,
+    wsId = undefined,
     wsLabel = undefined,
   }: {
     loader?: (
@@ -74,6 +75,7 @@
     audioId: string | undefined;
     onchange?: (audioId: string | undefined) => void;
     readonly?: boolean;
+    wsId?: string;
     wsLabel?: string;
   } = $props();
   watch(
@@ -292,7 +294,13 @@
 
 {#if supportsAudio}
   {#if !readonly}
-    <AudioDialog title={dialogTitle} bind:open={audioDialogOpen} onSubmit={onAudioDialogSubmit}>
+    <AudioDialog
+      title={dialogTitle}
+      fieldId={fieldProps?.fieldId}
+      {wsId}
+      bind:open={audioDialogOpen}
+      onSubmit={onAudioDialogSubmit}
+    >
       {#if subject?.current}
         <OverrideFields shownFields={fieldProps?.fieldId ? [fieldProps.fieldId] : []}>
           <LexiconEditorPrimitive object={subject.current} />
