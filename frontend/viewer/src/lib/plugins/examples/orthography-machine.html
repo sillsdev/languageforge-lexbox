@@ -586,7 +586,7 @@
       return window.fwlite.updateEntry(entry, after).then(function () {
         state.results.applied++;
       }, function (err) {
-        if (err && err.code === 'permission-denied') recordSkip(id, headwordOf(entry), 'You did not approve this change');
+        if (err && (err.code === 'permission-denied' || err.code === 'preview')) recordSkip(id, headwordOf(entry), 'You did not approve this change');
         else state.results.failed.push({id: id, headword: headwordOf(entry), msg: err && err.message ? err.message : String(err)});
       });
     }).catch(function (err) {

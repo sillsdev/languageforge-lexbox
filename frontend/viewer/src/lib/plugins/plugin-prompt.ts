@@ -80,7 +80,7 @@ export async function buildPluginPrompt(
 
   const writesRequirement = readOnly
     ? `6. **Read-only plugin.** Do not modify the dictionary: never call \`createEntry\`, \`updateEntry\`, \`applyChanges\`, or \`saveFile\`, and do NOT declare the \`edit\` permission. Read, display, and analyze only.`
-    : `6. **Writes need the \`edit\` permission and are user-approved.** Add \`<meta name="fwlite-plugin-permissions" content="edit">\` in \`<head>\` (without it, write calls are rejected outright). Every \`createEntry\`/\`updateEntry\`/\`applyChanges\` call pops up a confirmation dialog in the app showing exactly what will change. If the user declines, the promise rejects with \`error.code === 'permission-denied'\` — handle that as a normal outcome (show "not saved"), never as a crash.`;
+    : `6. **Writes need the \`edit\` permission and are user-approved.** Add \`<meta name="fwlite-plugin-permissions" content="edit">\` in \`<head>\` (without it, write calls are rejected outright). Every \`createEntry\`/\`updateEntry\`/\`applyChanges\` call pops up a confirmation dialog in the app showing exactly what will change. If the user declines, the promise rejects with \`error.code === 'permission-denied'\` — handle that as a normal outcome (show "not saved"), never as a crash. While a manager previews the plugin before adding it, writes and \`saveFile\` are shown but not saved and reject with \`error.code === 'preview'\`: handle it the same way.`;
 
   const writingSection = readOnly ? '' : `### Writing (each call = one user confirmation dialog)
 
@@ -336,7 +336,7 @@ type Sense = {
 };
 \`\`\`
 
-Errors reject with an \`Error\` that has a \`code\`: \`unknown-method\`, \`invalid-args\`, \`permission-denied\`, \`not-supported\`, \`conflict\`, \`storage-full\`, or \`internal\`.
+Errors reject with an \`Error\` that has a \`code\`: \`unknown-method\`, \`invalid-args\`, \`permission-denied\`, \`not-supported\`, \`conflict\`, \`storage-full\`, \`preview\` (a write while the plugin is being previewed: nothing was saved), or \`internal\`.
 
 ## Writing systems & headwords
 

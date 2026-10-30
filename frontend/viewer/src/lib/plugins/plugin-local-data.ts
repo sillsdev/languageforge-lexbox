@@ -15,15 +15,27 @@ const MAX_PLUGIN_STORAGE_BYTES = 256 * 1024;
 
 const textEncoder = new TextEncoder();
 
+type StorageBackend = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+
+/** Lives as long as the object, so a previewed plugin leaves no saved state behind. */
+export function createMemoryStorageBackend(): StorageBackend {
+  const items = new Map<string, string>();
+  return {
+    getItem: key => items.get(key) ?? null,
+    setItem: (key, value) => void items.set(key, value),
+    removeItem: key => void items.delete(key),
+  };
+}
+
 export class PluginStorage {
   #key: string;
 
-  constructor(projectCode: string, pluginId: string) {
+  constructor(projectCode: string, pluginId: string, private backend: StorageBackend = localStorage) {
     this.#key = `${STORAGE_PREFIX}:${projectCode}:${pluginId}`;
   }
 
   #read(): Record<string, unknown> {
-    const json = localStorage.getItem(this.#key);
+    const json = this.backend.getItem(this.#key);
     // Null prototype so plugin-chosen keys like '__proto__' stay plain data.
     if (!json) return Object.create(null) as Record<string, unknown>;
     return Object.assign(Object.create(null), JSON.parse(json)) as Record<string, unknown>;
@@ -40,17 +52,17 @@ export class PluginStorage {
     if (json.length > MAX_PLUGIN_STORAGE_BYTES) {
       throw new PluginApiException('storage-full', `Plugin storage limit of ${MAX_PLUGIN_STORAGE_BYTES / 1024}KB exceeded`);
     }
-    localStorage.setItem(this.#key, json);
+    this.backend.setItem(this.#key, json);
   }
 
   remove(key: string): void {
     const data = this.#read();
     delete data[key];
-    localStorage.setItem(this.#key, JSON.stringify(data));
+    this.backend.setItem(this.#key, JSON.stringify(data));
   }
 
   clear(): void {
-    localStorage.removeItem(this.#key);
+    this.backend.removeItem(this.#key);
   }
 }
 

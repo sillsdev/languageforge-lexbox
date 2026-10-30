@@ -11,13 +11,17 @@ import {
   type PluginEntryQuery,
   type PluginHostFeature,
   type PluginPermission,
+  type PluginWriteMode,
   type PluginWriteOperation,
 } from './plugin-api-types';
 import type {PluginStorage} from './plugin-local-data';
 import {gt} from 'svelte-i18n-lingui';
 
 export interface PluginHostCallbacks {
-  /** Shows the write to the user; resolves true only if they approve it. */
+  /**
+   * Shows the write to the user; resolves true only if they approve it. In preview mode the
+   * result is ignored: the write is shown, then rejected with code `preview`.
+   */
   confirmWrite(operation: PluginWriteOperation): Promise<boolean>;
   openEntry(entryId: string, mode: OpenEntryMode): void;
   notify(message: string): void;
@@ -128,6 +132,8 @@ export interface PluginApiConfig {
   permissions: PluginPermission[];
   /** Optional features this host/project supports. */
   capabilities: Pick<HostCapabilities, 'comments' | 'history'>;
+  /** Defaults to `live`. See {@link PluginWriteMode}. */
+  writeMode?: PluginWriteMode;
 }
 
 /**
@@ -212,15 +218,15 @@ export class PluginApiAdapter implements PluginApiMethods {
     }
     const filename = asNonEmptyString((metadata as {filename?: unknown}).filename, 'filename');
     const mimeType = asNonEmptyString((metadata as {mimeType?: unknown}).mimeType, 'mimeType');
+    // A stored file is real data with nothing to show first, so a preview can't fake it.
+    if (this.#isPreview) throw new PluginApiException('preview', 'Files are not saved while previewing a plugin');
     return await this.api.saveFile(data, {filename, mimeType, extraFields: {}});
   }
 
   async createEntry(input: unknown): Promise<PluginEntry> {
     this.#requireEditPermission();
     const prepared = this.prepareCreate(input);
-    if (!await this.callbacks.confirmWrite(prepared.operation)) {
-      throw new PluginApiException('permission-denied', 'The user declined this change');
-    }
+    await this.#confirm(prepared.operation, 'The user declined this change');
     return prepared.apply();
   }
 
@@ -228,9 +234,7 @@ export class PluginApiAdapter implements PluginApiMethods {
     this.#requireEditPermission();
     const prepared = await this.prepareUpdate(beforeInput, afterInput);
     if (!prepared) return (await this.withHeadwords([stripHeadword(afterInput as IEntry)]))[0]; // nothing changed
-    if (!await this.callbacks.confirmWrite(prepared.operation)) {
-      throw new PluginApiException('permission-denied', 'The user declined this change');
-    }
+    await this.#confirm(prepared.operation, 'The user declined this change');
     return prepared.apply();
   }
 
@@ -248,12 +252,11 @@ export class PluginApiAdapter implements PluginApiMethods {
       if (p) prepared.push(p);
     }
     if (prepared.length === 0) return [];
-    const approved = await this.callbacks.confirmWrite({
+    await this.#confirm({
       kind: 'batch',
       count: prepared.length,
       summary: buildBatchSummary(prepared.map(p => p.operation)),
-    });
-    if (!approved) throw new PluginApiException('permission-denied', 'The user declined these changes');
+    }, 'The user declined these changes');
     const results: PluginEntry[] = [];
     for (const p of prepared) results.push(await p.apply());
     return results;
@@ -343,6 +346,17 @@ export class PluginApiAdapter implements PluginApiMethods {
   storageRemove(key: string): Promise<void> {
     this.storage.remove(key);
     return Promise.resolve();
+  }
+
+  get #isPreview(): boolean {
+    return this.config.writeMode === 'preview';
+  }
+
+  /** The single gate every write passes: shown to the user, then applied only if live and approved. */
+  async #confirm(operation: PluginWriteOperation, declinedMessage: string): Promise<void> {
+    const approved = await this.callbacks.confirmWrite(operation);
+    if (this.#isPreview) throw new PluginApiException('preview', 'Preview only: this change was not saved');
+    if (!approved) throw new PluginApiException('permission-denied', declinedMessage);
   }
 
   #requireEditPermission(): void {

@@ -50,3 +50,12 @@ export function buildPluginSrcdoc(html: string, permissions: PluginPermission[])
   const doctype = doc.doctype ? `<!DOCTYPE ${doc.doctype.name}>` : '';
   return doctype + doc.documentElement.outerHTML;
 }
+
+/**
+ * The composed document as a revocable Blob URL for the iframe's `src`. The caller owns the URL
+ * and revokes it when done. A Blob (not a `srcdoc` attribute or retained state) keeps multi-MB
+ * plugin HTML GC-able once the caller's scope ends.
+ */
+export function createPluginDocUrl(html: string, permissions: PluginPermission[]): string {
+  return URL.createObjectURL(new Blob([buildPluginSrcdoc(html, permissions)], {type: 'text/html'}));
+}

@@ -1,7 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {PluginApiAdapter, type PluginHostCallbacks} from './plugin-api-adapter';
 import {PluginApiException, type PluginWriteOperation} from './plugin-api-types';
-import {PluginStorage} from './plugin-local-data';
+import {createMemoryStorageBackend, PluginStorage} from './plugin-local-data';
 import type {IEntry, IMiniLcmJsInvokable} from '$lib/dotnet-types';
 
 const ENTRY_ID = '11111111-1111-4111-8111-111111111111';
@@ -42,13 +42,19 @@ function makeAdapter(options: {
   permissions?: ('edit' | 'internet')[];
   capabilities?: {comments: boolean; history: boolean};
   confirmWrite?: (operation: PluginWriteOperation) => Promise<boolean>;
+  writeMode?: 'live' | 'preview';
+  storage?: PluginStorage;
 } = {}) {
   const confirmWrite = options.confirmWrite ?? (() => Promise.resolve(true));
   const callbacks: PluginHostCallbacks = {confirmWrite, openEntry: vi.fn(), notify: vi.fn()};
   return new PluginApiAdapter(
     (options.api ?? makeApi()) as unknown as IMiniLcmJsInvokable,
-    new PluginStorage('test-project', 'test-plugin'),
-    {permissions: options.permissions ?? ['edit'], capabilities: options.capabilities ?? {comments: true, history: true}},
+    options.storage ?? new PluginStorage('test-project', 'test-plugin'),
+    {
+      permissions: options.permissions ?? ['edit'],
+      capabilities: options.capabilities ?? {comments: true, history: true},
+      writeMode: options.writeMode,
+    },
     callbacks,
   );
 }
@@ -219,6 +225,63 @@ describe('applyChanges', () => {
     ]])).rejects.toMatchObject({code: 'conflict'});
     expect(api.createEntry).not.toHaveBeenCalled();
     expect(api.updateEntry).not.toHaveBeenCalled();
+  });
+});
+
+describe('preview write mode', () => {
+  function approve(_operation: PluginWriteOperation) {
+    return Promise.resolve(true);
+  }
+
+  it('shows each write like a live run, then rejects with preview and applies nothing', async () => {
+    const api = makeApi();
+    const confirmWrite = vi.fn(approve);
+    const adapter = makeAdapter({api, confirmWrite, writeMode: 'preview'});
+
+    await expect(async () => await adapter.handle('createEntry', [{lexemeForm: {seh: 'a'}}]))
+      .rejects.toMatchObject({code: 'preview'});
+    await expect(async () => await adapter.handle('updateEntry', [makeEntry(), makeEntry({lexemeForm: {seh: 'b'}})]))
+      .rejects.toMatchObject({code: 'preview'});
+    await expect(async () => await adapter.handle('applyChanges', [[{type: 'createEntry', entry: {lexemeForm: {seh: 'c'}}}]]))
+      .rejects.toMatchObject({code: 'preview'});
+
+    expect(confirmWrite).toHaveBeenCalledTimes(3);
+    expect(confirmWrite.mock.calls.map(([op]) => op.kind)).toEqual(['createEntry', 'updateEntry', 'batch']);
+    expect(api.createEntry).not.toHaveBeenCalled();
+    expect(api.updateEntry).not.toHaveBeenCalled();
+  });
+
+  it('still enforces compare-and-swap, so the preview is honest about a conflict', async () => {
+    const api = makeApi({getEntry: vi.fn(() => Promise.resolve(makeEntry({citationForm: {seh: 'someone edited this'}})))});
+    const confirmWrite = vi.fn(approve);
+    const adapter = makeAdapter({api, confirmWrite, writeMode: 'preview'});
+    await expect(async () => await adapter.handle('updateEntry', [makeEntry(), makeEntry({lexemeForm: {seh: 'b'}})]))
+      .rejects.toMatchObject({code: 'conflict'});
+    expect(confirmWrite).not.toHaveBeenCalled();
+  });
+
+  it('still requires the edit permission', async () => {
+    const adapter = makeAdapter({permissions: [], writeMode: 'preview'});
+    await expect(async () => await adapter.handle('createEntry', [{lexemeForm: {seh: 'a'}}]))
+      .rejects.toMatchObject({code: 'permission-denied'});
+  });
+
+  it('rejects saveFile without storing anything', async () => {
+    const saveFile = vi.fn();
+    const adapter = makeAdapter({api: makeApi({saveFile}), writeMode: 'preview'});
+    await expect(async () => await adapter.handle('saveFile', [new ArrayBuffer(1), {filename: 'a.webm', mimeType: 'audio/webm'}]))
+      .rejects.toMatchObject({code: 'preview'});
+    expect(saveFile).not.toHaveBeenCalled();
+  });
+
+  it('keeps plugin storage in memory, out of localStorage', async () => {
+    const adapter = makeAdapter({
+      writeMode: 'preview',
+      storage: new PluginStorage('test-project', 'test-plugin', createMemoryStorageBackend()),
+    });
+    await adapter.handle('storageSet', ['progress', 3]);
+    await expect(adapter.handle('storageGet', ['progress'])).resolves.toBe(3);
+    expect(localStorage.length).toBe(0);
   });
 });
 

@@ -788,7 +788,7 @@
       advance();
     }).catch(function (err) {
       setBusy(false);
-      if (err && err.code === 'permission-denied') {
+      if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
         // Declined write is a normal outcome: keep the item unsaved so they can retry.
         setFormNote('Not saved — you can edit and try again, or skip.', 'warn');
       } else {

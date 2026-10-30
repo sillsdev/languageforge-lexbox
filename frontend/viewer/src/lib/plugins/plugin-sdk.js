@@ -105,6 +105,8 @@
      * without it these calls reject with code 'permission-denied' before the user is even asked.
      * updateEntry(before, after): 'before' must match the entry's CURRENT state — if someone
      * edited it since you fetched it, the call rejects with code 'conflict'; re-fetch and retry.
+     * While a plugin is being previewed, writes (and saveFile) are shown but not saved, and reject
+     * with code 'preview'; treat it like a declined change.
      */
     createEntry: function (entry) { return call('createEntry', [entry]); },
     updateEntry: function (before, after) { return call('updateEntry', [before, after]); },
