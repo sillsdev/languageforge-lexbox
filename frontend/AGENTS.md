@@ -22,6 +22,8 @@ pnpm run test:unit --run
 
 **Before saying done**, run `task verify` from the repo root (svelte-check, eslint and vitest for this app and the viewer). After backend GraphQL changes, `task check-generated` catches a stale `schema.graphql`.
 
+**User docs:** `docs/site/lexbox/` quotes lexbox.org labels and explains roles, invites, orgs and project requests. Change any of them? Update the page in the same PR; rules in `docs/site/AGENTS.md`.
+
 ## Tech Stack
 
 - **Framework**: SvelteKit
