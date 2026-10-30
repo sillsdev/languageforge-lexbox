@@ -124,15 +124,18 @@ spec:
         ports:
           - containerPort: 8088
 
+        # Probe the CGI command path, not a static page: when the cgid daemon
+        # is gone, pages still serve 200 while every hg command 503s.
         startupProbe:
           httpGet:
-            path: /
+            path: /command/health/healthz
             port: 8088
           failureThreshold: 30
           periodSeconds: 10
+          timeoutSeconds: 5
         livenessProbe:
           httpGet:
-            path: /
+            path: /command/health/healthz
             port: 8088
           initialDelaySeconds: 300
           periodSeconds: 20
