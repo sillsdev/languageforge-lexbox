@@ -121,17 +121,38 @@ public class MediaFileTests : IAsyncLifetime
         await AssertPictureReadableAfterPathsRebuild(outsidePath);
     }
 
-    public static TheoryData<string> InTreeSpellingsTheScanWontReproduce()
+    [Fact]
+    public async Task GetEntry_MissingPictureOutsideLinkedFilesWorks()
     {
-        var data = new TheoryData<string> { Path.Combine("Pictures", "..", "Pictures", "spelling.jpg") };
-        // a casing mismatch only resolves on a case-insensitive file system
-        if (OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()) data.Add(Path.Combine("Pictures", "SPELLING.jpg"));
-        return data;
+        var entryId = await AddPictureDirectly(Path.Combine(Path.GetTempPath(), "lexbox-out-of-tree-media", "missing.jpg"));
+
+        var entry = await _api.GetEntry(entryId);
+
+        entry!.Senses[0].Pictures[0].MediaUri.Should().Be(MediaUri.NotFound);
     }
 
-    [Theory]
-    [MemberData(nameof(InTreeSpellingsTheScanWontReproduce))]
-    public async Task CanOpenAnInTreePictureLinkedWithAnUnusualSpelling(string link)
+    [Fact]
+    public async Task CanOpenAnInTreePictureLinkedWithDotSegments()
+    {
+        await AssertInTreePictureReadable(Path.Combine("Pictures", "..", "Pictures", "spelling.jpg"));
+    }
+
+    [CaseInsensitiveFileSystemFact]
+    public async Task CanOpenAnInTreePictureLinkedWithDifferentCasing()
+    {
+        await AssertInTreePictureReadable(Path.Combine("Pictures", "SPELLING.jpg"));
+    }
+
+    private sealed class CaseInsensitiveFileSystemFactAttribute : FactAttribute
+    {
+        public CaseInsensitiveFileSystemFactAttribute()
+        {
+            if (!OperatingSystem.IsWindows() && !OperatingSystem.IsMacOS()) Skip = "Needs a case-insensitive file system";
+        }
+    }
+
+    // The FileId hashes the spelling FLEx stored, which the LinkedFiles scan never reproduces.
+    private async Task AssertInTreePictureReadable(string link)
     {
         var root = _api.Cache.LangProject.LinkedFilesRootDir;
         Directory.CreateDirectory(Path.Combine(root, "Pictures"));
@@ -159,16 +180,6 @@ public class MediaFileTests : IAsyncLifetime
         stream.Should().NotBeNull();
         using var streamReader = new StreamReader(stream);
         return await streamReader.ReadToEndAsync();
-    }
-
-    [Fact]
-    public async Task GetEntry_MissingPictureOutsideLinkedFilesWorks()
-    {
-        var entryId = await AddPictureDirectly(Path.Combine(Path.GetTempPath(), "lexbox-out-of-tree-media", "missing.jpg"));
-
-        var entry = await _api.GetEntry(entryId);
-
-        entry!.Senses[0].Pictures[0].MediaUri.Should().Be(MediaUri.NotFound);
     }
 
     [Fact]
