@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using LcmCrdt;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Services;
@@ -10,12 +11,14 @@ namespace FwHeadless.Services;
 /// debounce once a lexicon API write lands or Lexbox reports another client's commits, and a sweep syncs every
 /// project once a day, spread over the day. While a merge is queued or running for a project its syncs are dropped,
 /// the merge syncs on its own; a project that dropped one is synced again on the first scan after the merge.
+/// Like the merge, it never syncs a project that is blocked from syncing or whose first merge hasn't finished.
 /// </summary>
 public class HarmonySyncScheduler(
     IServiceProvider services,
     SyncHostedService mergeService,
     IOptions<FwHeadlessConfig> config,
     IHttpMessageHandlerFactory httpMessageHandlerFactory,
+    IMemoryCache cache,
     ILoggerFactory loggerFactory,
     ILogger<HarmonySyncScheduler> logger) : BackgroundService
 {
@@ -39,6 +42,8 @@ public class HarmonySyncScheduler(
         public Guid? ClientId;
         // a sync was dropped for a merge; the merge's own sync may predate the change that asked for it
         public bool DroppedDuringMerge;
+        // only touched while holding SyncLock
+        public DateTimeOffset LastSyncStarted;
     }
 
     private ProjectSyncState State(Guid projectId) => _projects.GetOrAdd(projectId,
@@ -93,7 +98,7 @@ public class HarmonySyncScheduler(
                 if (state.Pending != pending) return;
                 state.Pending = null;
             }
-            await SyncNow(projectId, state);
+            await SyncNow(projectId, state, requestedAt: DateTimeOffset.UtcNow);
         }
         catch (OperationCanceledException) when (pending.IsCancellationRequested)
         {
@@ -109,12 +114,14 @@ public class HarmonySyncScheduler(
         }
     }
 
-    private async Task SyncNow(Guid projectId, ProjectSyncState state)
+    private async Task SyncNow(Guid projectId, ProjectSyncState state, DateTimeOffset requestedAt)
     {
         var retry = false;
         await state.SyncLock.WaitAsync(_shutdown.Token);
         try
         {
+            // requests that waited out a running sync need only one more
+            if (state.LastSyncStarted > requestedAt) return;
             if (mergeService.IsJobQueuedOrRunning(projectId))
             {
                 logger.LogInformation("Dropping harmony sync of project {ProjectId}, a merge is queued or running", projectId);
@@ -123,12 +130,18 @@ public class HarmonySyncScheduler(
             }
 
             await using var scope = services.CreateAsyncScope();
-            var project = await scope.ServiceProvider.GetRequiredService<ProjectContextFromIdService>().FindCrdtProject(projectId);
-            if (project is null)
+            if (await scope.ServiceProvider.GetRequiredService<IProjectMetadataService>().GetSyncBlockedInfoAsync(projectId) is { IsBlocked: true })
             {
-                logger.LogWarning("Skipping harmony sync of project {ProjectId}, it has no headless harmony project", projectId);
+                logger.LogInformation("Skipping harmony sync of project {ProjectId}, it is blocked from syncing", projectId);
                 return;
             }
+            var project = await scope.ServiceProvider.GetRequiredService<ProjectContextFromIdService>().FindReadyCrdtProject(projectId);
+            if (project is null)
+            {
+                logger.LogWarning("Skipping harmony sync of project {ProjectId}, it has no headless harmony project or its first merge hasn't finished", projectId);
+                return;
+            }
+            state.LastSyncStarted = DateTimeOffset.UtcNow;
             var projectData = await scope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
             state.ClientId = projectData.ClientId;
             await scope.ServiceProvider.GetRequiredService<CrdtSyncService>().SyncHarmonyProject();
@@ -157,6 +170,7 @@ public class HarmonySyncScheduler(
     {
         await using var listener = new LexboxProjectChangeListener(httpMessageHandlerFactory,
             config,
+            cache,
             loggerFactory,
             loggerFactory.CreateLogger<LexboxProjectChangeListener>(),
             OnProjectUpdated);

@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
+using LcmCrdt.RemoteSync;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MiniLcm.Push;
 
@@ -15,11 +17,11 @@ namespace FwHeadless.Services;
 public sealed class LexboxProjectChangeListener(
     IHttpMessageHandlerFactory httpMessageHandlerFactory,
     IOptions<FwHeadlessConfig> config,
+    IMemoryCache cache,
     ILoggerFactory loggerFactory,
     ILogger<LexboxProjectChangeListener> logger,
     Action<Guid, Guid?> onProjectUpdated) : IAsyncDisposable
 {
-    private const string HubPath = "api/hub/crdt/project-changes";
     private readonly ConcurrentDictionary<Guid, byte> _wanted = new();
     // projects subscribed on the current connection; the hub forgets groups when a connection drops
     private readonly HashSet<Guid> _subscribed = [];
@@ -69,15 +71,20 @@ public sealed class LexboxProjectChangeListener(
         }
         _connection = connection;
         logger.LogInformation("Connected to the Lexbox project change hub");
+        InvalidateServerHealth();
         return true;
     }
+
+    // Lexbox is reachable again, so a health check cached as failed during the outage mustn't keep refusing syncs and merges
+    private void InvalidateServerHealth() =>
+        CrdtHttpSyncService.InvalidateServerHealth(cache, new Uri(config.Value.LexboxUrl).Authority);
 
     private HubConnection NewConnection()
     {
         var connection = new HubConnectionBuilder()
             .ConfigureLogging(logging => logging.Services.AddSingleton(loggerFactory))
             .WithAutomaticReconnect(new RetryForeverPolicy())
-            .WithUrl(new Uri(new Uri(config.Value.LexboxUrl), HubPath),
+            .WithUrl(new Uri(new Uri(config.Value.LexboxUrl), IProjectChangeHubServer.Path),
                 // The service account authenticates with a cookie added by HttpClientAuthHandler in the Lexbox client's
                 // handler pipeline. Only the HTTP transports send their requests through that pipeline, so no WebSockets.
                 HttpTransportType.ServerSentEvents | HttpTransportType.LongPolling,
@@ -92,6 +99,7 @@ public sealed class LexboxProjectChangeListener(
         connection.Reconnected += async _ =>
         {
             logger.LogInformation("Reconnected to the Lexbox project change hub, resubscribing");
+            InvalidateServerHealth();
             await _lock.WaitAsync();
             try
             {
@@ -112,6 +120,8 @@ public sealed class LexboxProjectChangeListener(
         foreach (var projectId in _wanted.Keys)
         {
             if (_subscribed.Contains(projectId)) continue;
+            // dropped mid-loop: Reconnected subscribes the rest
+            if (connection.State != HubConnectionState.Connected) return;
             try
             {
                 await connection.InvokeAsync(nameof(IProjectChangeHubServer.ListenForProjectChanges), projectId, stoppingToken);
