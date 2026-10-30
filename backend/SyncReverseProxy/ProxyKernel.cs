@@ -112,7 +112,9 @@ public static class ProxyKernel
                     break;
             }
 
-            if (hgService.HasAbandonedTransactions(projectCode))
+            // We still hold the send/receive ticket here, so don't let a slow hgresume keep the project locked
+            using var statusTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            if (await hgService.HasAbandonedTransactions(projectCode, statusTimeout.Token))
                 Activity.Current?.AddTag("app.abandoned_transaction_detected", true);
         }
         catch (Exception e)

@@ -1,6 +1,6 @@
 using System.IO.Compression;
 using System.Net;
-using System.Runtime.InteropServices;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -13,19 +13,18 @@ using LexCore.Utils;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
-using Path = System.IO.Path;
 
 namespace LexBoxApi.Services;
 
-public partial class HgService : IHgService, IHostedService
+public partial class HgService : IHgService
 {
-    private const string DELETED_REPO_FOLDER = ProjectCode.DELETED_REPO_FOLDER;
-    private const string TEMP_REPO_FOLDER = ProjectCode.TEMP_REPO_FOLDER;
-
+    public const string ManageClientName = "HgResumeManage";
+    private const string ManageSecretHeader = "X-Manage-Secret";
     private const string AllZeroHash = "0000000000000000000000000000000000000000";
 
     private readonly IOptions<HgConfig> _options;
     private readonly Lazy<HttpClient> _hgClient;
+    private readonly Lazy<HttpClient> _manageClient;
     private readonly ILogger<HgService> _logger;
 
     public HgService(IOptions<HgConfig> options, IHttpClientFactory clientFactory, ILogger<HgService> logger)
@@ -33,11 +32,10 @@ public partial class HgService : IHgService, IHostedService
         _options = options;
         _logger = logger;
         _hgClient = new(() => clientFactory.CreateClient("HgWeb"));
+        _manageClient = new(() => clientFactory.CreateClient(ManageClientName));
     }
 
     public static string PrefixRepoRequestPath(ProjectCode code) => $"{code.Value[0]}/{code}";
-    private string PrefixRepoFilePath(ProjectCode code) => Path.Combine(_options.Value.RepoPath, code.Value[0].ToString(), code.Value);
-    private string GetTempRepoPath(ProjectCode code, string reason) => Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER, $"{code}__{reason}__{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}");
 
     private async Task<HttpResponseMessage> GetResponseMessage(ProjectCode code, string requestPath)
     {
@@ -56,24 +54,11 @@ public partial class HgService : IHgService, IHostedService
     /// </summary>
     public async Task InitRepo(ProjectCode code)
     {
-        if (Directory.Exists(PrefixRepoFilePath(code)))
+        using var response = await SendManageRequest(HttpMethod.Post, $"repos/{code}");
+        if (response.StatusCode == HttpStatusCode.Conflict)
             throw new AlreadyExistsException($"Repo already exists: {code}.");
-        await Task.Run(() =>
-        {
-            InitRepoAt(new DirectoryInfo(PrefixRepoFilePath(code)));
-        });
-        await InvalidateDirCache(code);
+        response.EnsureSuccessStatusCode();
         await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
-    }
-
-    private void InitRepoAt(DirectoryInfo repoDirectory)
-    {
-        repoDirectory.Create();
-        FileUtils.CopyFilesRecursively(
-            new DirectoryInfo("Services/HgEmptyRepo"),
-            repoDirectory,
-            Permissions
-        );
     }
 
     /// <summary>
@@ -81,62 +66,52 @@ public partial class HgService : IHgService, IHostedService
     /// </summary>
     public async Task CopyRepo(ProjectCode sourceCode, ProjectCode destCode)
     {
-        var sourceFolder = new DirectoryInfo(PrefixRepoFilePath(sourceCode));
-        if (!sourceFolder.Exists)
+        using var response = await SendManageRequest(HttpMethod.Post, $"repos/{destCode}/copy",
+            JsonContent.Create(new { sourceCode = sourceCode.Value }));
+        switch (response.StatusCode)
         {
-            throw new DirectoryNotFoundException($"Source repo {sourceCode} not found");
+            case HttpStatusCode.NotFound:
+                throw new DirectoryNotFoundException($"Source repo {sourceCode} not found");
+            case HttpStatusCode.Conflict:
+                throw new InvalidOperationException($"Destination repo {destCode} already exists and is not empty");
         }
-        var repoDirectory = new DirectoryInfo(PrefixRepoFilePath(destCode));
-        if (repoDirectory.Exists && (await GetTipHash(destCode) != AllZeroHash))
-        {
-            throw new InvalidOperationException($"Destination repo {destCode} already exists and is not empty");
-        }
-
-        await Task.Run(() =>
-            {
-                if (repoDirectory.Exists) repoDirectory.Delete(true);
-                repoDirectory.Create();
-                FileUtils.CopyFilesRecursively(
-                    sourceFolder,
-                    repoDirectory,
-                    Permissions
-                );
-            }
-        );
-        await InvalidateDirCache(destCode);
-        await WaitForRepoReady(destCode);
+        response.EnsureSuccessStatusCode();
+        var sourceIsEmpty = await GetTipHash(sourceCode) == AllZeroHash;
+        await WaitForRepoEmptyState(destCode, sourceIsEmpty ? RepoEmptyState.Empty : RepoEmptyState.NonEmpty);
     }
 
     public async Task DeleteRepoIfExists(ProjectCode code)
     {
-        await Task.Run(() =>
-        {
-            if (Directory.Exists(PrefixRepoFilePath(code)))
-                Directory.Delete(PrefixRepoFilePath(code), true);
-        });
+        using var response = await SendManageRequest(HttpMethod.Delete, $"repos/{code}");
+        response.EnsureSuccessStatusCode();
     }
 
-    public BackupExecutor? BackupRepo(ProjectCode code)
+    public async Task<BackupExecutor?> BackupRepo(ProjectCode code)
     {
-        string repoPath = PrefixRepoFilePath(code);
-        if (!Directory.Exists(repoPath))
+        var response = await SendManageRequest(HttpMethod.Get, $"repos/{code}/backup",
+            completionOption: HttpCompletionOption.ResponseHeadersRead);
+        // Headers-only read holds the connection open, so dispose on every path that doesn't hand it to the executor
+        if (!response.IsSuccessStatusCode)
         {
-            return null;
+            using (response)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound) return null;
+                response.EnsureSuccessStatusCode();
+            }
         }
-        return new((stream, token) => Task.Run(() =>
+        return new(async (stream, token) =>
         {
-            ZipFile.CreateFromDirectory(repoPath, stream, CompressionLevel.Fastest, false);
-        }, token));
+            using (response)
+            {
+                await response.Content.CopyToAsync(stream, token);
+            }
+        });
     }
 
     public async Task ResetRepo(ProjectCode code)
     {
-        var tmpRepo = new DirectoryInfo(GetTempRepoPath(code, "reset"));
-        InitRepoAt(tmpRepo);
-        await SoftDeleteRepo(code, ResetSoftDeleteSuffix(DateTimeOffset.UtcNow));
-        //we must init the repo as uploading a zip is optional
-        tmpRepo.MoveTo(PrefixRepoFilePath(code));
-        await InvalidateDirCache(code);
+        using var response = await SendManageRequest(HttpMethod.Post, $"repos/{code}/reset");
+        response.EnsureSuccessStatusCode();
         await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
 
@@ -147,74 +122,31 @@ public partial class HgService : IHgService, IHostedService
 
     public async Task FinishReset(ProjectCode code, Stream zipFile)
     {
-        var tempRepoPath = GetTempRepoPath(code, "upload");
-        var tempRepo = Directory.CreateDirectory(tempRepoPath);
-        // TODO: Is Task.Run superfluous here? Or a good idea? Don't know the ins and outs of what happens before the first await in an async method in ASP.NET Core...
-        await Task.Run(() =>
+        var content = new StreamContent(zipFile);
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
+        using var response = await SendManageRequest(HttpMethod.Post, $"repos/{code}/finish-reset", content);
+        if (response.StatusCode == HttpStatusCode.BadRequest)
         {
-            using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
-            archive.ExtractToDirectory(tempRepoPath);
-        });
-
-        var hgPath = Path.Join(tempRepoPath, ".hg");
-        if (!Directory.Exists(hgPath))
-        {
-            var hgFolder = Directory.EnumerateDirectories(tempRepoPath, ".hg", SearchOption.AllDirectories)
-                .FirstOrDefault();
-            if (hgFolder is null)
-            {
-                // Don't want to leave invalid .zip contents lying around as they may have been quite large
-                Directory.Delete(tempRepoPath, true);
-                //not sure if this is the best way to handle this, might need to catch it further up to expose the error properly to tus
+            var problem = await response.Content.ReadFromJsonAsync<JsonObject>();
+            if (problem?["title"]?.GetValue<string>() == ProjectResetException.ZipMissingHgFolder().Code)
                 throw ProjectResetException.ZipMissingHgFolder();
-            }
-            //found the .hg folder, move it to the correct location and continue
-            Directory.Move(hgFolder, hgPath);
         }
-        await CleanupRepoFolder(tempRepo);
-        SetPermissionsRecursively(tempRepo);
-        // Now we're ready to move the new repo into place, replacing the old one
-        await DeleteRepoIfExists(code);
-        tempRepo.MoveTo(PrefixRepoFilePath(code));
-        await InvalidateDirCache(code);
-        await WaitForRepoReady(code);
+        // No readiness wait: we can't tell whether the upload was an empty repo, and hgresume writes
+        // through the same mount hgweb reads, so there's no cross-pod NFS lag to wait out
+        response.EnsureSuccessStatusCode();
     }
 
     public async Task<string[]> CleanupResetBackups(bool dryRun = false)
     {
         using var activity = LexBoxActivitySource.Get().StartActivity();
-        List<string> deletedRepos = [];
-        int deletedCount = 0;
-        int totalCount = 0;
-        foreach (var deletedRepo in Directory.EnumerateDirectories(Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER)))
-        {
-            totalCount++;
-            var deletedRepoName = Path.GetFileName(deletedRepo);
-            var resetDate = GetResetDate(deletedRepoName);
-            if (resetDate is null)
-            {
-                continue;
-            }
-            var resetAge = DateTimeOffset.UtcNow - resetDate.Value;
-            //enforce a minimum age threshold, just in case the threshold is set too low
-            var ageThreshold = TimeSpan.FromDays(Math.Max(_options.Value.ResetCleanupAgeDays, 5));
-            if (resetAge <= ageThreshold) continue;
-            try
-            {
-                if (!dryRun)
-                    await Task.Run(() => Directory.Delete(deletedRepo, true));
-                deletedRepos.Add(deletedRepoName);
-                deletedCount++;
-            }
-            catch (Exception e)
-            {
-                activity?.AddTag("app.hg.cleanupresetbackups.error", e.Message);
-            }
-        }
-        activity?.AddTag("app.hg.cleanupresetbackups", totalCount);
-        activity?.AddTag("app.hg.cleanupresetbackups.deleted", deletedCount);
+        using var response = await SendManageRequest(HttpMethod.Post,
+            $"reset-backups/cleanup?dryRun={(dryRun ? "true" : "false")}");
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<CleanupResetBackupsResponse>();
+        var deletedRepos = result?.DeletedRepos ?? [];
+        activity?.AddTag("app.hg.cleanupresetbackups.deleted", deletedRepos.Length);
         activity?.AddTag("app.hg.cleanupresetbackups.dryrun", dryRun);
-        return deletedRepos.ToArray();
+        return deletedRepos;
     }
 
     public static DateTimeOffset? GetResetDate(string repoName)
@@ -226,29 +158,6 @@ public partial class HgService : IHgService, IHostedService
 
     [GeneratedRegex(@"__(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})__reset$")]
     public static partial Regex ResetProjectsRegex();
-
-
-    /// <summary>
-    /// deletes all files and folders in the repo folder except for .hg, and drops .hg/hgrc
-    /// </summary>
-    private async Task CleanupRepoFolder(DirectoryInfo repoDir)
-    {
-        await Task.Run(() =>
-        {
-            foreach (var info in repoDir.EnumerateFileSystemInfos())
-            {
-                if (info.Name == ".hg")
-                {
-                    // Mercurial would trust an uploaded hgrc (hooks, extensions) on the server, and nothing here needs one.
-                    if (info is DirectoryInfo hg)
-                        foreach (var hgrc in hg.EnumerateFiles("hgrc")) hgrc.Delete();
-                    continue;
-                }
-                if (info is DirectoryInfo dir) dir.Delete(true);
-                else info.Delete();
-            }
-        });
-    }
 
     /// <summary>
     /// Returns either an empty string, or XML (in string form) with a root LangTags element containing five child elements: AnalysisWss, CurAnalysisWss, VernWss, CurVernWss, and CurPronunWss.
@@ -336,17 +245,9 @@ public partial class HgService : IHgService, IHostedService
 
     public async Task SoftDeleteRepo(ProjectCode code, string deletedRepoSuffix)
     {
-        var deletedRepoName = DeletedRepoName(code, deletedRepoSuffix);
-        await Task.Run(() =>
-        {
-            var deletedRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER);
-            var directory = Directory.CreateDirectory(deletedRepoPath);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                directory.UnixFileMode = Permissions;
-            Directory.Move(
-                PrefixRepoFilePath(code),
-                Path.Combine(deletedRepoPath, deletedRepoName));
-        });
+        using var response = await SendManageRequest(HttpMethod.Post, $"repos/{code}/soft-delete",
+            JsonContent.Create(new { suffix = deletedRepoSuffix }));
+        response.EnsureSuccessStatusCode();
     }
 
     public static string DeletedRepoName(ProjectCode code, string deletedRepoSuffix)
@@ -354,36 +255,13 @@ public partial class HgService : IHgService, IHostedService
         return $"{code}__{deletedRepoSuffix}";
     }
 
-    private const UnixFileMode Permissions = UnixFileMode.GroupRead | UnixFileMode.GroupWrite |
-                                             UnixFileMode.GroupExecute | UnixFileMode.SetGroup |
-                                             UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
-                                             UnixFileMode.SetUser;
-
-    private static void SetPermissionsRecursively(DirectoryInfo rootDir)
+    public async Task<bool> HasAbandonedTransactions(ProjectCode projectCode, CancellationToken token = default)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return;
-        rootDir.UnixFileMode = Permissions;
-
-        foreach (var dir in rootDir.EnumerateDirectories())
-        {
-            dir.UnixFileMode = Permissions;
-            SetPermissionsRecursively(dir);
-        }
-
-        foreach (var file in rootDir.EnumerateFiles())
-        {
-            file.UnixFileMode = Permissions;
-        }
-    }
-
-    public bool HasAbandonedTransactions(ProjectCode projectCode)
-    {
-        return Path.Exists(Path.Combine(PrefixRepoFilePath(projectCode), ".hg", "store", "journal"));
-    }
-
-    public bool RepoIsLocked(ProjectCode projectCode)
-    {
-        return Path.Exists(Path.Combine(PrefixRepoFilePath(projectCode), ".hg", "store", "lock"));
+        using var response = await SendManageRequest(HttpMethod.Get, $"repos/{projectCode}", token: token);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
+        response.EnsureSuccessStatusCode();
+        var status = await response.Content.ReadFromJsonAsync<RepoStatusResponse>(token);
+        return status?.HasAbandonedTransactions ?? false;
     }
 
     public async Task<string?> GetRepositoryIdentifier(Project project)
@@ -424,24 +302,15 @@ public partial class HgService : IHgService, IHostedService
         return response;
     }
 
-    public Task<HttpContent?> InvalidateDirCache(ProjectCode code, CancellationToken token = default)
+    public async Task<HttpContent?> InvalidateDirCache(ProjectCode code, CancellationToken token = default)
     {
-        var repoPath = Path.Join(PrefixRepoFilePath(code));
-        if (Directory.Exists(repoPath))
+        // Invalidate NFS directory cache by forcing a write and re-read of the repo directory
+        using (var response = await SendManageRequest(HttpMethod.Post, $"repos/{code}/invalidate-dir-cache", token: token))
         {
-            // Invalidate NFS directory cache by forcing a write and re-read of the repo directory
-            var randomPath = Path.Join(repoPath, Path.GetRandomFileName());
-            while (File.Exists(randomPath) || Directory.Exists(randomPath)) { randomPath = Path.Join(repoPath, Path.GetRandomFileName()); }
-            try
-            {
-                // Create and delete a directory since that's slightly safer than a file
-                var d = Directory.CreateDirectory(randomPath);
-                d.Delete();
-            }
-            catch (Exception) { }
+            response.EnsureSuccessStatusCode();
         }
         // It's okay if the project doesn't exist, because it might have been deleted just now
-        return MaybeExecuteHgCommandServerCommand(code, "invalidatedircache", [HttpStatusCode.NotFound], token);
+        return await MaybeExecuteHgCommandServerCommand(code, "invalidatedircache", [HttpStatusCode.NotFound], token);
     }
 
     public static DateTimeOffset? ConvertHgDate(string? dateStr)
@@ -478,14 +347,6 @@ public partial class HgService : IHgService, IHostedService
         var content = await ExecuteHgCommandServerCommand(code, "reposizeinkb", token);
         var sizeStr = await content.ReadAsStringAsync();
         return int.TryParse(sizeStr, out var size) ? size : null;
-    }
-
-    private async Task WaitForRepoReady(ProjectCode code)
-    {
-        // If someone uploaded an *empty* repo, we don't want to wait forever for a non-empty state
-        var changelogPath = Path.Join(PrefixRepoFilePath(code), ".hg", "store", "00changelog.i");
-        var expectedState = File.Exists(changelogPath) ? RepoEmptyState.NonEmpty : RepoEmptyState.Empty;
-        await WaitForRepoEmptyState(code, expectedState);
     }
 
     private async Task WaitForRepoEmptyState(ProjectCode code, RepoEmptyState expectedState, int timeoutMs = 30_000, CancellationToken token = default)
@@ -583,6 +444,20 @@ public partial class HgService : IHgService, IHostedService
         return httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
     }
 
+    /// <summary>
+    /// Repo filesystem operations go through hgresume's manage API, since lexbox doesn't mount the repos volume.
+    /// </summary>
+    private Task<HttpResponseMessage> SendManageRequest(HttpMethod method, string path, HttpContent? content = null,
+        HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken token = default)
+    {
+        var request = new HttpRequestMessage(method, $"{_options.Value.HgResumableUrl.TrimEnd('/')}/api/manage/{path}")
+        {
+            Content = content
+        };
+        request.Headers.Add(ManageSecretHeader, _options.Value.HgResumeManageSecret);
+        return _manageClient.Value.SendAsync(request, completionOption, token);
+    }
+
     public async Task<ProjectType> DetermineProjectType(ProjectCode projectCode)
     {
         var response = await GetResponseMessage(projectCode, "file/tip?style=json-lex");
@@ -650,28 +525,6 @@ public partial class HgService : IHgService, IHostedService
                 $"Unknown request, HG request type: {type}")
         };
     }
-
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
-        var repoContainerDirectories = ProjectCode.SpecialDirectoryNames
-            .Concat(Enumerable.Range('a', 'z' - 'a' + 1).Select(c => ((char)c).ToString()))
-            .Concat(Enumerable.Range(0, 10).Select(c => c.ToString()));
-
-        foreach (var directory in repoContainerDirectories)
-        {
-            var path = Path.Combine(_options.Value.RepoPath, directory);
-            var dirInfo = Directory.CreateDirectory(path);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                dirInfo.UnixFileMode = Permissions;
-        }
-
-        return Task.CompletedTask;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
 }
 
 public class LogResponse
@@ -692,6 +545,10 @@ public class BrowseResponse
     public BrowseFilesResponse[]? Files { get; set; }
     public BrowseFilesResponse[]? Directories { get; set; }
 }
+
+public record RepoStatusResponse(bool HasAbandonedTransactions, bool IsLocked);
+
+public record CleanupResetBackupsResponse(string[] DeletedRepos);
 
 public enum RepoEmptyState
 {
