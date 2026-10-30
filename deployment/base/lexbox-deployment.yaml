@@ -242,9 +242,9 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
-            memory: 100Mi
+            memory: 200Mi
           limits:
-            memory: 100Mi
+            memory: 200Mi
         ports:
           - containerPort: 4318
           - containerPort: 4317
