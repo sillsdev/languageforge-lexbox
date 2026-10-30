@@ -1,7 +1,9 @@
 import {describe, expect, it} from 'vitest';
 import {PluginStudioDraft} from './plugin-studio-draft.svelte';
 
-const html = (body: string, head = '') => `<!DOCTYPE html><html><head>${head}</head><body>${body}</body></html>`;
+function html(body: string, head = '') {
+  return `<!DOCTYPE html><html><head>${head}</head><body>${body}</body></html>`;
+}
 
 describe('PluginStudioDraft', () => {
   it('an untouched example can be added and is not customized', () => {
