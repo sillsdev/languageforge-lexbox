@@ -160,12 +160,16 @@ export class FwLiteApi {
     lexiconCode?: string,
   ): Promise<IEntry[]> {
     const { code, type } = await this.checkLexiconCode(lexiconCode);
-    let path = `mini-lcm/${type}/${code}/entries`;
-    if (search) path += `/${search}`;
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
     if (semanticDomain) {
-      const filterValue = `senses.semanticDomains.code${GridifyConditionalOperator.Equal}${semanticDomain}`;
-      path += `?GridifyFilter=${encodeURIComponent(filterValue)}`;
+      params.append(
+        'gridifyFilter',
+        `senses.semanticDomains.code${GridifyConditionalOperator.Equal}${semanticDomain}`,
+      );
     }
+    const query = params.toString();
+    const path = `mini-lcm/${type}/${code}/entries${query ? `?${query}` : ''}`;
     return (await this.fetchPath(path)) as IEntry[];
   }
 
@@ -234,7 +238,7 @@ export class FwLiteApi {
 
   async getWritingSystems(lexiconCode?: string): Promise<IWritingSystems> {
     const { code, type } = await this.checkLexiconCode(lexiconCode);
-    const path = `mini-lcm/${type}/${code}/writingSystems`;
+    const path = `mini-lcm/${type}/${code}/writing-systems`;
     return (await this.fetchPath(path)) as IWritingSystems;
   }
 
@@ -242,6 +246,17 @@ export class FwLiteApi {
     const { code, type } = await this.checkLexiconCode(lexiconCode);
     const path = `mini-lcm/${type}/${code}/entry`;
     return (await this.fetchPath(path, 'POST', entry)) as IEntry;
+  }
+
+  /**
+   * Saves `after` over `before`, which must be the entry as last read: the backend applies only the
+   * differences between the two, so edits made by others since are kept.
+   */
+  async updateEntry(before: IEntry, after: IEntry, lexiconCode?: string): Promise<IEntry> {
+    if (before.id !== after.id) throw new Error('Cannot update an entry into a different entry');
+    const { code, type } = await this.checkLexiconCode(lexiconCode);
+    const path = `mini-lcm/${type}/${code}/entry/${sanitizeUrlComponent(after.id)}`;
+    return (await this.fetchPath(path, 'PUT', { before, after })) as IEntry;
   }
 
   async getAuthServers(): Promise<AuthServerStatus[]> {
