@@ -16,6 +16,8 @@ RUN pip3 install --target /work/wsgi-otel opentelemetry-instrumentation-wsgi ope
 FROM httpd:2.4-bookworm
 
 ENV CUSTOM_PORT=8088
+# bytes, see memory-limit in hg.conf; deployments override it with their container limit
+ENV HGWEB_MEMORY_LIMIT=629145600
 
 #install both mod_wsgi and mercurial
 #we need to install mercurial via pip otherwise we get a really old version

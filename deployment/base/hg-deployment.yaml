@@ -96,6 +96,8 @@ spec:
         env:
           - name: CUSTOM_PORT
             value: "8088"
+          - name: HGWEB_MEMORY_LIMIT
+            value: "629145600" # the 600Mi limit above, in bytes
           - name: OTEL_ENDPOINT
             value: 'lexbox:4317'
           - name: OTEL_EXPORTER_OTLP_ENDPOINT

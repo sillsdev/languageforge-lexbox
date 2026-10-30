@@ -13,6 +13,9 @@ spec:
               memory: 1000Mi
             limits:
               memory: 1000Mi
+          env:
+            - name: HGWEB_MEMORY_LIMIT
+              value: "1048576000" # the 1000Mi limit above, in bytes
         - name: hgresumable
           resources:
             requests:
