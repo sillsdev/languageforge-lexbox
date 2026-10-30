@@ -17,6 +17,7 @@ COPY LexData/LexData.csproj LexData/
 COPY LfClassicData/LfClassicData.csproj LfClassicData/
 COPY SyncReverseProxy/SyncReverseProxy.csproj SyncReverseProxy/
 COPY FwLite/MiniLcm/MiniLcm.csproj FwLite/MiniLcm/
+COPY FwLite/MiniLcmWeb/MiniLcmWeb.csproj FwLite/MiniLcmWeb/
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet restore "LexBoxApi/LexBoxApi.csproj"
 
 COPY . .

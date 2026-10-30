@@ -108,7 +108,7 @@ k8s_resource(
     labels=['app'],
     resource_deps=['db'],
     port_forwards=[
-        port_forward(5275, 80, name='fw-headless')
+        port_forward(5275, 8081, name='fw-headless')
     ]
 )
 k8s_resource(

@@ -1,0 +1,26 @@
+name: Set up a .NET build
+description: Install the .NET 10 SDK, restore the NuGet package cache (keyed on the central package props), optionally install Task.
+inputs:
+  install-task:
+    description: 'Also install Task (arduino/setup-task)'
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      with:
+        dotnet-version: '10.x'
+    - name: Cache NuGet packages
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.nuget/packages
+        key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
+        restore-keys: |
+          nuget-${{ runner.os }}-
+    - name: Install Task
+      if: inputs.install-task == 'true'
+      uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+      with:
+        repo-token: ${{ github.token }}
