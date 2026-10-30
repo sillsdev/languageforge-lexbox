@@ -1705,19 +1705,6 @@ components:
         - componentEntryId
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        maybeId:
-          type: string
-          format: uuid
-          nullable: true
-        order:
-          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
-          anyOf:
-            - type: number
-            - type: string
-          format: double
         deletedAt:
           type: string
           format: date-time
@@ -1804,12 +1791,6 @@ components:
         id:
           type: string
           format: uuid
-        order:
-          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
-          anyOf:
-            - type: number
-            - type: string
-          format: double
         sentence:
           $ref: '#/components/schemas/RichMultiString'
         translations:
@@ -2134,12 +2115,6 @@ components:
         id:
           type: string
           format: uuid
-        order:
-          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
-          anyOf:
-            - type: number
-            - type: string
-          format: double
         deletedAt:
           type: string
           format: date-time
@@ -2352,7 +2327,6 @@ components:
       type: object
     WritingSystem:
       required:
-        - id
         - wsId
         - name
         - abbreviation
@@ -2360,13 +2334,6 @@ components:
         - type
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        maybeId:
-          type: string
-          format: uuid
-          nullable: true
         wsId:
           $ref: '#/components/schemas/WritingSystemId'
         isAudio:
@@ -2393,12 +2360,6 @@ components:
         systemCollationLocale:
           type: string
           nullable: true
-        order:
-          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
-          anyOf:
-            - type: number
-            - type: string
-          format: double
     WritingSystemId: { }
     WritingSystems:
       type: object

@@ -5,6 +5,7 @@ using LexBoxApi.Auth.Requirements;
 using LexBoxApi.Services;
 using LexCore.Config;
 using LexCore.Entities;
+using LexCore.Sync;
 using LexData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -29,22 +30,19 @@ public static class LexiconProxy
     public const string ListPolicy = "LexiconList";
     public const string ReadPolicy = "LexiconRead";
     public const string WritePolicy = "LexiconWrite";
-    // mirrored by FwHeadless.Routes.LexiconRoutes
-    public const string UserIdHeader = "X-Lexbox-User-Id";
-    public const string UserNameHeader = "X-Lexbox-User-Name";
-    public const string ClientIdHeader = "X-Lexbox-Client-Id";
     /// <summary>The client id sent for sessions that don't come from an OAuth client (browser cookie, Lexbox JWT).</summary>
     public const string NoOAuthClientId = "lexbox";
 
     private const string Experimental =
         "Experimental: the lexicon API may change without notice. Errors use `application/problem+json`; " +
-        "a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, " +
-        "and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks.";
+        $"a 409 with type `{LexiconApi.ProjectNotReadyProblemType}` means the project has not been synced to FieldWorks Lite on Lexbox yet, " +
+        $"and a 409 with type `{LexiconApi.SyncInProgressProblemType}` means a write was refused while the project syncs with FieldWorks.";
 
     public static void AddLexiconProxy(this IServiceCollection services)
     {
         services.AddSingleton<IAuthorizationHandler, LexiconProjectRequirementHandler>();
         // the forwarder itself is registered by AddFileUploadProxy
+        services.AddMiniLcmJsonOptions();
     }
 
     public static IEndpointConventionBuilder MapLexiconProxy(this IEndpointRouteBuilder app)
@@ -132,6 +130,9 @@ public static class LexiconProxy
 
     private sealed class IdentityHeadersTransformer(string userId, string userName, string clientId) : HttpTransformer
     {
+        // AuthKernel accepts the caller's JWT from this query parameter too
+        private const string JwtQueryParameter = "jwt";
+
         public override async ValueTask TransformRequestAsync(HttpContext httpContext,
             HttpRequestMessage proxyRequest,
             string destinationPrefix,
@@ -141,13 +142,20 @@ public static class LexiconProxy
             // FwHeadless needs neither the caller's credentials nor any identity headers the caller made up
             proxyRequest.Headers.Remove("Authorization");
             proxyRequest.Headers.Remove("Cookie");
-            proxyRequest.Headers.Remove(UserIdHeader);
-            proxyRequest.Headers.Remove(UserNameHeader);
-            proxyRequest.Headers.Remove(ClientIdHeader);
-            proxyRequest.Headers.Add(UserIdHeader, userId);
+            var query = httpContext.Request.Query;
+            if (query.ContainsKey(JwtQueryParameter))
+            {
+                proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(destinationPrefix,
+                    httpContext.Request.Path,
+                    QueryString.Create(query.Where(q => !q.Key.Equals(JwtQueryParameter, StringComparison.OrdinalIgnoreCase))));
+            }
+            proxyRequest.Headers.Remove(LexiconApi.UserIdHeader);
+            proxyRequest.Headers.Remove(LexiconApi.UserNameHeader);
+            proxyRequest.Headers.Remove(LexiconApi.ClientIdHeader);
+            proxyRequest.Headers.Add(LexiconApi.UserIdHeader, userId);
             // display names aren't limited to ASCII, which headers are
-            proxyRequest.Headers.Add(UserNameHeader, Uri.EscapeDataString(userName));
-            proxyRequest.Headers.Add(ClientIdHeader, clientId);
+            proxyRequest.Headers.Add(LexiconApi.UserNameHeader, Uri.EscapeDataString(userName));
+            proxyRequest.Headers.Add(LexiconApi.ClientIdHeader, clientId);
         }
     }
 }
