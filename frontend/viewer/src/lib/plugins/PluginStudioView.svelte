@@ -25,7 +25,9 @@
   import {examplePlugins, type ExampleCapability} from './examples';
   import {extractPluginHtml, isCompletePluginHtml, pluginHtmlTitle} from './plugin-html';
   import {createPluginDocUrl} from './plugin-srcdoc';
-  import {buildPluginPrompt, pluginTaskSection, type PluginPromptOptions} from './plugin-prompt';
+  import {buildPluginPrompt, pluginChangeSection, pluginTaskSection, type PluginPromptOptions} from './plugin-prompt';
+  import {compareManifests, parsePluginManifest} from './plugin-manifest';
+  import type {PluginPermission} from './plugin-api-types';
   import {PluginStudioDraft, type StudioMode} from './plugin-studio-draft.svelte';
   import PluginSandbox from './PluginSandbox.svelte';
   import type {IconClass} from '$lib/icon-class';
@@ -95,7 +97,13 @@
 
   let reloadToken = $state(0);
   let phoneWidth = $state(false);
+  /** Edit mode: compare against the saved version without losing the new one. */
+  let showSavedVersion = $state(false);
+  const canCompareVersions = $derived(mode === 'edit' && draft.htmlChanged && isCompletePluginHtml(draft.baseline.html));
   const previewDoc = $derived.by(() => {
+    if (showSavedVersion && canCompareVersions) {
+      return {html: draft.baseline.html, manifest: parsePluginManifest(draft.baseline.html)};
+    }
     if (!draft.manifest) return undefined;
     return {html: draft.html, manifest: draft.manifest};
   });
@@ -177,6 +185,67 @@
     AppNotification.display($t`Prompt copied. Paste it into any AI chat.`, {timeout: 'short', type: 'success'});
   }
 
+  // ---- Ask AI (changing a plugin) ----
+
+  let changeText = $state('');
+  let copyingChange = $state(false);
+  /** Asks for changes to the current version, with the same setup body a new plugin gets. */
+  async function copyChangePrompt(change: string) {
+    copyingChange = true;
+    try {
+      const body = await buildPluginPrompt(projectContext.api, {
+        projectName: projectContext.projectName,
+        projectCode: projectContext.projectCode,
+      }, {internet: !!draft.manifest?.permissions.includes('internet')});
+      await copyPrompt(`${body}\n\n${pluginChangeSection(draft.html, change)}`);
+    } finally {
+      copyingChange = false;
+    }
+  }
+
+  // ---- Reviewing a new version ----
+
+  const review = $derived.by(() => {
+    const baseHtml = draft.reviewBaseHtml;
+    if (!draft.manifest || !baseHtml || baseHtml === draft.html || !isCompletePluginHtml(baseHtml)) return undefined;
+    return {
+      changes: compareManifests(parsePluginManifest(baseHtml), draft.manifest),
+      sizeBefore: Math.max(1, Math.round(baseHtml.length / 1024)),
+    };
+  });
+  /** New permissions the user chose to keep, so their warning goes away. */
+  let keptPermissions = $state<PluginPermission[]>([]);
+  let followUpCopied = $state(false);
+  const newPermissions = $derived((review?.changes.added.permissions ?? []).filter(permission => !keptPermissions.includes(permission)));
+  const otherChanges = $derived.by(() => {
+    if (!review) return [];
+    const {added, removed} = review.changes;
+    return [
+      ...removed.permissions.map(permission => permission === 'internet' ? $t`No longer uses the internet` : $t`No longer changes the dictionary`),
+      ...added.contexts.map(() => $t`Now runs from an entry's menu`),
+      ...removed.contexts.map(() => $t`No longer runs from an entry's menu`),
+      ...added.requires.map(feature => $t`Now needs ${feature}, which not every project has`),
+      ...removed.requires.map(feature => $t`No longer needs ${feature}`),
+    ];
+  });
+  const permissionWarnings: Record<PluginPermission, string> = $derived({
+    internet: $t`The new version asks to use the internet`,
+    edit: $t`The new version asks to change the dictionary`,
+  });
+
+  async function askToRemove(permission: PluginPermission) {
+    // Addressed to the AI, so English like the rest of the prompt.
+    const consequence = permission === 'internet'
+      ? 'The plugin must work fully offline.'
+      : 'The plugin must only read the dictionary, never change it.';
+    await copyChangePrompt(`Remove the \`${permission}\` permission from the \`fwlite-plugin-permissions\` meta tag and everything that needs it. ${consequence} Keep everything else as it is.`);
+    followUpCopied = true;
+  }
+
+  /** Saving a new version drops "Always allow" (see PluginService.update); say so up front. */
+  const writeTrustResets = $derived(mode === 'edit' && draft.htmlChanged && !!savedPlugin
+    && pluginService.writeTrustStore.grantedHash(savedPlugin.id) !== undefined);
+
   // ---- Paste / upload ----
 
   let pasteText = $state('');
@@ -192,7 +261,10 @@
       return false;
     }
     pasteError = undefined;
-    draft.html = html;
+    draft.applyVersion(html);
+    showSavedVersion = false;
+    keptPermissions = [];
+    followUpCopied = false;
     if (mode === 'new' && (!draft.name.trim() || nameFromHtml)) {
       const title = pluginHtmlTitle(html);
       if (title) {
@@ -424,6 +496,76 @@
   </ol>
 {/snippet}
 
+{#snippet changeAi()}
+  <div class="space-y-4">
+    {#if review}
+      <div class="space-y-2" data-testid="plugin-version-review">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{$t`This version`}</h3>
+        <div class="rounded-md bg-muted px-3 py-2 text-sm">
+          {#if newPermissions.length === 0 && otherChanges.length === 0}
+            {$t`${review.sizeBefore} KB to ${sizeKb} KB, no new permissions`}
+          {:else}
+            {$t`${review.sizeBefore} KB to ${sizeKb} KB`}
+          {/if}
+        </div>
+        {#each newPermissions as permission (permission)}
+          <div class="space-y-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm" role="alert">
+            <div class="font-semibold text-destructive">{permissionWarnings[permission]}</div>
+            <p>{$t`The version before it didn't. If you didn't ask for this, have the AI take it out.`}</p>
+            <div class="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" loading={copyingChange} onclick={() => void askToRemove(permission)}>
+                {$t`Ask the AI to remove it`}
+              </Button>
+              <Button variant="ghost" size="sm" onclick={() => keptPermissions = [...keptPermissions, permission]}>{$t`Keep it`}</Button>
+            </div>
+          </div>
+        {/each}
+        {#if followUpCopied}
+          <p class="rounded-md bg-muted px-3 py-2 text-sm">
+            {$t`Follow-up prompt copied. Paste it into the same AI chat, then paste its reply below.`}
+          </p>
+        {/if}
+        {#if otherChanges.length}
+          <ul class="list-disc space-y-1 ps-5 text-sm">
+            {#each otherChanges as line (line)}
+              <li>{line}</li>
+            {/each}
+          </ul>
+        {/if}
+        {#if writeTrustResets}
+          <p class="rounded-md bg-muted px-3 py-2 text-sm">
+            {$t`Saving turns off "Always allow" on this device, so the new version asks before its first change.`}
+          </p>
+        {/if}
+      </div>
+    {/if}
+
+    <div class="space-y-2">
+      <Label for="plugin-studio-change">{mode === 'example' && !added ? $t`Change it before adding` : $t`Describe a change`}</Label>
+      <Textarea
+        id="plugin-studio-change"
+        bind:value={changeText}
+        class="min-h-20"
+        placeholder={$t`e.g. Also show how many entries have a recording.`}
+      />
+      <Button icon="i-mdi-content-copy" disabled={!draft.complete} loading={copyingChange} onclick={() => void copyChangePrompt(changeText)}>
+        {$t`Copy prompt`}
+      </Button>
+      <p class="text-xs text-muted-foreground">
+        {$t`The prompt includes the API guide, this project's setup and this plugin's current code. Paste it into any AI chat.`}
+      </p>
+    </div>
+
+    {@render pasteBox($t`Paste the AI's reply`)}
+
+    {#if draft.previousVersions.length}
+      <Button variant="ghost" size="sm" icon="i-mdi-undo" onclick={() => { draft.undoVersion(); keptPermissions = []; }}>
+        {$t`Go back to the previous version`}
+      </Button>
+    {/if}
+  </div>
+{/snippet}
+
 {#snippet panelContent(current: Tab)}
   {#if current === 'about' && example}
     <div class="space-y-4">
@@ -448,7 +590,7 @@
     {#if mode === 'new' && !draft.html}
       {@render newPluginAi()}
     {:else}
-      {@render pasteBox($t`Paste a new version`)}
+      {@render changeAi()}
     {/if}
   {:else if current === 'source'}
     <div class="flex h-full flex-col gap-3">
@@ -588,6 +730,16 @@
             <Icon icon="i-mdi-eye-outline" />
             {$t`Preview`}
           </Badge>
+          {#if canCompareVersions}
+            <div role="group" aria-label={$t`Version`} class="inline-flex gap-0.5 rounded-md bg-muted p-0.5">
+              <Button size="xs" variant={showSavedVersion ? 'secondary' : 'ghost'} aria-pressed={showSavedVersion} onclick={() => showSavedVersion = true}>
+                {$t`Current version`}
+              </Button>
+              <Button size="xs" variant={showSavedVersion ? 'ghost' : 'secondary'} aria-pressed={!showSavedVersion} onclick={() => showSavedVersion = false}>
+                {$t`New version`}
+              </Button>
+            </div>
+          {/if}
           <span>{$t`Your real dictionary. Changes it tries are shown, not saved.`}</span>
           <div class="grow"></div>
           {#if needsEntry}

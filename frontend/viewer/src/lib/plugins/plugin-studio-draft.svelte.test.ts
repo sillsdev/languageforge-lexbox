@@ -41,4 +41,19 @@ describe('PluginStudioDraft', () => {
     draft.reset(baseline);
     expect(draft.dirty).toBe(false);
   });
+
+  it('keeps replaced versions so the last one can be undone, and reviews against the right base', () => {
+    const draft = new PluginStudioDraft('new');
+    draft.applyVersion(html('v1'));
+    expect(draft.reviewBaseHtml).toBe('');
+    draft.applyVersion(html('v2'));
+    expect(draft.reviewBaseHtml).toBe(html('v1'));
+    draft.undoVersion();
+    expect(draft.html).toBe(html('v1'));
+
+    const edit = new PluginStudioDraft('edit', {name: 'Gaps', description: '', html: html('saved')});
+    edit.applyVersion(html('v1'));
+    edit.applyVersion(html('v2'));
+    expect(edit.reviewBaseHtml).toBe(html('saved'));
+  });
 });

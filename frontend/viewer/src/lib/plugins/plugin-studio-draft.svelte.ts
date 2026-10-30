@@ -23,6 +23,8 @@ export class PluginStudioDraft {
   description = $state('');
   // Raw: multi-MB strings replaced wholesale, never mutated in place.
   html = $state.raw('');
+  /** Versions replaced by a paste or upload, newest last, so the last one can be undone. */
+  previousVersions = $state.raw<string[]>([]);
 
   constructor(readonly mode: StudioMode, baseline?: StudioBaseline) {
     if (baseline) this.reset(baseline);
@@ -34,6 +36,29 @@ export class PluginStudioDraft {
     this.name = baseline.name;
     this.description = baseline.description;
     this.html = baseline.html;
+    this.previousVersions = [];
+  }
+
+  /** Swaps in a new version of the HTML, keeping the one it replaces for {@link undoVersion}. */
+  applyVersion(html: string): void {
+    if (html === this.html) return;
+    this.previousVersions = [...this.previousVersions, this.html];
+    this.html = html;
+  }
+
+  undoVersion(): void {
+    const previous = this.previousVersions.at(-1);
+    if (previous === undefined) return;
+    this.previousVersions = this.previousVersions.slice(0, -1);
+    this.html = previous;
+  }
+
+  /**
+   * What a new version is reviewed against: what the studio started from (the saved plugin or the
+   * example), or for a new plugin the version before it.
+   */
+  get reviewBaseHtml(): string {
+    return this.baseline.html || this.previousVersions.findLast(html => !!html) || '';
   }
 
   readonly htmlChanged = $derived(this.html !== this.baseline.html);

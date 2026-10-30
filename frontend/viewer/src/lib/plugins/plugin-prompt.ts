@@ -34,6 +34,31 @@ export function pluginTaskSection(description: string): string {
 ${description.trim() || DESCRIPTION_PLACEHOLDER}`;
 }
 
+const CHANGE_PLACEHOLDER =
+  'REPLACE THIS PARAGRAPH with the change you want — what should work differently, look different, or be added.';
+
+/**
+ * The closing section for changing an existing plugin: its complete current HTML plus the change
+ * the user asked for. Appended to the same {@link buildPluginPrompt} body as a new plugin's prompt,
+ * so the AI gets the API guide and project context either way.
+ */
+export function pluginChangeSection(currentHtml: string, change: string): string {
+  // A four-backtick fence, so a ``` inside the plugin (e.g. in a comment) can't end the block early.
+  return `---
+
+## The plugin as it is now
+
+This is the complete current HTML of the plugin. Change it as described below and reply with the WHOLE updated file — one complete HTML document from \`<!DOCTYPE html>\` to \`</html>\`, not a diff or an excerpt. Keep everything else working as it does now, and don't add permissions (\`internet\`, \`edit\`) or contexts the change doesn't need.
+
+\`\`\`\`html
+${currentHtml}
+\`\`\`\`
+
+## The change I want
+
+${change.trim() || CHANGE_PLACEHOLDER}`;
+}
+
 /**
  * Builds the project-aware body of the prompt users paste into an AI assistant (Claude, ChatGPT, …)
  * to have it write a plugin. Append {@link pluginTaskSection} to get the complete prompt. Kept in

@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {buildPluginPrompt, pluginTaskSection} from './plugin-prompt';
+import {buildPluginPrompt, pluginChangeSection, pluginTaskSection} from './plugin-prompt';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
 
 const api = {
@@ -91,5 +91,27 @@ describe('pluginTaskSection', () => {
 
   it('falls back to the placeholder when empty', () => {
     expect(pluginTaskSection('   ')).toContain('REPLACE THIS PARAGRAPH');
+  });
+});
+
+describe('pluginChangeSection', () => {
+  const currentHtml = '<!DOCTYPE html><html><head><title>Gaps</title></head><body>```not a fence end```</body></html>';
+
+  it('carries the setup body, the current HTML and the requested change', async () => {
+    const prompt = `${await buildPluginPrompt(api, project)}\n\n${pluginChangeSection(currentHtml, 'Add a filter for entries with no audio')}`;
+    expect(prompt).toContain('fwlite.getEntries');
+    expect(prompt).toContain('## This project');
+    expect(prompt).toContain(currentHtml);
+    expect(prompt).toContain('Add a filter for entries with no audio');
+    expect(prompt).toContain('WHOLE updated file');
+  });
+
+  it('fences the HTML so a triple backtick inside it cannot end the block', () => {
+    const section = pluginChangeSection(currentHtml, 'x');
+    expect(section).toContain('````html\n' + currentHtml + '\n````');
+  });
+
+  it('uses a placeholder when no change was described', () => {
+    expect(pluginChangeSection(currentHtml, '  ')).toContain('REPLACE THIS PARAGRAPH');
   });
 });
