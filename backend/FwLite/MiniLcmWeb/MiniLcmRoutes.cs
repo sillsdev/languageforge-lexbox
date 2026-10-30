@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -15,6 +16,21 @@ public static class MiniLcmRoutes
     public static IServiceCollection AddMiniLcmRouteServices(this IServiceCollection services)
     {
         services.AddTransient<MiniLcmHolder>();
+        services.AddMiniLcmJsonOptions();
+        return services;
+    }
+
+    /// <summary>
+    /// Hides internal MiniLcm properties from API callers, in both directions. Also used by hosts that only
+    /// describe these routes in OpenAPI, so the schema matches what the routes accept and return.
+    /// </summary>
+    public static IServiceCollection AddMiniLcmJsonOptions(this IServiceCollection services)
+    {
+        services.AddOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>().PostConfigure(jsonOptions =>
+        {
+            var options = jsonOptions.SerializerOptions;
+            options.TypeInfoResolver = (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver()).AddMiniLcmApiModifiers();
+        });
         return services;
     }
 
@@ -25,7 +41,7 @@ public static class MiniLcmRoutes
         {
             get => field ?? throw new InvalidOperationException("MiniLcmApi not set");
             set;
-        } = null!;
+        } = null;
     }
 
     /// <summary>
