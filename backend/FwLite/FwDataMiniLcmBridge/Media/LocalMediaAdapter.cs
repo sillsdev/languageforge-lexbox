@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -25,11 +26,18 @@ public class LocalMediaAdapter(IMemoryCache memoryCache, ILogger<LocalMediaAdapt
 
     internal static string PathsCacheKey(LcmCache cache) => "LocalMediaPath|" + cache.ProjectId.ProjectFolder;
 
+    // Static: the adapter can be scoped while the memory cache is a singleton.
+    private static readonly Lock UnscannedPathsLock = new();
+
     // Paths the LinkedFiles scan won't reproduce (pictures FLEx linked in place, casing unlike the disk). Nothing rebuilds them, so no expiry.
-    private Dictionary<Guid, string> UnscannedPaths(LcmCache cache)
+    // GetOrCreate can run its factory twice under concurrency, which would drop a dictionary and its mappings, hence the lock.
+    private ConcurrentDictionary<Guid, string> UnscannedPaths(LcmCache cache)
     {
-        return memoryCache.GetOrCreate("LocalMediaUnscannedPath|" + cache.ProjectId.ProjectFolder,
-            _ => new Dictionary<Guid, string>()) ?? throw new Exception("Failed to get unscanned paths");
+        lock (UnscannedPathsLock)
+        {
+            return memoryCache.GetOrCreate("LocalMediaUnscannedPath|" + cache.ProjectId.ProjectFolder,
+                _ => new ConcurrentDictionary<Guid, string>()) ?? throw new Exception("Failed to get unscanned paths");
+        }
     }
 
     internal static Dictionary<Guid, string> BuildPathsDictionary(string root, ILogger logger)
