@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Requirements;
 using LexBoxApi.Services;
@@ -50,12 +51,13 @@ public static class LexiconProxy
     {
         var lexicon = app.MapGroup("/api/lexicon")
             .WithGroupName(LexboxOpenApi.OpenApiPublicDocumentName)
-            .WithTags("Lexicon")
-            .WithDescription(Experimental);
+            .WithTags("Lexicon");
 
         lexicon.MapGet("/projects", ListProjects)
             .RequireAuthorization(ListPolicy)
-            .WithSummary("Harmony projects you are a member of that the lexicon API can serve");
+            .WithSummary("List projects")
+            .WithDescription("The Harmony projects you are a member of that the lexicon API can serve, with your role in each. " +
+                             "Projects that have not been synced to FieldWorks Lite on Lexbox yet are left out.\n\n" + Experimental);
 
         var project = lexicon.MapGroup("/project/{projectId:guid}")
             .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -63,34 +65,35 @@ public static class LexiconProxy
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         // Parameters are bound only so the OpenAPI document describes them; FwHeadless reads the forwarded request.
-        var read = project.MapGroup("").RequireAuthorization(ReadPolicy).WithGridifyFilterDocs();
-        read.MapGet("/writing-systems", ForwardProject).Produces<WritingSystems>();
+        var read = project.MapGroup("").RequireAuthorization(ReadPolicy).WithQueryParameterDocs();
+        read.MapGet("/writing-systems", ForwardProject).Produces<WritingSystems>().WithDoc(MiniLcmRouteDocs.GetWritingSystems, Experimental);
         read.MapGet("/entries",
                 (Guid projectId, [FromQuery] string? search, [AsParameters] MiniLcmQueryOptions options, HttpContext context) => Forward(context))
-            .Produces<Entry[]>();
+            .Produces<Entry[]>().WithDoc(MiniLcmRouteDocs.GetEntries, Experimental);
         read.MapGet("/entries/count",
                 (Guid projectId, [FromQuery] string? search, [FromQuery] string? gridifyFilter, HttpContext context) => Forward(context))
-            .Produces<int>();
-        read.MapGet("/entry/{id:guid}", ForwardItem).Produces<Entry>().Produces(StatusCodes.Status404NotFound);
+            .Produces<int>().WithDoc(MiniLcmRouteDocs.CountEntries, Experimental);
+        read.MapGet("/entry/{id:guid}", ForwardItem).Produces<Entry>().Produces(StatusCodes.Status404NotFound).WithDoc(MiniLcmRouteDocs.GetEntry, Experimental);
         read.MapGet("/entry/{id:guid}/index",
                 (Guid projectId, Guid id, [FromQuery] string? search, [AsParameters] MiniLcmQueryOptions options, HttpContext context) => Forward(context))
-            .Produces<int>();
-        read.MapGet("/sense/{id:guid}", ForwardItem).Produces<Sense>().Produces(StatusCodes.Status404NotFound);
-        read.MapGet("/parts-of-speech", ForwardProject).Produces<PartOfSpeech[]>();
-        read.MapGet("/semantic-domains", ForwardProject).Produces<SemanticDomain[]>();
-        read.MapGet("/publications", ForwardProject).Produces<Publication[]>();
-        read.MapGet("/complex-form-types", ForwardProject).Produces<ComplexFormType[]>();
-        read.MapGet("/morph-types", ForwardProject).Produces<MorphType[]>();
+            .Produces<int>().WithDoc(MiniLcmRouteDocs.GetEntryIndex, Experimental);
+        read.MapGet("/sense/{id:guid}", ForwardItem).Produces<Sense>().Produces(StatusCodes.Status404NotFound).WithDoc(MiniLcmRouteDocs.GetSense, Experimental);
+        read.MapGet("/parts-of-speech", ForwardProject).Produces<PartOfSpeech[]>().WithDoc(MiniLcmRouteDocs.GetPartsOfSpeech, Experimental);
+        read.MapGet("/semantic-domains", ForwardProject).Produces<SemanticDomain[]>().WithDoc(MiniLcmRouteDocs.GetSemanticDomains, Experimental);
+        read.MapGet("/publications", ForwardProject).Produces<Publication[]>().WithDoc(MiniLcmRouteDocs.GetPublications, Experimental);
+        read.MapGet("/complex-form-types", ForwardProject).Produces<ComplexFormType[]>().WithDoc(MiniLcmRouteDocs.GetComplexFormTypes, Experimental);
+        read.MapGet("/morph-types", ForwardProject).Produces<MorphType[]>().WithDoc(MiniLcmRouteDocs.GetMorphTypes, Experimental);
 
         var write = project.MapGroup("").RequireAuthorization(WritePolicy);
-        write.MapPost("/entry", ForwardProject).Accepts<Entry>("application/json").Produces<Entry>(StatusCodes.Status201Created);
+        write.MapPost("/entry", ForwardProject).Accepts<Entry>("application/json").Produces<Entry>(StatusCodes.Status201Created).WithDoc(MiniLcmRouteDocs.CreateEntry, Experimental);
         write.MapPut("/entry/{id:guid}", ForwardItem).Accepts<UpdateEntryRequest>("application/json")
-            .Produces<Entry>().ProducesProblem(StatusCodes.Status400BadRequest);
-        write.MapDelete("/entry/{id:guid}", ForwardItem).Produces(StatusCodes.Status200OK);
+            .Produces<Entry>().ProducesProblem(StatusCodes.Status400BadRequest).WithDoc(MiniLcmRouteDocs.UpdateEntry, Experimental);
+        write.MapDelete("/entry/{id:guid}", ForwardItem).Produces(StatusCodes.Status200OK).WithDoc(MiniLcmRouteDocs.DeleteEntry, Experimental);
         return lexicon;
     }
 
-    public record LexiconProject(Guid Id, string Code, string Name, ProjectRole Role);
+    public record LexiconProject(Guid Id, string Code, string Name,
+        [property: JsonConverter(typeof(JsonStringEnumConverter))] ProjectRole Role);
 
     private static async Task<Ok<LexiconProject[]>> ListProjects(LoggedInContext loggedInContext,
         ProjectService projectService,

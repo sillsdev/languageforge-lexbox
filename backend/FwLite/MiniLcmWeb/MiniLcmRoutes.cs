@@ -46,22 +46,22 @@ public static class MiniLcmRoutes
                 miniLcmHolder.MiniLcmApi = resolution.Api ?? throw new InvalidOperationException("MiniLcm api resolver returned neither an api nor an error");
                 return await next(context);
             })
-            .WithGridifyFilterDocs();
+            .WithQueryParameterDocs();
 
-        api.MapGet("/writing-systems", MiniLcm.GetWritingSystems);
-        api.MapGet("/entries", MiniLcm.GetEntries);
-        api.MapGet("/entries/count", MiniLcm.CountEntries);
-        api.MapGet("/entry/{id:Guid}", MiniLcm.GetEntry);
-        api.MapGet("/entry/{id:Guid}/index", MiniLcm.GetEntryIndex);
-        api.MapGet("/sense/{id:Guid}", MiniLcm.GetSense);
-        api.MapGet("/parts-of-speech", MiniLcm.GetPartsOfSpeech);
-        api.MapGet("/semantic-domains", MiniLcm.GetSemanticDomains);
-        api.MapGet("/publications", MiniLcm.GetPublications);
-        api.MapGet("/complex-form-types", MiniLcm.GetComplexFormTypes);
-        api.MapGet("/morph-types", MiniLcm.GetMorphTypes);
-        api.MapPost("/entry", MiniLcm.PostEntry);
-        api.MapPut("/entry/{id:Guid}", MiniLcm.PutEntry).ProducesProblem(StatusCodes.Status400BadRequest);
-        api.MapDelete("/entry/{id:Guid}", MiniLcm.DeleteEntry);
+        api.MapGet("/writing-systems", MiniLcm.GetWritingSystems).WithDoc(MiniLcmRouteDocs.GetWritingSystems);
+        api.MapGet("/entries", MiniLcm.GetEntries).WithDoc(MiniLcmRouteDocs.GetEntries);
+        api.MapGet("/entries/count", MiniLcm.CountEntries).WithDoc(MiniLcmRouteDocs.CountEntries);
+        api.MapGet("/entry/{id:Guid}", MiniLcm.GetEntry).WithDoc(MiniLcmRouteDocs.GetEntry);
+        api.MapGet("/entry/{id:Guid}/index", MiniLcm.GetEntryIndex).WithDoc(MiniLcmRouteDocs.GetEntryIndex);
+        api.MapGet("/sense/{id:Guid}", MiniLcm.GetSense).WithDoc(MiniLcmRouteDocs.GetSense);
+        api.MapGet("/parts-of-speech", MiniLcm.GetPartsOfSpeech).WithDoc(MiniLcmRouteDocs.GetPartsOfSpeech);
+        api.MapGet("/semantic-domains", MiniLcm.GetSemanticDomains).WithDoc(MiniLcmRouteDocs.GetSemanticDomains);
+        api.MapGet("/publications", MiniLcm.GetPublications).WithDoc(MiniLcmRouteDocs.GetPublications);
+        api.MapGet("/complex-form-types", MiniLcm.GetComplexFormTypes).WithDoc(MiniLcmRouteDocs.GetComplexFormTypes);
+        api.MapGet("/morph-types", MiniLcm.GetMorphTypes).WithDoc(MiniLcmRouteDocs.GetMorphTypes);
+        api.MapPost("/entry", MiniLcm.PostEntry).WithDoc(MiniLcmRouteDocs.CreateEntry);
+        api.MapPut("/entry/{id:Guid}", MiniLcm.PutEntry).ProducesProblem(StatusCodes.Status400BadRequest).WithDoc(MiniLcmRouteDocs.UpdateEntry);
+        api.MapDelete("/entry/{id:Guid}", MiniLcm.DeleteEntry).WithDoc(MiniLcmRouteDocs.DeleteEntry);
         return api;
     }
 

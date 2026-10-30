@@ -25,20 +25,23 @@ public static class GridifyFilterDocs
     // after Fields: static initializers run in order, and this one reads Fields
     public static string Description { get; } = BuildDescription();
 
+    public const string SearchDescription =
+        "Text to look for in headwords, lexeme forms, citation forms and glosses.";
+
     /// <summary>
-    /// Sets <see cref="Description"/> on any <c>gridifyFilter</c> parameter of the builder's operations.
+    /// Describes any <c>search</c> and <c>gridifyFilter</c> parameter of the builder's operations.
     /// </summary>
-    public static TBuilder WithGridifyFilterDocs<TBuilder>(this TBuilder builder) where TBuilder : IEndpointConventionBuilder
+    public static TBuilder WithQueryParameterDocs<TBuilder>(this TBuilder builder) where TBuilder : IEndpointConventionBuilder
     {
         return builder.AddOpenApiOperationTransformer((operation, _, _) =>
         {
             foreach (var parameter in operation.Parameters ?? [])
             {
-                if (string.Equals(parameter.Name, "gridifyFilter", StringComparison.OrdinalIgnoreCase)
-                    && parameter is Microsoft.OpenApi.OpenApiParameter openApiParameter)
-                {
+                if (parameter is not Microsoft.OpenApi.OpenApiParameter openApiParameter) continue;
+                if (string.Equals(parameter.Name, "gridifyFilter", StringComparison.OrdinalIgnoreCase))
                     openApiParameter.Description = Description;
-                }
+                else if (string.Equals(parameter.Name, "search", StringComparison.OrdinalIgnoreCase))
+                    openApiParameter.Description = SearchDescription;
             }
             return Task.CompletedTask;
         });
