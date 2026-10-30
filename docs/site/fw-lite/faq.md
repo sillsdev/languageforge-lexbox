@@ -52,6 +52,12 @@ log in and download the project again. Changes that are still only on a broken d
 can't be recovered, so open the app while you are online now and then, and check that
 **Synchronize** says **Up to date**.
 
+## Something is missing or wrong in my project
+
+Tell us right away at [lexbox_support@groups.sil.org](mailto:lexbox_support@groups.sil.org),
+with the project name and what looks wrong. Until we reply, avoid editing the entries
+that look wrong.
+
 ## How do I remove a project from my device?
 
 In the project list, right-click the project (on a phone or tablet, press and hold it) and
@@ -72,6 +78,10 @@ support** to ask on the [community forum](https://community.software.sil.org/c/f
 **Make a suggestion**, **Report a technical problem**, or **Send us a message** to email
 [lexbox_support@groups.sil.org](mailto:lexbox_support@groups.sil.org). Telling us what
 device you were using and what you were doing at the time helps a lot.
+
+Include a screenshot or the exact text of any error. If support asks for your log file,
+open **Troubleshoot** (in **Help & More** inside a project, or the ⋮ menu on the home
+screen) and choose **Share Log file**, or **Open Log file** and attach it to your email.
 
 ## Is FieldWorks Lite finished?
 

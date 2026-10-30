@@ -33,7 +33,7 @@ dotnet test FwLiteOnly.slnf
 ```
 
 ### Logs and settings (desktop/mobile app)
-See [docs/FWLITE-TROUBLESHOOTING.md](../../docs/FWLITE-TROUBLESHOOTING.md) for where the app log lives, the
+See [docs/dev/FWLITE-TROUBLESHOOTING.md](../../docs/dev/FWLITE-TROUBLESHOOTING.md) for where the app log lives, the
 optional `fw-lite-settings.json`, and how to turn on verbose logging.
 
 ### Building for a specific framework

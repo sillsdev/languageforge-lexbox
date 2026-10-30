@@ -4,7 +4,7 @@ import type {Options as PresetOptions, ThemeConfig} from '@docusaurus/preset-cla
 import type {Options as DocsOptions} from '@docusaurus/plugin-content-docs';
 
 // Docusaurus appends the path of each doc relative to this directory.
-const editUrl = 'https://github.com/sillsdev/languageforge-lexbox/tree/develop/docs';
+const editUrl = 'https://github.com/sillsdev/languageforge-lexbox/tree/develop/docs/site';
 const repoUrl = 'https://github.com/sillsdev/languageforge-lexbox';
 
 const config: Config = {
@@ -16,7 +16,7 @@ const config: Config = {
     v4: true,
   },
 
-  // The final home is still undecided and docs.lexbox.org doesn't resolve yet.
+  // docs.lexbox.org doesn't resolve yet.
   // CI sets the repo's GitHub Pages URL (see docs.yaml); without it, assets 404 under /<repo>/.
   url: process.env.DOCS_URL ?? 'https://docs.lexbox.org',
   baseUrl: process.env.DOCS_BASE_URL ?? '/',
@@ -63,7 +63,7 @@ const config: Config = {
     ],
   ],
 
-  // Route bases are deep-link targets: see docs/AGENTS.md before moving them.
+  // Route bases are deep-link targets: see docs/site/AGENTS.md before moving them.
   plugins: [
     [
       '@docusaurus/plugin-content-docs',

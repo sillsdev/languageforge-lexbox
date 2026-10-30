@@ -118,7 +118,7 @@ updates:
 
   # --- docs site ---
   - package-ecosystem: npm
-    directory: /docs
+    directory: /docs/site
     target-branch: develop
     schedule:
       interval: weekly

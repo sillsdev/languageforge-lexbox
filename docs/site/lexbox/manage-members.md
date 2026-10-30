@@ -32,6 +32,11 @@ password, creating missing accounts) uses **Bulk Add/Create Members**, which onl
 administrators see. Write to [admin@languagedepot.org](mailto:admin@languagedepot.org) to
 have it done.
 
+### People without an email address
+
+Lexbox administrators can create accounts that log in with a username instead. Send their
+names to [admin@languagedepot.org](mailto:admin@languagedepot.org).
+
 Members of an organization that owns your project can also find it themselves and choose
 **Ask to join project**, if it is marked not confidential. You get an email with an
 **Approve Request** button, which opens the add dialog with their name filled in: pick a

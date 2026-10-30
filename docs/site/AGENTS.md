@@ -1,6 +1,6 @@
 # Docs site
 
-Docusaurus site with three sections: `fw-lite/` (FieldWorks Lite users), `lexbox/` (lexbox.org and Send/Receive users) and `technical/` (how the system works, for anyone curious; not how to develop it). `adr/`, `research/` and the `DEVELOPER-*.md` setup guides are not published. Developer setup and CI/CD stay in the repo (README, `.github/AGENTS.md`), not on the site. Check a change with `pnpm install && pnpm build` in this folder; broken links and anchors fail the build. `pnpm typecheck` covers the React components.
+Docusaurus site with three sections: `fw-lite/` (FieldWorks Lite users), `lexbox/` (lexbox.org and Send/Receive users) and `technical/` (how the system works, for anyone curious; not how to develop it). Everything in this folder is published. Developer docs (setup, troubleshooting, ADRs) go in `docs/dev/`, CI/CD in `.github/AGENTS.md`. Check a change with `pnpm install && pnpm build` in this folder; broken links and anchors fail the build. `pnpm typecheck` covers the React components.
 
 ## Which page to update
 
@@ -10,7 +10,7 @@ Docusaurus site with three sections: `fw-lite/` (FieldWorks Lite users), `lexbox
 | When sync runs or which edit wins (`backend/FwLite/`, `backend/FwHeadless/`) | `fw-lite/how-sync-works.mdx`, `syncScenarios.ts`, `lexbox/fw-lite.md`, `technical/sync/` |
 | lexbox.org UI, roles, invites, orgs, project requests (`frontend/src/`, `backend/LexBoxApi/`, `backend/LexCore/`) | the `lexbox/` page that names it |
 
-`git grep` the old label or behavior under `docs/` to find every page that mentions it.
+`git grep` the old label or behavior under `docs/site/` to find every page that mentions it.
 
 ## Adding pages
 
@@ -36,4 +36,4 @@ Support replies link to pages, headings and explainer questions (`/fw-lite/how-s
 - Rewording a heading changes its anchor. Keep the old one with `## New wording {/* #old-anchor */}` (`{#id}` doesn't build here because of `future.v4`).
 - Don't rename a scenario id.
 
-Decisions behind the site: `adr/0002-docs-site.md`.
+Decisions behind the site: `docs/dev/adr/0002-docs-site.md`.

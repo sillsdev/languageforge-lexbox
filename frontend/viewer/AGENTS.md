@@ -17,7 +17,7 @@ pnpm run dev
 
 **Before saying done or committing**, run `task verify` from the repo root once (svelte-check, eslint, vitest unit, i18n extract; 3 to 7 min for both apps). `src/project/demo/demo-project-view.test.ts` mounts the whole demo app there, so a component that breaks the demo fails fast instead of in 60+ Playwright tests.
 
-**User docs** (`docs/fw-lite/`, `docs/src/components/SyncExplainer/syncScenarios.ts`) quote UI labels verbatim. Renamed a label or changed a flow? `git grep` the old text under `docs/` and update it in the same PR; rules in `docs/AGENTS.md`.
+**User docs** (`docs/site/fw-lite/`, `docs/site/src/components/SyncExplainer/syncScenarios.ts`) quote UI labels verbatim. Renamed a label or changed a flow? `git grep` the old text under `docs/site/` and update it in the same PR; rules in `docs/site/AGENTS.md`.
 
 ### Dev server: one per worktree
 

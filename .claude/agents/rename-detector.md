@@ -21,7 +21,7 @@ identifier deleted elsewhere in the diff. For each candidate:
    - String interpolations, log templates, `nameof()` calls.
    - Test data, `[InlineData]` arrays.
    - Doc comments and inline `///` references.
-   - `docs/` (incl. `docs/src/components/SyncExplainer/syncScenarios.ts`): the user docs quote UI labels verbatim, so a changed `msgid` in `frontend/viewer/src/locales/en.po` or value in `frontend/src/lib/i18n/locales/en.json` can leave a stale label there.
+   - `docs/site/` (incl. `docs/site/src/components/SyncExplainer/syncScenarios.ts`): the user docs quote UI labels verbatim, so a changed `msgid` in `frontend/viewer/src/locales/en.po` or value in `frontend/src/lib/i18n/locales/en.json` can leave a stale label there.
 3. Report each straggler with `file:line`.
 
 ## Blast radius
@@ -43,7 +43,7 @@ the old name." Helps the author verify completeness.
 - Stale generated TS → ⚠️ important (auto-fixable by rebuild).
 - Snapshot fixtures with old name → ⚠️ important.
 - String interpolations → ⚠️ important.
-- Old UI label in `docs/` → ⚠️ important (users follow the docs to a button that's gone).
+- Old UI label in `docs/site/` → ⚠️ important (users follow the docs to a button that's gone).
 - Comments / doc strings → 💭 nit.
 
 ## Finding format

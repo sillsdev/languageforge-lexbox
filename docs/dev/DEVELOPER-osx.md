@@ -13,4 +13,4 @@
   export DYLD_LIBRARY_PATH=/opt/homebrew/opt/icu4c/lib:$DYLD_LIBRARY_PATH
   export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
   ```
-  * run `task setup` and continue with the [main instructions](../README.md)
+  * run `task setup` and continue with the [main instructions](../../README.md)

@@ -5,7 +5,10 @@ sidebar_position: 1
 
 import AppIcon from '@site/src/components/AppIcon';
 
-This page takes you from nothing installed to your first edit.
+This page takes you from nothing installed to your first edit. To open a real project,
+it has to be on Lexbox, with data sent from FieldWorks Classic, and with FieldWorks Lite
+turned on. If that hasn't happened yet, your project manager starts with
+[Turn on FieldWorks Lite](/lexbox/fw-lite).
 
 ## Install the app
 

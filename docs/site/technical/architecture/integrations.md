@@ -63,11 +63,11 @@ flowchart LR
     job -- "/api/crdt sync" --- api
 ```
 
-**It is not a scheduler and it does not watch for changes.** The merge job runs only when a user asks for it: the Sync button in FW Lite or "Sync FieldWorks Lite" on the Lexbox project page. Both go through `POST /api/fw-lite/sync/trigger/{projectId}` on lexbox-api, which calls FwHeadless's `POST /api/merge/execute`, which queues the job. The queue is in-process and serialized, so one project syncs at a time and a project already queued is not queued twice. Callers watch `GET /api/merge/status` and `GET /api/merge/await-finished`. Media files ride along with the same job over `/api/media/*`.
+**It is not a scheduler and it does not watch for changes.** The merge job runs only when a user asks for it: the Sync button in FW Lite or "Sync FieldWorks Lite" on the Lexbox project page. Both go through `POST /api/fw-lite/sync/trigger/{projectId}` on lexbox-api, which calls FwHeadless's `POST /api/merge/execute`, which queues the job. The queue is in-process and serialized, so one project syncs at a time and a project already queued is not queued twice. Callers poll FwHeadless for the job's status. Media files ride along with the same job over `/api/media/*`.
 
 ## Platform.Bible extension
 
-`platform.bible-extension/` is a Platform.Bible (paranext) extension named `lexicon`. On activation it launches a FW Lite process on `http://localhost:29348` and talks to it over HTTP REST, then exposes `lexicon.entryService` as a PAPI network object so other extensions can add, find and display dictionary entries. UI is React WebViews registered with the platform.
+[`platform.bible-extension/`](https://github.com/sillsdev/languageforge-lexbox/tree/develop/platform.bible-extension) is a Platform.Bible (paranext) extension named `lexicon`. On activation it launches a FW Lite process on `http://localhost:29348` and talks to it over HTTP REST, then exposes `lexicon.entryService` as a PAPI network object so other extensions can add, find and display dictionary entries. UI is React WebViews registered with the platform.
 
 ## APIs Lexbox offers
 
@@ -80,10 +80,10 @@ flowchart LR
 
 ## Localization: Crowdin
 
-Source strings live in gettext catalogs; Crowdin holds the translations, but only for FW Lite's `en.po` and the Platform.Bible extension description (`crowdin.yml`). The Lexbox web app's JSON strings are not on Crowdin. Inbound, Crowdin opens a PR from `l10n_develop` on each sync. Outbound is export-only from GitHub's side, so updated source strings are pushed with the Crowdin CLI (`crowdin push sources`). All seven target locales are machine-translation covered, which is why brand names (`Lexbox`, `FieldWorks`, `SIL`) need glossary "Trademark" entries, because MT otherwise translates them literally.
+Source strings live in gettext catalogs; Crowdin holds the translations, but only for FW Lite's `en.po` and the Platform.Bible extension description (`crowdin.yml`). The Lexbox web app's JSON strings are not on Crowdin. Inbound, Crowdin opens a PR from `l10n_develop` on each sync. Updated source strings reach Crowdin by a separate upload, not from GitHub. All seven target locales are machine-translation covered, which is why brand names (`Lexbox`, `FieldWorks`, `SIL`) need glossary "Trademark" entries, because MT otherwise translates them literally.
 
 ## Observability: OpenTelemetry and Honeycomb
 
-The server-side services (lexbox-api, the UI, hgweb and FwHeadless) export OTEL traces to an otel-collector sidecar in the lexbox pod (gRPC 4317, HTTP 4318), which forwards to [Honeycomb](https://ui.honeycomb.io/sil-language-forge/). The "Error code" shown at the bottom of an error message in the app is the trace ID: Ctrl+click it to open the trace. Locally, traces go to the Aspire dashboard on port 18888; set `HONEYCOMB_API_KEY` in `deployment/local-dev/local.env` to send them to Honeycomb instead.
+The server-side services (lexbox-api, the UI, hgweb and FwHeadless) export OTEL traces to an otel-collector sidecar in the lexbox pod (gRPC 4317, HTTP 4318), which forwards to Honeycomb. The "Error code" shown at the bottom of an error message in the app is the trace ID, so support can find what went wrong.
 
 FieldWorks Lite exports no traces. It reports usage and errors to Mixpanel.

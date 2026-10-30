@@ -186,7 +186,9 @@ flowchart LR
 
 ---
 
-**User docs promise:** device ↔ Lexbox sync runs by itself (after each edit, on project open, on server push), and a field edited on both sides keeps the FieldWorks Classic value. Change either? Update `docs/fw-lite/how-sync-works.mdx`, `docs/src/components/SyncExplainer/syncScenarios.ts`, `docs/lexbox/fw-lite.md` and `docs/technical/sync/` in the same PR.
+**User docs promise:** device ↔ Lexbox sync runs by itself (after each edit, on project open, on server push), and a field edited on both sides keeps the FieldWorks Classic value. Change either? Update `docs/site/fw-lite/how-sync-works.mdx`, `docs/site/src/components/SyncExplainer/syncScenarios.ts`, `docs/site/lexbox/fw-lite.md` and `docs/site/technical/sync/` in the same PR.
+
+Sync triggers: local edit (`MiniLcmJsInvokable.OnDataChanged`), project open (`ProjectServicesProvider`), `OnProjectUpdated` push and listener (re)connect (`LexboxHubConnection`), listener restart after a successful sync (`SyncService.ExecuteSync`), 5-minute `PushListenerRecoveryService`. `BackgroundSyncService` runs them one at a time with no dedup. `SafeExecuteSync` swallows exceptions; statuses are `NoServer`, `NotLoggedIn` (reported before `Offline`), `Offline`, `UnknownError`.
 
 ## 🔴 CRITICAL AREA: FwData ↔ CRDT Sync
 

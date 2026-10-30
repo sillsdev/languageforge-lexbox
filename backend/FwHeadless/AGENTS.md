@@ -92,7 +92,9 @@ flowchart TD
 
 **Critical steps highlighted** - Steps 4 and 5 are where data loss can occur.
 
-**User docs promise:** the merge runs only when someone presses Sync (no schedule), one project at a time, and a project's first sync can take minutes. Change that? Update `docs/fw-lite/how-sync-works.mdx`, `docs/src/components/SyncExplainer/syncScenarios.ts`, `docs/lexbox/fw-lite.md` and `docs/technical/sync/fwheadless-merge.md` in the same PR.
+**User docs promise:** the merge runs only when someone presses Sync (no schedule), one project at a time, and a project's first sync can take minutes. Change that? Update `docs/site/fw-lite/how-sync-works.mdx`, `docs/site/src/components/SyncExplainer/syncScenarios.ts`, `docs/site/lexbox/fw-lite.md` and `docs/site/technical/sync/fwheadless-merge.md` in the same PR.
+
+Job outcomes are `SyncJobResult.Status` (`LexCore/Sync/SyncJobResult.cs`); the `SyncJob*`/`TimedOut*` ones are polling outcomes, and results stay cached 30 s. A Chorus rollback blocks the project (HTTP 423 at the trigger, re-checked in the worker); unblock with `POST /api/fw-lite/sync/unblock?projectId=...` (no UI; any user who can sync the project). The snapshot is `{project}_snapshot.json`; why it's written after the post-merge Send/Receive and from the Harmony API is in `SyncWorker.ExecuteSync` (`Services/SyncHostedService.cs`).
 
 ### Key Services
 

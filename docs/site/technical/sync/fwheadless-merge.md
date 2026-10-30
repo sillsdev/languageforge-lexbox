@@ -19,12 +19,12 @@ There is no scheduler, no cron and no Mercurial hook. A merge happens because so
 - Lexbox → **Sync FieldWorks Lite** on the project page.
 
 Both go `POST /api/fw-lite/sync/trigger/{projectId}` (Lexbox) → `POST /api/merge/execute` (FwHeadless), which
-only *queues* the job. `SyncHostedService` runs one global sequential worker, so projects are processed one at a
-time and a queued project waits. Queuing is deduplicated: triggering a project that's already queued or running
+only *queues* the job. [One global worker](https://github.com/sillsdev/languageforge-lexbox/blob/develop/backend/FwHeadless/Services/SyncHostedService.cs) processes projects one
+at a time, so a queued project waits. Queuing is deduplicated: triggering a project that's already queued or running
 is a no-op.
 
-The client then polls `await-sync-finished` for the result. FieldWorks Lite gives up after **15 minutes**
-(re-requesting every 25 s to dodge the 30 s HTTP timeout); the Lexbox web button keeps polling. The **first-ever**
+The client then polls for the result, but the job doesn't depend on it: closing FieldWorks Lite or the web page
+doesn't stop a queued job. FieldWorks Lite stops waiting after **15 minutes**; the Lexbox web button keeps waiting. The **first-ever**
 sync for a project clones the hg repo and imports every entry into a new Harmony database, which takes minutes.
 
 ## The sync cycle
@@ -55,7 +55,7 @@ flowchart TD
     style N fill:#ff9,stroke:#333
 ```
 
-**The snapshot** is a JSON file (`{project}_snapshot.json`) kept next to the project's data. It records the whole
+**The snapshot** is a JSON file kept next to the project's data. It records the whole
 dictionary state: entries, senses, parts of speech and the rest, as of the last successful merge. Two things
 depend on it:
 
@@ -65,12 +65,12 @@ depend on it:
   lost snapshot) means FwHeadless *imports* the whole FwData project into the Harmony database instead of
   merging, and skips pulling FieldWorks Lite changes from Lexbox first.
 
-It's rewritten only **after** the post-merge Send/Receive succeeds, and **from the Harmony API**, not from FwData.
-See the long comment in `SyncWorker.ExecuteSync` for why both details matter.
+It's rewritten only **after** the post-merge Send/Receive succeeds, and from the Harmony data, not from FwData.
+The [sync worker](https://github.com/sillsdev/languageforge-lexbox/blob/develop/backend/FwHeadless/Services/SyncHostedService.cs) explains why both details matter.
 
 ## Merge semantics
 
-`CrdtFwdataProjectSyncService.Sync` computes two directional diffs per entity type against the snapshot:
+[The merge](https://github.com/sillsdev/languageforge-lexbox/blob/develop/backend/FwLite/FwLiteProjectSync/CrdtFwdataProjectSyncService.cs) computes two directional diffs per entity type against the snapshot:
 
 1. snapshot → current FwData, applied to Harmony
 2. current FwData → current Harmony data, applied to FwData
@@ -90,24 +90,14 @@ never resolves those itself.
 
 ## Failure modes
 
-`SyncJobResult.Status` (`LexCore/Sync/SyncJobResult.cs`):
-
-| Status | Meaning |
-|---|---|
-| `Success` | Merge completed; the result carries Harmony and FwData change counts. |
-| `SuccessHarmonyOnly` | Only the Harmony sync ran (the `sync-harmony` recovery endpoint). |
-| `ProjectNotFound` | No project with that id. |
-| `UnableToAuthenticate` | FwHeadless couldn't authenticate to Lexbox. Checked up front so the job fails fast. |
-| `SyncBlocked` | Project is blocked from syncing (HTTP 423 from the trigger endpoint). |
-| `ProjectIncompatible` | The clone produced no `.fwdata` file, e.g. the repo isn't a FieldWorks project. |
-| `SendReceiveFailed` | hg Send/Receive failed before or after the merge. |
-| `CrdtSyncFailed` / `UnableToSync` / `UnknownError` | Harmony sync or the job itself failed. |
-| `SyncJobNotFound`, `SyncJobTimedOut`, `TimedOutAwaitingSyncStatus` | Polling outcomes, not merge outcomes: the job was never queued (or finished more than 30 s ago, since the result is cached for 30 s), it outlived the wait, or the client's own wait expired while the job kept running. |
+A job ends in success (with counts of the changes made on each side) or a failure that names the step: the
+project is unknown, FwHeadless can't authenticate to Lexbox (checked first, so the job fails fast), the project
+is blocked, the repo isn't a FieldWorks project, Send/Receive failed, or the Harmony sync failed. A caller
+waiting on a job can also time out while the job keeps running.
 
 **Blocking.** If Chorus reports a rollback during Send/Receive, FwHeadless blocks the project from syncing
-immediately (before *and* after the merge) and returns `SyncBlocked`. A blocked project is rejected at the
-trigger endpoint with HTTP 423 and re-checked inside the worker in case it was blocked while queued. Unblocking
-is a deliberate action via `POST /api/fw-lite/sync/unblock?projectId=...`. There is no UI for it, and anyone who can sync the project (editor, manager, org manager, admin) may call it.
+immediately, before *and* after the merge. A blocked project is refused at the trigger endpoint (HTTP 423) and
+checked again when its queued job starts. Unblocking is a deliberate action; there's no button for it.
 
-Other landmines worth knowing: a stale snapshot makes every subsequent diff wrong; stuck `.hg/wlock`
-files hang Send/Receive; and an `FdoDataModelVersion` mismatch with FieldWorks risks corrupt data.
+Other landmines worth knowing: a stale snapshot makes every subsequent diff wrong; a stale hg lock hangs
+Send/Receive; and a FieldWorks data-model version that doesn't match FwHeadless's risks corrupt data.
