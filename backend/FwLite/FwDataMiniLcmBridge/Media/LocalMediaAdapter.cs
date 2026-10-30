@@ -15,12 +15,21 @@ public class LocalMediaAdapter(IMemoryCache memoryCache, ILogger<LocalMediaAdapt
 
     private Dictionary<Guid, string> Paths(LcmCache cache)
     {
-        return memoryCache.GetOrCreate("LocalMediaPath|" + cache.ProjectId.ProjectFolder,
+        return memoryCache.GetOrCreate(PathsCacheKey(cache),
             entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(10);
                 return BuildPathsDictionary(cache.LangProject.LinkedFilesRootDir, logger);
             }) ?? throw new Exception("Failed to get paths");
+    }
+
+    internal static string PathsCacheKey(LcmCache cache) => "LocalMediaPath|" + cache.ProjectId.ProjectFolder;
+
+    // Paths the LinkedFiles scan won't reproduce (pictures FLEx linked in place, casing unlike the disk). Nothing rebuilds them, so no expiry.
+    private Dictionary<Guid, string> UnscannedPaths(LcmCache cache)
+    {
+        return memoryCache.GetOrCreate("LocalMediaUnscannedPath|" + cache.ProjectId.ProjectFolder,
+            _ => new Dictionary<Guid, string>()) ?? throw new Exception("Failed to get unscanned paths");
     }
 
     internal static Dictionary<Guid, string> BuildPathsDictionary(string root, ILogger logger)
@@ -55,26 +64,13 @@ public class LocalMediaAdapter(IMemoryCache memoryCache, ILogger<LocalMediaAdapt
         return Path.GetFileName(@new).IsNormalized(NormalizationForm.FormD) ? @new : curr;
     }
 
-    //path is expected to be relative to the LinkedFilesRootDir
     public MediaUri MediaUriFromPath(string path, LcmCache cache)
     {
-        EnsureCorrectRootFolder(path, cache);
+        if (!Path.IsPathRooted(path)) throw new ArgumentException("Path must be absolute, " + path, nameof(path));
         if (!File.Exists(path)) return MediaUri.NotFound;
         var uri = PathToUri(path);
-        //this may be a new file, so we need to add it to the cache
-        Paths(cache)[uri.FileId] = path;
+        if (!Paths(cache).ContainsKey(uri.FileId)) UnscannedPaths(cache)[uri.FileId] = path;
         return uri;
-    }
-
-    private void EnsureCorrectRootFolder(string path, LcmCache cache)
-    {
-        if (Path.IsPathRooted(path))
-        {
-            if (path.StartsWith(cache.LangProject.LinkedFilesRootDir)) return;
-            throw new ArgumentException("Path must be in the LinkedFilesRootDir", nameof(path));
-        }
-
-        throw new ArgumentException("Path must be absolute, " + path, nameof(path));
     }
 
     private static MediaUri PathToUri(string path)
@@ -84,9 +80,8 @@ public class LocalMediaAdapter(IMemoryCache memoryCache, ILogger<LocalMediaAdapt
 
     public string? PathFromMediaUri(MediaUri mediaUri, LcmCache cache)
     {
-        var paths = Paths(cache);
         if (mediaUri.Authority != LocalMediaAuthority) throw new ArgumentException("MediaUri must be local", nameof(mediaUri));
-        if (paths.TryGetValue(mediaUri.FileId, out var path))
+        if (Paths(cache).TryGetValue(mediaUri.FileId, out var path) || UnscannedPaths(cache).TryGetValue(mediaUri.FileId, out path))
         {
             return path;
         }
