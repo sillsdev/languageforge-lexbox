@@ -2,6 +2,7 @@ import '../src/app.css';
 import FWLiteDecorator, {initSvelteStoryContext} from './decorators/FWLiteDecorator.svelte';
 
 import type {Preview} from '@storybook/svelte-vite';
+import {setLanguage} from '$lib/i18n';
 
 const demoIcons = [
   // realistic
@@ -28,6 +29,8 @@ const preview: Preview = {
       return context.argTypes;
     }
   ],
+  // The app does this in main.ts before mounting; without it the language picker shows "Unknown: default".
+  loaders: [async () => { await setLanguage('default'); return {}; }],
   parameters: {
     controls: {
       matchers: {

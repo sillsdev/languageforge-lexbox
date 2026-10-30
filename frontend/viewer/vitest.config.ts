@@ -5,6 +5,7 @@ import {playwright} from '@vitest/browser-playwright';
 import {storybookTest} from '@storybook/addon-vitest/vitest-plugin';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
+import {lingui} from '@lingui/vite-plugin';
 
 const browserTestPattern = '**/*.browser.{test,spec}.?(c|m)[jt]s?(x)';
 const launcherTestPattern = './tests/launcher/**/*.{test,spec}.?(c|m)[jt]s?(x)';
@@ -91,6 +92,8 @@ export default defineConfig({
         plugins: [
           tailwindcss(),
           svelte(),
+          // .storybook/preview.ts loads the locale (`.po?lingui`) like the app does
+          lingui(),
           // seems to cause this project to only include storybook tests
           storybookTest({
             configDir: path.join(import.meta.dirname, '.storybook'),
