@@ -6,7 +6,7 @@ import type {PluginPermission} from './plugin-api-types';
  * opaque origin with no access to the app's DOM, cookies, storage or services — the injected
  * postMessage SDK is their only bridge back. No allow-popups / allow-top-navigation either, so a
  * plugin can't open windows or navigate the app. It CAN still navigate its own frame (no sandbox
- * flag or CSP directive prevents scripted self-navigation), which is why PluginRunView tears the
+ * flag or CSP directive prevents scripted self-navigation), which is why PluginSandbox tears the
  * plugin down if its frame ever loads a second document.
  */
 export const PLUGIN_IFRAME_SANDBOX = 'allow-scripts allow-forms allow-modals allow-downloads';
