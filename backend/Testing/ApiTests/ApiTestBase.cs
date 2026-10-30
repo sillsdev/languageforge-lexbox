@@ -72,6 +72,8 @@ public class ApiTestBase
     public void ClearCookies()
     {
         JwtHelper.ClearCookies(_httpClientHandler);
+        // the no-retry helpers treat CurrJwt as "logged in", and that's no longer true without the cookie
+        CurrJwt = null;
     }
 
     public async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false, bool expectSuccessCode = true,
