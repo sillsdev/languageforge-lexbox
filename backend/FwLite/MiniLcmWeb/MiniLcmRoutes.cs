@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -15,6 +16,21 @@ public static class MiniLcmRoutes
     public static IServiceCollection AddMiniLcmRouteServices(this IServiceCollection services)
     {
         services.AddTransient<MiniLcmHolder>();
+        services.AddMiniLcmJsonOptions();
+        return services;
+    }
+
+    /// <summary>
+    /// Hides internal MiniLcm properties from API callers, in both directions. Also used by hosts that only
+    /// describe these routes in OpenAPI, so the schema matches what the routes accept and return.
+    /// </summary>
+    public static IServiceCollection AddMiniLcmJsonOptions(this IServiceCollection services)
+    {
+        services.AddOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>().PostConfigure(jsonOptions =>
+        {
+            var options = jsonOptions.SerializerOptions;
+            options.TypeInfoResolver = (options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver()).AddMiniLcmApiModifiers();
+        });
         return services;
     }
 
@@ -25,7 +41,7 @@ public static class MiniLcmRoutes
         {
             get => field ?? throw new InvalidOperationException("MiniLcmApi not set");
             set;
-        } = null!;
+        } = null;
     }
 
     /// <summary>
@@ -45,22 +61,23 @@ public static class MiniLcmRoutes
                 if (resolution.Error is not null) return resolution.Error;
                 miniLcmHolder.MiniLcmApi = resolution.Api ?? throw new InvalidOperationException("MiniLcm api resolver returned neither an api nor an error");
                 return await next(context);
-            });
+            })
+            .WithQueryParameterDocs();
 
-        api.MapGet("/writing-systems", MiniLcm.GetWritingSystems);
-        api.MapGet("/entries", MiniLcm.GetEntries);
-        api.MapGet("/entries/count", MiniLcm.CountEntries);
-        api.MapGet("/entry/{id:Guid}", MiniLcm.GetEntry);
-        api.MapGet("/entry/{id:Guid}/index", MiniLcm.GetEntryIndex);
-        api.MapGet("/sense/{id:Guid}", MiniLcm.GetSense);
-        api.MapGet("/parts-of-speech", MiniLcm.GetPartsOfSpeech);
-        api.MapGet("/semantic-domains", MiniLcm.GetSemanticDomains);
-        api.MapGet("/publications", MiniLcm.GetPublications);
-        api.MapGet("/complex-form-types", MiniLcm.GetComplexFormTypes);
-        api.MapGet("/morph-types", MiniLcm.GetMorphTypes);
-        api.MapPost("/entry", MiniLcm.PostEntry);
-        api.MapPut("/entry/{id:Guid}", MiniLcm.PutEntry).ProducesProblem(StatusCodes.Status400BadRequest);
-        api.MapDelete("/entry/{id:Guid}", MiniLcm.DeleteEntry);
+        api.MapGet("/writing-systems", MiniLcm.GetWritingSystems).WithDoc(MiniLcmRouteDocs.GetWritingSystems);
+        api.MapGet("/entries", MiniLcm.GetEntries).WithDoc(MiniLcmRouteDocs.GetEntries);
+        api.MapGet("/entries/count", MiniLcm.CountEntries).WithDoc(MiniLcmRouteDocs.CountEntries);
+        api.MapGet("/entry/{id:Guid}", MiniLcm.GetEntry).WithDoc(MiniLcmRouteDocs.GetEntry);
+        api.MapGet("/entry/{id:Guid}/index", MiniLcm.GetEntryIndex).WithDoc(MiniLcmRouteDocs.GetEntryIndex);
+        api.MapGet("/sense/{id:Guid}", MiniLcm.GetSense).WithDoc(MiniLcmRouteDocs.GetSense);
+        api.MapGet("/parts-of-speech", MiniLcm.GetPartsOfSpeech).WithDoc(MiniLcmRouteDocs.GetPartsOfSpeech);
+        api.MapGet("/semantic-domains", MiniLcm.GetSemanticDomains).WithDoc(MiniLcmRouteDocs.GetSemanticDomains);
+        api.MapGet("/publications", MiniLcm.GetPublications).WithDoc(MiniLcmRouteDocs.GetPublications);
+        api.MapGet("/complex-form-types", MiniLcm.GetComplexFormTypes).WithDoc(MiniLcmRouteDocs.GetComplexFormTypes);
+        api.MapGet("/morph-types", MiniLcm.GetMorphTypes).WithDoc(MiniLcmRouteDocs.GetMorphTypes);
+        api.MapPost("/entry", MiniLcm.PostEntry).WithDoc(MiniLcmRouteDocs.CreateEntry);
+        api.MapPut("/entry/{id:Guid}", MiniLcm.PutEntry).ProducesProblem(StatusCodes.Status400BadRequest).WithDoc(MiniLcmRouteDocs.UpdateEntry);
+        api.MapDelete("/entry/{id:Guid}", MiniLcm.DeleteEntry).WithDoc(MiniLcmRouteDocs.DeleteEntry);
         return api;
     }
 

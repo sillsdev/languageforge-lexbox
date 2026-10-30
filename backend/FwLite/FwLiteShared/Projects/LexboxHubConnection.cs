@@ -13,6 +13,11 @@ using Nito.AsyncEx;
 
 namespace FwLiteShared.Projects;
 
+/// <summary>
+/// FW Lite's listener on Lexbox's CrdtProjectChangeHub. FwHeadless has its own for the same hub,
+/// FwHeadless/Services/LexboxProjectChangeListener.cs (service-account auth, no FW Lite servers): a change to the hub
+/// contract (IProjectChangeHubServer/IProjectChangeHubClient, route, resubscribe after reconnect) needs the same change there.
+/// </summary>
 public sealed class LexboxHubConnection(
     LexboxServer server,
     ILoggerFactory loggerFactory,
@@ -335,7 +340,7 @@ internal sealed class SignalRLexboxSignalRConnectionFactory(
             // supplied instance is not disposed with the connection's service provider.
             .ConfigureLogging(logging => logging.Services.AddSingleton(loggerFactory))
             .WithAutomaticReconnect(new LexboxHubConnection.AdaptiveRetryPolicy(networkStatus, logger))
-            .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
+            .WithUrl($"{server.Authority}{IProjectChangeHubServer.Path}",
                 connectionOptions =>
                 {
                     connectionOptions.HttpMessageHandlerFactory = handler =>

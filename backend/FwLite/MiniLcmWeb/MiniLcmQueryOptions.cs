@@ -5,7 +5,7 @@ using MiniLcm.Filtering;
 
 namespace MiniLcmWeb;
 
-internal class MiniLcmQueryOptions
+public class MiniLcmQueryOptions
 {
     public QueryOptions ToQueryOptions()
     {
