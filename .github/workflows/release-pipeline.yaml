@@ -99,12 +99,18 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
-          # Not ubuntu-latest: the bundled Mercurial (SIL.Chorus.Mercurial 6.5) fails to start on 26.04's Python 3.14.
-          - ubuntu-24.04
+          - ubuntu-latest
           - windows-latest
         hg-version:
           - '3'
-          - '6'
+          - '7'
+        # setup-python can't build Python 2.7 (for hg 3) on 26.04: no lzma-dev package.
+        exclude:
+          - runs-on: ubuntu-latest
+            hg-version: '3'
+        include:
+          - runs-on: ubuntu-24.04
+            hg-version: '3'
 #        include:
 #          - run-playwright: false
     needs: deploy

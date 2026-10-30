@@ -26,7 +26,7 @@ public static class TestingEnvironmentVariables
     public static string DefaultPassword = Environment.GetEnvironmentVariable("TEST_DEFAULT_PASSWORD") ?? "pass";
 
     /// <summary>
-    /// major version like 3 or 6, set by CI so we notice when the MercurialVersion switch in Testing.csproj stops working
+    /// major version like 3 or 7, set by CI so we notice when the MercurialVersion switch in Testing.csproj stops working
     /// </summary>
     public static string? ExpectedHgMajorVersion = Environment.GetEnvironmentVariable("TEST_EXPECTED_HG_VERSION");
 
