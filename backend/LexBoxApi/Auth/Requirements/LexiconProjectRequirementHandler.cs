@@ -11,7 +11,7 @@ public class LexiconProjectRequirement(bool writeRequired) : IAuthorizationRequi
 }
 
 /// <summary>
-/// Read: anyone who can view the project. Write: Editor Lite, Editor or Manager (plus admins and org managers),
+/// Read: members, admins and org managers, like CRDT download. Write: Editor Lite, Editor or Manager (plus admins and org managers),
 /// the same roles that may upload media files.
 /// </summary>
 public class LexiconProjectRequirementHandler(IHttpContextAccessor httpContextAccessor) : AuthorizationHandler<LexiconProjectRequirement>
@@ -32,24 +32,17 @@ public class LexiconProjectRequirementHandler(IHttpContextAccessor httpContextAc
             return;
         }
 
+        var permissionService = httpContext.RequestServices.GetRequiredService<IPermissionService>();
+        var hasAccess = requirement.WriteAccessRequired
+            ? await permissionService.CanEditMediaFiles(projectId)
+            : await permissionService.CanDownloadProject(projectId);
         // An unknown project has nothing to protect: let FwHeadless answer 404, so a missing project isn't reported as forbidden
-        var dbContext = httpContext.RequestServices.GetRequiredService<LexBoxDbContext>();
-        if (!await dbContext.Projects.AnyAsync(p => p.Id == projectId))
+        if (hasAccess || !await httpContext.RequestServices.GetRequiredService<LexBoxDbContext>().Projects.AnyAsync(p => p.Id == projectId))
         {
             context.Succeed(requirement);
             return;
         }
 
-        var permissionService = httpContext.RequestServices.GetRequiredService<IPermissionService>();
-        var hasAccess = requirement.WriteAccessRequired
-            ? await permissionService.CanEditMediaFiles(projectId)
-            : await permissionService.CanViewProject(projectId);
-        if (!hasAccess)
-        {
-            context.Fail(new AuthorizationFailureReason(this, $"User does not have access to project {projectId}"));
-            return;
-        }
-
-        context.Succeed(requirement);
+        context.Fail(new AuthorizationFailureReason(this, $"User does not have access to project {projectId}"));
     }
 }
