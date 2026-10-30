@@ -197,6 +197,715 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SemanticDomain'
+  /api/lexicon/projects:
+    get:
+      tags:
+        - Lexicon
+      summary: List projects
+      description: "The Harmony projects you are a member of that the lexicon API can serve, with your role in each. Projects that have not been synced to FieldWorks Lite on Lexbox yet are left out.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LexiconProject'
+  '/api/lexicon/project/{projectId}/writing-systems':
+    get:
+      tags:
+        - Lexicon
+      summary: Get the writing systems
+      description: "The project's vernacular and analysis writing systems, in display order. Their ids key every multilingual field, e.g. `lexemeForm.en`.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WritingSystems'
+  '/api/lexicon/project/{projectId}/entries':
+    get:
+      tags:
+        - Lexicon
+      summary: List or search entries
+      description: "Entries with their senses and example sentences, sorted by `sortField` (headword by default) in `sortWritingSystem`, paged with `count` and `offset`. `search` matches headwords, lexeme forms, citation forms and glosses; sort by `SearchRelevance` to get the best matches first. `exemplarValue` with `exemplarWritingSystem` keeps entries whose headword starts with that letter, as in a dictionary's letter headings. `gridifyFilter` narrows the list further. The response is a JSON array streamed as it is read.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          description: 'Text to look for in headwords, lexeme forms, citation forms and glosses.'
+          schema:
+            type: string
+        - name: SortField
+          in: query
+          schema:
+            $ref: '#/components/schemas/SortField'
+        - name: SortWritingSystem
+          in: query
+          schema:
+            type: string
+            default: default
+        - name: Ascending
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: ExemplarValue
+          in: query
+          schema:
+            type: string
+        - name: ExemplarWritingSystem
+          in: query
+          schema:
+            type: string
+        - name: Count
+          in: query
+          schema:
+            pattern: '^-?(?:0|[1-9]\d*)$'
+            anyOf:
+              - type: integer
+              - type: string
+            format: int32
+            default: 1000
+        - name: Offset
+          in: query
+          schema:
+            pattern: '^-?(?:0|[1-9]\d*)$'
+            anyOf:
+              - type: integer
+              - type: string
+            format: int32
+        - name: GridifyFilter
+          in: query
+          description: "Filters entries with a [Gridify](https://alirezanet.github.io/Gridify/guide/filtering) expression, e.g. `Senses.SemanticDomains.Code^5.2` or `LexemeForm[en]=*ban/i,MorphType=Root`.\n\n- Operators: `=` equals, `!=` not equals, `=*` contains, `!*` does not contain, `^` starts with, `!^` does not start with, `$` ends with, `!$` does not end with, `<` `>` `<=` `>=`.\n- Combine with `,` (and) and `|` (or), group with `( )`. Append `/i` to a value to ignore case.\n- Escape `( ) , | \\` in values with a backslash, and `/i` at the end of a value as `\\/i`.\n- Fields marked `[ws]` take a writing system id, e.g. `LexemeForm[en]` or `Senses.Gloss[fr]`.\n- Collection fields (`Senses`, `Senses.SemanticDomains`, `Senses.ExampleSentences`, `PublishIn`, …) match empty with `=null` or `=[]`, and non-empty with `!=null`.\n- Ids are GUIDs, e.g. `Senses.PartOfSpeechId=<id>` (`Senses.PartOfSpeechId=` for senses with none) or `PublishIn.Id=<id>`. `MorphType` takes a morph type name, e.g. `MorphType=Root|MorphType=Stem`.\n\nFields:\n- `Senses`\n- `Senses.SemanticDomains`\n- `Senses.SemanticDomains.Code`\n- `Senses.PartOfSpeechId`\n- `Senses.Gloss[ws]`\n- `Senses.Definition[ws]`\n- `Senses.ExampleSentences`\n- `Senses.ExampleSentences.Sentence[ws]`\n- `Senses.ExampleSentences.Translations`\n- `Note[ws]`\n- `LexemeForm[ws]`\n- `CitationForm[ws]`\n- `LiteralMeaning[ws]`\n- `MorphType`\n- `ComplexFormTypes`\n- `PublishIn`\n- `PublishIn.Id`\n- `CommentThreads`\n- `OpenCommentThreads`\n- `UnreadComments`\n"
+          schema:
+            type: string
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Entry'
+  '/api/lexicon/project/{projectId}/entries/count':
+    get:
+      tags:
+        - Lexicon
+      summary: Count entries
+      description: "How many entries `GET entries` would return across all pages for the same `search` and `gridifyFilter`, e.g. to show \"20 of 135\" next to a page of search results.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          description: 'Text to look for in headwords, lexeme forms, citation forms and glosses.'
+          schema:
+            type: string
+        - name: gridifyFilter
+          in: query
+          description: "Filters entries with a [Gridify](https://alirezanet.github.io/Gridify/guide/filtering) expression, e.g. `Senses.SemanticDomains.Code^5.2` or `LexemeForm[en]=*ban/i,MorphType=Root`.\n\n- Operators: `=` equals, `!=` not equals, `=*` contains, `!*` does not contain, `^` starts with, `!^` does not start with, `$` ends with, `!$` does not end with, `<` `>` `<=` `>=`.\n- Combine with `,` (and) and `|` (or), group with `( )`. Append `/i` to a value to ignore case.\n- Escape `( ) , | \\` in values with a backslash, and `/i` at the end of a value as `\\/i`.\n- Fields marked `[ws]` take a writing system id, e.g. `LexemeForm[en]` or `Senses.Gloss[fr]`.\n- Collection fields (`Senses`, `Senses.SemanticDomains`, `Senses.ExampleSentences`, `PublishIn`, …) match empty with `=null` or `=[]`, and non-empty with `!=null`.\n- Ids are GUIDs, e.g. `Senses.PartOfSpeechId=<id>` (`Senses.PartOfSpeechId=` for senses with none) or `PublishIn.Id=<id>`. `MorphType` takes a morph type name, e.g. `MorphType=Root|MorphType=Stem`.\n\nFields:\n- `Senses`\n- `Senses.SemanticDomains`\n- `Senses.SemanticDomains.Code`\n- `Senses.PartOfSpeechId`\n- `Senses.Gloss[ws]`\n- `Senses.Definition[ws]`\n- `Senses.ExampleSentences`\n- `Senses.ExampleSentences.Sentence[ws]`\n- `Senses.ExampleSentences.Translations`\n- `Note[ws]`\n- `LexemeForm[ws]`\n- `CitationForm[ws]`\n- `LiteralMeaning[ws]`\n- `MorphType`\n- `ComplexFormTypes`\n- `PublishIn`\n- `PublishIn.Id`\n- `CommentThreads`\n- `OpenCommentThreads`\n- `UnreadComments`\n"
+          schema:
+            type: string
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                pattern: '^-?(?:0|[1-9]\d*)$'
+                anyOf:
+                  - type: integer
+                  - type: string
+                format: int32
+  '/api/lexicon/project/{projectId}/entry/{id}':
+    get:
+      tags:
+        - Lexicon
+      summary: Get an entry
+      description: "One entry with its senses and example sentences. 404 when there is no entry with this id.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+    put:
+      tags:
+        - Lexicon
+      summary: Update an entry
+      description: "Applies the difference between `before` (the entry as the caller last read it) and `after` (the entry as it should be now), so concurrent edits to other fields are kept. Both ids must match the route id. Returns the entry as stored.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEntryRequest'
+        required: true
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    delete:
+      tags:
+        - Lexicon
+      summary: Delete an entry
+      description: "Deletes the entry with its senses and example sentences.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+  '/api/lexicon/project/{projectId}/entry/{id}/index':
+    get:
+      tags:
+        - Lexicon
+      summary: Find an entry's position
+      description: "The zero-based position of the entry in the list `GET entries` returns for the same `search`, sort, exemplar and `gridifyFilter`, so a client can open the page that holds it. -1 when the entry is not in that list.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          description: 'Text to look for in headwords, lexeme forms, citation forms and glosses.'
+          schema:
+            type: string
+        - name: SortField
+          in: query
+          schema:
+            $ref: '#/components/schemas/SortField'
+        - name: SortWritingSystem
+          in: query
+          schema:
+            type: string
+            default: default
+        - name: Ascending
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: ExemplarValue
+          in: query
+          schema:
+            type: string
+        - name: ExemplarWritingSystem
+          in: query
+          schema:
+            type: string
+        - name: Count
+          in: query
+          schema:
+            pattern: '^-?(?:0|[1-9]\d*)$'
+            anyOf:
+              - type: integer
+              - type: string
+            format: int32
+            default: 1000
+        - name: Offset
+          in: query
+          schema:
+            pattern: '^-?(?:0|[1-9]\d*)$'
+            anyOf:
+              - type: integer
+              - type: string
+            format: int32
+        - name: GridifyFilter
+          in: query
+          description: "Filters entries with a [Gridify](https://alirezanet.github.io/Gridify/guide/filtering) expression, e.g. `Senses.SemanticDomains.Code^5.2` or `LexemeForm[en]=*ban/i,MorphType=Root`.\n\n- Operators: `=` equals, `!=` not equals, `=*` contains, `!*` does not contain, `^` starts with, `!^` does not start with, `$` ends with, `!$` does not end with, `<` `>` `<=` `>=`.\n- Combine with `,` (and) and `|` (or), group with `( )`. Append `/i` to a value to ignore case.\n- Escape `( ) , | \\` in values with a backslash, and `/i` at the end of a value as `\\/i`.\n- Fields marked `[ws]` take a writing system id, e.g. `LexemeForm[en]` or `Senses.Gloss[fr]`.\n- Collection fields (`Senses`, `Senses.SemanticDomains`, `Senses.ExampleSentences`, `PublishIn`, …) match empty with `=null` or `=[]`, and non-empty with `!=null`.\n- Ids are GUIDs, e.g. `Senses.PartOfSpeechId=<id>` (`Senses.PartOfSpeechId=` for senses with none) or `PublishIn.Id=<id>`. `MorphType` takes a morph type name, e.g. `MorphType=Root|MorphType=Stem`.\n\nFields:\n- `Senses`\n- `Senses.SemanticDomains`\n- `Senses.SemanticDomains.Code`\n- `Senses.PartOfSpeechId`\n- `Senses.Gloss[ws]`\n- `Senses.Definition[ws]`\n- `Senses.ExampleSentences`\n- `Senses.ExampleSentences.Sentence[ws]`\n- `Senses.ExampleSentences.Translations`\n- `Note[ws]`\n- `LexemeForm[ws]`\n- `CitationForm[ws]`\n- `LiteralMeaning[ws]`\n- `MorphType`\n- `ComplexFormTypes`\n- `PublishIn`\n- `PublishIn.Id`\n- `CommentThreads`\n- `OpenCommentThreads`\n- `UnreadComments`\n"
+          schema:
+            type: string
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                pattern: '^-?(?:0|[1-9]\d*)$'
+                anyOf:
+                  - type: integer
+                  - type: string
+                format: int32
+  '/api/lexicon/project/{projectId}/sense/{id}':
+    get:
+      tags:
+        - Lexicon
+      summary: Get a sense
+      description: "One sense with its example sentences; `entryId` names the entry it belongs to. 404 when there is no sense with this id.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sense'
+  '/api/lexicon/project/{projectId}/parts-of-speech':
+    get:
+      tags:
+        - Lexicon
+      summary: List parts of speech
+      description: "Every part of speech in the project; senses refer to one by `partOfSpeechId`.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PartOfSpeech'
+  '/api/lexicon/project/{projectId}/semantic-domains':
+    get:
+      tags:
+        - Lexicon
+      summary: List semantic domains
+      description: "Every semantic domain in the project, with its code and multilingual name. This is the whole list (often well over a thousand), so fetch it once and cache it.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SemanticDomain'
+  '/api/lexicon/project/{projectId}/publications':
+    get:
+      tags:
+        - Lexicon
+      summary: List publications
+      description: "Every publication in the project; an entry's `publishIn` lists the ones it appears in.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Publication'
+  '/api/lexicon/project/{projectId}/complex-form-types':
+    get:
+      tags:
+        - Lexicon
+      summary: List complex form types
+      description: "Every complex form type in the project, e.g. compound or idiom; an entry's `complexFormTypes` refers to them.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ComplexFormType'
+  '/api/lexicon/project/{projectId}/morph-types':
+    get:
+      tags:
+        - Lexicon
+      summary: List morph types
+      description: "Every morph type in the project, e.g. root, stem or prefix, with the prefix and postfix tokens written around forms of that type.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MorphType'
+  '/api/lexicon/project/{projectId}/entry':
+    post:
+      tags:
+        - Lexicon
+      summary: Create an entry
+      description: "Creates the entry as given, including its senses, example sentences, complex forms and components, and adds it to the main publication. Ids may be supplied by the caller. Returns the created entry with a `Location` header.\n\nExperimental: the lexicon API may change without notice. Errors use `application/problem+json`; a 409 with type `/problems/project-not-ready` means the project has not been synced to FieldWorks Lite on Lexbox yet, and a 409 with type `/problems/sync-in-progress` means a write was refused while the project syncs with FieldWorks."
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Entry'
+        required: true
+      responses:
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
   '/api/crdt/{projectId}/get':
     get:
       tags:
@@ -459,19 +1168,6 @@ paths:
     get:
       tags:
         - Crdt
-      responses:
-        '200':
-          description: OK
-  /api/fwlite-release/FieldWorksLite.appinstaller:
-    get:
-      tags:
-        - FwLiteRelease
-      responses:
-        '200':
-          description: OK
-    head:
-      tags:
-        - FwLiteRelease
       responses:
         '200':
           description: OK
@@ -1009,19 +1705,6 @@ components:
         - componentEntryId
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        maybeId:
-          type: string
-          format: uuid
-          nullable: true
-        order:
-          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
-          anyOf:
-            - type: number
-            - type: string
-          format: double
         deletedAt:
           type: string
           format: date-time
@@ -1108,12 +1791,6 @@ components:
         id:
           type: string
           format: uuid
-        order:
-          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
-          anyOf:
-            - type: number
-            - type: string
-          format: double
         sentence:
           $ref: '#/components/schemas/RichMultiString'
         translations:
@@ -1163,7 +1840,6 @@ components:
         - Android
         - iOS
         - Mac
-        - WindowsAppInstaller
     FwLiteRelease:
       required:
         - version
@@ -1189,6 +1865,23 @@ components:
             - type: integer
             - type: string
           format: int64
+    LexiconProject:
+      required:
+        - id
+        - code
+        - name
+        - role
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/ProjectRole'
     ListProjectsResult:
       required:
         - projects
@@ -1202,6 +1895,38 @@ components:
         canDownloadByCode:
           type: boolean
     MediaUri: { }
+    MorphType:
+      required:
+        - kind
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          $ref: '#/components/schemas/MorphTypeKind'
+        name:
+          $ref: '#/components/schemas/MultiString'
+        abbreviation:
+          $ref: '#/components/schemas/MultiString'
+        description:
+          $ref: '#/components/schemas/RichMultiString'
+        prefix:
+          type: string
+          nullable: true
+        postfix:
+          type: string
+          nullable: true
+        secondaryOrder:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
     MorphTypeKind:
       enum:
         - Unknown
@@ -1288,6 +2013,7 @@ components:
         - Observer
         - Commenter
         - EditorLite
+      type: string
     ProjectSyncStatus:
       required:
         - status
@@ -1389,12 +2115,6 @@ components:
         id:
           type: string
           format: uuid
-        order:
-          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
-          anyOf:
-            - type: number
-            - type: string
-          format: double
         deletedAt:
           type: string
           format: date-time
@@ -1432,6 +2152,7 @@ components:
       required:
         - id
         - hybridDateTime
+        - clientId
       type: object
       properties:
         projectId:
@@ -1499,6 +2220,11 @@ components:
             - type: integer
             - type: string
           format: int32
+    SortField:
+      enum:
+        - Headword
+        - SearchRelevance
+        - null
     SyncBlockStatus:
       type: object
       properties:
@@ -1587,11 +2313,20 @@ components:
           format: uuid
         text:
           $ref: '#/components/schemas/RichMultiString'
+    UpdateEntryRequest:
+      required:
+        - before
+        - after
+      type: object
+      properties:
+        before:
+          $ref: '#/components/schemas/Entry'
+        after:
+          $ref: '#/components/schemas/Entry'
     ValueTupleOfDateTimeOffsetAndlongAndGuid:
       type: object
     WritingSystem:
       required:
-        - id
         - wsId
         - name
         - abbreviation
@@ -1599,13 +2334,6 @@ components:
         - type
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        maybeId:
-          type: string
-          format: uuid
-          nullable: true
         wsId:
           $ref: '#/components/schemas/WritingSystemId'
         isAudio:
@@ -1632,12 +2360,6 @@ components:
         systemCollationLocale:
           type: string
           nullable: true
-        order:
-          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
-          anyOf:
-            - type: number
-            - type: string
-          format: double
     WritingSystemId: { }
     WritingSystems:
       type: object
@@ -1654,6 +2376,7 @@ components:
       type: integer
 tags:
   - name: MiniLcm
+  - name: Lexicon
   - name: Crdt
   - name: FwLiteRelease
   - name: Sync

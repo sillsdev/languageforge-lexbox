@@ -1,7 +1,10 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using LcmCrdt.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SIL.Harmony.Db;
 using static LcmCrdt.CrdtProjectsService;
 
 namespace LcmCrdt.Tests;
@@ -173,6 +176,82 @@ public class OpenProjectTests
         });
     }
 
+    [Fact]
+    public async Task RequireCommitAuthorRefusesCommitsWithNoAuthor()
+    {
+        var request = new CreateProjectRequest("Require Author", $"require-author-{Guid.NewGuid():N}",
+            Role: UserProjectRole.Manager);
+
+        await WithProjectFromTemplate(request, "fr", async (services, api) =>
+        {
+            var interceptor = services.GetRequiredService<CommitMetadataInterceptor>();
+            var historyService = services.GetRequiredService<HistoryService>();
+
+            var noAuthor = () => api.CreateEntry(new() { LexemeForm = { ["fr"] = "no author" } });
+            await noAuthor.Should().ThrowAsync<InvalidOperationException>();
+
+            using (interceptor.Intercept(metadata => metadata.AuthorName = "FieldWorks"))
+            {
+                await api.CreateEntry(new() { LexemeForm = { ["fr"] = "named author" } });
+            }
+            var latest = await historyService.ProjectActivity(skip: 0, take: 1);
+            latest.Single().Metadata.AuthorName.Should().Be("FieldWorks");
+        }, config => config.RequireCommitAuthor = true);
+    }
+
+    [Fact]
+    public async Task CreatingAProjectKeepsTheSnapshotsItWrote()
+    {
+        Guid[] createdSnapshotIds = [];
+        var request = new CreateProjectRequest("Keeps Snapshots", $"keeps-snapshots-{Guid.NewGuid():N}",
+            AfterCreate: async (services, _) => createdSnapshotIds = await SnapshotIds(services));
+
+        await WithProjectFromTemplate(request, "fr", async (services, _) =>
+        {
+            createdSnapshotIds.Should().NotBeEmpty();
+            (await SnapshotIds(services)).Should().BeEquivalentTo(createdSnapshotIds);
+        });
+    }
+
+    private const string ModelVersionsKey = "harmony:modelVersions";
+
+    // An edited released model version makes ReconcileModelVersions throw
+    private static JsonNode? EditedModelVersions() =>
+        JsonSerializer.SerializeToNode(new { Version = 1, Versions = new[] { new { Major = true, Changes = Array.Empty<object>() } } });
+
+    [Fact]
+    public async Task ProjectOpensWhenReconcilingModelVersionsFails()
+    {
+        var editedVersions = EditedModelVersions();
+        var request = new CreateProjectRequest("Reconcile Fails", $"reconcile-fails-{Guid.NewGuid():N}",
+            AfterCreate: (services, _) => services.GetRequiredService<DataModel>().SetLocalState(ModelVersionsKey, editedVersions));
+
+        await WithProjectFromTemplate(request, "fr", async (services, api) =>
+        {
+            (await api.GetWritingSystems()).Vernacular.Should().ContainSingle();
+            var storedVersions = await services.GetRequiredService<DataModel>().GetLocalState<JsonNode>(ModelVersionsKey);
+            JsonNode.DeepEquals(storedVersions, editedVersions).Should().BeTrue("a failed reconcile stores nothing, so it is retried");
+        });
+    }
+
+    [Fact]
+    public async Task OpeningThrowsWhenReconcilingModelVersionsFailsAndConfiguredToThrow()
+    {
+        var request = new CreateProjectRequest("Reconcile Throws", $"reconcile-throws-{Guid.NewGuid():N}",
+            AfterCreate: (services, _) => services.GetRequiredService<DataModel>().SetLocalState(ModelVersionsKey, EditedModelVersions()));
+
+        var open = () => WithProjectFromTemplate(request, "fr", (_, _) => Task.CompletedTask,
+            config => config.ThrowOnModelVersionReconcileFailure = true);
+
+        await open.Should().ThrowAsync<Exception>();
+    }
+
+    private static async Task<Guid[]> SnapshotIds(IServiceProvider services)
+    {
+        await using var dbContext = await services.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
+        return await ((ICrdtDbContext)dbContext).Snapshots.Select(s => s.Id).ToArrayAsync();
+    }
+
     private static async Task<string?> LatestCommitAuthorId(HistoryService historyService)
     {
         var latest = await historyService.ProjectActivity(skip: 0, take: 1);
@@ -183,10 +262,12 @@ public class OpenProjectTests
     private static async Task WithProjectFromTemplate(
         CreateProjectRequest request,
         WritingSystemId vernacularWs,
-        Func<IServiceProvider, IMiniLcmApi, Task> test)
+        Func<IServiceProvider, IMiniLcmApi, Task> test,
+        Action<LcmCrdtConfig>? configure = null)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
         builder.Services.AddTestLcmCrdtClient();
+        if (configure is not null) builder.Services.Configure(configure);
         using var host = builder.Build();
         await using var scope = host.Services.CreateAsyncScope();
         var services = scope.ServiceProvider;

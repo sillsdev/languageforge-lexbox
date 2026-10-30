@@ -19,7 +19,6 @@ namespace LexboxAnalyzers.Rules;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ChangeEntityIdConstructorAnalyzer : DiagnosticAnalyzer
 {
-    private const string ChangeInterfaceMetadataName = "SIL.Harmony.Changes.IChange";
     private const string GuidMetadataName = "System.Guid";
     private const string EntityIdParameterName = "entityId";
 
@@ -43,7 +42,7 @@ public sealed class ChangeEntityIdConstructorAnalyzer : DiagnosticAnalyzer
         {
             // Resolve the marker symbols once per compilation and close over them; never resolve
             // symbols inside the per-symbol callback (it runs on every keystroke in the IDE).
-            var changeInterface = start.Compilation.GetTypeByMetadataName(ChangeInterfaceMetadataName);
+            var changeInterface = HarmonyChangeTypes.ResolveChangeInterface(start.Compilation);
             if (changeInterface is null) return; // Compilation doesn't reference Harmony — nothing to police.
 
             var guidType = start.Compilation.GetTypeByMetadataName(GuidMetadataName);
@@ -67,7 +66,7 @@ public sealed class ChangeEntityIdConstructorAnalyzer : DiagnosticAnalyzer
         if (type.TypeKind != TypeKind.Class) return;
         if (type.IsAbstract || type.IsStatic || type.IsImplicitlyDeclared) return;
 
-        if (!type.AllInterfaces.Contains(changeInterface, SymbolEqualityComparer.Default)) return;
+        if (!HarmonyChangeTypes.IsChangeType(type, changeInterface)) return;
 
         // Constructors are not inherited, so the concrete type must declare its own. This also
         // matches primary constructors, whose parameters appear on the InstanceConstructors symbol.

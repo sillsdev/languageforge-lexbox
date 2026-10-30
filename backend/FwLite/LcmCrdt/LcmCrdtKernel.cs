@@ -507,7 +507,10 @@ public static class LcmCrdtKernel
                 .Change<Changes.SetOrderChange<WritingSystem>>()
                 //registered by AddRemoteResourceEntity below, or AddCrdtRemoteResources in DI
                 .RemoteResourceChanges<LcmFileMetadata>())
-            .Add(1, "Plugins", v => v
+            .AddMajor(1, "Regenerate snapshots", v => v
+                //legacy translation patches created the first translation with a random id
+                .Change<JsonPatchExampleSentenceChange>(invalidateFrom: 0))
+            .Add(2, "Plugins", v => v
                 .Change<CreatePluginChange>()
                 .Change<EditPluginChange>()
                 .Change<DeleteChange<Plugin>>());

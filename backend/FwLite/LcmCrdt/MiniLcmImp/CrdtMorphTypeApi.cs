@@ -12,7 +12,8 @@ public class CrdtMorphTypeApi(MiniLcmRepositoryFactory repoFactory, HarmonyChang
     public async IAsyncEnumerable<MorphType> GetMorphTypes()
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        await foreach (var morphType in repo.MorphTypes.AsAsyncEnumerable())
+        //row order changes when snapshots are regenerated, so sort for a stable result
+        await foreach (var morphType in repo.MorphTypes.OrderBy(m => m.Kind).AsAsyncEnumerable())
         {
             yield return morphType;
         }
