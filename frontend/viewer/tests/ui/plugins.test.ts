@@ -44,7 +44,8 @@ function projectCard(page: Page, name: string) {
   return page.getByTestId('project-plugin-card').filter({hasText: name});
 }
 
-const writeButtonPlugin = (title: string) => pluginHtml(title, {
+function writeButtonPlugin(title: string) {
+  return pluginHtml(title, {
   head: '<meta name="fwlite-plugin-permissions" content="edit">',
   body: [
     '<button id="add">Add word</button><div id="status">idle</div>',
@@ -60,7 +61,8 @@ const writeButtonPlugin = (title: string) => pluginHtml(title, {
     '  });',
     '});</script>',
   ].join('\n'),
-});
+  });
+}
 
 test('plugins are hidden outside the beta channel', async ({page}) => {
   await page.addInitScript((key) => localStorage.removeItem(key), RELEASE_CHANNEL_KEY);
