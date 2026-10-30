@@ -340,7 +340,7 @@ internal sealed class SignalRLexboxSignalRConnectionFactory(
             // supplied instance is not disposed with the connection's service provider.
             .ConfigureLogging(logging => logging.Services.AddSingleton(loggerFactory))
             .WithAutomaticReconnect(new LexboxHubConnection.AdaptiveRetryPolicy(networkStatus, logger))
-            .WithUrl($"{server.Authority}api/hub/crdt/project-changes",
+            .WithUrl($"{server.Authority}{IProjectChangeHubServer.Path}",
                 connectionOptions =>
                 {
                     connectionOptions.HttpMessageHandlerFactory = handler =>

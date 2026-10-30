@@ -8,6 +8,7 @@ using FwLiteProjectSync;
 using LcmCrdt;
 using LcmCrdt.MediaServer;
 using LcmCrdt.RemoteSync;
+using LcmCrdt.Utils;
 using LexCore.Sync;
 using LexCore.Utils;
 using Microsoft.Extensions.Caching.Memory;
@@ -124,10 +125,9 @@ public class SyncWorker(
 
         syncStatusService.StartSyncing(projectId);
         using var stopSyncing = Defer.Action(() => syncStatusService.StopSyncing(projectId));
-        // Every commit this merge writes carries FieldWorks' changes. Keep the literal: SnapshotAtCommitService
-        // and the viewer's activity view recognise FieldWorks commits by it.
+        // every commit this merge writes carries FieldWorks' changes
         using var stampFieldWorks = services.GetRequiredService<CommitMetadataInterceptor>()
-            .Intercept(metadata => metadata.AuthorName = "FieldWorks");
+            .Intercept(metadata => metadata.AuthorName = CommitHelpers.FieldWorksAuthorName);
 
         var projectCode = await projectLookupService.GetProjectCode(projectId);
         if (projectCode is null)

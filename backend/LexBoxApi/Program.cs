@@ -17,6 +17,7 @@ using LexData;
 using LexSyncReverseProxy;
 using LexSyncReverseProxy.Auth;
 using LfClassicData;
+using MiniLcm.Push;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
@@ -170,7 +171,7 @@ app.MapTus("/api/tus-test",
 app.MapTus($"/api/project/upload-zip/{{{ProxyConstants.HgProjectCodeRouteKey}}}",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetResetZipUploadConfig())
     .RequireAuthorization(new AdminRequiredAttribute());
-app.MapHub<CrdtProjectChangeHub>("/api/hub/crdt/project-changes")
+app.MapHub<CrdtProjectChangeHub>("/" + IProjectChangeHubServer.Path)
     .RequireAuthorization(new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive));
 // /api routes should never make it to this point, they should be handled by the controllers, so return 404
 app.Map("/api/{**catch-all}", () => Results.NotFound()).AllowAnonymous();
