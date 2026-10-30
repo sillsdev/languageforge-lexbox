@@ -90,12 +90,15 @@ public partial class HgService : IHgService
     {
         var response = await SendManageRequest(HttpMethod.Get, $"repos/{code}/backup",
             completionOption: HttpCompletionOption.ResponseHeadersRead);
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        // Headers-only read holds the connection open, so dispose on every path that doesn't hand it to the executor
+        if (!response.IsSuccessStatusCode)
         {
-            response.Dispose();
-            return null;
+            using (response)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound) return null;
+                response.EnsureSuccessStatusCode();
+            }
         }
-        response.EnsureSuccessStatusCode();
         return new(async (stream, token) =>
         {
             using (response)
@@ -252,12 +255,12 @@ public partial class HgService : IHgService
         return $"{code}__{deletedRepoSuffix}";
     }
 
-    public async Task<bool> HasAbandonedTransactions(ProjectCode projectCode)
+    public async Task<bool> HasAbandonedTransactions(ProjectCode projectCode, CancellationToken token = default)
     {
-        using var response = await SendManageRequest(HttpMethod.Get, $"repos/{projectCode}");
+        using var response = await SendManageRequest(HttpMethod.Get, $"repos/{projectCode}", token: token);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
-        var status = await response.Content.ReadFromJsonAsync<RepoStatusResponse>();
+        var status = await response.Content.ReadFromJsonAsync<RepoStatusResponse>(token);
         return status?.HasAbandonedTransactions ?? false;
     }
 

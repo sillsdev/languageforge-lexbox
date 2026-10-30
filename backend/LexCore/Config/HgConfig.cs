@@ -20,5 +20,4 @@ public class HgConfig
     public required string HgResumeManageSecret { get; init; }
     public bool AutoUpdateLexEntryCountOnSendReceive { get; init; } = false;
     public bool RequireContainerVersionMatch { get; init; } = true;
-    public int ResetCleanupAgeDays { get; init; } = 31;
 }

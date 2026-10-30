@@ -105,6 +105,39 @@ public class HgServiceTests
     }
 
     [Fact]
+    public async Task BackupRepoReturnsNullForMissingRepo()
+    {
+        _handler.SetupRequest(HttpMethod.Get, LexboxResumable + "/api/manage/repos/missing/backup")
+            .ReturnsResponse(HttpStatusCode.NotFound);
+
+        (await _hgService.BackupRepo("missing")).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task BackupRepoDisposesResponseOnServerError()
+    {
+        var content = new DisposeTrackingContent();
+        _handler.SetupRequest(HttpMethod.Get, LexboxResumable + "/api/manage/repos/broken/backup")
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError) { Content = content });
+
+        var act = () => _hgService.BackupRepo("broken");
+        await act.Should().ThrowAsync<HttpRequestException>();
+        content.Disposed.Should().BeTrue();
+    }
+
+    private sealed class DisposeTrackingContent : StringContent
+    {
+        public DisposeTrackingContent() : base("") { }
+        public bool Disposed { get; private set; }
+
+        protected override void Dispose(bool disposing)
+        {
+            Disposed = true;
+            base.Dispose(disposing);
+        }
+    }
+
+    [Fact]
     public async Task HasAbandonedTransactionsIsFalseForMissingRepo()
     {
         _handler.SetupRequest(HttpMethod.Get, LexboxResumable + "/api/manage/repos/missing")
