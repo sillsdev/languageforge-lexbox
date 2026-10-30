@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {isCompletePluginHtml} from './plugin-html';
+import {extractPluginHtml, isCompletePluginHtml, pluginHtmlTitle} from './plugin-html';
 
 const complete = `<!DOCTYPE html>
 <html>
@@ -40,5 +40,17 @@ describe('isCompletePluginHtml', () => {
 
   it('rejects doctype that is not at the start', () => {
     expect(isCompletePluginHtml(`<!-- note -->\n${complete}`)).toBe(false);
+  });
+});
+
+describe('extractPluginHtml', () => {
+  it('drops the prose and code fences around the document in an AI reply', () => {
+    const doc = '<!DOCTYPE html>\n<html><head><title>Quiz</title></head><body></body></html>';
+    expect(extractPluginHtml(`Here is your plugin:\n\n\`\`\`html\n${doc}\n\`\`\`\n\nEnjoy!`)).toBe(doc);
+    expect(pluginHtmlTitle(doc)).toBe('Quiz');
+  });
+
+  it('returns text without a document unchanged', () => {
+    expect(extractPluginHtml('no html here')).toBe('no html here');
   });
 });

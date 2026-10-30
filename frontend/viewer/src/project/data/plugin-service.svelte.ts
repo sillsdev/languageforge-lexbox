@@ -1,4 +1,5 @@
 import {type IPlugin} from '$lib/dotnet-types';
+import {gt} from 'svelte-i18n-lingui';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
 import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
@@ -25,6 +26,10 @@ export interface PluginDraft {
   name: string;
   description?: string;
   html: string;
+}
+
+export function customExampleName(exampleName: string): string {
+  return gt`${exampleName} (custom)`;
 }
 
 export type PluginHtmlResult =
@@ -87,6 +92,15 @@ export class PluginService {
     this.consentStore.grant(created.id, await computePluginHash(draft, {htmlDigest: uploadedHtmlDigest}));
     await this.#pluginsResource.refetch();
     return created;
+  }
+
+  /**
+   * Adds an example to the project. One changed before adding is saved under its own
+   * "… (custom)" name, so nobody mistakes it for the shipped example.
+   */
+  async addExample(example: {name: string; description: string}, draft: PluginDraft, customized: boolean): Promise<IPlugin> {
+    const name = customized && draft.name.trim() === example.name ? customExampleName(example.name) : draft.name;
+    return this.create({...draft, name});
   }
 
   /**
