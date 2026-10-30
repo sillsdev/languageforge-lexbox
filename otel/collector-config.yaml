@@ -14,7 +14,7 @@ receivers:
         #     - "http://127.0.0.1:3000"
 
 # https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/README.md#recommended-processors
-# The recommended core processors. The memory limiter probably won't do much, but it certainly doesn't hurt.
+# The recommended core processors.
 processors:
   # Drops the self-referential spans the browser produces when it POSTs trace batches
   # to the collector. The web fetch/XHR auto-instrumentation traces the export request
@@ -28,9 +28,12 @@ processors:
         - 'IsMatch(attributes["url.full"], ".*/v1/traces$")'
   batch:
     timeout: 1s
+  # Must stay below the container's memory limit (deployment/base/lexbox-deployment.yaml) or it never
+  # fires and the collector gets OOM-killed instead of refusing data. Process total runs ~50 MiB above limit_mib.
   memory_limiter:
     check_interval: 1s
-    limit_mib: 400
+    limit_mib: 128
+    spike_limit_mib: 32
   transform/squash_cookie_array:
     trace_statements:
       - context: span
