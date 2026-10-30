@@ -65,14 +65,14 @@ spec:
         startupProbe:
           httpGet:
             port: 5158
-            path: /api/healthz
+            path: /api/healthz/live
           failureThreshold: 30
           periodSeconds: 10
           timeoutSeconds: 5
         livenessProbe:
           httpGet:
             port: 5158
-            path: /api/healthz
+            path: /api/healthz/live
           initialDelaySeconds: 300
           periodSeconds: 20
           timeoutSeconds: 5
