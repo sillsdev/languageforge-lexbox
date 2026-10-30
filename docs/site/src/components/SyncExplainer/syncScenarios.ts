@@ -71,95 +71,37 @@ export const SCENARIOS: Scenario[] = [
         text: 'Moments later (once you’re online), your edit travels to the FieldWorks Lite copy in Lexbox by itself.',
       },
       {
+        t1: 'liteCopy',
+        ghost: true,
+        badge: 'auto',
+        text: 'Teammates using FieldWorks Lite get it from there by themselves, usually within seconds. Colleagues on FieldWorks Classic need two more steps.',
+      },
+      {
         t1: 'classicCopy',
         legs: ['leg2'],
+        ghost: true,
         badge: 'you',
         text: 'Pressing Sync on the Lexbox tab copies it into the FieldWorks Classic copy. Someone has to press it: it never runs by itself.',
       },
       {
-        t1: 'classicCopy',
-        hlNodes: ['classicCopy'],
-        text: 'Your edit is now waiting in Lexbox, in the FieldWorks Classic copy. It cannot go further on its own.',
-      },
-      {
         t1: 'colleague',
         legs: ['leg3'],
+        ghost: true,
         badge: 'them',
         text: 'It reaches your colleague only when they run Send/Receive in FieldWorks Classic. Until then, they won’t see it.',
       },
       {
         t1: 'colleague',
+        ghost: true,
         check: ['colleague'],
         badge: 'done',
-        text: 'So: someone has to press Sync on the Lexbox tab, and your colleague has to run Send/Receive. Neither happens by itself.',
+        text: 'So: FieldWorks Lite teammates get your edit by themselves. For FieldWorks Classic colleagues, someone has to press Sync on the Lexbox tab, and then they run Send/Receive.',
       },
     ],
   },
   {
-    id: 'internet',
-    q: 'Do I need internet to work?',
-    steps: [
-      {
-        t1: 'device',
-        offline: true,
-        dim: ['cloud', 'colleague', 'leg2', 'leg3'],
-        text: 'No. FieldWorks Lite works fully offline. Every edit is saved on your device.',
-      },
-      {
-        t1: 'device',
-        offline: true,
-        dim: ['cloud', 'colleague', 'leg2', 'leg3'],
-        text: 'While you’re offline, your changes simply wait on your device. Nothing is lost, and you can keep working.',
-      },
-      {
-        t1: 'liteCopy',
-        legs: ['leg1'],
-        badge: 'auto',
-        text: 'Once you’re back online, FieldWorks Lite sends everything to Lexbox at its next sync: after your next edit, when you open the project, or when you press Auto syncing.',
-      },
-      {
-        t1: 'liteCopy',
-        check: ['liteCopy'],
-        badge: 'done',
-        text: 'You never have to remember what you changed offline. To be sure it all went out, check that Synchronize says Up to date.',
-      },
-    ],
-  },
-  {
-    id: 'sync-button',
-    q: 'What does Sync on the Lexbox tab do?',
-    steps: [
-      {
-        hlNodes: ['cloud'],
-        badge: 'you',
-        text: 'This Sync button works entirely inside Lexbox: it merges the project’s two copies, FieldWorks Lite and FieldWorks Classic. It only merges what has already reached Lexbox.',
-      },
-      {
-        hlNodes: ['cloud'],
-        badge: 'you',
-        text: 'In FieldWorks Lite it’s on the Lexbox tab under Synchronize. People in the FieldWorks Lite beta also see “Sync FieldWorks Lite” on the project’s page on lexbox.org, which does the same thing.',
-      },
-      {
-        t1: 'leg2',
-        legs: ['leg2'],
-        text: 'Changes flow both ways at once: your FieldWorks Lite edits go into the FieldWorks Classic copy, and any FieldWorks Classic changes come back into the FieldWorks Lite copy.',
-      },
-      {
-        t1: 'device',
-        legs: ['leg1'],
-        badge: 'auto',
-        text: 'Whatever came back for you then reaches your device by itself.',
-      },
-      {
-        legs: ['leg3'],
-        badge: 'done',
-        text: 'What it does not do: touch your colleague’s computer. Their FieldWorks Classic updates only when they run Send/Receive.',
-      },
-    ],
-  },
-  {
-    id: 'why-sr',
-    q: 'Why is Send/Receive still needed in FieldWorks Classic?',
+    id: 'their-changes',
+    q: 'Why don’t I see my FieldWorks Classic colleague’s changes?',
     steps: [
       {
         t2: 'colleague',
@@ -188,7 +130,62 @@ export const SCENARIOS: Scenario[] = [
         t2: 'device',
         check: ['device'],
         badge: 'done',
-        text: 'FieldWorks Classic never talks to a server on its own. That’s by design: Send/Receive is how it joins in.',
+        text: 'So: your colleague runs Send/Receive first, then someone presses Sync on the Lexbox tab. FieldWorks Classic never sends anything on its own.',
+      },
+    ],
+  },
+  {
+    id: 'sync-button',
+    q: 'What does Sync on the Lexbox tab do?',
+    steps: [
+      {
+        hlNodes: ['cloud'],
+        badge: 'you',
+        text: 'This Sync button works entirely inside Lexbox: it merges the project’s two copies, FieldWorks Lite and FieldWorks Classic. It only merges what has already reached Lexbox.',
+      },
+      {
+        hlNodes: ['cloud'],
+        text: 'It runs on the Lexbox server, so once someone has pressed it, they can close FieldWorks Lite.',
+      },
+      {
+        t1: 'leg2',
+        legs: ['leg2'],
+        text: 'Changes flow both ways at once: your FieldWorks Lite edits go into the FieldWorks Classic copy, and any FieldWorks Classic changes come back into the FieldWorks Lite copy.',
+      },
+      {
+        t1: 'device',
+        legs: ['leg1'],
+        badge: 'auto',
+        text: 'Whatever came back for you then reaches your device by itself.',
+      },
+      {
+        legs: ['leg3'],
+        badge: 'done',
+        text: 'What it does not do: touch your colleague’s computer. Their FieldWorks Classic updates only when they run Send/Receive.',
+      },
+    ],
+  },
+  {
+    id: 'internet',
+    q: 'Do I need internet to work?',
+    steps: [
+      {
+        t1: 'device',
+        offline: true,
+        dim: ['cloud', 'colleague', 'leg2', 'leg3'],
+        text: 'No. FieldWorks Lite works fully offline. Your edits are saved on your device and wait there safely until you’re back online.',
+      },
+      {
+        t1: 'liteCopy',
+        legs: ['leg1'],
+        badge: 'auto',
+        text: 'Once you’re back online, FieldWorks Lite sends everything to Lexbox at its next sync: after your next edit, when you open the project, or when you press Auto syncing.',
+      },
+      {
+        t1: 'liteCopy',
+        check: ['liteCopy'],
+        badge: 'done',
+        text: 'You never have to remember what you changed offline. To be sure it all went out, check that Synchronize says Up to date.',
       },
     ],
   },
@@ -212,7 +209,7 @@ export const SCENARIOS: Scenario[] = [
         t2: 'leg2',
         legs: ['leg2'],
         badge: 'you',
-        text: 'When the two copies are synced, the edits are merged. There is no error message and nothing to untangle by hand.',
+        text: 'When someone presses Sync on the Lexbox tab, the two edits are merged. There is no error message and nothing to untangle by hand.',
       },
       {
         t1: 'leg2',
@@ -226,70 +223,6 @@ export const SCENARIOS: Scenario[] = [
         hlNodes: ['cloud'],
         badge: 'done',
         text: 'If you both changed the very same field, the FieldWorks Classic value wins (between two FieldWorks Lite users, the later change), and the other stays in the word’s History.',
-      },
-    ],
-  },
-  {
-    id: 'made-it',
-    q: 'How do I know my changes made it?',
-    steps: [
-      {
-        badge: 'you',
-        text: 'Open Synchronize in FieldWorks Lite: the sidebar item with the little status dot (on a phone, tap ☰ first).',
-      },
-      {
-        legs: ['leg1'],
-        t1: 'leg1',
-        text: 'Its FieldWorks Lite tab is about your device and Lexbox: “Up to date” means everything on your device has reached Lexbox.',
-      },
-      {
-        legs: ['leg2'],
-        t1: 'leg2',
-        text: 'The Lexbox tab is about the two copies in Lexbox: “No new data” on both sides means they match.',
-      },
-      {
-        legs: ['leg3'],
-        badge: 'done',
-        text: 'Your colleague’s Send/Receive has no indicator on your side. Whether they have your changes shows only on their computer.',
-      },
-    ],
-  },
-  {
-    id: 'fast-slow',
-    q: 'Why do FieldWorks Lite teammates see my edit in seconds, but FieldWorks Classic colleagues don’t?',
-    steps: [
-      {
-        t1: 'liteCopy',
-        legs: ['leg1'],
-        badge: 'auto',
-        text: 'Your edit reaches Lexbox automatically, within moments.',
-      },
-      {
-        t1: 'liteCopy',
-        ghost: true,
-        badge: 'auto',
-        text: 'Teammates using FieldWorks Lite get it from Lexbox the same way, usually seconds later.',
-      },
-      {
-        t1: 'classicCopy',
-        legs: ['leg2'],
-        ghost: true,
-        badge: 'you',
-        text: 'The road to FieldWorks Classic, though, has two manual steps. First, someone presses Sync on the Lexbox tab.',
-      },
-      {
-        t1: 'colleague',
-        legs: ['leg3'],
-        ghost: true,
-        badge: 'them',
-        text: 'Then your colleague runs Send/Receive.',
-      },
-      {
-        t1: 'colleague',
-        ghost: true,
-        check: ['colleague'],
-        badge: 'done',
-        text: 'Automatic for FieldWorks Lite, two manual steps for FieldWorks Classic: that’s the whole difference.',
       },
     ],
   },
