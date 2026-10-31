@@ -2,34 +2,22 @@ using System.Net;
 using System.Text.Json;
 using LexCore.Exceptions;
 using LexCore.Sync;
-using Microsoft.AspNetCore.Mvc;
 
 namespace LexBoxApi.Services;
 
 public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> logger)
 {
-    public async Task<(bool success, HttpStatusCode statusCode, string? error)> SyncMercurialAndHarmony(Guid projectId)
+    public async Task SyncMercurialAndHarmony(Guid projectId)
     {
         var response = await httpClient.PostAsync($"/api/merge/execute?projectId={projectId}", null);
-        string? error = null;
         if (!response.IsSuccessStatusCode)
         {
             logger.LogError("Failed to sync Mercurial and Harmony: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
                 response.StatusCode,
                 response.ReasonPhrase,
                 projectId);
-            try
-            {
-                var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(await response.Content.ReadAsStringAsync());
-                error = problemDetails?.Detail ?? problemDetails?.Title;
-            }
-            catch
-            {
-                error = response.ReasonPhrase;
-            }
+            throw await FailedResponse(response);
         }
-
-        return (response.IsSuccessStatusCode, response.StatusCode, error);
     }
 
     /// <summary>
@@ -38,7 +26,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
     public async Task<Guid[]> ReadyLexiconProjects(Guid[] projectIds)
     {
         var response = await httpClient.PostAsJsonAsync("/api/lexicon/projects/ready", projectIds);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode) throw await FailedResponse(response);
         return await response.Content.ReadFromJsonAsync<Guid[]>() ?? [];
     }
 
@@ -65,17 +53,18 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         return jobResult;
     }
 
-    public async Task<ProjectSyncStatus?> CrdtSyncStatus(Guid projectId)
+    public async Task<ProjectSyncStatus> CrdtSyncStatus(Guid projectId)
     {
         var response = await httpClient.GetAsync($"/api/merge/status?projectId={projectId}");
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<ProjectSyncStatus>();
+            return await response.Content.ReadFromJsonAsync<ProjectSyncStatus>()
+                ?? throw new FwHeadlessException(HttpStatusCode.BadGateway, "FwHeadless returned no sync status");
         logger.LogError("Failed to get CRDT sync status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
             response.StatusCode,
             response.ReasonPhrase,
             projectId,
             await response.Content.ReadAsStringAsync());
-        return null;
+        throw await FailedResponse(response);
     }
 
     public async Task DeleteRepo(Guid projectId, CancellationToken cancellationToken = default)
@@ -90,7 +79,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             response.ReasonPhrase,
             projectId,
             await response.Content.ReadAsStringAsync(cancellationToken));
-        throw new InvalidOperationException($"Failed to delete repo {projectId}: {response.StatusCode} {response.ReasonPhrase}");
+        throw await FailedResponse(response, cancellationToken);
     }
 
     public async Task DeleteProject(Guid projectId, CancellationToken cancellationToken = default)
@@ -105,10 +94,10 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             response.ReasonPhrase,
             projectId,
             await response.Content.ReadAsStringAsync(cancellationToken));
-        throw new InvalidOperationException($"Failed to delete project {projectId}: {response.StatusCode} {response.ReasonPhrase}");
+        throw await FailedResponse(response, cancellationToken);
     }
 
-    public async Task<(bool success, HttpStatusCode statusCode, string? error)> RegenerateProjectSnapshot(Guid projectId, Guid commitId, bool preserveAllFieldWorksCommits = false)
+    public async Task RegenerateProjectSnapshot(Guid projectId, Guid commitId, bool preserveAllFieldWorksCommits = false)
     {
         var url = $"/api/merge/regenerate-snapshot?projectId={projectId}&commitId={commitId}";
         if (preserveAllFieldWorksCommits)
@@ -122,13 +111,11 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
-            return (false, response.StatusCode, responseBody);
+            throw await FailedResponse(response);
         }
-
-        return (true, response.StatusCode, null);
     }
 
-    internal async Task<string?> SyncHarmony(Guid projectId)
+    internal async Task SyncHarmony(Guid projectId)
     {
         var response = await httpClient.PostAsync($"/api/merge/sync-harmony?projectId={projectId}", null);
         if (!response.IsSuccessStatusCode)
@@ -139,10 +126,8 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
-            return responseBody;
+            throw await FailedResponse(response);
         }
-
-        return null;
     }
 
     public async Task BlockProject(Guid projectId, string? reason = null)
@@ -160,11 +145,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                throw new NotFoundException($"Project not found in FwHeadless: {projectId}", "Project");
-
-            throw new InvalidOperationException($"Failed to block project: {response.StatusCode} {response.ReasonPhrase}");
+            throw await FailedResponse(response);
         }
     }
 
@@ -180,27 +161,52 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                throw new NotFoundException($"Project not found in FwHeadless: {projectId}", "Project");
-
-            throw new InvalidOperationException($"Failed to unblock project: {response.StatusCode} {response.ReasonPhrase}");
+            throw await FailedResponse(response);
         }
     }
 
-    public async Task<SyncBlockStatus?> GetBlockStatus(Guid projectId)
+    public async Task<SyncBlockStatus> GetBlockStatus(Guid projectId)
     {
         var url = $"/api/merge/block-status?projectId={projectId}";
         var response = await httpClient.GetAsync(url);
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<SyncBlockStatus>();
+            return await response.Content.ReadFromJsonAsync<SyncBlockStatus>()
+                ?? throw new FwHeadlessException(HttpStatusCode.BadGateway, "FwHeadless returned no block status");
 
         logger.LogError("Failed to get block status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
             response.StatusCode,
             response.ReasonPhrase,
             projectId,
             await response.Content.ReadAsStringAsync());
-        return null;
+        throw await FailedResponse(response);
     }
 
+    private static async Task<FwHeadlessException> FailedResponse(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    {
+        return new FwHeadlessException(response.StatusCode, ReadDetail(await response.Content.ReadAsStringAsync(cancellationToken)));
+    }
+
+    /// <summary>
+    /// The message in a FwHeadless error body: a problem+json detail (or title), a JSON string such as a NotFound&lt;string&gt;, or plain text.
+    /// </summary>
+    private static string? ReadDetail(string body)
+    {
+        if (string.IsNullOrWhiteSpace(body)) return null;
+        try
+        {
+            using var json = JsonDocument.Parse(body);
+            var root = json.RootElement;
+            if (root.ValueKind == JsonValueKind.String) return root.GetString();
+            if (root.ValueKind == JsonValueKind.Object)
+            {
+                if (root.TryGetProperty("detail", out var detail) && detail.ValueKind == JsonValueKind.String) return detail.GetString();
+                if (root.TryGetProperty("title", out var title) && title.ValueKind == JsonValueKind.String) return title.GetString();
+            }
+        }
+        catch (JsonException)
+        {
+            // plain text
+        }
+        return body;
+    }
 }
