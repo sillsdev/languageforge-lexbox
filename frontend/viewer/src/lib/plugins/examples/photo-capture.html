@@ -868,7 +868,7 @@
         onSaved(updated || after, res.mediaUri, (captionText || '').trim(), blob);
       });
     }).catch(function (err) {
-      if (err && err.code === 'permission-denied') {
+      if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
         // User declined the change dialog — keep the capture so they can retry.
         state.phase = 'captured';
         renderStage();

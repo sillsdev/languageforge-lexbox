@@ -7,19 +7,12 @@
   import {untrack} from 'svelte';
   import {navigate, useLocation, useRouter} from 'svelte-routing';
   import {usePluginService} from '$project/data/plugin-service.svelte';
-  import {useProjectContext} from '$project/project-context.svelte';
   import {useFeatures} from '$lib/services/feature-service';
   import {AppNotification} from '$lib/notifications/notifications';
-  import {entryBrowseParams} from '$lib/utils/search-params';
-  import {useMultiWindowService} from '$lib/services/multi-window-service';
-  import EditEntryDialog from '$lib/entry-editor/EditEntryDialog.svelte';
-  import {PluginApiAdapter} from './plugin-api-adapter';
-  import {PluginHost} from './plugin-host';
-  import {buildPluginSrcdoc, PLUGIN_IFRAME_ALLOW, PLUGIN_IFRAME_SANDBOX} from './plugin-srcdoc';
+  import {createPluginDocUrl} from './plugin-srcdoc';
   import {parsePluginManifest, type PluginManifest} from './plugin-manifest';
-  import {computePluginHash, PluginStorage} from './plugin-local-data';
-  import type {OpenEntryMode, PluginWriteOperation} from './plugin-api-types';
-  import PluginWriteConfirmDialog, {type WriteConfirmResult} from './PluginWriteConfirmDialog.svelte';
+  import {computePluginHash} from './plugin-local-data';
+  import PluginSandbox from './PluginSandbox.svelte';
 
   interface Props {
     pluginId: string;
@@ -28,7 +21,6 @@
   const {pluginId}: Props = $props();
 
   const pluginService = usePluginService();
-  const projectContext = useProjectContext();
   const features = useFeatures();
   const {base} = useRouter();
   const location = useLocation();
@@ -75,7 +67,7 @@
           // The (possibly multi-MB) HTML is deliberately NOT kept in state or a srcdoc attribute:
           // the composed document goes into a Blob the iframe loads by URL, so the strings are
           // GC-able as soon as this scope ends. The source of truth stays the on-disk cache file.
-          docUrl: URL.createObjectURL(new Blob([buildPluginSrcdoc(result.html, manifest.permissions)], {type: 'text/html'})),
+          docUrl: createPluginDocUrl(result.html, manifest.permissions),
         };
       } else if (result.result === 'offline') {
         htmlState = {status: 'offline'};
@@ -129,119 +121,8 @@
     AppNotification.display($t`“${plugin.name}” will ask before making changes again.`, {timeout: 'short'});
   }
 
-  function describeOperation(operation: PluginWriteOperation): string {
-    const name = plugin?.name ?? $t`Plugin`;
-    switch (operation.kind) {
-      case 'createEntry': return $t`“${name}” added an entry`;
-      case 'updateEntry': return $t`“${name}” changed an entry`;
-      case 'batch': return $t`“${name}” made ${operation.count} changes`;
-    }
-  }
-
-  // Write approvals are serialized so a plugin firing several writes shows one dialog at a time.
-  let pendingWrite = $state<{operation: PluginWriteOperation; resolve: (approved: boolean) => void}>();
-  let confirmQueue: Promise<unknown> = Promise.resolve();
-  function confirmWrite(operation: PluginWriteOperation): Promise<boolean> {
-    const result = confirmQueue.then(() => new Promise<boolean>(resolve => {
-      if (writesTrusted) {
-        // Trusted plugins skip the dialog, but every write still surfaces — ambient disclosure
-        // is what keeps "Always allow" honest.
-        AppNotification.display(describeOperation(operation), {timeout: 'long'});
-        resolve(true);
-        return;
-      }
-      pendingWrite = {operation, resolve};
-    }));
-    confirmQueue = result;
-    return result;
-  }
-
-  function resolvePendingWrite(result: WriteConfirmResult) {
-    const pending = pendingWrite;
-    if (!pending) return;
-    pendingWrite = undefined;
-    if (result === 'always') trustWrites();
-    pending.resolve(result !== 'deny');
-  }
-
-  // 'view'/'edit' open a dialog over the still-mounted plugin; 'window' is offered only where the
-  // platform supports separate windows (not Android/iOS), and degrades to the 'view' dialog there.
-  const multiWindowService = useMultiWindowService();
-  const openEntryModes: OpenEntryMode[] = ['view', 'edit', 'navigate', ...(multiWindowService ? ['window' as const] : [])];
-
-  let entryDialogOpen = $state(false);
-  let entryDialogId = $state<string>();
-  let entryDialogMode = $state<'view' | 'edit'>('view');
-  function openEntryDialog(entryId: string, mode: 'view' | 'edit') {
-    entryDialogId = entryId;
-    entryDialogMode = mode;
-    entryDialogOpen = true;
-  }
-  function openEntry(entryId: string, mode: OpenEntryMode) {
-    if (mode === 'navigate') {
-      navigate(`${$base.uri}/browse?${entryBrowseParams(entryId)}`);
-    } else if (mode === 'window' && multiWindowService) {
-      void multiWindowService.openEntryInNewWindow(entryId);
-    } else {
-      // 'view', 'edit', or 'window' where new windows aren't supported.
-      openEntryDialog(entryId, mode === 'edit' ? 'edit' : 'view');
-    }
-  }
-
-  const host = $derived.by(() => {
-    if (!plugin || !manifest) return undefined;
-    const adapter = new PluginApiAdapter(
-      projectContext.api,
-      new PluginStorage(projectContext.projectCode, plugin.id),
-      {
-        permissions: manifest.permissions,
-        capabilities: {comments: !!features.comments, history: !!features.history},
-      },
-      {
-        confirmWrite,
-        openEntry,
-        notify: (message) => AppNotification.display(message, {timeout: 'long'}),
-      },
-      projectContext.historyService,
-    );
-    return new PluginHost(adapter, {
-      projectName: projectContext.projectName,
-      projectCode: projectContext.projectCode,
-      permissions: manifest.permissions,
-      capabilities: {openEntryModes, comments: !!features.comments, history: !!features.history},
-      entryId: launchEntryId,
-    });
-  });
-
-  let iframeElement = $state<HTMLIFrameElement>();
-  $effect(() => {
-    const attached = host;
-    if (!attached || !iframeElement) return;
-    attached.attach(iframeElement);
-    return () => attached.detach();
-  });
-
   const docUrl = $derived(htmlState.status === 'ready' && approved ? htmlState.docUrl : undefined);
   let reloadToken = $state(0);
-
-  /**
-   * No sandbox flag or CSP directive stops a script from navigating ITS OWN frame — the one hole
-   * in the offline sandbox, since a navigation's URL can carry data out. A plugin document never
-   * legitimately navigates (it's a single self-contained file), so a second `load` on the iframe
-   * means the plugin left its document: stop it and tell the user. Detection, not prevention —
-   * which is why the consent card words the network guarantee as "not allowed" rather than "can't".
-   */
-  let iframeLoadCount = 0;
-  let stoppedForNavigation = $state(false);
-  function onIframeLoad() {
-    iframeLoadCount++;
-    if (iframeLoadCount > 1) stoppedForNavigation = true;
-  }
-  $effect(() => {
-    reloadToken; docUrl; // eslint-disable-line @typescript-eslint/no-unused-expressions
-    iframeLoadCount = 0;
-    stoppedForNavigation = false;
-  });
 
   // Fullscreen hides the whole toolbar for true immersion; the only chrome left is a minimal exit
   // control overlaid on the plugin (Esc also exits, browser-native). Feature-detected so we don't
@@ -266,7 +147,6 @@
   }
 </script>
 
-<svelte:window onmessage={(event) => host?.handleWindowMessage(event)} />
 <svelte:document onfullscreenchange={onFullscreenChange} />
 
 <div class="h-full flex flex-col bg-background" bind:this={containerElement}>
@@ -318,17 +198,6 @@
           </div>
         </div>
       {/if}
-    {:else if stoppedForNavigation}
-      <div class="absolute inset-0 grid place-items-center p-4">
-        <div class="text-center space-y-3 max-w-md">
-          <Icon icon="i-mdi-shield-alert" class="size-10 text-destructive" />
-          <div class="font-medium">{$t`Plugin stopped`}</div>
-          <p class="text-sm text-muted-foreground">
-            {$t`“${plugin.name}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin.`}
-          </p>
-          <Button variant="outline" onclick={goBack}>{$t`Back to plugins`}</Button>
-        </div>
-      </div>
     {:else if htmlState.status === 'loading'}
       <div class="absolute inset-0 grid place-items-center text-muted-foreground">
         <Icon icon="i-mdi-loading" class="animate-spin size-8" />
@@ -404,18 +273,22 @@
           </Card.Footer>
         </Card.Root>
       </div>
-    {:else if docUrl}
-      {#key reloadToken}
-        <iframe
-          bind:this={iframeElement}
-          title={plugin.name}
-          src={docUrl}
-          sandbox={PLUGIN_IFRAME_SANDBOX}
-          allow={PLUGIN_IFRAME_ALLOW}
-          onload={onIframeLoad}
-          class="absolute inset-0 w-full h-full border-0 bg-background"
-        ></iframe>
-      {/key}
+    {:else if docUrl && manifest}
+      <PluginSandbox
+        {pluginId}
+        pluginName={plugin.name}
+        {docUrl}
+        {manifest}
+        writeMode="live"
+        entryId={launchEntryId}
+        {reloadToken}
+        {writesTrusted}
+        onTrustWrites={trustWrites}
+      >
+        {#snippet stoppedActions()}
+          <Button variant="outline" onclick={goBack}>{$t`Back to plugins`}</Button>
+        {/snippet}
+      </PluginSandbox>
       {#if isFullscreen}
         <!-- The plugin owns a sandboxed iframe, so pointer events don't reach the host: an
              auto-hiding-on-mouse-move control can't work here. Keep it persistent but faded. -->
@@ -432,12 +305,3 @@
     {/if}
   </div>
 </div>
-
-<PluginWriteConfirmDialog
-  pluginName={plugin?.name ?? ''}
-  operation={pendingWrite?.operation}
-  onResult={resolvePendingWrite}
-/>
-
-<!-- Sibling overlay: opens over the plugin without unmounting its iframe, so plugin state survives. -->
-<EditEntryDialog bind:open={entryDialogOpen} entryId={entryDialogId} mode={entryDialogMode} />

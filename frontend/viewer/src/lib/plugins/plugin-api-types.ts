@@ -104,6 +104,8 @@ export type PluginApiErrorCode =
   | 'not-supported'
   | 'conflict'
   | 'storage-full'
+  /** The plugin is running in a preview (e.g. the plugin studio): the write was shown, not saved. */
+  | 'preview'
   | 'internal';
 
 export class PluginApiException extends Error {
@@ -139,6 +141,12 @@ export interface PluginEntryFilter {
   /** Matches entries having a sense without a part of speech (or no senses). */
   missingPartOfSpeech?: boolean;
 }
+
+/**
+ * `live` applies approved writes. `preview` shows each write exactly as a live run would, then
+ * rejects it with code `preview` without touching the dictionary.
+ */
+export type PluginWriteMode = 'live' | 'preview';
 
 /** A write a plugin has requested; the user must approve it before it is applied. */
 export type PluginWriteOperation =

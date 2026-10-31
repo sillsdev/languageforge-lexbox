@@ -10,6 +10,7 @@
   import ActivityView from '$lib/activity/ActivityView.svelte';
   import PluginsView from '$lib/plugins/PluginsView.svelte';
   import PluginRunView from '$lib/plugins/PluginRunView.svelte';
+  import PluginStudioView from '$lib/plugins/PluginStudioView.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
@@ -73,6 +74,20 @@
       {#if features.plugins}
         <Route path="/plugins">
           <PluginsView />
+        </Route>
+        <!-- The studio checks the manager role itself, so a stale link explains instead of 404ing. -->
+        <Route path="/plugins/new">
+          <PluginStudioView mode="new" />
+        </Route>
+        <Route path="/plugins/examples/:key" let:params>
+          {#key params.key}
+            <PluginStudioView mode="example" exampleKey={params.key} />
+          {/key}
+        </Route>
+        <Route path="/plugins/:id/edit" let:params>
+          {#key params.id}
+            <PluginStudioView mode="edit" pluginId={params.id} />
+          {/key}
         </Route>
         <Route path="/plugins/:id" let:params>
           <!-- Key includes the query so relaunching the SAME plugin from a different entry restarts

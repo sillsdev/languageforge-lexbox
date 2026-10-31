@@ -11,13 +11,17 @@ import {
   type PluginEntryQuery,
   type PluginHostFeature,
   type PluginPermission,
+  type PluginWriteMode,
   type PluginWriteOperation,
 } from './plugin-api-types';
 import type {PluginStorage} from './plugin-local-data';
 import {gt} from 'svelte-i18n-lingui';
 
 export interface PluginHostCallbacks {
-  /** Shows the write to the user; resolves true only if they approve it. */
+  /**
+   * Shows the write to the user; resolves true only if they approve it. In preview mode the
+   * result is ignored: the write is shown, then rejected with code `preview`.
+   */
   confirmWrite(operation: PluginWriteOperation): Promise<boolean>;
   openEntry(entryId: string, mode: OpenEntryMode): void;
   notify(message: string): void;
@@ -38,6 +42,9 @@ const MAX_SUMMARY_LINES = 1000;
 const MAX_BATCH_OPERATIONS = 200;
 const DEFAULT_ACTIVITY_TAKE = 50;
 const MAX_ACTIVITY_TAKE = 500;
+/** Per-run file budget: saveFile has no approval dialog, so a runaway plugin must not be able to fill LinkedFiles. */
+export const MAX_SAVED_FILES_PER_RUN = 500;
+export const MAX_SAVED_BYTES_PER_RUN = 200 * 1024 * 1024;
 
 /**
  * The complete plugin-facing API, v1. One method here = one method plugins can call (the SDK's
@@ -128,6 +135,8 @@ export interface PluginApiConfig {
   permissions: PluginPermission[];
   /** Optional features this host/project supports. */
   capabilities: Pick<HostCapabilities, 'comments' | 'history'>;
+  /** Defaults to `live`. See {@link PluginWriteMode}. */
+  writeMode?: PluginWriteMode;
 }
 
 /**
@@ -146,6 +155,8 @@ export class PluginApiAdapter implements PluginApiMethods {
 
   /** Loaded once per plugin session; writing systems and morph tokens don't change mid-run. */
   #headwordDeps?: Promise<{vernacular: IWritingSystem[]; morphTokens: MorphTokens}>;
+  #savedFiles = 0;
+  #savedBytes = 0;
 
   handle(method: string, args: unknown[]): Promise<unknown> {
     if (!isPluginApiMethod(method)) {
@@ -201,6 +212,7 @@ export class PluginApiAdapter implements PluginApiMethods {
    * Stores a file (e.g. a recording or captured image) and returns its {@link IUploadFileResponse}
    * with a `mediaUri` you then write into an entry field (via updateEntry) to attach it. The bytes
    * themselves are stored locally; the entry edit that references them is still user-approved.
+   * Budgeted per run ({@link MAX_SAVED_FILES_PER_RUN} / {@link MAX_SAVED_BYTES_PER_RUN}).
    */
   async saveFile(data: unknown, metadata: unknown): Promise<IUploadFileResponse> {
     this.#requireEditPermission();
@@ -212,15 +224,23 @@ export class PluginApiAdapter implements PluginApiMethods {
     }
     const filename = asNonEmptyString((metadata as {filename?: unknown}).filename, 'filename');
     const mimeType = asNonEmptyString((metadata as {mimeType?: unknown}).mimeType, 'mimeType');
-    return await this.api.saveFile(data, {filename, mimeType, extraFields: {}});
+    // A stored file is real data with nothing to show first, so a preview can't fake it.
+    if (this.#isPreview) throw new PluginApiException('preview', 'Files are not saved while previewing a plugin');
+    const size = data instanceof Blob ? data.size : data.byteLength;
+    if (this.#savedFiles >= MAX_SAVED_FILES_PER_RUN || this.#savedBytes + size > MAX_SAVED_BYTES_PER_RUN) {
+      throw new PluginApiException('storage-full',
+        `This plugin has used its file budget for this run (${MAX_SAVED_FILES_PER_RUN} files or ${MAX_SAVED_BYTES_PER_RUN / 1024 / 1024}MB)`);
+    }
+    const response = await this.api.saveFile(data, {filename, mimeType, extraFields: {}});
+    this.#savedFiles++;
+    this.#savedBytes += size;
+    return response;
   }
 
   async createEntry(input: unknown): Promise<PluginEntry> {
     this.#requireEditPermission();
     const prepared = this.prepareCreate(input);
-    if (!await this.callbacks.confirmWrite(prepared.operation)) {
-      throw new PluginApiException('permission-denied', 'The user declined this change');
-    }
+    await this.#confirm(prepared.operation, 'The user declined this change');
     return prepared.apply();
   }
 
@@ -228,9 +248,7 @@ export class PluginApiAdapter implements PluginApiMethods {
     this.#requireEditPermission();
     const prepared = await this.prepareUpdate(beforeInput, afterInput);
     if (!prepared) return (await this.withHeadwords([stripHeadword(afterInput as IEntry)]))[0]; // nothing changed
-    if (!await this.callbacks.confirmWrite(prepared.operation)) {
-      throw new PluginApiException('permission-denied', 'The user declined this change');
-    }
+    await this.#confirm(prepared.operation, 'The user declined this change');
     return prepared.apply();
   }
 
@@ -248,12 +266,11 @@ export class PluginApiAdapter implements PluginApiMethods {
       if (p) prepared.push(p);
     }
     if (prepared.length === 0) return [];
-    const approved = await this.callbacks.confirmWrite({
+    await this.#confirm({
       kind: 'batch',
       count: prepared.length,
       summary: buildBatchSummary(prepared.map(p => p.operation)),
-    });
-    if (!approved) throw new PluginApiException('permission-denied', 'The user declined these changes');
+    }, 'The user declined these changes');
     const results: PluginEntry[] = [];
     for (const p of prepared) results.push(await p.apply());
     return results;
@@ -343,6 +360,17 @@ export class PluginApiAdapter implements PluginApiMethods {
   storageRemove(key: string): Promise<void> {
     this.storage.remove(key);
     return Promise.resolve();
+  }
+
+  get #isPreview(): boolean {
+    return this.config.writeMode === 'preview';
+  }
+
+  /** The single gate every write passes: shown to the user, then applied only if live and approved. */
+  async #confirm(operation: PluginWriteOperation, declinedMessage: string): Promise<void> {
+    const approved = await this.callbacks.confirmWrite(operation);
+    if (this.#isPreview) throw new PluginApiException('preview', 'Preview only: this change was not saved');
+    if (!approved) throw new PluginApiException('permission-denied', declinedMessage);
   }
 
   #requireEditPermission(): void {

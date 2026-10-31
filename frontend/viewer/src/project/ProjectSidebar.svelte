@@ -30,6 +30,7 @@
   import * as Collapsible from '$lib/components/ui/collapsible';
   import {cn} from '$lib/utils';
   import {PersistedState} from 'runed';
+  import {confirmLeave} from '$lib/utils/leave-guard';
 
   const config = useFwLiteConfig();
   const projectContext = useProjectContext();
@@ -51,9 +52,9 @@
   const primaryAction = usePrimaryAction();
 
   const {base, activeRoute} = useRouter();
-  function goto(view: string) {
-    let newLocation = `${$base.uri}/${view}`;
-    navigate(newLocation);
+  async function goto(view: string) {
+    if (!await confirmLeave()) return;
+    navigate(`${$base.uri}/${view}`);
   }
 
   let troubleshootDialog = $state<TroubleshootDialog>();
@@ -67,7 +68,7 @@
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
   <Sidebar.MenuItem>
-    <Sidebar.MenuButton onclick={() => {goto(view); sidebar?.closeMobile()}} isActive={$activeRoute?.uri.endsWith(view)}>
+    <Sidebar.MenuButton onclick={() => {void goto(view); sidebar?.closeMobile()}} isActive={$activeRoute?.uri.endsWith(view)}>
       <Icon {icon} />
       <span>{label}</span>
       {#if stat}

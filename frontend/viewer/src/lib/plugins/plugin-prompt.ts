@@ -34,6 +34,31 @@ export function pluginTaskSection(description: string): string {
 ${description.trim() || DESCRIPTION_PLACEHOLDER}`;
 }
 
+const CHANGE_PLACEHOLDER =
+  'REPLACE THIS PARAGRAPH with the change you want — what should work differently, look different, or be added.';
+
+/**
+ * The closing section for changing an existing plugin: its complete current HTML plus the change
+ * the user asked for. Appended to the same {@link buildPluginPrompt} body as a new plugin's prompt,
+ * so the AI gets the API guide and project context either way.
+ */
+export function pluginChangeSection(currentHtml: string, change: string): string {
+  // A four-backtick fence, so a ``` inside the plugin (e.g. in a comment) can't end the block early.
+  return `---
+
+## The plugin as it is now
+
+This is the complete current HTML of the plugin. Change it as described below and reply with the WHOLE updated file — one complete HTML document from \`<!DOCTYPE html>\` to \`</html>\`, not a diff or an excerpt. Keep everything else working as it does now, and don't add permissions (\`internet\`, \`edit\`) or contexts the change doesn't need.
+
+\`\`\`\`html
+${currentHtml}
+\`\`\`\`
+
+## The change I want
+
+${change.trim() || CHANGE_PLACEHOLDER}`;
+}
+
 /**
  * Builds the project-aware body of the prompt users paste into an AI assistant (Claude, ChatGPT, …)
  * to have it write a plugin. Append {@link pluginTaskSection} to get the complete prompt. Kept in
@@ -80,7 +105,7 @@ export async function buildPluginPrompt(
 
   const writesRequirement = readOnly
     ? `6. **Read-only plugin.** Do not modify the dictionary: never call \`createEntry\`, \`updateEntry\`, \`applyChanges\`, or \`saveFile\`, and do NOT declare the \`edit\` permission. Read, display, and analyze only.`
-    : `6. **Writes need the \`edit\` permission and are user-approved.** Add \`<meta name="fwlite-plugin-permissions" content="edit">\` in \`<head>\` (without it, write calls are rejected outright). Every \`createEntry\`/\`updateEntry\`/\`applyChanges\` call pops up a confirmation dialog in the app showing exactly what will change. If the user declines, the promise rejects with \`error.code === 'permission-denied'\` — handle that as a normal outcome (show "not saved"), never as a crash.`;
+    : `6. **Writes need the \`edit\` permission and are user-approved.** Add \`<meta name="fwlite-plugin-permissions" content="edit">\` in \`<head>\` (without it, write calls are rejected outright). Every \`createEntry\`/\`updateEntry\`/\`applyChanges\` call pops up a confirmation dialog in the app showing exactly what will change. If the user declines, the promise rejects with \`error.code === 'permission-denied'\` — handle that as a normal outcome (show "not saved"), never as a crash. While a manager previews the plugin before adding it, writes and \`saveFile\` are shown but not saved and reject with \`error.code === 'preview'\`: handle it the same way.`;
 
   const writingSection = readOnly ? '' : `### Writing (each call = one user confirmation dialog)
 
@@ -111,6 +136,7 @@ You may record audio (or capture from the camera) and save it — e.g. to fill i
 
 \`\`\`ts
 fwlite.saveFile(bytes, {filename, mimeType}): Promise<{result: string, mediaUri?: string, errorMessage?: string}>
+// Budgeted per run (500 files / 200MB); beyond that it rejects with code 'storage-full'.
 // bytes: ArrayBuffer | Uint8Array | Blob. Requires the 'edit' permission. Then write mediaUri into an
 // audio writing-system field (or a sense picture) via updateEntry — that edit is user-approved as usual.
 \`\`\`
@@ -336,7 +362,7 @@ type Sense = {
 };
 \`\`\`
 
-Errors reject with an \`Error\` that has a \`code\`: \`unknown-method\`, \`invalid-args\`, \`permission-denied\`, \`not-supported\`, \`conflict\`, \`storage-full\`, or \`internal\`.
+Errors reject with an \`Error\` that has a \`code\`: \`unknown-method\`, \`invalid-args\`, \`permission-denied\`, \`not-supported\`, \`conflict\`, \`storage-full\`, \`preview\` (a write while the plugin is being previewed: nothing was saved), or \`internal\`.
 
 ## Writing systems & headwords
 
