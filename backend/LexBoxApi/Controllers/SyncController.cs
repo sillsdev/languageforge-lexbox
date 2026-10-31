@@ -1,7 +1,6 @@
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
 using LexCore.Auth;
-using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexCore.Sync;
 using Microsoft.AspNetCore.Mvc;
@@ -25,9 +24,7 @@ public class SyncController(
     public async Task<ActionResult<ProjectSyncStatus>> GetSyncStatus(Guid projectId)
     {
         if (!await permissionService.CanViewProject(projectId)) return Forbid();
-        var result = await fwHeadlessClient.CrdtSyncStatus(projectId);
-        if (result is null) return NotFound();
-        return Ok(result);
+        return Ok(await fwHeadlessClient.CrdtSyncStatus(projectId));
     }
 
     [HttpPost("trigger/{projectId}")]
@@ -35,16 +32,7 @@ public class SyncController(
     public async Task<ActionResult> TriggerSync(Guid projectId)
     {
         if (!await permissionService.CanSyncProject(projectId)) return Forbid();
-        var (started, statusCode, error) = await fwHeadlessClient.SyncMercurialAndHarmony(projectId);
-        if (!started)
-        {
-            return statusCode switch
-            {
-                System.Net.HttpStatusCode.Locked => Problem(error ?? "Project is blocked from syncing", statusCode: StatusCodes.Status423Locked),
-                System.Net.HttpStatusCode.NotFound => Problem(error ?? "Project not found", statusCode: StatusCodes.Status404NotFound),
-                _ => Problem(error ?? "Failed to trigger sync", statusCode: (int)statusCode)
-            };
-        }
+        await fwHeadlessClient.SyncMercurialAndHarmony(projectId);
         return Ok();
     }
 
@@ -77,26 +65,16 @@ public class SyncController(
     public async Task<IActionResult> SyncHarmony(Guid projectId)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        try
-        {
-            var result = await fwHeadlessClient.SyncHarmony(projectId);
-            if (result is not null)
-            {
-                return Problem(result);
-            }
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            return Problem(e.Message);
-        }
+        await fwHeadlessClient.SyncHarmony(projectId);
+        return Ok();
     }
 
     /// <summary>
     /// Regenerates the project snapshot (the JSON representation of the project data used by the frontend).
     /// </summary>
     /// <param name="projectId">The project ID</param>
-    /// <param name="commitId">Optional. If provided, the snapshot will be regenerated based on the state of the project at this specific commit. Subsequent commits will be ignored.</param>
+    /// <param name="commitId">The snapshot is regenerated from the state of the project at this commit; later commits are ignored.
+    /// Required, because the live CRDT copy changes with every harmony sync and lexicon API write.</param>
     /// <param name="preserveAllFieldWorksCommits">
     /// Optional. If true, FieldWorks commits after the specified commit will be preserved in the snapshot.
     /// This makes sense, because any FieldWorks commits that have made it into the FWLite project have clearly been successfully synced,
@@ -107,22 +85,11 @@ public class SyncController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> RegenerateProjectSnapshot(Guid projectId, [FromQuery] Guid? commitId = null, [FromQuery] bool preserveAllFieldWorksCommits = false)
+    public async Task<IActionResult> RegenerateProjectSnapshot(Guid projectId, [FromQuery, BindRequired] Guid commitId, [FromQuery] bool preserveAllFieldWorksCommits = false)
     {
         await permissionService.AssertCanSyncProject(projectId);
-        try
-        {
-            var result = await fwHeadlessClient.RegenerateProjectSnapshot(projectId, commitId, preserveAllFieldWorksCommits);
-            if (result is not null)
-            {
-                return Problem(result);
-            }
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            return Problem(e.Message);
-        }
+        await fwHeadlessClient.RegenerateProjectSnapshot(projectId, commitId, preserveAllFieldWorksCommits);
+        return Ok();
     }
 
     /// <summary>
@@ -161,19 +128,8 @@ public class SyncController(
 
         await permissionService.AssertCanSyncProject(id.Value);
 
-        try
-        {
-            await fwHeadlessClient.BlockProject(id.Value, reason);
-            return Ok();
-        }
-        catch (NotFoundException)
-        {
-            return NotFound();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await fwHeadlessClient.BlockProject(id.Value, reason);
+        return Ok();
     }
 
     [HttpPost("unblock")]
@@ -192,19 +148,8 @@ public class SyncController(
 
         await permissionService.AssertCanSyncProject(id.Value);
 
-        try
-        {
-            await fwHeadlessClient.UnblockProject(id.Value);
-            return Ok();
-        }
-        catch (NotFoundException)
-        {
-            return NotFound();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await fwHeadlessClient.UnblockProject(id.Value);
+        return Ok();
     }
 
     [HttpGet("block-status")]
@@ -224,10 +169,7 @@ public class SyncController(
         // Check permissions with the resolved projectId
         await permissionService.AssertCanViewProject(id.Value);
 
-        var status = await fwHeadlessClient.GetBlockStatus(id.Value);
-        if (status is null)
-            return NotFound();
-        return status;
+        return await fwHeadlessClient.GetBlockStatus(id.Value);
     }
 
     private static bool IsProjectIdOrCodeProvided(Guid? projectId, string? projectCode)
