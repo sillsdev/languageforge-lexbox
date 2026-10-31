@@ -12,8 +12,11 @@
   let {before, after, beforeHomograph = 0, afterHomograph = 0, detail, class: className}: AnchorText & {class?: string} = $props();
 </script>
 
+<!-- Diff classes on the <sub> itself: on a wrapper, the tint fills the line above the digit and the strike misses it -->
 {#snippet homographNumber(n: number, state?: 'added' | 'removed')}
-  {#if n > 0}<span class="rounded-sm {state === 'added' ? diffAdded : state === 'removed' ? diffRemoved : ''}">{#if state}<DiffMarker {state} />{/if}<HomographNumber homographNumber={n} /></span>{/if}
+  {#if n > 0}{#if state}<DiffMarker {state} />{/if}<HomographNumber homographNumber={n} class={cn(state && 'rounded-sm', state === 'added' && diffAdded, state === 'removed' && diffRemoved,
+    // Keeps ₁₂ from reading as 12; a margin, so no line break
+    state === 'added' && beforeHomograph > 0 && 'ms-1')} />{/if}
 {/snippet}
 
 <!-- One line: whitespace would put a gap between the headword and its homograph number -->
