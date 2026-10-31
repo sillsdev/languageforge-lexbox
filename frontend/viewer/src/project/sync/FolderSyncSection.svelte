@@ -7,8 +7,7 @@
   import {useSyncStatusService} from '$lib/services/sync-status-service';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import {useProjectContext} from '$project/project-context.svelte';
-  import LocalAuthorNameDialog from '$lib/author/LocalAuthorNameDialog.svelte';
-  import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
+  import type {StorageProp} from '$lib/storage/storage-prop.svelte';
   import {folderSyncMessage, folderDisplayName} from './folder-sync-messages';
   import type {SyncTarget} from './sync-target';
 
@@ -16,17 +15,19 @@
     /** Which sync is running, shared with the rest of the dialog so only one runs at a time */
     syncing?: SyncTarget;
     onSynced?: () => void;
+    /** The device's name for commits with no Lexbox user, owned by the sync view, which also shows and edits it */
+    localAuthorName: StorageProp;
+    /** Asks for that name; resolves false if the user cancels */
+    promptForName: () => Promise<boolean>;
   }
 
-  let {syncing = $bindable(), onSynced = () => {}}: Props = $props();
+  let {syncing = $bindable(), onSynced = () => {}, localAuthorName, promptForName}: Props = $props();
 
   const service = useSyncStatusService();
   const platformFeatures = usePlatformFeaturesService();
   const projectContext = useProjectContext();
-  const localAuthorName = useLocalAuthorName();
   const rememberedFolder = resource(() => undefined, () => service.getRememberedSyncFolder());
   let running = $state<'picked' | 'remembered'>();
-  let nameDialog = $state<LocalAuthorNameDialog>();
 
   // With a Lexbox user the account is the author; without one the device's chosen name signs every change
   const signedInToLexbox = $derived(!!projectContext.projectData?.lastUserId);
@@ -45,7 +46,7 @@
     try {
       const path = await getPath();
       if (!path) return;
-      if (!signedInToLexbox && !localAuthorName.current && !(await nameDialog!.prompt())) return;
+      if (!signedInToLexbox && !localAuthorName.current && !(await promptForName())) return;
       await syncWith(path);
     } finally {
       syncing = undefined;
@@ -93,16 +94,4 @@
       </Button>
     {/if}
   </div>
-  {#if !signedInToLexbox && !localAuthorName.loading}
-    <p class="text-sm text-muted-foreground flex items-center gap-1">
-      {#if localAuthorName.current}
-        {$t`Your changes are signed as ${localAuthorName.current}`}
-        <Button variant="ghost" size="xs" onclick={() => void nameDialog!.prompt()}>{$t`Change`}</Button>
-      {:else}
-        {$t`Your changes aren't signed with a name yet`}
-        <Button variant="ghost" size="xs" onclick={() => void nameDialog!.prompt()}>{$t`Add your name`}</Button>
-      {/if}
-    </p>
-  {/if}
 </div>
-<LocalAuthorNameDialog {localAuthorName} bind:this={nameDialog} />

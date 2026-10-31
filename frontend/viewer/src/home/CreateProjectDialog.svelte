@@ -6,10 +6,14 @@
   import Label from '$lib/components/ui/label/label.svelte';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
+  import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
+  import {watch} from 'runed';
 
   let {refreshProjects}: {refreshProjects: () => Promise<void>} = $props();
 
   const projectsService = useProjectsService();
+  // A template project has no Lexbox user, so this device's name signs every edit in it
+  const localAuthorName = useLocalAuthorName();
 
   let open = $state(false);
   let loading = $state(false);
@@ -20,6 +24,10 @@
   let name = $state('');
   let vernacularWs = $state('');
   let analysisWs = $state('');
+  let authorName = $state('');
+  watch(() => localAuthorName.loading, (loading) => {
+    if (!loading && open && !authorName) authorName = localAuthorName.current;
+  });
 
   function slugify(value: string): string {
     return value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+/, '');
@@ -29,9 +37,10 @@
 
   let nameError = $derived(name.trim() ? undefined : $t`Name is required`);
   let vernacularWsError = $derived(vernacularWs.trim() ? undefined : $t`Vernacular writing system is required`);
-  let valid = $derived(!nameError && !vernacularWsError);
+  let authorNameError = $derived(authorName.trim() ? undefined : $t`Your name is required`);
+  let valid = $derived(!nameError && !vernacularWsError && !authorNameError);
   // Surfaced only after a submit attempt, then they clear live as each field is fixed.
-  let fieldErrors = $derived(submitted ? [nameError, vernacularWsError].filter(e => e !== undefined) : []);
+  let fieldErrors = $derived(submitted ? [nameError, vernacularWsError, authorNameError].filter(e => e !== undefined) : []);
 
   export function openDialog() {
     error = undefined;
@@ -39,6 +48,7 @@
     name = '';
     vernacularWs = '';
     analysisWs = '';
+    authorName = localAuthorName.current;
     loading = false;
     open = true;
   }
@@ -51,6 +61,8 @@
     loading = true;
     error = undefined;
     try {
+      // saved first, so the project's very first edit is signed even if creating it fails
+      if (authorName.trim() !== localAuthorName.current) await localAuthorName.set(authorName.trim());
       await projectsService.createProject(name.trim(), code.trim(), vernacularWs.trim(), analysisWs.trim() || undefined);
       await refreshProjects();
       open = false;
@@ -96,6 +108,14 @@
         {$t`Analysis writing system code`}
         <Input bind:value={analysisWs} placeholder="en" />
       </Label>
+      <div class="col-span-2 border-t mt-1"></div>
+      <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+        {$t`Your name`}
+        <Input bind:value={authorName} autocomplete="name" spellcheck="false" maxlength={100} aria-describedby="create-project-author-hint" />
+      </Label>
+      <p id="create-project-author-hint" class="col-start-2 text-sm text-muted-foreground">
+        {$t`Shown next to your changes in this and any other local project on this device. You can change it later in the sync dialog.`}
+      </p>
       <div class="col-span-2 text-end space-y-2">
         {#each fieldErrors as fieldError (fieldError)}
           <p class="text-destructive">{fieldError}</p>
