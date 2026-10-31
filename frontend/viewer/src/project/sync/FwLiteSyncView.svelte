@@ -16,6 +16,9 @@
   import type {SyncTarget} from './sync-target';
   import FolderSyncSection from './FolderSyncSection.svelte';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
+  import {useProjectContext} from '$project/project-context.svelte';
+  import LocalAuthorNameDialog from '$lib/author/LocalAuthorNameDialog.svelte';
+  import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
 
   import * as Popover from '$lib/components/ui/popover';
 
@@ -46,6 +49,11 @@
 
   const service = useSyncStatusService();
   const platformFeatures = usePlatformFeaturesService();
+  const projectContext = useProjectContext();
+  const localAuthorName = useLocalAuthorName();
+  let nameDialog = $state<LocalAuthorNameDialog>();
+  // With a Lexbox user the account is the author; without one the device's chosen name signs every change
+  const signedInToLexbox = $derived(!!projectContext.projectData?.lastUserId);
   const status = resource(() => syncCount, async (_, _prev, {signal}) => {
     const [pendingCommits, latestSyncedCommitDate] = await Promise.all([
       service.getLocalStatus(),
@@ -184,6 +192,18 @@
     <p>{$t`Local`}</p>
   </div>
 </div>
-{#if platformFeatures.features.supportsFolderSync}
-  <FolderSyncSection bind:syncing onSynced={() => void status.refetch()} />
+{#if !signedInToLexbox && !localAuthorName.loading}
+  <p class="mt-4 text-sm text-muted-foreground flex items-center justify-center gap-1">
+    {#if localAuthorName.current}
+      {$t`Your changes are signed as ${localAuthorName.current}`}
+      <Button variant="ghost" size="xs" onclick={() => void nameDialog!.prompt()}>{$t`Change`}</Button>
+    {:else}
+      {$t`Your changes aren't signed with a name yet`}
+      <Button variant="ghost" size="xs" onclick={() => void nameDialog!.prompt()}>{$t`Add your name`}</Button>
+    {/if}
+  </p>
 {/if}
+{#if platformFeatures.features.supportsFolderSync}
+  <FolderSyncSection bind:syncing onSynced={() => void status.refetch()} {localAuthorName} promptForName={() => nameDialog!.prompt()} />
+{/if}
+<LocalAuthorNameDialog {localAuthorName} bind:this={nameDialog} />

@@ -266,7 +266,7 @@ msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
 
 #: src/lib/author/LocalAuthorNameDialog.svelte
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Add your name"
 msgstr "Add your name"
 
@@ -476,7 +476,7 @@ msgstr "Cancel"
 msgid "Caption"
 msgstr "Caption"
 
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Change"
 msgstr "Change"
 
@@ -2629,6 +2629,10 @@ msgstr "Show {0} more..."
 msgid "Show or hide captions"
 msgstr "Show or hide captions"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "Shown next to your changes in this and any other local project on this device. You can change it later in the sync dialog."
+msgstr "Shown next to your changes in this and any other local project on this device. You can change it later in the sync dialog."
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Sign in to add comments."
@@ -3388,11 +3392,11 @@ msgstr "You're offline"
 msgid "You've passed every milestone. What an achievement!"
 msgstr "You've passed every milestone. What an achievement!"
 
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Your changes are signed as {0}"
 msgstr "Your changes are signed as {0}"
 
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Your changes aren't signed with a name yet"
 msgstr "Your changes aren't signed with a name yet"
 
@@ -3400,6 +3404,11 @@ msgstr "Your changes aren't signed with a name yet"
 msgid "Your dictionary starts here"
 msgstr "Your dictionary starts here"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/author/LocalAuthorNameDialog.svelte
 msgid "Your name"
 msgstr "Your name"
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Your name is required"
+msgstr "Your name is required"

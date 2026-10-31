@@ -271,7 +271,7 @@ msgid "Add your first entry to start building your dictionary."
 msgstr "사전 작성을 시작하려면 첫 번째 항목을 추가하세요."
 
 #: src/lib/author/LocalAuthorNameDialog.svelte
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Add your name"
 msgstr ""
 
@@ -481,7 +481,7 @@ msgstr "취소"
 msgid "Caption"
 msgstr "설명"
 
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Change"
 msgstr ""
 
@@ -2634,6 +2634,10 @@ msgstr "보기 {0} 더보기..."
 msgid "Show or hide captions"
 msgstr "설명 표시 또는 숨기기"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "Shown next to your changes in this and any other local project on this device. You can change it later in the sync dialog."
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "댓글을 달려면 로그인하세요."
@@ -3393,11 +3397,11 @@ msgstr "현재 오프라인 상태입니다."
 msgid "You've passed every milestone. What an achievement!"
 msgstr "모든 이정표를 하나하나 달성하셨군요. 정말 대단한 성과입니다!"
 
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Your changes are signed as {0}"
 msgstr ""
 
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Your changes aren't signed with a name yet"
 msgstr ""
 
@@ -3405,6 +3409,11 @@ msgstr ""
 msgid "Your dictionary starts here"
 msgstr "여러분의 사전은 여기서 시작됩니다"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/author/LocalAuthorNameDialog.svelte
 msgid "Your name"
+msgstr ""
+
+#: src/home/CreateProjectDialog.svelte
+msgid "Your name is required"
 msgstr ""
