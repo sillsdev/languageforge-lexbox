@@ -17,8 +17,10 @@ public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrder
             Id = Guid.NewGuid(),
             ComplexFormEntryId = complexFormEntry.Id,
             ComplexFormHeadword = complexFormEntry.Headword(),
+            ComplexFormHomographNumber = complexFormEntry.HomographNumber,
             ComponentEntryId = componentEntry.Id,
             ComponentHeadword = componentEntry.Headword(),
+            ComponentHomographNumber = componentEntry.HomographNumber,
             ComponentSenseId = componentSenseId,
         };
     }
@@ -47,9 +49,19 @@ public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrder
     public DateTimeOffset? DeletedAt { get; set; }
     public virtual required Guid ComplexFormEntryId { get; set; }
     public string? ComplexFormHeadword { get; set; }
+    /// <inheritdoc cref="ComponentHomographNumber"/>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int ComplexFormHomographNumber { get; set; }
     public virtual required Guid ComponentEntryId { get; set; }
     public virtual Guid? ComponentSenseId { get; set; } = null;
     public string? ComponentHeadword { get; set; }
+    /// <summary>
+    /// The referenced entry's <see cref="Entry.HomographNumber"/> (0 = no homographs), for display next to the headword.
+    /// A read-only projection: LcmCrdt computes it on read (no change sets it and it has no db column), FwData reads it
+    /// from the LexEntry. Writing skips the default 0, so Harmony snapshots, which never set it, don't carry it.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int ComponentHomographNumber { get; set; }
 
 
     public Guid[] GetReferences()
@@ -77,8 +89,10 @@ public record ComplexFormComponent : IObjectWithId<ComplexFormComponent>, IOrder
             Order = Order,
             ComplexFormEntryId = ComplexFormEntryId,
             ComplexFormHeadword = ComplexFormHeadword,
+            ComplexFormHomographNumber = ComplexFormHomographNumber,
             ComponentEntryId = ComponentEntryId,
             ComponentHeadword = ComponentHeadword,
+            ComponentHomographNumber = ComponentHomographNumber,
             ComponentSenseId = ComponentSenseId,
             DeletedAt = DeletedAt,
         };

@@ -178,6 +178,9 @@ public static class LcmCrdtKernel
                     .Entity<ComplexFormComponent>().Association(c => EntryQueryHelpers.QueryComplexFormEntry(c), c => c.ComplexFormEntryId, e => e!.Id)
                     .Entity<ComplexFormComponent>().Property(c => c.ComponentHeadword).IsExpression(c => EntryQueryHelpers.QueryComponentEntry(c)!.QueryHeadwordWithTokens(EntryQueryHelpers.DefaultWritingSystem(WritingSystemType.Vernacular)), isColumn: true, alias: "componentHeadword")
                     .Entity<ComplexFormComponent>().Property(c => c.ComplexFormHeadword).IsExpression(c => EntryQueryHelpers.QueryComplexFormEntry(c)!.QueryHeadwordWithTokens(EntryQueryHelpers.DefaultWritingSystem(WritingSystemType.Vernacular)), isColumn: true, alias: "complexFormHeadword")
+                    // read-only projections: EF ignores these (no column), so linq2db fills them on every entity read
+                    .Entity<ComplexFormComponent>().Property(c => c.ComponentHomographNumber).IsExpression(c => (int?)EntryQueryHelpers.QueryComponentEntry(c)!.HomographNumber ?? 0, isColumn: true, alias: "componentHomographNumber")
+                    .Entity<ComplexFormComponent>().Property(c => c.ComplexFormHomographNumber).IsExpression(c => (int?)EntryQueryHelpers.QueryComplexFormEntry(c)!.HomographNumber ?? 0, isColumn: true, alias: "complexFormHomographNumber")
                     .Entity<RichString>().Member(r => r.GetPlainText()).IsExpression(r => Json.GetPlainText(r))
                     .Entity<Guid>().Member(g => g.ToString()).IsExpression(g => Json.ToString(g))
                     .Build();
@@ -341,6 +344,9 @@ public static class LcmCrdtKernel
             {
                 const string componentSenseId = "ComponentSenseId";
                 builder.ToTable("ComplexFormComponents");
+                // read-only projections of the referenced entries, filled by linq2db on read (see ConfigureDbOptions)
+                builder.Ignore(c => c.ComplexFormHomographNumber);
+                builder.Ignore(c => c.ComponentHomographNumber);
                 builder.Property(c => c.ComponentSenseId).HasColumnName(componentSenseId);
                 //these indexes are used to ensure that we don't create duplicate complex form components
                 //we need the filter otherwise 2 components which are the same and have a null sense id can be created because 2 rows with the same null are not considered duplicates

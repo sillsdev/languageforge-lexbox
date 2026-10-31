@@ -1715,6 +1715,12 @@ components:
         complexFormHeadword:
           type: string
           nullable: true
+        complexFormHomographNumber:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
         componentEntryId:
           type: string
           format: uuid
@@ -1725,6 +1731,12 @@ components:
         componentHeadword:
           type: string
           nullable: true
+        componentHomographNumber:
+          pattern: '^-?(?:0|[1-9]\d*)$'
+          anyOf:
+            - type: integer
+            - type: string
+          format: int32
     ComplexFormType:
       required:
         - name

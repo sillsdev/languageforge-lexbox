@@ -10,8 +10,10 @@ export interface IComplexFormComponent extends IObjectWithId
 	deletedAt?: string;
 	complexFormEntryId: string;
 	complexFormHeadword?: string;
+	complexFormHomographNumber?: number;
 	componentEntryId: string;
 	componentSenseId?: string;
 	componentHeadword?: string;
+	componentHomographNumber?: number;
 }
 /* eslint-enable */
