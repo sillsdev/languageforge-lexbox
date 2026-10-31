@@ -146,7 +146,10 @@ app.Use(async (context, next) =>
     await next();
 });
 app.UseStatusCodePages();
-if (!app.Environment.IsDevelopment())
+// Defaults to on everywhere except Development. Turning it on in Development (e.g. the CI cluster) lets tests see
+// production-shaped errors: WebApplication still adds the developer exception page, but as the outermost middleware,
+// so this handler catches exceptions first and the developer page never sees them.
+if (app.Configuration.GetValue("ErrorHandling:UseProductionExceptionHandler", !app.Environment.IsDevelopment()))
     app.UseExceptionHandler();
 app.UseHealthChecks("/api/healthz");
 // Configure the HTTP request pipeline.
