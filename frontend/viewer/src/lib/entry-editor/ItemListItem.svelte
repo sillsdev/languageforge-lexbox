@@ -7,6 +7,8 @@
     readonly: boolean;
     orderable?: boolean;
     getDisplayName: (item: T) => string | undefined;
+    /** Rendered after the display name, like FLEx: bank₁ */
+    getHomographNumber?: (item: T) => number | undefined;
     onchange?: (value: T[]) => void;
     menuItems?: Snippet<[T]>;
   };
@@ -18,6 +20,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import {badgeVariants} from '$lib/components/ui/badge';
   import * as Reorderer from '$lib/components/reorderer';
+  import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
 
   let {
     item,
@@ -25,11 +28,13 @@
     readonly,
     orderable = false,
     getDisplayName,
+    getHomographNumber,
     onchange,
     menuItems,
   } : ItemListItemProps<T> = $props();
 
-  const displayName = $derived(getDisplayName(item) || '–');
+  const name = $derived(getDisplayName(item));
+  const displayName = $derived(name || '–');
 
   function remove(item: T): void {
     items = items.filter((_item) => _item !== item);
@@ -39,7 +44,7 @@
 
 <DropdownMenu.Root>
   <DropdownMenu.Trigger class={badgeVariants({ class: 'space-x-2 pr-1 text-sm' })}>
-    <span>{displayName}</span>
+    <span>{displayName}{#if name}<HomographNumber homographNumber={getHomographNumber?.(item) ?? 0} />{/if}</span>
     <Icon icon="i-mdi-dots-vertical" />
   </DropdownMenu.Trigger>
   <DropdownMenu.Content>

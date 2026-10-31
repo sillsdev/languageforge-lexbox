@@ -36,7 +36,7 @@ public class CrdtComplexFormComponentApi(MiniLcmRepositoryFactory repoFactory, H
     {
         await SubmitCreateComplexFormComponent(complexFormComponent, between);
         await using var repo = await repoFactory.CreateRepoAsync();
-        return await repo.FindComplexFormComponent(complexFormComponent) ?? throw NotFoundException.ForType<ComplexFormComponent>(complexFormComponent.ComplexFormEntryId);
+        return await repo.GetComplexFormComponent(complexFormComponent) ?? throw NotFoundException.ForType<ComplexFormComponent>(complexFormComponent.ComplexFormEntryId);
     }
 
     public async Task MoveComplexFormComponent(ComplexFormComponent component, BetweenPosition<ComplexFormComponent> between)

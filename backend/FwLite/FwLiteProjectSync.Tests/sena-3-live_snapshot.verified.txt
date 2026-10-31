@@ -34044,7 +34044,8 @@
           "ComplexFormHeadword": "kati-na-kati",
           "ComponentEntryId": "a9e28647-c541-4278-a2b1-6f924c2c5aa7",
           "ComponentSenseId": null,
-          "ComponentHeadword": "na"
+          "ComponentHeadword": "na",
+          "ComponentHomographNumber": 1
         }
       ],
       "ComplexForms": [],
@@ -39946,7 +39947,8 @@
           "ComplexFormHeadword": "kuenda-na-kuenda",
           "ComponentEntryId": "a9e28647-c541-4278-a2b1-6f924c2c5aa7",
           "ComponentSenseId": null,
-          "ComponentHeadword": "na"
+          "ComponentHeadword": "na",
+          "ComponentHomographNumber": 1
         }
       ],
       "ComplexForms": [],
@@ -65128,7 +65130,8 @@
           "ComplexFormHeadword": "kati-na-kati",
           "ComponentEntryId": "a9e28647-c541-4278-a2b1-6f924c2c5aa7",
           "ComponentSenseId": null,
-          "ComponentHeadword": "na"
+          "ComponentHeadword": "na",
+          "ComponentHomographNumber": 1
         },
         {
           "Id": "c6b6d826-32ca-4bad-8faa-f2c6354de085",
@@ -65139,7 +65142,8 @@
           "ComplexFormHeadword": "kuenda-na-kuenda",
           "ComponentEntryId": "a9e28647-c541-4278-a2b1-6f924c2c5aa7",
           "ComponentSenseId": null,
-          "ComponentHeadword": "na"
+          "ComponentHeadword": "na",
+          "ComponentHomographNumber": 1
         }
       ],
       "ComplexFormTypes": [],
@@ -107064,7 +107068,8 @@
           "ComplexFormHeadword": "ubaba",
           "ComponentEntryId": "f1c350fe-ebc2-41f0-9e5d-4e06bb47ccce",
           "ComponentSenseId": null,
-          "ComponentHeadword": "u-"
+          "ComponentHeadword": "u-",
+          "ComponentHomographNumber": 1
         }
       ],
       "ComplexFormTypes": [],
@@ -107495,7 +107500,8 @@
           "ComplexFormHeadword": "ubaba",
           "ComponentEntryId": "f1c350fe-ebc2-41f0-9e5d-4e06bb47ccce",
           "ComponentSenseId": null,
-          "ComponentHeadword": "u-"
+          "ComponentHeadword": "u-",
+          "ComponentHomographNumber": 1
         }
       ],
       "ComplexForms": [],

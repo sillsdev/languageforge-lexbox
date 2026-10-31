@@ -84,6 +84,47 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task ComplexFormComponentHomographNumbers_ComeFromReferencedEntries()
+    {
+        // the second "bank" makes both homographs: the first is promoted to 1, the second gets 2
+        var bank1 = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "bank" } } });
+        var bank2 = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "bank" } } });
+
+        var created = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, bank2));
+        created.ComponentHomographNumber.Should().Be(2);
+        created.ComplexFormHomographNumber.Should().Be(0);
+        // bank1 is stale here (it was created as 0), so the number must come from the entry as it is now
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(bank1, _componentEntry));
+
+        var component = (await Api.GetEntry(_complexFormEntryId))!.Components.Should().ContainSingle().Subject;
+        component.ComponentHomographNumber.Should().Be(2);
+        component.ComplexFormHomographNumber.Should().Be(0);
+
+        var complexForm = (await Api.GetEntry(_componentEntryId))!.ComplexForms.Should().ContainSingle().Subject;
+        complexForm.ComplexFormHomographNumber.Should().Be(1);
+        complexForm.ComponentHomographNumber.Should().Be(0);
+
+        (await Api.GetEntry(bank2.Id))!.ComplexForms.Should().ContainSingle()
+            .Which.ComponentHomographNumber.Should().Be(2);
+        (await Api.GetEntry(bank1.Id))!.Components.Should().ContainSingle()
+            .Which.ComplexFormHomographNumber.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ComplexFormComponentHomographNumbers_UpdateWhenAHomographIsAdded()
+    {
+        var bank1 = await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "bank" } } });
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, bank1));
+        (await Api.GetEntry(_complexFormEntryId))!.Components.Should().ContainSingle()
+            .Which.ComponentHomographNumber.Should().Be(0, "a lone entry has no homographs");
+
+        await Api.CreateEntry(new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "bank" } } });
+
+        (await Api.GetEntry(_complexFormEntryId))!.Components.Should().ContainSingle()
+            .Which.ComponentHomographNumber.Should().Be(1, "adding a homograph promotes the referenced entry to 1");
+    }
+
+    [Fact]
     public async Task RemoveComplexFormComponent_Works()
     {
         var component = await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));

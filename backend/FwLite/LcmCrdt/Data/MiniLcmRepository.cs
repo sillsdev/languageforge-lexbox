@@ -129,6 +129,19 @@ public class MiniLcmRepository(
             && c.ComponentSenseId == complexFormComponent.ComponentSenseId);
     }
 
+    /// <summary>
+    /// Like <see cref="FindComplexFormComponent(ComplexFormComponent)"/>, but reads through linq2db,
+    /// so the read-time projections (headwords, homograph numbers) are computed as they are on entry reads.
+    /// </summary>
+    public async Task<ComplexFormComponent?> GetComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        return await AsyncExtensions.SingleOrDefaultAsync(ComplexFormComponents.ToLinqToDB(),
+            c =>
+            c.ComplexFormEntryId == complexFormComponent.ComplexFormEntryId
+            && c.ComponentEntryId == complexFormComponent.ComponentEntryId
+            && c.ComponentSenseId == complexFormComponent.ComponentSenseId);
+    }
+
     public async Task<ComplexFormComponent> FindComplexFormComponent(Guid objectId)
     {
         return (await AsyncExtensions.SingleOrDefaultAsync(ComplexFormComponents, c => c.Id == objectId)) ??
