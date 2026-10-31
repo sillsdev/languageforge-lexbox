@@ -21,14 +21,14 @@ public class MiniLcmJsInvokable(
 {
     private readonly IMiniLcmApi _wrappedApi = userFacingWrappers.Apply(api, project, notificationWrapperFactory);
 
-    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews, bool? Comments, bool? CommentWrite, bool? FieldWorksSync);
+    public record MiniLcmFeatures(bool? History, bool? Write, bool? OpenWithFlex, bool? Feedback, bool? Sync, bool? Audio, bool? CustomViews, bool? Comments, bool? CommentWrite, bool? FieldWorksSync, bool? Plugins);
     private bool SupportsSync => project.DataFormat == ProjectDataFormat.Harmony && api is CrdtMiniLcmApi;
     [JSInvokable]
     public MiniLcmFeatures SupportedFeatures()
     {
         var isCrdtProject = project.DataFormat == ProjectDataFormat.Harmony;
         var isFwDataProject = project.DataFormat == ProjectDataFormat.FwData;
-        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject, Comments: isCrdtProject, CommentWrite: CanComment, FieldWorksSync: CanSyncFieldWorks);
+        return new(History: isCrdtProject, Write: CanWrite, OpenWithFlex: isFwDataProject, Feedback: true, Sync: SupportsSync, Audio: true, CustomViews: isCrdtProject, Comments: isCrdtProject, CommentWrite: CanComment, FieldWorksSync: CanSyncFieldWorks, Plugins: isCrdtProject);
     }
 
     // Not CrdtProject.Data: that's a snapshot from when the project was opened, and a sync can update the role afterwards.
@@ -270,6 +270,42 @@ public class MiniLcmJsInvokable(
     public async Task DeleteCustomView(Guid id)
     {
         await _wrappedApi.DeleteCustomView(id);
+        OnDataChanged();
+    }
+
+    [JSInvokable]
+    public ValueTask<Plugin[]> GetPlugins()
+    {
+        return _wrappedApi.GetPlugins().ToArrayAsync();
+    }
+
+    [JSInvokable]
+    [TsFunction(Type = "Promise<IPlugin | null>")]
+    public Task<Plugin?> GetPlugin(Guid id)
+    {
+        return _wrappedApi.GetPlugin(id);
+    }
+
+    [JSInvokable]
+    public async Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        var createdPlugin = await _wrappedApi.CreatePlugin(plugin);
+        OnDataChanged();
+        return createdPlugin;
+    }
+
+    [JSInvokable]
+    public async Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        var updatedPlugin = await _wrappedApi.UpdatePlugin(plugin);
+        OnDataChanged();
+        return updatedPlugin;
+    }
+
+    [JSInvokable]
+    public async Task DeletePlugin(Guid id)
+    {
+        await _wrappedApi.DeletePlugin(id);
         OnDataChanged();
     }
 

@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Listening Quiz</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --bad: #dc2626;
+    --bad-soft: #fdeaea;
+    --streak: #ea580c;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --bad: #f87171;
+    --bad-soft: #3a1717;
+    --streak: #fb923c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; text-align: center; }
+  .subtitle { color: var(--text-muted); text-align: center; margin: 0 0 18px; font-size: 0.9rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+
+  .primary-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .primary-btn:hover { filter: brightness(1.08); }
+  .primary-btn:disabled { opacity: 0.55; cursor: default; }
+  .ghost-btn {
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ghost-btn:hover { color: var(--text); }
+
+  /* stats bar */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .stat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .stat-chip .num { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+  .stat-chip.streak .num { color: var(--streak); }
+  .stat-chip.streak .flame { filter: grayscale(1); opacity: 0.5; }
+  .stat-chip.streak.hot .flame { filter: none; opacity: 1; animation: flameFlicker 0.9s ease-in-out infinite alternate; }
+  @keyframes flameFlicker {
+    from { transform: scale(1) rotate(-3deg); }
+    to { transform: scale(1.18) rotate(3deg); }
+  }
+
+  .progress-row { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-bottom: 14px; }
+
+  /* player */
+  .player-card { text-align: center; margin-bottom: 16px; }
+  .play-wrap { position: relative; width: 92px; height: 92px; margin: 4px auto 6px; }
+  .play-btn {
+    position: relative;
+    z-index: 2;
+    width: 92px; height: 92px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+  }
+  .play-btn:hover { filter: brightness(1.08); }
+  .play-btn svg { width: 38px; height: 38px; display: block; }
+  .play-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    opacity: 0;
+    z-index: 1;
+  }
+  .play-wrap.playing .play-ring { animation: pulseRing 1.1s ease-out infinite; }
+  .play-wrap.playing .play-ring.r2 { animation-delay: 0.55s; }
+  @keyframes pulseRing {
+    0% { transform: scale(1); opacity: 0.55; }
+    100% { transform: scale(1.7); opacity: 0; }
+  }
+  .play-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+  .audio-loading { font-size: 0.82rem; color: var(--text-muted); min-height: 1.1em; margin-top: 6px; }
+
+  .ask { text-align: center; font-size: 0.95rem; font-weight: 600; margin: 4px 0 12px; }
+
+  /* answer options */
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 460px) { .options { grid-template-columns: 1fr; } }
+  .option {
+    position: relative;
+    text-align: left;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px 14px 44px;
+    font-size: 1rem;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    overflow-wrap: anywhere;
+    transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease;
+  }
+  .option:hover:not(:disabled) { border-color: var(--accent); }
+  .option:disabled { cursor: default; }
+  .option .key {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .option .mark {
+    margin-left: auto;
+    padding-left: 10px;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .option.correct {
+    border-color: var(--good);
+    background: var(--good-soft);
+    color: var(--good);
+  }
+  .option.correct .mark { color: var(--good); }
+  .option.wrong {
+    border-color: var(--bad);
+    background: var(--bad-soft);
+    color: var(--bad);
+  }
+  .option.wrong .mark { color: var(--bad); }
+  .option.chosen { animation: pop 0.25s ease; }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+  .option.dim { opacity: 0.6; }
+
+  .reveal {
+    margin-top: 14px;
+    text-align: center;
+    min-height: 1.4em;
+  }
+  .reveal .verdict { font-weight: 700; font-size: 1rem; }
+  .reveal .verdict.good { color: var(--good); }
+  .reveal .verdict.bad { color: var(--bad); }
+  .reveal .answer-word { display: block; margin-top: 4px; font-size: 0.9rem; color: var(--text-muted); }
+  .reveal .answer-word b { color: var(--text); }
+
+  .action-row { display: flex; justify-content: center; gap: 10px; margin-top: 16px; }
+
+  .toolbar { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .mode-toggle {
+    display: inline-flex;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .mode-toggle button {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .mode-toggle button.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+  .hint-row { text-align: center; color: var(--text-muted); font-size: 0.76rem; margin-top: 16px; }
+  kbd {
+    font-family: inherit;
+    font-size: 0.72rem;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 5px;
+  }
+
+  /* centered states */
+  .center-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+  .center-state .emoji { font-size: 2.4rem; margin-bottom: 10px; }
+  .center-state h2 { color: var(--text); margin: 0 0 8px; }
+  .center-state p { margin: 0 auto 16px; max-width: 380px; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid var(--bad);
+    background: var(--bad-soft);
+    color: var(--text);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+
+  /* summary */
+  .summary-card { text-align: center; padding: 30px 24px; }
+  .summary-card .big { font-size: 2.4rem; margin-bottom: 6px; }
+  .summary-card h2 { margin: 0 0 4px; }
+  .summary-stats {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin: 22px 0;
+  }
+  .summary-stat .num { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+  .summary-stat .num.good { color: var(--good); }
+  .summary-stat .num.streak { color: var(--streak); }
+  .summary-stat .lbl { font-size: 0.76rem; color: var(--text-muted); }
+  .record-note { font-size: 0.85rem; color: var(--good); font-weight: 600; min-height: 1.1em; margin-bottom: 8px; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Listening Quiz</h1>
+  <p class="subtitle">Hear a recording, pick what it means.</p>
+
+  <!-- loading -->
+  <div id="view-loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="scan-status">Loading entries&hellip;</div>
+  </div>
+
+  <!-- error -->
+  <div id="view-error" class="error-box hidden"></div>
+
+  <!-- no audio writing system -->
+  <div id="view-no-audio" class="center-state hidden">
+    <div class="emoji">&#128266;</div>
+    <h2>No audio writing system</h2>
+    <p>This project has no audio writing system, so there are no recordings to quiz on. Add one and record some pronunciations in FieldWorks, then come back.</p>
+  </div>
+
+  <!-- not enough recordings -->
+  <div id="view-too-few" class="center-state hidden">
+    <div class="emoji">&#127908;</div>
+    <h2>Not enough recordings yet</h2>
+    <p id="too-few-msg">You need at least 4 entries that have both a recording and a meaning to play. Record more pronunciations and try again.</p>
+  </div>
+
+  <!-- game -->
+  <div id="view-game" class="hidden">
+    <div class="stats-bar">
+      <div class="stat-chip"><span class="num" id="stat-score">0</span> score</div>
+      <div class="stat-chip streak" id="streak-chip" title="Correct answers in a row">
+        <span class="flame">&#128293;</span> <span class="num" id="stat-streak">0</span> streak
+      </div>
+      <div class="stat-chip"><span class="num" id="stat-best-streak">0</span> best</div>
+      <div class="stat-chip"><span class="num" id="stat-high">0</span> high score</div>
+    </div>
+
+    <div class="toolbar">
+      <div class="mode-toggle" id="mode-toggle" role="group" aria-label="Quiz mode">
+        <button type="button" data-mode="meaning" class="active">Pick meaning</button>
+        <button type="button" data-mode="word">Pick word</button>
+      </div>
+    </div>
+
+    <div class="progress-row" id="progress-row"></div>
+
+    <div class="card player-card">
+      <div class="play-wrap" id="play-wrap">
+        <span class="play-ring r1"></span>
+        <span class="play-ring r2"></span>
+        <button class="play-btn" id="play-btn" title="Play / replay (Space)" aria-label="Play recording">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+      </div>
+      <div class="play-hint">Tap to replay &middot; <kbd>Space</kbd></div>
+      <div class="audio-loading" id="audio-loading"></div>
+    </div>
+
+    <div class="ask" id="ask">What does this mean?</div>
+    <div class="options" id="options"></div>
+
+    <div class="reveal" id="reveal"></div>
+    <div class="action-row hidden" id="action-row">
+      <button class="primary-btn" id="next-btn">Next</button>
+    </div>
+
+    <div class="hint-row"><kbd>1</kbd>&ndash;<kbd>4</kbd> answer &middot; <kbd>Space</kbd> replay &middot; <kbd>Enter</kbd> next</div>
+  </div>
+
+  <!-- summary -->
+  <div id="view-summary" class="hidden">
+    <div class="card summary-card">
+      <div class="big" id="summary-emoji">&#127881;</div>
+      <h2>Round complete</h2>
+      <div class="record-note" id="record-note"></div>
+      <div class="summary-stats">
+        <div class="summary-stat"><div class="num good" id="sum-accuracy">0%</div><div class="lbl">accuracy</div></div>
+        <div class="summary-stat"><div class="num" id="sum-score">0</div><div class="lbl">score</div></div>
+        <div class="summary-stat"><div class="num streak" id="sum-streak">0</div><div class="lbl">best streak</div></div>
+      </div>
+      <p class="subtitle" id="sum-detail" style="margin-bottom:18px;"></p>
+      <button class="primary-btn" id="again-btn">Play again</button>
+    </div>
+  </div>
+</div>
+
+<audio id="audio" preload="auto"></audio>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORE_KEY = 'listening-quiz-records-v1';
+  var PAGE = 1000;
+  var MAX_SCAN = 5000;
+  var SESSION_LEN = 10;
+  var MAX_OPTIONS = 4;
+  var FETCH_ATTEMPTS = 8;
+
+  var fw = window.fwlite;
+
+  var state = {
+    audioWsIds: [],
+    analysisWsIds: [],
+    vernFont: '',
+    pool: [],              // {id, headword, gloss, ref}
+    mode: 'meaning',       // 'meaning' | 'word'
+    current: null,         // {entry, url}
+    currentOptions: [],    // rendered options [{text, correct, entryId}]
+    nextPromise: null,     // Promise<{entry,url}|null>
+    answered: false,
+    lastEntryId: null,
+    // session
+    qIndex: 0,             // questions shown this round (1-based while active)
+    correct: 0,
+    score: 0,
+    streak: 0,
+    sessionBestStreak: 0,
+    // persisted
+    records: {bestStreak: 0, highScore: 0},
+  };
+
+  function el(id) { return document.getElementById(id); }
+  function errText(err) { return err && err.message ? err.message : String(err); }
+
+  function applyTheme(theme) {
+    var preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferDark ? 'dark' : 'light'));
+  }
+
+  var VIEWS = ['loading', 'error', 'no-audio', 'too-few', 'game', 'summary'];
+  function showView(name) {
+    VIEWS.forEach(function (v) {
+      var node = el('view-' + v);
+      if (node) node.classList.toggle('hidden', v !== name);
+    });
+  }
+
+  function showError(message) {
+    var box = el('view-error');
+    box.textContent = message;
+    // error box shows alongside whatever is visible; hide the other primary views
+    VIEWS.forEach(function (v) {
+      if (v === 'error') return;
+      var node = el('view-' + v);
+      if (node) node.classList.add('hidden');
+    });
+    box.classList.remove('hidden');
+  }
+
+  function randInt(n) { return Math.floor(Math.random() * n); }
+
+  function shuffle(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = randInt(i + 1);
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  // --- pool building -------------------------------------------------------
+
+  function findAudioRef(entry) {
+    var fields = [entry.citationForm, entry.lexemeForm];
+    for (var f = 0; f < fields.length; f++) {
+      var ms = fields[f];
+      if (!ms) continue;
+      for (var i = 0; i < state.audioWsIds.length; i++) {
+        var v = ms[state.audioWsIds[i]];
+        if (typeof v === 'string' && v.trim()) return v.trim();
+      }
+    }
+    return null;
+  }
+
+  function firstGloss(entry) {
+    var senses = entry.senses || [];
+    for (var s = 0; s < senses.length; s++) {
+      var g = fw.firstValue(senses[s].gloss || {}, state.analysisWsIds);
+      if (g && g.trim()) return g.trim();
+    }
+    // fall back to a definition if no short gloss exists
+    for (var d = 0; d < senses.length; d++) {
+      var def = senses[d].definition || {};
+      for (var w = 0; w < state.analysisWsIds.length; w++) {
+        var rich = def[state.analysisWsIds[w]];
+        if (rich) {
+          var text = fw.asText(rich).trim();
+          if (text) return text.length > 80 ? text.slice(0, 80) + '…' : text;
+        }
+      }
+    }
+    return '';
+  }
+
+  function loadPool() {
+    var offset = 0;
+    var scanned = 0;
+
+    function updateStatus() {
+      el('scan-status').textContent = 'Scanning entries… ' + scanned +
+        ' checked, ' + state.pool.length + ' with recordings';
+    }
+
+    function loadPage() {
+      if (offset >= MAX_SCAN) return Promise.resolve();
+      return fw.getEntries({limit: PAGE, offset: offset}).then(function (batch) {
+        if (!batch || batch.length === 0) return;
+        batch.forEach(function (entry) {
+          scanned++;
+          var ref = findAudioRef(entry);
+          if (!ref) return;
+          var gloss = firstGloss(entry);
+          if (!gloss) return;
+          state.pool.push({
+            id: entry.id,
+            headword: fw.headword(entry) || gloss,
+            gloss: gloss,
+            ref: ref,
+          });
+        });
+        updateStatus();
+        offset += batch.length;
+        if (batch.length < PAGE) return;
+        return loadPage();
+      });
+    }
+
+    return loadPage();
+  }
+
+  // --- audio ---------------------------------------------------------------
+
+  function revoke(question) {
+    if (question && question.url) {
+      try { URL.revokeObjectURL(question.url); } catch (e) { /* ignore */ }
+      question.url = null;
+    }
+  }
+
+  // Picks a random pool entry with a *playable* recording. Returns {entry, url}
+  // or null if nothing could be fetched (e.g. offline). Skips media-null items.
+  function makePlayableQuestion(excludeId) {
+    var attempts = 0;
+
+    function tryOne() {
+      if (!state.pool.length || attempts >= FETCH_ATTEMPTS) return Promise.resolve(null);
+      attempts++;
+      var candidate;
+      // Prefer not repeating the previous entry when we have room to.
+      var guard = 0;
+      do {
+        candidate = state.pool[randInt(state.pool.length)];
+        guard++;
+      } while (excludeId && state.pool.length > 1 && candidate.id === excludeId && guard < 6);
+
+      return fw.getMedia(candidate.ref).then(function (media) {
+        if (!media || !media.data) return tryOne(); // offline / not found -> skip
+        var url = URL.createObjectURL(new Blob([media.data], {type: (media.mimeType || '')}));
+        return {entry: candidate, url: url};
+      }).catch(function () {
+        return tryOne();
+      });
+    }
+
+    return tryOne();
+  }
+
+  function playCurrent() {
+    var audio = el('audio');
+    if (!state.current || !state.current.url) return;
+    audio.src = state.current.url;
+    try { audio.currentTime = 0; } catch (e) { /* ignore */ }
+    var p = audio.play();
+    if (p && p.catch) p.catch(function () { /* autoplay may be blocked; replay button covers it */ });
+  }
+
+  // --- options / rendering -------------------------------------------------
+
+  function labelFor(poolEntry) {
+    return state.mode === 'word' ? poolEntry.headword : poolEntry.gloss;
+  }
+
+  function buildOptions(entry) {
+    var correctText = labelFor(entry);
+    var used = {};
+    used[correctText.toLowerCase()] = true;
+    var options = [{text: correctText, correct: true, entryId: entry.id}];
+
+    var others = shuffle(state.pool.filter(function (p) { return p.id !== entry.id; }));
+    for (var i = 0; i < others.length && options.length < MAX_OPTIONS; i++) {
+      var text = labelFor(others[i]);
+      var key = text.toLowerCase();
+      if (!text || used[key]) continue; // avoid duplicate / identical glosses
+      used[key] = true;
+      options.push({text: text, correct: false, entryId: others[i].id});
+    }
+    return shuffle(options);
+  }
+
+  function renderQuestion() {
+    var entry = state.current.entry;
+    state.answered = false;
+    state.currentOptions = buildOptions(entry);
+
+    el('ask').textContent = state.mode === 'word'
+      ? 'Which word is this?'
+      : 'What does this mean?';
+
+    var fontStack = (state.vernFont ? '"' + state.vernFont + '", ' : '') + 'inherit';
+
+    var box = el('options');
+    box.textContent = '';
+    state.currentOptions.forEach(function (opt, idx) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'option';
+      if (state.mode === 'word') btn.style.fontFamily = fontStack;
+
+      var key = document.createElement('span');
+      key.className = 'key';
+      key.textContent = String(idx + 1);
+      btn.appendChild(key);
+
+      var label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = opt.text;
+      btn.appendChild(label);
+
+      var mark = document.createElement('span');
+      mark.className = 'mark';
+      btn.appendChild(mark);
+
+      btn.addEventListener('click', function () { answer(idx); });
+      box.appendChild(btn);
+    });
+
+    el('reveal').textContent = '';
+    el('action-row').classList.add('hidden');
+    el('audio-loading').textContent = '';
+    updateProgress();
+  }
+
+  function updateProgress() {
+    el('progress-row').textContent = 'Question ' + Math.min(state.qIndex, SESSION_LEN) + ' of ' + SESSION_LEN;
+  }
+
+  function updateStats() {
+    el('stat-score').textContent = String(state.score);
+    el('stat-streak').textContent = String(state.streak);
+    el('stat-best-streak').textContent = String(state.records.bestStreak);
+    el('stat-high').textContent = String(state.records.highScore);
+    el('streak-chip').classList.toggle('hot', state.streak >= 2);
+  }
+
+  // --- answering -----------------------------------------------------------
+
+  function answer(idx) {
+    if (state.answered) return;
+    var opt = state.currentOptions[idx];
+    if (!opt) return;
+    state.answered = true;
+
+    var buttons = el('options').querySelectorAll('.option');
+    var isCorrect = opt.correct;
+
+    for (var i = 0; i < buttons.length; i++) {
+      var b = buttons[i];
+      b.disabled = true;
+      var o = state.currentOptions[i];
+      if (o.correct) {
+        b.classList.add('correct');
+        b.querySelector('.mark').textContent = '✓';
+      } else if (i === idx) {
+        b.classList.add('wrong');
+        b.querySelector('.mark').textContent = '✗';
+      } else {
+        b.classList.add('dim');
+      }
+      if (i === idx) b.classList.add('chosen');
+    }
+
+    // scoring
+    if (isCorrect) {
+      state.correct++;
+      state.streak++;
+      if (state.streak > state.sessionBestStreak) state.sessionBestStreak = state.streak;
+      var gained = 10 + Math.max(0, state.streak - 1) * 2; // escalating streak bonus
+      state.score += gained;
+    } else {
+      state.streak = 0;
+    }
+
+    // persist records as they improve
+    var changed = false;
+    if (state.sessionBestStreak > state.records.bestStreak) {
+      state.records.bestStreak = state.sessionBestStreak;
+      changed = true;
+    }
+    if (state.score > state.records.highScore) {
+      state.records.highScore = state.score;
+      changed = true;
+    }
+    if (changed) fw.storage.set(STORE_KEY, state.records).catch(function () { /* non-fatal */ });
+
+    updateStats();
+    renderReveal(isCorrect);
+
+    el('action-row').classList.remove('hidden');
+    el('next-btn').textContent = state.qIndex >= SESSION_LEN ? 'See results' : 'Next';
+    el('next-btn').focus();
+  }
+
+  function renderReveal(isCorrect) {
+    var reveal = el('reveal');
+    reveal.textContent = '';
+
+    var verdict = document.createElement('div');
+    verdict.className = 'verdict ' + (isCorrect ? 'good' : 'bad');
+    verdict.textContent = isCorrect ? 'Correct!' : 'Not quite';
+    reveal.appendChild(verdict);
+
+    var line = document.createElement('span');
+    line.className = 'answer-word';
+    var entry = state.current.entry;
+    if (state.mode === 'word') {
+      line.textContent = 'Meaning: ';
+      var g = document.createElement('b');
+      g.textContent = entry.gloss;
+      line.appendChild(g);
+    } else {
+      line.textContent = 'Word: ';
+      var h = document.createElement('b');
+      h.textContent = entry.headword;
+      if (state.vernFont) h.style.fontFamily = '"' + state.vernFont + '", inherit';
+      line.appendChild(h);
+    }
+    reveal.appendChild(line);
+  }
+
+  // --- round flow ----------------------------------------------------------
+
+  function startRound() {
+    // consume a prefetched question if we have one, else fetch inline
+    var loadingNote = el('audio-loading');
+    loadingNote.textContent = 'Loading audio…';
+
+    var pending = state.nextPromise || makePlayableQuestion(state.lastEntryId);
+    state.nextPromise = null;
+
+    pending.then(function (q) {
+      if (!q) return makePlayableQuestion(state.lastEntryId); // one more try
+      return q;
+    }).then(function (q) {
+      if (!q) {
+        showError('Could not load any audio recordings. This can happen when you are offline — check your connection and reload.');
+        return;
+      }
+      state.current = q;
+      state.lastEntryId = q.entry.id;
+      state.qIndex++;
+      renderQuestion();
+      playCurrent();
+      // prefetch the NEXT question's audio while the player answers this one
+      state.nextPromise = makePlayableQuestion(q.entry.id);
+    }).catch(function (err) {
+      showError('Could not load audio: ' + errText(err));
+    });
+  }
+
+  function next() {
+    if (!state.answered) return;
+    revoke(state.current); // free the recording we're done with
+    if (state.qIndex >= SESSION_LEN) {
+      showSummary();
+      return;
+    }
+    startRound();
+  }
+
+  function startGame() {
+    // clear any recordings still held
+    revoke(state.current);
+    state.current = null;
+    if (state.nextPromise) {
+      state.nextPromise.then(revoke).catch(function () {});
+      state.nextPromise = null;
+    }
+    state.qIndex = 0;
+    state.correct = 0;
+    state.score = 0;
+    state.streak = 0;
+    state.sessionBestStreak = 0;
+    state.lastEntryId = null;
+
+    updateStats();
+    showView('game');
+    startRound();
+  }
+
+  function showSummary() {
+    // release the recording we prefetched for a question we won't reach
+    if (state.nextPromise) {
+      state.nextPromise.then(revoke).catch(function () {});
+      state.nextPromise = null;
+    }
+    var answered = state.qIndex; // one question per index shown
+    var accuracy = answered ? Math.round((state.correct / answered) * 100) : 0;
+    el('sum-accuracy').textContent = accuracy + '%';
+    el('sum-score').textContent = String(state.score);
+    el('sum-streak').textContent = String(state.sessionBestStreak);
+    el('sum-detail').textContent = state.correct + ' of ' + answered + ' correct.';
+
+    var emoji = accuracy >= 90 ? '🏆' : accuracy >= 60 ? '🎉' : '🎧';
+    el('summary-emoji').textContent = emoji;
+
+    var note = el('record-note');
+    var newHigh = state.score >= state.records.highScore && state.score > 0;
+    var newStreak = state.sessionBestStreak >= state.records.bestStreak && state.sessionBestStreak > 0;
+    if (newHigh && newStreak) note.textContent = 'New high score and best streak!';
+    else if (newHigh) note.textContent = 'New high score!';
+    else if (newStreak) note.textContent = 'New best streak!';
+    else note.textContent = '';
+
+    showView('summary');
+    el('again-btn').focus();
+  }
+
+  // --- events --------------------------------------------------------------
+
+  function wireEvents() {
+    el('play-btn').addEventListener('click', playCurrent);
+    el('next-btn').addEventListener('click', next);
+    el('again-btn').addEventListener('click', startGame);
+
+    var toggle = el('mode-toggle');
+    toggle.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-mode]');
+      if (!btn) return;
+      var mode = btn.getAttribute('data-mode');
+      if (mode === state.mode) return;
+      state.mode = mode;
+      toggle.querySelectorAll('button').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      // re-render current options in the new mode if the player hasn't answered yet
+      if (state.current && !state.answered) renderQuestion();
+    });
+
+    var audio = el('audio');
+    var wrap = el('play-wrap');
+    audio.addEventListener('playing', function () { wrap.classList.add('playing'); });
+    audio.addEventListener('ended', function () { wrap.classList.remove('playing'); });
+    audio.addEventListener('pause', function () { wrap.classList.remove('playing'); });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var gameVisible = !el('view-game').classList.contains('hidden');
+      var summaryVisible = !el('view-summary').classList.contains('hidden');
+
+      if (e.key === ' ' || e.key === 'Spacebar') {
+        if (gameVisible) { e.preventDefault(); playCurrent(); }
+        return;
+      }
+      if (e.key === 'Enter') {
+        if (summaryVisible) { e.preventDefault(); startGame(); }
+        else if (gameVisible && state.answered) { e.preventDefault(); next(); }
+        return;
+      }
+      if (gameVisible && !state.answered && /^[1-9]$/.test(e.key)) {
+        var idx = parseInt(e.key, 10) - 1;
+        if (idx < state.currentOptions.length) { e.preventDefault(); answer(idx); }
+      }
+    });
+  }
+
+  // --- init ----------------------------------------------------------------
+
+  function init(context) {
+    applyTheme(context && context.theme);
+    wireEvents();
+
+    Promise.all([
+      fw.getWritingSystems(),
+      fw.storage.get(STORE_KEY),
+    ]).then(function (results) {
+      var ws = results[0] || {vernacular: [], analysis: []};
+      var vern = ws.vernacular || [];
+      var anal = ws.analysis || [];
+
+      state.audioWsIds = vern.filter(function (w) { return w.isAudio; }).map(function (w) { return w.wsId; });
+      // analysis writing systems carry the meanings; skip any audio ones for text
+      state.analysisWsIds = anal.filter(function (w) { return !w.isAudio; }).map(function (w) { return w.wsId; });
+      if (state.analysisWsIds.length === 0) {
+        state.analysisWsIds = anal.map(function (w) { return w.wsId; });
+      }
+      var firstTextVern = vern.filter(function (w) { return !w.isAudio; })[0];
+      state.vernFont = firstTextVern && firstTextVern.font ? firstTextVern.font : '';
+
+      var saved = results[1];
+      if (saved && typeof saved === 'object') {
+        state.records.bestStreak = saved.bestStreak || 0;
+        state.records.highScore = saved.highScore || 0;
+      }
+
+      if (state.audioWsIds.length === 0) {
+        showView('no-audio');
+        return;
+      }
+
+      showView('loading');
+      return loadPool().then(function () {
+        if (state.pool.length < MAX_OPTIONS) {
+          el('too-few-msg').textContent = 'You need at least ' + MAX_OPTIONS +
+            ' entries that have both a recording and a meaning to play. Found ' +
+            state.pool.length + ' so far — record more pronunciations and try again.';
+          showView('too-few');
+          return;
+        }
+        updateStats();
+        startGame();
+      });
+    }).catch(function (err) {
+      showError('Could not load project data: ' + errText(err));
+    });
+  }
+
+  fw.ready.then(init);
+})();
+</script>
+</body>
+</html>

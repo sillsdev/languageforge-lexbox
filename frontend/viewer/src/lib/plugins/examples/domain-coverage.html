@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Domain Coverage</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --warn: #b45309;
+    --warn-soft: #fef3e0;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+    --vern-font: inherit;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --warn: #fbbf24;
+    --warn-soft: #3a2f12;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px 16px 56px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 2px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.9rem; }
+
+  /* Headline coverage card */
+  .headline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .head-main { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+  .head-pct { font-size: 2.5rem; font-weight: 800; line-height: 1; color: var(--accent); }
+  .head-body { flex: 1; min-width: 200px; }
+  .head-msg { font-weight: 600; margin-bottom: 8px; }
+  .bar { background: var(--surface-alt); border-radius: 999px; height: 10px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.4s ease; }
+  .head-sub { color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; }
+  .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .chip {
+    display: flex; flex-direction: column; gap: 2px;
+    background: var(--surface-alt); border-radius: 10px; padding: 8px 14px; min-width: 96px;
+  }
+  .chip .n { font-size: 1.25rem; font-weight: 800; line-height: 1.1; }
+  .chip .k { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  .chip.collect .n { color: var(--warn); }
+  .chip.covered .n { color: var(--good); }
+
+  .info-banner {
+    background: var(--accent-soft); color: var(--text);
+    border-radius: 10px; padding: 10px 14px; font-size: 0.86rem; margin-bottom: 16px;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 14px;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field.grow { flex: 1; min-width: 160px; }
+  .field label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); font-weight: 600; }
+  select, input[type="text"] {
+    font: inherit; font-size: 0.9rem; padding: 8px 11px;
+    border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font-family: inherit; width: 100%;
+  }
+  select:focus, input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; background: var(--surface); }
+  .seg button {
+    font: inherit; font-size: 0.82rem; padding: 8px 12px; border: none; background: transparent;
+    color: var(--text-muted); cursor: pointer; font-weight: 600;
+  }
+  .seg button + button { border-left: 1px solid var(--border); }
+  .seg button.active { background: var(--accent); color: #fff; }
+  .btn-ghost {
+    font: inherit; font-size: 0.82rem; font-weight: 600; padding: 8px 12px;
+    border: 1px solid var(--border); border-radius: 9px; background: var(--surface-alt);
+    color: var(--text); cursor: pointer;
+  }
+  .btn-ghost:hover { background: var(--border); }
+  .btn-ghost:disabled { opacity: 0.5; cursor: default; }
+  .cap-note {
+    display: inline-block; font-size: 0.78rem; color: var(--warn);
+    background: var(--warn-soft); padding: 4px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  /* Area sections */
+  .area {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 12px; overflow: hidden;
+  }
+  .area-head {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 14px 16px; border: none; background: transparent; color: var(--text);
+    cursor: pointer; font: inherit; text-align: left;
+  }
+  .area-head:hover { background: var(--surface-alt); }
+  .area-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .chev { color: var(--text-muted); flex-shrink: 0; transition: transform 0.15s ease; font-size: 0.9rem; width: 12px; }
+  .area-head[aria-expanded="true"] .chev { transform: rotate(90deg); }
+  .area-code {
+    flex-shrink: 0; font-weight: 800; color: var(--accent);
+    background: var(--accent-soft); border-radius: 7px; padding: 2px 9px; font-size: 0.85rem;
+  }
+  .area-name { font-weight: 700; flex: 1; min-width: 0; word-break: break-word; }
+  .area-ratio { flex-shrink: 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+  .area-bar { flex-shrink: 0; width: 90px; }
+  .area-body { border-top: 1px solid var(--border); padding: 6px 0; }
+
+  /* Domain rows */
+  .dom { border-bottom: 1px solid transparent; }
+  .dom-main {
+    display: flex; align-items: baseline; gap: 10px; width: 100%;
+    padding: 7px 16px; border: none; background: transparent; color: var(--text);
+    font: inherit; text-align: left; border-radius: 0;
+  }
+  .dom-main.clickable { cursor: pointer; }
+  .dom-main.clickable:hover { background: var(--surface-alt); }
+  .dom-main:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .dom-code {
+    font-variant-numeric: tabular-nums; color: var(--text-muted);
+    font-size: 0.8rem; font-weight: 600; flex-shrink: 0; min-width: 46px;
+  }
+  .dom-name { flex: 1; min-width: 0; word-break: break-word; font-size: 0.92rem; }
+  .dom.empty .dom-name { color: var(--text-muted); }
+  .dom.empty .dom-code { opacity: 0.7; }
+  .dom-count {
+    flex-shrink: 0; background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 1px 10px; font-weight: 700; font-size: 0.78rem;
+  }
+  .dom-collect {
+    flex-shrink: 0; font-size: 0.72rem; color: var(--warn);
+    background: var(--warn-soft); border-radius: 999px; padding: 2px 9px; font-weight: 600;
+  }
+  .drill-caret { color: var(--text-muted); font-size: 0.72rem; flex-shrink: 0; transition: transform 0.15s ease; }
+  .dom-main[aria-expanded="true"] .drill-caret { transform: rotate(90deg); }
+
+  .drill { padding: 2px 16px 12px; }
+  .drill-item {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    padding: 6px 0; border-top: 1px solid var(--border);
+  }
+  .drill-item .di-body { min-width: 0; }
+  .drill-item .di-hw { font-weight: 700; font-family: var(--vern-font); word-break: break-word; }
+  .drill-item .di-gloss { color: var(--text-muted); font-size: 0.85rem; word-break: break-word; }
+  .open {
+    color: var(--accent); cursor: pointer; text-decoration: none;
+    font-size: 0.82rem; font-weight: 600; white-space: nowrap; flex-shrink: 0;
+    background: none; border: none; font-family: inherit; padding: 0;
+  }
+  .open:hover { text-decoration: underline; }
+  .drill-note { font-size: 0.78rem; color: var(--text-muted); padding: 8px 0 2px; }
+
+  /* States */
+  .center-state { text-align: center; padding: 56px 20px; color: var(--text-muted); }
+  .center-state .big { font-size: 2.4rem; margin-bottom: 8px; }
+  .spinner { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .scan-bar { max-width: 320px; margin: 16px auto 0; }
+  .no-matches { text-align: center; color: var(--text-muted); padding: 28px 16px; }
+  .error-box { border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface)); color: var(--text); padding: 14px 18px; border-radius: var(--radius); }
+  [hidden] { display: none !important; }
+
+  @media (max-width: 520px) {
+    .area-ratio { display: none; }
+    .area-bar { width: 64px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Domain Coverage</h1>
+  <p class="subtitle" id="subtitle">Which parts of the semantic-domain framework has this dictionary covered?</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading the semantic-domain framework&hellip;</div>
+    <div class="scan-bar bar"><i id="scan-fill" style="width:0%"></i></div>
+  </div>
+
+  <div id="no-domains" class="center-state" hidden>
+    <div class="big">&#128506;</div>
+    <div>This project has no semantic-domain framework defined, so there is nothing to measure coverage against.</div>
+    <div style="margin-top:10px; font-size:0.85rem;">Add a semantic-domain list (for example the standard SIL domains) to the project, then reopen this plugin.</div>
+  </div>
+
+  <div id="error" class="error-box" hidden></div>
+
+  <div id="app" hidden>
+    <div class="headline">
+      <div class="head-main">
+        <div class="head-pct" id="head-pct">&mdash;</div>
+        <div class="head-body">
+          <div class="head-msg" id="head-msg"></div>
+          <div class="bar"><i id="head-fill" style="width:0%"></i></div>
+          <div class="head-sub" id="head-sub"></div>
+        </div>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="info-banner" id="empty-banner" hidden></div>
+
+    <div class="toolbar">
+      <div class="field grow">
+        <label for="search">Find a domain</label>
+        <input type="text" id="search" placeholder="Search by code or name&hellip;" autocomplete="off">
+      </div>
+      <div class="field" id="ws-field" hidden>
+        <label for="ws-select">Names in</label>
+        <select id="ws-select"></select>
+      </div>
+      <div class="field">
+        <label for="sort-select">Sort</label>
+        <select id="sort-select">
+          <option value="code">By code</option>
+          <option value="count">By entry count</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Show</label>
+        <div class="seg" id="mode-seg">
+          <button type="button" data-mode="all" class="active">All</button>
+          <button type="button" data-mode="populated">Populated</button>
+          <button type="button" data-mode="empty">To collect</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button type="button" class="btn-ghost" id="toggle-all">Expand all</button>
+      </div>
+    </div>
+
+    <div id="cap-note" class="cap-note" hidden></div>
+
+    <div id="sections"></div>
+    <div id="no-matches" class="no-matches" hidden>No domains match your search.</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE = 1000;      // API max per call
+  var CAP = 5000;       // safety cap on entries scanned
+  var DRILL_CAP = 200;  // entries listed per domain drill-in
+  var PREFS_KEY = 'domain-coverage-prefs';
+
+  var F = window.fwlite;
+  function $(id) { return document.getElementById(id); }
+  function errMsg(err) { return err && err.message ? err.message : String(err); }
+
+  var state = {
+    entries: [],
+    entriesById: {},
+    entryIdsByCode: {},   // domain code -> [entryId] (deduped, in scan order)
+    domains: [],          // [{id, code, rawName, name, nameLower, depth, top, entryCount, senseCount}]
+    sections: [],         // [{top, name, domains:[], covered, total, pct}]
+    vernIds: [],
+    analysis: [],         // [{wsId, name}]
+    analysisIds: [],
+    analysisWs: null,     // chosen WS for domain/gloss names
+    coveredDomains: 0,
+    entriesNoDomain: 0,
+    capped: false,
+    // UI prefs
+    search: '',
+    mode: 'all',          // 'all' | 'populated' | 'empty'
+    sort: 'code',         // 'code' | 'count'
+    collapsed: {},        // { top: true } when collapsed
+  };
+
+  // --- helpers --------------------------------------------------------------
+  function applyTheme(theme) {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (dark ? 'dark' : 'light'));
+  }
+  function showError(msg) {
+    $('loading').hidden = true;
+    $('app').hidden = true;
+    $('no-domains').hidden = true;
+    var b = $('error'); b.hidden = false; b.textContent = msg;
+  }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function namePrefs() {
+    var pref = [];
+    if (state.analysisWs) pref.push(state.analysisWs);
+    return pref.concat(state.analysisIds);
+  }
+  function textVal(multi, ws) {
+    if (!ws || !multi || multi[ws] == null) return '';
+    return F.asText(multi[ws]).trim();
+  }
+
+  // Compare two hierarchical codes ("1.10" vs "1.2") segment by segment, numerically.
+  function cmpCode(a, b) {
+    var pa = a.split('.'), pb = b.split('.');
+    var len = Math.max(pa.length, pb.length);
+    for (var i = 0; i < len; i++) {
+      var na = parseInt(pa[i], 10), nb = parseInt(pb[i], 10);
+      if (isNaN(na) || isNaN(nb)) {
+        var sa = pa[i] || '', sb = pb[i] || '';
+        if (sa !== sb) return sa < sb ? -1 : 1;
+      } else if (na !== nb) return na - nb;
+    }
+    return 0;
+  }
+
+  // --- load entries ---------------------------------------------------------
+  function fetchAll(total) {
+    var target = Math.min(total, CAP);
+    var out = [];
+    function loadNext() {
+      if (out.length >= target) return Promise.resolve(out);
+      var limit = Math.min(PAGE, target - out.length);
+      return F.getEntries({limit: limit, offset: out.length}).then(function (page) {
+        out = out.concat(page);
+        var pct = target ? Math.round(out.length / target * 100) : 100;
+        $('scan-fill').style.width = pct + '%';
+        $('loading-text').textContent = 'Scanned ' + out.length.toLocaleString() + ' of ' + target.toLocaleString() + ' entries…';
+        if (!page.length || out.length >= target) return out;
+        return loadNext();
+      });
+    }
+    return loadNext();
+  }
+
+  // --- counting (client-side is the source of truth: the demo backend ignores
+  //     the semanticDomainCode filter, so we tally from the loaded entries). ---
+  function computeCounts() {
+    state.entryIdsByCode = {};
+    state.entriesById = {};
+    var senseCountByCode = {};
+    state.entriesNoDomain = 0;
+
+    state.entries.forEach(function (entry) {
+      state.entriesById[entry.id] = entry;
+      var senses = entry.senses || [];
+      var codesThisEntry = {};   // dedupe entry per code
+      var tagged = false;
+      senses.forEach(function (sense) {
+        (sense.semanticDomains || []).forEach(function (d) {
+          if (!d || d.code == null) return;
+          tagged = true;
+          senseCountByCode[d.code] = (senseCountByCode[d.code] || 0) + 1;
+          if (!codesThisEntry[d.code]) {
+            codesThisEntry[d.code] = true;
+            (state.entryIdsByCode[d.code] || (state.entryIdsByCode[d.code] = [])).push(entry.id);
+          }
+        });
+      });
+      if (!tagged) state.entriesNoDomain++;
+    });
+
+    state.coveredDomains = 0;
+    state.domains.forEach(function (d) {
+      var ids = state.entryIdsByCode[d.code];
+      d.entryCount = ids ? ids.length : 0;
+      d.senseCount = senseCountByCode[d.code] || 0;
+      if (d.entryCount > 0) state.coveredDomains++;
+    });
+  }
+
+  // --- names (recomputed when the chosen analysis WS changes) ---------------
+  function computeNames() {
+    var prefs = namePrefs();
+    state.domains.forEach(function (d) {
+      var nm = F.firstValue(d.rawName, prefs) || Object.values(d.rawName || {})[0] || d.code;
+      d.name = nm;
+      d.nameLower = nm.toLowerCase();
+    });
+    state.sections.forEach(function (sec) {
+      var root = sec.domains.filter(function (d) { return d.code === sec.top; })[0];
+      sec.name = root ? root.name : ('Area ' + sec.top);
+    });
+  }
+
+  function buildSections() {
+    var byTop = {};
+    state.domains.forEach(function (d) {
+      var top = d.code.split('.')[0];
+      d.top = top;
+      d.depth = d.code.split('.').length - 1;
+      (byTop[top] || (byTop[top] = [])).push(d);
+    });
+    state.sections = Object.keys(byTop).map(function (top) {
+      var domains = byTop[top].slice().sort(function (a, b) { return cmpCode(a.code, b.code); });
+      var covered = domains.filter(function (d) { return d.entryCount > 0; }).length;
+      return {top: top, domains: domains, covered: covered, total: domains.length,
+        pct: domains.length ? Math.round(covered / domains.length * 100) : 0};
+    }).sort(function (a, b) {
+      var na = parseInt(a.top, 10), nb = parseInt(b.top, 10);
+      if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
+      return a.top < b.top ? -1 : a.top > b.top ? 1 : 0;
+    });
+  }
+
+  // --- headline -------------------------------------------------------------
+  function renderHeadline(projectName) {
+    var total = state.domains.length;
+    var pct = total ? Math.round(state.coveredDomains / total * 100) : 0;
+    $('head-pct').textContent = pct + '%';
+    $('head-fill').style.width = pct + '%';
+    $('head-msg').textContent = state.coveredDomains.toLocaleString() + ' of ' + total.toLocaleString() +
+      ' domains have at least one entry';
+    var scanned = state.entries.length;
+    $('head-sub').textContent = 'Based on ' + scanned.toLocaleString() + ' ' +
+      (scanned === 1 ? 'entry' : 'entries') + ' in ' + projectName + '.';
+
+    var chips = [
+      {cls: 'covered', n: state.coveredDomains.toLocaleString(), k: 'covered'},
+      {cls: 'collect', n: (total - state.coveredDomains).toLocaleString(), k: 'to collect'},
+      {cls: '', n: state.entriesNoDomain.toLocaleString(), k: 'uncategorized'},
+    ];
+    var host = $('chips');
+    host.innerHTML = '';
+    chips.forEach(function (c) {
+      var chip = el('div', 'chip' + (c.cls ? ' ' + c.cls : ''));
+      chip.appendChild(el('span', 'n', c.n));
+      chip.appendChild(el('span', 'k', c.k));
+      host.appendChild(chip);
+    });
+  }
+
+  // --- filtering ------------------------------------------------------------
+  function filterActive() { return state.search !== '' || state.mode !== 'all'; }
+  function domainVisible(d) {
+    if (state.mode === 'empty' && d.entryCount > 0) return false;
+    if (state.mode === 'populated' && d.entryCount === 0) return false;
+    if (state.search) {
+      var q = state.search;
+      if (d.code.toLowerCase().indexOf(q) < 0 && d.nameLower.indexOf(q) < 0) return false;
+    }
+    return true;
+  }
+  function sortedForRender(domains) {
+    if (state.sort === 'count') {
+      return domains.slice().sort(function (a, b) {
+        if (b.entryCount !== a.entryCount) return b.entryCount - a.entryCount;
+        return cmpCode(a.code, b.code);
+      });
+    }
+    return domains; // already code-sorted
+  }
+
+  // --- rendering ------------------------------------------------------------
+  var sectionEls = {}; // top -> <section> element (for in-place collapse toggle)
+
+  function renderAll() {
+    var container = $('sections');
+    container.innerHTML = '';
+    sectionEls = {};
+    var any = false;
+    state.sections.forEach(function (sec) {
+      var matches = sec.domains.filter(domainVisible);
+      if (!matches.length) return;
+      any = true;
+      var expanded = filterActive() ? true : !state.collapsed[sec.top];
+      var node = buildSection(sec, sortedForRender(matches), expanded);
+      sectionEls[sec.top] = node;
+      container.appendChild(node);
+    });
+    $('no-matches').hidden = any;
+    updateToggleAllLabel();
+  }
+
+  function buildSection(sec, matches, expanded) {
+    var section = el('section', 'area');
+
+    var head = el('button', 'area-head');
+    head.type = 'button';
+    head.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    head.appendChild(el('span', 'chev', '▸'));
+    head.appendChild(el('span', 'area-code', sec.top));
+    head.appendChild(el('span', 'area-name', sec.name));
+    head.appendChild(el('span', 'area-ratio', sec.covered + ' / ' + sec.total));
+    var barWrap = el('span', 'area-bar bar');
+    var fill = el('i');
+    fill.style.width = sec.pct + '%';
+    barWrap.appendChild(fill);
+    head.appendChild(barWrap);
+    head.addEventListener('click', function () { toggleSection(sec.top); });
+    section.appendChild(head);
+
+    if (expanded) section.appendChild(buildBody(matches));
+    return section;
+  }
+
+  function buildBody(matches) {
+    var body = el('div', 'area-body');
+    matches.forEach(function (d) { body.appendChild(buildDomainRow(d)); });
+    return body;
+  }
+
+  function buildDomainRow(d) {
+    var row = el('div', 'dom' + (d.entryCount === 0 ? ' empty' : ''));
+    var populated = d.entryCount > 0;
+
+    var main = el('button', 'dom-main' + (populated ? ' clickable' : ''));
+    main.type = 'button';
+    main.style.paddingLeft = (16 + d.depth * 18) + 'px';
+    if (populated) {
+      main.appendChild(el('span', 'drill-caret', '▸'));
+      main.setAttribute('aria-expanded', 'false');
+    }
+    main.appendChild(el('span', 'dom-code', d.code));
+    main.appendChild(el('span', 'dom-name', d.name));
+    if (populated) {
+      main.appendChild(el('span', 'dom-count', d.entryCount.toLocaleString()));
+    } else {
+      main.appendChild(el('span', 'dom-collect', 'to collect'));
+    }
+    row.appendChild(main);
+
+    if (populated) {
+      var drill = el('div', 'drill');
+      drill.hidden = true;
+      var built = false;
+      main.addEventListener('click', function () {
+        var open = drill.hidden;
+        drill.hidden = !open;
+        main.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open && !built) { built = true; fillDrill(drill, d); }
+      });
+      row.appendChild(drill);
+    }
+    return row;
+  }
+
+  function entryGlossForCode(entry, code) {
+    var senses = entry.senses || [];
+    var tagged = senses.filter(function (s) {
+      return (s.semanticDomains || []).some(function (dd) { return dd && dd.code === code; });
+    });
+    var pool = tagged.length ? tagged : senses;
+    var prefs = namePrefs();
+    for (var i = 0; i < pool.length; i++) {
+      var g = F.firstValue(pool[i].gloss || {}, prefs);
+      if (g) return g;
+    }
+    return '';
+  }
+  function headwordOf(entry) {
+    return F.headword(entry) || '(no headword)';
+  }
+
+  function fillDrill(drill, d) {
+    var ids = state.entryIdsByCode[d.code] || [];
+    var shown = ids.slice(0, DRILL_CAP);
+    shown.forEach(function (id) {
+      var entry = state.entriesById[id];
+      if (!entry) return;
+      var item = el('div', 'drill-item');
+      var b = el('div', 'di-body');
+      b.appendChild(el('div', 'di-hw', headwordOf(entry)));
+      var gloss = entryGlossForCode(entry, d.code);
+      if (gloss) b.appendChild(el('div', 'di-gloss', gloss));
+      item.appendChild(b);
+      var open = el('button', 'open', 'Open ↗');
+      open.type = 'button';
+      open.addEventListener('click', function () {
+        F.openEntry(entry.id).catch(function (err) { notify('Could not open entry: ' + errMsg(err)); });
+      });
+      item.appendChild(open);
+      drill.appendChild(item);
+    });
+    if (ids.length > DRILL_CAP) {
+      drill.appendChild(el('div', 'drill-note',
+        'Showing the first ' + DRILL_CAP.toLocaleString() + ' of ' + ids.length.toLocaleString() + ' entries.'));
+    }
+  }
+
+  function notify(msg) { try { F.notify(msg); } catch (e) { /* toast is best-effort */ } }
+
+  // --- collapse toggling (rebuild only the affected section) ----------------
+  function toggleSection(top) {
+    if (filterActive()) return; // sections are force-expanded while filtering
+    state.collapsed[top] = !state.collapsed[top];
+    savePrefs();
+    var sec = state.sections.filter(function (s) { return s.top === top; })[0];
+    if (!sec) return;
+    var matches = sec.domains.filter(domainVisible);
+    var node = buildSection(sec, sortedForRender(matches), !state.collapsed[top]);
+    var old = sectionEls[top];
+    if (old && old.parentNode) old.parentNode.replaceChild(node, old);
+    sectionEls[top] = node;
+    updateToggleAllLabel();
+  }
+
+  function allCollapsed() {
+    return state.sections.every(function (s) { return state.collapsed[s.top]; });
+  }
+  function updateToggleAllLabel() {
+    var btn = $('toggle-all');
+    btn.disabled = filterActive();
+    btn.textContent = allCollapsed() ? 'Expand all' : 'Collapse all';
+  }
+
+  // --- prefs ----------------------------------------------------------------
+  function savePrefs() {
+    F.storage.set(PREFS_KEY, {
+      analysisWs: state.analysisWs,
+      search: state.search,
+      mode: state.mode,
+      sort: state.sort,
+      collapsed: Object.keys(state.collapsed).filter(function (k) { return state.collapsed[k]; }),
+    }).catch(function () {});
+  }
+
+  // --- init -----------------------------------------------------------------
+  function init(context) {
+    applyTheme(context.theme);
+    $('subtitle').textContent = 'Which parts of the semantic-domain framework has ' +
+      context.project.projectName + ' covered?';
+
+    Promise.all([
+      F.getSemanticDomains(),
+      F.getWritingSystems(),
+      F.countEntries({}),
+      F.storage.get(PREFS_KEY),
+    ]).then(function (res) {
+      var taxonomy = res[0] || [];
+      var ws = res[1] || {};
+      var total = res[2];
+      var firstRun = res[3] == null;   // never saved prefs before
+      var prefs = res[3] || {};
+
+      if (!taxonomy.length) {
+        $('loading').hidden = true;
+        $('no-domains').hidden = false;
+        return;
+      }
+
+      state.domains = taxonomy.map(function (d) {
+        return {id: d.id, code: String(d.code == null ? '' : d.code), rawName: d.name || {},
+          name: '', nameLower: '', depth: 0, top: '', entryCount: 0, senseCount: 0};
+      });
+
+      var vern = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      var analysis = (ws.analysis || []).filter(function (w) { return !w.isAudio; });
+      state.vernIds = vern.map(function (w) { return w.wsId; });
+      state.analysis = analysis.map(function (w) { return {wsId: w.wsId, name: w.name || w.wsId}; });
+      state.analysisIds = state.analysis.map(function (w) { return w.wsId; });
+      if (vern.length && vern[0].font) {
+        document.documentElement.style.setProperty('--vern-font', '"' + vern[0].font + '", inherit');
+      }
+
+      // Restore prefs
+      state.analysisWs = (prefs.analysisWs && state.analysisIds.indexOf(prefs.analysisWs) >= 0)
+        ? prefs.analysisWs : (state.analysisIds[0] || null);
+      if (typeof prefs.search === 'string') state.search = prefs.search.toLowerCase();
+      if (prefs.mode === 'empty' || prefs.mode === 'populated' || prefs.mode === 'all') state.mode = prefs.mode;
+      if (prefs.sort === 'count' || prefs.sort === 'code') state.sort = prefs.sort;
+      if (Array.isArray(prefs.collapsed)) prefs.collapsed.forEach(function (t) { state.collapsed[t] = true; });
+
+      wireControls();
+
+      return fetchAll(total || 0).then(function (entries) {
+        state.entries = entries;
+        state.capped = (total || 0) > CAP;
+        computeCounts();
+        buildSections();
+        computeNames();
+
+        // First-ever open: collapse every area so the overview is a scannable set of
+        // ~10 headers rather than ~1700 rendered rows. Returning users keep their state.
+        if (firstRun) state.sections.forEach(function (s) { state.collapsed[s.top] = true; });
+
+        $('loading').hidden = true;
+        $('app').hidden = false;
+
+        renderHeadline(context.project.projectName);
+
+        var emptyBanner = $('empty-banner');
+        if (state.entries.length === 0) {
+          emptyBanner.hidden = false;
+          emptyBanner.textContent = 'This project has no entries yet — every domain below is a place to start collecting.';
+        } else {
+          emptyBanner.hidden = true;
+        }
+
+        if (state.capped) {
+          $('cap-note').hidden = false;
+          $('cap-note').textContent = 'Coverage is based on the first ' + CAP.toLocaleString() +
+            ' entries; some domains may be undercounted.';
+        }
+
+        renderAll();
+      });
+    }).catch(function (err) {
+      showError('Could not build the coverage report: ' + errMsg(err));
+    });
+  }
+
+  function wireControls() {
+    // Search (debounced)
+    var searchInput = $('search');
+    searchInput.value = state.search;
+    var timer = null;
+    searchInput.addEventListener('input', function () {
+      state.search = searchInput.value.trim().toLowerCase();
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function () { savePrefs(); renderAll(); }, 130);
+    });
+
+    // Analysis WS selector (only worth showing with 2+ analysis writing systems)
+    if (state.analysis.length > 1) {
+      $('ws-field').hidden = false;
+      var wsSel = $('ws-select');
+      wsSel.innerHTML = '';
+      state.analysis.forEach(function (w) {
+        var opt = document.createElement('option');
+        opt.value = w.wsId;
+        opt.textContent = w.name;
+        if (w.wsId === state.analysisWs) opt.selected = true;
+        wsSel.appendChild(opt);
+      });
+      wsSel.addEventListener('change', function () {
+        state.analysisWs = wsSel.value;
+        savePrefs();
+        computeNames();
+        renderAll();
+      });
+    }
+
+    // Sort
+    var sortSel = $('sort-select');
+    sortSel.value = state.sort;
+    sortSel.addEventListener('change', function () {
+      state.sort = sortSel.value;
+      savePrefs();
+      renderAll();
+    });
+
+    // Mode segmented control
+    var seg = $('mode-seg');
+    Array.prototype.forEach.call(seg.querySelectorAll('button'), function (b) {
+      b.classList.toggle('active', b.getAttribute('data-mode') === state.mode);
+      b.addEventListener('click', function () {
+        state.mode = b.getAttribute('data-mode');
+        Array.prototype.forEach.call(seg.querySelectorAll('button'), function (o) {
+          o.classList.toggle('active', o === b);
+        });
+        savePrefs();
+        renderAll();
+      });
+    });
+
+    // Expand / collapse all
+    $('toggle-all').addEventListener('click', function () {
+      if (filterActive()) return;
+      var collapseThem = !allCollapsed();
+      state.collapsed = {};
+      if (collapseThem) state.sections.forEach(function (s) { state.collapsed[s.top] = true; });
+      savePrefs();
+      renderAll();
+    });
+  }
+
+  F.ready.then(init);
+})();
+</script>
+</body>
+</html>

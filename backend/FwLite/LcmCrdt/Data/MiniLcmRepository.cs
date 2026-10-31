@@ -87,6 +87,7 @@ public class MiniLcmRepository(
     public IQueryable<PartOfSpeech> PartsOfSpeech => dbContext.PartsOfSpeech;
     public IQueryable<Publication> Publications => dbContext.Publications;
     public IQueryable<CustomView> CustomViews => dbContext.CustomViews;
+    public IQueryable<Plugin> Plugins => dbContext.Plugins;
     public IQueryable<CommentThread> CommentThreads => dbContext.CommentThreads;
     public IQueryable<UserComment> UserComments => dbContext.UserComments;
 
@@ -338,6 +339,11 @@ public class MiniLcmRepository(
         var customView = await AsyncExtensions.SingleOrDefaultAsync(CustomViews
             .AsQueryable(), cv => cv.Id == customViewId);
         return customView;
+    }
+
+    public async Task<Plugin?> GetPlugin(Guid pluginId)
+    {
+        return await AsyncExtensions.SingleOrDefaultAsync(Plugins, p => p.Id == pluginId);
     }
 
     public async Task<CommentThread?> GetCommentThread(Guid threadId)

@@ -17,10 +17,19 @@
   let {
     entryId,
     open = $bindable(false),
+    mode = 'edit',
   }: {
     entryId?: string,
     open: boolean,
+    /** 'view' opens read-only with an Edit button; 'edit' opens editable (default). */
+    mode?: 'view' | 'edit',
   } = $props();
+  // Own the mode internally so the in-dialog Edit button can flip it; reset to the requested mode
+  // whenever the dialog (re)opens.
+  let currentMode = $state<'view' | 'edit'>('edit');
+  $effect(() => {
+    if (open) currentMode = mode;
+  });
   let entryResource = resource(() => entryId, async (entryId) => {
     if (!entryId) return undefined;
     return await api.getEntry(entryId);
@@ -47,7 +56,9 @@
 <Dialog.Root bind:open>
   <Dialog.DialogContent>
     <Dialog.DialogHeader>
-      <Dialog.DialogTitle>{$t`Update ${entryLabel}`}</Dialog.DialogTitle>
+      <Dialog.DialogTitle>
+        {currentMode === 'view' ? $t`View ${entryLabel}` : $t`Update ${entryLabel}`}
+      </Dialog.DialogTitle>
     </Dialog.DialogHeader>
     {#if entryResource.loading}
       Loading...
@@ -57,14 +68,19 @@
       Custom-views should perhaps be scoped to the browse-view. I'm not sure.
       -->
       <RootFields>
-        <EntryEditor bind:this={editor} autofocus modalMode bind:entry canAddSense={false} canAddExample={false}/>
+        <EntryEditor bind:this={editor} autofocus={currentMode === 'edit'} modalMode readonly={currentMode === 'view'} bind:entry canAddSense={false} canAddExample={false}/>
       </RootFields>
     {/if}
     <Dialog.DialogFooter>
-      <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
-      <Button onclick={() => updateEntry()} disabled={updating || !entry || entryResource.loading} loading={updating}>
-        {$t`Update ${entryLabel}`}
-      </Button>
+      {#if currentMode === 'view'}
+        <Button onclick={() => open = false} variant="secondary">{$t`Close`}</Button>
+        <Button icon="i-mdi-pencil" onclick={() => currentMode = 'edit'} disabled={!entry || entryResource.loading}>{$t`Edit`}</Button>
+      {:else}
+        <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
+        <Button onclick={() => updateEntry()} disabled={updating || !entry || entryResource.loading} loading={updating}>
+          {$t`Update ${entryLabel}`}
+        </Button>
+      {/if}
     </Dialog.DialogFooter>
   </Dialog.DialogContent>
 </Dialog.Root>

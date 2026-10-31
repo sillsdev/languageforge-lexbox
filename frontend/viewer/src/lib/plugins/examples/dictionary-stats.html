@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dictionary Stats</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --accent2: #059669;
+    --accent3: #d97706;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --accent2: #34d399;
+    --accent3: #fbbf24;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 20px; font-size: 0.92rem; }
+  .cap-note {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 0.78rem;
+    color: var(--accent3);
+    background: var(--surface-alt);
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .stat-card { text-align: left; }
+  .stat-card .label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-card .value { font-size: 2rem; font-weight: 700; line-height: 1; }
+  .stat-card .value small { font-size: 1rem; font-weight: 600; color: var(--text-muted); }
+
+  section { margin-bottom: 22px; }
+  section h2 { font-size: 1.05rem; margin: 0 0 12px; }
+
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-label {
+    width: 140px;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    text-align: right;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .bar-track {
+    flex: 1;
+    background: var(--surface-alt);
+    border-radius: 6px;
+    height: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 6px;
+    min-width: 3px;
+    transition: width 0.4s ease;
+  }
+  .bar-count {
+    width: 42px;
+    flex-shrink: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .domains-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .domain-chip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface-alt);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  .domain-chip .code { color: var(--accent); font-weight: 700; margin-right: 6px; }
+  .domain-chip .count {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 1px 9px;
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .fact-card .fact-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+  .fact-card .fact-value { font-size: 1.15rem; font-weight: 600; word-break: break-word; }
+
+  .center-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress-track {
+    max-width: 280px;
+    margin: 0 auto;
+    background: var(--surface-alt);
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.2s ease;
+  }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+  }
+  #app { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Dictionary Stats</h1>
+  <p class="subtitle" id="subtitle">Loading a snapshot of this project&rsquo;s dictionary&hellip;</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Connecting&hellip;</div>
+    <div class="progress-track" style="margin-top:14px;">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="empty" class="center-state" style="display:none;">
+    This project has no entries yet.
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="app">
+    <div class="cards-grid" id="stat-cards"></div>
+
+    <section id="pos-section">
+      <h2>Entries per part of speech</h2>
+      <div id="pos-bars"></div>
+    </section>
+
+    <section id="domains-section">
+      <h2>Top 10 semantic domains</h2>
+      <div class="domains-grid" id="domains-grid"></div>
+    </section>
+
+    <section id="facts-section">
+      <h2>Fun facts</h2>
+      <div class="facts-grid" id="facts-grid"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE_SIZE = 500;
+  var ENTRY_CAP = 3000;
+
+  function esc(value) {
+    var div = document.createElement('div');
+    div.textContent = value == null ? '' : String(value);
+    return div.innerHTML;
+  }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    document.getElementById('loading').style.display = 'none';
+    var box = document.getElementById('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function setProgress(loaded, total) {
+    var pct = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('loading-text').textContent = 'Loaded ' + loaded.toLocaleString() + (total ? ' of ' + total.toLocaleString() : '') + ' entries…';
+  }
+
+  /** Fetches entries page by page until countEntries or ENTRY_CAP is reached. */
+  function fetchEntries(total) {
+    var target = Math.min(total, ENTRY_CAP);
+    var entries = [];
+    function loadNext() {
+      if (entries.length >= target) return Promise.resolve(entries);
+      var limit = Math.min(PAGE_SIZE, target - entries.length);
+      return window.fwlite.getEntries({limit: limit, offset: entries.length}).then(function (page) {
+        entries = entries.concat(page);
+        setProgress(entries.length, target);
+        if (page.length === 0 || entries.length >= target) return entries;
+        return loadNext();
+      });
+    }
+    return loadNext();
+  }
+
+  function computeStats(entries, partsOfSpeech, semanticDomains, vernacularWs, analysisWs) {
+    var totalEntries = entries.length;
+    var totalSenses = 0;
+    var entriesWithExamples = 0;
+    var longestWord = {text: '', length: 0};
+    var posCounts = {}; // id -> count, plus '' for unspecified
+    var domainCounts = {}; // id -> count
+
+    entries.forEach(function (entry) {
+      var headwordText = window.fwlite.headword(entry) || '';
+      if (headwordText && headwordText.length > longestWord.length) {
+        longestWord = {text: headwordText, length: headwordText.length};
+      }
+
+      var hasExample = false;
+      var senses = entry.senses || [];
+      totalSenses += senses.length;
+      senses.forEach(function (sense) {
+        if (sense.exampleSentences && sense.exampleSentences.length > 0) hasExample = true;
+        var posId = sense.partOfSpeechId || (sense.partOfSpeech && sense.partOfSpeech.id) || '';
+        posCounts[posId] = (posCounts[posId] || 0) + 1;
+        (sense.semanticDomains || []).forEach(function (domain) {
+          domainCounts[domain.id] = (domainCounts[domain.id] || 0) + 1;
+        });
+      });
+      if (hasExample) entriesWithExamples++;
+    });
+
+    var posLookup = {};
+    partsOfSpeech.forEach(function (pos) { posLookup[pos.id] = pos; });
+    var domainLookup = {};
+    semanticDomains.forEach(function (domain) { domainLookup[domain.id] = domain; });
+
+    var posBars = Object.keys(posCounts).map(function (id) {
+      var pos = posLookup[id];
+      var label = pos ? window.fwlite.firstValue(pos.name, analysisWs) : 'Unspecified';
+      return {label: label || 'Unspecified', count: posCounts[id]};
+    }).sort(function (a, b) { return b.count - a.count; });
+
+    var topDomains = Object.keys(domainCounts).map(function (id) {
+      var domain = domainLookup[id];
+      return {
+        code: domain ? domain.code : '?',
+        name: domain ? window.fwlite.firstValue(domain.name, analysisWs) : 'Unknown',
+        count: domainCounts[id],
+      };
+    }).sort(function (a, b) { return b.count - a.count; }).slice(0, 10);
+
+    return {
+      totalEntries: totalEntries,
+      totalSenses: totalSenses,
+      pctWithExamples: totalEntries ? Math.round((entriesWithExamples / totalEntries) * 100) : 0,
+      avgSensesPerEntry: totalEntries ? (totalSenses / totalEntries) : 0,
+      longestWord: longestWord.text,
+      posBars: posBars,
+      topDomains: topDomains,
+    };
+  }
+
+  function renderStatCards(stats) {
+    var cards = [
+      {label: 'Total entries', value: stats.totalEntries.toLocaleString()},
+      {label: 'Total senses', value: stats.totalSenses.toLocaleString()},
+      {label: 'Entries with examples', value: stats.pctWithExamples + '<small>%</small>'},
+      {label: 'Avg. senses / entry', value: stats.avgSensesPerEntry.toFixed(1)},
+    ];
+    var html = cards.map(function (card) {
+      return '<div class="card stat-card"><div class="label">' + esc(card.label) + '</div>' +
+        '<div class="value">' + card.value + '</div></div>';
+    }).join('');
+    document.getElementById('stat-cards').innerHTML = html;
+  }
+
+  function renderPosBars(bars) {
+    var container = document.getElementById('pos-bars');
+    if (bars.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-muted)">No part-of-speech data yet.</p>';
+      return;
+    }
+    var max = bars[0].count || 1;
+    container.innerHTML = bars.slice(0, 12).map(function (bar) {
+      var pct = Math.round((bar.count / max) * 100);
+      return '<div class="bar-row">' +
+        '<div class="bar-label" title="' + esc(bar.label) + '">' + esc(bar.label) + '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="bar-count">' + bar.count.toLocaleString() + '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderDomains(domains) {
+    var container = document.getElementById('domains-grid');
+    if (domains.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-muted)">No semantic domains tagged yet.</p>';
+      return;
+    }
+    container.innerHTML = domains.map(function (domain) {
+      return '<div class="domain-chip"><span><span class="code">' + esc(domain.code) + '</span>' +
+        esc(domain.name) + '</span><span class="count">' + domain.count + '</span></div>';
+    }).join('');
+  }
+
+  function renderFacts(stats) {
+    var facts = [
+      {title: 'Longest headword', value: stats.longestWord || '—'},
+      {title: 'Average senses per entry', value: stats.avgSensesPerEntry.toFixed(2)},
+      {title: 'Entries with an example sentence', value: stats.pctWithExamples + '%'},
+    ];
+    document.getElementById('facts-grid').innerHTML = facts.map(function (fact) {
+      return '<div class="card fact-card"><div class="fact-title">' + esc(fact.title) + '</div>' +
+        '<div class="fact-value">' + esc(fact.value) + '</div></div>';
+    }).join('');
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+
+    Promise.all([
+      window.fwlite.countEntries({}),
+      window.fwlite.getWritingSystems(),
+      window.fwlite.getPartsOfSpeech(),
+      window.fwlite.getSemanticDomains(),
+    ]).then(function (results) {
+      var total = results[0];
+      var writingSystems = results[1];
+      var partsOfSpeech = results[2];
+      var semanticDomains = results[3];
+      var vernacularWs = (writingSystems.vernacular || []).map(function (ws) { return ws.wsId; });
+      var analysisWs = (writingSystems.analysis || []).map(function (ws) { return ws.wsId; });
+
+      if (total === 0) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('empty').style.display = 'block';
+        return;
+      }
+
+      setProgress(0, Math.min(total, ENTRY_CAP));
+      return fetchEntries(total).then(function (entries) {
+        var stats = computeStats(entries, partsOfSpeech, semanticDomains, vernacularWs, analysisWs);
+        renderStatCards(stats);
+        renderPosBars(stats.posBars);
+        renderDomains(stats.topDomains);
+        renderFacts(stats);
+
+        document.getElementById('subtitle').innerHTML = esc('A snapshot of ' + entries.length.toLocaleString() + ' ' +
+          (entries.length === 1 ? 'entry' : 'entries') + ' in ' + context.project.projectName + '.');
+        if (total > ENTRY_CAP) {
+          var note = document.createElement('span');
+          note.className = 'cap-note';
+          note.textContent = 'Based on the first ' + ENTRY_CAP.toLocaleString() + ' entries';
+          document.getElementById('subtitle').appendChild(document.createElement('br'));
+          document.getElementById('subtitle').appendChild(note);
+        }
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+      });
+    }).catch(function (err) {
+      showError('Could not load dictionary stats: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

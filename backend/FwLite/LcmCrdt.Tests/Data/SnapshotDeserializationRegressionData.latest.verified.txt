@@ -8105,5 +8105,26 @@
       "SystemCollationLocale": "Regional",
       "Order": 0.9920491895054084
     }
+  },
+  {
+    "$type": "MiniLcmCrdtAdapter",
+    "Obj": {
+      "$type": "Plugin",
+      "Id": "d7508a83-9d61-1061-6a59-46ac11ca7a2d",
+      "DeletedAt": null,
+      "Name": "Vietnam",
+      "Description": "solution",
+      "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+      "FileSize": 2316938097468463916,
+      "Permissions": [
+        "Plastic"
+      ],
+      "Contexts": [
+        "Yemeni Rial"
+      ],
+      "Requires": [
+        "Money Market Account"
+      ]
+    }
   }
 ]

@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Text.Json;
+using MiniLcm.Media;
 using SIL.Harmony;
 using SIL.Harmony.Config;
 using SIL.Harmony.Linq2db;
@@ -98,6 +99,7 @@ public static class LcmCrdtKernel
         services.AddScoped<CrdtMediaApi>();
         services.AddScoped<CrdtCustomViewApi>();
         services.AddScoped<CrdtCommentApi>();
+        services.AddScoped<CrdtPluginApi>();
 
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
@@ -322,6 +324,17 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(writingSystemArrayConverter);
             })
+            .Add<Plugin>(builder =>
+            {
+                builder.Property(p => p.FileUri)
+                    .HasConversion(uri => uri.ToString(), value => new MediaUri(value));
+                var tokenArrayConverter = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<string[], string>(
+                    list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                    json => JsonSerializer.Deserialize<string[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<string>());
+                builder.Property(p => p.Permissions).HasColumnType("jsonb").HasConversion(tokenArrayConverter);
+                builder.Property(p => p.Contexts).HasColumnType("jsonb").HasConversion(tokenArrayConverter);
+                builder.Property(p => p.Requires).HasColumnType("jsonb").HasConversion(tokenArrayConverter);
+            })
             .Add<CommentThread>(builder =>
             {
                 builder.HasIndex(t => new { t.SubjectType, t.SubjectId });
@@ -411,6 +424,9 @@ public static class LcmCrdtKernel
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()
+            .Add<CreatePluginChange>()
+            .Add<EditPluginChange>()
+            .Add<DeleteChange<Plugin>>()
             .Add<CreateCommentThreadChange>()
             .Add<CreateUserCommentChange>()
             .Add<EditUserCommentChange>()
@@ -493,7 +509,11 @@ public static class LcmCrdtKernel
                 .RemoteResourceChanges<LcmFileMetadata>())
             .AddMajor(1, "Regenerate snapshots", v => v
                 //legacy translation patches created the first translation with a random id
-                .Change<JsonPatchExampleSentenceChange>(invalidateFrom: 0));
+                .Change<JsonPatchExampleSentenceChange>(invalidateFrom: 0))
+            .Add(2, "Plugins", v => v
+                .Change<CreatePluginChange>()
+                .Change<EditPluginChange>()
+                .Change<DeleteChange<Plugin>>());
 
         // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
         // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the
