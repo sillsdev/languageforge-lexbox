@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import type {IChangeContext, IChangeEntity, IProjectActivity} from '$lib/dotnet-types';
+  import type {IActivityChangeInfo, IChangeContext, IChangeEntity, IProjectActivity} from '$lib/dotnet-types';
 
   export class ChangeWithLazyContext {
 
@@ -8,6 +8,8 @@
     constructor(
       public readonly change: IChangeEntity,
       public readonly activity: IProjectActivity,
+      /** Current names for what the change is about, resolved with the activity page */
+      public readonly info: IActivityChangeInfo,
       private readonly contextLoader: () => Promise<IChangeContext>,
     ) {}
 
@@ -49,8 +51,8 @@
   const historyService = useHistoryService();
   let openHistoryId = $state<string>()
 
-  const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(({entity}) => {
-    return new ChangeWithLazyContext(entity, activity, () => historyService.loadChangeContext(activity.commitId, entity.index));
+  const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(({entity, info}) => {
+    return new ChangeWithLazyContext(entity, activity, info, () => historyService.loadChangeContext(activity.commitId, entity.index));
   }));
 </script>
 
@@ -114,7 +116,7 @@
             bufferSize={1400}
             getKey={(item) => `${item.change.commitId}:${item.change.index}`}>
             {#snippet children(changeWithContext)}
-              {@const {change, lazyContext} = changeWithContext}
+              {@const {change, info, lazyContext} = changeWithContext}
               {#await lazyContext}
                 <!-- determines how many rows are initially visible,
                  which in turn determines how many changes will be loaded.
@@ -140,7 +142,7 @@
                     </Tabs.List>
                     <div class="pt-1 pb-4 px-2">
                       <Tabs.Content value="preview">
-                        <ActivityItemChangePreview {activity} {context} />
+                        <ActivityItemChangePreview {activity} {context} {change} {info} />
                       </Tabs.Content>
                       <Tabs.Content value="change">
                         <div class="whitespace-pre-wrap font-mono text-sm">

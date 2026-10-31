@@ -11,11 +11,17 @@
   import DiffRichText from './DiffRichText.svelte';
   import DiffText from './DiffText.svelte';
   import DiffShell from './DiffShell.svelte';
-  import DiffAnchor from './DiffAnchor.svelte';
+  import DiffAnchorRow from './DiffAnchorRow.svelte';
+  import DiffNoVisibleChanges from './DiffNoVisibleChanges.svelte';
+  import {exampleAnchor} from './anchor-text';
   import DiffCollapsed from './DiffCollapsed.svelte';
   import {changedFieldIds, changesOnly, showChangedFields, type DiffMode} from './changed-fields';
 
-  let {before, after, mode = 'full'}: {before?: IExampleSentence; after?: IExampleSentence; mode?: DiffMode} = $props();
+  // `anchor: false` when the caller names the entity itself, e.g. the activity preview's change header.
+  // `noVisibleChangesNote: false` when the caller already says what changed, e.g. that the entity moved.
+  let {before, after, mode = 'full', anchor = true, noVisibleChangesNote = true}: {
+    before?: IExampleSentence; after?: IExampleSentence; mode?: DiffMode; anchor?: boolean; noVisibleChangesNote?: boolean;
+  } = $props();
 
   const writingSystemService = useWritingSystemService();
   const viewService = useViewService();
@@ -33,12 +39,6 @@
   const exampleFields = $derived(focused && !expanded ? focus.fields : viewFields);
   const fields = $derived(fieldRecord(exampleFields));
 
-  function sentence(example: IExampleSentence | undefined): string | undefined {
-    if (!example) return undefined;
-    return writingSystemService.first(example.sentence, writingSystemService.viewVernacular(viewService.currentView))
-      || writingSystemService.first(example.sentence, writingSystemService.vernacular);
-  }
-
   // Paired by id, current order first. Like the editor's draft translation, an example without any still gets one empty row.
   const translations = $derived.by(() => {
     const ids = [...new Set([...(after?.translations ?? []), ...(before?.translations ?? [])].map((tr) => tr.id))];
@@ -51,8 +51,12 @@
   });
 </script>
 
-<DiffAnchor before={sentence(before)} after={sentence(after)}
-            noVisibleChanges={mode === 'changes' && !!before && !!after && !changed.size} />
+{#if anchor}
+  <DiffAnchorRow {...exampleAnchor(writingSystemService, viewService.currentView, before, after)} />
+{/if}
+{#if noVisibleChangesNote && mode === 'changes' && before && after && !changed.size}
+  <DiffNoVisibleChanges />
+{/if}
 
 <!-- Hidden when empty, or its grid gap shows -->
 <Editor.SubGrid class={cn('gap-2', exampleFields.some((field) => field.show) || 'hidden')} style="grid-template-areas: {objectTemplateAreas(exampleFields)}">

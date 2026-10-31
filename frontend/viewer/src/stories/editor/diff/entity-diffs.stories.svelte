@@ -123,6 +123,12 @@
 
         <div class="col-span-full font-bold">Example: formatting only</div>
         <DiffExamplePrimitive mode="changes" before={exampleBefore} after={exampleFormatted} />
+
+        <div class="col-span-full font-bold">Writing system</div>
+        <DiffFieldRows mode="changes" rows={objectDiffRows.WritingSystem} before={wsBefore} after={wsAfter} />
+
+        <div class="col-span-full font-bold">Custom view</div>
+        <DiffFieldRows mode="changes" rows={objectDiffRows.CustomView} before={viewBefore} after={viewAfter} />
       </Editor.Grid>
     </Editor.Root>
   {/snippet}

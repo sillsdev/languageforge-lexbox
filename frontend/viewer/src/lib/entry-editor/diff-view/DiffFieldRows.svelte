@@ -13,12 +13,19 @@
   import DiffShell from './DiffShell.svelte';
   import DiffSelect from './DiffSelect.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
+  import DiffCollapsed from './DiffCollapsed.svelte';
+  import DiffNoVisibleChanges from './DiffNoVisibleChanges.svelte';
   import type {DiffRow} from './diff-fields';
+  import {valueChanged, type DiffMode} from './changed-fields';
 
-  let {rows, before, after}: {
+  let {rows, before, after, mode = 'full', noVisibleChangesNote = true}: {
     rows: Readonly<Record<string, DiffRow | null>>;
     before?: object;
     after?: object;
+    /** Like the entry primitives: 'changes' narrows to the changed rows, behind a "Show unchanged fields" toggle */
+    mode?: DiffMode;
+    /** false when the caller already says what changed, e.g. that the object moved */
+    noVisibleChangesNote?: boolean;
   } = $props();
 
   const writingSystemService = useWritingSystemService();
@@ -27,10 +34,17 @@
 
   const b = $derived(before as Record<string, unknown> | undefined);
   const a = $derived(after as Record<string, unknown> | undefined);
-  const shown = $derived(Object.entries(rows).filter((entry): entry is [string, DiffRow] => {
+  const withValue = $derived(Object.entries(rows).filter((entry): entry is [string, DiffRow] => {
     const [field, row] = entry;
     return !!row && (isSet(b?.[field]) || isSet(a?.[field]));
   }));
+  const changedRows = $derived(withValue.filter(([field]) => valueChanged(b?.[field], a?.[field])));
+  // Without a visible change there's nothing to focus on, so every row shows.
+  const focused = $derived(mode === 'changes' && changedRows.length > 0);
+  let expanded = $state(false);
+  // Rows left out that still hold a value: revealing an empty one shows nothing
+  const unchanged = $derived(withValue.filter(([field]) => !valueChanged(b?.[field], a?.[field]) && valueChanged(undefined, a?.[field])).length);
+  const shown = $derived(focused && !expanded ? changedRows : withValue);
 
   function isSet(value: unknown): boolean {
     return value !== undefined && value !== null;
@@ -62,6 +76,9 @@
   }
 </script>
 
+{#if noVisibleChangesNote && mode === 'changes' && before && after && !changedRows.length}
+  <DiffNoVisibleChanges />
+{/if}
 {#if shown.length}
   <Editor.SubGrid class="gap-2">
     {#each shown as [field, row] (field)}
@@ -96,4 +113,7 @@
       </Editor.Field.Root>
     {/each}
   </Editor.SubGrid>
+{/if}
+{#if focused}
+  <DiffCollapsed count={unchanged} bind:expanded />
 {/if}

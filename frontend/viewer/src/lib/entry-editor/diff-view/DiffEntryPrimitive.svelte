@@ -13,11 +13,17 @@
   import DiffRichText from './DiffRichText.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
   import DiffSelect from './DiffSelect.svelte';
-  import DiffAnchor from './DiffAnchor.svelte';
+  import DiffAnchorRow from './DiffAnchorRow.svelte';
+  import DiffNoVisibleChanges from './DiffNoVisibleChanges.svelte';
+  import {entryAnchor} from './anchor-text';
   import DiffCollapsed from './DiffCollapsed.svelte';
   import {changedFieldIds, changesOnly, ids, showChangedFields, sortedIds, type DiffMode} from './changed-fields';
 
-  let {before, after, mode = 'full'}: {before?: IEntry; after?: IEntry; mode?: DiffMode} = $props();
+  // `anchor: false` when the caller names the entity itself, e.g. the activity preview's change header.
+  // `noVisibleChangesNote: false` when the caller already says what changed, e.g. that the entity moved.
+  let {before, after, mode = 'full', anchor = true, noVisibleChangesNote = true}: {
+    before?: IEntry; after?: IEntry; mode?: DiffMode; anchor?: boolean; noVisibleChangesNote?: boolean;
+  } = $props();
 
   const writingSystemService = useWritingSystemService();
   const publications = usePublications();
@@ -30,7 +36,7 @@
 
   // The editor has no morph type field yet. A change to it shows right under the lexeme form, like in FLEx.
   const morphTypeChanged = $derived(before?.morphType !== after?.morphType);
-  // Shown by the anchor
+  // Shown by the anchor, here or in the caller's header
   const homographChanged = $derived((before?.homographNumber ?? 0) !== (after?.homographNumber ?? 0));
   const anyChange = $derived(changed.size > 0 || morphTypeChanged || homographChanged);
 
@@ -49,10 +55,12 @@
   }
 </script>
 
-<DiffAnchor before={before && writingSystemService.viewBestHeadword(before, viewService.currentView)}
-            after={after && writingSystemService.viewBestHeadword(after, viewService.currentView)}
-            beforeHomograph={before?.homographNumber} afterHomograph={after?.homographNumber}
-            noVisibleChanges={mode === 'changes' && !!before && !!after && !anyChange} />
+{#if anchor}
+  <DiffAnchorRow {...entryAnchor(writingSystemService, viewService.currentView, before, after)} />
+{/if}
+{#if noVisibleChangesNote && mode === 'changes' && before && after && !anyChange}
+  <DiffNoVisibleChanges />
+{/if}
 
 <!-- Hidden when empty, or its grid gap shows -->
 <Editor.SubGrid class={cn('gap-2', layoutFields.some((field) => field.show) || 'hidden')} style="grid-template-areas: {objectTemplateAreas(layoutFields)}">

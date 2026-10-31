@@ -268,6 +268,8 @@ msgstr "Tambahkan Kata"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Tambahkan entri pertama Anda untuk mulai menyusun kamus Anda."
 
+#. Badge or screen-reader marker in the activity change preview: this change created the item, or added the highlighted text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Added"
 msgstr ""
@@ -599,11 +601,6 @@ msgstr "Bentuk Kompleks"
 msgid "Complex form types"
 msgstr "Jenis formulir yang kompleks"
 
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Complex form:"
-msgstr "Bentuk yang kompleks:"
-
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Complex forms"
@@ -619,11 +616,6 @@ msgstr "Bentuk kompleks"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Component"
 msgstr "Komponen"
-
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Component:"
-msgstr "Komponen:"
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -805,7 +797,8 @@ msgid "Delete Word"
 msgstr "Menghapus kata"
 
 #. Change type indicator
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Deleted"
 msgstr "Dihapus"
@@ -990,7 +983,6 @@ msgstr "entri"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1350,7 +1342,6 @@ msgstr "Arti Singkat"
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
 #. {0} = entry/word name (e.g., "Go to banana")
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Buka {0}"
@@ -1362,12 +1353,26 @@ msgstr "Buka {0}"
 msgid "Go to entry"
 msgstr "Buka entri"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Go to word: {0}"
+#. Accessible name of the link on an entry's name in the activity change preview. {0} = the entry's headword
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Go to entry: {0}"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
 msgstr "Buka kata"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Go to entry: {0}"
+#. Accessible name of the link on a word's name in the activity change preview. {0} = the word's headword
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Go to word: {0}"
+msgstr ""
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1776,6 +1781,11 @@ msgstr "Hilang: {0}"
 msgid "Mode"
 msgstr "Mode"
 
+#. Accessible name of the menu button (three dots) next to an entry in the activity change preview
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "More options"
+msgstr ""
+
 #: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 msgid "Morph type"
 msgstr ""
@@ -1785,6 +1795,8 @@ msgstr ""
 msgid "Move"
 msgstr "Pindah"
 
+#. Badge or screen-reader marker in the activity change preview: this change only moved the item to another place in its list (e.g. reordered senses)
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Moved"
 msgstr ""
@@ -1986,7 +1998,7 @@ msgid "No vernacular writing systems configured."
 msgstr "Tidak ada sistem penulisan bahasa daerah yang dikonfigurasi."
 
 #. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
-#: src/lib/entry-editor/diff-view/DiffAnchor.svelte
+#: src/lib/entry-editor/diff-view/DiffNoVisibleChanges.svelte
 msgid "No visible changes"
 msgstr ""
 
@@ -2012,12 +2024,6 @@ msgstr "Tidak ada"
 msgid "Not equal"
 msgstr "Tidak sama"
 
-#. Placeholder shown in the activity change preview when a referenced entry or sense no longer exists in the dictionary.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Not found"
-msgstr "Tidak ditemukan"
-
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
@@ -2039,6 +2045,12 @@ msgstr "Catatan"
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
 msgstr "Tidak ada yang perlu disalin"
+
+#. Badge in the activity change preview, shown when an entry is no longer called what this change left it as. # = its current headword, or "Deleted"
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Now: #"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -2104,7 +2116,7 @@ msgid "Open in FieldWorks"
 msgstr "Buka di FieldWorks"
 
 #. Menu option
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -2419,6 +2431,8 @@ msgstr "Menghapus"
 msgid "Remove audio"
 msgstr "Menghapus audio"
 
+#. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Removed"
 msgstr ""
@@ -3153,6 +3167,10 @@ msgstr "Belum dibaca"
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -3303,7 +3321,6 @@ msgstr "kata"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte

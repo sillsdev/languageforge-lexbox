@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
-  import type {IMultiString, IPartOfSpeech, IRichMultiString, ISense} from '$lib/dotnet-types';
+  import type {IPartOfSpeech, ISense} from '$lib/dotnet-types';
   import {objectTemplateAreas, useViewService} from '$lib/views/view-service.svelte';
   import {fieldRecord} from '$lib/views/view-data';
   import {entityConfig} from '$lib/views/entity-config';
@@ -12,11 +12,17 @@
   import DiffSelect from './DiffSelect.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
   import DiffPictures from './DiffPictures.svelte';
-  import DiffAnchor from './DiffAnchor.svelte';
+  import DiffAnchorRow from './DiffAnchorRow.svelte';
+  import DiffNoVisibleChanges from './DiffNoVisibleChanges.svelte';
+  import {senseAnchor} from './anchor-text';
   import DiffCollapsed from './DiffCollapsed.svelte';
   import {changedFieldIds, changesOnly, showChangedFields, sortedIds, type DiffMode} from './changed-fields';
 
-  let {before, after, mode = 'full'}: {before?: ISense; after?: ISense; mode?: DiffMode} = $props();
+  // `anchor: false` when the caller names the entity itself, e.g. the activity preview's change header.
+  // `noVisibleChangesNote: false` when the caller already says what changed, e.g. that the entity moved.
+  let {before, after, mode = 'full', anchor = true, noVisibleChangesNote = true}: {
+    before?: ISense; after?: ISense; mode?: DiffMode; anchor?: boolean; noVisibleChangesNote?: boolean;
+  } = $props();
 
   const writingSystemService = useWritingSystemService();
   const partsOfSpeech = usePartsOfSpeech();
@@ -36,16 +42,6 @@
   const senseFields = $derived(focused && !expanded ? focus.fields : viewFields);
   const fields = $derived(fieldRecord(senseFields));
 
-  // The gloss names a sense; one without a gloss on either side goes by its definition.
-  function best(value: IMultiString | IRichMultiString | undefined): string | undefined {
-    if (!value) return undefined;
-    return writingSystemService.first(value, writingSystemService.viewAnalysis(viewService.currentView))
-      || writingSystemService.first(value, writingSystemService.analysis);
-  }
-  const anchor = $derived(best(before?.gloss) || best(after?.gloss)
-    ? [best(before?.gloss), best(after?.gloss)]
-    : [best(before?.definition), best(after?.definition)]);
-
   // The id is the source of truth: a legacy snapshot can carry an id without the object.
   function partOfSpeech(sense: ISense | undefined): IPartOfSpeech | undefined {
     const id = sense?.partOfSpeechId;
@@ -55,8 +51,12 @@
   }
 </script>
 
-<DiffAnchor before={anchor[0]} after={anchor[1]}
-            noVisibleChanges={mode === 'changes' && !!before && !!after && !changed.size} />
+{#if anchor}
+  <DiffAnchorRow {...senseAnchor(writingSystemService, viewService.currentView, before, after)} />
+{/if}
+{#if noVisibleChangesNote && mode === 'changes' && before && after && !changed.size}
+  <DiffNoVisibleChanges />
+{/if}
 
 <!-- Hidden when empty, or its grid gap shows -->
 <Editor.SubGrid class={cn('gap-2', senseFields.some((field) => field.show) || 'hidden')} style="grid-template-areas: {objectTemplateAreas(senseFields)}">

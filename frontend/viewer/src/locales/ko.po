@@ -268,6 +268,8 @@ msgstr "단어 추가"
 msgid "Add your first entry to start building your dictionary."
 msgstr "사전 작성을 시작하려면 첫 번째 항목을 추가하세요."
 
+#. Badge or screen-reader marker in the activity change preview: this change created the item, or added the highlighted text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Added"
 msgstr ""
@@ -599,11 +601,6 @@ msgstr "복잡한 양식"
 msgid "Complex form types"
 msgstr "복잡한 양식 유형"
 
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Complex form:"
-msgstr "복잡한 양식:"
-
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Complex forms"
@@ -619,11 +616,6 @@ msgstr "복잡한 양식"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Component"
 msgstr "구성 요소"
-
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Component:"
-msgstr "컴포넌트:"
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -805,7 +797,8 @@ msgid "Delete Word"
 msgstr "단어 삭제"
 
 #. Change type indicator
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Deleted"
 msgstr "삭제됨"
@@ -990,7 +983,6 @@ msgstr "항목"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1350,7 +1342,6 @@ msgstr "광택"
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
 #. {0} = entry/word name (e.g., "Go to banana")
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "{0}으로 이동"
@@ -1362,12 +1353,26 @@ msgstr "{0}으로 이동"
 msgid "Go to entry"
 msgstr "항목으로 이동"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Go to word: {0}"
+#. Accessible name of the link on an entry's name in the activity change preview. {0} = the entry's headword
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Go to entry: {0}"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
 msgstr "단어로 이동"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Go to entry: {0}"
+#. Accessible name of the link on a word's name in the activity change preview. {0} = the word's headword
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Go to word: {0}"
+msgstr ""
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1776,6 +1781,11 @@ msgstr "누락되었습니다: {0}"
 msgid "Mode"
 msgstr "모드"
 
+#. Accessible name of the menu button (three dots) next to an entry in the activity change preview
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "More options"
+msgstr ""
+
 #: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 msgid "Morph type"
 msgstr ""
@@ -1785,6 +1795,8 @@ msgstr ""
 msgid "Move"
 msgstr "이동"
 
+#. Badge or screen-reader marker in the activity change preview: this change only moved the item to another place in its list (e.g. reordered senses)
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Moved"
 msgstr ""
@@ -1986,7 +1998,7 @@ msgid "No vernacular writing systems configured."
 msgstr "구성된 토착어 쓰기 시스템이 없습니다."
 
 #. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
-#: src/lib/entry-editor/diff-view/DiffAnchor.svelte
+#: src/lib/entry-editor/diff-view/DiffNoVisibleChanges.svelte
 msgid "No visible changes"
 msgstr ""
 
@@ -2012,12 +2024,6 @@ msgstr "없음"
 msgid "Not equal"
 msgstr "동일하지 않음"
 
-#. Placeholder shown in the activity change preview when a referenced entry or sense no longer exists in the dictionary.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Not found"
-msgstr "찾을 수 없음"
-
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
@@ -2039,6 +2045,12 @@ msgstr "참고"
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
 msgstr "복사할 항목 없음"
+
+#. Badge in the activity change preview, shown when an entry is no longer called what this change left it as. # = its current headword, or "Deleted"
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Now: #"
+msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -2104,7 +2116,7 @@ msgid "Open in FieldWorks"
 msgstr "FieldWorks에서 열기"
 
 #. Menu option
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -2419,6 +2431,8 @@ msgstr "제거"
 msgid "Remove audio"
 msgstr "오디오 제거"
 
+#. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Removed"
 msgstr ""
@@ -3153,6 +3167,10 @@ msgstr "읽지 않음"
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -3303,7 +3321,6 @@ msgstr "단어"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
