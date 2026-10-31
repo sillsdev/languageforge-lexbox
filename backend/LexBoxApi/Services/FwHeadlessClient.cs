@@ -97,15 +97,11 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         throw await FailedResponse(response, cancellationToken);
     }
 
-    public async Task RegenerateProjectSnapshot(Guid projectId, Guid? commitId = null, bool preserveAllFieldWorksCommits = false)
+    public async Task RegenerateProjectSnapshot(Guid projectId, Guid commitId, bool preserveAllFieldWorksCommits = false)
     {
-        var url = $"/api/merge/regenerate-snapshot?projectId={projectId}";
-        if (commitId.HasValue)
-        {
-            url += $"&commitId={commitId.Value}";
-            if (preserveAllFieldWorksCommits)
-                url += "&preserveAllFieldWorksCommits=true";
-        }
+        var url = $"/api/merge/regenerate-snapshot?projectId={projectId}&commitId={commitId}";
+        if (preserveAllFieldWorksCommits)
+            url += "&preserveAllFieldWorksCommits=true";
         var response = await httpClient.PostAsync(url, null);
         if (!response.IsSuccessStatusCode)
         {

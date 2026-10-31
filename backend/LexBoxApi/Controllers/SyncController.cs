@@ -73,7 +73,8 @@ public class SyncController(
     /// Regenerates the project snapshot (the JSON representation of the project data used by the frontend).
     /// </summary>
     /// <param name="projectId">The project ID</param>
-    /// <param name="commitId">Optional. If provided, the snapshot will be regenerated based on the state of the project at this specific commit. Subsequent commits will be ignored.</param>
+    /// <param name="commitId">The snapshot is regenerated from the state of the project at this commit; later commits are ignored.
+    /// Required, because the live CRDT copy changes with every harmony sync and lexicon API write.</param>
     /// <param name="preserveAllFieldWorksCommits">
     /// Optional. If true, FieldWorks commits after the specified commit will be preserved in the snapshot.
     /// This makes sense, because any FieldWorks commits that have made it into the FWLite project have clearly been successfully synced,
@@ -84,7 +85,7 @@ public class SyncController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> RegenerateProjectSnapshot(Guid projectId, [FromQuery] Guid? commitId = null, [FromQuery] bool preserveAllFieldWorksCommits = false)
+    public async Task<IActionResult> RegenerateProjectSnapshot(Guid projectId, [FromQuery, BindRequired] Guid commitId, [FromQuery] bool preserveAllFieldWorksCommits = false)
     {
         await permissionService.AssertCanSyncProject(projectId);
         await fwHeadlessClient.RegenerateProjectSnapshot(projectId, commitId, preserveAllFieldWorksCommits);

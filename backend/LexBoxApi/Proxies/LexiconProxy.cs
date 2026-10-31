@@ -36,7 +36,8 @@ public static class LexiconProxy
     private const string Experimental =
         "Experimental: the lexicon API may change without notice. Errors use `application/problem+json`; " +
         $"a 409 with type `{LexiconApi.ProjectNotReadyProblemType}` means the project has not been synced to FieldWorks Lite on Lexbox yet, " +
-        $"and a 409 with type `{LexiconApi.SyncInProgressProblemType}` means a write was refused while the project syncs with FieldWorks.";
+        $"a 409 with type `{LexiconApi.SyncInProgressProblemType}` means a write was refused while the project syncs with FieldWorks, " +
+        $"and a 409 with type `{LexiconApi.SyncBlockedProblemType}` means a write was refused because the project is blocked from syncing.";
 
     public static void AddLexiconProxy(this IServiceCollection services)
     {
@@ -128,7 +129,7 @@ public static class LexiconProxy
         await forwarder.SendAsync(context, destinationPrefix, httpClient, ForwarderRequestConfig.Empty, transformer);
     }
 
-    private sealed class IdentityHeadersTransformer(string userId, string userName, string clientId) : HttpTransformer
+    internal sealed class IdentityHeadersTransformer(string userId, string userName, string clientId) : HttpTransformer
     {
         // AuthKernel accepts the caller's JWT from this query parameter too
         private const string JwtQueryParameter = "jwt";
