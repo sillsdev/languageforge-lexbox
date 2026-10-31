@@ -73,10 +73,8 @@ public class HistoryServiceChangeContextTests(ITestOutputHelper output) : Histor
     }
 
     /// <summary>
-    /// The before-snapshot used to be rebuilt by replaying every commit since the entity's last persisted snapshot, so on
-    /// a synced project with pruned snapshots it replayed nearly all of history. Harmony now resumes from the nearest
-    /// snapshot checkpoint, which this pins down: the edits' snapshots are pruned among thousands of commits on other
-    /// entities, yet the content is right and no read has more than a checkpoint interval of changes to replay.
+    /// The edits' snapshots are pruned among thousands of commits on other entities, as after a large sync, yet the
+    /// content is right and no read has more than a checkpoint interval of changes to replay.
     /// </summary>
     [Fact]
     public async Task LoadChangeContext_PrunedSnapshots_ReplayIsBoundedByCheckpointInterval()
@@ -134,7 +132,7 @@ public class HistoryServiceChangeContextTests(ITestOutputHelper output) : Histor
         mostSinceCheckpoint.Should().BeLessThan(maxChanges);
 
         // a guard against gross regressions only: the bound above is the evidence, wall time varies by machine
-        loadMs.Should().BeLessThan(2_000);
+        loadMs.Should().BeLessThan(200);
     }
 
     private async Task<Commit> Rename(Guid entryId, string headword)
