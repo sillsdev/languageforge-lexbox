@@ -77,7 +77,7 @@ export function hasVisibleFields(fields: TypedViewField<FieldId>[]): boolean {
  * looks like `"lexemeForm lexemeForm lexemeForm" "citationForm citationForm citationForm" "literalMeaning literalMeaning literalMeaning"` etc. each group of fields in quotes is a row.
  * there are 3 columns for each row and one field per row so the field name is repeated 3 times.
  */
-export function objectTemplateAreas(fields: TypedViewField<FieldId>[]): string {
+export function objectTemplateAreas(fields: {fieldId: string; show: boolean}[]): string {
   return fields
     .filter((field) => field.show)
     .map((field) => `"${field.fieldId} ${field.fieldId} ${field.fieldId}"`)
