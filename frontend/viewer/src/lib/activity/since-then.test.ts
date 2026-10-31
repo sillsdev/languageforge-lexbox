@@ -29,6 +29,18 @@ describe('sinceThen', () => {
     expect(sinceThen('Entry', entry({en: 'run'}), entry({en: 'jog'}), view)?.status).toBe('changed');
   });
 
+  it('compares senses and examples by their fields', () => {
+    function sense(gloss: string): IObjectWithId {
+      return {id: 's', gloss: {en: gloss}} as unknown as IObjectWithId;
+    }
+    function example(text: string): IObjectWithId {
+      return {id: 'x', sentence: {en: {spans: [{text, ws: 'en'}]}}} as unknown as IObjectWithId;
+    }
+    expect(sinceThen('Sense', sense('run'), sense('jog'), view)?.status).toBe('changed');
+    expect(sinceThen('ExampleSentence', example('a'), example('a'), view)?.status).toBe('unchanged');
+    expect(sinceThen('ExampleSentence', example('a'), example('b'), view)?.status).toBe('changed');
+  });
+
   it('is changed when only the morph type or homograph number differs', () => {
     expect(sinceThen('Entry', entry({en: 'a'}, {morphType: 'Stem'}), entry({en: 'a'}, {morphType: 'Root'}), view)?.status).toBe('changed');
     expect(sinceThen('Entry', entry({en: 'a'}, {homographNumber: 0}), entry({en: 'a'}, {homographNumber: 2}), view)?.status).toBe('changed');

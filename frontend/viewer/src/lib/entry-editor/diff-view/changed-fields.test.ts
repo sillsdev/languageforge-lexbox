@@ -107,6 +107,11 @@ describe('changedValues', () => {
     expect(changedValues(['en', 'fr', 'de'], {en: 'a', fr: 'b'}, {en: 'x', fr: 'b'})).toEqual({shown: ['en'], unchanged: 1});
   });
 
+  it('shows a cleared value and a new field\'s values as changed', () => {
+    expect(changedValues(['en', 'fr'], {en: 'a', fr: 'b'}, {fr: 'b'})).toEqual({shown: ['en'], unchanged: 1});
+    expect(changedValues(['en', 'fr'], undefined, {en: 'a'})).toEqual({shown: ['en'], unchanged: 0});
+  });
+
   it('keeps every writing system of an unchanged field', () => {
     expect(changedValues(['en', 'fr'], {en: 'a'}, {en: 'a', fr: ''})).toEqual({shown: ['en', 'fr'], unchanged: 0});
   });

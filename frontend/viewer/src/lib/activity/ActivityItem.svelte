@@ -141,8 +141,9 @@
                       </Button>
                     {/if}
                   </div>
-                  <!-- Blocks opening No later changes here: bits-ui's disabled would drop it from the tab order, so screen readers never hear it -->
-                  <Tabs.Root bind:value={() => changeWithContext.tab, (tab) => { if (tab !== 'since' || !noLaterChanges) changeWithContext.tab = tab; }}
+                  <!-- Blocks opening the No later changes tab here, and falls back if the tab goes away: bits-ui's disabled would drop it from the tab order, so screen readers never hear it -->
+                  <Tabs.Root bind:value={() => changeWithContext.tab === 'since' && (!since || noLaterChanges) ? 'preview' : changeWithContext.tab,
+                                         (tab) => { if (tab !== 'since' || !noLaterChanges) changeWithContext.tab = tab; }}
                              class="px-2 mt-2 grow">
                     <Tabs.List class="w-full h-auto">
                       <Tabs.Trigger class="flex-1 h-auto min-h-8 whitespace-normal" value="preview">

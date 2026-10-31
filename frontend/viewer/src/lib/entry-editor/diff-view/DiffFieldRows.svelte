@@ -117,5 +117,5 @@
   </Editor.SubGrid>
 {/if}
 {#if focused}
-  <DiffCollapsed count={unchanged + diffFocus.hiddenValues} bind:expanded />
+  <DiffCollapsed count={unchanged + diffFocus.unchangedValues} bind:expanded />
 {/if}

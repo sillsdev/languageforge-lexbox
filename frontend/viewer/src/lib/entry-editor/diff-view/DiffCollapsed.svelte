@@ -9,10 +9,11 @@
 
   async function toggle() {
     expanded = !expanded;
-    if (expanded) return;
-    await tick();
-    // Collapsing shrinks the diff above the button, which can carry it out of view
-    element?.scrollIntoView({block: 'nearest'});
+    if (!expanded) {
+      await tick();
+      // Collapsing shrinks the diff above the button, which can carry it out of view
+      element?.scrollIntoView({block: 'nearest'});
+    }
   }
 </script>
 
