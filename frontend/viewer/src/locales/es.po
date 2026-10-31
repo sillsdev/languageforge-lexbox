@@ -119,11 +119,6 @@ msgstr "{num, plural, one {Falta # palabra} other {Faltan # palabras}}"
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr "{num, plural, one {Mostrar # más} other {Mostrar # más}}"
 
-#. Button in the activity view's change preview. It reveals the fields of an entry, sense or example that this change did not modify. # is the number of those fields
-#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
-msgid "{num, plural, one {Show # unchanged field} other {Show # unchanged fields}}"
-msgstr ""
-
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -2682,6 +2677,11 @@ msgstr "Mostrar {0} más..."
 msgid "Show or hide captions"
 msgstr "Mostrar u ocultar leyendas"
 
+#. Button in the activity view's change preview. It also shows the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Show unchanged fields"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Inicia sesión para añadir comentarios."
@@ -2797,15 +2797,6 @@ msgstr ""
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "piedra"
-
-#. Legend for the 'Since then' comparison. 'Struck' means shown with a line through it, like removed text.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Struck: as it was after this change. Highlighted: as it is now."
-msgstr ""
-
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Struck: as it was after this change. It has since been deleted."
-msgstr ""
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -2961,6 +2952,11 @@ msgstr "Este {0} ha sido eliminado"
 msgid "This change"
 msgstr ""
 
+#. Note on the "Later changes" tab. "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This compares the result of this change with the current version."
+msgstr ""
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -3004,6 +3000,11 @@ msgstr "Esto reconstruye el índice de búsqueda de texto completo desde entrada
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Esta tarea está completa"
+
+#. Note on the "Deleted later" tab. "This" is the item (entry, sense, ...); "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This was deleted later. Here is how it looked right after this change."
+msgstr ""
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte

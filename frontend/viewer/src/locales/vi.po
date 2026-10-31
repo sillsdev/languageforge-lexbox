@@ -119,11 +119,6 @@ msgstr "{num, plural, one {Còn # từ} other {Còn # từ}}"
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr "{num, plural, one {Xem thêm #...} other {Xem thêm #...}}"
 
-#. Button in the activity view's change preview. It reveals the fields of an entry, sense or example that this change did not modify. # is the number of those fields
-#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
-msgid "{num, plural, one {Show # unchanged field} other {Show # unchanged fields}}"
-msgstr ""
-
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -2682,6 +2677,11 @@ msgstr "Hiển thị thêm {0}..."
 msgid "Show or hide captions"
 msgstr "Hiển thị hoặc ẩn chú thích"
 
+#. Button in the activity view's change preview. It also shows the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Show unchanged fields"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Vui lòng đăng nhập để thêm bình luận."
@@ -2797,15 +2797,6 @@ msgstr ""
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "đá"
-
-#. Legend for the 'Since then' comparison. 'Struck' means shown with a line through it, like removed text.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Struck: as it was after this change. Highlighted: as it is now."
-msgstr ""
-
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Struck: as it was after this change. It has since been deleted."
-msgstr ""
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -2961,6 +2952,11 @@ msgstr "Đường dẫn này {0} đã bị xóa."
 msgid "This change"
 msgstr ""
 
+#. Note on the "Later changes" tab. "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This compares the result of this change with the current version."
+msgstr ""
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -3004,6 +3000,11 @@ msgstr "Quá trình này sẽ xây dựng lại chỉ mục tìm kiếm toàn v�
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Nhiệm vụ này đã hoàn thành"
+
+#. Note on the "Deleted later" tab. "This" is the item (entry, sense, ...); "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This was deleted later. Here is how it looked right after this change."
+msgstr ""
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte

@@ -114,11 +114,6 @@ msgstr "{num, plural, one {# word to go} other {# words to go}}"
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr "{num, plural, one {Show # more...} other {Show # more...}}"
 
-#. Button in the activity view's change preview. It reveals the fields of an entry, sense or example that this change did not modify. # is the number of those fields
-#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
-msgid "{num, plural, one {Show # unchanged field} other {Show # unchanged fields}}"
-msgstr "{num, plural, one {Show # unchanged field} other {Show # unchanged fields}}"
-
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -2677,6 +2672,11 @@ msgstr "Show {0} more..."
 msgid "Show or hide captions"
 msgstr "Show or hide captions"
 
+#. Button in the activity view's change preview. It also shows the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Show unchanged fields"
+msgstr "Show unchanged fields"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Sign in to add comments."
@@ -2792,15 +2792,6 @@ msgstr "Still opening the project..."
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "stone"
-
-#. Legend for the 'Since then' comparison. 'Struck' means shown with a line through it, like removed text.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Struck: as it was after this change. Highlighted: as it is now."
-msgstr "Struck: as it was after this change. Highlighted: as it is now."
-
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Struck: as it was after this change. It has since been deleted."
-msgstr "Struck: as it was after this change. It has since been deleted."
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -2956,6 +2947,11 @@ msgstr "This {0} was deleted"
 msgid "This change"
 msgstr "This change"
 
+#. Note on the "Later changes" tab. "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This compares the result of this change with the current version."
+msgstr "This compares the result of this change with the current version."
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -2999,6 +2995,11 @@ msgstr "This rebuilds the full-text search index from dictionary entries."
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "This task is complete"
+
+#. Note on the "Deleted later" tab. "This" is the item (entry, sense, ...); "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This was deleted later. Here is how it looked right after this change."
+msgstr "This was deleted later. Here is how it looked right after this change."
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte

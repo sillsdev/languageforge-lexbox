@@ -119,11 +119,6 @@ msgstr "{num, plural, one {# 남은 단어 수} other {# 남은 단어 수}}"
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr "{num, plural, one {#개 더 보기...} other {#개 더 보기...}}"
 
-#. Button in the activity view's change preview. It reveals the fields of an entry, sense or example that this change did not modify. # is the number of those fields
-#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
-msgid "{num, plural, one {Show # unchanged field} other {Show # unchanged fields}}"
-msgstr ""
-
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -2682,6 +2677,11 @@ msgstr "보기 {0} 더보기..."
 msgid "Show or hide captions"
 msgstr "설명 표시 또는 숨기기"
 
+#. Button in the activity view's change preview. It also shows the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Show unchanged fields"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "댓글을 달려면 로그인하세요."
@@ -2797,15 +2797,6 @@ msgstr ""
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "돌"
-
-#. Legend for the 'Since then' comparison. 'Struck' means shown with a line through it, like removed text.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Struck: as it was after this change. Highlighted: as it is now."
-msgstr ""
-
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Struck: as it was after this change. It has since been deleted."
-msgstr ""
 
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
@@ -2961,6 +2952,11 @@ msgstr "이 {0} 삭제됨"
 msgid "This change"
 msgstr ""
 
+#. Note on the "Later changes" tab. "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This compares the result of this change with the current version."
+msgstr ""
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -3004,6 +3000,11 @@ msgstr "이 작업은 사전 항목을 기반으로 전체 텍스트 검색 인�
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "이 작업이 완료되었습니다."
+
+#. Note on the "Deleted later" tab. "This" is the item (entry, sense, ...); "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This was deleted later. Here is how it looked right after this change."
+msgstr ""
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte
