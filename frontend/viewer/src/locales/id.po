@@ -163,6 +163,11 @@ msgstr "Kata yang serupa sudah ada"
 msgid "a word"
 msgstr "sebuah kata"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Abbreviation"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -258,6 +263,10 @@ msgstr "Tambahkan Kata"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Tambahkan entri pertama Anda untuk mulai menyusun kamus Anda."
 
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Added"
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
 msgstr "Tingkat Lanjut: berkas pengaturan"
@@ -265,6 +274,7 @@ msgstr "Tingkat Lanjut: berkas pengaturan"
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Semua"
@@ -292,6 +302,7 @@ msgstr "sebuah entri"
 
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Analisis"
@@ -301,6 +312,7 @@ msgstr "Analisis"
 msgid "Analysis writing system code"
 msgstr "Kode sistem penulisan analisis"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
 msgstr "Sistem penulisan analisis"
@@ -354,6 +366,7 @@ msgstr "Apakah Anda yakin ingin menghapus {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Ajukan pertanyaan dan dapatkan bantuan di forum komunitas kami."
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
@@ -401,6 +414,10 @@ msgstr "Kembali"
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
 msgstr "Kembali ke tugas"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Base view"
+msgstr ""
 
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
@@ -533,6 +550,7 @@ msgstr "Tutup Kamus"
 
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Code"
 msgstr "Kode"
 
@@ -787,6 +805,10 @@ msgstr "Menghapus kata"
 msgid "Deleted"
 msgstr "Dihapus"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Description"
+msgstr ""
+
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
@@ -972,6 +994,10 @@ msgstr "entri"
 msgid "Entry"
 msgstr "Entri"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Entry fields"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word only"
 #. Label for picker when creating relationships: select only the entry itself (not a specific sense/meaning)
@@ -1024,6 +1050,10 @@ msgstr "Kolom ini sudah terisi untuk setiap kata."
 msgid "Example"
 msgstr "Contoh"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Example fields"
+msgstr ""
+
 #. Field label
 #. Sentence/phrase showing usage of a word
 #. Appears under each Sense/Meaning; can have multiple examples per meaning
@@ -1035,6 +1065,10 @@ msgstr "Contoh kalimat"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
 msgstr "Contoh kalimat"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Exemplars"
+msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -1279,6 +1313,10 @@ msgstr "Temukan kata..."
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
 msgstr "Selesai"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Font"
+msgstr ""
 
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
@@ -1601,10 +1639,18 @@ msgstr "Login untuk melihat proyek"
 msgid "Logout"
 msgstr "Keluar"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Louw-Nida codes"
+msgstr ""
+
 #. Footer text in the project sidebar. The emoji flags are the countries of origin of the development team — do not translate.
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Dibuat dengan ❤️ dari 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Main publication"
+msgstr ""
 
 #. Button label in the Feedback & Support dialog. Opens an external link to submit a feature suggestion.
 #: src/lib/about/FeedbackDialog.svelte
@@ -1720,10 +1766,18 @@ msgstr "Hilang: {0}"
 msgid "Mode"
 msgstr "Mode"
 
+#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
+msgid "Morph type"
+msgstr ""
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Pindah"
+
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Moved"
+msgstr ""
 
 #. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -1732,6 +1786,9 @@ msgstr "Tampilan khusus saya..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Nama"
@@ -1808,6 +1865,10 @@ msgstr "Tonggak berikutnya: {0}.  Masih tersisa {1}."
 msgid "Next picture"
 msgstr "Gambar berikutnya"
 
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "No"
+msgstr ""
+
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
@@ -1876,6 +1937,7 @@ msgid "No open conversations"
 msgstr "Tidak ada percakapan terbuka"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
+#: src/lib/entry-editor/diff-view/DiffPictures.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
 msgstr "Tidak ada gambar"
@@ -1966,6 +2028,10 @@ msgstr "Tidak ada yang perlu disalin"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
 msgstr "Pengamat"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "OCM codes"
+msgstr ""
 
 #. Status indicator
 #: src/project/ProjectSidebar.svelte
@@ -2138,6 +2204,14 @@ msgstr "Disematkan"
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
 msgstr "Platform"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Postfix"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Prefix"
+msgstr ""
 
 #. View option
 #: src/lib/activity/ActivityItem.svelte
@@ -2330,6 +2404,10 @@ msgstr "Menghapus"
 msgid "Remove audio"
 msgstr "Menghapus audio"
 
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Removed"
+msgstr ""
+
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -2515,6 +2593,10 @@ msgstr "Kirimkan pesan kepada kami"
 msgid "Sense"
 msgstr "Pengertian"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sense fields"
+msgstr ""
+
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
@@ -2638,6 +2720,14 @@ msgstr ""
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr "Ada yang tidak beres"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sort language"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sort rules"
+msgstr ""
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
@@ -2895,12 +2985,14 @@ msgid "Total entries"
 msgstr "Jumlah entri"
 
 #. Field label
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Terjemahan"
 
 #. Field title in the example editor when an entry has multiple translations. {0} = 1-based index number (e.g., "Translation 1", "Translation 2"). When there is only one translation, "Translation" is used instead.
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Terjemahan {0}"
@@ -2922,6 +3014,7 @@ msgstr "Coba lagi"
 msgid "Turn analytics back on"
 msgstr "Aktifkan kembali fitur analitik"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
 msgstr "Jenis"
@@ -3050,6 +3143,8 @@ msgstr "Belum dibaca"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
+#: src/lib/entry-editor/diff-view/DiffSelect.svelte
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryView.svelte
@@ -3124,6 +3219,7 @@ msgstr "Pencatatan yang terperinci"
 
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Bahasa Daerah"
@@ -3137,6 +3233,7 @@ msgstr "Kode sistem penulisan bahasa daerah"
 msgid "Vernacular writing system is required"
 msgstr "Diperlukan sistem penulisan dalam bahasa daerah"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
 msgstr "Sistem penulisan bahasa daerah"
@@ -3235,6 +3332,10 @@ msgstr "Menulis catatan log yang terperinci, termasuk diagnostik proses masuk, k
 msgid "Writing System"
 msgstr "Sistem Penulisan"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Writing system code"
+msgstr ""
+
 #. Tooltip on a text span in the rich-text editor. {0} = writing system code (e.g., "en", "fr-IPA"). Identifies which writing system the span belongs to.
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
@@ -3250,6 +3351,10 @@ msgstr "Sistem penulisan"
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing Systems"
 msgstr "Sistem Penulisan"
+
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "Yes"
+msgstr ""
 
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
