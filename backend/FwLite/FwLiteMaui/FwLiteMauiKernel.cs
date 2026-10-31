@@ -5,7 +5,6 @@ using FwLiteShared.Analytics;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
 using FwLiteShared.KeepAwake;
-using FwLiteShared.LocalSync;
 using FwLiteShared.Services;
 using LcmCrdt;
 using Microsoft.Extensions.Configuration;
@@ -186,8 +185,6 @@ public static class FwLiteMauiKernel
         services.AddSingleton(_ => Share.Default);
         services.AddSingleton(_ => MediaPicker.Default);
         services.AddSingleton<IPreferencesService, MauiPreferencesService>();
-        services.AddSingleton<ILocalAuthorProvider>(sp =>
-            new PreferencesLocalAuthorProvider(sp.GetRequiredService<IPreferencesService>(), DeviceInfo.Current.Name));
         services.AddSingleton<ITroubleshootingService, MauiTroubleshootingService>();
         services.AddSingleton<IPlatformFeaturesService, MauiPlatformFeaturesService>();
         logging.AddConsole();

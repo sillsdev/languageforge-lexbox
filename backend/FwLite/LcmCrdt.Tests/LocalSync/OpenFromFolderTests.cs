@@ -54,8 +54,8 @@ public class OpenFromFolderTests : IAsyncLifetime
         _sourceFiles.Dispose();
     }
 
-    private async Task<OpenFromFolderResult> OpenOnOtherDevice() =>
-        await _otherDevice.GetService<FolderProjectOpener>().OpenFromFolder(_folder.Path);
+    private async Task<OpenFromFolderResult> OpenOnOtherDevice(string? path = null) =>
+        await _otherDevice.GetService<FolderProjectOpener>().OpenFromFolder(path ?? _folder.Path);
 
     private async Task<Entry?> GetEntryOnOtherDevice(string projectCode, Guid entryId)
     {
@@ -127,8 +127,46 @@ public class OpenFromFolderTests : IAsyncLifetime
     [Fact]
     public async Task AFolderWithNoProject_OpensNothing()
     {
+        File.WriteAllText(Path.Combine(_folder.Path, "notes.txt"), "the user's own file");
+
         var result = await OpenOnOtherDevice();
 
-        result.Outcome.Should().Be(OpenFromFolderOutcome.EmptyFolder);
+        result.Outcome.Should().Be(OpenFromFolderOutcome.NoProjectFound);
+    }
+
+    [Fact]
+    public async Task PickingTheProjectsOwnFolder_OpensIt()
+    {
+        var synced = await _source.GetService<FolderSyncService>().SyncWithFolder(_folder.Path);
+
+        var result = await OpenOnOtherDevice(synced.FolderPath);
+
+        result.Outcome.Should().Be(OpenFromFolderOutcome.Downloaded);
+        result.ProjectCode.Should().Be("sena-3");
+    }
+
+    [Fact]
+    public async Task ADriveHoldingSeveralProjects_NamesThemInsteadOfGuessing()
+    {
+        await _source.GetService<FolderSyncService>().SyncWithFolder(_folder.Path);
+        SyncFolder.WriteManifest(Path.Combine(_folder.Path, SyncFolder.ContainerName, "Malango"),
+            new SyncFolderManifest(Guid.Parse("4d6f8a0b-2c4e-4f6a-8b0d-3e5f7a9c1b46"), "malango", "Malango", null, ["mal"]));
+
+        var result = await OpenOnOtherDevice();
+
+        result.Outcome.Should().Be(OpenFromFolderOutcome.SeveralProjects);
+        result.ProjectNames.Should().Equal("Malango", "Sena 3");
+        _otherDevice.GetService<CrdtProjectsService>().GetProject("sena-3").Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ADriveWhoseOnlyProjectNeedsANewerApp_SaysSo()
+    {
+        SyncFolder.WriteManifest(Path.Combine(_folder.Path, SyncFolder.ContainerName, "Sena 3"),
+            new SyncFolderManifest(ProjectId, "sena-3", "Sena 3", null, ["en"], FormatVersion: SyncFolderManifest.CurrentFormatVersion + 1));
+
+        var result = await OpenOnOtherDevice();
+
+        result.Outcome.Should().Be(OpenFromFolderOutcome.NewerAppNeeded);
     }
 }

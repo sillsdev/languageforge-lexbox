@@ -53,12 +53,69 @@ public class SyncFolderTests
     }
 
     [Fact]
-    public void AFolderWithOtherFilesButNoManifest_IsNotASyncFolder()
+    public void AFolderWithOtherFilesButNoManifest_HoldsOtherFiles()
     {
         using var folder = new TempFolder();
         File.WriteAllText(System.IO.Path.Combine(folder.Path, "holiday photos.txt"), "not a project");
 
-        SyncFolder.Inspect(folder.Path).Should().BeOfType<SyncFolderState.NotASyncFolder>();
+        SyncFolder.Inspect(folder.Path).Should().BeOfType<SyncFolderState.OtherFiles>();
+    }
+
+    [Fact]
+    public void ADriveRootWithOnlyWindowsSystemFolders_IsEmpty()
+    {
+        using var folder = new TempFolder();
+        Directory.CreateDirectory(System.IO.Path.Combine(folder.Path, "System Volume Information"));
+        Directory.CreateDirectory(System.IO.Path.Combine(folder.Path, "$RECYCLE.BIN"));
+        File.WriteAllText(System.IO.Path.Combine(folder.Path, ".Trashes"), "");
+
+        SyncFolder.Inspect(folder.Path).Should().BeOfType<SyncFolderState.Empty>();
+    }
+
+    [Fact]
+    public void OurOwnReadme_DoesNotMakeAFolderNonEmpty()
+    {
+        using var folder = new TempFolder();
+        SyncFolder.WriteReadme(folder.Path, "Sena 3");
+
+        SyncFolder.Inspect(folder.Path).Should().BeOfType<SyncFolderState.Empty>();
+        File.ReadAllText(System.IO.Path.Combine(folder.Path, "README.txt")).Should().Contain("\"Sena 3\"");
+    }
+
+    [Theory]
+    [InlineData("Sena 3", "Sena 3")]
+    [InlineData("Sena: 3?", "Sena_ 3_")]
+    [InlineData("  Sena   3.  ", "Sena 3")]
+    [InlineData("a/b\\c", "a_b_c")]
+    [InlineData("???", "___")]
+    [InlineData("...", "sena-3")]
+    public void TheFolderName_IsSafeOnEveryDriveAndFallsBackToTheCode(string projectName, string expected)
+    {
+        SyncFolder.FolderNameFor(projectName, "sena-3").Should().Be(expected);
+    }
+
+    [Fact]
+    public void TheContainer_IsTheLocationItselfWhenTheUserPickedIt()
+    {
+        SyncFolder.ContainerIn(System.IO.Path.Combine("E:", "FieldWorks Lite")).Should().Be(System.IO.Path.Combine("E:", "FieldWorks Lite"));
+        SyncFolder.ContainerIn(System.IO.Path.Combine("E:", "fieldworks lite") + System.IO.Path.DirectorySeparatorChar)
+            .Should().Be(System.IO.Path.Combine("E:", "fieldworks lite") + System.IO.Path.DirectorySeparatorChar);
+        SyncFolder.ContainerIn("E:").Should().Be(System.IO.Path.Combine("E:", "FieldWorks Lite"));
+    }
+
+    [Fact]
+    public void ProjectFolders_AreFoundFromTheDriveTheContainerAndTheFolderItself()
+    {
+        using var drive = new TempFolder();
+        var container = System.IO.Path.Combine(drive.Path, SyncFolder.ContainerName);
+        var project = System.IO.Path.Combine(container, "Sena 3");
+        SyncFolder.WriteManifest(project, Manifest);
+        File.WriteAllText(System.IO.Path.Combine(drive.Path, "holiday photos.txt"), "");
+
+        foreach (var picked in new[] { drive.Path, container, project })
+        {
+            SyncFolder.ProjectFoldersIn(picked).Select(f => f.Path).Should().Equal([project], "picked {0}", picked);
+        }
     }
 
     [Fact]
@@ -85,11 +142,20 @@ public class SyncFolderTests
     }
 
     [Fact]
-    public void ADamagedManifest_IsNotASyncFolder()
+    public void AManifestThatFailsValidation_IsDamaged()
     {
         using var folder = new TempFolder();
         SyncFolder.WriteManifest(folder.Path, Manifest with { ProjectCode = "Not A Valid Code" });
 
-        SyncFolder.Inspect(folder.Path).Should().BeOfType<SyncFolderState.NotASyncFolder>();
+        SyncFolder.Inspect(folder.Path).Should().BeOfType<SyncFolderState.DamagedManifest>();
+    }
+
+    [Fact]
+    public void AManifestThatIsNotJson_IsDamaged()
+    {
+        using var folder = new TempFolder();
+        File.WriteAllText(System.IO.Path.Combine(folder.Path, SyncFolder.ManifestFileName), "{ not json");
+
+        SyncFolder.Inspect(folder.Path).Should().BeOfType<SyncFolderState.DamagedManifest>();
     }
 }

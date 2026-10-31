@@ -6,7 +6,7 @@
 export enum FolderSyncStatus {
 	Synced = "Synced",
 	Failed = "Failed",
-	NotASyncFolder = "NotASyncFolder",
+	DamagedManifest = "DamagedManifest",
 	NewerAppNeeded = "NewerAppNeeded",
 	DifferentProject = "DifferentProject",
 	DifferentHistory = "DifferentHistory",

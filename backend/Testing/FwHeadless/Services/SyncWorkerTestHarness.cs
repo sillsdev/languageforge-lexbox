@@ -284,7 +284,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
         // SyncWorker only passes this through to MediaFileService.
         services.AddSingleton(_ =>
-            new Mock<LcmCrdt.MediaServer.LcmMediaService>(MockBehavior.Loose, null!, null!, Options.Create(new HarmonyConfig()), null!, null!, null!, NullLogger<LcmCrdt.MediaServer.LcmMediaService>.Instance).Object);
+            new Mock<LcmCrdt.MediaServer.LcmMediaService>(MockBehavior.Loose, null!, null!, Options.Create(new HarmonyConfig()), null!, null!, NullLogger<LcmCrdt.MediaServer.LcmMediaService>.Instance).Object);
 
         var syncService = new Mock<CrdtFwdataProjectSyncService>(
             MockBehavior.Strict,

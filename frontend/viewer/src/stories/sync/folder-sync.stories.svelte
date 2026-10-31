@@ -18,7 +18,7 @@
   window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
     ...fallbackPlatformFeaturesService,
     supportsFolderSync: () => Promise.resolve(true),
-    pickFolder: () => Promise.resolve(String.raw`E:\Example project`),
+    pickFolder: () => Promise.resolve('E:\\'),
   });
   refreshPlatformFeatures();
 
@@ -36,7 +36,7 @@
   </FakeSyncService>
 </Story>
 <Story name="Sync dialog: remembered folder">
-  <FakeSyncService data={{localStatus: {local: 4, remote: 0}, latestSyncedCommitDate: lastSync, rememberedSyncFolder: String.raw`E:\Example project`}}>
+  <FakeSyncService data={{localStatus: {local: 4, remote: 0}, latestSyncedCommitDate: lastSync, rememberedSyncFolder: String.raw`E:\FieldWorks Lite\Example project`}}>
     <FwLiteSyncView syncStatus={SyncStatus.Offline} {server} serverId="test-server" projectCode="test-project" />
   </FakeSyncService>
 </Story>

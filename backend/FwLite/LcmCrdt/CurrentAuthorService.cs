@@ -5,8 +5,8 @@ namespace LcmCrdt;
 /// e.g. on a device that has only ever synced offline.
 /// </summary>
 /// <param name="Id">Stable for the device and prefixed with <see cref="AnonymousIdPrefix"/>, so it can't be mistaken for a Lexbox user id.</param>
-/// <param name="Name">The display name the user chose.</param>
-public record LocalAuthor(string Id, string Name)
+/// <param name="Name">The display name the user chose, if any.</param>
+public record LocalAuthor(string Id, string? Name)
 {
     public const string AnonymousIdPrefix = "anonymous:";
 }

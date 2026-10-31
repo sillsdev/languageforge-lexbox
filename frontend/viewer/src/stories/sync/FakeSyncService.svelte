@@ -28,7 +28,7 @@
     getLatestSyncedCommitDate: () => Promise.resolve(data.latestSyncedCommitDate),
     executeSync: () => delay(1000).then(() => ({isSynced: true, missingFromLocal: [], missingFromRemote: []})),
     getCurrentServer: () => Promise.resolve(undefined),
-    syncWithFolder: () => delay(1000).then(() => ({status: FolderSyncStatus.Synced, mediaSent: 2, mediaReceived: 3, mediaFailed: 0})),
+    syncWithFolder: () => delay(1000).then(() => ({status: FolderSyncStatus.Synced, folderPath: String.raw`E:\FieldWorks Lite\Example project`, mediaSent: 2, mediaReceived: 3, mediaFailed: 0})),
     getRememberedSyncFolder: () => Promise.resolve(data.rememberedSyncFolder),
   };
 

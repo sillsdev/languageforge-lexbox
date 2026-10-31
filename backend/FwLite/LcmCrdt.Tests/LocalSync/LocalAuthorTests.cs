@@ -39,7 +39,7 @@ public class LocalAuthorTests : IAsyncLifetime
 
         first.AuthorId.Should().StartWith("anonymous:");
         second.AuthorId.Should().Be(first.AuthorId, "the local author id is stable for this device");
-        first.AuthorName.Should().Be(Environment.MachineName);
+        first.AuthorName.Should().BeNull("no name was chosen, and a device name must never leak into commits");
     }
 
     [Fact]
@@ -71,11 +71,27 @@ public class LocalAuthorTests : IAsyncLifetime
         var thread = await CreateThread();
         await _fixture.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "apple" } });
 
-        var commits = (await _fixture.DataModel.GetChanges(new SyncState([]))).MissingFromClient;
+        var commits = (await _fixture.DataModel.GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient;
         var latest = commits.MaxBy(c => c.HybridDateTime)!;
 
         latest.Metadata.AuthorId.Should().Be(thread.AuthorId);
-        latest.Metadata.AuthorName.Should().Be(Environment.MachineName);
+        latest.Metadata.AuthorName.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TheNameChosenOnThisDevice_IsUsedFromTheNextCommitOn()
+    {
+        var unnamed = await CreateThread();
+        _fixture.GetService<IPreferencesService>().Set(nameof(PreferenceKey.LocalAuthorName), " Jane ");
+
+        var named = await CreateThread();
+        await _fixture.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "apple" } });
+
+        unnamed.AuthorName.Should().BeNull();
+        named.AuthorName.Should().Be("Jane");
+        named.AuthorId.Should().Be(unnamed.AuthorId, "the device keeps its id when it gets a name");
+        var commits = (await _fixture.DataModel.GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient;
+        commits.MaxBy(c => c.HybridDateTime)!.Metadata.AuthorName.Should().Be("Jane");
     }
 
     [Fact]

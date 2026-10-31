@@ -9,7 +9,6 @@ using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Resource;
 using LcmCrdt.RemoteSync;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Media;
 
@@ -21,7 +20,6 @@ public class LcmMediaService(
     IOptions<HarmonyConfig> options,
     IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider,
-    IDbContextFactory<LcmCrdtDbContext> dbContextFactory,
     ILogger<LcmMediaService> logger
 ) : IRemoteResourceService<LcmFileMetadata>
 {
@@ -287,13 +285,10 @@ public class LcmMediaService(
                 await content.CopyToAsync(localFile);
             }
             localPath = MoveToUniqueName(tempPath, Path.Combine(projectResourceCachePath, name));
-            await RecordLocalCopy(resourceId, localPath);
-            return true;
-        }
-        catch (DbUpdateException e)
-        {
-            // another copy (e.g. a download) recorded one first
-            logger.LogInformation(e, "Resource {ResourceId} was cached concurrently, discarding this copy", resourceId);
+            var recorded = await resourceService.AddLocalCopy(resourceId, localPath);
+            if (Path.GetFullPath(recorded.LocalPath) == Path.GetFullPath(localPath)) return true;
+            // another copy (e.g. a download) was recorded first and still has its file
+            logger.LogInformation("Resource {ResourceId} was cached concurrently, discarding this copy", resourceId);
             DeleteIfExists(localPath);
             return false;
         }
@@ -328,16 +323,6 @@ public class LcmMediaService(
     private static void DeleteIfExists(string? path)
     {
         if (path is not null && File.Exists(path)) File.Delete(path);
-    }
-
-    // Workaround until Harmony has a public way to record a local copy without a commit (planned
-    // ResourceService.AddLocalCopy): ResourceService.DownloadResource does this internally, but needs a RemoteId,
-    // which a resource still waiting to upload doesn't have.
-    private async Task RecordLocalCopy(Guid resourceId, string localPath)
-    {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
-        dbContext.Set<LocalResource>().Add(new LocalResource { Id = resourceId, LocalPath = Path.GetFullPath(localPath) });
-        await dbContext.SaveChangesAsync();
     }
 
     private string EnsureUnique(string filePath)

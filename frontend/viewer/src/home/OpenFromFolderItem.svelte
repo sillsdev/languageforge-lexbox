@@ -5,6 +5,8 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {useProjectsService} from '$lib/services/service-provider';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
+  import LocalAuthorNameDialog from '$lib/author/LocalAuthorNameDialog.svelte';
+  import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
   import {OpenFromFolderOutcome} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/OpenFromFolderOutcome';
   import type {IOpenFromFolderSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderSummary';
   import {folderSyncMessage} from '../project/sync/folder-sync-messages';
@@ -13,11 +15,15 @@
 
   const projectsService = useProjectsService();
   const platformFeatures = usePlatformFeaturesService();
+  const localAuthorName = useLocalAuthorName();
   let loading = $state(false);
+  let nameDialog = $state<LocalAuthorNameDialog>();
 
   async function openFromFolder() {
     const path = await platformFeatures.service.pickFolder();
     if (!path) return;
+    // a project from a folder has no Lexbox user yet, so this device's name signs its changes
+    if (!localAuthorName.current && !(await nameDialog!.prompt())) return;
     loading = true;
     try {
       const result = await projectsService.openFromFolder(path);
@@ -43,12 +49,16 @@
           AppNotification.display(message, {type, description, timeout: 'long'});
         }
         return;
-      case OpenFromFolderOutcome.EmptyFolder:
-        AppNotification.display($t`This folder is empty. Sync a project with it first, from the project's sync dialog.`, {type: 'warning', timeout: 'long'});
+      case OpenFromFolderOutcome.NoProjectFound:
+        AppNotification.display($t`No FieldWorks Lite project found in this folder. Sync a project with it first, from the project's sync dialog.`, {type: 'warning', timeout: 'long'});
         return;
-      case OpenFromFolderOutcome.NotASyncFolder:
-        AppNotification.display($t`This folder doesn't hold a FieldWorks Lite project.`, {type: 'warning', timeout: 'long'});
+      case OpenFromFolderOutcome.SeveralProjects: {
+        const names = result.projectNames ?? [];
+        const count = names.length;
+        const list = names.join(', ');
+        AppNotification.display($t`This folder holds ${count} projects: ${list}. Pick one project's folder inside "FieldWorks Lite".`, {type: 'warning', timeout: 'long'});
         return;
+      }
       case OpenFromFolderOutcome.ProjectCodeInUse:
         AppNotification.display($t`A different project with the code ${result.projectCode ?? ''} is already on this device.`, {type: 'warning', timeout: 'long'});
         return;
@@ -64,4 +74,5 @@
     <span>{$t`Open from folder...`}</span>
     <span class="text-sm text-muted-foreground">{$t`Get a project from a USB drive or another folder`}</span>
   </ListItem>
+  <LocalAuthorNameDialog {localAuthorName} bind:this={nameDialog} />
 {/if}
