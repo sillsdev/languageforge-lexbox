@@ -2,6 +2,7 @@
   import {t} from 'svelte-i18n-lingui';
   import DiffText from './DiffText.svelte';
   import DiffMarker from './DiffMarker.svelte';
+  import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
   import {diffAdded, diffRemoved} from './diff-classes';
 
   // Always shown, changed or not, so a diff narrowed to its changes still says which entity it is.
@@ -15,9 +16,8 @@
   } = $props();
 </script>
 
-<!-- Same markup as HomographNumber.svelte from #2881: swap the <sub> for it once both are merged. -->
 {#snippet homographNumber(n: number, state?: 'added' | 'removed')}
-  {#if n > 0}<span class="rounded-sm {state === 'added' ? diffAdded : state === 'removed' ? diffRemoved : ''}">{#if state}<DiffMarker {state} />{/if}<sub data-testid="homograph-number">{n}</sub></span>{/if}
+  {#if n > 0}<span class="rounded-sm {state === 'added' ? diffAdded : state === 'removed' ? diffRemoved : ''}">{#if state}<DiffMarker {state} />{/if}<HomographNumber homographNumber={n} /></span>{/if}
 {/snippet}
 
 <div class="col-span-full text-lg font-semibold wrap-break-word" data-testid="diff-anchor">
