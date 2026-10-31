@@ -39,9 +39,13 @@
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
 
-  function goToLabel(entry: IEntry): string {
-    const headword = (writingSystemService.viewBestHeadword(entry, viewService.currentView) || $t`Untitled`)
+  function bestHeadword(entry: IEntry): string {
+    return (writingSystemService.viewBestHeadword(entry, viewService.currentView) || $t`Untitled`)
       + homographSubscript(entry.homographNumber);
+  }
+
+  function goToLabel(entry: IEntry): string {
+    const headword = bestHeadword(entry);
     return pt($t`Go to entry: ${headword}`, $t`Go to word: ${headword}`, viewService.currentView);
   }
 
@@ -96,9 +100,10 @@
     <Badge variant="outline">{$t`Moved`}</Badge>
   {/if}
   {#if now}
-    <Badge variant="outline" class="font-normal whitespace-normal" data-testid="change-now">
-      <T msg="Now: #"><Headwords entry={now} placeholder={$t`Untitled`} /></T>
-    </Badge>
+    <!-- Muted like the crumbs: the current name is context, and the identity links to the entry by that name -->
+    <p class="basis-full order-last text-sm text-muted-foreground" data-testid="change-now">
+      <T msg="Now called: #"><span class="font-medium text-foreground/80 wrap-break-word">{bestHeadword(now)}</span></T>
+    </p>
   {/if}
 
   {#if linkTo && multiWindowService}

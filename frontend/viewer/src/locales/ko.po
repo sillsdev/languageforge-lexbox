@@ -2049,9 +2049,9 @@ msgstr "참고"
 msgid "Nothing to copy"
 msgstr "복사할 항목 없음"
 
-#. Badge in the activity change preview, shown when an entry is no longer called what this change left it as. # = its current headword, or "Deleted"
+#. Under a change's headword in the activity view. # is the entry's current headword; shown when a later change renamed it
 #: src/lib/activity/ActivityChangeHeader.svelte
-msgid "Now: #"
+msgid "Now called: #"
 msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -3188,7 +3188,6 @@ msgstr "읽지 않음"
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
-#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
