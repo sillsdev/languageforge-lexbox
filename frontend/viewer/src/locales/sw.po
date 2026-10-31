@@ -1662,6 +1662,11 @@ msgstr "Tengeneza pendekezo"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Hakikisha mabadiliko yako [yameoanishwa]({0}) kwa Lexbox."
 
+#. Detail under "Still opening the project...". After an app update, opening a project can rebuild its data, and closing the app restarts that work.
+#: src/DotnetProjectView.svelte
+msgid "Making sure the project is up to date can take a few minutes. Please keep the app open."
+msgstr ""
+
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
@@ -2099,6 +2104,11 @@ msgstr "Fungua faili la logi"
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Opening in FieldWorks…"
 msgstr "Kufungua katika FieldWorks…"
+
+#. Loading notification shown while a project opens.
+#: src/DotnetProjectView.svelte
+msgid "Opening project..."
+msgstr ""
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Opt out of analytics"
@@ -2742,6 +2752,11 @@ msgstr "Anza mazungumzo…"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Inaanza na"
+
+#. Title of a loading notification shown when opening a project takes a while.
+#: src/DotnetProjectView.svelte
+msgid "Still opening the project..."
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte

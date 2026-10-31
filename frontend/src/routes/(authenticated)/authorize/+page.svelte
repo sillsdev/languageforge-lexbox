@@ -49,6 +49,24 @@
                 </div>
               </div>
             {/if}
+            {#if scope === 'lexiconread'}
+              <div class="grid grid-cols-subgrid col-span-full items-center">
+                <span class="i-mdi-book-open-variant text-4xl"></span>
+                <div>
+                  <div class="font-bold">Lexicon data</div>
+                  <div>Entries, senses and other dictionary data in projects you are a member of (read-only)</div>
+                </div>
+              </div>
+            {/if}
+            {#if scope === 'lexiconwrite'}
+              <div class="grid grid-cols-subgrid col-span-full items-center">
+                <span class="i-mdi-book-edit text-4xl"></span>
+                <div>
+                  <div class="font-bold">Lexicon editing</div>
+                  <div>Create, change and delete entries in projects where you are an editor or manager</div>
+                </div>
+              </div>
+            {/if}
           {/each}
         </div>
       </div>

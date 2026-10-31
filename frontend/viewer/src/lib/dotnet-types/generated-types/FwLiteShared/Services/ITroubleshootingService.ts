@@ -10,7 +10,8 @@ export interface ITroubleshootingService
 	getDataDirectory() : Promise<string>;
 	openLogFile() : Promise<void>;
 	shareLogFile() : Promise<void>;
-	getVerboseLogging() : Promise<boolean | undefined>;
+	getCanManageSettingsFile() : Promise<boolean>;
+	getVerboseLogging() : Promise<boolean>;
 	setVerboseLogging(enabled: boolean) : Promise<void>;
 	getSettingsFile() : Promise<string>;
 	setSettingsFile(contents: string) : Promise<void>;

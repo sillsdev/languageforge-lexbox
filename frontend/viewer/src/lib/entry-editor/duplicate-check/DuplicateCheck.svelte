@@ -29,6 +29,7 @@
   import {Icon} from '$lib/components/ui/icon';
   import {Button} from '$lib/components/ui/button';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
+  import {homographSubscript} from '$lib/components/dictionary/HomographNumber.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import {useMiniLcmApi} from '$lib/services/service-provider';
   import {useWritingSystemService} from '$project/data';
@@ -127,7 +128,13 @@
   });
   const hasExactWordMatch = $derived(!!matches?.some((match) => match.kind === 'same-word'));
   const previewHeadwords = $derived(
-    [...new Set((matches ?? []).map((match) => writingSystemService.firstHeadword(match.entry)).filter(Boolean))].join(', '),
+    // Display only; the subscript keeps homographs apart instead of collapsing them into one name
+    [...new Set((matches ?? [])
+      .map((match) => {
+        const headword = writingSystemService.firstHeadword(match.entry);
+        return headword && headword + homographSubscript(match.entry.homographNumber);
+      })
+      .filter(Boolean))].join(', '),
   );
   const summaryMessage = $derived.by(() => {
     if (hasExactWordMatch)
