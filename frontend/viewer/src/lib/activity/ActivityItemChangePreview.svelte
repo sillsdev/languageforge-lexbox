@@ -16,6 +16,7 @@
   import ActivityChangeHeader, {type Crumb} from './ActivityChangeHeader.svelte';
   import {changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
   import {sinceThen} from './since-then';
+  import {cn} from '$lib/utils';
 
   type Props = {
     context: IChangeContext,
@@ -50,6 +51,8 @@
   // What the diff compares: the change's before and after, or the result of the change and the entity now
   const diffBefore = $derived(view === 'since' ? since?.before : before);
   const diffAfter = $derived(view === 'since' ? since?.after : after);
+  // Deleted whole: the diff shows its last state as plain text, see diffRemoved
+  const gone = $derived(!!diffBefore && !diffAfter);
 
   const kind = $derived(changeKind(context.entityType));
   const reorder = $derived(isReorder(change));
@@ -107,59 +110,61 @@
   {#if since}
     <p class="text-sm mb-2 text-muted-foreground">
       {#if since.status === 'deleted'}
-        {$t`Struck: as it was after this change. It has since been deleted.`}
+        {$t`This was deleted later. Here is how it looked right after this change.`}
       {:else}
-        {$t`Struck: as it was after this change. Highlighted: as it is now.`}
+        {$t`This compares the result of this change with the current version.`}
       {/if}
     </p>
   {/if}
 {/snippet}
 
-{#if anchor || cfc}
-  <div class="mb-3">
-    <ActivityChangeHeader label={context.changeName} {crumbs} {badge} {linkTo} {now}
-                          identity={cfc ? componentIdentity : anchorIdentity} />
-  </div>
-{/if}
+<div class={cn(gone && 'diff-gone')}>
+  {#if anchor || cfc}
+    <div class="mb-3">
+      <ActivityChangeHeader label={context.changeName} {crumbs} {badge} {linkTo} {now}
+                            identity={cfc ? componentIdentity : anchorIdentity} />
+    </div>
+  {/if}
 
-{#if !anySnapshot}
-  <div class="text-muted-foreground p-4 text-center">
-    {$t`Preview not available`}
-  </div>
-{:else if view === 'since' && (!since || since.status === 'unchanged')}
-  <!-- the tab is hidden or disabled then -->
-{:else if context.entityType === 'Entry'}
-  {@render sinceNote()}
-  <Editor.Root>
-    <Editor.Grid>
-      <DiffEntryPrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as IEntry | undefined} after={diffAfter as IEntry | undefined}/>
-    </Editor.Grid>
-  </Editor.Root>
-{:else if context.entityType === 'Sense'}
-  {@render sinceNote()}
-  <Editor.Root>
-    <Editor.Grid>
-      <DiffSensePrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as ISense | undefined} after={diffAfter as ISense | undefined}/>
-    </Editor.Grid>
-  </Editor.Root>
-{:else if context.entityType === 'ExampleSentence'}
-  {@render sinceNote()}
-  <Editor.Root>
-    <Editor.Grid>
-      <DiffExamplePrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as IExampleSentence | undefined} after={diffAfter as IExampleSentence | undefined}/>
-    </Editor.Grid>
-  </Editor.Root>
-{:else if isObjectType(context.entityType)}
-  {@render sinceNote()}
-  <Editor.Root>
-    <Editor.Grid>
-      <DiffFieldRows mode="changes" noVisibleChangesNote={showNote} rows={objectDiffRows[context.entityType]} before={diffBefore} after={diffAfter}/>
-    </Editor.Grid>
-  </Editor.Root>
-{:else if kind === 'complexFormComponent'}
-  <!-- The header says it all: which link, between which entries -->
-{:else}
-  <div class="whitespace-pre-wrap font-mono text-sm">
-    {formatJsonForUi(anySnapshot)}
-  </div>
-{/if}
+  {#if !anySnapshot}
+    <div class="text-muted-foreground p-4 text-center">
+      {$t`Preview not available`}
+    </div>
+  {:else if view === 'since' && (!since || since.status === 'unchanged')}
+    <!-- the tab is hidden or disabled then -->
+  {:else if context.entityType === 'Entry'}
+    {@render sinceNote()}
+    <Editor.Root>
+      <Editor.Grid>
+        <DiffEntryPrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as IEntry | undefined} after={diffAfter as IEntry | undefined}/>
+      </Editor.Grid>
+    </Editor.Root>
+  {:else if context.entityType === 'Sense'}
+    {@render sinceNote()}
+    <Editor.Root>
+      <Editor.Grid>
+        <DiffSensePrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as ISense | undefined} after={diffAfter as ISense | undefined}/>
+      </Editor.Grid>
+    </Editor.Root>
+  {:else if context.entityType === 'ExampleSentence'}
+    {@render sinceNote()}
+    <Editor.Root>
+      <Editor.Grid>
+        <DiffExamplePrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as IExampleSentence | undefined} after={diffAfter as IExampleSentence | undefined}/>
+      </Editor.Grid>
+    </Editor.Root>
+  {:else if isObjectType(context.entityType)}
+    {@render sinceNote()}
+    <Editor.Root>
+      <Editor.Grid>
+        <DiffFieldRows mode="changes" noVisibleChangesNote={showNote} rows={objectDiffRows[context.entityType]} before={diffBefore} after={diffAfter}/>
+      </Editor.Grid>
+    </Editor.Root>
+  {:else if kind === 'complexFormComponent'}
+    <!-- The header says it all: which link, between which entries -->
+  {:else}
+    <div class="whitespace-pre-wrap font-mono text-sm">
+      {formatJsonForUi(anySnapshot)}
+    </div>
+  {/if}
+</div>

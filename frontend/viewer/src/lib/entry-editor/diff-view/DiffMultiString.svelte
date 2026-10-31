@@ -6,6 +6,8 @@
   import DiffShell from './DiffShell.svelte';
   import DiffAudio from './DiffAudio.svelte';
   import {useWritingSystemService} from '$project/data';
+  import {useDiffFocus} from './diff-focus.svelte';
+  import {changedValues} from './changed-fields';
 
   let {before, after, writingSystems}: {
     before?: IMultiString;
@@ -23,10 +25,19 @@
       .map((wsId) => writingSystemService.getWritingSystem(wsId) ?? {wsId, name: wsId, abbreviation: wsId, isAudio: false});
     return [...writingSystems, ...hidden];
   });
+
+  const focus = useDiffFocus();
+  const id = Symbol();
+  const values = $derived(changedValues(shown.map((ws) => ws.wsId), before, after));
+  $effect(() => {
+    focus?.report(id, values.unchanged);
+    return () => focus?.report(id, 0);
+  });
+  const rows = $derived(focus?.collapsed ? shown.filter((ws) => values.shown.includes(ws.wsId)) : shown);
 </script>
 
 <div class="grid grid-cols-subgrid col-span-full gap-y-2">
-  {#each shown as ws (ws.wsId)}
+  {#each rows as ws (ws.wsId)}
     <div class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline" title={`${ws.name} (${ws.wsId})`}>
       <Label>{ws.abbreviation}</Label>
       {#if ws.isAudio}

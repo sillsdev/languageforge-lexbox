@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {changedFieldIds, changesOnly, showChangedFields, sortedIds, valueChanged} from './changed-fields';
+import {changedFieldIds, changedValues, changesOnly, showChangedFields, sortedIds, valueChanged} from './changed-fields';
 
 describe('valueChanged', () => {
   it('treats empty values as missing', () => {
@@ -99,5 +99,15 @@ describe('changesOnly', () => {
     expect(shown.map((f) => f.show)).toEqual([true, false, false, false]);
     // citationForm: the empty note and the field the view hides aren't worth revealing
     expect(unchanged).toBe(1);
+  });
+});
+
+describe('changedValues', () => {
+  it('keeps only the changed writing systems and counts the unchanged ones with a value', () => {
+    expect(changedValues(['en', 'fr', 'de'], {en: 'a', fr: 'b'}, {en: 'x', fr: 'b'})).toEqual({shown: ['en'], unchanged: 1});
+  });
+
+  it('keeps every writing system of an unchanged field', () => {
+    expect(changedValues(['en', 'fr'], {en: 'a'}, {en: 'a', fr: ''})).toEqual({shown: ['en', 'fr'], unchanged: 0});
   });
 });

@@ -14,6 +14,7 @@
   import DiffSelect from './DiffSelect.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
   import DiffCollapsed from './DiffCollapsed.svelte';
+  import {provideDiffFocus} from './diff-focus.svelte';
   import DiffNoVisibleChanges from './DiffNoVisibleChanges.svelte';
   import type {DiffRow} from './diff-fields';
   import {valueChanged, type DiffMode} from './changed-fields';
@@ -42,6 +43,7 @@
   // Without a visible change there's nothing to focus on, so every row shows.
   const focused = $derived(mode === 'changes' && changedRows.length > 0);
   let expanded = $state(false);
+  const diffFocus = provideDiffFocus(() => focused && !expanded);
   // Rows left out that still hold a value: revealing an empty one shows nothing
   const unchanged = $derived(withValue.filter(([field]) => !valueChanged(b?.[field], a?.[field]) && valueChanged(undefined, a?.[field])).length);
   const shown = $derived(focused && !expanded ? changedRows : withValue);
@@ -115,5 +117,5 @@
   </Editor.SubGrid>
 {/if}
 {#if focused}
-  <DiffCollapsed count={unchanged} bind:expanded />
+  <DiffCollapsed count={unchanged + diffFocus.hiddenValues} bind:expanded />
 {/if}

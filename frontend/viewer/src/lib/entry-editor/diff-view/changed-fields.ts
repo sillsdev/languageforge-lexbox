@@ -40,6 +40,18 @@ export function changesOnly<T extends FieldId, M extends object>(
   return {fields: fields.map((field) => field.show && !changed.has(field.fieldId) ? {...field, show: false} : field), unchanged};
 }
 
+/**
+ * For a multi-string diff in 'changes' mode: the writing systems to show while collapsed, and how many unchanged
+ * ones that still hold a value it leaves out. An unchanged field keeps every row: the primitive hides it whole.
+ */
+export function changedValues(
+  wsIds: string[], before: Readonly<Record<string, string>> | undefined, after: Readonly<Record<string, string>> | undefined,
+): {shown: string[]; unchanged: number} {
+  const changed = wsIds.filter((wsId) => (before?.[wsId] ?? '') !== (after?.[wsId] ?? ''));
+  if (!changed.length) return {shown: wsIds, unchanged: 0};
+  return {shown: changed, unchanged: wsIds.filter((wsId) => !changed.includes(wsId) && after?.[wsId]).length};
+}
+
 function comparer<T extends FieldId, M>(compareAs: CompareAs<T, M>): (model: M | undefined, fieldId: string) => unknown {
   const projections = compareAs as Record<string, ((value: unknown) => unknown) | undefined>;
   return (model, fieldId) => {

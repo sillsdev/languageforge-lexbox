@@ -17,6 +17,7 @@
   import DiffNoVisibleChanges from './DiffNoVisibleChanges.svelte';
   import {entryAnchor} from './anchor-text';
   import DiffCollapsed from './DiffCollapsed.svelte';
+  import {provideDiffFocus} from './diff-focus.svelte';
   import {changedFieldIds, changesOnly, showChangedFields, type DiffMode} from './changed-fields';
   import {entryCompareAs} from './compare-as';
 
@@ -44,6 +45,7 @@
   // Without a visible change there's nothing to focus on, so the whole entry shows.
   const focused = $derived(mode === 'changes' && anyChange);
   let expanded = $state(false);
+  const diffFocus = provideDiffFocus(() => focused && !expanded);
   const focus = $derived(changesOnly(viewFields, changed, after, compareAs));
   const entryFields = $derived(focused && !expanded ? focus.fields : viewFields);
   const fields = $derived(fieldRecord(entryFields));
@@ -124,5 +126,5 @@
   </Editor.Field.Root>
 </Editor.SubGrid>
 {#if focused}
-  <DiffCollapsed count={focus.unchanged} bind:expanded />
+  <DiffCollapsed count={focus.unchanged + diffFocus.hiddenValues} bind:expanded />
 {/if}
