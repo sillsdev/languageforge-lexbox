@@ -6,7 +6,7 @@ public class MediaTests : MediaTestsBase
 
     protected override async Task<IMiniLcmApi> NewApi()
     {
-        await _fixture.InitializeAsync("media-test");
+        await _fixture.InitializeAsync();
         return _fixture.Api;
     }
 

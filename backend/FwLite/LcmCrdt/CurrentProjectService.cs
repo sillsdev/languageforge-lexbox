@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SIL.Harmony;
 
 namespace LcmCrdt;
 
@@ -77,7 +79,7 @@ public class CurrentProjectService(
         _project = project;
         //migrate will only execute once with a static which tracks if we've already migrated
         await MigrateDb();
-        return project.Data = await RefreshProjectData();
+        return await RefreshProjectData();
     }
 
     public async ValueTask<ProjectData> SetupProjectContext(string projectCode)
@@ -87,8 +89,7 @@ public class CurrentProjectService(
 
     public async ValueTask<ProjectData> RefreshProjectData()
     {
-        var projectData = await GetProjectData(true);
-        return projectData;
+        return Project.Data = await GetProjectData(true);
     }
 
     private static readonly ConcurrentDictionary<string, Lazy<Task>> MigrationTasks = [];
@@ -105,6 +106,7 @@ public class CurrentProjectService(
             {
                 await using var dbContext = await DbContextFactory.CreateDbContextAsync();
                 await dbContext.Database.MigrateAsync();
+                await ReconcileModelVersions();
 
                 if (EntrySearchServiceFactory is not null)
                 {
@@ -119,6 +121,20 @@ public class CurrentProjectService(
             }
         }
 
+    }
+
+    private async Task ReconcileModelVersions()
+    {
+        try
+        {
+            //replays changes authored under model versions this db hasn't applied yet, must run before the db is used
+            await services.GetRequiredService<DataModel>().ReconcileModelVersions();
+        }
+        catch (Exception e) when (!services.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ThrowOnModelVersionReconcileFailure)
+        {
+            //rolled back, so the snapshots are the ones the previous app version wrote; retried on the next app start
+            logger.LogError(e, "Failed to reconcile model versions for project {Project}", Project.Name);
+        }
     }
 
     public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)
@@ -153,12 +169,14 @@ public class CurrentProjectService(
         }
     }
 
-    public async Task UpdateUserRole(UserProjectRole role)
+    /// <returns>true if the role changed</returns>
+    public async Task<bool> UpdateUserRole(UserProjectRole role)
     {
-        if (ProjectData.Role == role) return;
+        if (ProjectData.Role == role) return false;
         await using var dbContext = await DbContextFactory.CreateDbContextAsync();
         await dbContext.ProjectData.ExecuteUpdateAsync(calls => calls
             .SetProperty(p => p.Role, role));
         await RefreshProjectData();
+        return true;
     }
 }

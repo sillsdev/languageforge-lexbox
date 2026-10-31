@@ -335,7 +335,45 @@ public class SeedingData(
                 new Uri("https://thecombine.app/v1/auth/oauth-callback") // Production environment
             }
         },
+        LexiconApp("lexicon-site-generator", "Lexicon site generator (prototype)"),
+        LexiconApp("lexicon-viewer", "Lexicon viewer (prototype)"),
+        LexiconApp("lexicon-mcp-server", "Lexicon MCP server (prototype)"),
+        LexiconApp("lexicon-lift-tool", "Lexicon LIFT tool (prototype)", canWrite: true),
     ], a => a.ClientId ?? throw new InvalidOperationException("ClientId is null"));
+
+    /// <summary>
+    /// A lexicon API client: a native app with a loopback redirect on any port, like FieldWorks Lite.
+    /// </summary>
+    private static OpenIddictApplicationDescriptor LexiconApp(string clientId, string displayName, bool canWrite = false)
+    {
+        var app = new OpenIddictApplicationDescriptor
+        {
+            ClientId = clientId,
+            ClientType = OpenIddictConstants.ClientTypes.Public,
+            ApplicationType = OpenIddictConstants.ApplicationTypes.Native, //native allows the redirect port to be dynamic
+            DisplayName = displayName,
+            ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
+            Permissions =
+            {
+                OpenIddictConstants.Permissions.Endpoints.Authorization,
+                OpenIddictConstants.Permissions.Endpoints.Token,
+                OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                OpenIddictConstants.Permissions.ResponseTypes.Code,
+                OpenIddictConstants.Permissions.Scopes.Email,
+                OpenIddictConstants.Permissions.Scopes.Profile,
+                OpenIddictConstants.Permissions.Prefixes.Scope + LexboxAuthScope.LexiconRead.ToString().ToLower()
+            },
+            RedirectUris =
+            {
+                new Uri("http://localhost/oauth-callback"),
+                new Uri("http://127.0.0.1/oauth-callback"),
+            }
+        };
+        if (canWrite)
+            app.Permissions.Add(OpenIddictConstants.Permissions.Prefixes.Scope + LexboxAuthScope.LexiconWrite.ToString().ToLower());
+        return app;
+    }
 
     private IEnumerable<OpenIddictApplicationDescriptor> DevApps => [
         new OpenIddictApplicationDescriptor

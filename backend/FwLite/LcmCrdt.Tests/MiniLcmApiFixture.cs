@@ -1,7 +1,8 @@
 using SIL.Harmony.Config;
 using System.Diagnostics;
 using LcmCrdt.Changes;
-using LcmCrdt.MediaServer;
+using LinqToDB;
+using LinqToDB.EntityFrameworkCore;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,8 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     private readonly bool _seedWs = true;
     private readonly Guid? _projectId;
     private readonly Action<IServiceCollection>? _configureServices;
+    // fixtures run in parallel and share project codes, so each gets its own folder (media cache) to delete on dispose
+    private readonly string _projectPath = Path.GetFullPath($"fixture-{Guid.NewGuid():N}");
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
     private SqliteConnection? _keepAliveConnection;
@@ -41,7 +44,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
         return new MiniLcmApiFixture(seedWs, projectId, configureServices);
     }
 
-    private MiniLcmApiFixture(bool seedWs, Guid? projectId, Action<IServiceCollection>? configureServices)
+    private MiniLcmApiFixture(bool seedWs = true, Guid? projectId = null, Action<IServiceCollection>? configureServices = null)
     {
         _seedWs = seedWs;
         _projectId = projectId;
@@ -69,11 +72,21 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 
         var serviceCollection = new ServiceCollection()
             .AddTestLcmCrdtClient()
+            .Configure<LcmCrdtConfig>(config => config.ProjectPath = _projectPath)
             .AddLogging(builder => builder.AddDebug()
                 .AddProvider(new LateXUnitLoggerProvider(this))
                 .AddFilter("LinqToDB", LogLevel.Trace)
                 .SetMinimumLevel(LogLevel.Error));
-        _configureServices?.Invoke(serviceCollection);
+        if (_configureServices is not null)
+        {
+            _configureServices(serviceCollection);
+            // Hook config like HarmonyConfig gets baked into the EF model and linq2db's compiled queries, both
+            // cached process-wide (first fixture wins). Opt this fixture out of both caches so its config applies.
+            serviceCollection.AddDbContextFactory<LcmCrdtDbContext>(builder => builder
+                .EnableServiceProviderCaching(false)
+                .UseLinqToDB(linq2db => linq2db.AddCustomOptions(options => options.UseDisableQueryCache(true))),
+                ServiceLifetime.Scoped);
+        }
         var services = serviceCollection.BuildServiceProvider();
         _services = services.CreateAsyncScope();
         if (inMemory)
@@ -150,11 +163,10 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 
     public async Task DisposeAsync()
     {
-        var projectResourceCachePath = _services.ServiceProvider.GetRequiredService<LcmMediaService>().ProjectResourceCachePath;
-        if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
         await (_keepAliveConnection?.DisposeAsync() ?? ValueTask.CompletedTask);
+        if (Directory.Exists(_projectPath)) Directory.Delete(_projectPath, true);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()

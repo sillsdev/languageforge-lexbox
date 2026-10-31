@@ -23,10 +23,13 @@ public class HarmonyChangeWriter(
         var metadata = new CommitMetadata
         {
             ClientVersion = AppVersion.Version,
-            AuthorName = author.Name ?? config.Value.DefaultAuthorForCommits,
+            AuthorName = author.Name,
             AuthorId = author.Id
         };
         commitMetadataInterceptor.Apply(metadata);
+        if (config.Value.RequireCommitAuthor && string.IsNullOrEmpty(metadata.AuthorName) && string.IsNullOrEmpty(metadata.AuthorId))
+            throw new InvalidOperationException(
+                $"Refusing to write a commit with no author, wrap the write in {nameof(CommitMetadataInterceptor)}.{nameof(CommitMetadataInterceptor.Intercept)} to name one");
         return metadata;
     }
 
@@ -41,6 +44,29 @@ public class HarmonyChangeWriter(
     {
         AssertWritable();
         await dataModel.AddManyChanges(ClientId, changes, commitMetadata: NewMetadata);
+    }
+
+    /// <summary>
+    /// For comment changes, which roles that can't edit the project (Commenter) may still make.
+    /// </summary>
+    public async Task AddCommentChange(IChange change)
+    {
+        AssertCanComment();
+        await dataModel.AddChange(ClientId, change, commitMetadata: NewMetadata());
+    }
+
+    /// <inheritdoc cref="AddCommentChange"/>
+    public async Task AddCommentChanges(IEnumerable<IChange> changes)
+    {
+        AssertCanComment();
+        await dataModel.AddManyChanges(ClientId, changes, commitMetadata: NewMetadata);
+    }
+
+    private void AssertCanComment()
+    {
+        if (!ProjectData.CanComment)
+            throw new ReadOnlyException(
+                $"you can't comment on this project because you are logged in with the {ProjectData.Role} role.");
     }
 
     private void AssertWritable()

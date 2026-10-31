@@ -32,6 +32,8 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
     public IList<Translation>? Translations { get; set; }
     [Obsolete("Use Translations instead")]
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    // read-only for legacy changes, new changes leave it null and should not write the key
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public RichMultiString? Translation { get; set; }
     public RichString? Reference { get; set; }
 

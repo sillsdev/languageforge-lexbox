@@ -86,7 +86,8 @@ public class SyncServiceJsInvokable(
     [JSInvokable]
     public Task<SyncResults> ExecuteSync(bool skipNotifications)
     {
-        return Task.Run(async () => await syncService.ExecuteSync(skipNotifications));
+        // Only the sync dialog calls this, so it's a sync the user asked for
+        return Task.Run(async () => await syncService.ExecuteSync(skipNotifications, refreshServerProjects: true));
     }
 
     [JSInvokable]

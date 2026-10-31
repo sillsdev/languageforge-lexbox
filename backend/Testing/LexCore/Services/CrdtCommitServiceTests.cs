@@ -216,8 +216,33 @@ public class CrdtCommitServiceTests
         var commit = await AddTestCommit();
         var syncState = await _crdtCommitService.GetSyncState(commit.ProjectId);
 
-        var commits = await _crdtCommitService.GetMissingCommits(commit.ProjectId, syncState, new SyncState([])).ToArrayAsync();
+        var commits = await _crdtCommitService.GetMissingCommits(commit.ProjectId, syncState, new SyncState([], [])).ToArrayAsync();
         commits.Should().Contain(c => c.Id == commit.Id);
+    }
+
+    [Fact]
+    public async Task CountMatchesWhatGetMissingCommitsSends()
+    {
+        var commit = await AddTestCommit();
+        var serverState = await _crdtCommitService.GetSyncState(commit.ProjectId);
+        var server = serverState.GetClientState(commit.ClientId)!;
+        SyncState[] remoteStates =
+        [
+            new([], []),
+            serverState,
+            //an older client that only reports its head
+            new(new Dictionary<Guid, long> { [commit.ClientId] = server.MaxTimestamp }),
+            //same head and count but a different commit, so the whole client history is sent
+            new([server with { Hash = server.Hash ^ 1 }]),
+            new([server with { MaxTimestamp = server.MaxTimestamp - 1 }]),
+        ];
+
+        foreach (var remoteState in remoteStates)
+        {
+            var missing = await _crdtCommitService.GetMissingCommits(commit.ProjectId, serverState, remoteState).ToArrayAsync();
+            var count = await _crdtCommitService.ApproximatelyCountMissingCommits(commit.ProjectId, serverState, remoteState);
+            count.Should().Be(missing.Length, "remote state {0}", JsonSerializer.Serialize(remoteState));
+        }
     }
 
     [Fact]

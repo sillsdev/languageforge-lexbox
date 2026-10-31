@@ -250,6 +250,23 @@ public class LexAuthUserTests
         }
     }
 
+    [Theory]
+    [InlineData(ProjectRole.Manager)]
+    [InlineData(ProjectRole.Editor)]
+    [InlineData(ProjectRole.Observer)]
+    [InlineData(ProjectRole.Commenter)]
+    [InlineData(ProjectRole.EditorLite)]
+    public void ProjectsJson_RoundTripsEachRole(ProjectRole role)
+    {
+        var project = new AuthUserProject(role, Guid.NewGuid());
+        var user = _user with { Projects = [project] };
+
+        var roundTripped = _user with { Projects = [] };
+        roundTripped.ProjectsJson = user.ProjectsJson;
+
+        roundTripped.Projects.Should().ContainSingle().Which.Should().Be(project);
+    }
+
     [Fact]
     public void SingleElementArraysAreWrittenAsJsonArrays()
     {
@@ -305,6 +322,19 @@ public class LexAuthUserTests
             new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJsonWebToken(redirectJwt).Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(loggedInPrincipal);
         newUser.Should().BeEquivalentTo(_user with { Audience = LexboxAudience.ForgotPassword });
+    }
+
+    [Theory]
+    [InlineData("lexiconwrite", LexboxAuthScope.LexiconWrite, true)]
+    [InlineData("openid lexiconread profile", LexboxAuthScope.LexiconRead, true)]
+    [InlineData("LexboxApi", LexboxAuthScope.LexboxApi, true)]
+    [InlineData("sendandreceiverefresh", LexboxAuthScope.SendAndReceive, false)]
+    [InlineData("notlexiconwrite", LexboxAuthScope.LexiconWrite, false)]
+    [InlineData("lexiconwrite-extra", LexboxAuthScope.LexiconWrite, false)]
+    [InlineData("", LexboxAuthScope.LexiconRead, false)]
+    public void HasScopeMatchesWholeScopeTokensOnly(string scopeString, LexboxAuthScope scope, bool expected)
+    {
+        LexAuthUser.HasScope(scopeString, scope).Should().Be(expected);
     }
 
     [Fact]

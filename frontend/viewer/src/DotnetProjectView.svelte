@@ -13,7 +13,10 @@
   } from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
   import {initProjectContext} from '$project/project-context.svelte';
   import {initProjectStorage} from '$lib/storage';
+  import {useEventBus} from '$lib/services/event-bus';
   import type {IMediaFilesServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMediaFilesServiceJsInvokable';
+  import {AppNotification, type LoadingNotification} from '$lib/notifications/notifications';
+  import {t} from 'svelte-i18n-lingui';
 
   const projectServicesProvider = useProjectServicesProvider();
 
@@ -26,6 +29,8 @@
   const code = untrack(() => _code);
   projectContext.projectCode = code;
   projectContext.inParatext = untrack(() => paratext);
+  // Before openCrdtProject (in onMount): opening triggers a sync that can change the role.
+  projectContext.watchProjectRole(useEventBus());
 
   initProjectStorage(code);
 
@@ -34,14 +39,20 @@
   let projectScope: IProjectScope;
   let serviceLoaded = $state(false);
   let destroyed = false;
+  let endOpeningNotice: (() => void) | undefined;
   onMount(async () => {
     console.debug('ProjectView mounted');
     projectContext.projectCode = code;
     projectContext.projectType = projectType;
     if (projectType === 'crdt') {
-      const maybeProjectName = await projectServicesProvider.tryGetCrdtProjectName(code);
-      projectName = maybeProjectName ? maybeProjectName : code;
-      projectScope = await projectServicesProvider.openCrdtProject(code);
+      endOpeningNotice = showOpeningNotice();
+      try {
+        const maybeProjectName = await projectServicesProvider.tryGetCrdtProjectName(code);
+        projectName = maybeProjectName ? maybeProjectName : code;
+        projectScope = await projectServicesProvider.openCrdtProject(code);
+      } finally {
+        endOpeningNotice();
+      }
     } else {
       projectName = code;
       projectScope = await projectServicesProvider.openFwDataProject(code);
@@ -78,10 +89,25 @@
   });
   onDestroy(() => {
     destroyed = true;
+    endOpeningNotice?.();
     if (serviceLoaded) {
       cleanup();
     }
   });
+
+  // Opening can rebuild the whole project after an update, which can look stuck without an explanation
+  function showOpeningNotice(): () => void {
+    let notice: LoadingNotification | undefined;
+    const noticeTimer = setTimeout(() => notice = AppNotification.loading($t`Opening project...`), 1500);
+    const slowTimer = setTimeout(() => notice?.update($t`Still opening the project...`,
+      $t`Making sure the project is up to date can take a few minutes. Please keep the app open.`), 8000);
+    return () => {
+      clearTimeout(noticeTimer);
+      clearTimeout(slowTimer);
+      notice?.dismiss();
+      notice = undefined;
+    };
+  }
 
   function cleanup() {
     setTimeout(() => {

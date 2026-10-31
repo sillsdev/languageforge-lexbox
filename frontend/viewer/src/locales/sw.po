@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-28 10:55\n"
+"PO-Revision-Date: 2026-10-23 18:34\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -28,11 +28,11 @@ msgstr "– ({0} mabadiliko)"
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
-msgstr ""
+msgstr "(imehaririwa)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
-msgstr ""
+msgstr "(Haijulikani)"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -54,7 +54,7 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
-msgstr ""
+msgstr "{0} aina za shughuli"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -64,7 +64,7 @@ msgstr "{0} iliyopita"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
-msgstr ""
+msgstr "{0} waandishi"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -73,11 +73,11 @@ msgstr "{0} MB"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
-msgstr ""
+msgstr "{0} Majibu"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "{0} resolved"
-msgstr ""
+msgstr "{0} Kimetatuliwa"
 
 #. Display name for server
 #: src/home/Server.svelte
@@ -93,7 +93,7 @@ msgstr "{num, plural, other {# mabadiliko}}"
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
-msgstr ""
+msgstr "{num, plural, one {# ingizo limebaki} other {# maingizo yaliyobaki}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -107,17 +107,17 @@ msgstr "{num, plural, one {# kumbuka mpya ya FieldWorks Lite} other {# kumbukas 
 
 #: src/project/browse/filter/UnreadCommentBadge.svelte
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
-msgstr ""
+msgstr "{num, plural, one {# maoni yasiyosomewa} other {# maoni yasiyosomewa}}"
 
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
-msgstr ""
+msgstr "{num, plural, one {# neno limebaki} other {# maneno yaliyobaki}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
-msgstr ""
+msgstr "{num, plural, one {Onyesha # zaidi...} other {Onyesha # zaidi...}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -136,7 +136,7 @@ msgstr "**Istilahi rahisi** (kwa mfano *Neno* badala ya *Lexeme form*, *Maana* b
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
-msgstr ""
+msgstr "Jibu 1"
 
 #: src/home/OpenFromFolderItem.svelte
 msgid "A different project with the code {0} is already on this device."
@@ -160,14 +160,14 @@ msgstr ""
 #. Warning banner in the New Entry dialog when exactly one possible duplicate was found (none an exact headword match)
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar entry already exists"
-msgstr ""
+msgstr "Ingizo linalofanana tayari lipo"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "A similar entry already exists"
 #. Warning banner in the New Word dialog when exactly one possible duplicate was found (none spelled exactly the same)
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar word already exists"
-msgstr ""
+msgstr "Neno linalofanana tayari lipo"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
@@ -237,7 +237,7 @@ msgstr "Ongeza sehemu ya"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Add Picture"
-msgstr ""
+msgstr "Ongeza picha"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -249,17 +249,17 @@ msgstr "Ongeza Maana"
 
 #: src/project/tasks/TaskList.svelte
 msgid "Add some entries first."
-msgstr ""
+msgstr "Ongeza baadhi ya maingizo kwanza."
 
 #: src/project/tasks/TaskList.svelte
 msgid "Add some words first."
-msgstr ""
+msgstr "Ongeza maneno machache kwanza."
 
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
 #: src/project/browse/EntriesList.svelte
 msgid "Add to dictionary"
-msgstr ""
+msgstr "Ongeza kwenye kamusi"
 
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -268,7 +268,11 @@ msgstr "Ongeza Neno"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
-msgstr ""
+msgstr "Ongeza ingizo lako la kwanza ili kuanza kujenga kamusi yako."
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Advanced: settings file"
+msgstr "Zaidi: faili ya mipangilio"
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
@@ -282,14 +286,14 @@ msgstr "Vyote"
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All activity types"
-msgstr ""
+msgstr "Aina zote za shughuli"
 
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
-msgstr ""
+msgstr "Waandishi wote"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -307,15 +311,15 @@ msgstr "Uchambuzi"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr ""
+msgstr "Msimbo wa mfumo wa uandishi wa uchambuzi"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr ""
+msgstr "Mifumo ya uandishi wa uchambuzi"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
-msgstr ""
+msgstr "Uchanganuzi umezimwa."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -365,7 +369,7 @@ msgstr "Uliza maswali na upate msaada kwenye jukwaa letu la jamii."
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
-msgstr ""
+msgstr "Sauti"
 
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
@@ -384,7 +388,7 @@ msgstr "Sauti ilihifadhiwa mahallini"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
-msgstr ""
+msgstr "Mwandishi"
 
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
@@ -403,12 +407,12 @@ msgstr "Kuoanisha otomatiki"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Back"
-msgstr ""
+msgstr "Rudi nyuma"
 
 #: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
-msgstr ""
+msgstr "Rudi kwenye kazi"
 
 #. Section label in custom view form.
 #. Selects the base view preset (Classic or Lite) that the custom view inherits from.
@@ -440,11 +444,11 @@ msgstr "Angalia"
 
 #: src/project/browse/BrowseView.svelte
 msgid "Browse view failed"
-msgstr ""
+msgstr "Uangaliaji wa kuvinjari umeshindikana"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Camera"
-msgstr ""
+msgstr "Kamera"
 
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
@@ -469,7 +473,7 @@ msgstr "Ghairi"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Caption"
-msgstr ""
+msgstr "Maelezo ya picha"
 
 #. Explanation of sync behavior
 #: src/project/sync/FwClassicSyncView.svelte
@@ -486,14 +490,14 @@ msgstr "Kubadilisha sehemu sawa mara mbili, kwa mfano, kunaweza kusababisha kumb
 #. Status line in the New Entry dialog while searching for possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar entries…"
-msgstr ""
+msgstr "Kukagua maingizo yanayofanana…"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Checking for similar entries…"
 #. Status line in the New Word dialog while searching for possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar words…"
-msgstr ""
+msgstr "Kukagua maneno yanayofanana…"
 
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -542,7 +546,7 @@ msgstr "Funga Kamusi"
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 msgid "Code"
-msgstr ""
+msgstr "Msimbo"
 
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
@@ -551,20 +555,24 @@ msgstr "Rangi"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Comment"
-msgstr ""
+msgstr "Maoni"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Commenter"
+msgstr "Mtoa maoni"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
-msgstr ""
+msgstr "Maoni"
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
-msgstr ""
+msgstr "Maoni, {0} haijasomwa"
 
 #: src/project/tasks/TaskList.svelte
 msgid "Complete"
-msgstr ""
+msgstr "Kamilika"
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -620,7 +628,7 @@ msgstr "Ina"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
-msgstr ""
+msgstr "Mazungumzo"
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
@@ -637,24 +645,24 @@ msgstr "Nakili toleo"
 #. Status line in the New Entry dialog when the background duplicate search failed (e.g. connection lost); typing again retries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar entries"
-msgstr ""
+msgstr "Haikuweza kukagua maingizo yanayofanana"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Could not check for similar entries"
 #. Status line in the New Word dialog when the background duplicate search failed (e.g. connection lost); typing again retries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
-msgstr ""
+msgstr "Haikuweza kukagua maneno yanayofanana"
 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
-msgstr ""
+msgstr "Haikuweza kupata hadhi ya FieldWorks Classic kutoka Lexbox."
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
-msgstr ""
+msgstr "Haikuweza kusawazisha kwa sasa — mabadiliko yako ya ndani yako salama."
 
 #: src/project/sync/folder-sync-messages.ts
 msgid "Couldn't sync with the folder. Your local changes are safe."
@@ -663,12 +671,12 @@ msgstr ""
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
 msgid "Create"
-msgstr ""
+msgstr "Tengeneza"
 
 #. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
-msgstr ""
+msgstr "Tengeneza mradi mpya wa FieldWorks Lite"
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -742,7 +750,7 @@ msgstr "Dashibodi"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard failed to load"
-msgstr ""
+msgstr "Dashibodi ilishindwa kupakia"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -780,7 +788,7 @@ msgstr "Futa ingizo"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Delete Picture"
-msgstr ""
+msgstr "Futa Picha"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Delete Entry"
@@ -818,6 +826,7 @@ msgstr "Mjumbe wa Kamusi"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Kataa mabadiliko"
 
@@ -863,7 +872,7 @@ msgstr "Ukurasa wa kupakua"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Download Picture"
-msgstr ""
+msgstr "Pakua picha"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -893,7 +902,7 @@ msgstr "Inapakua {0}..."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
-msgstr ""
+msgstr "Inapakua sasisho..."
 
 #. Generic progress message
 #: src/home/Server.svelte
@@ -903,16 +912,16 @@ msgstr "Inapakua..."
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
-msgstr ""
+msgstr "mfano: th, sw"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
-msgstr ""
+msgstr "Hariri"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
-msgstr ""
+msgstr "Hariri maoni"
 
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
@@ -921,16 +930,20 @@ msgstr "Hariri Muonekano Binafsi"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Edit Picture"
-msgstr ""
+msgstr "Hariri picha"
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
 msgstr "Mhariri"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor Lite"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
-msgstr ""
+msgstr "Maoni tupu"
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -941,7 +954,7 @@ msgstr "Inaishia na"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Entries missing both Lexeme form and Citation form"
-msgstr ""
+msgstr "Maingizo yanayokosa fomu ya leksemu na fomu ya rejeleo"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -952,11 +965,11 @@ msgstr "Ingizo linalokosa..."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
-msgstr ""
+msgstr "Maingizo yenye mifano"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
-msgstr ""
+msgstr "Maingizo yenye hisia"
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/project/browse/EntryView.svelte
@@ -1013,11 +1026,11 @@ msgstr "Hitilafu katika kupata hali ya kuoanisha."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every entry already has this field filled in."
-msgstr ""
+msgstr "Kila ingizo tayari lina sehemu hii imejazwa."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every word already has this field filled in."
-msgstr ""
+msgstr "Kila neno tayari lina sehemu hii imejazwa."
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
@@ -1037,7 +1050,11 @@ msgstr "Sentensi ya mfano"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
-msgstr ""
+msgstr "Sentensi za mfano"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to change verbose logging"
+msgstr "Imeshindwa kubadilisha uandikishaji wa kina"
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1053,7 +1070,7 @@ msgstr "Imeshindwa kupakua {0}"
 #: src/lib/activity/ActivityView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "Failed to load activity"
-msgstr ""
+msgstr "Imeshindwa kupakia shughuli"
 
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
@@ -1063,19 +1080,19 @@ msgstr "Imeshindwa kupakia ingizo"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load file"
-msgstr ""
+msgstr "Imeshindwa kupakia faili"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load files"
-msgstr ""
+msgstr "Imeshindwa kupakia faili"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load media files"
-msgstr ""
+msgstr "Imeshindwa kupakia faili za media"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to load metadata"
-msgstr ""
+msgstr "Imeshindwa kupakia metadata"
 
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1090,16 +1107,20 @@ msgstr "Imeshindwa kufungua URL: {0}"
 #. Error toast when snapshot regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate Harmony snapshots"
-msgstr ""
+msgstr "Imeshindwa kutengeneza upya picha za Harmony"
 
 #. Error toast when search index regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate search index"
-msgstr ""
+msgstr "Imeshindwa kutengeneza upya faharasa ya utafutaji"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to save file"
-msgstr ""
+msgstr "Imeshindwa kuhifadhi faili"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to save settings"
+msgstr "Imeshindwa kuhifadhi mipangilio"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
@@ -1108,7 +1129,7 @@ msgstr "Imeshindwa kuoanisha"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to upload files"
-msgstr ""
+msgstr "Imeshindwa kupakia faili"
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -1136,11 +1157,11 @@ msgstr "FieldWorks Lite"
 
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
-msgstr ""
+msgstr "FieldWorks Lite hukusanya data za matumizi ili kutusaidia kuiboresha."
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
-msgstr ""
+msgstr "FieldWorks Lite imesasishwa. Anzisha upya ili kumaliza kusakinisha."
 
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1192,15 +1213,15 @@ msgstr "Faili kubwa sana"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Filename"
-msgstr ""
+msgstr "Jina la faili"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
-msgstr ""
+msgstr "Jaza Onyesha kama"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
-msgstr ""
+msgstr "Jaza Neno au Onyesha kama"
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1316,14 +1337,14 @@ msgstr "Nenda kwa {0}"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to entry"
-msgstr ""
+msgstr "Nenda kwenye ingizo"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
-msgstr ""
+msgstr "Nenda kwenye neno"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1342,19 +1363,19 @@ msgstr "kijani"
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
-msgstr ""
+msgstr "Picha za Harmony zimetengenezwa upya kwa mafanikio"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has comments"
-msgstr ""
+msgstr "Ina maoni"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unread comments"
-msgstr ""
+msgstr "Una maoni ambayo hayajasomwa"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unresolved comments"
-msgstr ""
+msgstr "Ina maoni ambayo hayajatatuliwa"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1366,7 +1387,7 @@ msgstr "Neno la kichwa"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Help & More"
-msgstr ""
+msgstr "Msaada na mengine"
 
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
@@ -1398,7 +1419,7 @@ msgstr "Ninaelewa kuwa hii haiwezi kurudishwa nyuma"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "ID"
-msgstr ""
+msgstr "Kitambulisho"
 
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
@@ -1434,7 +1455,7 @@ msgstr "Inasakinisha Sasisho..."
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
-msgstr ""
+msgstr "punde hivi"
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1454,12 +1475,12 @@ msgstr "Kuoanisha kwa mwisho: #"
 
 #: src/home/HomeView.svelte
 msgid "Learn more"
-msgstr ""
+msgstr "Jifunze zaidi"
 
 #. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
-msgstr ""
+msgstr "Acha tupu kwa ajili ya uzalishaji"
 
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
@@ -1511,36 +1532,36 @@ msgstr "Maana halisi"
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Load"
-msgstr ""
+msgstr "Pakia"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Load all"
-msgstr ""
+msgstr "Pakia yote"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Load it to preview or export."
-msgstr ""
+msgstr "Ipakie ili kuona awali au kusafirisha."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Load picture"
-msgstr ""
+msgstr "Pakia picha"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded {0} file(s)"
-msgstr ""
+msgstr "Faili {0} zimepakiwa"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded file"
-msgstr ""
+msgstr "Faili limepakia"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr ""
+msgstr "Inapakia shughuli"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
-msgstr ""
+msgstr "Inapakia maoni..."
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1549,11 +1570,11 @@ msgstr "Inapakia Kamusi..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Loading metadata..."
-msgstr ""
+msgstr "Inapakia metadata..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Loading preview..."
-msgstr ""
+msgstr "Inapakia awali..."
 
 #: src/home/HomeView.svelte
 msgid "loading..."
@@ -1561,7 +1582,7 @@ msgstr "inashughulikia..."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loading..."
-msgstr ""
+msgstr "Inapakia..."
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
@@ -1571,7 +1592,7 @@ msgstr "Mitaa"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Local and remote"
-msgstr ""
+msgstr "Kwenye eneo na mbali"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
@@ -1588,7 +1609,7 @@ msgstr "Ingia"
 #. Toast shown when the user closes or cancels the login dialog before signing in.
 #: src/lib/auth/LoginButton.svelte
 msgid "Login cancelled."
-msgstr ""
+msgstr "Uingiaji umefutwa."
 
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
@@ -1614,6 +1635,11 @@ msgstr "Tengeneza pendekezo"
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Hakikisha mabadiliko yako [yameoanishwa]({0}) kwa Lexbox."
+
+#. Detail under "Still opening the project...". After an app update, opening a project can rebuild its data, and closing the app restarts that work.
+#: src/DotnetProjectView.svelte
+msgid "Making sure the project is up to date can take a few minutes. Please keep the app open."
+msgstr ""
 
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
@@ -1648,16 +1674,16 @@ msgstr "Maana"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Media file details"
-msgstr ""
+msgstr "Maelezo ya faili ya media"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Media Manager"
-msgstr ""
+msgstr "Msimamizi wa Vyombo vya Habari"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
-msgstr ""
+msgstr "Fomu ya nukuu inayokosekana {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1666,7 +1692,7 @@ msgstr "Maana yenye kushindwa {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Display as {0}"
-msgstr ""
+msgstr "Kionyesho kinachokosekana kama {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1680,27 +1706,27 @@ msgstr "Glosi yenye kushindwa {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Grammatical info."
-msgstr ""
+msgstr "Taarifa za kisarufi zimepotea."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Headword {0}"
-msgstr ""
+msgstr "Neno kuu linalokosekana {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Lexeme form {0}"
-msgstr ""
+msgstr "Fomu ya leksemu inayokosekana {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of speech"
-msgstr ""
+msgstr "Sehemu ya hotuba inayokosekana"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Semantic domains"
-msgstr ""
+msgstr "Maeneo ya semantiki yaliyokosekana"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Word {0}"
-msgstr ""
+msgstr "Neno Linalokosekana {0}"
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1769,11 +1795,11 @@ msgstr "Ingizo Mpya"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
-msgstr ""
+msgstr "Mradi Mpya"
 
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
-msgstr ""
+msgstr "Mradi Mpya (Kwenye eneo tu)"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1787,7 +1813,7 @@ msgstr "Neno Jipya"
 #. Sort option in activity view — most recent commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Newest first"
-msgstr ""
+msgstr "Zipya kwanza"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
@@ -1795,25 +1821,25 @@ msgstr "Inayofuata"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Next milestone: {0}. {1} to go."
-msgstr ""
+msgstr "Hatua inayofuata: {0}. {1} bado."
 
 #. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Next picture"
-msgstr ""
+msgstr "Picha inayofuata"
 
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
-msgstr ""
+msgstr "Hakuna shughuli inayolingana na vichujio hivi"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
-msgstr ""
+msgstr "Hakuna aina za shughuli"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
-msgstr ""
+msgstr "Hakuna mifumo ya uandishi wa uchambuzi iliyowekwa."
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -1823,7 +1849,7 @@ msgstr "Hakuna sauti"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
-msgstr ""
+msgstr "Hakuna waandishi"
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1857,7 +1883,7 @@ msgstr "Hakuna kitu kilichopatikana"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
-msgstr ""
+msgstr "Hakuna faili za vyombo vya habari zilizopatikana"
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1867,12 +1893,12 @@ msgstr "Hakuna data mpya"
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "No open conversations"
-msgstr ""
+msgstr "Hakuna mazungumzo wazi"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
-msgstr ""
+msgstr "Hakuna picha"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/FwLiteSyncView.svelte
@@ -1889,14 +1915,14 @@ msgstr "Hakuna seva iliyotengwa"
 #. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar entries found"
-msgstr ""
+msgstr "Hakuna maingizo yanayofanana yaliyopatikana"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No similar entries found"
 #. Status line in the New Word dialog: the duplicate check found no existing words like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar words found"
-msgstr ""
+msgstr "Hakuna maneno yanayofanana yaliyopatikana"
 
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte
@@ -1905,7 +1931,7 @@ msgstr "Hakuna kigezo, haiwezi kutengeneza {0} mpya"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
-msgstr ""
+msgstr "Hakuna mifumo ya maandishi ya kienyeji iliyosanidiwa."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -1974,22 +2000,22 @@ msgstr "Nyuma ya mtandao, haiwezi kupakua"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
-msgstr ""
+msgstr "Haiko mtandaoni, haiwezi kufungua faili"
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Oldest first"
-msgstr ""
+msgstr "Za zamani kwanza"
 
 #. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
-msgstr ""
+msgstr "Kwenye miradi mikubwa, hii inaweza kuchukua muda mrefu. Usifunge programu au kuingilia mchakato."
 
 #. Warning in regenerate-search-index confirm dialog: operation may be slow
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a while. Do not close the app or interrupt the process."
-msgstr ""
+msgstr "Kwenye miradi mikubwa, hii inaweza kuchukua muda. Usifunge programu au kuingilia mchakato."
 
 #. Explanation of sync behavior
 #: src/project/sync/FwClassicSyncView.svelte
@@ -2013,7 +2039,7 @@ msgstr ""
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
 msgid "Open in browser"
-msgstr ""
+msgstr "Fungua kwenye kivinjari"
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2041,9 +2067,14 @@ msgstr ""
 msgid "Opening in FieldWorks…"
 msgstr "Kufungua katika FieldWorks…"
 
+#. Loading notification shown while a project opens.
+#: src/DotnetProjectView.svelte
+msgid "Opening project..."
+msgstr ""
+
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Opt out of analytics"
-msgstr ""
+msgstr "Jiondoe kwenye uchanganuzi"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -2079,6 +2110,10 @@ msgstr "Sehemu ya"
 msgid "Part of speech"
 msgstr "Sehemu za mazungumzo"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
+msgstr "Bandika mipangilio kutoka kwa msaada hapa. Kuhifadhi kunabadilisha faili na kuitumia mara moja; acha tupu ili kuondoa faili. Ukubwa wa faili ya kumbukumbu na hesabu hubadilika tu baada ya kuanzisha upya."
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2087,15 +2122,15 @@ msgstr "Inasubiri"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
-msgstr ""
+msgstr "Chagua aina ya neno"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick Grammatical info."
-msgstr ""
+msgstr "Chagua taarifa za kisarufi."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick one or more Semantic domains"
-msgstr ""
+msgstr "Chagua kimoja au zaidi ya maeneo ya semantiki"
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
@@ -2103,21 +2138,21 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
-msgstr ""
+msgstr "Picha"
 
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
-msgstr ""
+msgstr "Vitendo vya picha"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Picture not found"
-msgstr ""
+msgstr "Picha haipatikani"
 
 #. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
 #: src/lib/views/entity-config.ts
 msgid "Pictures"
-msgstr ""
+msgstr "Picha"
 
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
@@ -2146,22 +2181,22 @@ msgstr "Muonekano awali haupatikani"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not available for this file type."
-msgstr ""
+msgstr "Tazama awali haipatikani kwa aina hii ya faili."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
-msgstr ""
+msgstr "Onyesho la awali halitumiki"
 
 #. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Previous picture"
-msgstr ""
+msgstr "Picha ya awali"
 
 #: src/home/HomeView.svelte
 #: src/lib/about/PrivacyDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
-msgstr ""
+msgstr "Faragha"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2202,43 +2237,43 @@ msgstr "Chapisha Neno katika"
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
-msgstr ""
+msgstr "Soma tu"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
-msgstr ""
+msgstr "Rekodi fomu ya nukuu"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Definition"
-msgstr ""
+msgstr "Rekodi Ufafanuzi"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Gloss"
-msgstr ""
+msgstr "Rekodi glosi"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form"
-msgstr ""
+msgstr "Rekodi fomu ya leksemu"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form or Citation form"
-msgstr ""
+msgstr "Rekodi fomu ya leksemu au fomu ya nukuu"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
-msgstr ""
+msgstr "Rekodi Neno"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record an example sentence"
-msgstr ""
+msgstr "Rekodi sentensi mfano"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
-msgstr ""
+msgstr "Rekodi Onyesha kama"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
-msgstr ""
+msgstr "Rekodi Neno au Onyesha kama"
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
@@ -2255,7 +2290,7 @@ msgstr "Boresho kichujio chako kuona zaidi..."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Refresh"
-msgstr ""
+msgstr "Onyesha upya"
 
 #. Button to reload project list
 #: src/home/HomeView.svelte
@@ -2267,42 +2302,42 @@ msgstr "Onyesha Upya Miradi"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate"
-msgstr ""
+msgstr "Kuzalisha upya"
 
 #. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots"
-msgstr ""
+msgstr "Zalisha upya picha za Harmony"
 
 #. Alert dialog title before starting Harmony snapshot regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots?"
-msgstr ""
+msgstr "Kutengeneza upya picha za Harmony?"
 
 #. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index"
-msgstr ""
+msgstr "Kutengeneza upya faharasa ya utafutaji"
 
 #. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
-msgstr ""
+msgstr "Kutengeneza upya faharasa ya utafutaji?"
 
 #. Blocking progress message while Harmony snapshots are being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
-msgstr ""
+msgstr "Inatengeneza upya picha za Harmony. Hii inaweza kuchukua muda mrefu � usifunge programu."
 
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
-msgstr ""
+msgstr "Inatengeneza upya faharasa ya utafutaji. Hii inaweza kuchukua muda � usifunge programu."
 
 #. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Release channel"
-msgstr ""
+msgstr "Kituo cha utoaji"
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -2311,7 +2346,7 @@ msgstr "Maelezo ya toleo"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
-msgstr ""
+msgstr "Kwa mbali tu"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -2338,16 +2373,16 @@ msgstr "Badili sauti"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Replace Picture"
-msgstr ""
+msgstr "Badilisha Picha"
 
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply"
-msgstr ""
+msgstr "Jibu"
 
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply…"
-msgstr ""
+msgstr "Jibu…"
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
@@ -2356,18 +2391,18 @@ msgstr "Ripoti tatizo la kiufundi"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
-msgstr ""
+msgstr "Weka upya"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
-msgstr ""
+msgstr "Tatua"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Restart"
-msgstr ""
+msgstr "Anza upya"
 
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
@@ -2389,14 +2424,14 @@ msgstr "waridi"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
-msgstr ""
+msgstr "Neno kuu lile lile"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: only its lexeme form matches the typed text, while its citation form (shown as the headword) differs — deliberately NOT claiming "Same headword"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same lexeme form"
-msgstr ""
+msgstr "Fomu ile ile ya leksemu"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Same headword"
@@ -2404,15 +2439,19 @@ msgstr ""
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same word"
-msgstr ""
+msgstr "Neno lile lile"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
-msgstr ""
+msgstr "Hifadhi"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Save and apply"
+msgstr "Hifadhi na kutumia"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Save as"
-msgstr ""
+msgstr "Hifadhi kama"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -2442,7 +2481,7 @@ msgstr "Tafuta Kamusi"
 #. Success toast after rebuilding the FTS entry search index
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
-msgstr ""
+msgstr "Faharasa ya utafutaji imetengenezwa upya kwa mafanikio"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2472,7 +2511,7 @@ msgstr "Chagua Faili"
 
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Selected"
-msgstr ""
+msgstr "Iliyochaguliwa"
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
@@ -2516,6 +2555,10 @@ msgstr "Sentensi"
 msgid "Settings"
 msgstr "Mipangilio"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Settings saved and applied"
+msgstr "Mipangilio imehifadhiwa na kutumika"
+
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
 msgid "Shadcn Sandbox # #"
@@ -2548,53 +2591,53 @@ msgstr "Onyesha {0} zaidi..."
 
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
-msgstr ""
+msgstr "Onyesha au ficha maelezo ya picha"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
-msgstr ""
+msgstr "Ingia ili kuongeza maoni."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar words already exist"
 #. Warning banner in the New Entry dialog; expands to a list of possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar entries already exist"
-msgstr ""
+msgstr "Maingizo yanayofanana tayari yapo"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar meaning"
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
-msgstr ""
+msgstr "Glosi inayofanana"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
 #. Badge on a possible-duplicate result: its headword partly matches the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar headword"
-msgstr ""
+msgstr "Neno kuu linalofanana"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar gloss"
 #. Badge on a possible-duplicate result: one of its meanings matches the meaning being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar meaning"
-msgstr ""
+msgstr "Maana sawa"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar headword"
 #. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar word"
-msgstr ""
+msgstr "Neno linalofanana"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar entries already exist"
 #. Warning banner in the New Word dialog; expands to a list of possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar words already exist"
-msgstr ""
+msgstr "Maneno yanayofanana tayari yapo"
 
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
@@ -2603,7 +2646,7 @@ msgstr "Rahisi"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Size"
-msgstr ""
+msgstr "Ukubwa"
 
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
@@ -2617,15 +2660,19 @@ msgstr "Ruka"
 
 #: src/project/sync/folder-sync-messages.ts
 msgid "Some media files couldn't be copied. They will be copied the next time you sync."
+
+#. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
 msgstr ""
 
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
-msgstr ""
+msgstr "Kuna tatizo limetokea"
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
-msgstr ""
+msgstr "Panga mfumo wa uandishi"
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
@@ -2634,11 +2681,11 @@ msgstr "Sehemu mahsusi"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation"
-msgstr ""
+msgstr "Anza mazungumzo"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation…"
-msgstr ""
+msgstr "Anza mazungumzo…"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2646,6 +2693,11 @@ msgstr ""
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Inaanza na"
+
+#. Title of a loading notification shown when opening a project takes a while.
+#: src/DotnetProjectView.svelte
+msgid "Still opening the project..."
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -2710,12 +2762,12 @@ msgstr "Kuoanishwa"
 #. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced newest"
-msgstr ""
+msgstr "Imesawazishwa toleo jipya zaidi"
 
 #. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced oldest"
-msgstr ""
+msgstr "Iliyosawazishwa ya zamani zaidi"
 
 #. Status showing sync source server
 #: src/home/HomeView.svelte
@@ -2759,7 +2811,7 @@ msgstr "Jukumu halipatikani: {0}"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task view failed"
-msgstr ""
+msgstr "Uoni wa kazi umeshindwa"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -2774,7 +2826,7 @@ msgstr "Tuambie kuhusu kosa au matatizo uliyokabiliwa."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Tell us how you work and what would help most. Your ideas guide what we build."
-msgstr ""
+msgstr "Tuambie jinsi unavyofanya kazi na ni nini kingesaidia zaidi. Mawazo yako yanaongoza kile tunachojenga."
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
@@ -2827,11 +2879,11 @@ msgstr "Tarehe hii # na emoji hii # ni vigezo"
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This entry may already exist"
-msgstr ""
+msgstr "Ingizo hili linaweza kuwepo tayari"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
-msgstr ""
+msgstr "Faili hii inapatikana tu kwa mbali."
 
 #: src/home/OpenFromFolderItem.svelte
 msgid "This folder doesn't hold a FieldWorks Lite project."
@@ -2859,11 +2911,11 @@ msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
-msgstr ""
+msgstr "Picha hii ni kubwa mno kupakia. Jaribu kupunguza azimio na kupakia tena."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
-msgstr ""
+msgstr "Picha hii ni kubwa mno kupakia. Jaribu kuihifadhi kwa ubora wa JPEG wa chini na upakie tena."
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2873,12 +2925,12 @@ msgstr "Mradi huu umefunguliwa kwenye FieldWorks. Ili kuendelea kufanya kazi kwe
 #. Warning in regenerate-snapshots confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds snapshot and projected tables from commit history."
-msgstr ""
+msgstr "Hii inajenga upya jedwali za muhtasari na zilizotabiriwa kutoka kwenye historia ya commit."
 
 #. Warning in regenerate-search-index confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
-msgstr ""
+msgstr "Hii inajenga upya faharasa ya utafutaji wa maandishi yote kutoka kwa maingizo ya kamusi."
 
 #. Status message
 #: src/project/tasks/TaskView.svelte
@@ -2895,7 +2947,7 @@ msgstr "Hii itaoanisha kopia za FieldWorks Lite na FieldWorks Classic za mradi w
 #. Warning banner in the New Word dialog when a word with the exact same spelling exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This word may already exist"
-msgstr ""
+msgstr "Neno hili linaweza tayari kuwepo"
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
@@ -2911,7 +2963,7 @@ msgstr "Geuza iliyobandikwa"
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
-msgstr ""
+msgstr "Jumla ya maingizo"
 
 #. Field label
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -2935,19 +2987,19 @@ msgstr "Tatanua"
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
-msgstr ""
+msgstr "Jaribu tena"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
-msgstr ""
+msgstr "Washa tena uchanganuzi"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
-msgstr ""
+msgstr "Aina"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Citation form"
-msgstr ""
+msgstr "Andika fomu ya nukuu"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2961,15 +3013,15 @@ msgstr "Andika Fasihi"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form"
-msgstr ""
+msgstr "Andika fomu ya leksemu"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form or Citation form"
-msgstr ""
+msgstr "Andika fomu ya leksemu au fomu ya nukuu"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Word"
-msgstr ""
+msgstr "Andika neno"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2983,30 +3035,30 @@ msgstr "Aina:"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to convert captured image from {0} to a jpeg"
-msgstr ""
+msgstr "Haiwezekani kubadilisha picha iliyorekodiwa kutoka {0} kuwa jpeg"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to download the picture"
-msgstr ""
+msgstr "Hakuwezi kupakua picha"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to export file"
-msgstr ""
+msgstr "Hakuwezi kusafirisha faili"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to load audio"
-msgstr ""
+msgstr "Hakuwezi kupakia sauti"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load picture"
-msgstr ""
+msgstr "Haiwezekani kupakia picha"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to open file"
-msgstr ""
+msgstr "Hakuwezi kufungua faili"
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -3015,7 +3067,7 @@ msgstr "Haiwezi kufungua katika FieldWorks"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to upload the picture"
-msgstr ""
+msgstr "Hakuwezi kupakia picha"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
@@ -3038,7 +3090,7 @@ msgstr "Hitilafu isiyojulikana {0}"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Unknown error creating project"
-msgstr ""
+msgstr "Hitilafu isiyojulikana wakati wa kuunda mradi"
 
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -3058,7 +3110,7 @@ msgstr "Matokeo ya sasisho yasiyojulikana"
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
-msgstr ""
+msgstr "Haijasomwa"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
@@ -3093,11 +3145,11 @@ msgstr "Sasisho linapatikana: {0}"
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update downloaded. Restart to apply."
-msgstr ""
+msgstr "Sasisho limepakuliwa. Anzisha upya ili kutekeleza."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update downloading in the background. Restart to apply once it's finished."
-msgstr ""
+msgstr "Sasisho linapakuliwa nyuma ya pazia. Anzisha upya ili kutumia mara litakapomalizika."
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3118,24 +3170,28 @@ msgstr "Masasisho"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
-msgstr ""
+msgstr "Upakiaji unasubiri"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Uploaded"
-msgstr ""
+msgstr "Imepakiwa"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Uploaded pending files"
-msgstr ""
+msgstr "Faili zilizopakiwa zinasubiri"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
-msgstr ""
+msgstr "Kupakia picha hakutumiki hapa"
 
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Inatumia sehemu kama"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Verbose logging"
+msgstr "Uandikishaji wa kumbukumbu kwa undani"
 
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
@@ -3146,15 +3202,15 @@ msgstr "Lugha ya kienyeji"
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
-msgstr ""
+msgstr "Msimbo wa mfumo wa uandishi wa lugha ya kienyeji"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
-msgstr ""
+msgstr "Mfumo wa uandishi wa lugha ya kienyeji unahitajika"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
-msgstr ""
+msgstr "Mifumo ya uandishi ya lugha za kienyeji"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
@@ -3164,11 +3220,11 @@ msgstr "Muonekano"
 #. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "View Picture"
-msgstr ""
+msgstr "Tazama picha"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "View the SIL privacy policy"
-msgstr ""
+msgstr "Tazama sera ya faragha ya SIL"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -3177,15 +3233,15 @@ msgstr "zambarau"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
-msgstr ""
+msgstr "Pia tunakusanya ripoti za makosa zenye maelezo ya kiufundi kuhusu kilichokwenda vibaya. Kabla ya kuzituma, tunajaribu kuondoa chochote kinachoweza kuwa maandishi ya kamusi, majina ya faili au maelezo mengine ya kibinafsi."
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
-msgstr ""
+msgstr "Tunakusanya data za matumizi ili kuelewa jinsi FieldWorks Lite inavyotumika na wapi tunahitaji kuiboresha. Unapoingia kwenye Lexbox, data hizo zinaunganishwa na akaunti yako, na kamwe hazijumuishi maudhui ya kamusi yako."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
-msgstr ""
+msgstr "Ungependa kuona nini hapa?"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -3239,7 +3295,11 @@ msgstr "Neno au maana:"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
-msgstr ""
+msgstr "Maneno yanayokosa Neno na Onyesha kama"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
+msgstr "Huandika kumbukumbu za kina, ikiwa ni pamoja na uchunguzi wa kuingia, kwenye faili ya kumbukumbu. Zima tena mara tu timu ya msaada itakapokuwa na kile wanachohitaji."
 
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
@@ -3265,7 +3325,7 @@ msgstr "Mifumo ya Kuandika"
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
 msgid "You appear to be offline. Can you connect to {0}?"
-msgstr ""
+msgstr "Inaonekana uko nje ya mtandao. Je, unaweza kuunganisha na {0}?"
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3290,12 +3350,12 @@ msgstr "Umeshapakua mradi wa {0}"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
-msgstr ""
+msgstr "Haupo mtandaoni"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
-msgstr ""
+msgstr "Umefikia kila hatua muhimu. Ni mafanikio makubwa!"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
-msgstr ""
+msgstr "Kamusi yako inaanza hapa"

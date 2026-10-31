@@ -102,7 +102,7 @@ password={password}
         content.ValueKind.Should().Be(JsonValueKind.Object);
         var responseObject = JsonObject.Create(content);
         responseObject.Should().NotBeNull();
-        responseObject.Should().ContainKey("error");
+        responseObject.Should().HaveProperty("error");
         responseObject["error"]!.GetValue<string>().Should().Be("Bad password");
     }
 
@@ -118,7 +118,7 @@ password={password}
         content.ValueKind.Should().Be(JsonValueKind.Object);
         var responseObject = JsonObject.Create(content);
         responseObject.Should().NotBeNull();
-        responseObject.Should().ContainKey("error");
+        responseObject.Should().HaveProperty("error");
         responseObject["error"]!.GetValue<string>().Should().Be("Unknown user");
     }
 
