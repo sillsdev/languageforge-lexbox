@@ -7,7 +7,20 @@ export interface DiffSegment {
   type: DiffSegmentType;
 }
 
-const graphemes = new Intl.Segmenter(undefined, {granularity: 'grapheme'});
+// Created on first use: constructing it at module load would throw where Intl.Segmenter is missing (Firefox < 125).
+let graphemes: Intl.Segmenter | null | undefined;
+function graphemeSegmenter(): Intl.Segmenter | null {
+  if (graphemes === undefined) {
+    graphemes = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter(undefined, {granularity: 'grapheme'}) : null;
+  }
+  return graphemes;
+}
+
+/** Grapheme clusters, or code points where the browser can't segment graphemes. */
+function units(s: string): string[] {
+  const segmenter = graphemeSegmenter();
+  return segmenter ? Array.from(segmenter.segment(s), ({segment}) => segment) : Array.from(s);
+}
 
 /**
  * Diffs two strings with diff-match-patch's semantic cleanup, which rolls character-level edits up into
@@ -28,6 +41,7 @@ export function hasChanges(segments: DiffSegment[]): boolean {
 
 // diff-match-patch diffs UTF-16 units, so it would split a combining mark from its base letter. Swapping each
 // multi-unit grapheme for one private-use char the text doesn't contain makes graphemes the unit of diffing.
+// Without Intl.Segmenter the units are code points, so only surrogate pairs stay whole.
 function graphemeCodec(text: string) {
   const used = new Set(text);
   const codeOf = new Map<string, string>();
@@ -46,7 +60,7 @@ function graphemeCodec(text: string) {
   }
 
   return {
-    encode: (s: string) => Array.from(graphemes.segment(s), ({segment}) => (segment.length > 1 ? code(segment) : segment)).join(''),
+    encode: (s: string) => units(s).map((unit) => (unit.length > 1 ? code(unit) : unit)).join(''),
     decode: (s: string) => Array.from(s, (char) => graphemeOf.get(char) ?? char).join(''),
   };
 }

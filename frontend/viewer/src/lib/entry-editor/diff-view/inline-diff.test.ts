@@ -1,4 +1,4 @@
-import {describe, it, expect} from 'vitest';
+import {afterEach, describe, it, expect, vi} from 'vitest';
 import {computeDiff, hasChanges, type DiffSegment} from './inline-diff';
 
 function rebuiltBefore(segments: DiffSegment[]): string {
@@ -45,5 +45,26 @@ describe('computeDiff', () => {
     }
     expect(rebuiltBefore(segments)).toBe(before);
     expect(rebuiltAfter(segments)).toBe(after);
+  });
+});
+
+describe('computeDiff without Intl.Segmenter', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it('loads and diffs by code point, keeping surrogate pairs whole', async () => {
+    // eslint-disable-next-line @typescript-eslint/naming-convention -- the browser API's name
+    vi.stubGlobal('Intl', {...Intl, Segmenter: undefined});
+    vi.resetModules();
+    const {computeDiff: diffWithoutSegmenter} = await import('./inline-diff');
+
+    const segments = diffWithoutSegmenter('\u{1F642} hi', '\u{1F643} hi');
+    for (const {value} of segments) {
+      expect(value).not.toMatch(/^[\uDC00-\uDFFF]|[\uD800-\uDBFF]$/);
+    }
+    expect(rebuiltBefore(segments)).toBe('\u{1F642} hi');
+    expect(rebuiltAfter(segments)).toBe('\u{1F643} hi');
   });
 });
