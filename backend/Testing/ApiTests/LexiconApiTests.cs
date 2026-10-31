@@ -10,7 +10,8 @@ using Testing.Services;
 namespace Testing.ApiTests;
 
 /// <summary>
-/// A merged sena-3 copy with an Editor ("editor") and an Observer ("user"). "manager" is not a member.
+/// A merged sena-3 copy with an Editor ("editor") and an Observer ("manager"). "user" is not a member
+/// (and can't be added: its email isn't verified).
 /// </summary>
 public class LexiconProjectFixture : IAsyncLifetime
 {
@@ -22,7 +23,7 @@ public class LexiconProjectFixture : IAsyncLifetime
         var admin = new ApiTestBase();
         await admin.LoginAs("admin");
         await Utils.AddMemberToProject(Project.ProjectId, admin, "editor", ProjectRole.Editor);
-        await Utils.AddMemberToProject(Project.ProjectId, admin, "user", ProjectRole.Observer);
+        await Utils.AddMemberToProject(Project.ProjectId, admin, "manager", ProjectRole.Observer);
     }
 
     public Task DisposeAsync() => Project.DisposeAsync();
@@ -68,7 +69,7 @@ public class LexiconApiTests(LexiconProjectFixture fixture) : ApiTestBase, IClas
     [Fact]
     public async Task Observer_CanReadButNotWrite()
     {
-        await LoginAs("user");
+        await LoginAs("manager");
         (await HttpClient.GetAsync($"{ProjectUrl}/entries/count")).StatusCode.Should().Be(HttpStatusCode.OK);
         var write = await HttpClient.PostAsJsonAsync($"{ProjectUrl}/entry", new { id = Guid.NewGuid() });
         write.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -77,7 +78,7 @@ public class LexiconApiTests(LexiconProjectFixture fixture) : ApiTestBase, IClas
     [Fact]
     public async Task NonMember_IsForbidden()
     {
-        await LoginAs("manager");
+        await LoginAs("user");
         (await HttpClient.GetAsync($"{ProjectUrl}/entries/count")).StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
