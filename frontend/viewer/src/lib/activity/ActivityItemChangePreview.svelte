@@ -42,9 +42,12 @@
   function existing(snapshot: IObjectWithId | undefined): IObjectWithId | undefined {
     return snapshot && !snapshot.deletedAt ? snapshot : undefined;
   }
+  // An edit to an already-deleted entity (one synced in from a client that didn't know about the delete) still
+  // diffs: hiding it would hide that user's work.
+  const editOfDeleted = $derived(!!context.previousSnapshot?.deletedAt && !!context.snapshot?.deletedAt);
   // No before means the commit created the entity, no after means it deleted it.
-  const before = $derived(existing(context.previousSnapshot));
-  const after = $derived(existing(context.snapshot));
+  const before = $derived(editOfDeleted ? context.previousSnapshot : existing(context.previousSnapshot));
+  const after = $derived(editOfDeleted ? context.snapshot : existing(context.snapshot));
   const anySnapshot = $derived(context.snapshot ?? context.previousSnapshot);
 
   let currentEntity = $derived.by(() => {
