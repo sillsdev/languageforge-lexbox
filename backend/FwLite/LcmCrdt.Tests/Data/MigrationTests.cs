@@ -2,6 +2,7 @@ using SIL.Harmony.Config;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -11,13 +12,17 @@ using SIL.Harmony.Db;
 namespace LcmCrdt.Tests.Data;
 
 [Collection("MigrationTests")]
-public class MigrationTests : IAsyncLifetime
+public partial class MigrationTests : IAsyncLifetime
 {
     private readonly RegressionTestHelper _helper = new("MigrationTest");
     private static readonly JsonSerializerOptions IndentedHarmonyJsonOptions = new(TestJsonOptions.Harmony())
     {
         WriteIndented = true
     };
+
+    //only the snapshot's own id, nested entity ids are indented further
+    [GeneratedRegex("""^    "Id": "[0-9a-f-]{36}",$""")]
+    private static partial Regex SnapshotIdLine();
 
     [ModuleInitializer]
     internal static void Init()
@@ -94,6 +99,8 @@ public class MigrationTests : IAsyncLifetime
         await Task.WhenAll(
             Verify(snapshotsJson)
                 .UseStrictJson()
+                //a major model version regenerates the snapshots on open, giving them new ids
+                .ScrubLinesWithReplace(line => SnapshotIdLine().Replace(line, "    \"Id\": \"Guid_Scrubbed\","))
                 .UseFileName($"MigrationTests_FromScriptedDb.{regressionVersion}.Snapshots"),
             Verify(changesJson)
                 .UseStrictJson()

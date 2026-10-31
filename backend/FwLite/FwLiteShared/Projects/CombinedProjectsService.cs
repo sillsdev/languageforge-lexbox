@@ -71,7 +71,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
         var user = await lexboxProjectService.GetLexboxUser(server);
-        await UpdateProjectServerInfo(lexboxProjects.Projects, user);
+        // Can migrate a project's db and replay its whole history, so keep it off the UI thread
+        await Task.Run(async () => await UpdateProjectServerInfo(lexboxProjects.Projects, user));
         var projectModels = lexboxProjects.Projects.Select(p => new ProjectModel(
                 p.Name,
                 p.Code,

@@ -1667,6 +1667,11 @@ msgstr "Make a suggestion"
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Make sure your [changes are synced]({0}) to Lexbox."
 
+#. Detail under "Still opening the project...". After an app update, opening a project can rebuild its data, and closing the app restarts that work.
+#: src/DotnetProjectView.svelte
+msgid "Making sure the project is up to date can take a few minutes. Please keep the app open."
+msgstr "Making sure the project is up to date can take a few minutes. Please keep the app open."
+
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
 #: src/lib/views/custom/ManageCustomViewsButton.svelte
@@ -2109,6 +2114,11 @@ msgstr "Open Log file"
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Opening in FieldWorks…"
 msgstr "Opening in FieldWorks…"
+
+#. Loading notification shown while a project opens.
+#: src/DotnetProjectView.svelte
+msgid "Opening project..."
+msgstr "Opening project..."
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Opt out of analytics"
@@ -2752,6 +2762,11 @@ msgstr "Start a conversation…"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Starts with"
+
+#. Title of a loading notification shown when opening a project takes a while.
+#: src/DotnetProjectView.svelte
+msgid "Still opening the project..."
+msgstr "Still opening the project..."
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
