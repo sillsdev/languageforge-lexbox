@@ -28,7 +28,8 @@ public static class FwHeadlessKernel
         services.AddScoped<ProjectDeletionService>();
         services.AddScoped<LogSanitizerService>();
         services.AddScoped<SafeLoggingProgress>();
-        services.AddScoped<IProjectMetadataService, ProjectMetadataService>();
+        // Singleton so its file lock is shared across requests and the sync worker
+        services.AddSingleton<IProjectMetadataService, ProjectMetadataService>();
         services
             .AddLcmCrdtClientCore()
             .AddFwDataBridge(ServiceLifetime.Scoped)

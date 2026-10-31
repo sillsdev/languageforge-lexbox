@@ -71,18 +71,16 @@ builder.Services.AddHealthChecks();
 builder.Services.AddSingleton<IDeveloperPageExceptionFilter, AddExceptionFeatureDevExceptionFilter>();
 builder.Services.AddExceptionHandler((options) =>
 {
-    options.StatusCodeSelector = exception =>
-    {
-        if (exception is UnauthorizedAccessException)
-            return StatusCodes.Status401Unauthorized;
-        return StatusCodes.Status500InternalServerError;
-    };
+    options.StatusCodeSelector = ExceptionStatusCodes.Select;
 });
 builder.Services.AddProblemDetails(o =>
 {
     o.CustomizeProblemDetails = context =>
     {
         var exceptionHandlerFeature = context.HttpContext.Features.Get<IExceptionHandlerFeature>();
+        // the exception handler leaves detail empty; FwHeadless's message is meant for the caller
+        if (exceptionHandlerFeature?.Error is FwHeadlessException fwHeadlessException)
+            context.ProblemDetails.Detail = fwHeadlessException.Message;
         if (exceptionHandlerFeature?.Error is not IExceptionWithCode exceptionWithCode) return;
         context.ProblemDetails.Extensions["app-error-code"] = exceptionWithCode.Code;
     };
