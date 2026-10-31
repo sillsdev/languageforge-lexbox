@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import type {IChangeContext, IChangeEntity, IProjectActivity} from '$lib/dotnet-types';
+  import type {IActivityChangeInfo, IChangeContext, IChangeEntity, IProjectActivity} from '$lib/dotnet-types';
 
   export class ChangeWithLazyContext {
 
@@ -8,6 +8,8 @@
     constructor(
       public readonly change: IChangeEntity,
       public readonly activity: IProjectActivity,
+      /** Current names for what the change is about, resolved with the activity page */
+      public readonly info: IActivityChangeInfo,
       private readonly contextLoader: () => Promise<IChangeContext>,
     ) {}
 
@@ -33,6 +35,10 @@
   import {Button} from '$lib/components/ui/button';
   import HistoryView from '$lib/history/HistoryView.svelte';
   import {Icon} from '$lib/components/ui/icon';
+  import {useViewService} from '$lib/views/view-service.svelte';
+  import {sinceThen} from './since-then';
+
+  const viewService = useViewService();
 
   type Props = HTMLAttributes<HTMLDivElement> & {
     activity: IProjectActivity;
@@ -49,8 +55,8 @@
   const historyService = useHistoryService();
   let openHistoryId = $state<string>()
 
-  const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(({entity}) => {
-    return new ChangeWithLazyContext(entity, activity, () => historyService.loadChangeContext(activity.commitId, entity.index));
+  const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(({entity, info}) => {
+    return new ChangeWithLazyContext(entity, activity, info, () => historyService.loadChangeContext(activity.commitId, entity.index));
   }));
 </script>
 
@@ -114,16 +120,32 @@
             bufferSize={1400}
             getKey={(item) => `${item.change.commitId}:${item.change.index}`}>
             {#snippet children(changeWithContext)}
-              {@const {change, lazyContext} = changeWithContext}
+              {@const {change, info, lazyContext} = changeWithContext}
               {#await lazyContext}
                 <!-- determines how many rows are initially visible,
                  which in turn determines how many changes will be loaded.
                  Too big is not much of a problem, it will just stagger subsequent loads -->
                 <div class="h-[700px]"></div>
               {:then context}
+                {@const since = sinceThen(context.entityType, context.snapshot, context.currentSnapshot, viewService.currentView)}
                 <div class="change">
                   <div class="px-4 pt-2 flex font-semibold items-center">
                     <span class="grow">{context.changeName}</span>
+
+                    {#if since}
+                      <span class="inline-flex items-center gap-1 text-sm font-normal text-muted-foreground mr-2">
+                        {#if since.status === 'unchanged'}
+                          <Icon icon="i-mdi-check" class="size-4 shrink-0" aria-hidden="true" />
+                          {$t`No changes since`}
+                        {:else if since.status === 'deleted'}
+                          <Icon icon="i-mdi-delete-outline" class="size-4 shrink-0" aria-hidden="true" />
+                          {$t`Deleted since`}
+                        {:else}
+                          <Icon icon="i-mdi-pencil-outline" class="size-4 shrink-0" aria-hidden="true" />
+                          {$t`Changed since`}
+                        {/if}
+                      </span>
+                    {/if}
 
                     {#if showHistoryButton}
                       <Button icon="i-mdi-history" onclick={() => openHistoryId = context.snapshot?.id}>
@@ -132,16 +154,24 @@
                     {/if}
                   </div>
                   <Tabs.Root value="preview" class="px-2 mt-2 grow">
-                    <Tabs.List class="w-full">
-                      <Tabs.Trigger class="flex-1" value="preview">
-                        {$t`Preview`}
+                    <Tabs.List class="w-full h-auto">
+                      <Tabs.Trigger class="flex-1 h-auto min-h-8 whitespace-normal" value="preview">
+                        {$t`This change`}
                       </Tabs.Trigger>
-                      <Tabs.Trigger class="flex-1" value="change">{$t`Details`}</Tabs.Trigger>
+                      {#if since}
+                        <Tabs.Trigger class="flex-1 h-auto min-h-8 whitespace-normal" value="since">{$t`Since then`}</Tabs.Trigger>
+                      {/if}
+                      <Tabs.Trigger class="flex-1 h-auto min-h-8 whitespace-normal" value="change">{$t`Details`}</Tabs.Trigger>
                     </Tabs.List>
                     <div class="pt-1 pb-4 px-2">
                       <Tabs.Content value="preview">
-                        <ActivityItemChangePreview {activity} {context} />
+                        <ActivityItemChangePreview {context} {change} {info} />
                       </Tabs.Content>
+                      {#if since}
+                        <Tabs.Content value="since">
+                          <ActivityItemChangePreview {context} {change} {info} view="since" />
+                        </Tabs.Content>
+                      {/if}
                       <Tabs.Content value="change">
                         <div class="whitespace-pre-wrap font-mono text-sm">
                           {formatJsonForUi(change)}

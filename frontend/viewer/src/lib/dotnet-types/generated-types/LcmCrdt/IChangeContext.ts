@@ -14,6 +14,7 @@ export interface IChangeContext
 	snapshot?: IObjectWithId;
 	previousSnapshot?: IObjectWithId;
 	affectedEntries: IEntry[];
+	currentSnapshot?: IObjectWithId;
 	entityType: string;
 }
 /* eslint-enable */

@@ -12,18 +12,32 @@
   import DiffSelect from './DiffSelect.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
   import DiffPictures from './DiffPictures.svelte';
-  import {showChangedFields, sortedIds} from './changed-fields';
+  import DiffAnchorRow from './DiffAnchorRow.svelte';
+  import DiffNoVisibleChanges from './DiffNoVisibleChanges.svelte';
+  import {senseAnchor} from './anchor-text';
+  import DiffCollapsed from './DiffCollapsed.svelte';
+  import {changedFieldIds, changesOnly, showChangedFields, type DiffMode} from './changed-fields';
+  import {senseCompareAs} from './compare-as';
 
-  let {before, after}: {before?: ISense; after?: ISense} = $props();
+  // `anchor: false` when the caller names the entity itself, e.g. the activity preview's change header.
+  // `noVisibleChangesNote: false` when the caller already says what changed, e.g. that the entity moved.
+  let {before, after, mode = 'full', anchor = true, noVisibleChangesNote = true}: {
+    before?: ISense; after?: ISense; mode?: DiffMode; anchor?: boolean; noVisibleChangesNote?: boolean;
+  } = $props();
 
   const writingSystemService = useWritingSystemService();
   const partsOfSpeech = usePartsOfSpeech();
   const viewService = useViewService();
 
-  const senseFields = $derived(showChangedFields(viewService.currentView.senseFields, before, after, {
-    semanticDomains: sortedIds,
-    pictures: (pictures) => pictures.map(({id, mediaUri, caption}) => ({id, mediaUri, caption})),
-  }));
+  const compareAs = senseCompareAs;
+  const viewFields = $derived(showChangedFields(viewService.currentView.senseFields, before, after, compareAs));
+  const changed = $derived(changedFieldIds(viewFields, before, after, compareAs));
+
+  // Without a visible change there's nothing to focus on, so the whole sense shows.
+  const focused = $derived(mode === 'changes' && changed.size > 0);
+  let expanded = $state(false);
+  const focus = $derived(changesOnly(viewFields, changed, after, compareAs));
+  const senseFields = $derived(focused && !expanded ? focus.fields : viewFields);
   const fields = $derived(fieldRecord(senseFields));
 
   // The id is the source of truth: a legacy snapshot can carry an id without the object.
@@ -35,7 +49,15 @@
   }
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas(senseFields)}">
+{#if anchor}
+  <DiffAnchorRow {...senseAnchor(writingSystemService, viewService.currentView, before, after)} />
+{/if}
+{#if noVisibleChangesNote && mode === 'changes' && before && after && !changed.size}
+  <DiffNoVisibleChanges />
+{/if}
+
+<!-- Hidden when empty, or its grid gap shows -->
+<Editor.SubGrid class={cn('gap-2', senseFields.some((field) => field.show) || 'hidden')} style="grid-template-areas: {objectTemplateAreas(senseFields)}">
   <Editor.Field.Root fieldId="gloss" class={cn(fields.gloss?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.sense.gloss.label)} helpId={entityConfig.sense.gloss.helpId} />
     <Editor.Field.Body subGrid>
@@ -77,3 +99,6 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
+{#if focused}
+  <DiffCollapsed count={focus.unchanged} bind:expanded />
+{/if}
