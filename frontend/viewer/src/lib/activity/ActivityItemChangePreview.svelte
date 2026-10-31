@@ -157,19 +157,19 @@
 {:else if context.entityType === 'Entry'}
   <Editor.Root>
     <Editor.Grid>
-      <DiffEntryPrimitive before={before as IEntry | undefined} after={after as IEntry | undefined}/>
+      <DiffEntryPrimitive mode="changes" before={before as IEntry | undefined} after={after as IEntry | undefined}/>
     </Editor.Grid>
   </Editor.Root>
 {:else if context.entityType === 'Sense'}
   <Editor.Root>
     <Editor.Grid>
-      <DiffSensePrimitive before={before as ISense | undefined} after={after as ISense | undefined}/>
+      <DiffSensePrimitive mode="changes" before={before as ISense | undefined} after={after as ISense | undefined}/>
     </Editor.Grid>
   </Editor.Root>
 {:else if context.entityType === 'ExampleSentence'}
   <Editor.Root>
     <Editor.Grid>
-      <DiffExamplePrimitive before={before as IExampleSentence | undefined} after={after as IExampleSentence | undefined}/>
+      <DiffExamplePrimitive mode="changes" before={before as IExampleSentence | undefined} after={after as IExampleSentence | undefined}/>
     </Editor.Grid>
   </Editor.Root>
 {:else if isObjectType(context.entityType)}

@@ -119,6 +119,11 @@ msgstr "{num, plural, one {# 남은 단어 수} other {# 남은 단어 수}}"
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr "{num, plural, one {#개 더 보기...} other {#개 더 보기...}}"
 
+#. Button in the activity view's change preview. It reveals the fields of an entry, sense or example that this change did not modify. # is the number of those fields
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "{num, plural, one {Show # unchanged field} other {Show # unchanged fields}}"
+msgstr ""
+
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -1412,6 +1417,11 @@ msgstr "도움말 및 기타 정보"
 msgid "Hide"
 msgstr "숨기기"
 
+#. Button in the activity view's change preview. It hides again the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Hide unchanged fields"
+msgstr ""
+
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1969,6 +1979,11 @@ msgstr "제목이 없습니다, 새로 만들 수 없습니다 {0}"
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "구성된 토착어 쓰기 시스템이 없습니다."
+
+#. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
+#: src/lib/entry-editor/diff-view/DiffAnchor.svelte
+msgid "No visible changes"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -3128,6 +3143,7 @@ msgstr "읽지 않음"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffAnchor.svelte
 #: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
 #: src/lib/entry-editor/diff-view/DiffSelect.svelte
 #: src/project/browse/EntryMenu.svelte

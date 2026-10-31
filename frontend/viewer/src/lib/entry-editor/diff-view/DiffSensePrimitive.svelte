@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
-  import type {IPartOfSpeech, ISense} from '$lib/dotnet-types';
+  import type {IMultiString, IPartOfSpeech, IRichMultiString, ISense} from '$lib/dotnet-types';
   import {objectTemplateAreas, useViewService} from '$lib/views/view-service.svelte';
   import {fieldRecord} from '$lib/views/view-data';
   import {entityConfig} from '$lib/views/entity-config';
@@ -12,19 +12,39 @@
   import DiffSelect from './DiffSelect.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
   import DiffPictures from './DiffPictures.svelte';
-  import {showChangedFields, sortedIds} from './changed-fields';
+  import DiffAnchor from './DiffAnchor.svelte';
+  import DiffCollapsed from './DiffCollapsed.svelte';
+  import {changedFieldIds, changesOnly, showChangedFields, sortedIds, type DiffMode} from './changed-fields';
 
-  let {before, after}: {before?: ISense; after?: ISense} = $props();
+  let {before, after, mode = 'full'}: {before?: ISense; after?: ISense; mode?: DiffMode} = $props();
 
   const writingSystemService = useWritingSystemService();
   const partsOfSpeech = usePartsOfSpeech();
   const viewService = useViewService();
 
-  const senseFields = $derived(showChangedFields(viewService.currentView.senseFields, before, after, {
+  const compareAs = {
     semanticDomains: sortedIds,
-    pictures: (pictures) => pictures.map(({id, mediaUri, caption}) => ({id, mediaUri, caption})),
-  }));
+    pictures: (pictures: ISense['pictures']) => pictures.map(({id, mediaUri, caption}) => ({id, mediaUri, caption})),
+  };
+  const viewFields = $derived(showChangedFields(viewService.currentView.senseFields, before, after, compareAs));
+  const changed = $derived(changedFieldIds(viewFields, before, after, compareAs));
+
+  // Without a visible change there's nothing to focus on, so the whole sense shows.
+  const focused = $derived(mode === 'changes' && changed.size > 0);
+  let expanded = $state(false);
+  const focus = $derived(changesOnly(viewFields, changed, after, compareAs));
+  const senseFields = $derived(focused && !expanded ? focus.fields : viewFields);
   const fields = $derived(fieldRecord(senseFields));
+
+  // The gloss names a sense; one without a gloss on either side goes by its definition.
+  function best(value: IMultiString | IRichMultiString | undefined): string | undefined {
+    if (!value) return undefined;
+    return writingSystemService.first(value, writingSystemService.viewAnalysis(viewService.currentView))
+      || writingSystemService.first(value, writingSystemService.analysis);
+  }
+  const anchor = $derived(best(before?.gloss) || best(after?.gloss)
+    ? [best(before?.gloss), best(after?.gloss)]
+    : [best(before?.definition), best(after?.definition)]);
 
   // The id is the source of truth: a legacy snapshot can carry an id without the object.
   function partOfSpeech(sense: ISense | undefined): IPartOfSpeech | undefined {
@@ -35,7 +55,11 @@
   }
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas(senseFields)}">
+<DiffAnchor before={anchor[0]} after={anchor[1]}
+            noVisibleChanges={mode === 'changes' && !!before && !!after && !changed.size} />
+
+<!-- Hidden when empty, or its grid gap shows -->
+<Editor.SubGrid class={cn('gap-2', senseFields.some((field) => field.show) || 'hidden')} style="grid-template-areas: {objectTemplateAreas(senseFields)}">
   <Editor.Field.Root fieldId="gloss" class={cn(fields.gloss?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.sense.gloss.label)} helpId={entityConfig.sense.gloss.helpId} />
     <Editor.Field.Body subGrid>
@@ -77,3 +101,6 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
+{#if focused}
+  <DiffCollapsed count={focus.unchanged} bind:expanded />
+{/if}

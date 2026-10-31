@@ -114,6 +114,11 @@ msgstr "{num, plural, one {# word to go} other {# words to go}}"
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr "{num, plural, one {Show # more...} other {Show # more...}}"
 
+#. Button in the activity view's change preview. It reveals the fields of an entry, sense or example that this change did not modify. # is the number of those fields
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "{num, plural, one {Show # unchanged field} other {Show # unchanged fields}}"
+msgstr "{num, plural, one {Show # unchanged field} other {Show # unchanged fields}}"
+
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -1407,6 +1412,11 @@ msgstr "Help & More"
 msgid "Hide"
 msgstr "Hide"
 
+#. Button in the activity view's change preview. It hides again the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Hide unchanged fields"
+msgstr "Hide unchanged fields"
+
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1964,6 +1974,11 @@ msgstr "No subject, unable to create a new {0}"
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "No vernacular writing systems configured."
+
+#. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
+#: src/lib/entry-editor/diff-view/DiffAnchor.svelte
+msgid "No visible changes"
+msgstr "No visible changes"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
@@ -3123,6 +3138,7 @@ msgstr "Unread"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffAnchor.svelte
 #: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
 #: src/lib/entry-editor/diff-view/DiffSelect.svelte
 #: src/project/browse/EntryMenu.svelte

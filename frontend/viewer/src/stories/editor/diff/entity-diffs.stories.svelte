@@ -1,10 +1,12 @@
 <script module lang="ts">
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import * as Editor from '$lib/components/editor';
-  import {MorphTypeKind, ViewBase, type ICustomView, type IEntry, type IPartOfSpeech, type ISense, type IWritingSystem} from '$lib/dotnet-types';
+  import {MorphTypeKind, ViewBase, type ICustomView, type IEntry, type IExampleSentence, type IPartOfSpeech, type ISense, type IWritingSystem} from '$lib/dotnet-types';
   import {_entries, partsOfSpeech, writingSystems} from '$project/demo/demo-entry-data';
+  import {RichTextToggle} from '$lib/dotnet-types/generated-types/MiniLcm/Models/RichTextToggle';
   import DiffEntryPrimitive from '$lib/entry-editor/diff-view/DiffEntryPrimitive.svelte';
   import DiffSensePrimitive from '$lib/entry-editor/diff-view/DiffSensePrimitive.svelte';
+  import DiffExamplePrimitive from '$lib/entry-editor/diff-view/DiffExamplePrimitive.svelte';
   import DiffFieldRows from '$lib/entry-editor/diff-view/DiffFieldRows.svelte';
   import DiffEntryLinkList from '$lib/entry-editor/diff-view/DiffEntryLinkList.svelte';
   import {objectDiffRows} from '$lib/entry-editor/diff-view/diff-fields';
@@ -27,6 +29,19 @@
     partOfSpeech: partsOfSpeech[0],
     partOfSpeechId: partsOfSpeech[0].id,
   };
+
+  const exampleBefore: IExampleSentence = senseBefore.exampleSentences[0];
+  const exampleAfter: IExampleSentence = {
+    ...exampleBefore,
+    sentence: {...exampleBefore.sentence, seh: {spans: [{text: 'Nyumba yanga ndi ikulu kwambiri', ws: 'seh'}]}},
+  };
+  // Bold only: the diff compares plain text
+  const exampleFormatted: IExampleSentence = {
+    ...exampleBefore,
+    sentence: {...exampleBefore.sentence, seh: {spans: [{text: 'Nyumba yanga ndi ikulu', ws: 'seh', bold: RichTextToggle.On}]}},
+  };
+  const homographOnly: IEntry = {...entryBefore, homographNumber: 1};
+  const newSense: ISense = {...senseBefore, id: 'new', definition: {}, gloss: {en: 'shelter'}, semanticDomains: [], exampleSentences: []};
 
   const posBefore: IPartOfSpeech = partsOfSpeech[1];
   const posAfter: IPartOfSpeech = {...posBefore, name: {...posBefore.name, en: 'Common noun'}};
@@ -70,6 +85,9 @@
         <div class="col-span-full font-bold">Sense</div>
         <DiffSensePrimitive before={senseBefore} after={senseAfter} />
 
+        <div class="col-span-full font-bold">Example</div>
+        <DiffExamplePrimitive before={exampleBefore} after={exampleAfter} />
+
         <div class="col-span-full font-bold">Part of speech</div>
         <DiffFieldRows rows={objectDiffRows.PartOfSpeech} before={posBefore} after={posAfter} />
 
@@ -78,6 +96,33 @@
 
         <div class="col-span-full font-bold">Custom view</div>
         <DiffFieldRows rows={objectDiffRows.CustomView} before={viewBefore} after={viewAfter} />
+      </Editor.Grid>
+    </Editor.Root>
+  {/snippet}
+</Story>
+
+<!-- What the activity view shows: each diff keeps its own "Show unchanged fields" state. -->
+<Story name="Changes only">
+  {#snippet template()}
+    <Editor.Root>
+      <Editor.Grid>
+        <div class="col-span-full font-bold">Entry: lexeme form and morph type</div>
+        <DiffEntryPrimitive mode="changes" before={entryBefore} after={entryAfter} />
+
+        <div class="col-span-full font-bold">Entry: homograph number only</div>
+        <DiffEntryPrimitive mode="changes" before={entryBefore} after={homographOnly} />
+
+        <div class="col-span-full font-bold">Sense</div>
+        <DiffSensePrimitive mode="changes" before={senseBefore} after={senseAfter} />
+
+        <div class="col-span-full font-bold">New sense</div>
+        <DiffSensePrimitive mode="changes" after={newSense} />
+
+        <div class="col-span-full font-bold">Example</div>
+        <DiffExamplePrimitive mode="changes" before={exampleBefore} after={exampleAfter} />
+
+        <div class="col-span-full font-bold">Example: formatting only</div>
+        <DiffExamplePrimitive mode="changes" before={exampleBefore} after={exampleFormatted} />
       </Editor.Grid>
     </Editor.Root>
   {/snippet}
