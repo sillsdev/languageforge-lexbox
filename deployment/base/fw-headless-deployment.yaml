@@ -34,19 +34,8 @@ spec:
   - Ingress
   ingress:
   - from:
-    - namespaceSelector:
-        matchLabels:
-          # You'd think namespace: languagedepot would work, but no, that's not valid syntax for NetworkPolicy
-          kubernetes.io/metadata.name: languagedepot
-    # Do NOT put a hyphen in front of podSelector on the next line
-      podSelector:
-        matchLabels:
-          app: lexbox
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: languagedepot-dev
-    # Do NOT put a hyphen in front of podSelector on the next line
-      podSelector:
+    # no namespaceSelector: only lexbox in this policy's own namespace, since staging and develop share a cluster
+    - podSelector:
         matchLabels:
           app: lexbox
 
