@@ -8,6 +8,8 @@ export const UNKNOWN_AUTHOR_KEY = '__unknown__';
 export const FIELDWORKS_AUTHOR_KEY = authorFilterKey({authorName: 'FieldWorks'});
 // Mirrors SystemAuthorId in backend/FwLite/LcmCrdt/Utils/CommitHelpers.cs
 export const SYSTEM_AUTHOR_KEY = '00000000-0000-0000-0000-000000000001';
+// Mirrors LocalAuthor.AnonymousIdPrefix in backend/FwLite/LcmCrdt/CurrentAuthorService.cs
+export const ANONYMOUS_AUTHOR_ID_PREFIX = 'anonymous:';
 export const ALL_CHANGE_TYPES = '__all__';
 export const MIN_VISIBLE_FILTERED = 20;
 
@@ -79,6 +81,18 @@ export function wellKnownAuthorKeyToLabel(key: string | undefined): string | und
   return undefined;
 }
 
+/** A device that edited before anyone signed in, or chose a name, on it. */
+export function isAnonymousAuthor(authorId: string | undefined): boolean {
+  return !!authorId?.startsWith(ANONYMOUS_AUTHOR_ID_PREFIX);
+}
+
+/** What to show for an author: a translated label for well-known and unnamed offline authors, else the stored name. */
+export function authorDisplayName(author: Omit<IActivityAuthor, 'commitCount'>): string | undefined {
+  return wellKnownAuthorKeyToLabel(authorFilterKey(author))
+    ?? author.authorName
+    ?? (isAnonymousAuthor(author.authorId) ? gt`Offline user` : undefined);
+}
+
 function authorSortRank(author: IActivityAuthor): number {
   // Unknown is pinned to the top (it's the catch-all, not a real author); FieldWorks, System
   // and people all sort alphabetically together.
@@ -88,8 +102,8 @@ function authorSortRank(author: IActivityAuthor): number {
 export function compareActivityAuthors(a: IActivityAuthor, b: IActivityAuthor): number {
   const rankDiff = authorSortRank(a) - authorSortRank(b);
   if (rankDiff !== 0) return rankDiff;
-  const aName = wellKnownAuthorKeyToLabel(a.authorId) || a.authorName || a.authorId || '';
-  const bName = wellKnownAuthorKeyToLabel(b.authorId) || b.authorName || b.authorId || '';
+  const aName = authorDisplayName(a) || a.authorId || '';
+  const bName = authorDisplayName(b) || b.authorId || '';
   return aName.localeCompare(bName);
 }
 

@@ -1,3 +1,4 @@
+using LcmCrdt.LocalSync;
 using System.Linq.Expressions;
 using System.Text.Json;
 using SIL.Harmony;
@@ -108,6 +109,9 @@ public static class LcmCrdtKernel
         services.AddScoped<LocalCommentReadStatusService>();
         services.AddScoped<LcmMediaService>();
         services.AddScoped<SyncRepository>();
+        services.AddScoped<ProjectIdentityService>();
+        services.AddScoped<CurrentAuthorService>();
+        services.TryAddSingleton<ILocalAuthorProvider, NoLocalAuthorProvider>();
         services.AddSingleton<CrdtProjectsService>();
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 

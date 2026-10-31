@@ -54,4 +54,12 @@ export class SyncStatusService {
   getCurrentServer() {
     return this.syncStatusApi.getCurrentServer();
   }
+
+  syncWithFolder(path: string) {
+    return this.syncStatusApi.syncWithFolder(path);
+  }
+
+  getRememberedSyncFolder() {
+    return this.syncStatusApi.getRememberedSyncFolder();
+  }
 }

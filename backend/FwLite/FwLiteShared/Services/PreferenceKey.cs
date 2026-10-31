@@ -10,4 +10,5 @@ public enum PreferenceKey
     AnalyticsDeviceId,
     AnalyticsUserId,
     AnalyticsOptOut,
+    LocalAuthorName,
 }

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
+using FwLiteShared.LocalSync;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LcmCrdt;
@@ -162,6 +163,8 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<LoginResult>().UseString();
         builder.ExportAsEnum<DownloadProjectByCodeResult>().UseString();
         builder.ExportAsEnum<SyncJobStatusEnum>().UseString();
+        builder.ExportAsEnum<FolderSyncStatus>().UseString();
+        builder.ExportAsEnum<OpenFromFolderOutcome>().UseString();
         builder.ExportAsEnum<ViewBase>().UseString();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
@@ -200,6 +203,8 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(AvailableUpdate),
             typeof(HarmonyResource<LcmFileMetadata>),
             typeof(CameraResult),
+            typeof(FolderSyncSummary),
+            typeof(OpenFromFolderSummary),
         ], exportBuilder => exportBuilder.WithPublicProperties());
         builder.ExportAsInterface<ProjectData>().WithPublicProperties(propertyBuilder =>
         {

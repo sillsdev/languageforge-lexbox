@@ -1,4 +1,6 @@
 using FwLiteShared.Auth;
+using FwLiteShared.KeepAwake;
+using FwLiteShared.LocalSync;
 using FwLiteShared.Sync;
 using LcmCrdt.Data;
 using LexCore.Sync;
@@ -7,7 +9,11 @@ using Microsoft.JSInterop;
 
 namespace FwLiteShared.Services;
 
-public class SyncServiceJsInvokable(SyncService syncService, SyncRepository syncRepository)
+public class SyncServiceJsInvokable(
+    SyncService syncService,
+    SyncRepository syncRepository,
+    FolderSyncService folderSyncService,
+    IKeepAwake keepAwake)
 {
     [JSInvokable]
     public Task<ProjectSyncStatus> GetSyncStatus()
@@ -88,5 +94,21 @@ public class SyncServiceJsInvokable(SyncService syncService, SyncRepository sync
     public Task<LexboxServer?> GetCurrentServer()
     {
         return syncService.GetCurrentServer();
+    }
+
+    [JSInvokable]
+    public async Task<FolderSyncSummary> SyncWithFolder(string path)
+    {
+        var result = await keepAwake.RunAsync(new("Syncing with a folder"),
+            async () => await Task.Run(async () => await folderSyncService.SyncWithFolder(path)));
+        return FolderSyncSummary.From(result);
+    }
+
+    //Null when the folder is gone (e.g. the drive is unplugged), so the viewer only offers a sync that can work
+    [JSInvokable]
+    public string? GetRememberedSyncFolder()
+    {
+        var path = folderSyncService.GetRememberedFolder();
+        return path is not null && Directory.Exists(path) ? path : null;
     }
 }
