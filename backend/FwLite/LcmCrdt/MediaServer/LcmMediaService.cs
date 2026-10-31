@@ -1,7 +1,6 @@
 using SIL.Harmony.Config;
 using System.Collections.Concurrent;
 using System.Net;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 using Microsoft.Extensions.Options;
 using MiniLcm.Project;
@@ -24,15 +23,6 @@ public class LcmMediaService(
     ILogger<LcmMediaService> logger
 ) : IRemoteResourceService<LcmFileMetadata>
 {
-    private static readonly System.Buffers.SearchValues<char> ValidSubfolderChars =
-        System.Buffers.SearchValues.Create("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_");
-
-    /// <summary>A LinkedFiles subfolder is one plain path segment ("Plugins"): it ends up in server file paths.</summary>
-    public static bool IsValidLinkedFilesSubfolder([NotNullWhen(true)] string? subfolder)
-    {
-        return !string.IsNullOrEmpty(subfolder) && !subfolder.AsSpan().ContainsAnyExcept(ValidSubfolderChars);
-    }
-
     public async Task<HarmonyResource<LcmFileMetadata>[]> AllResources()
     {
         var resources = await resourceService.AllResources();
@@ -233,7 +223,7 @@ public class LcmMediaService(
     {
         var relativeDir = Path.GetDirectoryName(Path.GetRelativePath(cacheRoot, localPath));
         // Anything else (nested, "..", or a rooted path when the cache moved to another drive) uploads to the default location.
-        return IsValidLinkedFilesSubfolder(relativeDir) ? relativeDir : null;
+        return LinkedFilesPath.IsValidSubfolder(relativeDir) ? relativeDir : null;
     }
 
     public async Task<(HarmonyResource<LcmFileMetadata> resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
@@ -241,7 +231,7 @@ public class LcmMediaService(
         var projectResourceCachePath = ProjectResourceCachePath;
         if (metadata.LinkedFilesSubfolder is not null)
         {
-            if (!IsValidLinkedFilesSubfolder(metadata.LinkedFilesSubfolder))
+            if (!LinkedFilesPath.IsValidSubfolder(metadata.LinkedFilesSubfolder))
                 throw new ArgumentException($"Invalid LinkedFiles subfolder: {metadata.LinkedFilesSubfolder}", nameof(metadata));
             projectResourceCachePath = Path.Combine(projectResourceCachePath, metadata.LinkedFilesSubfolder);
         }
