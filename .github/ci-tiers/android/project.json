@@ -1,0 +1,7 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "tier-android",
+  "tags": ["ci-tier"],
+  "_comment": "Escalation: Android build. Label-only (ci:android) by default; add implicitDependencies here to give it a path rule.",
+  "implicitDependencies": []
+}

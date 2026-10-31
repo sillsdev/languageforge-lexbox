@@ -7,6 +7,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
     <PackageReference Include="MimeMapping" />
     <PackageReference Include="Npgsql.OpenTelemetry" />
     <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
@@ -25,6 +26,7 @@
     <ProjectReference Include="../FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj" />
     <ProjectReference Include="../FwLite/LcmCrdt/LcmCrdt.csproj" />
     <ProjectReference Include="../FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj" />
+    <ProjectReference Include="../FwLite/MiniLcmWeb/MiniLcmWeb.csproj" />
     <!-- FixFwData: co-publish only (no compile-time reference). ReferenceOutputAssembly=false
          keeps the web app from linking FixFwData; PublishFixFwData (below) publishes it beside
          FwHeadless. Without that, dotnet publish for this web project omits FixFwData's standalone

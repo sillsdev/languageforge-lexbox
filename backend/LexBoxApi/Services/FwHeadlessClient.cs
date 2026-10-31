@@ -32,6 +32,16 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         return (response.IsSuccessStatusCode, response.StatusCode, error);
     }
 
+    /// <summary>
+    /// Which of the projects have a headless harmony project, so the lexicon API can serve them.
+    /// </summary>
+    public async Task<Guid[]> ReadyLexiconProjects(Guid[] projectIds)
+    {
+        var response = await httpClient.PostAsJsonAsync("/api/lexicon/projects/ready", projectIds);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<Guid[]>() ?? [];
+    }
+
     public async Task<SyncJobResult> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.GetAsync($"/api/merge/await-finished?projectId={projectId}", cancellationToken);
@@ -98,7 +108,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         throw new InvalidOperationException($"Failed to delete project {projectId}: {response.StatusCode} {response.ReasonPhrase}");
     }
 
-    public async Task<string?> RegenerateProjectSnapshot(Guid projectId, Guid? commitId = null, bool preserveAllFieldWorksCommits = false)
+    public async Task<(bool success, HttpStatusCode statusCode, string? error)> RegenerateProjectSnapshot(Guid projectId, Guid? commitId = null, bool preserveAllFieldWorksCommits = false)
     {
         var url = $"/api/merge/regenerate-snapshot?projectId={projectId}";
         if (commitId.HasValue)
@@ -116,10 +126,10 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
-            return responseBody;
+            return (false, response.StatusCode, responseBody);
         }
 
-        return null;
+        return (true, response.StatusCode, null);
     }
 
     internal async Task<string?> SyncHarmony(Guid projectId)
