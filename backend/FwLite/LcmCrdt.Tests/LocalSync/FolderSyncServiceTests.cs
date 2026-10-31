@@ -74,6 +74,20 @@ public class FolderSyncServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task ARenamedFieldWorksLiteFolder_IsStillUsedWhenPicked()
+    {
+        await SyncWithFolder(_a, _folder.Path);
+        var renamed = Path.Combine(_folder.Path, "Dictionaries");
+        Directory.Move(Path.Combine(_folder.Path, SyncFolder.ContainerName), renamed);
+
+        var result = await SyncWithFolder(_b, renamed);
+
+        result.Synced.Should().BeTrue();
+        result.FolderPath.Should().Be(Path.Combine(renamed, "Sena 3"));
+        Directory.Exists(Path.Combine(renamed, SyncFolder.ContainerName)).Should().BeFalse("the existing project folder is reused, not nested again");
+    }
+
+    [Fact]
     public async Task AnotherProjectsFolderOnTheDrive_IsIgnored()
     {
         var malango = Path.Combine(_folder.Path, SyncFolder.ContainerName, "Malango");

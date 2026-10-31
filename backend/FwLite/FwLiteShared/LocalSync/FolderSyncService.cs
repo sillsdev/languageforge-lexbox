@@ -69,8 +69,9 @@ public class FolderSyncService(
 
     /// <summary>
     /// A picked folder that holds a project (any project) is used as is. Anything else is a location: the project's
-    /// folder inside its <c>FieldWorks Lite</c> container is reused if there is one, otherwise a new one is named
-    /// after the project, with Explorer's " (2)" suffix when that name is taken by something else.
+    /// folder inside it or inside its <c>FieldWorks Lite</c> container is reused if there is one (so a renamed
+    /// container still works when the user picks it), otherwise a new one is named after the project, with
+    /// Explorer's " (2)" suffix when that name is taken by something else.
     /// </summary>
     private static (string Path, SyncFolderState State) ResolveProjectFolder(string picked, ProjectData project)
     {
@@ -78,7 +79,7 @@ public class FolderSyncService(
         if (state is SyncFolderState.HoldsProject or SyncFolderState.NewerFormat or SyncFolderState.DamagedManifest) return (picked, state);
 
         var container = SyncFolder.ContainerIn(picked);
-        foreach (var subfolder in SyncFolder.Subfolders(container))
+        foreach (var subfolder in SyncFolder.Subfolders(picked).Concat(SyncFolder.Subfolders(container)).Distinct())
         {
             if (SyncFolder.Inspect(subfolder) is SyncFolderState.HoldsProject { Manifest.ProjectId: var id } existing && id == project.Id)
                 return (subfolder, existing);
