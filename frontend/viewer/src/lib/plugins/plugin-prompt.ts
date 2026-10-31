@@ -136,6 +136,7 @@ You may record audio (or capture from the camera) and save it — e.g. to fill i
 
 \`\`\`ts
 fwlite.saveFile(bytes, {filename, mimeType}): Promise<{result: string, mediaUri?: string, errorMessage?: string}>
+// Budgeted per run (500 files / 200MB); beyond that it rejects with code 'storage-full'.
 // bytes: ArrayBuffer | Uint8Array | Blob. Requires the 'edit' permission. Then write mediaUri into an
 // audio writing-system field (or a sense picture) via updateEntry — that edit is user-approved as usual.
 \`\`\`

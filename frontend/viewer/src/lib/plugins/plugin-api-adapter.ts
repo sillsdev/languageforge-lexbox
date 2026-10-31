@@ -42,6 +42,9 @@ const MAX_SUMMARY_LINES = 1000;
 const MAX_BATCH_OPERATIONS = 200;
 const DEFAULT_ACTIVITY_TAKE = 50;
 const MAX_ACTIVITY_TAKE = 500;
+/** Per-run file budget: saveFile has no approval dialog, so a runaway plugin must not be able to fill LinkedFiles. */
+export const MAX_SAVED_FILES_PER_RUN = 500;
+export const MAX_SAVED_BYTES_PER_RUN = 200 * 1024 * 1024;
 
 /**
  * The complete plugin-facing API, v1. One method here = one method plugins can call (the SDK's
@@ -152,6 +155,8 @@ export class PluginApiAdapter implements PluginApiMethods {
 
   /** Loaded once per plugin session; writing systems and morph tokens don't change mid-run. */
   #headwordDeps?: Promise<{vernacular: IWritingSystem[]; morphTokens: MorphTokens}>;
+  #savedFiles = 0;
+  #savedBytes = 0;
 
   handle(method: string, args: unknown[]): Promise<unknown> {
     if (!isPluginApiMethod(method)) {
@@ -207,6 +212,7 @@ export class PluginApiAdapter implements PluginApiMethods {
    * Stores a file (e.g. a recording or captured image) and returns its {@link IUploadFileResponse}
    * with a `mediaUri` you then write into an entry field (via updateEntry) to attach it. The bytes
    * themselves are stored locally; the entry edit that references them is still user-approved.
+   * Budgeted per run ({@link MAX_SAVED_FILES_PER_RUN} / {@link MAX_SAVED_BYTES_PER_RUN}).
    */
   async saveFile(data: unknown, metadata: unknown): Promise<IUploadFileResponse> {
     this.#requireEditPermission();
@@ -220,7 +226,15 @@ export class PluginApiAdapter implements PluginApiMethods {
     const mimeType = asNonEmptyString((metadata as {mimeType?: unknown}).mimeType, 'mimeType');
     // A stored file is real data with nothing to show first, so a preview can't fake it.
     if (this.#isPreview) throw new PluginApiException('preview', 'Files are not saved while previewing a plugin');
-    return await this.api.saveFile(data, {filename, mimeType, extraFields: {}});
+    const size = data instanceof Blob ? data.size : data.byteLength;
+    if (this.#savedFiles >= MAX_SAVED_FILES_PER_RUN || this.#savedBytes + size > MAX_SAVED_BYTES_PER_RUN) {
+      throw new PluginApiException('storage-full',
+        `This plugin has used its file budget for this run (${MAX_SAVED_FILES_PER_RUN} files or ${MAX_SAVED_BYTES_PER_RUN / 1024 / 1024}MB)`);
+    }
+    const response = await this.api.saveFile(data, {filename, mimeType, extraFields: {}});
+    this.#savedFiles++;
+    this.#savedBytes += size;
+    return response;
   }
 
   async createEntry(input: unknown): Promise<PluginEntry> {

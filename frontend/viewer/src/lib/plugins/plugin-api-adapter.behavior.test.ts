@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {PluginApiAdapter, type PluginHostCallbacks} from './plugin-api-adapter';
+import {PluginApiAdapter, type PluginHostCallbacks, MAX_SAVED_BYTES_PER_RUN, MAX_SAVED_FILES_PER_RUN} from './plugin-api-adapter';
 import {PluginApiException, type PluginWriteOperation} from './plugin-api-types';
 import {createMemoryStorageBackend, PluginStorage} from './plugin-local-data';
 import type {IEntry, IMiniLcmJsInvokable} from '$lib/dotnet-types';
@@ -180,7 +180,35 @@ describe('createEntry summary completeness', () => {
     const adapter = makeAdapter({api, confirmWrite: () => Promise.resolve(false)});
     await expect(async () => await adapter.handle('createEntry', [{lexemeForm: {seh: 'x'}}]))
       .rejects.toMatchObject({code: 'permission-denied'});
+    await expect(async () => await adapter.handle('updateEntry', [makeEntry(), makeEntry({lexemeForm: {seh: 'b'}})]))
+      .rejects.toMatchObject({code: 'permission-denied'});
+    await expect(async () => await adapter.handle('applyChanges', [[{type: 'createEntry', entry: {lexemeForm: {seh: 'c'}}}]]))
+      .rejects.toMatchObject({code: 'permission-denied'});
     expect(api.createEntry).not.toHaveBeenCalled();
+    expect(api.updateEntry).not.toHaveBeenCalled();
+  });
+});
+
+describe('saveFile budget', () => {
+  const metadata = {filename: 'a.webm', mimeType: 'audio/webm'};
+
+  it('stops accepting files after the per-run count', async () => {
+    const saveFile = vi.fn(() => Promise.resolve({result: 'Success', mediaUri: 'sil-media://x/1'}));
+    const adapter = makeAdapter({api: makeApi({saveFile})});
+    for (let i = 0; i < MAX_SAVED_FILES_PER_RUN; i++) await adapter.handle('saveFile', [new ArrayBuffer(1), metadata]);
+    await expect(async () => await adapter.handle('saveFile', [new ArrayBuffer(1), metadata]))
+      .rejects.toMatchObject({code: 'storage-full'});
+    expect(saveFile).toHaveBeenCalledTimes(MAX_SAVED_FILES_PER_RUN);
+  });
+
+  it('rejects a file that would exceed the per-run bytes without storing it', async () => {
+    const saveFile = vi.fn();
+    const adapter = makeAdapter({api: makeApi({saveFile})});
+    const oversized = new Blob([new ArrayBuffer(1)]);
+    Object.defineProperty(oversized, 'size', {value: MAX_SAVED_BYTES_PER_RUN + 1});
+    await expect(async () => await adapter.handle('saveFile', [oversized, metadata]))
+      .rejects.toMatchObject({code: 'storage-full'});
+    expect(saveFile).not.toHaveBeenCalled();
   });
 });
 

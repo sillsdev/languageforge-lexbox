@@ -94,7 +94,8 @@
      * to {result, mediaUri, errorMessage}. Then attach it by writing `mediaUri` into an entry field
      * (an audio writing system, or a sense picture) via updateEntry — that edit is user-approved.
      * Requires the 'edit' permission. The browser prompts the user the first time you call
-     * getUserMedia for mic/camera.
+     * getUserMedia for mic/camera. Budgeted per run (500 files / 200MB), then rejects with
+     * code 'storage-full'.
      *   const blob = /* from MediaRecorder * /;
      *   const {mediaUri} = await fwlite.saveFile(await blob.arrayBuffer(), {filename: 'word.webm', mimeType: blob.type});
      */
