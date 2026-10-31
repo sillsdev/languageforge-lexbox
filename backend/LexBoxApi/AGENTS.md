@@ -19,7 +19,7 @@ dotnet watch run --project LexBoxApi.csproj
 | `/api/graphql/ui` | GraphQL UI (Banana Cake Pop) |
 | `/api/swagger` | REST API Swagger UI |
 | `/api/healthz` | Health check |
-| `/api/healthz/live` | Health check without the hg dependency (k8s probes) |
+| `/api/alive` | Health check without the hg dependency (k8s probes) |
 | `/api/quartz` | Job scheduler UI (CrystalQuartz) |
 | `/{project-code}` | Mercurial Send/Receive |
 | `/hg/{project-code}` | Mercurial Send/Receive (explicit) |

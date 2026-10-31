@@ -151,7 +151,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler();
 app.UseHealthChecks("/api/healthz");
 // k8s probes: an hg outage must break hg features, not restart lexbox
-app.UseHealthChecks("/api/healthz/live", new HealthCheckOptions { Predicate = check => !check.Tags.Contains("hg") });
+app.UseHealthChecks("/api/alive", new HealthCheckOptions { Predicate = check => !check.Tags.Contains("hg") });
 // Configure the HTTP request pipeline.
 app.UseHttpLogging();
 app.UseRouting();

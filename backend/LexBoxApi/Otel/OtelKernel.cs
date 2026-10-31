@@ -37,7 +37,7 @@ public static class OtelKernel
                 {
                     options.RecordException = true;
                     // don't log health checks
-                    options.Filter = context => !context.Request.Path.StartsWithSegments("/api/healthz");
+                    options.Filter = context => context.Request.Path.Value is not ("/api/healthz" or "/api/alive");
                     options.EnrichWithHttpRequest = (activity, request) =>
                     {
                         var contentLength = request.Headers.ContentLength;

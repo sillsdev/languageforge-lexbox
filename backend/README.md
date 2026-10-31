@@ -16,7 +16,7 @@ The LexBox backend is a dotnet core api. With a proxy to route requests for hg a
 | `/api/**` | Other REST controllers  |  |
 | **Tools** | |
 | `/api/healthz` | Health check  |
-| `/api/healthz/live` | Health check without the hg dependency (k8s probes)  |
+| `/api/alive` | Health check without the hg dependency (k8s probes)  |
 | `/api/swagger` | Swagger UI | |
 | `/api/graphql/ui` | GraphQL UI | [Banana Cake Pop](https://chillicream.com/docs/bananacakepop/v2/explore-the-ui) |
 | `/api/quartz`  | Quartz.NET UI (job scheduler)  | [CrystalQuartz](https://github.com/guryanovev/CrystalQuartz) |
