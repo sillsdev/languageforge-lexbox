@@ -3,6 +3,7 @@ using System.Diagnostics;
 using LcmCrdt.Changes;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using LinqToDB.Mapping;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -80,12 +81,19 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
         if (_configureServices is not null)
         {
             _configureServices(serviceCollection);
-            // Hook config like HarmonyConfig gets baked into the EF model and linq2db's compiled queries, both
-            // cached process-wide (first fixture wins). Opt this fixture out of both caches so its config applies.
-            serviceCollection.AddDbContextFactory<LcmCrdtDbContext>(builder => builder
+            // Hook config like HarmonyConfig gets baked into the EF model and into linq2db's mapping schema, which
+            // linq2db.EntityFrameworkCore caches process-wide by DataOptions equality (first fixture wins; mapping
+            // schemas compare by content, so every fixture's looks the same). A uniquely named schema per fixture
+            // keeps this fixture's config out of that cache. ConfigureDbContext layers onto the kernel's
+            // registration; a second AddDbContextFactory is ignored.
+            serviceCollection.ConfigureDbContext<LcmCrdtDbContext>(builder => builder
                 .EnableServiceProviderCaching(false)
-                .UseLinqToDB(linq2db => linq2db.AddCustomOptions(options => options.UseDisableQueryCache(true))),
-                ServiceLifetime.Scoped);
+                .UseLinqToDB(linq2db =>
+                {
+                    var shared = linq2db.DbContextOptions.GetLinqToDBOptions()?.ConnectionOptions.MappingSchema ?? new MappingSchema();
+                    linq2db.AddMappingSchema(new MappingSchema($"fixture-{Guid.NewGuid():N}", shared));
+                    linq2db.AddCustomOptions(options => options.UseDisableQueryCache(true));
+                }));
         }
         var services = serviceCollection.BuildServiceProvider();
         _services = services.CreateAsyncScope();
