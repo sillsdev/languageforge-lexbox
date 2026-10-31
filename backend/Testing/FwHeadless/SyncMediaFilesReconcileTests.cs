@@ -133,8 +133,12 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
     /// </summary>
     private async Task<Guid> SeedPendingResource(string? filename = "pending-upload.wav")
     {
+        return await SeedPendingResource(filename is not null ? new LcmFileMetadata(filename, "audio/wav") : null);
+    }
+
+    private async Task<Guid> SeedPendingResource(LcmFileMetadata? metadata)
+    {
         var id = Guid.NewGuid();
-        var metadata = filename is not null ? new LcmFileMetadata(filename, "audio/wav") : null;
         await _dataModel.AddChange(_clientId, new CreateRemoteResourcePendingUploadChange<LcmFileMetadata>(id, metadata));
         return id;
     }
@@ -175,6 +179,20 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
         pendingRow.Revision.Should().Be(0, "revision 0 marks a reservation for a binary that hasn't been uploaded yet");
         pendingRow.ProjectId.Should().Be(_projectId);
         pendingRow.Filename.Should().EndWith("pending-upload.wav", "the anticipated path embeds the resource's filename");
+    }
+
+    [Fact]
+    public async Task SyncMediaFiles_ReservesPendingRowUnderTheDeclaredLinkedFilesSubfolder()
+    {
+        // The client uploads this file with a "Plugins" subfolder override. If the reservation used the
+        // mime-type guess instead (text/html has none), that upload would be rejected as a move forever.
+        var pendingId = await SeedPendingResource(new LcmFileMetadata("plugin-abc123.html", "text/html", LinkedFilesSubfolder: "Plugins"));
+
+        await _lexboxMediaService.SyncMediaFiles(_projectId, _lcmMediaService);
+
+        var pendingRow = _dbContext.Files.Single(f => f.Id == pendingId);
+        pendingRow.Revision.Should().Be(0);
+        MediaFilePath.Normalize(pendingRow.Filename).Should().Be($"LinkedFiles/Plugins/{pendingId}/plugin-abc123.html");
     }
 
     [Fact]
