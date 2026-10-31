@@ -114,6 +114,11 @@ msgstr "{num, plural, one {# word to go} other {# words to go}}"
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr "{num, plural, one {Show # more...} other {Show # more...}}"
 
+#. Button in the activity view's change preview. It reveals the fields of an entry, sense or example that this change did not modify. # is the number of those fields
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "{num, plural, one {Show # unchanged field} other {Show # unchanged fields}}"
+msgstr "{num, plural, one {Show # unchanged field} other {Show # unchanged fields}}"
+
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
 msgid "**Fewer fields** (e.g. hides *Complex form types*, *Literal meaning*)"
@@ -258,6 +263,8 @@ msgstr "Add Word"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
 
+#. Badge or screen-reader marker in the activity change preview: this change created the item, or added the highlighted text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Added"
 msgstr "Added"
@@ -589,11 +596,6 @@ msgstr "Complex Form"
 msgid "Complex form types"
 msgstr "Complex form types"
 
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Complex form:"
-msgstr "Complex form:"
-
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Complex forms"
@@ -609,11 +611,6 @@ msgstr "Complex forms"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Component"
 msgstr "Component"
-
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Component:"
-msgstr "Component:"
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -710,11 +707,6 @@ msgstr "Create View"
 msgid "Current Entry"
 msgstr "Current Entry"
 
-#. Column header
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Current version"
-msgstr "Current version"
-
 #. Relevant view: Lite
 #. Classic view equivalent: "Current Entry"
 #. Label in picker: marks the word that is currently being edited
@@ -795,10 +787,14 @@ msgid "Delete Word"
 msgstr "Delete Word"
 
 #. Change type indicator
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Deleted"
 msgstr "Deleted"
+
+#. Status on a tab: the item was deleted after this change. Not an instruction to delete it later.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Deleted later"
+msgstr "Deleted later"
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Description"
@@ -980,7 +976,6 @@ msgstr "entry"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1340,7 +1335,6 @@ msgstr "Gloss"
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
 #. {0} = entry/word name (e.g., "Go to banana")
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Go to {0}"
@@ -1352,12 +1346,26 @@ msgstr "Go to {0}"
 msgid "Go to entry"
 msgstr "Go to entry"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Go to word: {0}"
+#. Accessible name of the link on an entry's name in the activity change preview. {0} = the entry's headword
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Go to entry: {0}"
+msgstr "Go to entry: {0}"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
 msgstr "Go to word"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Go to entry: {0}"
+#. Accessible name of the link on a word's name in the activity change preview. {0} = the word's headword
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Go to word: {0}"
+msgstr "Go to word: {0}"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1406,6 +1414,11 @@ msgstr "Help & More"
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
 msgstr "Hide"
+
+#. Button in the activity view's change preview. It hides again the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Hide unchanged fields"
+msgstr "Hide unchanged fields"
 
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
@@ -1485,6 +1498,11 @@ msgstr "Last change: #"
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Last sync: #"
 msgstr "Last sync: #"
+
+#. Tab: shows changes made to this item after this change.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Later changes"
+msgstr "Later changes"
 
 #: src/home/HomeView.svelte
 msgid "Learn more"
@@ -1761,6 +1779,11 @@ msgstr "Missing: {0}"
 msgid "Mode"
 msgstr "Mode"
 
+#. Accessible name of the menu button (three dots) next to an entry in the activity change preview
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "More options"
+msgstr "More options"
+
 #: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 msgid "Morph type"
 msgstr "Morph type"
@@ -1770,6 +1793,8 @@ msgstr "Morph type"
 msgid "Move"
 msgstr "Move"
 
+#. Badge or screen-reader marker in the activity change preview: this change only moved the item to another place in its list (e.g. reordered senses)
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Moved"
 msgstr "Moved"
@@ -1917,6 +1942,11 @@ msgstr "No history found"
 msgid "No items found"
 msgstr "No items found"
 
+#. Status on a tab: nothing was changed in this item after this change.
+#: src/lib/activity/ActivityItem.svelte
+msgid "No later changes"
+msgstr "No later changes"
+
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
 msgstr "No media files found"
@@ -1970,6 +2000,11 @@ msgstr "No subject, unable to create a new {0}"
 msgid "No vernacular writing systems configured."
 msgstr "No vernacular writing systems configured."
 
+#. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
+#: src/lib/entry-editor/diff-view/DiffNoVisibleChanges.svelte
+msgid "No visible changes"
+msgstr "No visible changes"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1992,12 +2027,6 @@ msgstr "None"
 msgid "Not equal"
 msgstr "Not equal"
 
-#. Placeholder shown in the activity change preview when a referenced entry or sense no longer exists in the dictionary.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Not found"
-msgstr "Not found"
-
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
@@ -2019,6 +2048,11 @@ msgstr "Note"
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
 msgstr "Nothing to copy"
+
+#. Badge in the activity change preview, shown when an entry is no longer called what this change left it as. # = its current headword, or "Deleted"
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Now: #"
+msgstr "Now: #"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -2084,7 +2118,7 @@ msgid "Open in FieldWorks"
 msgstr "Open in FieldWorks"
 
 #. Menu option
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -2209,7 +2243,6 @@ msgid "Prefix"
 msgstr "Prefix"
 
 #. View option
-#: src/lib/activity/ActivityItem.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
@@ -2399,6 +2432,8 @@ msgstr "Remove"
 msgid "Remove audio"
 msgstr "Remove audio"
 
+#. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Removed"
 msgstr "Removed"
@@ -2758,6 +2793,15 @@ msgstr "Still opening the project..."
 msgid "stone"
 msgstr "stone"
 
+#. Legend for the 'Since then' comparison. 'Struck' means shown with a line through it, like removed text.
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Struck: as it was after this change. Highlighted: as it is now."
+msgstr "Struck: as it was after this change. Highlighted: as it is now."
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Struck: as it was after this change. It has since been deleted."
+msgstr "Struck: as it was after this change. It has since been deleted."
+
 #. Error message
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Subject does not have suitable object of type: {0}"
@@ -2906,6 +2950,11 @@ msgstr "These changes have not been uploaded yet. Ensure you're online and logge
 #: src/project/browse/EntryView.svelte
 msgid "This {0} was deleted"
 msgstr "This {0} was deleted"
+
+#. Tab that shows what this one change did to the item
+#: src/lib/activity/ActivityItem.svelte
+msgid "This change"
+msgstr "This change"
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
@@ -3133,11 +3182,16 @@ msgstr "Unread"
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffAnchor.svelte
 #: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
 #: src/lib/entry-editor/diff-view/DiffSelect.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -3282,7 +3336,6 @@ msgstr "word"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte

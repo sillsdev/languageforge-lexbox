@@ -72,10 +72,11 @@ public record ChangeContext(
     string ChangeName,
     IObjectWithId? Snapshot,
     IObjectWithId? PreviousSnapshot,
-    ICollection<Entry> AffectedEntries)
+    ICollection<Entry> AffectedEntries,
+    IObjectWithId? CurrentSnapshot = null)
 {
-    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId? snapshot, IObjectWithId? previousSnapshot, ICollection<Entry> affectedEntries)
-        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, previousSnapshot, affectedEntries)
+    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId? snapshot, IObjectWithId? previousSnapshot, ICollection<Entry> affectedEntries, IObjectWithId? currentSnapshot = null)
+        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, previousSnapshot, affectedEntries, currentSnapshot)
     {
     }
     public string EntityType => (Snapshot ?? PreviousSnapshot)?.GetType().Name ?? "Unknown";
@@ -324,14 +325,16 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         var snapshotTask = ResolveSnapshot(async () => await dataModel.GetAtCommit<object>(commitId, change.EntityId));
         // null when the entity didn't exist before this commit
         var previousSnapshotTask = ResolveSnapshot(async () => await dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
+        // the entity's latest state; a deleted entity comes back with DeletedAt set
+        var currentSnapshotTask = ResolveSnapshot(async () => await dataModel.GetLatest<object>(change.EntityId));
         var affectedEntriesTask = GetAffectedEntryIds(change)
             .Select(async (Guid entryId, CancellationToken _) => await GetCurrentOrLatestEntry(entryId))
             .ToArrayAsync()
             .AsTask();
 
-        await Task.WhenAll(snapshotTask, previousSnapshotTask, affectedEntriesTask);
+        await Task.WhenAll(snapshotTask, previousSnapshotTask, currentSnapshotTask, affectedEntriesTask);
 
-        return new ChangeContext(change, await snapshotTask, await previousSnapshotTask, await affectedEntriesTask);
+        return new ChangeContext(change, await snapshotTask, await previousSnapshotTask, await affectedEntriesTask, await currentSnapshotTask);
     }
 
     // Some entity types like RemoteResource don't implement IObjectWithId, so cast safely.

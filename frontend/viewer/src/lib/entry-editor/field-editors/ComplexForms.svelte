@@ -32,8 +32,10 @@
       id: randomId(),
       complexFormEntryId: selection.entry.id,
       complexFormHeadword: writingSystemService.firstHeadword(selection.entry),
+      complexFormHomographNumber: selection.entry.homographNumber,
       componentEntryId: entry.id,
       componentHeadword: writingSystemService.firstHeadword(entry),
+      componentHomographNumber: entry.homographNumber,
     };
     value = [...value, complexForm];
     onchange?.(value);
@@ -47,7 +49,7 @@
   }
 </script>
 
-<EntryOrSenseItemList bind:items={value} {readonly} {onchange} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
+<EntryOrSenseItemList bind:items={value} {readonly} {onchange} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword} getHomographNumber={(e) => e.complexFormHomographNumber}>
   {#snippet actions()}
     <EntryOrSensePicker title={pt($t`Add complex form`, $t`Add part of`, viewService.currentView)} mode="only-entries" pick={(e) => addComplexForm(e)}
       {disableEntry}>

@@ -762,8 +762,10 @@ public class FwDataMiniLcmApi(
         {
             ComponentEntryId = component.Guid,
             ComponentHeadword = component.LexEntryHeadwordOrUnknown(),
+            ComponentHomographNumber = component.HomographNumber,
             ComplexFormEntryId = complexEntry.Guid,
             ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
+            ComplexFormHomographNumber = complexEntry.HomographNumber,
             Order = Order(component, complexEntry)
         };
     }
@@ -775,8 +777,10 @@ public class FwDataMiniLcmApi(
             ComponentEntryId = componentSense.Entry.Guid,
             ComponentSenseId = componentSense.Guid,
             ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(),
+            ComponentHomographNumber = componentSense.Entry.HomographNumber,
             ComplexFormEntryId = complexEntry.Guid,
             ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
+            ComplexFormHomographNumber = complexEntry.HomographNumber,
             Order = Order(componentSense, complexEntry)
         };
     }

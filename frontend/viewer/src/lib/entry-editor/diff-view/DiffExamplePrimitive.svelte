@@ -11,15 +11,31 @@
   import DiffRichText from './DiffRichText.svelte';
   import DiffText from './DiffText.svelte';
   import DiffShell from './DiffShell.svelte';
-  import {showChangedFields} from './changed-fields';
+  import DiffAnchorRow from './DiffAnchorRow.svelte';
+  import DiffNoVisibleChanges from './DiffNoVisibleChanges.svelte';
+  import {exampleAnchor} from './anchor-text';
+  import DiffCollapsed from './DiffCollapsed.svelte';
+  import {changedFieldIds, changesOnly, showChangedFields, type DiffMode} from './changed-fields';
+  import {exampleCompareAs} from './compare-as';
 
-  let {before, after}: {before?: IExampleSentence; after?: IExampleSentence} = $props();
+  // `anchor: false` when the caller names the entity itself, e.g. the activity preview's change header.
+  // `noVisibleChangesNote: false` when the caller already says what changed, e.g. that the entity moved.
+  let {before, after, mode = 'full', anchor = true, noVisibleChangesNote = true}: {
+    before?: IExampleSentence; after?: IExampleSentence; mode?: DiffMode; anchor?: boolean; noVisibleChangesNote?: boolean;
+  } = $props();
 
   const writingSystemService = useWritingSystemService();
   const viewService = useViewService();
 
-  const exampleFields = $derived(showChangedFields(viewService.currentView.exampleFields, before, after,
-    {translations: (translations) => Object.fromEntries(translations.map((tr) => [tr.id, tr.text]))}));
+  const compareAs = exampleCompareAs;
+  const viewFields = $derived(showChangedFields(viewService.currentView.exampleFields, before, after, compareAs));
+  const changed = $derived(changedFieldIds(viewFields, before, after, compareAs));
+
+  // Without a visible change there's nothing to focus on, so the whole example shows.
+  const focused = $derived(mode === 'changes' && changed.size > 0);
+  let expanded = $state(false);
+  const focus = $derived(changesOnly(viewFields, changed, after, compareAs));
+  const exampleFields = $derived(focused && !expanded ? focus.fields : viewFields);
   const fields = $derived(fieldRecord(exampleFields));
 
   // Paired by id, current order first. Like the editor's draft translation, an example without any still gets one empty row.
@@ -34,7 +50,15 @@
   });
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas(exampleFields)}">
+{#if anchor}
+  <DiffAnchorRow {...exampleAnchor(writingSystemService, viewService.currentView, before, after)} />
+{/if}
+{#if noVisibleChangesNote && mode === 'changes' && before && after && !changed.size}
+  <DiffNoVisibleChanges />
+{/if}
+
+<!-- Hidden when empty, or its grid gap shows -->
+<Editor.SubGrid class={cn('gap-2', exampleFields.some((field) => field.show) || 'hidden')} style="grid-template-areas: {objectTemplateAreas(exampleFields)}">
   <Editor.Field.Root fieldId="sentence" class={cn(fields.sentence?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.example.sentence.label)} helpId={entityConfig.example.sentence.helpId} />
     <Editor.Field.Body subGrid>
@@ -66,3 +90,6 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
+{#if focused}
+  <DiffCollapsed count={focus.unchanged} bind:expanded />
+{/if}

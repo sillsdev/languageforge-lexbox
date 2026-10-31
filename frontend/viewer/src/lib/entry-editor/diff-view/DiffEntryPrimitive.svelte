@@ -13,21 +13,40 @@
   import DiffRichText from './DiffRichText.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
   import DiffSelect from './DiffSelect.svelte';
-  import {ids, showChangedFields, sortedIds} from './changed-fields';
+  import DiffAnchorRow from './DiffAnchorRow.svelte';
+  import DiffNoVisibleChanges from './DiffNoVisibleChanges.svelte';
+  import {entryAnchor} from './anchor-text';
+  import DiffCollapsed from './DiffCollapsed.svelte';
+  import {changedFieldIds, changesOnly, showChangedFields, type DiffMode} from './changed-fields';
+  import {entryCompareAs} from './compare-as';
 
-  let {before, after}: {before?: IEntry; after?: IEntry} = $props();
+  // `anchor: false` when the caller names the entity itself, e.g. the activity preview's change header.
+  // `noVisibleChangesNote: false` when the caller already says what changed, e.g. that the entity moved.
+  let {before, after, mode = 'full', anchor = true, noVisibleChangesNote = true}: {
+    before?: IEntry; after?: IEntry; mode?: DiffMode; anchor?: boolean; noVisibleChangesNote?: boolean;
+  } = $props();
 
   const writingSystemService = useWritingSystemService();
   const publications = usePublications();
   const morphTypes = useMorphTypesService();
   const viewService = useViewService();
 
-  const entryFields = $derived(showChangedFields(viewService.currentView.entryFields, before, after,
-    {complexFormTypes: ids, publishIn: sortedIds}));
-  const fields = $derived(fieldRecord(entryFields));
+  const compareAs = entryCompareAs;
+  const viewFields = $derived(showChangedFields(viewService.currentView.entryFields, before, after, compareAs));
+  const changed = $derived(changedFieldIds(viewFields, before, after, compareAs));
 
   // The editor has no morph type field yet. A change to it shows right under the lexeme form, like in FLEx.
   const morphTypeChanged = $derived(before?.morphType !== after?.morphType);
+  // Shown by the anchor, here or in the caller's header
+  const homographChanged = $derived((before?.homographNumber ?? 0) !== (after?.homographNumber ?? 0));
+  const anyChange = $derived(changed.size > 0 || morphTypeChanged || homographChanged);
+
+  // Without a visible change there's nothing to focus on, so the whole entry shows.
+  const focused = $derived(mode === 'changes' && anyChange);
+  let expanded = $state(false);
+  const focus = $derived(changesOnly(viewFields, changed, after, compareAs));
+  const entryFields = $derived(focused && !expanded ? focus.fields : viewFields);
+  const fields = $derived(fieldRecord(entryFields));
   const layoutFields = $derived(entryFields.flatMap((field) =>
     field.fieldId === 'lexemeForm' ? [field, {fieldId: 'morphType', show: morphTypeChanged}] : [field]));
 
@@ -37,7 +56,15 @@
   }
 </script>
 
-<Editor.SubGrid class="gap-2" style="grid-template-areas: {objectTemplateAreas(layoutFields)}">
+{#if anchor}
+  <DiffAnchorRow {...entryAnchor(writingSystemService, viewService.currentView, before, after)} />
+{/if}
+{#if noVisibleChangesNote && mode === 'changes' && before && after && !anyChange}
+  <DiffNoVisibleChanges />
+{/if}
+
+<!-- Hidden when empty, or its grid gap shows -->
+<Editor.SubGrid class={cn('gap-2', layoutFields.some((field) => field.show) || 'hidden')} style="grid-template-areas: {objectTemplateAreas(layoutFields)}">
   <Editor.Field.Root fieldId="lexemeForm" class={cn(fields.lexemeForm?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.entry.lexemeForm.label)} helpId={entityConfig.entry.lexemeForm.helpId} />
     <Editor.Field.Body subGrid>
@@ -96,3 +123,6 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
+{#if focused}
+  <DiffCollapsed count={focus.unchanged} bind:expanded />
+{/if}

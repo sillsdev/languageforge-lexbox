@@ -105,6 +105,11 @@ public static class ReinforcedFwLiteTypingConfig
             {
                 exportBuilder.Ignore();
             }
+            else if (exportBuilder.Member.GetCustomAttribute<JsonIgnoreAttribute>() is { Condition: JsonIgnoreCondition.WhenWritingDefault })
+            {
+                // omitted from JSON when it's the default, so JS can receive undefined
+                exportBuilder.ForceNullable();
+            }
         }));
         builder.ExportAsInterface<RichSpan>().WithPublicNonStaticProperties().WithPublicFields(exportBuilder => exportBuilder.CamelCase());
         builder.ExportAsEnums([

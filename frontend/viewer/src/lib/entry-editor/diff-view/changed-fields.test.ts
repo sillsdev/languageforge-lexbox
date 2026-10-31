@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {showChangedFields, sortedIds, valueChanged} from './changed-fields';
+import {changedFieldIds, changesOnly, showChangedFields, sortedIds, valueChanged} from './changed-fields';
 
 describe('valueChanged', () => {
   it('treats empty values as missing', () => {
@@ -49,5 +49,55 @@ describe('showChangedFields', () => {
   it('shows a hidden field with content on a new entry', () => {
     expect(showChangedFields(fields, undefined, {publishIn: [{id: 'p'}], literalMeaning: {}}).map((f) => f.show))
       .toEqual([true, false, true]);
+  });
+});
+
+describe('changedFieldIds', () => {
+  const fields = [
+    {fieldId: 'lexemeForm' as const, show: true},
+    {fieldId: 'note' as const, show: true},
+    {fieldId: 'publishIn' as const, show: false},
+  ];
+
+  it('lists the changed fields, shown or not', () => {
+    const before = {lexemeForm: {en: 'a'}, note: {en: {spans: [{text: 'n'}]}}, publishIn: [{id: 'p'}]};
+    const after = {lexemeForm: {en: 'b'}, note: {en: {spans: [{text: 'n'}]}}, publishIn: []};
+    expect([...changedFieldIds(fields, before, after)]).toEqual(['lexemeForm', 'publishIn']);
+  });
+
+  it('ignores formatting-only rich text edits', () => {
+    const before = {note: {en: {spans: [{text: 'n', ws: 'en'}]}}};
+    const after = {note: {en: {spans: [{text: 'n', ws: 'en', bold: 'On'}]}}};
+    expect(changedFieldIds(fields, before, after).size).toBe(0);
+  });
+
+  it('compares a field the way compareAs reduces it', () => {
+    const before = {publishIn: [{id: 'p', name: 'Old'}, {id: 'q'}]};
+    const after = {publishIn: [{id: 'q'}, {id: 'p', name: 'New'}]};
+    expect([...changedFieldIds(fields, before, after)]).toEqual(['publishIn']);
+    expect(changedFieldIds(fields, before, after, {publishIn: sortedIds}).size).toBe(0);
+  });
+
+  it('sees every non-empty field of a new or deleted entity as changed', () => {
+    const entity = {lexemeForm: {en: 'a'}, note: {}, publishIn: [{id: 'p'}]};
+    expect([...changedFieldIds(fields, undefined, entity)]).toEqual(['lexemeForm', 'publishIn']);
+    expect([...changedFieldIds(fields, entity, undefined)]).toEqual(['lexemeForm', 'publishIn']);
+  });
+});
+
+describe('changesOnly', () => {
+  const fields = [
+    {fieldId: 'lexemeForm' as const, show: true},
+    {fieldId: 'citationForm' as const, show: true},
+    {fieldId: 'note' as const, show: true},
+    {fieldId: 'publishIn' as const, show: false},
+  ];
+
+  it('hides the unchanged fields and counts the ones with a value', () => {
+    const after = {lexemeForm: {en: 'b'}, citationForm: {en: 'c'}, note: {}, publishIn: [{id: 'p'}]};
+    const {fields: shown, unchanged} = changesOnly(fields, new Set(['lexemeForm'] as const), after);
+    expect(shown.map((f) => f.show)).toEqual([true, false, false, false]);
+    // citationForm: the empty note and the field the view hides aren't worth revealing
+    expect(unchanged).toBe(1);
   });
 });
