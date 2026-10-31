@@ -47,7 +47,7 @@ RUN chown -R www-data:www-data /usr/local/apache2/logs
 
 # Configure hgweb
 COPY hgweb.hgrc /var/hg/
-COPY hgweb.wsgi /usr/local/www/wsgi-scripts/
+COPY hgweb.wsgi health.wsgi /usr/local/www/wsgi-scripts/
 COPY --chmod=755 command-runner.sh /usr/local/www/commands/
 COPY --chmod=755 entrypoint.sh /usr/local/bin/hgweb-entrypoint
 COPY json-lex /usr/lib/python3/dist-packages/mercurial/templates/json-lex
