@@ -37,11 +37,30 @@ public class MediaSubfolderTests(MiniLcmApiFixture fixture) : IClassFixture<Mini
     [InlineData("a/b")]
     [InlineData("a\\b")]
     [InlineData("spaced folder")]
+    [InlineData("")]
     public async Task SaveFile_RejectsSubfoldersThatAreNotASingleSafeSegment(string subfolder)
     {
         var act = () => MediaService.SaveFile(Bytes("x"),
             new LcmFileMetadata("file.html", "text/html", LinkedFilesSubfolder: subfolder));
 
         await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData("Plugins/plugin-abc123.html", "Plugins")]
+    [InlineData("word.wav", null)]
+    [InlineData("a/b/file.html", null)]
+    public void LinkedFilesSubfolder_IsTheSingleSegmentUnderTheCacheRoot(string relativePath, string? expected)
+    {
+        var root = Path.Combine(Path.GetTempPath(), "cache-root");
+        LcmMediaService.LinkedFilesSubfolder(root, Path.Combine(root, relativePath)).Should().Be(expected);
+    }
+
+    [Fact]
+    public void LinkedFilesSubfolder_IgnoresFilesOutsideTheCacheRoot()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "cache-root");
+        var elsewhere = Path.Combine(Path.GetTempPath(), "old-cache-root", "Plugins", "plugin-abc123.html");
+        LcmMediaService.LinkedFilesSubfolder(root, elsewhere).Should().BeNull();
     }
 }
