@@ -113,10 +113,10 @@ public class SyncController(
         await permissionService.AssertCanSyncProject(projectId);
         try
         {
-            var result = await fwHeadlessClient.RegenerateProjectSnapshot(projectId, commitId, preserveAllFieldWorksCommits);
-            if (result is not null)
+            var (success, statusCode, error) = await fwHeadlessClient.RegenerateProjectSnapshot(projectId, commitId, preserveAllFieldWorksCommits);
+            if (!success)
             {
-                return Problem(result);
+                return Problem(error, statusCode: (int)statusCode);
             }
             return Ok();
         }
