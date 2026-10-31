@@ -77,9 +77,7 @@
     if (kind === 'complexFormComponent') return component && !component.deletedAt ? component : undefined;
     return after && affectedEntry && !affectedEntry.deletedAt ? affectedEntry : undefined;
   });
-  // "Since then" already diffs against now, so these hints would repeat it
-  const nowDeleted = $derived(view === 'change' && kind === 'entry' && !!after && !!affectedEntry?.deletedAt);
-  // Only shown when the headword moved on since, or "Now" would just repeat the anchor
+  // Not on Later changes, which already diffs against now. Only when the headword moved on, or it would repeat the anchor
   const now = $derived.by(() => {
     if (view !== 'change' || kind !== 'entry' || !before || !after || !affectedEntry || affectedEntry.deletedAt || !anchor) return undefined;
     const current = entryAnchor(writingSystemService, viewService.currentView, undefined, affectedEntry);
@@ -108,10 +106,8 @@
 {#snippet sinceNote()}
   {#if since}
     <p class="text-sm mb-2 text-muted-foreground">
-      {#if since.status === 'unchanged'}
-        {$t`No changes since this change.`}
-      {:else if since.status === 'deleted'}
-        {$t`This item has been deleted since.`}
+      {#if since.status === 'deleted'}
+        {$t`Struck: as it was after this change. It has since been deleted.`}
       {:else}
         {$t`Struck: as it was after this change. Highlighted: as it is now.`}
       {/if}
@@ -121,7 +117,7 @@
 
 {#if anchor || cfc}
   <div class="mb-3">
-    <ActivityChangeHeader label={context.changeName} {crumbs} {badge} {linkTo} {now} {nowDeleted}
+    <ActivityChangeHeader label={context.changeName} {crumbs} {badge} {linkTo} {now}
                           identity={cfc ? componentIdentity : anchorIdentity} />
   </div>
 {/if}
@@ -130,8 +126,8 @@
   <div class="text-muted-foreground p-4 text-center">
     {$t`Preview not available`}
   </div>
-{:else if view === 'since' && !since}
-  <!-- the tab is hidden then -->
+{:else if view === 'since' && (!since || since.status === 'unchanged')}
+  <!-- the tab is hidden or disabled then -->
 {:else if context.entityType === 'Entry'}
   {@render sinceNote()}
   <Editor.Root>

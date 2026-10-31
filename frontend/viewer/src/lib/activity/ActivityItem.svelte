@@ -4,6 +4,8 @@
   export class ChangeWithLazyContext {
 
     #context?: Promise<IChangeContext>;
+    // On the item, not the row component, so the open tab survives virtual scrolling
+    tab = $state('preview');
 
     constructor(
       public readonly change: IChangeEntity,
@@ -128,24 +130,10 @@
                 <div class="h-[700px]"></div>
               {:then context}
                 {@const since = sinceThen(context.entityType, context.snapshot, context.currentSnapshot, viewService.currentView)}
+                {@const noLaterChanges = since?.status === 'unchanged'}
                 <div class="change">
                   <div class="px-4 pt-2 flex font-semibold items-center">
                     <span class="grow">{context.changeName}</span>
-
-                    {#if since}
-                      <span class="inline-flex items-center gap-1 text-sm font-normal text-muted-foreground mr-2">
-                        {#if since.status === 'unchanged'}
-                          <Icon icon="i-mdi-check" class="size-4 shrink-0" aria-hidden="true" />
-                          {$t`No changes since`}
-                        {:else if since.status === 'deleted'}
-                          <Icon icon="i-mdi-delete-outline" class="size-4 shrink-0" aria-hidden="true" />
-                          {$t`Deleted since`}
-                        {:else}
-                          <Icon icon="i-mdi-pencil-outline" class="size-4 shrink-0" aria-hidden="true" />
-                          {$t`Changed since`}
-                        {/if}
-                      </span>
-                    {/if}
 
                     {#if showHistoryButton}
                       <Button icon="i-mdi-history" onclick={() => openHistoryId = context.snapshot?.id}>
@@ -153,13 +141,24 @@
                       </Button>
                     {/if}
                   </div>
-                  <Tabs.Root value="preview" class="px-2 mt-2 grow">
+                  <!-- Blocks opening No later changes here: bits-ui's disabled would drop it from the tab order, so screen readers never hear it -->
+                  <Tabs.Root bind:value={() => changeWithContext.tab, (tab) => { if (tab !== 'since' || !noLaterChanges) changeWithContext.tab = tab; }}
+                             class="px-2 mt-2 grow">
                     <Tabs.List class="w-full h-auto">
                       <Tabs.Trigger class="flex-1 h-auto min-h-8 whitespace-normal" value="preview">
                         {$t`This change`}
                       </Tabs.Trigger>
                       {#if since}
-                        <Tabs.Trigger class="flex-1 h-auto min-h-8 whitespace-normal" value="since">{$t`Since then`}</Tabs.Trigger>
+                        <Tabs.Trigger value="since" aria-disabled={noLaterChanges || undefined}
+                                      class="flex-1 h-auto min-h-8 whitespace-normal aria-disabled:text-muted-foreground aria-disabled:cursor-default">
+                          {#if since.status === 'deleted'}
+                            {$t`Deleted later`}
+                          {:else if noLaterChanges}
+                            {$t`No later changes`}
+                          {:else}
+                            {$t`Later changes`}
+                          {/if}
+                        </Tabs.Trigger>
                       {/if}
                       <Tabs.Trigger class="flex-1 h-auto min-h-8 whitespace-normal" value="change">{$t`Details`}</Tabs.Trigger>
                     </Tabs.List>
@@ -167,7 +166,7 @@
                       <Tabs.Content value="preview">
                         <ActivityItemChangePreview {context} {change} {info} />
                       </Tabs.Content>
-                      {#if since}
+                      {#if since && !noLaterChanges}
                         <Tabs.Content value="since">
                           <ActivityItemChangePreview {context} {change} {info} view="since" />
                         </Tabs.Content>

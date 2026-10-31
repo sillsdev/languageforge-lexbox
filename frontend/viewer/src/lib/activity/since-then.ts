@@ -20,8 +20,8 @@ function existing(snapshot: IObjectWithId | undefined): IObjectWithId | undefine
 }
 
 /**
- * How the entity stands now compared to right after a change, or undefined when the "Since then" view has
- * nothing to show: no diff for this type, no current state, or gone both then and now.
+ * How the entity stands now compared to right after a change, or undefined when there is no "Later changes"
+ * view: no diff for this type, or no current state. Gone both then and now counts as unchanged.
  * "Changed" is decided like the Diff*Primitive components do, so the label and the diff agree.
  */
 export function sinceThen(
@@ -36,7 +36,7 @@ export function sinceThen(
 
   const before = existing(snapshot);
   const after = existing(currentSnapshot);
-  if (!before && !after) return undefined;
+  if (!before && !after) return {status: 'unchanged', before, after};
   if (!after) return {status: 'deleted', before, after};
   if (!before) return {status: 'changed', before, after};
   return {status: hasVisibleChange(entityType, before, after, view) ? 'changed' : 'unchanged', before, after};

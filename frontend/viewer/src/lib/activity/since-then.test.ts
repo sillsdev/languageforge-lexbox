@@ -34,7 +34,7 @@ describe('sinceThen', () => {
     expect(sinceThen('Entry', entry({en: 'a'}, {homographNumber: 0}), entry({en: 'a'}, {homographNumber: 2}), view)?.status).toBe('changed');
   });
 
-  it('is deleted when it was deleted since', () => {
+  it('is deleted when it was deleted later', () => {
     const snapshot = entry({en: 'run'});
     const result = sinceThen('Entry', snapshot, deleted(entry({en: 'run'})), view);
     expect(result).toEqual({status: 'deleted', before: snapshot, after: undefined});
@@ -47,9 +47,12 @@ describe('sinceThen', () => {
     expect(sinceThen('Entry', undefined, current, view)?.status).toBe('changed');
   });
 
-  it('has nothing to show when still deleted, or without a current snapshot', () => {
-    expect(sinceThen('Entry', deleted(entry({})), deleted(entry({})), view)).toBeUndefined();
-    expect(sinceThen('Entry', undefined, deleted(entry({})), view)).toBeUndefined();
+  it('is unchanged when still deleted', () => {
+    expect(sinceThen('Entry', deleted(entry({})), deleted(entry({})), view)?.status).toBe('unchanged');
+    expect(sinceThen('Entry', undefined, deleted(entry({})), view)?.status).toBe('unchanged');
+  });
+
+  it('has nothing to show without a current snapshot', () => {
     expect(sinceThen('Entry', entry({en: 'run'}), undefined, view)).toBeUndefined();
   });
 

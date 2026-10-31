@@ -487,11 +487,6 @@ msgstr "Batal"
 msgid "Caption"
 msgstr "Kapsyen"
 
-#. Status label on an activity change: the item was edited after this change. Paired with an icon.
-#: src/lib/activity/ActivityItem.svelte
-msgid "Changed since"
-msgstr ""
-
 #. Explanation of sync behavior
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
@@ -798,13 +793,12 @@ msgstr "Padam Perkataan"
 
 #. Change type indicator
 #: src/lib/activity/ActivityChangeHeader.svelte
-#: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Deleted"
 msgstr "Dipadamkan"
 
-#. Status label on an activity change: the item was deleted after this change. Paired with an icon.
+#. Status on a tab: the item was deleted after this change. Not an instruction to delete it later.
 #: src/lib/activity/ActivityItem.svelte
-msgid "Deleted since"
+msgid "Deleted later"
 msgstr ""
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -1510,6 +1504,11 @@ msgstr "Perubahan terakhir: #"
 msgid "Last sync: #"
 msgstr "Sinkron terakhir: #"
 
+#. Tab: shows changes made to this item after this change.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Later changes"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "Learn more"
 msgstr "Ketahui lebih lanjut"
@@ -1918,16 +1917,6 @@ msgstr "Tiada audio"
 msgid "No authors"
 msgstr "Tiada pengarang"
 
-#. Status label on an activity change: the item is the same as right after this change. Paired with an icon.
-#: src/lib/activity/ActivityItem.svelte
-msgid "No changes since"
-msgstr ""
-
-#. Note above the 'Since then' comparison: the item has not changed since this change.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "No changes since this change."
-msgstr ""
-
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "No custom views yet."
@@ -1957,6 +1946,11 @@ msgstr "Tiada sejarah ditemui"
 #: src/lib/components/field-editors/select.svelte
 msgid "No items found"
 msgstr "Tiada item ditemui"
+
+#. Status on a tab: nothing was changed in this item after this change.
+#: src/lib/activity/ActivityItem.svelte
+msgid "No later changes"
+msgstr ""
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
@@ -2061,7 +2055,6 @@ msgid "Nothing to copy"
 msgstr "Tiada yang boleh disalin"
 
 #. Badge in the activity change preview, shown when an entry is no longer called what this change left it as. # = its current headword, or "Deleted"
-#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Now: #"
 msgstr ""
@@ -2740,11 +2733,6 @@ msgstr "Perkataan yang serupa sudah wujud"
 msgid "Simple"
 msgstr "Mudah"
 
-#. Tab that compares this change's result with how the item is now
-#: src/lib/activity/ActivityItem.svelte
-msgid "Since then"
-msgstr ""
-
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Size"
 msgstr "Saiz"
@@ -2813,6 +2801,10 @@ msgstr "batu"
 #. Legend for the 'Since then' comparison. 'Struck' means shown with a line through it, like removed text.
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Struck: as it was after this change. Highlighted: as it is now."
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Struck: as it was after this change. It has since been deleted."
 msgstr ""
 
 #. Error message
@@ -2984,11 +2976,6 @@ msgstr "Entri ini mungkin sudah wujud"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "Fail ini hanya tersedia secara jauh."
-
-#. Note above the 'Since then' comparison: the item was deleted after this change.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "This item has been deleted since."
-msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."

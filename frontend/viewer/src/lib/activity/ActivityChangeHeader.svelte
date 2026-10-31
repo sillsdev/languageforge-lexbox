@@ -22,7 +22,7 @@
   import {useWritingSystemService} from '$project/data';
   import type {ChangeBadge} from './change-header';
 
-  let {label, crumbs = [], identity, linkTo, badge, now, nowDeleted = false}: {
+  let {label, crumbs = [], identity, linkTo, badge, now}: {
     /** The change's name, e.g. "Edit entry", for assistive tech */
     label: string;
     crumbs?: Crumb[];
@@ -33,8 +33,6 @@
     badge?: ChangeBadge;
     /** The entry's current state, when its headword is no longer the one the change left */
     now?: IEntry;
-    /** The entity was deleted after this change */
-    nowDeleted?: boolean;
   } = $props();
 
   const multiWindowService = useMultiWindowService();
@@ -97,9 +95,7 @@
   {:else if badge === 'moved'}
     <Badge variant="outline">{$t`Moved`}</Badge>
   {/if}
-  {#if nowDeleted}
-    <Badge variant="destructive"><T msg="Now: #">{$t`Deleted`}</T></Badge>
-  {:else if now}
+  {#if now}
     <Badge variant="outline" class="font-normal whitespace-normal" data-testid="change-now">
       <T msg="Now: #"><Headwords entry={now} placeholder={$t`Untitled`} /></T>
     </Badge>
