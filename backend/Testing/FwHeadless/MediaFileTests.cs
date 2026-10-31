@@ -578,4 +578,32 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         if (!hash.EndsWith('"')) hash = hash + "\"";
         return hash;
     }
+
+    [Theory]
+    [InlineData("../escape")]
+    [InlineData("a/b")]
+    [InlineData("spaced folder")]
+    public async Task UploadFile_WithUnsafeSubfolderOverride_IsRejected(string subfolder)
+    {
+        var (_, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: subfolder);
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Theory]
+    [InlineData("../escape.zip")]
+    [InlineData("dir/file.zip")]
+    public async Task UploadFile_WithPathInFilename_IsRejected(string filename)
+    {
+        var (_, result) = await Fixture.PostFile(TestRepoZipPath, overrideFilename: filename);
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task UploadFile_OverridingLinkedPathSubfolder_SecondTimeWithPrefixOfFolderName_Fails()
+    {
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        result = await Fixture.PutFile(TestRepoZipPath, fileId, overrideSubfolder: "Pic");
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }

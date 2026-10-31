@@ -1,3 +1,5 @@
+using System.Buffers;
+
 namespace FwHeadless.Media;
 
 /// <summary>
@@ -9,5 +11,24 @@ namespace FwHeadless.Media;
 /// </summary>
 public static class MediaFilePath
 {
+    private static readonly SearchValues<char> SubfolderChars =
+        SearchValues.Create("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_");
+
     public static string Normalize(string path) => path.Replace('\\', '/');
+
+    /// <summary>A LinkedFiles subfolder is one plain path segment ("Pictures"); anything else could leave the project folder.</summary>
+    public static bool IsValidSubfolder(string subfolder)
+    {
+        return subfolder.Length > 0 && !subfolder.AsSpan().ContainsAnyExcept(SubfolderChars);
+    }
+
+    /// <summary>A bare file name: no directory part, not "." or "..", no control characters.</summary>
+    public static bool IsValidFilename(string filename)
+    {
+        return filename.Length > 0
+            && filename != "." && filename != ".."
+            && filename.AsSpan().IndexOfAny('/', '\\') < 0
+            && !filename.Any(char.IsControl)
+            && Path.GetFileName(filename) == filename;
+    }
 }
