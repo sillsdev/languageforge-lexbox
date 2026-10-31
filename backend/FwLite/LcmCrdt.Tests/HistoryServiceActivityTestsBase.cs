@@ -14,6 +14,7 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
     private static readonly AutoFaker AutoFaker = new(AutoFakerDefault.MakeConfig(["en"]));
     private MiniLcmApiFixture _fixture = null!;
 
+    protected MiniLcmApiFixture Fixture => _fixture;
     protected HistoryService Service => _fixture.GetService<HistoryService>();
     protected DataModel DataModel => _fixture.DataModel;
     protected Guid ClientId => _fixture.GetService<CurrentProjectService>().ProjectData.ClientId;

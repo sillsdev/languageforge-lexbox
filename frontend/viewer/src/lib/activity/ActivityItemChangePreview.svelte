@@ -2,7 +2,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Editor from '$lib/components/editor';
   import {Switch} from '$lib/components/ui/switch';
-  import {type IChangeContext, type IComplexFormComponent, type IEntry, type IExampleSentence, type IProjectActivity, type ISense} from '$lib/dotnet-types';
+  import {type IChangeContext, type IComplexFormComponent, type IEntry, type IExampleSentence, type IObjectWithId, type IProjectActivity, type ISense} from '$lib/dotnet-types';
   import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
   import ExampleEditorPrimitive from '$lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte';
   import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
@@ -18,6 +18,11 @@
   import {cn} from '$lib/utils';
   import {Link} from 'svelte-routing';
   import Headwords from '$lib/components/dictionary/Headwords.svelte';
+  import DiffEntryPrimitive from '$lib/entry-editor/diff-view/DiffEntryPrimitive.svelte';
+  import DiffSensePrimitive from '$lib/entry-editor/diff-view/DiffSensePrimitive.svelte';
+  import DiffExamplePrimitive from '$lib/entry-editor/diff-view/DiffExamplePrimitive.svelte';
+  import DiffFieldRows from '$lib/entry-editor/diff-view/DiffFieldRows.svelte';
+  import {isObjectType, objectDiffRows} from '$lib/entry-editor/diff-view/diff-fields';
 
   type Props = {
     activity: IProjectActivity,
@@ -33,16 +38,28 @@
   // Only these snapshot types can be found again inside the affected entry, so only they get the current-version toggle
   const hasCurrentVersion = $derived(['Entry', 'Sense', 'ExampleSentence'].includes(context.entityType));
 
+  // A deleted entity's snapshot is its last state marked deleted: the diff shows it as gone.
+  function existing(snapshot: IObjectWithId | undefined): IObjectWithId | undefined {
+    return snapshot && !snapshot.deletedAt ? snapshot : undefined;
+  }
+  // An edit to an already-deleted entity (one synced in from a client that didn't know about the delete) still
+  // diffs: hiding it would hide that user's work.
+  const editOfDeleted = $derived(!!context.previousSnapshot?.deletedAt && !!context.snapshot?.deletedAt);
+  // No before means the commit created the entity, no after means it deleted it.
+  const before = $derived(editOfDeleted ? context.previousSnapshot : existing(context.previousSnapshot));
+  const after = $derived(editOfDeleted ? context.snapshot : existing(context.snapshot));
+  const anySnapshot = $derived(context.snapshot ?? context.previousSnapshot);
+
   let currentEntity = $derived.by(() => {
-    if (!affectedEntry || !context.snapshot) return undefined;
+    if (!affectedEntry || !anySnapshot) return undefined;
 
     if (context.entityType === 'Entry') {
       return affectedEntry;
     } else if (context.entityType === 'Sense') {
-      const senseId = (context.snapshot as ISense).id;
+      const senseId = anySnapshot.id;
       return affectedEntry.senses.find((s) => s.id === senseId);
     } else if (context.entityType === 'ExampleSentence') {
-      const exampleId = (context.snapshot as IExampleSentence).id;
+      const exampleId = anySnapshot.id;
       for (const sense of affectedEntry.senses) {
         const example = sense.exampleSentences.find((ex) => ex.id === exampleId);
         if (example) return example;
@@ -122,30 +139,54 @@
   </div>
 {/if}
 
-{#if !context.snapshot}
+{#if !anySnapshot}
   <div class="text-muted-foreground p-4 text-center">
     {$t`Preview not available`}
   </div>
+{:else if showCurrent && context.entityType === 'Entry'}
+  <Editor.Root>
+    <Editor.Grid>
+      <EntryEditorPrimitive modalMode readonly entry={currentEntity as IEntry}/>
+    </Editor.Grid>
+  </Editor.Root>
+{:else if showCurrent && context.entityType === 'Sense'}
+  <Editor.Root>
+    <Editor.Grid>
+        <SenseEditorPrimitive readonly sense={currentEntity as ISense}/>
+    </Editor.Grid>
+  </Editor.Root>
+{:else if showCurrent && context.entityType === 'ExampleSentence'}
+  <Editor.Root>
+    <Editor.Grid>
+        <ExampleEditorPrimitive readonly example={currentEntity as IExampleSentence}/>
+    </Editor.Grid>
+  </Editor.Root>
 {:else if context.entityType === 'Entry'}
   <Editor.Root>
     <Editor.Grid>
-      <EntryEditorPrimitive modalMode readonly entry={(showCurrent ? currentEntity : context.snapshot) as IEntry}/>
+      <DiffEntryPrimitive before={before as IEntry | undefined} after={after as IEntry | undefined}/>
     </Editor.Grid>
   </Editor.Root>
 {:else if context.entityType === 'Sense'}
   <Editor.Root>
     <Editor.Grid>
-        <SenseEditorPrimitive readonly sense={(showCurrent ? currentEntity : context.snapshot) as ISense}/>
+      <DiffSensePrimitive before={before as ISense | undefined} after={after as ISense | undefined}/>
     </Editor.Grid>
   </Editor.Root>
 {:else if context.entityType === 'ExampleSentence'}
   <Editor.Root>
     <Editor.Grid>
-        <ExampleEditorPrimitive readonly example={(showCurrent ? currentEntity : context.snapshot) as IExampleSentence}/>
+      <DiffExamplePrimitive before={before as IExampleSentence | undefined} after={after as IExampleSentence | undefined}/>
+    </Editor.Grid>
+  </Editor.Root>
+{:else if isObjectType(context.entityType)}
+  <Editor.Root>
+    <Editor.Grid>
+      <DiffFieldRows rows={objectDiffRows[context.entityType]} {before} {after}/>
     </Editor.Grid>
   </Editor.Root>
 {:else if context.entityType === 'ComplexFormComponent'}
-  {@const cfc = context.snapshot as IComplexFormComponent}
+  {@const cfc = anySnapshot as IComplexFormComponent}
   {@const complexForm = context.affectedEntries.find(e => e.id === cfc.complexFormEntryId)}
   {@const component = context.affectedEntries.find(e => e.id === cfc.componentEntryId)}
   <div class="space-y-2">
@@ -168,6 +209,6 @@
   </div>
 {:else}
   <div class="whitespace-pre-wrap font-mono text-sm">
-    {formatJsonForUi(context.snapshot)}
+    {formatJsonForUi(anySnapshot)}
   </div>
 {/if}

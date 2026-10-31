@@ -317,18 +317,21 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
 
         // These branches are independent read-only lookups that each open their own
         // DbContext (via the repository factories), so run them concurrently.
-        //todo needs optimizing: when a sync pruned this change's snapshot, this replays every commit since the entity's last one (median 22k on a 100k-commit project)
+        // Both reads resume from Harmony's nearest snapshot checkpoint, which it keeps at most
+        // HarmonyConfig.MaxChangesBetweenSnapshotCheckpoints changes apart, so a pruned snapshot costs a short replay,
+        // not one from the entity's last snapshot. A database written before checkpoints has none until its first new
+        // commit (local or synced) regenerates its snapshots; until then these replay from the first commit.
         var snapshotTask = ResolveSnapshot(async () => await dataModel.GetAtCommit<object>(commitId, change.EntityId));
-        //todo the activity redesign wants this to diff against, but GetBeforeCommit rebuilds it by replaying every commit since the entity's last snapshot (~99k of 100k on a synced project), which leaves the preview blank forever — needs optimizing before it comes back
-        //var previousSnapshotTask = ResolveSnapshot(() => dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
+        // null when the entity didn't exist before this commit
+        var previousSnapshotTask = ResolveSnapshot(async () => await dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
         var affectedEntriesTask = GetAffectedEntryIds(change)
             .Select(async (Guid entryId, CancellationToken _) => await GetCurrentOrLatestEntry(entryId))
             .ToArrayAsync()
             .AsTask();
 
-        await Task.WhenAll(snapshotTask, affectedEntriesTask);
+        await Task.WhenAll(snapshotTask, previousSnapshotTask, affectedEntriesTask);
 
-        return new ChangeContext(change, await snapshotTask, null, await affectedEntriesTask);
+        return new ChangeContext(change, await snapshotTask, await previousSnapshotTask, await affectedEntriesTask);
     }
 
     // Some entity types like RemoteResource don't implement IObjectWithId, so cast safely.

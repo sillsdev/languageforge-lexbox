@@ -1,4 +1,4 @@
-import {describe, it, expect} from 'vitest';
+import {afterEach, describe, it, expect, vi} from 'vitest';
 import {computeDiff, hasChanges, type DiffSegment} from './inline-diff';
 
 function rebuiltBefore(segments: DiffSegment[]): string {
@@ -45,5 +45,41 @@ describe('computeDiff', () => {
     }
     expect(rebuiltBefore(segments)).toBe(before);
     expect(rebuiltAfter(segments)).toBe(after);
+  });
+});
+
+describe('computeDiff without Intl.Segmenter', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  async function importWithoutSegmenter() {
+    // Intl's members are non-enumerable, so spreading it would drop them all; inherit them instead.
+    // eslint-disable-next-line @typescript-eslint/naming-convention -- the browser API's name
+    vi.stubGlobal('Intl', Object.create(Intl, {Segmenter: {value: undefined}}));
+    vi.resetModules();
+    return (await import('./inline-diff')).computeDiff;
+  }
+
+  it('loads and diffs by code point, keeping surrogate pairs whole', async () => {
+    const diffWithoutSegmenter = await importWithoutSegmenter();
+
+    const segments = diffWithoutSegmenter('\u{1F642} hi', '\u{1F643} hi');
+    for (const {value} of segments) {
+      expect(value).not.toMatch(/^[\uDC00-\uDFFF]|[\uD800-\uDBFF]$/);
+    }
+    expect(rebuiltBefore(segments)).toBe('\u{1F642} hi');
+    expect(rebuiltAfter(segments)).toBe('\u{1F643} hi');
+  });
+
+  it('splits a combining mark from its base letter', async () => {
+    const diffWithoutSegmenter = await importWithoutSegmenter();
+
+    const segments = diffWithoutSegmenter('cafe\u0301 noir', 'cafe\u0300 noir');
+    // with Intl.Segmenter the whole é/è grapheme would differ, leaving only "caf" equal
+    expect(segments[0]).toEqual({value: 'cafe', type: 'equal'});
+    expect(rebuiltBefore(segments)).toBe('cafe\u0301 noir');
+    expect(rebuiltAfter(segments)).toBe('cafe\u0300 noir');
   });
 });
