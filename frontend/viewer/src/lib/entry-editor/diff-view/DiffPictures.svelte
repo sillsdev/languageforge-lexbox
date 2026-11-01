@@ -6,6 +6,7 @@
   import DiffMarker from './DiffMarker.svelte';
   import {diffAddedSurface, diffRemovedSurface, diffTouched} from './diff-classes';
   import {movedIds} from './moved-ids';
+  import {valueChanged} from './changed-fields';
 
   let {before = [], after = []}: {before?: readonly IPicture[]; after?: readonly IPicture[]} = $props();
 
@@ -34,7 +35,7 @@
   });
 
   function isSame(a: IPicture, b: IPicture): boolean {
-    return a.mediaUri === b.mediaUri && JSON.stringify(a.caption) === JSON.stringify(b.caption);
+    return a.mediaUri === b.mediaUri && !valueChanged(a.caption, b.caption);
   }
 </script>
 
