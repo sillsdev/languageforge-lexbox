@@ -6,11 +6,6 @@ sidebar_position: 3
 FwHeadless is the only place where Harmony data and FwData meet. It keeps a per-project Harmony database *and* a
 Mercurial working copy of the FieldWorks project, and merges between them on request.
 
-:::warning[Data-loss territory]
-This is the highest-risk code in the repo. A bug here can overwrite FieldWorks edits, corrupt the hg repo, or
-produce divergent data that can't be reconciled.
-:::
-
 ## The merge is user-triggered, always
 
 There is no scheduler, no cron and no Mercurial hook. A merge happens because someone pressed a button:
