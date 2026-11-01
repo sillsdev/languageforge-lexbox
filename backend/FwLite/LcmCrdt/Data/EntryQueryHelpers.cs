@@ -68,7 +68,7 @@ public static class EntryQueryHelpers
     public static string QueryHeadwordWithHomographNumber(this Entry e, WritingSystemId ws) => throw new NotSupportedException();
 
     private static Expression<Func<Entry, WritingSystemId, string>> QueryHeadwordWithHomographNumberExpression() =>
-        (e, ws) => e.QueryHeadwordWithTokens(ws) + (e.HomographNumber > 0 && e.QueryHeadwordWithTokens(ws) != ""
+        (e, ws) => e.QueryHeadwordWithTokens(ws) == null ? null! : e.QueryHeadwordWithTokens(ws) + (e.HomographNumber > 0 && e.QueryHeadwordWithTokens(ws) != ""
             ? e.HomographNumber.ToString()
                 .Replace("0", "₀").Replace("1", "₁").Replace("2", "₂").Replace("3", "₃").Replace("4", "₄")
                 .Replace("5", "₅").Replace("6", "₆").Replace("7", "₇").Replace("8", "₈").Replace("9", "₉")
