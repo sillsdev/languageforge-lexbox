@@ -6,5 +6,5 @@
   const label = $derived(state === 'added' ? $t`Added` : state === 'moved' ? $t`Moved` : $t`Removed`);
 </script>
 
-<!-- The diff colors and strikethrough don't reach screen readers. In .diff-gone the "Deleted" badge or note says it once. -->
-<span class="sr-only in-[.diff-gone]:hidden">{`${label}: `}</span>
+<!-- The diff colors and strikethrough don't reach screen readers. For a whole created or deleted entity the badge says it once. -->
+<span class="sr-only in-[.diff-gone]:hidden in-[.diff-new]:hidden">{`${label}: `}</span>

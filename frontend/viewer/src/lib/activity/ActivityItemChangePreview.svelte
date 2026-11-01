@@ -46,8 +46,9 @@
   // What the diff compares: the change's before and after, or the result of the change and the entity now
   const diffBefore = $derived(since ? since.before : before);
   const diffAfter = $derived(since ? since.after : after);
-  // Deleted by this change: the diff shows its last state as plain text, see diffRemoved
+  // Created or deleted whole: values show plain, the badge and an edge rule say which (see diffAdded)
   const gone = $derived(!!diffBefore && !diffAfter);
+  const fresh = $derived(!diffBefore && !!diffAfter);
 
   const kind = $derived(changeKind(context.entityType));
   const reorder = $derived(isReorder(change));
@@ -117,7 +118,7 @@
   {/if}
 {/snippet}
 
-<div class={cn(gone && 'diff-gone')}>
+<div class={cn(gone && 'diff-gone', fresh && 'diff-new')}>
   {#if anchor || cfc}
     <div class="mb-3">
       <ActivityChangeHeader label={context.changeName} {crumbs} {badge} {linkTo} {now}
@@ -137,7 +138,7 @@
     </div>
   {:else}
     {@render sinceNote()}
-    <Editor.Root>
+    <Editor.Root class={cn((gone || fresh) && 'border-s-2 ps-3', gone && 'border-destructive/40 dark:border-destructive/60', fresh && 'border-emerald-500/40 dark:border-emerald-500/60')}>
       <Editor.Grid>
         {#if kind === 'entry'}
           <DiffEntryPrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as IEntry | undefined} after={diffAfter as IEntry | undefined}/>

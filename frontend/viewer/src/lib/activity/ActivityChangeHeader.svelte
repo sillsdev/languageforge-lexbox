@@ -21,6 +21,8 @@
   import {pt} from '$lib/views/view-text';
   import {useWritingSystemService} from '$project/data';
   import type {ChangeBadge} from './change-header';
+  import {addedTint} from '$lib/entry-editor/diff-view/diff-classes';
+  import {cn} from '$lib/utils';
 
   let {label, crumbs = [], identity, linkTo, badge, now}: {
     /** The change's name, e.g. "Edit entry", for assistive tech */
@@ -91,7 +93,7 @@
 
   {#if badge === 'added'}
     <!-- The badges' text says what the color does, so neither relies on the other -->
-    <Badge variant="secondary">{$t`Added`}</Badge>
+    <Badge variant="outline" class={cn(addedTint, 'border-transparent')}>{$t`Added`}</Badge>
   {:else if badge === 'deleted'}
     <Badge variant="destructive">{$t`Deleted`}</Badge>
   {:else if badge === 'removed'}
