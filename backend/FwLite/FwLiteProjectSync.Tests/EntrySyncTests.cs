@@ -1,3 +1,4 @@
+using MiniLcm.Tests.Helpers;
 using System.Text;
 using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;
@@ -385,12 +386,8 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
             options = options
                 .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
-            // The random entries share headwords, so the APIs renumber them as homographs and the link headwords'
-            // homograph subscripts (bank₂) don't round-trip either.
-            options = options
-                .Using<string>(ctx => WithoutHomographNumber(ctx.Subject).Should().Be(WithoutHomographNumber(ctx.Expectation)))
-                .When(info => info.Path.EndsWith($".{nameof(ComplexFormComponent.ComponentHeadword)}")
-                    || info.Path.EndsWith($".{nameof(ComplexFormComponent.ComplexFormHeadword)}"));
+            // the random entries share headwords, so the APIs renumber them as homographs
+            options = options.IgnoringLinkHomographNumbers();
             if (currentApiType == ApiType.FwData)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)
@@ -402,8 +399,6 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
             return options;
         });
     }
-
-    private static string? WithoutHomographNumber(string? headword) => headword?.TrimEnd('₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉');
 
     [Fact]
     public async Task NormalizesStringsToNFD()
