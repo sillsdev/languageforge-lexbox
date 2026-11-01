@@ -28,7 +28,7 @@ public class ActivityChangeInfoResolverCoverageTests : HistoryServiceActivityTes
             foreach (var change in activity.Changes)
             {
                 var name = EntityTypeName(change.Entity.Change.EntityType);
-                var hasSubject = change.Info.Subject is not null;
+                var hasSubject = change.Info is { Entry.Headword: not null } or { Sense.Label: not null } or { ObjectName: not null };
                 allResolved[name] = allResolved.GetValueOrDefault(name, true) && hasSubject;
                 anyResolved[name] = anyResolved.GetValueOrDefault(name) || hasSubject;
             }
@@ -69,7 +69,7 @@ public class ActivityChangeInfoResolverCoverageTests : HistoryServiceActivityTes
                 var changeName = change.Entity.Change.GetType().Name;
                 var context = (await Service.Awaiting(s => s.LoadChangeContext(activity.CommitId, change.Entity.Index))
                     .Should().NotThrowAsync($"the detail view must open for {changeName}")).Which;
-                if (context is null || change.Info.OwningEntryId is not { } owningEntryId) continue;
+                if (context is null || change.Info.Entry?.Id is not { } owningEntryId) continue;
 
                 context.AffectedEntries.Select(e => e.Id).Should().Contain(owningEntryId,
                     $"the list row for {changeName} names an owning entry, so the detail view should link to it (HistoryService.OwningEntryId)");

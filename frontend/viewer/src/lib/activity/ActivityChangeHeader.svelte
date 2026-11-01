@@ -1,8 +1,9 @@
 <script lang="ts" module>
   import type {IEntry} from '$lib/dotnet-types';
+  import type {CrumbText} from './change-header';
 
   /** A parent of the change's entity, by its current name: plain text, or an entry that links to itself. */
-  export type Crumb = {text: string} | {entry: IEntry};
+  export type Crumb = CrumbText | {entry: IEntry};
 </script>
 
 <script lang="ts">
@@ -12,7 +13,7 @@
   import {Badge} from '$lib/components/ui/badge';
   import {Icon} from '$lib/components/ui/icon';
   import Headwords from '$lib/components/dictionary/Headwords.svelte';
-  import {homographSubscript} from '$lib/components/dictionary/HomographNumber.svelte';
+  import HomographNumber, {homographSubscript} from '$lib/components/dictionary/HomographNumber.svelte';
   import {entryBrowseParams} from '$lib/utils/search-params';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
@@ -70,7 +71,7 @@
             <Headwords entry={crumb.entry} placeholder={$t`Untitled`} class="font-normal [&_span]:text-inherit" />
           </Link>
         {:else}
-          <span class="leading-6">{crumb.text}</span>
+          <span class="leading-6">{crumb.text}<HomographNumber homographNumber={crumb.homographNumber ?? 0} /></span>
         {/if}
         {@render separator()}
       {/each}

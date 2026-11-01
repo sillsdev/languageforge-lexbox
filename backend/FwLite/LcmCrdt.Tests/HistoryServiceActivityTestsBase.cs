@@ -44,7 +44,7 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
         return entryId;
     }
 
-    protected async Task<Guid> CreateSense(Guid entryId, string? gloss, double order, IList<SemanticDomain>? semanticDomains = null)
+    protected async Task<Guid> CreateSense(Guid entryId, string? gloss, double order, IList<SemanticDomain>? semanticDomains = null, string? definition = null)
     {
         var senseId = Guid.NewGuid();
         var sense = new Sense
@@ -52,6 +52,7 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
             Id = senseId,
             Order = order,
             Gloss = gloss is null ? [] : new MultiString { ["en"] = gloss },
+            Definition = definition is null ? new() : new RichMultiString { ["en"] = new RichString(definition) },
             SemanticDomains = semanticDomains ?? []
         };
         await DataModel.AddChange(ClientId, new CreateSenseChange(sense, entryId), Meta());
@@ -131,4 +132,16 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
         db.Entry(commit).Property(c => c.Metadata).IsModified = true;
         await db.SaveChangesAsync();
     }
+}
+
+// Null-safe accessors, since expression-tree lambdas (FluentAssertions Contain) can't use `?.`.
+internal static class ActivityChangeInfoTestExtensions
+{
+    public static Guid? EntryId(this ActivityChangeInfo info) => info.Entry?.Id;
+    public static string? EntryHeadword(this ActivityChangeInfo info) => info.Entry?.Headword;
+    public static int? EntryHomographNumber(this ActivityChangeInfo info) => info.Entry?.HomographNumber;
+    public static string? SenseLabel(this ActivityChangeInfo info) => info.Sense?.Label;
+    public static int? SenseNumber(this ActivityChangeInfo info) => info.Sense?.Number;
+    public static string? TargetText(this ActivityChangeInfo info) => info.Target?.Text;
+    public static int? TargetHomographNumber(this ActivityChangeInfo info) => info.Target?.HomographNumber;
 }
