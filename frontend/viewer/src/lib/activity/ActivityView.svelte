@@ -176,12 +176,12 @@
       <span class="w-3.5 shrink-0 flex justify-center">
         {#if glyph}<Icon icon={glyph.icon} class="size-3.5 {glyph.class}" />{/if}
       </span>
-      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} {groupHeadword} /></span>
+      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} {groupHeadword} entryHeadword={entry.owningEntryHeadword} /></span>
     </div>
   {:else}
     <div class="flex items-center gap-1 min-w-0">
       {#if glyph}<Icon icon={glyph.icon} class="size-3.5 shrink-0 {glyph.class}" />{/if}
-      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} /></span>
+      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} entryHeadword={entry.owningEntryHeadword} /></span>
     </div>
   {/if}
 {/snippet}

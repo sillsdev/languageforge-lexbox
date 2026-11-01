@@ -5,5 +5,5 @@
   let {text}: {text: string} = $props();
 </script>
 
-<!-- Activity labels from the backend carry homograph and sense numbers as Unicode subscripts (plain text, so they also work in titles); render them like HomographNumber -->
+<!-- Activity labels from the backend carry homograph numbers as Unicode subscripts (plain text, so they also work in titles); render them like HomographNumber -->
 {#each parseSubscriptNumbers(text) as part, i (i)}{#if typeof part === 'number'}<HomographNumber homographNumber={part} />{:else}{part}{/if}{/each}

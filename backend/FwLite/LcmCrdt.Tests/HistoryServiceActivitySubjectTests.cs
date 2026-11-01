@@ -80,21 +80,18 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
     }
 
     [Fact]
-    public async Task ProjectActivity_ChangeInfo_MultipleSenses_NumberedPositionally()
+    public async Task ProjectActivity_ChangeInfo_Senses_NamedByGlossThenDefinition_WithoutNumbers()
     {
         var entryId = await CreateEntry("run");
         await CreateSense(entryId, gloss: "to run", order: 1.0);
-        await CreateSense(entryId, gloss: "a jog", order: 2.0);
+        await CreateSense(entryId, gloss: null, order: 2.0, definition: "move quickly on foot");
         await CreateSense(entryId, gloss: null, order: 3.0);
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
-        // With more than one sense every sense is numbered by position (like FieldWorks), independent of the
-        // gloss — unique or not — shown as a subscript after the gloss, like a homograph number. An empty
-        // gloss shows a dotted-circle placeholder for the subscript to attach to.
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == "to run₁");
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == "a jog₂");
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == "◌₃");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == "to run");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == "move quickly on foot");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == null);
     }
 
     [Fact]

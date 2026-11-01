@@ -47,16 +47,4 @@ public class HistoryServiceActivityLabelPolicyTests : HistoryServiceActivityTest
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is EditUserCommentChange)
             && a.Changes[0].Info.Target == "third words");
     }
-
-    [Fact]
-    public async Task ProjectActivity_ChangeInfo_SenseNumbers_ReflectCurrentPositions()
-    {
-        var entryId = await CreateEntry("run");
-        await CreateSense(entryId, gloss: "first", order: 1.0);
-        await CreateSense(entryId, gloss: "early", order: 0.9);
-
-        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
-        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateSenseChange)
-            && a.Changes[0].Info.Target == "first₂");
-    }
 }

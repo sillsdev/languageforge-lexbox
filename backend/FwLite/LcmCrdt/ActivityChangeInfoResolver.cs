@@ -114,8 +114,6 @@ internal static class ActivityChangeInfoResolver
         foreach (var sense in senses.Values) entryIds.Add(sense.EntryId);
 
         // For looking up sense numbers
-        var sensesByEntry = await LoadSensesByEntry(db, [.. senses.Values.Select(s => s.EntryId)]);
-
         var entries = await LoadWithRecovery(db, entryIds, LoadEntries);
         var partsOfSpeech = await LoadNamed<PartOfSpeech>(db, partOfSpeechIds, p => new PartOfSpeech { Id = p.Id, Name = p.Name });
         var semanticDomains = await LoadWithRecovery(db, semanticDomainIds, LoadSemanticDomains);
@@ -271,29 +269,19 @@ internal static class ActivityChangeInfoResolver
             return entry.HomographNumber > 0 ? headword + Subscript(entry.HomographNumber) : headword;
         }
 
-        // "headword › senseLabel". Degrades to just the headword when the sense has nothing to distinguish it
-        // (a lone, gloss-less sense), and to null when there's neither a headword nor a distinguishing label
-        // (Subject is display data, so a translatable fallback has to come from the frontend, not here).
+        // "headword › senseLabel", degrading to whichever part exists (Subject is display data, so a translatable
+        // fallback for neither has to come from the frontend).
         string? QualifiedSenseLabel(string? headword, Sense sense)
         {
             var senseLabel = SenseLabel(sense);
-            if (headword is null) return string.IsNullOrEmpty(senseLabel) ? null : senseLabel;
-            return string.IsNullOrEmpty(senseLabel) ? headword : $"{headword} › {senseLabel}";
+            if (headword is null) return senseLabel;
+            return senseLabel is null ? headword : $"{headword} › {senseLabel}";
         }
 
-        // Gloss + sense number if >1 sense (Mirrors FieldWorks)
-        // A gloss-less sense renders as "◌₂", which is a tad quircky.
-        // Rejected alternatives: '(2)' is too different from subscript. '_₂' risks making the subscript hard to read. '-₂' dash/emdash could read as formatting.
-        string SenseLabel(Sense sense)
-        {
-            var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
-            var index = siblings.FindIndex(s => s.Id == sense.Id);
-            var glossText = Label(sense.Gloss);
-            // A deleted sense (recovered from its snapshot) is absent from the live sibling list — it has no
-            // meaningful position, so no number.
-            if (index < 0 || siblings.Count <= 1) return glossText ?? "";
-            return (glossText ?? "◌") + Subscript(index + 1);
-        }
+        // Gloss, else a definition snippet, like the preview's sense anchor. No sense number: a subscript would read
+        // as a homograph number, and numbers from the current sense order can contradict the historical preview.
+        string? SenseLabel(Sense sense) =>
+            Label(sense.Gloss) ?? BestAlternative(sense.Definition, writingSystemOrder, d => Truncate(d?.GetPlainText(), TextSnippetBudget));
 
         // The combination of code + name is the standard label for a semantic domain
         string SemanticDomainLabel(SemanticDomain domain) =>
@@ -382,20 +370,9 @@ internal static class ActivityChangeInfoResolver
     {
         if (ids.Count == 0) return [];
         var loaded = await db.Set<Sense>().Where(s => ids.Contains(s.Id))
-            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Gloss = s.Gloss, Order = s.Order })
+            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Gloss = s.Gloss, Definition = s.Definition, Order = s.Order })
             .ToListAsyncLinqToDB();
         return loaded.ToDictionary(s => s.Id);
-    }
-
-    private static async Task<Dictionary<Guid, List<Sense>>> LoadSensesByEntry(ICrdtDbContext db, HashSet<Guid> entryIds)
-    {
-        if (entryIds.Count == 0) return [];
-        var loaded = await db.Set<Sense>().Where(s => entryIds.Contains(s.EntryId))
-            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Gloss = s.Gloss, Order = s.Order })
-            .ToListAsyncLinqToDB();
-        return loaded
-            .GroupBy(s => s.EntryId)
-            .ToDictionary(g => g.Key, g => g.OrderBy(s => s.Order).ThenBy(s => s.Id).ToList());
     }
 
     private static async Task<Dictionary<Guid, ExampleSentence>> LoadExamples(ICrdtDbContext db, HashSet<Guid> ids)

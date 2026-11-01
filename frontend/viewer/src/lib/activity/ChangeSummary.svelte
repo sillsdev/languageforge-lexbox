@@ -8,12 +8,18 @@
   import SubscriptNumbers from './SubscriptNumbers.svelte';
   import type {BulkNoun, ChangeFact, CollectionKind, ObjectKind, SummaryEntity} from './change-summary';
 
-  // `groupHeadword`: set when this line renders under an entry-group header (see ActivityView). The leading
-  // subject token is then shown relative to that header — identical → omitted (the header already names it);
-  // "headword › rest" (the resolver's sense label) → a "› rest" context token (muted "›" connector, bold name);
-  // anything else → unchanged.
+  // `groupHeadword`: set when this line renders under an entry-group header (see ActivityView), which then
+  // already names the entry, so the leading subject drops it and keeps only "› sense".
+  // `entryHeadword`: the owning entry's headword, which tells a sense-level subject that is only the headword
+  // apart from one naming the sense: the resolver leaves an unnamed sense out of "headword › sense".
   // Only affects non-self-naming facts (self-naming facts weave the subject into their own sentence).
-  let {fact, subject, target, groupHeadword}: {fact: ChangeFact; subject?: string; target?: string; groupHeadword?: string} = $props();
+  let {fact, subject, target, groupHeadword, entryHeadword}: {
+    fact: ChangeFact;
+    subject?: string;
+    target?: string;
+    groupHeadword?: string;
+    entryHeadword?: string;
+  } = $props();
 
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
@@ -27,15 +33,22 @@
     || fact.kind === 'editObjectField' || fact.kind === 'deleteObject' || fact.kind === 'delete',
   );
 
-  // The leading token for the subject, applying the `groupHeadword` contextualization described above.
-  // The context case carries only the name (the "›" connector is added by `contextToken`).
-  const subjectLead = $derived.by((): {text: string; context: boolean} | undefined => {
+  // A sense- or example-level edit names the sense; a sense create names the parent entry and the new sense separately
+  const senseLevel = $derived('entity' in fact && fact.entity !== 'entry' && fact.kind !== 'create');
+
+  // The leading subject: the entry part (unless the group header shows it) and the sense part, `null` for an unnamed sense
+  const subjectLead = $derived.by((): {entry?: string; sense?: string | null} | undefined => {
     if (!subject) return undefined;
-    if (groupHeadword === undefined) return {text: subject, context: false};
-    if (subject === groupHeadword) return undefined;
-    const sensePrefix = groupHeadword + ' › ';
-    if (subject.startsWith(sensePrefix)) return {text: subject.slice(sensePrefix.length), context: true};
-    return {text: subject, context: false};
+    let entry: string | undefined = subject;
+    let sense: string | null | undefined;
+    if (entryHeadword && subject.startsWith(entryHeadword + ' › ')) {
+      entry = entryHeadword;
+      sense = subject.slice(entryHeadword.length + 3);
+    } else if (entryHeadword && subject === entryHeadword && senseLevel) {
+      sense = null;
+    }
+    if (groupHeadword !== undefined && entry === groupHeadword) entry = undefined;
+    return entry === undefined && sense === undefined ? undefined : {entry, sense};
   });
 
   function capitalize(text: string): string {
@@ -140,8 +153,9 @@
   already supplies a literal space (the " to " in a `<T msg="Set # to #">` slot) — that keeps every data chip
   on the same one-margin rhythm. Whitespace at a {#if}/{:else}/snippet boundary is trimmed, so these margins
   — never literal spaces — carry the gaps across branch edges. -->
-{#snippet subjectToken(text: string, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}"><SubscriptNumbers {text} /></span>{/snippet}
-{#snippet contextToken(name: string)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span><SubscriptNumbers text={name} /></span>{/snippet}
+<!-- The resolver joins parent and child names with " › ": the connector stays muted, like in the preview's crumbs -->
+{#snippet subjectToken(text: string, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{#each text.split(' › ') as part, i (i)}{#if i}<span class="mx-1 font-normal text-muted-foreground">›</span>{/if}<SubscriptNumbers text={part} />{/each}</span>{/snippet}
+{#snippet contextToken(name: string | null)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span>{#if name === null}<span class="font-normal italic text-muted-foreground">{$t`Untitled`}</span>{:else}<SubscriptNumbers text={name} />{/if}</span>{/snippet}
 {#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}"><SubscriptNumbers {text} /></span>{/snippet}
 <!-- Muted and in parentheses so the abbreviation reads as part of the field label, not as data (chips) or a homograph number (subscript) -->
 {#snippet wsAbbr(wsId: string)}{@const ws = writingSystemService.getWritingSystem(wsId) ?? {wsId, name: wsId, abbreviation: wsId}}<span class="ms-1 whitespace-nowrap text-muted-foreground" title={`${ws.name} (${ws.wsId})`}>(<bdi>{ws.abbreviation}</bdi>)</span>{/snippet}
@@ -151,7 +165,7 @@
   is aligned within it. An inline-flex chip aligns by its bottom edge and rides low against the text. -->
 {#snippet audioNote()}<span class="ms-1 rounded border border-border bg-background px-1 font-medium text-foreground whitespace-nowrap"><Icon icon="i-mdi-volume-high" class="inline-block align-middle size-3.5 me-0.5" />{$t`audio`}</span>{/snippet}
 
-{#if subjectLead && !selfNaming}{#if subjectLead.context}{@render contextToken(subjectLead.text)}{:else}{@render subjectToken(subjectLead.text)}{/if}{/if}{#if fact.kind === 'setField'}
+{#if subjectLead && !selfNaming}{#if subjectLead.entry}{@render subjectToken(subjectLead.entry)}{/if}{#if subjectLead.sense !== undefined}{@render contextToken(subjectLead.sense)}{/if}{/if}{#if fact.kind === 'setField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
   {#if fact.audio}{$t`Set ${label}`}{@render audioNote()}{:else if fact.ws}<T msg="Set # to #" cmt="First # is a field label plus writing-system abbreviation, second # is the new value">{label}{@render wsAbbr(fact.ws)}{#snippet second()}{@render chip(fact.value, true)}{/snippet}</T>{:else}{$t`Set ${label} to`}{@render chip(fact.value)}{/if}
 {:else if fact.kind === 'setHomograph'}
@@ -185,15 +199,14 @@
     {@const name = subject ?? fact.label}
     {$t`Created ${entityNoun('entry')}`}{#if name}{@render subjectToken(name, true)}{:else}{@render noHeadword()}{/if}
   {:else if fact.entity === 'sense'}
-    <!-- "headword · Added sense senseN". Subject (parent entry headword) renders as the leading token via selfNaming=false;
-         `target` is the sense identifier from the backend (SenseGlossPart — the gloss when present, "senseN" subscript otherwise). -->
+    <!-- "headword Added sense gloss": the subject is the parent entry, `target` the new sense's label -->
     {@const name = target ?? fact.label}
     {$t`Added ${entityNoun('sense')}`}{#if name}{@render subjectToken(name, true)}{/if}
   {:else}
     <!-- "headword › gloss · Added example". Subject is the parent sense's SenseLabel (headword › gloss); leading chip.
          An audio-only example has no readable sentence text, so show the audio marker instead of a media URI. -->
     {@const name = fact.label}
-    {$t`Added ${entityNoun('example')}`}{#if name}{@render chip(name)}{:else if fact.audioOnly}{@render audioNote()}{/if}
+    {$t`Added ${entityNoun('example')}`}{#if name}{@render subjectToken(name, true)}{:else if fact.audioOnly}{@render audioNote()}{/if}
   {/if}
 {:else if fact.kind === 'delete'}
   {#if subject}
@@ -202,7 +215,7 @@
     {:else}{$t`Deleted ${entityNoun('example')} from`}{@render subjectToken(subject, true)}{/if}
   {:else}{$t`Deleted ${entityNoun(fact.entity)}`}{/if}
 {:else if fact.kind === 'reorder'}
-  {#if target}{$t`Reordered ${collectionItemNoun(fact.collection)}`}{@render chip(target)}{:else}{$t`Reordered ${collectionNoun(fact.collection)}`}{/if}
+  {#if target}{$t`Reordered ${collectionItemNoun(fact.collection)}`}{@render subjectToken(target, true)}{:else}{$t`Reordered ${collectionNoun(fact.collection)}`}{/if}
 {:else if fact.kind === 'moveSense'}
   {$t`Moved from another entry`}
 {:else if fact.kind === 'moveExample'}

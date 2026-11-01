@@ -44,7 +44,7 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
         return entryId;
     }
 
-    protected async Task<Guid> CreateSense(Guid entryId, string? gloss, double order, IList<SemanticDomain>? semanticDomains = null)
+    protected async Task<Guid> CreateSense(Guid entryId, string? gloss, double order, IList<SemanticDomain>? semanticDomains = null, string? definition = null)
     {
         var senseId = Guid.NewGuid();
         var sense = new Sense
@@ -52,6 +52,7 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
             Id = senseId,
             Order = order,
             Gloss = gloss is null ? [] : new MultiString { ["en"] = gloss },
+            Definition = definition is null ? new() : new RichMultiString { ["en"] = new RichString(definition) },
             SemanticDomains = semanticDomains ?? []
         };
         await DataModel.AddChange(ClientId, new CreateSenseChange(sense, entryId), Meta());

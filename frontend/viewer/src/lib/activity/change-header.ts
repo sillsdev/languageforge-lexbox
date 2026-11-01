@@ -39,24 +39,10 @@ export function changeBadge(kind: ChangeKind, {before, after, reorder}: {before?
   return undefined;
 }
 
-// Unicode subscript digits, as the backend appends sense numbers (gloss₂)
-const trailingSubscript = /[₀-₉]+$/u;
-// The backend's stand-in for a sense without a gloss
-const glosslessSense = '◌';
-
-/**
- * A sense label without its sense number. Numbers are computed from the current sense order, which can disagree
- * with the historical diff below the header, so the header never shows them.
- */
-export function stripSenseNumber(senseLabel: string): string {
-  const label = senseLabel.replace(trailingSubscript, '');
-  return label === glosslessSense ? '' : label;
-}
-
 /**
  * The current names of the parents a change's entity sits under, outermost first, from the activity list's change info.
  * The info's subject reads "headword › sense label" for anything under a sense, so the owning entry's headword
- * splits it, and the sense number is dropped. No subject means the backend couldn't resolve it: no crumb.
+ * splits it. No subject means the backend couldn't resolve it: no crumb.
  */
 export function parentCrumb(kind: ChangeKind, info: IActivityChangeInfo | undefined): string[] {
   const subject = info?.subject;
@@ -78,8 +64,8 @@ function splitSubject(subject: string, headword: string | undefined): string[] {
   if (headword && subject === headword) return [headword];
   const prefix = headword && `${headword} › `;
   if (prefix && subject.startsWith(prefix)) {
-    return [headword, stripSenseNumber(subject.slice(prefix.length))].filter(Boolean);
+    return [headword, subject.slice(prefix.length)];
   }
   // Without a headword the subject is the sense label alone
-  return [stripSenseNumber(subject)].filter(Boolean);
+  return [subject];
 }

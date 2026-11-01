@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import type {IChangeEntity} from '$lib/dotnet-types';
-import {changeBadge, changeKind, isReorder, parentCrumb, stripSenseNumber} from './change-header';
+import {changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
 
 function change($type?: string): IChangeEntity {
   return {index: 0, commitId: 'c', entityId: 'e', authoredModelVersion: 1, change: {entityId: 'e', ...($type ? {$type} : {})}};
@@ -52,34 +52,22 @@ describe('changeBadge', () => {
   });
 });
 
-describe('stripSenseNumber', () => {
-  it('drops a trailing subscript sense number', () => {
-    expect(stripSenseNumber('house₂')).toBe('house');
-    expect(stripSenseNumber('house₁₂')).toBe('house');
-    expect(stripSenseNumber('house')).toBe('house');
-  });
-
-  it('drops the stand-in of a sense without a gloss', () => {
-    expect(stripSenseNumber('◌₂')).toBe('');
-  });
-});
-
 describe('parentCrumb', () => {
   it('shows only the entry for a sense, never the sense itself', () => {
-    expect(parentCrumb('sense', {subject: 'nyumba₁ › house₂', owningEntryHeadword: 'nyumba₁'})).toEqual(['nyumba₁']);
+    expect(parentCrumb('sense', {subject: 'nyumba₁ › house', owningEntryHeadword: 'nyumba₁'})).toEqual(['nyumba₁']);
     // Sense create, delete and reorder name the entry as subject
     expect(parentCrumb('sense', {subject: 'nyumba₁', owningEntryHeadword: 'nyumba₁'})).toEqual(['nyumba₁']);
   });
 
   it('splits an example subject into entry and sense, keeping the homograph number', () => {
-    expect(parentCrumb('example', {subject: 'nyumba₁ › house₂', owningEntryHeadword: 'nyumba₁'})).toEqual(['nyumba₁', 'house']);
+    expect(parentCrumb('example', {subject: 'nyumba₁ › house', owningEntryHeadword: 'nyumba₁'})).toEqual(['nyumba₁', 'house']);
+    // The resolver leaves an unnamed sense out of the subject
     expect(parentCrumb('example', {subject: 'nyumba₁', owningEntryHeadword: 'nyumba₁'})).toEqual(['nyumba₁']);
-    expect(parentCrumb('example', {subject: 'nyumba › ◌₂', owningEntryHeadword: 'nyumba'})).toEqual(['nyumba']);
   });
 
   it('keeps the sense when the entry has no headword', () => {
-    expect(parentCrumb('example', {subject: 'house₂'})).toEqual(['house']);
-    expect(parentCrumb('sense', {subject: 'house₂'})).toEqual([]);
+    expect(parentCrumb('example', {subject: 'house'})).toEqual(['house']);
+    expect(parentCrumb('sense', {subject: 'house'})).toEqual([]);
   });
 
   it('names the complex form of a component link', () => {
