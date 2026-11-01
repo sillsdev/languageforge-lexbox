@@ -1,36 +1,28 @@
-<script lang="ts" module>
-  import type {IEntry} from '$lib/dotnet-types';
-  import type {CrumbText} from './change-header';
-
-  /** A parent of the change's entity, by its current name: plain text, or an entry that links to itself. */
-  export type Crumb = CrumbText | {entry: IEntry};
-</script>
-
 <script lang="ts">
   import type {Snippet} from 'svelte';
+  import type {IEntry} from '$lib/dotnet-types';
   import {T, t} from 'svelte-i18n-lingui';
-  import {Link} from 'svelte-routing';
   import {Badge} from '$lib/components/ui/badge';
   import {Icon} from '$lib/components/ui/icon';
-  import Headwords from '$lib/components/dictionary/Headwords.svelte';
   import HomographNumber, {homographSubscript} from '$lib/components/dictionary/HomographNumber.svelte';
-  import {entryBrowseParams} from '$lib/utils/search-params';
   import {useViewService} from '$lib/views/view-service.svelte';
-  import {pt} from '$lib/views/view-text';
   import {useWritingSystemService} from '$project/data';
-  import type {ChangeBadge} from './change-header';
+  import type {ChangeBadge, CrumbText} from './change-header';
   import {addedTint} from '$lib/entry-editor/diff-view/diff-classes';
   import {cn} from '$lib/utils';
   import EntryActionsButton from './EntryActionsButton.svelte';
 
-  let {label, crumbs = [], identity, entry, badge, now}: {
+  let {label, crumbs = [], identity, entry, related, badge, now}: {
     /** The change's name, e.g. "Edit entry", for assistive tech */
     label: string;
-    crumbs?: Crumb[];
+    /** The change's parents by their current name */
+    crumbs?: CrumbText[];
     /** The entity as the change left it, usually a before/after anchor */
     identity: Snippet;
     /** The entry the actions open; none when it is deleted */
     entry?: IEntry;
+    /** Another entry the change touches, offered in the actions menu */
+    related?: {entryId: string; label: string};
     badge?: ChangeBadge;
     /** The entry's current state, when its headword is no longer the one the change left */
     now?: IEntry;
@@ -42,15 +34,6 @@
   function bestHeadword(entry: IEntry): string {
     return (writingSystemService.viewBestHeadword(entry, viewService.currentView) || $t`Untitled`)
       + homographSubscript(entry.homographNumber);
-  }
-
-  function goToLabel(entry: IEntry): string {
-    const headword = bestHeadword(entry);
-    return pt($t`Go to entry: ${headword}`, $t`Go to word: ${headword}`, viewService.currentView);
-  }
-
-  function entryHref(entry: IEntry): string {
-    return `./browse?${entryBrowseParams(entry.id)}`;
   }
 </script>
 
@@ -64,15 +47,7 @@
     <!-- Current names, muted: the parent's context, not what changed. Truncates rather than pushing the identity off a phone screen. -->
     <span class="text-sm text-muted-foreground max-w-full min-w-0 truncate" data-testid="change-crumb">
       {#each crumbs as crumb, i (i)}
-        {#if 'entry' in crumb}
-          <Link to={entryHref(crumb.entry)} aria-label={goToLabel(crumb.entry)}
-                class="inline-block min-h-6 leading-6 align-bottom max-w-full truncate hover:underline">
-            <!-- Muted like the other crumbs: writing system colors would compete with the identity -->
-            <Headwords entry={crumb.entry} placeholder={$t`Untitled`} class="font-normal [&_span]:text-inherit" />
-          </Link>
-        {:else}
-          <span class="leading-6">{crumb.text}<HomographNumber homographNumber={crumb.homographNumber ?? 0} /></span>
-        {/if}
+        <span class="leading-6">{crumb.text}<HomographNumber homographNumber={crumb.homographNumber ?? 0} /></span>
         {@render separator()}
       {/each}
     </span>
@@ -101,7 +76,7 @@
 
   {#if entry}
     <div class="ms-auto">
-      <EntryActionsButton entryId={entry.id} />
+      <EntryActionsButton entryId={entry.id} {related} />
     </div>
   {/if}
 </div>

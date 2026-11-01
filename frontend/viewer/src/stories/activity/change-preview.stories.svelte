@@ -61,6 +61,11 @@
     componentHeadword: 'dance',
   };
 
+  const secondSense: ISense = {...sense, id: 'second-sense', gloss: {en: 'dance (verb)'}};
+  const twoSenses: IEntry = {...other, senses: [other.senses[0], secondSense]};
+  const senseLink: IComplexFormComponent = {...link, componentSenseId: secondSense.id};
+  const staleSenseLink: IComplexFormComponent = {...link, componentSenseId: 'removed-sense'};
+
   const posBefore = partsOfSpeech[1];
   const posAfter = {...posBefore, name: {...posBefore.name, en: 'Common noun'}};
   const domain: ISemanticDomain = {id: 'sd', code: '1.1', name: {en: 'Sky'}, abbreviation: {}, description: {}, predefined: false};
@@ -93,6 +98,10 @@
       affected: [entry], $type: 'SetOrderChange:ExampleSentence', info: {entry: nyumbaName, sense: {label: 'house'}}},
     {title: 'Component added', changeName: 'Add component', entityType: 'ComplexFormComponent', after: link, affected: [longHeadword, other],
       info: {entry: {id: longHeadword.id, headword: 'nyumba-ya-kale', homographNumber: 0}}},
+    {title: 'Component added, sense-specific', changeName: 'Add component', entityType: 'ComplexFormComponent', after: senseLink, affected: [longHeadword, twoSenses]},
+    {title: 'Component added, sense deleted since', changeName: 'Add component', entityType: 'ComplexFormComponent', after: staleSenseLink, affected: [longHeadword, twoSenses]},
+    {title: 'Component added, complex form deleted since', changeName: 'Add component', entityType: 'ComplexFormComponent', after: senseLink,
+      affected: [{...longHeadword, deletedAt: '2026-10-02T10:00:00Z'}, twoSenses]},
     {title: 'Component removed', changeName: 'Delete component', entityType: 'ComplexFormComponent', before: link, after: {...link, deletedAt: '2026-10-02T10:00:00Z'},
       affected: [longHeadword, other]},
     {title: 'Component reorder', changeName: 'Reorder component', entityType: 'ComplexFormComponent', before: link, after: {...link, order: 2} as IComplexFormComponent,
@@ -105,6 +114,8 @@
     {title: 'Custom view delete', changeName: 'Delete custom view', entityType: 'CustomView', before: view, after: {...view, deletedAt: '2026-10-02T10:00:00Z'}},
     {title: 'Unknown change', changeName: 'Upload file', entityType: 'Unknown'},
   ];
+
+  const componentSenseIndex = examples.findIndex(e => e.title === 'Component added, sense-specific');
 
   function context(example: Example): IChangeContext {
     return {
@@ -154,6 +165,20 @@
     <Router>
       <div class="max-w-3xl border rounded p-4 pb-32">
         <ActivityItemChangePreview context={context(examples[1])} change={change(examples[1])} />
+      </div>
+    </Router>
+  {/snippet}
+</Story>
+
+<Story name="Component actions open"
+  play={async ({canvasElement}) => {
+    await userEvent.click(await within(canvasElement).findByRole('button', {name: 'More options'}));
+    await expect(await within(document.body).findByRole('menuitem', {name: /Go to component/})).toBeVisible();
+  }}>
+  {#snippet template()}
+    <Router>
+      <div class="max-w-3xl border rounded p-4 pb-32">
+        <ActivityItemChangePreview context={context(examples[componentSenseIndex])} change={change(examples[componentSenseIndex])} />
       </div>
     </Router>
   {/snippet}

@@ -25,6 +25,12 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} các thay đổi)"
 
+#. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
+#. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted sense)"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
@@ -1545,6 +1551,12 @@ msgstr "Ghi chú"
 msgid "Go to {0}"
 msgstr "Đi tới {0}"
 
+#. Menu option on a complex form's change in the activity view; leaves the activity view and opens the component entry in the dictionary
+#. {0} = the component's headword. Component = a part of a complex form (called "Part" in the Lite view)
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to component: {0}"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Go to word"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
@@ -1559,13 +1571,6 @@ msgstr "Chuyển đến mục"
 msgid "Go to Entry"
 msgstr ""
 
-#. Relevant view: Classic
-#. Lite view equivalent: "Go to word: {0}"
-#. Accessible name of the link on an entry's name in the activity change preview. {0} = the entry's headword
-#: src/lib/activity/ActivityChangeHeader.svelte
-msgid "Go to entry: {0}"
-msgstr ""
-
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
@@ -1578,13 +1583,6 @@ msgstr "Chuyển đến từ"
 #. Menu option on a change in the activity view; leaves the activity view and opens the changed word in the dictionary
 #: src/lib/activity/EntryActionsButton.svelte
 msgid "Go to Word"
-msgstr ""
-
-#. Relevant view: Lite
-#. Classic view equivalent: "Go to entry: {0}"
-#. Accessible name of the link on a word's name in the activity change preview. {0} = the word's headword
-#: src/lib/activity/ActivityChangeHeader.svelte
-msgid "Go to word: {0}"
 msgstr ""
 
 #. Filter option label
@@ -3567,7 +3565,8 @@ msgstr "Chưa đọc"
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
 #: src/lib/activity/ActivityChangeHeader.svelte
-#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ChangeSummary.svelte

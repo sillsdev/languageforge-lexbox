@@ -11,7 +11,11 @@
   import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
 
-  let {entryId}: {entryId: string} = $props();
+  let {entryId, related}: {
+    entryId: string;
+    /** Another entry the change touches */
+    related?: {entryId: string; label: string};
+  } = $props();
 
   const multiWindowService = useMultiWindowService();
   const viewService = useViewService();
@@ -48,6 +52,17 @@
         <DropdownMenu.Item class="cursor-pointer" onSelect={() => multiWindowService.openEntryInNewWindow(entryId)}>
           <Icon icon="i-mdi-open-in-new" />
           {$t`Open in new Window`}
+        </DropdownMenu.Item>
+      {/if}
+      {#if related}
+        <DropdownMenu.Separator />
+        <DropdownMenu.Item class="cursor-pointer">
+          {#snippet child({props})}
+            <Link {...props} to="./browse?{entryBrowseParams(related.entryId)}">
+              <Icon icon="i-mdi-link" />
+              {related.label}
+            </Link>
+          {/snippet}
         </DropdownMenu.Item>
       {/if}
     </DropdownMenu.Content>

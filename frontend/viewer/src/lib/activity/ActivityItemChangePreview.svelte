@@ -13,8 +13,9 @@
   import DiffAnchor from '$lib/entry-editor/diff-view/DiffAnchor.svelte';
   import {entryAnchor, exampleAnchor, objectAnchor, senseAnchor, type AnchorText} from '$lib/entry-editor/diff-view/anchor-text';
   import {useWritingSystemService} from '$project/data';
-  import ActivityChangeHeader, {type Crumb} from './ActivityChangeHeader.svelte';
-  import {changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
+  import ActivityChangeHeader from './ActivityChangeHeader.svelte';
+  import {homographSubscript} from '$lib/components/dictionary/HomographNumber.svelte';
+  import {changeBadge, changeKind, componentSense, isReorder, parentCrumb, senseText, type CrumbText} from './change-header';
   import {existing, type SinceThen} from './since-then';
   import {cn} from '$lib/utils';
 
@@ -74,12 +75,33 @@
   const complexForm = $derived(cfc && context.affectedEntries.find(e => e.id === cfc.complexFormEntryId));
   const component = $derived(cfc && context.affectedEntries.find(e => e.id === cfc.componentEntryId));
 
+  const liveComplexForm = $derived(complexForm && !complexForm.deletedAt ? complexForm : undefined);
+  const liveComponent = $derived(component && !component.deletedAt ? component : undefined);
+
   // Something deleted, by this change or since, can't be gone to
   const actionsEntry = $derived.by(() => {
-    // A component link names the component entry, which outlives the link
-    if (kind === 'complexFormComponent') return component && !component.deletedAt ? component : undefined;
+    // A component link is edited on its complex form, but the component outlives the link
+    if (kind === 'complexFormComponent') return liveComplexForm ?? liveComponent;
     return after && affectedEntry && !affectedEntry.deletedAt ? affectedEntry : undefined;
   });
+
+  function bestHeadword(entry: IEntry): string {
+    return (writingSystemService.viewBestHeadword(entry, viewService.currentView) || $t`Untitled`) + homographSubscript(entry.homographNumber);
+  }
+
+  const related = $derived.by(() => {
+    if (!liveComplexForm || !liveComponent) return undefined;
+    const headword = bestHeadword(liveComponent);
+    return {entryId: liveComponent.id, label: $t`Go to component: ${headword}`};
+  });
+
+  const componentSenseName = $derived.by(() => {
+    const found = cfc && componentSense(component, cfc.componentSenseId);
+    if (!found) return undefined;
+    if (found === 'deleted') return $t`(deleted sense)`;
+    return senseText({number: found.number, label: writingSystemService.firstGloss(found.sense) || writingSystemService.firstDef(found.sense)});
+  });
+
   // Not on Later changes, which already diffs against now. Only when the headword moved on, or it would repeat the anchor
   const now = $derived.by(() => {
     if (since || kind !== 'entry' || !before || !actionsEntry || !anchor) return undefined;
@@ -88,9 +110,13 @@
     return changed ? actionsEntry : undefined;
   });
 
-  const crumbs = $derived.by((): Crumb[] => {
-    if (kind === 'complexFormComponent' && complexForm && !complexForm.deletedAt) return [{entry: complexForm}];
-    return parentCrumb(kind, info);
+  const crumbs = $derived.by((): CrumbText[] => {
+    if (kind !== 'complexFormComponent') return parentCrumb(kind, info);
+    if (liveComplexForm) {
+      return [{text: writingSystemService.viewBestHeadword(liveComplexForm, viewService.currentView) || $t`Untitled`, homographNumber: liveComplexForm.homographNumber}];
+    }
+    const crumb = parentCrumb(kind, info);
+    return crumb.length || !cfc?.complexFormHeadword ? crumb : [{text: cfc.complexFormHeadword}];
   });
 </script>
 
@@ -104,6 +130,9 @@
     <Headwords entry={component} placeholder={$t`Untitled`} />
   {:else}
     <span>{cfc?.componentHeadword || $t`Untitled`}</span>
+  {/if}
+  {#if componentSenseName}
+    <span class="ms-1 text-base font-normal text-muted-foreground" data-testid="change-component-sense">{componentSenseName}</span>
   {/if}
 {/snippet}
 
@@ -122,7 +151,7 @@
 <div class={cn(gone && 'diff-gone', fresh && 'diff-new')}>
   {#if anchor || cfc}
     <div class="mb-3">
-      <ActivityChangeHeader label={context.changeName} {crumbs} {badge} entry={actionsEntry} {now}
+      <ActivityChangeHeader label={context.changeName} {crumbs} {badge} entry={actionsEntry} {related} {now}
                             identity={cfc ? componentIdentity : anchorIdentity} />
     </div>
   {/if}

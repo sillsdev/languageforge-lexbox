@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import type {IChangeEntity} from '$lib/dotnet-types';
-import {changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
+import {changeBadge, changeKind, componentSense, isReorder, parentCrumb} from './change-header';
 
 function change($type?: string): IChangeEntity {
   return {index: 0, commitId: 'c', entityId: 'e', authoredModelVersion: 1, change: {entityId: 'e', ...($type ? {$type} : {})}};
@@ -83,5 +83,29 @@ describe('parentCrumb', () => {
     expect(parentCrumb('example', undefined)).toEqual([]);
     expect(parentCrumb('entry', {entry: nyumba})).toEqual([]);
     expect(parentCrumb('object', {objectName: 'Noun'})).toEqual([]);
+  });
+});
+
+describe('componentSense', () => {
+  const a = {id: 'a'};
+  const b = {id: 'b'};
+
+  it('numbers the sense when the entry has several', () => {
+    expect(componentSense({senses: [a, b]}, 'b')).toEqual({sense: b, number: 2});
+  });
+
+  it('leaves out the number for a lone sense', () => {
+    expect(componentSense({senses: [a]}, 'a')).toEqual({sense: a, number: undefined});
+  });
+
+  it('flags a sense the live entry no longer has', () => {
+    expect(componentSense({senses: [a, b]}, 'gone')).toBe('deleted');
+    expect(componentSense({}, 'gone')).toBe('deleted');
+  });
+
+  it('has nothing to say without a sense id, or for a missing or deleted entry', () => {
+    expect(componentSense({senses: [a]}, undefined)).toBeUndefined();
+    expect(componentSense(undefined, 'a')).toBeUndefined();
+    expect(componentSense({deletedAt: '2026-10-02T10:00:00Z', senses: []}, 'a')).toBeUndefined();
   });
 });
