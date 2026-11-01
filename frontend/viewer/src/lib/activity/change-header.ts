@@ -1,4 +1,5 @@
 import type {IActivityChangeInfo, IChangeEntity} from '$lib/dotnet-types';
+import type {IActivitySenseName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivitySenseName';
 import {isObjectType} from '$lib/entry-editor/diff-view/diff-fields';
 
 /** How the activity preview names a change: each kind gets its own header. */
@@ -39,47 +40,31 @@ export function changeBadge(kind: ChangeKind, {before, after, reorder}: {before?
   return undefined;
 }
 
-// Unicode subscript digits, as the backend appends sense numbers (gloss₂)
-const trailingSubscript = /[₀-₉]+$/u;
-// The backend's stand-in for a sense without a gloss
-const glosslessSense = '◌';
+/** A parent's current name, as text plus the homograph number of an entry. */
+export type CrumbText = {text: string; homographNumber?: number};
 
-/**
- * A sense label without its sense number. Numbers are computed from the current sense order, which can disagree
- * with the historical diff below the header, so the header never shows them.
- */
-export function stripSenseNumber(senseLabel: string): string {
-  const label = senseLabel.replace(trailingSubscript, '');
-  return label === glosslessSense ? '' : label;
+/** "2 house": the sense's number leads, like the dictionary preview. Undefined when there's neither. */
+export function senseText(sense: IActivitySenseName | undefined): string | undefined {
+  if (!sense) return undefined;
+  return [sense.number, sense.label].filter(Boolean).join(' ') || undefined;
 }
 
 /**
- * The current names of the parents a change's entity sits under, outermost first, from the activity list's change info.
- * The info's subject reads "headword › sense label" for anything under a sense, so the owning entry's headword
- * splits it, and the sense number is dropped. No subject means the backend couldn't resolve it: no crumb.
+ * The parents a change's header names before its identity. A sense's entry, an example's entry and sense, a
+ * component link's complex form. Empty when the backend couldn't resolve them.
  */
-export function parentCrumb(kind: ChangeKind, info: IActivityChangeInfo | undefined): string[] {
-  const subject = info?.subject;
-  if (!subject) return [];
-  const headword = info.owningEntryHeadword || undefined;
+export function parentCrumb(kind: ChangeKind, info: IActivityChangeInfo | undefined): CrumbText[] {
+  const entry = info?.entry?.headword ? {text: info.entry.headword, homographNumber: info.entry.homographNumber} : undefined;
   switch (kind) {
     case 'sense':
-      // Only the entry: a sense edit's subject also names the sense, which the header's identity already shows
-      return headword ? [headword] : [];
-    case 'example':
     case 'complexFormComponent':
-      return splitSubject(subject, headword);
+      // A sense's own name is the header's identity
+      return entry ? [entry] : [];
+    case 'example': {
+      const sense = senseText(info?.sense);
+      return [...(entry ? [entry] : []), ...(sense ? [{text: sense}] : [])];
+    }
     default:
       return [];
   }
-}
-
-function splitSubject(subject: string, headword: string | undefined): string[] {
-  if (headword && subject === headword) return [headword];
-  const prefix = headword && `${headword} › `;
-  if (prefix && subject.startsWith(prefix)) {
-    return [headword, stripSenseNumber(subject.slice(prefix.length))].filter(Boolean);
-  }
-  // Without a headword the subject is the sense label alone
-  return [stripSenseNumber(subject)].filter(Boolean);
 }
