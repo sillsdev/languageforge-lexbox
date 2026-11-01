@@ -75,17 +75,17 @@
   const component = $derived(cfc && context.affectedEntries.find(e => e.id === cfc.componentEntryId));
 
   // Something deleted, by this change or since, can't be gone to
-  const linkTo = $derived.by(() => {
+  const actionsEntry = $derived.by(() => {
     // A component link names the component entry, which outlives the link
     if (kind === 'complexFormComponent') return component && !component.deletedAt ? component : undefined;
     return after && affectedEntry && !affectedEntry.deletedAt ? affectedEntry : undefined;
   });
   // Not on Later changes, which already diffs against now. Only when the headword moved on, or it would repeat the anchor
   const now = $derived.by(() => {
-    if (since || kind !== 'entry' || !before || !linkTo || !anchor) return undefined;
-    const current = entryAnchor(writingSystemService, viewService.currentView, undefined, linkTo);
+    if (since || kind !== 'entry' || !before || !actionsEntry || !anchor) return undefined;
+    const current = entryAnchor(writingSystemService, viewService.currentView, undefined, actionsEntry);
     const changed = (current.after || undefined) !== (anchor.after || undefined) || (current.afterHomograph ?? 0) !== (anchor.afterHomograph ?? 0);
-    return changed ? linkTo : undefined;
+    return changed ? actionsEntry : undefined;
   });
 
   const crumbs = $derived.by((): Crumb[] => {
@@ -122,7 +122,7 @@
 <div class={cn(gone && 'diff-gone', fresh && 'diff-new')}>
   {#if anchor || cfc}
     <div class="mb-3">
-      <ActivityChangeHeader label={context.changeName} {crumbs} {badge} {linkTo} {now}
+      <ActivityChangeHeader label={context.changeName} {crumbs} {badge} entry={actionsEntry} {now}
                             identity={cfc ? componentIdentity : anchorIdentity} />
     </div>
   {/if}

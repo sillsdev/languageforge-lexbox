@@ -3,6 +3,7 @@
   import {Link} from 'svelte-routing';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import {Button} from '$lib/components/ui/button';
+  import * as ButtonGroup from '$lib/components/ui/button-group';
   import {Icon} from '$lib/components/ui/icon';
   import EditEntryDialog from '$lib/entry-editor/EditEntryDialog.svelte';
   import {useMultiWindowService} from '$lib/services/multi-window-service';
@@ -23,14 +24,14 @@
   <EditEntryDialog bind:open={editOpen} {entryId} />
 {/if}
 
-<div class="flex items-center">
-  <Button variant="secondary" size="xs" class="rounded-e-none" icon="i-mdi-pencil-outline" onclick={() => editOpen = true}>
+<ButtonGroup.Root>
+  <Button variant="secondary" size="xs" icon="i-mdi-pencil-outline" onclick={() => editOpen = true}>
     {pt($t`Edit Entry`, $t`Edit Word`, viewService.currentView)}
   </Button>
   <DropdownMenu.Root>
     <DropdownMenu.Trigger>
       {#snippet child({props})}
-        <Button {...props} variant="secondary" size="xs" class="rounded-s-none border-s border-background px-1.5"
+        <Button {...props} variant="secondary" size="xs" class="border-s border-background px-1.5"
                 icon="i-mdi-chevron-down" aria-label={$t`More options`} />
       {/snippet}
     </DropdownMenu.Trigger>
@@ -51,4 +52,4 @@
       {/if}
     </DropdownMenu.Content>
   </DropdownMenu.Root>
-</div>
+</ButtonGroup.Root>

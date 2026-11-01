@@ -23,14 +23,14 @@
   import {cn} from '$lib/utils';
   import EntryActionsButton from './EntryActionsButton.svelte';
 
-  let {label, crumbs = [], identity, linkTo, badge, now}: {
+  let {label, crumbs = [], identity, entry, badge, now}: {
     /** The change's name, e.g. "Edit entry", for assistive tech */
     label: string;
     crumbs?: Crumb[];
     /** The entity as the change left it, usually a before/after anchor */
     identity: Snippet;
-    /** The entry the identity links to; none for something deleted */
-    linkTo?: IEntry;
+    /** The entry the actions open; none when it is deleted */
+    entry?: IEntry;
     badge?: ChangeBadge;
     /** The entry's current state, when its headword is no longer the one the change left */
     now?: IEntry;
@@ -79,14 +79,7 @@
   {/if}
 
   <span class="text-lg font-semibold min-w-0 max-w-full">
-    {#if linkTo}
-      <Link to={entryHref(linkTo)} aria-label={goToLabel(linkTo)}
-            class="inline-block min-h-6 min-w-6 underline-offset-4 decoration-muted-foreground/50 hover:underline focus-visible:underline">
-        {@render identity()}
-      </Link>
-    {:else}
-      {@render identity()}
-    {/if}
+    {@render identity()}
   </span>
 
   {#if badge === 'added'}
@@ -106,9 +99,9 @@
     </p>
   {/if}
 
-  {#if linkTo}
+  {#if entry}
     <div class="ms-auto">
-      <EntryActionsButton entryId={linkTo.id} />
+      <EntryActionsButton entryId={entry.id} />
     </div>
   {/if}
 </div>
