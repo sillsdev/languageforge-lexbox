@@ -39,8 +39,8 @@ export class AuthorColorService {
 
   /** Reloads the list, joining a load already in flight */
   refresh(): Promise<void> {
-    this.#requested = true;
     if (!this.#historyService.loaded) return Promise.resolve();
+    this.#requested = true;
     this.#inflight ??= this.#historyService.listActivityAuthors()
       .then((data) => {
         this.#authors = Array.isArray(data) ? data.sort(compareActivityAuthors) : [];
@@ -50,7 +50,8 @@ export class AuthorColorService {
   }
 
   #loadOnFirstRead(): void {
-    if (this.#requested) return;
+    // `loaded` is reactive, so a read before history loads runs again once it has
+    if (this.#requested || !this.#historyService.loaded) return;
     this.#requested = true;
     // Reads happen during render, where writing $state isn't allowed
     queueMicrotask(() => void this.refresh());
