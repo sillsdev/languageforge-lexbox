@@ -227,10 +227,9 @@
               <!-- Facts group by the entry tree they touch: the header line is the group's `lead` (the
                    entry's own create/delete — the main event) when the commit contains one, else the bare
                    bold headword; the entry's other changes list beneath along an indent rail. Single-fact
-                   and headwordless groups render inline instead (their line names its own subject). Base
-                   text muted so verbs recede; subject header and data chips render foreground. -->
+                   and headwordless groups render inline instead (their line names its own subject). -->
               {@const groups = groupByOwningEntry(summary.entries)}
-              <div class="space-y-1 text-muted-foreground">
+              <div class="space-y-1">
                 {#each groups as group, gi (gi)}
                   {#if group.lead && group.facts.length > 0}
                     <div>
@@ -260,7 +259,7 @@
                   {/if}
                 {/each}
                 {#if summary.remaining > 0}
-                  <div class="ps-5">{$plural(summary.remaining, {one: '(+# more change)', other: '(+# more changes)'})}</div>
+                  <div class="ps-5 text-foreground/60">{$plural(summary.remaining, {one: '(+# more change)', other: '(+# more changes)'})}</div>
                 {/if}
               </div>
             {/if}

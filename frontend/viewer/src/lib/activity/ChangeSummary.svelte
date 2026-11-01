@@ -126,8 +126,8 @@
 
 <!-- Visual hierarchy: entity NAMES (the subject a change is about, and the name of an entity a sentence
   creates/deletes/edits) are the dominant scannable tokens — bold foreground text, no chrome — wherever they
-  appear in the sentence. The verb phrase inherits the container's muted colour. DATA values the change
-  carries render as bordered `chip`s. So a line reads: **subject**  muted verb phrase  [boxed data].
+  appear in the sentence. The verb phrase is plain foreground text. DATA values the change
+  carries render as bordered `chip`s. So a line reads: **subject**  verb phrase  [boxed data].
   Under a group header the subject may instead render as a `contextToken` ("› gloss") — a muted "›" connector
   plus the bold entity name: subordinate to the header via the connector and indentation, while the name stays
   bold and scannable like every other entity name.
@@ -143,14 +143,14 @@
 {#snippet nameToken(name: string, homographNumber = 0, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{name}<HomographNumber {homographNumber} /></span>{/snippet}
 {#snippet entryToken(name: IActivityEntryName, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{@render entryName(name)}</span>{/snippet}
 <!-- "headword › sense", degrading to whichever part exists; the connector stays muted, like in the preview's crumbs -->
-{#snippet qualifiedToken(child: IActivitySenseName | undefined)}<span class="me-1 ms-1 font-semibold text-foreground">{#if entry}{@render entryName(entry)}{/if}{#if child?.label || child?.number}{#if entry}<span class="mx-1 font-normal text-muted-foreground">›</span>{/if}{@render senseName(child)}{/if}</span>{/snippet}
-{#snippet contextToken(name: IActivitySenseName)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span>{#if !name.label && !name.number}<span class="font-normal italic text-muted-foreground">{$t`Untitled`}</span>{:else}{@render senseName(name)}{/if}</span>{/snippet}
+{#snippet qualifiedToken(child: IActivitySenseName | undefined)}<span class="me-1 ms-1 font-semibold text-foreground">{#if entry}{@render entryName(entry)}{/if}{#if child?.label || child?.number}{#if entry}<span class="mx-1 font-normal text-foreground/60">›</span>{/if}{@render senseName(child)}{/if}</span>{/snippet}
+{#snippet contextToken(name: IActivitySenseName)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-foreground/60">›</span>{#if !name.label && !name.number}<span class="font-normal italic text-foreground/60">{$t`Untitled`}</span>{:else}{@render senseName(name)}{/if}</span>{/snippet}
 {#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}">{text}</span>{/snippet}
 <!-- Names the change refers to (a part of speech, a linked component), which can carry a homograph number; user values stay plain text -->
 {#snippet labelChip(text: string, homographNumber = 0)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground ms-1">{text}<HomographNumber {homographNumber} /></span>{/snippet}
-<!-- Muted and in parentheses so the abbreviation reads as part of the field label, not as data (chips) or a homograph number (subscript) -->
-{#snippet wsAbbr(wsId: string)}{@const ws = writingSystemService.getWritingSystem(wsId) ?? {wsId, name: wsId, abbreviation: wsId}}<span class="ms-1 whitespace-nowrap text-muted-foreground" title={ws.name === ws.wsId ? ws.wsId : `${ws.name} (${ws.wsId})`}>(<bdi>{ws.abbreviation}</bdi>)</span>{/snippet}
-{#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
+<!-- foreground/60, not text-muted-foreground, which misses WCAG AA on (selected) list rows. Muted and in parentheses so the abbreviation reads as part of the field label, not as data (chips) or a homograph number (subscript) -->
+{#snippet wsAbbr(wsId: string)}{@const ws = writingSystemService.getWritingSystem(wsId) ?? {wsId, name: wsId, abbreviation: wsId}}<span class="ms-1 whitespace-nowrap text-foreground/60" title={ws.name === ws.wsId ? ws.wsId : `${ws.name} (${ws.wsId})`}>(<bdi>{ws.abbreviation}</bdi>)</span>{/snippet}
+{#snippet noHeadword()}<span class="ms-1 italic text-foreground/60">{$t`(no headword)`}</span>{/snippet}
 <!-- Audio marker: a media value has no readable text, so show an icon + "audio" chip instead of a URI.
   Plain inline span (not inline-flex) so it sits on the text baseline like the other data chips; the icon
   is aligned within it. An inline-flex chip aligns by its bottom edge and rides low against the text. -->
