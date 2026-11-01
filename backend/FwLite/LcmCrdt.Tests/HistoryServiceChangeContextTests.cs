@@ -72,6 +72,45 @@ public class HistoryServiceChangeContextTests(ITestOutputHelper output) : Histor
         ((Sense)context.Snapshot!).Gloss["en"].Should().Be("go quickly");
     }
 
+    [Fact]
+    public async Task LoadChangeContext_EditedSince_CurrentSnapshotHasTheLaterValue()
+    {
+        var entryId = await CreateEntry("run");
+        var rename = await Rename(entryId, "jog");
+        await Rename(entryId, "sprint");
+
+        var context = await Service.LoadChangeContext(rename.Id, 0);
+
+        ((Entry)context.Snapshot!).LexemeForm["en"].Should().Be("jog");
+        ((Entry)context.CurrentSnapshot!).LexemeForm["en"].Should().Be("sprint");
+    }
+
+    [Fact]
+    public async Task LoadChangeContext_DeletedSince_CurrentSnapshotIsDeleted()
+    {
+        var entryId = await CreateEntry("run");
+        var rename = await Rename(entryId, "jog");
+        await DataModel.AddChange(ClientId, new DeleteChange<Entry>(entryId), Meta());
+
+        var context = await Service.LoadChangeContext(rename.Id, 0);
+
+        ((Entry)context.Snapshot!).DeletedAt.Should().BeNull();
+        context.CurrentSnapshot.Should().NotBeNull();
+        context.CurrentSnapshot!.DeletedAt.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task LoadChangeContext_Unchanged_CurrentSnapshotEqualsTheSnapshot()
+    {
+        var entryId = await CreateEntry("run");
+        var rename = await Rename(entryId, "jog");
+
+        var context = await Service.LoadChangeContext(rename.Id, 0);
+
+        context.CurrentSnapshot!.DeletedAt.Should().BeNull();
+        ((Entry)context.CurrentSnapshot!).LexemeForm["en"].Should().Be("jog");
+    }
+
     /// <summary>
     /// The edits' snapshots are pruned among thousands of commits on other entities, as after a large sync, yet the
     /// content is right and no read has more than a checkpoint interval of changes to replay.
