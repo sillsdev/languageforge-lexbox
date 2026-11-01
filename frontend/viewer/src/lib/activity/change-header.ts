@@ -1,4 +1,7 @@
-import type {IActivityChangeInfo, IChangeEntity} from '$lib/dotnet-types';
+import type {IActivityChangeInfo, IChangeEntity, IEntry} from '$lib/dotnet-types';
+import type {WritingSystemService} from '$project/data';
+import type {View} from '$lib/views/view-data';
+import {homographSubscript} from '$lib/components/dictionary/homograph-subscript';
 import type {IActivitySenseName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivitySenseName';
 import {isObjectType} from '$lib/entry-editor/diff-view/diff-fields';
 
@@ -69,18 +72,17 @@ export function parentCrumb(kind: ChangeKind, info: IActivityChangeInfo | undefi
   }
 }
 
+/** The entry's best headword in the view, with its homograph number as a subscript. */
+export function bestHeadword(writingSystemService: WritingSystemService, view: View, entry: IEntry, untitled: string): string {
+  return (writingSystemService.viewBestHeadword(entry, view) || untitled) + homographSubscript(entry.homographNumber);
+}
+
 /**
- * The sense a component link points at, with its number among the entry's senses (only when it has several).
- * 'deleted' when the entry is live but no longer has the sense; undefined when the link isn't sense-specific or
- * the entry is gone (a deleted entry's snapshot has no senses).
+ * Where a component link's actions go. The complex form holds the editable components field, so it is the target
+ * while live; the component outlives the link. The component is offered as related only beside a live complex form.
  */
-export function componentSense<S extends {id: string}>(
-  entry: {deletedAt?: string; senses?: readonly S[]} | undefined,
-  senseId: string | undefined,
-): {sense: S; number?: number} | 'deleted' | undefined {
-  if (!senseId || !entry || entry.deletedAt) return undefined;
-  const senses = entry.senses ?? [];
-  const index = senses.findIndex(s => s.id === senseId);
-  if (index < 0) return 'deleted';
-  return {sense: senses[index], number: senses.length > 1 ? index + 1 : undefined};
+export function componentTargets(complexForm: IEntry | undefined, component: IEntry | undefined): {target?: IEntry; related?: IEntry} {
+  const liveComplexForm = complexForm && !complexForm.deletedAt ? complexForm : undefined;
+  const liveComponent = component && !component.deletedAt ? component : undefined;
+  return {target: liveComplexForm ?? liveComponent, related: liveComplexForm ? liveComponent : undefined};
 }

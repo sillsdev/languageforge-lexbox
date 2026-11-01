@@ -13,7 +13,6 @@
 
   let {entryId, related}: {
     entryId: string;
-    /** Another entry the change touches */
     related?: {entryId: string; label: string};
   } = $props();
 

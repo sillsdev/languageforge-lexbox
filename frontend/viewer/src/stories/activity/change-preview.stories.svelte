@@ -1,7 +1,7 @@
 <script module lang="ts">
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import {Router} from 'svelte-routing';
-  import {expect, userEvent, within} from 'storybook/test';
+  import {expect, userEvent, waitFor, within} from 'storybook/test';
   import type {
     IActivityChangeInfo,
     IChangeContext,
@@ -115,7 +115,9 @@
     {title: 'Unknown change', changeName: 'Upload file', entityType: 'Unknown'},
   ];
 
-  const componentSenseIndex = examples.findIndex(e => e.title === 'Component added, sense-specific');
+  function indexOf(title: string) {
+    return examples.findIndex(e => e.title === title);
+  }
 
   function context(example: Example): IChangeContext {
     return {
@@ -159,12 +161,14 @@
 <Story name="Entry actions open"
   play={async ({canvasElement}) => {
     await userEvent.click(await within(canvasElement).findByRole('button', {name: 'More options'}));
-    await expect(await within(document.body).findByRole('menuitem', {name: /Go to/})).toBeVisible();
+    const item = await within(document.body).findByRole('menuitem', {name: /Go to (Entry|Word)/});
+    await waitFor(() => expect(item).toBeVisible());
+    await expect(within(document.body).queryByRole('menuitem', {name: /Go to component/})).toBeNull();
   }}>
   {#snippet template()}
     <Router>
       <div class="max-w-3xl border rounded p-4 pb-32">
-        <ActivityItemChangePreview context={context(examples[1])} change={change(examples[1])} />
+        <ActivityItemChangePreview context={context(examples[indexOf('Entry edit, current headword')])} change={change(examples[indexOf('Entry edit, current headword')])} />
       </div>
     </Router>
   {/snippet}
@@ -173,12 +177,14 @@
 <Story name="Component actions open"
   play={async ({canvasElement}) => {
     await userEvent.click(await within(canvasElement).findByRole('button', {name: 'More options'}));
-    await expect(await within(document.body).findByRole('menuitem', {name: /Go to component/})).toBeVisible();
+    const item = await within(document.body).findByRole('menuitem', {name: /Go to component/});
+    await waitFor(() => expect(item).toBeVisible());
+    await expect(within(canvasElement).getByTestId('change-component-sense')).toHaveTextContent(/^2 /);
   }}>
   {#snippet template()}
     <Router>
       <div class="max-w-3xl border rounded p-4 pb-32">
-        <ActivityItemChangePreview context={context(examples[componentSenseIndex])} change={change(examples[componentSenseIndex])} />
+        <ActivityItemChangePreview context={context(examples[indexOf('Component added, sense-specific')])} change={change(examples[indexOf('Component added, sense-specific')])} />
       </div>
     </Router>
   {/snippet}

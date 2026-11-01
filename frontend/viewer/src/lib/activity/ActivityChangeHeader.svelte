@@ -4,10 +4,10 @@
   import {T, t} from 'svelte-i18n-lingui';
   import {Badge} from '$lib/components/ui/badge';
   import {Icon} from '$lib/components/ui/icon';
-  import HomographNumber, {homographSubscript} from '$lib/components/dictionary/HomographNumber.svelte';
+  import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useWritingSystemService} from '$project/data';
-  import type {ChangeBadge, CrumbText} from './change-header';
+  import {bestHeadword, type ChangeBadge, type CrumbText} from './change-header';
   import {addedTint} from '$lib/entry-editor/diff-view/diff-classes';
   import {cn} from '$lib/utils';
   import EntryActionsButton from './EntryActionsButton.svelte';
@@ -21,7 +21,6 @@
     identity: Snippet;
     /** The entry the actions open; none when it is deleted */
     entry?: IEntry;
-    /** Another entry the change touches, offered in the actions menu */
     related?: {entryId: string; label: string};
     badge?: ChangeBadge;
     /** The entry's current state, when its headword is no longer the one the change left */
@@ -31,10 +30,6 @@
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
 
-  function bestHeadword(entry: IEntry): string {
-    return (writingSystemService.viewBestHeadword(entry, viewService.currentView) || $t`Untitled`)
-      + homographSubscript(entry.homographNumber);
-  }
 </script>
 
 {#snippet separator()}
@@ -70,7 +65,7 @@
   {#if now}
     <!-- Muted like the crumbs: the current name is context, and the identity links to the entry by that name -->
     <p class="basis-full order-last text-sm text-muted-foreground" data-testid="change-now">
-      <T msg="Now called: #"><span class="font-medium text-foreground/80 wrap-break-word">{bestHeadword(now)}</span></T>
+      <T msg="Now called: #"><span class="font-medium text-foreground/80 wrap-break-word">{bestHeadword(writingSystemService, viewService.currentView, now, $t`Untitled`)}</span></T>
     </p>
   {/if}
 

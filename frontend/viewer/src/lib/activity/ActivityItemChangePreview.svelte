@@ -14,8 +14,8 @@
   import {entryAnchor, exampleAnchor, objectAnchor, senseAnchor, type AnchorText} from '$lib/entry-editor/diff-view/anchor-text';
   import {useWritingSystemService} from '$project/data';
   import ActivityChangeHeader from './ActivityChangeHeader.svelte';
-  import {homographSubscript} from '$lib/components/dictionary/HomographNumber.svelte';
-  import {changeBadge, changeKind, componentSense, isReorder, parentCrumb, senseText, type CrumbText} from './change-header';
+  import {senseInEntry, senseLabel} from '$lib/entry-editor/sense-ref';
+  import {bestHeadword, changeBadge, changeKind, componentTargets, isReorder, parentCrumb, type CrumbText} from './change-header';
   import {existing, type SinceThen} from './since-then';
   import {cn} from '$lib/utils';
 
@@ -75,31 +75,24 @@
   const complexForm = $derived(cfc && context.affectedEntries.find(e => e.id === cfc.complexFormEntryId));
   const component = $derived(cfc && context.affectedEntries.find(e => e.id === cfc.componentEntryId));
 
-  const liveComplexForm = $derived(complexForm && !complexForm.deletedAt ? complexForm : undefined);
-  const liveComponent = $derived(component && !component.deletedAt ? component : undefined);
+  const targets = $derived(componentTargets(complexForm, component));
 
-  // Something deleted, by this change or since, can't be gone to
+  // Something deleted, by this change or since, can't be edited or gone to
   const actionsEntry = $derived.by(() => {
-    // A component link is edited on its complex form, but the component outlives the link
-    if (kind === 'complexFormComponent') return liveComplexForm ?? liveComponent;
+    if (kind === 'complexFormComponent') return targets.target;
     return after && affectedEntry && !affectedEntry.deletedAt ? affectedEntry : undefined;
   });
 
-  function bestHeadword(entry: IEntry): string {
-    return (writingSystemService.viewBestHeadword(entry, viewService.currentView) || $t`Untitled`) + homographSubscript(entry.homographNumber);
-  }
-
   const related = $derived.by(() => {
-    if (!liveComplexForm || !liveComponent) return undefined;
-    const headword = bestHeadword(liveComponent);
-    return {entryId: liveComponent.id, label: $t`Go to component: ${headword}`};
+    if (!targets.related) return undefined;
+    const headword = bestHeadword(writingSystemService, viewService.currentView, targets.related, $t`Untitled`);
+    return {entryId: targets.related.id, label: $t`Go to component: ${headword}`};
   });
 
   const componentSenseName = $derived.by(() => {
-    const found = cfc && componentSense(component, cfc.componentSenseId);
+    const found = cfc && senseInEntry(component, cfc.componentSenseId);
     if (!found) return undefined;
-    if (found === 'deleted') return $t`(deleted sense)`;
-    return senseText({number: found.number, label: writingSystemService.firstGloss(found.sense) || writingSystemService.firstDef(found.sense)});
+    return found === 'deleted' ? $t`(deleted sense)` : senseLabel(writingSystemService, found);
   });
 
   // Not on Later changes, which already diffs against now. Only when the headword moved on, or it would repeat the anchor
@@ -112,8 +105,8 @@
 
   const crumbs = $derived.by((): CrumbText[] => {
     if (kind !== 'complexFormComponent') return parentCrumb(kind, info);
-    if (liveComplexForm) {
-      return [{text: writingSystemService.viewBestHeadword(liveComplexForm, viewService.currentView) || $t`Untitled`, homographNumber: liveComplexForm.homographNumber}];
+    if (complexForm && !complexForm.deletedAt) {
+      return [{text: writingSystemService.viewBestHeadword(complexForm, viewService.currentView) || $t`Untitled`, homographNumber: complexForm.homographNumber}];
     }
     const crumb = parentCrumb(kind, info);
     return crumb.length || !cfc?.complexFormHeadword ? crumb : [{text: cfc.complexFormHeadword}];

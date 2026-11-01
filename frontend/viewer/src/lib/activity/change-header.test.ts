@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
-import type {IChangeEntity} from '$lib/dotnet-types';
-import {changeBadge, changeKind, componentSense, isReorder, parentCrumb} from './change-header';
+import type {IChangeEntity, IEntry} from '$lib/dotnet-types';
+import {changeBadge, componentTargets, changeKind, isReorder, parentCrumb} from './change-header';
 
 function change($type?: string): IChangeEntity {
   return {index: 0, commitId: 'c', entityId: 'e', authoredModelVersion: 1, change: {entityId: 'e', ...($type ? {$type} : {})}};
@@ -86,26 +86,25 @@ describe('parentCrumb', () => {
   });
 });
 
-describe('componentSense', () => {
-  const a = {id: 'a'};
-  const b = {id: 'b'};
+describe('componentTargets', () => {
+  const live = {id: 'live'} as IEntry;
+  const other = {id: 'other'} as IEntry;
+  const dead = {id: 'dead', deletedAt: '2026-10-02T10:00:00Z'} as IEntry;
 
-  it('numbers the sense when the entry has several', () => {
-    expect(componentSense({senses: [a, b]}, 'b')).toEqual({sense: b, number: 2});
+  it('targets the complex form and offers the component', () => {
+    expect(componentTargets(live, other)).toEqual({target: live, related: other});
   });
 
-  it('leaves out the number for a lone sense', () => {
-    expect(componentSense({senses: [a]}, 'a')).toEqual({sense: a, number: undefined});
+  it('targets the component when the complex form is deleted or missing', () => {
+    expect(componentTargets(dead, other)).toEqual({target: other, related: undefined});
+    expect(componentTargets(undefined, other)).toEqual({target: other, related: undefined});
   });
 
-  it('flags a sense the live entry no longer has', () => {
-    expect(componentSense({senses: [a, b]}, 'gone')).toBe('deleted');
-    expect(componentSense({}, 'gone')).toBe('deleted');
+  it('offers nothing extra when the component is deleted', () => {
+    expect(componentTargets(live, dead)).toEqual({target: live, related: undefined});
   });
 
-  it('has nothing to say without a sense id, or for a missing or deleted entry', () => {
-    expect(componentSense({senses: [a]}, undefined)).toBeUndefined();
-    expect(componentSense(undefined, 'a')).toBeUndefined();
-    expect(componentSense({deletedAt: '2026-10-02T10:00:00Z', senses: []}, 'a')).toBeUndefined();
+  it('has no target when both are deleted', () => {
+    expect(componentTargets(dead, dead)).toEqual({target: undefined, related: undefined});
   });
 });
