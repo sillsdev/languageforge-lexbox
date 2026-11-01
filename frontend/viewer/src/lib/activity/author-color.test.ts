@@ -1,73 +1,56 @@
 import {describe, it, expect} from 'vitest';
-import {AUTHOR_COLORS, assignAuthorColors, authorColorFallback} from './author-color';
+import {AUTHOR_COLORS, assignAuthorColors, authorColorFallback, type AuthorColor} from './author-color';
+
+function keysSharingASlot(count: number): string[] {
+  const bySlot = new Map<AuthorColor, string[]>();
+  for (let i = 0; ; i++) {
+    const key = `user${i}`;
+    const group = bySlot.get(authorColorFallback(key)) ?? [];
+    group.push(key);
+    bySlot.set(authorColorFallback(key), group);
+    if (group.length === count) return group;
+  }
+}
+
+function usageCounts(colors: Map<string, AuthorColor>): number[] {
+  return AUTHOR_COLORS.map(c => [...colors.values()].filter(v => v === c).length);
+}
 
 describe('assignAuthorColors', () => {
   it('gives every author a distinct colour when the set fits the palette', () => {
-    const names = ['Alice', 'Bob', 'Carol', 'Dave', 'Eve', 'Frank', 'Grace', 'Heidi'];
-    expect(names.length).toBe(AUTHOR_COLORS.length);
-    const colors = assignAuthorColors(names);
-    expect(new Set(colors.values()).size).toBe(names.length);
+    const keys = Array.from({length: AUTHOR_COLORS.length}, (_, i) => `author-${i}`);
+    expect(new Set(assignAuthorColors(keys).values()).size).toBe(keys.length);
   });
 
-  it('is order-independent: any ordering of the same set yields the same assignment', () => {
-    const names = ['Alice', 'Bob', 'Carol', 'Dave'];
-    const forward = assignAuthorColors(names);
-    const reversed = assignAuthorColors([...names].reverse());
-    const shuffled = assignAuthorColors(['Carol', 'Alice', 'Dave', 'Bob']);
-    for (const name of names) {
-      expect(reversed.get(name)).toBe(forward.get(name));
-      expect(shuffled.get(name)).toBe(forward.get(name));
-    }
+  it('keeps the fallback colour for a key whose hash slot is uncontested', () => {
+    const [key] = keysSharingASlot(1);
+    expect(assignAuthorColors([key]).get(key)).toBe(authorColorFallback(key));
   });
 
-  it('preserves the fallback colour for names whose hash slot is uncontested', () => {
-    // Pick names that hash to distinct slots so none is bumped by a probe.
-    const names = ['Alice', 'Bob', 'Carol', 'Dave'];
-    const slots = names.map(n => authorColorFallback(n));
-    expect(new Set(slots).size).toBe(names.length);
-    const colors = assignAuthorColors(names);
-    for (const name of names) {
-      expect(colors.get(name)).toBe(authorColorFallback(name));
-    }
+  it('gives the older author the shared hash slot and moves the newer one', () => {
+    const [older, newer] = keysSharingASlot(2);
+    const colors = assignAuthorColors([older, newer]);
+    expect(colors.get(older)).toBe(authorColorFallback(older));
+    expect(colors.get(newer)).not.toBe(colors.get(older));
   });
 
-  it('resolves a collision deterministically by probing to a free slot', () => {
-    // Search for two names that hash to the same slot to exercise probing.
-    const bySlot = new Map<string, string[]>();
-    for (let i = 0; i < 400; i++) {
-      const name = `user${i}`;
-      const slot = authorColorFallback(name);
-      (bySlot.get(slot) ?? bySlot.set(slot, []).get(slot)!).push(name);
-    }
-    const colliding = [...bySlot.values()].find(group => group.length >= 2)!;
-    expect(colliding).toBeDefined();
-    const [a, b] = colliding;
-    expect(authorColorFallback(a)).toBe(authorColorFallback(b));
-
-    const colors = assignAuthorColors([a, b]);
-    // Both are still assigned, and to different colours (the second probed off the shared slot).
-    expect(colors.get(a)).not.toBe(colors.get(b));
-    // The name sorting first keeps the shared hash slot.
-    const first = [a, b].sort()[0];
-    expect(colors.get(first)).toBe(authorColorFallback(first));
+  it('never changes existing colours when newer authors are added', () => {
+    const existing = Array.from({length: 6}, (_, i) => `author-${i}`);
+    const before = assignAuthorColors(existing);
+    const after = assignAuthorColors([...existing, ...keysSharingASlot(3), 'late-1', 'late-2']);
+    for (const key of existing) expect(after.get(key)).toBe(before.get(key));
   });
 
-  it('degrades gracefully beyond the palette: all names assigned, colours reused deterministically', () => {
-    const names = Array.from({length: AUTHOR_COLORS.length + 5}, (_, i) => `author-${i}`);
-    const colors = assignAuthorColors(names);
-    expect(colors.size).toBe(names.length);
-    for (const name of names) {
-      expect(AUTHOR_COLORS).toContain(colors.get(name));
-    }
-    // A full palette means every colour is in use.
-    expect(new Set(colors.values()).size).toBe(AUTHOR_COLORS.length);
-    // Deterministic: re-running yields the identical map.
-    const again = assignAuthorColors([...names].reverse());
-    for (const name of names) expect(again.get(name)).toBe(colors.get(name));
+  it('spreads authors beyond the palette evenly across colours', () => {
+    const keys = keysSharingASlot(AUTHOR_COLORS.length * 2 + 3);
+    const counts = usageCounts(assignAuthorColors(keys));
+    expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(1);
   });
 
-  it('deduplicates repeated names', () => {
-    const colors = assignAuthorColors(['Alice', 'Alice', 'Bob']);
+  it('ignores repeated keys after the first', () => {
+    const [a, b] = keysSharingASlot(2);
+    const colors = assignAuthorColors([a, b, a]);
     expect(colors.size).toBe(2);
+    expect(colors.get(a)).toBe(authorColorFallback(a));
   });
 });

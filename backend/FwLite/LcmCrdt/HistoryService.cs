@@ -15,7 +15,7 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt;
 
-public record ActivityAuthor(string? AuthorId, string? AuthorName, int CommitCount);
+public record ActivityAuthor(string? AuthorId, string? AuthorName, int CommitCount, DateTimeOffset FirstCommitDate);
 
 public record ActivityChangeType(string Key, string Label, int CommitCount);
 
@@ -140,7 +140,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 AuthorId = Json.Value(c.Metadata, m => m.AuthorId),
                 AuthorName = Json.Value(c.Metadata, m => m.AuthorName),
             })
-            .Select(g => new ActivityAuthor(g.Key.AuthorId, g.Key.AuthorName, g.Count()))
+            .Select(g => new ActivityAuthor(g.Key.AuthorId, g.Key.AuthorName, g.Count(), g.Min(c => c.HybridDateTime.DateTime)))
             .ToListAsyncLinqToDB();
         return [.. authors.OrderBy(a => a.AuthorName ?? "").ThenBy(a => a.AuthorId ?? "")];
     }

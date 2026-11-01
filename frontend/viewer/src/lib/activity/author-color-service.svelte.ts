@@ -1,7 +1,7 @@
 import {useProjectContext} from '$project/project-context.svelte';
 import {useHistoryService, type HistoryService} from '$lib/services/history-service';
 import type {IActivityAuthor} from '$lib/dotnet-types';
-import {assignAuthorColors, authorColorFallback, NO_AUTHOR_COLOR} from './author-color';
+import {assignAuthorColors, authorColorFallback, NO_AUTHOR_COLOR, type AuthorColor} from './author-color';
 import {authorFilterKey, compareActivityAuthors, FIELDWORKS_AUTHOR_KEY, SYSTEM_AUTHOR_KEY, UNKNOWN_AUTHOR_KEY} from './utils';
 
 const symbol = Symbol.for('fw-lite-author-colors');
@@ -12,20 +12,29 @@ export function useAuthorColors(): AuthorColorService {
   return projectContext.getOrAdd(symbol, () => new AuthorColorService(historyService));
 }
 
+type AuthorRef = Pick<IActivityAuthor, 'authorId' | 'authorName'>;
+
 function isPersonAuthor(key: string): boolean {
   return key !== FIELDWORKS_AUTHOR_KEY && key !== SYSTEM_AUTHOR_KEY && key !== UNKNOWN_AUTHOR_KEY;
 }
 
-// Shared, project-scoped author list: the activity filter lists it and person authors get colours from it.
-// Once the list has loaded it hands out the set-based assignment (distinct colours while the palette lasts);
-// before then, and for a name not in the loaded set, it falls back to the per-name hash, which equals the
-// set-based colour whenever that name's hash slot is uncontested, so most icons never change colour once the
-// list arrives.
+function compareFirstCommit(a: IActivityAuthor, b: IActivityAuthor): number {
+  return Date.parse(a.firstCommitDate) - Date.parse(b.firstCommitDate)
+    || authorFilterKey(a).localeCompare(authorFilterKey(b));
+}
+
+// Project-scoped author list: the activity filter lists it, and activity icons and comment avatars take their
+// colours from it, keyed by author id. Colours are handed out by first commit so a new author can't take an
+// existing author's colour. The exception: commits made offline long ago and synced later can predate
+// authors already listed.
 export class AuthorColorService {
   #historyService: HistoryService;
   #authors: IActivityAuthor[] = $state([]);
   #inflight: Promise<void> | undefined;
   #requested = false;
+  #loaded = false;
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity -- written during render, so it mustn't be reactive
+  #missingKeys = new Set<string>();
 
   constructor(historyService: HistoryService) {
     this.#historyService = historyService;
@@ -44,6 +53,7 @@ export class AuthorColorService {
     this.#inflight ??= this.#historyService.listActivityAuthors()
       .then((data) => {
         this.#authors = Array.isArray(data) ? data.sort(compareActivityAuthors) : [];
+        this.#loaded = true;
       })
       .finally(() => this.#inflight = undefined);
     return this.#inflight;
@@ -57,15 +67,25 @@ export class AuthorColorService {
     queueMicrotask(() => void this.refresh());
   }
 
-  #colors: Map<string, string> = $derived.by(() => {
-    const names = this.authors
-      .filter(a => a.authorName && isPersonAuthor(authorFilterKey(a)))
-      .map(a => a.authorName!);
-    return assignAuthorColors(names);
+  #colors: Map<string, AuthorColor> = $derived.by(() => {
+    const keys = this.authors
+      .toSorted(compareFirstCommit)
+      .map(authorFilterKey)
+      .filter(isPersonAuthor);
+    return assignAuthorColors(keys);
   });
 
-  colorFor(name: string | undefined | null): string {
-    if (!name) return NO_AUTHOR_COLOR;
-    return this.#colors.get(name) ?? authorColorFallback(name);
+  colorFor(author: AuthorRef): AuthorColor {
+    const key = authorFilterKey(author);
+    if (!isPersonAuthor(key)) return NO_AUTHOR_COLOR;
+    const color = this.#colors.get(key);
+    if (color) return color;
+    // An author newer than the loaded list (e.g. their first comment was just added). Reload once per key:
+    // the current user may have no commits yet, and retrying them would loop.
+    if (this.#loaded && !this.#missingKeys.has(key)) {
+      this.#missingKeys.add(key);
+      queueMicrotask(() => void this.refresh());
+    }
+    return authorColorFallback(key);
   }
 }

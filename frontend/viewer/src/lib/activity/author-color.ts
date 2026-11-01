@@ -1,43 +1,46 @@
-// Stable per-author colour for the person icon. A small curated palette (mid-tone hues that read in both
-// light and dark) — not raw HSL, which drifts into muddy/low-contrast colours. Colours only the icon.
-export const AUTHOR_COLORS = [
-  'text-red-500', 'text-orange-500', 'text-amber-600', 'text-green-600',
-  'text-teal-500', 'text-sky-500', 'text-violet-500', 'text-pink-500',
+export type AuthorColor = {icon: string; avatar: string};
+
+// One hue per slot, used for both the activity person icon and the comment avatar. Icons are mid-tones that
+// read on light and dark; avatars are a shade darker so white initials stay legible. Eight is about as many
+// hues as stay distinguishable at icon size, so beyond eight authors we share slots evenly instead.
+export const AUTHOR_COLORS: readonly AuthorColor[] = [
+  {icon: 'text-red-500', avatar: 'bg-red-600'},
+  {icon: 'text-orange-500', avatar: 'bg-orange-600'},
+  {icon: 'text-amber-600', avatar: 'bg-amber-700'},
+  {icon: 'text-green-600', avatar: 'bg-green-700'},
+  {icon: 'text-teal-500', avatar: 'bg-teal-700'},
+  {icon: 'text-sky-500', avatar: 'bg-sky-700'},
+  {icon: 'text-violet-500', avatar: 'bg-violet-600'},
+  {icon: 'text-pink-500', avatar: 'bg-pink-600'},
 ];
 
-export const NO_AUTHOR_COLOR = 'text-muted-foreground';
+export const NO_AUTHOR_COLOR: AuthorColor = {icon: 'text-muted-foreground', avatar: 'bg-muted-foreground'};
 
-function hashSlot(name: string): number {
+function hashSlot(key: string): number {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (Math.imul(hash, 31) + name.charCodeAt(i)) | 0;
+  for (let i = 0; i < key.length; i++) hash = (Math.imul(hash, 31) + key.charCodeAt(i)) | 0;
   return Math.abs(hash) % AUTHOR_COLORS.length;
 }
 
-// Colour for a single name with no knowledge of the wider author set: hash to a preferred slot. This is
-// what a name keeps in the set-based assignment when its slot is uncontested, so it doubles as the fallback
-// before the author list has loaded.
-export function authorColorFallback(name: string | undefined | null): string {
-  if (!name) return NO_AUTHOR_COLOR;
-  return AUTHOR_COLORS[hashSlot(name)];
+// Colour for an author key with no knowledge of the wider author set. It's what assignAuthorColors gives a key
+// whose hash slot is uncontested, so it doubles as the colour shown before the author list loads.
+export function authorColorFallback(key: string | undefined | null): AuthorColor {
+  if (!key) return NO_AUTHOR_COLOR;
+  return AUTHOR_COLORS[hashSlot(key)];
 }
 
-// Assign a palette colour to every name in a known author set, maximizing distinct colours. Order-independent:
-// names are processed in a canonical sort, each claiming its hash slot if free and otherwise linear-probing to
-// the next free slot. With ≤ AUTHOR_COLORS.length names every colour is distinct; beyond that, slots are reused
-// deterministically. A name whose hash slot is uncontested keeps exactly authorColorFallback's colour.
-export function assignAuthorColors(names: Iterable<string>): Map<string, string> {
-  const unique = [...new Set(names)].sort();
-  const result = new Map<string, string>();
-  const taken = new Set<number>();
-  const paletteSize = AUTHOR_COLORS.length;
-  for (const name of unique) {
-    let slot = hashSlot(name);
-    // Once the palette is full, reuse begins; the probe still lands deterministically on the hash slot.
-    for (let i = 0; i < paletteSize && taken.has(slot) && taken.size < paletteSize; i++) {
-      slot = (slot + 1) % paletteSize;
-    }
-    taken.add(slot);
-    result.set(name, AUTHOR_COLORS[slot]);
+// Keys must arrive oldest author first: each takes the least-used slot, starting from its hash slot. Later
+// authors can only take what's left, so adding an author never changes an earlier author's colour.
+export function assignAuthorColors(keysOldestFirst: Iterable<string>): Map<string, AuthorColor> {
+  const result = new Map<string, AuthorColor>();
+  const usage = AUTHOR_COLORS.map(() => 0);
+  for (const key of keysOldestFirst) {
+    if (result.has(key)) continue;
+    const leastUsed = Math.min(...usage);
+    let slot = hashSlot(key);
+    while (usage[slot] !== leastUsed) slot = (slot + 1) % usage.length;
+    usage[slot]++;
+    result.set(key, AUTHOR_COLORS[slot]);
   }
   return result;
 }

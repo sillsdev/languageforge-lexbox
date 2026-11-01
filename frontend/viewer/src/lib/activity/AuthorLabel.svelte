@@ -20,7 +20,7 @@
 </script>
 
 <!-- Icon trails the name in every case (consistent side): FieldWorks → its logo, System → a cog, a person →
-     a person icon coloured by a stable hash of their name (an at-a-glance "who"). Unknown → a muted person. -->
+     a person icon in their author colour (an at-a-glance "who"). Unknown → a muted person. -->
 <span class={cn('inline-flex items-center gap-1', className)}>
   {#if key === UNKNOWN_AUTHOR_KEY}
     <span class="italic opacity-75 truncate">{$t`Unknown`}</span>
@@ -34,6 +34,6 @@
   {:else if key === UNKNOWN_AUTHOR_KEY}
     <Icon icon="i-mdi-account-circle" class="size-4 shrink-0 text-muted-foreground" />
   {:else}
-    <Icon icon="i-mdi-account-circle" class="size-4 shrink-0 {authorColors.colorFor(authorName)}" />
+    <Icon icon="i-mdi-account-circle" class="size-4 shrink-0 {authorColors.colorFor({authorId, authorName}).icon}" />
   {/if}
 </span>
