@@ -288,8 +288,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // The deleted entry is gone from the projected tables; its label is recovered from its last snapshot.
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<Entry>)
-            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
-            && a.Changes[0].Info.EntryHeadword() == "run");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null);
     }
 
     [Fact]
@@ -323,6 +322,26 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is JsonPatchChange<Sense>)
             && a.Changes[0].Info.SenseLabel() == "to flow fast"
             && a.Changes[0].Info.SenseNumber() == 2);
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_SenseEdit_OfSenseDeletedSince_HasNoNumber()
+    {
+        var entryId = await CreateEntry("run");
+        await CreateSense(entryId, gloss: "to run", order: 1.0);
+        var secondId = await CreateSense(entryId, gloss: "to flow", order: 2.0);
+        await CreateSense(entryId, gloss: "to hurry", order: 3.0);
+        var patch = new JsonPatchDocument<Sense>();
+        patch.Replace(s => s.Gloss["en"], "to flow fast");
+        await DataModel.AddChange(ClientId, new JsonPatchChange<Sense>(secondId, patch), Meta());
+        await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Sense>(secondId), Meta());
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
+
+        // Recovered from its snapshot, the sense is absent from the live order (which still has two senses)
+        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is JsonPatchChange<Sense>)
+            && a.Changes[0].Info.SenseLabel() == "to flow fast"
+            && a.Changes[0].Info.SenseNumber() == null);
     }
 
     [Fact]
@@ -557,7 +576,6 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         activities.Should().Contain(a => a.Changes.Count == 1
             && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.SenseLabel() == "to run"
             && a.Changes[0].Info.EntryId() == entryId
-            && a.Changes[0].Info.EntryHeadword() == "run"
             && a.Changes[0].Info.TargetText() == "I run daily");
     }
 
@@ -695,7 +713,6 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
             && a.Changes.Count == 1
             && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.SenseLabel() == "to run"
             && a.Changes[0].Info.EntryId() == entryId
-            && a.Changes[0].Info.EntryHeadword() == "run"
             && a.Changes[0].Info.TargetText() == "I run");
     }
 
