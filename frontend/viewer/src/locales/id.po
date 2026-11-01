@@ -578,6 +578,16 @@ msgstr "Komentar"
 msgid "Comments, {0} unread"
 msgstr "Komentar, {0} belum dibaca"
 
+#. Note on the "Later changes" tab. "Version" means the item's data at one moment; two moments are compared: just after this change, and now
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Compares the version right after this change with the current version."
+msgstr ""
+
+#. Note on the "Deleted later" tab. The item was deleted later; the second version is its data just before that deletion
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Compares the version right after this change with the last version before deletion."
+msgstr ""
+
 #: src/project/tasks/TaskList.svelte
 msgid "Complete"
 msgstr "Selesai"
@@ -786,7 +796,7 @@ msgstr "Hapus Gambar"
 msgid "Delete Word"
 msgstr "Menghapus kata"
 
-#. Change type indicator
+#. Badge in the activity change preview: the item itself was deleted. Compare "Removed", where only a link was removed and the item still exists
 #: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Deleted"
 msgstr "Dihapus"
@@ -800,7 +810,7 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#. Button to view activity details
+#. Tab in the activity change preview: technical details of the change
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
 msgstr "Detail"
@@ -2950,16 +2960,6 @@ msgstr "{0} ini telah dihapus"
 #. Tab that shows what this one change did to the item
 #: src/lib/activity/ActivityItem.svelte
 msgid "This change"
-msgstr ""
-
-#. Note on the "Deleted later" tab, under a "Deleted" badge. "this change" is the change shown on this card; "its last version" is how the item looked when it was deleted
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "This compares the result of this change with its last version before it was deleted."
-msgstr ""
-
-#. Note on the "Later changes" tab. "this change" is the change shown on this card
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "This compares the result of this change with the current version."
 msgstr ""
 
 #. Example text for i18n

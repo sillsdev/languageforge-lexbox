@@ -110,9 +110,9 @@
   {#if since}
     <p class="text-sm mb-2 text-muted-foreground">
       {#if since.status === 'deleted'}
-        {$t`This compares the result of this change with its last version before it was deleted.`}
+        {$t`Compares the version right after this change with the last version before deletion.`}
       {:else}
-        {$t`This compares the result of this change with the current version.`}
+        {$t`Compares the version right after this change with the current version.`}
       {/if}
     </p>
   {/if}
