@@ -325,7 +325,11 @@
       {#if showClose}
         <XButton onclick={close} size="icon" />
       {/if}
-      {#if visibleActivity?.length}
+      {#if visibleActivity === null}
+        <div class="flex-1 flex items-center justify-center">
+          <Loading class="size-8 text-muted-foreground" aria-label={$t`Loading activity`} />
+        </div>
+      {:else if visibleActivity.length}
         <div class="flex-1 flex items-center justify-center text-muted-foreground text-center">
           <p>{$t`Select a change to view details`}</p>
         </div>

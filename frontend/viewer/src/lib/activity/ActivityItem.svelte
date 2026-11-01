@@ -68,53 +68,55 @@
 
 <div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full')}>
   {#if activity}
-    <div class="text-sm flex flex-wrap justify-between items-center gap-2">
+    <div class="flex items-center gap-2">
       {#if showClose && onClose}
         <XButton onclick={onClose} size="icon" />
       {/if}
-      <span>
+      <div class="text-sm flex flex-1 flex-wrap justify-between gap-2">
         <span>
-          {$t`Author:`}
-          <AuthorLabel class="font-semibold" authorId={activity.metadata.authorId} authorName={activity.metadata.authorName} />
-        </span>
-        {#if activity.changes.length > 1}
-          <span>{$t`– (${activity.changes.length} changes)`}</span>
-        {/if}
-      </span>
-      <span>
-        <FormatDate date={activity.timestamp}
-                    options={{ dateStyle: 'medium', timeStyle: 'medium' }} />
-      </span>
-      <span class="whitespace-nowrap">
-        {#if activity.metadata.extraMetadata['SyncDate']}
           <span>
-            <Popover.Root>
-              <Popover.InfoTrigger>
-                <span class="inline-flex gap-2 items-center">
-                  <Icon icon="i-mdi-cloud-outline" class="size-4 shrink-0" />
-                  <span>
-                    <T msg="Synced: #">
-                      <FormatRelativeDate
-                        class="font-semibold"
-                        date={new Date(activity.metadata.extraMetadata['SyncDate'])} />
-                    </T>
+            {$t`Author:`}
+            <AuthorLabel class="font-semibold" authorId={activity.metadata.authorId} authorName={activity.metadata.authorName} />
+          </span>
+          {#if activity.changes.length > 1}
+            <span>{$t`– (${activity.changes.length} changes)`}</span>
+          {/if}
+        </span>
+        <span>
+          <FormatDate date={activity.timestamp}
+                      options={{ dateStyle: 'medium', timeStyle: 'medium' }} />
+        </span>
+        <span class="whitespace-nowrap">
+          {#if activity.metadata.extraMetadata['SyncDate']}
+            <span>
+              <Popover.Root>
+                <Popover.InfoTrigger>
+                  <span class="inline-flex gap-2 items-center">
+                    <Icon icon="i-mdi-cloud-outline" class="size-4 shrink-0" />
+                    <span>
+                      <T msg="Synced: #">
+                        <FormatRelativeDate
+                          class="font-semibold"
+                          date={new Date(activity.metadata.extraMetadata['SyncDate'])} />
+                      </T>
+                    </span>
                   </span>
-                </span>
-              </Popover.InfoTrigger>
-              <Popover.Content class="w-auto p-2 text-sm text-center max-w-48">
-                {$t`The time when you uploaded or downloaded these changes`}
-              </Popover.Content>
-            </Popover.Root>
-          </span>
-        {:else}
-          <span class="inline-flex gap-2 items-center font-semibold" title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`}>
-            <Icon icon="i-mdi-cloud-off-outline" class="size-4 shrink-0 text-muted-foreground" />
-            {$t`Not synced`}
-          </span>
-        {/if}
-      </span>
+                </Popover.InfoTrigger>
+                <Popover.Content class="w-auto p-2 text-sm text-center max-w-48">
+                  {$t`The time when you uploaded or downloaded these changes`}
+                </Popover.Content>
+              </Popover.Root>
+            </span>
+          {:else}
+            <span class="inline-flex gap-2 items-center font-semibold" title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`}>
+              <Icon icon="i-mdi-cloud-off-outline" class="size-4 shrink-0 text-muted-foreground" />
+              {$t`Not synced`}
+            </span>
+          {/if}
+        </span>
+      </div>
     </div>
-    
+
     {#if openHistoryId}
     <!-- this is a dialog so it doesn't matter where it is in the DOM -->
         <HistoryView bind:open={() => !!openHistoryId, (open) => (open ? undefined : openHistoryId = undefined)} id={openHistoryId} selectedCommitId={activity.commitId}/>
