@@ -39,14 +39,15 @@ public class RetryEmailJob(IEmailService emailService) : LexJob
         if (!int.TryParse(RetryWaitSeconds, out int retryWaitSeconds)) throw new ArgumentException($"Invalid number {RetryWaitSeconds}", nameof(RetryWaitSeconds));
         var memory = new MemoryStream(Convert.FromBase64String(SerializedEmail), writable: false);
         var email = await MimeMessage.LoadAsync(memory);
-        for (var attempt = 1; ; attempt++)
+        while (retryCount > 0)
         {
+            retryCount -= 1;
             try
             {
                 await emailService.SendEmailAsync(email);
                 return;
             }
-            catch when (attempt < retryCount)
+            catch when (retryCount > 0)
             {
                 await Task.Delay(TimeSpan.FromSeconds(retryWaitSeconds), context.CancellationToken);
             }
