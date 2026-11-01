@@ -761,11 +761,9 @@ public class FwDataMiniLcmApi(
         return new ComplexFormComponent
         {
             ComponentEntryId = component.Guid,
-            ComponentHeadword = component.LexEntryHeadwordOrUnknown(),
-            ComponentHomographNumber = component.HomographNumber,
+            ComponentHeadword = LinkHeadword(component),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
-            ComplexFormHomographNumber = complexEntry.HomographNumber,
+            ComplexFormHeadword = LinkHeadword(complexEntry),
             Order = Order(component, complexEntry)
         };
     }
@@ -776,14 +774,15 @@ public class FwDataMiniLcmApi(
         {
             ComponentEntryId = componentSense.Entry.Guid,
             ComponentSenseId = componentSense.Guid,
-            ComponentHeadword = componentSense.Entry.LexEntryHeadwordOrUnknown(),
-            ComponentHomographNumber = componentSense.Entry.HomographNumber,
+            ComponentHeadword = LinkHeadword(componentSense.Entry),
             ComplexFormEntryId = complexEntry.Guid,
-            ComplexFormHeadword = complexEntry.LexEntryHeadwordOrUnknown(),
-            ComplexFormHomographNumber = complexEntry.HomographNumber,
+            ComplexFormHeadword = LinkHeadword(complexEntry),
             Order = Order(componentSense, complexEntry)
         };
     }
+
+    private static string LinkHeadword(ILexEntry entry) =>
+        Entry.WithHomographNumber(entry.LexEntryHeadwordOrUnknown(), entry.HomographNumber);
 
     private static int Order(ICmObject component, ILexEntry complexEntry)
     {

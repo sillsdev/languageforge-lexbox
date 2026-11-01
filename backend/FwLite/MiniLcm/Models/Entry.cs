@@ -1,3 +1,4 @@
+using System.Globalization;
 
 namespace MiniLcm.Models;
 
@@ -32,6 +33,15 @@ public record Entry : IObjectWithId<Entry>
     public virtual List<Publication> PublishIn { get; set; } = [];
 
     public const string UnknownHeadword = "(Unknown)";
+
+    /// <summary>
+    /// Like FLEx: bank₂. Display text only; links carry it because they have no other way to tell homographs apart.
+    /// </summary>
+    public static string WithHomographNumber(string headword, int homographNumber)
+    {
+        if (homographNumber <= 0 || string.IsNullOrEmpty(headword) || headword == UnknownHeadword) return headword;
+        return headword + string.Concat(homographNumber.ToString(CultureInfo.InvariantCulture).Select(digit => (char)('₀' + (digit - '0'))));
+    }
 
     public string Headword()
     {

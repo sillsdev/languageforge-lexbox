@@ -4,6 +4,7 @@
   import EntryOrSenseItemList from '../EntryOrSenseItemList.svelte';
   import type {IEntry, IComplexFormComponent} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$project/data';
+  import {linkHeadword} from '$lib/components/dictionary/HomographNumber.svelte';
   import {Button} from '$lib/components/ui/button';
   import {t} from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';
@@ -31,11 +32,9 @@
     const complexForm: IComplexFormComponent = {
       id: randomId(),
       complexFormEntryId: selection.entry.id,
-      complexFormHeadword: writingSystemService.firstHeadword(selection.entry),
-      complexFormHomographNumber: selection.entry.homographNumber,
+      complexFormHeadword: linkHeadword(writingSystemService.firstHeadword(selection.entry), selection.entry.homographNumber),
       componentEntryId: entry.id,
-      componentHeadword: writingSystemService.firstHeadword(entry),
-      componentHomographNumber: entry.homographNumber,
+      componentHeadword: linkHeadword(writingSystemService.firstHeadword(entry), entry.homographNumber),
     };
     value = [...value, complexForm];
     onchange?.(value);
@@ -49,7 +48,7 @@
   }
 </script>
 
-<EntryOrSenseItemList bind:items={value} {readonly} {onchange} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword} getHomographNumber={(e) => e.complexFormHomographNumber}>
+<EntryOrSenseItemList bind:items={value} {readonly} {onchange} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
   {#snippet actions()}
     <EntryOrSensePicker title={pt($t`Add complex form`, $t`Add part of`, viewService.currentView)} mode="only-entries" pick={(e) => addComplexForm(e)}
       {disableEntry}>

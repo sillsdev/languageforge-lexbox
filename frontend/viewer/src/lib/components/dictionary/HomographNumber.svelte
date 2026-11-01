@@ -3,11 +3,16 @@
 
   /**
    * Plain-text form of {@link HomographNumber}, for places that only take a string (e.g. a `title`).
-   * Display only: never append it to headwords used for search, sorting or matching.
+   * Display only: never append it to entry headwords used for search, sorting or matching.
    */
   export function homographSubscript(homographNumber: number): string {
     if (!(homographNumber > 0)) return '';
     return String(homographNumber).replace(/\d/g, (digit) => subscriptDigits[Number(digit)]);
+  }
+
+  /** Mirrors the backend's `Entry.WithHomographNumber`, which builds complex form and component link headwords */
+  export function linkHeadword(headword: string, homographNumber: number): string {
+    return headword ? headword + homographSubscript(homographNumber) : headword;
   }
 </script>
 
