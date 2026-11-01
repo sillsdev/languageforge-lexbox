@@ -30,6 +30,8 @@
     {label: 'Link component', fact: {kind: 'componentLink', action: 'add'}, info: {entry: {id: 'Apple tree', headword: 'Apple tree', homographNumber: 0}, target: {text: 'Apple', homographNumber: 0}}},
     {label: 'Delete entry (homograph)', fact: {kind: 'delete', entity: 'entry'}, info: {entry: {id: 'Apfel', headword: 'Apfel', homographNumber: 2}}},
     {label: 'Delete sense (homograph)', fact: {kind: 'delete', entity: 'sense'}, info: {entry: {id: 'Apfel', headword: 'Apfel', homographNumber: 2}, target: {text: 'apple', homographNumber: 0}}},
+    {label: 'Delete example', fact: {kind: 'delete', entity: 'example'}, info: {entry: {id: 'Bank', headword: 'Bank', homographNumber: 2}, sense: {label: 'shore', number: 1}, target: {text: 'We sat on the bank.', homographNumber: 0}}},
+    {label: 'Delete example (sense deleted too)', fact: {kind: 'delete', entity: 'example'}, info: {entry: {id: 'Bank', headword: 'Bank', homographNumber: 2}, sense: {label: 'shore'}, target: {text: 'We sat on the bank.', homographNumber: 0}}},
     {label: 'Edit vocab field', fact: {kind: 'editObjectField', object: 'partOfSpeech', field: 'Abbreviation', ws: 'en', value: 'n'}, info: {objectName: 'Noun'}},
     {label: 'Edit vocab (generic)', fact: {kind: 'editObject', object: 'partOfSpeech'}, info: {objectName: 'Noun'}},
     {label: 'Create vocab', fact: {kind: 'createObject', object: 'semanticDomain', label: '5.2 Food'}, info: {objectName: '5.2 Food'}},

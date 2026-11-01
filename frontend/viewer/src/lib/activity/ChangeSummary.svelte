@@ -143,7 +143,7 @@
 {#snippet nameToken(name: string, homographNumber = 0, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{name}<HomographNumber {homographNumber} /></span>{/snippet}
 {#snippet entryToken(name: IActivityEntryName, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{@render entryName(name)}</span>{/snippet}
 <!-- "headword › sense", degrading to whichever part exists; the connector stays muted, like in the preview's crumbs -->
-{#snippet qualifiedToken(leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{#if entry}{@render entryName(entry)}{/if}{#if sense?.label || sense?.number}{#if entry}<span class="mx-1 font-normal text-muted-foreground">›</span>{/if}{@render senseName(sense)}{/if}</span>{/snippet}
+{#snippet qualifiedToken(child: IActivitySenseName | undefined)}<span class="me-1 ms-1 font-semibold text-foreground">{#if entry}{@render entryName(entry)}{/if}{#if child?.label || child?.number}{#if entry}<span class="mx-1 font-normal text-muted-foreground">›</span>{/if}{@render senseName(child)}{/if}</span>{/snippet}
 {#snippet contextToken(name: IActivitySenseName)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span>{#if !name.label && !name.number}<span class="font-normal italic text-muted-foreground">{$t`Untitled`}</span>{:else}{@render senseName(name)}{/if}</span>{/snippet}
 {#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}">{text}</span>{/snippet}
 <!-- Names the change refers to (a part of speech, a linked component), which can carry a homograph number; user values stay plain text -->
@@ -199,9 +199,10 @@
     {$t`Added ${entityNoun('example')}`}{#if name}{@render nameToken(name, 0, true)}{:else if fact.audioOnly}{@render audioNote()}{/if}
   {/if}
 {:else if fact.kind === 'delete'}
+  <!-- A deleted sense is named in the target (it has no position left); a deleted example by its parent sense -->
   {#if fact.entity === 'entry' && entry}{$t`Deleted ${entityNoun('entry')}`}{@render entryToken(entry, true)}
-  {:else if fact.entity === 'sense' && entry}{$t`Deleted ${entityNoun('sense')}`}{@render entryToken(entry, true)}
-  {:else if fact.entity === 'example' && (entry || sense?.label)}{$t`Deleted ${entityNoun('example')} from`}{@render qualifiedToken(true)}
+  {:else if fact.entity === 'sense' && (entry || target)}{$t`Deleted ${entityNoun('sense')}`}{@render qualifiedToken(target && {label: target.text})}
+  {:else if fact.entity === 'example' && (entry || sense?.label || sense?.number)}{$t`Deleted ${entityNoun('example')} from`}{@render qualifiedToken(sense)}
   {:else}{$t`Deleted ${entityNoun(fact.entity)}`}{/if}
 {:else if fact.kind === 'reorder'}
   {#if target}{$t`Reordered ${collectionItemNoun(fact.collection)}`}{@render nameToken(target.text, target.homographNumber, true)}{:else}{$t`Reordered ${collectionNoun(fact.collection)}`}{/if}
