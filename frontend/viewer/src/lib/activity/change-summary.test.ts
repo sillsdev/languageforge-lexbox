@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention -- change payloads below mirror the PascalCase CRDT wire format on purpose */
 import {describe, it, expect} from 'vitest';
-import {commitBadge, describeActivity, describeActivityCapped, describeChange, explicitlyHandledChangeTypes, factCategory, groupByOwningEntry, isHandledChangeType, recognizeBulkCreate, ROW_FACT_CAP, subjectLead, summarizeActivity, type ChangeFact, type ChangeFactWithInfo} from './change-summary';
+import {commitBadge, describeActivity, describeActivityCapped, describeChange, explicitlyHandledChangeTypes, factCategory, groupByOwningEntry, recognizeBulkCreate, ROW_FACT_CAP, subjectLead, summarizeActivity, type ChangeFact, type ChangeFactWithInfo} from './change-summary';
 import {knownChangeTypes} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeType';
 import type {IChangeEntity} from '$lib/dotnet-types';
 import type {IActivityEntryName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityEntryName';
@@ -273,7 +273,10 @@ describe('describeChange', () => {
   ]);
 
   it('handles every backend change type (generated list) or allows it as intentionally generic', () => {
-    const unhandled = knownChangeTypes.filter((type) => !isHandledChangeType(type) && !INTENTIONALLY_GENERIC.has(type));
+    // A patch with no recognized field falls back to generic, so give each entity a field it has
+    const PatchDocument = ['lexemeForm', 'gloss', 'sentence'].map((field) => ({op: 'remove', path: `/${field}/en`}));
+    const unhandled = knownChangeTypes.filter((type) => !INTENTIONALLY_GENERIC.has(type)
+      && describeChange(changeEntity({'$type': type, PatchDocument})).some((fact) => fact.kind === 'generic'));
     expect(unhandled).toEqual([]);
   });
 

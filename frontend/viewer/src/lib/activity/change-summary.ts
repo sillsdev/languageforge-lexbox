@@ -4,18 +4,13 @@ import type {IChangeEntity} from '$lib/dotnet-types';
 import type {IActivityChangeInfo} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityChangeInfo';
 import type {IActivityEntryName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityEntryName';
 import type {IActivitySenseName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivitySenseName';
+import {isObjectType, type ObjectType} from '$lib/entry-editor/diff-view/diff-fields';
+import {changeKind} from './change-header';
 import type {IActivityChange} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityChange';
 
 export type SummaryEntity = 'entry' | 'sense' | 'example';
 export type CollectionKind = 'senses' | 'examples' | 'components' | 'writingSystems';
-export type ObjectKind =
-  | 'partOfSpeech'
-  | 'semanticDomain'
-  | 'publication'
-  | 'complexFormType'
-  | 'writingSystem'
-  | 'morphType'
-  | 'customView';
+export type ObjectKind = Uncapitalize<ObjectType>;
 /** Plural noun for a bulk-create collapse ("Created 100 semantic domains"). Keys mirror {@link BULK_CREATE_NOUNS}. */
 export type BulkNoun =
   | 'entries'
@@ -72,21 +67,14 @@ export type ChangeFact =
   | {kind: 'commentThread'; action: 'close' | 'reopen' | 'delete'}
   | {kind: 'generic'; text: string};
 
-const MAIN_ENTITY_BY_SUFFIX: Record<string, SummaryEntity> = {
-  Entry: 'entry',
-  Sense: 'sense',
-  ExampleSentence: 'example',
-};
+function mainEntity(suffix: string): SummaryEntity | undefined {
+  const kind = changeKind(suffix);
+  return kind === 'entry' || kind === 'sense' || kind === 'example' ? kind : undefined;
+}
 
-const OBJECT_BY_SUFFIX: Record<string, ObjectKind> = {
-  PartOfSpeech: 'partOfSpeech',
-  SemanticDomain: 'semanticDomain',
-  Publication: 'publication',
-  ComplexFormType: 'complexFormType',
-  WritingSystem: 'writingSystem',
-  MorphType: 'morphType',
-  CustomView: 'customView',
-};
+function objectKind(suffix: string): ObjectKind | undefined {
+  return isObjectType(suffix) ? (suffix.charAt(0).toLowerCase() + suffix.slice(1)) as ObjectKind : undefined;
+}
 
 const ORDER_COLLECTION: Record<string, CollectionKind> = {
   Sense: 'senses',
@@ -250,7 +238,7 @@ function patchOpToObjectField(object: ObjectKind, op: unknown): ChangeFact | und
   return {kind: 'editObjectField', object, field, ws, value};
 }
 
-/** Handlers for non-prefixed change types, keyed by `$type`. The key set is also the source of truth for {@link isHandledChangeType}. */
+/** Handlers for non-prefixed change types, keyed by `$type`. */
 const TYPED_HANDLERS: Record<string, (change: unknown) => ChangeFact[]> = {
   CreateEntryChange: (c) => [{kind: 'create', entity: 'entry', label: firstAlternative(prop(c, 'lexemeForm')) ?? firstAlternative(prop(c, 'citationForm'))}],
   CreateSenseChange: (c) => [{kind: 'create', entity: 'sense', label: firstAlternative(prop(c, 'gloss')) ?? firstAlternative(prop(c, 'definition'))}],
@@ -317,7 +305,7 @@ const TYPED_HANDLERS: Record<string, (change: unknown) => ChangeFact[]> = {
 export const explicitlyHandledChangeTypes: readonly string[] = Object.keys(TYPED_HANDLERS);
 
 function jsonPatchFacts(suffix: string, change: unknown): ChangeFact[] {
-  const entity = MAIN_ENTITY_BY_SUFFIX[suffix];
+  const entity = mainEntity(suffix);
   if (entity) {
     const operations = prop(change, 'patchDocument');
     const facts = Array.isArray(operations)
@@ -325,7 +313,7 @@ function jsonPatchFacts(suffix: string, change: unknown): ChangeFact[] {
       : [];
     return facts.length ? facts : [{kind: 'generic', text: humanizeType(`jsonPatch:${suffix}`)}];
   }
-  const object = OBJECT_BY_SUFFIX[suffix];
+  const object = objectKind(suffix);
   if (object) {
     const operations = prop(change, 'patchDocument');
     const facts = Array.isArray(operations)
@@ -337,12 +325,12 @@ function jsonPatchFacts(suffix: string, change: unknown): ChangeFact[] {
 }
 
 function deleteFacts(suffix: string): ChangeFact[] {
-  const entity = MAIN_ENTITY_BY_SUFFIX[suffix];
+  const entity = mainEntity(suffix);
   if (entity) return [{kind: 'delete', entity}];
   if (suffix === 'ComplexFormComponent') return [{kind: 'componentLink', action: 'remove'}];
   if (suffix === 'UserComment') return [{kind: 'comment', action: 'delete'}];
   if (suffix === 'CommentThread') return [{kind: 'commentThread', action: 'delete'}];
-  const object = OBJECT_BY_SUFFIX[suffix];
+  const object = objectKind(suffix);
   if (object) return [{kind: 'deleteObject', object}];
   return [{kind: 'generic', text: humanizeType(`delete:${suffix}`)}];
 }
@@ -369,28 +357,6 @@ export function describeChange(changeEntity: IChangeEntity): ChangeFact[] {
   return handler ? handler(change) : [{kind: 'generic', text: humanizeType(type)}];
 }
 
-
-/**
- * Whether {@link describeChange} produces a purpose-built (non-`generic`) summary for a `$type`.
- * The coverage test asserts every generated `knownChangeTypes` value is handled here (or is on a
- * small allow-list of intentionally-generic types), so a new backend change type fails the test.
- */
-export function isHandledChangeType(type: string): boolean {
-  if (type === 'create:remote-resource' || type === 'uploaded:RemoteResource' || type === 'delete:RemoteResource') return true;
-  if (type.startsWith('jsonPatch:')) {
-    const suffix = type.slice('jsonPatch:'.length);
-    return suffix in MAIN_ENTITY_BY_SUFFIX || suffix in OBJECT_BY_SUFFIX;
-  }
-  if (type.startsWith('delete:')) {
-    const suffix = type.slice('delete:'.length);
-    return suffix in MAIN_ENTITY_BY_SUFFIX || suffix in OBJECT_BY_SUFFIX
-      || suffix === 'ComplexFormComponent' || suffix === 'UserComment' || suffix === 'CommentThread';
-  }
-  if (type.startsWith('SetOrderChange:')) {
-    return type.slice('SetOrderChange:'.length) in ORDER_COLLECTION;
-  }
-  return type in TYPED_HANDLERS;
-}
 
 /** A change fact paired with the names the backend resolved for its change (from the activity payload). */
 export interface ChangeFactWithInfo {
