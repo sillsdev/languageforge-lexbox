@@ -6,7 +6,7 @@
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useWritingSystemService} from '$project/data';
   import HomographLabel from './HomographLabel.svelte';
-  import {splitSubject, type BulkNoun, type ChangeFact, type CollectionKind, type ObjectKind, type SummaryEntity} from './change-summary';
+  import {splitSubjectLead, type BulkNoun, type ChangeFact, type CollectionKind, type ObjectKind, type SummaryEntity} from './change-summary';
 
   // `groupHeadword`: set when this line renders under an entry-group header (see ActivityView), which then
   // already names the entry, so the leading subject drops it and keeps only "› sense".
@@ -33,7 +33,7 @@
     || fact.kind === 'editObjectField' || fact.kind === 'deleteObject' || fact.kind === 'delete',
   );
 
-  const subjectLead = $derived(subject ? splitSubject(fact, subject, entryHeadword, groupHeadword) : undefined);
+  const subjectLead = $derived(subject ? splitSubjectLead(fact, subject, entryHeadword, groupHeadword) : undefined);
 
   function capitalize(text: string): string {
     return text.charAt(0).toUpperCase() + text.slice(1);
@@ -140,7 +140,9 @@
 <!-- The resolver joins parent and child names with " › ": the connector stays muted, like in the preview's crumbs -->
 {#snippet subjectToken(text: string, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{#each text.split(' › ') as part, i (i)}{#if i}<span class="mx-1 font-normal text-muted-foreground">›</span>{/if}<HomographLabel text={part} />{/each}</span>{/snippet}
 {#snippet contextToken(name: string | null)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span>{#if name === null}<span class="font-normal italic text-muted-foreground">{$t`Untitled`}</span>{:else}<HomographLabel text={name} />{/if}</span>{/snippet}
-{#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}"><HomographLabel {text} /></span>{/snippet}
+{#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}">{text}</span>{/snippet}
+<!-- Names the change refers to (a part of speech, a linked component), which can carry a homograph number; user values stay plain text -->
+{#snippet labelChip(text: string)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground ms-1"><HomographLabel {text} /></span>{/snippet}
 <!-- Muted and in parentheses so the abbreviation reads as part of the field label, not as data (chips) or a homograph number (subscript) -->
 {#snippet wsAbbr(wsId: string)}{@const ws = writingSystemService.getWritingSystem(wsId) ?? {wsId, name: wsId, abbreviation: wsId}}<span class="ms-1 whitespace-nowrap text-muted-foreground" title={ws.name === ws.wsId ? ws.wsId : `${ws.name} (${ws.wsId})`}>(<bdi>{ws.abbreviation}</bdi>)</span>{/snippet}
 {#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
@@ -159,25 +161,25 @@
   {$t`Cleared ${label}`}{#if fact.audio}{@render audioNote()}{:else if fact.ws}{@render wsAbbr(fact.ws)}{/if}
 {:else if fact.kind === 'changeField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
-  {#if target}{$t`Changed ${label} to`}{@render chip(target)}{:else}{$t`Changed ${label}`}{/if}
+  {#if target}{$t`Changed ${label} to`}{@render labelChip(target)}{:else}{$t`Changed ${label}`}{/if}
 {:else if fact.kind === 'addItem'}
   {@const noun = itemNoun(fact.fieldId)}
   {#if noun}
-    {$t`Added ${noun}`}{#if fact.label}{@render chip(fact.label)}{/if}
+    {$t`Added ${noun}`}{#if fact.label}{@render labelChip(fact.label)}{/if}
   {:else}
     {@const label = fieldLabel(fact.entity, fact.fieldId)}
-    {#if fact.label}{$t`Added to ${label}`}:{@render chip(fact.label)}{:else}{$t`Added to ${label}`}{/if}
+    {#if fact.label}{$t`Added to ${label}`}:{@render labelChip(fact.label)}{:else}{$t`Added to ${label}`}{/if}
   {/if}
 {:else if fact.kind === 'removeItem'}
   {@const noun = itemNoun(fact.fieldId)}
   {#if noun}
-    {$t`Removed ${noun}`}{#if target}{@render chip(target)}{/if}
+    {$t`Removed ${noun}`}{#if target}{@render labelChip(target)}{/if}
   {:else}
     {$t`Removed from ${fieldLabel(fact.entity, fact.fieldId)}`}
   {/if}
 {:else if fact.kind === 'replaceItem'}
   {@const label = itemNoun(fact.fieldId) ?? fieldLabel(fact.entity, fact.fieldId)}
-  {#if fact.label}{$t`Changed ${label} to`}{@render chip(fact.label)}{:else}{$t`Changed ${label}`}{/if}
+  {#if fact.label}{$t`Changed ${label} to`}{@render labelChip(fact.label)}{:else}{$t`Changed ${label}`}{/if}
 {:else if fact.kind === 'create'}
   {#if fact.entity === 'entry'}
     {@const name = subject ?? fact.label}
@@ -206,8 +208,8 @@
   {$t`Moved from another sense`}
 {:else if fact.kind === 'componentLink'}
   {#if fact.action === 'add'}
-    {$t`Added component`}{#if target}{@render chip(target)}{/if}
-  {:else}{$t`Removed component`}{#if target}{@render chip(target)}{/if}
+    {$t`Added component`}{#if target}{@render labelChip(target)}{/if}
+  {:else}{$t`Removed component`}{#if target}{@render labelChip(target)}{/if}
   {/if}
 {:else if fact.kind === 'setDefaultTranslation'}
   {$t`Set default translation`}

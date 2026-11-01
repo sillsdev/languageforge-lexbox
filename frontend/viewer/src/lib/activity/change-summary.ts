@@ -189,7 +189,7 @@ const PAST_TENSE_VERB: Record<string, string> = {
  * Splits a resolver subject ("headword › sense") into what a summary line leads with: the entry part, dropped when a
  * group header already shows it, and the sense part, `null` for an unnamed sense (the resolver leaves it out).
  */
-export function splitSubject(
+export function splitSubjectLead(
   fact: ChangeFact,
   subject: string,
   entryHeadword: string | undefined,
