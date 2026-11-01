@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention -- change payloads below mirror the PascalCase CRDT wire format on purpose */
 import {describe, it, expect} from 'vitest';
-import {commitBadge, describeActivity, describeActivityCapped, describeChange, explicitlyHandledChangeTypes, factCategory, groupByOwningEntry, isHandledChangeType, recognizeBulkCreate, ROW_FACT_CAP, summarizeActivity, type ChangeFact, type ChangeFactWithSubject} from './change-summary';
+import {commitBadge, describeActivity, describeActivityCapped, describeChange, explicitlyHandledChangeTypes, factCategory, groupByOwningEntry, isHandledChangeType, recognizeBulkCreate, ROW_FACT_CAP, splitSubject, summarizeActivity, type ChangeFact, type ChangeFactWithSubject} from './change-summary';
 import {knownChangeTypes} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeType';
 import type {IChangeEntity} from '$lib/dotnet-types';
 
@@ -491,5 +491,37 @@ describe('commitBadge', () => {
     ))).toBeUndefined();
     expect(commitBadge({entries: summary({kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'x'}).entries, remaining: 12})).toBeUndefined();
     expect(commitBadge(summary({kind: 'generic', text: 'Create remote resource'}))).toBeUndefined();
+  });
+});
+
+describe('splitSubject', () => {
+  const senseEdit: ChangeFact = {kind: 'setField', entity: 'sense', fieldId: 'gloss', value: 'x'};
+  const entryEdit: ChangeFact = {kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'x'};
+  const senseCreate: ChangeFact = {kind: 'create', entity: 'sense', label: 'shore'};
+
+  it('splits the entry from the sense', () => {
+    expect(splitSubject(senseEdit, 'Bank₂ › shore', 'Bank₂', undefined)).toEqual({entry: 'Bank₂', sense: 'shore'});
+  });
+
+  it('drops the entry under a group header that shows it', () => {
+    expect(splitSubject(senseEdit, 'Bank₂ › shore', 'Bank₂', 'Bank₂')).toEqual({entry: undefined, sense: 'shore'});
+    expect(splitSubject(entryEdit, 'Bank₂', 'Bank₂', 'Bank₂')).toBeUndefined();
+  });
+
+  it('marks an unnamed sense, which the resolver leaves out of the subject', () => {
+    expect(splitSubject(senseEdit, 'Bank₂', 'Bank₂', undefined)).toEqual({entry: 'Bank₂', sense: null});
+    expect(splitSubject(senseEdit, 'Bank₂', 'Bank₂', 'Bank₂')).toEqual({entry: undefined, sense: null});
+  });
+
+  it('keeps a sense create on its parent entry', () => {
+    expect(splitSubject(senseCreate, 'Bank₂', 'Bank₂', undefined)).toEqual({entry: 'Bank₂', sense: undefined});
+  });
+
+  it('splits a gloss equal to its headword', () => {
+    expect(splitSubject(senseEdit, 'run › run', 'run', 'run')).toEqual({entry: undefined, sense: 'run'});
+  });
+
+  it('keeps the whole subject without a known headword', () => {
+    expect(splitSubject(senseEdit, 'shore', undefined, undefined)).toEqual({entry: 'shore', sense: undefined});
   });
 });

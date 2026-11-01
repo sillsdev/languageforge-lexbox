@@ -9,7 +9,7 @@
     parameters: fwliteStoryParameters({}),
   });
 
-  const cases: {label: string; fact: ChangeFact; subject?: string; target?: string}[] = [
+  const cases: {label: string; fact: ChangeFact; subject?: string; target?: string; entryHeadword?: string}[] = [
     {label: 'Create entry', fact: {kind: 'create', entity: 'entry', label: 'Apfel'}, subject: 'Apfel'},
     {label: 'Create sense', fact: {kind: 'create', entity: 'sense', label: 'apple'}, subject: 'Apfel › apple'},
     {label: 'Create example', fact: {kind: 'create', entity: 'example'}, subject: 'Apfel › apple'},
@@ -38,6 +38,7 @@
     {label: 'Create entry (no headword)', fact: {kind: 'create', entity: 'entry'}},
     {label: 'Set homograph number', fact: {kind: 'setHomograph', value: '2'}, subject: 'Apfel₂'},
     {label: 'Unlinked component', fact: {kind: 'componentLink', action: 'remove'}, subject: 'Apple tree'},
+    {label: 'Edit unnamed sense', fact: {kind: 'setField', entity: 'sense', fieldId: 'definition', ws: 'en', value: 'a fruit'}, subject: 'Apfel₂', entryHeadword: 'Apfel₂'},
     {label: 'Set default translation', fact: {kind: 'setDefaultTranslation'}, subject: 'Apfel › apple'},
     {label: 'Long value (data pill)', fact: {kind: 'setField', entity: 'sense', fieldId: 'definition', ws: 'en', value: 'a long definition that shows how the value pill stands apart from the surrounding template words'}, subject: 'Apfel › apple'},
   ];
@@ -48,7 +49,7 @@
     <div class="grid grid-cols-[12rem_1fr] gap-x-4 gap-y-1.5 text-sm max-w-3xl">
       {#each cases as testCase (testCase.label)}
         <div class="text-muted-foreground">{testCase.label}</div>
-        <div><ChangeSummary fact={testCase.fact} subject={testCase.subject} target={testCase.target} /></div>
+        <div><ChangeSummary fact={testCase.fact} subject={testCase.subject} target={testCase.target} entryHeadword={testCase.entryHeadword} /></div>
       {/each}
     </div>
   {/snippet}
@@ -59,7 +60,7 @@
   {#snippet template()}
     <div class="w-64 space-y-1 rounded border p-2 text-sm">
       {#each cases as testCase (testCase.label)}
-        <div class="truncate"><ChangeSummary fact={testCase.fact} subject={testCase.subject} target={testCase.target} /></div>
+        <div class="truncate"><ChangeSummary fact={testCase.fact} subject={testCase.subject} target={testCase.target} entryHeadword={testCase.entryHeadword} /></div>
       {/each}
     </div>
   {/snippet}

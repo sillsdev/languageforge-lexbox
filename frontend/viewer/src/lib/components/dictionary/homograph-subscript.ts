@@ -10,15 +10,14 @@ export function homographSubscript(homographNumber: number): string {
 }
 
 /**
- * Inverse of {@link homographSubscript}: splits text into plain strings and the numbers its subscript runs encode.
- * A run that wouldn't round-trip (₀, ₀₁) stays text, since HomographNumber would drop or change it.
+ * Inverse of {@link homographSubscript}: splits a trailing homograph number off a plain-text headword.
+ * Subscripts elsewhere (H₂O) stay text, as does a trailing run that wouldn't round-trip (₀, ₀₁).
  */
-export function parseSubscriptNumbers(text: string): (string | number)[] {
-  return text
-    .split(/([₀-₉]+)/u)
-    .filter(Boolean)
-    .map((part) => {
-      const number = Number([...part].map((digit) => subscriptDigits.indexOf(digit)).join(''));
-      return homographSubscript(number) === part ? number : part;
-    });
+export function splitHomographSubscript(text: string): {text: string; homographNumber: number} {
+  const run = /[₀-₉]+$/u.exec(text)?.[0];
+  if (!run) return {text, homographNumber: 0};
+  const homographNumber = Number([...run].map((digit) => subscriptDigits.indexOf(digit)).join(''));
+  return homographSubscript(homographNumber) === run
+    ? {text: text.slice(0, -run.length), homographNumber}
+    : {text, homographNumber: 0};
 }

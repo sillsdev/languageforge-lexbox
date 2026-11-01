@@ -113,7 +113,6 @@ internal static class ActivityChangeInfoResolver
         var senses = await LoadWithRecovery(db, senseIds, LoadSenses);
         foreach (var sense in senses.Values) entryIds.Add(sense.EntryId);
 
-        // For looking up sense numbers
         var entries = await LoadWithRecovery(db, entryIds, LoadEntries);
         var partsOfSpeech = await LoadNamed<PartOfSpeech>(db, partOfSpeechIds, p => new PartOfSpeech { Id = p.Id, Name = p.Name });
         var semanticDomains = await LoadWithRecovery(db, semanticDomainIds, LoadSemanticDomains);
@@ -370,7 +369,7 @@ internal static class ActivityChangeInfoResolver
     {
         if (ids.Count == 0) return [];
         var loaded = await db.Set<Sense>().Where(s => ids.Contains(s.Id))
-            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Gloss = s.Gloss, Definition = s.Definition, Order = s.Order })
+            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Gloss = s.Gloss, Definition = s.Definition })
             .ToListAsyncLinqToDB();
         return loaded.ToDictionary(s => s.Id);
     }

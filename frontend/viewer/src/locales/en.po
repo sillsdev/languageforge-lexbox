@@ -2961,8 +2961,8 @@ msgstr "Set {0}"
 msgid "Set {0} to"
 msgstr "Set {0} to"
 
-#. First # is a field label plus writing-system code, second # is the new value
-#. First # is a field label plus writing-system code, second # is the new value
+#. First # is a field label plus writing-system abbreviation, second # is the new value
+#. First # is a field label plus writing-system abbreviation, second # is the new value
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set # to #"

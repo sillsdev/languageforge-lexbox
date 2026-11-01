@@ -1,20 +1,20 @@
 import {describe, expect, it} from 'vitest';
-import {homographSubscript, parseSubscriptNumbers} from './homograph-subscript';
+import {homographSubscript, splitHomographSubscript} from './homograph-subscript';
 
-describe('parseSubscriptNumbers', () => {
-  it('splits homograph and sense numbers out of a label', () => {
-    expect(parseSubscriptNumbers('Apfel₂ › apple₁₂')).toEqual(['Apfel', 2, ' › apple', 12]);
+describe('splitHomographSubscript', () => {
+  it('splits off a trailing homograph number', () => {
+    expect(splitHomographSubscript('Apfel₂')).toEqual({text: 'Apfel', homographNumber: 2});
+    expect(splitHomographSubscript('bank₁₂')).toEqual({text: 'bank', homographNumber: 12});
   });
 
   it('round-trips homographSubscript', () => {
-    expect(parseSubscriptNumbers('bank' + homographSubscript(3))).toEqual(['bank', 3]);
+    expect(splitHomographSubscript('bank' + homographSubscript(3))).toEqual({text: 'bank', homographNumber: 3});
   });
 
-  it('leaves text without subscripts alone', () => {
-    expect(parseSubscriptNumbers('5.2 Food')).toEqual(['5.2 Food']);
-  });
-
-  it('keeps runs that would not round-trip as text', () => {
-    expect(parseSubscriptNumbers('H₀ x₀₁')).toEqual(['H', '₀', ' x', '₀₁']);
+  it('leaves subscripts that are not a trailing homograph number alone', () => {
+    expect(splitHomographSubscript('H₂O')).toEqual({text: 'H₂O', homographNumber: 0});
+    expect(splitHomographSubscript('x₀')).toEqual({text: 'x₀', homographNumber: 0});
+    expect(splitHomographSubscript('x₀₁')).toEqual({text: 'x₀₁', homographNumber: 0});
+    expect(splitHomographSubscript('5.2 Food')).toEqual({text: '5.2 Food', homographNumber: 0});
   });
 });

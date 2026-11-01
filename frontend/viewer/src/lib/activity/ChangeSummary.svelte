@@ -5,8 +5,8 @@
   import {pt, tvt, type ViewText} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useWritingSystemService} from '$project/data';
-  import SubscriptNumbers from './SubscriptNumbers.svelte';
-  import type {BulkNoun, ChangeFact, CollectionKind, ObjectKind, SummaryEntity} from './change-summary';
+  import HomographLabel from './HomographLabel.svelte';
+  import {splitSubject, type BulkNoun, type ChangeFact, type CollectionKind, type ObjectKind, type SummaryEntity} from './change-summary';
 
   // `groupHeadword`: set when this line renders under an entry-group header (see ActivityView), which then
   // already names the entry, so the leading subject drops it and keeps only "› sense".
@@ -33,23 +33,7 @@
     || fact.kind === 'editObjectField' || fact.kind === 'deleteObject' || fact.kind === 'delete',
   );
 
-  // A sense- or example-level edit names the sense; a sense create names the parent entry and the new sense separately
-  const senseLevel = $derived('entity' in fact && fact.entity !== 'entry' && fact.kind !== 'create');
-
-  // The leading subject: the entry part (unless the group header shows it) and the sense part, `null` for an unnamed sense
-  const subjectLead = $derived.by((): {entry?: string; sense?: string | null} | undefined => {
-    if (!subject) return undefined;
-    let entry: string | undefined = subject;
-    let sense: string | null | undefined;
-    if (entryHeadword && subject.startsWith(entryHeadword + ' › ')) {
-      entry = entryHeadword;
-      sense = subject.slice(entryHeadword.length + 3);
-    } else if (entryHeadword && subject === entryHeadword && senseLevel) {
-      sense = null;
-    }
-    if (groupHeadword !== undefined && entry === groupHeadword) entry = undefined;
-    return entry === undefined && sense === undefined ? undefined : {entry, sense};
-  });
+  const subjectLead = $derived(subject ? splitSubject(fact, subject, entryHeadword, groupHeadword) : undefined);
 
   function capitalize(text: string): string {
     return text.charAt(0).toUpperCase() + text.slice(1);
@@ -154,11 +138,11 @@
   on the same one-margin rhythm. Whitespace at a {#if}/{:else}/snippet boundary is trimmed, so these margins
   — never literal spaces — carry the gaps across branch edges. -->
 <!-- The resolver joins parent and child names with " › ": the connector stays muted, like in the preview's crumbs -->
-{#snippet subjectToken(text: string, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{#each text.split(' › ') as part, i (i)}{#if i}<span class="mx-1 font-normal text-muted-foreground">›</span>{/if}<SubscriptNumbers text={part} />{/each}</span>{/snippet}
-{#snippet contextToken(name: string | null)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span>{#if name === null}<span class="font-normal italic text-muted-foreground">{$t`Untitled`}</span>{:else}<SubscriptNumbers text={name} />{/if}</span>{/snippet}
-{#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}"><SubscriptNumbers {text} /></span>{/snippet}
+{#snippet subjectToken(text: string, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{#each text.split(' › ') as part, i (i)}{#if i}<span class="mx-1 font-normal text-muted-foreground">›</span>{/if}<HomographLabel text={part} />{/each}</span>{/snippet}
+{#snippet contextToken(name: string | null)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span>{#if name === null}<span class="font-normal italic text-muted-foreground">{$t`Untitled`}</span>{:else}<HomographLabel text={name} />{/if}</span>{/snippet}
+{#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}"><HomographLabel {text} /></span>{/snippet}
 <!-- Muted and in parentheses so the abbreviation reads as part of the field label, not as data (chips) or a homograph number (subscript) -->
-{#snippet wsAbbr(wsId: string)}{@const ws = writingSystemService.getWritingSystem(wsId) ?? {wsId, name: wsId, abbreviation: wsId}}<span class="ms-1 whitespace-nowrap text-muted-foreground" title={`${ws.name} (${ws.wsId})`}>(<bdi>{ws.abbreviation}</bdi>)</span>{/snippet}
+{#snippet wsAbbr(wsId: string)}{@const ws = writingSystemService.getWritingSystem(wsId) ?? {wsId, name: wsId, abbreviation: wsId}}<span class="ms-1 whitespace-nowrap text-muted-foreground" title={ws.name === ws.wsId ? ws.wsId : `${ws.name} (${ws.wsId})`}>(<bdi>{ws.abbreviation}</bdi>)</span>{/snippet}
 {#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
 <!-- Audio marker: a media value has no readable text, so show an icon + "audio" chip instead of a URI.
   Plain inline span (not inline-flex) so it sits on the text baseline like the other data chips; the icon

@@ -185,6 +185,30 @@ const PAST_TENSE_VERB: Record<string, string> = {
   upload: 'Uploaded', uploaded: 'Uploaded', merge: 'Merged',
 };
 
+/**
+ * Splits a resolver subject ("headword › sense") into what a summary line leads with: the entry part, dropped when a
+ * group header already shows it, and the sense part, `null` for an unnamed sense (the resolver leaves it out).
+ */
+export function splitSubject(
+  fact: ChangeFact,
+  subject: string,
+  entryHeadword: string | undefined,
+  groupHeadword: string | undefined,
+): {entry?: string; sense?: string | null} | undefined {
+  // A sense create names the parent entry; the new sense is the target
+  const senseLevel = 'entity' in fact && fact.entity !== 'entry' && fact.kind !== 'create';
+  let entry: string | undefined = subject;
+  let sense: string | null | undefined;
+  if (entryHeadword && subject.startsWith(entryHeadword + ' › ')) {
+    entry = entryHeadword;
+    sense = subject.slice(entryHeadword.length + 3);
+  } else if (entryHeadword && subject === entryHeadword && senseLevel) {
+    sense = null;
+  }
+  if (groupHeadword !== undefined && entry === groupHeadword) entry = undefined;
+  return entry === undefined && sense === undefined ? undefined : {entry, sense};
+}
+
 /** Turns a change `$type` into a readable past-tense phrase (e.g. `create:remote-resource` → "Created remote resource"). */
 function humanizeType(type: string): string {
   const words = type
@@ -352,7 +376,7 @@ export function describeChange(changeEntity: IChangeEntity): ChangeFact[] {
 
   // Media resources carry no kind in the change, and the field-set that references one lives in a separate
   // commit — so kind can't be derived here without fetching the file. Assume audio: it's the only resource
-  // kind today. Revisit (mime from the media service) when non-audio resources ship.
+  // kind today.
   if (type === 'create:remote-resource') return [{kind: 'mediaResource', action: 'add', resourceId: resourceIdOf(change), audio: true}];
   if (type === 'uploaded:RemoteResource') return [{kind: 'mediaResource', action: 'upload', resourceId: resourceIdOf(change), audio: true}];
   if (type === 'delete:RemoteResource') return [{kind: 'mediaResource', action: 'delete', resourceId: resourceIdOf(change), audio: true}];
