@@ -91,7 +91,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null && a.Changes[0].Info.TargetText() == "to run");
         activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null && a.Changes[0].Info.TargetText() == "move quickly on foot");
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null && a.Changes[0].Info.Target == null);
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Entity.Change is CreateSenseChange && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null && a.Changes[0].Info.Target == null);
     }
 
     [Fact]
