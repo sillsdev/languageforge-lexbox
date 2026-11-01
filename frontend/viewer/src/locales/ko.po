@@ -1410,6 +1410,11 @@ msgstr "헤드워드"
 msgid "Help & More"
 msgstr "도움말 및 기타 정보"
 
+#. Note on the "Deleted later" tab, under a "Deleted" badge. "it" is the deleted item (entry, sense, ...); "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Here is how it looked right after this change."
+msgstr ""
+
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
@@ -3000,11 +3005,6 @@ msgstr "이 작업은 사전 항목을 기반으로 전체 텍스트 검색 인�
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "이 작업이 완료되었습니다."
-
-#. Note on the "Deleted later" tab. "This" is the item (entry, sense, ...); "this change" is the change shown on this card
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "This was deleted later. Here is how it looked right after this change."
-msgstr ""
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte

@@ -57,7 +57,10 @@
   const kind = $derived(changeKind(context.entityType));
   const reorder = $derived(isReorder(change));
   const showNote = $derived(view === 'change' && !reorder);
-  const badge = $derived(anySnapshot && changeBadge(kind, {before, after, reorder}));
+  // Later changes describes the entity as it stands now, not what this change did to it
+  const badge = $derived(view === 'since'
+    ? (since?.status === 'deleted' ? 'deleted' : undefined)
+    : anySnapshot && changeBadge(kind, {before, after, reorder}));
 
   // The identity across the same span the diff shows
   const anchor = $derived.by((): AnchorText | undefined => {
@@ -110,7 +113,7 @@
   {#if since}
     <p class="text-sm mb-2 text-muted-foreground">
       {#if since.status === 'deleted'}
-        {$t`This was deleted later. Here is how it looked right after this change.`}
+        {$t`Here is how it looked right after this change.`}
       {:else}
         {$t`This compares the result of this change with the current version.`}
       {/if}

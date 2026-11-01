@@ -151,9 +151,10 @@
                       </Tabs.Trigger>
                       {#if since}
                         <Tabs.Trigger value="since" aria-disabled={noLaterChanges || undefined}
-                                      class="flex-1 h-auto min-h-8 whitespace-normal gap-1.5 aria-disabled:text-muted-foreground aria-disabled:cursor-default">
+                                      class={cn('flex-1 h-auto min-h-8 whitespace-normal aria-disabled:text-muted-foreground aria-disabled:cursor-default',
+                                             // Red like the Deleted badge: it's gone now
+                                             since.status === 'deleted' && 'text-destructive dark:text-destructive dark:data-[state=active]:text-destructive')}>
                           {#if since.status === 'deleted'}
-                            <Icon icon="i-mdi-delete-outline" aria-hidden="true" />
                             {$t`Deleted later`}
                           {:else if noLaterChanges}
                             {$t`No later changes`}

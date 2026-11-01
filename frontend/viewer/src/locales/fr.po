@@ -1410,6 +1410,11 @@ msgstr "Entrée de dictionnaire"
 msgid "Help & More"
 msgstr "Aide & plus"
 
+#. Note on the "Deleted later" tab, under a "Deleted" badge. "it" is the deleted item (entry, sense, ...); "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Here is how it looked right after this change."
+msgstr ""
+
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
@@ -3000,11 +3005,6 @@ msgstr "Cela reconstruit l'index de recherche plein texte à partir des entrées
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Cette tâche est terminée"
-
-#. Note on the "Deleted later" tab. "This" is the item (entry, sense, ...); "this change" is the change shown on this card
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "This was deleted later. Here is how it looked right after this change."
-msgstr ""
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte
