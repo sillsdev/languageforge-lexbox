@@ -32,9 +32,8 @@
   const morphTypes = useMorphTypesService();
   const viewService = useViewService();
 
-  const compareAs = entryCompareAs;
-  const viewFields = $derived(showChangedFields(viewService.currentView.entryFields, before, after, compareAs));
-  const changed = $derived(changedFieldIds(viewFields, before, after, compareAs));
+  const viewFields = $derived(showChangedFields(viewService.currentView.entryFields, before, after, entryCompareAs));
+  const changed = $derived(changedFieldIds(viewFields, before, after, entryCompareAs));
 
   // The editor has no morph type field yet. A change to it shows right under the lexeme form, like in FLEx.
   const morphTypeChanged = $derived(before?.morphType !== after?.morphType);
@@ -43,11 +42,9 @@
   const anyChange = $derived(changed.size > 0 || morphTypeChanged || homographChanged);
 
   // Without a visible change there's nothing to focus on, so the whole entry shows.
-  const focused = $derived(mode === 'changes' && anyChange);
-  let expanded = $state(false);
-  const diffFocus = provideDiffFocus(() => focused && !expanded);
-  const focus = $derived(changesOnly(viewFields, changed, after, compareAs));
-  const entryFields = $derived(focused && !expanded ? focus.fields : viewFields);
+  const diffFocus = provideDiffFocus(() => mode === 'changes' && anyChange);
+  const focus = $derived(changesOnly(viewFields, changed, after, entryCompareAs));
+  const entryFields = $derived(diffFocus.collapsed ? focus.fields : viewFields);
   const fields = $derived(fieldRecord(entryFields));
   const layoutFields = $derived(entryFields.flatMap((field) =>
     field.fieldId === 'lexemeForm' ? [field, {fieldId: 'morphType', show: morphTypeChanged}] : [field]));
@@ -125,6 +122,4 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
-{#if focused}
-  <DiffCollapsed count={focus.unchanged + diffFocus.unchangedValues} bind:expanded />
-{/if}
+<DiffCollapsed focus={diffFocus} unchanged={focus.unchanged} />

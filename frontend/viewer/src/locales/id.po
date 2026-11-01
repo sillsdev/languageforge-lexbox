@@ -2952,6 +2952,11 @@ msgstr "{0} ini telah dihapus"
 msgid "This change"
 msgstr ""
 
+#. Note on the "Deleted later" tab, under a "Deleted" badge. "this change" is the change shown on this card; "its last version" is how the item looked when it was deleted
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This compares the result of this change with its last version before it was deleted."
+msgstr ""
+
 #. Note on the "Later changes" tab. "this change" is the change shown on this card
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "This compares the result of this change with the current version."
@@ -2995,11 +3000,6 @@ msgstr "Proses ini akan membangun ulang tabel snapshot dan tabel proyeksi berdas
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr "Proses ini membangun kembali indeks pencarian teks lengkap berdasarkan entri kamus."
-
-#. Note on the "Deleted later" tab, under a "Deleted" badge. "the item" is the deleted entry, sense, ...; "this change" is the change shown on this card
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "This shows the item as this change left it."
-msgstr ""
 
 #. Status message
 #: src/project/tasks/TaskView.svelte

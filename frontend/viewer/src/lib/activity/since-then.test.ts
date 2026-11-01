@@ -48,8 +48,8 @@ describe('sinceThen', () => {
 
   it('is deleted when it was deleted later', () => {
     const snapshot = entry({en: 'run'});
-    const result = sinceThen('Entry', snapshot, deleted(entry({en: 'run'})), view);
-    expect(result).toEqual({status: 'deleted', before: snapshot, after: undefined});
+    const last = deleted(entry({en: 'jog'}));
+    expect(sinceThen('Entry', snapshot, last, view)).toEqual({status: 'deleted', before: snapshot, after: last});
   });
 
   it('is changed, from nothing, when revived', () => {

@@ -2952,6 +2952,11 @@ msgstr "이 {0} 삭제됨"
 msgid "This change"
 msgstr ""
 
+#. Note on the "Deleted later" tab, under a "Deleted" badge. "this change" is the change shown on this card; "its last version" is how the item looked when it was deleted
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This compares the result of this change with its last version before it was deleted."
+msgstr ""
+
 #. Note on the "Later changes" tab. "this change" is the change shown on this card
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "This compares the result of this change with the current version."
@@ -2995,11 +3000,6 @@ msgstr "이 작업은 커밋 내역을 기반으로 스냅샷 및 예측 테이�
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr "이 작업은 사전 항목을 기반으로 전체 텍스트 검색 인덱스를 다시 생성합니다."
-
-#. Note on the "Deleted later" tab, under a "Deleted" badge. "the item" is the deleted entry, sense, ...; "this change" is the change shown on this card
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "This shows the item as this change left it."
-msgstr ""
 
 #. Status message
 #: src/project/tasks/TaskView.svelte

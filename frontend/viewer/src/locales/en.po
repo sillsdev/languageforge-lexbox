@@ -2947,6 +2947,11 @@ msgstr "This {0} was deleted"
 msgid "This change"
 msgstr "This change"
 
+#. Note on the "Deleted later" tab, under a "Deleted" badge. "this change" is the change shown on this card; "its last version" is how the item looked when it was deleted
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This compares the result of this change with its last version before it was deleted."
+msgstr "This compares the result of this change with its last version before it was deleted."
+
 #. Note on the "Later changes" tab. "this change" is the change shown on this card
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "This compares the result of this change with the current version."
@@ -2990,11 +2995,6 @@ msgstr "This rebuilds snapshot and projected tables from commit history."
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr "This rebuilds the full-text search index from dictionary entries."
-
-#. Note on the "Deleted later" tab, under a "Deleted" badge. "the item" is the deleted entry, sense, ...; "this change" is the change shown on this card
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "This shows the item as this change left it."
-msgstr "This shows the item as this change left it."
 
 #. Status message
 #: src/project/tasks/TaskView.svelte

@@ -131,6 +131,7 @@
               {:then context}
                 {@const since = sinceThen(context.entityType, context.snapshot, context.currentSnapshot, viewService.currentView)}
                 {@const noLaterChanges = since?.status === 'unchanged'}
+                {@const sinceOpen = !!since && !noLaterChanges}
                 <div class="change">
                   <div class="px-4 pt-2 flex font-semibold items-center">
                     <span class="grow">{context.changeName}</span>
@@ -141,9 +142,9 @@
                       </Button>
                     {/if}
                   </div>
-                  <!-- Blocks opening the No later changes tab here, and falls back if the tab goes away: bits-ui's disabled would drop it from the tab order, so screen readers never hear it -->
-                  <Tabs.Root bind:value={() => changeWithContext.tab === 'since' && (!since || noLaterChanges) ? 'preview' : changeWithContext.tab,
-                                         (tab) => { if (tab !== 'since' || !noLaterChanges) changeWithContext.tab = tab; }}
+                  <!-- Blocks the No later changes tab here, not with bits-ui's disabled, which drops it from the tab order so screen readers never hear it -->
+                  <Tabs.Root bind:value={() => changeWithContext.tab === 'since' && !sinceOpen ? 'preview' : changeWithContext.tab,
+                                         (tab) => { if (tab !== 'since' || sinceOpen) changeWithContext.tab = tab; }}
                              class="px-2 mt-2 grow">
                     <Tabs.List class="w-full h-auto">
                       <Tabs.Trigger class="flex-1 h-auto min-h-8 whitespace-normal" value="preview">
@@ -169,9 +170,9 @@
                       <Tabs.Content value="preview">
                         <ActivityItemChangePreview {context} {change} {info} />
                       </Tabs.Content>
-                      {#if since && !noLaterChanges}
+                      {#if sinceOpen}
                         <Tabs.Content value="since">
-                          <ActivityItemChangePreview {context} {change} {info} view="since" />
+                          <ActivityItemChangePreview {context} {change} {info} {since} />
                         </Tabs.Content>
                       {/if}
                       <Tabs.Content value="change">

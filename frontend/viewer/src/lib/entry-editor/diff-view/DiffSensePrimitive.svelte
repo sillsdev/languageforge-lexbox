@@ -30,16 +30,13 @@
   const partsOfSpeech = usePartsOfSpeech();
   const viewService = useViewService();
 
-  const compareAs = senseCompareAs;
-  const viewFields = $derived(showChangedFields(viewService.currentView.senseFields, before, after, compareAs));
-  const changed = $derived(changedFieldIds(viewFields, before, after, compareAs));
+  const viewFields = $derived(showChangedFields(viewService.currentView.senseFields, before, after, senseCompareAs));
+  const changed = $derived(changedFieldIds(viewFields, before, after, senseCompareAs));
 
   // Without a visible change there's nothing to focus on, so the whole sense shows.
-  const focused = $derived(mode === 'changes' && changed.size > 0);
-  let expanded = $state(false);
-  const diffFocus = provideDiffFocus(() => focused && !expanded);
-  const focus = $derived(changesOnly(viewFields, changed, after, compareAs));
-  const senseFields = $derived(focused && !expanded ? focus.fields : viewFields);
+  const diffFocus = provideDiffFocus(() => mode === 'changes' && changed.size > 0);
+  const focus = $derived(changesOnly(viewFields, changed, after, senseCompareAs));
+  const senseFields = $derived(diffFocus.collapsed ? focus.fields : viewFields);
   const fields = $derived(fieldRecord(senseFields));
 
   // The id is the source of truth: a legacy snapshot can carry an id without the object.
@@ -101,6 +98,4 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
-{#if focused}
-  <DiffCollapsed count={focus.unchanged + diffFocus.unchangedValues} bind:expanded />
-{/if}
+<DiffCollapsed focus={diffFocus} unchanged={focus.unchanged} />

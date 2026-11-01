@@ -15,7 +15,7 @@ export function changeKind(entityType: string): ChangeKind {
 }
 
 /** The change's serialized type discriminator, e.g. "SetOrderChange:Sense", which the generated IChange type leaves out. */
-export function changeTypeKey(change: IChangeEntity | undefined): string | undefined {
+function changeTypeKey(change: IChangeEntity | undefined): string | undefined {
   const type = (change?.change as {$type?: unknown} | undefined)?.$type;
   return typeof type === 'string' ? type : undefined;
 }
