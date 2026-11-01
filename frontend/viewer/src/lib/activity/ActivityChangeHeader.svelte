@@ -23,6 +23,7 @@
   import type {ChangeBadge} from './change-header';
   import {addedTint} from '$lib/entry-editor/diff-view/diff-classes';
   import {cn} from '$lib/utils';
+  import SubscriptNumbers from './SubscriptNumbers.svelte';
 
   let {label, crumbs = [], identity, linkTo, badge, now}: {
     /** The change's name, e.g. "Edit entry", for assistive tech */
@@ -73,7 +74,7 @@
             <Headwords entry={crumb.entry} placeholder={$t`Untitled`} class="font-normal [&_span]:text-inherit" />
           </Link>
         {:else}
-          <span class="leading-6">{crumb.text}</span>
+          <span class="leading-6"><SubscriptNumbers text={crumb.text} /></span>
         {/if}
         {@render separator()}
       {/each}

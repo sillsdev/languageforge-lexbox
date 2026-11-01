@@ -28,6 +28,7 @@
     type ActivityLoad,
   } from './utils';
   import AuthorLabel from './AuthorLabel.svelte';
+  import SubscriptNumbers from './SubscriptNumbers.svelte';
 
   const historyService = useHistoryService();
 
@@ -242,7 +243,7 @@
                     </div>
                   {:else if group.headword && group.facts.length > 1}
                     <div>
-                      <div class="font-semibold text-foreground">{group.headword}</div>
+                      <div class="font-semibold text-foreground"><SubscriptNumbers text={group.headword} /></div>
                       <div class="ms-1 space-y-0.5 border-s border-muted-foreground/40 ps-2">
                         {#each group.facts as entry, i (i)}
                           {@render factLine(entry, group.headword)}

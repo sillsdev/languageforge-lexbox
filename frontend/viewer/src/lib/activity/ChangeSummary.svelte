@@ -4,6 +4,8 @@
   import {getEntityConfig} from '$lib/views/entity-config';
   import {pt, tvt, type ViewText} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {useWritingSystemService} from '$project/data';
+  import SubscriptNumbers from './SubscriptNumbers.svelte';
   import type {BulkNoun, ChangeFact, CollectionKind, ObjectKind, SummaryEntity} from './change-summary';
 
   // `groupHeadword`: set when this line renders under an entry-group header (see ActivityView). The leading
@@ -14,6 +16,7 @@
   let {fact, subject, target, groupHeadword}: {fact: ChangeFact; subject?: string; target?: string; groupHeadword?: string} = $props();
 
   const viewService = useViewService();
+  const writingSystemService = useWritingSystemService();
 
   // These kinds weave the subject into their own sentence ("Created entry X"); the rest get it as a leading chip.
   // Sense- and example-creates are self-naming for `delete` (the deleted entity's own label) but NOT for `create`:
@@ -137,10 +140,11 @@
   already supplies a literal space (the " to " in a `<T msg="Set # to #">` slot) — that keeps every data chip
   on the same one-margin rhythm. Whitespace at a {#if}/{:else}/snippet boundary is trimmed, so these margins
   — never literal spaces — carry the gaps across branch edges. -->
-{#snippet subjectToken(text: string, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{text}</span>{/snippet}
-{#snippet contextToken(name: string)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span>{name}</span>{/snippet}
-{#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}">{text}</span>{/snippet}
-{#snippet wsCode(ws: string)}<span class="ms-1 text-muted-foreground">({ws})</span>{/snippet}
+{#snippet subjectToken(text: string, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}"><SubscriptNumbers {text} /></span>{/snippet}
+{#snippet contextToken(name: string)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span><SubscriptNumbers text={name} /></span>{/snippet}
+{#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}"><SubscriptNumbers {text} /></span>{/snippet}
+<!-- Muted and in parentheses so the abbreviation reads as part of the field label, not as data (chips) or a homograph number (subscript) -->
+{#snippet wsAbbr(wsId: string)}{@const ws = writingSystemService.getWritingSystem(wsId) ?? {wsId, name: wsId, abbreviation: wsId}}<span class="ms-1 whitespace-nowrap text-muted-foreground" title={`${ws.name} (${ws.wsId})`}>(<bdi>{ws.abbreviation}</bdi>)</span>{/snippet}
 {#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
 <!-- Audio marker: a media value has no readable text, so show an icon + "audio" chip instead of a URI.
   Plain inline span (not inline-flex) so it sits on the text baseline like the other data chips; the icon
@@ -149,12 +153,12 @@
 
 {#if subjectLead && !selfNaming}{#if subjectLead.context}{@render contextToken(subjectLead.text)}{:else}{@render subjectToken(subjectLead.text)}{/if}{/if}{#if fact.kind === 'setField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
-  {#if fact.audio}{$t`Set ${label}`}{@render audioNote()}{:else if fact.ws}<T msg="Set # to #" cmt="First # is a field label plus writing-system code, second # is the new value">{label}{@render wsCode(fact.ws)}{#snippet second()}{@render chip(fact.value, true)}{/snippet}</T>{:else}{$t`Set ${label} to`}{@render chip(fact.value)}{/if}
+  {#if fact.audio}{$t`Set ${label}`}{@render audioNote()}{:else if fact.ws}<T msg="Set # to #" cmt="First # is a field label plus writing-system abbreviation, second # is the new value">{label}{@render wsAbbr(fact.ws)}{#snippet second()}{@render chip(fact.value, true)}{/snippet}</T>{:else}{$t`Set ${label} to`}{@render chip(fact.value)}{/if}
 {:else if fact.kind === 'setHomograph'}
   {$t`Set homograph number to`}{@render chip(fact.value)}
 {:else if fact.kind === 'clearField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
-  {$t`Cleared ${label}`}{#if fact.audio}{@render audioNote()}{:else if fact.ws}{@render wsCode(fact.ws)}{/if}
+  {$t`Cleared ${label}`}{#if fact.audio}{@render audioNote()}{:else if fact.ws}{@render wsAbbr(fact.ws)}{/if}
 {:else if fact.kind === 'changeField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
   {#if target}{$t`Changed ${label} to`}{@render chip(target)}{:else}{$t`Changed ${label}`}{/if}
@@ -218,7 +222,7 @@
   {$t`Edited ${objectNoun(fact.object)}`}{#if name}{@render subjectToken(name, true)}{/if}
 {:else if fact.kind === 'editObjectField'}
   {@const objectType = capitalize(objectNoun(fact.object))}
-  {objectType}{#if subject}{@render subjectToken(subject, true)}{/if}{#if fact.cleared}{$t`Cleared ${fact.field}`}{#if fact.ws}{@render wsCode(fact.ws)}{/if}{:else if fact.value !== undefined}{@const value = fact.value}{#if fact.ws}<T msg="Set # to #" cmt="First # is a field label plus writing-system code, second # is the new value">{fact.field}{@render wsCode(fact.ws)}{#snippet second()}{@render chip(value, true)}{/snippet}</T>{:else}{$t`Set ${fact.field} to`}{@render chip(value)}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
+  {objectType}{#if subject}{@render subjectToken(subject, true)}{/if}{#if fact.cleared}{$t`Cleared ${fact.field}`}{#if fact.ws}{@render wsAbbr(fact.ws)}{/if}{:else if fact.value !== undefined}{@const value = fact.value}{#if fact.ws}<T msg="Set # to #" cmt="First # is a field label plus writing-system abbreviation, second # is the new value">{fact.field}{@render wsAbbr(fact.ws)}{#snippet second()}{@render chip(value, true)}{/snippet}</T>{:else}{$t`Set ${fact.field} to`}{@render chip(value)}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
 {:else if fact.kind === 'deleteObject'}
   {$t`Deleted ${objectNoun(fact.object)}`}{#if subject}{@render subjectToken(subject, true)}{/if}
 {:else if fact.kind === 'sensePicture'}
