@@ -1410,11 +1410,6 @@ msgstr "Headword"
 msgid "Help & More"
 msgstr "Bantuan & Lainnya"
 
-#. Note on the "Deleted later" tab, under a "Deleted" badge. "it" is the deleted item (entry, sense, ...); "this change" is the change shown on this card
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Here is how it looked right after this change."
-msgstr ""
-
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
@@ -3000,6 +2995,11 @@ msgstr "Proses ini akan membangun ulang tabel snapshot dan tabel proyeksi berdas
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr "Proses ini membangun kembali indeks pencarian teks lengkap berdasarkan entri kamus."
+
+#. Note on the "Deleted later" tab, under a "Deleted" badge. "the item" is the deleted entry, sense, ...; "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This shows the item as this change left it."
+msgstr ""
 
 #. Status message
 #: src/project/tasks/TaskView.svelte

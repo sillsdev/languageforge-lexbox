@@ -1410,11 +1410,6 @@ msgstr "Palabra clave"
 msgid "Help & More"
 msgstr "Ayuda y más"
 
-#. Note on the "Deleted later" tab, under a "Deleted" badge. "it" is the deleted item (entry, sense, ...); "this change" is the change shown on this card
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Here is how it looked right after this change."
-msgstr ""
-
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
@@ -3000,6 +2995,11 @@ msgstr "Esto reconstruye las instantáneas y las tablas proyectadas a partir del
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr "Esto reconstruye el índice de búsqueda de texto completo desde entradas de diccionario."
+
+#. Note on the "Deleted later" tab, under a "Deleted" badge. "the item" is the deleted entry, sense, ...; "this change" is the change shown on this card
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "This shows the item as this change left it."
+msgstr ""
 
 #. Status message
 #: src/project/tasks/TaskView.svelte
