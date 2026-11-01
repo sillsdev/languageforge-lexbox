@@ -573,6 +573,16 @@ msgstr "Comments"
 msgid "Comments, {0} unread"
 msgstr "Comments, {0} unread"
 
+#. Note on the "Later changes" tab. "Version" means the item's data at one moment; two moments are compared: just after this change, and now
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Compares the version right after this change with the current version."
+msgstr "Compares the version right after this change with the current version."
+
+#. Note on the "Deleted later" tab. The item was deleted later; the second version is its data just before that deletion
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Compares the version right after this change with the last version before deletion."
+msgstr "Compares the version right after this change with the last version before deletion."
+
 #: src/project/tasks/TaskList.svelte
 msgid "Complete"
 msgstr "Complete"
@@ -781,7 +791,7 @@ msgstr "Delete Picture"
 msgid "Delete Word"
 msgstr "Delete Word"
 
-#. Change type indicator
+#. Badge in the activity change preview: the item itself was deleted. Compare "Removed", where only a link was removed and the item still exists
 #: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Deleted"
 msgstr "Deleted"
@@ -795,7 +805,7 @@ msgstr "Deleted later"
 msgid "Description"
 msgstr "Description"
 
-#. Button to view activity details
+#. Tab in the activity change preview: technical details of the change
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
 msgstr "Details"
@@ -2947,11 +2957,6 @@ msgstr "This {0} was deleted"
 msgid "This change"
 msgstr "This change"
 
-#. Note on the "Later changes" tab. "this change" is the change shown on this card
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "This compares the result of this change with the current version."
-msgstr "This compares the result of this change with the current version."
-
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -2995,11 +3000,6 @@ msgstr "This rebuilds the full-text search index from dictionary entries."
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "This task is complete"
-
-#. Note on the "Deleted later" tab. "This" is the item (entry, sense, ...); "this change" is the change shown on this card
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "This was deleted later. Here is how it looked right after this change."
-msgstr "This was deleted later. Here is how it looked right after this change."
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte

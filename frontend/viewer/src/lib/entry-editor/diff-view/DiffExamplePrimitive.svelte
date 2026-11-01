@@ -28,16 +28,13 @@
   const writingSystemService = useWritingSystemService();
   const viewService = useViewService();
 
-  const compareAs = exampleCompareAs;
-  const viewFields = $derived(showChangedFields(viewService.currentView.exampleFields, before, after, compareAs));
-  const changed = $derived(changedFieldIds(viewFields, before, after, compareAs));
+  const viewFields = $derived(showChangedFields(viewService.currentView.exampleFields, before, after, exampleCompareAs));
+  const changed = $derived(changedFieldIds(viewFields, before, after, exampleCompareAs));
 
   // Without a visible change there's nothing to focus on, so the whole example shows.
-  const focused = $derived(mode === 'changes' && changed.size > 0);
-  let expanded = $state(false);
-  const diffFocus = provideDiffFocus(() => focused && !expanded);
-  const focus = $derived(changesOnly(viewFields, changed, after, compareAs));
-  const exampleFields = $derived(focused && !expanded ? focus.fields : viewFields);
+  const diffFocus = provideDiffFocus(() => mode === 'changes' && changed.size > 0);
+  const focus = $derived(changesOnly(viewFields, changed, after, exampleCompareAs));
+  const exampleFields = $derived(diffFocus.collapsed ? focus.fields : viewFields);
   const fields = $derived(fieldRecord(exampleFields));
 
   // Paired by id, current order first. Like the editor's draft translation, an example without any still gets one empty row.
@@ -92,6 +89,4 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 </Editor.SubGrid>
-{#if focused}
-  <DiffCollapsed count={focus.unchanged + diffFocus.unchangedValues} bind:expanded />
-{/if}
+<DiffCollapsed focus={diffFocus} unchanged={focus.unchanged} />

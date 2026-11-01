@@ -2,6 +2,7 @@ import type {IEntry, IObjectWithId} from '$lib/dotnet-types';
 import {changedFieldIds, valueChanged} from '$lib/entry-editor/diff-view/changed-fields';
 import {entryCompareAs, exampleCompareAs, senseCompareAs} from '$lib/entry-editor/diff-view/compare-as';
 import {isObjectType, objectDiffRows} from '$lib/entry-editor/diff-view/diff-fields';
+import {changeKind} from './change-header';
 import type {View} from '$lib/views/view-data';
 
 export type SinceThenStatus = 'unchanged' | 'changed' | 'deleted';
@@ -10,12 +11,12 @@ export type SinceThen = {
   status: SinceThenStatus;
   /** The state right after the change, undefined if it was deleted */
   before?: IObjectWithId;
-  /** The state now, undefined if deleted */
+  /** The state now: for a deleted entity its last state, marked deleted */
   after?: IObjectWithId;
 };
 
-// A deleted entity's snapshot is its last state marked deleted: the diff shows it as gone.
-function existing(snapshot: IObjectWithId | undefined): IObjectWithId | undefined {
+// A deleted entity's snapshot is its last state, marked deleted.
+export function existing(snapshot: IObjectWithId | undefined): IObjectWithId | undefined {
   return snapshot && !snapshot.deletedAt ? snapshot : undefined;
 }
 
@@ -31,13 +32,14 @@ export function sinceThen(
   view: Pick<View, 'entryFields' | 'senseFields' | 'exampleFields'>,
 ): SinceThen | undefined {
   if (!currentSnapshot) return undefined;
-  const hasDiff = ['Entry', 'Sense', 'ExampleSentence'].includes(entityType) || isObjectType(entityType);
-  if (!hasDiff) return undefined;
+  const kind = changeKind(entityType);
+  if (kind === 'unknown' || kind === 'complexFormComponent') return undefined;
 
   const before = existing(snapshot);
   const after = existing(currentSnapshot);
   if (!before && !after) return {status: 'unchanged', before, after};
-  if (!after) return {status: 'deleted', before, after};
+  // Diffed against its last state: the Deleted badge says it's gone, the diff shows any edits before that
+  if (!after) return {status: 'deleted', before, after: currentSnapshot};
   if (!before) return {status: 'changed', before, after};
   return {status: hasVisibleChange(entityType, before, after, view) ? 'changed' : 'unchanged', before, after};
 }

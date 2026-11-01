@@ -41,12 +41,10 @@
   }));
   const changedRows = $derived(withValue.filter(([field]) => valueChanged(b?.[field], a?.[field])));
   // Without a visible change there's nothing to focus on, so every row shows.
-  const focused = $derived(mode === 'changes' && changedRows.length > 0);
-  let expanded = $state(false);
-  const diffFocus = provideDiffFocus(() => focused && !expanded);
+  const diffFocus = provideDiffFocus(() => mode === 'changes' && changedRows.length > 0);
   // Rows left out that still hold a value: revealing an empty one shows nothing
   const unchanged = $derived(withValue.filter(([field]) => !valueChanged(b?.[field], a?.[field]) && valueChanged(undefined, a?.[field])).length);
-  const shown = $derived(focused && !expanded ? changedRows : withValue);
+  const shown = $derived(diffFocus.collapsed ? changedRows : withValue);
 
   function isSet(value: unknown): boolean {
     return value !== undefined && value !== null;
@@ -116,6 +114,4 @@
     {/each}
   </Editor.SubGrid>
 {/if}
-{#if focused}
-  <DiffCollapsed count={unchanged + diffFocus.unchangedValues} bind:expanded />
-{/if}
+<DiffCollapsed focus={diffFocus} {unchanged} />
