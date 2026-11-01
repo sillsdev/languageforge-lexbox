@@ -184,6 +184,11 @@ msgstr "Account"
 msgid "Activity"
 msgstr "Activity"
 
+#. Error boundary title shown if the whole Activity view crashes while rendering.
+#: src/lib/activity/ActivityView.svelte
+msgid "Activity view failed"
+msgstr "Activity view failed"
+
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
 #. Action: Opens file picker to upload MP3/WAV/etc
@@ -2864,6 +2869,11 @@ msgstr "Select {0}"
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "Select {0} to view details"
+
+#. Shown in the Activity detail pane when no change (commit) is selected.
+#: src/lib/activity/ActivityView.svelte
+msgid "Select a change to view details"
+msgstr "Select a change to view details"
 
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
