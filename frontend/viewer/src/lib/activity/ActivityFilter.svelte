@@ -16,7 +16,6 @@
     ALL_CHANGE_TYPES,
     applyMultiSelectValue,
     authorFilterKey,
-    compareActivityAuthors,
     createDefaultActivityFilters,
     isAllFilterSelection,
     resolveFilterKeys,
@@ -25,6 +24,7 @@
     type MultiFilterSelection,
   } from './utils';
   import AuthorLabel from './AuthorLabel.svelte';
+  import {useAuthorColors} from './author-color-service.svelte';
   import type {Snippet} from 'svelte';
 
   type Props = {
@@ -37,18 +37,12 @@
 
   const historyService = useHistoryService();
 
-  const authors = resource(
-    () => historyService.loaded,
-    async (loaded) => {
-      if (!loaded) return [];
-      const data = await historyService.listActivityAuthors();
-      if (Array.isArray(data)) {
-        return data.sort(compareActivityAuthors);
-      }
-      return [];
-    },
-    {initialValue: []},
-  );
+  // Reloaded on every mount, so authors from new commits show up
+  const authorList = useAuthorColors();
+  $effect(() => {
+    if (historyService.loaded) void authorList.refresh();
+  });
+  const authors = $derived(authorList.authors);
 
   const changeTypes = resource(
     () => historyService.loaded,
@@ -60,7 +54,7 @@
     {initialValue: []},
   );
 
-  const authorKeys = $derived(authors.current.map(authorFilterKey));
+  const authorKeys = $derived(authors.map(authorFilterKey));
   const changeTypeKeys = $derived(changeTypes.current.map(ct => ct.key));
 
   const authorSelectValue = $derived(resolveFilterKeys(filters.authorFilterKeys, authorKeys));
@@ -83,7 +77,7 @@
   function authorKeyToLabel(key: string): string {
     const wellKnownLabel = wellKnownAuthorKeyToLabel(key);
     if (wellKnownLabel) return wellKnownLabel;
-    const author = authors.current.find(a => authorFilterKey(a) === key);
+    const author = authors.find(a => authorFilterKey(a) === key);
     return author?.authorName ?? key;
   }
 
@@ -113,7 +107,7 @@
         {:else if filters.authorFilterKeys.length === 0}
           {$t`No authors`}
         {:else if filters.authorFilterKeys.length === 1}
-          {@const selectedAuthor = authors.current.find(a => authorFilterKey(a) === filters.authorFilterKeys[0])}
+          {@const selectedAuthor = authors.find(a => authorFilterKey(a) === filters.authorFilterKeys[0])}
           <AuthorLabel authorId={selectedAuthor?.authorId} authorName={selectedAuthor?.authorName} />
         {:else}
           {$t`${filters.authorFilterKeys.length} authors`}
@@ -129,7 +123,7 @@
           {/snippet}
           <span class="font-bold">{$t`All authors`}</span>
         </Select.Item>
-        {#each authors.current as author (authorFilterKey(author))}
+        {#each authors as author (authorFilterKey(author))}
           {@const key = authorFilterKey(author)}
           <Select.Item value={key} label={authorKeyToLabel(key)}>
             <AuthorLabel authorId={author.authorId} authorName={author.authorName} />
