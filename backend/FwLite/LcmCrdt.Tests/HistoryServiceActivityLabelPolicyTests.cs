@@ -21,13 +21,13 @@ public class HistoryServiceActivityLabelPolicyTests : HistoryServiceActivityTest
 
         var renamed = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // The change that created the entry as "run" now names it by its current headword.
-        renamed.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateEntryChange) && a.Changes[0].Info.Subject == "jog");
+        renamed.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateEntryChange) && a.Changes[0].Info.EntryHeadword() == "jog" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null);
 
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Entry>(entryId), Meta());
 
         var deleted = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // Deletion has no effect: the label recovered from the last snapshot is the renamed one.
-        deleted.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateEntryChange) && a.Changes[0].Info.Subject == "jog");
+        deleted.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateEntryChange) && a.Changes[0].Info.EntryHeadword() == "jog" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null);
     }
 
     [Fact]
@@ -41,10 +41,10 @@ public class HistoryServiceActivityLabelPolicyTests : HistoryServiceActivityTest
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateUserCommentChange)
-            && a.Changes[0].Info.Target == "original words");
+            && a.Changes[0].Info.TargetText() == "original words");
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is EditUserCommentChange)
-            && a.Changes[0].Info.Target == "second words");
+            && a.Changes[0].Info.TargetText() == "second words");
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is EditUserCommentChange)
-            && a.Changes[0].Info.Target == "third words");
+            && a.Changes[0].Info.TargetText() == "third words");
     }
 }

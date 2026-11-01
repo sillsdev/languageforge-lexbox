@@ -5,20 +5,17 @@
   import {pt, tvt, type ViewText} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useWritingSystemService} from '$project/data';
-  import HomographLabel from './HomographLabel.svelte';
-  import {splitSubjectLead, type BulkNoun, type ChangeFact, type CollectionKind, type ObjectKind, type SummaryEntity} from './change-summary';
+  import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
+  import type {IActivityChangeInfo} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityChangeInfo';
+  import type {IActivityEntryName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityEntryName';
+  import type {IActivitySenseName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivitySenseName';
+  import {subjectLead, type BulkNoun, type ChangeFact, type CollectionKind, type ObjectKind, type SummaryEntity} from './change-summary';
 
-  // `groupHeadword`: set when this line renders under an entry-group header (see ActivityView), which then
-  // already names the entry, so the leading subject drops it and keeps only "› sense".
-  // `entryHeadword`: the owning entry's headword, which tells a sense-level subject that is only the headword
-  // apart from one naming the sense: the resolver leaves an unnamed sense out of "headword › sense".
-  // Only affects non-self-naming facts (self-naming facts weave the subject into their own sentence).
-  let {fact, subject, target, groupHeadword, entryHeadword}: {
+  // `grouped`: this line renders under an entry-group header (see ActivityView), which already names the entry.
+  let {fact, info, grouped = false}: {
     fact: ChangeFact;
-    subject?: string;
-    target?: string;
-    groupHeadword?: string;
-    entryHeadword?: string;
+    info?: IActivityChangeInfo;
+    grouped?: boolean;
   } = $props();
 
   const viewService = useViewService();
@@ -33,7 +30,10 @@
     || fact.kind === 'editObjectField' || fact.kind === 'deleteObject' || fact.kind === 'delete',
   );
 
-  const subjectLead = $derived(subject ? splitSubjectLead(fact, subject, entryHeadword, groupHeadword) : undefined);
+  const lead = $derived(subjectLead(fact, info, grouped));
+  const entry = $derived(info?.entry?.headword ? info.entry : undefined);
+  const sense = $derived(info?.sense);
+  const target = $derived(info?.target);
 
   function capitalize(text: string): string {
     return text.charAt(0).toUpperCase() + text.slice(1);
@@ -131,18 +131,23 @@
   Under a group header the subject may instead render as a `contextToken` ("› gloss") — a muted "›" connector
   plus the bold entity name: subordinate to the header via the connector and indentation, while the name stays
   bold and scannable like every other entity name.
-  Spacing contract: `subjectToken` and `contextToken` carry a trailing margin (mid-line separation without a
-  middot); `subjectToken` adds an opt-in `leadingMargin` when it follows other text mid-line. `chip` carries
+  Spacing contract: name tokens and `contextToken` carry a trailing margin (mid-line separation without a
+  middot); name tokens add an opt-in `leadingMargin` when they follow other text mid-line. `chip` carries
   a leading margin (its whole gap), droppable via `noLeadingMargin` when a preceding translated fragment
   already supplies a literal space (the " to " in a `<T msg="Set # to #">` slot) — that keeps every data chip
   on the same one-margin rhythm. Whitespace at a {#if}/{:else}/snippet boundary is trimmed, so these margins
   — never literal spaces — carry the gaps across branch edges. -->
-<!-- The resolver joins parent and child names with " › ": the connector stays muted, like in the preview's crumbs -->
-{#snippet subjectToken(text: string, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{#each text.split(' › ') as part, i (i)}{#if i}<span class="mx-1 font-normal text-muted-foreground">›</span>{/if}<HomographLabel text={part} />{/each}</span>{/snippet}
-{#snippet contextToken(name: string | null)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span>{#if name === null}<span class="font-normal italic text-muted-foreground">{$t`Untitled`}</span>{:else}<HomographLabel text={name} />{/if}</span>{/snippet}
+<!-- Sense numbers are full size and lead, like the dictionary preview: a subscript would read as a homograph number -->
+{#snippet entryName(name: IActivityEntryName)}{name.headword}<HomographNumber homographNumber={name.homographNumber} />{/snippet}
+{#snippet senseName(name: IActivitySenseName)}{#if name.number}{name.number}{#if name.label}&nbsp;{/if}{/if}{name.label}{/snippet}
+{#snippet nameToken(name: string, homographNumber = 0, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{name}<HomographNumber {homographNumber} /></span>{/snippet}
+{#snippet entryToken(name: IActivityEntryName, leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{@render entryName(name)}</span>{/snippet}
+<!-- "headword › sense", degrading to whichever part exists; the connector stays muted, like in the preview's crumbs -->
+{#snippet qualifiedToken(leadingMargin = false)}<span class="me-1 font-semibold text-foreground {leadingMargin ? 'ms-1' : ''}">{#if entry}{@render entryName(entry)}{/if}{#if sense?.label || sense?.number}{#if entry}<span class="mx-1 font-normal text-muted-foreground">›</span>{/if}{@render senseName(sense)}{/if}</span>{/snippet}
+{#snippet contextToken(name: IActivitySenseName)}<span class="me-1 font-semibold text-foreground"><span class="me-1 font-normal text-muted-foreground">›</span>{#if !name.label && !name.number}<span class="font-normal italic text-muted-foreground">{$t`Untitled`}</span>{:else}{@render senseName(name)}{/if}</span>{/snippet}
 {#snippet chip(text: string, noLeadingMargin = false)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground {noLeadingMargin ? '' : 'ms-1'}">{text}</span>{/snippet}
 <!-- Names the change refers to (a part of speech, a linked component), which can carry a homograph number; user values stay plain text -->
-{#snippet labelChip(text: string)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground ms-1"><HomographLabel {text} /></span>{/snippet}
+{#snippet labelChip(text: string, homographNumber = 0)}<span class="rounded border border-border bg-background px-1 font-medium text-foreground ms-1">{text}<HomographNumber {homographNumber} /></span>{/snippet}
 <!-- Muted and in parentheses so the abbreviation reads as part of the field label, not as data (chips) or a homograph number (subscript) -->
 {#snippet wsAbbr(wsId: string)}{@const ws = writingSystemService.getWritingSystem(wsId) ?? {wsId, name: wsId, abbreviation: wsId}}<span class="ms-1 whitespace-nowrap text-muted-foreground" title={ws.name === ws.wsId ? ws.wsId : `${ws.name} (${ws.wsId})`}>(<bdi>{ws.abbreviation}</bdi>)</span>{/snippet}
 {#snippet noHeadword()}<span class="ms-1 italic text-muted-foreground">{$t`(no headword)`}</span>{/snippet}
@@ -151,7 +156,7 @@
   is aligned within it. An inline-flex chip aligns by its bottom edge and rides low against the text. -->
 {#snippet audioNote()}<span class="ms-1 rounded border border-border bg-background px-1 font-medium text-foreground whitespace-nowrap"><Icon icon="i-mdi-volume-high" class="inline-block align-middle size-3.5 me-0.5" />{$t`audio`}</span>{/snippet}
 
-{#if subjectLead && !selfNaming}{#if subjectLead.entry}{@render subjectToken(subjectLead.entry)}{/if}{#if subjectLead.sense !== undefined}{@render contextToken(subjectLead.sense)}{/if}{/if}{#if fact.kind === 'setField'}
+{#if lead && !selfNaming}{#if lead.entry}{@render entryToken(lead.entry)}{/if}{#if lead.sense}{@render contextToken(lead.sense)}{/if}{#if lead.bareSense}<span class="me-1 font-semibold text-foreground">{@render senseName(lead.bareSense)}</span>{/if}{/if}{#if fact.kind === 'setField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
   {#if fact.audio}{$t`Set ${label}`}{@render audioNote()}{:else if fact.ws}<T msg="Set # to #" cmt="First # is a field label plus writing-system abbreviation, second # is the new value">{label}{@render wsAbbr(fact.ws)}{#snippet second()}{@render chip(fact.value, true)}{/snippet}</T>{:else}{$t`Set ${label} to`}{@render chip(fact.value)}{/if}
 {:else if fact.kind === 'setHomograph'}
@@ -161,69 +166,67 @@
   {$t`Cleared ${label}`}{#if fact.audio}{@render audioNote()}{:else if fact.ws}{@render wsAbbr(fact.ws)}{/if}
 {:else if fact.kind === 'changeField'}
   {@const label = fieldLabel(fact.entity, fact.fieldId)}
-  {#if target}{$t`Changed ${label} to`}{@render labelChip(target)}{:else}{$t`Changed ${label}`}{/if}
+  {#if target}{$t`Changed ${label} to`}{@render labelChip(target.text, target.homographNumber)}{:else}{$t`Changed ${label}`}{/if}
 {:else if fact.kind === 'addItem'}
   {@const noun = itemNoun(fact.fieldId)}
   {#if noun}
-    {$t`Added ${noun}`}{#if fact.label}{@render labelChip(fact.label)}{/if}
+    {$t`Added ${noun}`}{#if fact.label}{@render chip(fact.label)}{/if}
   {:else}
     {@const label = fieldLabel(fact.entity, fact.fieldId)}
-    {#if fact.label}{$t`Added to ${label}`}:{@render labelChip(fact.label)}{:else}{$t`Added to ${label}`}{/if}
+    {#if fact.label}{$t`Added to ${label}`}:{@render chip(fact.label)}{:else}{$t`Added to ${label}`}{/if}
   {/if}
 {:else if fact.kind === 'removeItem'}
   {@const noun = itemNoun(fact.fieldId)}
   {#if noun}
-    {$t`Removed ${noun}`}{#if target}{@render labelChip(target)}{/if}
+    {$t`Removed ${noun}`}{#if target}{@render labelChip(target.text, target.homographNumber)}{/if}
   {:else}
     {$t`Removed from ${fieldLabel(fact.entity, fact.fieldId)}`}
   {/if}
 {:else if fact.kind === 'replaceItem'}
   {@const label = itemNoun(fact.fieldId) ?? fieldLabel(fact.entity, fact.fieldId)}
-  {#if fact.label}{$t`Changed ${label} to`}{@render labelChip(fact.label)}{:else}{$t`Changed ${label}`}{/if}
+  {#if fact.label}{$t`Changed ${label} to`}{@render chip(fact.label)}{:else}{$t`Changed ${label}`}{/if}
 {:else if fact.kind === 'create'}
   {#if fact.entity === 'entry'}
-    {@const name = subject ?? fact.label}
-    {$t`Created ${entityNoun('entry')}`}{#if name}{@render subjectToken(name, true)}{:else}{@render noHeadword()}{/if}
+    {$t`Created ${entityNoun('entry')}`}{#if entry}{@render entryToken(entry, true)}{:else if fact.label}{@render nameToken(fact.label, 0, true)}{:else}{@render noHeadword()}{/if}
   {:else if fact.entity === 'sense'}
     <!-- "headword Added sense gloss": the subject is the parent entry, `target` the new sense's label -->
-    {@const name = target ?? fact.label}
-    {$t`Added ${entityNoun('sense')}`}{#if name}{@render subjectToken(name, true)}{/if}
+    {@const name = target?.text ?? fact.label}
+    {$t`Added ${entityNoun('sense')}`}{#if name}{@render nameToken(name, 0, true)}{/if}
   {:else}
-    <!-- "headword › gloss · Added example". Subject is the parent sense's SenseLabel (headword › gloss); leading chip.
+    <!-- "headword › gloss · Added example": the parent sense leads.
          An audio-only example has no readable sentence text, so show the audio marker instead of a media URI. -->
     {@const name = fact.label}
-    {$t`Added ${entityNoun('example')}`}{#if name}{@render subjectToken(name, true)}{:else if fact.audioOnly}{@render audioNote()}{/if}
+    {$t`Added ${entityNoun('example')}`}{#if name}{@render nameToken(name, 0, true)}{:else if fact.audioOnly}{@render audioNote()}{/if}
   {/if}
 {:else if fact.kind === 'delete'}
-  {#if subject}
-    {#if fact.entity === 'entry'}{$t`Deleted ${entityNoun('entry')}`}{@render subjectToken(subject, true)}
-    {:else if fact.entity === 'sense'}{$t`Deleted ${entityNoun('sense')}`}{@render subjectToken(subject, true)}
-    {:else}{$t`Deleted ${entityNoun('example')} from`}{@render subjectToken(subject, true)}{/if}
+  {#if fact.entity === 'entry' && entry}{$t`Deleted ${entityNoun('entry')}`}{@render entryToken(entry, true)}
+  {:else if fact.entity === 'sense' && entry}{$t`Deleted ${entityNoun('sense')}`}{@render entryToken(entry, true)}
+  {:else if fact.entity === 'example' && (entry || sense?.label)}{$t`Deleted ${entityNoun('example')} from`}{@render qualifiedToken(true)}
   {:else}{$t`Deleted ${entityNoun(fact.entity)}`}{/if}
 {:else if fact.kind === 'reorder'}
-  {#if target}{$t`Reordered ${collectionItemNoun(fact.collection)}`}{@render subjectToken(target, true)}{:else}{$t`Reordered ${collectionNoun(fact.collection)}`}{/if}
+  {#if target}{$t`Reordered ${collectionItemNoun(fact.collection)}`}{@render nameToken(target.text, target.homographNumber, true)}{:else}{$t`Reordered ${collectionNoun(fact.collection)}`}{/if}
 {:else if fact.kind === 'moveSense'}
   {$t`Moved from another entry`}
 {:else if fact.kind === 'moveExample'}
   {$t`Moved from another sense`}
 {:else if fact.kind === 'componentLink'}
   {#if fact.action === 'add'}
-    {$t`Added component`}{#if target}{@render labelChip(target)}{/if}
-  {:else}{$t`Removed component`}{#if target}{@render labelChip(target)}{/if}
+    {$t`Added component`}{#if target}{@render labelChip(target.text, target.homographNumber)}{/if}
+  {:else}{$t`Removed component`}{#if target}{@render labelChip(target.text, target.homographNumber)}{/if}
   {/if}
 {:else if fact.kind === 'setDefaultTranslation'}
   {$t`Set default translation`}
 {:else if fact.kind === 'createObject'}
-  {@const name = subject ?? fact.label}
-  {$t`Created ${objectNoun(fact.object)}`}{#if name}{@render subjectToken(name, true)}{/if}
+  {@const name = info?.objectName ?? fact.label}
+  {$t`Created ${objectNoun(fact.object)}`}{#if name}{@render nameToken(name, 0, true)}{/if}
 {:else if fact.kind === 'editObject'}
-  {@const name = subject ?? fact.label}
-  {$t`Edited ${objectNoun(fact.object)}`}{#if name}{@render subjectToken(name, true)}{/if}
+  {@const name = info?.objectName ?? fact.label}
+  {$t`Edited ${objectNoun(fact.object)}`}{#if name}{@render nameToken(name, 0, true)}{/if}
 {:else if fact.kind === 'editObjectField'}
   {@const objectType = capitalize(objectNoun(fact.object))}
-  {objectType}{#if subject}{@render subjectToken(subject, true)}{/if}{#if fact.cleared}{$t`Cleared ${fact.field}`}{#if fact.ws}{@render wsAbbr(fact.ws)}{/if}{:else if fact.value !== undefined}{@const value = fact.value}{#if fact.ws}<T msg="Set # to #" cmt="First # is a field label plus writing-system abbreviation, second # is the new value">{fact.field}{@render wsAbbr(fact.ws)}{#snippet second()}{@render chip(value, true)}{/snippet}</T>{:else}{$t`Set ${fact.field} to`}{@render chip(value)}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
+  {objectType}{#if info?.objectName}{@render nameToken(info.objectName, 0, true)}{/if}{#if fact.cleared}{$t`Cleared ${fact.field}`}{#if fact.ws}{@render wsAbbr(fact.ws)}{/if}{:else if fact.value !== undefined}{@const value = fact.value}{#if fact.ws}<T msg="Set # to #" cmt="First # is a field label plus writing-system abbreviation, second # is the new value">{fact.field}{@render wsAbbr(fact.ws)}{#snippet second()}{@render chip(value, true)}{/snippet}</T>{:else}{$t`Set ${fact.field} to`}{@render chip(value)}{/if}{:else}{$t`Changed ${fact.field}`}{/if}
 {:else if fact.kind === 'deleteObject'}
-  {$t`Deleted ${objectNoun(fact.object)}`}{#if subject}{@render subjectToken(subject, true)}{/if}
+  {$t`Deleted ${objectNoun(fact.object)}`}{#if info?.objectName}{@render nameToken(info.objectName, 0, true)}{/if}
 {:else if fact.kind === 'sensePicture'}
   {#if fact.action === 'add'}{$t`Added picture`}{:else if fact.action === 'remove'}{$t`Removed picture`}{:else if fact.action === 'update'}{$t`Updated picture`}{:else}{$t`Reordered pictures`}{/if}
 {:else if fact.kind === 'setMainPublication'}

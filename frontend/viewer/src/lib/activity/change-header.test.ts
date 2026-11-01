@@ -53,31 +53,35 @@ describe('changeBadge', () => {
 });
 
 describe('parentCrumb', () => {
+  const nyumba = {id: 'e1', headword: 'nyumba', homographNumber: 1};
+  const nyumbaCrumb = {text: 'nyumba', homographNumber: 1};
+
   it('shows only the entry for a sense, never the sense itself', () => {
-    expect(parentCrumb('sense', {subject: 'nyumba₁ › house', owningEntryHeadword: 'nyumba₁'})).toEqual(['nyumba₁']);
+    expect(parentCrumb('sense', {entry: nyumba, sense: {label: 'house', number: 2}})).toEqual([nyumbaCrumb]);
     // Sense create, delete and reorder name the entry as subject
-    expect(parentCrumb('sense', {subject: 'nyumba₁', owningEntryHeadword: 'nyumba₁'})).toEqual(['nyumba₁']);
+    expect(parentCrumb('sense', {entry: nyumba})).toEqual([nyumbaCrumb]);
   });
 
-  it('splits an example subject into entry and sense, keeping the homograph number', () => {
-    expect(parentCrumb('example', {subject: 'nyumba₁ › house', owningEntryHeadword: 'nyumba₁'})).toEqual(['nyumba₁', 'house']);
-    // The resolver leaves an unnamed sense out of the subject
-    expect(parentCrumb('example', {subject: 'nyumba₁', owningEntryHeadword: 'nyumba₁'})).toEqual(['nyumba₁']);
+  it('names an example\'s entry and numbered sense', () => {
+    expect(parentCrumb('example', {entry: nyumba, sense: {label: 'house'}})).toEqual([nyumbaCrumb, {text: 'house'}]);
+    expect(parentCrumb('example', {entry: nyumba, sense: {label: 'house', number: 2}})).toEqual([nyumbaCrumb, {text: '2 house'}]);
+    expect(parentCrumb('example', {entry: nyumba, sense: {number: 2}})).toEqual([nyumbaCrumb, {text: '2'}]);
+    expect(parentCrumb('example', {entry: nyumba, sense: {}})).toEqual([nyumbaCrumb]);
   });
 
   it('keeps the sense when the entry has no headword', () => {
-    expect(parentCrumb('example', {subject: 'house'})).toEqual(['house']);
-    expect(parentCrumb('sense', {subject: 'house'})).toEqual([]);
+    expect(parentCrumb('example', {entry: {id: 'e1', homographNumber: 0}, sense: {label: 'house'}})).toEqual([{text: 'house'}]);
+    expect(parentCrumb('sense', {entry: {id: 'e1', homographNumber: 0}, sense: {label: 'house'}})).toEqual([]);
   });
 
   it('names the complex form of a component link', () => {
-    expect(parentCrumb('complexFormComponent', {subject: 'nyumba yanga', owningEntryHeadword: 'nyumba yanga'})).toEqual(['nyumba yanga']);
+    expect(parentCrumb('complexFormComponent', {entry: nyumba})).toEqual([nyumbaCrumb]);
   });
 
-  it('is empty without a subject, and for entries and objects', () => {
-    expect(parentCrumb('example', {owningEntryHeadword: 'nyumba'})).toEqual([]);
+  it('is empty when unresolved, and for entries and objects', () => {
+    expect(parentCrumb('example', {})).toEqual([]);
     expect(parentCrumb('example', undefined)).toEqual([]);
-    expect(parentCrumb('entry', {subject: 'nyumba', owningEntryHeadword: 'nyumba'})).toEqual([]);
-    expect(parentCrumb('object', {subject: 'Noun'})).toEqual([]);
+    expect(parentCrumb('entry', {entry: nyumba})).toEqual([]);
+    expect(parentCrumb('object', {objectName: 'Noun'})).toEqual([]);
   });
 });

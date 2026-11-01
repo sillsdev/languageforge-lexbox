@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/naming-convention -- change payloads below mirror the PascalCase CRDT wire format on purpose */
 import {describe, it, expect} from 'vitest';
-import {commitBadge, describeActivity, describeActivityCapped, describeChange, explicitlyHandledChangeTypes, factCategory, groupByOwningEntry, isHandledChangeType, recognizeBulkCreate, ROW_FACT_CAP, splitSubjectLead, summarizeActivity, type ChangeFact, type ChangeFactWithSubject} from './change-summary';
+import {commitBadge, describeActivity, describeActivityCapped, describeChange, explicitlyHandledChangeTypes, factCategory, groupByOwningEntry, isHandledChangeType, recognizeBulkCreate, ROW_FACT_CAP, subjectLead, summarizeActivity, type ChangeFact, type ChangeFactWithInfo} from './change-summary';
 import {knownChangeTypes} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeType';
 import type {IChangeEntity} from '$lib/dotnet-types';
+import type {IActivityEntryName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityEntryName';
+
+function entryName(id: string, headword?: string, homographNumber = 0): IActivityEntryName {
+  return {id, headword, homographNumber};
+}
 
 function changeEntity(change: object): IChangeEntity {
   return {index: 0, commitId: 'c', entityId: 'e', change} as unknown as IChangeEntity;
@@ -280,17 +285,13 @@ describe('describeChange', () => {
 });
 
 describe('describeActivity', () => {
-  it('threads the resolved subject and target onto each fact of a change', () => {
+  it('threads the resolved info onto each fact of a change', () => {
+    const info = {entry: entryName('e1', 'Apfel'), sense: {label: 'apple'}, target: {text: '5.2 Food', homographNumber: 0}};
     const result = describeActivity(
       [changeEntity({'$type': 'RemoveSemanticDomainChange', SemanticDomainId: 'd', EntityId: 'e'})],
-      [{subject: 'Apfel › apple', owningEntryId: 'e1', target: '5.2 Food'}],
+      [info],
     );
-    expect(result).toEqual([{
-      fact: {kind: 'removeItem', entity: 'sense', fieldId: 'semanticDomains'},
-      subject: 'Apfel › apple',
-      owningEntryId: 'e1',
-      target: '5.2 Food',
-    }]);
+    expect(result).toEqual([{fact: {kind: 'removeItem', entity: 'sense', fieldId: 'semanticDomains'}, info}]);
   });
 
   it('threads a media-resource fact through unchanged (audio assumed at describe time)', () => {
@@ -312,7 +313,7 @@ describe('recognizeBulkCreate', () => {
   it('collapses a bulk entry import (different entries) to a count', () => {
     const result = recognizeBulkCreate(
       [changeEntity({'$type': 'CreateEntryChange'}), changeEntity({'$type': 'CreateEntryChange'})],
-      [{owningEntryId: 'e1'}, {owningEntryId: 'e2'}],
+      [{entry: entryName('e1')}, {entry: entryName('e2')}],
       ['CreateEntryChange'],
     );
     expect(result?.fact).toEqual({kind: 'bulkCreate', noun: 'entries', count: 2});
@@ -321,13 +322,13 @@ describe('recognizeBulkCreate', () => {
   it('does not collapse creates that all build one entry tree (those group under the headword instead)', () => {
     expect(recognizeBulkCreate(
       [changeEntity({'$type': 'CreateSenseChange'}), changeEntity({'$type': 'CreateSenseChange'})],
-      [{owningEntryId: 'e1'}, {owningEntryId: 'e1'}],
+      [{entry: entryName('e1')}, {entry: entryName('e1')}],
       ['CreateSenseChange'],
     )).toBeNull();
   });
 
   it('does not collapse a single change', () => {
-    expect(recognizeBulkCreate([changeEntity({'$type': 'CreateEntryChange'})], [{owningEntryId: 'e1'}], ['CreateEntryChange'])).toBeNull();
+    expect(recognizeBulkCreate([changeEntity({'$type': 'CreateEntryChange'})], [{entry: entryName('e1')}], ['CreateEntryChange'])).toBeNull();
   });
 
   it('has a bulk noun for every create change type, so any batch collapses', () => {
@@ -349,7 +350,7 @@ describe('summarizeActivity', () => {
   it('caps the listed facts and counts the left-off changes', () => {
     const overCap = ROW_FACT_CAP + 5;
     const changes = Array.from({length: overCap}, patchChange);
-    const result = summarizeActivity(changes.map((entity, i) => ({entity, info: {owningEntryId: `e${i}`}}))); // different roots → not collapsed
+    const result = summarizeActivity(changes.map((entity, i) => ({entity, info: {entry: entryName(`e${i}`)}}))); // different roots → not collapsed
     expect(result.entries.length).toBe(ROW_FACT_CAP);
     expect(result.remaining).toBe(overCap - ROW_FACT_CAP);
   });
@@ -368,8 +369,8 @@ describe('summarizeActivity', () => {
 
   it('lists an entry-creation commit instead of collapsing it, so it groups like the same tree in a bigger commit', () => {
     const result = summarizeActivity([
-      {entity: changeEntity({'$type': 'CreateEntryChange'}), info: {subject: 'Apfel', owningEntryId: 'e1'}},
-      {entity: changeEntity({'$type': 'CreateSenseChange'}), info: {subject: 'Apfel › apple', owningEntryId: 'e1'}},
+      {entity: changeEntity({'$type': 'CreateEntryChange'}), info: {entry: entryName('e1', 'Apfel')}},
+      {entity: changeEntity({'$type': 'CreateSenseChange'}), info: {entry: entryName('e1', 'Apfel'), sense: {label: 'apple'}}},
     ]);
     expect(result.remaining).toBe(0);
     expect(result.entries.map((e) => e.fact)).toMatchObject([
@@ -380,8 +381,8 @@ describe('summarizeActivity', () => {
 
   it('collapses a bulk create to one counted line', () => {
     const result = summarizeActivity([
-      {entity: changeEntity({'$type': 'CreateEntryChange'}), info: {owningEntryId: 'e1'}},
-      {entity: changeEntity({'$type': 'CreateEntryChange'}), info: {owningEntryId: 'e2'}},
+      {entity: changeEntity({'$type': 'CreateEntryChange'}), info: {entry: entryName('e1')}},
+      {entity: changeEntity({'$type': 'CreateEntryChange'}), info: {entry: entryName('e2')}},
     ]);
     expect(result.entries).toHaveLength(1);
     expect(result.remaining).toBe(0);
@@ -390,60 +391,63 @@ describe('summarizeActivity', () => {
 });
 
 describe('groupByOwningEntry', () => {
-  const f = (owningEntryId: string | undefined, owningEntryHeadword?: string, subject?: string): ChangeFactWithSubject =>
-    ({fact: {kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'x'}, subject, owningEntryId, owningEntryHeadword});
+  const edit: ChangeFact = {kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'x'};
+  function f(entryId: string | undefined, headword?: string, senseLabel?: string): ChangeFactWithInfo {
+    return {fact: edit, info: {entry: entryId ? entryName(entryId, headword) : undefined, sense: senseLabel ? {label: senseLabel} : undefined}};
+  }
 
   it('groups mixed entry/sense/example facts of one entry tree, whatever their subjects', () => {
     const groups = groupByOwningEntry([
-      f('e1', 'nyumba', 'nyumba'),
-      f('e1', 'nyumba', 'nyumba › house'),
-      f('e1', 'nyumba', 'nyumba › 2 hut'),
+      f('e1', 'nyumba'),
+      f('e1', 'nyumba', 'house'),
+      f('e1', 'nyumba', 'hut'),
     ]);
     expect(groups).toHaveLength(1);
-    expect(groups[0].headword).toBe('nyumba');
-    expect(groups[0].facts.map((e) => e.subject)).toEqual(['nyumba', 'nyumba › house', 'nyumba › 2 hut']);
+    expect(groups[0].entry?.headword).toBe('nyumba');
+    expect(groups[0].facts.map((e) => e.info?.sense?.label)).toEqual([undefined, 'house', 'hut']);
   });
 
   it('merges non-adjacent facts of the same root, keeping first-occurrence group order', () => {
     const groups = groupByOwningEntry([f('e1', 'a'), f('e2', 'b'), f('e1', 'a')]);
-    expect(groups.map((g) => g.headword)).toEqual(['a', 'b']);
+    expect(groups.map((g) => g.entry?.headword)).toEqual(['a', 'b']);
     expect(groups[0].facts).toHaveLength(2);
     expect(groups[1].facts).toHaveLength(1);
   });
 
-  it('still groups by root when the headword is missing, normalizing empty to undefined', () => {
+  it('still groups by root when the headword is missing, giving the group no header entry', () => {
     const groups = groupByOwningEntry([f('e1', undefined), f('e1', '')]);
     expect(groups).toHaveLength(1);
-    expect(groups[0].headword).toBeUndefined();
+    expect(groups[0].entry).toBeUndefined();
     expect(groups[0].facts).toHaveLength(2);
   });
 
   it('never groups facts without a owning entry, even with identical subjects', () => {
-    const groups = groupByOwningEntry([f(undefined, undefined, 'Noun'), f(undefined, undefined, 'Noun')]);
+    const noun: ChangeFactWithInfo = {fact: edit, info: {objectName: 'Noun'}};
+    const groups = groupByOwningEntry([noun, {...noun}]);
     expect(groups).toHaveLength(2);
-    expect(groups.every((g) => g.headword === undefined && g.facts.length === 1)).toBe(true);
+    expect(groups.every((g) => g.entry === undefined && g.facts.length === 1)).toBe(true);
   });
 
   it('promotes the owning entry\'s create to the group lead, keeping the other facts listed', () => {
-    const create: ChangeFactWithSubject = {fact: {kind: 'create', entity: 'entry', label: 'nyumba'}, subject: 'nyumba', owningEntryId: 'e1', owningEntryHeadword: 'nyumba'};
+    const create: ChangeFactWithInfo = {fact: {kind: 'create', entity: 'entry', label: 'nyumba'}, info: {entry: entryName('e1', 'nyumba')}};
     const groups = groupByOwningEntry([create, f('e1', 'nyumba'), f('e1', 'nyumba')]);
     expect(groups).toHaveLength(1);
     expect(groups[0].lead).toBe(create);
     expect(groups[0].facts).toHaveLength(2);
-    expect(groups[0].headword).toBe('nyumba');
+    expect(groups[0].entry?.headword).toBe('nyumba');
   });
 
   it('promotes a owning entry delete, but never a sense create', () => {
-    const del: ChangeFactWithSubject = {fact: {kind: 'delete', entity: 'entry'}, subject: 'nyumba', owningEntryId: 'e1'};
+    const del: ChangeFactWithInfo = {fact: {kind: 'delete', entity: 'entry'}, info: {entry: entryName('e1', 'nyumba')}};
     expect(groupByOwningEntry([f('e1'), del])[0].lead).toBe(del);
-    const senseCreate: ChangeFactWithSubject = {fact: {kind: 'create', entity: 'sense', label: 'house'}, owningEntryId: 'e1'};
+    const senseCreate: ChangeFactWithInfo = {fact: {kind: 'create', entity: 'sense', label: 'house'}, info: {entry: entryName('e1')}};
     const groups = groupByOwningEntry([senseCreate, f('e1')]);
     expect(groups[0].lead).toBeUndefined();
     expect(groups[0].facts).toHaveLength(2);
   });
 
   it('keeps a solo create as the lead with no listed facts', () => {
-    const create: ChangeFactWithSubject = {fact: {kind: 'create', entity: 'entry'}, owningEntryId: 'e1'};
+    const create: ChangeFactWithInfo = {fact: {kind: 'create', entity: 'entry'}, info: {entry: entryName('e1')}};
     const groups = groupByOwningEntry([create]);
     expect(groups[0].lead).toBe(create);
     expect(groups[0].facts).toHaveLength(0);
@@ -465,7 +469,7 @@ describe('factCategory', () => {
 });
 
 describe('commitBadge', () => {
-  function summary(...facts: ChangeFact[]): {entries: ChangeFactWithSubject[]; remaining: number} {
+  function summary(...facts: ChangeFact[]): {entries: ChangeFactWithInfo[]; remaining: number} {
     return {entries: facts.map((fact) => ({fact})), remaining: 0};
   }
 
@@ -494,34 +498,34 @@ describe('commitBadge', () => {
   });
 });
 
-describe('splitSubjectLead', () => {
+describe('subjectLead', () => {
   const senseEdit: ChangeFact = {kind: 'setField', entity: 'sense', fieldId: 'gloss', value: 'x'};
   const entryEdit: ChangeFact = {kind: 'setField', entity: 'entry', fieldId: 'lexemeForm', value: 'x'};
   const senseCreate: ChangeFact = {kind: 'create', entity: 'sense', label: 'shore'};
+  const comment: ChangeFact = {kind: 'comment', action: 'add', text: 'x'};
+  const bank = entryName('e1', 'Bank', 2);
 
-  it('splits the entry from the sense', () => {
-    expect(splitSubjectLead(senseEdit, 'Bank₂ › shore', 'Bank₂', undefined)).toEqual({entry: 'Bank₂', sense: 'shore'});
+  it('leads with the entry and its sense', () => {
+    expect(subjectLead(senseEdit, {entry: bank, sense: {label: 'shore', number: 1}}, false)).toEqual({entry: bank, sense: {label: 'shore', number: 1}});
   });
 
   it('drops the entry under a group header that shows it', () => {
-    expect(splitSubjectLead(senseEdit, 'Bank₂ › shore', 'Bank₂', 'Bank₂')).toEqual({entry: undefined, sense: 'shore'});
-    expect(splitSubjectLead(entryEdit, 'Bank₂', 'Bank₂', 'Bank₂')).toBeUndefined();
+    expect(subjectLead(senseEdit, {entry: bank, sense: {label: 'shore'}}, true)).toEqual({entry: undefined, sense: {label: 'shore'}});
+    expect(subjectLead(entryEdit, {entry: bank}, true)).toBeUndefined();
   });
 
-  it('marks an unnamed sense, which the resolver leaves out of the subject', () => {
-    expect(splitSubjectLead(senseEdit, 'Bank₂', 'Bank₂', undefined)).toEqual({entry: 'Bank₂', sense: null});
-    expect(splitSubjectLead(senseEdit, 'Bank₂', 'Bank₂', 'Bank₂')).toEqual({entry: undefined, sense: null});
+  it('shows an unnamed sense only when the fact is about the sense, unless it has a number', () => {
+    expect(subjectLead(senseEdit, {entry: bank, sense: {}}, false)).toEqual({entry: bank, sense: {}});
+    expect(subjectLead(comment, {entry: bank, sense: {}}, false)).toEqual({entry: bank, sense: undefined});
+    expect(subjectLead(comment, {entry: bank, sense: {number: 2}}, true)).toEqual({entry: undefined, sense: {number: 2}});
   });
 
   it('keeps a sense create on its parent entry', () => {
-    expect(splitSubjectLead(senseCreate, 'Bank₂', 'Bank₂', undefined)).toEqual({entry: 'Bank₂', sense: undefined});
+    expect(subjectLead(senseCreate, {entry: bank}, false)).toEqual({entry: bank, sense: undefined});
   });
 
-  it('splits a gloss equal to its headword', () => {
-    expect(splitSubjectLead(senseEdit, 'run › run', 'run', 'run')).toEqual({entry: undefined, sense: 'run'});
-  });
-
-  it('keeps the whole subject without a known headword', () => {
-    expect(splitSubjectLead(senseEdit, 'shore', undefined, undefined)).toEqual({entry: 'shore', sense: undefined});
+  it('leads with the bare sense when the entry has no headword', () => {
+    expect(subjectLead(senseEdit, {entry: entryName('e1'), sense: {label: 'shore'}}, true)).toEqual({bareSense: {label: 'shore'}});
+    expect(subjectLead(senseEdit, {entry: entryName('e1'), sense: {}}, false)).toBeUndefined();
   });
 });

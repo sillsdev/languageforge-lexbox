@@ -90,12 +90,13 @@
 
   const crumbs = $derived.by((): Crumb[] => {
     if (kind === 'complexFormComponent' && complexForm && !complexForm.deletedAt) return [{entry: complexForm}];
-    return parentCrumb(kind, info).map(text => ({text}));
+    return parentCrumb(kind, info);
   });
 </script>
 
 {#snippet anchorIdentity()}
-  <DiffAnchor {...anchor} />
+  <!-- The sense's current number, which can differ from its place when the change was made -->
+  {#if kind === 'sense' && info?.sense?.number}{info.sense.number}&nbsp;{/if}<DiffAnchor {...anchor} />
 {/snippet}
 
 {#snippet componentIdentity()}

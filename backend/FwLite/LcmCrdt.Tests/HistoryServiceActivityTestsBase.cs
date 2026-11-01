@@ -133,3 +133,15 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
         await db.SaveChangesAsync();
     }
 }
+
+// Null-safe accessors, since expression-tree lambdas (FluentAssertions Contain) can't use `?.`.
+internal static class ActivityChangeInfoTestExtensions
+{
+    public static Guid? EntryId(this ActivityChangeInfo info) => info.Entry?.Id;
+    public static string? EntryHeadword(this ActivityChangeInfo info) => info.Entry?.Headword;
+    public static int? EntryHomographNumber(this ActivityChangeInfo info) => info.Entry?.HomographNumber;
+    public static string? SenseLabel(this ActivityChangeInfo info) => info.Sense?.Label;
+    public static int? SenseNumber(this ActivityChangeInfo info) => info.Sense?.Number;
+    public static string? TargetText(this ActivityChangeInfo info) => info.Target?.Text;
+    public static int? TargetHomographNumber(this ActivityChangeInfo info) => info.Target?.HomographNumber;
+}

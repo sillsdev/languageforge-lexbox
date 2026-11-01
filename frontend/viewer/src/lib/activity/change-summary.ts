@@ -2,6 +2,8 @@
 import {entityFieldIds, type FieldId} from '$lib/views/entity-config';
 import type {IChangeEntity} from '$lib/dotnet-types';
 import type {IActivityChangeInfo} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityChangeInfo';
+import type {IActivityEntryName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityEntryName';
+import type {IActivitySenseName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivitySenseName';
 import type {IActivityChange} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivityChange';
 
 export type SummaryEntity = 'entry' | 'sense' | 'example';
@@ -185,30 +187,6 @@ const PAST_TENSE_VERB: Record<string, string> = {
   upload: 'Uploaded', uploaded: 'Uploaded', merge: 'Merged',
 };
 
-/**
- * Splits a resolver subject ("headword › sense") into what a summary line leads with: the entry part, dropped when a
- * group header already shows it, and the sense part, `null` for an unnamed sense (the resolver leaves it out).
- */
-export function splitSubjectLead(
-  fact: ChangeFact,
-  subject: string,
-  entryHeadword: string | undefined,
-  groupHeadword: string | undefined,
-): {entry?: string; sense?: string | null} | undefined {
-  // A sense create names the parent entry; the new sense is the target
-  const senseLevel = 'entity' in fact && fact.entity !== 'entry' && fact.kind !== 'create';
-  let entry: string | undefined = subject;
-  let sense: string | null | undefined;
-  if (entryHeadword && subject.startsWith(entryHeadword + ' › ')) {
-    entry = entryHeadword;
-    sense = subject.slice(entryHeadword.length + 3);
-  } else if (entryHeadword && subject === entryHeadword && senseLevel) {
-    sense = null;
-  }
-  if (groupHeadword !== undefined && entry === groupHeadword) entry = undefined;
-  return entry === undefined && sense === undefined ? undefined : {entry, sense};
-}
-
 /** Turns a change `$type` into a readable past-tense phrase (e.g. `create:remote-resource` → "Created remote resource"). */
 function humanizeType(type: string): string {
   const words = type
@@ -391,6 +369,7 @@ export function describeChange(changeEntity: IChangeEntity): ChangeFact[] {
   return handler ? handler(change) : [{kind: 'generic', text: humanizeType(type)}];
 }
 
+
 /**
  * Whether {@link describeChange} produces a purpose-built (non-`generic`) summary for a `$type`.
  * The coverage test asserts every generated `knownChangeTypes` value is handled here (or is on a
@@ -413,71 +392,85 @@ export function isHandledChangeType(type: string): boolean {
   return type in TYPED_HANDLERS;
 }
 
-/** A change fact paired with the resolved name of the entity it's about (from the activity payload). */
-export interface ChangeFactWithSubject {
+/** A change fact paired with the names the backend resolved for its change (from the activity payload). */
+export interface ChangeFactWithInfo {
   fact: ChangeFact;
-  /** Entry headword, "headword › gloss" for senses, or a vocab object's name. Undefined when unresolved. */
-  subject?: string;
-  owningEntryId?: string;
-  /** Display headword of `owningEntryId`, for the entry-group header. Undefined when there's no owning entry or no headword. */
-  owningEntryHeadword?: string;
-  /** An item the change names only by id, resolved by the backend: the part of speech set, the semantic domain removed. */
-  target?: string;
+  info?: IActivityChangeInfo;
 }
 
-function factsWithSubject(change: IChangeEntity, info: IActivityChangeInfo | undefined): ChangeFactWithSubject[] {
-  return describeChange(change).map((fact) => ({
-    fact,
-    subject: info?.subject,
-    owningEntryId: info?.owningEntryId,
-    owningEntryHeadword: info?.owningEntryHeadword,
-    target: info?.target,
-  }));
+function factsWithInfo(change: IChangeEntity, info: IActivityChangeInfo | undefined): ChangeFactWithInfo[] {
+  return describeChange(change).map((fact) => ({fact, info}));
+}
+
+/** What a summary line leads with, before its verb phrase. */
+export interface SubjectLead {
+  entry?: IActivityEntryName;
+  /** Rendered after a "›" connector */
+  sense?: IActivitySenseName;
+  /** A sense of an entry with no headword, rendered without a connector */
+  bareSense?: IActivitySenseName;
+}
+
+/**
+ * The entry and sense a non-self-naming line leads with. Under an entry-group header (`grouped`) the header
+ * already names the entry, so only the sense remains. An unnamed, unnumbered sense only shows (as "Untitled")
+ * when the fact is about the sense itself.
+ */
+export function subjectLead(fact: ChangeFact, info: IActivityChangeInfo | undefined, grouped: boolean): SubjectLead | undefined {
+  const sense = info?.sense;
+  const entry = info?.entry?.headword ? info.entry : undefined;
+  if (!entry) return sense?.label ? {bareSense: sense} : undefined;
+  // A sense create names the parent entry; the new sense is the target
+  const senseLevel = 'entity' in fact && fact.entity !== 'entry' && fact.kind !== 'create';
+  const showSense = !!sense && (!!sense.label || !!sense.number || senseLevel);
+  const lead: SubjectLead = {entry: grouped ? undefined : entry, sense: showSense ? sense : undefined};
+  return lead.entry || lead.sense ? lead : undefined;
 }
 
 /** All change facts across a commit, each paired with its resolved subject. `changeInfo` is parallel to `changes` by index. */
 export function describeActivity(
   changes: readonly IChangeEntity[],
   changeInfo?: readonly IActivityChangeInfo[],
-): ChangeFactWithSubject[] {
-  return changes.flatMap((change, index) => factsWithSubject(change, changeInfo?.[index]));
+): ChangeFactWithInfo[] {
+  return changes.flatMap((change, index) => factsWithInfo(change, changeInfo?.[index]));
 }
 
 /** Facts that share a owning entry, so the headword can render once as a group header. */
 export interface EntryGroup {
-  /** Header text: the owning entry's display headword. Undefined when the facts have no owning entry or it has no headword. */
-  headword?: string;
+  /** The header's entry. Undefined when the facts have no owning entry or it has no headword. */
+  entry?: IActivityEntryName;
   /**
    * The owning entry's own create/delete fact, promoted out of `facts`: it's the group's main event, and its
    * sentence already names the entry, so rendering it as the header line avoids repeating the headword.
    */
-  lead?: ChangeFactWithSubject;
-  facts: ChangeFactWithSubject[];
+  lead?: ChangeFactWithInfo;
+  facts: ChangeFactWithInfo[];
 }
 
-function isOwningEntryLifecycle(entry: ChangeFactWithSubject): boolean {
+function isOwningEntryLifecycle(entry: ChangeFactWithInfo): boolean {
   return (entry.fact.kind === 'create' || entry.fact.kind === 'delete') && entry.fact.entity === 'entry';
 }
 
 /**
- * Group a commit's facts by the entry tree they touch (`owningEntryId`), across the whole commit — a fact
+ * Group a commit's facts by the entry tree they touch (`info.entry`), across the whole commit — a fact
  * rejoins its entry's group even when another entry's change interleaves. Group order is first occurrence;
  * fact order within a group is unchanged. The owning entry's own create/delete becomes the group's `lead`.
  * Facts with no owning entry (vocab objects, media, generic) never group — their sentences are self-naming
  * — so each stands alone in its own headerless group.
  */
-export function groupByOwningEntry(entries: readonly ChangeFactWithSubject[]): EntryGroup[] {
+export function groupByOwningEntry(entries: readonly ChangeFactWithInfo[]): EntryGroup[] {
   const groups: EntryGroup[] = [];
   const byRoot = new Map<string, EntryGroup>();
   for (const entry of entries) {
-    if (!entry.owningEntryId) {
+    const owningEntry = entry.info?.entry;
+    if (!owningEntry) {
       groups.push({facts: [entry]});
       continue;
     }
-    let group = byRoot.get(entry.owningEntryId);
+    let group = byRoot.get(owningEntry.id);
     if (!group) {
-      group = {headword: entry.owningEntryHeadword || undefined, facts: []};
-      byRoot.set(entry.owningEntryId, group);
+      group = {entry: owningEntry.headword ? owningEntry : undefined, facts: []};
+      byRoot.set(owningEntry.id, group);
       groups.push(group);
     }
     if (!group.lead && isOwningEntryLifecycle(entry)) group.lead = entry;
@@ -537,7 +530,7 @@ export function factCategory(fact: ChangeFact): FactCategory {
  */
 export type CommitBadge = {category: Exclude<FactCategory, 'other'>; structural: boolean};
 
-export function commitBadge(summary: {entries: ChangeFactWithSubject[]; remaining: number}): CommitBadge | undefined {
+export function commitBadge(summary: {entries: ChangeFactWithInfo[]; remaining: number}): CommitBadge | undefined {
   if (summary.entries.length !== 1 || summary.remaining > 0) return undefined;
   const fact = summary.entries[0].fact;
   const category = factCategory(fact);
@@ -577,8 +570,8 @@ const BULK_CREATE_NOUNS: Record<string, BulkNoun> = {
 
 /** Whether every change in the commit is on the same single entry tree (its owning entry resolved and identical). */
 function allSameRoot(changeInfo?: readonly IActivityChangeInfo[]): boolean {
-  const root = changeInfo?.[0]?.owningEntryId;
-  return !!root && !!changeInfo && changeInfo.every((ci) => ci.owningEntryId === root);
+  const root = changeInfo?.[0]?.entry?.id;
+  return !!root && !!changeInfo && changeInfo.every((ci) => ci.entry?.id === root);
 }
 
 /**
@@ -590,7 +583,7 @@ export function recognizeBulkCreate(
   changes: readonly IChangeEntity[],
   changeInfo: readonly IActivityChangeInfo[] | undefined,
   changeTypes: readonly string[],
-): ChangeFactWithSubject | null {
+): ChangeFactWithInfo | null {
   if (changes.length <= 1) return null;
   const noun = changeTypes.length === 1 ? BULK_CREATE_NOUNS[changeTypes[0]] : undefined;
   if (noun && !allSameRoot(changeInfo)) {
@@ -608,11 +601,11 @@ export function describeActivityCapped(
   changes: readonly IChangeEntity[],
   changeInfo: readonly IActivityChangeInfo[] | undefined,
   maxFacts: number,
-): {entries: ChangeFactWithSubject[]; remaining: number} {
-  const entries: ChangeFactWithSubject[] = [];
+): {entries: ChangeFactWithInfo[]; remaining: number} {
+  const entries: ChangeFactWithInfo[] = [];
   let consumed = 0;
   while (consumed < changes.length && entries.length < maxFacts) {
-    entries.push(...factsWithSubject(changes[consumed], changeInfo?.[consumed]));
+    entries.push(...factsWithInfo(changes[consumed], changeInfo?.[consumed]));
     consumed++;
   }
   return {entries, remaining: changes.length - consumed};
@@ -629,7 +622,7 @@ export const ROW_FACT_CAP = 6;
  * entry- or sense-creation commit is NOT collapsed, so it renders grouped under its entry header exactly
  * like the same tree inside a bigger commit. Never parses more changes than it shows.
  */
-export function summarizeActivity(activityChanges: readonly IActivityChange[]): {entries: ChangeFactWithSubject[]; remaining: number} {
+export function summarizeActivity(activityChanges: readonly IActivityChange[]): {entries: ChangeFactWithInfo[]; remaining: number} {
   const changes = activityChanges.map((c) => c.entity);
   const changeInfo = activityChanges.map((c) => c.info);
   const changeTypes = [...new Set(changes.map((c) => changeType(c.change)))];

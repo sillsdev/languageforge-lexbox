@@ -67,6 +67,8 @@
   const wsAfter: IWritingSystem = {...wsBefore, abbreviation: 'Sen', font: 'Charis SIL Compact'};
   const view: ICustomView = {id: 'view', name: 'Quick gloss', base: ViewBase.FwLite, entryFields: [{fieldId: 'lexemeForm'}], senseFields: [{fieldId: 'gloss'}], exampleFields: []};
 
+  const nyumbaName = {id: entry.id, headword: 'nyumba', homographNumber: 0};
+
   const examples: Example[] = [
     {title: 'Entry edit, headword changed since', changeName: 'Edit entry', entityType: 'Entry', before: entry, after: renamed, affected: [renamedSince]},
     {title: 'Entry edit, current headword', changeName: 'Edit entry', entityType: 'Entry', before: entry, after: renamed, affected: [renamed]},
@@ -74,18 +76,22 @@
     {title: 'Entry create', changeName: 'Create entry', entityType: 'Entry', after: entry, affected: [entry]},
     {title: 'Entry delete', changeName: 'Delete entry', entityType: 'Entry', before: entry, after: deleted, affected: [deleted]},
     {title: 'Sense edit', changeName: 'Edit sense', entityType: 'Sense', before: sense, after: senseAfter, affected: [entry],
-      info: {subject: 'nyumba › home', owningEntryHeadword: 'nyumba'}},
+      info: {entry: nyumbaName, sense: {label: 'home'}}},
+    {title: 'Sense edit, numbered', changeName: 'Edit sense', entityType: 'Sense', before: sense, after: senseAfter, affected: [entry],
+      info: {entry: nyumbaName, sense: {label: 'home', number: 2}}},
     {title: 'Sense create, long headword', changeName: 'Create sense', entityType: 'Sense', after: sense, affected: [longHeadword],
-      info: {subject: longHeadword.lexemeForm.seh, owningEntryHeadword: longHeadword.lexemeForm.seh}},
+      info: {entry: {id: longHeadword.id, headword: longHeadword.lexemeForm.seh, homographNumber: 0}}},
     {title: 'Sense reorder', changeName: 'Reorder sense', entityType: 'Sense', before: sense, after: movedSense, affected: [entry],
-      $type: 'SetOrderChange:Sense', info: {subject: 'nyumba', owningEntryHeadword: 'nyumba', target: 'house'}},
+      $type: 'SetOrderChange:Sense', info: {entry: nyumbaName, target: {text: 'house', homographNumber: 0}}},
     {title: 'Example edit', changeName: 'Edit example sentence', entityType: 'ExampleSentence', before: example, after: exampleAfter, affected: [entry],
-      info: {subject: 'nyumba › house', owningEntryHeadword: 'nyumba', target: 'Nyumba yanga ndi...'}},
+      info: {entry: nyumbaName, sense: {label: 'house'}, target: {text: 'Nyumba yanga ndi...', homographNumber: 0}}},
+    {title: 'Example edit, numbered sense', changeName: 'Edit example sentence', entityType: 'ExampleSentence', before: example, after: exampleAfter, affected: [entry],
+      info: {entry: nyumbaName, sense: {label: 'house', number: 2}}},
     {title: 'Example edit, unresolved subject', changeName: 'Edit example sentence', entityType: 'ExampleSentence', before: example, after: exampleAfter, affected: [entry]},
     {title: 'Example reorder', changeName: 'Reorder example sentence', entityType: 'ExampleSentence', before: example, after: {...example, order: 2} as IExampleSentence,
-      affected: [entry], $type: 'SetOrderChange:ExampleSentence', info: {subject: 'nyumba › house', owningEntryHeadword: 'nyumba'}},
+      affected: [entry], $type: 'SetOrderChange:ExampleSentence', info: {entry: nyumbaName, sense: {label: 'house'}}},
     {title: 'Component added', changeName: 'Add component', entityType: 'ComplexFormComponent', after: link, affected: [longHeadword, other],
-      info: {subject: 'nyumba-ya-kale', owningEntryHeadword: 'nyumba-ya-kale'}},
+      info: {entry: {id: longHeadword.id, headword: 'nyumba-ya-kale', homographNumber: 0}}},
     {title: 'Component removed', changeName: 'Delete component', entityType: 'ComplexFormComponent', before: link, after: {...link, deletedAt: '2026-10-02T10:00:00Z'},
       affected: [longHeadword, other]},
     {title: 'Component reorder', changeName: 'Reorder component', entityType: 'ComplexFormComponent', before: link, after: {...link, order: 2} as IComplexFormComponent,

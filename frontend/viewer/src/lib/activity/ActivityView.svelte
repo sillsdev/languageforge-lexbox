@@ -15,7 +15,7 @@
   import ChangeSummary from './ChangeSummary.svelte';
   import {summarizeActivity, groupByOwningEntry, factCategory, commitBadge, type CommitBadge} from './change-summary';
   import type {IconClass} from '$lib/icon-class';
-  import type {ChangeFact, ChangeFactWithSubject} from './change-summary';
+  import type {ChangeFact, ChangeFactWithInfo} from './change-summary';
   import {FACT_GLYPH} from './fact-glyph';
   import {
     createDefaultActivityFilters,
@@ -28,7 +28,7 @@
     type ActivityLoad,
   } from './utils';
   import AuthorLabel from './AuthorLabel.svelte';
-  import HomographLabel from './HomographLabel.svelte';
+  import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
 
   const historyService = useHistoryService();
 
@@ -163,25 +163,25 @@
   }
 </script>
 
-<!-- One change line: an optional change-kind glyph + the summary. `groupHeadword` (set when the line sits
-     under an entry-group header) lets ChangeSummary render the subject relative to the header — hidden when
-     identical, a muted "› gloss" context token for senses/examples — AND reserves a gutter so wrapped lines
+<!-- One change line: an optional change-kind glyph + the summary. `grouped` (set when the line sits
+     under an entry-group header) lets ChangeSummary drop the entry the header already names, leaving a muted
+     "› gloss" context token for senses/examples, AND reserves a gutter so wrapped lines
      hang-indent under the text — a bulleted list of the group's changes. Ungrouped rows are one-offs,
      so the glyph sits inline; single-fact commits skip it entirely (the item shows one glyph in its
      top-right corner instead — see below). -->
-{#snippet factLine(entry: ChangeFactWithSubject, groupHeadword?: string, hideGlyph = false)}
+{#snippet factLine(entry: ChangeFactWithInfo, grouped = false, hideGlyph = false)}
   {@const glyph = hideGlyph ? undefined : glyphFor(entry.fact)}
-  {#if groupHeadword !== undefined}
+  {#if grouped}
     <div class="flex items-center gap-1.5">
       <span class="w-3.5 shrink-0 flex justify-center">
         {#if glyph}<Icon icon={glyph.icon} class="size-3.5 {glyph.class}" />{/if}
       </span>
-      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} {groupHeadword} entryHeadword={entry.owningEntryHeadword} /></span>
+      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} info={entry.info} grouped /></span>
     </div>
   {:else}
     <div class="flex items-center gap-1 min-w-0">
       {#if glyph}<Icon icon={glyph.icon} class="size-3.5 shrink-0 {glyph.class}" />{/if}
-      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} subject={entry.subject} target={entry.target} entryHeadword={entry.owningEntryHeadword} /></span>
+      <span class="min-w-0 line-clamp-2"><ChangeSummary fact={entry.fact} info={entry.info} /></span>
     </div>
   {/if}
 {/snippet}
@@ -237,25 +237,25 @@
                       {@render factLine(group.lead)}
                       <div class="ms-1 space-y-0.5 border-s border-muted-foreground/40 ps-2">
                         {#each group.facts as entry, i (i)}
-                          {@render factLine(entry, group.headword ?? '')}
+                          {@render factLine(entry, true)}
                         {/each}
                       </div>
                     </div>
-                  {:else if group.headword && group.facts.length > 1}
+                  {:else if group.entry && group.facts.length > 1}
                     <div>
-                      <div class="font-semibold text-foreground"><HomographLabel text={group.headword} /></div>
+                      <div class="font-semibold text-foreground">{group.entry.headword}<HomographNumber homographNumber={group.entry.homographNumber} /></div>
                       <div class="ms-1 space-y-0.5 border-s border-muted-foreground/40 ps-2">
                         {#each group.facts as entry, i (i)}
-                          {@render factLine(entry, group.headword)}
+                          {@render factLine(entry, true)}
                         {/each}
                       </div>
                     </div>
                   {:else}
                     {#if group.lead}
-                      {@render factLine(group.lead, undefined, !!badge)}
+                      {@render factLine(group.lead, false, !!badge)}
                     {/if}
                     {#each group.facts as entry, i (i)}
-                      {@render factLine(entry, undefined, !!badge)}
+                      {@render factLine(entry, false, !!badge)}
                     {/each}
                   {/if}
                 {/each}

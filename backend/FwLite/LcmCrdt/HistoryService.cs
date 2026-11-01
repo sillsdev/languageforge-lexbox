@@ -41,12 +41,27 @@ public static class ActivityFilterKeys
 
 /// <summary>
 /// Resolved display info for one change, so the frontend can name what the change is about.
-/// <paramref name="Subject"/> is the entity the change is on (entry headword, "headword › gloss" for a sense, or a possibility's name);
-/// <paramref name="Target"/> is a referenced item named only by id (e.g. the assigned part of speech). Both null when unresolved.
-/// <paramref name="OwningEntryId"/> is the entry the change ultimately belongs to (the entry itself, or the owner of a sense/example);
-/// <paramref name="OwningEntryHeadword"/> is <paramref name="OwningEntryId"/>'s headword, for grouping a commit's changes under one entry.
+/// All parts are structured so the frontend composes (and localizes) the text. Unresolved parts are null.
+/// <paramref name="Entry"/> is the entry the change ultimately belongs to (the entry itself, or the owner of a sense/example), for grouping a commit's changes;
+/// <paramref name="Sense"/> is set only when the subject is a sense or an example (its parent sense);
+/// <paramref name="ObjectName"/> names a subject that isn't an entry (part of speech, semantic domain, publication, etc.);
+/// <paramref name="Target"/> is a referenced item named only by id (e.g. the assigned part of speech).
 /// </summary>
-public record ActivityChangeInfo(string? Subject, Guid? OwningEntryId, string? Target = null, string? OwningEntryHeadword = null);
+public record ActivityChangeInfo(
+    ActivityEntryName? Entry,
+    ActivitySenseName? Sense = null,
+    string? ObjectName = null,
+    ActivityTarget? Target = null);
+
+/// <param name="Headword">Without the homograph subscript. Null when unresolvable (then <paramref name="HomographNumber"/> is 0).</param>
+public record ActivityEntryName(Guid Id, string? Headword, int HomographNumber);
+
+/// <param name="Label">Gloss, else a definition snippet, else null.</param>
+/// <param name="Number">1-based current position, only when the entry currently has more than one sense. Null for a deleted sense.</param>
+public record ActivitySenseName(string? Label, int? Number);
+
+/// <param name="HomographNumber">Greater than 0 only when the target names an entry (component links).</param>
+public record ActivityTarget(string Text, int HomographNumber = 0);
 
 public record ActivityChange(ChangeEntity<IChange> Entity, ActivityChangeInfo Info);
 
@@ -385,7 +400,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         }
     }
 
-    // Must agree with ActivityChangeInfoResolver's OwningEntryId, which the activity list shows for the same change.
+    // Must agree with ActivityChangeInfoResolver's Entry, which the activity list shows for the same change.
     private async Task<Guid?> OwningEntryId(Type? entityType, Guid entityId)
     {
         if (entityType == typeof(Entry)) return entityId;
