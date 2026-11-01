@@ -930,9 +930,23 @@ msgstr "Edit comment"
 msgid "Edit Custom View"
 msgstr "Edit Custom View"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Edit Word"
+#. Button on a change in the activity view; opens the changed entry in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Entry"
+msgstr "Edit Entry"
+
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Edit Picture"
 msgstr "Edit Picture"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Edit Entry"
+#. Button on a change in the activity view; opens the changed word in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Word"
+msgstr "Edit Word"
 
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -1352,6 +1366,13 @@ msgid "Go to entry"
 msgstr "Go to entry"
 
 #. Relevant view: Classic
+#. Lite view equivalent: "Go to Word"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed entry in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Entry"
+msgstr "Go to Entry"
+
+#. Relevant view: Classic
 #. Lite view equivalent: "Go to word: {0}"
 #. Accessible name of the link on an entry's name in the activity change preview. {0} = the entry's headword
 #: src/lib/activity/ActivityChangeHeader.svelte
@@ -1364,6 +1385,13 @@ msgstr "Go to entry: {0}"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
 msgstr "Go to word"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Go to Entry"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed word in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Word"
+msgstr "Go to Word"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry: {0}"
@@ -1784,8 +1812,8 @@ msgstr "Missing: {0}"
 msgid "Mode"
 msgstr "Mode"
 
-#. Accessible name of the menu button (three dots) next to an entry in the activity change preview
-#: src/lib/activity/ActivityChangeHeader.svelte
+#. Accessible name of the arrow button that opens more actions for an entry in the activity change preview
+#: src/lib/activity/EntryActionsButton.svelte
 msgid "More options"
 msgstr "More options"
 
@@ -2123,7 +2151,7 @@ msgid "Open in FieldWorks"
 msgstr "Open in FieldWorks"
 
 #. Menu option
-#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/EntryActionsButton.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"

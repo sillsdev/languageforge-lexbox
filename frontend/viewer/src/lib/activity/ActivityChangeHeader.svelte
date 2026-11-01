@@ -9,13 +9,10 @@
   import type {Snippet} from 'svelte';
   import {T, t} from 'svelte-i18n-lingui';
   import {Link} from 'svelte-routing';
-  import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import {Badge} from '$lib/components/ui/badge';
-  import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
   import Headwords from '$lib/components/dictionary/Headwords.svelte';
   import {homographSubscript} from '$lib/components/dictionary/HomographNumber.svelte';
-  import {useMultiWindowService} from '$lib/services/multi-window-service';
   import {entryBrowseParams} from '$lib/utils/search-params';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
@@ -23,6 +20,7 @@
   import type {ChangeBadge} from './change-header';
   import {addedTint} from '$lib/entry-editor/diff-view/diff-classes';
   import {cn} from '$lib/utils';
+  import EntryActionsButton from './EntryActionsButton.svelte';
 
   let {label, crumbs = [], identity, linkTo, badge, now}: {
     /** The change's name, e.g. "Edit entry", for assistive tech */
@@ -37,7 +35,6 @@
     now?: IEntry;
   } = $props();
 
-  const multiWindowService = useMultiWindowService();
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
 
@@ -108,19 +105,9 @@
     </p>
   {/if}
 
-  {#if linkTo && multiWindowService}
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger>
-        {#snippet child({props})}
-          <Button {...props} variant="ghost" size="icon-xs" icon="i-mdi-dots-vertical" aria-label={$t`More options`} />
-        {/snippet}
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="start">
-        <DropdownMenu.Item class="cursor-pointer" onSelect={() => multiWindowService.openEntryInNewWindow(linkTo.id)}>
-          <Icon icon="i-mdi-open-in-new" />
-          {$t`Open in new Window`}
-        </DropdownMenu.Item>
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>
+  {#if linkTo}
+    <div class="ms-auto">
+      <EntryActionsButton entryId={linkTo.id} />
+    </div>
   {/if}
 </div>

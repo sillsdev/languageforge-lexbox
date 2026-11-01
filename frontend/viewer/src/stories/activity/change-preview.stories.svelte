@@ -1,6 +1,7 @@
 <script module lang="ts">
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import {Router} from 'svelte-routing';
+  import {expect, userEvent, within} from 'storybook/test';
   import type {
     IActivityChangeInfo,
     IChangeContext,
@@ -133,6 +134,20 @@
             <ActivityItemChangePreview context={context(example)} change={change(example)} info={example.info} />
           </section>
         {/each}
+      </div>
+    </Router>
+  {/snippet}
+</Story>
+
+<Story name="Entry actions open"
+  play={async ({canvasElement}) => {
+    await userEvent.click(await within(canvasElement).findByRole('button', {name: 'More options'}));
+    await expect(await within(document.body).findByRole('menuitem', {name: /Go to/})).toBeVisible();
+  }}>
+  {#snippet template()}
+    <Router>
+      <div class="max-w-3xl border rounded p-4 pb-32">
+        <ActivityItemChangePreview context={context(examples[1])} change={change(examples[1])} />
       </div>
     </Router>
   {/snippet}
