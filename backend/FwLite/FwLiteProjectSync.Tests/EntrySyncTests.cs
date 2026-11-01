@@ -385,6 +385,12 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
             options = options
                 .For(e => e.Components).Exclude(c => c.ComplexFormHeadword)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword);
+            // The random entries share headwords, so the APIs renumber them as homographs and the link headwords'
+            // homograph subscripts (bank₂) don't round-trip either.
+            options = options
+                .Using<string>(ctx => WithoutHomographNumber(ctx.Subject).Should().Be(WithoutHomographNumber(ctx.Expectation)))
+                .When(info => info.Path.EndsWith($".{nameof(ComplexFormComponent.ComponentHeadword)}")
+                    || info.Path.EndsWith($".{nameof(ComplexFormComponent.ComplexFormHeadword)}"));
             if (currentApiType == ApiType.FwData)
             {
                 // does not support changing MorphType yet (see UpdateEntryProxy.MorphType)
@@ -396,6 +402,8 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
             return options;
         });
     }
+
+    private static string? WithoutHomographNumber(string? headword) => headword?.TrimEnd('₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉');
 
     [Fact]
     public async Task NormalizesStringsToNFD()
@@ -563,11 +571,11 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
     {
         // arrange
         // - before
-        var existingEntryBefore = await Api.CreateEntry(new() { LexemeForm = { { "en", "existing-component" } } });
+        var existingEntryBefore = await Api.CreateEntry(new() { LexemeForm = { { "en", "referenced-component" } } });
 
         // - after
         var existingEntryAfter = existingEntryBefore.Copy();
-        var newEntry = new Entry() { Id = Guid.NewGuid(), LexemeForm = { { "en", "complex-form" } } };
+        var newEntry = new Entry() { Id = Guid.NewGuid(), LexemeForm = { { "en", "referencing-complex-form" } } };
         var newComplexFormComponent = ComplexFormComponent.FromEntries(newEntry, existingEntryAfter);
         existingEntryAfter.ComplexForms.Add(newComplexFormComponent);
         newEntry.Components.Add(newComplexFormComponent);
