@@ -12,7 +12,7 @@
   import {objectDiffRows, type ObjectType} from '$lib/entry-editor/diff-view/diff-fields';
   import DiffAnchor from '$lib/entry-editor/diff-view/DiffAnchor.svelte';
   import {entryAnchor, exampleAnchor, objectAnchor, senseAnchor, type AnchorText} from '$lib/entry-editor/diff-view/anchor-text';
-  import {useWritingSystemService} from '$project/data';
+  import {usePartsOfSpeech, useWritingSystemService} from '$project/data';
   import ActivityChangeHeader from './ActivityChangeHeader.svelte';
   import {senseInEntry, senseLabel} from '$lib/entry-editor/sense-ref';
   import {bestHeadword, changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
@@ -34,6 +34,7 @@
 
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
+  const partsOfSpeech = usePartsOfSpeech();
 
   const affectedEntry = $derived(context.affectedEntries.length === 1 ? context.affectedEntries[0] : undefined);
 
@@ -100,10 +101,13 @@
     ].filter(a => !!a);
   });
 
-  const componentSenseName = $derived.by(() => {
+  const componentSense = $derived.by(() => {
     const found = cfc && senseInEntry(component, cfc.componentSenseId);
     if (!found) return undefined;
-    return found === 'deleted' ? $t`(deleted sense)` : senseLabel(writingSystemService, found);
+    if (found === 'deleted') return {deleted: true, label: $t`(deleted sense)`};
+    const pos = found.sense.partOfSpeechId ? partsOfSpeech.current.find(p => p.id === found.sense.partOfSpeechId)?.label : undefined;
+    const label = senseLabel(writingSystemService, found);
+    return label || pos ? {label, pos} : undefined;
   });
 
   // Not on Later changes, which already diffs against now. Only when the headword moved on, or it would repeat the anchor
@@ -126,18 +130,18 @@
   {@const liveEntry = live(entry)}
   <span class="text-lg font-semibold text-foreground">
     {#if liveEntry}
-      <Headwords entry={liveEntry} placeholder={$t`Untitled`} />
+      <Headwords class="font-semibold" entry={liveEntry} placeholder={$t`Untitled`} />
     {:else}
       <!-- Gone: the headword the link recorded -->
-      <span class="text-muted-foreground">{snapshotHeadword || $t`Untitled`} {$t`(deleted)`}</span>
+      <span class="text-muted-foreground">{snapshotHeadword || $t`Untitled`} <span class="text-base font-normal">{$t`(deleted)`}</span></span>
     {/if}
   </span>
 {/snippet}
 
 {#snippet componentIdentity()}
   <!-- Muted connector between equal-weight headwords: neither end of the link outranks the other -->
-  <span class="wrap-break-word text-sm font-normal text-muted-foreground">
-    <T msg="# part of #" cmt="A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to">{@render linkEnd(component, cfc?.componentHeadword)}{#if componentSenseName}<span class="ms-1 text-base font-normal text-muted-foreground" data-testid="change-component-sense">{componentSenseName}</span>{/if}{#snippet second()}{@render linkEnd(complexForm, cfc?.complexFormHeadword)}{/snippet}</T>
+  <span class="wrap-break-word text-base font-normal text-muted-foreground">
+    <T msg="# part of #" cmt="A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to">{@render linkEnd(component, cfc?.componentHeadword)}{#if componentSense}<span class={cn('ms-1', !componentSense.deleted && 'text-foreground')} data-testid="change-component-sense">{#if componentSense.label}{componentSense.label}{/if}{#if componentSense.pos}<i class={cn(componentSense.label && 'ms-1')}>{componentSense.pos}</i>{/if}</span>{/if}{#snippet second()}{@render linkEnd(complexForm, cfc?.complexFormHeadword)}{/snippet}</T>
   </span>
 {/snippet}
 

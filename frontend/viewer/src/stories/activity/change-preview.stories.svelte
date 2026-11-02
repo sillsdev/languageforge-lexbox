@@ -61,7 +61,7 @@
     componentHeadword: 'dance',
   };
 
-  const secondSense: ISense = {...sense, id: 'second-sense', gloss: {en: 'dance (verb)'}};
+  const secondSense: ISense = {...sense, id: 'second-sense', gloss: {en: 'dance'}, partOfSpeechId: partsOfSpeech[0].id};
   const twoSenses: IEntry = {...other, senses: [other.senses[0], secondSense]};
   const senseLink: IComplexFormComponent = {...link, componentSenseId: secondSense.id};
   const staleSenseLink: IComplexFormComponent = {...link, componentSenseId: 'removed-sense'};
