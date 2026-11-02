@@ -76,13 +76,3 @@ export function parentCrumb(kind: ChangeKind, info: IActivityChangeInfo | undefi
 export function bestHeadword(writingSystemService: WritingSystemService, view: View, entry: IEntry, untitled: string): string {
   return (writingSystemService.viewBestHeadword(entry, view) || untitled) + homographSubscript(entry.homographNumber);
 }
-
-/**
- * Where a component link's actions go. The complex form holds the editable components field, so it is the target
- * while live; the component outlives the link. The component is offered as related only beside a live complex form.
- */
-export function componentTargets(complexForm: IEntry | undefined, component: IEntry | undefined): {target?: IEntry; related?: IEntry} {
-  const liveComplexForm = complexForm && !complexForm.deletedAt ? complexForm : undefined;
-  const liveComponent = component && !component.deletedAt ? component : undefined;
-  return {target: liveComplexForm ?? liveComponent, related: liveComplexForm ? liveComponent : undefined};
-}

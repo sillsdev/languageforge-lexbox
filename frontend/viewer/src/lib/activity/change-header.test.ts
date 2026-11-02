@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
-import type {IChangeEntity, IEntry} from '$lib/dotnet-types';
-import {changeBadge, componentTargets, changeKind, isReorder, parentCrumb} from './change-header';
+import type {IChangeEntity} from '$lib/dotnet-types';
+import {changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
 
 function change($type?: string): IChangeEntity {
   return {index: 0, commitId: 'c', entityId: 'e', authoredModelVersion: 1, change: {entityId: 'e', ...($type ? {$type} : {})}};
@@ -83,28 +83,5 @@ describe('parentCrumb', () => {
     expect(parentCrumb('example', undefined)).toEqual([]);
     expect(parentCrumb('entry', {entry: nyumba})).toEqual([]);
     expect(parentCrumb('object', {objectName: 'Noun'})).toEqual([]);
-  });
-});
-
-describe('componentTargets', () => {
-  const live = {id: 'live'} as IEntry;
-  const other = {id: 'other'} as IEntry;
-  const dead = {id: 'dead', deletedAt: '2026-10-02T10:00:00Z'} as IEntry;
-
-  it('targets the complex form and offers the component', () => {
-    expect(componentTargets(live, other)).toEqual({target: live, related: other});
-  });
-
-  it('targets the component when the complex form is deleted or missing', () => {
-    expect(componentTargets(dead, other)).toEqual({target: other, related: undefined});
-    expect(componentTargets(undefined, other)).toEqual({target: other, related: undefined});
-  });
-
-  it('offers nothing extra when the component is deleted', () => {
-    expect(componentTargets(live, dead)).toEqual({target: live, related: undefined});
-  });
-
-  it('has no target when both are deleted', () => {
-    expect(componentTargets(dead, dead)).toEqual({target: undefined, related: undefined});
   });
 });

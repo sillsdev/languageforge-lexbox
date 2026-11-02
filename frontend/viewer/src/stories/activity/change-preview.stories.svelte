@@ -163,7 +163,6 @@
     await userEvent.click(await within(canvasElement).findByRole('button', {name: 'More options'}));
     const item = await within(document.body).findByRole('menuitem', {name: /Go to (Entry|Word)/});
     await waitFor(() => expect(item).toBeVisible());
-    await expect(within(document.body).queryByRole('menuitem', {name: /Go to component/})).toBeNull();
   }}>
   {#snippet template()}
     <Router>
@@ -176,8 +175,13 @@
 
 <Story name="Component actions open"
   play={async ({canvasElement}) => {
-    await userEvent.click(await within(canvasElement).findByRole('button', {name: 'More options'}));
-    const item = await within(document.body).findByRole('menuitem', {name: /Go to component/});
+    const canvas = within(canvasElement);
+    // The previous story leaves its menu open, and an open menu blocks pointer events on the page
+    await userEvent.keyboard('{Escape}');
+    await expect(await canvas.findByRole('button', {name: /^Edit component: dance/})).toBeVisible();
+    await expect(canvas.getByRole('button', {name: /^Edit (complex form|whole word): nyumba/})).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', {name: /^More options for nyumba/}));
+    const item = await within(document.body).findByRole('menuitem', {name: /Go to (Entry|Word)/});
     await waitFor(() => expect(item).toBeVisible());
     await expect(within(canvasElement).getByTestId('change-component-sense')).toHaveTextContent(/^2 /);
   }}>

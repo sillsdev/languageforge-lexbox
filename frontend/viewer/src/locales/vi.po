@@ -31,6 +31,10 @@ msgstr "– ({0} các thay đổi)"
 msgid "(deleted sense)"
 msgstr ""
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted)"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
@@ -149,6 +153,11 @@ msgstr "**Ít loại môrphêm hơn** (chỉ *Gốc*, *Gốc liên kết*, *Thâ
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Thuật ngữ đơn giản hơn** (ví dụ *Từ* thay vì *Hình thức lexeme*, *Ý nghĩa* thay vì *Sense*)"
+
+#. A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "# part of #"
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
@@ -1081,6 +1090,14 @@ msgstr "Chỉnh sửa"
 msgid "Edit comment"
 msgstr "Chỉnh sửa bình luận"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit complex form"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit component"
+msgstr ""
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
@@ -1096,6 +1113,10 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Edit Picture"
 msgstr "Chỉnh sửa ảnh"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit whole word"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Edit Entry"
@@ -1550,12 +1571,6 @@ msgstr "Ghi chú"
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Đi tới {0}"
-
-#. Menu option on a complex form's change in the activity view; leaves the activity view and opens the component entry in the dictionary
-#. {0} = the component's headword. Component = a part of a complex form (called "Part" in the Lite view)
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Go to component: {0}"
-msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Go to word"
@@ -2021,6 +2036,10 @@ msgstr "Chế độ"
 #. Accessible name of the arrow button that opens more actions for an entry in the activity change preview
 #: src/lib/activity/EntryActionsButton.svelte
 msgid "More options"
+msgstr ""
+
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "More options for {0}"
 msgstr ""
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
@@ -3565,7 +3584,6 @@ msgstr "Chưa đọc"
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
 #: src/lib/activity/ActivityChangeHeader.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte

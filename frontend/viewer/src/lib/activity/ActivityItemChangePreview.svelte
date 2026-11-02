@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
   import {type IActivityChangeInfo, type IChangeContext, type IChangeEntity, type IComplexFormComponent, type IEntry, type IExampleSentence, type ISense} from '$lib/dotnet-types';
-  import {t} from 'svelte-i18n-lingui';
+  import {T, t} from 'svelte-i18n-lingui';
   import {formatJsonForUi} from './utils';
   import {useViewService} from '$lib/views/view-service.svelte';
   import Headwords from '$lib/components/dictionary/Headwords.svelte';
@@ -15,7 +15,8 @@
   import {useWritingSystemService} from '$project/data';
   import ActivityChangeHeader from './ActivityChangeHeader.svelte';
   import {senseInEntry, senseLabel} from '$lib/entry-editor/sense-ref';
-  import {bestHeadword, changeBadge, changeKind, componentTargets, isReorder, parentCrumb, type CrumbText} from './change-header';
+  import {bestHeadword, changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
+  import {pt} from '$lib/views/view-text';
   import {existing, type SinceThen} from './since-then';
   import {cn} from '$lib/utils';
 
@@ -75,18 +76,26 @@
   const complexForm = $derived(cfc && context.affectedEntries.find(e => e.id === cfc.complexFormEntryId));
   const component = $derived(cfc && context.affectedEntries.find(e => e.id === cfc.componentEntryId));
 
-  const targets = $derived(componentTargets(complexForm, component));
+  function live(e: IEntry | undefined): IEntry | undefined {
+    return e && !e.deletedAt ? e : undefined;
+  }
+  const liveComplexForm = $derived(live(complexForm));
+  const liveComponent = $derived(live(component));
 
   // Something deleted, by this change or since, can't be edited or gone to
-  const actionsEntry = $derived.by(() => {
-    if (kind === 'complexFormComponent') return targets.target;
-    return after && affectedEntry && !affectedEntry.deletedAt ? affectedEntry : undefined;
-  });
+  const actionsEntry = $derived(kind !== 'complexFormComponent' && after ? live(affectedEntry) : undefined);
 
-  const related = $derived.by(() => {
-    if (!targets.related) return undefined;
-    const headword = bestHeadword(writingSystemService, viewService.currentView, targets.related, $t`Untitled`);
-    return {entryId: targets.related.id, label: $t`Go to component: ${headword}`};
+  const actions = $derived.by(() => {
+    const currentView = viewService.currentView;
+    function headword(e: IEntry): string {
+      return bestHeadword(writingSystemService, currentView, e, $t`Untitled`);
+    }
+    if (kind !== 'complexFormComponent') return actionsEntry ? [{entryId: actionsEntry.id}] : [];
+    // In the sentence's order
+    return [
+      liveComponent && {entryId: liveComponent.id, label: $t`Edit component`, headword: headword(liveComponent)},
+      liveComplexForm && {entryId: liveComplexForm.id, label: pt($t`Edit complex form`, $t`Edit whole word`, currentView), headword: headword(liveComplexForm)},
+    ].filter(a => !!a);
   });
 
   const componentSenseName = $derived.by(() => {
@@ -103,14 +112,7 @@
     return changed ? actionsEntry : undefined;
   });
 
-  const crumbs = $derived.by((): CrumbText[] => {
-    if (kind !== 'complexFormComponent') return parentCrumb(kind, info);
-    if (complexForm && !complexForm.deletedAt) {
-      return [{text: writingSystemService.viewBestHeadword(complexForm, viewService.currentView) || $t`Untitled`, homographNumber: complexForm.homographNumber}];
-    }
-    const crumb = parentCrumb(kind, info);
-    return crumb.length || !cfc?.complexFormHeadword ? crumb : [{text: cfc.complexFormHeadword}];
-  });
+  const crumbs = $derived(kind === 'complexFormComponent' ? [] : parentCrumb(kind, info));
 </script>
 
 {#snippet anchorIdentity()}
@@ -118,15 +120,23 @@
   {#if kind === 'sense' && info?.sense?.number}{info.sense.number}&nbsp;{/if}<DiffAnchor {...anchor} />
 {/snippet}
 
+{#snippet linkEnd(entry: IEntry | undefined, snapshotHeadword: string | undefined)}
+  {@const liveEntry = live(entry)}
+  <span class="text-lg font-semibold text-foreground">
+    {#if liveEntry}
+      <Headwords entry={liveEntry} placeholder={$t`Untitled`} />
+    {:else}
+      <!-- Gone: the headword the link recorded -->
+      <span class="text-muted-foreground">{snapshotHeadword || $t`Untitled`} {$t`(deleted)`}</span>
+    {/if}
+  </span>
+{/snippet}
+
 {#snippet componentIdentity()}
-  {#if component}
-    <Headwords entry={component} placeholder={$t`Untitled`} />
-  {:else}
-    <span>{cfc?.componentHeadword || $t`Untitled`}</span>
-  {/if}
-  {#if componentSenseName}
-    <span class="ms-1 text-base font-normal text-muted-foreground" data-testid="change-component-sense">{componentSenseName}</span>
-  {/if}
+  <!-- Muted connector between equal-weight headwords: neither end of the link outranks the other -->
+  <span class="wrap-break-word text-sm font-normal text-muted-foreground">
+    <T msg="# part of #" cmt="A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to">{@render linkEnd(component, cfc?.componentHeadword)}{#if componentSenseName}<span class="ms-1 text-base font-normal text-muted-foreground" data-testid="change-component-sense">{componentSenseName}</span>{/if}{#snippet second()}{@render linkEnd(complexForm, cfc?.complexFormHeadword)}{/snippet}</T>
+  </span>
 {/snippet}
 
 {#snippet sinceNote()}
@@ -144,7 +154,7 @@
 <div class={cn(gone && 'diff-gone', fresh && 'diff-new')}>
   {#if anchor || cfc}
     <div class="mb-3">
-      <ActivityChangeHeader label={context.changeName} {crumbs} {badge} entry={actionsEntry} {related} {now}
+      <ActivityChangeHeader label={context.changeName} {crumbs} {badge} {actions} {now}
                             identity={cfc ? componentIdentity : anchorIdentity} />
     </div>
   {/if}

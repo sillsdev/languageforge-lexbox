@@ -11,15 +11,19 @@
   import {useViewService} from '$lib/views/view-service.svelte';
   import {pt} from '$lib/views/view-text';
 
-  let {entryId, related}: {
+  let {entryId, label, headword}: {
     entryId: string;
-    related?: {entryId: string; label: string};
+    /** Defaults to Edit Entry/Word */
+    label?: string;
+    /** Appended to the accessible names, for cards with several of these buttons */
+    headword?: string;
   } = $props();
 
   const multiWindowService = useMultiWindowService();
   const viewService = useViewService();
 
   let editOpen = $state(false);
+  const editText = $derived(label ?? pt($t`Edit Entry`, $t`Edit Word`, viewService.currentView));
 </script>
 
 {#if editOpen}
@@ -28,14 +32,16 @@
 {/if}
 
 <ButtonGroup.Root>
-  <Button variant="secondary" size="xs" icon="i-mdi-pencil-outline" onclick={() => editOpen = true}>
-    {pt($t`Edit Entry`, $t`Edit Word`, viewService.currentView)}
+  <!-- The accessible name starts with the visible text (WCAG label in name) -->
+  <Button variant="secondary" size="xs" icon="i-mdi-pencil-outline" class="flex-1 justify-start" onclick={() => editOpen = true}
+          aria-label={headword ? `${editText}: ${headword}` : undefined}>
+    {editText}
   </Button>
   <DropdownMenu.Root>
     <DropdownMenu.Trigger>
       {#snippet child({props})}
         <Button {...props} variant="secondary" size="xs" class="border-s border-background px-1.5"
-                icon="i-mdi-chevron-down" aria-label={$t`More options`} />
+                icon="i-mdi-chevron-down" aria-label={headword ? $t`More options for ${headword}` : $t`More options`} />
       {/snippet}
     </DropdownMenu.Trigger>
     <DropdownMenu.Content align="end">
@@ -51,17 +57,6 @@
         <DropdownMenu.Item class="cursor-pointer" onSelect={() => multiWindowService.openEntryInNewWindow(entryId)}>
           <Icon icon="i-mdi-open-in-new" />
           {$t`Open in new Window`}
-        </DropdownMenu.Item>
-      {/if}
-      {#if related}
-        <DropdownMenu.Separator />
-        <DropdownMenu.Item class="cursor-pointer">
-          {#snippet child({props})}
-            <Link {...props} to="./browse?{entryBrowseParams(related.entryId)}">
-              <Icon icon="i-mdi-link" />
-              {related.label}
-            </Link>
-          {/snippet}
         </DropdownMenu.Item>
       {/if}
     </DropdownMenu.Content>
