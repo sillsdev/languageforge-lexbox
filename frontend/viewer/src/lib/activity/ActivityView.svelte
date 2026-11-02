@@ -9,6 +9,7 @@
   import ActivityFilter from './ActivityFilter.svelte';
   import Loading from '$lib/components/Loading.svelte';
   import {Icon} from '$lib/components/ui/icon';
+  import {XButton} from '$lib/components/ui/button';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {IProjectActivity} from '$lib/dotnet-types';
   import ActivityViewPicker from './ActivityViewPicker.svelte';
@@ -29,6 +30,11 @@
   } from './utils';
   import AuthorLabel from './AuthorLabel.svelte';
   import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
+  import MasterDetailView from '$lib/components/master-detail/MasterDetailView.svelte';
+  import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {ActivityParam} from '$lib/utils/search-params';
+  import {tick} from 'svelte';
 
   const historyService = useHistoryService();
 
@@ -121,19 +127,23 @@
     return activity.current?.items ?? [];
   });
 
-  let selectedRow = $state<IProjectActivity>();
+  let selectedId = $state('');
   let vlist = $state<VList<IProjectActivity>>();
 
-  $effect(() => {
-    const visible = visibleActivity;
-    if (!visible?.length) {
-      selectedRow = undefined;
-      return;
-    }
-    if (!selectedRow || !visible.some(a => a.commitId === selectedRow?.commitId)) {
-      selectedRow = visible[0];
-    }
+  // Desktop shows the newest commit until the user picks one (or when the pick is filtered out or
+  // not loaded). It's derived rather than written to selectedId, so it pushes no history entry.
+  const selectedRow = $derived.by(() => {
+    const picked = visibleActivity?.find(a => a.commitId === selectedId);
+    if (picked || IsMobile.value) return picked;
+    return visibleActivity?.[0];
   });
+
+  async function scrollToSelected() {
+    const index = visibleActivity?.findIndex(a => a.commitId === selectedId) ?? -1;
+    if (index < 0) return;
+    await tick();
+    vlist?.scrollToIndex(index, {align: 'nearest'});
+  }
 
   $effect(() => {
     if (!hasActiveServerSideFilters(filters) || activity.loading || visibleActivity === null || !hasMorePages) return;
@@ -186,110 +196,144 @@
   {/if}
 {/snippet}
 
-<div class="h-full m-4 grid gap-x-6 gap-y-1 overflow-hidden"
-     style="grid-template-rows: auto 1fr; grid-template-columns: minmax(8rem,25%) minmax(0,2fr)">
-
-  <div>
-    <ActivityFilter bind:filters>
-      {#snippet trailing()}
-        <ActivityViewPicker />
-      {/snippet}
-    </ActivityFilter>
-  </div>
-
-  <div class="gap-4 overflow-hidden row-start-2 relative">
-    {#if activity.error && awaitingFreshData}
-      <div class="flex h-full items-center justify-center gap-2 text-muted-foreground">
-        <Icon icon="i-mdi-alert-circle-outline" />
-        <p>{$t`Failed to load activity`}</p>
-      </div>
-    {:else if awaitingFreshData}
-      <div class="flex h-full items-center justify-center">
-        <Loading class="size-8 text-muted-foreground" aria-label={$t`Loading activity`} />
-      </div>
-    {:else if visibleActivity && visibleActivity.length}
-      <VList bind:this={vlist} data={visibleActivity}
-             class="h-full p-0.5 md:pr-3 after:h-12 after:block"
-             onscroll={onListScroll}
-             getKey={row => row.commitId} bufferSize={400}>
-        {#snippet children(row)}
-          {@const summary = summarizeActivity(row.changes)}
-          <!-- The badge replaces the inline glyph on single-fact rows (it IS that fact's glyph,
-               relocated). Multi-fact commits get no badge — see commitBadge — and keep per-fact glyphs. -->
-          {@const badge = commitBadge(summary)}
-          <ListItem
-            onclick={() => selectedRow = row}
-            selected={selectedRow?.commitId === row.commitId}
-            class="mb-2 relative overflow-hidden">
-            {#if summary.entries.length === 0}
-              <span>{row.changeName}</span>
-            {:else}
-              <!-- Facts group by the entry tree they touch: the header line is the group's `lead` (the
-                   entry's own create/delete — the main event) when the commit contains one, else the bare
-                   bold headword; the entry's other changes list beneath along an indent rail. Single-fact
-                   and headwordless groups render inline instead (their line names its own subject). -->
-              {@const groups = groupByOwningEntry(summary.entries)}
-              <div class="space-y-1">
-                {#each groups as group, gi (gi)}
-                  {#if group.lead && group.facts.length > 0}
-                    <div>
-                      {@render factLine(group.lead)}
-                      <div class="ms-1 space-y-0.5 border-s border-muted-foreground/40 ps-2">
-                        {#each group.facts as entry, i (i)}
-                          {@render factLine(entry, true)}
-                        {/each}
-                      </div>
-                    </div>
-                  {:else if group.entry && group.facts.length > 1}
-                    <div>
-                      <div class="font-semibold text-foreground">{group.entry.headword}<HomographNumber homographNumber={group.entry.homographNumber} /></div>
-                      <div class="ms-1 space-y-0.5 border-s border-muted-foreground/40 ps-2">
-                        {#each group.facts as entry, i (i)}
-                          {@render factLine(entry, true)}
-                        {/each}
-                      </div>
-                    </div>
-                  {:else}
-                    {#if group.lead}
-                      {@render factLine(group.lead, false, !!badge)}
-                    {/if}
-                    {#each group.facts as entry, i (i)}
-                      {@render factLine(entry, false, !!badge)}
-                    {/each}
-                  {/if}
-                {/each}
-                {#if summary.remaining > 0}
-                  <div class="ps-5 text-foreground/60">{$plural(summary.remaining, {one: '(+# more change)', other: '(+# more changes)'})}</div>
-                {/if}
-              </div>
-            {/if}
-            {#if badge}
-              <span class="absolute top-1 end-1" role="img" title={badgeLabel(badge.category)} aria-label={badgeLabel(badge.category)}>
-                <Icon icon={BADGE_ICON[badge.category]} class="size-3.5 {badgeColor(badge)}" />
-              </span>
-            {/if}
-            <div class="mt-2 text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
-              <AuthorLabel class="min-w-0" authorId={row.metadata.authorId} authorName={row.metadata.authorName} />
-              <span class="flex items-center gap-1">
-                {#if !row.metadata.extraMetadata['SyncDate']}
-                  <Icon
-                    icon="i-mdi-cloud-off-outline"
-                    class="size-4 shrink-0 text-muted-foreground"
-                    title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`} />
-                {/if}
-                <FormatRelativeDate date={row.timestamp}
-                        actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
-              </span>
+<ViewErrorBoundary class="flex flex-col h-full" title={$t`Activity view failed`}>
+  <MasterDetailView
+    idParam={ActivityParam.CommitId}
+    openParam={ActivityParam.CommitOpen}
+    defaultLayout={[35, 65]}
+    bind:selectedId
+    onClose={scrollToSelected}
+  >
+    {#snippet master({select})}
+      <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
+        <div class="md:mr-3">
+          <ActivityFilter bind:filters>
+            {#snippet trailing()}
+              <ActivityViewPicker />
+            {/snippet}
+          </ActivityFilter>
+        </div>
+        <div class="flex-1 min-h-0 mt-1 overflow-hidden relative">
+          {#if activity.error && awaitingFreshData}
+            <div class="flex h-full items-center justify-center gap-2 text-muted-foreground">
+              <Icon icon="i-mdi-alert-circle-outline" />
+              <p>{$t`Failed to load activity`}</p>
             </div>
-          </ListItem>
-        {/snippet}
-      </VList>
-    {:else if !loading.current}
-      <div class="p-4 text-center opacity-75">{$t`No activity matches these filters`}</div>
-    {/if}
-  </div>
+          {:else if awaitingFreshData}
+            <div class="flex h-full items-center justify-center">
+              <Loading class="size-8 text-muted-foreground" aria-label={$t`Loading activity`} />
+            </div>
+          {:else if visibleActivity && visibleActivity.length}
+            <VList bind:this={vlist} data={visibleActivity}
+                   class="h-full p-0.5 md:pr-3 after:h-12 after:block"
+                   onscroll={onListScroll}
+                   getKey={row => row.commitId} bufferSize={400}>
+              {#snippet children(row)}
+                {@const summary = summarizeActivity(row.changes)}
+                <!-- The badge replaces the inline glyph on single-fact rows (it IS that fact's glyph,
+                     relocated). Multi-fact commits get no badge — see commitBadge — and keep per-fact glyphs. -->
+                {@const badge = commitBadge(summary)}
+                <ListItem
+                  onclick={() => select(row.commitId)}
+                  selected={selectedRow?.commitId === row.commitId}
+                  class="mb-2 relative overflow-hidden">
+                  {#if summary.entries.length === 0}
+                    <span>{row.changeName}</span>
+                  {:else}
+                    <!-- Facts group by the entry tree they touch: the header line is the group's `lead` (the
+                         entry's own create/delete — the main event) when the commit contains one, else the bare
+                         bold headword; the entry's other changes list beneath along an indent rail. Single-fact
+                         and headwordless groups render inline instead (their line names its own subject). -->
+                    {@const groups = groupByOwningEntry(summary.entries)}
+                    <div class="space-y-1">
+                      {#each groups as group, gi (gi)}
+                        {#if group.lead && group.facts.length > 0}
+                          <div>
+                            {@render factLine(group.lead)}
+                            <div class="ms-1 space-y-0.5 border-s border-muted-foreground/40 ps-2">
+                              {#each group.facts as entry, i (i)}
+                                {@render factLine(entry, true)}
+                              {/each}
+                            </div>
+                          </div>
+                        {:else if group.entry && group.facts.length > 1}
+                          <div>
+                            <div class="font-semibold text-foreground">{group.entry.headword}<HomographNumber homographNumber={group.entry.homographNumber} /></div>
+                            <div class="ms-1 space-y-0.5 border-s border-muted-foreground/40 ps-2">
+                              {#each group.facts as entry, i (i)}
+                                {@render factLine(entry, true)}
+                              {/each}
+                            </div>
+                          </div>
+                        {:else}
+                          {#if group.lead}
+                            {@render factLine(group.lead, false, !!badge)}
+                          {/if}
+                          {#each group.facts as entry, i (i)}
+                            {@render factLine(entry, false, !!badge)}
+                          {/each}
+                        {/if}
+                      {/each}
+                      {#if summary.remaining > 0}
+                        <div class="ps-5 text-foreground/60">{$plural(summary.remaining, {one: '(+# more change)', other: '(+# more changes)'})}</div>
+                      {/if}
+                    </div>
+                  {/if}
+                  {#if badge}
+                    <span class="absolute top-1 end-1" role="img" title={badgeLabel(badge.category)} aria-label={badgeLabel(badge.category)}>
+                      <Icon icon={BADGE_ICON[badge.category]} class="size-3.5 {badgeColor(badge)}" />
+                    </span>
+                  {/if}
+                  <div class="mt-2 text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between items-center">
+                    <AuthorLabel class="min-w-0" authorId={row.metadata.authorId} authorName={row.metadata.authorName} />
+                    <span class="flex items-center gap-1">
+                      {#if !row.metadata.extraMetadata['SyncDate']}
+                        <Icon
+                          icon="i-mdi-cloud-off-outline"
+                          class="size-4 shrink-0 text-muted-foreground"
+                          title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`} />
+                      {/if}
+                      <FormatRelativeDate date={row.timestamp}
+                              actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
+                    </span>
+                  </div>
+                </ListItem>
+              {/snippet}
+            </VList>
+          {:else if !loading.current}
+            <div class="p-4 text-center opacity-75">{$t`No activity matches these filters`}</div>
+          {/if}
+        </div>
+      </div>
+    {/snippet}
+    {#snippet detail({close, showClose})}
+      {@render activityDetail(close, showClose)}
+    {/snippet}
+    {#snippet empty()}
+      {@render activityDetail()}
+    {/snippet}
+  </MasterDetailView>
+</ViewErrorBoundary>
 
+{#snippet activityDetail(close?: () => void, showClose = false)}
   {#if selectedRow}
-    <ActivityItem class="sub-grid row-span-2 col-start-2" activity={selectedRow} showHistoryButton />
+    <div class="h-full p-2 md:p-4">
+      <ActivityItem activity={selectedRow} showHistoryButton {showClose} onClose={close} />
+    </div>
+  {:else}
+    <div class="h-full flex flex-col p-2">
+      {#if showClose}
+        <XButton onclick={close} size="icon" />
+      {/if}
+      {#if visibleActivity === null}
+        <div class="flex-1 flex items-center justify-center">
+          <Loading class="size-8 text-muted-foreground" aria-label={$t`Loading activity`} />
+        </div>
+      {:else if visibleActivity.length}
+        <div class="flex-1 flex items-center justify-center text-muted-foreground text-center">
+          <p>{$t`Select a change to view details`}</p>
+        </div>
+      {/if}
+    </div>
   {/if}
-</div>
+{/snippet}
