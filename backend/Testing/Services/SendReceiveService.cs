@@ -59,7 +59,7 @@ public class SendReceiveService
         };
     }
 
-    public async Task<string> GetHgVersion()
+    public static async Task<string> GetHgVersion()
     {
         using Process hg = new();
         hg.StartInfo.FileName = MercurialLocation.PathToHgExecutable;

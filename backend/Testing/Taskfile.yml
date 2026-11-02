@@ -26,7 +26,12 @@ tasks:
     interactive: true
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
+      HG: '{{default "7" .HG}}'
+    env:
+      MercurialVersion: '{{.HG}}'
+      TEST_EXPECTED_HG_VERSION: '{{.HG}}'
     cmds:
+      - dotnet build
       - dotnet test --filter="Category=HgIntegration&FullyQualifiedName!~Testing.Browser&{{.FILTER}}" --results-directory ./test-results --logger trx
 
   integration-env:
@@ -51,7 +56,7 @@ tasks:
       TEST_RESUMABLE_HG_HOSTNAME: 'resumable-staging.languagedepot.org'
     cmds:
 #     - 'read -p "password: " TEST_DEFAULT_PASSWORD'
-      - task hg-integration -- {{.CLI_ARGS}}
+      - task hg-integration HG={{default "7" .HG}} -- {{.CLI_ARGS}}
 
   # Playwright
   playwright:

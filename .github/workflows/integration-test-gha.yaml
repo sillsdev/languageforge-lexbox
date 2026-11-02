@@ -18,6 +18,10 @@ jobs:
   dotnet:
     timeout-minutes: 30
     runs-on: ubuntu-latest
+    env:
+      # The quick check runs the hg client tests on hg 7 only; the release pipeline covers 3, 6 and 7.
+      MercurialVersion: '7'
+      TEST_EXPECTED_HG_VERSION: '7'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
@@ -38,8 +42,6 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: 'resumable.localhost:6579'
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: 'pass'
-          # The quick check runs hg tests on the default hg only; the release pipeline covers 3, 6 and 7.
-          TEST_EXPECTED_HG_VERSION: '7'
         run: dotnet test LexBoxOnly.slnf --logger GitHubActions --filter "Category=Integration|Category=HgIntegration" --blame-hang-timeout 40m
 
       - name: status

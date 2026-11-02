@@ -2,8 +2,8 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
-    <!-- To switch Mercurial versions (3, 6 or 7), do dotnet build -p:MercurialVersion=3 followed by dotnet test -p:MercurialVersion=3 -->
-    <!-- Both need the property: dotnet test restores and builds again, and without it switches back to Mercurial 7 -->
+    <!-- To switch Mercurial versions (3, 6 or 7), set the MercurialVersion env var (or pass -p:) for both dotnet build and dotnet test -->
+    <!-- Both need it: dotnet test restores and builds again, and without it switches back to Mercurial 7 -->
     <!-- Run the build first: Mercurial is staged into this folder during build, after the Content glob below was evaluated -->
     <MercurialVersion Condition=" '$(MercurialVersion)' == '' ">7</MercurialVersion>
   </PropertyGroup>

@@ -1,5 +1,5 @@
 name: Integration Tests
-run-name: Test ${{ inputs.runs-on }}${{ inputs.hg-version && format(' for Mercurial {0}', inputs.hg-version) || '' }} on ${{ inputs.environment }}
+run-name: Test ${{ inputs.runs-on }} on ${{ inputs.environment }}
 on:
   workflow_call:
     inputs:
@@ -10,11 +10,6 @@ on:
       runs-on:
         description: 'The runner to use'
         required: true
-        type: string
-      hg-version:
-        description: 'Set (3, 6 or 7) to run only the hg tests, with that hg client. Empty runs the other integration tests.'
-        required: false
-        default: ''
         type: string
       run-dotnet:
         description: 'Whether to run dotnet tests'
@@ -36,11 +31,6 @@ on:
         description: 'The runner to use'
         required: true
         type: string
-      hg-version:
-        description: 'Set (3, 6 or 7) to run only the hg tests, with that hg client. Empty runs the other integration tests.'
-        required: false
-        default: ''
-        type: string
       run-dotnet:
         description: 'Whether to run dotnet tests'
         required: false
@@ -61,7 +51,7 @@ jobs:
   dotnet-test:
     if: ${{ inputs.run-dotnet }}
     timeout-minutes: 120
-    name: Dotnet ${{ inputs.hg-version && format('hg {0} tests', inputs.hg-version) || 'integration tests' }} on ${{ inputs.runs-on }} on ${{ inputs.environment }}
+    name: Dotnet integration tests on ${{ inputs.runs-on }} on ${{ inputs.environment }}
     permissions:
       contents: read
       checks: write
@@ -73,21 +63,8 @@ jobs:
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.x'
-      - uses: MatteoH2O1999/setup-python@429b7dee8a48c31eb72ce0b420ea938ff51c2f11 # v3.2.1
-        id: python
-        if: ${{ inputs.runs-on != 'windows-latest' && !env.act && inputs.hg-version == '3' }}
-        with:
-          python-version: '2.7.18'
-          cache-build: true
-          allow-build: allow
-      - name: Link python
-        if: ${{ inputs.runs-on != 'windows-latest' && inputs.hg-version == '3' }}
-        run: |
-          sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Build for tests
-        # dotnet test below restores and builds again, so it needs the same MercurialVersion or it switches back to hg 7.
-        # Inlined rather than read from env because $VAR is not an env var in pwsh on windows-latest.
-        run: dotnet build LexBoxOnly.slnf ${{ inputs.hg-version && format('-p:MercurialVersion={0}', inputs.hg-version) || '' }}
+        run: dotnet build LexBoxOnly.slnf
 
       - name: Tests (.NET)
         env:
@@ -97,14 +74,13 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-          TEST_EXPECTED_HG_VERSION: ${{ inputs.hg-version }}
-        run: dotnet test LexBoxOnly.slnf ${{ inputs.hg-version && format('-p:MercurialVersion={0}', inputs.hg-version) || '' }} --output ./bin --logger trx --results-directory ./test-results --filter ${{ inputs.hg-version && 'Category=HgIntegration' || 'Category=Integration' }}
+        run: dotnet test LexBoxOnly.slnf --logger trx --results-directory ./test-results --filter Category=Integration
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action/composite@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
         if: ${{ always() && !env.act }}
         with:
-          check_name: ${{ inputs.hg-version && format('Hg {0} Tests {1}', inputs.hg-version, inputs.runs-on) || format('Integration Tests {0}', inputs.runs-on) }}
+          check_name: Integration Tests ${{ inputs.runs-on }}
           files: ./test-results/*.trx
           comment_mode: off
 
