@@ -95,6 +95,18 @@ jobs:
   integration-tests:
     name: Integration tests
     uses: ./.github/workflows/integration-test.yaml
+    needs: deploy
+    permissions:
+      checks: write
+      contents: read
+    secrets: inherit
+    with:
+      environment: staging
+      runs-on: ubuntu-latest
+
+  hg-tests:
+    name: Hg tests
+    uses: ./.github/workflows/integration-test.yaml
     strategy:
       fail-fast: false
       matrix:
@@ -103,16 +115,20 @@ jobs:
           - windows-latest
         hg-version:
           - '3'
+          - '6'
           - '7'
-        # setup-python can't build Python 2.7 (for hg 3) on 26.04: no lzma-dev package.
+        # hg 3: setup-python can't build Python 2.7 on 26.04 (no lzma-dev package).
+        # hg 6: the bundled Mercurial 6.5 fails to start on 26.04's Python 3.14.
         exclude:
           - runs-on: ubuntu-latest
             hg-version: '3'
+          - runs-on: ubuntu-latest
+            hg-version: '6'
         include:
           - runs-on: ubuntu-24.04
             hg-version: '3'
-#        include:
-#          - run-playwright: false
+          - runs-on: ubuntu-24.04
+            hg-version: '6'
     needs: deploy
     permissions:
       checks: write
@@ -122,14 +138,13 @@ jobs:
       environment: staging
       runs-on: ${{ matrix.runs-on }}
       hg-version: ${{ matrix.hg-version }}
-#      run-playwright: ${{ matrix.run-playwright }}
 
   deploy-prod:
     name: Deploy Production
     uses: ./.github/workflows/deploy.yaml
-    needs: [ integration-tests, set-version ]
+    needs: [ integration-tests, hg-tests, set-version ]
     # we want to allow deployment even if some tests fail because they are currently flaky
-    if: ${{ !cancelled() && (needs.integration-tests.result == 'success' || needs.integration-tests.result == 'failure') }}
+    if: ${{ !cancelled() && contains(fromJSON('["success","failure"]'), needs.integration-tests.result) && contains(fromJSON('["success","failure"]'), needs.hg-tests.result) }}
     secrets: inherit
     with:
       version: ${{ needs.set-version.outputs.version }}

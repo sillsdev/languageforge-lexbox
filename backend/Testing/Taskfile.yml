@@ -6,14 +6,14 @@ tasks:
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
     cmds:
-      - dotnet test --filter="Category!=RequiresDb&Category!=Integration&Category!=FlakyIntegration&{{.FILTER}}"
+      - dotnet test --filter="Category!=RequiresDb&Category!=Integration&Category!=HgIntegration&{{.FILTER}}"
 
   unit-with-db:
     interactive: true
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
     cmds:
-      - dotnet test --filter="Category!=Integration&Category!=FlakyIntegration&{{.FILTER}}"
+      - dotnet test --filter="Category!=Integration&Category!=HgIntegration&{{.FILTER}}"
 
   integration:
     interactive: true
@@ -22,12 +22,12 @@ tasks:
     cmds:
       - dotnet test --filter="Category=Integration&FullyQualifiedName!~Testing.Browser&{{.FILTER}}" --results-directory ./test-results --logger trx
 
-  flaky-integration:
+  hg-integration:
     interactive: true
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
     cmds:
-      - dotnet test --filter="Category=FlakyIntegration&FullyQualifiedName!~Testing.Browser&{{.FILTER}}" --results-directory ./test-results --logger trx
+      - dotnet test --filter="Category=HgIntegration&FullyQualifiedName!~Testing.Browser&{{.FILTER}}" --results-directory ./test-results --logger trx
 
   integration-env:
     interactive: true
@@ -41,7 +41,7 @@ tasks:
 #     - 'read -p "password: " TEST_DEFAULT_PASSWORD'
       - task integration -- {{.CLI_ARGS}}
 
-  flaky-integration-env:
+  hg-integration-env:
     interactive: true
     dotenv: [ local.env ]
     env:
@@ -51,7 +51,7 @@ tasks:
       TEST_RESUMABLE_HG_HOSTNAME: 'resumable-staging.languagedepot.org'
     cmds:
 #     - 'read -p "password: " TEST_DEFAULT_PASSWORD'
-      - task flaky-integration -- {{.CLI_ARGS}}
+      - task hg-integration -- {{.CLI_ARGS}}
 
   # Playwright
   playwright:

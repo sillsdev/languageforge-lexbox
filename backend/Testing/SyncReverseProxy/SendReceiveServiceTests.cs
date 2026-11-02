@@ -14,7 +14,7 @@ using static Testing.Services.Utils;
 
 namespace Testing.SyncReverseProxy;
 
-[Trait("Category", "FlakyIntegration")]
+[Trait("Category", "HgIntegration")]
 public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 {
     private readonly ITestOutputHelper _output;
@@ -37,7 +37,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var version = await _sendReceiveService.GetHgVersion();
         version.Should().StartWith("Mercurial Distributed SCM");
         _output.WriteLine("Hg version: " + version);
-        if (TestingEnvironmentVariables.ExpectedHgMajorVersion is { } expectedMajor)
+        if (TestingEnvironmentVariables.ExpectedHgMajorVersion is { Length: > 0 } expectedMajor)
             version.Should().Contain($"(version {expectedMajor}.");
         HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) { ShowVerbose = true });
         HgRepository.GetEnvironmentReadinessMessage("en").Should().BeNull();
