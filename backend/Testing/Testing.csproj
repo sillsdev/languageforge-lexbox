@@ -33,15 +33,15 @@
     <Error Condition=" '$(MercurialVersion)' != '3' And '$(MercurialVersion)' != '6' And '$(MercurialVersion)' != '7' "
            Text="MercurialVersion must be 3, 6 or 7, got '$(MercurialVersion)'" />
   </Target>
-  <!-- FwHeadless's Mercurial content (always the central hg version) would otherwise also land in our output's Mercurial
-       folder, leaving its files mixed into the hg 3 or 6 tree -->
-  <Target Name="SkipFwHeadlessMercurial" AfterTargets="GetCopyToOutputDirectoryItems">
+  <!-- FwHeadless's Mercurial tree is always hg 7; for hg 3 or 6 it would otherwise end up mixed into ours in the output.
+       Its MercurialExtensions stay: Chorus needs fixutf8 there, and hg 3 ships none. -->
+  <Target Name="SkipFwHeadlessMercurial" AfterTargets="GetCopyToOutputDirectoryItems" Condition=" '$(MercurialVersion)' != '7' ">
     <PropertyGroup>
-      <_FwHeadlessDir>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '..', 'FwHeadless'))</_FwHeadlessDir>
+      <_FwHeadlessMercurial>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '..', 'FwHeadless', 'Mercurial'))</_FwHeadlessMercurial>
     </PropertyGroup>
     <ItemGroup>
-      <_SourceItemsToCopyToOutputDirectoryAlways Remove="$(_FwHeadlessDir)Mercurial/**;$(_FwHeadlessDir)MercurialExtensions/**" />
-      <_SourceItemsToCopyToOutputDirectory Remove="$(_FwHeadlessDir)Mercurial/**;$(_FwHeadlessDir)MercurialExtensions/**" />
+      <_SourceItemsToCopyToOutputDirectoryAlways Remove="$(_FwHeadlessMercurial)**" />
+      <_SourceItemsToCopyToOutputDirectory Remove="$(_FwHeadlessMercurial)**" />
     </ItemGroup>
   </Target>
   <ItemGroup>
