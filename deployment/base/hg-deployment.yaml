@@ -139,9 +139,11 @@ spec:
             path: /healthz
             port: 8088
           initialDelaySeconds: 300
-          periodSeconds: 20
-          timeoutSeconds: 5
-          failureThreshold: 5
+          # the probe shares hgweb's 15 wsgi threads: 3 min without an answer before a
+          # restart, so a daemon that is only busy doesn't get killed with its requests
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 6
 
         volumeMounts:
           - name: repos
