@@ -45,11 +45,7 @@ jobs:
           cache-dependency-path: './docs/site/pnpm-lock.yaml'
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
-      # Build for this repo's GitHub Pages URL until docs.lexbox.org is set up.
       - run: pnpm build
-        env:
-          DOCS_URL: https://${{ github.repository_owner }}.github.io
-          DOCS_BASE_URL: /${{ github.event.repository.name }}/
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         if: ${{ github.ref == 'refs/heads/develop' }}
         with:

@@ -16,8 +16,7 @@ const config: Config = {
     v4: true,
   },
 
-  // docs.lexbox.org doesn't resolve yet.
-  // CI sets the repo's GitHub Pages URL (see docs.yaml); without it, assets 404 under /<repo>/.
+  // A preview deployed to <owner>.github.io/<repo>/ sets both, or its assets 404.
   url: process.env.DOCS_URL ?? 'https://docs.lexbox.org',
   baseUrl: process.env.DOCS_BASE_URL ?? '/',
 
