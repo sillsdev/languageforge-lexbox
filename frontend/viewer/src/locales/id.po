@@ -25,6 +25,16 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "- ({0} perubahan)"
 
+#. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
+#. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted sense)"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted)"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
@@ -143,6 +153,11 @@ msgstr "**Jenis morfem yang lebih sedikit** (hanya *Root*, *Bound Root*, *Stem*,
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Terminologi yang lebih sederhana** (mis. *Kata* alih-alih *Bentuk leksem*, *Makna* alih-alih *Rasa*)"
+
+#. A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "# part of #"
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
@@ -1080,14 +1095,40 @@ msgstr "Sunting"
 msgid "Edit comment"
 msgstr "Sunting komentar"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit complex form"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit component"
+msgstr ""
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Edit Tampilan Khusus"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Edit Word"
+#. Button on a change in the activity view; opens the changed entry in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Entry"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Edit Picture"
 msgstr "Edit Gambar"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit whole word"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Edit Entry"
+#. Button on a change in the activity view; opens the changed word in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Word"
+msgstr ""
 
 #. Tooltip/aria-label for the "changed" change-category badge icon on an activity row (paired with "Added", "Removed", "Reordered").
 #: src/lib/activity/ActivityView.svelte
@@ -1536,6 +1577,14 @@ msgstr "Arti Singkat"
 msgid "Go to {0}"
 msgstr "Buka {0}"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to complex form"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to component"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Go to word"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
@@ -1544,10 +1593,14 @@ msgid "Go to entry"
 msgstr "Buka entri"
 
 #. Relevant view: Classic
-#. Lite view equivalent: "Go to word: {0}"
-#. Accessible name of the link on an entry's name in the activity change preview. {0} = the entry's headword
-#: src/lib/activity/ActivityChangeHeader.svelte
-msgid "Go to entry: {0}"
+#. Lite view equivalent: "Go to Word"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed entry in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Entry"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to whole word"
 msgstr ""
 
 #. Relevant view: Lite
@@ -1558,10 +1611,10 @@ msgid "Go to word"
 msgstr "Buka kata"
 
 #. Relevant view: Lite
-#. Classic view equivalent: "Go to entry: {0}"
-#. Accessible name of the link on a word's name in the activity change preview. {0} = the word's headword
-#: src/lib/activity/ActivityChangeHeader.svelte
-msgid "Go to word: {0}"
+#. Classic view equivalent: "Go to Entry"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed word in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Word"
 msgstr ""
 
 #. Filter option label
@@ -1997,9 +2050,13 @@ msgstr "Hilang: {0}"
 msgid "Mode"
 msgstr "Mode"
 
-#. Accessible name of the menu button (three dots) next to an entry in the activity change preview
-#: src/lib/activity/ActivityChangeHeader.svelte
+#. Accessible name of the arrow button that opens more actions for an entry in the activity change preview
+#: src/lib/activity/EntryActionsButton.svelte
 msgid "More options"
+msgstr ""
+
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "More options for {0}"
 msgstr ""
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
@@ -2355,7 +2412,7 @@ msgid "Open in FieldWorks"
 msgstr "Buka di FieldWorks"
 
 #. Menu option
-#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/EntryActionsButton.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -3549,7 +3606,7 @@ msgstr "Belum dibaca"
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
 #: src/lib/activity/ActivityChangeHeader.svelte
-#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ChangeSummary.svelte

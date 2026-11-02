@@ -1,6 +1,7 @@
 <script module lang="ts">
   import {defineMeta} from '@storybook/addon-svelte-csf';
   import {Router} from 'svelte-routing';
+  import {expect, userEvent, waitFor, within} from 'storybook/test';
   import type {
     IActivityChangeInfo,
     IChangeContext,
@@ -60,6 +61,11 @@
     componentHeadword: 'dance',
   };
 
+  const secondSense: ISense = {...sense, id: 'second-sense', gloss: {en: 'dance'}, partOfSpeechId: partsOfSpeech[0].id};
+  const twoSenses: IEntry = {...other, senses: [other.senses[0], secondSense]};
+  const senseLink: IComplexFormComponent = {...link, componentSenseId: secondSense.id};
+  const staleSenseLink: IComplexFormComponent = {...link, componentSenseId: 'removed-sense'};
+
   const posBefore = partsOfSpeech[1];
   const posAfter = {...posBefore, name: {...posBefore.name, en: 'Common noun'}};
   const domain: ISemanticDomain = {id: 'sd', code: '1.1', name: {en: 'Sky'}, abbreviation: {}, description: {}, predefined: false};
@@ -92,6 +98,10 @@
       affected: [entry], $type: 'SetOrderChange:ExampleSentence', info: {entry: nyumbaName, sense: {label: 'house'}}},
     {title: 'Component added', changeName: 'Add component', entityType: 'ComplexFormComponent', after: link, affected: [longHeadword, other],
       info: {entry: {id: longHeadword.id, headword: 'nyumba-ya-kale', homographNumber: 0}}},
+    {title: 'Component added, sense-specific', changeName: 'Add component', entityType: 'ComplexFormComponent', after: senseLink, affected: [longHeadword, twoSenses]},
+    {title: 'Component added, sense deleted since', changeName: 'Add component', entityType: 'ComplexFormComponent', after: staleSenseLink, affected: [longHeadword, twoSenses]},
+    {title: 'Component added, complex form deleted since', changeName: 'Add component', entityType: 'ComplexFormComponent', after: senseLink,
+      affected: [{...longHeadword, deletedAt: '2026-10-02T10:00:00Z'}, twoSenses]},
     {title: 'Component removed', changeName: 'Delete component', entityType: 'ComplexFormComponent', before: link, after: {...link, deletedAt: '2026-10-02T10:00:00Z'},
       affected: [longHeadword, other]},
     {title: 'Component reorder', changeName: 'Reorder component', entityType: 'ComplexFormComponent', before: link, after: {...link, order: 2} as IComplexFormComponent,
@@ -104,6 +114,10 @@
     {title: 'Custom view delete', changeName: 'Delete custom view', entityType: 'CustomView', before: view, after: {...view, deletedAt: '2026-10-02T10:00:00Z'}},
     {title: 'Unknown change', changeName: 'Upload file', entityType: 'Unknown'},
   ];
+
+  function indexOf(title: string) {
+    return examples.findIndex(e => e.title === title);
+  }
 
   function context(example: Example): IChangeContext {
     return {
@@ -139,6 +153,61 @@
             <ActivityItemChangePreview context={context(example)} change={change(example)} info={example.info} />
           </section>
         {/each}
+      </div>
+    </Router>
+  {/snippet}
+</Story>
+
+<Story name="Entry actions open"
+  play={async ({canvasElement}) => {
+    await userEvent.click(await within(canvasElement).findByRole('button', {name: /^More options for /}));
+    const item = await within(document.body).findByRole('menuitem', {name: /^Go to (Entry|Word): /});
+    await waitFor(() => expect(item).toBeVisible());
+  }}>
+  {#snippet template()}
+    <Router>
+      <div class="max-w-3xl border rounded p-4 pb-32">
+        <ActivityItemChangePreview context={context(examples[indexOf('Entry edit, current headword')])} change={change(examples[indexOf('Entry edit, current headword')])} />
+      </div>
+    </Router>
+  {/snippet}
+</Story>
+
+<Story name="Component actions open"
+  play={async ({canvasElement}) => {
+    const canvas = within(canvasElement);
+    // The previous story leaves its menu open, and an open menu blocks pointer events on the page
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(document.body.style.pointerEvents).not.toBe('none'));
+    await expect(await canvas.findByRole('button', {name: /^Edit component: dance/})).toBeVisible();
+    await expect(canvas.getByRole('button', {name: /^Edit (complex form|whole word): nyumba/})).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', {name: /^More options for nyumba/}));
+    const item = await within(document.body).findByRole('menuitem', {name: /^Go to (complex form|whole word): nyumba/});
+    await waitFor(() => expect(item).toBeVisible());
+    await expect(within(canvasElement).getByTestId('change-component-sense')).toHaveTextContent(/^2 /);
+  }}>
+  {#snippet template()}
+    <Router>
+      <div class="max-w-3xl border rounded p-4 pb-32">
+        <ActivityItemChangePreview context={context(examples[indexOf('Component added, sense-specific')])} change={change(examples[indexOf('Component added, sense-specific')])} />
+      </div>
+    </Router>
+  {/snippet}
+</Story>
+
+<!-- Each story mounts a fresh demo API, so turning off write here doesn't leak into other stories -->
+<Story name="Component actions, read-only"
+  play={async ({canvasElement}) => {
+    await window.__PLAYWRIGHT_UTILS__.setWrite(false);
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole('link', {name: /^Go to component: dance/})).toBeVisible();
+    await expect(canvas.getByRole('link', {name: /^Go to (complex form|whole word): nyumba/})).toBeVisible();
+    await expect(canvas.queryByRole('button', {name: /^Edit/})).toBeNull();
+  }}>
+  {#snippet template()}
+    <Router>
+      <div class="max-w-3xl border rounded p-4">
+        <ActivityItemChangePreview context={context(examples[indexOf('Component added, sense-specific')])} change={change(examples[indexOf('Component added, sense-specific')])} />
       </div>
     </Router>
   {/snippet}
