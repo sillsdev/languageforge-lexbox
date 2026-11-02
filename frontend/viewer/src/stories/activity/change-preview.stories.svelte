@@ -160,8 +160,8 @@
 
 <Story name="Entry actions open"
   play={async ({canvasElement}) => {
-    await userEvent.click(await within(canvasElement).findByRole('button', {name: 'More options'}));
-    const item = await within(document.body).findByRole('menuitem', {name: /Go to (Entry|Word)/});
+    await userEvent.click(await within(canvasElement).findByRole('button', {name: /^More options for /}));
+    const item = await within(document.body).findByRole('menuitem', {name: /^Go to (Entry|Word): /});
     await waitFor(() => expect(item).toBeVisible());
   }}>
   {#snippet template()}
@@ -178,16 +178,35 @@
     const canvas = within(canvasElement);
     // The previous story leaves its menu open, and an open menu blocks pointer events on the page
     await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(document.body.style.pointerEvents).not.toBe('none'));
     await expect(await canvas.findByRole('button', {name: /^Edit component: dance/})).toBeVisible();
     await expect(canvas.getByRole('button', {name: /^Edit (complex form|whole word): nyumba/})).toBeVisible();
     await userEvent.click(canvas.getByRole('button', {name: /^More options for nyumba/}));
-    const item = await within(document.body).findByRole('menuitem', {name: /Go to (Entry|Word)/});
+    const item = await within(document.body).findByRole('menuitem', {name: /^Go to (complex form|whole word): nyumba/});
     await waitFor(() => expect(item).toBeVisible());
     await expect(within(canvasElement).getByTestId('change-component-sense')).toHaveTextContent(/^2 /);
   }}>
   {#snippet template()}
     <Router>
       <div class="max-w-3xl border rounded p-4 pb-32">
+        <ActivityItemChangePreview context={context(examples[indexOf('Component added, sense-specific')])} change={change(examples[indexOf('Component added, sense-specific')])} />
+      </div>
+    </Router>
+  {/snippet}
+</Story>
+
+<!-- Each story mounts a fresh demo API, so turning off write here doesn't leak into other stories -->
+<Story name="Component actions, read-only"
+  play={async ({canvasElement}) => {
+    await window.__PLAYWRIGHT_UTILS__.setWrite(false);
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole('link', {name: /^Go to component: dance/})).toBeVisible();
+    await expect(canvas.getByRole('link', {name: /^Go to (complex form|whole word): nyumba/})).toBeVisible();
+    await expect(canvas.queryByRole('button', {name: /^Edit/})).toBeNull();
+  }}>
+  {#snippet template()}
+    <Router>
+      <div class="max-w-3xl border rounded p-4">
         <ActivityItemChangePreview context={context(examples[indexOf('Component added, sense-specific')])} change={change(examples[indexOf('Component added, sense-specific')])} />
       </div>
     </Router>

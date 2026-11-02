@@ -1567,6 +1567,14 @@ msgstr "Gloss"
 msgid "Go to {0}"
 msgstr "Go to {0}"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to complex form"
+msgstr "Go to complex form"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to component"
+msgstr "Go to component"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Go to word"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
@@ -1580,6 +1588,10 @@ msgstr "Go to entry"
 #: src/lib/activity/EntryActionsButton.svelte
 msgid "Go to Entry"
 msgstr "Go to Entry"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to whole word"
+msgstr "Go to whole word"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"

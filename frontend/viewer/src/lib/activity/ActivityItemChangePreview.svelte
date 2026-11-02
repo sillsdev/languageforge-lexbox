@@ -83,18 +83,20 @@
   const liveComponent = $derived(live(component));
 
   // Something deleted, by this change or since, can't be edited or gone to
-  const actionsEntry = $derived(kind !== 'complexFormComponent' && after ? live(affectedEntry) : undefined);
+  const actionsEntry = $derived(kind !== 'complexFormComponent' ? live(affectedEntry) : undefined);
 
   const actions = $derived.by(() => {
     const currentView = viewService.currentView;
     function headword(e: IEntry): string {
       return bestHeadword(writingSystemService, currentView, e, $t`Untitled`);
     }
-    if (kind !== 'complexFormComponent') return actionsEntry ? [{entryId: actionsEntry.id}] : [];
+    if (kind !== 'complexFormComponent') return actionsEntry ? [{entryId: actionsEntry.id, headword: headword(actionsEntry)}] : [];
     // In the sentence's order
     return [
-      liveComponent && {entryId: liveComponent.id, label: $t`Edit component`, headword: headword(liveComponent)},
-      liveComplexForm && {entryId: liveComplexForm.id, label: pt($t`Edit complex form`, $t`Edit whole word`, currentView), headword: headword(liveComplexForm)},
+      liveComponent && {entryId: liveComponent.id, headword: headword(liveComponent),
+        editLabel: $t`Edit component`, goToLabel: $t`Go to component`},
+      liveComplexForm && {entryId: liveComplexForm.id, headword: headword(liveComplexForm),
+        editLabel: pt($t`Edit complex form`, $t`Edit whole word`, currentView), goToLabel: pt($t`Go to complex form`, $t`Go to whole word`, currentView)},
     ].filter(a => !!a);
   });
 

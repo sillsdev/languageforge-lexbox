@@ -1572,6 +1572,14 @@ msgstr "Glose"
 msgid "Go to {0}"
 msgstr "Naviguer à {0}"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to complex form"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to component"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Go to word"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
@@ -1584,6 +1592,10 @@ msgstr "Aller à l'entrée"
 #. Menu option on a change in the activity view; leaves the activity view and opens the changed entry in the dictionary
 #: src/lib/activity/EntryActionsButton.svelte
 msgid "Go to Entry"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to whole word"
 msgstr ""
 
 #. Relevant view: Lite

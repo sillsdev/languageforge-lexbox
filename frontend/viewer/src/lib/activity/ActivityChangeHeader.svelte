@@ -12,7 +12,7 @@
   import {cn} from '$lib/utils';
   import EntryActionsButton from './EntryActionsButton.svelte';
 
-  type EntryAction = {entryId: string; label?: string; headword?: string};
+  type EntryAction = {entryId: string; editLabel?: string; goToLabel?: string; headword?: string};
 
   let {label, crumbs = [], identity, actions = [], badge, now}: {
     /** The change's name, e.g. "Edit entry", for assistive tech */
