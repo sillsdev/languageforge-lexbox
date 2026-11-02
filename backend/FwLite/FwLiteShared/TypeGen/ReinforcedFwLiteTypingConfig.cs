@@ -213,6 +213,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(OpenFromFolderSummary),
             typeof(HostingView),
             typeof(PeerView),
+            typeof(NearbyDeviceView),
             typeof(HostingOptions),
             typeof(AvailableNetworkView),
             typeof(StartHostingResult),

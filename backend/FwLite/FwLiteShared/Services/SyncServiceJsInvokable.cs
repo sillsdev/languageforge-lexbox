@@ -171,6 +171,7 @@ public class SyncServiceJsInvokable(
     {
         using var _ = localNetworkAccess.Acquire();
         var found = await LocalSyncDiscovery.Browse(TimeSpan.FromSeconds(4));
+        await joinSession.SayHelloTo(found.Select(h => h.Host));
         var projectId = currentProjectService.ProjectData.Id;
         return [.. found.Select(h => new NearbyHostView(h.Host.Authority, h.ProjectName, h.ProjectId == projectId,
             h.AppVersion != AppVersion.Version || h.ProtocolVersion != LocalSyncProtocol.Version))];

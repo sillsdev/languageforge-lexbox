@@ -307,6 +307,10 @@ msgstr ""
 msgid "All authors"
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Also on this network"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
 #. Placeholder/suggestion in search field
@@ -850,6 +854,7 @@ msgstr "Pratinjau Kamus"
 
 #: src/project/sync/WifiSyncSection.svelte
 #: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "different app version"
 msgstr ""
 
@@ -1183,6 +1188,10 @@ msgstr ""
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "FieldWorks Lite isn't open on it"
+msgstr ""
+
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
@@ -1399,6 +1408,10 @@ msgstr ""
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unresolved comments"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Hasn't asked to join"
 msgstr ""
 
 #. Sort option

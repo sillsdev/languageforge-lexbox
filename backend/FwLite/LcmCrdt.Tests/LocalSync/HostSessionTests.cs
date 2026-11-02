@@ -1,4 +1,5 @@
 using FwLiteShared.LocalSync.Hosting;
+using Microsoft.Extensions.Time.Testing;
 
 namespace LcmCrdt.Tests.LocalSync;
 
@@ -10,11 +11,57 @@ public class HostSessionTests
 
     private static readonly HostedProject Hosted = new(ProjectId, "sena-3", "Sena 3", "https://lexbox.org", RootCommitId, ["seh", "en"]);
 
-    private static HostSession NewSession() => new(Hosted, AppVersion);
+    private static HostSession NewSession(TimeProvider? time = null) => new(Hosted, AppVersion, time);
 
     private static JoinRequest Request(string name = "Amina's phone", JoinerProject? project = null, string appVersion = AppVersion,
         int protocolVersion = LocalSyncProtocol.Version) =>
         new(name, appVersion, protocolVersion, project ?? new JoinerProject(ProjectId, RootCommitId, ["en", "seh"]));
+
+    [Fact]
+    public void ADeviceThatSaysHello_IsListedUntilItStops()
+    {
+        var time = new FakeTimeProvider();
+        var session = NewSession(time);
+
+        session.SayHello("192.168.137.45", new Hello("Amina", "1.3.0"));
+
+        session.NearbyDevices.Should().Equal(new NearbyDevice("192.168.137.45", "Amina", "1.3.0", VersionMismatch: true));
+        time.Advance(HostSession.NearbyTimeout / 2);
+        session.SayHello("192.168.137.45", new Hello("Amina", "1.3.0"));
+        time.Advance(HostSession.NearbyTimeout / 2 + TimeSpan.FromSeconds(1));
+        session.NearbyDevices.Should().ContainSingle("it said hello again since");
+        time.Advance(HostSession.NearbyTimeout);
+        session.NearbyDevices.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ADeviceThatAsksToJoin_IsAPeerAndNoLongerJustNearby()
+    {
+        var session = NewSession();
+        session.SayHello("192.168.137.45", new Hello("Amina", AppVersion));
+
+        session.RequestJoin(Request("Amina"), address: "192.168.137.45");
+
+        session.NearbyDevices.Should().BeEmpty();
+        session.Peers.Should().ContainSingle().Which.Address.Should().Be("192.168.137.45");
+    }
+
+    [Fact]
+    public void NearbyDevices_AreCappedAndForgottenWhenTheSessionEnds()
+    {
+        var time = new FakeTimeProvider();
+        var session = NewSession(time);
+        for (var i = 0; i <= HostSession.MaxNearbyDevices; i++)
+        {
+            session.SayHello($"10.0.0.{i}", new Hello($"device {i}", AppVersion));
+            time.Advance(TimeSpan.FromMilliseconds(1));
+        }
+
+        session.NearbyDevices.Should().HaveCount(HostSession.MaxNearbyDevices)
+            .And.NotContain(d => d.Address == "10.0.0.0", "the device heard from longest ago makes room");
+        session.End();
+        session.NearbyDevices.Should().BeEmpty();
+    }
 
     [Fact]
     public void AJoinRequest_WaitsForTheHostToApprove()

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using LcmCrdt;
@@ -24,6 +25,7 @@ internal sealed class LocalSyncHttpServer : IDisposable
     private readonly IServiceProvider _services;
     private readonly JsonSerializerOptions _harmonyJson;
     private readonly ILogger _logger;
+    private readonly string _address;
     private readonly WebserverLite _server;
 
     public LocalSyncHttpServer(HostSession session, CrdtProject project, IServiceProvider services,
@@ -34,10 +36,12 @@ internal sealed class LocalSyncHttpServer : IDisposable
         _services = services;
         _harmonyJson = harmonyJson;
         _logger = logger;
+        _address = bindTo.ToString();
         _server = new WebserverLite(new WebserverSettings(bindTo.ToString(), port), NotFound);
 
         var routes = _server.Routes.PreAuthentication;
         routes.Static.Add(WatsonMethod.GET, LocalSyncProtocol.HealthPath, async ctx => await ctx.Response.Send("ok"));
+        routes.Static.Add(WatsonMethod.POST, LocalSyncProtocol.HelloPath, Guarded(Hello, LogLevel.Debug));
         routes.Static.Add(WatsonMethod.POST, LocalSyncProtocol.JoinPath, Guarded(Join));
         routes.Parameter.Add(WatsonMethod.GET, LocalSyncProtocol.JoinPath + "/{requestId}", Guarded(JoinStatus));
         routes.Static.Add(WatsonMethod.POST, LocalSyncProtocol.LeavePath, Guarded(Leave));
@@ -59,13 +63,21 @@ internal sealed class LocalSyncHttpServer : IDisposable
 
     public void Start() => _server.Start();
 
+    private async Task Hello(HttpContextBase ctx)
+    {
+        var hello = Deserialize<Hello>(ctx, ProtocolJson);
+        // the host's own app finds itself when it searches; it isn't a nearby device
+        if (ctx.Request.Source.IpAddress != _address) _session.SayHello(ctx.Request.Source.IpAddress, hello);
+        await ctx.Response.Send();
+    }
+
     private async Task Join(HttpContextBase ctx)
     {
         var request = Deserialize<JoinRequest>(ctx, ProtocolJson);
         Guid requestId;
         try
         {
-            requestId = _session.RequestJoin(request, await HostedProjectReader.Read(_services, _project));
+            requestId = _session.RequestJoin(request, await HostedProjectReader.Read(_services, _project), ctx.Request.Source.IpAddress);
         }
         catch (HostSessionFullException)
         {
@@ -122,11 +134,16 @@ internal sealed class LocalSyncHttpServer : IDisposable
         }
     });
 
-    private Func<HttpContextBase, Task> Guarded(Func<HttpContextBase, Task> handler) => async ctx =>
+    /// <param name="logLevel">Every request is logged, so a joiner's trouble can be traced from the host's log too.</param>
+    private Func<HttpContextBase, Task> Guarded(Func<HttpContextBase, Task> handler, LogLevel logLevel = LogLevel.Information) => async ctx =>
     {
+        var started = Stopwatch.GetTimestamp();
         try
         {
             await handler(ctx);
+            _logger.Log(logLevel, "Local sync {Method} {Path} from {Source}: {Status} in {Elapsed} ms",
+                ctx.Request.Method, ctx.Request.Url.RawWithoutQuery, ctx.Request.Source.IpAddress, ctx.Response.StatusCode,
+                (int)Stopwatch.GetElapsedTime(started).TotalMilliseconds);
         }
         catch (JsonException e)
         {

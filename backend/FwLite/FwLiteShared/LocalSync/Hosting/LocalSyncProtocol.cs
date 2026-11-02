@@ -10,6 +10,8 @@ public static class LocalSyncProtocol
 
     public const string JoinPath = "/api/local-sync/join";
     public const string LeavePath = "/api/local-sync/leave";
+    /// <summary>A device with the app open says it's nearby, so the host can list it before it asks to join.</summary>
+    public const string HelloPath = "/api/local-sync/hello";
     /// <summary>The hosted project as it is now, for the joiner's identity check before each sync.</summary>
     public const string ProjectPath = "/api/local-sync/project";
     public const string HealthPath = "/api/crdt/checkConnection";
@@ -31,6 +33,8 @@ public record HostedProject(
     string[] WritingSystemIds);
 
 public record JoinResponse(Guid RequestId);
+
+public record Hello(string DisplayName, string AppVersion);
 
 [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
 public enum JoinState

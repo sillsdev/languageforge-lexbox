@@ -38,6 +38,9 @@
   let busy = $state<'start' | 'search' | 'join' | 'sync'>();
   let hostingError = $state<string>();
 
+  let loaded = $state(false);
+  let searching = false;
+
   const joinState = $derived(join?.state ?? JoinSessionState.NotJoined);
   const joining = $derived(joinState === JoinSessionState.Waiting || joinState === JoinSessionState.Joined);
 
@@ -47,6 +50,7 @@
     if (j.lastSync && j.lastSync !== join?.lastSync) onSynced();
     hosting = h ?? undefined;
     join = j;
+    loaded = true;
   }
 
   void refresh();
@@ -74,14 +78,26 @@
     hosting = undefined;
   }
 
-  async function search() {
-    busy = 'search';
+  // searching also tells each host this device is nearby, so it's listed on the host before anyone asks to join
+  async function search(manual: boolean) {
+    if (searching) return;
+    searching = true;
+    if (manual) busy = 'search';
     try {
       nearby = await api.findNearbyHosts();
     } finally {
-      busy = undefined;
+      searching = false;
+      if (manual) busy = undefined;
     }
   }
+
+  const idle = $derived(loaded && !hosting && !joining);
+  $effect(() => {
+    if (!idle) return;
+    void search(false);
+    const searchAgain = setInterval(() => void search(false), 15_000);
+    return () => clearInterval(searchAgain);
+  });
 
   async function joinHost(hostAddress: string) {
     busy = 'join';
@@ -158,6 +174,25 @@
           {:else}
             <p class="text-center text-sm text-foreground/70">{$t`No one has joined yet.`}</p>
           {/each}
+          {#if hosting.nearbyDevices.length}
+            <p class="text-sm text-foreground/70">{$t`Also on this network`}</p>
+            {#each hosting.nearbyDevices as device (device.address)}
+              <div class="flex flex-wrap items-center gap-2 px-2 py-1 text-sm">
+                <Icon icon={device.hasApp ? 'i-mdi-cellphone-check' : 'i-mdi-cellphone'} class="size-5" />
+                <span class="font-medium">{device.name ?? device.address}</span>
+                {#if device.name}
+                  <span class="font-mono text-foreground/70">{device.address}</span>
+                {/if}
+                {#if device.versionMismatch}
+                  <span class="text-warning">⚠ {$t`different app version`}</span>
+                {/if}
+                <span class="grow"></span>
+                <span class="text-foreground/70">
+                  {device.hasApp ? $t`Hasn't asked to join` : $t`FieldWorks Lite isn't open on it`}
+                </span>
+              </div>
+            {/each}
+          {/if}
           <label class="flex items-center gap-2 text-sm self-center">
             <Switch checked={hosting.autoApprove} onCheckedChange={(checked) => void api.setAutoApprove(checked)} />
             {$t`Accept everyone who joins`}
@@ -222,7 +257,7 @@
     {/if}
 
     <div class="w-full flex flex-col items-center gap-2">
-      <Button variant="outline" icon="i-mdi-magnify" loading={busy === 'search'} onclick={() => void search()}>
+      <Button variant="outline" icon="i-mdi-magnify" loading={busy === 'search'} onclick={() => void search(true)}>
         {$t`Find nearby devices`}
       </Button>
       {#if nearby}

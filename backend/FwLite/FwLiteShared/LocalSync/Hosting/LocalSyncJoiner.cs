@@ -19,7 +19,8 @@ public enum JoinerSyncProblem
 }
 
 /// <param name="Sync">Null when the sync didn't get as far as the identity check.</param>
-public record JoinerSyncResult(LocalSyncResult? Sync, JoinerSyncProblem? Problem = null)
+/// <param name="Error">What went wrong reaching the host, for the log.</param>
+public record JoinerSyncResult(LocalSyncResult? Sync, JoinerSyncProblem? Problem = null, Exception? Error = null)
 {
     public bool Synced => Sync?.Synced == true;
 }
@@ -41,6 +42,15 @@ public class LocalSyncJoiner(
 
     /// <summary>How long to wait for the host to decide before giving up.</summary>
     public TimeSpan JoinTimeout { get; set; } = TimeSpan.FromMinutes(10);
+
+    /// <summary>
+    /// How long a small request (join, status, the identity check before a sync) waits for the host. A host that has
+    /// gone (left the network, changed address) often never answers at all, and HttpClient's own timeout is 100 s.
+    /// </summary>
+    public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(10);
+
+    /// <summary>Leaving and saying hello are courtesies; the host copes without them, so they don't wait long.</summary>
+    public TimeSpan CourtesyTimeout { get; set; } = TimeSpan.FromSeconds(3);
 
     /// <summary>Asks the host to join and waits until it approves or rejects.</summary>
     /// <exception cref="TimeoutException">The host didn't decide within <see cref="JoinTimeout"/>.</exception>
@@ -65,13 +75,18 @@ public class LocalSyncJoiner(
             new JoinerProject(identity.ProjectId, identity.RootCommitId, [.. identity.WritingSystemIds]));
         using var client = CreateClient(host, token: null);
 
-        using var response = await client.PostAsJsonAsync(LocalSyncProtocol.JoinPath, request, ProtocolJson, cancellationToken);
-        response.EnsureSuccessStatusCode();
-        var join = await response.Content.ReadFromJsonAsync<JoinResponse>(ProtocolJson, cancellationToken)
+        JoinResponse join;
+        using (var requestTimeout = TimeoutAfter(RequestTimeout, cancellationToken))
+        {
+            using var response = await client.PostAsJsonAsync(LocalSyncProtocol.JoinPath, request, ProtocolJson, requestTimeout.Token);
+            response.EnsureSuccessStatusCode();
+            join = await response.Content.ReadFromJsonAsync<JoinResponse>(ProtocolJson, requestTimeout.Token)
                    ?? throw new InvalidOperationException("The host sent an empty join response");
+        }
         while (true)
         {
-            var status = await client.GetFromJsonAsync<JoinStatus>($"{LocalSyncProtocol.JoinPath}/{join.RequestId}", ProtocolJson, cancellationToken)
+            using var requestTimeout = TimeoutAfter(RequestTimeout, cancellationToken);
+            var status = await client.GetFromJsonAsync<JoinStatus>($"{LocalSyncProtocol.JoinPath}/{join.RequestId}", ProtocolJson, requestTimeout.Token)
                          ?? throw new InvalidOperationException("The host sent an empty join status");
             if (status.State != JoinState.Pending) return status;
             await Task.Delay(PollInterval, cancellationToken);
@@ -91,8 +106,12 @@ public class LocalSyncJoiner(
         var client = CreateClient(host, token);
         try
         {
-            var hosted = await client.GetFromJsonAsync<HostedProject>(LocalSyncProtocol.ProjectPath, ProtocolJson)
+            HostedProject hosted;
+            using (var requestTimeout = TimeoutAfter(RequestTimeout))
+            {
+                hosted = await client.GetFromJsonAsync<HostedProject>(LocalSyncProtocol.ProjectPath, ProtocolJson, requestTimeout.Token)
                          ?? throw new InvalidOperationException("The host sent an empty project");
+            }
             // a stopped or briefly unreachable host must not stay marked unhealthy for the half hour the cache keeps it
             CrdtHttpSyncService.InvalidateServerHealth(cache, host.Authority);
             var remote = await crdtHttpSyncService.CreateProjectSyncable(currentProjectService.ProjectData, client);
@@ -101,11 +120,46 @@ public class LocalSyncJoiner(
         }
         catch (Exception e) when (IsUnauthorized(e))
         {
-            return new JoinerSyncResult(null, JoinerSyncProblem.SessionEnded);
+            return new JoinerSyncResult(null, JoinerSyncProblem.SessionEnded, e);
         }
         catch (Exception e) when (e is HttpRequestException or OperationCanceledException)
         {
-            return new JoinerSyncResult(null, JoinerSyncProblem.HostUnreachable);
+            return new JoinerSyncResult(null, JoinerSyncProblem.HostUnreachable, e);
+        }
+    }
+
+    /// <summary>
+    /// Whether the host at <paramref name="host"/> still accepts this device's token: the same host at a new address,
+    /// rather than another device sharing the same project.
+    /// </summary>
+    public async Task<bool> IsApprovedBy(Uri host, JoinStatus approved)
+    {
+        if (approved.Token is null) return false;
+        using var client = CreateClient(host, approved.Token);
+        using var requestTimeout = TimeoutAfter(RequestTimeout);
+        try
+        {
+            using var response = await client.GetAsync(LocalSyncProtocol.ProjectPath, requestTimeout.Token);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception e) when (e is HttpRequestException or OperationCanceledException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>Tells a host this device has the app open nearby, so it's listed before it asks to join. Best effort.</summary>
+    public async Task SayHello(Uri host, string displayName)
+    {
+        using var client = CreateClient(host, token: null);
+        using var requestTimeout = TimeoutAfter(CourtesyTimeout);
+        try
+        {
+            using var _ = await client.PostAsJsonAsync(LocalSyncProtocol.HelloPath, new Hello(displayName, AppVersion.Version),
+                ProtocolJson, requestTimeout.Token);
+        }
+        catch (Exception e) when (e is HttpRequestException or OperationCanceledException)
+        {
         }
     }
 
@@ -125,13 +179,21 @@ public class LocalSyncJoiner(
     {
         if (approved.Token is null) return;
         using var client = CreateClient(host, approved.Token);
+        using var requestTimeout = TimeoutAfter(CourtesyTimeout);
         try
         {
-            using var _ = await client.PostAsync(LocalSyncProtocol.LeavePath, content: null);
+            using var _ = await client.PostAsync(LocalSyncProtocol.LeavePath, content: null, requestTimeout.Token);
         }
-        catch (HttpRequestException)
+        catch (Exception e) when (e is HttpRequestException or OperationCanceledException)
         {
         }
+    }
+
+    private static CancellationTokenSource TimeoutAfter(TimeSpan timeout, CancellationToken cancellationToken = default)
+    {
+        var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        source.CancelAfter(timeout);
+        return source;
     }
 
     private HttpClient CreateClient(Uri host, string? token)

@@ -4,6 +4,7 @@
 //     the code is regenerated.
 
 import type {IPeerView} from './IPeerView';
+import type {INearbyDeviceView} from './INearbyDeviceView';
 
 export interface IHostingView
 {
@@ -16,5 +17,6 @@ export interface IHostingView
 	invitation: string;
 	autoApprove: boolean;
 	peers: IPeerView[];
+	nearbyDevices: INearbyDeviceView[];
 }
 /* eslint-enable */

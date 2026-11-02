@@ -28,6 +28,15 @@ public class FakeAccessPoint : IAccessPoint
     }
 }
 
+/// <summary>Stands in for the operating system's neighbor table.</summary>
+public class FakeNetworkNeighbors : INetworkNeighbors
+{
+    public IReadOnlyList<NetworkNeighbor> Devices { get; set; } = [];
+
+    public Task<IReadOnlyList<NetworkNeighbor>> Find(IPAddress hostAddress, CancellationToken cancellationToken = default) =>
+        Task.FromResult(Devices);
+}
+
 public class HostingNetworkTests : IAsyncLifetime
 {
     static HostingNetworkTests()
@@ -48,6 +57,7 @@ public class HostingNetworkTests : IAsyncLifetime
 
     private LocalSyncHosting Hosting => _host.GetService<LocalSyncHosting>();
     private FakeAccessPoint AccessPoint => (FakeAccessPoint)_host.GetService<IAccessPoint>();
+    private FakeNetworkNeighbors Neighbors => (FakeNetworkNeighbors)_host.GetService<INetworkNeighbors>();
     private CrdtProject Project => _host.GetService<CurrentProjectService>().Project;
     private Guid ProjectId => _host.GetService<CurrentProjectService>().ProjectData.Id;
 
@@ -107,6 +117,59 @@ public class HostingNetworkTests : IAsyncLifetime
         var connect = () => otherAddress.ConnectAsync(IPAddress.Parse("127.0.0.2"), hosting.Port);
 
         await connect.Should().ThrowAsync<SocketException>();
+    }
+
+    [Fact]
+    public async Task OnItsOwnNetwork_TheHostListsTheDevicesThatHaventAskedToJoin()
+    {
+        Neighbors.Devices =
+        [
+            new NetworkNeighbor(IPAddress.Parse("192.168.137.45"), "field-laptop"),
+            new NetworkNeighbor(IPAddress.Parse("192.168.137.46"), null),
+            new NetworkNeighbor(IPAddress.Parse("192.168.137.47"), null),
+        ];
+        Hosting.WatchInterval = TimeSpan.FromMilliseconds(20);
+        var hosting = await Hosting.StartHosting(Project, new HostingNetwork.OwnAccessPoint());
+        hosting.Session.SayHello("192.168.137.46", new Hello("Amina", AppVersion.Version));
+        hosting.Session.RequestJoin(new JoinRequest("Daniel", AppVersion.Version, LocalSyncProtocol.Version, null), address: "192.168.137.47");
+
+        var devices = await Eventually(() => Hosting.Current is { NetworkDevices.Count: > 0 } current
+            ? HostingView.From(current, ProjectId).NearbyDevices
+            : null);
+
+        devices.Should().Equal(
+            new NearbyDeviceView("192.168.137.46", "Amina", HasApp: true, VersionMismatch: false),
+            new NearbyDeviceView("192.168.137.45", "field-laptop", HasApp: false, VersionMismatch: false));
+    }
+
+    [Fact]
+    public async Task WhenTheHostsAddressChanges_ItMovesThereAndKeepsItsJoiners()
+    {
+        var hosting = await Hosting.StartHosting(Project, new HostingNetwork.Existing(IPAddress.Loopback));
+        var requestId = hosting.Session.RequestJoin(new JoinRequest("Amina", AppVersion.Version, LocalSyncProtocol.Version, null));
+        hosting.Session.Approve(requestId);
+
+        await Hosting.MoveTo(IPAddress.Parse("127.0.0.2"));
+
+        var moved = Hosting.Current!;
+        moved.Invitation.Host.Should().Be(new Uri($"http://127.0.0.2:{hosting.Port}"), "the port is kept when it's free");
+        moved.Session.Should().BeSameAs(hosting.Session);
+        moved.Session.GetJoinStatus(requestId)!.State.Should().Be(JoinState.Approved);
+        using var newAddress = new TcpClient();
+        await newAddress.ConnectAsync(IPAddress.Parse("127.0.0.2"), moved.Port);
+        using var oldAddress = new TcpClient();
+        var connectToOld = () => oldAddress.ConnectAsync(IPAddress.Loopback, hosting.Port);
+        await connectToOld.Should().ThrowAsync<SocketException>();
+    }
+
+    private static async Task<T> Eventually<T>(Func<T?> get) where T : class
+    {
+        for (var i = 0; i < 250; i++)
+        {
+            if (get() is { } value) return value;
+            await Task.Delay(20);
+        }
+        throw new TimeoutException("Timed out waiting");
     }
 
     [LoopbackMulticastFact]

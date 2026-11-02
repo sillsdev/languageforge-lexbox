@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Net;
+using System.Net.Sockets;
 using FwLiteShared.LocalSync.Hosting;
 using static LcmCrdt.Tests.LocalSync.LocalSyncTestHelpers;
 
@@ -133,6 +135,46 @@ public class LocalSyncJoinSessionTests : IAsyncLifetime
 
         view.State.Should().Be(JoinSessionState.Joined, "a stopped host looks the same as one that's briefly out of range");
         view.Problem.Should().Be(LocalSyncProblem.HostUnreachable);
+    }
+
+    [Fact]
+    public async Task WhenTheHostMovesToANewAddress_TheJoinerFindsItAgain()
+    {
+        await Session.Join(HostAddress);
+        await ApproveTheJoiner();
+        await WaitFor(JoinSessionState.Joined);
+        var hosting = _host.GetService<LocalSyncHosting>();
+        await hosting.MoveTo(IPAddress.Parse("127.0.0.2"));
+        var moved = hosting.Current!.Invitation.Host;
+        Session.MissesBeforeSearching = 1;
+        Session.Browse = (_, _) => Task.FromResult<IReadOnlyList<DiscoveredHost>>(
+            [new DiscoveredHost(moved, ProjectId, "Sena 3", AppVersion.Version, LocalSyncProtocol.Version)]);
+        var onHost = await _host.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "cherry" } });
+
+        var view = await Session.SyncNow();
+
+        view.Problem.Should().BeNull();
+        view.HostAddress.Should().Be(moved.Authority);
+        (await _joiner.Api.GetEntry(onHost.Id)).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task AHostThatNeverAnswers_DoesntHoldUpSyncingOrLeaving()
+    {
+        // accepts connections (the OS completes them) but never reads or answers a request
+        using var silentHost = new TcpListener(IPAddress.Loopback, 0);
+        silentHost.Start();
+        var host = new Uri($"http://127.0.0.1:{((IPEndPoint)silentHost.LocalEndpoint).Port}");
+        var joiner = _joiner.GetService<LocalSyncJoiner>();
+        joiner.RequestTimeout = joiner.CourtesyTimeout = TimeSpan.FromMilliseconds(300);
+        var approved = new JoinStatus(JoinState.Approved, "token");
+        var elapsed = Stopwatch.StartNew();
+
+        var result = await joiner.Sync(host, approved);
+        await joiner.Leave(host, approved);
+
+        result.Problem.Should().Be(JoinerSyncProblem.HostUnreachable);
+        elapsed.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(5));
     }
 
     [Theory]

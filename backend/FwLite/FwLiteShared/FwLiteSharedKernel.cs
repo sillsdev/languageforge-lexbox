@@ -65,6 +65,7 @@ public static class FwLiteSharedKernel
         services.AddScoped<FolderSyncService>();
         services.AddScoped<MediaCopier>();
         services.AddSingleton<LocalSyncHosting>();
+        services.AddSingleton<INetworkNeighbors, SystemNetworkNeighbors>();
         if (OperatingSystem.IsLinux())
         {
             services.TryAddSingleton<ICommandRunner, ProcessCommandRunner>();

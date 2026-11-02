@@ -98,11 +98,13 @@ public static class LocalSyncDiscovery
         try
         {
             var deadline = DateTimeOffset.UtcNow + duration;
-            while (DateTimeOffset.UtcNow < deadline && !cancellationToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 discovery.QueryServiceInstances(LocalSyncDns.ServiceName);
-                var wait = deadline - DateTimeOffset.UtcNow;
-                await Task.Delay(wait < QueryEvery ? wait : QueryEvery, cancellationToken);
+                // measured once: the deadline can pass between a check and a second reading of the clock
+                var left = deadline - DateTimeOffset.UtcNow;
+                if (left <= TimeSpan.Zero) break;
+                await Task.Delay(left < QueryEvery ? left : QueryEvery, cancellationToken);
             }
         }
         finally

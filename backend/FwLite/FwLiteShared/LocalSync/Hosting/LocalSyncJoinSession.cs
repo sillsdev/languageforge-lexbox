@@ -54,6 +54,14 @@ public sealed class LocalSyncJoinSession(
 {
     public TimeSpan SyncInterval { get; set; } = TimeSpan.FromSeconds(20);
 
+    /// <summary>After this many syncs in a row can't reach the host, look for it at a new address.</summary>
+    public int MissesBeforeSearching { get; set; } = 2;
+
+    /// <summary>How hosts are found again after a move; mDNS by default, replaceable in tests.</summary>
+    public Func<TimeSpan, CancellationToken, Task<IReadOnlyList<DiscoveredHost>>> Browse { get; set; } = LocalSyncDiscovery.Browse;
+
+    private static readonly TimeSpan SearchFor = TimeSpan.FromSeconds(3);
+
     private readonly Lock _lock = new();
     private readonly SemaphoreSlim _syncLock = new(1, 1);
     private JoinSessionView _view = new(JoinSessionState.NotJoined, null, null, null, null, null);
@@ -61,6 +69,7 @@ public sealed class LocalSyncJoinSession(
     private JoinStatus? _approved;
     private CancellationTokenSource? _session;
     private IDisposable? _networkLease;
+    private int _misses;
 
     public JoinSessionView View
     {
@@ -89,8 +98,7 @@ public sealed class LocalSyncJoinSession(
         JoinStatus status;
         try
         {
-            var name = currentAuthorService.GetCurrentAuthor().Name ?? Environment.MachineName;
-            status = await joiner.Join(host, name, cancellationToken);
+            status = await joiner.Join(host, DisplayName(), cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -142,16 +150,28 @@ public sealed class LocalSyncJoinSession(
         try
         {
             var result = await joiner.Sync(host, approved);
+            if (result.Problem == JoinerSyncProblem.HostUnreachable && ++_misses >= MissesBeforeSearching
+                && await FindMovedHost(host, approved) is { } moved)
+            {
+                host = moved;
+                result = await joiner.Sync(host, approved);
+            }
+            if (result.Problem != JoinerSyncProblem.HostUnreachable) _misses = 0;
+
             if (result.Problem == JoinerSyncProblem.SessionEnded)
             {
+                logger.LogInformation("The local sync host at {Host} ended the session", host);
                 await EndSession(JoinSessionState.Ended, problem: null);
             }
             else
             {
+                var problem = ProblemOf(result);
+                if (problem != View.Problem && problem is not null)
+                    logger.LogWarning(result.Error, "Local sync with {Host}: {Problem}", host, problem);
                 Update(v => v with
                 {
                     LastSync = result.Synced ? DateTimeOffset.UtcNow : v.LastSync,
-                    Problem = ProblemOf(result),
+                    Problem = problem,
                 });
             }
         }
@@ -167,7 +187,47 @@ public sealed class LocalSyncJoinSession(
         return View;
     }
 
-    /// <summary>Tells the host this device is leaving and stops syncing. Safe to call when not joined.</summary>
+    /// <summary>
+    /// Looks for the host at a new address (its address changed, or this device came back to its network): a host
+    /// announcing the same project that still accepts this device's token. Moves the session there if found.
+    /// </summary>
+    private async Task<Uri?> FindMovedHost(Uri host, JoinStatus approved)
+    {
+        CancellationToken cancellationToken;
+        lock (_lock) cancellationToken = _session?.Token ?? new CancellationToken(canceled: true);
+        IReadOnlyList<DiscoveredHost> found;
+        try
+        {
+            found = await Browse(SearchFor, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            return null;
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Couldn't look for the local sync host on the network");
+            return null;
+        }
+        foreach (var candidate in found.Where(h => h.ProjectId == approved.Project?.ProjectId && h.Host != host))
+        {
+            if (!await joiner.IsApprovedBy(candidate.Host, approved)) continue;
+            lock (_lock)
+            {
+                if (_host != host) return null;
+                _host = candidate.Host;
+                _view = _view with { HostAddress = candidate.Host.Authority };
+            }
+            logger.LogInformation("Found the local sync host again at {Host} (was {OldHost})", candidate.Host, host);
+            return candidate.Host;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Stops syncing and tells the host this device is leaving. Stopping comes first and telling the host is best
+    /// effort, so leaving never waits on a host that's gone. Safe to call when not joined.
+    /// </summary>
     public async Task Leave()
     {
         Uri? host;
@@ -177,9 +237,18 @@ public sealed class LocalSyncJoinSession(
             host = _host;
             approved = _approved;
         }
+        await EndSession(host is null ? JoinSessionState.NotJoined : JoinSessionState.Ended, problem: null);
         if (host is not null && approved is not null) await joiner.Leave(host, approved);
-        await EndSession(_host is null ? JoinSessionState.NotJoined : JoinSessionState.Ended, problem: null);
     }
+
+    /// <summary>Tells the hosts this device found that it's nearby with the app open. Best effort.</summary>
+    public async Task SayHelloTo(IEnumerable<Uri> hosts)
+    {
+        var name = DisplayName();
+        await Task.WhenAll(hosts.Select(host => joiner.SayHello(host, name)));
+    }
+
+    private string DisplayName() => currentAuthorService.GetCurrentAuthor().Name ?? Environment.MachineName;
 
     private Task EndSession(JoinSessionState state, LocalSyncProblem? problem)
     {
@@ -192,6 +261,7 @@ public sealed class LocalSyncJoinSession(
             _networkLease = null;
             _approved = null;
             _host = null;
+            _misses = 0;
             _view = _view with { State = state, Problem = problem };
         }
         return Task.CompletedTask;

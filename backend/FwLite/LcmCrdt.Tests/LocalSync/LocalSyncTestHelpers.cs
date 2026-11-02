@@ -26,8 +26,15 @@ public static class LocalSyncTestHelpers
         services.AddSingleton<IPreferencesService, InMemoryPreferencesService>();
         services.AddSingleton<IKeepAwakePlatform, RecordingKeepAwakePlatform>();
         services.AddSingleton<IKeepAwake, RefCountedKeepAwake>();
-        services.AddSingleton<LocalSyncHosting>();
+        // any free port: test classes host in parallel, and one taking another's stopped or moved port fakes a reachable host
+        services.AddSingleton(sp =>
+        {
+            var hosting = ActivatorUtilities.CreateInstance<LocalSyncHosting>(sp);
+            hosting.PreferredPort = 0;
+            return hosting;
+        });
         services.AddSingleton<IAccessPoint, FakeAccessPoint>();
+        services.AddSingleton<INetworkNeighbors, FakeNetworkNeighbors>();
         services.AddScoped<LocalSyncJoiner>();
         services.AddScoped<LocalSyncJoinSession>();
         services.AddSingleton<ILocalNetworkAccess, RecordingLocalNetworkAccess>();
