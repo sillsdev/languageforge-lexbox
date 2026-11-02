@@ -27,6 +27,7 @@
   const features = useFeatures();
 
   let editOpen = $state(false);
+  let editMounted = $state(false);
   const editText = $derived(editLabel ?? pt($t`Edit Entry`, $t`Edit Word`, viewService.currentView));
   const goToText = $derived(goToLabel ?? pt($t`Go to Entry`, $t`Go to Word`, viewService.currentView));
 
@@ -35,8 +36,8 @@
   }
 </script>
 
-{#if editOpen}
-  <!-- Mounted on demand: the dialog fetches its entry eagerly, and every change card has this button -->
+{#if editMounted}
+  <!-- Mounted on first open, since it fetches its entry eagerly and every card has this button. Kept mounted, so closing still animates and returns focus. -->
   <EditEntryDialog bind:open={editOpen} {entryId} />
 {/if}
 
@@ -50,19 +51,19 @@
 <!-- Accessible names start with the visible text (WCAG label in name) -->
 <ButtonGroup.Root>
   {#if features.write}
-    <Button variant="secondary" size="xs" icon="i-mdi-pencil-outline" class="flex-1 justify-start" onclick={() => editOpen = true}
+    <Button variant="secondary" size="xs" icon="i-mdi-pencil-outline" class="flex-1 justify-start" onclick={() => { editMounted = true; editOpen = true; }}
             aria-label={withHeadword(editText)}>
       {editText}
     </Button>
   {:else}
-    <!-- Read-only: going to the entry is the main action -->
     {@render goToLink({class: buttonVariants({variant: 'secondary', size: 'xs', class: 'flex-1 justify-start'})})}
   {/if}
   {#if features.write || multiWindowService}
+    <ButtonGroup.Separator class="bg-background" />
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
         {#snippet child({props})}
-          <Button {...props} variant="secondary" size="xs" class="border-s border-background px-1.5"
+          <Button {...props} variant="secondary" size="xs" class="px-1.5"
                   icon="i-mdi-chevron-down" aria-label={headword ? $t`More options for ${headword}` : $t`More options`} />
         {/snippet}
       </DropdownMenu.Trigger>

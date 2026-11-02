@@ -132,16 +132,24 @@
     {#if liveEntry}
       <Headwords class="font-semibold" entry={liveEntry} placeholder={$t`Untitled`} />
     {:else}
-      <!-- Gone: the headword the link recorded -->
       <span class="text-muted-foreground">{snapshotHeadword || $t`Untitled`} <span class="text-base font-normal">{$t`(deleted)`}</span></span>
     {/if}
+  </span>
+{/snippet}
+
+{#snippet senseSuffix(sense: {deleted?: boolean, label?: string, pos?: string})}
+  <span class={cn('ms-1', !sense.deleted && 'text-foreground')} data-testid="change-component-sense">
+    {sense.label}{#if sense.pos}<i class={cn(sense.label && 'ms-1')}>{sense.pos}</i>{/if}
   </span>
 {/snippet}
 
 {#snippet componentIdentity()}
   <!-- Muted connector between equal-weight headwords: neither end of the link outranks the other -->
   <span class="wrap-break-word text-base font-normal text-muted-foreground">
-    <T msg="# part of #" cmt="A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to">{@render linkEnd(component, cfc?.componentHeadword)}{#if componentSense}<span class={cn('ms-1', !componentSense.deleted && 'text-foreground')} data-testid="change-component-sense">{#if componentSense.label}{componentSense.label}{/if}{#if componentSense.pos}<i class={cn(componentSense.label && 'ms-1')}>{componentSense.pos}</i>{/if}</span>{/if}{#snippet second()}{@render linkEnd(complexForm, cfc?.complexFormHeadword)}{/snippet}</T>
+    <T msg="# part of #" cmt="A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to">
+      {@render linkEnd(component, cfc?.componentHeadword)}{#if componentSense}{@render senseSuffix(componentSense)}{/if}
+      {#snippet second()}{@render linkEnd(complexForm, cfc?.complexFormHeadword)}{/snippet}
+    </T>
   </span>
 {/snippet}
 
