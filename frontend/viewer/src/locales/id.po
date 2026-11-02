@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-01 03:37\n"
+"PO-Revision-Date: 2026-11-02 04:45\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -29,6 +29,11 @@ msgstr "- ({0} perubahan)"
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
 msgstr "(telah diedit)"
+
+#. Activity-log line: placeholder shown in place of a newly created entry's name when it has no headword text yet.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "(no headword)"
+msgstr "(tanpa kata kunci)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
@@ -83,6 +88,11 @@ msgstr "{0} telah diselesaikan"
 #: src/home/Server.svelte
 msgid "{0} Server"
 msgstr "{0} Server"
+
+#. Activity list row footer: how many further changes in this commit were left off the row (# = count). Clicking the row shows them all.
+#: src/lib/activity/ActivityView.svelte
+msgid "{num, plural, one {(+# more change)} other {(+# more changes)}}"
+msgstr "{num, plural, one {(+# perubahan lainnya)} other {(+# perubahan lainnya)}}"
 
 #. Number of changes in sync operation
 #: src/project/sync/FwClassicSyncView.svelte
@@ -163,6 +173,7 @@ msgstr "Kata yang serupa sudah ada"
 msgid "a word"
 msgstr "sebuah kata"
 
+#. Field label in the activity change-preview diff for vocabulary objects (part of speech, semantic domain, etc.). Shows the abbreviated form alongside the full name.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Abbreviation"
@@ -177,6 +188,11 @@ msgstr "Akun"
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "Aktivitas"
+
+#. Error boundary title shown if the whole Activity view crashes while rendering.
+#: src/lib/activity/ActivityView.svelte
+msgid "Activity view failed"
+msgstr "Tampilan aktivitas gagal"
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -263,9 +279,41 @@ msgstr "Tambahkan Kata"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Tambahkan entri pertama Anda untuk mulai menyusun kamus Anda."
 
+#. Badge or screen-reader marker in the activity change preview: this change created the item, or added the highlighted text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityView.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Added"
 msgstr "Ditambahkan"
+
+#. Activity-log line in the dictionary edit history. {0} = singular noun for a list-item type (e.g. "semantic domain", "complex form type", "publication", "translation"). A second chip with the new item's name follows this text.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added {0}"
+msgstr "Ditambahkan {0}"
+
+#. Activity-log line: a user posted a discussion comment (on an entry). A chip with the comment text may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added comment"
+msgstr "Komentar ditambahkan"
+
+#. Activity-log line: a complex-form component entry was added to another entry's Components list; a chip with the component's name may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added component"
+msgstr "Komponen ditambahkan"
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Removed picture", "Updated picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added picture"
+msgstr "Gambar ditambahkan"
+
+#. Activity-log line, fallback when the added list item has no dedicated noun. {0} = the field's label (e.g. "Publications"); a chip with the added value may follow.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added to {0}"
+msgstr "Ditambahkan ke {0}"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
@@ -366,6 +414,12 @@ msgstr "Apakah Anda yakin ingin menghapus {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Ajukan pertanyaan dan dapatkan bantuan di forum komunitas kami."
 
+#. Small marker chip on an activity summary indicating a field value is an audio recording (not text)
+#: src/lib/activity/ChangeSummary.svelte
+msgid "audio"
+msgstr "audio"
+
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's an audio writing system (Yes/No).
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
@@ -376,6 +430,11 @@ msgstr "Audio"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "File audio tidak disertakan dalam Kirim & Terima"
+
+#. Noun for a media resource that is an audio recording, e.g. "Added audio recording" in the activity log
+#: src/lib/activity/ChangeSummary.svelte
+msgid "audio recording"
+msgstr "rekaman audio"
 
 #. Success message for audio sync
 #: src/lib/components/audio/AudioDialog.svelte
@@ -415,6 +474,7 @@ msgstr "Kembali"
 msgid "Back to tasks"
 msgstr "Kembali ke tugas"
 
+#. Field label in the activity change-preview diff for a custom view. Shows which base view ("FieldWorks Classic" or "FieldWorks Lite") the custom view extends.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Base view"
 msgstr "Tampilan dasar"
@@ -480,6 +540,19 @@ msgstr "Batal"
 msgid "Caption"
 msgstr "Keterangan"
 
+#. Activity-log line. {0} = field label (e.g. "Part of speech") or singular list-item noun (e.g. "complex form type"). Used when the new value is unknown or not displayed.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Changed {0}"
+msgstr "Diubah {0}"
+
+#. Activity-log line. {0} = field label (e.g. "Part of speech"); a chip showing the new value follows this text.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Changed {0} to"
+msgstr "Mengubah {0} menjadi"
+
 #. Explanation of sync behavior
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
@@ -534,6 +607,12 @@ msgstr "Proyek FieldWorks Klasik"
 msgid "clear"
 msgstr "jelas"
 
+#. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Cleared {0}"
+msgstr "Telah diselesaikan {0}"
+
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
@@ -547,6 +626,11 @@ msgstr "Tutup"
 #: src/project/ProjectSidebar.svelte
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
+
+#. Activity-log line: a user closed (resolved) a discussion thread. Matches the "Closed" status in the comments dialog.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Closed comment thread"
+msgstr "Kolom komentar ditutup"
 
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
@@ -576,6 +660,16 @@ msgstr "Komentar"
 msgid "Comments, {0} unread"
 msgstr "Komentar, {0} belum dibaca"
 
+#. Note on the "Later changes" tab. "Version" means the item's data at one moment; two moments are compared: just after this change, and now
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Compares the version right after this change with the current version."
+msgstr "Membandingkan versi yang dirilis tepat setelah perubahan ini dengan versi saat ini."
+
+#. Note on the "Deleted later" tab. The item was deleted later; the second version is its data just before that deletion
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Compares the version right after this change with the last version before deletion."
+msgstr "Membandingkan versi yang muncul tepat setelah perubahan ini dengan versi terakhir sebelum penghapusan."
+
 #: src/project/tasks/TaskList.svelte
 msgid "Complete"
 msgstr "Selesai"
@@ -587,6 +681,17 @@ msgstr "Selesai"
 msgid "Complex Form"
 msgstr "Bentuk Kompleks"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added complex form type"). Refers to a user-defined classification of compound-word relationships (e.g. "compound", "derivative").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "complex form type"
+msgstr "tipe bentuk kompleks"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined classifications of compound-word relationships (e.g. "compound", "derivative").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "complex form types"
+msgstr "jenis formulir kompleks"
+
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
@@ -594,15 +699,16 @@ msgstr "Bentuk Kompleks"
 msgid "Complex form types"
 msgstr "Jenis formulir yang kompleks"
 
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Complex form:"
-msgstr "Bentuk yang kompleks:"
-
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Complex forms"
 msgstr "Bentuk kompleks"
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added component"). Refers to an entry that is a constituent part of a compound word (e.g. "sun" is a component of "sunflower").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "component"
+msgstr "komponen"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Part"
@@ -615,10 +721,10 @@ msgstr "Bentuk kompleks"
 msgid "Component"
 msgstr "Komponen"
 
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Component:"
-msgstr "Komponen:"
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of component entries in a compound word.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "components"
+msgstr "komponen"
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -707,6 +813,18 @@ msgstr "Buat Proyek Contoh"
 msgid "Create View"
 msgstr "Buat Tampilan"
 
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "custom view"); a chip with the created item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created {0}"
+msgstr "Dibuat {0}"
+
+#. Activity-log line for a batch of same-type creations. {0} = count (number, always ≥ 2); {1} = plural noun for the created object type (e.g. "entries", "semantic domains").
+#. Example: "Created 100 semantic domains". Order and inflection of {0} and {1} may vary by language.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created {0} {1}"
+msgstr "Dibuat {0} {1}"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
 #. Label in picker: marks the entry that is currently being edited
@@ -714,11 +832,6 @@ msgstr "Buat Tampilan"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Current Entry"
 msgstr "Entri Saat Ini"
-
-#. Column header
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Current version"
-msgstr "Versi saat ini"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Current Entry"
@@ -734,10 +847,20 @@ msgstr "Kata saat ini"
 msgid "Custom"
 msgstr "Kustom"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Created custom view"). A custom view is a user-defined configuration of which dictionary fields and writing systems are visible.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "custom view"
+msgstr "tampilan khusus"
+
 #. Label used in delete confirmation prompt for a custom view.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr "Tampilan khusus"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined configurations of which dictionary fields and writing systems are visible.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "custom views"
+msgstr "tampilan khusus"
 
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
@@ -799,17 +922,45 @@ msgstr "Hapus Gambar"
 msgid "Delete Word"
 msgstr "Menghapus kata"
 
-#. Change type indicator
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#. Badge in the activity change preview: the item itself was deleted. Compare "Removed", where only a link was removed and the item still exists
+#: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Deleted"
 msgstr "Dihapus"
+
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "writing system"); a chip with the deleted item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted {0}"
+msgstr "Dihapus {0}"
+
+#. Activity-log line. {0} = singular entity noun (e.g. "example", "meaning"/"sense"). A chip with the parent entry/sense name follows (e.g. "Deleted example from «Apfel»").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted {0} from"
+msgstr "Telah dihapus {0} dari"
+
+#. Activity-log line: a user deleted a discussion comment.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted comment"
+msgstr "Komentar telah dihapus"
+
+#. Activity-log line: a user deleted a whole discussion thread with its comments.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted comment thread"
+msgstr "Utas komentar yang dihapus"
+
+#. Status on a tab: the item was deleted after this change. Not an instruction to delete it later.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Deleted later"
+msgstr "Dihapus kemudian"
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Description"
 msgstr "Deskripsi"
 
-#. Button to view activity details
+#. Tab in the activity change preview: technical details of the change
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
 msgstr "Detail"
@@ -938,6 +1089,21 @@ msgstr "Edit Tampilan Khusus"
 msgid "Edit Picture"
 msgstr "Edit Gambar"
 
+#. Tooltip/aria-label for the "changed" change-category badge icon on an activity row (paired with "Added", "Removed", "Reordered").
+#: src/lib/activity/ActivityView.svelte
+msgid "Edited"
+msgstr "Diedit"
+
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "morph type"); a chip with the edited item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Edited {0}"
+msgstr "Diedit {0}"
+
+#. Activity-log line: a user edited their discussion comment. A chip with the new comment text may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Edited comment"
+msgstr "Komentar yang telah diedit"
+
 #. Role selector option
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Editor"
@@ -957,6 +1123,11 @@ msgstr "Komentar kosong"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Diakhiri dengan"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
+#: src/lib/activity/ChangeSummary.svelte
+msgid "entries"
+msgstr "entri"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Entries missing both Lexeme form and Citation form"
@@ -978,6 +1149,7 @@ msgid "Entries with senses"
 msgstr "Entri yang memiliki arti"
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
 msgid "entry"
 msgstr "entri"
@@ -985,7 +1157,6 @@ msgstr "entri"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -994,6 +1165,7 @@ msgstr "entri"
 msgid "Entry"
 msgstr "Entri"
 
+#. Field label in the activity change-preview diff for a custom view: which entry-level fields it shows.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Entry fields"
 msgstr "Kolom isian"
@@ -1042,6 +1214,12 @@ msgstr "Setiap entri sudah memiliki kolom ini yang terisi."
 msgid "Every word already has this field filled in."
 msgstr "Kolom ini sudah terisi untuk setiap kata."
 
+#. Standalone noun (an example sentence on a sense), interpolated into a reorder activity-log line, e.g. "<sense> · Reordered example".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "example"
+msgstr "contoh"
+
 #. Section header
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
@@ -1050,6 +1228,7 @@ msgstr "Kolom ini sudah terisi untuk setiap kata."
 msgid "Example"
 msgstr "Contoh"
 
+#. Field label in the activity change-preview diff for a custom view: which example-sentence fields it shows.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Example fields"
 msgstr "Contoh kolom"
@@ -1066,6 +1245,13 @@ msgstr "Contoh kalimat"
 msgid "Example sentences"
 msgstr "Contoh kalimat"
 
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of example sentences under a sense.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "examples"
+msgstr "contoh"
+
+#. Field label in the activity change-preview diff for a writing system. Exemplars are the list of index letters (e.g. A, B, C…) used for alphabetical browsing.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Exemplars"
 msgstr "Contoh-contoh"
@@ -1314,6 +1500,7 @@ msgstr "Temukan kata..."
 msgid "Finish"
 msgstr "Selesai"
 
+#. Field label in the activity change-preview diff. "Font" is the typeface name configured on a writing system.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Font"
 msgstr "Jenis huruf"
@@ -1345,7 +1532,6 @@ msgstr "Arti Singkat"
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
 #. {0} = entry/word name (e.g., "Go to banana")
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Buka {0}"
@@ -1357,12 +1543,26 @@ msgstr "Buka {0}"
 msgid "Go to entry"
 msgstr "Buka entri"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Go to word: {0}"
+#. Accessible name of the link on an entry's name in the activity change preview. {0} = the entry's headword
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Go to entry: {0}"
+msgstr "Buka entri: {0}"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
 msgstr "Buka kata"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Go to entry: {0}"
+#. Accessible name of the link on a word's name in the activity change preview. {0} = the word's headword
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Go to word: {0}"
+msgstr "Buka Word: {0}"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1411,6 +1611,11 @@ msgstr "Bantuan & Lainnya"
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
 msgstr "Sembunyikan"
+
+#. Button in the activity view's change preview. It hides again the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Hide unchanged fields"
+msgstr "Sembunyikan kolom yang tidak berubah"
 
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
@@ -1490,6 +1695,11 @@ msgstr "Perubahan terakhir: #"
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Last sync: #"
 msgstr "Sinkronisasi terakhir: #"
+
+#. Tab: shows changes made to this item after this change.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Later changes"
+msgstr "Perubahan selanjutnya"
 
 #: src/home/HomeView.svelte
 msgid "Learn more"
@@ -1688,6 +1898,14 @@ msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Diperlukan pembaruan manual. Ikuti petunjuk yang diberikan."
 
 #. Relevant view: Lite
+#. Classic view equivalent: "sense"
+#. Lowercase singular noun interpolated into activity-log lines (e.g. "Added meaning «happy»"). A sense is one meaning of a word.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "meaning"
+msgstr "arti"
+
+#. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1697,6 +1915,19 @@ msgstr "Diperlukan pembaruan manual. Ikuti petunjuk yang diberikan."
 #: src/lib/views/entity-config.ts
 msgid "Meaning"
 msgstr "Arti"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "senses"
+#. Lowercase plural noun interpolated into activity-log lines (e.g. "Reordered meanings"). Paired with singular "meaning".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "meanings"
+msgstr "makna"
+
+#. Noun for a media resource of non-audio/unknown type, e.g. "Added media file" in the activity log
+#: src/lib/activity/ChangeSummary.svelte
+msgid "media file"
+msgstr "berkas media"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Media file details"
@@ -1766,18 +1997,44 @@ msgstr "Hilang: {0}"
 msgid "Mode"
 msgstr "Mode"
 
+#. Accessible name of the menu button (three dots) next to an entry in the activity change preview
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "More options"
+msgstr "Pilihan lainnya"
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "morph type"
+msgstr "jenis morf"
+
 #: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 msgid "Morph type"
 msgstr "Jenis morf"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "morph types"
+msgstr "jenis morf"
 
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Pindah"
 
+#. Badge or screen-reader marker in the activity change preview: this change only moved the item to another place in its list (e.g. reordered senses)
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Moved"
 msgstr "Dipindahkan"
+
+#. Activity-log line. Shown when a sense was moved into the entry it now belongs to (shown as the subject) from a different entry.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Moved from another entry"
+msgstr "Dipindahkan dari entri lain"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Moved from another sense"
+msgstr "Dipindahkan dari arti lain"
 
 #. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -1922,6 +2179,11 @@ msgstr "Tidak ditemukan riwayat"
 msgid "No items found"
 msgstr "Tidak ada barang yang ditemukan"
 
+#. Status on a tab: nothing was changed in this item after this change.
+#: src/lib/activity/ActivityItem.svelte
+msgid "No later changes"
+msgstr "Tidak ada perubahan selanjutnya"
+
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
 msgstr "Tidak ditemukan berkas media"
@@ -1975,6 +2237,11 @@ msgstr "Tidak ada subjek, tidak dapat membuat {0}baru"
 msgid "No vernacular writing systems configured."
 msgstr "Tidak ada sistem penulisan bahasa daerah yang dikonfigurasi."
 
+#. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
+#: src/lib/entry-editor/diff-view/DiffNoVisibleChanges.svelte
+msgid "No visible changes"
+msgstr "Tidak ada perubahan yang terlihat"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "No entries found"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1997,12 +2264,6 @@ msgstr "Tidak ada"
 msgid "Not equal"
 msgstr "Tidak sama"
 
-#. Placeholder shown in the activity change preview when a referenced entry or sense no longer exists in the dictionary.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Not found"
-msgstr "Tidak ditemukan"
-
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
 msgid "Not logged in"
@@ -2024,6 +2285,11 @@ msgstr "Catatan"
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
 msgstr "Tidak ada yang perlu disalin"
+
+#. Under a change's headword in the activity view. # is the entry's current headword; shown when a later change renamed it
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Now called: #"
+msgstr "Sekarang disebut: #"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -2089,7 +2355,7 @@ msgid "Open in FieldWorks"
 msgstr "Buka di FieldWorks"
 
 #. Menu option
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -2140,6 +2406,11 @@ msgstr "Bagian"
 msgid "Part of"
 msgstr "Bagian dari"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added part of speech", "Changed part of speech to"). Refers to the grammatical category of a word (noun, verb, adjective, etc.). Classic view calls this "Grammatical info."
+#: src/lib/activity/ChangeSummary.svelte
+msgid "part of speech"
+msgstr "kategori kata"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
@@ -2147,6 +2418,11 @@ msgstr "Bagian dari"
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Bagian dari pidato"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Grammatical categories (noun, verb, adjective, etc.). Classic view calls these "Grammatical info."
+#: src/lib/activity/ChangeSummary.svelte
+msgid "parts of speech"
+msgstr "kategori kata"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
@@ -2205,16 +2481,17 @@ msgstr "Disematkan"
 msgid "Platform"
 msgstr "Platform"
 
+#. Field label in the activity change-preview diff for a morph type. "Postfix" is the character(s) appended after a morpheme to mark its grammatical role (e.g. "-" for a suffix).
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Postfix"
 msgstr "Postfix"
 
+#. Field label in the activity change-preview diff for a morph type. "Prefix" is the character(s) prepended before a morpheme to mark its grammatical role (e.g. "-" for a prefix).
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Prefix"
 msgstr "Awalan"
 
 #. View option
-#: src/lib/activity/ActivityItem.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
@@ -2259,12 +2536,23 @@ msgstr "Proyek {0} tidak ditemukan di {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Proyek {0} di {1} belum disiapkan untuk FieldWorks Lite"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added publication"). A publication is a dictionary or word list that entries can be assigned to for distribution.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "publication"
+msgstr "publikasi"
+
 #. Filter option
 #. Publication type/dictionary for entries
 #. Used to organize entries by which publication(s) they should appear in
 #: src/project/browse/SearchFilter.svelte
 msgid "Publication"
 msgstr "Publikasi"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Publications are dictionaries or word lists that entries can be assigned to for distribution.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "publications"
+msgstr "publikasi"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Publish Word in"
@@ -2404,9 +2692,32 @@ msgstr "Menghapus"
 msgid "Remove audio"
 msgstr "Menghapus audio"
 
+#. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityView.svelte
 #: src/lib/entry-editor/diff-view/DiffMarker.svelte
 msgid "Removed"
 msgstr "Dihapus"
+
+#. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain", "component"); a chip with the removed item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed {0}"
+msgstr "Dihapus {0}"
+
+#. Activity-log line: a complex-form component entry was removed from another entry's Components list; a chip with the component's name may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed component"
+msgstr "Komponen yang telah dihapus"
+
+#. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A leading entry chip may precede this text.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed from {0}"
+msgstr "Dihapus dari {0}"
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Updated picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed picture"
+msgstr "Gambar telah dihapus"
 
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2415,6 +2726,27 @@ msgstr "Dihapus"
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Reopen"
 msgstr "Buka kembali"
+
+#. Activity-log line: a user reopened a previously closed discussion thread.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reopened comment thread"
+msgstr "Thread komentar dibuka kembali"
+
+#. Tooltip/aria-label for the "reordered" change-category badge icon on an activity row (paired with "Added", "Removed", "Edited").
+#: src/lib/activity/ActivityView.svelte
+msgid "Reordered"
+msgstr "Diurutkan ulang"
+
+#. Activity-log line. {0} = plural collection noun: "senses", "examples", "components", or "writing systems".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reordered {0}"
+msgstr "Diurutkan ulang {0}"
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Updated picture".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reordered pictures"
+msgstr "Gambar yang telah diurutkan ulang"
 
 #. Button to overwrite audio file
 #: src/lib/components/field-editors/audio-input.svelte
@@ -2543,6 +2875,11 @@ msgstr "Pilih {0}"
 msgid "Select {0} to view details"
 msgstr "Pilih {0} untuk melihat detailnya"
 
+#. Shown in the Activity detail pane when no change (commit) is selected.
+#: src/lib/activity/ActivityView.svelte
+msgid "Select a change to view details"
+msgstr "Pilih perubahan untuk melihat detailnya"
+
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
 msgid "Select at least one analysis writing system"
@@ -2563,12 +2900,23 @@ msgstr "Pilih file"
 msgid "Selected"
 msgstr "Terpilih"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added semantic domain"). A semantic domain is a meaning category assigned to a sense (e.g. "plants", "emotions", "body parts").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "semantic domain"
+msgstr "domain semantik"
+
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
 #. Used to organize and filter entries by meaning category
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr "Domain semantik"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Semantic domains are meaning categories assigned to senses (e.g. "plants", "emotions", "body parts").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "semantic domains"
+msgstr "domain semantik"
 
 #. Field label
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
@@ -2582,6 +2930,12 @@ msgstr "Domain semantik"
 msgid "Send us a message"
 msgstr "Kirimkan pesan kepada kami"
 
+#. Standalone noun (one meaning of a word), interpolated into a reorder activity-log line followed by the sense's gloss, e.g. "Apfel · Reordered sense apple".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "sense"
+msgstr "makna"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Meaning"
 #. Field label: one meaning/definition of an entry
@@ -2593,9 +2947,16 @@ msgstr "Kirimkan pesan kepada kami"
 msgid "Sense"
 msgstr "Pengertian"
 
+#. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Sense fields"
 msgstr "Bidang indera"
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of senses (meanings) within a dictionary entry.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "senses"
+msgstr "indera"
 
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
@@ -2603,6 +2964,39 @@ msgstr "Bidang indera"
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Kalimat"
+
+#. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set {0}"
+msgstr "Set {0}"
+
+#. Activity-log line. {0} = field label (e.g. "Definition"); a chip with the new value follows. Used when there is no writing-system qualifier.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set {0} to"
+msgstr "Atur {0} menjadi"
+
+#. First # is a field label plus writing-system abbreviation, second # is the new value
+#. First # is a field label plus writing-system abbreviation, second # is the new value
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set # to #"
+msgstr "Atur # menjadi #"
+
+#. Activity-log line. A leading chip names the publication. Means this publication was marked as the project's single main (default) publication.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set as the main publication"
+msgstr "Tetapkan sebagai publikasi utama"
+
+#. Activity-log line. The default/primary free translation of an example sentence was set; no chip follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set default translation"
+msgstr "Tetapkan terjemahan default"
+
+#. Activity-log line. The FieldWorks homograph number (disambiguates entries with the same headword) was set; a chip with the number follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set homograph number to"
+msgstr "Tetapkan nomor homograf menjadi"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -2646,6 +3040,11 @@ msgstr "Tampilkan {0} selengkapnya..."
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
 msgstr "Tampilkan atau sembunyikan keterangan"
+
+#. Button in the activity view's change preview. It also shows the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Show unchanged fields"
+msgstr "Tampilkan kolom yang tidak berubah"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
@@ -2912,6 +3311,11 @@ msgstr "Perubahan ini belum diunggah. Pastikan Anda online dan masuk untuk memba
 msgid "This {0} was deleted"
 msgstr "{0} ini telah dihapus"
 
+#. Tab that shows what this one change did to the item
+#: src/lib/activity/ActivityItem.svelte
+msgid "This change"
+msgstr "Perubahan ini"
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -2984,6 +3388,11 @@ msgstr "Beralih disematkan"
 msgid "Total entries"
 msgstr "Jumlah entri"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to one of an example sentence's free translations.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "translation"
+msgstr "terjemahan"
+
 #. Field label
 #: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
@@ -3014,6 +3423,7 @@ msgstr "Coba lagi"
 msgid "Turn analytics back on"
 msgstr "Aktifkan kembali fitur analitik"
 
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's a Vernacular or Analysis writing system.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
@@ -3138,11 +3548,16 @@ msgstr "Belum dibaca"
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffAnchor.svelte
 #: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
 #: src/lib/entry-editor/diff-view/DiffSelect.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -3185,6 +3600,11 @@ msgstr "Pembaruan gagal diinstal."
 msgid "Update was disallowed by permission settings."
 msgstr "Pembaruan ditolak oleh pengaturan izin."
 
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Updated picture"
+msgstr "Gambar yang diperbarui"
+
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
 #: src/lib/updates/UpdateDialog.svelte
@@ -3199,6 +3619,11 @@ msgstr "Pengunggahan sedang dalam proses"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Uploaded"
 msgstr "Telah diunggah"
+
+#. Activity-log line. {0} = "audio recording" or "media file"; a marker chip follows when it's audio.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Uploaded {0}"
+msgstr "Telah diunggah {0}"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Uploaded pending files"
@@ -3243,6 +3668,11 @@ msgstr "Sistem penulisan bahasa daerah"
 msgid "View"
 msgstr "Melihat"
 
+#. Title/tooltip for an icon button that opens the view picker (switch between Classic, Lite, or a custom view).
+#: src/lib/activity/ActivityViewPicker.svelte
+msgid "View options"
+msgstr "Lihat opsi"
+
 #. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "View Picture"
@@ -3281,13 +3711,13 @@ msgid "Why is that?"
 msgstr "Mengapa demikian?"
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
 msgid "word"
 msgstr "kata"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -3319,6 +3749,13 @@ msgstr "Kata atau Tampilan sesuai kebutuhan"
 msgid "Word or meaning:"
 msgstr "Kata atau makna:"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "entries"
+#. Lowercase plural noun interpolated into activity-log lines (e.g. "Created 5 words"). Paired with "words" / "entries" terminology across the app.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "words"
+msgstr "kata-kata"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
 msgstr "Kata yang tidak memiliki Kata maupun Tampilkan sebagai"
@@ -3327,11 +3764,18 @@ msgstr "Kata yang tidak memiliki Kata maupun Tampilkan sebagai"
 msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
 msgstr "Menulis catatan log yang terperinci, termasuk diagnostik proses masuk, ke berkas log. Matikan kembali fitur ini setelah tim dukungan mendapatkan informasi yang mereka butuhkan."
 
+#. Standalone singular noun used as {0} in "Reordered {0}" when naming one item, e.g. "Reordered writing system" plus a chip with its name. Paired with plural "writing systems".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "writing system"
+msgstr "sistem penulisan"
+
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"
 msgstr "Sistem Penulisan"
 
+#. Field label in the activity change-preview diff for a writing system. "Writing system code" is the technical identifier (e.g. "en", "fr-Latn"), distinct from its display name.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Writing system code"
 msgstr "Menulis kode sistem"
@@ -3340,6 +3784,12 @@ msgstr "Menulis kode sistem"
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
 msgstr "Sistem penulisan: {0}"
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of writing systems configured in the project.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "writing systems"
+msgstr "sistem penulisan"
 
 #. Section label in custom view form.
 #. Configures which vernacular and analysis writing systems are shown.
