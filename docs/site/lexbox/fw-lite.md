@@ -16,18 +16,15 @@ manager who turns it on. FieldWorks Lite is still being developed
   only use FieldWorks Lite needs FieldWorks once to start. No project on Lexbox yet? See
   [Host a project](/lexbox/host-a-project).
 - **You are a Manager of the project** ([roles](/lexbox/manage-members#roles)).
-- **Everyone who uses FieldWorks on the project has done a Send/Receive.** Lexbox then has
-  everyone's latest work before it makes the FieldWorks Lite copy, and that is the point
-  Lexbox can go back to if something goes wrong.
 
 ## Turn it on for your project
 
-1. Open your project's page on lexbox.org and choose **Try FieldWorks Lite?**.
+1. Open your project's page on [lexbox.org](https://lexbox.org) and choose **Try FieldWorks Lite?**.
 2. Confirm with **Yes, please!**.
 
 Lexbox prepares a FieldWorks Lite copy of your project. This can take a while, longer for
 a large project. It runs on Lexbox, so you can leave the page while you wait.
-When it's done, the project carries a **Using FieldWorks Lite** badge; refresh the page if
+When it's done, the project shows a **Using FieldWorks Lite** badge. Refresh the page if
 you don't see it yet.
 
 If the project has no data yet, the dialog says so instead of offering **Yes, please!**.
@@ -39,9 +36,8 @@ The button only appears on FieldWorks projects.
 
 :::info[While FieldWorks Lite is in beta]
 Only managers with early access see the button. You can request it on the
-[Where's my project?](https://lexbox.org/wheresMyProject) page. If we told you that you
-have early access but you still don't see the button, we may have given access to a
-different account: write to
+[Where's my project?](https://lexbox.org/wheresMyProject) page. If you have early access
+but still don't see the button, write to
 [lexbox_support@groups.sil.org](mailto:lexbox_support@groups.sil.org) with the email
 address or login you use.
 :::
@@ -73,8 +69,8 @@ Some changes in FieldWorks, such as adding a custom field, ask everyone on the t
 Send/Receive first. Count FieldWorks Lite as one more team member: do steps 1 to 3 above,
 make the change, then do steps 1 to 3 again.
 
-## If something goes wrong
+## Questions {/* #if-something-goes-wrong */}
 
-See [Something is missing or wrong in my project](/fw-lite/faq#something-is-missing-or-wrong-in-my-project)
-and [How do I report a problem?](/fw-lite/faq#how-do-i-report-a-problem-or-ask-for-help).
-Please tell support that you are using FieldWorks Lite.
+The [FieldWorks Lite FAQ](/fw-lite/faq) answers common questions, including
+[how to ask for help](/fw-lite/faq#how-do-i-report-a-problem-or-ask-for-help). When you
+write to support, mention that your project uses FieldWorks Lite.

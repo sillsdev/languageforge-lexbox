@@ -3,7 +3,7 @@ title: Members and roles
 sidebar_position: 4
 ---
 
-Every project has a member list, managed on the project's page on lexbox.org. Members log
+Every project has a member list, managed on the project's page on [lexbox.org](https://lexbox.org). Members log
 in with their own accounts. Teams should not share one login.
 
 ## Roles

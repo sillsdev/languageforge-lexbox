@@ -13,7 +13,7 @@ You need three things:
   **password**;
 - to be a **member** of the project, as an Editor or Manager (see
   [Members and roles](/lexbox/manage-members));
-- the **project code**, shown on the project's page on lexbox.org (for example
+- the **project code**, shown on the project's page on [lexbox.org](https://lexbox.org) (for example
   `qaa-flex`).
 
 The easiest path starts on your project's page on lexbox.org. For a FieldWorks project,
@@ -39,7 +39,7 @@ Send/Receive itself works (merging, conflict notes, good habits), see the
 ## WeSay
 
 In the **WeSay Configuration Tool**, choose **Get from Internet** and set **Server** to
-**Custom Location...**. Then open **Get project** on your project's page on lexbox.org,
+**Custom Location...**. Then open **Get project** on your project's page on [lexbox.org](https://lexbox.org),
 type your password, and copy the **Send/Receive URL** it builds into WeSay's URL box. The
 URL already contains your login and the project code.
 

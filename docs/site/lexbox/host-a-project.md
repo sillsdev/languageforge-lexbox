@@ -39,5 +39,5 @@ administrator reviews the request, and you get an email when it is approved.
 
 A new project starts empty. Put your data in with your program's first Send/Receive. In
 FieldWorks that is **Send/Receive** → **Send this Project for the first time**. The
-project's page on lexbox.org shows these steps under **Set up project**, with your login
+project's page on [lexbox.org](https://lexbox.org) shows these steps under **Set up project**, with your login
 and project code already filled in. See [Send/Receive](/lexbox/send-receive/).

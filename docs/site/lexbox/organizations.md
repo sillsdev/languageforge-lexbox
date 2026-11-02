@@ -11,7 +11,7 @@ Organizations are created by the Lexbox team. Write to
 
 ## Who can see what
 
-Everything on lexbox.org needs a login. Logged in, what you see of an organization depends
+Everything on [lexbox.org](https://lexbox.org) needs a login. Logged in, what you see of an organization depends
 on your relation to it:
 
 | | Anyone logged in | Organization member | Organization admin |
