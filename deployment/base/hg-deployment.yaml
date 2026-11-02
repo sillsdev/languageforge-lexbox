@@ -124,15 +124,16 @@ spec:
         ports:
           - containerPort: 8088
 
-        # /healthz exercises both the wsgi and the cgid daemon; when either is
-        # gone, static pages still serve 200 while hg requests 503 or hang.
+        # /healthz is answered by hgweb's own wsgi module and loops back through the
+        # cgid daemon; with either gone, static pages still serve 200 while hg requests 503 or hang.
         startupProbe:
           httpGet:
             path: /healthz
             port: 8088
           failureThreshold: 30
           periodSeconds: 10
-          timeoutSeconds: 5
+          # the first request also loads hgweb's module (Mercurial, OTel), several seconds cold
+          timeoutSeconds: 10
         livenessProbe:
           httpGet:
             path: /healthz
