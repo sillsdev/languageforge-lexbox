@@ -40,10 +40,10 @@ public class ProjectController(
     /// new project's ID. Poll <see cref="FwDataProjectCreationStatus"/> to learn when it's ready.
     /// </summary>
     /// <param name="code">Project code for the new project.</param>
+    /// <param name="name">Display name for the new project.</param>
     /// <param name="wsVernacular">Vernacular writing system id(s); at least one is required. Repeat the query param for multiple.</param>
     /// <param name="wsAnalysis">Analysis writing system id(s); defaults to ["en"] when none are given. Repeat the query param for multiple.</param>
     /// <param name="wsUi">Optional user interface writing system id; defaults to "en" if not given.</param>
-    /// <param name="name">Optional display name; defaults to the code.</param>
     /// <param name="projectOrigin">Optional <see cref="ProjectMigrationStatus"/> to record as the project's origin; admin-only.</param>
     [HttpPost("initFwDataProject")]
     [AdminRequired]
@@ -53,10 +53,10 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> InitFwDataProject(
         string code,
+        string name,
         [FromQuery] string[] wsVernacular,
         [FromQuery] string[]? wsAnalysis = null,
         string wsUi = "en",
-        string? name = null,
         string? projectOrigin = null)
     {
         // Validate before anything is created, so a bad request never leaves a project to tear down.
@@ -68,6 +68,8 @@ public class ProjectController(
             return Problem(wsError, statusCode: StatusCodes.Status400BadRequest);
         if (code is null || code.Length < 4 || !Regex.IsMatch(code, Project.ProjectCodeRegex))
             return Problem($"Invalid project code '{code}'", statusCode: StatusCodes.Status400BadRequest);
+        if (string.IsNullOrWhiteSpace(name))
+            return Problem("A project name is required", statusCode: StatusCodes.Status400BadRequest);
 
         ProjectMigrationStatus? origin = null;
         if (!string.IsNullOrEmpty(projectOrigin))
@@ -87,7 +89,7 @@ public class ProjectController(
         {
             projectId = await projectService.CreateProject(new CreateProjectInput(
                 Id: null,
-                Name: string.IsNullOrWhiteSpace(name) ? code : name,
+                Name: name,
                 Description: string.Empty,
                 Code: code,
                 Type: ProjectType.FLEx,

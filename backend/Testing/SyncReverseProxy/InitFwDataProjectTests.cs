@@ -39,7 +39,7 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
         var code = $"tmpl-{Guid.NewGuid():N}"[..12];
         var vernacular = new[] { "fr", "es", "ko", "ru", "my" };
         var analysis = new[] { "de", "pt", "th", "id", "he", "el" };
-        var query = $"?code={code}"
+        var query = $"?code={code}&name={code}"
                     + string.Concat(vernacular.Select(ws => $"&wsVernacular={ws}"))
                     + string.Concat(analysis.Select(ws => $"&wsAnalysis={ws}"));
 
@@ -148,7 +148,7 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
         var code = $"tmpl-{Guid.NewGuid():N}"[..12];
         var response = await managerApiTester.HttpClient.PostAsync(
             $"{managerApiTester.BaseUrl}/api/project/initFwDataProject" +
-            $"?code={code}&wsVernacular=fr&projectOrigin={nameof(ProjectMigrationStatus.LanguageForgeNonSR)}", null);
+            $"?code={code}&name={code}&wsVernacular=fr&projectOrigin={nameof(ProjectMigrationStatus.LanguageForgeNonSR)}", null);
 
         if (response.StatusCode == HttpStatusCode.InternalServerError)
         {
@@ -184,7 +184,7 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
     {
         var code = $"tmpl-{Guid.NewGuid():N}"[..12];
         var response = await _adminApiTester.HttpClient.PostAsync(
-            $"{_adminApiTester.BaseUrl}/api/project/initFwDataProject?code={code}&wsAnalysis=en", null);
+            $"{_adminApiTester.BaseUrl}/api/project/initFwDataProject?code={code}&name={code}&wsAnalysis=en", null);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 

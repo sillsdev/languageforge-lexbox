@@ -33,7 +33,7 @@ public class InitFwDataProjectValidationTests
     [Fact]
     public async Task Rejects_when_no_vernacular_writing_system_is_supplied()
     {
-        var result = await NewController().InitFwDataProject("myproj", wsVernacular: []);
+        var result = await NewController().InitFwDataProject("myproj", name: "My project", wsVernacular: []);
         var problem = result.Result.Should().BeOfType<ObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>().Which;
         problem.Status.Should().Be(StatusCodes.Status400BadRequest);
@@ -44,7 +44,7 @@ public class InitFwDataProjectValidationTests
     [Fact]
     public async Task Rejects_a_duplicate_vernacular_writing_system_before_creating_anything()
     {
-        var result = await NewController().InitFwDataProject("myproj", wsVernacular: ["fr", "fr"]);
+        var result = await NewController().InitFwDataProject("myproj", name: "My project", wsVernacular: ["fr", "fr"]);
         var problem = result.Result.Should().BeOfType<ObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>().Which;
         problem.Status.Should().Be(StatusCodes.Status400BadRequest);
@@ -55,7 +55,7 @@ public class InitFwDataProjectValidationTests
     public async Task Rejects_too_many_analysis_writing_systems_before_creating_anything()
     {
         var analysis = Enumerable.Range(0, InitFwDataProjectInput.MaxWritingSystemsPerList + 1).Select(i => $"qaa-x-ws{i}").ToArray();
-        var result = await NewController().InitFwDataProject("myproj", wsVernacular: ["fr"], wsAnalysis: analysis);
+        var result = await NewController().InitFwDataProject("myproj", name: "My project", wsVernacular: ["fr"], wsAnalysis: analysis);
         var problem = result.Result.Should().BeOfType<ObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>().Which;
         problem.Status.Should().Be(StatusCodes.Status400BadRequest);
@@ -66,7 +66,7 @@ public class InitFwDataProjectValidationTests
     public async Task Rejects_a_too_long_UI_writing_system_before_creating_anything()
     {
         var wsUi = "qaa-x-" + new string('a', InitFwDataProjectInput.MaxWritingSystemTagLength);
-        var result = await NewController().InitFwDataProject("myproj", wsVernacular: ["fr"], wsUi: wsUi);
+        var result = await NewController().InitFwDataProject("myproj", name: "My project", wsVernacular: ["fr"], wsUi: wsUi);
         var problem = result.Result.Should().BeOfType<ObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>().Which;
         problem.Status.Should().Be(StatusCodes.Status400BadRequest);
@@ -76,11 +76,24 @@ public class InitFwDataProjectValidationTests
     [Fact]
     public async Task Rejects_an_invalid_project_code()
     {
-        var result = await NewController().InitFwDataProject("Bad Code!", wsVernacular: ["fr"]);
+        var result = await NewController().InitFwDataProject("Bad Code!", name: "My project", wsVernacular: ["fr"]);
         var problem = result.Result.Should().BeOfType<ObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>().Which;
         problem.Status.Should().Be(StatusCodes.Status400BadRequest);
         problem.Detail.Should().Contain("Invalid project code");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public async Task Rejects_a_missing_project_name(string? name)
+    {
+        var result = await NewController().InitFwDataProject("myproj", name: name!, wsVernacular: ["fr"]);
+        var problem = result.Result.Should().BeOfType<ObjectResult>()
+            .Which.Value.Should().BeOfType<ProblemDetails>().Which;
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Detail.Should().Contain("A project name is required");
     }
 
     /// <summary>A permission service that either passes or fails the admin assertion.</summary>
@@ -95,7 +108,7 @@ public class InitFwDataProjectValidationTests
     public async Task Rejects_a_project_origin_that_is_not_a_migration_status()
     {
         var result = await NewController(PermissionService(isAdmin: true))
-            .InitFwDataProject("myproj", wsVernacular: ["fr"], projectOrigin: "NotAnOrigin");
+            .InitFwDataProject("myproj", name: "My project", wsVernacular: ["fr"], projectOrigin: "NotAnOrigin");
         var problem = result.Result.Should().BeOfType<ObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>().Which;
         problem.Status.Should().Be(StatusCodes.Status400BadRequest);
@@ -108,7 +121,7 @@ public class InitFwDataProjectValidationTests
         // The admin check must happen before the value is even parsed, and must outlive [AdminRequired],
         // which is expected to be relaxed for this endpoint later.
         var act = () => NewController(PermissionService(isAdmin: false))
-            .InitFwDataProject("myproj", wsVernacular: ["fr"], projectOrigin: "Migrated");
+            .InitFwDataProject("myproj", name: "My project", wsVernacular: ["fr"], projectOrigin: "Migrated");
         await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
@@ -117,7 +130,7 @@ public class InitFwDataProjectValidationTests
     {
         // An empty value isn't "specified", so it needs no admin check; a null permission service
         // proves AssertIsAdmin() was never called. Fails later (null project service) than validation.
-        var act = () => NewController().InitFwDataProject("myproj", wsVernacular: ["fr"], projectOrigin: "");
+        var act = () => NewController().InitFwDataProject("myproj", name: "My project", wsVernacular: ["fr"], projectOrigin: "");
         await act.Should().ThrowAsync<NullReferenceException>();
     }
 
