@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-02 04:45\n"
+"PO-Revision-Date: 2026-11-03 05:04\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -24,6 +24,16 @@ msgstr ""
 #: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr "– ({0} cambios)"
+
+#. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
+#. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted sense)"
+msgstr "(sentido eliminado)"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted)"
+msgstr "(eliminado)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
@@ -143,6 +153,11 @@ msgstr "**Menos tipos de morfema** (sólo *Raíz*, *Raíz vinculado*, *Tallo*, *
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Terminología más simple** (p. ej. *Palabra* en lugar de *Forma del lexema*, *Significado* en lugar de *Acepción*)"
+
+#. A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "# part of #"
+msgstr "# parte de #"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
@@ -1080,14 +1095,40 @@ msgstr "Editar"
 msgid "Edit comment"
 msgstr "Editar comentario"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit complex form"
+msgstr "Editar forma compleja"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit component"
+msgstr "Editar componente"
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "Editar vista personalizada"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Edit Word"
+#. Button on a change in the activity view; opens the changed entry in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Entry"
+msgstr "Editar entrada"
+
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Edit Picture"
 msgstr "Editar foto"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit whole word"
+msgstr "Editar palabra completa"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Edit Entry"
+#. Button on a change in the activity view; opens the changed word in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Word"
+msgstr "Editar palabra"
 
 #. Tooltip/aria-label for the "changed" change-category badge icon on an activity row (paired with "Added", "Removed", "Reordered").
 #: src/lib/activity/ActivityView.svelte
@@ -1536,6 +1577,14 @@ msgstr "Glosa"
 msgid "Go to {0}"
 msgstr "Visite {0}"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to complex form"
+msgstr "Ir a forma compleja"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to component"
+msgstr "Ir al componente"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Go to word"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
@@ -1544,11 +1593,15 @@ msgid "Go to entry"
 msgstr "Ir a la entrada"
 
 #. Relevant view: Classic
-#. Lite view equivalent: "Go to word: {0}"
-#. Accessible name of the link on an entry's name in the activity change preview. {0} = the entry's headword
-#: src/lib/activity/ActivityChangeHeader.svelte
-msgid "Go to entry: {0}"
-msgstr "Ir a la entrada: {0}"
+#. Lite view equivalent: "Go to Word"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed entry in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Entry"
+msgstr "Ir a la entrada"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to whole word"
+msgstr "Ir a la palabra completa"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
@@ -1558,11 +1611,11 @@ msgid "Go to word"
 msgstr "Ir a la palabra"
 
 #. Relevant view: Lite
-#. Classic view equivalent: "Go to entry: {0}"
-#. Accessible name of the link on a word's name in the activity change preview. {0} = the word's headword
-#: src/lib/activity/ActivityChangeHeader.svelte
-msgid "Go to word: {0}"
-msgstr "Ir a la palabra: {0}"
+#. Classic view equivalent: "Go to Entry"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed word in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Word"
+msgstr "Ir a la palabra"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1997,10 +2050,14 @@ msgstr "Falta: {0}"
 msgid "Mode"
 msgstr "Modo"
 
-#. Accessible name of the menu button (three dots) next to an entry in the activity change preview
-#: src/lib/activity/ActivityChangeHeader.svelte
+#. Accessible name of the arrow button that opens more actions for an entry in the activity change preview
+#: src/lib/activity/EntryActionsButton.svelte
 msgid "More options"
 msgstr "Más opciones"
+
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "More options for {0}"
+msgstr "Más opciones para {0}"
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
 #: src/lib/activity/ChangeSummary.svelte
@@ -2355,7 +2412,7 @@ msgid "Open in FieldWorks"
 msgstr "Abrir en FieldWorks"
 
 #. Menu option
-#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/EntryActionsButton.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -3549,7 +3606,7 @@ msgstr "No leídos"
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
 #: src/lib/activity/ActivityChangeHeader.svelte
-#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ChangeSummary.svelte
