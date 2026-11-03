@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-02 04:45\n"
+"PO-Revision-Date: 2026-11-03 05:04\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -24,6 +24,16 @@ msgstr ""
 #: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
 msgstr "- ({0}개 변경)"
+
+#. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
+#. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted sense)"
+msgstr "(삭제된 의미)"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted)"
+msgstr "(삭제됨)"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
@@ -143,6 +153,11 @@ msgstr "**형태소 유형 감소** (*뿌리*, *결합된 뿌리*, *줄기*, *�
 #: src/project/browse/ViewPicker.svelte
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**간단한 용어 사용** (예: *어휘 형태* 대신 *단어*, *의미* 대신 *의미*)"
+
+#. A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "# part of #"
+msgstr "# #의 일부 #"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
@@ -1080,14 +1095,40 @@ msgstr "편집"
 msgid "Edit comment"
 msgstr "댓글 수정"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit complex form"
+msgstr "복잡한 양식 편집"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit component"
+msgstr "컴포넌트 편집"
+
 #. Dialog title when editing an existing custom view.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Edit Custom View"
 msgstr "사용자 지정 보기 편집"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Edit Word"
+#. Button on a change in the activity view; opens the changed entry in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Entry"
+msgstr "항목 편집"
+
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Edit Picture"
 msgstr "사진 편집"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit whole word"
+msgstr "단어 전체 편집"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Edit Entry"
+#. Button on a change in the activity view; opens the changed word in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Word"
+msgstr "Word 편집"
 
 #. Tooltip/aria-label for the "changed" change-category badge icon on an activity row (paired with "Added", "Removed", "Reordered").
 #: src/lib/activity/ActivityView.svelte
@@ -1536,6 +1577,14 @@ msgstr "광택"
 msgid "Go to {0}"
 msgstr "{0}으로 이동"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to complex form"
+msgstr "복합 양식으로 이동"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to component"
+msgstr "구성 요소로 이동"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Go to word"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
@@ -1544,11 +1593,15 @@ msgid "Go to entry"
 msgstr "항목으로 이동"
 
 #. Relevant view: Classic
-#. Lite view equivalent: "Go to word: {0}"
-#. Accessible name of the link on an entry's name in the activity change preview. {0} = the entry's headword
-#: src/lib/activity/ActivityChangeHeader.svelte
-msgid "Go to entry: {0}"
-msgstr "해당 항목으로 이동: {0}"
+#. Lite view equivalent: "Go to Word"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed entry in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Entry"
+msgstr "항목으로 이동"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to whole word"
+msgstr "전체 단어로 이동"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Go to entry"
@@ -1558,11 +1611,11 @@ msgid "Go to word"
 msgstr "단어로 이동"
 
 #. Relevant view: Lite
-#. Classic view equivalent: "Go to entry: {0}"
-#. Accessible name of the link on a word's name in the activity change preview. {0} = the word's headword
-#: src/lib/activity/ActivityChangeHeader.svelte
-msgid "Go to word: {0}"
-msgstr "단어로 이동: {0}"
+#. Classic view equivalent: "Go to Entry"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed word in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Word"
+msgstr "Word로 이동"
 
 #. Filter option label
 #. Relevant view: Classic
@@ -1997,10 +2050,14 @@ msgstr "누락되었습니다: {0}"
 msgid "Mode"
 msgstr "모드"
 
-#. Accessible name of the menu button (three dots) next to an entry in the activity change preview
-#: src/lib/activity/ActivityChangeHeader.svelte
+#. Accessible name of the arrow button that opens more actions for an entry in the activity change preview
+#: src/lib/activity/EntryActionsButton.svelte
 msgid "More options"
 msgstr "더 많은 옵션"
+
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "More options for {0}"
+msgstr "더 많은 옵션을 보려면 {0}"
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
 #: src/lib/activity/ChangeSummary.svelte
@@ -2355,7 +2412,7 @@ msgid "Open in FieldWorks"
 msgstr "FieldWorks에서 열기"
 
 #. Menu option
-#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/EntryActionsButton.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -3549,7 +3606,7 @@ msgstr "읽지 않음"
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
 #: src/lib/activity/ActivityChangeHeader.svelte
-#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ChangeSummary.svelte
