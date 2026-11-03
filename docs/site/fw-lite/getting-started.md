@@ -4,6 +4,7 @@ sidebar_position: 1
 ---
 
 import AppIcon from '@site/src/components/AppIcon';
+import Screenshot from '@site/src/components/Screenshot';
 
 This page takes you from nothing installed to your first edit. To open a real project,
 it has to be on Lexbox, with data sent from FieldWorks Classic, and with FieldWorks Lite
@@ -22,6 +23,8 @@ You don't need an account to look around. On the home screen, choose **Create Ex
 Project**. This makes a small practice dictionary on your device. Nothing you do in it
 touches anyone else's work, and it never syncs, so ignore its red sync dot.
 
+<Screenshot name="home-logged-out" width={688} alt="The FieldWorks Lite home screen, with Create Example Project and Login to see projects" />
+
 To work on a real project, choose **Login to see projects** and log in with your
 [Lexbox account](/lexbox/get-an-account). Your projects then appear under **Lexbox
 Server**.
@@ -30,6 +33,8 @@ Server**.
 
 Find your project under **Lexbox Server** and choose **Download**. FieldWorks Lite copies
 the project onto your device. On a large project this can take a while the first time.
+
+<Screenshot name="home-logged-in" width={688} alt="The home screen after logging in, with two projects to download under Lexbox Server" />
 
 After that, the project stays on your device, so you can work without an internet
 connection.
@@ -53,6 +58,8 @@ Then press **Refresh Projects** (the circular arrow next to your name). Still mi
 Tap the project in the list to open it. **Browse** shows your words. Pick one and change a
 field. To add a word, use **New Word** (on a phone the button just says **New**).
 
+<Screenshot name="project-word-open" alt="A project open in Browse: the word list in the middle and the selected word's fields on the right" />
+
 If you are a **Viewer** or **Commenter** on the project, it opens read-only: there is a lock
 next to its name, and you can't add or change words. A Commenter can still add comments.
 Ask your project manager to make you an Editor.
@@ -62,6 +69,8 @@ FieldWorks Lite says *word* and *meaning* where FieldWorks Classic says *entry* 
 *sense*, and its default view hides some fields. To see more fields, with their FieldWorks
 Classic names, select <AppIcon name="layers" label="view options" /> above the word
 list, then under **View** choose **FieldWorks Classic**. Some FieldWorks Classic fields, such as custom fields, aren't in FieldWorks Lite yet.
+
+<Screenshot name="view-options" width={271} alt="The view options, with FieldWorks Lite and FieldWorks Classic under View" />
 :::
 
 ## Your changes sync on their own

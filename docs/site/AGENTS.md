@@ -6,7 +6,7 @@ Docusaurus site with three sections: `fw-lite/` (FieldWorks Lite users), `lexbox
 
 | You changed | Update |
 |---|---|
-| FW Lite UI (`frontend/viewer/`) | the `fw-lite/` page that names it; Sync dialog changes also `src/components/SyncExplainer/syncScenarios.ts` |
+| FW Lite UI (`frontend/viewer/`) | the `fw-lite/` page that names it; Sync dialog changes also `src/components/SyncExplainer/syncScenarios.ts`. If a screenshot shows it, `task docs:screenshots` in `frontend/viewer` (see `tests/docs-screenshots/README.md`) |
 | When sync runs or which edit wins (`backend/FwLite/`, `backend/FwHeadless/`) | `fw-lite/how-sync-works.mdx`, `syncScenarios.ts`, `lexbox/fw-lite.md`, `technical/sync/` |
 | lexbox.org UI, roles, invites, orgs, project requests (`frontend/src/`, `backend/LexBoxApi/`, `backend/LexCore/`) | the `lexbox/` page that names it |
 
@@ -24,7 +24,7 @@ Docusaurus site with three sections: `fw-lite/` (FieldWorks Lite users), `lexbox
 - Name buttons, menus and tabs exactly as the app shows them: FW Lite text is a `msgid` in `frontend/viewer/src/locales/en.po`, lexbox.org text a value in `frontend/src/lib/i18n/locales/en.json`. `fw-lite/` says FieldWorks Classic (FW Lite's name for the desktop app); `lexbox/` says FieldWorks (lexbox.org's name). No doc-only names.
 - `fw-lite/` and `lexbox/` are for non-technical readers: plain words, short sentences, no em-dashes. CRDT, Harmony, Mercurial and FwHeadless belong in `technical/` and the "Under the hood" box. Call the sync engine Harmony; say CRDT only where you explain what Harmony is.
 - Say who can see a feature when not everyone can (role, beta flag, admin only).
-- No real project codes, names, people or project data, in text or screenshots. Example project codes use the private-use language code `qaa`. Screenshots come from FW Lite's example project or a local dev Lexbox.
+- No real project codes, names, people or project data, in text or screenshots. Example project codes use the private-use language code `qaa`. Screenshots come from FW Lite's example project or a local dev Lexbox; FW Lite ones are generated, not hand-made.
 - `technical/` explains how the system works; `AGENTS.md` files keep agent procedure (commands, gotchas) and link here. The docs never link to `AGENTS.md` files. Don't copy content between them.
 - The sync explainer's limits are in the `syncScenarios.ts` header.
 
