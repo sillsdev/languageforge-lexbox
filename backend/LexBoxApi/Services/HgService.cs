@@ -22,7 +22,7 @@ public partial class HgService : IHgService, IHostedService
     private const string DELETED_REPO_FOLDER = ProjectCode.DELETED_REPO_FOLDER;
     private const string TEMP_REPO_FOLDER = ProjectCode.TEMP_REPO_FOLDER;
 
-    private const string AllZeroHash = "0000000000000000000000000000000000000000";
+    public const string AllZeroHash = "0000000000000000000000000000000000000000";
 
     private readonly IOptions<HgConfig> _options;
     private readonly Lazy<HttpClient> _hgClient;

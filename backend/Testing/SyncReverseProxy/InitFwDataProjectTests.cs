@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using System.Xml.Linq;
 using FluentAssertions;
 using LexCore.Entities;
+using LexCore.Sync;
 using Testing.ApiTests;
 using Testing.Fixtures;
 using Testing.Services;
@@ -45,22 +46,25 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
         Guid projectId = default;
         try
         {
-            // 1. Create the project via the admin endpoint (creates the DB row + empty repo, then has
-            //    FwHeadless build the template .fwdata and push it into the empty repo).
-            //    This is a long-running, non-idempotent operation. The shared tester's HttpClient retries
-            //    transient failures/timeouts, so a slow first attempt (which already created the project
-            //    row) would be retried and the retry would return 409 "already exists". Use a client that
-            //    doesn't retry and allows more time. Log it in itself (cookie auth) rather than reusing the
-            //    shared tester's captured JWT, which may be stale.
+            // 1. Create the project via the admin endpoint. It creates the DB row + empty repo and returns
+            //    202 at once; a background job then has FwHeadless build the template .fwdata and push it
+            //    into the empty repo, and we poll until that has finished.
+            //    The POST isn't idempotent. The shared tester's HttpClient retries transient failures, and a
+            //    retried attempt (after the first already created the project row) would return 409 "already
+            //    exists", so use a client that doesn't retry. Log it in itself (cookie auth) rather than
+            //    reusing the shared tester's captured JWT, which may be stale.
             using var createClient = ApiTestBase.NewHttpClient(_adminApiTester.BaseUrl, retryTransientFailures: false).Client;
-            createClient.Timeout = TimeSpan.FromMinutes(5);
             await JwtHelper.ExecuteLogin(AdminAuth, includeDefaultScope: true, createClient);
             var response = await createClient.PostAsync(
                 $"{_adminApiTester.BaseUrl}/api/project/initFwDataProject{query}", null);
-            response.StatusCode.Should().Be(HttpStatusCode.OK,
-                "creation should succeed; body: {0}", await response.Content.ReadAsStringAsync());
+            response.StatusCode.Should().Be(HttpStatusCode.Accepted,
+                "creation should be accepted; body: {0}", await response.Content.ReadAsStringAsync());
             projectId = await response.Content.ReadFromJsonAsync<Guid>();
             projectId.Should().NotBe(Guid.Empty);
+            response.Headers.Location?.ToString().Should().EndWith($"/api/project/fwDataProjectCreationStatus/{projectId}");
+
+            var status = await AwaitCreationFinished(createClient, projectId);
+            status.Status.Should().Be(ProjectCreationStatusEnum.Created, "creation should succeed; error: {0}", status.Error);
 
             // 2. The first push landed a commit server-side (the empty repo is no longer empty).
             var lastCommit = await _adminApiTester.GetProjectLastCommit(code);
@@ -182,6 +186,24 @@ public class InitFwDataProjectTests : IClassFixture<IntegrationFixture>
         var response = await _adminApiTester.HttpClient.PostAsync(
             $"{_adminApiTester.BaseUrl}/api/project/initFwDataProject?code={code}&wsAnalysis=en", null);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    /// <summary>Polls the creation status until the background job has finished, for up to five minutes.</summary>
+    private async Task<ProjectCreationStatus> AwaitCreationFinished(HttpClient client, Guid projectId)
+    {
+        using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+        while (true)
+        {
+            var response = await client.GetAsync(
+                $"{_adminApiTester.BaseUrl}/api/project/fwDataProjectCreationStatus/{projectId}", timeout.Token);
+            response.StatusCode.Should().Be(HttpStatusCode.OK,
+                "the project's creation status should be known; body: {0}", await response.Content.ReadAsStringAsync());
+            var status = await response.Content.ReadFromJsonAsync<ProjectCreationStatus>(timeout.Token);
+            status.Should().NotBeNull();
+            _output.WriteLine($"Creation status: {status!.Status}");
+            if (status.IsFinished) return status;
+            await Task.Delay(TimeSpan.FromSeconds(2), timeout.Token);
+        }
     }
 
     // Reads a LangProject child element's <Uni> text (a space-separated writing-system list) and splits it.

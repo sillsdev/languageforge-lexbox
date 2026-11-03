@@ -450,6 +450,7 @@ type Project {
   repoSizeInKb: Int
   deletedDate: DateTime
   resetStatus: ResetStatus!
+  fwDataInitStatus: FwDataInitStatus!
   projectOrigin: ProjectMigrationStatus!
   migratedDate: DateTime
   userCount: Int!
@@ -976,6 +977,13 @@ input FlexProjectMetadataSortInput {
   flexModelVersion: SortEnumType @cost(weight: "10")
 }
 
+input FwDataInitStatusOperationFilterInput {
+  eq: FwDataInitStatus @cost(weight: "10")
+  neq: FwDataInitStatus @cost(weight: "10")
+  in: [FwDataInitStatus!] @cost(weight: "10")
+  nin: [FwDataInitStatus!] @cost(weight: "10")
+}
+
 input HybridDateTimeFilterInput {
   and: [HybridDateTimeFilterInput!]
   or: [HybridDateTimeFilterInput!]
@@ -1224,6 +1232,7 @@ input ProjectFilterInput {
   repoSizeInKb: IntOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
   resetStatus: ResetStatusOperationFilterInput
+  fwDataInitStatus: FwDataInitStatusOperationFilterInput
   projectOrigin: ProjectMigrationStatusOperationFilterInput
   migratedDate: DateTimeOperationFilterInput
   harmonyCommits: ListFilterInputTypeOfServerCommitFilterInput
@@ -1260,6 +1269,7 @@ input ProjectSortInput {
   repoSizeInKb: SortEnumType @cost(weight: "10")
   deletedDate: SortEnumType @cost(weight: "10")
   resetStatus: SortEnumType @cost(weight: "10")
+  fwDataInitStatus: SortEnumType @cost(weight: "10")
   projectOrigin: SortEnumType @cost(weight: "10")
   migratedDate: SortEnumType @cost(weight: "10")
   userCount: SortEnumType @cost(weight: "10")
@@ -1495,6 +1505,11 @@ enum DbErrorCode {
 
 enum FeatureFlag {
   FW_LITE_BETA
+}
+
+enum FwDataInitStatus {
+  NONE
+  IN_PROGRESS
 }
 
 enum JsonValueKind {

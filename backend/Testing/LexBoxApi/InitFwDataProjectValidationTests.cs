@@ -21,7 +21,7 @@ public class InitFwDataProjectValidationTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddControllers(); // registers the ProblemDetailsFactory that ControllerBase.Problem() resolves
-        return new ProjectController(null!, null!, null!, permissionService!, null!, null!, NullLogger<ProjectController>.Instance)
+        return new ProjectController(null!, null!, null!, permissionService!, null!, NullLogger<ProjectController>.Instance)
         {
             ControllerContext = new ControllerContext
             {

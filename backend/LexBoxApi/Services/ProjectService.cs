@@ -25,7 +25,9 @@ public class ProjectService(
     IEmailService emailService,
     FwHeadlessClient fwHeadless)
 {
-    public async Task<Guid> CreateProject(CreateProjectInput input, ProjectMigrationStatus? projectOrigin = null)
+    public async Task<Guid> CreateProject(CreateProjectInput input,
+        ProjectMigrationStatus? projectOrigin = null,
+        FwDataInitStatus fwDataInitStatus = FwDataInitStatus.None)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var projectId = input.Id ?? Guid.NewGuid();
@@ -42,6 +44,7 @@ public class ProjectService(
                 Code = input.Code,
                 Name = input.Name,
                 ProjectOrigin = projectOrigin ?? ProjectMigrationStatus.Migrated,
+                FwDataInitStatus = fwDataInitStatus,
                 Description = input.Description,
                 Type = input.Type,
                 LastCommit = null,
@@ -233,11 +236,24 @@ public class ProjectService(
     }
 
     /// <summary>
+    /// Marks a project whose repo FwHeadless has populated from the template as ready, recording the
+    /// commit it pushed.
+    /// </summary>
+    public async Task FinishFwDataInit(Guid projectId)
+    {
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project is null) return;
+        project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
+        project.FwDataInitStatus = FwDataInitStatus.None;
+        await dbContext.SaveChangesAsync();
+    }
+
+    /// <summary>
     /// Compensating cleanup for a project whose template population failed after CreateProject:
     /// deletes FwHeadless's local project state, then removes the repo and the project row and
     /// invalidates the same caches as a permanent delete.
     /// Unlike DeleteProjectPermanently this is not gated on retention policy, because it only undoes a
-    /// project this same request just created.
+    /// project that InitFwDataProject just created.
     /// </summary>
     public async Task CleanupFailedProjectCreation(Guid projectId, string code)
     {
