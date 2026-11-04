@@ -174,7 +174,12 @@ describe('createEntry summary completeness', () => {
     const adapter = makeAdapter({api, confirmWrite: () => Promise.resolve(false)});
     await expect(async () => await adapter.handle('createEntry', [{lexemeForm: {seh: 'x'}}]))
       .rejects.toMatchObject({code: 'permission-denied'});
+    await expect(async () => await adapter.handle('updateEntry', [makeEntry(), makeEntry({lexemeForm: {seh: 'b'}})]))
+      .rejects.toMatchObject({code: 'permission-denied'});
+    await expect(async () => await adapter.handle('applyChanges', [[{type: 'createEntry', entry: {lexemeForm: {seh: 'c'}}}]]))
+      .rejects.toMatchObject({code: 'permission-denied'});
     expect(api.createEntry).not.toHaveBeenCalled();
+    expect(api.updateEntry).not.toHaveBeenCalled();
   });
 });
 
