@@ -16,7 +16,7 @@ GitHub Actions workflows and deployment. Full runs take 30-60+ min across Linux,
 
 | Workflow | Triggers | What it does | Time |
 |----------|----------|--------------|------|
-| `pr.yaml` (`PR CI`) | Every PR to develop (also `labeled`/`unlabeled`) | The **PR tier**: detects affected projects with nx, then runs only the affected Linux jobs (.NET build + affected tests, viewer checks, viewer Playwright on Chromium, extension lint); escalation tiers add full-tier jobs. See [PR tier](#pr-tier-pryaml) | target < 10 min |
+| `pr.yaml` (`PR CI`) | Every PR, whatever its base branch, so stacked PRs too (also `labeled`/`unlabeled`) | The **PR tier**: detects affected projects with nx, then runs only the affected Linux jobs (.NET build + affected tests, viewer checks, viewer Playwright on Chromium, extension lint); escalation tiers add full-tier jobs. See [PR tier](#pr-tier-pryaml) | target < 10 min |
 | `fw-lite.yaml` | FwLite code changes | Build .NET, run tests, build viewer, publish apps (the **full tier**, develop only; pull requests run `pr.yaml`) | ~40 min |
 | `lexbox-api.yaml` | Called by others | Build API, run unit tests, build Docker image | ~15 min |
 | `lexbox-ui.yaml` | Called by others | Build SvelteKit UI, build Docker image | ~10 min |
