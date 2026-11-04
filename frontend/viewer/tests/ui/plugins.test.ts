@@ -147,6 +147,32 @@ test('a plugin without the edit permission cannot even ask to write', async ({pa
   await expect(page.getByText('Plugin wants to add an entry')).toBeHidden();
 });
 
+test('a plugin cannot post the app its own window events', async ({page}) => {
+  await gotoPlugins(page);
+
+  await page.getByRole('button', {name: 'New plugin'}).click();
+  await page.getByLabel('Name').fill('Spoof test');
+  await page.getByLabel('Plugin HTML').fill([
+    '<!DOCTYPE html><html><head><title>Spoof test</title></head><body>',
+    '<div id="status">idle</div>',
+    '<script>',
+    '  parent.postMessage({type: "notification", message: "spoofed toast"}, "*");',
+    '  fwlite.ready.then(async () => {',
+    '    document.getElementById("status").textContent = "counted:" + await fwlite.countEntries();',
+    '  });',
+    '</script>',
+    '</body></html>',
+  ].join('\n'));
+  await page.getByRole('button', {name: 'Add plugin'}).click();
+
+  const card = page.locator('[data-slot="card"]', {hasText: 'Spoof test'});
+  await card.getByRole('button', {name: 'Run'}).click();
+
+  const frame = page.frameLocator('iframe[title="Spoof test"]');
+  await expect(frame.locator('#status')).toContainText('counted:', {timeout: 15000});
+  await expect(page.getByText('spoofed toast')).toHaveCount(0);
+});
+
 test('the curated example gallery is offered in full', () => {
   expect(examplePlugins.length).toBeGreaterThanOrEqual(20);
 });
