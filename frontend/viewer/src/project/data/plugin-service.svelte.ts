@@ -15,6 +15,11 @@ import {
 const symbol = Symbol.for('fw-lite-plugin-service');
 const textEncoder = new TextEncoder();
 
+/** ASCII-only so the name survives every file system and hg; non-Latin names fall back to "plugin". */
+export function fileNameSlug(name: string): string {
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'plugin';
+}
+
 export function usePluginService(): PluginService {
   const projectContext = useProjectContext();
   return projectContext.getOrAdd(symbol, () => new PluginService(projectContext));
@@ -152,9 +157,9 @@ export class PluginService {
       uploadedHtmlDigest = await crypto.subtle.digest('SHA-256', htmlBytes as BufferSource);
       const contentHash = hexFromBytes(uploadedHtmlDigest);
       const response = await this.#projectContext.api.saveFile(htmlBytes, {
-        // Content-hash filename: each version is a distinct immutable file, so a synced/cached
-        // copy can never be stale, and re-saving identical content reuses the same file.
-        filename: `plugin-${contentHash.slice(0, 16)}.html`,
+        // The hash makes each version a distinct immutable file, so a synced/cached copy can
+        // never be stale; the name is for people browsing LinkedFiles.
+        filename: `${fileNameSlug(draft.name)}-${contentHash.slice(0, 8)}.html`,
         mimeType: 'text/html',
         // Keeps plugin files together in the project's LinkedFiles (for FLEx users and the
         // media manager) instead of scattering hash-named folders at its root.
