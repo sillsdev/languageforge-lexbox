@@ -569,6 +569,11 @@ public class CrdtMiniLcmApi(
     {
         return await mediaApi.SaveFile(stream, metadata);
     }
+
+    public async Task DeleteFile(MediaUri mediaUri)
+    {
+        await mediaApi.DeleteFile(mediaUri);
+    }
     #endregion
 
     #region CustomViewApi

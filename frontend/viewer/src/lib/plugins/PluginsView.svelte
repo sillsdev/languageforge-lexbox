@@ -98,7 +98,7 @@
       details: $t`This removes the plugin for everyone on this project.`,
     });
     if (!shouldDelete) return;
-    await pluginService.delete(plugin.id);
+    await pluginService.delete(plugin);
   }
 
   function sizeKb(plugin: IPlugin): string {

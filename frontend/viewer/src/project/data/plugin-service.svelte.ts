@@ -111,6 +111,7 @@ export class PluginService {
     const updated = await this.#projectContext.api.updatePlugin(plugin);
 
     if (uploadedHtmlDigest) {
+      await this.#projectContext.api.deleteFile(previous.mediaUri);
       const oldHash = await computePluginHash({
         name: previous.name,
         description: previous.description,
@@ -127,8 +128,10 @@ export class PluginService {
     return updated;
   }
 
-  async delete(pluginId: string): Promise<void> {
+  async delete(plugin: IPlugin): Promise<void> {
+    const pluginId = plugin.id;
     await this.#projectContext.api.deletePlugin(pluginId);
+    await this.#projectContext.api.deleteFile(plugin.mediaUri);
     this.consentStore.revoke(pluginId);
     this.writeTrustStore.revoke(pluginId);
     await this.#pluginsResource.refetch();

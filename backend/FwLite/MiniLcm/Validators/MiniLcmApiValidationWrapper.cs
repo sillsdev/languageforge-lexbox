@@ -598,6 +598,11 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.SaveFile(stream, metadata);
     }
 
+    public Task DeleteFile(MediaUri mediaUri)
+    {
+        return _api.DeleteFile(mediaUri);
+    }
+
     #endregion
 
     void IDisposable.Dispose()
