@@ -34,8 +34,9 @@ flowchart LR
   plugin (`/plugins/new`) and editing one (`/plugins/:id/edit`); managers only. The draft runs in a
   `preview` sandbox on the left; tabs on the right hold the AI loop (download a prompt file to attach
   in any AI chat, since some chats cut long pastes short, then paste the reply), the source and the
-  details. A pasted or uploaded version that newly declares `internet` asks before it runs (the
-  preview runs it at once). An example changed before adding is saved as "… (custom)". A pasted
+  details. Editing a saved plugin shows the Run page's consent card (`PluginConsentCard`) until
+  its saved version has run consent on this device. A pasted or uploaded version that newly
+  declares `internet` asks before it runs (the preview runs it at once). An example changed before adding is saved as "… (custom)". A pasted
   version is reviewed against the saved plugin or example: new permissions are flagged, with a
   follow-up prompt asking the AI to remove them. Drafts aren't kept: leaving with unsaved work asks
   first (`$lib/utils/leave-guard.ts` covers the sidebar).

@@ -581,7 +581,7 @@ msgstr "Browse view failed"
 msgid "Camera"
 msgstr "Camera"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Can access the internet (and could send dictionary data there)"
 msgstr "Can access the internet (and could send dictionary data there)"
 
@@ -593,7 +593,7 @@ msgstr "Can change the dictionary"
 msgid "Can change the dictionary, and asks before each change"
 msgstr "Can change the dictionary, and asks before each change"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Can change your dictionary — it will ask you first"
 msgstr "Can change your dictionary — it will ask you first"
 
@@ -1645,7 +1645,7 @@ msgstr "Get support"
 msgid "Gloss"
 msgstr "Gloss"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Go back"
 msgstr "Go back"
 
@@ -2156,7 +2156,7 @@ msgstr "Name"
 msgid "Name is required"
 msgstr "Name is required"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs “{0}”, which this project doesn't support — it may not work properly"
 msgstr "Needs “{0}”, which this project doesn't support — it may not work properly"
 
@@ -2383,7 +2383,7 @@ msgstr "No words found"
 msgid "None"
 msgstr "None"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Not allowed to use the internet"
 msgstr "Not allowed to use the internet"
 
@@ -2701,7 +2701,7 @@ msgstr "Plugin wants to make {0} changes"
 msgid "Plugins"
 msgstr "Plugins"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
 msgstr "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
 
@@ -2817,7 +2817,7 @@ msgstr "Publish Word in"
 msgid "Read-only"
 msgstr "Read-only"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Read-only: cannot change your dictionary"
 msgstr "Read-only: cannot change your dictionary"
 
@@ -3042,11 +3042,11 @@ msgstr "Run"
 msgid "Run it"
 msgstr "Run it"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Run plugin"
 msgstr "Run plugin"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Run this plugin?"
 msgstr "Run this plugin?"
 
@@ -3054,7 +3054,7 @@ msgstr "Run this plugin?"
 msgid "Runs from an entry's menu"
 msgstr "Runs from an entry's menu"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Runs in a sandbox, separate from the app"
 msgstr "Runs in a sandbox, separate from the app"
 

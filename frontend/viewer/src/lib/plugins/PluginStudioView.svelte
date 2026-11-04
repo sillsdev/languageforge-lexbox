@@ -30,6 +30,8 @@
   import type {PluginPermission} from './plugin-api-types';
   import {PluginStudioDraft, type StudioMode} from './plugin-studio-draft.svelte';
   import PluginSandbox from './PluginSandbox.svelte';
+  import PluginConsentCard from './PluginConsentCard.svelte';
+  import {computePluginHash} from './plugin-local-data';
   import type {IconClass} from '$lib/icon-class';
 
   interface Props {
@@ -118,6 +120,28 @@
     docUrl = url;
     return () => URL.revokeObjectURL(url);
   });
+
+  // Edit mode: the saved version only runs with the run consent the Run page asks for, since another
+  // manager may have synced in code that never ran on this device. Versions pasted here are the
+  // user's own and don't ask (beyond the internet prompt).
+  let savedApproval = $state<{hash: string; approved: boolean}>();
+  $effect(() => {
+    if (mode !== 'edit' || !savedPlugin || loadState !== 'ready') return;
+    const target = savedPlugin;
+    const html = draft.baseline.html;
+    savedApproval = undefined;
+    void computePluginHash({name: target.name, description: target.description, html}).then(hash => {
+      if (savedPlugin !== target || draft.baseline.html !== html) return; // a newer save owns it
+      savedApproval = {hash, approved: pluginService.consentStore.isGranted(target.id, hash)};
+    });
+  });
+  const savedUnapproved = $derived(mode === 'edit' && savedApproval?.approved !== true);
+  const needsConsent = $derived(savedUnapproved && previewDoc?.html === draft.baseline.html);
+  function approveSaved() {
+    if (!savedPlugin || !savedApproval) return;
+    pluginService.consentStore.grant(savedPlugin.id, savedApproval.hash);
+    savedApproval = {...savedApproval, approved: true};
+  }
 
   // Entry-menu plugins expect an entry to start from; preview them with a real one.
   const needsEntry = $derived(!!previewDoc?.manifest.contexts.includes('entry'));
@@ -264,7 +288,9 @@
   let internetPrompt = $state<{html: string; resolve: (answer: 'allow' | 'cancel') => void}>();
   function confirmInternet(html: string): Promise<'allow' | 'cancel'> {
     if (!parsePluginManifest(html).permissions.includes('internet')) return Promise.resolve('allow');
-    if (draft.manifest?.permissions.includes('internet')) return Promise.resolve('allow');
+    // An unapproved saved version hasn't been allowed anything yet, so it doesn't count.
+    const currentAllowed = !(savedUnapproved && draft.html === draft.baseline.html);
+    if (draft.manifest?.permissions.includes('internet') && currentAllowed) return Promise.resolve('allow');
     return new Promise(resolve => internetPrompt = {html, resolve});
   }
   function answerInternetPrompt(answer: 'allow' | 'cancel') {
@@ -809,6 +835,12 @@
               <div class="absolute inset-0 grid place-items-center text-muted-foreground">
                 <Icon icon="i-mdi-loading" class="animate-spin size-8" />
               </div>
+            {:else if needsConsent && !savedApproval}
+              <div class="absolute inset-0 grid place-items-center text-muted-foreground">
+                <Icon icon="i-mdi-loading" class="animate-spin size-8" />
+              </div>
+            {:else if needsConsent}
+              <PluginConsentCard pluginName={title} manifest={previewDoc?.manifest} onApprove={approveSaved} onGoBack={() => void leave()} />
             {:else if docUrl && previewDoc && (!needsEntry || previewEntry)}
               {#key `${docUrl}|${previewEntry?.id ?? ''}`}
                 <PluginSandbox

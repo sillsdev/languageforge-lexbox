@@ -586,7 +586,7 @@ msgstr "La vue de la navigation a échoué"
 msgid "Camera"
 msgstr "Appareil photo"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Can access the internet (and could send dictionary data there)"
 msgstr ""
 
@@ -598,7 +598,7 @@ msgstr ""
 msgid "Can change the dictionary, and asks before each change"
 msgstr ""
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Can change your dictionary — it will ask you first"
 msgstr ""
 
@@ -1650,7 +1650,7 @@ msgstr "Obtenir de l'aide"
 msgid "Gloss"
 msgstr "Glose"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Go back"
 msgstr ""
 
@@ -2161,7 +2161,7 @@ msgstr "Nom"
 msgid "Name is required"
 msgstr "Le nom est requis"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs “{0}”, which this project doesn't support — it may not work properly"
 msgstr ""
 
@@ -2388,7 +2388,7 @@ msgstr "Aucun mot trouvé"
 msgid "None"
 msgstr "Aucun"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Not allowed to use the internet"
 msgstr ""
 
@@ -2706,7 +2706,7 @@ msgstr ""
 msgid "Plugins"
 msgstr ""
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
 msgstr ""
 
@@ -2822,7 +2822,7 @@ msgstr "Publier le mot dans"
 msgid "Read-only"
 msgstr "Lecture seule"
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Read-only: cannot change your dictionary"
 msgstr ""
 
@@ -3047,11 +3047,11 @@ msgstr ""
 msgid "Run it"
 msgstr ""
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Run plugin"
 msgstr ""
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Run this plugin?"
 msgstr ""
 
@@ -3059,7 +3059,7 @@ msgstr ""
 msgid "Runs from an entry's menu"
 msgstr ""
 
-#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
 msgid "Runs in a sandbox, separate from the app"
 msgstr ""
 

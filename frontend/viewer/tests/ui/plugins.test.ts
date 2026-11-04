@@ -331,6 +331,24 @@ test('a pasted version that wants the internet only runs once allowed', async ({
   await expect(prompt).toBeHidden();
 });
 
+test('editing a plugin that has not run on this device asks before previewing it', async ({page}) => {
+  await gotoPlugins(page);
+  await projectCard(page, 'Dictionary Stats').getByRole('button', {name: 'Edit'}).click();
+  const preview = page.getByTestId('plugin-studio-preview');
+  await expect(preview.getByText('Run this plugin?')).toBeVisible();
+  await expect(preview.locator('iframe')).toHaveCount(0);
+
+  await preview.getByRole('button', {name: 'Run plugin'}).click();
+  const frame = page.frameLocator('iframe[title="Dictionary Stats"]');
+  await expect(frame.locator('body')).toContainText(/entr/i, {timeout: 15000});
+
+  // The same consent as the Run page, so running it there doesn't ask again.
+  await page.getByRole('button', {name: 'Plugins', exact: true}).first().click();
+  await projectCard(page, 'Dictionary Stats').getByRole('button', {name: 'Run'}).click();
+  await expect(frame.locator('body')).toContainText(/entr/i, {timeout: 15000});
+  await expect(page.getByText('Run this plugin?')).toBeHidden();
+});
+
 test('leaving the studio with unsaved work asks first', async ({page}) => {
   await gotoPlugins(page);
   await page.getByRole('button', {name: 'New plugin'}).click();
