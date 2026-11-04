@@ -354,7 +354,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         {
             Id = Guid.NewGuid(),
             Name = "Test Plugin",
-            FileUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+            MediaUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
             FileSize = 42,
             Permissions = ["edit"],
             Contexts = ["entry"],
@@ -367,7 +367,7 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
             plugin with
             {
                 Name = "Updated Plugin",
-                FileUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+                MediaUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
                 FileSize = 43,
             });
         yield return new ChangeWithDependencies(editPluginChange, [createPluginChange]);

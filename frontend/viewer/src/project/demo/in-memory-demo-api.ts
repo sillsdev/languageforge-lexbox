@@ -734,14 +734,14 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   }
 
   private _plugins: IPlugin[] = [];
-  // Plugin HTML lives in "media files" (fileUri -> bytes), mirroring how real projects store it.
+  // Plugin HTML lives in "media files" (mediaUri -> bytes), mirroring how real projects store it.
   private _files = new Map<string, Uint8Array>();
   private _seedPlugins?: Promise<void>;
 
   private storeFile(bytes: Uint8Array): string {
-    const fileUri = `sil-media://demo/${crypto.randomUUID()}`;
-    this._files.set(fileUri, bytes);
-    return fileUri;
+    const mediaUri = `sil-media://demo/${crypto.randomUUID()}`;
+    this._files.set(mediaUri, bytes);
+    return mediaUri;
   }
 
   private seedPlugins(): Promise<void> {
@@ -760,7 +760,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
           id: seed.id,
           name: example.name,
           description: example.description,
-          fileUri: this.storeFile(bytes),
+          mediaUri: this.storeFile(bytes),
           fileSize: bytes.byteLength,
           permissions: manifest.permissions,
           contexts: manifest.contexts,

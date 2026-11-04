@@ -127,7 +127,7 @@ internal static class ActivityChangeInfoResolver
         var writingSystemsById = await LoadNamed<WritingSystem>(db, writingSystemIds,
             w => new WritingSystem { Id = w.Id, WsId = w.WsId, Name = w.Name, Abbreviation = w.Abbreviation, Font = w.Font, Type = w.Type });
         var customViews = await LoadNamed<CustomView>(db, customViewIds, v => new CustomView { Id = v.Id, Name = v.Name });
-        var plugins = await LoadNamed<Plugin>(db, pluginIds, p => new Plugin { Id = p.Id, Name = p.Name, FileUri = p.FileUri });
+        var plugins = await LoadNamed<Plugin>(db, pluginIds, p => new Plugin { Id = p.Id, Name = p.Name, MediaUri = p.MediaUri });
 
         // Used to render headwords, so skip the load entirely when no entry is being resolved.
         var morphLookup = entryIds.Count == 0

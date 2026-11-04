@@ -13,7 +13,7 @@ public class CreatePluginChange : CreateChange<Plugin>, ISelfNamedType<CreatePlu
     {
         Name = plugin.Name;
         Description = plugin.Description;
-        FileUri = plugin.FileUri;
+        MediaUri = plugin.MediaUri;
         FileSize = plugin.FileSize;
         Permissions = plugin.Permissions;
         Contexts = plugin.Contexts;
@@ -27,7 +27,7 @@ public class CreatePluginChange : CreateChange<Plugin>, ISelfNamedType<CreatePlu
 
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public MediaUri FileUri { get; set; } = MediaUri.NotFound;
+    public MediaUri MediaUri { get; set; } = MediaUri.NotFound;
     public long FileSize { get; set; }
     public string[] Permissions { get; set; } = [];
     public string[] Contexts { get; set; } = [];
@@ -40,7 +40,7 @@ public class CreatePluginChange : CreateChange<Plugin>, ISelfNamedType<CreatePlu
             Id = EntityId,
             Name = Name,
             Description = Description,
-            FileUri = FileUri,
+            MediaUri = MediaUri,
             FileSize = FileSize,
             Permissions = Permissions,
             Contexts = Contexts,

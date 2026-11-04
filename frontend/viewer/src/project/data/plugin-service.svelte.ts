@@ -70,7 +70,7 @@ export class PluginService {
 
   /** Fetches a plugin's HTML from its media resource (cached locally; downloads on first use). */
   async getHtml(plugin: IPlugin): Promise<PluginHtmlResult> {
-    const file = await this.#projectContext.api.getFileStream(plugin.fileUri, true);
+    const file = await this.#projectContext.api.getFileStream(plugin.mediaUri, true);
     if (!file.stream) {
       if (file.result === ReadFileResult.Offline) return {result: 'offline'};
       return {result: 'error', message: file.errorMessage ?? file.result};
@@ -144,7 +144,7 @@ export class PluginService {
     existing?: {previous: IPlugin; previousHtml: string},
   ): Promise<{plugin: IPlugin; uploadedHtmlDigest?: ArrayBuffer}> {
     const manifest = parsePluginManifest(draft.html);
-    let fileUri = existing?.previous.fileUri;
+    let mediaUri = existing?.previous.mediaUri;
     let fileSize = existing?.previous.fileSize;
     let uploadedHtmlDigest: ArrayBuffer | undefined;
     if (!existing || existing.previousHtml !== draft.html) {
@@ -167,7 +167,7 @@ export class PluginService {
       if (!response.mediaUri) {
         throw new Error(response.errorMessage ?? 'Failed to save the plugin file');
       }
-      fileUri = response.mediaUri;
+      mediaUri = response.mediaUri;
       fileSize = htmlBytes.byteLength;
     }
     return {
@@ -176,7 +176,7 @@ export class PluginService {
         id,
         name: draft.name,
         description: draft.description,
-        fileUri: fileUri!,
+        mediaUri: mediaUri!,
         fileSize: fileSize ?? 0,
         permissions: manifest.permissions,
         contexts: manifest.contexts,

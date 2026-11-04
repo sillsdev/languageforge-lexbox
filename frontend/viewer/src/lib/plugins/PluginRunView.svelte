@@ -57,7 +57,7 @@
   // Keyed on the fields that determine the content, not object identity: a plugin-list refetch
   // rebuilds the objects, and that must not tear down a running plugin.
   const pluginKey = $derived(plugin
-    ? [plugin.id, plugin.fileUri, plugin.name, plugin.description ?? ''].join('\u0000')
+    ? [plugin.id, plugin.mediaUri, plugin.name, plugin.description ?? ''].join('\u0000')
     : undefined);
   $effect(() => {
     const requestedKey = pluginKey;

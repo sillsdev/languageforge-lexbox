@@ -2409,7 +2409,7 @@
     "$type": "CreatePluginChange",
     "Name": "Cambridgeshire",
     "Description": "firewall",
-    "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+    "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
     "FileSize": 2887990446864026234,
     "Permissions": [
       "Drive"
@@ -2426,7 +2426,7 @@
     "$type": "EditPluginChange",
     "Name": "Factors",
     "Description": "Implemented",
-    "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+    "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
     "FileSize": -5410298635370337575,
     "Permissions": [
       "Human"

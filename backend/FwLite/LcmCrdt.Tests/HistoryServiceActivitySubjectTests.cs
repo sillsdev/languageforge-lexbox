@@ -272,7 +272,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         {
             Id = id,
             Name = "My Plugin",
-            FileUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+            MediaUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
         }), Meta());
 
         var live = await Service.ProjectActivity(0, 100, new ActivityQuery());

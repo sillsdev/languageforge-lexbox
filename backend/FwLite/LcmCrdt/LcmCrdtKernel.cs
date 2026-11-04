@@ -326,7 +326,7 @@ public static class LcmCrdtKernel
             })
             .Add<Plugin>(builder =>
             {
-                builder.Property(p => p.FileUri)
+                builder.Property(p => p.MediaUri)
                     .HasConversion(uri => uri.ToString(), value => new MediaUri(value));
                 var tokenArrayConverter = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<string[], string>(
                     list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
