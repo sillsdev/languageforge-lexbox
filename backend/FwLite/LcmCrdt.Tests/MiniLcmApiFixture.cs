@@ -16,6 +16,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 {
     private readonly bool _seedWs = true;
     private readonly Guid? _projectId;
+    private readonly Action<IServiceCollection>? _configureServices;
     // fixtures run in parallel and share project codes, so each gets its own folder (media cache) to delete on dispose
     private readonly string _projectPath = Path.GetFullPath($"fixture-{Guid.NewGuid():N}");
     private AsyncServiceScope _services;
@@ -36,15 +37,20 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
     }
 
-    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null)
+    /// <param name="configureServices">
+    /// Adds or replaces services after the fixture's own registrations. Config that ends up in the EF model or
+    /// linq2db's compiled queries (e.g. HarmonyConfig) can't be changed here: both are cached process-wide.
+    /// </param>
+    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null, Action<IServiceCollection>? configureServices = null)
     {
-        return new MiniLcmApiFixture(seedWs, projectId);
+        return new MiniLcmApiFixture(seedWs, projectId, configureServices);
     }
 
-    private MiniLcmApiFixture(bool seedWs = true, Guid? projectId = null)
+    private MiniLcmApiFixture(bool seedWs, Guid? projectId, Action<IServiceCollection>? configureServices)
     {
         _seedWs = seedWs;
         _projectId = projectId;
+        _configureServices = configureServices;
     }
 
     public async Task InitializeAsync()
@@ -66,14 +72,15 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
             }
         }
 
-        var services = new ServiceCollection()
+        var serviceCollection = new ServiceCollection()
             .AddTestLcmCrdtClient()
             .Configure<LcmCrdtConfig>(config => config.ProjectPath = _projectPath)
             .AddLogging(builder => builder.AddDebug()
                 .AddProvider(new LateXUnitLoggerProvider(this))
                 .AddFilter("LinqToDB", LogLevel.Trace)
-                .SetMinimumLevel(LogLevel.Error))
-            .BuildServiceProvider();
+                .SetMinimumLevel(LogLevel.Error));
+        _configureServices?.Invoke(serviceCollection);
+        var services = serviceCollection.BuildServiceProvider();
         _services = services.CreateAsyncScope();
         if (inMemory)
         {
