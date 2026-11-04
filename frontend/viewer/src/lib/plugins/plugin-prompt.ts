@@ -105,9 +105,9 @@ fwlite.applyChanges(operations): Promise<Entry[]>
 
 `;
 
-  const recordingSection = readOnly ? '' : `### Recording audio / capturing pictures
+  const savingFilesSection = readOnly ? '' : `### Saving files (audio, pictures)
 
-You may record audio (or capture from the camera) and save it — e.g. to fill in missing pronunciation. Use the normal browser APIs (\`navigator.mediaDevices.getUserMedia\`, \`MediaRecorder\`); **the browser prompts the user** for microphone/camera access, so you don't declare any permission. Then persist the bytes with \`fwlite.saveFile\` and attach the returned \`mediaUri\` to an entry:
+To attach audio or a picture the user picks with \`<input type="file">\` (or one you generate, e.g. on a canvas), persist the bytes with \`fwlite.saveFile\` and attach the returned \`mediaUri\` to an entry:
 
 \`\`\`ts
 fwlite.saveFile(bytes, {filename, mimeType}): Promise<{result: string, mediaUri?: string, errorMessage?: string}>
@@ -157,7 +157,7 @@ You are writing a **plugin** for FW Lite, a dictionary-editing app used by langu
 
 1. **Output exactly one complete HTML file** (\`<!DOCTYPE html>\` through \`</html>\`). The user will copy-paste it as-is.
 2. **Fully self-contained**: all CSS and JavaScript inline. No external scripts, stylesheets, fonts, or images (embed small images as data: URIs if needed). No build step, no modules, no frameworks.
-3. **Sandboxed environment**: the plugin runs in an opaque-origin iframe. \`localStorage\`, \`sessionStorage\`, and cookies are **unavailable** — persist data with \`fwlite.storage\` instead. \`alert\`/\`confirm\` work; popups don't.
+3. **Sandboxed environment**: the plugin runs in an opaque-origin iframe. \`localStorage\`, \`sessionStorage\`, and cookies are **unavailable** — persist data with \`fwlite.storage\` instead. \`alert\`/\`confirm\` work; popups don't. **No microphone or camera**: \`getUserMedia\` fails in the sandbox, so don't build recording or photo-capture features.
 ${networkRequirement}
 5. A global **\`fwlite\`** API object is injected before your code runs. Data becomes available once \`fwlite.ready\` resolves — structure your code as \`fwlite.ready.then(init)\`.
 ${writesRequirement}
@@ -237,7 +237,7 @@ if (media) {
 }
 \`\`\`
 
-${recordingSection}### Comments (read-only)
+${savingFilesSection}### Comments (read-only)
 
 \`\`\`ts
 fwlite.getCommentThreads({subjectType, subjectId, includeComments?}): Promise<CommentThread[]>

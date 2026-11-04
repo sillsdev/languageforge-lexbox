@@ -12,13 +12,6 @@ import type {PluginPermission} from './plugin-api-types';
 export const PLUGIN_IFRAME_SANDBOX = 'allow-scripts allow-forms allow-modals allow-downloads';
 
 /**
- * Permissions-Policy delegated to the plugin iframe. Microphone/camera let plugins record
- * pronunciation audio or capture pictures; the browser still prompts the user at capture time, so
- * no plugin-declared permission is needed.
- */
-export const PLUGIN_IFRAME_ALLOW = 'microphone; camera';
-
-/**
  * Blocks fetch-style network for plugins without the `internet` permission (connect/img/media/font
  * all fall back to default-src 'none'; form-action is not covered by default-src, so it's listed).
  * Inline script/style stay allowed (that's the plugin itself); data:/blob: URIs keep embedded

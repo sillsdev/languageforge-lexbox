@@ -130,8 +130,6 @@
 
   const capabilityMeta: Record<ExampleCapability, {icon: IconClass; label: string; variant: 'destructive' | 'secondary'}> = {
     internet: {icon: 'i-mdi-web', label: $t`Internet`, variant: 'destructive'},
-    microphone: {icon: 'i-mdi-microphone', label: $t`Microphone`, variant: 'secondary'},
-    camera: {icon: 'i-mdi-camera', label: $t`Camera`, variant: 'secondary'},
     'entry-menu': {icon: 'i-mdi-menu', label: $t`Entry menu`, variant: 'secondary'},
   };
 

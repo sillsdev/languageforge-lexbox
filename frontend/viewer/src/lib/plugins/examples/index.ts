@@ -12,11 +12,10 @@ export type ExampleFunction =
   | 'play';
 
 /**
- * A capability worth surfacing as a badge before the plugin's HTML is loaded.
- * `internet` and `entry-menu` mirror the HTML's `<meta>` declarations (kept honest by
- * index.test.ts); `microphone`/`camera` can't be derived from stored HTML, so they live only here.
+ * A capability worth surfacing as a badge before the plugin's HTML is loaded. Mirrors the HTML's
+ * `<meta>` declarations (kept honest by index.test.ts).
  */
-export type ExampleCapability = 'internet' | 'microphone' | 'camera' | 'entry-menu';
+export type ExampleCapability = 'internet' | 'entry-menu';
 
 /**
  * Fixed display order of the gallery's sections and filter chips. Display names live in
@@ -95,22 +94,6 @@ export const examplePlugins: ExamplePlugin[] = [
   },
 
   // ---- Record & illustrate ----
-  {
-    key: 'pronunciation-recorder',
-    name: 'Pronunciation Recorder',
-    description: 'Walk entries that lack a recording and capture pronunciation audio straight onto each one.',
-    functions: ['record'],
-    capabilities: ['microphone', 'entry-menu'],
-    loadHtml: async () => (await import('./pronunciation-recorder.html?raw')).default,
-  },
-  {
-    key: 'photo-capture',
-    name: 'Photo Capture',
-    description: 'Photograph entries with your camera (or pick a file) and attach the picture to a sense.',
-    functions: ['record'],
-    capabilities: ['camera', 'entry-menu'],
-    loadHtml: async () => (await import('./photo-capture.html?raw')).default,
-  },
   {
     key: 'audio-dictionary',
     name: 'Audio Dictionary',

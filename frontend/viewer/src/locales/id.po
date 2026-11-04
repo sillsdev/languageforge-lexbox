@@ -42,7 +42,11 @@ msgid "“{0}” changed an entry"
 msgstr ""
 
 #: src/lib/plugins/PluginRunView.svelte
-msgid "“{0}” made {1} changes"
+msgid "“{0}” kept asking to change your dictionary after you said no. Reload it to try again."
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "“{0}” made {1}"
 msgstr ""
 
 #: src/lib/plugins/PluginRunView.svelte
@@ -126,6 +130,8 @@ msgid "{0} Server"
 msgstr "{0} Server"
 
 #. Number of changes in sync operation
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
@@ -518,7 +524,6 @@ msgid "Browse view failed"
 msgstr "Tampilan penelusuran gagal"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
-#: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Camera"
 msgstr "Kamera"
 
@@ -666,6 +671,10 @@ msgstr "Komentar"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Commenter"
 msgstr "Pengomentator"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "comments"
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
@@ -1639,6 +1648,10 @@ msgstr "Bantuan & Lainnya"
 msgid "Hide"
 msgstr "Sembunyikan"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "history"
+msgstr ""
+
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1957,10 +1970,6 @@ msgstr "Rincian berkas media"
 msgid "Media Manager"
 msgstr "Manajer Media"
 
-#: src/lib/plugins/PluginEditorDialog.svelte
-msgid "Microphone"
-msgstr ""
-
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
 msgstr "Formulir Kutipan yang Hilang {0}"
@@ -2052,7 +2061,7 @@ msgid "Name is required"
 msgstr "Nama harus diisi"
 
 #: src/lib/plugins/PluginRunView.svelte
-msgid "Needs “{0}”, which this project doesn't support — it may not work properly"
+msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr ""
 
 #: src/project/sync/FwClassicSyncView.svelte
@@ -2521,7 +2530,7 @@ msgid "Plugin wants to change an entry"
 msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
-msgid "Plugin wants to make {0} changes"
+msgid "Plugin wants to make {0}"
 msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
@@ -3369,6 +3378,10 @@ msgstr "Gambar ini terlalu besar untuk diunggah. Coba simpan dengan kualitas JPE
 
 #: src/lib/plugins/PluginRunView.svelte
 msgid "This plugin can make changes without asking. Click to make it ask again."
+msgstr ""
+
+#: src/project/data/plugin-service.svelte.ts
+msgid "This plugin file is too big (the limit is 10 MB)"
 msgstr ""
 
 #: src/lib/plugins/PluginRunView.svelte

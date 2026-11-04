@@ -90,13 +90,12 @@
     getMedia: function (mediaUri) { return call('getMedia', [mediaUri]); },
 
     /**
-     * Stores a file (e.g. audio you recorded with MediaRecorder, or a captured image) and resolves
-     * to {result, mediaUri, errorMessage}. Then attach it by writing `mediaUri` into an entry field
-     * (an audio writing system, or a sense picture) via updateEntry — that edit is user-approved.
-     * Requires the 'edit' permission. The browser prompts the user the first time you call
-     * getUserMedia for mic/camera.
-     *   const blob = /* from MediaRecorder * /;
-     *   const {mediaUri} = await fwlite.saveFile(await blob.arrayBuffer(), {filename: 'word.webm', mimeType: blob.type});
+     * Stores a file (e.g. one the user picked with <input type="file">, or an image you drew on a
+     * canvas) and resolves to {result, mediaUri, errorMessage}. Then attach it by writing `mediaUri`
+     * into an entry field (an audio writing system, or a sense picture) via updateEntry; that edit is
+     * user-approved. Requires the 'edit' permission.
+     *   const file = input.files[0];
+     *   const {mediaUri} = await fwlite.saveFile(await file.arrayBuffer(), {filename: file.name, mimeType: file.type});
      */
     saveFile: function (data, metadata) { return call('saveFile', [data, metadata]); },
 

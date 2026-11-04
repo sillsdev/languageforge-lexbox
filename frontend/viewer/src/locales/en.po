@@ -37,8 +37,12 @@ msgid "“{0}” changed an entry"
 msgstr "“{0}” changed an entry"
 
 #: src/lib/plugins/PluginRunView.svelte
-msgid "“{0}” made {1} changes"
-msgstr "“{0}” made {1} changes"
+msgid "“{0}” kept asking to change your dictionary after you said no. Reload it to try again."
+msgstr "“{0}” kept asking to change your dictionary after you said no. Reload it to try again."
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "“{0}” made {1}"
+msgstr "“{0}” made {1}"
 
 #: src/lib/plugins/PluginRunView.svelte
 msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
@@ -121,6 +125,8 @@ msgid "{0} Server"
 msgstr "{0} Server"
 
 #. Number of changes in sync operation
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
@@ -513,7 +519,6 @@ msgid "Browse view failed"
 msgstr "Browse view failed"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
-#: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Camera"
 msgstr "Camera"
 
@@ -661,6 +666,10 @@ msgstr "Comment"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Commenter"
 msgstr "Commenter"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "comments"
+msgstr "comments"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
@@ -1634,6 +1643,10 @@ msgstr "Help & More"
 msgid "Hide"
 msgstr "Hide"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "history"
+msgstr "history"
+
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1952,10 +1965,6 @@ msgstr "Media file details"
 msgid "Media Manager"
 msgstr "Media Manager"
 
-#: src/lib/plugins/PluginEditorDialog.svelte
-msgid "Microphone"
-msgstr "Microphone"
-
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
 msgstr "Missing Citation form {0}"
@@ -2047,8 +2056,8 @@ msgid "Name is required"
 msgstr "Name is required"
 
 #: src/lib/plugins/PluginRunView.svelte
-msgid "Needs “{0}”, which this project doesn't support — it may not work properly"
-msgstr "Needs “{0}”, which this project doesn't support — it may not work properly"
+msgid "Needs {0}, which this project doesn't support, so it may not work properly"
+msgstr "Needs {0}, which this project doesn't support, so it may not work properly"
 
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
@@ -2516,8 +2525,8 @@ msgid "Plugin wants to change an entry"
 msgstr "Plugin wants to change an entry"
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
-msgid "Plugin wants to make {0} changes"
-msgstr "Plugin wants to make {0} changes"
+msgid "Plugin wants to make {0}"
+msgstr "Plugin wants to make {0}"
 
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectSidebar.svelte
@@ -3365,6 +3374,10 @@ msgstr "This picture is too large to upload. Try saving it at a lower JPEG quali
 #: src/lib/plugins/PluginRunView.svelte
 msgid "This plugin can make changes without asking. Click to make it ask again."
 msgstr "This plugin can make changes without asking. Click to make it ask again."
+
+#: src/project/data/plugin-service.svelte.ts
+msgid "This plugin file is too big (the limit is 10 MB)"
+msgstr "This plugin file is too big (the limit is 10 MB)"
 
 #: src/lib/plugins/PluginRunView.svelte
 msgid "This plugin isn't on this device yet"

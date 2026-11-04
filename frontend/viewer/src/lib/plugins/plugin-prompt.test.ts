@@ -24,9 +24,11 @@ describe('buildPluginPrompt options', () => {
     expect(p).toContain('No network access');
     expect(p).not.toContain('## Cultural sensitivity');
     expect(p).not.toContain('Read-only plugin');
+    expect(p).toContain('No microphone or camera');
+    expect(p).not.toContain('MediaRecorder');
   });
 
-  it('allowEdits off omits the writing + recording sections and states read-only', async () => {
+  it('allowEdits off omits the writing + file-saving sections and states read-only', async () => {
     const p = await buildPluginPrompt(api, project, {allowEdits: false});
     expect(p).toContain('Read-only plugin');
     expect(p).not.toContain('fwlite.createEntry');
