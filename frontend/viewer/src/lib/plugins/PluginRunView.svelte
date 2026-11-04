@@ -143,6 +143,10 @@
   let confirmQueue: Promise<unknown> = Promise.resolve();
   function confirmWrite(operation: PluginWriteOperation): Promise<boolean> {
     const result = confirmQueue.then(() => new Promise<boolean>(resolve => {
+      if (stopped) {
+        resolve(false);
+        return;
+      }
       if (writesTrusted) {
         // Trusted plugins skip the dialog, but every write still surfaces — ambient disclosure
         // is what keeps "Always allow" honest.
@@ -156,11 +160,16 @@
     return result;
   }
 
+  /** A plugin that keeps asking after being refused is holding the user hostage behind a modal. */
+  const MAX_DENIALS_IN_A_ROW = 3;
+  let denialsInARow = 0;
   function resolvePendingWrite(result: WriteConfirmResult) {
     const pending = pendingWrite;
     if (!pending) return;
     pendingWrite = undefined;
     if (result === 'always') trustWrites();
+    denialsInARow = result === 'deny' ? denialsInARow + 1 : 0;
+    if (denialsInARow >= MAX_DENIALS_IN_A_ROW) stopped = 'declined';
     pending.resolve(result !== 'deny');
   }
 
@@ -232,15 +241,16 @@
    * which is why the consent card words the network guarantee as "not allowed" rather than "can't".
    */
   let iframeLoadCount = 0;
-  let stoppedForNavigation = $state(false);
+  let stopped = $state<'navigation' | 'declined'>();
   function onIframeLoad() {
     iframeLoadCount++;
-    if (iframeLoadCount > 1) stoppedForNavigation = true;
+    if (iframeLoadCount > 1) stopped = 'navigation';
   }
   $effect(() => {
     reloadToken; docUrl; // eslint-disable-line @typescript-eslint/no-unused-expressions
     iframeLoadCount = 0;
-    stoppedForNavigation = false;
+    denialsInARow = 0;
+    stopped = undefined;
   });
 
   // Fullscreen hides the whole toolbar for true immersion; the only chrome left is a minimal exit
@@ -318,13 +328,17 @@
           </div>
         </div>
       {/if}
-    {:else if stoppedForNavigation}
+    {:else if stopped}
       <div class="absolute inset-0 grid place-items-center p-4">
         <div class="text-center space-y-3 max-w-md">
           <Icon icon="i-mdi-shield-alert" class="size-10 text-destructive" />
           <div class="font-medium">{$t`Plugin stopped`}</div>
           <p class="text-sm text-muted-foreground">
-            {$t`“${plugin.name}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin.`}
+            {#if stopped === 'navigation'}
+              {$t`“${plugin.name}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin.`}
+            {:else}
+              {$t`“${plugin.name}” kept asking to change your dictionary after you said no. Reload it to try again.`}
+            {/if}
           </p>
           <Button variant="outline" onclick={goBack}>{$t`Back to plugins`}</Button>
         </div>
