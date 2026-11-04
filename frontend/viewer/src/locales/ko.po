@@ -806,23 +806,10 @@ msgstr "포함 사항"
 msgid "Conversation"
 msgstr "대화"
 
-#: src/lib/plugins/PluginStudioView.svelte
-msgid "Copied"
-msgstr ""
-
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
 msgstr "클립보드에 복사"
-
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-msgid "Copy prompt"
-msgstr ""
-
-#: src/lib/plugins/PluginStudioView.svelte
-msgid "Copy the prompt into any AI chat (e.g. Claude or ChatGPT). It already explains plugins and this project."
-msgstr ""
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1102,6 +1089,15 @@ msgstr "사진 다운로드"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "프로젝트 코드별 프로젝트 다운로드"
+
+#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Download prompt"
+msgstr ""
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project."
+msgstr ""
 
 #. Menu option
 #: src/home/Server.svelte
@@ -1608,7 +1604,7 @@ msgid "Finish"
 msgstr "완료"
 
 #: src/lib/plugins/PluginStudioView.svelte
-msgid "Follow-up prompt copied. Paste it into the same AI chat, then paste its reply below."
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr ""
 
 #. Contact information in feedback dialog
@@ -2745,10 +2741,6 @@ msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되지 않았습니다."
 
 #: src/lib/plugins/PluginStudioView.svelte
-msgid "Prompt copied. Paste it into any AI chat."
-msgstr ""
-
-#: src/lib/plugins/PluginStudioView.svelte
 msgid "Prompt options"
 msgstr ""
 
@@ -3481,7 +3473,7 @@ msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr ""
 
 #: src/lib/plugins/PluginStudioView.svelte
-msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Paste it into any AI chat."
+msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
 msgstr ""
 
 #. Error message

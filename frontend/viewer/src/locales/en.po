@@ -801,23 +801,10 @@ msgstr "Contains"
 msgid "Conversation"
 msgstr "Conversation"
 
-#: src/lib/plugins/PluginStudioView.svelte
-msgid "Copied"
-msgstr "Copied"
-
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
-
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-msgid "Copy prompt"
-msgstr "Copy prompt"
-
-#: src/lib/plugins/PluginStudioView.svelte
-msgid "Copy the prompt into any AI chat (e.g. Claude or ChatGPT). It already explains plugins and this project."
-msgstr "Copy the prompt into any AI chat (e.g. Claude or ChatGPT). It already explains plugins and this project."
 
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1097,6 +1084,15 @@ msgstr "Download Picture"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "Download project by project code"
+
+#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Download prompt"
+msgstr "Download prompt"
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project."
+msgstr "Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project."
 
 #. Menu option
 #: src/home/Server.svelte
@@ -1603,8 +1599,8 @@ msgid "Finish"
 msgstr "Finish"
 
 #: src/lib/plugins/PluginStudioView.svelte
-msgid "Follow-up prompt copied. Paste it into the same AI chat, then paste its reply below."
-msgstr "Follow-up prompt copied. Paste it into the same AI chat, then paste its reply below."
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
+msgstr "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
@@ -2740,10 +2736,6 @@ msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
 
 #: src/lib/plugins/PluginStudioView.svelte
-msgid "Prompt copied. Paste it into any AI chat."
-msgstr "Prompt copied. Paste it into any AI chat."
-
-#: src/lib/plugins/PluginStudioView.svelte
 msgid "Prompt options"
 msgstr "Prompt options"
 
@@ -3476,8 +3468,8 @@ msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr "The plugin “{0}” is asking to make this change to your dictionary:"
 
 #: src/lib/plugins/PluginStudioView.svelte
-msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Paste it into any AI chat."
-msgstr "The prompt includes the API guide, this project's setup and this plugin's current code. Paste it into any AI chat."
+msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
+msgstr "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
 
 #. Error message
 #: src/project/tasks/TaskView.svelte

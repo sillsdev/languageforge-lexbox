@@ -32,8 +32,9 @@ flowchart LR
 - **`PluginRunView`** (`/plugins/:id`): runs a saved plugin `live`, behind the first-run consent card.
 - **`PluginStudioView`**: one page for trying an example (`/plugins/examples/:key`), building a new
   plugin (`/plugins/new`) and editing one (`/plugins/:id/edit`); managers only. The draft runs in a
-  `preview` sandbox on the left; tabs on the right hold the AI loop (copy a prompt, paste the reply),
-  the source and the details. An example changed before adding is saved as "… (custom)". A pasted
+  `preview` sandbox on the left; tabs on the right hold the AI loop (download a prompt file to attach
+  in any AI chat, since some chats cut long pastes short, then paste the reply), the source and the
+  details. An example changed before adding is saved as "… (custom)". A pasted
   version is reviewed against the saved plugin or example: new permissions are flagged, with a
   follow-up prompt asking the AI to remove them. Drafts aren't kept: leaving with unsaved work asks
   first (`$lib/utils/leave-guard.ts` covers the sidebar).

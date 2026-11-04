@@ -153,7 +153,6 @@
 
   let aiDescription = $state('');
   let basePrompt = $state('');
-  let copied = $state(false);
   let showPromptOptions = $state(false);
   // These only steer the generated prompt; they don't restrict what a finished plugin can do.
   const promptOptions = $state<PluginPromptOptions>({
@@ -174,32 +173,28 @@
     }, current).then(result => { if (token === promptGeneration) basePrompt = result; });
   });
   const newPluginPrompt = $derived(basePrompt ? `${basePrompt}\n\n${pluginTaskSection(aiDescription)}` : '');
-  $effect(() => {
-    newPluginPrompt; // eslint-disable-line @typescript-eslint/no-unused-expressions
-    copied = false;
-  });
 
-  async function copyPrompt(prompt: string) {
-    await navigator.clipboard.writeText(prompt);
-    copied = true;
-    AppNotification.display($t`Prompt copied. Paste it into any AI chat.`, {timeout: 'short', type: 'success'});
+  // A download rather than the clipboard: some AI chats cut a long paste short (the prompt is
+  // ~20 KB, more with the plugin's code), while an attached file gets through whole.
+  function downloadPrompt(prompt: string) {
+    downloadText(prompt, `${fileSlug()}-prompt.md`, 'text/markdown');
   }
 
   // ---- Ask AI (changing a plugin) ----
 
   let changeText = $state('');
-  let copyingChange = $state(false);
+  let buildingChangePrompt = $state(false);
   /** Asks for changes to the current version, with the same setup body a new plugin gets. */
-  async function copyChangePrompt(change: string) {
-    copyingChange = true;
+  async function withChangePrompt(change: string, use: (prompt: string) => Promise<void> | void) {
+    buildingChangePrompt = true;
     try {
       const body = await buildPluginPrompt(projectContext.api, {
         projectName: projectContext.projectName,
         projectCode: projectContext.projectCode,
       }, {internet: !!draft.manifest?.permissions.includes('internet')});
-      await copyPrompt(`${body}\n\n${pluginChangeSection(draft.html, change)}`);
+      await use(`${body}\n\n${pluginChangeSection(draft.html, change)}`);
     } finally {
-      copyingChange = false;
+      buildingChangePrompt = false;
     }
   }
 
@@ -215,7 +210,7 @@
   });
   /** New permissions the user chose to keep, so their warning goes away. */
   let keptPermissions = $state<PluginPermission[]>([]);
-  let followUpCopied = $state(false);
+  let followUpDownloaded = $state(false);
   const newPermissions = $derived((review?.changes.added.permissions ?? []).filter(permission => !keptPermissions.includes(permission)));
   const otherChanges = $derived.by(() => {
     if (!review) return [];
@@ -238,8 +233,8 @@
     const consequence = permission === 'internet'
       ? 'The plugin must work fully offline.'
       : 'The plugin must only read the dictionary, never change it.';
-    await copyChangePrompt(`Remove the \`${permission}\` permission from the \`fwlite-plugin-permissions\` meta tag and everything that needs it. ${consequence} Keep everything else as it is.`);
-    followUpCopied = true;
+    await withChangePrompt(`Remove the \`${permission}\` permission from the \`fwlite-plugin-permissions\` meta tag and everything that needs it. ${consequence} Keep everything else as it is.`, downloadPrompt);
+    followUpDownloaded = true;
   }
 
   /** Saving a new version drops "Always allow" (see PluginService.update); say so up front. */
@@ -264,7 +259,7 @@
     draft.applyVersion(html);
     showSavedVersion = false;
     keptPermissions = [];
-    followUpCopied = false;
+    followUpDownloaded = false;
     if (mode === 'new' && (!draft.name.trim() || nameFromHtml)) {
       const title = pluginHtmlTitle(html);
       if (title) {
@@ -288,13 +283,21 @@
     useHtml(await file.text());
   }
 
-  function downloadHtml() {
-    const url = URL.createObjectURL(new Blob([draft.html], {type: 'text/html'}));
+  function fileSlug(): string {
+    return draft.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'plugin';
+  }
+
+  function downloadText(text: string, fileName: string, type: string) {
+    const url = URL.createObjectURL(new Blob([text], {type}));
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `${draft.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'plugin'}.html`;
+    anchor.download = fileName;
     anchor.click();
     URL.revokeObjectURL(url);
+  }
+
+  function downloadHtml() {
+    downloadText(draft.html, `${fileSlug()}.html`, 'text/html');
   }
 
   // ---- Saving ----
@@ -478,15 +481,10 @@
     <li class="space-y-2">
       <div class="font-medium">{$t`2. Have an AI write it`}</div>
       <p class="text-sm text-muted-foreground">
-        {$t`Copy the prompt into any AI chat (e.g. Claude or ChatGPT). It already explains plugins and this project.`}
+        {$t`Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project.`}
       </p>
-      <Button
-        icon={copied ? 'i-mdi-check' : 'i-mdi-content-copy'}
-        disabled={!newPluginPrompt}
-        loading={!newPluginPrompt}
-        onclick={() => void copyPrompt(newPluginPrompt)}
-      >
-        {copied ? $t`Copied` : $t`Copy prompt`}
+      <Button icon="i-mdi-download" disabled={!newPluginPrompt} loading={!newPluginPrompt} onclick={() => downloadPrompt(newPluginPrompt)}>
+        {$t`Download prompt`}
       </Button>
     </li>
     <li class="space-y-2">
@@ -513,16 +511,16 @@
             <div class="font-semibold text-destructive">{permissionWarnings[permission]}</div>
             <p>{$t`The version before it didn't. If you didn't ask for this, have the AI take it out.`}</p>
             <div class="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" loading={copyingChange} onclick={() => void askToRemove(permission)}>
+              <Button variant="outline" size="sm" loading={buildingChangePrompt} onclick={() => void askToRemove(permission)}>
                 {$t`Ask the AI to remove it`}
               </Button>
               <Button variant="ghost" size="sm" onclick={() => keptPermissions = [...keptPermissions, permission]}>{$t`Keep it`}</Button>
             </div>
           </div>
         {/each}
-        {#if followUpCopied}
+        {#if followUpDownloaded}
           <p class="rounded-md bg-muted px-3 py-2 text-sm">
-            {$t`Follow-up prompt copied. Paste it into the same AI chat, then paste its reply below.`}
+            {$t`Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below.`}
           </p>
         {/if}
         {#if otherChanges.length}
@@ -548,11 +546,11 @@
         class="min-h-20"
         placeholder={$t`e.g. Also show how many entries have a recording.`}
       />
-      <Button icon="i-mdi-content-copy" disabled={!draft.complete} loading={copyingChange} onclick={() => void copyChangePrompt(changeText)}>
-        {$t`Copy prompt`}
+      <Button icon="i-mdi-download" disabled={!draft.complete} loading={buildingChangePrompt} onclick={() => void withChangePrompt(changeText, downloadPrompt)}>
+        {$t`Download prompt`}
       </Button>
       <p class="text-xs text-muted-foreground">
-        {$t`The prompt includes the API guide, this project's setup and this plugin's current code. Paste it into any AI chat.`}
+        {$t`The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat.`}
       </p>
     </div>
 
