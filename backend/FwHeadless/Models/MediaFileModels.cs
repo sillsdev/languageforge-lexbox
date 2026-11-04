@@ -11,6 +11,8 @@ public enum FileUploadErrorMessage
     UploadedFilesCannotBeMovedToNewProjects,
     UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders,
     ProjectFolderNotFoundInFwHeadless,
+    InvalidLinkedFilesSubfolder,
+    InvalidFilename,
 }
 
 public record FileListing(string[] Files);
