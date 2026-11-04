@@ -19,6 +19,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     private readonly Action<IServiceCollection>? _configureServices;
     // fixtures run in parallel and share project codes, so each gets its own folder (media cache) to delete on dispose
     private readonly string _projectPath = Path.GetFullPath($"fixture-{Guid.NewGuid():N}");
+    private ServiceProvider? _rootServices;
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
     private SqliteConnection? _keepAliveConnection;
@@ -80,8 +81,8 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
                 .AddFilter("LinqToDB", LogLevel.Trace)
                 .SetMinimumLevel(LogLevel.Error));
         _configureServices?.Invoke(serviceCollection);
-        var services = serviceCollection.BuildServiceProvider();
-        _services = services.CreateAsyncScope();
+        _rootServices = serviceCollection.BuildServiceProvider();
+        _services = _rootServices.CreateAsyncScope();
         if (inMemory)
         {
             //an in memory db only lives as long as a connection to it is open, and CreateProject opens and
@@ -158,6 +159,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
         await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
+        await (_rootServices?.DisposeAsync() ?? ValueTask.CompletedTask);
         await (_keepAliveConnection?.DisposeAsync() ?? ValueTask.CompletedTask);
         if (Directory.Exists(_projectPath)) Directory.Delete(_projectPath, true);
     }
