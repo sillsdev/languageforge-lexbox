@@ -34,8 +34,8 @@ class SidebarState {
   }
 
   // Convenience getter for checking if the sidebar pops over (phones and tablets)
-  // without this, we would need to use `sidebar.isMobile.current` everywhere
-  get isMobile() {
+  // without this, we would need to use `IsMobileOrTablet.value` everywhere
+  get isMobileOrTablet() {
     return IsMobileOrTablet.value;
   }
 
@@ -52,7 +52,7 @@ class SidebarState {
   };
 
   toggle = () => {
-    return this.isMobile ? (this.openMobile = !this.openMobile) : this.setOpen(!this.open);
+    return this.isMobileOrTablet ? (this.openMobile = !this.openMobile) : this.setOpen(!this.open);
   };
 }
 
