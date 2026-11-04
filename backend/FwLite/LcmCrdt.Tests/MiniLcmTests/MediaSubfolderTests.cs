@@ -22,6 +22,28 @@ public class MediaSubfolderTests(MiniLcmApiFixture fixture) : IClassFixture<Mini
         resource.Metadata!.LinkedFilesSubfolder.Should().Be("Plugins");
     }
 
+    [Fact]
+    public async Task DeleteFile_ForgetsTheResourceAndItsLocalCopy()
+    {
+        var (resource, _) = await MediaService.SaveFile(Bytes("<html>old</html>"),
+            new LcmFileMetadata("plugin-old.html", "text/html", LinkedFilesSubfolder: "Plugins"));
+        var mediaUri = new MediaUri(resource.Id, "test.lexbox.org");
+
+        await fixture.Api.DeleteFile(mediaUri);
+
+        var read = await fixture.Api.GetFileStream(mediaUri, downloadIfMissing: false);
+        read.Result.Should().Be(ReadFileResult.NotFound);
+        (await MediaService.AllResources()).Should().NotContain(r => r.Id == resource.Id);
+    }
+
+    [Fact]
+    public async Task DeleteFile_IgnoresNotFound()
+    {
+        var before = (await MediaService.AllResources()).Length;
+        await fixture.Api.DeleteFile(MediaUri.NotFound);
+        (await MediaService.AllResources()).Should().HaveCount(before);
+    }
+
     [Theory]
     [InlineData("../escape")]
     [InlineData("a/b")]
