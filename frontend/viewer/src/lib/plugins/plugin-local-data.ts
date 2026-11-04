@@ -137,8 +137,14 @@ class HashPinnedGrantStore {
     this.#grants = new SvelteMap(json ? Object.entries(JSON.parse(json) as Record<string, string>) : []);
   }
 
-  #save(): void {
-    localStorage.setItem(this.#key, JSON.stringify(Object.fromEntries(this.#grants)));
+  // Another window may have written since we loaded: merge our change into what is stored now.
+  #save(change: (grants: Record<string, string>) => void): void {
+    const json = localStorage.getItem(this.#key);
+    const grants = json ? (JSON.parse(json) as Record<string, string>) : {};
+    change(grants);
+    localStorage.setItem(this.#key, JSON.stringify(grants));
+    this.#grants.clear();
+    for (const [id, hash] of Object.entries(grants)) this.#grants.set(id, hash);
   }
 
   isGranted(pluginId: string, contentHash: string): boolean {
@@ -151,13 +157,11 @@ class HashPinnedGrantStore {
   }
 
   grant(pluginId: string, contentHash: string): void {
-    this.#grants.set(pluginId, contentHash);
-    this.#save();
+    this.#save(grants => { grants[pluginId] = contentHash; });
   }
 
   revoke(pluginId: string): void {
-    this.#grants.delete(pluginId);
-    this.#save();
+    this.#save(grants => { delete grants[pluginId]; });
   }
 }
 
