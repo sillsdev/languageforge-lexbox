@@ -12,24 +12,14 @@ public class MediaSubfolderTests(MiniLcmApiFixture fixture) : IClassFixture<Mini
     private static MemoryStream Bytes(string content) => new(Encoding.UTF8.GetBytes(content));
 
     [Fact]
-    public async Task SaveFile_PlacesTheLocalCopyInTheRequestedSubfolder()
+    public async Task SaveFile_KeepsTheLocalCopyAtTheCacheRoot()
     {
         var (resource, newResource) = await MediaService.SaveFile(Bytes("<html></html>"),
             new LcmFileMetadata("plugin-abc123.html", "text/html", LinkedFilesSubfolder: "Plugins"));
 
         newResource.Should().BeTrue();
-        resource.LocalPath.Should().Be(
-            Path.Combine(MediaService.ProjectResourceCachePath, "Plugins", "plugin-abc123.html"));
-        File.Exists(resource.LocalPath).Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task SaveFile_WithoutSubfolderStaysAtTheCacheRoot()
-    {
-        var (resource, _) = await MediaService.SaveFile(Bytes("audio"),
-            new LcmFileMetadata("word.wav", "audio/wav"));
-
-        resource.LocalPath.Should().Be(Path.Combine(MediaService.ProjectResourceCachePath, "word.wav"));
+        resource.LocalPath.Should().Be(Path.Combine(MediaService.ProjectResourceCachePath, "plugin-abc123.html"));
+        resource.Metadata!.LinkedFilesSubfolder.Should().Be("Plugins");
     }
 
     [Theory]

@@ -226,13 +226,9 @@ public class LcmMediaService(
 
     public async Task<(HarmonyResource<LcmFileMetadata> resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
+        if (metadata.LinkedFilesSubfolder is not null && !IsValidLinkedFilesSubfolder(metadata.LinkedFilesSubfolder))
+            throw new ArgumentException($"Invalid LinkedFiles subfolder: {metadata.LinkedFilesSubfolder}", nameof(metadata));
         var projectResourceCachePath = ProjectResourceCachePath;
-        if (metadata.LinkedFilesSubfolder is not null)
-        {
-            if (!IsValidLinkedFilesSubfolder(metadata.LinkedFilesSubfolder))
-                throw new ArgumentException($"Invalid LinkedFiles subfolder: {metadata.LinkedFilesSubfolder}", nameof(metadata));
-            projectResourceCachePath = Path.Combine(projectResourceCachePath, metadata.LinkedFilesSubfolder);
-        }
         Directory.CreateDirectory(projectResourceCachePath);
         var localPath = Path.Combine(projectResourceCachePath, Path.GetFileName(metadata.Filename));
         if (File.Exists(localPath)) return ((await resourceService.AllResources()).First(r => r.LocalPath == localPath), newResource: false);
