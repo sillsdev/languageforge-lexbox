@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {parsePluginManifest} from '../plugin-manifest';
-import {examplePlugins, examplePluginsByPrimaryFunction} from './index';
+import {examplePlugins, examplePluginsByPrimaryFunction, listedExamplePlugins} from './index';
 
 describe('example plugin registry', () => {
   it('has a unique key, a non-empty description and at least one function per example', () => {
@@ -15,7 +15,7 @@ describe('example plugin registry', () => {
 
   it('shows every example exactly once in the default (primary-function) grouping', () => {
     const grouped = examplePluginsByPrimaryFunction().flatMap((group) => group.plugins);
-    expect(grouped).toHaveLength(examplePlugins.length);
+    expect(grouped).toHaveLength(listedExamplePlugins.length);
   });
 
   // Badges are read from the registry before the HTML is loaded, so the registry must not lie about

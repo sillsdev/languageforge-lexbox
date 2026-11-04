@@ -15,7 +15,7 @@
   import {parsePluginManifest} from './plugin-manifest';
   import {
     exampleFunctions,
-    examplePlugins,
+    listedExamplePlugins,
     examplePluginsByPrimaryFunction,
     type ExampleCapability,
     type ExampleFunction,
@@ -113,7 +113,7 @@
       .map((group) => ({function: group.function, plugins: group.plugins.filter(matchesSearch)}))
       .filter((group) => group.plugins.length > 0));
   const flatResults = $derived.by(() =>
-    examplePlugins.filter((example) =>
+    listedExamplePlugins.filter((example) =>
       example.functions.some((fn) => selectedFunctions.includes(fn)) && matchesSearch(example)));
   const shownCount = $derived(filtering ? flatResults.length : groupedView.reduce((n, g) => n + g.plugins.length, 0));
   const hasActiveFilter = $derived(filtering || !!search.trim());
@@ -130,6 +130,8 @@
 
   const capabilityMeta: Record<ExampleCapability, {icon: IconClass; label: string; variant: 'destructive' | 'secondary'}> = {
     internet: {icon: 'i-mdi-web', label: $t`Internet`, variant: 'destructive'},
+    microphone: {icon: 'i-mdi-microphone', label: $t`Microphone`, variant: 'secondary'},
+    camera: {icon: 'i-mdi-camera', label: $t`Camera`, variant: 'secondary'},
     'entry-menu': {icon: 'i-mdi-menu', label: $t`Entry menu`, variant: 'secondary'},
   };
 
@@ -282,7 +284,7 @@
         {#if hasActiveFilter}
           {$t`Showing ${shownCount} examples`}
         {:else}
-          {$t`Showing all ${examplePlugins.length} examples in ${primaryGroups.length} categories`}
+          {$t`Showing all ${listedExamplePlugins.length} examples in ${primaryGroups.length} categories`}
         {/if}
       </div>
 

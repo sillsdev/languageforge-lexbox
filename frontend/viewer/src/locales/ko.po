@@ -616,6 +616,7 @@ msgid "Browse view failed"
 msgstr "찾아보기 실패"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Camera"
 msgstr "카메라"
 
@@ -2307,6 +2308,10 @@ msgstr "미디어 파일 세부 정보"
 #: src/project/ProjectSidebar.svelte
 msgid "Media Manager"
 msgstr "미디어 매니저"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Microphone"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"

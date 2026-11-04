@@ -90,16 +90,6 @@
     getMedia: function (mediaUri) { return call('getMedia', [mediaUri]); },
 
     /**
-     * Stores a file (e.g. one the user picked with <input type="file">, or an image you drew on a
-     * canvas) and resolves to {result, mediaUri, errorMessage}. Then attach it by writing `mediaUri`
-     * into an entry field (an audio writing system, or a sense picture) via updateEntry; that edit is
-     * user-approved. Requires the 'edit' permission.
-     *   const file = input.files[0];
-     *   const {mediaUri} = await fwlite.saveFile(await file.arrayBuffer(), {filename: file.name, mimeType: file.type});
-     */
-    saveFile: function (data, metadata) { return call('saveFile', [data, metadata]); },
-
-    /**
      * Writing requires <meta name="fwlite-plugin-permissions" content="edit"> in your <head>;
      * without it these calls reject with code 'permission-denied' before the user is even asked.
      * updateEntry(before, after): 'before' must match the entry's CURRENT state — if someone

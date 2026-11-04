@@ -616,6 +616,7 @@ msgid "Browse view failed"
 msgstr "Vista de navegación fallida"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Camera"
 msgstr "Cámara"
 
@@ -2307,6 +2308,10 @@ msgstr "Detalles del archivo multimedia"
 #: src/project/ProjectSidebar.svelte
 msgid "Media Manager"
 msgstr "Gestor de medios"
+
+#: src/lib/plugins/PluginEditorDialog.svelte
+msgid "Microphone"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"

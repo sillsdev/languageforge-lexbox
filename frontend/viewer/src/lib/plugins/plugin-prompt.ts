@@ -79,7 +79,7 @@ export async function buildPluginPrompt(
     : `4. **No network access.** A Content-Security-Policy blocks all fetches and external resources — keep everything inline and offline. (If a task genuinely needed the internet it would be enabled explicitly; assume it is not.)`;
 
   const writesRequirement = readOnly
-    ? `6. **Read-only plugin.** Do not modify the dictionary: never call \`createEntry\`, \`updateEntry\`, \`applyChanges\`, or \`saveFile\`, and do NOT declare the \`edit\` permission. Read, display, and analyze only.`
+    ? `6. **Read-only plugin.** Do not modify the dictionary: never call \`createEntry\`, \`updateEntry\`, or \`applyChanges\`, and do NOT declare the \`edit\` permission. Read, display, and analyze only.`
     : `6. **Writes need the \`edit\` permission and are user-approved.** Add \`<meta name="fwlite-plugin-permissions" content="edit">\` in \`<head>\` (without it, write calls are rejected outright). Every \`createEntry\`/\`updateEntry\`/\`applyChanges\` call pops up a confirmation dialog in the app showing exactly what will change. If the user declines, the promise rejects with \`error.code === 'permission-denied'\` — handle that as a normal outcome (show "not saved"), never as a crash.`;
 
   const writingSection = readOnly ? '' : `### Writing (each call = one user confirmation dialog)
@@ -101,18 +101,6 @@ fwlite.applyChanges(operations): Promise<Entry[]>
 // you have a batch — e.g. a contribution game submitting multiple entries at once.
 // operations: Array<{type:'createEntry', entry} | {type:'updateEntry', before, after}>
 // Resolves to the resulting entries, in order.
-\`\`\`
-
-`;
-
-  const savingFilesSection = readOnly ? '' : `### Saving files (audio, pictures)
-
-To attach audio or a picture the user picks with \`<input type="file">\` (or one you generate, e.g. on a canvas), persist the bytes with \`fwlite.saveFile\` and attach the returned \`mediaUri\` to an entry:
-
-\`\`\`ts
-fwlite.saveFile(bytes, {filename, mimeType}): Promise<{result: string, mediaUri?: string, errorMessage?: string}>
-// bytes: ArrayBuffer | Uint8Array | Blob. Requires the 'edit' permission. Then write mediaUri into an
-// audio writing-system field (or a sense picture) via updateEntry — that edit is user-approved as usual.
 \`\`\`
 
 `;
@@ -237,7 +225,7 @@ if (media) {
 }
 \`\`\`
 
-${savingFilesSection}### Comments (read-only)
+### Comments (read-only)
 
 \`\`\`ts
 fwlite.getCommentThreads({subjectType, subjectId, includeComments?}): Promise<CommentThread[]>

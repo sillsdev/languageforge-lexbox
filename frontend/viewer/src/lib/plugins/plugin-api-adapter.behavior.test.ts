@@ -56,6 +56,14 @@ function makeAdapter(options: {
 beforeEach(() => localStorage.clear());
 
 describe('handle dispatch', () => {
+  it('does not expose saveFile', async () => {
+    const saveFile = vi.fn();
+    const adapter = makeAdapter({api: makeApi({saveFile})});
+    await expect(async () => await adapter.handle('saveFile', [new ArrayBuffer(1), {filename: 'a.webm', mimeType: 'audio/webm'}]))
+      .rejects.toMatchObject({code: 'unknown-method'});
+    expect(saveFile).not.toHaveBeenCalled();
+  });
+
   it('rejects unknown methods', async () => {
     const adapter = makeAdapter();
     await expect(async () => await adapter.handle('dropAllTables', [])).rejects.toMatchObject({code: 'unknown-method'});
@@ -83,7 +91,6 @@ describe('edit permission', () => {
       ['createEntry', [{lexemeForm: {seh: 'x'}}]],
       ['updateEntry', [makeEntry(), makeEntry()]],
       ['applyChanges', [[]]],
-      ['saveFile', [new ArrayBuffer(1), {filename: 'a.webm', mimeType: 'audio/webm'}]],
     ] as const) {
       await expect(async () => await adapter.handle(method, [...args]), method).rejects.toMatchObject({code: 'permission-denied'});
     }

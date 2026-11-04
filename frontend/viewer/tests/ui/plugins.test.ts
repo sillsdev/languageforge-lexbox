@@ -1,7 +1,7 @@
 import http from 'node:http';
 import type {AddressInfo} from 'node:net';
 import {expect, test, type Page} from '@playwright/test';
-import {examplePlugins} from '../../src/lib/plugins/examples';
+import {examplePlugins, listedExamplePlugins} from '../../src/lib/plugins/examples';
 import {DemoProjectPage} from './demo-project.page';
 import {STORAGE_KEY as RELEASE_CHANNEL_KEY} from '../../src/lib/feature-flags/feature-flags';
 
@@ -263,7 +263,8 @@ test('the example gallery filters across categories by function', async ({page})
 
 // One isolated test per example so failures are attributable and the suite parallelises, rather than
 // one test serially exercising all of them (which blows a single test timeout).
-for (const example of examplePlugins) {
+// Unlisted examples can't be reached through the gallery.
+for (const example of listedExamplePlugins) {
   test(`example plugin “${example.name}” runs against the demo project without erroring`, async ({page}) => {
     const pluginName = `E2E ${example.name}`;
     await gotoPlugins(page);
