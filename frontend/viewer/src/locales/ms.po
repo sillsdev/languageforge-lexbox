@@ -889,6 +889,10 @@ msgstr "Komponen-komponen"
 msgid "Contains"
 msgstr "Mengandungi"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Contexts"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
 msgstr "Perbualan"
@@ -1154,6 +1158,7 @@ msgstr ""
 msgid "Describe the plugin you want below."
 msgstr ""
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Description"
@@ -1670,6 +1675,7 @@ msgstr "Versi FieldWorks Lite"
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "File"
 msgstr ""
@@ -1694,6 +1700,10 @@ msgstr "Fail tidak ditemui"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File saving not supported"
 msgstr "Penyimpanan fail tidak disokong"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "File size"
+msgstr ""
 
 #. Error message for oversized file
 #: src/lib/components/audio/AudioDialog.svelte
@@ -2415,6 +2425,7 @@ msgstr "Pandangan tersuai saya..."
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
@@ -2842,6 +2853,10 @@ msgstr ""
 msgid "Pending"
 msgstr "Tertunda"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Permissions"
+msgstr ""
+
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
 msgstr "Pilih Jenis Perkataan"
@@ -2898,6 +2913,10 @@ msgstr "Platform"
 msgid "Play & learn"
 msgstr ""
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugin"
+msgstr ""
+
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
@@ -2922,6 +2941,10 @@ msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Plugin wants to make {0}"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugins"
 msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
@@ -3275,6 +3298,10 @@ msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "Require approval for edits"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Requires"
 msgstr ""
 
 #: src/project/browse/SearchFilter.svelte

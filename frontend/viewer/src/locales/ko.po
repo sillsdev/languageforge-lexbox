@@ -889,6 +889,10 @@ msgstr "구성 요소"
 msgid "Contains"
 msgstr "포함 사항"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Contexts"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
 msgstr "대화"
@@ -1154,6 +1158,7 @@ msgstr ""
 msgid "Describe the plugin you want below."
 msgstr ""
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/PluginEditorDialog.svelte
 msgid "Description"
@@ -1670,6 +1675,7 @@ msgstr "FieldWorks Lite 버전"
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "File"
 msgstr ""
@@ -1694,6 +1700,10 @@ msgstr "파일을 찾을 수 없음"
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File saving not supported"
 msgstr "파일 저장이 지원되지 않음"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "File size"
+msgstr ""
 
 #. Error message for oversized file
 #: src/lib/components/audio/AudioDialog.svelte
@@ -2415,6 +2425,7 @@ msgstr "내 사용자 지정 보기..."
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/PluginEditorDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
@@ -2842,6 +2853,10 @@ msgstr ""
 msgid "Pending"
 msgstr "보류 중"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Permissions"
+msgstr ""
+
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
 msgstr "품사를 선택하세요"
@@ -2898,6 +2913,10 @@ msgstr "플랫폼"
 msgid "Play & learn"
 msgstr ""
 
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugin"
+msgstr ""
+
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
@@ -2922,6 +2941,10 @@ msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Plugin wants to make {0}"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugins"
 msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
@@ -3275,6 +3298,10 @@ msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "Require approval for edits"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Requires"
 msgstr ""
 
 #: src/project/browse/SearchFilter.svelte

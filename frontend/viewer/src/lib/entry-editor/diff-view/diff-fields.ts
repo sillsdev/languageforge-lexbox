@@ -4,6 +4,7 @@ import type {
   ICustomView,
   IMorphType,
   IPartOfSpeech,
+  IPlugin,
   IPublication,
   ISemanticDomain,
   IWritingSystem,
@@ -37,6 +38,7 @@ export const objectDiffRows: {
   MorphType: DiffRows<IMorphType>;
   WritingSystem: DiffRows<IWritingSystem>;
   CustomView: DiffRows<ICustomView>;
+  Plugin: DiffRows<IPlugin>;
 } = {
   PartOfSpeech: {name, id: null, deletedAt: null, predefined: null},
   SemanticDomain: {
@@ -85,6 +87,17 @@ export const objectDiffRows: {
     exampleFields: {label: msg`Example fields`, kind: 'viewFields', entity: 'example'},
     vernacular: {label: msg`Vernacular writing systems`, kind: 'wsList'},
     analysis: {label: msg`Analysis writing systems`, kind: 'wsList'},
+    id: null,
+    deletedAt: null,
+  },
+  Plugin: {
+    name: {label: msg`Name`, kind: 'text'},
+    description: {label: msg`Description`, kind: 'text'},
+    mediaUri: {label: msg`File`, kind: 'text'},
+    fileSize: {label: msg`File size`, kind: 'text'},
+    permissions: {label: msg`Permissions`, kind: 'stringList'},
+    contexts: {label: msg`Contexts`, kind: 'stringList'},
+    requires: {label: msg`Requires`, kind: 'stringList'},
     id: null,
     deletedAt: null,
   },
