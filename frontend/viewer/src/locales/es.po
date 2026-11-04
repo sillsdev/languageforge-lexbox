@@ -1837,6 +1837,7 @@ msgstr "Archivo cargado"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
 msgstr "Cargando actividad"
 
