@@ -4,6 +4,7 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {useWritingSystemService} from '$project/data';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import HomographNumber from './HomographNumber.svelte';
 
   let {
     entry,
@@ -45,7 +46,7 @@
   {#each headwords as headword, i (headword.wsId)}
     <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it preserves whitespace -->
     {#if i > 0}{' / '}{/if}
-    <span class={headword.color}>{headword.value}</span>
+    <span class={headword.color}>{headword.value}<HomographNumber homographNumber={entry.homographNumber} /></span>
   {:else}
     {#if placeholder}
       <span class="text-muted-foreground">{placeholder}</span>

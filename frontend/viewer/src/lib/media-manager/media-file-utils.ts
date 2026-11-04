@@ -44,6 +44,8 @@ const MIME_TYPE_BY_EXTENSION: Record<string, string> = {
   '.ogg': 'audio/ogg',
   '.webm': 'audio/webm',
   '.m4a': 'audio/mp4',
+  '.aac': 'audio/aac',
+  '.flac': 'audio/flac',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',

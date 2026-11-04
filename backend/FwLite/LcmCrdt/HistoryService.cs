@@ -15,7 +15,7 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt;
 
-public record ActivityAuthor(string? AuthorId, string? AuthorName, int CommitCount);
+public record ActivityAuthor(string? AuthorId, string? AuthorName, int CommitCount, DateTimeOffset FirstCommitDate);
 
 public record ActivityChangeType(string Key, string Label, int CommitCount);
 
@@ -41,12 +41,27 @@ public static class ActivityFilterKeys
 
 /// <summary>
 /// Resolved display info for one change, so the frontend can name what the change is about.
-/// <paramref name="Subject"/> is the entity the change is on (entry headword, "headword › gloss" for a sense, or a possibility's name);
-/// <paramref name="Target"/> is a referenced item named only by id (e.g. the assigned part of speech). Both null when unresolved.
-/// <paramref name="OwningEntryId"/> is the entry the change ultimately belongs to (the entry itself, or the owner of a sense/example);
-/// <paramref name="OwningEntryHeadword"/> is <paramref name="OwningEntryId"/>'s headword, for grouping a commit's changes under one entry.
+/// All parts are structured so the frontend composes (and localizes) the text. Unresolved parts are null.
+/// <paramref name="Entry"/> is the entry the change ultimately belongs to (the entry itself, or the owner of a sense/example), for grouping a commit's changes;
+/// <paramref name="Sense"/> is set only when the subject is a sense or an example (its parent sense);
+/// <paramref name="ObjectName"/> names a subject that isn't an entry (part of speech, semantic domain, publication, etc.);
+/// <paramref name="Target"/> is a referenced item named only by id (e.g. the assigned part of speech).
 /// </summary>
-public record ActivityChangeInfo(string? Subject, Guid? OwningEntryId, string? Target = null, string? OwningEntryHeadword = null);
+public record ActivityChangeInfo(
+    ActivityEntryName? Entry,
+    ActivitySenseName? Sense = null,
+    string? ObjectName = null,
+    ActivityTarget? Target = null);
+
+/// <param name="Headword">Without the homograph subscript. Null when unresolvable (then <paramref name="HomographNumber"/> is 0).</param>
+public record ActivityEntryName(Guid Id, string? Headword, int HomographNumber);
+
+/// <param name="Label">Gloss, else a definition snippet, else null.</param>
+/// <param name="Number">1-based current position, only when the entry currently has more than one sense. Null for a deleted sense.</param>
+public record ActivitySenseName(string? Label, int? Number);
+
+/// <param name="HomographNumber">Greater than 0 only when the target names an entry (component links).</param>
+public record ActivityTarget(string Text, int HomographNumber = 0);
 
 public record ActivityChange(ChangeEntity<IChange> Entity, ActivityChangeInfo Info);
 
@@ -72,10 +87,11 @@ public record ChangeContext(
     string ChangeName,
     IObjectWithId? Snapshot,
     IObjectWithId? PreviousSnapshot,
-    ICollection<Entry> AffectedEntries)
+    ICollection<Entry> AffectedEntries,
+    IObjectWithId? CurrentSnapshot = null)
 {
-    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId? snapshot, IObjectWithId? previousSnapshot, ICollection<Entry> affectedEntries)
-        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, previousSnapshot, affectedEntries)
+    public ChangeContext(ChangeEntity<IChange> change, IObjectWithId? snapshot, IObjectWithId? previousSnapshot, ICollection<Entry> affectedEntries, IObjectWithId? currentSnapshot = null)
+        : this(change.CommitId, change.Index, HistoryService.ChangeNameHelper(change.Change), snapshot, previousSnapshot, affectedEntries, currentSnapshot)
     {
     }
     public string EntityType => (Snapshot ?? PreviousSnapshot)?.GetType().Name ?? "Unknown";
@@ -124,7 +140,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
                 AuthorId = Json.Value(c.Metadata, m => m.AuthorId),
                 AuthorName = Json.Value(c.Metadata, m => m.AuthorName),
             })
-            .Select(g => new ActivityAuthor(g.Key.AuthorId, g.Key.AuthorName, g.Count()))
+            .Select(g => new ActivityAuthor(g.Key.AuthorId, g.Key.AuthorName, g.Count(), g.Min(c => c.HybridDateTime.DateTime)))
             .ToListAsyncLinqToDB();
         return [.. authors.OrderBy(a => a.AuthorName ?? "").ThenBy(a => a.AuthorId ?? "")];
     }
@@ -317,18 +333,23 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
 
         // These branches are independent read-only lookups that each open their own
         // DbContext (via the repository factories), so run them concurrently.
-        //todo needs optimizing: when a sync pruned this change's snapshot, this replays every commit since the entity's last one (median 22k on a 100k-commit project)
+        // Both reads resume from Harmony's nearest snapshot checkpoint, which it keeps at most
+        // HarmonyConfig.MaxChangesBetweenSnapshotCheckpoints changes apart, so a pruned snapshot costs a short replay,
+        // not one from the entity's last snapshot. A database written before checkpoints has none until its first new
+        // commit (local or synced) regenerates its snapshots; until then these replay from the first commit.
         var snapshotTask = ResolveSnapshot(async () => await dataModel.GetAtCommit<object>(commitId, change.EntityId));
-        //todo the activity redesign wants this to diff against, but GetBeforeCommit rebuilds it by replaying every commit since the entity's last snapshot (~99k of 100k on a synced project), which leaves the preview blank forever — needs optimizing before it comes back
-        //var previousSnapshotTask = ResolveSnapshot(() => dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
+        // null when the entity didn't exist before this commit
+        var previousSnapshotTask = ResolveSnapshot(async () => await dataModel.GetBeforeCommit<object>(commitId, change.EntityId));
+        // the entity's latest state; a deleted entity comes back with DeletedAt set
+        var currentSnapshotTask = ResolveSnapshot(async () => await dataModel.GetLatest<object>(change.EntityId));
         var affectedEntriesTask = GetAffectedEntryIds(change)
             .Select(async (Guid entryId, CancellationToken _) => await GetCurrentOrLatestEntry(entryId))
             .ToArrayAsync()
             .AsTask();
 
-        await Task.WhenAll(snapshotTask, affectedEntriesTask);
+        await Task.WhenAll(snapshotTask, previousSnapshotTask, currentSnapshotTask, affectedEntriesTask);
 
-        return new ChangeContext(change, await snapshotTask, null, await affectedEntriesTask);
+        return new ChangeContext(change, await snapshotTask, await previousSnapshotTask, await affectedEntriesTask, await currentSnapshotTask);
     }
 
     // Some entity types like RemoteResource don't implement IObjectWithId, so cast safely.
@@ -379,7 +400,7 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
         }
     }
 
-    // Must agree with ActivityChangeInfoResolver's OwningEntryId, which the activity list shows for the same change.
+    // Must agree with ActivityChangeInfoResolver's Entry, which the activity list shows for the same change.
     private async Task<Guid?> OwningEntryId(Type? entityType, Guid entityId)
     {
         if (entityType == typeof(Entry)) return entityId;

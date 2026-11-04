@@ -36,7 +36,10 @@ public class HistoryServiceOpaqueChangeTests : HistoryServiceActivityTestsBase
 
         var activity = activities.Should().ContainSingle(a => a.Changes.Any(c => c.Entity.Change is OpaqueChange)).Subject;
         activity.ChangeName.Should().Be("Unknown");
-        activity.Changes.Single().Info.Subject.Should().BeNull();
+        var info = activity.Changes.Single().Info;
+        info.Entry.Should().BeNull();
+        info.Sense.Should().BeNull();
+        info.ObjectName.Should().BeNull();
     }
 
     [Fact]

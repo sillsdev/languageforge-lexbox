@@ -95,19 +95,31 @@ jobs:
   integration-tests:
     name: Integration tests
     uses: ./.github/workflows/integration-test.yaml
+    needs: deploy
+    permissions:
+      checks: write
+      contents: read
+    secrets: inherit
+    with:
+      environment: staging
+      runs-on: ubuntu-latest
+
+  hg-client-tests:
+    name: Hg client tests
+    uses: ./.github/workflows/hg-client-test.yaml
+    needs: deploy
     strategy:
       fail-fast: false
       matrix:
-        runs-on:
-          # Not ubuntu-latest: the bundled Mercurial (SIL.Chorus.Mercurial 6.5) fails to start on 26.04's Python 3.14.
-          - ubuntu-24.04
-          - windows-latest
-        hg-version:
-          - '3'
-          - '6'
-#        include:
-#          - run-playwright: false
-    needs: deploy
+        include:
+          # Linux hg 3 and 6 stay on 24.04: setup-python can't build Python 2.7 (for hg 3) on 26.04,
+          # and hg 6.5 fails to start on 26.04's Python 3.14.
+          - { hg-version: '3', runs-on: ubuntu-24.04 }
+          - { hg-version: '6', runs-on: ubuntu-24.04 }
+          - { hg-version: '7', runs-on: ubuntu-latest }
+          - { hg-version: '3', runs-on: windows-latest }
+          - { hg-version: '6', runs-on: windows-latest }
+          - { hg-version: '7', runs-on: windows-latest }
     permissions:
       checks: write
       contents: read
@@ -116,14 +128,13 @@ jobs:
       environment: staging
       runs-on: ${{ matrix.runs-on }}
       hg-version: ${{ matrix.hg-version }}
-#      run-playwright: ${{ matrix.run-playwright }}
 
   deploy-prod:
     name: Deploy Production
     uses: ./.github/workflows/deploy.yaml
-    needs: [ integration-tests, set-version ]
+    needs: [ integration-tests, hg-client-tests, set-version ]
     # we want to allow deployment even if some tests fail because they are currently flaky
-    if: ${{ !cancelled() && (needs.integration-tests.result == 'success' || needs.integration-tests.result == 'failure') }}
+    if: ${{ !cancelled() && contains(fromJSON('["success","failure"]'), needs.integration-tests.result) && contains(fromJSON('["success","failure"]'), needs.hg-client-tests.result) }}
     secrets: inherit
     with:
       version: ${{ needs.set-version.outputs.version }}

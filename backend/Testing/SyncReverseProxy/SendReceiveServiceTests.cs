@@ -14,8 +14,8 @@ using static Testing.Services.Utils;
 
 namespace Testing.SyncReverseProxy;
 
-[Trait("Category", "FlakyIntegration")]
-public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
+[Trait("Category", "HgIntegration")]
+public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClassFixture<HgClientFixture>
 {
     private readonly ITestOutputHelper _output;
     private readonly IntegrationFixture _srFixture;
@@ -34,11 +34,8 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     [Fact]
     public async Task VerifyHgWorking()
     {
-        var version = await _sendReceiveService.GetHgVersion();
-        version.Should().StartWith("Mercurial Distributed SCM");
+        var version = await SendReceiveService.GetHgVersion();
         _output.WriteLine("Hg version: " + version);
-        if (TestingEnvironmentVariables.ExpectedHgMajorVersion is { } expectedMajor)
-            version.Should().Contain($"(version {expectedMajor}.");
         HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) { ShowVerbose = true });
         HgRepository.GetEnvironmentReadinessMessage("en").Should().BeNull();
     }

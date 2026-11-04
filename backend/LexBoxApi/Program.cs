@@ -19,6 +19,7 @@ using LexSyncReverseProxy.Auth;
 using LfClassicData;
 using MiniLcm.Push;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
@@ -71,18 +72,16 @@ builder.Services.AddHealthChecks();
 builder.Services.AddSingleton<IDeveloperPageExceptionFilter, AddExceptionFeatureDevExceptionFilter>();
 builder.Services.AddExceptionHandler((options) =>
 {
-    options.StatusCodeSelector = exception =>
-    {
-        if (exception is UnauthorizedAccessException)
-            return StatusCodes.Status401Unauthorized;
-        return StatusCodes.Status500InternalServerError;
-    };
+    options.StatusCodeSelector = ExceptionStatusCodes.Select;
 });
 builder.Services.AddProblemDetails(o =>
 {
     o.CustomizeProblemDetails = context =>
     {
         var exceptionHandlerFeature = context.HttpContext.Features.Get<IExceptionHandlerFeature>();
+        // the exception handler leaves detail empty; FwHeadless's message is meant for the caller
+        if (exceptionHandlerFeature?.Error is FwHeadlessException fwHeadlessException)
+            context.ProblemDetails.Detail = fwHeadlessException.Message;
         if (exceptionHandlerFeature?.Error is not IExceptionWithCode exceptionWithCode) return;
         context.ProblemDetails.Extensions["app-error-code"] = exceptionWithCode.Code;
     };
@@ -146,9 +145,14 @@ app.Use(async (context, next) =>
     await next();
 });
 app.UseStatusCodePages();
-if (!app.Environment.IsDevelopment())
+// Defaults to on everywhere except Development. Turning it on in Development (e.g. the CI cluster) lets tests see
+// production-shaped errors: WebApplication still adds the developer exception page, but as the outermost middleware,
+// so this handler catches exceptions first and the developer page never sees them.
+if (app.Configuration.GetValue("ErrorHandling:UseProductionExceptionHandler", !app.Environment.IsDevelopment()))
     app.UseExceptionHandler();
 app.UseHealthChecks("/api/healthz");
+// k8s probes: an hg outage must break hg features, not restart lexbox
+app.UseHealthChecks("/api/alive", new HealthCheckOptions { Predicate = check => !check.Tags.Contains("hg") });
 // Configure the HTTP request pipeline.
 app.UseHttpLogging();
 app.UseRouting();
