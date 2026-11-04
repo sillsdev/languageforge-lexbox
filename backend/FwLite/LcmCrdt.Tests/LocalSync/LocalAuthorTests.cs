@@ -71,7 +71,7 @@ public class LocalAuthorTests : IAsyncLifetime
         var thread = await CreateThread();
         await _fixture.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "apple" } });
 
-        var commits = (await _fixture.DataModel.GetChanges(new SyncState([]))).MissingFromClient;
+        var commits = (await _fixture.DataModel.GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient;
         var latest = commits.MaxBy(c => c.HybridDateTime)!;
 
         latest.Metadata.AuthorId.Should().Be(thread.AuthorId);

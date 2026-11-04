@@ -65,7 +65,7 @@ public class ProjectIdentityServiceTests : IAsyncLifetime
         await _original.GetService<CrdtProjectsService>().CreateProject(new("Sena 3", "sena-3-download", ProjectId,
             new Uri("https://lexbox.example"),
             AfterCreate: async (provider, _) => commitsBeforeFirstSync =
-                (await provider.GetRequiredService<DataModel>().GetChanges(new SyncState([]))).MissingFromClient.Length,
+                (await provider.GetRequiredService<DataModel>().GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient.Length,
             DbPath: db));
 
         commitsBeforeFirstSync.Should().Be(0);

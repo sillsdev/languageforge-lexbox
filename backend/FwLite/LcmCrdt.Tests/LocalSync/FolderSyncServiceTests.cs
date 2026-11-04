@@ -137,9 +137,9 @@ public class FolderSyncServiceTests : IAsyncLifetime
     {
         // an export interrupted part way: some of our commits made it to the drive, but not the root commit
         var options = JsonOptions(_a);
-        var ours = (await _a.DataModel.GetChanges(new SyncState([]))).MissingFromClient.DefaultOrder().ToArray();
+        var ours = (await _a.DataModel.GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient.DefaultOrder().ToArray();
         SyncFolder.WriteManifest(_folder.Path, ManifestForA());
-        await new JsonSyncable(new DirectoryInfo(_folder.Path), options, NullLogger.Instance)
+        await _a.GetService<IJsonSyncableFactory>().Create(new DirectoryInfo(_folder.Path))
             .AddRangeFromSync(JsonRoundTrip(ours[1..], options));
 
         var result = await SyncWithFolder(_a, _folder.Path);
