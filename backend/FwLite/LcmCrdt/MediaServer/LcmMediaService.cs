@@ -214,7 +214,7 @@ public class LcmMediaService(
             projectId: currentProjectService.ProjectData.Id,
             fileId: resourceId.ToString("D"),
             filename: fileName,
-            linkedFilesSubfolderOverride: LinkedFilesSubfolder(ProjectResourceCachePath, localPath));
+            linkedFilesSubfolderOverride: IsValidLinkedFilesSubfolder(metadata?.LinkedFilesSubfolder) ? metadata.LinkedFilesSubfolder : null);
         var uploadedMetadata = new LcmFileMetadata(fileName,
             response.Metadata?.MimeType ?? metadata?.MimeType ?? MediaTypeNames.Application.Octet,
             response.Metadata?.Author ?? metadata?.Author,
@@ -222,18 +222,6 @@ public class LcmMediaService(
             response.Metadata?.SizeInBytes ?? metadata?.SizeInBytes,
             metadata?.LinkedFilesSubfolder);
         return new UploadResult<LcmFileMetadata>(resourceId.ToString("N"), uploadedMetadata);
-    }
-
-    /// <summary>
-    /// The LinkedFiles subfolder a file should upload into, carried as its directory within the
-    /// local cache (SaveFile puts it there). Uploads can run long after SaveFile — e.g. pending
-    /// resources flushed when back online — so the path is the only place it can live.
-    /// </summary>
-    internal static string? LinkedFilesSubfolder(string cacheRoot, string localPath)
-    {
-        var relativeDir = Path.GetDirectoryName(Path.GetRelativePath(cacheRoot, localPath));
-        // Anything else (nested, "..", or a rooted path when the cache moved to another drive) uploads to the default location.
-        return IsValidLinkedFilesSubfolder(relativeDir) ? relativeDir : null;
     }
 
     public async Task<(HarmonyResource<LcmFileMetadata> resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
