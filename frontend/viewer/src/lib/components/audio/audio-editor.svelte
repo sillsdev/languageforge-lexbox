@@ -10,6 +10,7 @@
   import Loading from '$lib/components/Loading.svelte';
   import {resource, watch} from 'runed';
   import {onDestroy} from 'svelte';
+  import {saveFile} from '$lib/utils/save-file';
 
   type Props = {
     audio: File;
@@ -72,18 +73,9 @@
     ffmpegApi?.terminate();
   });
 
-  function downloadAudio() {
+  async function downloadAudio() {
     if (!finalAudio) throw new Error('No audio to download');
-    const url = URL.createObjectURL(finalAudio);
-    try {
-      //todo only works on desktop, not mobile
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${finalAudio.name}`;
-      a.click();
-    } finally {
-      URL.revokeObjectURL(url);
-    }
+    await saveFile(finalAudio, finalAudio.name);
   }
 </script>
 
