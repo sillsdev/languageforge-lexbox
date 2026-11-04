@@ -188,7 +188,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
     /// </summary>
     internal static string PendingReservationSubfolder(LcmFileMetadata metadata)
     {
-        if (LinkedFilesPath.IsValidSubfolder(metadata.LinkedFilesSubfolder)) return metadata.LinkedFilesSubfolder;
+        if (LcmMediaService.IsValidLinkedFilesSubfolder(metadata.LinkedFilesSubfolder)) return metadata.LinkedFilesSubfolder;
         return MediaFileController.GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
     }
 
