@@ -8,7 +8,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {navigate, useRouter} from 'svelte-routing';
   import {type IPlugin, UserProjectRole} from '$lib/dotnet-types';
-  import {usePluginService} from '$project/data/plugin-service.svelte';
+  import {fileNameSlug, usePluginService} from '$project/data/plugin-service.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {AppNotification} from '$lib/notifications/notifications';
@@ -28,18 +28,14 @@
   let editingPlugin = $state<IPlugin | undefined>(undefined);
   let aiPromptOpen = $state(false);
 
-  // The trust store is plain localStorage; bump this to re-read it after revoking from a card.
-  let trustVersion = $state(0);
   // Trust is pinned to a content hash we'd need the file to verify, so the card shows whether a
-  // grant EXISTS — if the plugin changed since, the grant is stale and it will ask again anyway.
+  // grant EXISTS; if the plugin changed since, the grant is stale and it will ask again anyway.
   function hasWriteTrust(plugin: IPlugin): boolean {
-    trustVersion; // eslint-disable-line @typescript-eslint/no-unused-expressions
     return pluginService.writeTrustStore.grantedHash(plugin.id) !== undefined;
   }
 
   function revokeWriteTrust(plugin: IPlugin) {
     pluginService.writeTrustStore.revoke(plugin.id);
-    trustVersion++;
     AppNotification.display($t`“${plugin.name}” will ask before making changes again.`, {timeout: 'short'});
   }
 
@@ -75,15 +71,10 @@
       const url = URL.createObjectURL(new Blob([html], {type: 'text/html'}));
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = pluginFileName(plugin.name);
+      anchor.download = `${fileNameSlug(plugin.name)}.html`;
       anchor.click();
       URL.revokeObjectURL(url);
     });
-  }
-
-  function pluginFileName(name: string): string {
-    const safe = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    return `${safe || 'plugin'}.html`;
   }
 
   function duplicate(plugin: IPlugin) {

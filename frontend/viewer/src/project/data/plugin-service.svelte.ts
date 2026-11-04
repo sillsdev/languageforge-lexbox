@@ -1,4 +1,5 @@
 import {type IPlugin} from '$lib/dotnet-types';
+import {gt} from 'svelte-i18n-lingui';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
 import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
@@ -64,7 +65,6 @@ export class PluginService {
     return this.#pluginsResource.loading;
   }
 
-  /** True once the plugin list has been fetched at least once. */
   get loaded(): boolean {
     return this.#pluginsResource.loaded;
   }
@@ -137,14 +137,7 @@ export class PluginService {
     await this.#pluginsResource.refetch();
   }
 
-  /**
-   * Turns a draft into the Plugin entity: uploads the HTML as an (immutable, content-named) media
-   * file and extracts the manifest, so lists and menus never need the file itself. Re-uses the
-   * previous file when the HTML didn't change.
-   *
-   * `uploadedHtmlDigest` is set only when a new HTML file was uploaded — undefined means the
-   * HTML body was unchanged and callers can skip trust-hash work.
-   */
+  /** Uploads changed HTML as a new immutable file; `uploadedHtmlDigest` is set only then. */
   async #buildPlugin(
     id: string,
     draft: PluginDraft,
@@ -170,7 +163,7 @@ export class PluginService {
         extraFields: {},
       });
       if (response.result === UploadFileResult.TooBig) {
-        throw new Error('This plugin file is too big (the limit is 10MB)');
+        throw new Error(gt`This plugin file is too big (the limit is 10 MB)`);
       }
       if (!response.mediaUri) {
         throw new Error(response.errorMessage ?? 'Failed to save the plugin file');

@@ -3,7 +3,7 @@
   import {Badge} from '$lib/components/ui/badge';
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
-  import {t} from 'svelte-i18n-lingui';
+  import {plural, t} from 'svelte-i18n-lingui';
   import {untrack} from 'svelte';
   import {navigate, useLocation, useRouter} from 'svelte-routing';
   import {usePluginService} from '$project/data/plugin-service.svelte';
@@ -15,10 +15,10 @@
   import EditEntryDialog from '$lib/entry-editor/EditEntryDialog.svelte';
   import {PluginApiAdapter} from './plugin-api-adapter';
   import {PluginHost} from './plugin-host';
-  import {buildPluginSrcdoc, PLUGIN_IFRAME_ALLOW, PLUGIN_IFRAME_SANDBOX} from './plugin-srcdoc';
+  import {buildPluginSrcdoc, PLUGIN_IFRAME_SANDBOX} from './plugin-srcdoc';
   import {parsePluginManifest, type PluginManifest} from './plugin-manifest';
   import {computePluginHash, PluginStorage} from './plugin-local-data';
-  import type {OpenEntryMode, PluginWriteOperation} from './plugin-api-types';
+  import type {OpenEntryMode, PluginHostFeature, PluginWriteOperation} from './plugin-api-types';
   import PluginWriteConfirmDialog, {type WriteConfirmResult} from './PluginWriteConfirmDialog.svelte';
 
   interface Props {
@@ -64,25 +64,24 @@
     if (!requestedKey) return;
     const requested = untrack(() => plugin)!;
     htmlState = {status: 'loading'};
+    let superseded = false;
     void pluginService.getHtml(requested).then(async result => {
-      if (pluginKey !== requestedKey) return; // a newer load owns the state
       if (result.result === 'ok') {
         const manifest = parsePluginManifest(result.html);
-        htmlState = {
-          status: 'ready',
-          manifest,
-          hash: await computePluginHash({name: requested.name, description: requested.description, html: result.html}),
-          // The (possibly multi-MB) HTML is deliberately NOT kept in state or a srcdoc attribute:
-          // the composed document goes into a Blob the iframe loads by URL, so the strings are
-          // GC-able as soon as this scope ends. The source of truth stays the on-disk cache file.
-          docUrl: URL.createObjectURL(new Blob([buildPluginSrcdoc(result.html, manifest.permissions)], {type: 'text/html'})),
-        };
+        const hash = await computePluginHash({name: requested.name, description: requested.description, html: result.html});
+        if (superseded) return;
+        // The HTML goes into a Blob the iframe loads by URL, not into state, so it stays GC-able.
+        const docUrl = URL.createObjectURL(new Blob([buildPluginSrcdoc(result.html, manifest.permissions)], {type: 'text/html'}));
+        htmlState = {status: 'ready', manifest, hash, docUrl};
+      } else if (superseded) {
+        return;
       } else if (result.result === 'offline') {
         htmlState = {status: 'offline'};
       } else {
         htmlState = {status: 'error', message: result.message};
       }
     });
+    return () => { superseded = true; };
   });
 
   $effect(() => {
@@ -94,29 +93,20 @@
 
   const manifest = $derived(htmlState.status === 'ready' ? htmlState.manifest : undefined);
   const missingRequirements = $derived((manifest?.requires ?? []).filter(feature => !features[feature]));
+  const featureLabels: Record<PluginHostFeature, string> = $derived({comments: $t`comments`, history: $t`history`});
 
   // Run consent + write trust are device-local and pinned to the content hash (see plugin-local-data).
-  let approved = $state<boolean>();
-  let writesTrusted = $state(false);
-  $effect(() => {
-    if (htmlState.status !== 'ready') {
-      approved = undefined;
-      return;
-    }
-    approved = pluginService.consentStore.isGranted(pluginId, htmlState.hash);
-    writesTrusted = pluginService.writeTrustStore.isGranted(pluginId, htmlState.hash);
-  });
+  const approved = $derived(htmlState.status === 'ready' ? pluginService.consentStore.isGranted(pluginId, htmlState.hash) : undefined);
+  const writesTrusted = $derived(htmlState.status === 'ready' && pluginService.writeTrustStore.isGranted(pluginId, htmlState.hash));
 
   function approve() {
     if (htmlState.status !== 'ready') return;
     pluginService.consentStore.grant(pluginId, htmlState.hash);
-    approved = true;
   }
 
   function trustWrites() {
     if (htmlState.status !== 'ready' || !plugin) return;
     pluginService.writeTrustStore.grant(pluginId, htmlState.hash);
-    writesTrusted = true;
     AppNotification.display(
       $t`“${plugin.name}” can now make changes without asking. You can change this from the plugin toolbar or its card.`,
       {timeout: 'long'});
@@ -125,7 +115,6 @@
   function revokeWriteTrust() {
     if (!plugin) return;
     pluginService.writeTrustStore.revoke(pluginId);
-    writesTrusted = false;
     AppNotification.display($t`“${plugin.name}” will ask before making changes again.`, {timeout: 'short'});
   }
 
@@ -134,7 +123,7 @@
     switch (operation.kind) {
       case 'createEntry': return $t`“${name}” added an entry`;
       case 'updateEntry': return $t`“${name}” changed an entry`;
-      case 'batch': return $t`“${name}” made ${operation.count} changes`;
+      case 'batch': return $t`“${name}” made ${$plural(operation.count, {one: '# change', other: '# changes'})}`;
     }
   }
 
@@ -253,9 +242,7 @@
     stopped = undefined;
   });
 
-  // Fullscreen hides the whole toolbar for true immersion; the only chrome left is a minimal exit
-  // control overlaid on the plugin (Esc also exits, browser-native). Feature-detected so we don't
-  // offer a dead button where the Fullscreen API is unavailable (e.g. the Android WebView).
+  // No Fullscreen API in the Android WebView.
   const canFullscreen = document.fullscreenEnabled;
   let containerElement = $state<HTMLElement>();
   let isFullscreen = $state(false);
@@ -407,7 +394,7 @@
               {#each missingRequirements as feature (feature)}
                 <li class="flex items-center gap-2">
                   <Icon icon="i-mdi-alert" class="text-amber-500" />
-                  {$t`Needs “${feature}”, which this project doesn't support — it may not work properly`}
+                  {$t`Needs ${featureLabels[feature]}, which this project doesn't support, so it may not work properly`}
                 </li>
               {/each}
             </ul>
@@ -425,7 +412,6 @@
           title={plugin.name}
           src={docUrl}
           sandbox={PLUGIN_IFRAME_SANDBOX}
-          allow={PLUGIN_IFRAME_ALLOW}
           onload={onIframeLoad}
           class="absolute inset-0 w-full h-full border-0 bg-background"
         ></iframe>

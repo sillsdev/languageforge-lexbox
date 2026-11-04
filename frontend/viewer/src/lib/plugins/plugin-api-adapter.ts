@@ -369,7 +369,7 @@ export class PluginApiAdapter implements PluginApiMethods {
   /** Attaches the app's headword (citation form, else morph-decorated lexeme form) to each entry. */
   private async withHeadwords(entries: IEntry[]): Promise<PluginEntry[]> {
     const {vernacular, morphTokens} = await this.headwordDeps();
-    return entries.map(entry => Object.assign(entry, {headword: computeHeadword(entry, vernacular, morphTokens)}));
+    return entries.map(entry => ({...entry, headword: computeHeadword(entry, vernacular, morphTokens)}));
   }
 
   private headwordDeps(): Promise<{vernacular: IWritingSystem[]; morphTokens: MorphTokens}> {

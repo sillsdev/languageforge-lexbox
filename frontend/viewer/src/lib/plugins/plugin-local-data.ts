@@ -1,3 +1,4 @@
+import {SvelteMap} from 'svelte/reactivity';
 import {PluginApiException} from './plugin-api-types';
 
 /**
@@ -127,36 +128,36 @@ async function sha256Raw(data: BufferSource): Promise<Uint8Array> {
  */
 class HashPinnedGrantStore {
   #key: string;
+  // Reactive mirror of the localStorage entry, so views can derive from grants directly.
+  #grants: SvelteMap<string, string>;
 
   constructor(prefix: string, projectCode: string) {
     this.#key = `${prefix}:${projectCode}`;
+    const json = localStorage.getItem(this.#key);
+    this.#grants = new SvelteMap(json ? Object.entries(JSON.parse(json) as Record<string, string>) : []);
   }
 
-  #read(): Record<string, string> {
-    const json = localStorage.getItem(this.#key);
-    if (!json) return {};
-    return JSON.parse(json) as Record<string, string>;
+  #save(): void {
+    localStorage.setItem(this.#key, JSON.stringify(Object.fromEntries(this.#grants)));
   }
 
   isGranted(pluginId: string, contentHash: string): boolean {
-    return this.#read()[pluginId] === contentHash;
+    return this.#grants.get(pluginId) === contentHash;
   }
 
-  /** True if this plugin holds a grant for ANY content version (used for re-pinning decisions). */
+  /** The granted content hash, if this plugin holds a grant for any version. */
   grantedHash(pluginId: string): string | undefined {
-    return this.#read()[pluginId];
+    return this.#grants.get(pluginId);
   }
 
   grant(pluginId: string, contentHash: string): void {
-    const data = this.#read();
-    data[pluginId] = contentHash;
-    localStorage.setItem(this.#key, JSON.stringify(data));
+    this.#grants.set(pluginId, contentHash);
+    this.#save();
   }
 
   revoke(pluginId: string): void {
-    const data = this.#read();
-    delete data[pluginId];
-    localStorage.setItem(this.#key, JSON.stringify(data));
+    this.#grants.delete(pluginId);
+    this.#save();
   }
 }
 
