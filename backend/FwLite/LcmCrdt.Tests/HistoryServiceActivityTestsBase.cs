@@ -21,11 +21,9 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
 
     public async Task InitializeAsync()
     {
-        _fixture = CreateFixture();
+        _fixture = MiniLcmApiFixture.Create();
         await _fixture.InitializeAsync();
     }
-
-    protected virtual MiniLcmApiFixture CreateFixture() => MiniLcmApiFixture.Create();
 
     public async Task DisposeAsync() => await _fixture.DisposeAsync();
 

@@ -7,7 +7,6 @@ namespace LcmCrdt.Tests;
 // OpaqueChange (null EntityType, apply skipped), and the activity view must tolerate it.
 public class HistoryServiceOpaqueChangeTests : HistoryServiceActivityTestsBase
 {
-
     private static OpaqueChange UnknownChange(Guid entityId)
     {
         using var doc = JsonDocument.Parse(
