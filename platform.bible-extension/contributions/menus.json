@@ -28,25 +28,29 @@
             "label": "%lexicon_menu_browseLexicon%",
             "group": "lexicon.editor",
             "order": 1,
-            "command": "lexicon.browseLexicon"
+            "command": "lexicon.browseLexicon",
+            "hiddenInterfaceModes": ["simple"]
           },
           {
             "label": "%lexicon_menu_addEntry%",
             "group": "lexicon.editor",
             "order": 2,
-            "command": "lexicon.addEntry"
+            "command": "lexicon.addEntry",
+            "hiddenInterfaceModes": ["simple"]
           },
           {
             "label": "%lexicon_menu_findEntry%",
             "group": "lexicon.editor",
             "order": 3,
-            "command": "lexicon.findEntry"
+            "command": "lexicon.findEntry",
+            "hiddenInterfaceModes": ["simple"]
           },
           {
             "label": "%lexicon_menu_findRelatedEntries%",
             "group": "lexicon.editor",
             "order": 4,
-            "command": "lexicon.findRelatedEntries"
+            "command": "lexicon.findRelatedEntries",
+            "hiddenInterfaceModes": ["simple"]
           }
         ]
       }

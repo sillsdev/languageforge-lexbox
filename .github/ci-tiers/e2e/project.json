@@ -1,0 +1,19 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "tier-e2e",
+  "tags": ["ci-tier"],
+  "_comment": "Escalation: k8s-backed end-to-end tests. Path rule: a direct edit on sync or auth paths (first cut; tune during the shadow phase). (Label: ci:e2e.)",
+  "targets": {
+    "ci-affected": {
+      "executor": "nx:noop",
+      "inputs": [
+        "{workspaceRoot}/backend/FwLite/FwLiteProjectSync/**/*",
+        "{workspaceRoot}/backend/FwLite/LcmCrdt/**/*",
+        "{workspaceRoot}/backend/FwLite/FwLiteShared/Auth/**/*",
+        "{workspaceRoot}/backend/FwLite/FwLiteShared/Sync/**/*",
+        "{workspaceRoot}/frontend/viewer/tests/e2e/**/*",
+        "{workspaceRoot}/.github/actions/setup-k8s/**/*"
+      ]
+    }
+  }
+}

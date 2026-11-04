@@ -4,6 +4,7 @@ import {gt} from 'svelte-i18n-lingui';
 
 export const ALL_AUTHORS = '__all__';
 export const UNKNOWN_AUTHOR_KEY = '__unknown__';
+// Mirrors FieldWorksAuthorName in backend/FwLite/LcmCrdt/Utils/CommitHelpers.cs
 export const FIELDWORKS_AUTHOR_KEY = authorFilterKey({authorName: 'FieldWorks'});
 // Mirrors SystemAuthorId in backend/FwLite/LcmCrdt/Utils/CommitHelpers.cs
 export const SYSTEM_AUTHOR_KEY = '00000000-0000-0000-0000-000000000001';

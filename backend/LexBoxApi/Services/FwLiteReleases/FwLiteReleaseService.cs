@@ -17,10 +17,6 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
 
     public async ValueTask<FwLiteRelease?> GetLatestRelease(FwLiteEdition edition, CancellationToken token = default)
     {
-        if (edition == FwLiteEdition.WindowsAppInstaller)
-        {
-            throw new ArgumentException("WindowsAppInstaller edition is not supported");
-        }
         return await cache.GetOrCreateAsync($"{GithubLatestRelease}|{edition}",
             edition,
             FetchLatestReleaseFromGithub,
@@ -99,51 +95,5 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         activity?.SetStatus(ActivityStatusCode.Error, "No release found");
         activity?.AddTag(FwLiteReleaseVersionTag, null);
         return null;
-    }
-
-    public async ValueTask<string> GenerateAppInstaller(CancellationToken token = default)
-    {
-        var windowsRelease = await GetLatestRelease(FwLiteEdition.Windows, token);
-        if (windowsRelease is null) throw new InvalidOperationException("Windows release not found");
-        var version = ConvertVersionToAppInstallerVersion(windowsRelease.Version);
-        //lang=xml
-        return $"""
-<?xml version="1.0" encoding="utf-8"?>
-<AppInstaller
- Uri="https://lexbox.org/api/fwlite-release/FieldWorksLite.appinstaller"
- Version="{version}"
- xmlns="http://schemas.microsoft.com/appx/appinstaller/2021">
- <MainBundle
-   Name="FwLiteDesktop"
-   Publisher="CN=&quot;Summer Institute of Linguistics, Inc.&quot;, O=&quot;Summer Institute of Linguistics, Inc.&quot;, L=Dallas, S=Texas, C=US"
-   Version="{version}"
-   Uri="{windowsRelease.Url}" />
- <UpdateSettings>
-   <!-- No OnLaunch: Windows never checks on start, so it can't show an update prompt and doesn't
-        race the in-app updater. Updates are applied silently by the background task. That task's
-        interval is nominally 8h, but it's a maintenance task that also carries RunOnlyIfIdle +
-        DisallowStartIfOnBatteries + up to an 8h random delay, so on a laptop that sleeps or runs on
-        battery real checks are far rarer. HoursBetweenUpdateChecks can't tighten this: it's an
-        OnLaunch-only attribute (see the AppInstaller schema), which we deliberately don't use. -->
-   <ForceUpdateFromAnyVersion>false</ForceUpdateFromAnyVersion>
-   <AutomaticBackgroundTask />
- </UpdateSettings>
-</AppInstaller>
-""";
-    }
-
-    //public for testing: this MUST match the bundle's manifest identity
-    //version exactly (CI stamps that from `date +%Y.%-m.%-d` plus a `.1` revision in the MakeAppx /bv
-    //arg), or the App Installer install fails with an identity mismatch.
-    public static string ConvertVersionToAppInstallerVersion(string version)
-    {
-        //version is something like v2025-01-17-a62c709c which should be converted to 2025.1.17.1,
-        //always adding .1 on the end. int.Parse drops leading zeros
-        return FwLiteVersion.StripReleaseTagPrefix(version).Split('-') switch
-        {
-            [var year, var month, var day, ..] =>
-                $"{int.Parse(year.TrimStart('v'))}.{int.Parse(month)}.{int.Parse(day)}.1",
-            _ => throw new ArgumentException($"Invalid version {version}")
-        };
     }
 }

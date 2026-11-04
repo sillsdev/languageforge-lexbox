@@ -1,6 +1,7 @@
 using FluentValidation;
 using MiniLcm.Media;
 using MiniLcm.Tests;
+using MiniLcm.Validators;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
 
@@ -86,6 +87,23 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
     }
 
     [Fact]
+    public async Task CreatePlugin_RejectsTooManyManifestTokens()
+    {
+        await SetCurrentUser(ManagerUserId, UserProjectRole.Manager);
+        var tokens = Enumerable.Range(0, PluginValidator.MaxTokens + 1).Select(i => $"token-{i}").ToArray();
+        var plugin = NewPlugin("My Plugin") with { Permissions = tokens };
+        await Assert.ThrowsAsync<ValidationException>(() => Api.CreatePlugin(plugin));
+    }
+
+    [Fact]
+    public async Task UpdatePlugin_RejectsEmptyName()
+    {
+        var created = await CreatePluginAsManager("My Plugin");
+        await Assert.ThrowsAsync<ValidationException>(() => Api.UpdatePlugin(created with { Name = " " }));
+        (await Api.GetPlugin(created.Id))!.Name.Should().Be("My Plugin");
+    }
+
+    [Fact]
     public async Task CreatePlugin_RejectsMissingFile()
     {
         await SetCurrentUser(ManagerUserId, UserProjectRole.Manager);
@@ -141,6 +159,7 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
         await SetCurrentUser(EditorUserId, UserProjectRole.Editor);
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
             Api.UpdatePlugin(created with { Name = "Should Fail" }));
+        (await Api.GetPlugin(created.Id))!.Name.Should().Be(created.Name);
     }
 
     [Fact]

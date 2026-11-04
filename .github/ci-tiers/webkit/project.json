@@ -1,0 +1,7 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "tier-webkit",
+  "tags": ["ci-tier"],
+  "_comment": "Escalation: viewer Playwright tests on WebKit. Label-only (ci:webkit) by default; add implicitDependencies here to give it a path rule.",
+  "implicitDependencies": []
+}

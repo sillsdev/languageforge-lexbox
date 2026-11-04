@@ -1,6 +1,7 @@
 using SIL.Harmony.Config;
 using System.Collections.Concurrent;
 using System.Net;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 using Microsoft.Extensions.Options;
 using MiniLcm.Project;
@@ -25,6 +26,12 @@ public class LcmMediaService(
 {
     private static readonly System.Buffers.SearchValues<char> ValidSubfolderChars =
         System.Buffers.SearchValues.Create("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_");
+
+    /// <summary>A LinkedFiles subfolder is one plain path segment ("Plugins"): it ends up in server file paths.</summary>
+    public static bool IsValidLinkedFilesSubfolder([NotNullWhen(true)] string? subfolder)
+    {
+        return !string.IsNullOrEmpty(subfolder) && !subfolder.AsSpan().ContainsAnyExcept(ValidSubfolderChars);
+    }
 
     public async Task<HarmonyResource<LcmFileMetadata>[]> AllResources()
     {
@@ -207,7 +214,7 @@ public class LcmMediaService(
             projectId: currentProjectService.ProjectData.Id,
             fileId: resourceId.ToString("D"),
             filename: fileName,
-            linkedFilesSubfolderOverride: LinkedFilesSubfolder(localPath));
+            linkedFilesSubfolderOverride: LinkedFilesSubfolder(ProjectResourceCachePath, localPath));
         var uploadedMetadata = new LcmFileMetadata(fileName,
             response.Metadata?.MimeType ?? metadata?.MimeType ?? MediaTypeNames.Application.Octet,
             response.Metadata?.Author ?? metadata?.Author,
@@ -222,11 +229,11 @@ public class LcmMediaService(
     /// local cache (SaveFile puts it there). Uploads can run long after SaveFile — e.g. pending
     /// resources flushed when back online — so the path is the only place it can live.
     /// </summary>
-    private string? LinkedFilesSubfolder(string localPath)
+    internal static string? LinkedFilesSubfolder(string cacheRoot, string localPath)
     {
-        var relativeDir = Path.GetDirectoryName(Path.GetRelativePath(ProjectResourceCachePath, localPath));
-        if (string.IsNullOrEmpty(relativeDir) || relativeDir == "." || relativeDir.StartsWith("..")) return null;
-        return relativeDir.Replace('\\', '/');
+        var relativeDir = Path.GetDirectoryName(Path.GetRelativePath(cacheRoot, localPath));
+        // Anything else (nested, "..", or a rooted path when the cache moved to another drive) uploads to the default location.
+        return IsValidLinkedFilesSubfolder(relativeDir) ? relativeDir : null;
     }
 
     public async Task<(HarmonyResource<LcmFileMetadata> resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
@@ -234,8 +241,7 @@ public class LcmMediaService(
         var projectResourceCachePath = ProjectResourceCachePath;
         if (metadata.LinkedFilesSubfolder is not null)
         {
-            // Single trusted path segment only ("Plugins") — this ends up in server file paths.
-            if (metadata.LinkedFilesSubfolder.AsSpan().ContainsAnyExcept(ValidSubfolderChars))
+            if (!IsValidLinkedFilesSubfolder(metadata.LinkedFilesSubfolder))
                 throw new ArgumentException($"Invalid LinkedFiles subfolder: {metadata.LinkedFilesSubfolder}", nameof(metadata));
             projectResourceCachePath = Path.Combine(projectResourceCachePath, metadata.LinkedFilesSubfolder);
         }

@@ -151,14 +151,19 @@ public static class SendReceiveHelpers
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
         activity?.SetTag("app.file_path", filePath);
         progress ??= new NullProgress();
-        if (!File.Exists(filePath)) throw new FileNotFoundException($"File not found: {filePath}");
         var fileDir = Path.GetDirectoryName(filePath);
         ArgumentNullException.ThrowIfNull(fileDir);
 
-        //we need to track the file, otherwise hg will not commit it
-        await ExecuteHgSuccess($"hg add --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
+        //nothing to commit if the parent revision doesn't have the file: hg never tracked it, or its removal is already committed
+        if (!File.Exists(filePath) &&
+            (await Task.Run(() => HgRunner.Run($"hg files -r . {EscapeShellArg(filePath)}", fileDir, 5, progress))).ExitCode == 1)
+            return;
+
+        //records the file as added if it exists, or as removed if it was deleted; hg won't commit an untracked file or a deletion it hasn't recorded
+        await ExecuteHgSuccess($"hg addremove --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
+        //only commit this file, other pending changes in the working copy (e.g. from a Send/Receive in progress) must not be swept into it
         //hg commit exits with 1 when nothing changed, e.g. the same content was uploaded again
-        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", fileDir, progress, allowedExitCodes: [0, 1]);
+        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)} {EscapeShellArg(filePath)}", fileDir, progress, allowedExitCodes: [0, 1]);
     }
 
     private static string EscapeShellArg(string arg)

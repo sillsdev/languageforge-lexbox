@@ -1897,6 +1897,7 @@ public class FwDataMiniLcmApi(
         if (lcmPicture.Owner is ILexSense sense)
         {
             if (sense.Guid != senseId) throw ParentMismatchException.ForType<Picture>(lcmPicture.Guid, senseId, sense.Guid);
+            if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
         }
         else
         {
@@ -1961,6 +1962,7 @@ public class FwDataMiniLcmApi(
         if (picture.Id == default) picture.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create picture",
             "Remove picture",
             Cache.ServiceLocator.ActionHandler,

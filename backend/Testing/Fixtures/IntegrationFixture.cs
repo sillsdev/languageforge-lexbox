@@ -86,8 +86,10 @@ public class IntegrationFixture : IAsyncLifetime
     public async Task FinishLexboxProjectResetWithRepo(string projectCode, FileInfo repo)
     {
         Exception? failureException = null;
+        // UploadFile.FromFile opens a FileStream nobody disposes; Windows then refuses to delete the zip.
+        await using var stream = repo.OpenRead();
         await AdminApiTester.HttpClient.UploadWithProgressAsync(new Uri($"{AdminApiTester.BaseUrl}/api/project/upload-zip/{projectCode}"),
-            UploadFile.FromFile(repo, "application/zip"), new UploadOptions
+            new UploadFile(stream, repo.Name, "application/zip", repo.Length), new UploadOptions
             {
                 Metadata = new Dictionary<string, string> { ["filetype"] = "application/zip" },
                 ProgressHandler = new DelegatingProgressHandler

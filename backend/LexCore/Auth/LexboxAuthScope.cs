@@ -13,4 +13,6 @@ public enum LexboxAuthScope
     ForgotPassword,
     SendAndReceive,
     SendAndReceiveRefresh,
+    LexiconRead,
+    LexiconWrite,
 }

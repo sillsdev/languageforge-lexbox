@@ -324,6 +324,19 @@ public class LexAuthUserTests
         newUser.Should().BeEquivalentTo(_user with { Audience = LexboxAudience.ForgotPassword });
     }
 
+    [Theory]
+    [InlineData("lexiconwrite", LexboxAuthScope.LexiconWrite, true)]
+    [InlineData("openid lexiconread profile", LexboxAuthScope.LexiconRead, true)]
+    [InlineData("LexboxApi", LexboxAuthScope.LexboxApi, true)]
+    [InlineData("sendandreceiverefresh", LexboxAuthScope.SendAndReceive, false)]
+    [InlineData("notlexiconwrite", LexboxAuthScope.LexiconWrite, false)]
+    [InlineData("lexiconwrite-extra", LexboxAuthScope.LexiconWrite, false)]
+    [InlineData("", LexboxAuthScope.LexiconRead, false)]
+    public void HasScopeMatchesWholeScopeTokensOnly(string scopeString, LexboxAuthScope scope, bool expected)
+    {
+        LexAuthUser.HasScope(scopeString, scope).Should().Be(expected);
+    }
+
     [Fact]
     public void HasScopeShouldOnlyFallbackToAudienceIfThereIsNoScope()
     {

@@ -10,11 +10,12 @@ const serverPort = process.env.SERVER_PORT ?? (autoStartServer ? vitePort : dotn
 const sharedReporters: ReporterDescription[] = [['list']];
 const localReporters: ReporterDescription[] = [['html', { outputFolder: 'html-test-results', open: 'never' }]];
 const ciReporters: ReporterDescription[] = [['github'], ['junit', {outputFile: 'test-results/results.xml'}], [
-  '@argos-ci/playwright/reporter',
+  // Wraps the Argos reporter: a rejected upload (e.g. screenshot quota exhausted) becomes a warning annotation, not a CI failure.
+  '../argos-reporter.ts',
   {
     //by only using the argos reporter in CI, screenshots will be placed in the screenshots folder when run locally
     // Upload to Argos on CI only.
-    uploadToArgos: !!process.env.CI
+    uploadToArgos: !!process.env.CI,
     // Argos token not required when using GitHub Actions.
   }
 ]];

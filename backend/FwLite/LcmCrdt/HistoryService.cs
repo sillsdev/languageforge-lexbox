@@ -310,6 +310,11 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException($"Change {changeIndex} not found in commit {commitId}");
 
+        // Opaque create: no snapshot, the entity was never materialized here. Opaque edit: the snapshot
+        // predates the change being viewed, so it would mislead. Show nothing for both.
+        if (change.Change is OpaqueChange)
+            return new ChangeContext(change, null, null, []);
+
         // These branches are independent read-only lookups that each open their own
         // DbContext (via the repository factories), so run them concurrently.
         //todo needs optimizing: when a sync pruned this change's snapshot, this replays every commit since the entity's last one (median 22k on a 100k-commit project)
@@ -361,31 +366,50 @@ public class HistoryService(DataModel dataModel, Microsoft.EntityFrameworkCore.I
 
     private async IAsyncEnumerable<Guid> GetAffectedEntryIds(ChangeEntity<IChange> changeEntity)
     {
-        if (changeEntity.Change.EntityType == typeof(Entry))
-        {
-            yield return changeEntity.EntityId;
-        }
-        else if (changeEntity.Change.EntityType == typeof(Sense))
-        {
-            var sense = await dataModel.GetLatest<Sense>(changeEntity.EntityId)
-                ?? throw NotFoundException.ForType<Sense>(changeEntity.EntityId);
-            yield return sense.EntryId;
-        }
-        else if (changeEntity.Change.EntityType == typeof(ExampleSentence))
-        {
-            var example = await dataModel.GetLatest<ExampleSentence>(changeEntity.EntityId)
-                ?? throw NotFoundException.ForType<ExampleSentence>(changeEntity.EntityId);
-            var sense = await dataModel.GetLatest<Sense>(example.SenseId)
-                ?? throw NotFoundException.ForType<Sense>(example.SenseId);
-            yield return sense.EntryId;
-        }
-        else if (changeEntity.Change.EntityType == typeof(ComplexFormComponent))
+        if (changeEntity.Change.EntityType == typeof(ComplexFormComponent))
         {
             var cfc = await dataModel.GetLatest<ComplexFormComponent>(changeEntity.EntityId)
                 ?? throw NotFoundException.ForType<ComplexFormComponent>(changeEntity.EntityId);
             yield return cfc.ComplexFormEntryId;
             yield return cfc.ComponentEntryId;
         }
+        else if (await OwningEntryId(changeEntity.Change.EntityType, changeEntity.EntityId) is { } entryId)
+        {
+            yield return entryId;
+        }
+    }
+
+    // Must agree with ActivityChangeInfoResolver's OwningEntryId, which the activity list shows for the same change.
+    private async Task<Guid?> OwningEntryId(Type? entityType, Guid entityId)
+    {
+        if (entityType == typeof(Entry)) return entityId;
+        if (entityType == typeof(Sense))
+        {
+            var sense = await dataModel.GetLatest<Sense>(entityId) ?? throw NotFoundException.ForType<Sense>(entityId);
+            return sense.EntryId;
+        }
+        if (entityType == typeof(ExampleSentence))
+        {
+            var example = await dataModel.GetLatest<ExampleSentence>(entityId) ?? throw NotFoundException.ForType<ExampleSentence>(entityId);
+            return await OwningEntryId(typeof(Sense), example.SenseId);
+        }
+        if (entityType == typeof(CommentThread))
+        {
+            var thread = await dataModel.GetLatest<CommentThread>(entityId) ?? throw NotFoundException.ForType<CommentThread>(entityId);
+            return thread.SubjectType switch
+            {
+                SubjectType.Entry => await OwningEntryId(typeof(Entry), thread.SubjectId),
+                SubjectType.Sense => await OwningEntryId(typeof(Sense), thread.SubjectId),
+                SubjectType.ExampleSentence => await OwningEntryId(typeof(ExampleSentence), thread.SubjectId),
+                _ => null,
+            };
+        }
+        if (entityType == typeof(UserComment))
+        {
+            var comment = await dataModel.GetLatest<UserComment>(entityId) ?? throw NotFoundException.ForType<UserComment>(entityId);
+            return await OwningEntryId(typeof(CommentThread), comment.CommentThreadId);
+        }
+        return null;
     }
 
     public static string ChangesNameHelper(IReadOnlyList<ActivityChange> changes)

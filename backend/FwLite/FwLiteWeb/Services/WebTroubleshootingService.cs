@@ -56,7 +56,9 @@ public class WebTroubleshootingService(
 
     //web is configured through appsettings.json, there is no user-facing settings file to toggle
     [JSInvokable]
-    public Task<bool?> GetVerboseLogging() => Task.FromResult<bool?>(null);
+    public Task<bool> GetCanManageSettingsFile() => Task.FromResult(false);
+
+    public Task<bool> GetVerboseLogging() => throw new NotSupportedException();
     public Task SetVerboseLogging(bool enabled) => throw new NotSupportedException();
     public Task<string> GetSettingsFile() => throw new NotSupportedException();
     public Task SetSettingsFile(string contents) => throw new NotSupportedException();

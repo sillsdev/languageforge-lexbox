@@ -13,6 +13,9 @@ using MiniLcm.Models;
 namespace FwLiteProjectSync.Tests;
 
 [Trait("Category", "Integration")]
+// Slow: every test here syncs the sample project (65-123 s each); the PR tier skips Category=Slow
+// and the slow-tests job or develop runs them.
+[Trait("Category", "Slow")]
 [Collection(Sena3Collection.Name)]
 public class Sena3SyncTests : IAsyncLifetime
 {
@@ -136,7 +139,6 @@ public class Sena3SyncTests : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
     [Trait("Category", "Integration")]
     public async Task DryRunSync_MakesTheSameChangesAsSync()
     {
@@ -173,7 +175,6 @@ public class Sena3SyncTests : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Slow")]
     [Trait("Category", "Integration")]
     public async Task SyncWithoutImport_CrdtShouldMatchFwdata()
     {

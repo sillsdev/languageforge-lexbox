@@ -21,10 +21,13 @@ public class HarmonyChangeWriter(
         {
             ClientVersion = AppVersion.Version,
             //todo, if a user logs out and in with another account, this will be out of date until the next sync
-            AuthorName = ProjectData.LastUserName ?? config.Value.DefaultAuthorForCommits,
+            AuthorName = ProjectData.LastUserName,
             AuthorId = ProjectData.LastUserId
         };
         commitMetadataInterceptor.Apply(metadata);
+        if (config.Value.RequireCommitAuthor && string.IsNullOrEmpty(metadata.AuthorName) && string.IsNullOrEmpty(metadata.AuthorId))
+            throw new InvalidOperationException(
+                $"Refusing to write a commit with no author, wrap the write in {nameof(CommitMetadataInterceptor)}.{nameof(CommitMetadataInterceptor.Intercept)} to name one");
         return metadata;
     }
 

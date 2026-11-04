@@ -7,8 +7,9 @@ public interface ITroubleshootingService
     Task<string> GetDataDirectory();
     Task OpenLogFile();
     Task ShareLogFile();
-    /// <summary>null when the host has no user-editable settings file (web)</summary>
-    Task<bool?> GetVerboseLogging();
+    /// <summary>false when the host has no user-editable settings file (web), which also rules out the verbose logging toggle</summary>
+    Task<bool> GetCanManageSettingsFile();
+    Task<bool> GetVerboseLogging();
     Task SetVerboseLogging(bool enabled);
     /// <summary>raw contents of the settings file, empty when it doesn't exist</summary>
     Task<string> GetSettingsFile();

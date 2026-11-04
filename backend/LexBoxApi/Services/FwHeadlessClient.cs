@@ -32,6 +32,16 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         return (response.IsSuccessStatusCode, response.StatusCode, error);
     }
 
+    /// <summary>
+    /// Which of the projects have a headless harmony project, so the lexicon API can serve them.
+    /// </summary>
+    public async Task<Guid[]> ReadyLexiconProjects(Guid[] projectIds)
+    {
+        var response = await httpClient.PostAsJsonAsync("/api/lexicon/projects/ready", projectIds);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<Guid[]>() ?? [];
+    }
+
     public async Task<SyncJobResult> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)
     {
         var response = await httpClient.GetAsync($"/api/merge/await-finished?projectId={projectId}", cancellationToken);

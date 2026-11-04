@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SIL.Harmony;
 
 namespace LcmCrdt;
@@ -105,8 +106,7 @@ public class CurrentProjectService(
             {
                 await using var dbContext = await DbContextFactory.CreateDbContextAsync();
                 await dbContext.Database.MigrateAsync();
-                //replays changes authored under model versions this db hasn't applied yet, must run before the db is used
-                await services.GetRequiredService<DataModel>().ReconcileModelVersions();
+                await ReconcileModelVersions();
 
                 if (EntrySearchServiceFactory is not null)
                 {
@@ -121,6 +121,20 @@ public class CurrentProjectService(
             }
         }
 
+    }
+
+    private async Task ReconcileModelVersions()
+    {
+        try
+        {
+            //replays changes authored under model versions this db hasn't applied yet, must run before the db is used
+            await services.GetRequiredService<DataModel>().ReconcileModelVersions();
+        }
+        catch (Exception e) when (!services.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ThrowOnModelVersionReconcileFailure)
+        {
+            //rolled back, so the snapshots are the ones the previous app version wrote; retried on the next app start
+            logger.LogError(e, "Failed to reconcile model versions for project {Project}", Project.Name);
+        }
     }
 
     public async Task SetProjectSyncOrigin(Uri? domain, Guid? id)

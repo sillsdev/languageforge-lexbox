@@ -99,7 +99,8 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
-          - ubuntu-latest
+          # Not ubuntu-latest: the bundled Mercurial (SIL.Chorus.Mercurial 6.5) fails to start on 26.04's Python 3.14.
+          - ubuntu-24.04
           - windows-latest
         hg-version:
           - '3'

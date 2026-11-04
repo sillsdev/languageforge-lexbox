@@ -9,4 +9,7 @@ internal static class DiagnosticIds
 {
     /// <summary>CRDT change types must declare a <c>Guid entityId</c> constructor.</summary>
     public const string ChangeMustHaveEntityIdConstructor = "LX0001";
+
+    /// <summary>CRDT change types must not call non-deterministic APIs outside their constructors.</summary>
+    public const string ChangeMustBeDeterministic = "LX0002";
 }

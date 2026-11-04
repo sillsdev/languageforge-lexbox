@@ -7,6 +7,7 @@ using LcmCrdt;
 using LexCore.Exceptions;
 using LexData;
 using Scalar.AspNetCore;
+using SIL.Harmony.Core;
 using Npgsql;
 using OpenTelemetry.Trace;
 using WebServiceDefaults;
@@ -27,6 +28,11 @@ builder.Services.AddExceptionHandler(options =>
     {
         if (exception is ProjectSyncInProgressException)
             return StatusCodes.Status409Conflict;
+        // the lexicon API's MiniLcm routes
+        if (exception is FluentValidation.ValidationException)
+            return StatusCodes.Status400BadRequest;
+        if (exception is MiniLcm.Exceptions.NotFoundException)
+            return StatusCodes.Status404NotFound;
         return StatusCodes.Status500InternalServerError;
     };
 });
@@ -49,7 +55,8 @@ builder.AddServiceDefaults(AppVersion.Get(typeof(Program))).ConfigureAdditionalO
         .AddSource(FwHeadlessActivitySource.ActivitySourceName,
             FwLiteProjectSyncActivitySource.ActivitySourceName,
             FwDataMiniLcmBridgeActivitySource.ActivitySourceName,
-            LcmCrdtActivitySource.ActivitySourceName));
+            LcmCrdtActivitySource.ActivitySourceName,
+            HarmonyActivitySource.ActivitySourceName));
 });
 
 var app = builder.Build();
@@ -65,6 +72,8 @@ app.Use(async (context, next) =>
 // Load project ID from request
 app.Use((context, next) =>
 {
+    // the lexicon routes open their project from the route instead
+    if (context.Request.Path.StartsWithSegments("/api/lexicon")) return next();
     var renameThisService = context.RequestServices.GetRequiredService<ProjectContextFromIdService>();
     return renameThisService.PopulateProjectContext(context, next);
 });
@@ -83,6 +92,7 @@ app.UseHttpsRedirection();
 app.MapDefaultEndpoints();
 app.MapMediaFileRoutes();
 app.MapMergeRoutes();
+app.MapLexiconRoutes();
 
 // DELETE endpoint to delete the FieldWorks repo/project (and nothing else)
 app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId, ProjectDeletionService deletionService) =>

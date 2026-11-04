@@ -1670,7 +1670,6 @@
         }
       }
     ],
-    "Translation": null,
     "Reference": {
       "Spans": [
         {

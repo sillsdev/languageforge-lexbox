@@ -206,8 +206,9 @@ tasks:
     cmd: dotnet test ../../FwLiteOnly.slnf
   test-verified:
     desc: Run only tests that generate verified snapshot files
-    # always produces exit status 1, because the framework isn't valid for all test projects
-    cmd: dotnet test ../../FwLiteOnly.slnf --filter "Category=Verified" --framework net10.0 --logger "console;verbosity=minimal"
+    # FwLiteCore.slnf, not FwLiteOnly.slnf: the MAUI test project has no net10.0 target and no Verified
+    # tests, and `--framework net10.0` made the whole run exit 1 for it.
+    cmd: dotnet test ../../FwLiteCore.slnf --filter "Category=Verified" --logger "console;verbosity=minimal"
   reset-verified:
     desc: Reset all verified snapshot files to their state on origin/develop
     cmds:

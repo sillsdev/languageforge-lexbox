@@ -97,6 +97,7 @@ public static class LexBoxKernel
             ;
         services.AddSyncProxy();
         services.AddFileUploadProxy();
+        services.AddLexiconProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
     }

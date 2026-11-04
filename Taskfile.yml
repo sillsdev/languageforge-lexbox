@@ -114,6 +114,12 @@ tasks:
     internal: true
     deps: [ ui:verify, fw-ui:verify ]
 
+  ci:affected:
+    desc: 'Print one JSON object of what this branch affects vs origin/develop (nx graph + shared-file globs); AFFECTED_BASE=<ref> overrides the base. Same script as the PR workflow.'
+    silent: true
+    cmds:
+      - bash .github/scripts/affected.sh
+
   check-generated:
     desc: 'Runs every committed-artifact drift check CI runs (EF model x2, gql schema, OpenAPI, FwLite TS types); reports all, fails if any fail.'
     silent: true

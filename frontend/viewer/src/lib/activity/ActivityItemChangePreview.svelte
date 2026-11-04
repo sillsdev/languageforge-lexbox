@@ -30,6 +30,8 @@
   const viewService = useViewService();
 
   const affectedEntry = $derived(context.affectedEntries.length === 1 ? context.affectedEntries[0] : undefined);
+  // Only these snapshot types can be found again inside the affected entry, so only they get the current-version toggle
+  const hasCurrentVersion = $derived(['Entry', 'Sense', 'ExampleSentence'].includes(context.entityType));
 
   let currentEntity = $derived.by(() => {
     if (!affectedEntry || !context.snapshot) return undefined;
@@ -102,19 +104,21 @@
       {@render entryButton(entry)}
     {/if}
 
-    <label class={cn(
-      'w-fit flex items-center gap-2 border rounded p-2 px-4 bg-secondary/25',
-      currentEntity && 'cursor-pointer')}>
-      <FormatRelativeDate date={activity.timestamp}
-                          live
-                          actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
-      <Switch disabled={!currentEntity} bind:checked={selectedShowCurrent} class="text-destructive" />
-      {#if currentEntity}
-        <span>{$t`Current version`}</span>
-      {:else}
-        <span class="text-destructive">{$t`Deleted`}</span>
-      {/if}
-    </label>
+    {#if hasCurrentVersion}
+      <label class={cn(
+        'w-fit flex items-center gap-2 border rounded p-2 px-4 bg-secondary/25',
+        currentEntity && 'cursor-pointer')}>
+        <FormatRelativeDate date={activity.timestamp}
+                            live
+                            actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
+        <Switch disabled={!currentEntity} bind:checked={selectedShowCurrent} class="text-destructive" />
+        {#if currentEntity}
+          <span>{$t`Current version`}</span>
+        {:else}
+          <span class="text-destructive">{$t`Deleted`}</span>
+        {/if}
+      </label>
+    {/if}
   </div>
 {/if}
 

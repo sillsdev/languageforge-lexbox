@@ -19,7 +19,7 @@
           ]
         }
       },
-      "MorphType": "Unknown",
+      "MorphType": "Stem",
       "HomographNumber": 0,
       "Senses": [
         {

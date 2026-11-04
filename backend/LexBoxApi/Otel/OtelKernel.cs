@@ -7,6 +7,7 @@ using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Quartz;
+using SIL.Harmony.Core;
 
 namespace LexBoxApi.Otel;
 
@@ -27,7 +28,7 @@ public static class OtelKernel
                 {
                     configuration.Bind("Otel", options);
                 })
-                .AddSource(ServiceName, MailKit.Telemetry.SmtpClient.ActivitySourceName)
+                .AddSource(ServiceName, MailKit.Telemetry.SmtpClient.ActivitySourceName, HarmonyActivitySource.ActivitySourceName)
                 .AddProcessor<UserEnricher>()
                 .SetResourceBuilder(appResourceBuilder)
                 // could potentially add baggage to the trace as done in

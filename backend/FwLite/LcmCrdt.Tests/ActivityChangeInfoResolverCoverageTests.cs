@@ -55,6 +55,28 @@ public class ActivityChangeInfoResolverCoverageTests : HistoryServiceActivityTes
         }
     }
 
+    [Fact]
+    public async Task EveryChange_OpensADetailContext_LinkedToTheListRowsOwningEntry()
+    {
+        await DataModel.AddChanges(ClientId, UseChangesTests.AllChangesInDependencyOrder());
+        var activities = await Service.ProjectActivity(0, take: 1000, new ActivityQuery());
+
+        using var _ = new AssertionScope();
+        foreach (var activity in activities)
+        {
+            foreach (var change in activity.Changes)
+            {
+                var changeName = change.Entity.Change.GetType().Name;
+                var context = (await Service.Awaiting(s => s.LoadChangeContext(activity.CommitId, change.Entity.Index))
+                    .Should().NotThrowAsync($"the detail view must open for {changeName}")).Which;
+                if (context is null || change.Info.OwningEntryId is not { } owningEntryId) continue;
+
+                context.AffectedEntries.Select(e => e.Id).Should().Contain(owningEntryId,
+                    $"the list row for {changeName} names an owning entry, so the detail view should link to it (HistoryService.OwningEntryId)");
+            }
+        }
+    }
+
     // Entity type name without the CLR generic-arity suffix, so a generic entity (RemoteResource<TMetadata>)
     // reads as "RemoteResource". The resolved entity types are all non-generic, so stripping is harmless there.
     // EntityType is null for opaque/unknown changes; none are expected in these fixtures, so bucket them

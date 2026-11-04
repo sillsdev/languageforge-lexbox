@@ -47,7 +47,7 @@ jobs:
         run: |
           pnpm run test:unit --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+        uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
         if: always()
         with:
           check_name: UI unit Tests
@@ -68,7 +68,7 @@ jobs:
             type=raw,value=${{ inputs.version }}
 
       # Fork PR tokens cannot write org packages on ghcr.io
-      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         if: ${{ !env.ACT && github.repository == 'sillsdev/languageforge-lexbox' && github.event.pull_request.head.repo.fork != true }}
         with:
           registry: ghcr.io

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using Xunit.Abstractions;
 
 namespace MiniLcm.Tests;
@@ -101,5 +102,20 @@ public class SerializationTests(ITestOutputHelper output)
             ]
         };
         entry.Should().BeEquivalentTo(entryCopy);
+    }
+
+    [Fact]
+    public void ApiModifiersIgnoreInternalPropertiesInRequestBodies()
+    {
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        {
+            TypeInfoResolver = new DefaultJsonTypeInfoResolver().AddMiniLcmApiModifiers()
+        };
+
+        var sense = JsonSerializer.Deserialize<Sense>("""{"id":"5b4e3c2a-1d0f-4e9a-8b7c-6d5e4f3a2b1c","order":5}""", options);
+        sense!.Order.Should().Be(0);
+        // WritingSystem.Id is required, but an API caller can't send it
+        var writingSystem = JsonSerializer.Deserialize<WritingSystem>("""{"wsId":"en","name":"English","abbreviation":"en","font":"Arial","type":0}""", options);
+        writingSystem!.WsId.Should().Be(new WritingSystemId("en"));
     }
 }

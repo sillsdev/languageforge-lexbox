@@ -20,6 +20,7 @@ COPY FwLite/MiniLcm/MiniLcm.csproj FwLite/MiniLcm/
 COPY FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj FwLite/FwDataMiniLcmBridge/
 COPY FwLite/LcmCrdt/LcmCrdt.csproj FwLite/LcmCrdt/
 COPY FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj FwLite/FwLiteProjectSync/
+COPY FwLite/MiniLcmWeb/MiniLcmWeb.csproj FwLite/MiniLcmWeb/
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet restore "FwHeadless/FwHeadless.csproj"
 
 COPY . .

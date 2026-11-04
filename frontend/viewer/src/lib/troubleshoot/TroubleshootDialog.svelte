@@ -37,8 +37,10 @@
   let regenerateConfirmOpen = $state(false);
   let regenerateSearchConfirmOpen = $state(false);
   let canShare = resource(() => service, async (s) => await s?.getCanShare());
-  // null means the host has no settings file to toggle (web)
-  let verboseLogging = resource(() => service, async (s) => await s?.getVerboseLogging());
+  // web is configured through appsettings.json, only MAUI has a settings file to toggle or edit
+  let canManageSettingsFile = resource(() => service, async (s) => await s?.getCanManageSettingsFile());
+  const settingsService = $derived(canManageSettingsFile.current ? service : undefined);
+  let verboseLogging = resource(() => settingsService, async (s) => await s?.getVerboseLogging());
   const regenerating = $derived(regeneratingOperation !== null);
   // Mobile platforms keep app data in private storage that no file manager can open.
   const canOpenDataDirectory = $derived(config.os !== FwLitePlatform.Android && config.os !== FwLitePlatform.iOS);
@@ -64,7 +66,7 @@
 
   // Advanced: support can paste a config fix straight into the settings file
   let advancedOpen = $state(false);
-  let settingsFile = resource(() => service, async (s) => await s?.getSettingsFile());
+  let settingsFile = resource(() => settingsService, async (s) => await s?.getSettingsFile());
   let settingsDraft = $state('');
   $effect(() => {
     if (settingsFile.current !== undefined) settingsDraft = settingsFile.current;
@@ -201,7 +203,7 @@
           </Button>
         </div>
       {/if}
-      {#if service && verboseLogging.current != null}
+      {#if settingsService && verboseLogging.current !== undefined}
         <div class="w-full flex flex-col gap-1.5">
           <Switch label={$t`Verbose logging`}
                   checked={verboseLogging.current}
@@ -211,7 +213,7 @@
           </p>
         </div>
       {/if}
-      {#if service && verboseLogging.current != null}
+      {#if settingsService}
         <Collapsible.Root bind:open={advancedOpen} class="w-full">
           <Collapsible.Trigger
             class="flex cursor-pointer items-center gap-1 text-sm text-muted-foreground [&[data-state=open]>.i-mdi-chevron-down]:rotate-180">

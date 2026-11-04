@@ -19,6 +19,20 @@ public class HistoryServiceActivityTests : HistoryServiceActivityTestsBase
     }
 
     [Fact]
+    public async Task LoadChangeContext_LinksACommentOnASenseToItsEntry()
+    {
+        var entryId = await CreateEntry("apple");
+        var senseId = await CreateSense(entryId, "fruit", 1);
+        var threadId = await AddCommentThread(senseId, SubjectType.Sense);
+        await AddComment(threadId, "looks wrong");
+        var commit = (await Service.ProjectActivity()).Single(a => a.ChangeName == "Create user comment").CommitId;
+
+        var context = await Service.LoadChangeContext(commit, 0);
+
+        context.AffectedEntries.Should().ContainSingle().Which.Id.Should().Be(entryId);
+    }
+
+    [Fact]
     public async Task ListActivityChangeTypes_IncludesCreateEntry()
     {
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });

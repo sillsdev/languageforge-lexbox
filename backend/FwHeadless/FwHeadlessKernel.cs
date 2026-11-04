@@ -7,6 +7,7 @@ using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using MiniLcm.Project;
+using MiniLcmWeb;
 
 namespace FwHeadless;
 
@@ -39,6 +40,9 @@ public static class FwHeadlessKernel
 
         services.AddSingleton<SyncHostedService>();
         services.AddHostedService(s => s.GetRequiredService<SyncHostedService>());
+        services.AddSingleton<HarmonySyncScheduler>();
+        services.AddHostedService(s => s.GetRequiredService<HarmonySyncScheduler>());
+        services.AddMiniLcmRouteServices();
 
         services.AddScoped<CrdtSyncService>();
         services.AddScoped<ProjectContextFromIdService>();

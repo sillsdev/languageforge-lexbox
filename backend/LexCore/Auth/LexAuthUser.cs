@@ -343,9 +343,19 @@ public record LexAuthUser
         return HasScope(ScopeString, scope);
     }
 
+    /// <summary>
+    /// Whether the space-delimited <paramref name="scopeString"/> holds <paramref name="scope"/> as a whole token,
+    /// so e.g. sendandreceiverefresh doesn't grant sendandreceive.
+    /// </summary>
     public static bool HasScope(string scopeString, LexboxAuthScope scope)
     {
-        return scopeString.Contains(scope.ToString(), StringComparison.InvariantCultureIgnoreCase);
+        var scopeName = scope.ToString();
+        var scopes = scopeString.AsSpan();
+        foreach (var range in scopes.Split(' '))
+        {
+            if (scopes[range].Equals(scopeName, StringComparison.OrdinalIgnoreCase)) return true;
+        }
+        return false;
     }
 
     private LexboxAuthScope? ToScope(LexboxAudience audience)
