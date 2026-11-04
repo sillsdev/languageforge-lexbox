@@ -3,7 +3,7 @@
   import {Icon} from '$lib/components/ui/icon';
   import {cn} from '$lib/utils';
   import flexLogo from '$lib/assets/flex-logo.png';
-  import {FIELDWORKS_AUTHOR_KEY, SYSTEM_AUTHOR_KEY, authorDisplayName, authorFilterKey} from './utils';
+  import {FIELDWORKS_AUTHOR_KEY, SYSTEM_AUTHOR_KEY, UNKNOWN_AUTHOR_KEY, authorFilterKey, wellKnownAuthorKeyToLabel} from './utils';
 
   let {authorId, authorName, class: className}: {
     authorId?: string;
@@ -12,14 +12,13 @@
   } = $props();
 
   const key = $derived(authorFilterKey({authorId, authorName}));
-  const label = $derived(authorDisplayName({authorId, authorName}));
-  // Nobody chose these labels (no name was stored), so they read as placeholders
-  const placeholder = $derived(!authorName && key !== SYSTEM_AUTHOR_KEY);
+  // Well-known authors (System) get a translated label; FieldWorks and people fall back to their stored name.
+  const label = $derived(wellKnownAuthorKeyToLabel(key) ?? authorName);
 </script>
 
 <span class={cn('inline-flex items-center gap-1', className)}>
-  {#if placeholder}
-    <span class="italic opacity-75">{label}</span>
+  {#if key === UNKNOWN_AUTHOR_KEY}
+    <span class="italic opacity-75">{$t`Unknown`}</span>
   {:else}
     {label}
   {/if}

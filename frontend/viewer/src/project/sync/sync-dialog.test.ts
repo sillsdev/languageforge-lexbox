@@ -5,10 +5,6 @@ import {DotnetService, SyncJobStatusEnum} from '$lib/dotnet-types';
 import type {IProjectSyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
 import {ProjectSyncStatusEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusEnum';
 import {FolderSyncStatus} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/FolderSyncStatus';
-import {PreferenceKey} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/PreferenceKey';
-
-const drive = 'E:\\';
-const projectFolder = String.raw`E:\FieldWorks Lite\test-project`;
 
 vi.stubGlobal('matchMedia', (query: string) => ({
   matches: false, media: query, onchange: null,
@@ -26,7 +22,7 @@ function fakeSyncService() {
     getLatestSyncedCommitDate: vi.fn(() => Promise.resolve(undefined)),
     executeSync: vi.fn(() => Promise.resolve({isSynced: true, missingFromLocal: [], missingFromRemote: []})),
     getCurrentServer: vi.fn(() => Promise.resolve({id: 'test-server', displayName: 'Lexbox', authority: 'https://test-server.com'})),
-    syncWithFolder: vi.fn(() => Promise.resolve({status: FolderSyncStatus.Synced, folderPath: projectFolder, mediaSent: 0, mediaReceived: 0, mediaFailed: 0})),
+    syncWithFolder: vi.fn(() => Promise.resolve({status: FolderSyncStatus.Synced, mediaSent: 0, mediaReceived: 0, mediaFailed: 0})),
     getRememberedSyncFolder: vi.fn(() => Promise.resolve<string | undefined>(undefined)),
   } satisfies ISyncServiceJsInvokable;
 }
@@ -35,7 +31,6 @@ describe('SyncDialog', () => {
   let app: ReturnType<typeof mount> | undefined;
   beforeEach(async () => {
     window.history.replaceState({}, '', '/');
-    localStorage.clear();
     (await import('$lib/services/service-provider')).setupServiceProvider();
     (await import('$lib/services/browser-app-services')).setupBrowserAppServices();
   });
@@ -144,54 +139,17 @@ describe('SyncDialog', () => {
     expect(document.body.textContent).not.toContain('Sync with folder...');
   }, 60_000);
 
-  async function nameThisDevice(name: string) {
-    const {usePreferencesService} = await import('$lib/services/service-provider');
-    await usePreferencesService().set(PreferenceKey.LocalAuthorName, name);
-  }
-
-  it('syncs with the picked drive, then offers to sync with the project folder again', async () => {
-    await setFolderSyncSupport(() => Promise.resolve(drive));
-    await nameThisDevice('Jane');
+  it('syncs with the picked folder, then offers to sync with it again', async () => {
+    await setFolderSyncSupport(() => Promise.resolve(String.raw`E:\test-project`));
     const syncService = fakeSyncService();
     syncService.getRememberedSyncFolder
       .mockResolvedValueOnce(undefined)
-      .mockResolvedValue(projectFolder);
+      .mockResolvedValue(String.raw`E:\test-project`);
     await openDialog(syncService);
 
     await vi.waitFor(() => getButton(/Sync with folder\.\.\./).click());
-    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(drive));
-    const again = await vi.waitFor(() => getButton(/again/));
-    expect(again.title).toBe(projectFolder);
-    expect(again.textContent).toContain('test-project');
-    expect(document.body.textContent).toContain('Your changes are signed as Jane');
-  }, 60_000);
-
-  it('asks for a name before the first folder sync on a device with no Lexbox user', async () => {
-    await setFolderSyncSupport(() => Promise.resolve(drive));
-    const syncService = fakeSyncService();
-    await openDialog(syncService);
-    await vi.waitFor(() => expect(document.body.textContent).toContain('signed with a name yet'));
-
-    function nameInput() {
-      return document.querySelector<HTMLInputElement>('#local-author-name');
-    }
-    getButton(/Sync with folder\.\.\./).click();
-    await vi.waitFor(() => expect(nameInput()).toBeTruthy());
-    getButton(/Cancel/).click();
-    await vi.waitFor(() => expect(nameInput()).toBeNull());
-    await vi.waitFor(() => expect(getButton(/Sync with folder\.\.\./).disabled).toBe(false));
-    expect(syncService.syncWithFolder).not.toHaveBeenCalled();
-
-    getButton(/Sync with folder\.\.\./).click();
-    await vi.waitFor(() => expect(nameInput()).toBeTruthy());
-    getButton(/Continue/).click();
-    await vi.waitFor(() => expect(document.body.textContent).toContain('Name is required'));
-    expect(syncService.syncWithFolder).not.toHaveBeenCalled();
-    nameInput()!.value = 'Jane';
-    nameInput()!.dispatchEvent(new Event('input', {bubbles: true}));
-    getButton(/Continue/).click();
-    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(drive));
-    await vi.waitFor(() => expect(document.body.textContent).toContain('Your changes are signed as Jane'));
+    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:\test-project`));
+    await vi.waitFor(() => expect(getButton(/again/).title).toBe(String.raw`E:\test-project`));
   }, 60_000);
 
   it('does nothing when the folder picker is cancelled', async () => {

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import {isAnonymousAuthor} from '$lib/activity/utils';
   import {Button} from '$lib/components/ui/button';
   import {FormatRelativeDate} from '$lib/components/ui/format';
   import {Textarea} from '$lib/components/ui/textarea';
@@ -62,7 +61,7 @@
   <div class="min-w-0 flex-1">
     <div class="mb-0.5 flex items-center gap-1.5">
       <span class="truncate text-[13px] font-semibold">
-        {comment.authorName || (isAnonymousAuthor(comment.authorId) ? $t`Offline user` : $t`(unknown)`)}
+        {comment.authorName || $t`(unknown)`}
       </span>
       <div class="ms-auto flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
         <FormatRelativeDate

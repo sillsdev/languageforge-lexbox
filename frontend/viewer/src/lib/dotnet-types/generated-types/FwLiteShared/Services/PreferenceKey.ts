@@ -7,7 +7,6 @@ export enum PreferenceKey {
 	AppLastUrl = "AppLastUrl",
 	AnalyticsDeviceId = "AnalyticsDeviceId",
 	AnalyticsUserId = "AnalyticsUserId",
-	AnalyticsOptOut = "AnalyticsOptOut",
-	LocalAuthorName = "LocalAuthorName"
+	AnalyticsOptOut = "AnalyticsOptOut"
 }
 /* eslint-enable */

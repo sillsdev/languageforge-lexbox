@@ -4,8 +4,8 @@
 //     the code is regenerated.
 
 export enum OpenFromFolderOutcome {
-	NoProjectFound = "NoProjectFound",
-	SeveralProjects = "SeveralProjects",
+	EmptyFolder = "EmptyFolder",
+	NotASyncFolder = "NotASyncFolder",
 	Downloaded = "Downloaded",
 	Synced = "Synced",
 	Refused = "Refused",

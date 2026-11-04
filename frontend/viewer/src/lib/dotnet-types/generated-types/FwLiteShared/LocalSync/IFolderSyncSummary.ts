@@ -8,7 +8,6 @@ import type {FolderSyncStatus} from './FolderSyncStatus';
 export interface IFolderSyncSummary
 {
 	status: FolderSyncStatus;
-	folderPath: string;
 	folderProjectName?: string;
 	mediaSent: number;
 	mediaReceived: number;

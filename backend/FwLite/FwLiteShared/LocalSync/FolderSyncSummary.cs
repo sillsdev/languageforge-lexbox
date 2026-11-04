@@ -9,8 +9,8 @@ public enum FolderSyncStatus
     Synced,
     /// <summary>The identity check passed, but the sync itself didn't complete.</summary>
     Failed,
-    /// <summary>The folder has a manifest that can't be read.</summary>
-    DamagedManifest,
+    /// <summary>The folder has other files and no usable manifest.</summary>
+    NotASyncFolder,
     NewerAppNeeded,
     /// <summary>The folder holds a different project; <see cref="FolderSyncSummary.FolderProjectName"/> says which.</summary>
     DifferentProject,
@@ -22,10 +22,8 @@ public enum FolderSyncStatus
 /// <summary>
 /// What the viewer needs to report a folder sync, flattened from <see cref="FolderSyncResult"/>.
 /// </summary>
-/// <param name="FolderPath">The project folder synced with, which may be inside the folder the user picked.</param>
 public record FolderSyncSummary(
     FolderSyncStatus Status,
-    string FolderPath,
     string? FolderProjectName = null,
     int MediaSent = 0,
     int MediaReceived = 0,
@@ -37,7 +35,7 @@ public record FolderSyncSummary(
         {
             return new(result.FolderState is SyncFolderState.NewerFormat
                 ? FolderSyncStatus.NewerAppNeeded
-                : FolderSyncStatus.DamagedManifest, result.FolderPath);
+                : FolderSyncStatus.NotASyncFolder);
         }
         var folderProjectName = (result.FolderState as SyncFolderState.HoldsProject)?.Manifest.ProjectName;
         var status = result.Sync.Comparison switch
@@ -47,7 +45,7 @@ public record FolderSyncSummary(
             IdentityComparison.DifferentWritingSystems => FolderSyncStatus.NoWritingSystemInCommon,
             _ => FolderSyncStatus.DifferentHistory,
         };
-        return new(status, result.FolderPath, folderProjectName, result.MediaSent, result.MediaReceived, result.MediaFailed);
+        return new(status, folderProjectName, result.MediaSent, result.MediaReceived, result.MediaFailed);
     }
 }
 
@@ -55,9 +53,8 @@ public record FolderSyncSummary(
 /// What the viewer needs to report "Open from folder", flattened from <see cref="OpenFromFolderResult"/>.
 /// </summary>
 /// <param name="ProjectCode">The local project to open, when there is one.</param>
-/// <param name="ProjectNames">For <see cref="OpenFromFolderOutcome.SeveralProjects"/>, the projects found.</param>
-public record OpenFromFolderSummary(OpenFromFolderOutcome Outcome, string? ProjectCode, FolderSyncSummary? Sync, string[]? ProjectNames = null)
+public record OpenFromFolderSummary(OpenFromFolderOutcome Outcome, string? ProjectCode, FolderSyncSummary? Sync)
 {
     public static OpenFromFolderSummary From(OpenFromFolderResult result) =>
-        new(result.Outcome, result.ProjectCode, result.Sync is null ? null : FolderSyncSummary.From(result.Sync), result.ProjectNames);
+        new(result.Outcome, result.ProjectCode, result.Sync is null ? null : FolderSyncSummary.From(result.Sync));
 }
