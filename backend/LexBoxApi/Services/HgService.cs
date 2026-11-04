@@ -229,7 +229,7 @@ public partial class HgService : IHgService, IHostedService
 
 
     /// <summary>
-    /// deletes all files and folders in the repo folder except for .hg
+    /// deletes all files and folders in the repo folder except for .hg, and drops .hg/hgrc
     /// </summary>
     private async Task CleanupRepoFolder(DirectoryInfo repoDir)
     {
@@ -237,7 +237,13 @@ public partial class HgService : IHgService, IHostedService
         {
             foreach (var info in repoDir.EnumerateFileSystemInfos())
             {
-                if (info.Name == ".hg") continue;
+                if (info.Name == ".hg")
+                {
+                    // Mercurial would trust an uploaded hgrc (hooks, extensions) on the server, and nothing here needs one.
+                    if (info is DirectoryInfo hg)
+                        foreach (var hgrc in hg.EnumerateFiles("hgrc")) hgrc.Delete();
+                    continue;
+                }
                 if (info is DirectoryInfo dir) dir.Delete(true);
                 else info.Delete();
             }
@@ -323,7 +329,7 @@ public partial class HgService : IHgService, IHostedService
         // 1. Rename repo to repo-backup-date (verifying first that it does not exist, adding -NNN at the end (001, 002, 003) if it does)
         // 2. Make empty directory (NOT a repo yet) with this project code
         // 3. Clone repo-backup-date-NNN into empty directory, passing "-r revHash" param
-        // 4. Copy .hg/hgrc from backup dir, overwriting the one in the cloned dir
+        // 4. Delete the .hg/hgrc that the clone writes (it only points back at the backup); server repos don't keep one
         //
         // Will need an SSH key as a k8s secret, put it into authorized_keys on the hgweb side so that lexbox can do "ssh hgweb hg clone ..."
     }

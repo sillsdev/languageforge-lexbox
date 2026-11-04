@@ -31,6 +31,7 @@
   import {DEFAULT_DEBOUNCE_TIME} from '$lib/utils/time';
   import {cn} from '$lib/utils';
   import {useWritingSystemService} from '$project/data';
+  import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
 
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
@@ -63,7 +64,7 @@
   const collapsedSelectionPreview = $derived.by(() => {
     if (!selectedEntry) return '';
     if (!selectedSense) {
-      return writingSystemService.headword(selectedEntry) || '';
+      return writingSystemService.viewBestHeadword(selectedEntry, viewService.currentView) || '';
     }
     return writingSystemService.firstGloss(selectedSense) || writingSystemService.firstDef(selectedSense) || '';
   });
@@ -220,7 +221,7 @@
               <span class="flex items-center gap-1.5 truncate">
                 <span>{pt($t`Entry or sense:`, $t`Word or meaning:`, viewService.currentView)}</span>
                 <span class="text-foreground truncate">
-                  {collapsedSelectionPreview}
+                  {collapsedSelectionPreview}{#if !selectedSense && collapsedSelectionPreview}<HomographNumber homographNumber={selectedEntry.homographNumber} />{/if}
                 </span>
               </span>
               <Icon icon={isEntryOrSenseOpen ? 'i-mdi-chevron-down' : 'i-mdi-chevron-up'} class="size-5"/>

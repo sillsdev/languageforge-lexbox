@@ -21,7 +21,7 @@ public class ImportFwdataService(IEnumerable<IProjectProvider> projectProviders,
         var fwDataProject = FwDataProjectProvider.GetProject(projectName);
         if (fwDataProject is null)
         {
-            throw new InvalidOperationException($"Project {projectName} not found.");
+            throw new InvalidOperationException($"Project '{projectName}' not found.");
         }
 
         return Task.Run(async () =>

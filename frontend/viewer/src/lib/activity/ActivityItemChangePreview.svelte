@@ -1,169 +1,202 @@
 <script lang="ts">
-  import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import * as Editor from '$lib/components/editor';
-  import {Switch} from '$lib/components/ui/switch';
-  import {type IChangeContext, type IComplexFormComponent, type IEntry, type IExampleSentence, type IProjectActivity, type ISense} from '$lib/dotnet-types';
-  import EntryEditorPrimitive from '$lib/entry-editor/object-editors/EntryEditorPrimitive.svelte';
-  import ExampleEditorPrimitive from '$lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte';
-  import SenseEditorPrimitive from '$lib/entry-editor/object-editors/SenseEditorPrimitive.svelte';
-  import {t} from 'svelte-i18n-lingui';
+  import {type IActivityChangeInfo, type IChangeContext, type IChangeEntity, type IComplexFormComponent, type IEntry, type IExampleSentence, type ISense} from '$lib/dotnet-types';
+  import {T, t} from 'svelte-i18n-lingui';
   import {formatJsonForUi} from './utils';
-  import FormatRelativeDate from '$lib/components/ui/format/format-relative-date.svelte';
-  import {useMultiWindowService} from '$lib/services/multi-window-service';
-  import {Button} from '$lib/components/ui/button';
-  import {pt} from '$lib/views/view-text';
-  import {entryBrowseParams} from '$lib/utils/search-params';
   import {useViewService} from '$lib/views/view-service.svelte';
-  import {Icon} from '$lib/components/ui/icon';
-  import {cn} from '$lib/utils';
-  import {Link} from 'svelte-routing';
   import Headwords from '$lib/components/dictionary/Headwords.svelte';
+  import DiffEntryPrimitive from '$lib/entry-editor/diff-view/DiffEntryPrimitive.svelte';
+  import DiffSensePrimitive from '$lib/entry-editor/diff-view/DiffSensePrimitive.svelte';
+  import DiffExamplePrimitive from '$lib/entry-editor/diff-view/DiffExamplePrimitive.svelte';
+  import DiffFieldRows from '$lib/entry-editor/diff-view/DiffFieldRows.svelte';
+  import {objectDiffRows, type ObjectType} from '$lib/entry-editor/diff-view/diff-fields';
+  import DiffAnchor from '$lib/entry-editor/diff-view/DiffAnchor.svelte';
+  import {entryAnchor, exampleAnchor, objectAnchor, senseAnchor, type AnchorText} from '$lib/entry-editor/diff-view/anchor-text';
+  import {usePartsOfSpeech, useWritingSystemService} from '$project/data';
+  import ActivityChangeHeader from './ActivityChangeHeader.svelte';
+  import {senseInEntry, senseLabel} from '$lib/entry-editor/sense-ref';
+  import {bestHeadword, changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
+  import {pt} from '$lib/views/view-text';
+  import {existing, type SinceThen} from './since-then';
+  import {cn} from '$lib/utils';
 
   type Props = {
-    activity: IProjectActivity,
     context: IChangeContext,
+    /** The change itself, to tell a reorder from an edit */
+    change?: IChangeEntity,
+    /** The activity list's current names for what the change is about */
+    info?: IActivityChangeInfo,
+    /** Given for the Later changes tab: diffs the change's result against the entity as it is now */
+    since?: SinceThen,
   }
 
-  const { activity, context }: Props = $props();
+  const { context, change, info, since }: Props = $props();
 
-  const multiWindowService = useMultiWindowService();
   const viewService = useViewService();
+  const writingSystemService = useWritingSystemService();
+  const partsOfSpeech = usePartsOfSpeech();
 
   const affectedEntry = $derived(context.affectedEntries.length === 1 ? context.affectedEntries[0] : undefined);
 
-  let currentEntity = $derived.by(() => {
-    if (!affectedEntry || !context.snapshot) return undefined;
+  // An edit to an already-deleted entity (one synced in from a client that didn't know about the delete) still
+  // diffs: hiding it would hide that user's work.
+  const editOfDeleted = $derived(!!context.previousSnapshot?.deletedAt && !!context.snapshot?.deletedAt);
+  // No before means the commit created the entity, no after means it deleted it.
+  const before = $derived(editOfDeleted ? context.previousSnapshot : existing(context.previousSnapshot));
+  const after = $derived(editOfDeleted ? context.snapshot : existing(context.snapshot));
+  const anySnapshot = $derived(context.snapshot ?? context.previousSnapshot);
 
-    if (context.entityType === 'Entry') {
-      return affectedEntry;
-    } else if (context.entityType === 'Sense') {
-      const senseId = (context.snapshot as ISense).id;
-      return affectedEntry.senses.find((s) => s.id === senseId);
-    } else if (context.entityType === 'ExampleSentence') {
-      const exampleId = (context.snapshot as IExampleSentence).id;
-      for (const sense of affectedEntry.senses) {
-        const example = sense.exampleSentences.find((ex) => ex.id === exampleId);
-        if (example) return example;
-      }
+  // What the diff compares: the change's before and after, or the result of the change and the entity now
+  const diffBefore = $derived(since ? since.before : before);
+  const diffAfter = $derived(since ? since.after : after);
+  // Created or deleted whole: values show plain, the badge and an edge rule say which (see diffAdded)
+  const gone = $derived(!!diffBefore && !diffAfter);
+  const fresh = $derived(!diffBefore && !!diffAfter);
+
+  const kind = $derived(changeKind(context.entityType));
+  const reorder = $derived(isReorder(change));
+  const showNote = $derived(!since && !reorder);
+  // Later changes describes the entity as it stands now, not what this change did to it
+  const badge = $derived(since
+    ? (since.status === 'deleted' ? 'deleted' : undefined)
+    : anySnapshot && changeBadge(kind, {before, after, reorder}));
+
+  // The identity across the same span the diff shows
+  const anchor = $derived.by((): AnchorText | undefined => {
+    const currentView = viewService.currentView;
+    switch (kind) {
+      case 'entry': return entryAnchor(writingSystemService, currentView, diffBefore as IEntry | undefined, diffAfter as IEntry | undefined);
+      case 'sense': return senseAnchor(writingSystemService, currentView, diffBefore as ISense | undefined, diffAfter as ISense | undefined);
+      case 'example': return exampleAnchor(writingSystemService, currentView, diffBefore as IExampleSentence | undefined, diffAfter as IExampleSentence | undefined);
+      case 'object': return objectAnchor(writingSystemService, context.entityType as ObjectType, diffBefore, diffAfter);
+      default: return undefined;
     }
-    return undefined;
   });
-  let selectedShowCurrent = $derived(false);
-  let showCurrent = $derived(currentEntity && selectedShowCurrent);
+
+  const cfc = $derived(kind === 'complexFormComponent' ? anySnapshot as IComplexFormComponent | undefined : undefined);
+  const complexForm = $derived(cfc && context.affectedEntries.find(e => e.id === cfc.complexFormEntryId));
+  const component = $derived(cfc && context.affectedEntries.find(e => e.id === cfc.componentEntryId));
+
+  function live(e: IEntry | undefined): IEntry | undefined {
+    return e && !e.deletedAt ? e : undefined;
+  }
+  const liveComplexForm = $derived(live(complexForm));
+  const liveComponent = $derived(live(component));
+
+  // Something deleted, by this change or since, can't be edited or gone to
+  const actionsEntry = $derived(kind !== 'complexFormComponent' ? live(affectedEntry) : undefined);
+
+  const actions = $derived.by(() => {
+    const currentView = viewService.currentView;
+    function headword(e: IEntry): string {
+      return bestHeadword(writingSystemService, currentView, e, $t`Untitled`);
+    }
+    if (kind !== 'complexFormComponent') return actionsEntry ? [{entryId: actionsEntry.id, headword: headword(actionsEntry)}] : [];
+    // In the sentence's order
+    return [
+      liveComponent && {entryId: liveComponent.id, headword: headword(liveComponent),
+        editLabel: $t`Edit component`, goToLabel: $t`Go to component`},
+      liveComplexForm && {entryId: liveComplexForm.id, headword: headword(liveComplexForm),
+        editLabel: pt($t`Edit complex form`, $t`Edit whole word`, currentView), goToLabel: pt($t`Go to complex form`, $t`Go to whole word`, currentView)},
+    ].filter(a => !!a);
+  });
+
+  const componentSense = $derived.by(() => {
+    const found = cfc && senseInEntry(component, cfc.componentSenseId);
+    if (!found) return undefined;
+    if (found === 'deleted') return {deleted: true, label: $t`(deleted sense)`};
+    const pos = found.sense.partOfSpeechId ? partsOfSpeech.current.find(p => p.id === found.sense.partOfSpeechId)?.label : undefined;
+    const label = senseLabel(writingSystemService, found);
+    return label || pos ? {label, pos} : undefined;
+  });
+
+  // Not on Later changes, which already diffs against now. Only when the headword moved on, or it would repeat the anchor
+  const now = $derived.by(() => {
+    if (since || kind !== 'entry' || !before || !actionsEntry || !anchor) return undefined;
+    const current = entryAnchor(writingSystemService, viewService.currentView, undefined, actionsEntry);
+    const changed = (current.after || undefined) !== (anchor.after || undefined) || (current.afterHomograph ?? 0) !== (anchor.afterHomograph ?? 0);
+    return changed ? actionsEntry : undefined;
+  });
+
+  const crumbs = $derived(kind === 'complexFormComponent' ? [] : parentCrumb(kind, info));
 </script>
 
-{#snippet entryButton(entry: IEntry)}
-  {@const deleted = Boolean(entry.deletedAt)}
-  <DropdownMenu.Root>
-    <DropdownMenu.Trigger class={cn('text-base w-fit mr-2 justify-between flex-wrap whitespace-break-spaces text-start min-h-max py-1.5', deleted && 'pointer-events-none')}>
-      {#snippet child({props})}
-        <Button {...props} variant="secondary" size="sm">
-          <Headwords {entry} placeholder={$t`Untitled`} />
-          {#if !deleted}
-            <Icon icon="i-mdi-dots-vertical" />
-          {:else}
-            <span class="text-destructive font-normal">
-              ({$t`Deleted`})
-            </span>
-          {/if}
-        </Button>
-      {/snippet}
-    </DropdownMenu.Trigger>
-    <DropdownMenu.Content align="start">
-      <DropdownMenu.Group>
-        {#if multiWindowService}
-          <DropdownMenu.Item class="cursor-pointer" onSelect={() => multiWindowService.openEntryInNewWindow(entry.id)}>
-            <Icon icon="i-mdi-open-in-new" />
-            {$t`Open in new Window`}
-          </DropdownMenu.Item>
-        {/if}
-        <DropdownMenu.Item class="cursor-pointer" onclick={e => e.preventDefault()}>
-          {#snippet child({props})}
-            <Link {...props} to="./browse?{entryBrowseParams(entry.id)}">
-              <Icon icon="i-mdi-book-arrow-right-outline" />
-              {$t`Go to ${pt($t`Entry`, $t`Word`, viewService.currentView)}`}
-            </Link>
-          {/snippet}
-        </DropdownMenu.Item>
-      </DropdownMenu.Group>
-    </DropdownMenu.Content>
-  </DropdownMenu.Root>
+{#snippet anchorIdentity()}
+  <!-- The sense's current number, which can differ from its place when the change was made -->
+  {#if kind === 'sense' && info?.sense?.number}{info.sense.number}&nbsp;{/if}<DiffAnchor {...anchor} />
 {/snippet}
 
-{#if affectedEntry || currentEntity}
-  <div class="flex flex-wrap gap-2 mb-3 items-center content-center justify-between">
-    {#if context.affectedEntries.length === 1}
-      <!--
-      If there are more than 1 affected entries (e.g. complex-form-components that link two entries together)
-      then the preview should be more explicit about what role the entries have and thus should be handled below
-      based on the entity type.
-      -->
-      {@const entry = context.affectedEntries[0]}
-      {@render entryButton(entry)}
+{#snippet linkEnd(entry: IEntry | undefined, snapshotHeadword: string | undefined)}
+  {@const liveEntry = live(entry)}
+  <span class="text-lg font-semibold text-foreground">
+    {#if liveEntry}
+      <Headwords class="font-semibold" entry={liveEntry} placeholder={$t`Untitled`} />
+    {:else}
+      <span class="text-muted-foreground">{snapshotHeadword || $t`Untitled`} <span class="text-base font-normal">{$t`(deleted)`}</span></span>
     {/if}
+  </span>
+{/snippet}
 
-    <label class={cn(
-      'w-fit flex items-center gap-2 border rounded p-2 px-4 bg-secondary/25',
-      currentEntity && 'cursor-pointer')}>
-      <FormatRelativeDate date={activity.timestamp}
-                          live
-                          actualDateOptions={{ dateStyle: 'medium', timeStyle: 'short' }}/>
-      <Switch disabled={!currentEntity} bind:checked={selectedShowCurrent} class="text-destructive" />
-      {#if currentEntity}
-        <span>{$t`Current version`}</span>
-      {:else}
-        <span class="text-destructive">{$t`Deleted`}</span>
-      {/if}
-    </label>
-  </div>
-{/if}
+{#snippet senseSuffix(sense: {deleted?: boolean, label?: string, pos?: string})}
+  <span class={cn('ms-1', !sense.deleted && 'text-foreground')} data-testid="change-component-sense">
+    {sense.label}{#if sense.pos}<i class={cn(sense.label && 'ms-1')}>{sense.pos}</i>{/if}
+  </span>
+{/snippet}
 
-{#if !context.snapshot}
-  <div class="text-muted-foreground p-4 text-center">
-    {$t`Preview not available`}
-  </div>
-{:else if context.entityType === 'Entry'}
-  <Editor.Root>
-    <Editor.Grid>
-      <EntryEditorPrimitive modalMode readonly entry={(showCurrent ? currentEntity : context.snapshot) as IEntry}/>
-    </Editor.Grid>
-  </Editor.Root>
-{:else if context.entityType === 'Sense'}
-  <Editor.Root>
-    <Editor.Grid>
-        <SenseEditorPrimitive readonly sense={(showCurrent ? currentEntity : context.snapshot) as ISense}/>
-    </Editor.Grid>
-  </Editor.Root>
-{:else if context.entityType === 'ExampleSentence'}
-  <Editor.Root>
-    <Editor.Grid>
-        <ExampleEditorPrimitive readonly example={(showCurrent ? currentEntity : context.snapshot) as IExampleSentence}/>
-    </Editor.Grid>
-  </Editor.Root>
-{:else if context.entityType === 'ComplexFormComponent'}
-  {@const cfc = context.snapshot as IComplexFormComponent}
-  {@const complexForm = context.affectedEntries.find(e => e.id === cfc.complexFormEntryId)}
-  {@const component = context.affectedEntries.find(e => e.id === cfc.componentEntryId)}
-  <div class="space-y-2">
-    <div class="flex flex-wrap gap-2 items-baseline">
-      <span class="label">{$t`Complex form:`}</span>
-      {#if complexForm}
-        {@render entryButton(complexForm)}
+{#snippet componentIdentity()}
+  <!-- Muted connector between equal-weight headwords: neither end of the link outranks the other -->
+  <span class="wrap-break-word text-base font-normal text-muted-foreground">
+    <T msg="# part of #" cmt="A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to">
+      {@render linkEnd(component, cfc?.componentHeadword)}{#if componentSense}{@render senseSuffix(componentSense)}{/if}
+      {#snippet second()}{@render linkEnd(complexForm, cfc?.complexFormHeadword)}{/snippet}
+    </T>
+  </span>
+{/snippet}
+
+{#snippet sinceNote()}
+  {#if since}
+    <p class="text-sm mb-2 text-muted-foreground">
+      {#if since.status === 'deleted'}
+        {$t`Compares the version right after this change with the last version before deletion.`}
       {:else}
-        {$t`Not found`}
+        {$t`Compares the version right after this change with the current version.`}
       {/if}
+    </p>
+  {/if}
+{/snippet}
+
+<div class={cn(gone && 'diff-gone', fresh && 'diff-new')}>
+  {#if anchor || cfc}
+    <div class="mb-3">
+      <ActivityChangeHeader label={context.changeName} {crumbs} {badge} {actions} {now}
+                            identity={cfc ? componentIdentity : anchorIdentity} />
     </div>
-    <div class="flex flex-wrap gap-2 items-baseline">
-      <span class="label">{$t`Component:`}</span>
-      {#if component}
-        {@render entryButton(component)}
-      {:else}
-        {$t`Not found`}
-      {/if}
+  {/if}
+
+  {#if !anySnapshot}
+    <div class="text-muted-foreground p-4 text-center">
+      {$t`Preview not available`}
     </div>
-  </div>
-{:else}
-  <div class="whitespace-pre-wrap font-mono text-sm">
-    {formatJsonForUi(context.snapshot)}
-  </div>
-{/if}
+  {:else if kind === 'complexFormComponent'}
+    <!-- The header says it all: which link, between which entries -->
+  {:else if kind === 'unknown'}
+    <div class="whitespace-pre-wrap font-mono text-sm">
+      {formatJsonForUi(anySnapshot)}
+    </div>
+  {:else}
+    {@render sinceNote()}
+    <Editor.Root class={cn((gone || fresh) && 'border-s-2 ps-3', gone && 'border-destructive/40 dark:border-destructive/60', fresh && 'border-emerald-500/40 dark:border-emerald-500/60')}>
+      <Editor.Grid>
+        {#if kind === 'entry'}
+          <DiffEntryPrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as IEntry | undefined} after={diffAfter as IEntry | undefined}/>
+        {:else if kind === 'sense'}
+          <DiffSensePrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as ISense | undefined} after={diffAfter as ISense | undefined}/>
+        {:else if kind === 'example'}
+          <DiffExamplePrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as IExampleSentence | undefined} after={diffAfter as IExampleSentence | undefined}/>
+        {:else}
+          <DiffFieldRows mode="changes" noVisibleChangesNote={showNote} rows={objectDiffRows[context.entityType as ObjectType]} before={diffBefore} after={diffAfter}/>
+        {/if}
+      </Editor.Grid>
+    </Editor.Root>
+  {/if}
+</div>

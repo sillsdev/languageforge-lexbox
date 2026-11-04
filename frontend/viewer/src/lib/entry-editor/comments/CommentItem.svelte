@@ -9,6 +9,8 @@
   import {t} from 'svelte-i18n-lingui';
   import CommentAuthorAvatar from './CommentAuthorAvatar.svelte';
   import {watch} from 'runed';
+  import {slide} from 'svelte/transition';
+  import {prefersReducedMotion} from 'svelte/motion';
 
   let {
     comment,
@@ -16,6 +18,7 @@
     saving,
     editing,
     compact = false,
+    arrived = false,
     onStartEdit,
     onCancelEdit,
     onSaveEdit,
@@ -25,6 +28,7 @@
     saving: boolean;
     editing: boolean;
     compact?: boolean;
+    arrived?: boolean;
     onStartEdit: () => void;
     onCancelEdit: () => void;
     onSaveEdit: (text: string) => void;
@@ -45,7 +49,10 @@
   });
 </script>
 
-<article class={cn('flex gap-2', compact && 'pt-2.5')}>
+<article
+  in:slide={{duration: arrived && !prefersReducedMotion.current ? 200 : 0}}
+  class={cn('flex gap-2 rounded-md px-1.5', compact && 'pt-2.5', arrived && 'animate-flash-highlight')}
+>
   <CommentAuthorAvatar
     authorName={comment.authorName}
     authorId={comment.authorId}

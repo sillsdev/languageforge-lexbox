@@ -24,11 +24,13 @@
     projectFilters: Partial<ProjectFilters>,
   ): ProjectItemWithDraftStatus[] {
     const searchLower = projectFilters.projectSearch?.toLocaleLowerCase();
+    const searchId = searchLower && normalizeId(searchLower);
     return projects.filter(
       (p) =>
         (!searchLower ||
           p.name.toLocaleLowerCase().includes(searchLower) ||
-          p.code.toLocaleLowerCase().includes(searchLower)) &&
+          p.code.toLocaleLowerCase().includes(searchLower) ||
+          normalizeId(p.id) === searchId) &&
         (!projectFilters.projectType || p.type === projectFilters.projectType) &&
         (!projectFilters.hideDraftProjects || !p.isDraft) &&
         (!projectFilters.emptyProjects || p.isDraft || !p.lastCommit) &&
@@ -36,6 +38,11 @@
           projectFilters.confidential === p.isConfidential?.toString() ||
           (projectFilters.confidential === 'unset' && (p.isConfidential ?? undefined) === undefined)),
     );
+  }
+
+  // so a pasted id matches with or without dashes or surrounding whitespace
+  function normalizeId(id: string): string {
+    return id.replace(/[\s-]/g, '').toLocaleLowerCase();
   }
 </script>
 

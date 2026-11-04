@@ -37,6 +37,9 @@
     <p class="text-muted-foreground">
       {$t`We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content.`}
     </p>
+    <p class="text-muted-foreground">
+      {$t`We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details.`}
+    </p>
     {#if enabled}
       <Button variant="outline" icon="i-mdi-cancel" loading={busy} disabled={!analyticsService} onclick={() => setEnabled(false)}>
         {$t`Opt out of analytics`}

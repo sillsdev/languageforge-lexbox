@@ -54,4 +54,9 @@ public class CrdtPartsOfSpeechApi(MiniLcmRepositoryFactory repoFactory, HarmonyC
     {
         await harmonyChangeWriter.AddChange(new DeleteChange<PartOfSpeech>(id));
     }
+
+    public async Task SetSensePartOfSpeech(Guid senseId, Guid? partOfSpeechId)
+    {
+        await harmonyChangeWriter.AddChange(new SetPartOfSpeechChange(senseId, partOfSpeechId));
+    }
 }

@@ -6,12 +6,12 @@ namespace FwDataMiniLcmBridge.Api;
 
 internal static class Sorting
 {
-    public static IEnumerable<ILexEntry> ApplyHeadwordOrder(this IEnumerable<ILexEntry> entries, SortOptions order, int sortWsHandle, int stemSecondaryOrder)
+    public static IEnumerable<ILexEntry> ApplyHeadwordOrder(this IEnumerable<ILexEntry> entries, SortOptions order, int sortWsHandle, IComparer<string?> headwordComparer, int stemSecondaryOrder)
     {
         if (order.Ascending)
         {
             return entries
-                .OrderBy(e => e.LexEntryHeadword(sortWsHandle, applyMorphTokens: false))
+                .OrderBy(e => e.LexEntryHeadword(sortWsHandle, applyMorphTokens: false), headwordComparer)
                 .ThenBy(e => e.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
                 .ThenBy(e => e.HomographNumber)
                 .ThenBy(e => e.Id.Guid);
@@ -19,7 +19,7 @@ internal static class Sorting
         else
         {
             return entries
-                .OrderByDescending(e => e.LexEntryHeadword(sortWsHandle, applyMorphTokens: false))
+                .OrderByDescending(e => e.LexEntryHeadword(sortWsHandle, applyMorphTokens: false), headwordComparer)
                 .ThenByDescending(e => e.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
                 .ThenByDescending(e => e.HomographNumber)
                 .ThenByDescending(e => e.Id.Guid);
@@ -31,7 +31,7 @@ internal static class Sorting
     /// prefix matches (e.g. when searching "tan" then "tanan" is before "matan"), then shorter, then alphabetical.
     /// See also: EntrySearchService.FilterAndRank for the FTS-based equivalent in LcmCrdt.
     /// </summary>
-    public static IEnumerable<ILexEntry> ApplyRoughBestMatchOrder(this IEnumerable<ILexEntry> entries, SortOptions order, int sortWsHandle, int stemSecondaryOrder, string? query = null)
+    public static IEnumerable<ILexEntry> ApplyRoughBestMatchOrder(this IEnumerable<ILexEntry> entries, SortOptions order, int sortWsHandle, IComparer<string?> headwordComparer, int stemSecondaryOrder, string? query = null)
     {
         var projected = entries.Select(e => (
             Entry: e,
@@ -44,7 +44,7 @@ internal static class Sorting
                 .OrderByDescending(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.StartsWithDiacriticMatch(query!) ?? false))
                 .ThenByDescending(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.ContainsDiacriticMatch(query!) ?? false))
                 .ThenBy(x => x.Headword?.Length ?? 0)
-                .ThenBy(x => x.Headword)
+                .ThenBy(x => x.Headword, headwordComparer)
                 .ThenBy(x => x.Entry.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
                 .ThenBy(x => x.Entry.HomographNumber)
                 .ThenBy(x => x.Entry.Id.Guid)
@@ -56,7 +56,7 @@ internal static class Sorting
                 .OrderBy(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.StartsWithDiacriticMatch(query!) ?? false))
                 .ThenBy(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.ContainsDiacriticMatch(query!) ?? false))
                 .ThenByDescending(x => x.Headword?.Length ?? 0)
-                .ThenByDescending(x => x.Headword)
+                .ThenByDescending(x => x.Headword, headwordComparer)
                 .ThenByDescending(x => x.Entry.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
                 .ThenByDescending(x => x.Entry.HomographNumber)
                 .ThenByDescending(x => x.Entry.Id.Guid)

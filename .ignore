@@ -1,0 +1,2 @@
+# ripgrep / Grep tool: skip agent worktree copies of this repo.
+.claude/worktrees/

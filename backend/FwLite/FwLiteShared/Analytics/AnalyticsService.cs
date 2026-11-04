@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using FwLiteShared.Services;
 using LexCore.Analytics;
@@ -24,6 +25,7 @@ public class AnalyticsService(
     private string? _userId;
     private readonly IAnalyticsEventEnricher[] _enrichers = enrichers?.ToArray() ?? [];
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
+    private readonly ConcurrentDictionary<Task, byte> _pendingSends = new();
 
     [JSInvokable]
     public bool GetAnalyticsEnabled()
@@ -51,7 +53,25 @@ public class AnalyticsService(
             return;
         var occurredAt = time ?? _clock.GetUtcNow();
         var insertId = Guid.NewGuid().ToString();
-        _ = Task.Run(() => TrackAsync(eventName, properties, occurredAt, insertId));
+        var send = Task.Run(() => TrackAsync(eventName, properties, occurredAt, insertId));
+        _pendingSends.TryAdd(send, 0);
+        _ = send.ContinueWith(t => _pendingSends.TryRemove(t, out _), TaskScheduler.Default);
+    }
+
+    public async Task FlushAsync(TimeSpan timeout)
+    {
+        var pending = _pendingSends.Keys.ToArray();
+        if (pending.Length == 0)
+            return;
+        try
+        {
+            // Called with a blocking wait from the unhandled-exception handler, possibly on the UI thread.
+            await Task.WhenAll(pending).WaitAsync(timeout).ConfigureAwait(false);
+        }
+        catch (TimeoutException)
+        {
+            logger.LogWarning("Timed out flushing {Count} analytics events", pending.Length);
+        }
     }
 
     public void Identify(string userId)

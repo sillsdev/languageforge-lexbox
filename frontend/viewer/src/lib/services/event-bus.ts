@@ -4,10 +4,12 @@ import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteSha
 import type {IFwEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IFwEvent';
 import {FwEventType} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/FwEventType';
 import type {IEntriesChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IEntriesChangedEvent';
+import type {ICommentsChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/ICommentsChangedEvent';
 import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {onDestroy} from 'svelte';
 import type {ISyncEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/ISyncEvent';
+import type {IProjectRoleChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectRoleChangedEvent';
 
 export enum CloseReason {
   User = 0,
@@ -79,6 +81,15 @@ export class EventBus {
     }));
   }
 
+  /** Not tied to a component's lifecycle: the caller must call the returned unsubscribe. */
+  public onProjectRoleChanged(projectCode: string, callback: (event: IProjectRoleChangedEvent) => void): () => void {
+    return this.onEvent(event => {
+      if (isProjectEvent(event) && event.project.name === projectCode && isProjectRoleChangedEvent(event.event)) {
+        callback(event.event);
+      }
+    });
+  }
+
   public getLastEvent<T extends IFwEvent>(projectCode: string, eventType: FwEventType): T | undefined {
     return this._lastEventCache[projectCode]?.[eventType] as T;
   }
@@ -140,6 +151,15 @@ export class ProjectEventBus {
     });
   }
 
+  // One callback per change; consumers re-query.
+  public onCommentsChanged(callback: (event: ICommentsChangedEvent) => void) {
+    this.onProjectEvent(event => {
+      if (isCommentsChangedEvent(event)) {
+        callback(event);
+      }
+    });
+  }
+
   public onSync(callback: (event: ISyncEvent) => void) {
     const lastEvent = this.eventBus.getLastEvent<ISyncEvent>(this.projectCode, FwEventType.Sync);
     if (lastEvent) callback(lastEvent);
@@ -174,10 +194,18 @@ function isEntriesChangedEvent(event: IFwEvent): event is IEntriesChangedEvent {
   return event.type === FwEventType.EntriesChanged;
 }
 
+function isCommentsChangedEvent(event: IFwEvent): event is ICommentsChangedEvent {
+  return event.type === FwEventType.CommentsChanged;
+}
+
 function isProjectEvent(event: IFwEvent): event is IProjectEvent {
   return event.type === FwEventType.ProjectEvent;
 }
 
 function isSyncEvent(event: IFwEvent): event is ISyncEvent {
   return event.type === FwEventType.Sync;
+}
+
+function isProjectRoleChangedEvent(event: IFwEvent): event is IProjectRoleChangedEvent {
+  return event.type === FwEventType.ProjectRoleChanged;
 }

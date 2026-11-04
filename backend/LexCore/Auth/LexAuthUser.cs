@@ -210,6 +210,8 @@ public record LexAuthUser
                         ProjectRole.Manager => "m",
                         ProjectRole.Editor => "e",
                         ProjectRole.Observer => "o",
+                        ProjectRole.Commenter => "c",
+                        ProjectRole.EditorLite => "l",
                         _ => "u"
                     };
 
@@ -232,6 +234,8 @@ public record LexAuthUser
                     'm' => ProjectRole.Manager,
                     'e' => ProjectRole.Editor,
                     'o' => ProjectRole.Observer,
+                    'c' => ProjectRole.Commenter,
+                    'l' => ProjectRole.EditorLite,
                     _ => ProjectRole.Unknown
                 };
                 return p[2..].Split("|").Select(Guid.Parse).Select(pId => new AuthUserProject(role, pId));
@@ -339,9 +343,19 @@ public record LexAuthUser
         return HasScope(ScopeString, scope);
     }
 
+    /// <summary>
+    /// Whether the space-delimited <paramref name="scopeString"/> holds <paramref name="scope"/> as a whole token,
+    /// so e.g. sendandreceiverefresh doesn't grant sendandreceive.
+    /// </summary>
     public static bool HasScope(string scopeString, LexboxAuthScope scope)
     {
-        return scopeString.Contains(scope.ToString(), StringComparison.InvariantCultureIgnoreCase);
+        var scopeName = scope.ToString();
+        var scopes = scopeString.AsSpan();
+        foreach (var range in scopes.Split(' '))
+        {
+            if (scopes[range].Equals(scopeName, StringComparison.OrdinalIgnoreCase)) return true;
+        }
+        return false;
     }
 
     private LexboxAuthScope? ToScope(LexboxAudience audience)

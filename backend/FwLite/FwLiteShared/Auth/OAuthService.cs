@@ -26,7 +26,7 @@ public class OAuthService(
     {
         if (options.Value.SystemWebViewLogin)
         {
-            await HandleSystemWebViewLogin(application, cancellation);
+            await HandleSystemWebViewLogin(application, lexboxServer, cancellation);
             globalEventBus.PublishEvent(new AuthenticationChangedEvent(lexboxServer, AuthenticationChangeCause.Login));
             return new(null, true);
         }
@@ -46,7 +46,11 @@ public class OAuthService(
         return new(uri, false);
     }
 
-    private async Task HandleSystemWebViewLogin(IPublicClientApplication application, CancellationToken cancellation)
+    private int _pendingSystemWebViewLogins;
+
+    private async Task HandleSystemWebViewLogin(IPublicClientApplication application,
+        LexboxServer lexboxServer,
+        CancellationToken cancellation)
     {
         var request = application.AcquireTokenInteractive(OAuthClient.DefaultScopes)
             .WithParentActivityOrWindow(options.Value.GetParentActivityOrWindow?.Invoke());
@@ -56,9 +60,42 @@ public class OAuthService(
         }
         else
         {
-            request = request.WithUseEmbeddedWebView(false).WithSystemWebViewOptions(new() { });
+            var webViewOptions = new SystemWebViewOptions();
+            if (options.Value.OpenSystemBrowser is { } openSystemBrowser)
+            {
+                webViewOptions.OpenBrowserAsync = authorizationUri =>
+                {
+                    //the loopback listener only exists inside this process and only until the first request, so
+                    //this is the one place we learn which port the browser has to come back to
+                    logger.LogInformation("Opening system browser to sign in to {Server}; waiting for redirect to {RedirectUri}",
+                        lexboxServer.Authority,
+                        HttpUtility.ParseQueryString(authorizationUri.Query).Get("redirect_uri"));
+                    return openSystemBrowser(authorizationUri);
+                };
+            }
+            request = request.WithUseEmbeddedWebView(false).WithSystemWebViewOptions(webViewOptions);
         }
-        await request.ExecuteAsync(cancellation);
+
+        logger.LogInformation("System web view sign in to {Server} started", lexboxServer.Authority);
+        Interlocked.Increment(ref _pendingSystemWebViewLogins);
+        try
+        {
+            await request.ExecuteAsync(cancellation);
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _pendingSystemWebViewLogins);
+        }
+    }
+
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        //a sign in still waiting for the browser dies with the process: the browser then lands on a loopback
+        //port nobody listens on ("localhost refused to connect"). Make that visible in the log.
+        var pending = Volatile.Read(ref _pendingSystemWebViewLogins);
+        if (pending > 0)
+            logger.LogWarning("App is stopping with {Count} sign in(s) still waiting for the browser to return", pending);
+        return base.StopAsync(cancellationToken);
     }
 
     public async Task<(AuthenticationResult, string ClientReturnUrl)> FinishLoginRequest(Uri uri,

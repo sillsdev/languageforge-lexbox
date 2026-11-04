@@ -253,6 +253,7 @@ public abstract class EntrySyncTestsBase(ExtraWritingSystemsSyncFixture fixture)
     // Api == FwDataApi and RoundTripApi == CrdtApi
     // (though, as noted above, this case doesn't perfectly reflect real usage)
     [Theory]
+    [Trait("Category", "Slow")] // 19-35 s per row in both derived classes; PR tier skips Category=Slow
     [InlineData(ApiType.Crdt)]
     [InlineData(ApiType.FwData)]
     [InlineData(null)]

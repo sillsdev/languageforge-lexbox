@@ -11,8 +11,8 @@ import { HttpStatusError } from '../utils/http-status-error';
  * else is left to reject, since the answer is then unknown rather than "no", and swallowing it
  * would report an empty lexicon where there is a fault.
  *
- * The backend also answers a missing entry or sense with `null` rather than a 404, so a nullish
- * result becomes `undefined` too and callers can trust the one absent value the types declare.
+ * A missing entry or sense is a 404 as well. A nullish result still becomes `undefined`, so callers
+ * can trust the one absent value the types declare.
  */
 async function readingLexicon<T>(
   read: () => Promise<T | null | undefined>,

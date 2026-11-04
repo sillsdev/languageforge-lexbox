@@ -7,6 +7,23 @@ function newEntryDialog(page: Page): Locator {
   return page.getByRole('dialog').filter({has: page.getByRole('heading', {name: /New (Entry|Word)/})});
 }
 
+function newEntryButton(page: Page): Locator {
+  return page.getByRole('button', {name: /New (Entry|Word)/});
+}
+
+/** bits-ui keeps closed tooltip content mounted, so match on state rather than presence. */
+function openTooltip(page: Page): Locator {
+  return page.locator('[data-tooltip-content]:not([data-state="closed"])');
+}
+
+async function tabTo(page: Page, target: Locator): Promise<void> {
+  for (let i = 0; i < 25; i++) {
+    await page.keyboard.press('Tab');
+    if (await target.evaluate(el => el === document.activeElement)) return;
+  }
+  throw new Error('Tab never reached the target');
+}
+
 test.describe('Browse hotkeys', () => {
   let projectPage: DemoProjectPage;
 
@@ -59,6 +76,61 @@ test.describe('Browse hotkeys', () => {
 
       await page.keyboard.press('ControlOrMeta+e');
       await expect(page.getByRole('dialog')).toHaveCount(0);
+    });
+  });
+
+  test.describe('New entry shortcut tooltip', () => {
+    test('shows on hover and on keyboard focus, with the shortcut', async ({page}) => {
+      const button = newEntryButton(page);
+      await button.hover();
+      await expect(openTooltip(page)).toBeVisible();
+      await expect(openTooltip(page)).toContainText(/Ctrl\+E|⌘E/);
+
+      await page.mouse.move(600, 400);
+      await expect(openTooltip(page)).toHaveCount(0);
+
+      await tabTo(page, button);
+      await expect(openTooltip(page)).toBeVisible();
+    });
+
+    test('does not show when closing the dialog hands focus back to the button', async ({page}) => {
+      const button = newEntryButton(page);
+      await button.click();
+      const dialog = newEntryDialog(page);
+      await expect(dialog).toBeVisible();
+
+      await dialog.getByRole('button', {name: 'Close'}).click();
+      await expect(dialog).toBeHidden();
+      await expect(button).toBeFocused();
+      await page.waitForTimeout(500);
+      await expect(openTooltip(page)).toHaveCount(0);
+    });
+
+    test('never shows without a hardware keyboard', async ({page}) => {
+      await page.evaluate(async () => {
+        window.__PLAYWRIGHT_UTILS__.setHasHardwareKeyboard(false);
+        // the tooltip reads the flag when the button mounts; toggling write re-mounts it
+        await window.__PLAYWRIGHT_UTILS__.setWrite(false);
+        await window.__PLAYWRIGHT_UTILS__.setWrite(true);
+      });
+      const button = newEntryButton(page);
+      await expect(button).toBeVisible();
+
+      await tabTo(page, button);
+      await page.waitForTimeout(500);
+      await expect(openTooltip(page)).toHaveCount(0);
+
+      await button.hover();
+      await page.waitForTimeout(500);
+      await expect(openTooltip(page)).toHaveCount(0);
+
+      await button.click();
+      const dialog = newEntryDialog(page);
+      await expect(dialog).toBeVisible();
+      await dialog.getByRole('button', {name: 'Close'}).click();
+      await expect(dialog).toBeHidden();
+      await page.waitForTimeout(500);
+      await expect(openTooltip(page)).toHaveCount(0);
     });
   });
 

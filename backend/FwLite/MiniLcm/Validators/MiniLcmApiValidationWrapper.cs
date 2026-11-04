@@ -39,6 +39,14 @@ public partial class MiniLcmApiValidationWrapper(
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
         await validators.ValidateAndThrow(update);
+        // The patch alone can't show cross-field rules (e.g. collation rules vs. locale), so validate the patched result
+        var current = await ReadApi.GetWritingSystem(id, type);
+        if (current is not null)
+        {
+            var patched = current.Copy();
+            update.Apply(patched);
+            await validators.ValidateAndThrow(patched);
+        }
         return await _api.UpdateWritingSystem(id, type, update);
     }
 

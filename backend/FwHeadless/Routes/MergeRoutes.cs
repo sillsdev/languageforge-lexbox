@@ -77,7 +77,7 @@ public static class MergeRoutes
         return TypedResults.Ok();
     }
 
-    internal static async Task<Results<Ok, NotFound<string>>> SyncHarmonyProject(
+    internal static async Task<Results<Ok, NotFound<string>, ProblemHttpResult>> SyncHarmonyProject(
         Guid projectId,
         IProjectLookupService projectLookupService,
         IServiceProvider services,
@@ -97,9 +97,16 @@ public static class MergeRoutes
         // middleware already set the project context on (which would trip SetupProjectContext).
         await using var scope = services.CreateAsyncScope();
         var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(scope.ServiceProvider, projectId);
-        await syncWorker.ExecuteSync(stoppingToken, onlyHarmony: true);
+        var result = await syncWorker.ExecuteSync(stoppingToken, onlyHarmony: true);
 
-        return TypedResults.Ok();
+        return result.Status switch
+        {
+            SyncJobStatusEnum.SuccessHarmonyOnly => TypedResults.Ok(),
+            SyncJobStatusEnum.ProjectNotFound => TypedResults.Problem(result.Error, statusCode: StatusCodes.Status404NotFound),
+            SyncJobStatusEnum.UnableToAuthenticate => TypedResults.Problem(result.Error, statusCode: StatusCodes.Status403Forbidden),
+            SyncJobStatusEnum.SyncBlocked => TypedResults.Problem(result.Error, statusCode: StatusCodes.Status423Locked),
+            _ => TypedResults.Problem(result.Error ?? result.Status.ToString(), statusCode: StatusCodes.Status500InternalServerError),
+        };
     }
 
 
@@ -110,8 +117,9 @@ public static class MergeRoutes
         ProjectSnapshotService projectSnapshotService,
         SnapshotAtCommitService snapshotAtCommitService,
         IOptions<FwHeadlessConfig> config,
-        HttpContext context,
-        Guid? commitId = null,
+        // required: the snapshot is the merge base, so it must come from a fixed commit, not the live CRDT copy,
+        // which harmony syncs and lexicon API writes change at any time
+        Guid commitId,
         bool preserveAllFieldWorksCommits = false
     )
     {
@@ -132,17 +140,9 @@ public static class MergeRoutes
         }
 
         var fwDataProject = config.Value.GetFwDataProject(projectId);
-        if (commitId.HasValue)
+        if (!await projectSnapshotService.RegenerateProjectSnapshotAtCommit(snapshotAtCommitService, fwDataProject, commitId, preserveAllFieldWorksCommits))
         {
-            if (!await projectSnapshotService.RegenerateProjectSnapshotAtCommit(snapshotAtCommitService, fwDataProject, commitId.Value, preserveAllFieldWorksCommits))
-            {
-                return TypedResults.NotFound($"Commit {commitId} not found");
-            }
-        }
-        else
-        {
-            var miniLcmApi = context.RequestServices.GetRequiredService<IMiniLcmApi>();
-            await projectSnapshotService.RegenerateProjectSnapshot(miniLcmApi, fwDataProject, keepBackup: true);
+            return TypedResults.NotFound($"Commit {commitId} not found");
         }
         return TypedResults.Ok();
     }

@@ -14,7 +14,7 @@ spec:
       - name: lexbox-api
         imagePullPolicy: IfNotPresent
         startupProbe:
-          # don't use the startup probe for local dev as it blocks skaffold from showing results until watch has started the app, which takes a while
+          # don't use the startup probe for local dev as it blocks showing results until watch has started the app, which takes a while
           $patch: delete
         resources:
             requests:

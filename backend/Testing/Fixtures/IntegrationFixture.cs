@@ -15,6 +15,11 @@ public class IntegrationFixture : IAsyncLifetime
     private const string TemplateRepoZipName = "test-template-repo.zip";
     public static readonly FileInfo TemplateRepoZip = new(TemplateRepoZipName);
     public static readonly DirectoryInfo TemplateRepo = new(Path.Join(BasePath, "_template-repo_"));
+    /// <summary>
+    /// The tip of the repo in <see cref="TemplateRepoZip"/> (a single commit adding Lexicon.fwstub)
+    /// </summary>
+    public static readonly HgTip TemplateRepoTip = new("780a2ac79521c9227c516fcd0571ff1a2cef7eea", ["Lexicon.fwstub"], []);
+    public static readonly DateTimeOffset TemplateRepoLastCommit = DateTimeOffset.FromUnixTimeSeconds(1714021105);
     public ApiTestBase AdminApiTester { get; private set; } = new();
     private string? _adminJwt = null;
     public string AdminJwt => _adminJwt.Should().NotBeNull().And.Subject;
@@ -81,8 +86,10 @@ public class IntegrationFixture : IAsyncLifetime
     public async Task FinishLexboxProjectResetWithRepo(string projectCode, FileInfo repo)
     {
         Exception? failureException = null;
+        // UploadFile.FromFile opens a FileStream nobody disposes; Windows then refuses to delete the zip.
+        await using var stream = repo.OpenRead();
         await AdminApiTester.HttpClient.UploadWithProgressAsync(new Uri($"{AdminApiTester.BaseUrl}/api/project/upload-zip/{projectCode}"),
-            UploadFile.FromFile(repo, "application/zip"), new UploadOptions
+            new UploadFile(stream, repo.Name, "application/zip", repo.Length), new UploadOptions
             {
                 Metadata = new Dictionary<string, string> { ["filetype"] = "application/zip" },
                 ProgressHandler = new DelegatingProgressHandler

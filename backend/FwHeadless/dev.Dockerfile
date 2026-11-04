@@ -15,7 +15,7 @@ COPY --chown=www-data:www-data *.slnx FwHeadless/FwHeadless.csproj FixFwData/Fix
 # move them into the proper sub folders, based on the name of the project
 RUN for file in $(ls *.csproj); do dir=${file%.*}; mkdir -p ${dir}/ && mv -v $file ${dir}/; done
 # Do the same for csproj files in slightly different hierarchies
-COPY --chown=www-data:www-data FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj FwLite/LcmCrdt/LcmCrdt.csproj FwLite/MiniLcm/MiniLcm.csproj FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj ./
+COPY --chown=www-data:www-data FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj FwLite/LcmCrdt/LcmCrdt.csproj FwLite/MiniLcm/MiniLcm.csproj FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj FwLite/MiniLcmWeb/MiniLcmWeb.csproj ./
 RUN for file in $(ls *.csproj); do dir=${file%.*}; mkdir -p FwLite/${dir}/ && mv -v $file FwLite/${dir}/; done
 
 ARG CACHE_LOCATION=/src/dotnet-cache

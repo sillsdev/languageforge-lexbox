@@ -12,6 +12,14 @@ const launcherTestPattern = './tests/launcher/**/*.{test,spec}.?(c|m)[jt]s?(x)';
 const manualTestPattern = '**/*.manual.{test,spec}.?(c|m)[jt]s?(x)';
 const e2eTestPatterns = ['./tests/**'];
 
+// The PR workflow (pr.yaml) sets VITEST_CHROMIUM_ONLY=true so the browser-based projects run on
+// Chromium alone; locally and on develop (fw-lite.yaml) Firefox runs too.
+// A function, not a shared array: vitest rejects instance objects reused across projects as duplicates.
+const browserInstances = () =>
+  process.env.VITEST_CHROMIUM_ONLY === 'true'
+    ? [{browser: 'chromium'}]
+    : [{browser: 'chromium'}, {browser: 'firefox'}];
+
 const sharedAlias = [
   {find: '$lib', replacement: '/src/lib'},
   {find: '$project', replacement: '/src/project'},
@@ -38,7 +46,8 @@ export default defineConfig({
             ...configDefaults.exclude,
           ],
         },
-        resolve: {alias: sharedAlias},
+        // 'browser' so `import {mount} from 'svelte'` gets the client build (component smoke tests under jsdom).
+        resolve: {alias: sharedAlias, conditions: ['browser']},
       },
       {
         plugins: [
@@ -63,10 +72,7 @@ export default defineConfig({
             enabled: true,
             headless: true,
             provider: playwright(),
-            instances: [
-              {browser: 'chromium'},
-              {browser: 'firefox'},
-            ],
+            instances: browserInstances(),
           },
           include: [browserTestPattern],
           exclude: [...e2eTestPatterns, ...configDefaults.exclude],
@@ -96,10 +102,7 @@ export default defineConfig({
             enabled: true,
             headless: true,
             provider: playwright(),
-            instances: [
-              {browser: 'chromium'},
-              {browser: 'firefox'},
-            ],
+            instances: browserInstances(),
           },
           setupFiles: ['./.storybook/vitest.setup.ts'],
         },

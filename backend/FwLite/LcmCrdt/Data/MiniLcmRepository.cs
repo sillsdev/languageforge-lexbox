@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Data;
 using Gridify;
 using LcmCrdt.Changes.Entries;
@@ -40,12 +41,19 @@ public class MiniLcmRepositoryFactory(
 public class MiniLcmRepository(
     LcmCrdtDbContext dbContext,
     IMiniLcmCultureProvider cultureProvider,
+    IWritingSystemCollatorProvider collatorProvider,
     IOptions<LcmCrdtConfig> config,
     SetupCollationInterceptor collationSetup,
     EntrySearchService? entrySearchService = null
 ) : IAsyncDisposable, IDisposable
 {
     public EntrySearchService? SearchService { get; } = entrySearchService;
+
+    // Complex forms sort with the same collation as the entry list
+    private IComparer<ComplexFormComponent> ComplexFormComparer(WritingSystem? writingSystem) =>
+        writingSystem is null
+            ? cultureProvider.GetCompareInfo(null).GetStringComparer(CompareOptions.IgnoreCase).AsComplexFormComparer()
+            : collatorProvider.GetCollator(writingSystem).AsComplexFormComparer();
 
     private async ValueTask EnsureConnectionOpen()
     {
@@ -150,8 +158,7 @@ public class MiniLcmRepository(
             .AsQueryable();
 
         queryable = options.ApplyPaging(queryable);
-        var complexFormComparer = cultureProvider.GetCompareInfo(await GetWritingSystem(default, WritingSystemType.Vernacular))
-            .AsComplexFormComparer();
+        var complexFormComparer = ComplexFormComparer(await GetWritingSystem(default, WritingSystemType.Vernacular));
         var entries = AsyncExtensions.AsAsyncEnumerable(queryable);
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
         await foreach (var entry in EfExtensions.SafeIterate(entries))
@@ -258,8 +265,7 @@ public class MiniLcmRepository(
         if (entry is not null)
         {
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
-            var complexFormComparer = cultureProvider.GetCompareInfo(sortWs)
-                .AsComplexFormComparer();
+            var complexFormComparer = ComplexFormComparer(sortWs);
             entry.Finalize(complexFormComparer);
         }
 
@@ -273,6 +279,15 @@ public class MiniLcmRepository(
                 .AsQueryable(), e => e.Id == senseId);
         sense?.Finalize();
         return sense;
+    }
+
+    // pictures live in the sense's jsonb column, so finding the owner means searching every sense's pictures
+    public async Task<Guid?> GetPictureSenseId(Guid pictureId)
+    {
+        var id = pictureId.ToString();
+        return await AsyncExtensions.FirstOrDefaultAsync(dbContext.Senses.ToLinqToDB()
+            .Where(s => Json.Query(s.Pictures).Any(p => Json.Value(p, p => p.Id.ToString()) == id))
+            .Select(s => (Guid?)s.Id));
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid id)

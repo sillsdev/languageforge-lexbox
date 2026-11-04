@@ -48,9 +48,11 @@ $ServerErrLog    = Join-Path $HarnessHome 'server.err.log'
 function Get-UpdateUrl { "http://localhost:$Port/api/fwlite-release/should-update" }
 
 # Two builds: same identity, different versions. Quad = MSIX package/bundle version; Info = shown in the app UI.
+# v1 carries the bare tag format, v2 the prefixed one, so v1 -> v2 is the real rollout and serving v1
+# to a v2 install must report up-to-date rather than offer a downgrade (see FwLiteVersion).
 $Versions = [ordered]@{
     v1 = @{ Semver = '0.0.1'; Quad = '0.0.1.0'; Info = 'v0.0.1-test'; Bundle = 'FwLiteDesktopTest-v1.msixbundle' }
-    v2 = @{ Semver = '0.0.2'; Quad = '0.0.2.0'; Info = 'v0.0.2-test'; Bundle = 'FwLiteDesktopTest-v2.msixbundle' }
+    v2 = @{ Semver = '0.0.2'; Quad = '0.0.2.0'; Info = 'fw-lite-v0.0.2-test'; Bundle = 'FwLiteDesktopTest-v2.msixbundle' }
 }
 
 # ---------------------------------------------------------------------------- small helpers

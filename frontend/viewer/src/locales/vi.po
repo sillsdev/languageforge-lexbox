@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-28 10:55\n"
+"PO-Revision-Date: 2026-10-23 18:34\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -23,16 +23,31 @@ msgstr ""
 #. {0} = number of changes (e.g., 1, 5, 10)
 #: src/lib/activity/ActivityItem.svelte
 msgid "– ({0} changes)"
-msgstr "– ({0} thay đổi)"
+msgstr "– ({0} các thay đổi)"
+
+#. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
+#. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted sense)"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted)"
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
+msgstr "(đã chỉnh sửa)"
+
+#. Activity-log line: placeholder shown in place of a newly created entry's name when it has no headword text yet.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "(no headword)"
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
-msgstr ""
+msgstr "(không rõ)"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -54,7 +69,7 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
-msgstr ""
+msgstr "{0} các loại hoạt động"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -64,7 +79,7 @@ msgstr "{0} trước"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
-msgstr ""
+msgstr "{0} tác giả"
 
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
@@ -73,51 +88,56 @@ msgstr "{0} MB"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
-msgstr ""
+msgstr "{0} các câu trả lời"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "{0} resolved"
-msgstr ""
+msgstr "{0} đã giải quyết"
 
 #. Display name for server
 #: src/home/Server.svelte
 msgid "{0} Server"
 msgstr "Máy chủ {0}"
 
+#. Activity list row footer: how many further changes in this commit were left off the row (# = count). Clicking the row shows them all.
+#: src/lib/activity/ActivityView.svelte
+msgid "{num, plural, one {(+# more change)} other {(+# more changes)}}"
+msgstr ""
+
 #. Number of changes in sync operation
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# thay đổi}}"
 
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
-msgstr ""
+msgstr "{num, plural, one {Còn # mục} other {Còn # mục}}"
 
 #. Commit count display
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
 msgstr "{num, plural, other {# commit FieldWorks Classic mới}}"
 
 #. Commit count display
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, other {# commit FieldWorks Lite mới}}"
 
 #: src/project/browse/filter/UnreadCommentBadge.svelte
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
-msgstr ""
+msgstr "{num, plural, one {# bình luận chưa đọc} other {# bình luận chưa đọc}}"
 
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
-msgstr ""
+msgstr "{num, plural, one {Còn # từ} other {Còn # từ}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
-msgstr ""
+msgstr "{num, plural, one {Xem thêm #...} other {Xem thêm #...}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -134,9 +154,14 @@ msgstr "**Ít loại môrphêm hơn** (chỉ *Gốc*, *Gốc liên kết*, *Thâ
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Thuật ngữ đơn giản hơn** (ví dụ *Từ* thay vì *Hình thức lexeme*, *Ý nghĩa* thay vì *Sense*)"
 
+#. A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "# part of #"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
-msgstr ""
+msgstr "1 câu trả lời"
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -148,20 +173,26 @@ msgstr "Đã có phiên bản mới của FieldWorks Lite."
 #. Warning banner in the New Entry dialog when exactly one possible duplicate was found (none an exact headword match)
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar entry already exists"
-msgstr ""
+msgstr "Đã có một mục tương tự rồi"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "A similar entry already exists"
 #. Warning banner in the New Word dialog when exactly one possible duplicate was found (none spelled exactly the same)
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar word already exists"
-msgstr ""
+msgstr "Đã có một từ tương tự rồi"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "một từ"
+
+#. Field label in the activity change-preview diff for vocabulary objects (part of speech, semantic domain, etc.). Shows the abbreviated form alongside the full name.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Abbreviation"
+msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -172,6 +203,11 @@ msgstr "Tài khoản"
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "Hoạt động"
+
+#. Error boundary title shown if the whole Activity view crashes while rendering.
+#: src/lib/activity/ActivityView.svelte
+msgid "Activity view failed"
+msgstr ""
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -225,7 +261,7 @@ msgstr "Thêm phần của"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Add Picture"
-msgstr ""
+msgstr "Thêm hình ảnh"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -237,17 +273,17 @@ msgstr "Thêm Ý nghĩa (sense)"
 
 #: src/project/tasks/TaskList.svelte
 msgid "Add some entries first."
-msgstr ""
+msgstr "Trước tiên, hãy thêm một số mục vào."
 
 #: src/project/tasks/TaskList.svelte
 msgid "Add some words first."
-msgstr ""
+msgstr "Trước tiên, hãy thêm một vài từ."
 
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
 #: src/project/browse/EntriesList.svelte
 msgid "Add to dictionary"
-msgstr ""
+msgstr "Thêm vào từ điển"
 
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -256,11 +292,52 @@ msgstr "Thêm Từ"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
+msgstr "Hãy thêm mục từ đầu tiên để bắt đầu xây dựng từ điển của bạn."
+
+#. Badge or screen-reader marker in the activity change preview: this change created the item, or added the highlighted text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Added"
 msgstr ""
+
+#. Activity-log line in the dictionary edit history. {0} = singular noun for a list-item type (e.g. "semantic domain", "complex form type", "publication", "translation"). A second chip with the new item's name follows this text.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added {0}"
+msgstr ""
+
+#. Activity-log line: a user posted a discussion comment (on an entry). A chip with the comment text may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added comment"
+msgstr ""
+
+#. Activity-log line: a complex-form component entry was added to another entry's Components list; a chip with the component's name may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added component"
+msgstr ""
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Removed picture", "Updated picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added picture"
+msgstr ""
+
+#. Activity-log line, fallback when the added list item has no dedicated noun. {0} = the field's label (e.g. "Publications"); a chip with the added value may follow.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added to {0}"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Advanced: settings file"
+msgstr "Nâng cao: tệp cài đặt"
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Tất cả"
@@ -270,14 +347,14 @@ msgstr "Tất cả"
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All activity types"
-msgstr ""
+msgstr "Tất cả các loại hoạt động"
 
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
-msgstr ""
+msgstr "Tất cả các tác giả"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -288,6 +365,7 @@ msgstr "một mục"
 
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Phân tích"
@@ -295,15 +373,16 @@ msgstr "Phân tích"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr ""
+msgstr "Mã hệ thống chữ viết phân tích"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr ""
+msgstr "Các hệ thống chữ viết phân tích"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
-msgstr ""
+msgstr "Tính năng phân tích đã bị tắt."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -350,15 +429,27 @@ msgstr "Bạn có chắc chắn muốn xóa {0}?"
 msgid "Ask questions and get help on our community forum."
 msgstr "Hỏi câu hỏi và nhận trợ giúp trên diễn đàn cộng đồng của chúng tôi."
 
+#. Small marker chip on an activity summary indicating a field value is an audio recording (not text)
+#: src/lib/activity/ChangeSummary.svelte
+msgid "audio"
+msgstr ""
+
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's an audio writing system (Yes/No).
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
-msgstr ""
+msgstr "Âm thanh"
 
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "Tệp âm thanh không được bao gồm trong Gửi & Nhận"
+
+#. Noun for a media resource that is an audio recording, e.g. "Added audio recording" in the activity log
+#: src/lib/activity/ChangeSummary.svelte
+msgid "audio recording"
+msgstr ""
 
 #. Success message for audio sync
 #: src/lib/components/audio/AudioDialog.svelte
@@ -372,7 +463,7 @@ msgstr "Âm thanh đã được lưu cục bộ"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
-msgstr ""
+msgstr "Tác giả"
 
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
@@ -385,17 +476,22 @@ msgid "Auto"
 msgstr "Tự động"
 
 #. Status indicator
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Auto syncing"
 msgstr "Đang đồng bộ tự động"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Back"
-msgstr ""
+msgstr "Quay lại"
 
 #: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
+msgstr "Quay lại danh sách nhiệm vụ"
+
+#. Field label in the activity change-preview diff for a custom view. Shows which base view ("FieldWorks Classic" or "FieldWorks Lite") the custom view extends.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Base view"
 msgstr ""
 
 #. Section label in custom view form.
@@ -428,11 +524,11 @@ msgstr "Duyệt"
 
 #: src/project/browse/BrowseView.svelte
 msgid "Browse view failed"
-msgstr ""
+msgstr "Không thể hiển thị chế độ xem"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Camera"
-msgstr ""
+msgstr "Máy ảnh"
 
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
@@ -457,15 +553,28 @@ msgstr "Hủy"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Caption"
+msgstr "Chú thích"
+
+#. Activity-log line. {0} = field label (e.g. "Part of speech") or singular list-item noun (e.g. "complex form type"). Used when the new value is unknown or not displayed.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Changed {0}"
+msgstr ""
+
+#. Activity-log line. {0} = field label (e.g. "Part of speech"); a chip showing the new value follows this text.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Changed {0} to"
 msgstr ""
 
 #. Explanation of sync behavior
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "Các thay đổi cũng có thể do các trường mới được thêm vào phiên bản mới của FieldWorks Lite."
 
 #. Explanation of commits vs changes
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Thay đổi cùng một trường hai lần, ví dụ, có thể dẫn đến hai commit nhưng chỉ một thay đổi cần được áp dụng cho FieldWorks Classic. Commit cũng có thể gồm nhiều thay đổi."
 
@@ -474,14 +583,14 @@ msgstr "Thay đổi cùng một trường hai lần, ví dụ, có thể dẫn �
 #. Status line in the New Entry dialog while searching for possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar entries…"
-msgstr ""
+msgstr "Kiểm tra các mục tương tự…"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Checking for similar entries…"
 #. Status line in the New Word dialog while searching for possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar words…"
-msgstr ""
+msgstr "Kiểm tra các từ tương tự…"
 
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -513,6 +622,12 @@ msgstr "Dự án FieldWorks Classic"
 msgid "clear"
 msgstr "xóa"
 
+#. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Cleared {0}"
+msgstr ""
+
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
@@ -527,10 +642,16 @@ msgstr "Đóng"
 msgid "Close Dictionary"
 msgstr "Đóng Từ điển"
 
+#. Activity-log line: a user closed (resolved) a discussion thread. Matches the "Closed" status in the comments dialog.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Closed comment thread"
+msgstr ""
+
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Code"
-msgstr ""
+msgstr "Mã"
 
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
@@ -539,20 +660,34 @@ msgstr "Màu sắc"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Comment"
-msgstr ""
+msgstr "Bình luận"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Commenter"
+msgstr "Người bình luận"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
-msgstr ""
+msgstr "Bình luận"
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
+msgstr "Bình luận, {0} chưa đọc"
+
+#. Note on the "Later changes" tab. "Version" means the item's data at one moment; two moments are compared: just after this change, and now
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Compares the version right after this change with the current version."
+msgstr ""
+
+#. Note on the "Deleted later" tab. The item was deleted later; the second version is its data just before that deletion
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Compares the version right after this change with the last version before deletion."
 msgstr ""
 
 #: src/project/tasks/TaskList.svelte
 msgid "Complete"
-msgstr ""
+msgstr "Hoàn tất"
 
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
@@ -561,6 +696,17 @@ msgstr ""
 msgid "Complex Form"
 msgstr "Mẫu phức tạp"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added complex form type"). Refers to a user-defined classification of compound-word relationships (e.g. "compound", "derivative").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "complex form type"
+msgstr ""
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined classifications of compound-word relationships (e.g. "compound", "derivative").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "complex form types"
+msgstr ""
+
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
@@ -568,15 +714,16 @@ msgstr "Mẫu phức tạp"
 msgid "Complex form types"
 msgstr "Loại mẫu phức tạp"
 
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Complex form:"
-msgstr "Mẫu phức tạp:"
-
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Complex forms"
 msgstr "Các mẫu phức tạp"
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added component"). Refers to an entry that is a constituent part of a compound word (e.g. "sun" is a component of "sunflower").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "component"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Part"
@@ -589,10 +736,10 @@ msgstr "Các mẫu phức tạp"
 msgid "Component"
 msgstr "Thành phần"
 
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Component:"
-msgstr "Thành phần:"
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of component entries in a compound word.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "components"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -608,7 +755,7 @@ msgstr "Chứa"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
-msgstr ""
+msgstr "Cuộc trò chuyện"
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
@@ -625,30 +772,34 @@ msgstr "Sao chép phiên bản"
 #. Status line in the New Entry dialog when the background duplicate search failed (e.g. connection lost); typing again retries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar entries"
-msgstr ""
+msgstr "Không thể kiểm tra xem có mục tương tự nào không"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Could not check for similar entries"
 #. Status line in the New Word dialog when the background duplicate search failed (e.g. connection lost); typing again retries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
-msgstr ""
+msgstr "Không thể kiểm tra các từ tương tự"
+
+#: src/project/sync/FwClassicSyncView.svelte
+msgid "Couldn't get the FieldWorks Classic status from Lexbox."
+msgstr "Không thể lấy được trạng thái của FieldWorks Classic từ Lexbox."
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
-msgstr ""
+msgstr "Hiện tại không thể đồng bộ hóa — các thay đổi trên máy của bạn vẫn được lưu giữ an toàn."
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
 msgid "Create"
-msgstr ""
+msgstr "Tạo"
 
 #. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
-msgstr ""
+msgstr "Tạo một dự án FieldWorks Lite mới"
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -677,6 +828,18 @@ msgstr "Tạo Dự án ví dụ"
 msgid "Create View"
 msgstr "Tạo chế độ xem"
 
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "custom view"); a chip with the created item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created {0}"
+msgstr ""
+
+#. Activity-log line for a batch of same-type creations. {0} = count (number, always ≥ 2); {1} = plural noun for the created object type (e.g. "entries", "semantic domains").
+#. Example: "Created 100 semantic domains". Order and inflection of {0} and {1} may vary by language.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created {0} {1}"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
 #. Label in picker: marks the entry that is currently being edited
@@ -684,11 +847,6 @@ msgstr "Tạo chế độ xem"
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
 msgid "Current Entry"
 msgstr "Mục hiện tại"
-
-#. Column header
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Current version"
-msgstr "Phiên bản hiện tại"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Current Entry"
@@ -704,10 +862,20 @@ msgstr "Từ hiện tại"
 msgid "Custom"
 msgstr "Tùy chỉnh"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Created custom view"). A custom view is a user-defined configuration of which dictionary fields and writing systems are visible.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "custom view"
+msgstr ""
+
 #. Label used in delete confirmation prompt for a custom view.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr "Chế độ xem tùy chỉnh"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined configurations of which dictionary fields and writing systems are visible.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "custom views"
+msgstr ""
 
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
@@ -722,7 +890,7 @@ msgstr "Bảng điều khiển"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard failed to load"
-msgstr ""
+msgstr "Không thể tải trang tổng quan"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -760,7 +928,7 @@ msgstr "Xóa mục"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Delete Picture"
-msgstr ""
+msgstr "Xóa ảnh"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Delete Entry"
@@ -769,13 +937,45 @@ msgstr ""
 msgid "Delete Word"
 msgstr "Xóa từ"
 
-#. Change type indicator
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#. Badge in the activity change preview: the item itself was deleted. Compare "Removed", where only a link was removed and the item still exists
+#: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Deleted"
 msgstr "Đã xóa"
 
-#. Button to view activity details
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "writing system"); a chip with the deleted item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted {0}"
+msgstr ""
+
+#. Activity-log line. {0} = singular entity noun (e.g. "example", "meaning"/"sense"). A chip with the parent entry/sense name follows (e.g. "Deleted example from «Apfel»").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted {0} from"
+msgstr ""
+
+#. Activity-log line: a user deleted a discussion comment.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted comment"
+msgstr ""
+
+#. Activity-log line: a user deleted a whole discussion thread with its comments.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted comment thread"
+msgstr ""
+
+#. Status on a tab: the item was deleted after this change. Not an instruction to delete it later.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Deleted later"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Description"
+msgstr ""
+
+#. Tab in the activity change preview: technical details of the change
 #: src/lib/activity/ActivityItem.svelte
 msgid "Details"
 msgstr "Chi tiết"
@@ -798,6 +998,7 @@ msgstr "Xem trước từ điển"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Bỏ"
 
@@ -843,7 +1044,7 @@ msgstr "Tải xuống trang"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Download Picture"
-msgstr ""
+msgstr "Tải ảnh xuống"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -873,7 +1074,7 @@ msgstr "Đang tải xuống {0}..."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
-msgstr ""
+msgstr "Đang tải bản cập nhật..."
 
 #. Generic progress message
 #: src/home/Server.svelte
@@ -883,15 +1084,23 @@ msgstr "Đang tải xuống..."
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
-msgstr ""
+msgstr "ví dụ: th, sw"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Edit"
-msgstr ""
+msgstr "Chỉnh sửa"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
+msgstr "Chỉnh sửa bình luận"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit complex form"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit component"
 msgstr ""
 
 #. Dialog title when editing an existing custom view.
@@ -899,8 +1108,41 @@ msgstr ""
 msgid "Edit Custom View"
 msgstr "Chỉnh sửa chế độ xem tùy chỉnh"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Edit Word"
+#. Button on a change in the activity view; opens the changed entry in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Entry"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Edit Picture"
+msgstr "Chỉnh sửa ảnh"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit whole word"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Edit Entry"
+#. Button on a change in the activity view; opens the changed word in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Word"
+msgstr ""
+
+#. Tooltip/aria-label for the "changed" change-category badge icon on an activity row (paired with "Added", "Removed", "Reordered").
+#: src/lib/activity/ActivityView.svelte
+msgid "Edited"
+msgstr ""
+
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "morph type"); a chip with the edited item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Edited {0}"
+msgstr ""
+
+#. Activity-log line: a user edited their discussion comment. A chip with the new comment text may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Edited comment"
 msgstr ""
 
 #. Role selector option
@@ -908,9 +1150,13 @@ msgstr ""
 msgid "Editor"
 msgstr "Biên tập viên"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor Lite"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
-msgstr ""
+msgstr "Bình luận trống"
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -919,9 +1165,14 @@ msgstr ""
 msgid "Ends with"
 msgstr "Kết thúc bằng"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
+#: src/lib/activity/ChangeSummary.svelte
+msgid "entries"
+msgstr ""
+
 #: src/project/tasks/tasks-service.ts
 msgid "Entries missing both Lexeme form and Citation form"
-msgstr ""
+msgstr "Các mục thiếu cả Hình thức lexeme và Hình thức trích dẫn"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -932,13 +1183,14 @@ msgstr "Các mục còn thiếu..."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
-msgstr ""
+msgstr "Các mục có ví dụ"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
-msgstr ""
+msgstr "Các mục từ có nghĩa"
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
 msgid "entry"
 msgstr "nhập"
@@ -946,7 +1198,6 @@ msgstr "nhập"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -954,6 +1205,11 @@ msgstr "nhập"
 #: src/project/browse/EntryMenu.svelte
 msgid "Entry"
 msgstr "Mục"
+
+#. Field label in the activity change-preview diff for a custom view: which entry-level fields it shows.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Entry fields"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word only"
@@ -987,16 +1243,22 @@ msgid "Error getting sync status"
 msgstr "Lỗi khi lấy trạng thái đồng bộ"
 
 #. Error notification
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Error getting sync status."
 msgstr "Lỗi khi lấy trạng thái đồng bộ."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every entry already has this field filled in."
-msgstr ""
+msgstr "Mỗi mục đã được điền sẵn trường này."
 
 #: src/project/tasks/TaskView.svelte
 msgid "Every word already has this field filled in."
+msgstr "Mỗi từ đều đã được điền sẵn vào trường này."
+
+#. Standalone noun (an example sentence on a sense), interpolated into a reorder activity-log line, e.g. "<sense> · Reordered example".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "example"
 msgstr ""
 
 #. Section header
@@ -1006,6 +1268,11 @@ msgstr ""
 #: src/lib/views/entity-config.ts
 msgid "Example"
 msgstr "Ví dụ"
+
+#. Field label in the activity change-preview diff for a custom view: which example-sentence fields it shows.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Example fields"
+msgstr ""
 
 #. Field label
 #. Sentence/phrase showing usage of a word
@@ -1017,7 +1284,22 @@ msgstr "Câu ví dụ"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
+msgstr "Các câu ví dụ"
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of example sentences under a sense.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "examples"
 msgstr ""
+
+#. Field label in the activity change-preview diff for a writing system. Exemplars are the list of index letters (e.g. A, B, C…) used for alphabetical browsing.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Exemplars"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to change verbose logging"
+msgstr "Không thể thay đổi chế độ ghi nhật ký chi tiết"
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1033,7 +1315,7 @@ msgstr "Tải xuống {0} thất bại"
 #: src/lib/activity/ActivityView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "Failed to load activity"
-msgstr ""
+msgstr "Không thể tải hoạt động"
 
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
@@ -1043,19 +1325,19 @@ msgstr "Tải mục thất bại"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load file"
-msgstr ""
+msgstr "Không tải được tệp"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load files"
-msgstr ""
+msgstr "Không tải được tệp"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load media files"
-msgstr ""
+msgstr "Không tải được các tệp phương tiện"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to load metadata"
-msgstr ""
+msgstr "Không tải được siêu dữ liệu"
 
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1070,16 +1352,20 @@ msgstr "Mở URL thất bại: {0}"
 #. Error toast when snapshot regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate Harmony snapshots"
-msgstr ""
+msgstr "Không thể tạo lại các bản chụp nhanh của Harmony"
 
 #. Error toast when search index regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate search index"
-msgstr ""
+msgstr "Không thể tạo lại chỉ mục tìm kiếm"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to save file"
-msgstr ""
+msgstr "Không thể lưu tệp"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to save settings"
+msgstr "Không thể lưu cài đặt"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
@@ -1088,7 +1374,7 @@ msgstr "Đồng bộ thất bại"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to upload files"
-msgstr ""
+msgstr "Không tải lên được tệp"
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -1110,20 +1396,20 @@ msgid "Fields"
 msgstr "Các trường"
 
 #. Product name
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/SyncDialog.svelte
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
-msgstr ""
+msgstr "FieldWorks Lite thu thập dữ liệu sử dụng để giúp chúng tôi cải thiện ứng dụng này."
 
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
-msgstr ""
+msgstr "FieldWorks Lite đã được cập nhật. Vui lòng khởi động lại để hoàn tất quá trình cài đặt."
 
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "Người dùng FieldWorks Lite sẽ tự động nhận các thay đổi được thực hiện trong FieldWorks Classic. Người dùng FieldWorks Classic sẽ thấy các thay đổi từ FieldWorks Lite sau khi họ thực hiện Gửi/Nhận."
 
@@ -1138,8 +1424,8 @@ msgstr "Phiên bản FieldWorks Lite"
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
@@ -1172,15 +1458,15 @@ msgstr "Tệp quá lớn"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Filename"
-msgstr ""
+msgstr "Tên tệp"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
-msgstr ""
+msgstr "Điền vào mục “Hiển thị dưới dạng”"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
-msgstr ""
+msgstr "Điền vào Từ hoặc Hiển thị dưới dạng"
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1255,6 +1541,11 @@ msgstr "Tìm từ..."
 msgid "Finish"
 msgstr "Hoàn tất"
 
+#. Field label in the activity change-preview diff. "Font" is the typeface name configured on a writing system.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Font"
+msgstr ""
+
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
@@ -1282,16 +1573,34 @@ msgstr "Ghi chú"
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
 #. {0} = entry/word name (e.g., "Go to banana")
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Đi tới {0}"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to complex form"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to component"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Go to word"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to entry"
+msgstr "Chuyển đến mục"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Go to Word"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed entry in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Entry"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to whole word"
 msgstr ""
 
 #. Relevant view: Lite
@@ -1299,6 +1608,13 @@ msgstr ""
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
+msgstr "Chuyển đến từ"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Go to Entry"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed word in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Word"
 msgstr ""
 
 #. Filter option label
@@ -1318,19 +1634,19 @@ msgstr "xanh"
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
-msgstr ""
+msgstr "Các bản chụp nhanh Harmony đã được tạo lại thành công"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has comments"
-msgstr ""
+msgstr "Có bình luận"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unread comments"
-msgstr ""
+msgstr "Còn có bình luận chưa đọc"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unresolved comments"
-msgstr ""
+msgstr "Còn có các bình luận chưa được giải quyết"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -1342,12 +1658,17 @@ msgstr "Từ đầu mục"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Help & More"
-msgstr ""
+msgstr "Trợ giúp & Thêm thông tin"
 
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
 msgstr "Ẩn"
+
+#. Button in the activity view's change preview. It hides again the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Hide unchanged fields"
+msgstr ""
 
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
@@ -1374,7 +1695,7 @@ msgstr "Tôi hiểu rằng điều này không thể hoàn tác"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
@@ -1410,7 +1731,7 @@ msgstr "Đang cài đặt bản cập nhật..."
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
-msgstr ""
+msgstr "vừa nãy"
 
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
@@ -1418,24 +1739,29 @@ msgid "Keep going"
 msgstr "Tiếp tục"
 
 #. Label showing the date of the last change in the FwLite↔Classic sync panel. # is replaced by a formatted relative date component (e.g., "3 days ago").
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Last change: #"
 msgstr "Thay đổi cuối: #"
 
 #. Label showing the timestamp of the last local sync in the sync panel. # is replaced by a formatted relative date component (e.g., "5 minutes ago").
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Last sync: #"
 msgstr "Lần đồng bộ cuối: #"
 
+#. Tab: shows changes made to this item after this change.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Later changes"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "Learn more"
-msgstr ""
+msgstr "Tìm hiểu thêm"
 
 #. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
-msgstr ""
+msgstr "Để trống cho phiên bản sản xuất"
 
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
@@ -1443,7 +1769,7 @@ msgid "Length:"
 msgstr "Độ dài:"
 
 #. Product name
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/SyncDialog.svelte
 msgid "Lexbox"
 msgstr "Lexbox"
 
@@ -1487,36 +1813,36 @@ msgstr "Ý nghĩa đen"
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Load"
-msgstr ""
+msgstr "Tải"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Load all"
-msgstr ""
+msgstr "Tải tất cả"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Load it to preview or export."
-msgstr ""
+msgstr "Tải lên để xem trước hoặc xuất."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Load picture"
-msgstr ""
+msgstr "Tải ảnh lên"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded {0} file(s)"
-msgstr ""
+msgstr "Đã tải {0} tệp"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded file"
-msgstr ""
+msgstr "Đã tải tệp"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr ""
+msgstr "Đang tải hoạt động"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
-msgstr ""
+msgstr "Đang tải bình luận..."
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1525,11 +1851,11 @@ msgstr "Đang tải các từ điển..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Loading metadata..."
-msgstr ""
+msgstr "Đang tải siêu dữ liệu..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Loading preview..."
-msgstr ""
+msgstr "Đang tải bản xem trước..."
 
 #: src/home/HomeView.svelte
 msgid "loading..."
@@ -1537,17 +1863,17 @@ msgstr "đang tải..."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loading..."
-msgstr ""
+msgstr "Đang tải..."
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Local"
 msgstr "Cục bộ"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Local and remote"
-msgstr ""
+msgstr "Tại chỗ và từ xa"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
@@ -1556,15 +1882,15 @@ msgid "Local only"
 msgstr "Chỉ cục bộ"
 
 #. Button label in the sync panel when the user is not logged in. Initiates authentication with the server.
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Login"
 msgstr "Đăng nhập"
 
 #. Toast shown when the user closes or cancels the login dialog before signing in.
 #: src/lib/auth/LoginButton.svelte
 msgid "Login cancelled."
-msgstr ""
+msgstr "Việc đăng nhập đã bị hủy."
 
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
@@ -1576,10 +1902,18 @@ msgstr "Đăng nhập để xem dự án"
 msgid "Logout"
 msgstr "Đăng xuất"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Louw-Nida codes"
+msgstr ""
+
 #. Footer text in the project sidebar. The emoji flags are the countries of origin of the development team — do not translate.
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Được tạo với ❤️ từ 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Main publication"
+msgstr ""
 
 #. Button label in the Feedback & Support dialog. Opens an external link to submit a feature suggestion.
 #: src/lib/about/FeedbackDialog.svelte
@@ -1590,6 +1924,11 @@ msgstr "Gợi ý"
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Hãy đảm bảo [các thay đổi của bạn đã được đồng bộ]({0}) với Lexbox."
+
+#. Detail under "Still opening the project...". After an app update, opening a project can rebuild its data, and closing the app restarts that work.
+#: src/DotnetProjectView.svelte
+msgid "Making sure the project is up to date can take a few minutes. Please keep the app open."
+msgstr ""
 
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
@@ -1612,6 +1951,14 @@ msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Cần thực hiện cập nhật thủ công. Vui lòng làm theo các hướng dẫn được cung cấp."
 
 #. Relevant view: Lite
+#. Classic view equivalent: "sense"
+#. Lowercase singular noun interpolated into activity-log lines (e.g. "Added meaning «happy»"). A sense is one meaning of a word.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "meaning"
+msgstr ""
+
+#. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -1622,18 +1969,31 @@ msgstr "Cần thực hiện cập nhật thủ công. Vui lòng làm theo các h
 msgid "Meaning"
 msgstr "Ý nghĩa"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "senses"
+#. Lowercase plural noun interpolated into activity-log lines (e.g. "Reordered meanings"). Paired with singular "meaning".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "meanings"
+msgstr ""
+
+#. Noun for a media resource of non-audio/unknown type, e.g. "Added media file" in the activity log
+#: src/lib/activity/ChangeSummary.svelte
+msgid "media file"
+msgstr ""
+
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Media file details"
-msgstr ""
+msgstr "Chi tiết tệp phương tiện"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Media Manager"
-msgstr ""
+msgstr "Trình quản lý phương tiện"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
-msgstr ""
+msgstr "Thiếu hình thức trích dẫn {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1642,7 +2002,7 @@ msgstr "Thiếu Định nghĩa {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Display as {0}"
-msgstr ""
+msgstr "Thiếu hiển thị dưới dạng {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1656,27 +2016,27 @@ msgstr "Thiếu Ghi chú {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Grammatical info."
-msgstr ""
+msgstr "Thiếu thông tin ngữ pháp."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Headword {0}"
-msgstr ""
+msgstr "Thiếu từ đầu mục {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Lexeme form {0}"
-msgstr ""
+msgstr "Thiếu hình thức lexeme {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Part of speech"
-msgstr ""
+msgstr "Thiếu loại từ"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Semantic domains"
-msgstr ""
+msgstr "Thiếu các miền ngữ nghĩa"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Word {0}"
-msgstr ""
+msgstr "Từ còn thiếu {0}"
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1690,10 +2050,48 @@ msgstr "Thiếu: {0}"
 msgid "Mode"
 msgstr "Chế độ"
 
+#. Accessible name of the arrow button that opens more actions for an entry in the activity change preview
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "More options"
+msgstr ""
+
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "More options for {0}"
+msgstr ""
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "morph type"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
+msgid "Morph type"
+msgstr ""
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "morph types"
+msgstr ""
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Di chuyển"
+
+#. Badge or screen-reader marker in the activity change preview: this change only moved the item to another place in its list (e.g. reordered senses)
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Moved"
+msgstr ""
+
+#. Activity-log line. Shown when a sense was moved into the entry it now belongs to (shown as the subject) from a different entry.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Moved from another entry"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Moved from another sense"
+msgstr ""
 
 #. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -1702,6 +2100,9 @@ msgstr "Chế độ xem tùy chỉnh của tôi..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Tên"
@@ -1712,9 +2113,9 @@ msgstr "Tên"
 msgid "Name is required"
 msgstr "Tên là trường thông tin bắt buộc"
 
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Never"
 msgstr "Không bao giờ"
 
@@ -1730,7 +2131,7 @@ msgid "New Custom View"
 msgstr "Chế độ xem tùy chỉnh mới"
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are pending changes waiting to be applied. Paired with "No new data".
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "New data"
 msgstr "Dữ liệu mới"
 
@@ -1745,11 +2146,11 @@ msgstr "Mục mới"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
-msgstr ""
+msgstr "Dự án mới"
 
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
-msgstr ""
+msgstr "Dự án mới (Chỉ cục bộ)"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -1763,7 +2164,7 @@ msgstr "Từ mới"
 #. Sort option in activity view — most recent commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Newest first"
-msgstr ""
+msgstr "Hiển thị theo thứ tự từ mới nhất"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
@@ -1771,25 +2172,29 @@ msgstr "Tiếp theo"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Next milestone: {0}. {1} to go."
-msgstr ""
+msgstr "Cột mốc tiếp theo: {0}.  Còn {1} nữa."
 
 #. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Next picture"
+msgstr "Hình tiếp theo"
+
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "No"
 msgstr ""
 
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
-msgstr ""
+msgstr "Không có hoạt động nào phù hợp với các tiêu chí lọc này"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
-msgstr ""
+msgstr "Không có loại hoạt động nào"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
-msgstr ""
+msgstr "Chưa có hệ thống chữ viết phân tích nào được cấu hình."
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -1799,7 +2204,7 @@ msgstr "Không có âm thanh"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
-msgstr ""
+msgstr "Không có tác giả"
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1831,27 +2236,33 @@ msgstr "Không tìm thấy lịch sử"
 msgid "No items found"
 msgstr "Không tìm thấy mục nào"
 
-#: src/lib/media-manager/MediaManagerView.svelte
-msgid "No media files found"
+#. Status on a tab: nothing was changed in this item after this change.
+#: src/lib/activity/ActivityItem.svelte
+msgid "No later changes"
 msgstr ""
 
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "No media files found"
+msgstr "Không tìm thấy tệp phương tiện nào"
+
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "No new data"
 msgstr "Không có dữ liệu mới"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "No open conversations"
-msgstr ""
+msgstr "Không có cuộc trò chuyện đang diễn ra"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
+#: src/lib/entry-editor/diff-view/DiffPictures.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
-msgstr ""
+msgstr "Không có hình ảnh"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "No server"
 msgstr "Không có máy chủ"
 
@@ -1865,14 +2276,14 @@ msgstr "Chưa cấu hình máy chủ"
 #. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar entries found"
-msgstr ""
+msgstr "Không tìm thấy mục nào tương tự"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No similar entries found"
 #. Status line in the New Word dialog: the duplicate check found no existing words like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar words found"
-msgstr ""
+msgstr "Không tìm thấy từ nào tương tự"
 
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte
@@ -1881,6 +2292,11 @@ msgstr "Không có chủ đề, không thể tạo mới {0}"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
+msgstr "Chưa có hệ thống chữ viết bản địa nào được cấu hình."
+
+#. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
+#: src/lib/entry-editor/diff-view/DiffNoVisibleChanges.svelte
+msgid "No visible changes"
 msgstr ""
 
 #. Relevant view: Lite
@@ -1894,6 +2310,7 @@ msgstr "Không tìm thấy từ nào"
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
 msgid "None"
 msgstr "Không có"
 
@@ -1903,12 +2320,6 @@ msgstr "Không có"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Not equal"
 msgstr "Không bằng"
-
-#. Placeholder shown in the activity change preview when a referenced entry or sense no longer exists in the dictionary.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Not found"
-msgstr "Không tìm thấy"
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
@@ -1932,13 +2343,22 @@ msgstr "Ghi chú"
 msgid "Nothing to copy"
 msgstr "Không có gì để sao chép"
 
+#. Under a change's headword in the activity view. # is the entry's current headword; shown when a later change renamed it
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Now called: #"
+msgstr ""
+
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
 msgstr "Quan sát viên"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "OCM codes"
+msgstr ""
+
 #. Status indicator
 #: src/project/ProjectSidebar.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Offline"
 msgstr "Ngoại tuyến"
 
@@ -1949,25 +2369,25 @@ msgstr "Ngoại tuyến, không thể tải xuống"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
-msgstr ""
+msgstr "Chế độ ngoại tuyến, không thể mở tệp"
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Oldest first"
-msgstr ""
+msgstr "Xếp theo thứ tự từ cũ nhất"
 
 #. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
-msgstr ""
+msgstr "Đối với các dự án quy mô lớn, quá trình này có thể mất nhiều thời gian. Xin đừng tắt ứng dụng hoặc làm gián đoạn quá trình này."
 
 #. Warning in regenerate-search-index confirm dialog: operation may be slow
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a while. Do not close the app or interrupt the process."
-msgstr ""
+msgstr "Với các dự án quy mô lớn, quá trình này có thể mất một lúc. Xin đừng đóng ứng dụng hoặc làm gián đoạn quá trình này."
 
 #. Explanation of sync behavior
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Một commit của FieldWorks Classic có thể gồm các thay đổi trên nhiều mục hoặc trường. Ngược lại, một commit có thể chỉ ảnh hưởng tới dữ liệu không được đồng bộ tới FieldWorks Lite."
 
@@ -1984,7 +2404,7 @@ msgstr "Mở Thư mục Dữ liệu"
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
 msgid "Open in browser"
-msgstr ""
+msgstr "Mở trong trình duyệt"
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -1992,7 +2412,7 @@ msgid "Open in FieldWorks"
 msgstr "Mở trong FieldWorks"
 
 #. Menu option
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/EntryActionsButton.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -2008,9 +2428,14 @@ msgstr "Mở tệp nhật ký"
 msgid "Opening in FieldWorks…"
 msgstr "Mở trong FieldWorks…"
 
+#. Loading notification shown while a project opens.
+#: src/DotnetProjectView.svelte
+msgid "Opening project..."
+msgstr ""
+
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Opt out of analytics"
-msgstr ""
+msgstr "Từ chối tham gia phân tích"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -2038,6 +2463,11 @@ msgstr "Phần"
 msgid "Part of"
 msgstr "Một phần của"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added part of speech", "Changed part of speech to"). Refers to the grammatical category of a word (noun, verb, adjective, etc.). Classic view calls this "Grammatical info."
+#: src/lib/activity/ChangeSummary.svelte
+msgid "part of speech"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
@@ -2046,23 +2476,32 @@ msgstr "Một phần của"
 msgid "Part of speech"
 msgstr "Loại từ"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Grammatical categories (noun, verb, adjective, etc.). Classic view calls these "Grammatical info."
+#: src/lib/activity/ChangeSummary.svelte
+msgid "parts of speech"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
+msgstr "Dán các thiết lập từ phần hỗ trợ vào đây. Khi lưu, tệp sẽ được ghi đè và các thiết lập sẽ được áp dụng ngay lập tức; để trống ô này để xóa tệp. Kích thước và số lượng tệp nhật ký chỉ thay đổi sau khi khởi động lại."
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Pending"
 msgstr "Đang chờ xử lý"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
-msgstr ""
+msgstr "Chọn một loại từ"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick Grammatical info."
-msgstr ""
+msgstr "Chọn “Thông tin ngữ pháp”."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick one or more Semantic domains"
-msgstr ""
+msgstr "Chọn một hoặc nhiều miền ngữ nghĩa"
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
@@ -2070,21 +2509,21 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Picture"
-msgstr ""
+msgstr "Hình ảnh"
 
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
-msgstr ""
+msgstr "Các thao tác với hình ảnh"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Picture not found"
-msgstr ""
+msgstr "Không tìm thấy hình ảnh"
 
 #. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
 #: src/lib/views/entity-config.ts
 msgid "Pictures"
-msgstr ""
+msgstr "Hình ảnh"
 
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
@@ -2099,8 +2538,17 @@ msgstr "Đã ghim"
 msgid "Platform"
 msgstr "Nền tảng"
 
+#. Field label in the activity change-preview diff for a morph type. "Postfix" is the character(s) appended after a morpheme to mark its grammatical role (e.g. "-" for a suffix).
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Postfix"
+msgstr ""
+
+#. Field label in the activity change-preview diff for a morph type. "Prefix" is the character(s) prepended before a morpheme to mark its grammatical role (e.g. "-" for a prefix).
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Prefix"
+msgstr ""
+
 #. View option
-#: src/lib/activity/ActivityItem.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
@@ -2113,22 +2561,22 @@ msgstr "Xem trước không khả dụng"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not available for this file type."
-msgstr ""
+msgstr "Không thể xem trước đối với loại tệp này."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
-msgstr ""
+msgstr "Không hỗ trợ xem trước"
 
 #. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Previous picture"
-msgstr ""
+msgstr "Hình trước"
 
 #: src/home/HomeView.svelte
 #: src/lib/about/PrivacyDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
-msgstr ""
+msgstr "Quyền riêng tư"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2145,12 +2593,23 @@ msgstr "Dự án {0} không tìm thấy trên {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Dự án {0} trên {1} chưa được thiết lập cho FieldWorks Lite"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added publication"). A publication is a dictionary or word list that entries can be assigned to for distribution.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "publication"
+msgstr ""
+
 #. Filter option
 #. Publication type/dictionary for entries
 #. Used to organize entries by which publication(s) they should appear in
 #: src/project/browse/SearchFilter.svelte
 msgid "Publication"
 msgstr "Phát hành"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Publications are dictionaries or word lists that entries can be assigned to for distribution.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "publications"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Publish Word in"
@@ -2169,43 +2628,43 @@ msgstr "Xuất bản Từ trong"
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
-msgstr ""
+msgstr "Chỉ đọc"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
-msgstr ""
+msgstr "Ghi lại hình thức trích dẫn"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Definition"
-msgstr ""
+msgstr "Ghi lại định nghĩa"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Gloss"
-msgstr ""
+msgstr "Ghi lại định nghĩa thuật ngữ"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form"
-msgstr ""
+msgstr "Ghi lại hình thức lexeme"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form or Citation form"
-msgstr ""
+msgstr "Ghi lại hình thức lexeme hoặc hình thức trích dẫn"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
-msgstr ""
+msgstr "Ghi lại một từ"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record an example sentence"
-msgstr ""
+msgstr "Ghi lại một câu ví dụ"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
-msgstr ""
+msgstr "Ghi lại Hiển thị dưới dạng"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
-msgstr ""
+msgstr "Ghi lại từ hoặc hiển thị dưới dạng"
 
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Recording isn't available on this device."
@@ -2226,7 +2685,7 @@ msgstr "Tinh chỉnh bộ lọc để xem thêm..."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Refresh"
-msgstr ""
+msgstr "Làm mới"
 
 #. Button to reload project list
 #: src/home/HomeView.svelte
@@ -2238,42 +2697,42 @@ msgstr "Làm mới Dự án"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate"
-msgstr ""
+msgstr "Tạo lại"
 
 #. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots"
-msgstr ""
+msgstr "Tạo lại các bản chụp nhanh Harmony"
 
 #. Alert dialog title before starting Harmony snapshot regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots?"
-msgstr ""
+msgstr "Tạo lại các bản chụp nhanh Harmony?"
 
 #. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index"
-msgstr ""
+msgstr "Tạo lại chỉ mục tìm kiếm"
 
 #. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
-msgstr ""
+msgstr "Tạo lại chỉ mục tìm kiếm?"
 
 #. Blocking progress message while Harmony snapshots are being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
-msgstr ""
+msgstr "Đang tạo lại các bản chụp nhanh Harmony. Quá trình này có thể mất nhiều thời gian — xin đừng đóng ứng dụng."
 
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
-msgstr ""
+msgstr "Đang tạo lại chỉ mục tìm kiếm. Quá trình này có thể mất một lúc — xin đừng đóng ứng dụng."
 
 #. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Release channel"
-msgstr ""
+msgstr "Kênh phát hành"
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -2282,7 +2741,7 @@ msgstr "Ghi chú phát hành"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
-msgstr ""
+msgstr "Chỉ làm việc từ xa"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -2294,6 +2753,33 @@ msgstr "Gỡ bỏ"
 msgid "Remove audio"
 msgstr "Xóa âm thanh"
 
+#. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Removed"
+msgstr ""
+
+#. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain", "component"); a chip with the removed item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed {0}"
+msgstr ""
+
+#. Activity-log line: a complex-form component entry was removed from another entry's Components list; a chip with the component's name may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed component"
+msgstr ""
+
+#. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A leading entry chip may precede this text.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed from {0}"
+msgstr ""
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Updated picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed picture"
+msgstr ""
+
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -2302,6 +2788,27 @@ msgstr "Xóa âm thanh"
 msgid "Reopen"
 msgstr "Mở lại"
 
+#. Activity-log line: a user reopened a previously closed discussion thread.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reopened comment thread"
+msgstr ""
+
+#. Tooltip/aria-label for the "reordered" change-category badge icon on an activity row (paired with "Added", "Removed", "Edited").
+#: src/lib/activity/ActivityView.svelte
+msgid "Reordered"
+msgstr ""
+
+#. Activity-log line. {0} = plural collection noun: "senses", "examples", "components", or "writing systems".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reordered {0}"
+msgstr ""
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Updated picture".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reordered pictures"
+msgstr ""
+
 #. Button to overwrite audio file
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
@@ -2309,16 +2816,16 @@ msgstr "Thay thế âm thanh"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Replace Picture"
-msgstr ""
+msgstr "Thay thế hình ảnh"
 
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply"
-msgstr ""
+msgstr "Trả lời"
 
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply…"
-msgstr ""
+msgstr "Trả lời…"
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
@@ -2327,18 +2834,18 @@ msgstr "Báo lỗi kỹ thuật"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
-msgstr ""
+msgstr "Đặt lại"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
-msgstr ""
+msgstr "Giải quyết"
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Restart"
-msgstr ""
+msgstr "Khởi động lại"
 
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
@@ -2360,14 +2867,14 @@ msgstr "hoa hồng"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
-msgstr ""
+msgstr "Cùng từ đầu mục"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: only its lexeme form matches the typed text, while its citation form (shown as the headword) differs — deliberately NOT claiming "Same headword"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same lexeme form"
-msgstr ""
+msgstr "Cùng hình thức lexeme"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Same headword"
@@ -2375,15 +2882,19 @@ msgstr ""
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same word"
-msgstr ""
+msgstr "Cùng một từ"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
-msgstr ""
+msgstr "Lưu"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Save and apply"
+msgstr "Lưu và áp dụng"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Save as"
-msgstr ""
+msgstr "Lưu dưới dạng"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -2413,7 +2924,7 @@ msgstr "Tìm từ điển"
 #. Success toast after rebuilding the FTS entry search index
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
-msgstr ""
+msgstr "Chỉ mục tìm kiếm đã được tạo lại thành công"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2424,6 +2935,11 @@ msgstr "Chọn {0}"
 #: src/project/browse/BrowseView.svelte
 msgid "Select {0} to view details"
 msgstr "Chọn {0} để xem chi tiết"
+
+#. Shown in the Activity detail pane when no change (commit) is selected.
+#: src/lib/activity/ActivityView.svelte
+msgid "Select a change to view details"
+msgstr ""
 
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
@@ -2443,6 +2959,12 @@ msgstr "Chọn tệp"
 
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Selected"
+msgstr "Đã chọn"
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added semantic domain"). A semantic domain is a meaning category assigned to a sense (e.g. "plants", "emotions", "body parts").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "semantic domain"
 msgstr ""
 
 #. Filter option
@@ -2451,6 +2973,11 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr "Miền ngữ nghĩa"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Semantic domains are meaning categories assigned to senses (e.g. "plants", "emotions", "body parts").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "semantic domains"
+msgstr ""
 
 #. Field label
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
@@ -2464,6 +2991,12 @@ msgstr "Các miền ngữ nghĩa"
 msgid "Send us a message"
 msgstr "Gửi cho chúng tôi một tin nhắn"
 
+#. Standalone noun (one meaning of a word), interpolated into a reorder activity-log line followed by the sense's gloss, e.g. "Apfel · Reordered sense apple".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "sense"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Meaning"
 #. Field label: one meaning/definition of an entry
@@ -2475,6 +3008,17 @@ msgstr "Gửi cho chúng tôi một tin nhắn"
 msgid "Sense"
 msgstr "Ý nghĩa (sense)"
 
+#. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sense fields"
+msgstr ""
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of senses (meanings) within a dictionary entry.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "senses"
+msgstr ""
+
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
@@ -2482,10 +3026,47 @@ msgstr "Ý nghĩa (sense)"
 msgid "Sentence"
 msgstr "Câu"
 
+#. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set {0}"
+msgstr ""
+
+#. Activity-log line. {0} = field label (e.g. "Definition"); a chip with the new value follows. Used when there is no writing-system qualifier.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set {0} to"
+msgstr ""
+
+#. First # is a field label plus writing-system abbreviation, second # is the new value
+#. First # is a field label plus writing-system abbreviation, second # is the new value
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set # to #"
+msgstr ""
+
+#. Activity-log line. A leading chip names the publication. Means this publication was marked as the project's single main (default) publication.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set as the main publication"
+msgstr ""
+
+#. Activity-log line. The default/primary free translation of an example sentence was set; no chip follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set default translation"
+msgstr ""
+
+#. Activity-log line. The FieldWorks homograph number (disambiguates entries with the same headword) was set; a chip with the number follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set homograph number to"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Settings"
 msgstr "Cài đặt"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Settings saved and applied"
+msgstr "Cài đặt đã được lưu và áp dụng"
 
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
@@ -2519,53 +3100,58 @@ msgstr "Hiển thị thêm {0}..."
 
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
+msgstr "Hiển thị hoặc ẩn chú thích"
+
+#. Button in the activity view's change preview. It also shows the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Show unchanged fields"
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
-msgstr ""
+msgstr "Vui lòng đăng nhập để thêm bình luận."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar words already exist"
 #. Warning banner in the New Entry dialog; expands to a list of possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar entries already exist"
-msgstr ""
+msgstr "Đã có các mục tương tự"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar meaning"
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
-msgstr ""
+msgstr "Ghi chú tương tự"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
 #. Badge on a possible-duplicate result: its headword partly matches the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar headword"
-msgstr ""
+msgstr "Từ đầu mục tương tự"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar gloss"
 #. Badge on a possible-duplicate result: one of its meanings matches the meaning being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar meaning"
-msgstr ""
+msgstr "Ý nghĩa tương tự"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar headword"
 #. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar word"
-msgstr ""
+msgstr "Từ tương tự"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar entries already exist"
 #. Warning banner in the New Word dialog; expands to a list of possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar words already exist"
-msgstr ""
+msgstr "Đã có những từ tương tự rồi"
 
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
@@ -2574,7 +3160,7 @@ msgstr "Đơn giản"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Size"
-msgstr ""
+msgstr "Kích thước"
 
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
@@ -2586,13 +3172,26 @@ msgstr "Kích thước:"
 msgid "Skip"
 msgstr "Bỏ qua"
 
+#. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
+msgstr ""
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
+msgstr "Đã xảy ra sự cố"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sort language"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sort rules"
 msgstr ""
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
-msgstr ""
+msgstr "Phân loại hệ thống chữ viết"
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
@@ -2601,11 +3200,11 @@ msgstr "Trường cụ thể"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation"
-msgstr ""
+msgstr "Bắt đầu một cuộc trò chuyện"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation…"
-msgstr ""
+msgstr "Bắt đầu một cuộc trò chuyện…"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2613,6 +3212,11 @@ msgstr ""
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Bắt đầu bằng"
+
+#. Title of a loading notification shown when opening a project takes a while.
+#: src/DotnetProjectView.svelte
+msgid "Still opening the project..."
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -2633,7 +3237,7 @@ msgid "Submit"
 msgstr "Gửi"
 
 #. Button or tab label
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync"
 msgstr "Đồng bộ"
 
@@ -2643,17 +3247,17 @@ msgid "Sync Changes"
 msgstr "Đồng bộ các thay đổi"
 
 #. Success message showing change counts
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
 msgstr "Đồng bộ hoàn tất. {0} được áp dụng cho FieldWorks Classic. {1} được áp dụng cho FieldWorks Lite."
 
 #. Section title
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Đồng bộ FieldWorks Lite và FieldWorks Classic"
 
 #. Introductory text for sync status panel
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
 msgstr "Đồng bộ các thay đổi của bạn với người dùng FieldWorks Lite khác"
 
@@ -2665,12 +3269,12 @@ msgstr "Đã đồng bộ"
 #. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced newest"
-msgstr ""
+msgstr "Đã đồng bộ hóa phiên bản mới nhất"
 
 #. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced oldest"
-msgstr ""
+msgstr "Đã đồng bộ hóa bản cũ nhất"
 
 #. Status showing sync source server
 #: src/home/HomeView.svelte
@@ -2688,12 +3292,12 @@ msgid "Synchronize"
 msgstr "Đồng bộ hóa"
 
 #. Progress message during sync
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Đang đồng bộ FieldWorks Lite và FieldWorks Classic..."
 
 #. Progress indicator
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "Đang đồng bộ..."
 
@@ -2710,7 +3314,7 @@ msgstr "Không tìm thấy nhiệm vụ: {0}"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task view failed"
-msgstr ""
+msgstr "Không thể hiển thị chế độ xem tác vụ"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -2725,7 +3329,7 @@ msgstr "Hãy cho chúng tôi biết về lỗi hoặc vấn đề bạn gặp ph
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Tell us how you work and what would help most. Your ideas guide what we build."
-msgstr ""
+msgstr "Hãy chia sẻ với chúng tôi cách bạn làm việc và điều gì sẽ hữu ích nhất đối với bạn. Những ý tưởng của bạn sẽ định hướng cho những gì chúng tôi phát triển."
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
@@ -2738,12 +3342,12 @@ msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from
 msgstr "Chế độ xem *FieldWorks Lite* được thiết kế cho người không chuyên ngôn ngữ và khác với chế độ xem *FieldWorks Classic* theo các cách sau:"
 
 #. Explanation note
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Số commit của FieldWorks Classic không nhất thiết khớp với số thay đổi hiển thị trong thông báo kết quả đồng bộ."
 
 #. Explanation note
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Số commit của FieldWorks Lite không nhất thiết khớp với số thay đổi hiển thị trong thông báo kết quả đồng bộ."
 
@@ -2768,6 +3372,11 @@ msgstr "Những thay đổi này chưa được tải lên. Hãy đảm bảo b�
 msgid "This {0} was deleted"
 msgstr "Đường dẫn này {0} đã bị xóa."
 
+#. Tab that shows what this one change did to the item
+#: src/lib/activity/ActivityItem.svelte
+msgid "This change"
+msgstr ""
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -2778,19 +3387,19 @@ msgstr "Ngày này # và biểu tượng cảm xúc này # là đoạn trích"
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This entry may already exist"
-msgstr ""
+msgstr "Mục này có thể đã tồn tại"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
-msgstr ""
+msgstr "Tệp này chỉ có thể truy cập từ xa."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
-msgstr ""
+msgstr "Hình ảnh này quá lớn để tải lên. Hãy thử giảm độ phân giải rồi tải lên lại."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
-msgstr ""
+msgstr "Ảnh này quá lớn để tải lên. Hãy thử lưu ảnh với chất lượng JPEG thấp hơn rồi tải lên lại."
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2800,12 +3409,12 @@ msgstr "Dự án này hiện đã mở trong FieldWorks. Để tiếp tục làm
 #. Warning in regenerate-snapshots confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds snapshot and projected tables from commit history."
-msgstr ""
+msgstr "Thao tác này sẽ tái tạo các bảng snapshot và bảng dự báo từ lịch sử các lần cam kết."
 
 #. Warning in regenerate-search-index confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
-msgstr ""
+msgstr "Quá trình này sẽ xây dựng lại chỉ mục tìm kiếm toàn văn từ các mục từ điển."
 
 #. Status message
 #: src/project/tasks/TaskView.svelte
@@ -2813,7 +3422,7 @@ msgid "This task is complete"
 msgstr "Nhiệm vụ này đã hoàn thành"
 
 #. Description of sync operation
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Điều này sẽ đồng bộ các bản sao FieldWorks Lite và FieldWorks Classic của dự án của bạn trong Lexbox."
 
@@ -2822,7 +3431,7 @@ msgstr "Điều này sẽ đồng bộ các bản sao FieldWorks Lite và FieldW
 #. Warning banner in the New Word dialog when a word with the exact same spelling exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This word may already exist"
-msgstr ""
+msgstr "Từ này có thể đã tồn tại rồi"
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
@@ -2838,15 +3447,22 @@ msgstr "Chuyển trạng thái ghim"
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
+msgstr "Tổng số mục"
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to one of an example sentence's free translations.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "translation"
 msgstr ""
 
 #. Field label
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Bản dịch"
 
 #. Field title in the example editor when an entry has multiple translations. {0} = 1-based index number (e.g., "Translation 1", "Translation 2"). When there is only one translation, "Translation" is used instead.
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Bản dịch {0}"
@@ -2862,19 +3478,21 @@ msgstr "Khắc phục sự cố"
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
-msgstr ""
+msgstr "Hãy thử lại"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
-msgstr ""
+msgstr "Bật lại tính năng phân tích"
 
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's a Vernacular or Analysis writing system.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
-msgstr ""
+msgstr "Loại"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Citation form"
-msgstr ""
+msgstr "Nhập hình thức trích dẫn"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2888,15 +3506,15 @@ msgstr "Gõ một Ghi chú"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form"
-msgstr ""
+msgstr "Nhập hình thức lexeme"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form or Citation form"
-msgstr ""
+msgstr "Nhập hình thức lexeme hoặc hình thức trích dẫn"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Word"
-msgstr ""
+msgstr "Nhập một từ"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2910,30 +3528,30 @@ msgstr "Loại:"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to convert captured image from {0} to a jpeg"
-msgstr ""
+msgstr "Không thể chuyển đổi hình ảnh đã chụp từ {0} sang định dạng jpeg"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to download the picture"
-msgstr ""
+msgstr "Không thể tải xuống hình ảnh"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to export file"
-msgstr ""
+msgstr "Không thể xuất tệp"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to load audio"
-msgstr ""
+msgstr "Không thể tải âm thanh"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load picture"
-msgstr ""
+msgstr "Không thể tải hình ảnh"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to open file"
-msgstr ""
+msgstr "Không thể mở tệp"
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2942,13 +3560,13 @@ msgstr "Không thể mở trong FieldWorks"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to upload the picture"
-msgstr ""
+msgstr "Không thể tải ảnh lên"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Unknown"
 msgstr "Không rõ"
 
@@ -2965,7 +3583,7 @@ msgstr "Lỗi không xác định {0}"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Unknown error creating project"
-msgstr ""
+msgstr "Xảy ra lỗi không xác định khi tạo dự án"
 
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -2973,7 +3591,7 @@ msgid "Unknown error downloading {0}"
 msgstr "Lỗi không xác định khi tải xuống {0}"
 
 #. Error placeholder
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Unknown server"
 msgstr "Máy chủ không xác định"
 
@@ -2985,17 +3603,24 @@ msgstr "Kết quả cập nhật không xác định"
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
-msgstr ""
+msgstr "Chưa đọc"
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffAnchor.svelte
+#: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
+#: src/lib/entry-editor/diff-view/DiffSelect.svelte
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryView.svelte
@@ -3003,7 +3628,7 @@ msgid "Untitled"
 msgstr "Chưa đặt tiêu đề"
 
 #. Sync status - no pending changes
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Up to date"
 msgstr "Cập nhật"
 
@@ -3020,11 +3645,11 @@ msgstr "Cập nhật có sẵn: {0}"
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update downloaded. Restart to apply."
-msgstr ""
+msgstr "Đã tải xuống bản cập nhật. Vui lòng khởi động lại để áp dụng."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update downloading in the background. Restart to apply once it's finished."
-msgstr ""
+msgstr "Đang tải xuống bản cập nhật ở chế độ nền. Vui lòng khởi động lại để áp dụng bản cập nhật sau khi quá trình hoàn tất."
 
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3036,6 +3661,11 @@ msgstr "Cập nhật không thể cài đặt."
 msgid "Update was disallowed by permission settings."
 msgstr "Cập nhật đã bị từ chối do cài đặt quyền truy cập."
 
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Updated picture"
+msgstr ""
+
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
 #: src/lib/updates/UpdateDialog.svelte
@@ -3045,27 +3675,37 @@ msgstr "Cập nhật"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
-msgstr ""
+msgstr "Đang chờ tải lên"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Uploaded"
+msgstr "Đã tải lên"
+
+#. Activity-log line. {0} = "audio recording" or "media file"; a marker chip follows when it's audio.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Uploaded {0}"
 msgstr ""
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Uploaded pending files"
-msgstr ""
+msgstr "Các tệp đang chờ xử lý đã được tải lên"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
-msgstr ""
+msgstr "Tính năng tải ảnh lên không được hỗ trợ tại đây"
 
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Sử dụng các thành phần như"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Verbose logging"
+msgstr "Ghi nhật ký chi tiết"
+
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Tiếng địa phương"
@@ -3073,29 +3713,35 @@ msgstr "Tiếng địa phương"
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
-msgstr ""
+msgstr "Mã hệ thống chữ viết bản địa"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
-msgstr ""
+msgstr "Phải có hệ thống chữ viết bản địa"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
-msgstr ""
+msgstr "Các hệ thống chữ viết bản địa"
 
 #. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Xem"
 
+#. Title/tooltip for an icon button that opens the view picker (switch between Classic, Lite, or a custom view).
+#: src/lib/activity/ActivityViewPicker.svelte
+msgid "View options"
+msgstr ""
+
 #. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "View Picture"
-msgstr ""
+msgstr "Xem hình ảnh"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "View the SIL privacy policy"
-msgstr ""
+msgstr "Xem chính sách bảo mật của SIL"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -3103,12 +3749,16 @@ msgid "violet"
 msgstr "tím"
 
 #: src/lib/about/PrivacyDialog.svelte
+msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
+msgstr "Chúng tôi cũng thu thập các báo cáo lỗi kèm theo thông tin kỹ thuật chi tiết về sự cố đã xảy ra. Trước khi gửi các báo cáo này, chúng tôi cố gắng loại bỏ mọi nội dung có thể là văn bản trong từ điển, tên tệp hoặc các thông tin cá nhân khác."
+
+#: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
-msgstr ""
+msgstr "Chúng tôi thu thập dữ liệu sử dụng để tìm hiểu cách thức FieldWorks Lite được sử dụng và những điểm cần cải thiện. Khi bạn đăng nhập vào Lexbox, ứng dụng này sẽ được liên kết với tài khoản của bạn, và dữ liệu thu thập tuyệt đối không bao gồm nội dung từ điển của bạn."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
-msgstr ""
+msgstr "Bạn muốn xem gì ở đây?"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -3116,19 +3766,19 @@ msgid "Where are my projects?"
 msgstr "Dự án của tôi ở đâu?"
 
 #. Expandable help question
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Tại sao vậy?"
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
 msgid "word"
 msgstr "từ"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -3160,8 +3810,25 @@ msgstr "Từ hoặc Hiển thị như là bắt buộc."
 msgid "Word or meaning:"
 msgstr "Từ hoặc ý nghĩa:"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "entries"
+#. Lowercase plural noun interpolated into activity-log lines (e.g. "Created 5 words"). Paired with "words" / "entries" terminology across the app.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "words"
+msgstr ""
+
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
+msgstr "Các từ thiếu cả “Từ” và “Hiển thị dưới dạng”"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
+msgstr "Ghi nhật ký chi tiết, bao gồm các thông tin chẩn đoán về quá trình đăng nhập, vào tệp nhật ký. Hãy tắt tính năng này lại sau khi bộ phận hỗ trợ đã có đủ thông tin cần thiết."
+
+#. Standalone singular noun used as {0} in "Reordered {0}" when naming one item, e.g. "Reordered writing system" plus a chip with its name. Paired with plural "writing systems".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "writing system"
 msgstr ""
 
 #. Column header
@@ -3169,10 +3836,21 @@ msgstr ""
 msgid "Writing System"
 msgstr "Hệ chữ"
 
+#. Field label in the activity change-preview diff for a writing system. "Writing system code" is the technical identifier (e.g. "en", "fr-Latn"), distinct from its display name.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Writing system code"
+msgstr ""
+
 #. Tooltip on a text span in the rich-text editor. {0} = writing system code (e.g., "en", "fr-IPA"). Identifies which writing system the span belongs to.
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
 msgstr "Hệ chữ: {0}"
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of writing systems configured in the project.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "writing systems"
+msgstr ""
 
 #. Section label in custom view form.
 #. Configures which vernacular and analysis writing systems are shown.
@@ -3185,10 +3863,14 @@ msgstr "Hệ thống chữ viết"
 msgid "Writing Systems"
 msgstr "Các hệ chữ"
 
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "Yes"
+msgstr ""
+
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
 msgid "You appear to be offline. Can you connect to {0}?"
-msgstr ""
+msgstr "Có vẻ như bạn đang ở chế độ ngoại tuyến. Bạn có thể truy cập vào trang {0} không?"
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3213,12 +3895,12 @@ msgstr "Bạn đã tải xuống dự án {0}"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
-msgstr ""
+msgstr "Bạn đang ở chế độ ngoại tuyến"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
-msgstr ""
+msgstr "Bạn đã vượt qua mọi cột mốc. Thật là một thành tựu đáng tự hào!"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
-msgstr ""
+msgstr "Từ điển của bạn bắt đầu từ đây"

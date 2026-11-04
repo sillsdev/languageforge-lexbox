@@ -10,6 +10,8 @@ using Microsoft.Identity.Client;
 
 namespace FwLiteMaui;
 
+//ConfigurationChanges deliberately leaves out Keyboard/KeyboardHidden: the recreation on keyboard attach/detach
+//is what keeps IPlatformFeaturesService.HasHardwareKeyboard fresh.
 [Activity(Theme = "@style/Maui.SplashTheme",
     MainLauncher = true,
     LaunchMode = LaunchMode.SingleTop,
@@ -75,6 +77,7 @@ public class MainActivity : MauiAppCompatActivity
         base.OnNewIntent(intent);
         Platform.OnNewIntent(intent);
     }
+
     public override void OnConfigurationChanged(Configuration newConfig)
     {
         base.OnConfigurationChanged(newConfig);

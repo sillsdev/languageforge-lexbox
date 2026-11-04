@@ -1,0 +1,12 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "tier-maui-windows",
+  "tags": ["ci-tier"],
+  "_comment": "Escalation: Windows MAUI build + MAUI tests. Path rule: a direct edit under the MAUI projects. (Label: ci:maui-windows.)",
+  "targets": {
+    "ci-affected": {
+      "executor": "nx:noop",
+      "inputs": ["{workspaceRoot}/backend/FwLite/FwLiteMaui*/**/*"]
+    }
+  }
+}

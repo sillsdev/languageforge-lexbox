@@ -190,6 +190,54 @@ public partial class MiniLcmApiNotifyWrapper(
         NotifyEntryChanged(entryId);
     }
 
+    private void NotifyCommentsChanged() => bus.PublishCommentsChanged(project);
+
+    async Task<CommentThread> IMiniLcmWriteApi.CreateCommentThread(CommentThread thread, UserComment firstComment)
+    {
+        var result = await _api.CreateCommentThread(thread, firstComment);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task<UserComment> IMiniLcmWriteApi.AddUserComment(Guid threadId, UserComment comment)
+    {
+        var result = await _api.AddUserComment(threadId, comment);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task<UserComment> IMiniLcmWriteApi.EditUserComment(Guid commentId, string text)
+    {
+        var result = await _api.EditUserComment(commentId, text);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task<CommentThread> IMiniLcmWriteApi.SetCommentThreadStatus(Guid threadId, ThreadStatus status)
+    {
+        var result = await _api.SetCommentThreadStatus(threadId, status);
+        NotifyCommentsChanged();
+        return result;
+    }
+
+    async Task IMiniLcmWriteApi.DeleteUserComment(Guid commentId)
+    {
+        await _api.DeleteUserComment(commentId);
+        NotifyCommentsChanged();
+    }
+
+    async Task IMiniLcmWriteApi.DeleteCommentThread(Guid threadId)
+    {
+        await _api.DeleteCommentThread(threadId);
+        NotifyCommentsChanged();
+    }
+
+    // Read-status writes stay silent on purpose: marking a thread read shouldn't refresh the entry list.
+    Task IMiniLcmWriteApi.MarkCommentRead(Guid commentId) => _api.MarkCommentRead(commentId);
+    Task IMiniLcmWriteApi.MarkCommentThreadUnread(Guid threadId) => _api.MarkCommentThreadUnread(threadId);
+    Task IMiniLcmWriteApi.MarkCommentThreadRead(Guid threadId) => _api.MarkCommentThreadRead(threadId);
+    Task IMiniLcmWriteApi.MarkAllCommentsRead() => _api.MarkAllCommentsRead();
+
     void IDisposable.Dispose()
     {
     }

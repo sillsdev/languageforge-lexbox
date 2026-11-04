@@ -180,6 +180,24 @@ public class ProjectMetadataServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task BlockAndUnblock_LeavesOnlyMetadataFileInProjectFolder()
+    {
+        var service = CreateService();
+        var projectId = Guid.NewGuid();
+        var folder = CreateTestProjectFolder(projectId);
+
+        await service.BlockFromSyncAsync(projectId, "Block");
+        await service.UnblockFromSyncAsync(projectId);
+        await service.BlockFromSyncAsync(projectId, "Block again");
+
+        var blockInfo = await service.GetSyncBlockedInfoAsync(projectId);
+        blockInfo.Should().NotBeNull();
+        blockInfo.IsBlocked.Should().BeTrue();
+        blockInfo.Reason.Should().Be("Block again");
+        Directory.GetFiles(folder).Select(f => Path.GetFileName(f)).Should().Equal("metadata.json");
+    }
+
+    [Fact]
     public async Task BlockWithoutReason_UsesDefaultReason()
     {
         var service = CreateService();

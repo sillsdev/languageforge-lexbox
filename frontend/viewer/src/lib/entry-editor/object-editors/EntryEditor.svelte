@@ -31,6 +31,7 @@
   import {watch} from 'runed';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import DevContent from '$lib/layout/DevContent.svelte';
   import ObjectHeader from './ObjectHeader.svelte';
@@ -126,6 +127,7 @@
   }
 
   let editorElem: HTMLDivElement | null = $state(null);
+  const platform = usePlatformFeaturesService();
   let highlighted = $state<{ entity: IExampleSentence | ISense; autofocus?: boolean}>();
   let highlightTimeout: ReturnType<typeof setTimeout>;
   const ENTITY_FIELD_CONTAINER_CLASS = 'entity-field-container';
@@ -138,7 +140,7 @@
       setTimeout(() => {
         const newEntityElem = editorElem?.querySelector('.highlight');
         if (newEntityElem) {
-          if (highlighted?.autofocus && !IsMobile.value)
+          if (highlighted?.autofocus && platform.features.hasHardwareKeyboard)
             findFirstTabbable(newEntityElem?.querySelector(`.${ENTITY_FIELD_CONTAINER_CLASS}`))?.focus();
 
           const _isBottomInViewport = isBottomInView(newEntityElem);

@@ -124,20 +124,26 @@ spec:
         ports:
           - containerPort: 8088
 
+        # /healthz is answered by hgweb's own wsgi module and loops back through the
+        # cgid daemon; with either gone, static pages still serve 200 while hg requests 503 or hang.
         startupProbe:
           httpGet:
-            path: /
+            path: /healthz
             port: 8088
           failureThreshold: 30
           periodSeconds: 10
+          # the first request also loads hgweb's module (Mercurial, OTel), several seconds cold
+          timeoutSeconds: 10
         livenessProbe:
           httpGet:
-            path: /
+            path: /healthz
             port: 8088
           initialDelaySeconds: 300
-          periodSeconds: 20
-          timeoutSeconds: 5
-          failureThreshold: 5
+          # the probe shares hgweb's 15 wsgi threads: 3 min without an answer before a
+          # restart, so a daemon that is only busy doesn't get killed with its requests
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 6
 
         volumeMounts:
           - name: repos
@@ -158,7 +164,7 @@ spec:
 
 
       - name: hgresumable
-        image: ghcr.io/sillsdev/hgresume:v2026-08-04
+        image: ghcr.io/sillsdev/hgresume:v2026-09-30
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
@@ -171,6 +177,15 @@ spec:
         env:
           - name: URLS
             value: "http://+:8080"
+          # default also includes /var/vcs/private, which we don't mount; startup would fail creating dirs there
+          - name: HGRESUME_REPO_PATHS
+            value: /var/vcs/public
+          # gates /api/manage/*; hgresume refuses to start without it
+          - name: HGRESUME_MANAGE_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: HGRESUME_MANAGE_SECRET
+                name: hgresume
 
         startupProbe:
           httpGet:

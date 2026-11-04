@@ -88,6 +88,17 @@ public static class AuthKernel
                         );
                 });
 
+            options.AddPolicy(LexiconProxy.ListPolicy,
+                builder => builder.RequireAuthenticatedUser()
+                    .AddRequirements(LexiconReadScope()));
+            options.AddPolicy(LexiconProxy.ReadPolicy,
+                builder => builder.RequireAuthenticatedUser()
+                    .AddRequirements(new LexiconProjectRequirement(false), LexiconReadScope()));
+            options.AddPolicy(LexiconProxy.WritePolicy,
+                builder => builder.RequireAuthenticatedUser()
+                    .AddRequirements(new LexiconProjectRequirement(true),
+                        new RequireScopeAttribute(LexboxAuthScope.LexiconWrite, LexboxAuthScope.LexboxApi)));
+
             options.AddPolicy(AdminRequiredAttribute.PolicyName,
                 builder => builder.RequireDefaultLexboxAuth()
                     .RequireAssertion(context => context.User.IsInRole(UserRole.admin.ToString())));
@@ -318,6 +329,10 @@ public static class AuthKernel
         services.AddOptions<OpenIddictValidationOptions>().ValidateOnStart();
         services.AddOptions<OpenIddictServerAspNetCoreOptions>().ValidateOnStart();
     }
+
+    //the general LexboxApi scope (browser sessions, The Combine) also reads, FW Lite's SendAndReceive does not
+    private static RequireScopeAttribute LexiconReadScope() =>
+        new(LexboxAuthScope.LexiconRead, LexboxAuthScope.LexiconWrite, LexboxAuthScope.LexboxApi);
 
     public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)
     {

@@ -172,7 +172,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
     /// FwHeadless pipeline. The handler must isolate the worker in its own scope so this doesn't
     /// collide in CurrentProjectService.SetupProjectContext.
     /// </summary>
-    public async Task<Results<Ok, NotFound<string>>> RunHarmonyRouteWithPrePopulatedContextAsync()
+    public async Task<Results<Ok, NotFound<string>, ProblemHttpResult>> RunHarmonyRouteWithPrePopulatedContextAsync()
     {
         Steps.Clear();
         _didCrdtSyncOrImport = false;

@@ -17,6 +17,7 @@
     <Project Path="backend/FwLite/LcmDebugger/LcmDebugger.csproj" />
     <Project Path="backend/FwLite/MiniLcm.Tests/MiniLcm.Tests.csproj" />
     <Project Path="backend/FwLite/MiniLcm/MiniLcm.csproj" />
+    <Project Path="backend/FwLite/MiniLcmWeb/MiniLcmWeb.csproj" />
     <Project Path="backend/LfClassicData/LfClassicData.csproj" />
   </Folder>
   <Folder Name="/Analyzers/">

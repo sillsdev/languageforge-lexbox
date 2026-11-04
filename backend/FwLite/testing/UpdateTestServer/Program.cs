@@ -39,15 +39,15 @@ app.Use(async (ctx, next) =>
 
 // The client's UpdateChecker GETs this and trusts whatever release we return (it does no version
 // comparison of its own). The override UpdateUrl carries no query string, but the client still sends
-// its current version in the User-Agent ("Fieldworks-Lite-Client/{AppVersion}"), so — like the real
-// FwLiteReleaseService — we only offer the update when the served version sorts strictly newer.
-// That way "serve v1" with v1 installed reports up-to-date; "serve v2" prompts.
+// its current version in the User-Agent ("Fieldworks-Lite-Client/{AppVersion}"), so we only offer the
+// update when the served version is newer, decided by the same FwLiteVersion the real
+// FwLiteReleaseService uses. That way "serve v1" with v1 installed reports up-to-date; "serve v2" prompts.
 app.MapGet("/api/fwlite-release/should-update", (HttpContext ctx) =>
 {
     if (served is not { } s) return Results.Ok(new ShouldUpdateResponse(null));
 
     var clientVersion = ParseClientVersion(ctx.Request.Headers.UserAgent.ToString());
-    if (clientVersion is not null && string.Compare(s.Version, clientVersion, StringComparison.Ordinal) <= 0)
+    if (clientVersion is not null && !FwLiteVersion.IsNewer(s.Version, clientVersion))
     {
         log.LogInformation("Client is on {Client}; served {Served} is not newer -> reporting up-to-date",
             clientVersion, s.Version);

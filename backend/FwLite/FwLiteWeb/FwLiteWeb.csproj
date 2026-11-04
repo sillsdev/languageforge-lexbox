@@ -39,6 +39,7 @@
     <ProjectReference Include="..\FwLiteShared\FwLiteShared.csproj" />
     <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
     <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
+    <ProjectReference Include="..\MiniLcmWeb\MiniLcmWeb.csproj" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsOsPlatform('macOS'))">
     <!--

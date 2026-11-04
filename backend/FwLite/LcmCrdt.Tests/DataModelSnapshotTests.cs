@@ -76,6 +76,16 @@ public class DataModelSnapshotTests : IAsyncLifetime
             .OrderBy(j => j.DerivedType.FullName));
     }
 
+    //released model versions must never change, this snapshot may only grow at the end
+    [Fact]
+    [Trait("Category", "Verified")]
+    public async Task VerifyModelVersions()
+    {
+        var config = new HarmonyConfig();
+        LcmCrdtKernel.ConfigureCrdt(config);
+        await Verify(config.DescribeModelVersions());
+    }
+
     [Fact]
     [Trait("Category", "Verified")]
     public async Task VerifyIObjectBaseModels()
