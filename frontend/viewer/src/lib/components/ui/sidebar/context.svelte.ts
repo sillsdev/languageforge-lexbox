@@ -1,6 +1,6 @@
 import {createContext} from 'svelte';
 
-import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+import {IsMobileOrTablet} from '$lib/hooks/is-mobile-or-tablet.svelte';
 import {SIDEBAR_KEYBOARD_SHORTCUT} from './constants';
 
 type Getter<T> = () => T;
@@ -33,10 +33,10 @@ class SidebarState {
     this.props = props;
   }
 
-  // Convenience getter for checking if the sidebar is mobile
+  // Convenience getter for checking if the sidebar pops over (phones and tablets)
   // without this, we would need to use `sidebar.isMobile.current` everywhere
   get isMobile() {
-    return IsMobile.value;
+    return IsMobileOrTablet.value;
   }
 
   // Event handler to apply to the `<svelte:window>`
