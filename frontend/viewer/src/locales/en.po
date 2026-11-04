@@ -383,6 +383,10 @@ msgid "All authors"
 msgstr "All authors"
 
 #: src/lib/plugins/PluginStudioView.svelte
+msgid "Allow and run it"
+msgstr "Allow and run it"
+
+#: src/lib/plugins/PluginStudioView.svelte
 msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
 msgstr "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
 
@@ -473,6 +477,7 @@ msgstr "Ask AI"
 msgid "Ask questions and get help on our community forum."
 msgstr "Ask questions and get help on our community forum."
 
+#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginStudioView.svelte
 msgid "Ask the AI to remove it"
 msgstr "Ask the AI to remove it"
@@ -1052,6 +1057,10 @@ msgstr "Don't allow"
 msgid "Don't delete"
 msgstr "Don't delete"
 
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Don't run it"
+msgstr "Don't run it"
+
 #. Tab label
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
@@ -1602,6 +1611,10 @@ msgstr "Finish"
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here."
+msgstr "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here."
+
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
@@ -1845,6 +1858,10 @@ msgstr "Leave without saving?"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Length:"
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Let this version use the internet?"
+msgstr "Let this version use the internet?"
 
 #. Product name
 #: src/project/SyncDialog.svelte
@@ -2411,12 +2428,20 @@ msgid "Nothing to copy"
 msgstr "Nothing to copy"
 
 #: src/lib/plugins/PluginStudioView.svelte
+msgid "Now can change the dictionary"
+msgstr "Now can change the dictionary"
+
+#: src/lib/plugins/PluginStudioView.svelte
 msgid "Now needs {0}, which not every project has"
 msgstr "Now needs {0}, which not every project has"
 
 #: src/lib/plugins/PluginStudioView.svelte
 msgid "Now runs from an entry's menu"
 msgstr "Now runs from an entry's menu"
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Now uses the internet"
+msgstr "Now uses the internet"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -2456,6 +2481,14 @@ msgstr "On large projects this may take a while. Do not close the app or interru
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Online, a plugin can send this project's data to any website."
+msgstr "Online, a plugin can send this project's data to any website."
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
+msgstr "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 
 #: src/lib/plugins/PluginStudioView.svelte
 msgid "Only project managers can add or change plugins."
@@ -3499,6 +3532,10 @@ msgstr "The time when you uploaded or downloaded these changes"
 #: src/lib/plugins/PluginStudioView.svelte
 msgid "The version before it didn't. If you didn't ask for this, have the AI take it out."
 msgstr "The version before it didn't. If you didn't ask for this, have the AI take it out."
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
+msgstr "The version before it worked offline. Online, a plugin can send this project's data to any website."
 
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte

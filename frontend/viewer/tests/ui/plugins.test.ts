@@ -1,4 +1,5 @@
-import {expect, test, type Page} from '@playwright/test';
+import {readFile} from 'node:fs/promises';
+import {expect, test, type Download, type Page} from '@playwright/test';
 import {examplePlugins} from '../../src/lib/plugins/examples';
 import {DemoProjectPage} from './demo-project.page';
 import {STORAGE_KEY as RELEASE_CHANNEL_KEY} from '../../src/lib/feature-flags/feature-flags';
@@ -21,6 +22,10 @@ function pluginHtml(title: string, options: {head?: string; body: string}): stri
     options.body,
     '</body></html>',
   ].join('\n');
+}
+
+async function readDownload(download: Download): Promise<string> {
+  return readFile(await download.path(), 'utf8');
 }
 
 /** Pastes HTML into the open studio; the reply may carry chat prose around the document. */
@@ -254,11 +259,11 @@ test('editing flags a new permission in the pasted version before it is saved', 
   await expect(page.getByRole('button', {name: 'Save for the team'})).toBeDisabled();
 
   await pasteIntoStudio(page, pluginHtml('Offline tool', {
-    head: '<meta name="fwlite-plugin-permissions" content="internet">',
+    head: '<meta name="fwlite-plugin-permissions" content="edit">',
     body: '<h1>v2</h1>',
   }));
   const review = page.getByTestId('plugin-version-review');
-  await expect(review.getByText('The new version asks to use the internet')).toBeVisible();
+  await expect(review.getByText('The new version asks to change the dictionary')).toBeVisible();
   await expect(page.getByText('Unsaved changes')).toBeVisible();
 
   // Both versions stay one click apart in the preview.
@@ -270,12 +275,60 @@ test('editing flags a new permission in the pasted version before it is saved', 
   await expect(frame.getByRole('heading')).toHaveText('v2');
 
   await review.getByRole('button', {name: 'Keep it'}).click();
-  await expect(review.getByText('The new version asks to use the internet')).toBeHidden();
+  await expect(review.getByText('The new version asks to change the dictionary')).toBeHidden();
+  await expect(review.getByText('Now can change the dictionary')).toBeVisible();
   await page.getByRole('button', {name: 'Save for the team'}).click();
   await expect(page.getByText('Unsaved changes')).toBeHidden();
 
   await page.getByRole('button', {name: 'Plugins', exact: true}).first().click();
-  await expect(projectCard(page, 'Offline tool').getByText('Internet')).toBeVisible();
+  await expect(projectCard(page, 'Offline tool').getByText('Edits — asks first')).toBeVisible();
+});
+
+test('a pasted version that wants the internet only runs once allowed', async ({page}) => {
+  await addPluginViaStudio(page, pluginHtml('Offline tool', {body: '<h1>v1</h1>'}));
+  await projectCard(page, 'Offline tool').getByRole('button', {name: 'Edit'}).click();
+  const frame = page.frameLocator('iframe[title="Offline tool"]');
+  await expect(frame.getByRole('heading')).toHaveText('v1');
+
+  const online = pluginHtml('Offline tool', {
+    head: '<meta name="fwlite-plugin-permissions" content="internet">',
+    body: '<h1>v2</h1>',
+  });
+  await pasteIntoStudio(page, online);
+  const prompt = page.getByTestId('plugin-internet-prompt');
+  await expect(prompt.getByText('Let this version use the internet?')).toBeVisible();
+
+  // Declining keeps the running version and the pasted reply.
+  await prompt.getByRole('button', {name: "Don't run it"}).click();
+  await expect(prompt).toBeHidden();
+  await expect(frame.getByRole('heading')).toHaveText('v1');
+  await expect(page.getByLabel("Paste the AI's reply")).toHaveValue(/<h1>v2<\/h1>/);
+  await expect(page.getByText('Unsaved changes')).toBeHidden();
+
+  // Asking the AI to take it out downloads a follow-up built from the pasted version.
+  await page.getByRole('button', {name: 'Use this version'}).click();
+  const downloadPromise = page.waitForEvent('download');
+  await prompt.getByRole('button', {name: 'Ask the AI to remove it'}).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('offline-tool-prompt.md');
+  const followUp = await readDownload(download);
+  expect(followUp).toContain('Remove the `internet` permission');
+  expect(followUp).toContain('<h1>v2</h1>');
+  await expect(prompt).toBeHidden();
+  await expect(page.getByText('Follow-up prompt downloaded')).toBeVisible();
+  await expect(frame.getByRole('heading')).toHaveText('v1');
+
+  await page.getByRole('button', {name: 'Use this version'}).click();
+  await prompt.getByRole('button', {name: 'Allow and run it'}).click();
+  await expect(frame.getByRole('heading')).toHaveText('v2');
+  const review = page.getByTestId('plugin-version-review');
+  await expect(review.getByText('Now uses the internet')).toBeVisible();
+  await expect(review.getByText('The new version asks to use the internet')).toBeHidden();
+
+  // A later version that still uses the internet doesn't ask again.
+  await pasteIntoStudio(page, online.replace('v2', 'v3'));
+  await expect(frame.getByRole('heading')).toHaveText('v3');
+  await expect(prompt).toBeHidden();
 });
 
 test('leaving the studio with unsaved work asks first', async ({page}) => {

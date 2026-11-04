@@ -185,14 +185,14 @@
   let changeText = $state('');
   let buildingChangePrompt = $state(false);
   /** Asks for changes to the current version, with the same setup body a new plugin gets. */
-  async function withChangePrompt(change: string, use: (prompt: string) => Promise<void> | void) {
+  async function withChangePrompt(change: string, use: (prompt: string) => Promise<void> | void, html = draft.html) {
     buildingChangePrompt = true;
     try {
       const body = await buildPluginPrompt(projectContext.api, {
         projectName: projectContext.projectName,
         projectCode: projectContext.projectCode,
-      }, {internet: !!draft.manifest?.permissions.includes('internet')});
-      await use(`${body}\n\n${pluginChangeSection(draft.html, change)}`);
+      }, {internet: parsePluginManifest(html).permissions.includes('internet')});
+      await use(`${body}\n\n${pluginChangeSection(html, change)}`);
     } finally {
       buildingChangePrompt = false;
     }
@@ -216,6 +216,8 @@
     if (!review) return [];
     const {added, removed} = review.changes;
     return [
+      ...added.permissions.filter(permission => keptPermissions.includes(permission))
+        .map(permission => permission === 'internet' ? $t`Now uses the internet` : $t`Now can change the dictionary`),
       ...removed.permissions.map(permission => permission === 'internet' ? $t`No longer uses the internet` : $t`No longer changes the dictionary`),
       ...added.contexts.map(() => $t`Now runs from an entry's menu`),
       ...removed.contexts.map(() => $t`No longer runs from an entry's menu`),
@@ -228,12 +230,16 @@
     edit: $t`The new version asks to change the dictionary`,
   });
 
-  async function askToRemove(permission: PluginPermission) {
+  async function downloadRemovalPrompt(permission: PluginPermission, html = draft.html) {
     // Addressed to the AI, so English like the rest of the prompt.
     const consequence = permission === 'internet'
       ? 'The plugin must work fully offline.'
       : 'The plugin must only read the dictionary, never change it.';
-    await withChangePrompt(`Remove the \`${permission}\` permission from the \`fwlite-plugin-permissions\` meta tag and everything that needs it. ${consequence} Keep everything else as it is.`, downloadPrompt);
+    await withChangePrompt(`Remove the \`${permission}\` permission from the \`fwlite-plugin-permissions\` meta tag and everything that needs it. ${consequence} Keep everything else as it is.`, downloadPrompt, html);
+  }
+
+  async function askToRemove(permission: PluginPermission) {
+    await downloadRemovalPrompt(permission);
     followUpDownloaded = true;
   }
 
@@ -245,20 +251,48 @@
 
   let pasteText = $state('');
   let pasteError = $state<string>();
+  let pasteNote = $state<string>();
   let fileInput = $state<HTMLInputElement>();
   // A name taken from the plugin's <title> keeps following new versions until the user types one.
   let nameFromHtml = $state(false);
 
-  function useHtml(candidate: string): boolean {
+  /**
+   * Asked before a version that newly wants the internet runs: the preview runs it at once, and
+   * once online it could send project data anywhere. A version that already had the internet
+   * (the saved plugin, an example, or one allowed earlier here) doesn't ask again.
+   */
+  let internetPrompt = $state<{html: string; resolve: (answer: 'allow' | 'cancel') => void}>();
+  function confirmInternet(html: string): Promise<'allow' | 'cancel'> {
+    if (!parsePluginManifest(html).permissions.includes('internet')) return Promise.resolve('allow');
+    if (draft.manifest?.permissions.includes('internet')) return Promise.resolve('allow');
+    return new Promise(resolve => internetPrompt = {html, resolve});
+  }
+  function answerInternetPrompt(answer: 'allow' | 'cancel') {
+    internetPrompt?.resolve(answer);
+    internetPrompt = undefined;
+  }
+  async function askToRemoveInternetFirst() {
+    const prompt = internetPrompt;
+    if (!prompt) return;
+    await downloadRemovalPrompt('internet', prompt.html);
+    answerInternetPrompt('cancel');
+    pasteNote = $t`Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here.`;
+  }
+
+  async function useHtml(candidate: string): Promise<boolean> {
     const html = extractPluginHtml(candidate);
     if (!isCompletePluginHtml(html)) {
       pasteError = $t`This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>.`;
       return false;
     }
     pasteError = undefined;
+    pasteNote = undefined;
+    const hadInternet = !!draft.manifest?.permissions.includes('internet');
+    if (await confirmInternet(html) === 'cancel') return false;
     draft.applyVersion(html);
     showSavedVersion = false;
-    keptPermissions = [];
+    // Allowed just now, so the review card lists it instead of warning about it again.
+    keptPermissions = !hadInternet && draft.manifest?.permissions.includes('internet') ? ['internet'] : [];
     followUpDownloaded = false;
     if (mode === 'new' && (!draft.name.trim() || nameFromHtml)) {
       const title = pluginHtmlTitle(html);
@@ -271,8 +305,8 @@
     return true;
   }
 
-  function applyPaste() {
-    if (useHtml(pasteText)) pasteText = '';
+  async function applyPaste() {
+    if (await useHtml(pasteText)) pasteText = '';
   }
 
   async function uploadFile(event: Event) {
@@ -280,7 +314,7 @@
     const file = input.files?.[0];
     input.value = '';
     if (!file) return;
-    useHtml(await file.text());
+    await useHtml(await file.text());
   }
 
   function fileSlug(): string {
@@ -445,7 +479,10 @@
     {#if pasteError}
       <p class="text-sm text-destructive">{pasteError}</p>
     {/if}
-    <Button variant="outline" size="sm" icon="i-mdi-check" disabled={!pasteText.trim()} onclick={applyPaste}>
+    {#if pasteNote}
+      <p class="rounded-md bg-muted px-3 py-2 text-sm">{pasteNote}</p>
+    {/if}
+    <Button variant="outline" size="sm" icon="i-mdi-check" disabled={!pasteText.trim()} onclick={() => void applyPaste()}>
       {$t`Use this version`}
     </Button>
   </div>
@@ -500,7 +537,7 @@
       <div class="space-y-2" data-testid="plugin-version-review">
         <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{$t`This version`}</h3>
         <div class="rounded-md bg-muted px-3 py-2 text-sm">
-          {#if newPermissions.length === 0 && otherChanges.length === 0}
+          {#if review.changes.added.permissions.length === 0}
             {$t`${review.sizeBefore} KB to ${sizeKb} KB, no new permissions`}
           {:else}
             {$t`${review.sizeBefore} KB to ${sizeKb} KB`}
@@ -826,6 +863,29 @@
     </div>
   </div>
 {/if}
+
+<AlertDialog.Root open={!!internetPrompt} onOpenChange={(open) => { if (!open) answerInternetPrompt('cancel'); }}>
+  <AlertDialog.Content data-testid="plugin-internet-prompt">
+    <AlertDialog.Header>
+      <AlertDialog.Title>{$t`Let this version use the internet?`}</AlertDialog.Title>
+      <AlertDialog.Description class="space-y-2">
+        <span class="block">
+          {draft.html
+            ? $t`The version before it worked offline. Online, a plugin can send this project's data to any website.`
+            : $t`Online, a plugin can send this project's data to any website.`}
+        </span>
+        <span class="block">{$t`Only allow it if the plugin needs to go online, for example to look up words or download pictures.`}</span>
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer class="gap-2">
+      <AlertDialog.Cancel onclick={() => answerInternetPrompt('cancel')}>{$t`Don't run it`}</AlertDialog.Cancel>
+      <Button variant="outline" loading={buildingChangePrompt} onclick={() => void askToRemoveInternetFirst()}>
+        {$t`Ask the AI to remove it`}
+      </Button>
+      <AlertDialog.Action onclick={() => answerInternetPrompt('allow')}>{$t`Allow and run it`}</AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
 
 <AlertDialog.Root open={!!leavePrompt} onOpenChange={(open) => { if (!open) answerLeavePrompt(false); }}>
   <AlertDialog.Content>

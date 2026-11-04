@@ -388,6 +388,10 @@ msgid "All authors"
 msgstr "Semua pengarang"
 
 #: src/lib/plugins/PluginStudioView.svelte
+msgid "Allow and run it"
+msgstr ""
+
+#: src/lib/plugins/PluginStudioView.svelte
 msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
 msgstr ""
 
@@ -478,6 +482,7 @@ msgstr ""
 msgid "Ask questions and get help on our community forum."
 msgstr "Tanya soalan dan dapatkan bantuan di forum komuniti kami."
 
+#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginStudioView.svelte
 msgid "Ask the AI to remove it"
 msgstr ""
@@ -1057,6 +1062,10 @@ msgstr ""
 msgid "Don't delete"
 msgstr "Jangan padam"
 
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Don't run it"
+msgstr ""
+
 #. Tab label
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
@@ -1607,6 +1616,10 @@ msgstr "Tamatkan"
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr ""
 
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here."
+msgstr ""
+
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
@@ -1850,6 +1863,10 @@ msgstr ""
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Panjang:"
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Let this version use the internet?"
+msgstr ""
 
 #. Product name
 #: src/project/SyncDialog.svelte
@@ -2416,11 +2433,19 @@ msgid "Nothing to copy"
 msgstr "Tiada yang boleh disalin"
 
 #: src/lib/plugins/PluginStudioView.svelte
+msgid "Now can change the dictionary"
+msgstr ""
+
+#: src/lib/plugins/PluginStudioView.svelte
 msgid "Now needs {0}, which not every project has"
 msgstr ""
 
 #: src/lib/plugins/PluginStudioView.svelte
 msgid "Now runs from an entry's menu"
+msgstr ""
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Now uses the internet"
 msgstr ""
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -2461,6 +2486,14 @@ msgstr "Pada projek besar, ini mungkin mengambil sedikit masa. Jangan tutup apli
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Satu komit FieldWorks Classic mungkin terdiri daripada perubahan pada berbilang entri atau medan. Sebaliknya, satu komit mungkin hanya menjejaskan data yang tidak diselaraskan ke FieldWorks Lite."
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Online, a plugin can send this project's data to any website."
+msgstr ""
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
+msgstr ""
 
 #: src/lib/plugins/PluginStudioView.svelte
 msgid "Only project managers can add or change plugins."
@@ -3503,6 +3536,10 @@ msgstr "Masa apabila anda memuat naik atau memuat turun perubahan ini"
 
 #: src/lib/plugins/PluginStudioView.svelte
 msgid "The version before it didn't. If you didn't ask for this, have the AI take it out."
+msgstr ""
+
+#: src/lib/plugins/PluginStudioView.svelte
+msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
 msgstr ""
 
 #. Error message when changes are pending upload
