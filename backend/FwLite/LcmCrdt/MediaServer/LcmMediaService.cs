@@ -8,6 +8,7 @@ using Refit;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Resource;
+using LcmCrdt.Harmony;
 using LcmCrdt.RemoteSync;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Media;
@@ -17,6 +18,7 @@ namespace LcmCrdt.MediaServer;
 public class LcmMediaService(
     ResourceService<LcmFileMetadata> resourceService,
     CurrentProjectService currentProjectService,
+    HarmonyChangeWriter changeWriter,
     IOptions<HarmonyConfig> options,
     IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider,
@@ -42,18 +44,19 @@ public class LcmMediaService(
             currentProjectService.ProjectData.ClientId,
             fileId,
             fileId.ToString("N"),
-            metadata);
+            metadata,
+            changeWriter.NewMetadata());
     }
 
     public async ValueTask AddMissingMetadata(HarmonyResource<LcmFileMetadata> resource, LcmFileMetadata metadata)
     {
         if (resource.Metadata is not null) return;
-        await resourceService.SetResourceMetadata(resource.Id, currentProjectService.ProjectData.ClientId, metadata);
+        await resourceService.SetResourceMetadata(resource.Id, currentProjectService.ProjectData.ClientId, metadata, changeWriter.NewMetadata());
     }
 
     public async Task DeleteResource(Guid fileId)
     {
-        await resourceService.DeleteResource(currentProjectService.ProjectData.ClientId, fileId);
+        await resourceService.DeleteResource(currentProjectService.ProjectData.ClientId, fileId, changeWriter.NewMetadata());
     }
 
     /// <summary>
@@ -235,7 +238,8 @@ public class LcmMediaService(
                 localPath,
                 currentProjectService.ProjectData.ClientId,
                 resourceService: remoteResourceService,
-                metadata: metadata
+                metadata: metadata,
+                commitMetadata: changeWriter.NewMetadata()
             ), newResource: true);
         }
         catch (Exception e)
@@ -265,7 +269,7 @@ public class LcmMediaService(
     public async Task<bool> UploadPendingResources()
     {
         if (await httpClientProvider.ConnectionStatus() != ConnectionStatus.Online) return false;
-        await resourceService.UploadPendingResources(currentProjectService.ProjectData.ClientId, this);
+        await resourceService.UploadPendingResources(currentProjectService.ProjectData.ClientId, this, changeWriter.NewMetadata());
         return true;
     }
 

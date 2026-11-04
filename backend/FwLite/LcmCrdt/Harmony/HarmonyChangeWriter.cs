@@ -13,9 +13,15 @@ public class HarmonyChangeWriter(
     CurrentProjectService projectService
 )
 {
-    private Guid ClientId { get; } = projectService.ProjectData.ClientId;
+    // read on use, not at construction, so services that inject this writer can be built before the project context is set
+    private Guid ClientId => projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
-    private CommitMetadata NewMetadata()
+
+    /// <summary>
+    /// The metadata (author, client version) every commit written for the current user should carry,
+    /// including commits written through Harmony APIs other than this writer, like <c>ResourceService</c>.
+    /// </summary>
+    public CommitMetadata NewMetadata()
     {
         var metadata = new CommitMetadata
         {
