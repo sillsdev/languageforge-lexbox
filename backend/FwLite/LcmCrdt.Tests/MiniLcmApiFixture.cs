@@ -19,6 +19,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     private readonly bool _seedWs = true;
     private readonly Guid? _projectId;
     private readonly Action<IServiceCollection>? _configureServices;
+    private readonly bool _isolateDbModel;
     // fixtures run in parallel and share project codes, so each gets its own folder (media cache) to delete on dispose
     private readonly string _projectPath = Path.GetFullPath($"fixture-{Guid.NewGuid():N}");
     private AsyncServiceScope _services;
@@ -39,16 +40,23 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
     }
 
-    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null, Action<IServiceCollection>? configureServices = null)
+    /// <param name="isolateDbModel">
+    /// Give this fixture its own EF model and linq2db query cache, so config that <paramref name="configureServices"/>
+    /// changes and that gets baked into them (like HarmonyConfig) applies. Pass false when the services you
+    /// replace never reach the model (HTTP clients, fakes): isolated fixtures can still collide with each other.
+    /// </param>
+    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null, Action<IServiceCollection>? configureServices = null,
+        bool isolateDbModel = true)
     {
-        return new MiniLcmApiFixture(seedWs, projectId, configureServices);
+        return new MiniLcmApiFixture(seedWs, projectId, configureServices, isolateDbModel);
     }
 
-    private MiniLcmApiFixture(bool seedWs = true, Guid? projectId = null, Action<IServiceCollection>? configureServices = null)
+    private MiniLcmApiFixture(bool seedWs, Guid? projectId, Action<IServiceCollection>? configureServices, bool isolateDbModel)
     {
         _seedWs = seedWs;
         _projectId = projectId;
         _configureServices = configureServices;
+        _isolateDbModel = isolateDbModel;
     }
 
     public async Task InitializeAsync()
@@ -80,6 +88,9 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
         if (_configureServices is not null)
         {
             _configureServices(serviceCollection);
+        }
+        if (_configureServices is not null && _isolateDbModel)
+        {
             // Hook config like HarmonyConfig gets baked into the EF model and linq2db's compiled queries, both
             // cached process-wide (first fixture wins). Opt this fixture out of both caches so its config applies.
             serviceCollection.AddDbContextFactory<LcmCrdtDbContext>(builder => builder
