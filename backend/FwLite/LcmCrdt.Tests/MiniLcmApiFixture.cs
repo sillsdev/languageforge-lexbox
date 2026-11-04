@@ -16,8 +16,10 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 {
     private readonly bool _seedWs = true;
     private readonly Guid? _projectId;
+    private readonly Action<IServiceCollection>? _configureServices;
     // fixtures run in parallel and share project codes, so each gets its own folder (media cache) to delete on dispose
     private readonly string _projectPath = Path.GetFullPath($"fixture-{Guid.NewGuid():N}");
+    private ServiceProvider? _rootServices;
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
     private SqliteConnection? _keepAliveConnection;
@@ -36,15 +38,20 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
     }
 
-    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null)
+    /// <param name="configureServices">
+    /// Adds or replaces services after the fixture's own registrations. Config that ends up in the EF model or
+    /// linq2db's compiled queries (e.g. HarmonyConfig) can't be changed here: both are cached process-wide.
+    /// </param>
+    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null, Action<IServiceCollection>? configureServices = null)
     {
-        return new MiniLcmApiFixture(seedWs, projectId);
+        return new MiniLcmApiFixture(seedWs, projectId, configureServices);
     }
 
-    private MiniLcmApiFixture(bool seedWs = true, Guid? projectId = null)
+    private MiniLcmApiFixture(bool seedWs, Guid? projectId, Action<IServiceCollection>? configureServices)
     {
         _seedWs = seedWs;
         _projectId = projectId;
+        _configureServices = configureServices;
     }
 
     public async Task InitializeAsync()
@@ -66,15 +73,16 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
             }
         }
 
-        var services = new ServiceCollection()
+        var serviceCollection = new ServiceCollection()
             .AddTestLcmCrdtClient()
             .Configure<LcmCrdtConfig>(config => config.ProjectPath = _projectPath)
             .AddLogging(builder => builder.AddDebug()
                 .AddProvider(new LateXUnitLoggerProvider(this))
                 .AddFilter("LinqToDB", LogLevel.Trace)
-                .SetMinimumLevel(LogLevel.Error))
-            .BuildServiceProvider();
-        _services = services.CreateAsyncScope();
+                .SetMinimumLevel(LogLevel.Error));
+        _configureServices?.Invoke(serviceCollection);
+        _rootServices = serviceCollection.BuildServiceProvider();
+        _services = _rootServices.CreateAsyncScope();
         if (inMemory)
         {
             //an in memory db only lives as long as a connection to it is open, and CreateProject opens and
@@ -151,6 +159,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
         await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
+        await (_rootServices?.DisposeAsync() ?? ValueTask.CompletedTask);
         await (_keepAliveConnection?.DisposeAsync() ?? ValueTask.CompletedTask);
         if (Directory.Exists(_projectPath)) Directory.Delete(_projectPath, true);
     }
