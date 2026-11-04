@@ -17,6 +17,7 @@
   import {useFeatures} from '$lib/services/feature-service';
   import MediaManagerView from '$lib/media-manager/MediaManagerView.svelte';
   import {onMount} from 'svelte';
+  import {isFrameInThisDocument} from '$lib/utils/window-messages';
 
   const {
     onloaded,
@@ -46,9 +47,9 @@
     return typeof data ==='object' && data.type === 'notification' && typeof data.message === 'string' && data.message.length > 0 ;
   }
 
-  //listening to messages from paratext
-  function onMessage(event: {data: unknown}) {
-    if (isFwLiteMessage(event.data)) {
+  //listening to messages from paratext; a plugin frame must not be able to post one
+  function onMessage(event: MessageEvent) {
+    if (!isFrameInThisDocument(event.source) && isFwLiteMessage(event.data)) {
       AppNotification.display(event.data.message, { timeout: 'long' });
     }
   }

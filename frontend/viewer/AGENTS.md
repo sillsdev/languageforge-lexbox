@@ -17,6 +17,8 @@ pnpm run dev
 
 **Before saying done or committing**, run `task verify` from the repo root once (svelte-check, eslint, vitest unit, i18n extract; 3 to 7 min for both apps). `src/project/demo/demo-project-view.test.ts` mounts the whole demo app there, so a component that breaks the demo fails fast instead of in 60+ Playwright tests.
 
+**User docs** (`docs/site/fw-lite/`, `docs/site/src/components/SyncExplainer/syncScenarios.ts`) quote UI labels verbatim. Renamed a label or changed a flow? `git grep` the old text under `docs/site/` and update it in the same PR; rules in `docs/site/AGENTS.md`.
+
 ### Dev server: one per worktree
 
 Vite and Playwright default to port 5173, and Playwright **reuses whatever already listens there**: another checkout's server gives stale code and a false pass. Per worktree, set `FwLite__DevAssetsPort` to a free port before `pnpm run dev` or `task test:ui-standalone`; `vite.config.ts`, the Playwright config and FwLiteWeb all follow it. Check first with `netstat -ano | findstr :5173` and stop stray vite processes. EACCES on a port means Windows reserved it (`netsh interface ipv4 show excludedportrange protocol=tcp`); pick another.
@@ -65,7 +67,7 @@ UI tests run under `chromium` and `webkit` (Safari's engine, on Linux); unfilter
 WebKit snapshots use `-webkit`-suffixed Argos baselines; chromium keeps the bare names.
 
 - **Selectors**: locate by role, `data-testid`, or `data-field-id`. Selectors on serialized styles (`[style*="grid-area:"]`) broke 38 WebKit tests.
-- **Demo knobs** (`window.__PLAYWRIGHT_UTILS__`, set in `src/project/demo/in-memory-demo-api.ts`): `demoApi`, `setWrite(bool)`, `setHasHardwareKeyboard(bool)`. TODO: no knob yet for the comments feature, unread counts, or the user's role; add one to the demo instead of patching components.
+- **Demo knobs** (`window.__PLAYWRIGHT_UTILS__`, set in `src/project/demo/in-memory-demo-api.ts`): `demoApi`, `setWrite(bool)`, `setHasHardwareKeyboard(bool)`, `setProjectRole(role)`. TODO: no knob yet for the comments feature or unread counts; add one to the demo instead of patching components.
 
 ### Known noise (pre-existing)
 

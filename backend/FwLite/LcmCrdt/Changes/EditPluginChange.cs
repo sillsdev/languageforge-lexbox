@@ -14,7 +14,7 @@ public class EditPluginChange : EditChange<Plugin>, ISelfNamedType<EditPluginCha
     {
         Name = plugin.Name;
         Description = plugin.Description;
-        FileUri = plugin.FileUri;
+        MediaUri = plugin.MediaUri;
         FileSize = plugin.FileSize;
         Permissions = plugin.Permissions;
         Contexts = plugin.Contexts;
@@ -28,7 +28,7 @@ public class EditPluginChange : EditChange<Plugin>, ISelfNamedType<EditPluginCha
 
     public required string Name { get; set; }
     public string? Description { get; set; }
-    public required MediaUri FileUri { get; set; }
+    public required MediaUri MediaUri { get; set; }
     public long FileSize { get; set; }
     public string[] Permissions { get; set; } = [];
     public string[] Contexts { get; set; } = [];
@@ -38,7 +38,7 @@ public class EditPluginChange : EditChange<Plugin>, ISelfNamedType<EditPluginCha
     {
         entity.Name = Name;
         entity.Description = Description;
-        entity.FileUri = FileUri;
+        entity.MediaUri = MediaUri;
         entity.FileSize = FileSize;
         entity.Permissions = Permissions;
         entity.Contexts = Contexts;

@@ -12,24 +12,36 @@ public class MediaSubfolderTests(MiniLcmApiFixture fixture) : IClassFixture<Mini
     private static MemoryStream Bytes(string content) => new(Encoding.UTF8.GetBytes(content));
 
     [Fact]
-    public async Task SaveFile_PlacesTheLocalCopyInTheRequestedSubfolder()
+    public async Task SaveFile_KeepsTheLocalCopyAtTheCacheRoot()
     {
         var (resource, newResource) = await MediaService.SaveFile(Bytes("<html></html>"),
             new LcmFileMetadata("plugin-abc123.html", "text/html", LinkedFilesSubfolder: "Plugins"));
 
         newResource.Should().BeTrue();
-        resource.LocalPath.Should().Be(
-            Path.Combine(MediaService.ProjectResourceCachePath, "Plugins", "plugin-abc123.html"));
-        File.Exists(resource.LocalPath).Should().BeTrue();
+        resource.LocalPath.Should().Be(Path.Combine(MediaService.ProjectResourceCachePath, "plugin-abc123.html"));
+        resource.Metadata!.LinkedFilesSubfolder.Should().Be("Plugins");
     }
 
     [Fact]
-    public async Task SaveFile_WithoutSubfolderStaysAtTheCacheRoot()
+    public async Task DeleteFile_ForgetsTheResourceAndItsLocalCopy()
     {
-        var (resource, _) = await MediaService.SaveFile(Bytes("audio"),
-            new LcmFileMetadata("word.wav", "audio/wav"));
+        var (resource, _) = await MediaService.SaveFile(Bytes("<html>old</html>"),
+            new LcmFileMetadata("plugin-old.html", "text/html", LinkedFilesSubfolder: "Plugins"));
+        var mediaUri = new MediaUri(resource.Id, "test.lexbox.org");
 
-        resource.LocalPath.Should().Be(Path.Combine(MediaService.ProjectResourceCachePath, "word.wav"));
+        await fixture.Api.DeleteFile(mediaUri);
+
+        var read = await fixture.Api.GetFileStream(mediaUri, downloadIfMissing: false);
+        read.Result.Should().Be(ReadFileResult.NotFound);
+        (await MediaService.AllResources()).Should().NotContain(r => r.Id == resource.Id);
+    }
+
+    [Fact]
+    public async Task DeleteFile_IgnoresNotFound()
+    {
+        var before = (await MediaService.AllResources()).Length;
+        await fixture.Api.DeleteFile(MediaUri.NotFound);
+        (await MediaService.AllResources()).Should().HaveCount(before);
     }
 
     [Theory]
@@ -44,23 +56,5 @@ public class MediaSubfolderTests(MiniLcmApiFixture fixture) : IClassFixture<Mini
             new LcmFileMetadata("file.html", "text/html", LinkedFilesSubfolder: subfolder));
 
         await act.Should().ThrowAsync<ArgumentException>();
-    }
-
-    [Theory]
-    [InlineData("Plugins/plugin-abc123.html", "Plugins")]
-    [InlineData("word.wav", null)]
-    [InlineData("a/b/file.html", null)]
-    public void LinkedFilesSubfolder_IsTheSingleSegmentUnderTheCacheRoot(string relativePath, string? expected)
-    {
-        var root = Path.Combine(Path.GetTempPath(), "cache-root");
-        LcmMediaService.LinkedFilesSubfolder(root, Path.Combine(root, relativePath)).Should().Be(expected);
-    }
-
-    [Fact]
-    public void LinkedFilesSubfolder_IgnoresFilesOutsideTheCacheRoot()
-    {
-        var root = Path.Combine(Path.GetTempPath(), "cache-root");
-        var elsewhere = Path.Combine(Path.GetTempPath(), "old-cache-root", "Plugins", "plugin-abc123.html");
-        LcmMediaService.LinkedFilesSubfolder(root, elsewhere).Should().BeNull();
     }
 }

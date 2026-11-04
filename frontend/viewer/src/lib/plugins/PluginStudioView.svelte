@@ -12,8 +12,8 @@
   import {t} from 'svelte-i18n-lingui';
   import {onMount, untrack} from 'svelte';
   import {navigate, useRouter} from 'svelte-routing';
-  import {type IEntry, type IPlugin, SortField, UserProjectRole} from '$lib/dotnet-types';
-  import {usePluginService} from '$project/data/plugin-service.svelte';
+  import {type IEntry, type IPlugin, SortField} from '$lib/dotnet-types';
+  import {fileNameSlug, sizeKb, usePluginService} from '$project/data/plugin-service.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
   import {useWritingSystemService} from '$project/data';
   import {useDialogsService} from '$lib/services/dialogs-service';
@@ -51,7 +51,7 @@
   const {base} = useRouter();
 
   // Local-only projects have no role info; there the user owns their data anyway.
-  const canManage = $derived(!projectContext.projectData || projectContext.projectData.role === UserProjectRole.Manager);
+  const canManage = $derived(pluginService.canManage);
 
   // The route keys this view, so the mode and the plugin/example it is about never change.
   const draft = untrack(() => new PluginStudioDraft(mode));
@@ -201,7 +201,7 @@
   // A download rather than the clipboard: some AI chats cut a long paste short (the prompt is
   // ~20 KB, more with the plugin's code), while an attached file gets through whole.
   function downloadPrompt(prompt: string) {
-    downloadText(prompt, `${fileSlug()}-prompt.md`, 'text/markdown');
+    downloadText(prompt, `${fileNameSlug(draft.name)}-prompt.md`, 'text/markdown');
   }
 
   // ---- Ask AI (changing a plugin) ----
@@ -229,7 +229,7 @@
     if (!draft.manifest || !baseHtml || baseHtml === draft.html || !isCompletePluginHtml(baseHtml)) return undefined;
     return {
       changes: compareManifests(parsePluginManifest(baseHtml), draft.manifest),
-      sizeBefore: Math.max(1, Math.round(baseHtml.length / 1024)),
+      sizeBefore: sizeKb(baseHtml.length),
     };
   });
   /** New permissions the user chose to keep, so their warning goes away. */
@@ -343,10 +343,6 @@
     await useHtml(await file.text());
   }
 
-  function fileSlug(): string {
-    return draft.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'plugin';
-  }
-
   function downloadText(text: string, fileName: string, type: string) {
     const url = URL.createObjectURL(new Blob([text], {type}));
     const anchor = document.createElement('a');
@@ -357,7 +353,7 @@
   }
 
   function downloadHtml() {
-    downloadText(draft.html, `${fileSlug()}.html`, 'text/html');
+    downloadText(draft.html, `${fileNameSlug(draft.name)}.html`, 'text/html');
   }
 
   // ---- Saving ----
@@ -400,7 +396,7 @@
       details: $t`This removes the plugin for everyone on this project.`,
     });
     if (!shouldDelete) return;
-    await pluginService.delete(savedPlugin.id);
+    await pluginService.delete(savedPlugin);
     added = savedPlugin; // nothing left to lose
     goToPlugins();
   }
@@ -487,7 +483,7 @@
     return lines;
   });
 
-  const sizeKb = $derived(Math.max(1, Math.round(draft.html.length / 1024)));
+  const draftKb = $derived(sizeKb(draft.html.length));
 </script>
 
 <svelte:window onbeforeunload={onBeforeUnload} />
@@ -564,9 +560,9 @@
         <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{$t`This version`}</h3>
         <div class="rounded-md bg-muted px-3 py-2 text-sm">
           {#if review.changes.added.permissions.length === 0}
-            {$t`${review.sizeBefore} KB to ${sizeKb} KB, no new permissions`}
+            {$t`${review.sizeBefore} KB to ${draftKb} KB, no new permissions`}
           {:else}
-            {$t`${review.sizeBefore} KB to ${sizeKb} KB`}
+            {$t`${review.sizeBefore} KB to ${draftKb} KB`}
           {/if}
         </div>
         {#each newPermissions as permission (permission)}
@@ -659,7 +655,7 @@
         <Button variant="outline" size="sm" icon="i-mdi-upload" onclick={() => fileInput?.click()}>{$t`Upload file`}</Button>
         {#if draft.html}
           <Button variant="outline" size="sm" icon="i-mdi-download" onclick={downloadHtml}>{$t`Download`}</Button>
-          <span class="self-center text-xs text-muted-foreground">{$t`${sizeKb} KB`}</span>
+          <span class="self-center text-xs text-muted-foreground">{$t`${draftKb} KB`}</span>
         {/if}
         <input bind:this={fileInput} type="file" accept=".html,.htm" class="hidden" onchange={uploadFile} />
       </div>

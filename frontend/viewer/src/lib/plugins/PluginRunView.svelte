@@ -47,32 +47,31 @@
   // Keyed on the fields that determine the content, not object identity: a plugin-list refetch
   // rebuilds the objects, and that must not tear down a running plugin.
   const pluginKey = $derived(plugin
-    ? [plugin.id, plugin.fileUri, plugin.name, plugin.description ?? ''].join('\u0000')
+    ? [plugin.id, plugin.mediaUri, plugin.name, plugin.description ?? ''].join('\u0000')
     : undefined);
   $effect(() => {
     const requestedKey = pluginKey;
     if (!requestedKey) return;
     const requested = untrack(() => plugin)!;
     htmlState = {status: 'loading'};
+    let superseded = false;
     void pluginService.getHtml(requested).then(async result => {
-      if (pluginKey !== requestedKey) return; // a newer load owns the state
       if (result.result === 'ok') {
         const manifest = parsePluginManifest(result.html);
-        htmlState = {
-          status: 'ready',
-          manifest,
-          hash: await computePluginHash({name: requested.name, description: requested.description, html: result.html}),
-          // The (possibly multi-MB) HTML is deliberately NOT kept in state or a srcdoc attribute:
-          // the composed document goes into a Blob the iframe loads by URL, so the strings are
-          // GC-able as soon as this scope ends. The source of truth stays the on-disk cache file.
-          docUrl: createPluginDocUrl(result.html, manifest.permissions),
-        };
+        const hash = await computePluginHash({name: requested.name, description: requested.description, html: result.html});
+        if (superseded) return;
+        // The HTML goes into a Blob the iframe loads by URL, not into state, so it stays GC-able.
+        const docUrl = createPluginDocUrl(result.html, manifest.permissions);
+        htmlState = {status: 'ready', manifest, hash, docUrl};
+      } else if (superseded) {
+        return;
       } else if (result.result === 'offline') {
         htmlState = {status: 'offline'};
       } else {
         htmlState = {status: 'error', message: result.message};
       }
     });
+    return () => { superseded = true; };
   });
 
   $effect(() => {
@@ -85,27 +84,17 @@
   const manifest = $derived(htmlState.status === 'ready' ? htmlState.manifest : undefined);
 
   // Run consent + write trust are device-local and pinned to the content hash (see plugin-local-data).
-  let approved = $state<boolean>();
-  let writesTrusted = $state(false);
-  $effect(() => {
-    if (htmlState.status !== 'ready') {
-      approved = undefined;
-      return;
-    }
-    approved = pluginService.consentStore.isGranted(pluginId, htmlState.hash);
-    writesTrusted = pluginService.writeTrustStore.isGranted(pluginId, htmlState.hash);
-  });
+  const approved = $derived(htmlState.status === 'ready' ? pluginService.consentStore.isGranted(pluginId, htmlState.hash) : undefined);
+  const writesTrusted = $derived(htmlState.status === 'ready' && pluginService.writeTrustStore.isGranted(pluginId, htmlState.hash));
 
   function approve() {
     if (htmlState.status !== 'ready') return;
     pluginService.consentStore.grant(pluginId, htmlState.hash);
-    approved = true;
   }
 
   function trustWrites() {
     if (htmlState.status !== 'ready' || !plugin) return;
     pluginService.writeTrustStore.grant(pluginId, htmlState.hash);
-    writesTrusted = true;
     AppNotification.display(
       $t`“${plugin.name}” can now make changes without asking. You can change this from the plugin toolbar or its card.`,
       {timeout: 'long'});
@@ -114,16 +103,13 @@
   function revokeWriteTrust() {
     if (!plugin) return;
     pluginService.writeTrustStore.revoke(pluginId);
-    writesTrusted = false;
     AppNotification.display($t`“${plugin.name}” will ask before making changes again.`, {timeout: 'short'});
   }
 
   const docUrl = $derived(htmlState.status === 'ready' && approved ? htmlState.docUrl : undefined);
   let reloadToken = $state(0);
 
-  // Fullscreen hides the whole toolbar for true immersion; the only chrome left is a minimal exit
-  // control overlaid on the plugin (Esc also exits, browser-native). Feature-detected so we don't
-  // offer a dead button where the Fullscreen API is unavailable (e.g. the Android WebView).
+  // No Fullscreen API in the Android WebView.
   const canFullscreen = document.fullscreenEnabled;
   let containerElement = $state<HTMLElement>();
   let isFullscreen = $state(false);

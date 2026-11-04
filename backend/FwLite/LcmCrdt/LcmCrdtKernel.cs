@@ -81,6 +81,9 @@ public static class LcmCrdtKernel
         services.AddOptions<HarmonyConfig>().PostConfigure((HarmonyConfig harmonyConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
             harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
+            // iOS reassigns the app container path on every update or reinstall, so an absolute LocalPath goes stale
+            // while the cached file moves with the app (#2693). Harmony resolves relative rows against the cache path.
+            harmonyConfig.StoreLocalResourcePathsRelativeToCache = true;
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<HarmonyChangeWriter>();
@@ -326,7 +329,7 @@ public static class LcmCrdtKernel
             })
             .Add<Plugin>(builder =>
             {
-                builder.Property(p => p.FileUri)
+                builder.Property(p => p.MediaUri)
                     .HasConversion(uri => uri.ToString(), value => new MediaUri(value));
                 var tokenArrayConverter = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<string[], string>(
                     list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),

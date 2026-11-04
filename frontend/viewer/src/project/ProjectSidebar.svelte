@@ -40,7 +40,8 @@
   let syncStatus = $state<SyncStatus>();
   projectEventBus.onSync(e => syncStatus = e.status);
 
-  function handleProjectSelect(selectedProject: IProjectModel) {
+  async function handleProjectSelect(selectedProject: IProjectModel) {
+    if (!await confirmLeave()) return;
     if (selectedProject.fwdata) {
       navigate('/fwdata/' + selectedProject.code);
     } else if (selectedProject.crdt) {
@@ -186,7 +187,7 @@
     <Sidebar.Group class="paratext:hidden">
       <Sidebar.Menu>
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => navigate('/')}>
+          <Sidebar.MenuButton onclick={async () => { if (await confirmLeave()) navigate('/'); }}>
             <Icon icon="i-mdi-close" />
             <span>{$t`Close Dictionary`}</span>
           </Sidebar.MenuButton>

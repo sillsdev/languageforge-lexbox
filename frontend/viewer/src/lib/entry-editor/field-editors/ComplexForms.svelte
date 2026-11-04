@@ -9,6 +9,7 @@
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import type {ReadonlyDeep} from 'type-fest';
+  import {senseInEntry, senseLabel} from '../sense-ref';
 
   type Props = {
     value: IComplexFormComponent[];
@@ -39,6 +40,13 @@
     onchange?.(value);
   }
 
+  function complexFormLabel(cf: IComplexFormComponent): string | undefined {
+    const found = senseInEntry(entry, cf.componentSenseId);
+    const sense = typeof found === 'object' ? senseLabel(writingSystemService, found) : undefined;
+    // Without a headword, leave the list its own placeholder rather than show only the sense
+    return sense && cf.complexFormHeadword ? `${cf.complexFormHeadword} (${sense})` : cf.complexFormHeadword;
+  }
+
   function disableEntry(e: IEntry): false | { reason: string } {
     if (e.id === entry.id) return { reason: pt($t`Current Entry`, $t`Current Word`, viewService.currentView) };
     if (entry.components.some((c) => c.componentEntryId === e.id)) return { reason: pt($t`Component`, $t`Part`, viewService.currentView) };
@@ -47,7 +55,7 @@
   }
 </script>
 
-<EntryOrSenseItemList bind:items={value} {readonly} {onchange} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
+<EntryOrSenseItemList bind:items={value} {readonly} {onchange} getEntryId={(e) => e.complexFormEntryId} getHeadword={complexFormLabel}>
   {#snippet actions()}
     <EntryOrSensePicker title={pt($t`Add complex form`, $t`Add part of`, viewService.currentView)} mode="only-entries" pick={(e) => addComplexForm(e)}
       {disableEntry}>

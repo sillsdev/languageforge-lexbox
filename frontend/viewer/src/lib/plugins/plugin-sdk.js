@@ -90,17 +90,6 @@
     getMedia: function (mediaUri) { return call('getMedia', [mediaUri]); },
 
     /**
-     * Stores a file (e.g. audio you recorded with MediaRecorder, or a captured image) and resolves
-     * to {result, mediaUri, errorMessage}. Then attach it by writing `mediaUri` into an entry field
-     * (an audio writing system, or a sense picture) via updateEntry — that edit is user-approved.
-     * Requires the 'edit' permission. The browser prompts the user the first time you call
-     * getUserMedia for mic/camera.
-     *   const blob = /* from MediaRecorder * /;
-     *   const {mediaUri} = await fwlite.saveFile(await blob.arrayBuffer(), {filename: 'word.webm', mimeType: blob.type});
-     */
-    saveFile: function (data, metadata) { return call('saveFile', [data, metadata]); },
-
-    /**
      * Writing requires <meta name="fwlite-plugin-permissions" content="edit"> in your <head>;
      * without it these calls reject with code 'permission-denied' before the user is even asked.
      * updateEntry(before, after): 'before' must match the entry's CURRENT state — if someone

@@ -57,7 +57,6 @@ export interface PluginApiMethods {
   getPartsOfSpeech(): Promise<unknown>;
   getSemanticDomains(): Promise<unknown>;
   getMedia(mediaUri: string): Promise<{data: ArrayBuffer; fileName?: string; mimeType?: string} | null>;
-  saveFile(data: unknown, metadata: unknown): Promise<IUploadFileResponse>;
   createEntry(entry: unknown): Promise<PluginEntry>;
   updateEntry(before: unknown, after: unknown): Promise<PluginEntry>;
   applyChanges(operations: unknown): Promise<PluginEntry[]>;
@@ -100,7 +99,6 @@ const argDecoders: ArgDecoders = {
   getPartsOfSpeech: () => [],
   getSemanticDomains: () => [],
   getMedia: ([uri]) => [asNonEmptyString(uri, 'mediaUri')],
-  saveFile: ([data, metadata]) => [data, metadata],
   createEntry: ([entry]) => [entry],
   updateEntry: ([before, after]) => [before, after],
   applyChanges: ([operations]) => [operations],
@@ -204,9 +202,8 @@ export class PluginApiAdapter implements PluginApiMethods {
   }
 
   /**
-   * Stores a file (e.g. a recording or captured image) and returns its {@link IUploadFileResponse}
-   * with a `mediaUri` you then write into an entry field (via updateEntry) to attach it. The bytes
-   * themselves are stored locally; the entry edit that references them is still user-approved.
+   * Not in {@link PluginApiMethods}, so plugins can't reach it yet: storing a file is the one write
+   * with no approval step. Stays implemented for when that step exists (#2920).
    */
   async saveFile(data: unknown, metadata: unknown): Promise<IUploadFileResponse> {
     this.#requireEditPermission();
@@ -383,7 +380,7 @@ export class PluginApiAdapter implements PluginApiMethods {
   /** Attaches the app's headword (citation form, else morph-decorated lexeme form) to each entry. */
   private async withHeadwords(entries: IEntry[]): Promise<PluginEntry[]> {
     const {vernacular, morphTokens} = await this.headwordDeps();
-    return entries.map(entry => Object.assign(entry, {headword: computeHeadword(entry, vernacular, morphTokens)}));
+    return entries.map(entry => ({...entry, headword: computeHeadword(entry, vernacular, morphTokens)}));
   }
 
   private headwordDeps(): Promise<{vernacular: IWritingSystem[]; morphTokens: MorphTokens}> {

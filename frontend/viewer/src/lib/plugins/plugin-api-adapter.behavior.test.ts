@@ -62,6 +62,14 @@ function makeAdapter(options: {
 beforeEach(() => localStorage.clear());
 
 describe('handle dispatch', () => {
+  it('does not expose saveFile', async () => {
+    const saveFile = vi.fn();
+    const adapter = makeAdapter({api: makeApi({saveFile})});
+    await expect(async () => await adapter.handle('saveFile', [new ArrayBuffer(1), {filename: 'a.webm', mimeType: 'audio/webm'}]))
+      .rejects.toMatchObject({code: 'unknown-method'});
+    expect(saveFile).not.toHaveBeenCalled();
+  });
+
   it('rejects unknown methods', async () => {
     const adapter = makeAdapter();
     await expect(async () => await adapter.handle('dropAllTables', [])).rejects.toMatchObject({code: 'unknown-method'});
@@ -89,7 +97,6 @@ describe('edit permission', () => {
       ['createEntry', [{lexemeForm: {seh: 'x'}}]],
       ['updateEntry', [makeEntry(), makeEntry()]],
       ['applyChanges', [[]]],
-      ['saveFile', [new ArrayBuffer(1), {filename: 'a.webm', mimeType: 'audio/webm'}]],
     ] as const) {
       await expect(async () => await adapter.handle(method, [...args]), method).rejects.toMatchObject({code: 'permission-denied'});
     }
@@ -180,7 +187,12 @@ describe('createEntry summary completeness', () => {
     const adapter = makeAdapter({api, confirmWrite: () => Promise.resolve(false)});
     await expect(async () => await adapter.handle('createEntry', [{lexemeForm: {seh: 'x'}}]))
       .rejects.toMatchObject({code: 'permission-denied'});
+    await expect(async () => await adapter.handle('updateEntry', [makeEntry(), makeEntry({lexemeForm: {seh: 'b'}})]))
+      .rejects.toMatchObject({code: 'permission-denied'});
+    await expect(async () => await adapter.handle('applyChanges', [[{type: 'createEntry', entry: {lexemeForm: {seh: 'c'}}}]]))
+      .rejects.toMatchObject({code: 'permission-denied'});
     expect(api.createEntry).not.toHaveBeenCalled();
+    expect(api.updateEntry).not.toHaveBeenCalled();
   });
 });
 
@@ -264,14 +276,6 @@ describe('preview write mode', () => {
     const adapter = makeAdapter({permissions: [], writeMode: 'preview'});
     await expect(async () => await adapter.handle('createEntry', [{lexemeForm: {seh: 'a'}}]))
       .rejects.toMatchObject({code: 'permission-denied'});
-  });
-
-  it('rejects saveFile without storing anything', async () => {
-    const saveFile = vi.fn();
-    const adapter = makeAdapter({api: makeApi({saveFile}), writeMode: 'preview'});
-    await expect(async () => await adapter.handle('saveFile', [new ArrayBuffer(1), {filename: 'a.webm', mimeType: 'audio/webm'}]))
-      .rejects.toMatchObject({code: 'preview'});
-    expect(saveFile).not.toHaveBeenCalled();
   });
 
   it('keeps plugin storage in memory, out of localStorage', async () => {

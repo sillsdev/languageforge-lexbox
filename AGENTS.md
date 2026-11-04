@@ -27,6 +27,8 @@ languageforge-lexbox/
 │   └── Testing/         # Test projects
 ├── frontend/            # Lexbox SvelteKit web app
 ├── frontend/viewer/     # FieldWorks Lite frontend Svelte code
+├── docs/site/           # Public docs site: fw-lite/, lexbox/, technical/ (see docs/site/AGENTS.md)
+├── docs/dev/            # Developer docs: setup guides, troubleshooting, ADRs
 └── deployment/          # K8s/Docker configs
 ```
 
@@ -36,9 +38,10 @@ Key documentation for this project:
 - `README.md` - Project overview and setup
 - `AGENTS.md` - You are here! Agent instructions
 - `.github/AGENTS.md` - **CI/CD and deployment guide** (workflows, K8s, Docker)
-- `docs/DEVELOPER-win.md` - Windows development setup
-- `docs/DEVELOPER-linux.md` - Linux development setup
-- `docs/DEVELOPER-osx.md` - macOS development setup
+- `docs/site/AGENTS.md` - **Docs site** (user guides + technical docs): which page covers what, writing rules, links that must not break
+- `docs/dev/DEVELOPER-win.md` - Windows development setup
+- `docs/dev/DEVELOPER-linux.md` - Linux development setup
+- `docs/dev/DEVELOPER-osx.md` - macOS development setup
 - `backend/README.md` - Backend architecture
 - `backend/AGENTS.md` - General backend guidelines
 - `backend/LexBoxApi/AGENTS.md` - API & GraphQL specific rules
@@ -75,16 +78,16 @@ Do not run `kubectl`, `helm`, `k9s`, port-forwards, or anything else that reads 
 - ✅ **DO run unit tests via the CLI**, filtered to the tests relevant to your changes (e.g. `dotnet test backend/FwLite/FwLiteShared.Tests --filter "FullyQualifiedName~MyTestClass"`). Verify tests you wrote or changed actually pass before handing work back. Never run whole suites just to "see if anything broke".
 - ✅ **`MiniLcm.Tests`, `LcmCrdt.Tests`, `FwDataMiniLcmBridge.Tests` need no infrastructure** — these are the unit/conformance tests for the two `IMiniLcmApi` implementations; run them filtered to your change like any unit test (this is where a `*TestsBase` change should be verified, including its FwData side). The FwData/LCM-backed selections load a real project (a handful of tests = seconds, a whole class = a minute or two), so keep the filter tight; don't reach for the whole class or project.
 - ✅ **FwLite integration tests** (e.g. `FwLiteProjectSync.Tests`) need no infrastructure but are slow. FwData runs **in-process via liblcm** — these tests create real FieldWorks projects with no external setup (e.g. the `ProjectTemplateTests.GenerateTemplate` regen tool). Only FwHeadless's hg/Mercurial sync and the lexbox stack (last bullet) need running infrastructure — *not* FwData itself. Run a **targeted selection** (specific tests, not necessarily whole classes) when you touched critical sync code **and believe the work is finished** — not on every iteration. Slow-suite timings and the `--no-build` loop: `backend/FwLite/AGENTS.md` → Test timings.
-- ✅ **`backend/Testing` contains unit tests too** — only tests marked `Category=Integration|FlakyIntegration|RequiresDb` (and the `Testing.Browser` namespace) need infrastructure. Its unit tests are fine to run: `task test:unit -- <filter>` excludes those categories for you.
+- ✅ **`backend/Testing` contains unit tests too** — only tests marked `Category=Integration|HgIntegration|RequiresDb` (and the `Testing.Browser` namespace) need infrastructure. Its unit tests are fine to run: `task test:unit -- <filter>` excludes those categories for you.
 - ✅ **FwLite viewer Playwright tests MAY be run** — they're cheap: `task test:ui-standalone -- <test-name-filter>` (from `frontend/viewer/`) auto-starts the vite dev server with the in-browser demo project; no lexbox stack. Filter to a file and one browser: `-- sort.test.ts --project=chromium`; details in `frontend/viewer/AGENTS.md`.
-- ❌ **Do NOT run tests that need the lexbox stack** unless the user explicitly asks: LexBox integration tests (`Category=Integration`/`FlakyIntegration`, `Testing.Browser`) and the lexbox frontend Playwright suite (`frontend/tests`). The local stack is usually down or torn down between sessions and results aren't trustworthy — rely on CI for these.
+- ❌ **Do NOT run tests that need the lexbox stack** unless the user explicitly asks: LexBox integration tests (`Category=Integration`/`HgIntegration`, `Testing.Browser`) and the lexbox frontend Playwright suite (`frontend/tests`). The local stack is usually down or torn down between sessions and results aren't trustworthy — rely on CI for these.
 - ✅ **Before saying frontend work is done**, run `task verify` (svelte-check, eslint, vitest, i18n extract); after backend model/API/GraphQL changes, `task check-generated` (EF, gql, OpenAPI, TS types drift).
 - ⚠️ **Known env-only failures** (pre-existing; report, don't chase): `WritingSystemTests.CreateWritingSystem_IgnoresFont` and `ImportTests.ImportsANewlyCreatedWritingSystem` get `Charis` instead of `Charis SIL` where SLDR data is reachable or cached; `SendReceiveServiceTests.InvalidProjectManagerLogin` is flaky; `HeaderTests.CheckCloudflareHeaderSizeLimit` hits live staging (`Integration`).
 
 ### Questions?
 
 - Check existing issues: `gh issue list --limit 30`
-- Read the docs in `docs/` directory
+- Read `docs/site/technical/` (architecture, sync) and `docs/dev/adr/` (decisions)
 - Create a GitHub issue if unsure (public! — see 🔒 Privacy rules above)
 - Ask the user to clarify
 
@@ -102,6 +105,7 @@ Before implementing any change that will touch many files or is in a 🔴 **Crit
 - ✅ If the user asks about "the" PR, but does not explicitly name a PR or branch, assume they mean the PR associated with the current branch.
 - ✅ Use **Mermaid diagrams** for flowcharts and architecture (not ASCII art)
 - ✅ When handling a user prompt ALWAYS ask for clarification if there are details to clarify, important decisions that must be made first or the plan sounds unwise
+- ✅ **Update the docs in the same PR** when you change what FW Lite or lexbox.org users see or do (a label, a flow, sync behavior, roles) or how the system is built or run: `git grep` the old wording under `docs/site/` and fix every hit. Page map and writing rules: `docs/site/AGENTS.md`.
 - ❌ Do NOT git commit or git push without explicit user approval
 - ❌ Do NOT post project/user identifiers or any real-project data online, and do NOT touch a k8s cluster without explicit permission — see **🔒 Privacy and Production Access** above
 - ⚠️ **Pre-commit hook prettier-formats staged `*.{js,ts,svelte,css,md,json}` files** (yes, incl. `.md`/docs) via lint-staged; the glob lives in `.husky/pre-commit`. The hook first checks staged names in shell and skips Node when none match (e.g. backend-only). If some match and `frontend/viewer/node_modules` is missing (fresh worktree/clone), the hook runs `pnpm install` itself, so the first such commit takes ~45s — no need to install up front. Don't `--no-verify` to dodge the hook, that just defers the format failure to CI.

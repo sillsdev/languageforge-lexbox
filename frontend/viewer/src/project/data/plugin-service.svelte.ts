@@ -1,4 +1,4 @@
-import {type IPlugin} from '$lib/dotnet-types';
+import {type IPlugin, UserProjectRole} from '$lib/dotnet-types';
 import {gt} from 'svelte-i18n-lingui';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
 import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
@@ -15,6 +15,15 @@ import {
 
 const symbol = Symbol.for('fw-lite-plugin-service');
 const textEncoder = new TextEncoder();
+
+/** ASCII-only so the name survives every file system and hg; non-Latin names fall back to "plugin". */
+export function sizeKb(bytes: number): number {
+  return Math.max(1, Math.round(bytes / 1024));
+}
+
+export function fileNameSlug(name: string): string {
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'plugin';
+}
 
 export function usePluginService(): PluginService {
   const projectContext = useProjectContext();
@@ -50,6 +59,12 @@ export class PluginService {
     this.writeTrustStore = new PluginWriteTrustStore(projectContext.projectCode);
   }
 
+  /** Local-only projects have no role info; there the user owns their data anyway. */
+  get canManage(): boolean {
+    const projectData = this.#projectContext.projectData;
+    return !projectData || projectData.role === UserProjectRole.Manager;
+  }
+
   current: IPlugin[] = $derived.by(() =>
     this.#pluginsResource.current
       .toSorted((a, b) => a.name.localeCompare(b.name))
@@ -64,7 +79,6 @@ export class PluginService {
     return this.#pluginsResource.loading;
   }
 
-  /** True once the plugin list has been fetched at least once. */
   get loaded(): boolean {
     return this.#pluginsResource.loaded;
   }
@@ -75,7 +89,7 @@ export class PluginService {
 
   /** Fetches a plugin's HTML from its media resource (cached locally; downloads on first use). */
   async getHtml(plugin: IPlugin): Promise<PluginHtmlResult> {
-    const file = await this.#projectContext.api.getFileStream(plugin.fileUri, true);
+    const file = await this.#projectContext.api.getFileStream(plugin.mediaUri, true);
     if (!file.stream) {
       if (file.result === ReadFileResult.Offline) return {result: 'offline'};
       return {result: 'error', message: file.errorMessage ?? file.result};
@@ -129,21 +143,15 @@ export class PluginService {
     return updated;
   }
 
-  async delete(pluginId: string): Promise<void> {
+  async delete(plugin: IPlugin): Promise<void> {
+    const pluginId = plugin.id;
     await this.#projectContext.api.deletePlugin(pluginId);
     this.consentStore.revoke(pluginId);
     this.writeTrustStore.revoke(pluginId);
     await this.#pluginsResource.refetch();
   }
 
-  /**
-   * Turns a draft into the Plugin entity: uploads the HTML as an (immutable, content-named) media
-   * file and extracts the manifest, so lists and menus never need the file itself. Re-uses the
-   * previous file when the HTML didn't change.
-   *
-   * `uploadedHtmlDigest` is set only when a new HTML file was uploaded — undefined means the
-   * HTML body was unchanged and callers can skip trust-hash work.
-   */
+  /** Uploads changed HTML as a new immutable file; `uploadedHtmlDigest` is set only then. */
   async #buildPlugin(
     id: string,
     draft: PluginDraft,
@@ -151,7 +159,7 @@ export class PluginService {
     existing?: {previous: IPlugin; previousHtml: string},
   ): Promise<{plugin: IPlugin; uploadedHtmlDigest?: ArrayBuffer}> {
     const manifest = parsePluginManifest(draft.html);
-    let fileUri = existing?.previous.fileUri;
+    let mediaUri = existing?.previous.mediaUri;
     let fileSize = existing?.previous.fileSize;
     let uploadedHtmlDigest: ArrayBuffer | undefined;
     if (!existing || existing.previousHtml !== draft.html) {
@@ -159,9 +167,9 @@ export class PluginService {
       uploadedHtmlDigest = await crypto.subtle.digest('SHA-256', htmlBytes as BufferSource);
       const contentHash = hexFromBytes(uploadedHtmlDigest);
       const response = await this.#projectContext.api.saveFile(htmlBytes, {
-        // Content-hash filename: each version is a distinct immutable file, so a synced/cached
-        // copy can never be stale, and re-saving identical content reuses the same file.
-        filename: `plugin-${contentHash.slice(0, 16)}.html`,
+        // The hash makes each version a distinct immutable file, so a synced/cached copy can
+        // never be stale; the name is for people browsing LinkedFiles.
+        filename: `${fileNameSlug(draft.name)}-${contentHash.slice(0, 8)}.html`,
         mimeType: 'text/html',
         // Keeps plugin files together in the project's LinkedFiles (for FLEx users and the
         // media manager) instead of scattering hash-named folders at its root.
@@ -169,12 +177,12 @@ export class PluginService {
         extraFields: {},
       });
       if (response.result === UploadFileResult.TooBig) {
-        throw new Error('This plugin file is too big (the limit is 10MB)');
+        throw new Error(gt`This plugin file is too big (the limit is 10 MB)`);
       }
       if (!response.mediaUri) {
         throw new Error(response.errorMessage ?? 'Failed to save the plugin file');
       }
-      fileUri = response.mediaUri;
+      mediaUri = response.mediaUri;
       fileSize = htmlBytes.byteLength;
     }
     return {
@@ -183,7 +191,7 @@ export class PluginService {
         id,
         name: draft.name,
         description: draft.description,
-        fileUri: fileUri!,
+        mediaUri: mediaUri!,
         fileSize: fileSize ?? 0,
         permissions: manifest.permissions,
         contexts: manifest.contexts,

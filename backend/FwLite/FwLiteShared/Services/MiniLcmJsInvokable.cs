@@ -580,6 +580,12 @@ public class MiniLcmJsInvokable(
     public const int TenMbFileLimit = 10 * 1024 * 1024;
 
     [JSInvokable]
+    public async Task DeleteFile(string mediaUri)
+    {
+        await _wrappedApi.DeleteFile(new MediaUri(mediaUri));
+    }
+
+    [JSInvokable]
     public Task<UploadFileResponse> SaveFile(IJSStreamReference streamReference, LcmFileMetadata metadata)
     {
         if (streamReference.Length > TenMbFileLimit)
