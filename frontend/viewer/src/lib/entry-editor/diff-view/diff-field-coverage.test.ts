@@ -17,7 +17,7 @@ function renderedFieldIds(file: string): string[] {
   return [...source.matchAll(/fieldId="(\w+)"/g)].map((m) => m[1]);
 }
 
-// Links between entries, previewed by DiffEntryLinkList outside the entry primitive.
+// Links between entries. Each link is its own ComplexFormComponent change with its own preview, so the entry primitive leaves them out.
 const NOT_DIFFED: Partial<Record<EntityType, string[]>> = {
   entry: ['complexForms', 'components'],
 };

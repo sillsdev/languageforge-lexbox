@@ -42,7 +42,8 @@
 </script>
 
 <!-- wrap-break-word: a headword can be one long unbreakable word, which otherwise overflows its container. -->
-<strong class={cn('wrap-break-word', className)} {...restProps}>
+<!-- font-bold: <strong> defaults to bolder, which turns a semibold parent's 600 into 900. -->
+<strong class={cn('font-bold wrap-break-word', className)} {...restProps}>
   {#each headwords as headword, i (headword.wsId)}
     <!-- eslint-disable-next-line svelte/no-useless-mustaches This mustache is not useless, it preserves whitespace -->
     {#if i > 0}{' / '}{/if}

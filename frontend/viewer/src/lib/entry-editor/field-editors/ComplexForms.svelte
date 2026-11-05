@@ -42,7 +42,7 @@
 
   function complexFormLabel(cf: IComplexFormComponent): string | undefined {
     const found = senseInEntry(entry, cf.componentSenseId);
-    const sense = typeof found === 'object' ? senseLabel(writingSystemService, found) : undefined;
+    const sense = typeof found === 'object' ? senseLabel(writingSystemService, viewService.currentView, found) : undefined;
     // Without a headword, leave the list its own placeholder rather than show only the sense
     return sense && cf.complexFormHeadword ? `${cf.complexFormHeadword} (${sense})` : cf.complexFormHeadword;
   }
