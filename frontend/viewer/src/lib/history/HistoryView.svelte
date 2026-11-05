@@ -1,7 +1,8 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
   import {t} from 'svelte-i18n-lingui';
-  import {type HistoryItem, useHistoryService} from '../services/history-service';
+  import {useHistoryService} from '../services/history-service';
+  import type {IHistoryLineItem} from '$lib/dotnet-types';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
@@ -28,7 +29,7 @@
 
   let loading = $state(false);
   const historyService = useHistoryService();
-  let history: HistoryItem[] = $state([]);
+  let history: IHistoryLineItem[] = $state([]);
 
 
   async function load() {
@@ -41,14 +42,6 @@
     } finally {
       loading = false;
     }
-  }
-
-  async function showEntry(row: HistoryItem) {
-    if (!row.entity) {
-      const snapshot = await historyService.fetchSnapshot(row, id);
-      Object.assign(row, snapshot);
-    }
-    selectedCommitId = row.commitId;
   }
 
   function reset() {
@@ -83,7 +76,7 @@
                    class="h-full p-0.5 md:pr-3 after:h-12 after:block !contain-content">
               {#snippet children(row)}
                 <ListItem
-                  onclick={() => showEntry(row)}
+                  onclick={() => selectedCommitId = row.commitId}
                   class="mb-2"
                   selected={record?.commitId === row.commitId && record.changeIndex === row.changeIndex}>
                   <span>{row.changeName}</span>
