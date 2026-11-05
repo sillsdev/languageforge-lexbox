@@ -4,6 +4,7 @@ sidebar_position: 2
 ---
 
 import SyncExplainer from '@site/src/components/SyncExplainer';
+import Screenshot from '@site/src/components/Screenshot';
 
 If everyone on your team uses FieldWorks Lite, there's nothing to do: your changes sync on
 their own while the app is open and online. The rest of this page matters for teams where
@@ -29,6 +30,7 @@ when the last sync worked. Each row is one step in the diagram:
     <tr>
       <td><span className="leg-num leg-num--1">1</span></td>
       <td>
+        <Screenshot name="sync-fw-lite-tab" width={560} alt="The FieldWorks Lite tab of Sync Changes, showing Pending with 12 changes to receive and 3 to send" />
         The <strong>FieldWorks Lite</strong> tab shows one of these:
         <ul>
           <li><span className="app-chip">Up to date</span>: your changes have reached Lexbox.</li>
@@ -49,6 +51,7 @@ when the last sync worked. Each row is one step in the diagram:
     <tr>
       <td><span className="leg-num leg-num--2">2</span></td>
       <td>
+        <Screenshot name="sync-lexbox-tab" width={560} alt="The Lexbox tab of Sync Changes: New data both ways between FieldWorks Lite and FieldWorks Classic, and the Sync button" />
         The same dialog's <strong>Lexbox</strong> tab. Its two boxes,{' '}
         <strong>FieldWorks Lite</strong> and <strong>FieldWorks Classic</strong>, are the two
         copies inside Lexbox in the diagram above. Between them:{' '}
