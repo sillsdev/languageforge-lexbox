@@ -168,9 +168,8 @@ flowchart LR
   
     api -- http:8088/hg --- hgweb([hgweb])
     hgweb -- /var/hg/repos --- repos
-    api -- /hg-repos --- repos
 
-    api -- http:80 --- hgresumable([hgresumable])
+    api -- "http:8080 (resumable + /api/manage)" --- hgresumable([hgresumable])
     hgresumable -- /var/vcs/public --- repos
     hgresumable -- hgresumable-cache --- cache[//var/cache/hgresume/]
 

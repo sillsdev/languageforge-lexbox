@@ -68,7 +68,7 @@ public class SyncServiceJsInvokable(SyncService syncService, SyncRepository sync
     [JSInvokable]
     public Task<PendingCommits?> CountPendingCrdtCommits()
     {
-        return syncService.CountPendingCrdtCommits();
+        return Task.Run(async () => await syncService.CountPendingCrdtCommits());
     }
 
     [JSInvokable]

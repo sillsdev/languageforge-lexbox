@@ -1,8 +1,6 @@
 using SIL.Harmony.Config;
 using System.Diagnostics;
 using LcmCrdt.Changes;
-using LinqToDB;
-using LinqToDB.EntityFrameworkCore;
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +17,9 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     private readonly bool _seedWs = true;
     private readonly Guid? _projectId;
     private readonly Action<IServiceCollection>? _configureServices;
-    private readonly bool _isolateDbModel;
     // fixtures run in parallel and share project codes, so each gets its own folder (media cache) to delete on dispose
     private readonly string _projectPath = Path.GetFullPath($"fixture-{Guid.NewGuid():N}");
+    private ServiceProvider? _rootServices;
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
     private SqliteConnection? _keepAliveConnection;
@@ -40,23 +38,20 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
     }
 
-    /// <param name="isolateDbModel">
-    /// Give this fixture its own EF model and linq2db query cache, so config that <paramref name="configureServices"/>
-    /// changes and that gets baked into them (like HarmonyConfig) applies. Pass false when the services you
-    /// replace never reach the model (HTTP clients, fakes): isolated fixtures can still collide with each other.
+    /// <param name="configureServices">
+    /// Adds or replaces services after the fixture's own registrations. Config that ends up in the EF model or
+    /// linq2db's compiled queries (e.g. HarmonyConfig) can't be changed here: both are cached process-wide.
     /// </param>
-    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null, Action<IServiceCollection>? configureServices = null,
-        bool isolateDbModel = true)
+    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null, Action<IServiceCollection>? configureServices = null)
     {
-        return new MiniLcmApiFixture(seedWs, projectId, configureServices, isolateDbModel);
+        return new MiniLcmApiFixture(seedWs, projectId, configureServices);
     }
 
-    private MiniLcmApiFixture(bool seedWs, Guid? projectId, Action<IServiceCollection>? configureServices, bool isolateDbModel)
+    private MiniLcmApiFixture(bool seedWs, Guid? projectId, Action<IServiceCollection>? configureServices)
     {
         _seedWs = seedWs;
         _projectId = projectId;
         _configureServices = configureServices;
-        _isolateDbModel = isolateDbModel;
     }
 
     public async Task InitializeAsync()
@@ -85,21 +80,9 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
                 .AddProvider(new LateXUnitLoggerProvider(this))
                 .AddFilter("LinqToDB", LogLevel.Trace)
                 .SetMinimumLevel(LogLevel.Error));
-        if (_configureServices is not null)
-        {
-            _configureServices(serviceCollection);
-        }
-        if (_configureServices is not null && _isolateDbModel)
-        {
-            // Hook config like HarmonyConfig gets baked into the EF model and linq2db's compiled queries, both
-            // cached process-wide (first fixture wins). Opt this fixture out of both caches so its config applies.
-            serviceCollection.AddDbContextFactory<LcmCrdtDbContext>(builder => builder
-                .EnableServiceProviderCaching(false)
-                .UseLinqToDB(linq2db => linq2db.AddCustomOptions(options => options.UseDisableQueryCache(true))),
-                ServiceLifetime.Scoped);
-        }
-        var services = serviceCollection.BuildServiceProvider();
-        _services = services.CreateAsyncScope();
+        _configureServices?.Invoke(serviceCollection);
+        _rootServices = serviceCollection.BuildServiceProvider();
+        _services = _rootServices.CreateAsyncScope();
         if (inMemory)
         {
             //an in memory db only lives as long as a connection to it is open, and CreateProject opens and
@@ -176,6 +159,7 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
         await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
+        await (_rootServices?.DisposeAsync() ?? ValueTask.CompletedTask);
         await (_keepAliveConnection?.DisposeAsync() ?? ValueTask.CompletedTask);
         if (Directory.Exists(_projectPath)) Directory.Delete(_projectPath, true);
     }

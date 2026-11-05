@@ -31,7 +31,7 @@ public class MediaCommitMetadataTests : IAsyncLifetime
             services.AddSingleton<IServerHttpClientProvider>(_httpClientProvider);
             services.RemoveAll<IRefitHttpServiceFactory>();
             services.AddSingleton<IRefitHttpServiceFactory, FakeMediaServerFactory>();
-        }, isolateDbModel: false);
+        });
     }
 
     public async Task InitializeAsync()
