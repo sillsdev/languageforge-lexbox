@@ -1,5 +1,5 @@
-import {isCompletePluginHtml} from './plugin-html';
-import {parsePluginManifest, type PluginManifest} from './plugin-manifest';
+import {isCompletePluginHtml} from '../plugin-html';
+import {parsePluginManifest, type PluginManifest} from '../plugin-manifest';
 
 /**
  * What the studio is doing: trying an example that isn't in the project yet, building a new

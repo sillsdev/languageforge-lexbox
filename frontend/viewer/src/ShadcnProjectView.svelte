@@ -10,7 +10,7 @@
   import ActivityView from '$lib/activity/ActivityView.svelte';
   import PluginsView from '$lib/plugins/PluginsView.svelte';
   import PluginRunView from '$lib/plugins/PluginRunView.svelte';
-  import PluginStudioView from '$lib/plugins/PluginStudioView.svelte';
+  import PluginStudioView from '$lib/plugins/studio/PluginStudioView.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';

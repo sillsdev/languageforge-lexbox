@@ -30,7 +30,7 @@ flowchart LR
 - **`PluginsView`**: the project's plugins (Run, Edit, Export, ...) and, for managers only, a shelf of
   the bundled `examples/`. Nothing is in a project until a manager adds it.
 - **`PluginRunView`** (`/plugins/:id`): runs a saved plugin `live`, behind the first-run consent card.
-- **`PluginStudioView`**: one page for trying an example (`/plugins/examples/:key`), building a new
+- **`studio/PluginStudioView`**: one page for trying an example (`/plugins/examples/:key`), building a new
   plugin (`/plugins/new`) and editing one (`/plugins/:id/edit`); managers only. The draft runs in a
   `preview` sandbox on the left; tabs on the right hold the AI loop (download a prompt file to attach
   in any AI chat, since some chats cut long pastes short, then paste the reply), the source and the

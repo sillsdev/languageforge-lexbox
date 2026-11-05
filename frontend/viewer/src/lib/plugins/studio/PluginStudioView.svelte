@@ -22,16 +22,16 @@
   import {setLeaveGuard} from '$lib/utils/leave-guard';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import EntryOrSensePicker from '$lib/entry-editor/EntryOrSensePicker.svelte';
-  import {examplePlugins, type ExampleCapability} from './examples';
-  import {extractPluginHtml, isCompletePluginHtml, pluginHtmlTitle} from './plugin-html';
-  import {createPluginDocUrl} from './plugin-srcdoc';
-  import {buildPluginPrompt, pluginChangeSection, pluginTaskSection, type PluginPromptOptions} from './plugin-prompt';
-  import {compareManifests, parsePluginManifest} from './plugin-manifest';
-  import type {PluginPermission} from './plugin-api-types';
+  import {examplePlugins, type ExampleCapability} from '../examples';
+  import {extractPluginHtml, isCompletePluginHtml, pluginHtmlTitle} from '../plugin-html';
+  import {createPluginDocUrl} from '../plugin-srcdoc';
+  import {buildPluginPrompt, pluginChangeSection, pluginTaskSection, type PluginPromptOptions} from '../plugin-prompt';
+  import {compareManifests, parsePluginManifest} from '../plugin-manifest';
+  import type {PluginPermission} from '../plugin-api-types';
   import {PluginStudioDraft, type StudioMode} from './plugin-studio-draft.svelte';
-  import PluginSandbox from './PluginSandbox.svelte';
-  import PluginConsentCard from './PluginConsentCard.svelte';
-  import {computePluginHash} from './plugin-local-data';
+  import PluginSandbox from '../PluginSandbox.svelte';
+  import PluginConsentCard from '../PluginConsentCard.svelte';
+  import {computePluginHash} from '../plugin-local-data';
   import type {IconClass} from '$lib/icon-class';
 
   interface Props {
