@@ -202,6 +202,7 @@ public class LcmMediaService(
         var mediaClient = await MediaServerClient();
         var fileName = metadata?.Filename ?? Path.GetFileName(localPath);
         var response = await mediaClient.UploadFile(
+            // No content type: the server types the upload from the filename's extension.
             new FileInfoPart(new FileInfo(localPath), fileName),
             projectId: currentProjectService.ProjectData.Id,
             fileId: resourceId.ToString("D"),

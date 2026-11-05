@@ -6,13 +6,18 @@
   import DashboardView from './project/dashboard/DashboardView.svelte';
   import {initViewService} from '$lib/views/view-service.svelte';
   import DialogsProvider from '$lib/DialogsProvider.svelte';
-  import {navigate, Route, useRouter} from 'svelte-routing';
+  import {navigate, Route, useLocation, useRouter} from 'svelte-routing';
   import ActivityView from '$lib/activity/ActivityView.svelte';
+  import PluginsView from '$lib/plugins/PluginsView.svelte';
+  import PluginRunView from '$lib/plugins/PluginRunView.svelte';
+  import PluginStudioView from '$lib/plugins/studio/PluginStudioView.svelte';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
+  import {useFeatures} from '$lib/services/feature-service';
   import MediaManagerView from '$lib/media-manager/MediaManagerView.svelte';
   import {onMount} from 'svelte';
+  import {isFrameInThisDocument} from '$lib/utils/window-messages';
 
   const {
     onloaded,
@@ -22,6 +27,7 @@
   } & HTMLAttributes<HTMLDivElement> = $props();
 
   initViewService();
+  const features = useFeatures();
 
   // Load idle service into component context for inputs to use
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,6 +38,7 @@
   });
   let open = $state(true);
   const {base} = useRouter();
+  const location = useLocation();
 
   type FwLiteEvent = {type: 'notification', message: string};
 
@@ -40,9 +47,9 @@
     return typeof data ==='object' && data.type === 'notification' && typeof data.message === 'string' && data.message.length > 0 ;
   }
 
-  //listening to messages from paratext
-  function onMessage(event: {data: unknown}) {
-    if (isFwLiteMessage(event.data)) {
+  //listening to messages from paratext; a plugin frame must not be able to post one
+  function onMessage(event: MessageEvent) {
+    if (!isFrameInThisDocument(event.source) && isFwLiteMessage(event.data)) {
       AppNotification.display(event.data.message, { timeout: 'long' });
     }
   }
@@ -65,6 +72,32 @@
       <Route path="/activity">
         <ActivityView />
       </Route>
+      {#if features.plugins}
+        <Route path="/plugins">
+          <PluginsView />
+        </Route>
+        <!-- The studio checks the manager role itself, so a stale link explains instead of 404ing. -->
+        <Route path="/plugins/new">
+          <PluginStudioView mode="new" />
+        </Route>
+        <Route path="/plugins/examples/:key" let:params>
+          {#key params.key}
+            <PluginStudioView mode="example" exampleKey={params.key} />
+          {/key}
+        </Route>
+        <Route path="/plugins/:id/edit" let:params>
+          {#key params.id}
+            <PluginStudioView mode="edit" pluginId={params.id} />
+          {/key}
+        </Route>
+        <Route path="/plugins/:id" let:params>
+          <!-- Key includes the query so relaunching the SAME plugin from a different entry restarts
+               it with the new launch context (a running plugin can't be handed a new context). -->
+          {#key `${params.id}${$location.search}`}
+            <PluginRunView pluginId={params.id} />
+          {/key}
+        </Route>
+      {/if}
       <Route path="/media-manager">
         <MediaManagerView/>
       </Route>

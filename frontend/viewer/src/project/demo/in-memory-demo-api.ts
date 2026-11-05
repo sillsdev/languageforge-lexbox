@@ -24,9 +24,12 @@ import {
   type IWritingSystems,
   type WritingSystemType,
   type ICustomView,
+  type IPlugin,
   ViewBase,
   MorphTypeKind,
 } from '$lib/dotnet-types';
+import {examplePlugins} from '$lib/plugins/examples';
+import {parsePluginManifest} from '$lib/plugins/plugin-manifest';
 import {demoPictureSvgs, entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
@@ -48,6 +51,7 @@ import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-t
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import {initProjectStorage} from '$lib/storage';
+import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
 import {MorphTypesService} from '$project/data/morph-types.svelte';
 import {useCustomViewService} from '$project/data/custom-view-service.svelte';
 import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
@@ -156,6 +160,15 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         refreshPlatformFeatures();
       },
       addCustomView: (customView: ICustomView) => customViewService.add(customView),
+      setProjectRole(role: UserProjectRole) {
+        // The demo has no project data (so it counts as local and manageable) until a test sets a role.
+        projectContext.setup({
+          api: inMemoryLexboxApi,
+          projectName: inMemoryLexboxApi.projectName,
+          projectCode: inMemoryLexboxApi.projectName,
+          projectData: {name: inMemoryLexboxApi.projectName, code: inMemoryLexboxApi.projectName, id: 'demo', clientId: 'demo', role},
+        });
+      },
     };
 
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
@@ -269,6 +282,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       write: this.#write,
       audio: true,
       customViews: true,
+      plugins: true,
     } satisfies IMiniLcmFeatures);
   }
 
@@ -733,6 +747,73 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve();
   }
 
+  private _plugins: IPlugin[] = [];
+  // Plugin HTML lives in "media files" (mediaUri -> bytes), mirroring how real projects store it.
+  private _files = new Map<string, Uint8Array>();
+  private _seedPlugins?: Promise<void>;
+
+  private storeFile(bytes: Uint8Array): string {
+    const mediaUri = `sil-media://demo/${crypto.randomUUID()}`;
+    this._files.set(mediaUri, bytes);
+    return mediaUri;
+  }
+
+  private seedPlugins(): Promise<void> {
+    return this._seedPlugins ??= (async () => {
+      const seeds: {id: string; key: string}[] = [
+        {id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', key: 'dictionary-stats'},
+        {id: 'b3d4e5f6-a7b8-4c9d-8e1f-2a3b4c5d6e7f', key: 'lexicon-galaxy'},
+      ];
+      for (const seed of seeds) {
+        const example = examplePlugins.find(p => p.key === seed.key);
+        if (!example) continue;
+        const html = await example.loadHtml();
+        const bytes = new TextEncoder().encode(html);
+        const manifest = parsePluginManifest(html);
+        this._plugins.push({
+          id: seed.id,
+          name: example.name,
+          description: example.description,
+          mediaUri: this.storeFile(bytes),
+          fileSize: bytes.byteLength,
+          permissions: manifest.permissions,
+          contexts: manifest.contexts,
+          requires: manifest.requires,
+        });
+      }
+    })();
+  }
+
+  async getPlugins(): Promise<IPlugin[]> {
+    await this.seedPlugins();
+    return this._plugins.map(plugin => ({...plugin}));
+  }
+
+  async getPlugin(id: string): Promise<IPlugin | null> {
+    await this.seedPlugins();
+    const found = this._plugins.find(plugin => plugin.id === id) ?? null;
+    return found ? {...found} : null;
+  }
+
+  createPlugin(plugin: IPlugin): Promise<IPlugin> {
+    const created = {...plugin, id: plugin.id || crypto.randomUUID()};
+    this._plugins = [...this._plugins, created];
+    return Promise.resolve({...created});
+  }
+
+  updatePlugin(plugin: IPlugin): Promise<IPlugin> {
+    const index = this._plugins.findIndex(existing => existing.id === plugin.id);
+    if (index === -1) throw new Error(`Plugin ${plugin.id} not found`);
+    const updated = {...plugin};
+    this._plugins = this._plugins.map((existing, i) => i === index ? updated : existing);
+    return Promise.resolve({...updated});
+  }
+
+  deletePlugin(id: string): Promise<void> {
+    this._plugins = this._plugins.filter(plugin => plugin.id !== id);
+    return Promise.resolve();
+  }
+
   createComplexFormComponent(_complexFormComponent: IComplexFormComponent): Promise<IComplexFormComponent> {
     throw new Error('Method not implemented.');
   }
@@ -801,7 +882,19 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   // fetches images on demand.
   #downloadedRemoteFiles = new Set<string>();
 
-  getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
+  async getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
+    // Seeded plugin HTML is stored here, not in the upload maps.
+    await this.seedPlugins();
+    const pluginBytes = this._files.get(mediaUri);
+    if (pluginBytes) {
+      return {
+        result: ReadFileResult.Success,
+        stream: {
+          stream: () => Promise.resolve(new Response(pluginBytes.slice() as BodyInit).body!),
+          arrayBuffer: () => Promise.resolve(pluginBytes.slice().buffer),
+        },
+      };
+    }
     const uploaded = this.#uploadedFiles.get(mediaUri);
     if (uploaded) {
       return Promise.resolve({

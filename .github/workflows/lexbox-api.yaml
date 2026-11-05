@@ -20,8 +20,7 @@ env:
 jobs:
   publish-api:
     timeout-minutes: 60
-    # Not ubuntu-latest: the bundled Mercurial (SIL.Chorus.Mercurial 6.5) fails to start on 26.04's Python 3.14.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -71,7 +70,7 @@ jobs:
       - name: Unit tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #used for the FwLiteReleaseServiceTests so they don't get rate limited
-        run: dotnet test LexBoxOnly.slnf --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results --filter "Category!=Integration&Category!=FlakyIntegration" --blame-hang-timeout 10m
+        run: dotnet test LexBoxOnly.slnf --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results --filter "Category!=Integration&Category!=HgIntegration" --blame-hang-timeout 10m
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
         if: always()

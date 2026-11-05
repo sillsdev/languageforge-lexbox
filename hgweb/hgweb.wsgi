@@ -1,5 +1,6 @@
 import os
 import sys
+import urllib.request
 # An example WSGI for use with mod_wsgi, edit as necessary
 # See https://mercurial-scm.org/wiki/modwsgi for more information
 # mod_wsgi docs: https://modwsgi.readthedocs.io/en/master/
@@ -43,5 +44,24 @@ trace.set_tracer_provider(provider)
 
 from opentelemetry.instrumentation.wsgi import OpenTelemetryMiddleware
 from mercurial.hgweb import hgweb
-application = hgweb(config)
-application = OpenTelemetryMiddleware(application)
+hgwebapp = OpenTelemetryMiddleware(hgweb(config))
+
+
+def healthz(environ, start_response):
+    # Getting here proves the wsgi daemon and this module; the loopback proves the
+    # cgid daemon, which Apache never retries once a respawn fails.
+    url = f"http://127.0.0.1:{environ['SERVER_PORT']}/command/health/healthz"
+    try:
+        version = urllib.request.urlopen(url, timeout=3).read()
+    except Exception as e:
+        start_response("503 Service Unavailable", [("Content-Type", "text/plain")])
+        return [f"cgi: {e}\n".encode()]
+    start_response("200 OK", [("Content-Type", "text/plain")])
+    return [version]
+
+
+# hg.conf mounts this script at both /hg and /healthz
+def application(environ, start_response):
+    if environ.get("SCRIPT_NAME") == "/healthz":
+        return healthz(environ, start_response)
+    return hgwebapp(environ, start_response)

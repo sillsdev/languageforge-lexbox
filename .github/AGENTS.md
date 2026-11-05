@@ -16,7 +16,7 @@ GitHub Actions workflows and deployment. Full runs take 30-60+ min across Linux,
 
 | Workflow | Triggers | What it does | Time |
 |----------|----------|--------------|------|
-| `pr.yaml` (`PR CI`) | Every PR to develop (also `labeled`/`unlabeled`) | The **PR tier**: detects affected projects with nx, then runs only the affected Linux jobs (.NET build + affected tests, viewer checks, viewer Playwright on Chromium, extension lint); escalation tiers add full-tier jobs. See [PR tier](#pr-tier-pryaml) | target < 10 min |
+| `pr.yaml` (`PR CI`) | Every PR, whatever its base branch, so stacked PRs too (also `labeled`/`unlabeled`) | The **PR tier**: detects affected projects with nx, then runs only the affected Linux jobs (.NET build + affected tests, viewer checks, viewer Playwright on Chromium, extension lint); escalation tiers add full-tier jobs. See [PR tier](#pr-tier-pryaml) | target < 10 min |
 | `fw-lite.yaml` | FwLite code changes | Build .NET, run tests, build viewer, publish apps (the **full tier**, develop only; pull requests run `pr.yaml`) | ~40 min |
 | `lexbox-api.yaml` | Called by others | Build API, run unit tests, build Docker image | ~15 min |
 | `lexbox-ui.yaml` | Called by others | Build SvelteKit UI, build Docker image | ~10 min |
@@ -27,7 +27,8 @@ GitHub Actions workflows and deployment. Full runs take 30-60+ min across Linux,
 
 | Workflow | Triggers | What it does |
 |----------|----------|--------------|
-| `integration-test.yaml` | Called by others | Run integration tests against environment |
+| `integration-test.yaml` | Called by others | Run integration tests (except hg client tests) against an environment |
+| `hg-client-test.yaml` | Called by `release-pipeline.yaml` | Run the hg client tests (`Category=HgIntegration`) with one hg version (3, 6 or 7) against an environment |
 | `integration-test-gha.yaml` | API/UI changes | Spin up K8s in GHA, run integration tests |
 | `deploy.yaml` | Called by others | Deploy to K8s environment via fleet repo |
 | `deploy-branch.yaml` | Manual | Deploy feature branch to develop |

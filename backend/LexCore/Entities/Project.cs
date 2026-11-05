@@ -53,9 +53,9 @@ public class Project : EntityBase
         }
     }
 
-    public bool GetHasAbandonedTransactions(IHgService hgService)
+    public async Task<bool> GetHasAbandonedTransactions(IHgService hgService)
     {
-        return hgService.HasAbandonedTransactions(Code);
+        return await hgService.HasAbandonedTransactions(Code);
     }
 
     public Task<bool> GetIsLanguageForgeProject(IIsLanguageForgeProjectDataLoader loader)

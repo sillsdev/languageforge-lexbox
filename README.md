@@ -23,9 +23,9 @@ There are some exceptions:
 
 Summary of setup steps below. See the appropriate file for your operating system for more details:
 
-* [Windows](docs/DEVELOPER-win.md)
-* [Linux](docs/DEVELOPER-linux.md)
-* [Mac](docs/DEVELOPER-osx.md)
+* [Windows](docs/dev/DEVELOPER-win.md)
+* [Linux](docs/dev/DEVELOPER-linux.md)
+* [Mac](docs/dev/DEVELOPER-osx.md)
 
 ### Prerequisites
  * docker and compose
@@ -87,8 +87,8 @@ The SvelteKit UI will be available at http://localhost:3000.
 - `task ui:only` starts the ui locally
 
 **If the k8s deployments are already running**
-- `infra-forward` forwards the infrastructure ports for the API
-- `backend-forward` forwards the infrastructure + backend ports for the UI
+- `task k8s:infra-forward` forwards the infrastructure ports for the API
+- `task k8s:backend-forward` forwards the infrastructure + backend ports for the UI
 
 ---
 ### Project urls
@@ -168,9 +168,8 @@ flowchart LR
   
     api -- http:8088/hg --- hgweb([hgweb])
     hgweb -- /var/hg/repos --- repos
-    api -- /hg-repos --- repos
 
-    api -- http:80 --- hgresumable([hgresumable])
+    api -- "http:8080 (resumable + /api/manage)" --- hgresumable([hgresumable])
     hgresumable -- /var/vcs/public --- repos
     hgresumable -- hgresumable-cache --- cache[//var/cache/hgresume/]
 
@@ -194,7 +193,7 @@ Traces can be accessed directly with a URL like this: [https://ui.honeycomb.io/s
 
 In the application, a trace ID (aka "Error code") shown at the bottom of an error message can be Ctrl+clicked to navigate to the trace in Honeycomb.
 
-![Error example](./docs/img/error-example.png)
+![Error example](./docs/dev/img/error-example.png)
 
 ## Testing
 

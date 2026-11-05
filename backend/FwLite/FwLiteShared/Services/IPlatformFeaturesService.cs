@@ -17,8 +17,8 @@ public interface IPlatformFeaturesService
     [JSInvokable]
     Task CopyToClipboard(string text);
 
-    //The Apple WebViews (iOS/Mac Catalyst) ignore <a download> links, so file downloads go through
-    //the native share sheet instead (Save Image, Save to Files, AirDrop...).
+    //The MAUI WebViews (iOS/Mac Catalyst, and Android without a download listener) ignore <a download> links,
+    //so file downloads go through the native share sheet instead (Save to Files, Save Image, AirDrop...).
     [JSInvokable]
     Task<bool> SupportsShareFile();
 

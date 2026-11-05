@@ -1,6 +1,7 @@
 using LcmCrdt.LocalSync;
 using System.Linq.Expressions;
 using System.Text.Json;
+using MiniLcm.Media;
 using SIL.Harmony;
 using SIL.Harmony.Config;
 using SIL.Harmony.Linq2db;
@@ -81,6 +82,9 @@ public static class LcmCrdtKernel
         services.AddOptions<HarmonyConfig>().PostConfigure((HarmonyConfig harmonyConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
             harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
+            // iOS reassigns the app container path on every update or reinstall, so an absolute LocalPath goes stale
+            // while the cached file moves with the app (#2693). Harmony resolves relative rows against the cache path.
+            harmonyConfig.StoreLocalResourcePathsRelativeToCache = true;
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<HarmonyChangeWriter>();
@@ -99,6 +103,7 @@ public static class LcmCrdtKernel
         services.AddScoped<CrdtMediaApi>();
         services.AddScoped<CrdtCustomViewApi>();
         services.AddScoped<CrdtCommentApi>();
+        services.AddScoped<CrdtPluginApi>();
 
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
@@ -326,6 +331,17 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(writingSystemArrayConverter);
             })
+            .Add<Plugin>(builder =>
+            {
+                builder.Property(p => p.MediaUri)
+                    .HasConversion(uri => uri.ToString(), value => new MediaUri(value));
+                var tokenArrayConverter = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<string[], string>(
+                    list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                    json => JsonSerializer.Deserialize<string[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<string>());
+                builder.Property(p => p.Permissions).HasColumnType("jsonb").HasConversion(tokenArrayConverter);
+                builder.Property(p => p.Contexts).HasColumnType("jsonb").HasConversion(tokenArrayConverter);
+                builder.Property(p => p.Requires).HasColumnType("jsonb").HasConversion(tokenArrayConverter);
+            })
             .Add<CommentThread>(builder =>
             {
                 builder.HasIndex(t => new { t.SubjectType, t.SubjectId });
@@ -415,6 +431,9 @@ public static class LcmCrdtKernel
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()
+            .Add<CreatePluginChange>()
+            .Add<EditPluginChange>()
+            .Add<DeleteChange<Plugin>>()
             .Add<CreateCommentThreadChange>()
             .Add<CreateUserCommentChange>()
             .Add<EditUserCommentChange>()
@@ -428,6 +447,10 @@ public static class LcmCrdtKernel
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
+
+        // A change type from a newer client is kept as an OpaqueChange and replayed after the upgrade
+        // (see model versions below); the default Throw would stop every older client from syncing.
+        config.UnknownChangeHandling = UnknownChangeHandling.Fallback;
 
         // Released model versions must never change: list a new or modified change type in a new version.
         config.ModelVersionBuilder
@@ -497,7 +520,11 @@ public static class LcmCrdtKernel
                 .RemoteResourceChanges<LcmFileMetadata>())
             .AddMajor(1, "Regenerate snapshots", v => v
                 //legacy translation patches created the first translation with a random id
-                .Change<JsonPatchExampleSentenceChange>(invalidateFrom: 0));
+                .Change<JsonPatchExampleSentenceChange>(invalidateFrom: 0))
+            .Add(2, "Plugins", v => v
+                .Change<CreatePluginChange>()
+                .Change<EditPluginChange>()
+                .Change<DeleteChange<Plugin>>());
 
         // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
         // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the

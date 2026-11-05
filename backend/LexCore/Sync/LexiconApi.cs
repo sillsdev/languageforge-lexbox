@@ -12,4 +12,5 @@ public static class LexiconApi
     public const string ClientIdHeader = "X-Lexbox-Client-Id";
     public const string ProjectNotReadyProblemType = "/problems/project-not-ready";
     public const string SyncInProgressProblemType = "/problems/sync-in-progress";
+    public const string SyncBlockedProblemType = "/problems/sync-blocked";
 }
