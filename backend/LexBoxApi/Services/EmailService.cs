@@ -229,7 +229,7 @@ public class EmailService(
         await SendEmailWithRetriesAsync(email);
     }
 
-    public async Task SendEmailAsync(MimeMessage message)
+    public async Task SendEmailAsync(MimeMessage message, CancellationToken cancellationToken = default)
     {
         message.From.Add(MailboxAddress.Parse(_emailConfig.From));
         using var activity = LexBoxActivitySource.Get().StartActivity();
@@ -237,14 +237,14 @@ public class EmailService(
         try
         {
             using var client = new SmtpClient();
-            await client.ConnectAsync(_emailConfig.SmtpHost, _emailConfig.SmtpPort);
+            await client.ConnectAsync(_emailConfig.SmtpHost, _emailConfig.SmtpPort, cancellationToken: cancellationToken);
             activity?.AddEvent(new("connected"));
-            await client.AuthenticateAsync(_emailConfig.SmtpUser, _emailConfig.SmtpPassword);
+            await client.AuthenticateAsync(_emailConfig.SmtpUser, _emailConfig.SmtpPassword, cancellationToken);
             activity?.AddEvent(new("authenticated"));
-            var response = await client.SendAsync(message);
+            var response = await client.SendAsync(message, cancellationToken);
             activity?.AddTag("app.email.smtpResponse", response);
             activity?.AddEvent(new("sent"));
-            await client.DisconnectAsync(true);
+            await client.DisconnectAsync(true, cancellationToken);
         }
         catch (Exception e)
         {
