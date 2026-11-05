@@ -36,4 +36,35 @@ public class FolderMediaStoreTests
         name.Should().Be("session.tmp");
         (await store.ResourceIds()).Should().Equal(ResourceId);
     }
+
+    [Fact]
+    public async Task AFileThatLinksOutsideTheFolder_IsNotRead()
+    {
+        using var folder = new TempFolder();
+        using var outside = new TempFolder();
+        var secret = Path.Combine(outside.Path, "secret.txt");
+        await File.WriteAllTextAsync(secret, "not for the drive");
+        var resourceDirectory = Path.Combine(folder.Path, "media", ResourceId.ToString("N"));
+        Directory.CreateDirectory(resourceDirectory);
+        File.CreateSymbolicLink(Path.Combine(resourceDirectory, "picture.jpg"), secret);
+        var store = new FolderMediaStore(folder.Path);
+
+        (await store.ResourceIds()).Should().BeEmpty();
+        (await store.Get(ResourceId)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task AResourceFolderThatLinksOutsideTheFolder_IsNotWritten()
+    {
+        using var folder = new TempFolder();
+        using var outside = new TempFolder();
+        Directory.CreateDirectory(Path.Combine(folder.Path, "media"));
+        Directory.CreateSymbolicLink(Path.Combine(folder.Path, "media", ResourceId.ToString("N")), outside.Path);
+        var store = new FolderMediaStore(folder.Path);
+
+        var put = () => store.Put(ResourceId, new MemoryStream(Encoding.UTF8.GetBytes("bytes")), "picture.jpg");
+
+        await put.Should().ThrowAsync<IOException>();
+        Directory.EnumerateFileSystemEntries(outside.Path).Should().BeEmpty();
+    }
 }
