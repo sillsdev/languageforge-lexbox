@@ -82,13 +82,13 @@
   <Toaster />
 </Story>
 <Story name="Sync dialog: no writing system in common">
-  <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.NoWritingSystemInCommon, mediaSent: 0, mediaReceived: 0, mediaFailed: 0}}}>
+  <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.NoWritingSystemInCommon, mediaSent: 0, mediaReceived: 0, mediaFailed: 0, localWritingSystemIds: ['en', 'seh'], folderWritingSystemIds: ['fr']}}}>
     <FwLiteSyncView syncStatus={SyncStatus.Offline} {server} serverId="test-server" projectCode="test-project" />
   </FakeSyncService>
   <Toaster />
 </Story>
 <Story name="Home: project code in use">
-  <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.ProjectCodeInUse, projectCode: 'test-project'}}>
+  <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.ProjectCodeInUse, projectCode: 'test-project', projectName: 'Test Project'}}>
     <Router>
       <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
     </Router>

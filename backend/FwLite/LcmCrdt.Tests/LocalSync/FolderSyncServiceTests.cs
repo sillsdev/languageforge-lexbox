@@ -160,6 +160,18 @@ public class FolderSyncServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task AFolderWithNoWritingSystemInCommon_ReportsBothSets()
+    {
+        SyncFolder.WriteManifest(_folder.Path, ManifestForA() with { WritingSystemIds = ["fr"] });
+
+        var summary = FolderSyncSummary.From(await SyncWithFolder(_a, _folder.Path));
+
+        summary.Status.Should().Be(FolderSyncStatus.NoWritingSystemInCommon);
+        summary.LocalWritingSystemIds.Should().BeEquivalentTo(["en"]);
+        summary.FolderWritingSystemIds.Should().BeEquivalentTo(["fr"]);
+    }
+
+    [Fact]
     public async Task AFolderWithAPartlyWrittenCommitLog_CanBeSynced()
     {
         // an export interrupted part way: some of our commits made it to the drive, but not the root commit

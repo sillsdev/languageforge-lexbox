@@ -37,7 +37,7 @@
     checking = true;
     try {
       if (await platformFeatures.service.folderExists(folder)) close(folder);
-      else error = $t`This folder doesn't exist. Check the path, for example /media/yourname/USB.`;
+      else error = $t`This folder doesn't exist. Check the path. Example: /media/yourname/USB`;
     } finally {
       checking = false;
     }

@@ -27,7 +27,9 @@ public record FolderSyncSummary(
     string? FolderProjectName = null,
     int MediaSent = 0,
     int MediaReceived = 0,
-    int MediaFailed = 0)
+    int MediaFailed = 0,
+    string[]? LocalWritingSystemIds = null,
+    string[]? FolderWritingSystemIds = null)
 {
     public static FolderSyncSummary From(FolderSyncResult result)
     {
@@ -45,6 +47,12 @@ public record FolderSyncSummary(
             IdentityComparison.DifferentWritingSystems => FolderSyncStatus.NoWritingSystemInCommon,
             _ => FolderSyncStatus.DifferentHistory,
         };
+        if (status == FolderSyncStatus.NoWritingSystemInCommon)
+        {
+            return new(status, folderProjectName,
+                LocalWritingSystemIds: [.. result.LocalWritingSystemIds ?? []],
+                FolderWritingSystemIds: (result.FolderState as SyncFolderState.HoldsProject)?.Manifest.WritingSystemIds);
+        }
         return new(status, folderProjectName, result.MediaSent, result.MediaReceived, result.MediaFailed);
     }
 }

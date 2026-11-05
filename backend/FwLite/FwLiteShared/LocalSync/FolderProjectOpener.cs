@@ -55,7 +55,7 @@ public class FolderProjectOpener(CrdtProjectsService projectsService, IServicePr
         }
 
         if (projectsService.ProjectExists(manifest.ProjectCode))
-            return new OpenFromFolderResult(OpenFromFolderOutcome.ProjectCodeInUse, manifest.ProjectCode);
+            return new OpenFromFolderResult(OpenFromFolderOutcome.ProjectCodeInUse, manifest.ProjectCode, ProjectName: manifest.ProjectName);
 
         // like a Lexbox download: create the project from the manifest, then fill it as part of creation
         await projectsService.CreateProject(new(manifest.ProjectName,

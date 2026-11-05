@@ -131,6 +131,10 @@ msgstr "{0} 전"
 msgid "{0} authors"
 msgstr "{0} 저자"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} can't be added: this device already has a different project with the same code, {1}. Delete that project from this device first, or open this one on another device."
+msgstr ""
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "{0} KB"
@@ -239,10 +243,6 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "3. Try it here"
-msgstr ""
-
-#: src/home/OpenFromFolderItem.svelte
-msgid "A different project with the code {0} is already on this device, and one device can't hold both. Get this project on another device instead."
 msgstr ""
 
 #. Update notification
@@ -1004,6 +1004,10 @@ msgstr "유사한 항목을 확인할 수 없습니다."
 msgid "Could not check for similar words"
 msgstr "유사한 단어를 확인할 수 없습니다."
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "Couldn't finish syncing with the folder. Nothing on this device was lost. Check that the drive is still plugged in, then try again."
+msgstr ""
+
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
 msgstr "Lexbox에서 FieldWorks Classic의 상태를 확인할 수 없었습니다."
@@ -1025,10 +1029,6 @@ msgstr ""
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr "지금은 동기화할 수 없습니다. 로컬에서 변경한 내용은 안전하게 보관됩니다."
-
-#: src/project/sync/folder-sync-messages.ts
-msgid "Couldn't sync with the folder. Your local changes are safe. Check that the drive is still connected, then try again."
-msgstr ""
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
@@ -3943,13 +3943,13 @@ msgstr "건너뛰기"
 msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
 msgstr ""
 
-#: src/project/sync/folder-sync-messages.ts
-msgid "Some media files couldn't be copied. They will be copied the next time you sync."
-msgstr ""
-
 #. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Some pictures or audio files couldn't be copied. They will be copied the next time you sync."
 msgstr ""
 
 #: src/lib/layout/ViewErrorBoundary.svelte
@@ -4040,15 +4040,15 @@ msgid "Sync with {0}"
 msgstr ""
 
 #: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a folder..."
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr ""
 
 #: src/project/sync/FolderSyncSection.svelte
-msgid "Sync with folder..."
-msgstr ""
-
-#: src/project/sync/FolderSyncSection.svelte
-msgid "Sync with other folder..."
+msgid "Sync with another folder..."
 msgstr ""
 
 #. Introductory text for sync status panel
@@ -4145,6 +4145,10 @@ msgstr "반면 *FieldWorks Classic* 뷰는 *[FieldWorks Language Explorer](https
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "*FieldWorks Lite* 뷰는 언어 전문가가 아닌 사용자를 위해 설계되었으며 다음과 같은 점에서 *FieldWorks Classic* 뷰와 다릅니다:"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
+msgstr ""
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr ""
@@ -4165,6 +4169,10 @@ msgstr "FieldWorks Lite 커밋 수가 동기화 결과 메시지에 표시되는
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
 msgstr ""
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
@@ -4234,31 +4242,27 @@ msgid "This file is only available remotely."
 msgstr "이 파일은 원격으로만 이용할 수 있습니다."
 
 #: src/project/sync/folder-sync-messages.ts
-msgid "This folder already has a folder named after this project, with other files in it. Choose another folder."
+msgid "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder already has a folder named after this project, but it doesn't hold a FieldWorks Lite project. Choose another folder."
 msgstr ""
 
 #: src/project/sync/FolderPicker.svelte
-msgid "This folder doesn't exist. Check the path, for example /media/yourname/USB."
+msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
 msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
-msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, named after its project code."
+msgid "This folder doesn't hold a FieldWorks Lite project. If you chose the drive itself, choose the project's folder inside it instead. It is named after the project code."
 msgstr ""
 
 #: src/project/sync/folder-sync-messages.ts
-msgid "This folder holds a different project: {0}. Use Open from folder on the home screen to open it."
-msgstr ""
-
-#: src/project/sync/folder-sync-messages.ts
-msgid "This folder holds a separate copy of this project that can't be merged with yours. Choose another folder."
+msgid "This folder holds a different project, {0}, not the one that is open. To open that project, go to the home screen and choose Open from folder."
 msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
-msgid "This folder is empty. Sync a project with it first, from the project's sync dialog."
-msgstr ""
-
-#: src/project/sync/folder-sync-messages.ts
-msgid "This folder's copy of the project shares no writing system with yours, so it can't be synced. Choose another folder, or check which writing systems each copy uses."
+msgid "This folder is empty. To put a project in it, open that project on a device that has it and choose Sync with a folder."
 msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte

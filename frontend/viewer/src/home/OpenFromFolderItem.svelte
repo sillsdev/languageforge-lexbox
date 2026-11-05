@@ -46,13 +46,13 @@
         }
         return;
       case OpenFromFolderOutcome.EmptyFolder:
-        AppNotification.display($t`This folder is empty. Sync a project with it first, from the project's sync dialog.`, {type: 'warning', timeout: 'long'});
+        AppNotification.display($t`This folder is empty. To put a project in it, open that project on a device that has it and choose Sync with a folder.`, {type: 'warning', timeout: 'long'});
         return;
       case OpenFromFolderOutcome.NotASyncFolder:
-        AppNotification.display($t`This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, named after its project code.`, {type: 'warning', timeout: 'long'});
+        AppNotification.display($t`This folder doesn't hold a FieldWorks Lite project. If you chose the drive itself, choose the project's folder inside it instead. It is named after the project code.`, {type: 'warning', timeout: 'long'});
         return;
       case OpenFromFolderOutcome.ProjectCodeInUse:
-        AppNotification.display($t`A different project with the code ${result.projectCode ?? ''} is already on this device, and one device can't hold both. Get this project on another device instead.`, {type: 'warning', timeout: 'long'});
+        AppNotification.display($t`${result.projectName ?? ''} can't be added: this device already has a different project with the same code, ${result.projectCode ?? ''}. Delete that project from this device first, or open this one on another device.`, {type: 'warning', timeout: 'long'});
         return;
       case OpenFromFolderOutcome.NewerAppNeeded:
         AppNotification.display($t`A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it.`, {type: 'warning', timeout: 'long'});

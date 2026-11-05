@@ -144,7 +144,7 @@ describe('SyncDialog', () => {
     const syncService = fakeSyncService();
     await openDialog(syncService);
 
-    await vi.waitFor(() => getButton(/Sync with folder\.\.\./).click());
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
     const input = await vi.waitFor(() => {
       const input = document.querySelector<HTMLInputElement>('#folder-picker-path');
       expect(input).toBeTruthy();
@@ -171,7 +171,7 @@ describe('SyncDialog', () => {
     refreshPlatformFeatures();
     await openDialog(fakeSyncService());
     await vi.waitFor(() => expect(document.body.textContent).toContain('Pending'));
-    expect(document.body.textContent).not.toContain('Sync with folder...');
+    expect(document.body.textContent).not.toContain('Sync with a folder...');
   }, 60_000);
 
   it('syncs with the picked folder, then offers to sync with it again', async () => {
@@ -182,11 +182,11 @@ describe('SyncDialog', () => {
       .mockResolvedValue(String.raw`E:\test-project`);
     await openDialog(syncService);
 
-    await vi.waitFor(() => getButton(/Sync with folder\.\.\./).click());
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
     await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:\test-project`));
     await vi.waitFor(() => expect(getButton(/Sync with E:/).title).toBe(String.raw`E:\test-project`));
-    expect(document.body.textContent).toContain('Sync with other folder...');
-    expect(document.body.textContent).not.toContain('Sync with folder...');
+    expect(document.body.textContent).toContain('Sync with another folder...');
+    expect(document.body.textContent).not.toContain('Sync with a folder...');
   }, 60_000);
 
   it('does nothing when the folder picker is cancelled', async () => {
@@ -194,8 +194,8 @@ describe('SyncDialog', () => {
     const syncService = fakeSyncService();
     await openDialog(syncService);
 
-    await vi.waitFor(() => getButton(/Sync with folder\.\.\./).click());
-    await vi.waitFor(() => expect(getButton(/Sync with folder\.\.\./).disabled).toBe(false));
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
+    await vi.waitFor(() => expect(getButton(/Sync with a folder\.\.\./).disabled).toBe(false));
     expect(syncService.syncWithFolder).not.toHaveBeenCalled();
   }, 60_000);
 

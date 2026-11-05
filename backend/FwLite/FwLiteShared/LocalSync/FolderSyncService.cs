@@ -12,7 +12,9 @@ namespace FwLiteShared.LocalSync;
 /// <param name="MediaSent">Media files copied to the folder.</param>
 /// <param name="MediaReceived">Media files copied from the folder.</param>
 /// <param name="MediaFailed">Media files that couldn't be copied either way; they're retried on the next sync.</param>
-public record FolderSyncResult(SyncFolderState FolderState, LocalSyncResult? Sync, int MediaSent = 0, int MediaReceived = 0, int MediaFailed = 0)
+/// <param name="LocalWritingSystemIds">This copy's writing systems, to report a refused sync.</param>
+public record FolderSyncResult(SyncFolderState FolderState, LocalSyncResult? Sync, int MediaSent = 0, int MediaReceived = 0, int MediaFailed = 0,
+    IReadOnlyCollection<string>? LocalWritingSystemIds = null)
 {
     public bool Synced => Sync?.Synced == true;
 }
@@ -60,7 +62,7 @@ public class FolderSyncService(
             preferences.Set(RememberedFolderKey(localIdentity.ProjectId), path);
             return new FolderSyncResult(state, result, sent.Copied, received.Copied, sent.Failed + received.Failed);
         }
-        return new FolderSyncResult(state, result);
+        return new FolderSyncResult(state, result, LocalWritingSystemIds: localIdentity.WritingSystemIds);
     }
 
     /// <summary>

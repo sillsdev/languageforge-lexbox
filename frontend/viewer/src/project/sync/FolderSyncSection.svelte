@@ -7,6 +7,7 @@
   import {useSyncStatusService} from '$lib/services/sync-status-service';
   import {folderSyncMessage, shortFolderPath} from './folder-sync-messages';
   import FolderPicker from './FolderPicker.svelte';
+  import {useProjectContext} from '$project/project-context.svelte';
   import type {SyncTarget} from './sync-target';
 
   interface Props {
@@ -18,13 +19,14 @@
   let {syncing = $bindable(), onSynced = () => {}}: Props = $props();
 
   const service = useSyncStatusService();
+  const projectContext = useProjectContext();
   const rememberedFolder = resource(() => undefined, () => service.getRememberedSyncFolder());
   let running = $state<'picked' | 'remembered'>();
   let folderPicker = $state<FolderPicker>();
 
   async function syncWith(path: string) {
     const summary = await service.syncWithFolder(path);
-    const {message, type, description} = folderSyncMessage(summary);
+    const {message, type, description} = folderSyncMessage(summary, projectContext.projectCode);
     AppNotification.display(message, {type, description, timeout: 'long'});
     onSynced();
     await rememberedFolder.refetch();
@@ -71,7 +73,7 @@
         loading={running === 'picked'}
         disabled={!!syncing && running !== 'picked'}
         onclick={() => void run('picked', () => folderPicker!.pick(rememberedFolder.current))}>
-        {$t`Sync with other folder...`}
+        {$t`Sync with another folder...`}
       </Button>
     {:else}
       <Button
@@ -80,7 +82,7 @@
         loading={running === 'picked'}
         disabled={!!syncing && running !== 'picked'}
         onclick={() => void run('picked', () => folderPicker!.pick(rememberedFolder.current))}>
-        {$t`Sync with folder...`}
+        {$t`Sync with a folder...`}
       </Button>
     {/if}
   </div>
