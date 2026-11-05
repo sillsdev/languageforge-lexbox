@@ -184,6 +184,10 @@ public class FolderSyncServiceTests : IAsyncLifetime
         var result = await SyncWithFolder(_a, _folder.Path);
 
         result.Synced.Should().BeTrue();
+        // the folder must end up with the root commit too, or a device opening it gets a project with no root
+        var inFolder = (await _a.GetService<IJsonSyncableFactory>().Create(new DirectoryInfo(_folder.Path))
+            .GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient.Select(c => c.Id);
+        inFolder.Should().BeEquivalentTo(ours.Select(c => c.Id));
     }
 
     [Fact]
