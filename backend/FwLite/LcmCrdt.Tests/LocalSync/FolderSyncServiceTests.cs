@@ -191,6 +191,21 @@ public class FolderSyncServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task AFolderWhoseLastCommitWasCutOffMidWrite_CanStillBeSynced()
+    {
+        // the drive was pulled out while a commit was being appended
+        await SyncWithFolder(_a, _folder.Path);
+        var commitLog = Directory.EnumerateFiles(ProjectFolder, "client_*.jsonl").First();
+        await File.AppendAllTextAsync(commitLog, """{"Id":"8f2c""");
+        var apple = await _a.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "apple" } });
+
+        (await SyncWithFolder(_a, _folder.Path)).Synced.Should().BeTrue();
+        (await SyncWithFolder(_b, _folder.Path)).Synced.Should().BeTrue();
+
+        (await _b.Api.GetEntry(apple.Id)).Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task CommitsFromTheFolder_DoNotLookUploadedToLexboxOnTheReceivingDevice()
     {
         await _a.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "apple" } });
