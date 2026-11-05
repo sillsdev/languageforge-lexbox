@@ -437,7 +437,7 @@ type Project {
   users: [ProjectUsers!]!
   harmonyCommits(skip: Int = 0 take: Int = 100 orderBy: [ServerCommitSortInput!] @cost(weight: "10") where: ServerCommitFilterInput @cost(weight: "10")): [ServerCommit!]
   changesets: [Changeset!]! @cost(weight: "10")
-  hasAbandonedTransactions: Boolean!
+  hasAbandonedTransactions: Boolean! @cost(weight: "10")
   isLanguageForgeProject: Boolean! @cost(weight: "10")
   hasHarmonyCommits: Boolean! @cost(weight: "10")
   parentId: UUID
