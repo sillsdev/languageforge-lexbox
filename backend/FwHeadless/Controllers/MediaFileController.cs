@@ -300,7 +300,7 @@ public static class MediaFileController
         if (mimeType.StartsWith("image/")) return "Pictures";
         if (mimeType.StartsWith("audio/")) return "AudioVisual";
         if (mimeType.StartsWith("video/")) return "AudioVisual";
-        // FW Lite plugins are the only HTML files FW Lite uploads
+        // FW Lite plugins
         if (mimeType.StartsWith("text/html")) return "Plugins";
         // Special cases
         if (mimeType == "application/mp4") return "AudioVisual"; // Some apps don't want to commit to audio/ or video/, but we don't care which it is

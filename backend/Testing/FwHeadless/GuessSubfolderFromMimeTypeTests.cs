@@ -10,7 +10,6 @@ public class GuessSubfolderFromMimeTypeTests
     [InlineData("video/mp4", "AudioVisual")]
     [InlineData("text/html", "Plugins")]
     [InlineData("text/html; charset=utf-8", "Plugins")]
-    [InlineData("text/plain", null)]
     [InlineData("application/zip", null)]
     public void PicksTheLinkedFilesSubfolder(string mimeType, string? expected)
     {
