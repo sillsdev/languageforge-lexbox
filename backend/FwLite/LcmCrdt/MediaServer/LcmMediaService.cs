@@ -169,9 +169,8 @@ public class LcmMediaService(
                 await using var stream = await response.Content.ReadAsStreamAsync();
                 if (stream is null) throw new FileNotFoundException(remoteId);
                 var filename = response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", "");
-                if (string.IsNullOrEmpty(filename)) filename = remoteId;
-                else if (!MediaFilename.IsValid(filename)) throw new InvalidOperationException($"Media file {remoteId} has an invalid file name");
-                var localPath = Path.Combine(projectResourceCachePath, filename);
+                filename = Path.GetFileName(filename);
+                var localPath = Path.Combine(projectResourceCachePath, filename ?? remoteId);
                 localPath = EnsureUnique(localPath);
                 await using var localFile = File.Create(localPath);
                 await stream.CopyToAsync(localFile);
