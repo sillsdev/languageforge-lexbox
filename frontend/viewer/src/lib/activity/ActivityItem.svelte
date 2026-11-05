@@ -59,7 +59,7 @@
   }: Props = $props();
 
   const historyService = useHistoryService();
-  let openHistoryId = $state<string>()
+  let openHistory = $state<{entityId: string, changeIndex: number}>()
 
   const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(({entity, info}) => {
     return new ChangeWithLazyContext(entity, activity, info, () => historyService.loadChangeContext(activity.commitId, entity.index));
@@ -117,9 +117,10 @@
       </div>
     </div>
 
-    {#if openHistoryId}
+    {#if openHistory}
     <!-- this is a dialog so it doesn't matter where it is in the DOM -->
-        <HistoryView bind:open={() => !!openHistoryId, (open) => (open ? undefined : openHistoryId = undefined)} id={openHistoryId} selectedCommitId={activity.commitId}/>
+        <HistoryView bind:open={() => !!openHistory, (open) => (open ? undefined : openHistory = undefined)} id={openHistory.entityId}
+                     selected={{commitId: activity.commitId, changeIndex: openHistory.changeIndex}}/>
     {/if}
     {#if changes}
       <div
@@ -147,7 +148,7 @@
 
                     {#if showHistoryButton}
                       <!-- change.entityId, not context.snapshot.id: some snapshots (e.g. writing systems) don't expose their id to JS -->
-                      <Button icon="i-mdi-history" onclick={() => openHistoryId = change.entityId}>
+                      <Button icon="i-mdi-history" onclick={() => openHistory = {entityId: change.entityId, changeIndex: change.index}}>
                         {$t`History`}
                       </Button>
                     {/if}
