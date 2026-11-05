@@ -695,7 +695,7 @@
       goTo(state.index + 1, {skipCapture: true});
     }).catch(function (err) {
       saveBtn.disabled = false;
-      if (err && err.code === 'permission-denied') {
+      if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
         setStatus('Not saved — the change wasn’t approved. Your words are kept; press “Save & next” to try again.', 'warn');
       } else {
         setStatus('Couldn’t save: ' + msg(err) + ' Your words are kept — try again.', 'warn');

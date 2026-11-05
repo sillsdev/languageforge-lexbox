@@ -45,3 +45,27 @@ function parseMetaTokens<T extends string>(doc: Document, metaName: string, know
   const requested = content.split(/[\s,]+/).filter(Boolean);
   return known.filter(token => requested.includes(token));
 }
+
+export interface ManifestChanges {
+  added: PluginManifest;
+  removed: PluginManifest;
+}
+
+/** What a new version of a plugin declares that the old one didn't, and the reverse. */
+export function compareManifests(before: PluginManifest, after: PluginManifest): ManifestChanges {
+  function difference<T extends string>(from: T[], without: T[]): T[] {
+    return from.filter(token => !without.includes(token));
+  }
+  return {
+    added: {
+      permissions: difference(after.permissions, before.permissions),
+      contexts: difference(after.contexts, before.contexts),
+      requires: difference(after.requires, before.requires),
+    },
+    removed: {
+      permissions: difference(before.permissions, after.permissions),
+      contexts: difference(before.contexts, after.contexts),
+      requires: difference(before.requires, after.requires),
+    },
+  };
+}

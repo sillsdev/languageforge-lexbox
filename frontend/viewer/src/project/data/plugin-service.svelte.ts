@@ -1,4 +1,4 @@
-import {type IPlugin} from '$lib/dotnet-types';
+import {type IPlugin, UserProjectRole} from '$lib/dotnet-types';
 import {gt} from 'svelte-i18n-lingui';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
 import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
@@ -17,6 +17,10 @@ const symbol = Symbol.for('fw-lite-plugin-service');
 const textEncoder = new TextEncoder();
 
 /** ASCII-only so the name survives every file system and hg; non-Latin names fall back to "plugin". */
+export function sizeKb(bytes: number): number {
+  return Math.max(1, Math.round(bytes / 1024));
+}
+
 export function fileNameSlug(name: string): string {
   return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'plugin';
 }
@@ -31,6 +35,10 @@ export interface PluginDraft {
   name: string;
   description?: string;
   html: string;
+}
+
+export function customExampleName(exampleName: string): string {
+  return gt`${exampleName} (custom)`;
 }
 
 export type PluginHtmlResult =
@@ -49,6 +57,12 @@ export class PluginService {
     this.#pluginsResource = projectContext.apiResource([], (api) => api.getPlugins());
     this.consentStore = new PluginConsentStore(projectContext.projectCode);
     this.writeTrustStore = new PluginWriteTrustStore(projectContext.projectCode);
+  }
+
+  /** Local-only projects have no role info; there the user owns their data anyway. */
+  get canManage(): boolean {
+    const projectData = this.#projectContext.projectData;
+    return !projectData || projectData.role === UserProjectRole.Manager;
   }
 
   current: IPlugin[] = $derived.by(() =>
@@ -95,9 +109,19 @@ export class PluginService {
   }
 
   /**
-   * Saves an edit. When the HTML changes, device-local grants (run consent, write trust) are
-   * re-pinned to the new content hash — an edit made HERE is its own consent, while a change
-   * that arrives via sync must ask again. Name/description-only edits leave grants alone.
+   * Adds an example to the project. One changed before adding is saved under its own
+   * "… (custom)" name, so nobody mistakes it for the shipped example.
+   */
+  async addExample(example: {name: string; description: string}, draft: PluginDraft, customized: boolean): Promise<IPlugin> {
+    const name = customized && draft.name.trim() === example.name ? customExampleName(example.name) : draft.name;
+    return this.create({...draft, name});
+  }
+
+  /**
+   * Saves an edit. When the HTML changes, run consent is re-pinned to the new content hash (an
+   * edit made HERE is its own consent, while a change that arrives via sync must ask again), but
+   * "Always allow" is dropped: it was granted to the old code, so the new version asks before its
+   * first change. Name/description-only edits leave grants alone.
    */
   async update(previous: IPlugin, draft: PluginDraft, previousHtml: string): Promise<IPlugin> {
     const htmlChanged = previousHtml !== draft.html;
@@ -111,16 +135,8 @@ export class PluginService {
     const updated = await this.#projectContext.api.updatePlugin(plugin);
 
     if (uploadedHtmlDigest) {
-      const oldHash = await computePluginHash({
-        name: previous.name,
-        description: previous.description,
-        html: previousHtml,
-      });
-      const newHash = await computePluginHash(draft, {htmlDigest: uploadedHtmlDigest});
-      this.consentStore.grant(updated.id, newHash);
-      if (this.writeTrustStore.isGranted(updated.id, oldHash)) {
-        this.writeTrustStore.grant(updated.id, newHash);
-      }
+      this.consentStore.grant(updated.id, await computePluginHash(draft, {htmlDigest: uploadedHtmlDigest}));
+      this.writeTrustStore.revoke(updated.id);
     }
 
     await this.#pluginsResource.refetch();

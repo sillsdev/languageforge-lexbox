@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {manifestFromStored, parsePluginManifest} from './plugin-manifest';
+import {compareManifests, manifestFromStored, parsePluginManifest} from './plugin-manifest';
 
 function html(head: string): string {
   return `<html><head>${head}</head><body></body></html>`;
@@ -42,5 +42,22 @@ describe('manifestFromStored', () => {
     expect(manifest.permissions).toEqual(['edit']);
     expect(manifest.contexts).toEqual(['entry']);
     expect(manifest.requires).toEqual(['history']);
+  });
+});
+
+describe('compareManifests', () => {
+  it('flags what a new version adds and drops', () => {
+    const before = parsePluginManifest(html('<meta name="fwlite-plugin-permissions" content="edit"><meta name="fwlite-plugin-contexts" content="entry">'));
+    const after = parsePluginManifest(html('<meta name="fwlite-plugin-permissions" content="edit internet"><meta name="fwlite-plugin-requires" content="history">'));
+    expect(compareManifests(before, after)).toEqual({
+      added: {permissions: ['internet'], contexts: [], requires: ['history']},
+      removed: {permissions: [], contexts: ['entry'], requires: []},
+    });
+  });
+
+  it('reports nothing for the same declarations', () => {
+    const manifest = parsePluginManifest(html('<meta name="fwlite-plugin-permissions" content="edit">'));
+    const none = {permissions: [], contexts: [], requires: []};
+    expect(compareManifests(manifest, manifest)).toEqual({added: none, removed: none});
   });
 });

@@ -862,7 +862,7 @@
       });
       if (!changed) return 'done';
       return fwlite.updateEntry(entry, after).then(function () { return 'done'; }, function (err) {
-        return (err && err.code === 'permission-denied') ? 'declined' : 'error';
+        return (err && (err.code === 'permission-denied' || err.code === 'preview')) ? 'declined' : 'error';
       });
     }, function () { return 'error'; });
   }

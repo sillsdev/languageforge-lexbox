@@ -50,6 +50,7 @@ import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-t
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import {initProjectStorage} from '$lib/storage';
+import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
 import {MorphTypesService} from '$project/data/morph-types.svelte';
 import {useCustomViewService} from '$project/data/custom-view-service.svelte';
 import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
@@ -158,6 +159,15 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         refreshPlatformFeatures();
       },
       addCustomView: (customView: ICustomView) => customViewService.add(customView),
+      setProjectRole(role: UserProjectRole) {
+        // The demo has no project data (so it counts as local and manageable) until a test sets a role.
+        projectContext.setup({
+          api: inMemoryLexboxApi,
+          projectName: inMemoryLexboxApi.projectName,
+          projectCode: inMemoryLexboxApi.projectName,
+          projectData: {name: inMemoryLexboxApi.projectName, code: inMemoryLexboxApi.projectName, id: 'demo', clientId: 'demo', role},
+        });
+      },
     };
 
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {

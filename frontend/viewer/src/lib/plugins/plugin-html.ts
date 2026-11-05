@@ -52,3 +52,22 @@ function equalsIgnoreCaseAt(haystack: string, index: number, asciiLowerNeedle: s
   }
   return true;
 }
+
+const DOCTYPE_PATTERN = /<!doctype html/i;
+
+/**
+ * Pulls the plugin document out of an AI chat reply: from the first `<!DOCTYPE html` to the last
+ * `</html>`, dropping any prose or code fences around it. Returns the input unchanged when it holds
+ * no such document, so the caller's completeness check reports the problem.
+ */
+export function extractPluginHtml(reply: string): string {
+  const start = reply.search(DOCTYPE_PATTERN);
+  const end = reply.toLowerCase().lastIndexOf(CLOSE_HTML);
+  if (start < 0 || end < start) return reply;
+  return reply.slice(start, end + CLOSE_HTML.length);
+}
+
+/** The document's `<title>`, used to name a pasted plugin. */
+export function pluginHtmlTitle(html: string): string | undefined {
+  return new DOMParser().parseFromString(html, 'text/html').title.trim() || undefined;
+}

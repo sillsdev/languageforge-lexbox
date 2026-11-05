@@ -21,11 +21,35 @@ flowchart LR
     SDK <-- postMessage --> HOST[plugin-host.ts]
     HOST --> ADAPTER[plugin-api-adapter.ts<br/>plugin API v1]
     ADAPTER --> API[IMiniLcmJsInvokable]
-    ADAPTER --> CONFIRM[write-confirm dialog]
+    ADAPTER --> CONFIRM[write-confirm dialog<br/>live: apply · preview: show only]
     ADAPTER --> STORE[plugin-local-data.ts<br/>localStorage]
     SVC[plugin-service.svelte.ts] --> API
     SVC --> FILES[media resources<br/>getFileStream / saveFile]
 ```
+
+## Pages
+
+- **`PluginsView`**: the project's plugins (Run, Edit, Export, ...) and, for managers only, a shelf of
+  the bundled `examples/`. Nothing is in a project until a manager adds it.
+- **`PluginRunView`** (`/plugins/:id`): runs a saved plugin `live`, behind the first-run consent card.
+- **`studio/PluginStudioView`**: one page for trying an example (`/plugins/examples/:key`), building a new
+  plugin (`/plugins/new`) and editing one (`/plugins/:id/edit`); managers only. The draft runs in a
+  `preview` sandbox on the left; tabs on the right hold the AI loop (download a prompt file to attach
+  in any AI chat, since some chats cut long pastes short, then paste the reply), the source and the
+  details. Editing a saved plugin shows the Run page's consent card (`PluginConsentCard`) until
+  its saved version has run consent on this device. A pasted or uploaded version that newly
+  declares `internet` asks before it runs (the preview runs it at once). An example changed before adding is saved as "… (custom)". A pasted
+  version is reviewed against the saved plugin or example: new permissions are flagged, with a
+  follow-up prompt asking the AI to remove them. Drafts aren't kept: leaving with unsaved work asks
+  first (`$lib/utils/leave-guard.ts` covers the sidebar).
+  The view is a thin shell: `studio/plugin-studio.svelte.ts` (`PluginStudio`, shared through
+  context) holds the state and rules, and the header, preview, tab panels (`studio/panels/`) and
+  dialogs read it with `useStudio()`. User-facing text stays in the components. Keep input a tab
+  must not lose in the class: a tab's panel unmounts when another tab is picked.
+- **`PluginSandbox`**: the iframe, host wiring, write dialog and navigation teardown, shared by the
+  run view and the studio. Its `writeMode` is the only difference between them.
+
+## Modules
 
 - **`plugin-manifest.ts`** parses what a plugin declares about itself in `<meta name="fwlite-plugin-*">`
   tags: `permissions` (`internet`, `edit`), `contexts` (`entry`), `requires` (`comments`, `history`).
@@ -42,7 +66,7 @@ flowchart LR
   `sandbox="allow-scripts allow-forms allow-modals allow-downloads"` — critically **without**
   `allow-same-origin`, so the plugin gets an opaque origin: no cookies, no app localStorage, no
   `window.parent` DOM access. One caveat the code and copy are honest about: nothing can stop a
-  script from navigating its own frame (a potential exfiltration channel). PluginRunView stops the
+  script from navigating its own frame (a potential exfiltration channel). PluginSandbox stops the
   plugin when it sees a second document load, but that is best effort: a navigation the server
   answers with 204 or a download never loads a document, and WebRTC (STUN/DNS) is outside CSP.
 - **`plugin-sdk.js`** is injected verbatim into every plugin and exposes the `fwlite` global.
@@ -53,15 +77,19 @@ flowchart LR
 - **`plugin-api-adapter.ts`** is the *entire* API surface plugins can reach (v1): the
   `PluginApiMethods` interface, an arg-decoder table (both compiler-checked to stay in sync), and
   the implementation. Reads are open; writes require the `edit` permission AND per-operation user
-  approval with a complete field-level preview. `updateEntry` has compare-and-swap semantics
+  approval with a complete field-level preview. In `preview` write mode (the studio) every write is
+  validated and shown the same way, then rejected with code `preview` and never applied; `saveFile`
+  rejects, and plugin storage lives in memory. `updateEntry` has compare-and-swap semantics
   (`conflict` error) so the preview provably matches the real effect. Comments/history are
   capability-gated areas a host may not support. Filters are structured — the gridify syntax is
   not exposed.
 - **`plugin-local-data.ts`** provides per-plugin key-value storage (plugins have no storage of
   their own) and the two device-local, content-hash-pinned grants: run consent and write trust
-  ("Always allow"). Local edits re-pin grants; changes arriving via sync ask again.
+  ("Always allow"). A local edit re-pins run consent but drops "Always allow" (granted to the old
+  code); changes arriving via sync ask again.
 - **`plugin-prompt.ts`** generates the project-aware AI prompt (writing systems, parts of speech,
-  domains, entry count baked in). It doubles as the public API documentation — **keep it in sync
+  domains, entry count baked in), closed by either a new plugin's description or, to change a
+  plugin, its current HTML plus the requested change. It doubles as the public API documentation — **keep it in sync
   when changing the SDK or adapter**.
 
 ## Versioning rules
@@ -100,5 +128,8 @@ projects. For `fwlite` (SDK + adapter):
 
 `frontend/viewer/tests/ui/plugins.test.ts` runs against the in-browser demo project
 (`task test:ui-standalone -- plugins`), covering consent, the postMessage bridge, write
-approval/trust, and plugin creation. The demo project seeds example plugins (see `examples/`).
+approval/trust, preview writes, the examples shelf and the studio flows (new, customized example,
+edit with a new permission, leave guard). It also runs every example in the studio preview. The demo
+project seeds two example plugins (see `examples/`), and `__PLAYWRIGHT_UTILS__.setProjectRole`
+turns its user into a non-manager.
 Unit tests live next to their modules (`*.test.ts`).

@@ -585,7 +585,7 @@
       });
     }).catch(function (err) {
       setBusy(false);
-      if (err && err.code === 'permission-denied') {
+      if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
         setFormNote('Change was not approved — skipped.', 'warn');
         advance();
       } else {

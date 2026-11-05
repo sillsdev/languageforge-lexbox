@@ -679,7 +679,7 @@
   }
 
   function handleWriteError(err, card, item, row) {
-    if (err && err.code === 'permission-denied') {
+    if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
       notify('Not saved — no problem, it’s still in the list.');
     } else if (err && (err.code === 'gone' || err.code === 'nochange')) {
       // Entry or sense changed elsewhere; the gap is effectively resolved.

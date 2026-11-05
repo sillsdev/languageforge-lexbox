@@ -20,7 +20,7 @@ export type ExampleCapability = 'internet' | 'microphone' | 'camera' | 'entry-me
 
 /**
  * Fixed display order of the gallery's sections and filter chips. Display names live in
- * PluginEditorDialog (this module is imported by Playwright's node-side test loader, which can't
+ * PluginsView (this module is imported by Playwright's node-side test loader, which can't
  * resolve the i18n runtime).
  */
 export const exampleFunctions: ExampleFunction[] = ['collect', 'enrich', 'record', 'explore', 'review', 'publish', 'play'];

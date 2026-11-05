@@ -663,7 +663,7 @@
         onSaved(updated || after);
       });
     }).catch(function (err) {
-      if (err && err.code === 'permission-denied') {
+      if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
         // user declined the change dialog — a normal outcome
         state.recState = 'preview';
         state.inlineError = 'Not saved — the change was declined. You can save again or re-record.';
