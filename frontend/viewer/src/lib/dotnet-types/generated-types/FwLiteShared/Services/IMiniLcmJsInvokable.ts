@@ -108,7 +108,6 @@ export interface IMiniLcmJsInvokable
 	movePicture(entryId: string, senseId: string, pictureId: string, previousPictureId?: string, nextPictureId?: string) : Promise<void>;
 	deletePicture(entryId: string, senseId: string, pictureId: string) : Promise<void>;
 	getFileStream(mediaUri: string, downloadIfMissing: boolean) : Promise<IReadFileResponseJs>;
-	deleteFile(mediaUri: string) : Promise<void>;
 	saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata) : Promise<IUploadFileResponse>;
 }
 /* eslint-enable */

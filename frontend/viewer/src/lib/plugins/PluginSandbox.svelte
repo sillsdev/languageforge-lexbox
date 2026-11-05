@@ -160,11 +160,12 @@
   });
 
   /**
-   * No sandbox flag or CSP directive stops a script from navigating ITS OWN frame — the one hole
-   * in the offline sandbox, since a navigation's URL can carry data out. A plugin document never
-   * legitimately navigates (it's a single self-contained file), so a second `load` on the iframe
-   * means the plugin left its document: stop it and tell the user. Detection, not prevention —
-   * which is why the consent card words the network guarantee as "not allowed" rather than "can't".
+   * No sandbox flag or CSP directive stops a script from navigating ITS OWN frame, and a
+   * navigation's URL can carry data out. A plugin document never legitimately navigates (it's a
+   * single self-contained file), so a second `load` on the iframe means the plugin left its
+   * document: stop it and tell the user. Best-effort detection, not prevention: a response that
+   * never commits (204, a download) fires no `load`, and WebRTC is outside CSP altogether. That is
+   * why the consent card words the network guarantee as "not allowed" rather than "can't".
    */
   let iframeLoadCount = 0;
   let stopped = $state<'navigation' | 'declined'>();

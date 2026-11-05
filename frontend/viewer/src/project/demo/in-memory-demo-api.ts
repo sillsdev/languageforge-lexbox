@@ -919,12 +919,6 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     });
   }
 
-  deleteFile(mediaUri: string): Promise<void> {
-    this._files.delete(mediaUri);
-    this.#uploadedFiles.delete(mediaUri);
-    return Promise.resolve();
-  }
-
   saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
     const blob = streamReference instanceof Blob
       ? streamReference
