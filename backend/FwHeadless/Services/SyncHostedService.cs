@@ -185,10 +185,10 @@ public class SyncWorker(
             activity?.SetStatus(ActivityStatusCode.Error, e.Message);
             return new SyncJobResult(SyncJobStatusEnum.ProjectIncompatible, e.Message);
         }
+        await using var deferCloseFwData = fwDataFactory.DeferCloseAsync(fwDataProject);
         //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
         await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
 
-        await using var deferCloseFwData = fwDataFactory.DeferCloseAsync(fwDataProject);
         var crdtProject = await SetupCrdtProject(crdtFile,
             projectLookupService,
             projectId,
