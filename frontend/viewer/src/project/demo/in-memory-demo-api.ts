@@ -210,6 +210,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       },
       syncProjectWithFolder: function (_projectCode: string, _path: string): Promise<IFolderSyncSummary> {
         return Promise.reject(new Error('Folder sync is not available in the demo'));
+      },
+      uploadCrdtProject: function (_server, _code): Promise<void> {
+        return Promise.resolve();
       }
     });
     return inMemoryLexboxApi;

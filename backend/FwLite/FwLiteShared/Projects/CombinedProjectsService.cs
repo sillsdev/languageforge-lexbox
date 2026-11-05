@@ -49,7 +49,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     OAuthClientFactory oAuthClientFactory,
     FolderProjectOpener folderProjectOpener,
     IKeepAwake keepAwake,
-    ProjectEventBus projectEventBus)
+    ProjectEventBus projectEventBus,
+    IServiceProvider serviceProvider)
 {
     private IProjectProvider? FwDataProjectProvider => projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
     [JSInvokable]
@@ -240,5 +241,21 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         {
             await crdtProjectsService.DeleteProject(code);
         });
+    }
+
+    // Uploads into the Lexbox project with the same id as the local one, so folder-shared copies keep matching
+    [JSInvokable]
+    public async Task UploadCrdtProject(LexboxServer server, string code)
+    {
+        var project = crdtProjectsService.GetProject(code)
+            ?? throw new InvalidOperationException($"CRDT project '{code}' not found");
+        await keepAwake.RunAsync(
+            new($"Uploading project {project.Name}"),
+            async () => await Task.Run(async () =>
+            {
+                await using var scope = serviceProvider.CreateAsyncScope();
+                var projectData = await scope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
+                await scope.ServiceProvider.GetRequiredService<SyncService>().UploadProject(projectData.Id, server);
+            }));
     }
 }
