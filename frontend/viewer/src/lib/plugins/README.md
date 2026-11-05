@@ -42,8 +42,9 @@ flowchart LR
   `sandbox="allow-scripts allow-forms allow-modals allow-downloads"` — critically **without**
   `allow-same-origin`, so the plugin gets an opaque origin: no cookies, no app localStorage, no
   `window.parent` DOM access. One caveat the code and copy are honest about: nothing can stop a
-  script from navigating its own frame (a potential exfiltration channel), so PluginRunView detects
-  a second document load and stops the plugin.
+  script from navigating its own frame (a potential exfiltration channel). PluginRunView stops the
+  plugin when it sees a second document load, but that is best effort: a navigation the server
+  answers with 204 or a download never loads a document, and WebRTC (STUN/DNS) is outside CSP.
 - **`plugin-sdk.js`** is injected verbatim into every plugin and exposes the `fwlite` global.
   It is plain dependency-free JS by design.
 - **`plugin-host.ts`** answers exactly one iframe (verified by window identity), forwards requests
@@ -80,8 +81,9 @@ projects. For `fwlite` (SDK + adapter):
 1. Opaque-origin sandbox — no app/API/cookie access, only postMessage. This also means no
    microphone or camera: Chromium refuses `getUserMedia` there (host-side API: #2920).
 2. Offline by default — CSP blocks network fetches and form submissions unless the plugin declares
-   `internet` (surfaced as a badge in the UI and on the consent screen); self-navigation can't be
-   blocked, so it is detected and the plugin stopped.
+   `internet` (surfaced as a badge in the UI and on the consent screen). This is a strong barrier,
+   not an absolute one: self-navigation can't be blocked and is only detected in the common case,
+   and WebRTC is outside CSP. The consent card says "not allowed", not "can't".
 3. Consent per content hash (name + description + HTML) before first run on each device.
 4. Reads are open (same data the user can already see). Writes need the declared `edit` permission
    and are user-approved per operation — or auto-approved with ambient notifications once the user
