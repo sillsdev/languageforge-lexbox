@@ -96,7 +96,7 @@ public class FolderMediaSyncTests : IAsyncLifetime
         onB.Local.Should().BeTrue();
         // every commit b has is also in the folder: copying the file in made no commit of b's own
         var commitsOnB = (await _b.DataModel.GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient.Select(c => c.Id);
-        var commitsInFolder = (await _b.GetService<IJsonSyncableFactory>().Create(new DirectoryInfo(_folder.Path))
+        var commitsInFolder = (await _b.GetService<IJsonSyncableFactory>().Create(new DirectoryInfo(Path.Combine(_folder.Path, "sena-3")))
             .GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient.Select(c => c.Id);
         commitsOnB.Should().BeEquivalentTo(commitsInFolder);
     }
@@ -124,7 +124,7 @@ public class FolderMediaSyncTests : IAsyncLifetime
         var second = await TakePictureOnA("banana.jpg");
         await SyncWithFolder(_a, _folder.Path);
         await _b.DataModel.SyncWith(_a.DataModel);
-        var brokenForFirst = new FailingFor(first, new FolderMediaStore(_folder.Path));
+        var brokenForFirst = new FailingFor(first, new FolderMediaStore(Path.Combine(_folder.Path, "sena-3")));
 
         var copied = await _b.GetService<MediaCopier>().PullAll(brokenForFirst);
 

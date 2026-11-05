@@ -20,7 +20,7 @@ export function folderSyncMessage(summary: IFolderSyncSummary): FolderSyncMessag
           : undefined,
       };
     case FolderSyncStatus.NotASyncFolder:
-      return {message: gt`This folder has other files in it. Choose an empty folder or one used for syncing before.`, type: 'warning'};
+      return {message: gt`This folder already has a folder named after this project, with other files in it. Choose another folder.`, type: 'warning'};
     case FolderSyncStatus.NewerAppNeeded:
       return {message: gt`A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it.`, type: 'warning'};
     case FolderSyncStatus.DifferentProject:

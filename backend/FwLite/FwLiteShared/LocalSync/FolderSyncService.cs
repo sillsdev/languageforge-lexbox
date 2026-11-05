@@ -29,10 +29,9 @@ public class FolderSyncService(
     IPreferencesService preferences,
     IJsonSyncableFactory jsonSyncableFactory)
 {
-    public async Task<FolderSyncResult> SyncWithFolder(string path)
+    public async Task<FolderSyncResult> SyncWithFolder(string pickedPath)
     {
-        path = Path.GetFullPath(path);
-        var state = SyncFolder.Inspect(path);
+        var (path, state) = ProjectFolder(Path.GetFullPath(pickedPath));
         if (state is SyncFolderState.NotASyncFolder or SyncFolderState.NewerFormat) return new FolderSyncResult(state, null);
 
         var localIdentity = await projectIdentityService.GetIdentity();
@@ -62,6 +61,19 @@ public class FolderSyncService(
             return new FolderSyncResult(state, result, sent.Copied, received.Copied, sent.Failed + received.Failed);
         }
         return new FolderSyncResult(state, result);
+    }
+
+    /// <summary>
+    /// The picked folder is used as is when it already holds a project. Otherwise it's just a location (a drive, or
+    /// any folder of the user's), and the project goes in a subfolder named by its code, so one location holds
+    /// many projects and whatever else is there doesn't matter.
+    /// </summary>
+    private (string Path, SyncFolderState State) ProjectFolder(string pickedPath)
+    {
+        var state = SyncFolder.Inspect(pickedPath);
+        if (state is SyncFolderState.HoldsProject or SyncFolderState.NewerFormat) return (pickedPath, state);
+        var projectPath = Path.Combine(pickedPath, currentProjectService.ProjectData.Code);
+        return (projectPath, SyncFolder.Inspect(projectPath));
     }
 
     /// <summary>

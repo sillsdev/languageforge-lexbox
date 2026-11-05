@@ -47,7 +47,7 @@
         AppNotification.display($t`This folder is empty. Sync a project with it first, from the project's sync dialog.`, {type: 'warning', timeout: 'long'});
         return;
       case OpenFromFolderOutcome.NotASyncFolder:
-        AppNotification.display($t`This folder doesn't hold a FieldWorks Lite project.`, {type: 'warning', timeout: 'long'});
+        AppNotification.display($t`This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, named after its project code.`, {type: 'warning', timeout: 'long'});
         return;
       case OpenFromFolderOutcome.ProjectCodeInUse:
         AppNotification.display($t`A different project with the code ${result.projectCode ?? ''} is already on this device.`, {type: 'warning', timeout: 'long'});

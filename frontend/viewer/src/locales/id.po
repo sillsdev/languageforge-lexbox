@@ -4219,12 +4219,12 @@ msgstr ""
 msgid "This file is only available remotely."
 msgstr "Berkas ini hanya tersedia secara jarak jauh."
 
-#: src/home/OpenFromFolderItem.svelte
-msgid "This folder doesn't hold a FieldWorks Lite project."
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder already has a folder named after this project, with other files in it. Choose another folder."
 msgstr ""
 
-#: src/project/sync/folder-sync-messages.ts
-msgid "This folder has other files in it. Choose an empty folder or one used for syncing before."
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, named after its project code."
 msgstr ""
 
 #: src/project/sync/folder-sync-messages.ts

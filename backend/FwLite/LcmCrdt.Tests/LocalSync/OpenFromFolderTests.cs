@@ -55,7 +55,7 @@ public class OpenFromFolderTests : IAsyncLifetime
     }
 
     private async Task<OpenFromFolderResult> OpenOnOtherDevice() =>
-        await _otherDevice.GetService<FolderProjectOpener>().OpenFromFolder(_folder.Path);
+        await _otherDevice.GetService<FolderProjectOpener>().OpenFromFolder(Path.Combine(_folder.Path, "sena-3"));
 
     private async Task<Entry?> GetEntryOnOtherDevice(string projectCode, Guid entryId)
     {
@@ -127,7 +127,7 @@ public class OpenFromFolderTests : IAsyncLifetime
     [Fact]
     public async Task AFolderWithNoProject_OpensNothing()
     {
-        var result = await OpenOnOtherDevice();
+        var result = await _otherDevice.GetService<FolderProjectOpener>().OpenFromFolder(_folder.Path);
 
         result.Outcome.Should().Be(OpenFromFolderOutcome.EmptyFolder);
     }

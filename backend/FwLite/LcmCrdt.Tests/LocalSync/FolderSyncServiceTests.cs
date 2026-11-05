@@ -37,20 +37,33 @@ public class FolderSyncServiceTests : IAsyncLifetime
     private SyncFolderManifest ManifestForA() =>
         new(ProjectId, "sena-3", "Sena 3", null, ["en"]);
 
-    private string[] FolderFiles() =>
-        [.. Directory.EnumerateFiles(_folder.Path).Select(Path.GetFileName).OfType<string>()];
+    private string ProjectFolder => Path.Combine(_folder.Path, "sena-3");
+
+    private static string[] FilesIn(string path) =>
+        [.. Directory.EnumerateFiles(path).Select(Path.GetFileName).OfType<string>()];
 
     [Fact]
-    public async Task SyncingWithAnEmptyFolder_WritesTheProjectIntoIt()
+    public async Task SyncingWithAFolder_WritesTheProjectIntoASubfolderNamedByItsCode()
     {
         var result = await SyncWithFolder(_a, _folder.Path);
 
         result.Synced.Should().BeTrue();
-        var manifest = SyncFolder.Inspect(_folder.Path).Should().BeOfType<SyncFolderState.HoldsProject>().Which.Manifest;
+        var manifest = SyncFolder.Inspect(ProjectFolder).Should().BeOfType<SyncFolderState.HoldsProject>().Which.Manifest;
         manifest.ProjectId.Should().Be(ProjectId);
         manifest.ProjectCode.Should().Be("sena-3");
         manifest.WritingSystemIds.Should().BeEquivalentTo(["en"]);
-        FolderFiles().Should().Contain(f => f.StartsWith("client_") && f.EndsWith(".jsonl"));
+        FilesIn(ProjectFolder).Should().Contain(f => f.StartsWith("client_") && f.EndsWith(".jsonl"));
+        FilesIn(_folder.Path).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PickingTheProjectFolderItself_SyncsInPlace()
+    {
+        await SyncWithFolder(_a, _folder.Path);
+
+        (await SyncWithFolder(_b, ProjectFolder)).Synced.Should().BeTrue();
+
+        Directory.Exists(Path.Combine(ProjectFolder, "sena-3")).Should().BeFalse();
     }
 
     [Fact]
@@ -78,19 +91,33 @@ public class FolderSyncServiceTests : IAsyncLifetime
         result.Synced.Should().BeFalse();
         result.Sync!.Comparison.Should().Be(IdentityComparison.DifferentProject);
         result.FolderState.Should().BeOfType<SyncFolderState.HoldsProject>().Which.Manifest.ProjectName.Should().Be("Malango");
-        FolderFiles().Should().BeEquivalentTo(["manifest.json"]);
+        FilesIn(_folder.Path).Should().BeEquivalentTo(["manifest.json"]);
     }
 
     [Fact]
-    public async Task AFolderOfUnrelatedFiles_IsLeftAlone()
+    public async Task AFolderWithOtherFiles_GetsTheProjectBesideThem()
     {
+        // e.g. a USB drive's root, which Windows fills with hidden system folders
         File.WriteAllText(Path.Combine(_folder.Path, "notes.txt"), "not a project");
+
+        var result = await SyncWithFolder(_a, _folder.Path);
+
+        result.Synced.Should().BeTrue();
+        FilesIn(_folder.Path).Should().BeEquivalentTo(["notes.txt"]);
+        SyncFolder.Inspect(ProjectFolder).Should().BeOfType<SyncFolderState.HoldsProject>();
+    }
+
+    [Fact]
+    public async Task ASubfolderNamedByTheCodeHoldingUnrelatedFiles_IsLeftAlone()
+    {
+        Directory.CreateDirectory(ProjectFolder);
+        File.WriteAllText(Path.Combine(ProjectFolder, "notes.txt"), "not a project");
 
         var result = await SyncWithFolder(_a, _folder.Path);
 
         result.Synced.Should().BeFalse();
         result.FolderState.Should().BeOfType<SyncFolderState.NotASyncFolder>();
-        FolderFiles().Should().BeEquivalentTo(["notes.txt"]);
+        FilesIn(ProjectFolder).Should().BeEquivalentTo(["notes.txt"]);
     }
 
     [Fact]
@@ -118,7 +145,7 @@ public class FolderSyncServiceTests : IAsyncLifetime
 
         await service.SyncWithFolder(_folder.Path);
 
-        service.GetRememberedFolder().Should().Be(_folder.Path);
+        service.GetRememberedFolder().Should().Be(ProjectFolder);
     }
 
     [Fact]
