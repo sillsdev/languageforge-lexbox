@@ -70,7 +70,7 @@
     const mediaUri = imageService.registerLocalPreview(file);
     editingPictureId = undefined;
     draftFile = file;
-    draftPicture = {id: randomId(), order: pictures.length, mediaUri, caption: {}};
+    draftPicture = {id: randomId(), mediaUri, caption: {}};
     editDialogOpen = true;
   }
 
