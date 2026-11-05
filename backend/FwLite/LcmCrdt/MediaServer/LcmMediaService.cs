@@ -1,7 +1,6 @@
 using SIL.Harmony.Config;
 using System.Collections.Concurrent;
 using System.Net;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 using Microsoft.Extensions.Options;
 using MiniLcm.Project;
@@ -24,15 +23,6 @@ public class LcmMediaService(
     ILogger<LcmMediaService> logger
 ) : IRemoteResourceService<LcmFileMetadata>
 {
-    private static readonly System.Buffers.SearchValues<char> ValidSubfolderChars =
-        System.Buffers.SearchValues.Create("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_");
-
-    /// <summary>A LinkedFiles subfolder is one plain path segment ("Plugins"): it ends up in server file paths.</summary>
-    public static bool IsValidLinkedFilesSubfolder([NotNullWhen(true)] string? subfolder)
-    {
-        return !string.IsNullOrEmpty(subfolder) && !subfolder.AsSpan().ContainsAnyExcept(ValidSubfolderChars);
-    }
-
     public async Task<HarmonyResource<LcmFileMetadata>[]> AllResources()
     {
         var resources = await resourceService.AllResources();
@@ -210,24 +200,21 @@ public class LcmMediaService(
         var mediaClient = await MediaServerClient();
         var fileName = metadata?.Filename ?? Path.GetFileName(localPath);
         var response = await mediaClient.UploadFile(
+            // No content type: the server types the upload from the filename's extension.
             new FileInfoPart(new FileInfo(localPath), fileName),
             projectId: currentProjectService.ProjectData.Id,
             fileId: resourceId.ToString("D"),
-            filename: fileName,
-            linkedFilesSubfolderOverride: IsValidLinkedFilesSubfolder(metadata?.LinkedFilesSubfolder) ? metadata.LinkedFilesSubfolder : null);
+            filename: fileName);
         var uploadedMetadata = new LcmFileMetadata(fileName,
             response.Metadata?.MimeType ?? metadata?.MimeType ?? MediaTypeNames.Application.Octet,
             response.Metadata?.Author ?? metadata?.Author,
             response.Metadata?.UploadDate ?? metadata?.UploadDate,
-            response.Metadata?.SizeInBytes ?? metadata?.SizeInBytes,
-            metadata?.LinkedFilesSubfolder);
+            response.Metadata?.SizeInBytes ?? metadata?.SizeInBytes);
         return new UploadResult<LcmFileMetadata>(resourceId.ToString("N"), uploadedMetadata);
     }
 
     public async Task<(HarmonyResource<LcmFileMetadata> resource, bool newResource)> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
-        if (metadata.LinkedFilesSubfolder is not null && !IsValidLinkedFilesSubfolder(metadata.LinkedFilesSubfolder))
-            throw new ArgumentException($"Invalid LinkedFiles subfolder: {metadata.LinkedFilesSubfolder}", nameof(metadata));
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
         var localPath = Path.Combine(projectResourceCachePath, Path.GetFileName(metadata.Filename));

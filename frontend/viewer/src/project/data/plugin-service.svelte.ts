@@ -171,9 +171,6 @@ export class PluginService {
         // never be stale; the name is for people browsing LinkedFiles.
         filename: `${fileNameSlug(draft.name)}-${contentHash.slice(0, 8)}.html`,
         mimeType: 'text/html',
-        // Keeps plugin files together in the project's LinkedFiles (for FLEx users and the
-        // media manager) instead of scattering hash-named folders at its root.
-        linkedFilesSubfolder: 'Plugins',
         extraFields: {},
       });
       if (response.result === UploadFileResult.TooBig) {

@@ -19,8 +19,7 @@ internal interface IMediaServerClient
         [Query] Guid projectId,
         string fileId,//using a string because Refit doesn't handle a Guid properly
         string? author = null,
-        string? filename = null,
-        string? linkedFilesSubfolderOverride = null);
+        string? filename = null);
 }
 
 internal record MediaUploadFileResponse(Guid Guid, FileMetadata? Metadata);

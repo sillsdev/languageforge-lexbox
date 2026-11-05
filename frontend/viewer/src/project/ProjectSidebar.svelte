@@ -69,7 +69,7 @@
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
   <Sidebar.MenuItem>
-    <Sidebar.MenuButton onclick={() => {void goto(view); sidebar?.closeMobile()}} isActive={$activeRoute?.uri.endsWith(view)}>
+    <Sidebar.MenuButton onclick={() => {void goto(view); sidebar?.closeOverlay()}} isActive={$activeRoute?.uri.endsWith(view)}>
       <Icon {icon} />
       <span>{label}</span>
       {#if stat}

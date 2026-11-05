@@ -2,7 +2,7 @@
   import * as Sheet from '$lib/components/ui/sheet/index.js';
   import {cn, type WithElementRef} from '$lib/utils.js';
   import type {HTMLAttributes} from 'svelte/elements';
-  import {SIDEBAR_WIDTH_MOBILE} from './constants.js';
+  import {SIDEBAR_WIDTH_OVERLAY} from './constants.js';
   import {useSidebar} from './context.svelte.js';
 
   let {
@@ -24,8 +24,8 @@
   export function isOpen() {
     return sidebar.open;
   }
-  export function closeMobile() {
-    sidebar.openMobile = false;
+  export function closeOverlay() {
+    sidebar.openOverlay = false;
   }
 </script>
 
@@ -37,19 +37,19 @@
   >
     {@render children?.()}
   </div>
-{:else if sidebar.isMobile}
-  <Sheet.Root bind:open={() => sidebar.openMobile, (v) => sidebar.setOpenMobile(v)} {...restProps}>
+{:else if sidebar.isOverlay}
+  <Sheet.Root bind:open={() => sidebar.openOverlay, (v) => sidebar.setOpenOverlay(v)} {...restProps}>
     <Sheet.Content
       data-sidebar="sidebar"
       data-slot="sidebar"
-      data-mobile="true"
+      data-overlay="true"
       class="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
-      style="--sidebar-width: {SIDEBAR_WIDTH_MOBILE};"
+      style="--sidebar-width: {SIDEBAR_WIDTH_OVERLAY};"
       {side}
     >
       <Sheet.Header class="sr-only">
         <Sheet.Title>Sidebar</Sheet.Title>
-        <Sheet.Description>Displays the mobile sidebar.</Sheet.Description>
+        <Sheet.Description>Displays the sidebar as an overlay.</Sheet.Description>
       </Sheet.Header>
       <div class="flex h-full w-full flex-col">
         {@render children?.()}
@@ -59,7 +59,7 @@
 {:else}
   <div
     bind:this={ref}
-    class="text-sidebar-foreground group peer hidden md:block"
+    class="text-sidebar-foreground group peer hidden lg:block"
     data-state={sidebar.state}
     data-collapsible={sidebar.state === 'collapsed' ? collapsible : ''}
     data-variant={variant}
@@ -81,7 +81,7 @@
     <div
       data-slot="sidebar-container"
       class={cn(
-        'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex',
+        'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear lg:flex',
         side === 'left'
           ? 'inset-s-0 group-data-[collapsible=offcanvas]:inset-s-[calc(var(--sidebar-width)*-1)]'
           : 'inset-e-0 group-data-[collapsible=offcanvas]:inset-e-[calc(var(--sidebar-width)*-1)]',

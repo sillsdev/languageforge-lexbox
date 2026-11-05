@@ -424,7 +424,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions options)
     {
-        var createdEntry = await _wrappedApi.CreateEntry(entry, options);
+        var createdEntry = await Task.Run(async () => await _wrappedApi.CreateEntry(entry, options));
         OnDataChanged();
         return createdEntry;
     }
@@ -440,7 +440,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task DeleteEntry(Guid id)
     {
-        await _wrappedApi.DeleteEntry(id);
+        await Task.Run(async () => await _wrappedApi.DeleteEntry(id));
         OnDataChanged();
     }
 

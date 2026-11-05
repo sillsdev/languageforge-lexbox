@@ -444,6 +444,10 @@ public static class LcmCrdtKernel
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
 
+        // A change type from a newer client is kept as an OpaqueChange and replayed after the upgrade
+        // (see model versions below); the default Throw would stop every older client from syncing.
+        config.UnknownChangeHandling = UnknownChangeHandling.Fallback;
+
         // Released model versions must never change: list a new or modified change type in a new version.
         config.ModelVersionBuilder
             .Add(0, "Before model versions", v => v
