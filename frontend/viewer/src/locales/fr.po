@@ -132,7 +132,7 @@ msgid "{0} authors"
 msgstr "{0} auteurs"
 
 #: src/home/OpenFromFolderItem.svelte
-msgid "{0} can't be added: this device already has a different project with the same code, {1}. Delete that project from this device first, or open this one on another device."
+msgid "{0} can't be added: this device already has a different project with the same code, {1}."
 msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
@@ -4254,7 +4254,7 @@ msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
 msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
-msgid "This folder doesn't hold a FieldWorks Lite project. If you chose the drive itself, choose the project's folder inside it instead. It is named after the project code."
+msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, not the drive or folder it's in."
 msgstr ""
 
 #: src/project/sync/folder-sync-messages.ts
