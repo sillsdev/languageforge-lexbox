@@ -4,10 +4,12 @@ A plugin is **one self-contained HTML file**, written by a project member (usual
 that runs inside FW Lite and works with the open project's dictionary data. The `Plugin` CRDT
 entity carries only metadata (name, description, extracted manifest, file reference); the HTML
 itself is stored as a **media resource** — the same Harmony `RemoteResource` path audio and
-pictures use — so the bytes upload/download on demand, work offline once cached, travel through
-Mercurial send/receive in the project's `LinkedFiles`, and are visible to FieldWorks as ordinary
-(inert) linked files. Plugin files are immutable: each edit uploads a new content-named file and
-repoints the entity, so synced/cached copies can never go stale.
+pictures use — so the bytes upload/download on demand and work offline once cached. FieldWorks
+sees them under `LinkedFiles/Plugins`, but they are not ordinary linked files: FLExBridge's
+send/receive only includes `AudioVisual`, `Others` and `Pictures`, so a FLEx user's S/R won't
+record edits to them. Plugin files are immutable: each edit uploads a new content-named file and
+repoints the entity, so synced/cached copies can never go stale. The replaced file is deleted from
+the CRDT, but its server copy stays until sillsdev/harmony#168.
 
 ## Architecture
 
@@ -57,7 +59,8 @@ flowchart LR
   file, building the entity, fetching HTML back (with offline/error outcomes), and carrying
   device-local grants across local edits.
 - **`plugin-srcdoc.ts`** composes the document the iframe runs: injects the SDK and, unless the
-  plugin declares the `internet` permission, a CSP `<meta>` that blocks network fetches. The result
+  plugin declares the `internet` permission, a CSP `<meta>` that blocks network fetches and form
+  submissions (`form-action 'none'`). The result
   is loaded via a revocable Blob URL (not a `srcdoc` attribute or retained state) so multi-MB plugin
   HTML stays GC-able; the on-disk cache file remains the source of truth. The iframe uses
   `sandbox="allow-scripts allow-forms allow-modals allow-downloads"` — critically **without**
@@ -102,18 +105,22 @@ projects. For `fwlite` (SDK + adapter):
 
 ## Security model (summary)
 
-1. Opaque-origin sandbox — no app/API/cookie access, only postMessage.
-2. Offline by default — CSP blocks network fetches unless the plugin declares `internet` (surfaced
-   as a badge in the UI and on the consent screen); self-navigation can't be blocked, so it is
-   detected and the plugin stopped.
+1. Opaque-origin sandbox — no app/API/cookie access, only postMessage. This also means no
+   microphone or camera: Chromium refuses `getUserMedia` there (host-side API: #2920).
+2. Offline by default — CSP blocks network fetches and form submissions unless the plugin declares
+   `internet` (surfaced as a badge in the UI and on the consent screen); self-navigation can't be
+   blocked, so it is detected and the plugin stopped.
 3. Consent per content hash (name + description + HTML) before first run on each device.
 4. Reads are open (same data the user can already see). Writes need the declared `edit` permission
    and are user-approved per operation — or auto-approved with ambient notifications once the user
    picks "Always allow for this plugin" (hash-pinned, per project, per device, revocable from the
-   plugin card and the run toolbar, and dropped when the plugin's code changes).
+   plugin card and the run toolbar). A plugin refused three times in a row is stopped.
 5. Write previews are complete and honest: full recursive diffs against the entry's REAL current
    state (compare-and-swap), no silent truncation, bidi/control characters stripped.
-6. Only project managers can add/edit/delete plugins (enforced in `CrdtMiniLcmApi`).
+6. Only project managers can add/edit/delete plugins (enforced in `CrdtPluginApi`).
+7. Off on Android: the Blazor WebView bootstrap there forwards every window message to JSInterop
+   without checking its source, so a plugin frame could reach the app (#2917; see
+   `feature-service.ts`).
 
 ## Testing
 

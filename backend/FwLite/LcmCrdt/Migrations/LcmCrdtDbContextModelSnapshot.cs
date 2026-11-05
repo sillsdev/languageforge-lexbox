@@ -458,7 +458,7 @@ namespace LcmCrdt.Migrations
                     b.Property<long>("FileSize")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("FileUri")
+                    b.Property<string>("MediaUri")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

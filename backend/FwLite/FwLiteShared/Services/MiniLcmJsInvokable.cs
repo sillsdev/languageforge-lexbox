@@ -424,7 +424,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task<Entry> CreateEntry(Entry entry, CreateEntryOptions options)
     {
-        var createdEntry = await _wrappedApi.CreateEntry(entry, options);
+        var createdEntry = await Task.Run(async () => await _wrappedApi.CreateEntry(entry, options));
         OnDataChanged();
         return createdEntry;
     }
@@ -440,7 +440,7 @@ public class MiniLcmJsInvokable(
     [JSInvokable]
     public async Task DeleteEntry(Guid id)
     {
-        await _wrappedApi.DeleteEntry(id);
+        await Task.Run(async () => await _wrappedApi.DeleteEntry(id));
         OnDataChanged();
     }
 
@@ -578,6 +578,12 @@ public class MiniLcmJsInvokable(
         ReadFileResult Result,
         string? ErrorMessage);
     public const int TenMbFileLimit = 10 * 1024 * 1024;
+
+    [JSInvokable]
+    public async Task DeleteFile(string mediaUri)
+    {
+        await _wrappedApi.DeleteFile(new MediaUri(mediaUri));
+    }
 
     [JSInvokable]
     public Task<UploadFileResponse> SaveFile(IJSStreamReference streamReference, LcmFileMetadata metadata)

@@ -11,7 +11,7 @@ export interface IPlugin extends IObjectWithId
 	deletedAt?: string;
 	name: string;
 	description?: string;
-	fileUri: string;
+	mediaUri: string;
 	fileSize: number;
 	permissions: string[];
 	contexts: string[];

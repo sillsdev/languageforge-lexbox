@@ -5,6 +5,9 @@
     <GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Testing" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="CrystalQuartz.AspNetCore" />
     <PackageReference Include="DataAnnotatedModelValidations" />
     <PackageReference Include="HotChocolate.Types.Analyzers">

@@ -5,7 +5,7 @@ namespace MiniLcm.Models;
 /// <summary>
 /// A user-authored, project-scoped plugin: a self-contained HTML document that FW Lite runs
 /// in a sandboxed iframe. This entity carries only the metadata; the HTML itself is stored as a
-/// media resource (see <see cref="FileUri"/>), so the bytes travel the same path as audio and
+/// media resource (see <see cref="MediaUri"/>), so the bytes travel the same path as audio and
 /// pictures — including Mercurial send/receive, where FieldWorks sees them as ordinary linked files.
 /// </summary>
 public record Plugin : IObjectWithId<Plugin>
@@ -20,7 +20,7 @@ public record Plugin : IObjectWithId<Plugin>
     /// The plugin's HTML document, stored as a media resource. Plugin files are immutable: editing
     /// a plugin saves a new file and repoints this reference, so downloaded copies never go stale.
     /// </summary>
-    public required MediaUri FileUri { get; set; }
+    public required MediaUri MediaUri { get; set; }
 
     /// <summary>Size of the HTML file in bytes, so lists can show it without fetching the file.</summary>
     public long FileSize { get; set; }

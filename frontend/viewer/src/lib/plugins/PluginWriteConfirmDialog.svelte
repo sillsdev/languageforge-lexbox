@@ -7,7 +7,7 @@
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
-  import {t} from 'svelte-i18n-lingui';
+  import {plural, t} from 'svelte-i18n-lingui';
   import type {PluginWriteMode, PluginWriteOperation} from './plugin-api-types';
 
   interface Props {
@@ -31,14 +31,14 @@
           {#if operation?.kind === 'createEntry'}
             {$t`Preview: the plugin would add an entry`}
           {:else if operation?.kind === 'batch'}
-            {$t`Preview: the plugin would make ${operation.count} changes`}
+            {$t`Preview: the plugin would make ${$plural(operation.count, {one: '# change', other: '# changes'})}`}
           {:else}
             {$t`Preview: the plugin would change an entry`}
           {/if}
         {:else if operation?.kind === 'createEntry'}
           {$t`Plugin wants to add an entry`}
         {:else if operation?.kind === 'batch'}
-          {$t`Plugin wants to make ${operation.count} changes`}
+          {$t`Plugin wants to make ${$plural(operation.count, {one: '# change', other: '# changes'})}`}
         {:else}
           {$t`Plugin wants to change an entry`}
         {/if}

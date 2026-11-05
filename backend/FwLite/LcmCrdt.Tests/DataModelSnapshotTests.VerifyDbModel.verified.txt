@@ -312,7 +312,7 @@
       DeletedAt (DateTimeOffset?)
       Description (string)
       FileSize (long) Required
-      FileUri (MediaUri) Required
+      MediaUri (MediaUri) Required
       Name (string) Required
       Permissions (string[]) Required
         Annotations: 

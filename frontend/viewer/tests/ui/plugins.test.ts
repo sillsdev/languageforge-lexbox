@@ -1,6 +1,8 @@
 import {readFile} from 'node:fs/promises';
+import http from 'node:http';
+import type {AddressInfo} from 'node:net';
 import {expect, test, type Download, type Page} from '@playwright/test';
-import {examplePlugins} from '../../src/lib/plugins/examples';
+import {examplePlugins, listedExamplePlugins} from '../../src/lib/plugins/examples';
 import {DemoProjectPage} from './demo-project.page';
 import {STORAGE_KEY as RELEASE_CHANNEL_KEY} from '../../src/lib/feature-flags/feature-flags';
 import type {UserProjectRole} from '../../src/lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
@@ -127,8 +129,8 @@ test('the examples shelf filters across categories by function', async ({page}) 
   await expect(shelf.getByRole('button', {name: 'Try Browse Grid'})).toBeHidden();
 
   await shelf.getByRole('button', {name: 'All', pressed: false}).click();
-  await shelf.getByRole('button', {name: `See all ${examplePlugins.length} examples`}).click();
-  await expect(shelf.getByTestId('plugin-example-card')).toHaveCount(examplePlugins.length);
+  await shelf.getByRole('button', {name: `See all ${listedExamplePlugins.length} examples`}).click();
+  await expect(shelf.getByTestId('plugin-example-card')).toHaveCount(listedExamplePlugins.length);
 });
 
 test('creates a plugin from a pasted AI reply and exchanges data over the bridge', async ({page}) => {
@@ -362,6 +364,82 @@ test('leaving the studio with unsaved work asks first', async ({page}) => {
   await page.getByRole('button', {name: 'Tasks'}).click();
   await page.getByRole('button', {name: 'Leave', exact: true}).click();
   await expect(page).toHaveURL(/\/tasks$/);
+});
+
+test('a plugin cannot post the app its own window events', async ({page}) => {
+  await addPluginViaStudio(page, [
+    '<!DOCTYPE html><html><head><title>Spoof test</title></head><body>',
+    '<div id="status">idle</div>',
+    '<script>',
+    '  parent.postMessage({type: "notification", message: "spoofed toast"}, "*");',
+    '  fwlite.ready.then(async () => {',
+    '    document.getElementById("status").textContent = "counted:" + await fwlite.countEntries();',
+    '  });',
+    '</script>',
+    '</body></html>',
+  ].join('\n'));
+
+  const card = page.locator('[data-slot="card"]', {hasText: 'Spoof test'});
+  await card.getByRole('button', {name: 'Run'}).click();
+
+  const frame = page.frameLocator('iframe[title="Spoof test"]');
+  await expect(frame.locator('#status')).toContainText('counted:', {timeout: 15000});
+  await expect(page.getByText('spoofed toast')).toHaveCount(0);
+});
+
+test('an offline plugin cannot send data out', async ({page}) => {
+  const received: string[] = [];
+  const server = http.createServer((req, res) => {
+    received.push(`${req.method} ${req.url}`);
+    res.end();
+  });
+  server.on('upgrade', (req, socket) => {
+    received.push(`upgrade ${req.url}`);
+    socket.destroy();
+  });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const {port} = server.address() as AddressInfo;
+  const url = `http://127.0.0.1:${port}`;
+  try {
+    await addPluginViaStudio(page, [
+      '<!DOCTYPE html><html><head><title>Exfil test</title></head><body>',
+      '<div id="status">idle</div><div id="violations"></div>',
+      `<form id="form" method="post" action="${url}/form"><input name="secret" value="x"></form>`,
+      '<script>',
+      '  const violations = new Set();',
+      '  document.addEventListener("securitypolicyviolation", (e) => {',
+      '    violations.add(e.effectiveDirective);',
+      '    document.getElementById("violations").textContent = [...violations].sort().join(" ");',
+      '  });',
+      '  const attempts = [',
+      `    () => fetch("${url}/fetch").catch(() => {}),`,
+      `    () => navigator.sendBeacon("${url}/beacon", "secret"),`,
+      `    () => { new Image().src = "${url}/image"; },`,
+      `    () => new WebSocket("ws://127.0.0.1:${port}/ws"),`,
+      '    () => document.getElementById("form").submit(),',
+      '  ];',
+      '  for (const attempt of attempts) { try { attempt(); } catch {} }',
+      '  document.getElementById("status").textContent = "done";',
+      '</script>',
+      '</body></html>',
+    ].join('\n'));
+
+    const card = page.locator('[data-slot="card"]', {hasText: 'Exfil test'});
+    await card.getByRole('button', {name: 'Run'}).click();
+
+    const frame = page.frameLocator('iframe[title="Exfil test"]');
+    await expect(frame.locator('#status')).toHaveText('done', {timeout: 15000});
+    for (const directive of ['connect-src', 'form-action', 'img-src']) {
+      await expect(frame.locator('#violations')).toContainText(directive);
+    }
+    // Give any request that slipped past the CSP time to land before asserting none did.
+    await page.waitForTimeout(1000);
+    expect(received).toEqual([]);
+    // A form submission that got through would have replaced the plugin's document.
+    await expect(frame.locator('#status')).toHaveText('done');
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
 });
 
 test('the curated example gallery is offered in full', () => {

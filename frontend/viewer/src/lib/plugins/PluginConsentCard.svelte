@@ -5,6 +5,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {useFeatures} from '$lib/services/feature-service';
   import type {PluginManifest} from './plugin-manifest';
+  import type {PluginHostFeature} from './plugin-api-types';
 
   interface Props {
     pluginName: string;
@@ -17,6 +18,7 @@
 
   const features = useFeatures();
   const missingRequirements = $derived((manifest?.requires ?? []).filter(feature => !features[feature]));
+  const featureLabels: Record<PluginHostFeature, string> = $derived({comments: $t`comments`, history: $t`history`});
 </script>
 
 <div class="absolute inset-0 grid place-items-center p-4 overflow-y-auto" data-testid="plugin-consent">
@@ -56,7 +58,7 @@
         {#each missingRequirements as feature (feature)}
           <li class="flex items-center gap-2">
             <Icon icon="i-mdi-alert" class="text-amber-500" />
-            {$t`Needs “${feature}”, which this project doesn't support — it may not work properly`}
+            {$t`Needs ${featureLabels[feature]}, which this project doesn't support, so it may not work properly`}
           </li>
         {/each}
       </ul>

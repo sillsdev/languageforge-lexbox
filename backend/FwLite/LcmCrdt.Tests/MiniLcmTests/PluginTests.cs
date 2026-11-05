@@ -29,7 +29,7 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
         {
             Id = Guid.NewGuid(),
             Name = name,
-            FileUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+            MediaUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
             FileSize = 1234,
             Permissions = ["edit"],
             Contexts = ["entry"],
@@ -64,7 +64,7 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
 
         var fetched = await Api.GetPlugin(plugin.Id);
         fetched.Should().NotBeNull();
-        fetched.FileUri.Should().Be(plugin.FileUri);
+        fetched.MediaUri.Should().Be(plugin.MediaUri);
         fetched.FileSize.Should().Be(plugin.FileSize);
         fetched.Permissions.Should().Equal("edit");
         fetched.Contexts.Should().Equal("entry");
@@ -107,7 +107,7 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
     public async Task CreatePlugin_RejectsMissingFile()
     {
         await SetCurrentUser(ManagerUserId, UserProjectRole.Manager);
-        var plugin = NewPlugin("My Plugin") with { FileUri = MediaUri.NotFound };
+        var plugin = NewPlugin("My Plugin") with { MediaUri = MediaUri.NotFound };
         await Assert.ThrowsAsync<ValidationException>(() => Api.CreatePlugin(plugin));
     }
 
@@ -119,7 +119,7 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
         await Api.UpdatePlugin(created with
         {
             Name = "My Updated Plugin",
-            FileUri = newFileUri,
+            MediaUri = newFileUri,
             FileSize = 99,
             Permissions = ["edit", "internet"],
             Contexts = [],
@@ -129,7 +129,7 @@ public class PluginTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmApiFi
         var fetched = await Api.GetPlugin(created.Id);
         fetched.Should().NotBeNull();
         fetched.Name.Should().Be("My Updated Plugin");
-        fetched.FileUri.Should().Be(newFileUri);
+        fetched.MediaUri.Should().Be(newFileUri);
         fetched.FileSize.Should().Be(99);
         fetched.Permissions.Should().Equal("edit", "internet");
         fetched.Contexts.Should().BeEmpty();

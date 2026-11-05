@@ -19,7 +19,7 @@ public class PluginValidator : AbstractValidator<Plugin>
             .WithMessage("Plugin name is required")
             .MaximumLength(MaxNameLength);
         RuleFor(p => p.Description).MaximumLength(MaxDescriptionLength).When(p => p.Description is not null);
-        RuleFor(p => p.FileUri).Must(uri => uri != MediaUri.NotFound && uri.FileId != Guid.Empty)
+        RuleFor(p => p.MediaUri).Must(uri => uri != MediaUri.NotFound && uri.FileId != Guid.Empty)
             .WithMessage("Plugin file is required");
         RuleFor(p => p.FileSize).GreaterThanOrEqualTo(0).LessThanOrEqualTo(MediaFile.MaxFileSize);
         RuleFor(p => p.Permissions).Must(BeValidTokenList).WithMessage("Invalid permissions list");

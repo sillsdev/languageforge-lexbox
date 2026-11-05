@@ -7,15 +7,14 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import {t} from 'svelte-i18n-lingui';
   import {navigate, useRouter} from 'svelte-routing';
-  import {type IPlugin, UserProjectRole} from '$lib/dotnet-types';
-  import {usePluginService} from '$project/data/plugin-service.svelte';
-  import {useProjectContext} from '$project/project-context.svelte';
+  import {type IPlugin} from '$lib/dotnet-types';
+  import {fileNameSlug, sizeKb, usePluginService} from '$project/data/plugin-service.svelte';
   import {useDialogsService} from '$lib/services/dialogs-service';
   import {AppNotification} from '$lib/notifications/notifications';
   import type {IconClass} from '$lib/icon-class';
   import {
     exampleFunctions,
-    examplePlugins,
+    listedExamplePlugins,
     examplePluginsByPrimaryFunction,
     type ExampleCapability,
     type ExampleFunction,
@@ -23,26 +22,20 @@
   } from './examples';
 
   const pluginService = usePluginService();
-  const projectContext = useProjectContext();
   const dialogsService = useDialogsService();
   const {base} = useRouter();
 
   const plugins = $derived(pluginService.current);
-  // Local-only projects have no role info; there the user owns their data anyway.
-  const canManage = $derived(!projectContext.projectData || projectContext.projectData.role === UserProjectRole.Manager);
+  const canManage = $derived(pluginService.canManage);
 
-  // The trust store is plain localStorage; bump this to re-read it after revoking from a card.
-  let trustVersion = $state(0);
   // Trust is pinned to a content hash we'd need the file to verify, so the card shows whether a
-  // grant EXISTS — if the plugin changed since, the grant is stale and it will ask again anyway.
+  // grant EXISTS; if the plugin changed since, the grant is stale and it will ask again anyway.
   function hasWriteTrust(plugin: IPlugin): boolean {
-    trustVersion; // eslint-disable-line @typescript-eslint/no-unused-expressions
     return pluginService.writeTrustStore.grantedHash(plugin.id) !== undefined;
   }
 
   function revokeWriteTrust(plugin: IPlugin) {
     pluginService.writeTrustStore.revoke(plugin.id);
-    trustVersion++;
     AppNotification.display($t`“${plugin.name}” will ask before making changes again.`, {timeout: 'short'});
   }
 
@@ -80,15 +73,10 @@
       const url = URL.createObjectURL(new Blob([html], {type: 'text/html'}));
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = pluginFileName(plugin.name);
+      anchor.download = `${fileNameSlug(plugin.name)}.html`;
       anchor.click();
       URL.revokeObjectURL(url);
     });
-  }
-
-  function pluginFileName(name: string): string {
-    const safe = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    return `${safe || 'plugin'}.html`;
   }
 
   function duplicate(plugin: IPlugin) {
@@ -103,11 +91,7 @@
       details: $t`This removes the plugin for everyone on this project.`,
     });
     if (!shouldDelete) return;
-    await pluginService.delete(plugin.id);
-  }
-
-  function sizeKb(plugin: IPlugin): string {
-    return `${Math.max(1, Math.round(plugin.fileSize / 1024))} KB`;
+    await pluginService.delete(plugin);
   }
 
   // ---- Examples shelf: managers only, since trying an example is the first step to adding it ----
@@ -118,8 +102,8 @@
   const sampler = examplePluginsByPrimaryFunction().map(group => group.plugins[0]);
   const shelfExamples = $derived.by(() => {
     const filter = shelfFilter;
-    if (filter !== 'all') return examplePlugins.filter(example => example.functions.includes(filter));
-    return showAllExamples ? examplePlugins : sampler;
+    if (filter !== 'all') return listedExamplePlugins.filter(example => example.functions.includes(filter));
+    return showAllExamples ? listedExamplePlugins : sampler;
   });
 
   const functionLabels: Record<ExampleFunction, string> = $derived({
@@ -201,7 +185,7 @@
                   <p class="text-sm text-muted-foreground line-clamp-2">{plugin.description}</p>
                 {/if}
                 <Card.Description class="flex flex-wrap items-center gap-2">
-                  <span>{sizeKb(plugin)}</span>
+                  <span>{$t`${sizeKb(plugin.fileSize)} KB`}</span>
                   {#if !plugin.permissions.includes('edit')}
                     <Badge variant="secondary">
                       <Icon icon="i-mdi-eye-outline" />
@@ -324,7 +308,7 @@
         </div>
         {#if shelfFilter === 'all'}
           <Button variant="link" class="px-0" onclick={() => showAllExamples = !showAllExamples}>
-            {showAllExamples ? $t`Show fewer examples` : $t`See all ${examplePlugins.length} examples`}
+            {showAllExamples ? $t`Show fewer examples` : $t`See all ${listedExamplePlugins.length} examples`}
           </Button>
         {/if}
       </section>

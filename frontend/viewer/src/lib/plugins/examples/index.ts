@@ -36,6 +36,8 @@ export interface ExamplePlugin {
   functions: [ExampleFunction, ...ExampleFunction[]];
   /** Capabilities to surface as badges in the gallery. */
   capabilities?: ExampleCapability[];
+  /** False keeps the example out of the gallery (it still ships and still runs in tests). */
+  listed?: boolean;
   /** Loads the plugin HTML on demand so the raw files stay out of the main bundle. */
   loadHtml: () => Promise<string>;
 }
@@ -96,22 +98,6 @@ export const examplePlugins: ExamplePlugin[] = [
 
   // ---- Record & illustrate ----
   {
-    key: 'pronunciation-recorder',
-    name: 'Pronunciation Recorder',
-    description: 'Walk entries that lack a recording and capture pronunciation audio straight onto each one.',
-    functions: ['record'],
-    capabilities: ['microphone', 'entry-menu'],
-    loadHtml: async () => (await import('./pronunciation-recorder.html?raw')).default,
-  },
-  {
-    key: 'photo-capture',
-    name: 'Photo Capture',
-    description: 'Photograph entries with your camera (or pick a file) and attach the picture to a sense.',
-    functions: ['record'],
-    capabilities: ['camera', 'entry-menu'],
-    loadHtml: async () => (await import('./photo-capture.html?raw')).default,
-  },
-  {
     key: 'audio-dictionary',
     name: 'Audio Dictionary',
     description: 'Play back pronunciation recordings, track coverage, and drill listening — see which entries still need audio.',
@@ -124,6 +110,26 @@ export const examplePlugins: ExamplePlugin[] = [
     description: 'Browse every illustrated entry as a filterable image gallery with a lightbox and audio playback.',
     functions: ['record', 'explore'],
     loadHtml: async () => (await import('./picture-dictionary.html?raw')).default,
+  },
+
+  // The sandbox can't use the microphone or camera (#2920); unlisted until it can.
+  {
+    key: 'pronunciation-recorder',
+    name: 'Pronunciation Recorder',
+    description: 'Walk entries that lack a recording and capture pronunciation audio straight onto each one.',
+    functions: ['record'],
+    capabilities: ['microphone', 'entry-menu'],
+    listed: false,
+    loadHtml: async () => (await import('./pronunciation-recorder.html?raw')).default,
+  },
+  {
+    key: 'photo-capture',
+    name: 'Photo Capture',
+    description: 'Photograph entries with your camera (or pick a file) and attach the picture to a sense.',
+    functions: ['record'],
+    capabilities: ['camera', 'entry-menu'],
+    listed: false,
+    loadHtml: async () => (await import('./photo-capture.html?raw')).default,
   },
 
   // ---- Explore & analyze ----
@@ -254,11 +260,14 @@ export const examplePlugins: ExamplePlugin[] = [
  * Examples grouped by their PRIMARY function, in {@link exampleFunctions} order, skipping empty
  * sections. This is the gallery's default browse view (each example appears once).
  */
+/** The examples the gallery offers. */
+export const listedExamplePlugins = examplePlugins.filter((plugin) => plugin.listed !== false);
+
 export function examplePluginsByPrimaryFunction(): {function: ExampleFunction; plugins: ExamplePlugin[]}[] {
   return exampleFunctions
     .map((key) => ({
       function: key,
-      plugins: examplePlugins.filter((plugin) => plugin.functions[0] === key),
+      plugins: listedExamplePlugins.filter((plugin) => plugin.functions[0] === key),
     }))
     .filter((group) => group.plugins.length > 0);
 }

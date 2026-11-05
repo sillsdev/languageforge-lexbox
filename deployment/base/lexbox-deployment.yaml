@@ -65,14 +65,14 @@ spec:
         startupProbe:
           httpGet:
             port: 5158
-            path: /api/healthz
+            path: /api/alive
           failureThreshold: 30
           periodSeconds: 10
           timeoutSeconds: 5
         livenessProbe:
           httpGet:
             port: 5158
-            path: /api/healthz
+            path: /api/alive
           initialDelaySeconds: 300
           periodSeconds: 20
           timeoutSeconds: 5
@@ -242,9 +242,9 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
-            memory: 100Mi
+            memory: 200Mi
           limits:
-            memory: 100Mi
+            memory: 200Mi
         ports:
           - containerPort: 4318
           - containerPort: 4317

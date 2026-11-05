@@ -7,9 +7,9 @@ name: PR CI
 # Everything else (publishing, signing, stores, Firefox, WebKit by default) stays on develop in
 # fw-lite.yaml and platform.bible-extension.yaml.
 on:
+  # No `branches` filter: stacked PRs (base = another feature branch) run too. `detect` diffs
+  # against `github.base_ref`, so a stacked PR only tests what it adds on top of its parent.
   pull_request:
-    branches:
-      - develop
     # labeled/unlabeled so adding `ci:<tier>` re-runs at once; the concurrency group cancels the superseded run.
     types: [opened, synchronize, reopened, labeled, unlabeled]
 

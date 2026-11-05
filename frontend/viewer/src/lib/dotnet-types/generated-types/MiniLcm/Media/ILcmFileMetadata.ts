@@ -10,7 +10,6 @@ export interface ILcmFileMetadata
 	author?: string;
 	uploadDate?: string;
 	sizeInBytes?: number;
-	linkedFilesSubfolder?: string;
 	extraFields: { [key:string]: any };
 }
 /* eslint-enable */

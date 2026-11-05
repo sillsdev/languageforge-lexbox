@@ -1,7 +1,7 @@
 <script lang="ts">
   import type {Snippet} from 'svelte';
   import {Icon} from '$lib/components/ui/icon';
-  import {t} from 'svelte-i18n-lingui';
+  import {plural, t} from 'svelte-i18n-lingui';
   import {navigate, useRouter} from 'svelte-routing';
   import {useProjectContext} from '$project/project-context.svelte';
   import {useFeatures} from '$lib/services/feature-service';
@@ -11,7 +11,7 @@
   import EditEntryDialog from '$lib/entry-editor/EditEntryDialog.svelte';
   import {PluginApiAdapter} from './plugin-api-adapter';
   import {PluginHost} from './plugin-host';
-  import {PLUGIN_IFRAME_ALLOW, PLUGIN_IFRAME_SANDBOX} from './plugin-srcdoc';
+  import {PLUGIN_IFRAME_SANDBOX} from './plugin-srcdoc';
   import type {PluginManifest} from './plugin-manifest';
   import {createMemoryStorageBackend, PluginStorage} from './plugin-local-data';
   import type {OpenEntryMode, PluginWriteMode, PluginWriteOperation} from './plugin-api-types';
@@ -62,7 +62,7 @@
     switch (operation.kind) {
       case 'createEntry': return $t`“${pluginName}” added an entry`;
       case 'updateEntry': return $t`“${pluginName}” changed an entry`;
-      case 'batch': return $t`“${pluginName}” made ${operation.count} changes`;
+      case 'batch': return $t`“${pluginName}” made ${$plural(operation.count, {one: '# change', other: '# changes'})}`;
     }
   }
 
@@ -71,6 +71,10 @@
   let confirmQueue: Promise<unknown> = Promise.resolve();
   function confirmWrite(operation: PluginWriteOperation): Promise<boolean> {
     const result = confirmQueue.then(() => new Promise<boolean>(resolve => {
+      if (stopped) {
+        resolve(false);
+        return;
+      }
       if (writesTrusted && writeMode === 'live') {
         // Trusted plugins skip the dialog, but every write still surfaces — ambient disclosure
         // is what keeps "Always allow" honest.
@@ -84,11 +88,16 @@
     return result;
   }
 
+  /** A plugin that keeps asking after being refused is holding the user hostage behind a modal. */
+  const MAX_DENIALS_IN_A_ROW = 3;
+  let denialsInARow = 0;
   function resolvePendingWrite(result: WriteConfirmResult) {
     const pending = pendingWrite;
     if (!pending) return;
     pendingWrite = undefined;
     if (result === 'always') onTrustWrites?.();
+    denialsInARow = result === 'deny' ? denialsInARow + 1 : 0;
+    if (denialsInARow >= MAX_DENIALS_IN_A_ROW) stopped = 'declined';
     pending.resolve(result !== 'deny');
   }
 
@@ -158,27 +167,32 @@
    * which is why the consent card words the network guarantee as "not allowed" rather than "can't".
    */
   let iframeLoadCount = 0;
-  let stoppedForNavigation = $state(false);
+  let stopped = $state<'navigation' | 'declined'>();
   function onIframeLoad() {
     iframeLoadCount++;
-    if (iframeLoadCount > 1) stoppedForNavigation = true;
+    if (iframeLoadCount > 1) stopped = 'navigation';
   }
   $effect(() => {
     reloadToken; docUrl; // eslint-disable-line @typescript-eslint/no-unused-expressions
     iframeLoadCount = 0;
-    stoppedForNavigation = false;
+    denialsInARow = 0;
+    stopped = undefined;
   });
 </script>
 
 <svelte:window onmessage={(event) => host.handleWindowMessage(event)} />
 
-{#if stoppedForNavigation}
+{#if stopped}
   <div class="absolute inset-0 grid place-items-center p-4">
     <div class="text-center space-y-3 max-w-md">
       <Icon icon="i-mdi-shield-alert" class="size-10 text-destructive" />
       <div class="font-medium">{$t`Plugin stopped`}</div>
       <p class="text-sm text-muted-foreground">
-        {$t`“${pluginName}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin.`}
+        {#if stopped === 'navigation'}
+          {$t`“${pluginName}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin.`}
+        {:else}
+          {$t`“${pluginName}” kept asking to change your dictionary after you said no. Reload it to try again.`}
+        {/if}
       </p>
       {@render stoppedActions?.()}
     </div>
@@ -190,7 +204,6 @@
       title={pluginName}
       src={docUrl}
       sandbox={PLUGIN_IFRAME_SANDBOX}
-      allow={PLUGIN_IFRAME_ALLOW}
       onload={onIframeLoad}
       class="absolute inset-0 w-full h-full border-0 bg-background"
     ></iframe>

@@ -3,7 +3,6 @@
   import {t} from 'svelte-i18n-lingui';
   import {onDestroy, untrack} from 'svelte';
   import {navigate, useRouter} from 'svelte-routing';
-  import {UserProjectRole} from '$lib/dotnet-types';
   import {usePluginService} from '$project/data/plugin-service.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
@@ -31,8 +30,8 @@
   const projectContext = useProjectContext();
   const {base} = useRouter();
 
-  // Local-only projects have no role info; there the user owns their data anyway.
-  const canManage = $derived(!projectContext.projectData || projectContext.projectData.role === UserProjectRole.Manager);
+  const pluginService = usePluginService();
+  const canManage = $derived(pluginService.canManage);
 
   function goToPlugins() {
     navigate(`${$base.uri}/plugins`);
@@ -43,7 +42,7 @@
     mode,
     pluginId,
     exampleKey,
-    pluginService: usePluginService(),
+    pluginService,
     project: projectContext,
     goToPlugins,
     openPlugin: (id) => navigate(`${$base.uri}/plugins/${id}`),

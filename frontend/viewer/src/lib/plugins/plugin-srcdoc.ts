@@ -12,20 +12,14 @@ import type {PluginPermission} from './plugin-api-types';
 export const PLUGIN_IFRAME_SANDBOX = 'allow-scripts allow-forms allow-modals allow-downloads';
 
 /**
- * Permissions-Policy delegated to the plugin iframe. Microphone/camera let plugins record
- * pronunciation audio or capture pictures; the browser still prompts the user at capture time, so
- * no plugin-declared permission is needed.
- */
-export const PLUGIN_IFRAME_ALLOW = 'microphone; camera';
-
-/**
  * Blocks fetch-style network for plugins without the `internet` permission (connect/img/media/font
- * all fall back to default-src 'none'). Inline script/style stay allowed (that's the plugin
- * itself); data:/blob: URIs keep embedded images and fonts working. This does NOT block frame
- * self-navigation — see PLUGIN_IFRAME_SANDBOX — so it's a strong barrier, not an absolute one.
+ * all fall back to default-src 'none'; form-action is not covered by default-src, so it's listed).
+ * Inline script/style stay allowed (that's the plugin itself); data:/blob: URIs keep embedded
+ * images and fonts working. This does NOT block frame self-navigation — see
+ * PLUGIN_IFRAME_SANDBOX — so it's a strong barrier, not an absolute one.
  */
 const OFFLINE_CSP =
-  "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; media-src data: blob:; font-src data: blob:";
+  "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; media-src data: blob:; font-src data: blob:; form-action 'none'";
 
 /**
  * Prepares plugin HTML for the sandboxed iframe: injects the SDK (and, for offline plugins,

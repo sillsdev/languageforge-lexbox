@@ -1,13 +1,17 @@
 <script lang="ts" module>
-  import type {IChangeContext, IChangeEntity, IProjectActivity} from '$lib/dotnet-types';
+  import type {IActivityChangeInfo, IChangeContext, IChangeEntity, IProjectActivity} from '$lib/dotnet-types';
 
   export class ChangeWithLazyContext {
 
     #context?: Promise<IChangeContext>;
+    // On the item, not the row component, so the open tab survives virtual scrolling
+    tab = $state('preview');
 
     constructor(
       public readonly change: IChangeEntity,
       public readonly activity: IProjectActivity,
+      /** Current names for what the change is about, resolved with the activity page */
+      public readonly info: IActivityChangeInfo,
       private readonly contextLoader: () => Promise<IChangeContext>,
     ) {}
 
@@ -30,18 +34,26 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {cn} from '$lib/utils';
   import * as Popover from '$lib/components/ui/popover';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, XButton} from '$lib/components/ui/button';
   import HistoryView from '$lib/history/HistoryView.svelte';
   import {Icon} from '$lib/components/ui/icon';
+  import {useViewService} from '$lib/views/view-service.svelte';
+  import {sinceThen} from './since-then';
+
+  const viewService = useViewService();
 
   type Props = HTMLAttributes<HTMLDivElement> & {
     activity: IProjectActivity;
     showHistoryButton?: boolean;
+    showClose?: boolean;
+    onClose?: () => void;
   }
 
   const {
     activity,
     showHistoryButton = false,
+    showClose = false,
+    onClose,
     class: className,
     ...restProps
   }: Props = $props();
@@ -49,57 +61,62 @@
   const historyService = useHistoryService();
   let openHistoryId = $state<string>()
 
-  const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(({entity}) => {
-    return new ChangeWithLazyContext(entity, activity, () => historyService.loadChangeContext(activity.commitId, entity.index));
+  const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(({entity, info}) => {
+    return new ChangeWithLazyContext(entity, activity, info, () => historyService.loadChangeContext(activity.commitId, entity.index));
   }));
 </script>
 
 <div {...restProps} class={cn(className, 'grid gap-2 grid-rows-[auto_1fr] h-full')}>
   {#if activity}
-    <div class="text-sm flex flex-wrap justify-between gap-2">
-      <span>
+    <div class="flex items-center gap-2">
+      {#if showClose && onClose}
+        <XButton onclick={onClose} size="icon" />
+      {/if}
+      <div class="text-sm flex flex-1 flex-wrap justify-between gap-2">
         <span>
-          {$t`Author:`}
-          <AuthorLabel class="font-semibold" authorId={activity.metadata.authorId} authorName={activity.metadata.authorName} />
-        </span>
-        {#if activity.changes.length > 1}
-          <span>{$t`– (${activity.changes.length} changes)`}</span>
-        {/if}
-      </span>
-      <span>
-        <FormatDate date={activity.timestamp}
-                    options={{ dateStyle: 'medium', timeStyle: 'medium' }} />
-      </span>
-      <span class="whitespace-nowrap">
-        {#if activity.metadata.extraMetadata['SyncDate']}
           <span>
-            <Popover.Root>
-              <Popover.InfoTrigger>
-                <span class="inline-flex gap-2 items-center">
-                  <Icon icon="i-mdi-cloud-outline" class="size-4 shrink-0" />
-                  <span>
-                    <T msg="Synced: #">
-                      <FormatRelativeDate
-                        class="font-semibold"
-                        date={new Date(activity.metadata.extraMetadata['SyncDate'])} />
-                    </T>
+            {$t`Author:`}
+            <AuthorLabel class="font-semibold" authorId={activity.metadata.authorId} authorName={activity.metadata.authorName} />
+          </span>
+          {#if activity.changes.length > 1}
+            <span>{$t`– (${activity.changes.length} changes)`}</span>
+          {/if}
+        </span>
+        <span>
+          <FormatDate date={activity.timestamp}
+                      options={{ dateStyle: 'medium', timeStyle: 'medium' }} />
+        </span>
+        <span class="whitespace-nowrap">
+          {#if activity.metadata.extraMetadata['SyncDate']}
+            <span>
+              <Popover.Root>
+                <Popover.InfoTrigger>
+                  <span class="inline-flex gap-2 items-center">
+                    <Icon icon="i-mdi-cloud-outline" class="size-4 shrink-0" />
+                    <span>
+                      <T msg="Synced: #">
+                        <FormatRelativeDate
+                          class="font-semibold"
+                          date={new Date(activity.metadata.extraMetadata['SyncDate'])} />
+                      </T>
+                    </span>
                   </span>
-                </span>
-              </Popover.InfoTrigger>
-              <Popover.Content class="w-auto p-2 text-sm text-center max-w-48">
-                {$t`The time when you uploaded or downloaded these changes`}
-              </Popover.Content>
-            </Popover.Root>
-          </span>
-        {:else}
-          <span class="inline-flex gap-2 items-center font-semibold" title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`}>
-            <Icon icon="i-mdi-cloud-off-outline" class="size-4 shrink-0 text-muted-foreground" />
-            {$t`Not synced`}
-          </span>
-        {/if}
-      </span>
+                </Popover.InfoTrigger>
+                <Popover.Content class="w-auto p-2 text-sm text-center max-w-48">
+                  {$t`The time when you uploaded or downloaded these changes`}
+                </Popover.Content>
+              </Popover.Root>
+            </span>
+          {:else}
+            <span class="inline-flex gap-2 items-center font-semibold" title={$t`These changes have not been uploaded yet. Ensure you're online and logged in to share your changes.`}>
+              <Icon icon="i-mdi-cloud-off-outline" class="size-4 shrink-0 text-muted-foreground" />
+              {$t`Not synced`}
+            </span>
+          {/if}
+        </span>
+      </div>
     </div>
-    
+
     {#if openHistoryId}
     <!-- this is a dialog so it doesn't matter where it is in the DOM -->
         <HistoryView bind:open={() => !!openHistoryId, (open) => (open ? undefined : openHistoryId = undefined)} id={openHistoryId} selectedCommitId={activity.commitId}/>
@@ -114,13 +131,16 @@
             bufferSize={1400}
             getKey={(item) => `${item.change.commitId}:${item.change.index}`}>
             {#snippet children(changeWithContext)}
-              {@const {change, lazyContext} = changeWithContext}
+              {@const {change, info, lazyContext} = changeWithContext}
               {#await lazyContext}
                 <!-- determines how many rows are initially visible,
                  which in turn determines how many changes will be loaded.
                  Too big is not much of a problem, it will just stagger subsequent loads -->
                 <div class="h-[700px]"></div>
               {:then context}
+                {@const since = sinceThen(context.entityType, context.snapshot, context.currentSnapshot, viewService.currentView)}
+                {@const noLaterChanges = since?.status === 'unchanged'}
+                {@const sinceOpen = !!since && !noLaterChanges}
                 <div class="change">
                   <div class="px-4 pt-2 flex font-semibold items-center">
                     <span class="grow">{context.changeName}</span>
@@ -131,17 +151,39 @@
                       </Button>
                     {/if}
                   </div>
-                  <Tabs.Root value="preview" class="px-2 mt-2 grow">
-                    <Tabs.List class="w-full">
-                      <Tabs.Trigger class="flex-1" value="preview">
-                        {$t`Preview`}
+                  <!-- Blocks the No later changes tab here, not with bits-ui's disabled, which drops it from the tab order so screen readers never hear it -->
+                  <Tabs.Root bind:value={() => changeWithContext.tab === 'since' && !sinceOpen ? 'preview' : changeWithContext.tab,
+                                         (tab) => { if (tab !== 'since' || sinceOpen) changeWithContext.tab = tab; }}
+                             class="px-2 mt-2 grow">
+                    <Tabs.List class="w-full h-auto">
+                      <Tabs.Trigger class="flex-1 h-auto min-h-8 whitespace-normal" value="preview">
+                        {$t`This change`}
                       </Tabs.Trigger>
-                      <Tabs.Trigger class="flex-1" value="change">{$t`Details`}</Tabs.Trigger>
+                      {#if since}
+                        <Tabs.Trigger value="since" aria-disabled={noLaterChanges || undefined}
+                                      class={cn('flex-1 h-auto min-h-8 whitespace-normal aria-disabled:text-muted-foreground aria-disabled:cursor-default',
+                                             // Red like the Deleted badge: it's gone now
+                                             since.status === 'deleted' && 'text-destructive dark:text-destructive dark:data-[state=active]:text-destructive')}>
+                          {#if since.status === 'deleted'}
+                            {$t`Deleted later`}
+                          {:else if noLaterChanges}
+                            {$t`No later changes`}
+                          {:else}
+                            {$t`Later changes`}
+                          {/if}
+                        </Tabs.Trigger>
+                      {/if}
+                      <Tabs.Trigger class="flex-1 h-auto min-h-8 whitespace-normal" value="change">{$t`Details`}</Tabs.Trigger>
                     </Tabs.List>
                     <div class="pt-1 pb-4 px-2">
                       <Tabs.Content value="preview">
-                        <ActivityItemChangePreview {activity} {context} />
+                        <ActivityItemChangePreview {context} {change} {info} />
                       </Tabs.Content>
+                      {#if sinceOpen}
+                        <Tabs.Content value="since">
+                          <ActivityItemChangePreview {context} {change} {info} {since} />
+                        </Tabs.Content>
+                      {/if}
                       <Tabs.Content value="change">
                         <div class="whitespace-pre-wrap font-mono text-sm">
                           {formatJsonForUi(change)}

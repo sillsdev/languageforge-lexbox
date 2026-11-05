@@ -8,14 +8,16 @@ public class HistoryServiceActivityTests : HistoryServiceActivityTestsBase
     [Fact]
     public async Task ListActivityAuthors_ReturnsDistinctAuthorsWithCounts()
     {
+        var aliceFirst = await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+        var bobFirst = await AddEntryCommit(new CommitMetadata { AuthorName = "Bob", AuthorId = "bob-id" });
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
-        await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
-        await AddEntryCommit(new CommitMetadata { AuthorName = "Bob", AuthorId = "bob-id" });
 
         var authors = await Service.ListActivityAuthors();
 
-        authors.Should().Contain(a => a.AuthorId == "alice-id" && a.AuthorName == "Alice" && a.CommitCount == 2);
-        authors.Should().Contain(a => a.AuthorId == "bob-id" && a.AuthorName == "Bob" && a.CommitCount == 1);
+        authors.Should().Contain(a => a.AuthorId == "alice-id" && a.AuthorName == "Alice" && a.CommitCount == 2
+            && a.FirstCommitDate == aliceFirst.HybridDateTime.DateTime);
+        authors.Should().Contain(a => a.AuthorId == "bob-id" && a.AuthorName == "Bob" && a.CommitCount == 1
+            && a.FirstCommitDate == bobFirst.HybridDateTime.DateTime);
     }
 
     [Fact]

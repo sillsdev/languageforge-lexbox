@@ -1,6 +1,6 @@
 import {createContext} from 'svelte';
 import type {IMiniLcmJsInvokable, IPlugin} from '$lib/dotnet-types';
-import type {PluginService} from '$project/data/plugin-service.svelte';
+import {sizeKb, type PluginService} from '$project/data/plugin-service.svelte';
 import {examplePlugins, type ExamplePlugin} from '../examples';
 import {extractPluginHtml, isCompletePluginHtml, pluginHtmlTitle} from '../plugin-html';
 import {buildPluginPrompt, pluginChangeSection, type PluginPromptOptions} from '../plugin-prompt';
@@ -132,7 +132,7 @@ export class PluginStudio {
   }
 
   get sizeKb(): number {
-    return Math.max(1, Math.round(this.draft.html.length / 1024));
+    return sizeKb(this.draft.html.length);
   }
 
   // ---- Preview ----
@@ -223,7 +223,7 @@ export class PluginStudio {
     if (!this.draft.manifest || !baseHtml || baseHtml === this.draft.html || !isCompletePluginHtml(baseHtml)) return undefined;
     return {
       changes: compareManifests(parsePluginManifest(baseHtml), this.draft.manifest),
-      sizeBefore: Math.max(1, Math.round(baseHtml.length / 1024)),
+      sizeBefore: sizeKb(baseHtml.length),
     };
   });
   /** New permissions the user chose to keep, so their warning goes away. */
@@ -353,7 +353,7 @@ export class PluginStudio {
 
   async removePlugin(): Promise<void> {
     if (!this.savedPlugin) return;
-    await this.#pluginService.delete(this.savedPlugin.id);
+    await this.#pluginService.delete(this.savedPlugin);
     this.added = this.savedPlugin; // nothing left to lose
     this.goToPlugins();
   }

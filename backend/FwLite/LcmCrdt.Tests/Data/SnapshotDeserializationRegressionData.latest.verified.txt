@@ -8114,7 +8114,7 @@
       "DeletedAt": null,
       "Name": "Vietnam",
       "Description": "solution",
-      "FileUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+      "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
       "FileSize": 2316938097468463916,
       "Permissions": [
         "Plastic"

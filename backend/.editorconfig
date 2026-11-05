@@ -131,6 +131,8 @@ csharp_preserve_single_line_blocks = true
 
 # VSTHRD200: Use "Async" suffix for async methods
 dotnet_diagnostic.VSTHRD200.severity = none
+# VSTHRD202: Return the Task directly instead of using async/await. Awaiting keeps stack traces and exception timing consistent.
+dotnet_diagnostic.VSTHRD202.severity = none
 # "Expression value is never used"
 dotnet_diagnostic.IDE0058.severity = suggestion
 

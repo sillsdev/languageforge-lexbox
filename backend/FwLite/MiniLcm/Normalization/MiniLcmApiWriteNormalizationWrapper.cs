@@ -693,6 +693,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return _api.SaveFile(stream, metadata);
     }
 
+    public Task DeleteFile(MediaUri mediaUri)
+    {
+        return _api.DeleteFile(mediaUri);
+    }
+
     #endregion
 
     #region Patch Normalization

@@ -182,11 +182,10 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task SyncMediaFiles_ReservesPendingRowUnderTheDeclaredLinkedFilesSubfolder()
+    public async Task SyncMediaFiles_ReservesPendingHtmlUnderPlugins()
     {
-        // The client uploads this file with a "Plugins" subfolder override. If the reservation used the
-        // mime-type guess instead (text/html has none), that upload would be rejected as a move forever.
-        var pendingId = await SeedPendingResource(new LcmFileMetadata("plugin-abc123.html", "text/html", LinkedFilesSubfolder: "Plugins"));
+        // The server files text/html under Plugins; the reservation must land there too, or the later upload is rejected as a move.
+        var pendingId = await SeedPendingResource(new LcmFileMetadata("plugin-abc123.html", "text/html"));
 
         await _lexboxMediaService.SyncMediaFiles(_projectId, _lcmMediaService);
 
