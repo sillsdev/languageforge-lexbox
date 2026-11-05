@@ -4022,8 +4022,8 @@ msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Sync FieldWorks Lite and FieldWorks Classic"
 
 #: src/project/sync/FolderSyncSection.svelte
-msgid "Sync with {0} again"
-msgstr "Sync with {0} again"
+msgid "Sync with {0}"
+msgstr "Sync with {0}"
 
 #: src/project/sync/FolderSyncSection.svelte
 msgid "Sync with a USB drive or another folder"
@@ -4082,6 +4082,7 @@ msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 
 #. Progress indicator
+#: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "Syncing..."

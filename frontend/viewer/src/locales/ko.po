@@ -4027,7 +4027,7 @@ msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "FieldWorks Lite와 FieldWorks Classic 동기화"
 
 #: src/project/sync/FolderSyncSection.svelte
-msgid "Sync with {0} again"
+msgid "Sync with {0}"
 msgstr ""
 
 #: src/project/sync/FolderSyncSection.svelte
@@ -4087,6 +4087,7 @@ msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "FieldWorks Lite와 FieldWorks Classic 동기화..."
 
 #. Progress indicator
+#: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "동기화..."

@@ -34,7 +34,7 @@
   function report(result: IOpenFromFolderSummary) {
     switch (result.outcome) {
       case OpenFromFolderOutcome.Downloaded:
-        AppNotification.display($t`Opened ${result.projectCode ?? ''} from the folder. You can remove the drive.`, {type: 'success', timeout: 'long'});
+        AppNotification.display($t`Opened ${result.projectName ?? result.projectCode ?? ''} from the folder. You can remove the drive.`, {type: 'success', timeout: 'long'});
         return;
       case OpenFromFolderOutcome.Synced:
       case OpenFromFolderOutcome.Refused:

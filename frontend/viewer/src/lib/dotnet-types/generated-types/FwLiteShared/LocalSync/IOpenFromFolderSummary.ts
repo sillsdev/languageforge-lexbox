@@ -11,5 +11,6 @@ export interface IOpenFromFolderSummary
 	outcome: OpenFromFolderOutcome;
 	projectCode?: string;
 	sync?: IFolderSyncSummary;
+	projectName?: string;
 }
 /* eslint-enable */

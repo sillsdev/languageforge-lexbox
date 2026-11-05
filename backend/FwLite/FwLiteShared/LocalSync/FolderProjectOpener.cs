@@ -21,7 +21,7 @@ public enum OpenFromFolderOutcome
     NewerAppNeeded,
 }
 
-public record OpenFromFolderResult(OpenFromFolderOutcome Outcome, string? ProjectCode, FolderSyncResult? Sync = null);
+public record OpenFromFolderResult(OpenFromFolderOutcome Outcome, string? ProjectCode, FolderSyncResult? Sync = null, string? ProjectName = null);
 
 /// <summary>
 /// "Open from folder" on the home screen: the user picks a sync folder without having a project open.
@@ -63,6 +63,6 @@ public class FolderProjectOpener(CrdtProjectsService projectsService, IServicePr
             manifest.ProjectId,
             manifest.OriginDomain is null ? null : new Uri(manifest.OriginDomain),
             AfterCreate: async (provider, _) => await provider.GetRequiredService<FolderSyncService>().DownloadFromFolder(path)));
-        return new OpenFromFolderResult(OpenFromFolderOutcome.Downloaded, manifest.ProjectCode);
+        return new OpenFromFolderResult(OpenFromFolderOutcome.Downloaded, manifest.ProjectCode, ProjectName: manifest.ProjectName);
     }
 }

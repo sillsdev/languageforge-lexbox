@@ -6,7 +6,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {useSyncStatusService} from '$lib/services/sync-status-service';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
-  import {folderSyncMessage} from './folder-sync-messages';
+  import {folderSyncMessage, shortFolderPath} from './folder-sync-messages';
   import type {SyncTarget} from './sync-target';
 
   interface Props {
@@ -60,7 +60,11 @@
         loading={running === 'remembered'}
         disabled={!!syncing && running !== 'remembered'}
         onclick={() => void run('remembered', () => Promise.resolve(path))}>
-        <span class="max-w-60 truncate">{$t`Sync with ${path} again`}</span>
+        {#if running === 'remembered'}
+          {$t`Syncing...`}
+        {:else}
+          {$t`Sync with ${shortFolderPath(path)}`}
+        {/if}
       </Button>
       <Button
         variant="link"

@@ -149,7 +149,7 @@ describe('SyncDialog', () => {
 
     await vi.waitFor(() => getButton(/Sync with folder\.\.\./).click());
     await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:\test-project`));
-    await vi.waitFor(() => expect(getButton(/again/).title).toBe(String.raw`E:\test-project`));
+    await vi.waitFor(() => expect(getButton(/Sync with E:/).title).toBe(String.raw`E:\test-project`));
     expect(document.body.textContent).toContain('Sync with other folder...');
     expect(document.body.textContent).not.toContain('Sync with folder...');
   }, 60_000);

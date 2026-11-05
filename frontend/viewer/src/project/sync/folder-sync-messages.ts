@@ -8,6 +8,14 @@ export interface FolderSyncMessage {
   description?: string;
 }
 
+/** Keeps the drive and the last folder of a long path, e.g. `C:\…\sena-3`. */
+export function shortFolderPath(path: string, maxLength = 40): string {
+  if (path.length <= maxLength) return path;
+  const separator = path.includes('\\') ? '\\' : '/';
+  const parts = path.split(separator);
+  return [parts[0], '…', parts.at(-1)].join(separator);
+}
+
 /** Describes a folder sync for a toast. Every refusal is expected (wrong folder, newer app), so none is an error. */
 export function folderSyncMessage(summary: IFolderSyncSummary): FolderSyncMessage {
   switch (summary.status) {
