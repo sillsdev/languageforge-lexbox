@@ -12,13 +12,13 @@
   interface Props {
     id: string;
     open: boolean;
-    selectedCommitId?: string | undefined;
+    selected?: {commitId: string, changeIndex: number};
   }
 
   let {
     id,
     open = $bindable(),
-    selectedCommitId = $bindable(undefined)
+    selected = $bindable(undefined)
   }: Props = $props();
 
   useBackHandler({
@@ -37,19 +37,18 @@
     try {
       history = [];
       history = await historyService.load(id);
-      if (!selectedCommitId)
-        selectedCommitId = history[0]?.commitId;
+      selected ??= history[0];
     } finally {
       loading = false;
     }
   }
 
   function reset() {
-    selectedCommitId = undefined;
+    selected = undefined;
     history = [];
   }
 
-  let record = $derived(selectedCommitId ? history.find(h => h.commitId == selectedCommitId) : undefined);
+  let record = $derived(history.find(h => h.commitId === selected?.commitId && h.changeIndex === selected.changeIndex));
   $effect(() => {
     if (open && id) {
       void load();
@@ -76,9 +75,9 @@
                    class="h-full p-0.5 md:pr-3 after:h-12 after:block !contain-content">
               {#snippet children(row)}
                 <ListItem
-                  onclick={() => selectedCommitId = row.commitId}
+                  onclick={() => selected = row}
                   class="mb-2"
-                  selected={record?.commitId === row.commitId && record.changeIndex === row.changeIndex}>
+                  selected={record === row}>
                   <span>{row.changeName}</span>
                   <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between">
                     <span>
