@@ -1,6 +1,7 @@
 <script lang="ts" module>
   import type {IProjectSyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
   import type {IPendingCommits} from '$lib/dotnet-types/generated-types/FwLiteShared/Sync/IPendingCommits';
+  import type {IFolderSyncSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IFolderSyncSummary';
 
   export interface FakeSyncData {
     localStatus?: IPendingCommits;
@@ -8,6 +9,7 @@
     /** Left out: the remote status never loads */
     remoteStatus?: IProjectSyncStatus;
     rememberedSyncFolder?: string;
+    folderSyncResult?: IFolderSyncSummary;
   }
 </script>
 
@@ -28,7 +30,7 @@
     getLatestSyncedCommitDate: () => Promise.resolve(data.latestSyncedCommitDate),
     executeSync: () => delay(1000).then(() => ({isSynced: true, missingFromLocal: [], missingFromRemote: []})),
     getCurrentServer: () => Promise.resolve(undefined),
-    syncWithFolder: () => delay(1000).then(() => ({status: FolderSyncStatus.Synced, mediaSent: 2, mediaReceived: 3, mediaFailed: 0})),
+    syncWithFolder: () => delay(1000).then(() => data.folderSyncResult ?? {status: FolderSyncStatus.Synced, mediaSent: 2, mediaReceived: 3, mediaFailed: 0}),
     getRememberedSyncFolder: () => Promise.resolve(data.rememberedSyncFolder),
   };
 
