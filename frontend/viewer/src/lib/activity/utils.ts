@@ -67,7 +67,7 @@ export function formatJsonForUi(json: object) {
     .join('\n');
 }
 
-export function authorFilterKey(author: Omit<IActivityAuthor, 'commitCount'>): string {
+export function authorFilterKey(author: Pick<IActivityAuthor, 'authorId' | 'authorName'>): string {
   if (!author.authorId && !author.authorName) return UNKNOWN_AUTHOR_KEY;
   if (author.authorId) return author.authorId;
   return `name:${author.authorName}`;

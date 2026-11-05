@@ -1,19 +1,12 @@
 using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
 using SIL.Harmony.Changes;
-using SIL.Harmony.Config;
 
 namespace LcmCrdt.Tests;
 
-// With UnknownChangeHandling.Fallback, a change type from a newer client that this client doesn't
-// have registered deserializes as OpaqueChange (null EntityType, apply skipped), and the activity view
-// must tolerate it. Production still uses the default Throw (sync fails instead); only this fixture
-// opts into Fallback, covering the activity view for when it's turned on.
+// A change type from a newer client that this client doesn't have registered deserializes as
+// OpaqueChange (null EntityType, apply skipped), and the activity view must tolerate it.
 public class HistoryServiceOpaqueChangeTests : HistoryServiceActivityTestsBase
 {
-    protected override MiniLcmApiFixture CreateFixture() => MiniLcmApiFixture.Create(configureServices: services =>
-        services.Configure<HarmonyConfig>(config => config.UnknownChangeHandling = UnknownChangeHandling.Fallback));
-
     private static OpaqueChange UnknownChange(Guid entityId)
     {
         using var doc = JsonDocument.Parse(
@@ -36,7 +29,10 @@ public class HistoryServiceOpaqueChangeTests : HistoryServiceActivityTestsBase
 
         var activity = activities.Should().ContainSingle(a => a.Changes.Any(c => c.Entity.Change is OpaqueChange)).Subject;
         activity.ChangeName.Should().Be("Unknown");
-        activity.Changes.Single().Info.Subject.Should().BeNull();
+        var info = activity.Changes.Single().Info;
+        info.Entry.Should().BeNull();
+        info.Sense.Should().BeNull();
+        info.ObjectName.Should().BeNull();
     }
 
     [Fact]

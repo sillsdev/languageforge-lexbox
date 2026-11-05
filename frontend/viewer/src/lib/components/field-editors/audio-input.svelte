@@ -54,6 +54,9 @@
   import {formatDuration, normalizeDuration} from '$lib/components/ui/format';
   import {t} from 'svelte-i18n-lingui';
   import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
+  import {guessMimeType} from '$lib/media-manager/media-file-utils';
+  import {createMediaUrl} from '$lib/components/audio/media-url';
+  import {saveFile} from '$lib/utils/save-file';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import AudioDialog from '$lib/components/audio/AudioDialog.svelte';
   import {tryUseFieldBody} from '$lib/components/editor/field/field-root.svelte';
@@ -116,10 +119,18 @@
         AppNotification.error(`Failed to load audio ${audioId}`);
         return;
       }
-      let blob = await new Response(result.stream).blob();
+      // Response(stream).blob() drops Content-Type, and WebKit refuses to play an untyped blob (NotSupportedError)
+      const headers = result.filename ? {'Content-Type': guessMimeType(result.filename)} : undefined;
+      let blob = await new Response(result.stream, {headers}).blob();
+      const url = await createMediaUrl(blob);
+      if (!audio) {
+        URL.revokeObjectURL(url);
+        return false;
+      }
       if (audio.src) URL.revokeObjectURL(audio.src);
       loadedAudioId = undefined;
-      audio.src = URL.createObjectURL(blob);
+      audio.src = url;
+      loadedBlob = blob;
       filename = result.filename;
       loadedAudioId = audioId;
       return true;
@@ -202,6 +213,7 @@
 
   let loadedAudioId = $state<string>();
   let filename = $state('');
+  let loadedBlob: Blob | undefined;
   let audio = $state<HTMLAudioElement>();
   let audioRuned = $derived(audio ? new AudioRuned(audio) : null);
   useEventListener(
@@ -259,13 +271,8 @@
   }
 
   async function onSaveAs() {
-    if (!audio) return;
-    await load();
-    //todo sadly this only works on desktop, not mobile, but it's the same with save as with the audio editor.
-    const a = document.createElement('a');
-    a.href = audio.src;
-    a.download = filename;
-    a.click();
+    if (!audio || !(await load()) || !loadedBlob) return;
+    await saveFile(loadedBlob, filename);
   }
 
   function onAudioError(event: Event) {

@@ -80,6 +80,9 @@ public static class LcmCrdtKernel
         services.AddOptions<HarmonyConfig>().PostConfigure((HarmonyConfig harmonyConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
             harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
+            // iOS reassigns the app container path on every update or reinstall, so an absolute LocalPath goes stale
+            // while the cached file moves with the app (#2693). Harmony resolves relative rows against the cache path.
+            harmonyConfig.StoreLocalResourcePathsRelativeToCache = true;
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<HarmonyChangeWriter>();
@@ -424,6 +427,10 @@ public static class LcmCrdtKernel
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
+
+        // A change type from a newer client is kept as an OpaqueChange and replayed after the upgrade
+        // (see model versions below); the default Throw would stop every older client from syncing.
+        config.UnknownChangeHandling = UnknownChangeHandling.Fallback;
 
         // Released model versions must never change: list a new or modified change type in a new version.
         config.ModelVersionBuilder

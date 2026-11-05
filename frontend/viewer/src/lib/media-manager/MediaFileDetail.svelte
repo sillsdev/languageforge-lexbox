@@ -10,6 +10,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import AudioInput, {LOADER_ERROR_HANDLED} from '$lib/components/field-editors/audio-input.svelte';
   import {cn} from '$lib/utils';
+  import {saveFile} from '$lib/utils/save-file';
   import {resource, watch} from 'runed';
   import {t} from 'svelte-i18n-lingui';
   import {basename, formatFileSize, guessMimeType, mediaFileDisplayName, mediaFileLocationLabel, type MediaFileLocation} from './media-file-utils';
@@ -232,15 +233,7 @@
         }
       }
 
-      const url = URL.createObjectURL(blob);
-      try {
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = filename;
-        anchor.click();
-      } finally {
-        URL.revokeObjectURL(url);
-      }
+      await saveFile(blob, filename);
     } catch (error) {
       AppNotification.error($t`Failed to save file`, error instanceof Error ? error.message : String(error));
     } finally {

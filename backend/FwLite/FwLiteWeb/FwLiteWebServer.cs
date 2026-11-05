@@ -121,7 +121,8 @@ public static class FwLiteWebServer
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode(endpointOptions =>
             {
-                endpointOptions.ContentSecurityFrameAncestorsPolicy = "self http://localhost:*";
+                // file: lets packaged Platform.Bible (loaded from file://) frame this UI
+                endpointOptions.ContentSecurityFrameAncestorsPolicy = "'self' http://localhost:* file:";
             })
             .AddAdditionalAssemblies(typeof(FwLiteShared._Imports).Assembly);
         return app;

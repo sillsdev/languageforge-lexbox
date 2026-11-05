@@ -2,27 +2,48 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
-    <!-- To switch Mercurial versions, do dotnet build -p:MercurialVersion=3 followed by dotnet test -p:MercurialVersion=3 -->
-    <!-- Both need the property: dotnet test restores and builds again, and without it switches back to Mercurial 6 -->
+    <!-- To switch Mercurial versions (3, 6 or 7), set the MercurialVersion env var (or pass -p:) for both dotnet build and dotnet test -->
+    <!-- Both need it: dotnet test restores and builds again, and without it switches back to Mercurial 7 -->
     <!-- Run the build first: Mercurial is staged into this folder during build, after the Content glob below was evaluated -->
-    <MercurialVersion Condition=" '$(MercurialVersion)' == '' ">6</MercurialVersion>
+    <MercurialVersion Condition=" '$(MercurialVersion)' == '' ">7</MercurialVersion>
   </PropertyGroup>
+  <!-- LibChorus stays on the central version for every hg version: older LibChorus pins need older SIL.Core,
+       and LfMergeBridge and ChorusMerge (via FwHeadless) require a newer LibChorus -->
+  <ItemGroup>
+    <PackageReference Include="SIL.Chorus.LibChorus" />
+  </ItemGroup>
   <Choose>
-    <When Condition=" '$(MercurialVersion)' == '6' ">
+    <When Condition=" '$(MercurialVersion)' == '7' ">
       <ItemGroup>
-        <PackageReference Include="SIL.Chorus.LibChorus" />
         <PackageReference Include="SIL.Chorus.Mercurial" />
       </ItemGroup>
     </When>
-    <Otherwise>
+    <When Condition=" '$(MercurialVersion)' == '6' ">
       <ItemGroup>
-        <!-- LibChorus stays on the central version: the old hg 3 pin (6.0.0-beta0041) needs SIL.Core 12,
-             and LfMergeBridge and ChorusMerge (via FwHeadless) require a newer LibChorus -->
-        <PackageReference Include="SIL.Chorus.LibChorus" />
+        <PackageReference Include="SIL.Chorus.Mercurial" VersionOverride="6.5.1.43" NoWarn="NU1605" />
+      </ItemGroup>
+    </When>
+    <When Condition=" '$(MercurialVersion)' == '3' ">
+      <ItemGroup>
         <PackageReference Include="SIL.Chorus.Mercurial" VersionOverride="3.0.3.11" NoWarn="NU1605" />
       </ItemGroup>
-    </Otherwise>
+    </When>
   </Choose>
+  <Target Name="ValidateMercurialVersion" BeforeTargets="CollectPackageReferences;Build">
+    <Error Condition=" '$(MercurialVersion)' != '3' And '$(MercurialVersion)' != '6' And '$(MercurialVersion)' != '7' "
+           Text="MercurialVersion must be 3, 6 or 7, got '$(MercurialVersion)'" />
+  </Target>
+  <!-- FwHeadless's Mercurial tree is always hg 7; for hg 3 or 6 it would otherwise end up mixed into ours in the output.
+       Its MercurialExtensions stay: Chorus needs fixutf8 there, and hg 3 ships none. -->
+  <Target Name="SkipFwHeadlessMercurial" AfterTargets="GetCopyToOutputDirectoryItems" Condition=" '$(MercurialVersion)' != '7' ">
+    <PropertyGroup>
+      <_FwHeadlessMercurial>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '..', 'FwHeadless', 'Mercurial'))</_FwHeadlessMercurial>
+    </PropertyGroup>
+    <ItemGroup>
+      <_SourceItemsToCopyToOutputDirectoryAlways Remove="$(_FwHeadlessMercurial)**" />
+      <_SourceItemsToCopyToOutputDirectory Remove="$(_FwHeadlessMercurial)**" />
+    </ItemGroup>
+  </Target>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />

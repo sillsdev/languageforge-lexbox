@@ -67,6 +67,16 @@ public static class LexiconRoutes
                 type: LexiconApi.SyncInProgressProblemType));
         }
 
+        // a blocked project doesn't sync, so a write would only reach this copy and could be lost with it
+        if (IsWrite(context) && await services.GetRequiredService<IProjectMetadataService>().GetSyncBlockedInfoAsync(projectId) is { IsBlocked: true })
+        {
+            return MiniLcmApiResolution.Failed(Results.Problem(
+                "The project is blocked from syncing with FieldWorks, so it can't be changed until an administrator unblocks it.",
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Sync blocked",
+                type: LexiconApi.SyncBlockedProblemType));
+        }
+
         var userFacingWrappers = services.GetRequiredService<MiniLcmApiUserFacingWrappers>();
         return MiniLcmApiResolution.Resolved(userFacingWrappers.Apply(await services.OpenCrdtProject(project), project));
     }

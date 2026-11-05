@@ -50,6 +50,7 @@ COPY hgweb.hgrc /var/hg/
 COPY hgweb.wsgi /usr/local/www/wsgi-scripts/
 COPY --chmod=755 command-runner.sh /usr/local/www/commands/
 COPY diffguard.py /usr/local/www/hgext/
+COPY --chmod=755 entrypoint.sh /usr/local/bin/hgweb-entrypoint
 COPY json-lex /usr/lib/python3/dist-packages/mercurial/templates/json-lex
 
 VOLUME /var/hg/repos
@@ -61,3 +62,5 @@ ENV OTEL_RESOURCE_ATTRIBUTES_FROM_BUILD="service.name=hgweb,service.version=${AP
 # Run as an unprivileged user. hgweb listens on 8088 (unprivileged), so no
 # root-only startup step remains.
 USER www-data
+
+CMD ["hgweb-entrypoint"]
