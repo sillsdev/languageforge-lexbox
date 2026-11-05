@@ -25,19 +25,6 @@ public static class MediaFilename
         return !string.IsNullOrEmpty(filename)
             && !filename.AsSpan().ContainsAny(InvalidChars)
             && !filename.EndsWith('.') && !filename.EndsWith(' ')
-            && !IsReserved(filename);
+            && !ReservedNames.Contains(filename.Split('.')[0]);
     }
-
-    /// <summary>Returns a name that passes <see cref="IsValid"/>, keeping as much of the original as possible.</summary>
-    public static string Sanitize(string filename)
-    {
-        var sanitized = string.Create(filename.Length, filename, (span, name) =>
-        {
-            for (var i = 0; i < name.Length; i++) span[i] = InvalidChars.Contains(name[i]) ? '_' : name[i];
-        }).TrimEnd('.', ' ');
-        if (sanitized.Length == 0 || IsReserved(sanitized)) sanitized = "_" + sanitized;
-        return sanitized;
-    }
-
-    private static bool IsReserved(string filename) => ReservedNames.Contains(filename.Split('.')[0]);
 }

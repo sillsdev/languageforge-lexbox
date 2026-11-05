@@ -51,23 +51,4 @@ public class MediaFilenameTests
     {
         MediaFilename.IsValid(filename).Should().BeFalse();
     }
-
-    [Theory]
-    [MemberData(nameof(InvalidNames))]
-    public void Sanitize_AlwaysReturnsAValidName(string? filename)
-    {
-        MediaFilename.IsValid(MediaFilename.Sanitize(filename ?? "")).Should().BeTrue();
-    }
-
-    [Theory]
-    [InlineData("photo.jpg", "photo.jpg")]
-    [InlineData("what?.jpg", "what_.jpg")]
-    [InlineData("../x.jpg", ".._x.jpg")]
-    [InlineData("x.jpg. ", "x.jpg")]
-    [InlineData("con.jpg", "_con.jpg")]
-    [InlineData("..", "_")]
-    public void Sanitize_ReplacesOnlyWhatItMust(string filename, string expected)
-    {
-        MediaFilename.Sanitize(filename).Should().Be(expected);
-    }
 }
