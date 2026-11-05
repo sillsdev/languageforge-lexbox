@@ -333,6 +333,28 @@ test('a pasted version that wants the internet only runs once allowed', async ({
   await expect(prompt).toBeHidden();
 });
 
+test('a new plugin that wants the internet does not run until allowed', async ({page}) => {
+  await gotoPlugins(page);
+  await page.getByRole('button', {name: 'New plugin'}).click();
+  const preview = page.getByTestId('plugin-studio-preview');
+  await pasteIntoStudio(page, pluginHtml('Online tool', {
+    head: '<meta name="fwlite-plugin-permissions" content="internet">',
+    body: '<h1>online</h1>',
+  }));
+  const prompt = page.getByTestId('plugin-internet-prompt');
+  await expect(prompt.getByText('Let this version use the internet?')).toBeVisible();
+  await expect(preview.locator('iframe')).toHaveCount(0);
+
+  await prompt.getByRole('button', {name: "Don't run it"}).click();
+  await expect(prompt).toBeHidden();
+  await expect(preview.locator('iframe')).toHaveCount(0);
+  await expect(page.getByLabel("Paste the AI's reply")).toHaveValue(/<h1>online<\/h1>/);
+
+  await page.getByRole('button', {name: 'Use this version'}).click();
+  await prompt.getByRole('button', {name: 'Allow and run it'}).click();
+  await expect(page.frameLocator('iframe[title="Online tool"]').getByRole('heading')).toHaveText('online');
+});
+
 test('editing a plugin that has not run on this device asks before previewing it', async ({page}) => {
   await gotoPlugins(page);
   await projectCard(page, 'Dictionary Stats').getByRole('button', {name: 'Edit'}).click();
