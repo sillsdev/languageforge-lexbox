@@ -146,7 +146,8 @@
                     <span class="grow">{context.changeName}</span>
 
                     {#if showHistoryButton}
-                      <Button icon="i-mdi-history" onclick={() => openHistoryId = context.snapshot?.id}>
+                      <!-- change.entityId, not context.snapshot.id: some snapshots (e.g. writing systems) don't expose their id to JS -->
+                      <Button icon="i-mdi-history" onclick={() => openHistoryId = change.entityId}>
                         {$t`History`}
                       </Button>
                     {/if}

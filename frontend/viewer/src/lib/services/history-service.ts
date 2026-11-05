@@ -66,7 +66,8 @@ export class HistoryService {
     if (isExample(data)) {
       return {...history, entity: data, entityName: 'ExampleSentence'};
     }
-    throw new Error('Unable to determine type of object ' + JSON.stringify(data));
+    // Other entity types (writing systems, parts of speech, ...) have no typed entity here; the change preview covers them
+    return {...history, entity: undefined, entityName: undefined};
   }
 
   async listActivityAuthors(): Promise<IActivityAuthor[]> {
