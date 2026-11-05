@@ -7,7 +7,7 @@
   import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useWritingSystemService} from '$project/data';
-  import {bestHeadword, type ChangeBadge, type CrumbText} from './change-header';
+  import {type ChangeBadge, type CrumbText} from './change-header';
   import {addedTint} from '$lib/entry-editor/diff-view/diff-classes';
   import {cn} from '$lib/utils';
   import EntryActionsButton from './EntryActionsButton.svelte';
@@ -74,7 +74,7 @@
   {#if now}
     <!-- Muted like the crumbs: the current name is context -->
     <p class="text-sm text-muted-foreground" data-testid="change-now">
-      <T msg="Now called: #"><span class="font-medium text-foreground/80 wrap-break-word">{bestHeadword(writingSystemService, viewService.currentView, now, $t`Untitled`)}</span></T>
+      <T msg="Now called: #"><span class="font-medium text-foreground/80 wrap-break-word">{writingSystemService.viewBestHeadwordWithHomograph(now, viewService.currentView) || $t`Untitled`}</span></T>
     </p>
   {/if}
 </div>

@@ -17,7 +17,6 @@
   import OpenInFieldWorksButton from '$lib/components/OpenInFieldWorksButton.svelte';
   import {navigate, useRouter} from 'svelte-routing';
   import {usePluginService} from '$project/data/plugin-service.svelte';
-  import {homographSubscript} from '$lib/components/dictionary/HomographNumber.svelte';
 
   const multiWindowService = useMultiWindowService();
   const dialogsService = useDialogsService();
@@ -32,9 +31,8 @@
     children?: Snippet
   }>();
 
-  const bestHeadword = $derived(entry ? writingSystemService.viewBestHeadword(entry, viewService.currentView) : '');
   // Display only (the delete prompt): the subscript tells homographs apart
-  const headword = $derived(entry && bestHeadword ? bestHeadword + homographSubscript(entry.homographNumber) : $t`Untitled`);
+  const headword = $derived((entry && writingSystemService.viewBestHeadwordWithHomograph(entry, viewService.currentView)) || $t`Untitled`);
 
   let open = $state(false);
 
