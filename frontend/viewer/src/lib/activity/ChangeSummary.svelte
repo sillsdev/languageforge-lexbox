@@ -82,6 +82,7 @@
       morphTypes: $t`morph types`,
       writingSystems: $t`writing systems`,
       customViews: $t`custom views`,
+      plugins: $t`plugins`,
     };
     return nouns[noun];
   }
@@ -104,6 +105,7 @@
       publication: $t`publication`,
       complexFormType: $t`complex form type`,
       writingSystem: $t`writing system`,
+      plugin: $t`plugin`,
       morphType: $t`morph type`,
       customView: $t`custom view`,
     };

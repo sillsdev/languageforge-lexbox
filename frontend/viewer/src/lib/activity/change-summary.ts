@@ -22,7 +22,8 @@ export type BulkNoun =
   | 'complexFormTypes'
   | 'morphTypes'
   | 'writingSystems'
-  | 'customViews';
+  | 'customViews'
+  | 'plugins';
 
 /**
  * A localization-free description of one thing that happened in a change. The render component
@@ -299,6 +300,8 @@ const TYPED_HANDLERS: Record<string, (change: unknown) => ChangeFact[]> = {
   CreateMorphTypeChange: (c) => [{kind: 'createObject', object: 'morphType', label: labelOf(prop(c, 'name'))}],
   CreateCustomViewChange: (c) => [{kind: 'createObject', object: 'customView', label: labelOf(prop(c, 'name'))}],
   EditCustomViewChange: (c) => [{kind: 'editObject', object: 'customView', label: labelOf(prop(c, 'name'))}],
+  CreatePluginChange: (c) => [{kind: 'createObject', object: 'plugin', label: labelOf(prop(c, 'name'))}],
+  EditPluginChange: (c) => [{kind: 'editObject', object: 'plugin', label: labelOf(prop(c, 'name'))}],
 };
 
 /** The `$type`s with a purpose-built handler — exported so the coverage test can assert each is a real generated change type (a handler must not outlive the backend type it decodes). */
@@ -532,6 +535,7 @@ const BULK_CREATE_NOUNS: Record<string, BulkNoun> = {
   CreateMorphTypeChange: 'morphTypes',
   CreateWritingSystemChange: 'writingSystems',
   CreateCustomViewChange: 'customViews',
+  CreatePluginChange: 'plugins',
 };
 
 /** Whether every change in the commit is on the same single entry tree (its owning entry resolved and identical). */

@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minimal Pairs</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 12px;
+    --warn: #b45309;
+    --vern-font: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --warn: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 16px 48px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.92rem; }
+
+  .controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+  .field select {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    min-width: 160px;
+  }
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    user-select: none;
+    padding-bottom: 6px;
+  }
+  .toggle input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    margin: 0 2px 18px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+  .stats b { color: var(--text); font-weight: 700; }
+
+  .note-band {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--warn);
+    background: var(--surface-alt);
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 0 0 16px;
+  }
+
+  section.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    margin-bottom: 20px;
+  }
+  section.panel h2 {
+    font-size: 1.02rem;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .panel-hint { color: var(--text-muted); font-size: 0.82rem; margin: 0 0 14px; font-weight: 400; }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 168px;
+    overflow-y: auto;
+    padding: 2px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1.1;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip .contrast {
+    font-family: var(--vern-font);
+    font-weight: 600;
+  }
+  .chip .cnt {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    border-radius: 999px;
+    padding: 1px 8px;
+    min-width: 20px;
+    text-align: center;
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .chip[aria-pressed="true"] .contrast { color: #fff; }
+  .chip[aria-pressed="true"] .cnt { background: rgba(255,255,255,0.22); color: #fff; }
+
+  .pairs-wrap {
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  .pairs-head {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin: 0 0 10px;
+  }
+  .pairs-head b { color: var(--text); font-family: var(--vern-font); }
+  .pairs {
+    max-height: 340px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 6px;
+    border-radius: 8px;
+    min-width: max-content;   /* long words overflow into .pairs' own scroll, never the page */
+  }
+  .pair:nth-child(odd) { background: var(--surface-alt); }
+  .pair .tilde { color: var(--text-muted); font-size: 0.9rem; }
+  .hw {
+    font-family: var(--vern-font);
+    font-size: 1rem;
+    background: none;
+    border: none;
+    padding: 2px 4px;
+    margin: 0;
+    color: var(--accent);
+    cursor: pointer;
+    border-radius: 6px;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .hw:hover { text-decoration: underline; }
+  .hw.left { text-align: right; justify-self: end; }
+  .hw.right { text-align: left; justify-self: start; }
+  .hw mark {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 700;
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  html[data-theme="dark"] .hw mark { color: var(--text); }
+  .multi-badge {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-left: 4px;
+    vertical-align: super;
+  }
+  .empty-inline { color: var(--text-muted); font-size: 0.9rem; padding: 6px 2px; }
+
+  /* Shared async states */
+  .center-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+  }
+  #results { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Minimal Pairs</h1>
+  <p class="subtitle" id="subtitle">Finding words that differ by a single sound &mdash; the evidence for phonemic contrasts.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading entries&hellip;</div>
+  </div>
+
+  <div id="empty" class="center-state" style="display:none;">
+    This project has no entries to analyze yet.
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="results">
+    <div class="controls">
+      <div class="field">
+        <label for="ws-select">Analyze writing system</label>
+        <select id="ws-select"></select>
+      </div>
+      <label class="toggle" for="near-toggle">
+        <input type="checkbox" id="near-toggle">
+        Also show near-minimal pairs (one sound added / dropped)
+      </label>
+    </div>
+
+    <div class="stats" id="stats"></div>
+    <div class="note-band" id="cap-note" style="display:none;"></div>
+
+    <section class="panel" id="strict-section">
+      <h2>Contrasts by substitution</h2>
+      <p class="panel-hint">Each contrast groups word pairs of equal length that differ in exactly one position. Pick a contrast to see its pairs.</p>
+      <div class="chips" id="strict-chips"></div>
+      <div class="pairs-wrap" id="strict-pairs-wrap" style="display:none;">
+        <p class="pairs-head" id="strict-pairs-head"></p>
+        <div class="pairs" id="strict-pairs"></div>
+      </div>
+      <div class="empty-inline" id="strict-empty" style="display:none;">
+        No minimal pairs found for this writing system. Try another, or add more headwords.
+      </div>
+    </section>
+
+    <section class="panel" id="near-section" style="display:none;">
+      <h2>Near-minimal pairs by length</h2>
+      <p class="panel-hint">These differ by one <em>added or dropped</em> sound (contrast with &empty;). They are suggestive, not strict minimal pairs.</p>
+      <div class="chips" id="near-chips"></div>
+      <div class="pairs-wrap" id="near-pairs-wrap" style="display:none;">
+        <p class="pairs-head" id="near-pairs-head"></p>
+        <div class="pairs" id="near-pairs"></div>
+      </div>
+      <div class="empty-inline" id="near-empty" style="display:none;">
+        No near-minimal pairs found for this writing system.
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE_SIZE = 1000;             // API max per call
+  var ENTRY_CAP = 5000;             // stop paging past this many entries
+  var MAX_COMPARISONS = 6000000;    // bound the O(n^2) scan; note shown if hit
+  var MAX_PAIRS_RENDERED = 300;     // per contrast, in the DOM
+  var WS_KEY = 'ws';
+  var NEAR_KEY = 'includeNear';
+  var ZERO = '∅';              // ∅ — stands for "nothing" in an insert/delete contrast
+
+  var state = {
+    entries: [],
+    vernacular: [],       // [{wsId, name, font, exemplars}]
+    ws: '',
+    font: '',
+    multiExemplars: [],   // codepoint-arrays (lowercased) for multi-char graphemes, longest first
+    includeNear: false,
+    forms: [],            // unique [{form, graphemes, entryIds}]
+    strict: null,         // {contrasts: [{key,label,pairs}], totalPairs}
+    near: null,
+    selected: {strict: null, near: null},
+    capped: false,        // entry count exceeded ENTRY_CAP
+    truncated: false,     // comparison cap hit during scan
+    projectName: '',
+  };
+
+  function el(id) { return document.getElementById(id); }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    el('loading').style.display = 'none';
+    el('results').style.display = 'none';
+    var box = el('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function hasText(multiString) {
+    return multiString && Object.keys(multiString).some(function (ws) { return !!multiString[ws]; });
+  }
+
+  function yieldToUi() { return new Promise(function (r) { setTimeout(r, 0); }); }
+
+  /** Pages through getEntries until countEntries or ENTRY_CAP is reached. */
+  function fetchAll(total) {
+    var target = Math.min(total, ENTRY_CAP);
+    var out = [];
+    function loadNext() {
+      if (out.length >= target) return Promise.resolve(out);
+      var limit = Math.min(PAGE_SIZE, target - out.length);
+      return window.fwlite.getEntries({limit: limit, offset: out.length}).then(function (page) {
+        out = out.concat(page);
+        el('loading-text').textContent = 'Loaded ' + out.length.toLocaleString() + ' of ' + target.toLocaleString() + ' entries…';
+        if (!page.length || out.length >= target) return out;
+        return loadNext();
+      });
+    }
+    return loadNext();
+  }
+
+  // Headword = citationForm || lexemeForm, in the chosen writing system.
+  function headwordForm(entry) {
+    var field = hasText(entry.citationForm) ? entry.citationForm : (entry.lexemeForm || {});
+    var raw = field[state.ws];
+    if (!raw) return '';
+    // NFC so composed/decomposed spellings of the same word collapse to one form.
+    return window.fwlite.asText(raw).normalize('NFC').trim();
+  }
+
+  // Split a form into graphemes. We prefer the writing system's multi-character exemplars
+  // (e.g. "ng", "ch") so a digraph counts as ONE segment when comparing — otherwise "sing"
+  // vs "sink" would look like a two-segment difference. With no such exemplars we fall back to
+  // Unicode code points via Array.from (not str[i]) so surrogate pairs stay intact.
+  function segment(form) {
+    var cps = Array.from(form);
+    if (!state.multiExemplars.length) return cps;
+    var out = [];
+    var i = 0;
+    while (i < cps.length) {
+      var take = 0;
+      for (var e = 0; e < state.multiExemplars.length; e++) {
+        var ex = state.multiExemplars[e];
+        if (i + ex.length > cps.length) continue;
+        var match = true;
+        for (var k = 0; k < ex.length; k++) {
+          if (cps[i + k].toLowerCase() !== ex[k]) { match = false; break; }
+        }
+        if (match) { take = ex.length; break; }
+      }
+      if (take) { out.push(cps.slice(i, i + take).join('')); i += take; }
+      else { out.push(cps[i]); i += 1; }
+    }
+    return out;
+  }
+
+  function rebuildExemplars() {
+    var ws = state.vernacular.filter(function (w) { return w.wsId === state.ws; })[0];
+    state.font = (ws && ws.font) || '';
+    document.documentElement.style.setProperty('--vern-font',
+      (state.font ? '"' + state.font + '", ' : '') + 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace');
+    var exemplars = (ws && ws.exemplars) || [];
+    state.multiExemplars = exemplars
+      .filter(function (ex) { return ex && Array.from(ex).length > 1; })
+      .map(function (ex) { return Array.from(ex.toLowerCase()); })
+      .sort(function (a, b) { return b.length - a.length; });
+  }
+
+  // Collect unique headword forms for the current ws, keeping every entry that shares a form.
+  function deriveForms() {
+    var byForm = Object.create(null);
+    state.entries.forEach(function (entry) {
+      var form = headwordForm(entry);
+      if (!form) return;
+      var rec = byForm[form];
+      if (!rec) { rec = byForm[form] = {form: form, entryIds: []}; }
+      if (entry.id && rec.entryIds.indexOf(entry.id) === -1) rec.entryIds.push(entry.id);
+    });
+    var forms = [];
+    Object.keys(byForm).forEach(function (f) {
+      var rec = byForm[f];
+      rec.graphemes = segment(rec.form);
+      if (rec.graphemes.length) forms.push(rec);
+    });
+    state.forms = forms;
+  }
+
+  function bucketByLength(forms) {
+    var buckets = Object.create(null);
+    forms.forEach(function (rec) {
+      var len = rec.graphemes.length;
+      (buckets[len] || (buckets[len] = [])).push(rec);
+    });
+    return buckets;
+  }
+
+  // Same length: index of the single differing grapheme, or -1 if not exactly one.
+  function singleDiffIndex(a, b) {
+    var idx = -1;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) { if (idx !== -1) return -1; idx = i; }
+    }
+    return idx;
+  }
+
+  // long is short-plus-one-grapheme? Return the inserted grapheme + its index in long, else null.
+  function singleInsertion(shortG, longG) {
+    var i = 0, j = 0, inserted = null, insIndex = -1, skipped = false;
+    while (j < longG.length) {
+      if (i < shortG.length && shortG[i] === longG[j]) { i++; j++; }
+      else {
+        if (skipped) return null;
+        skipped = true; inserted = longG[j]; insIndex = j; j++;
+      }
+    }
+    if (i !== shortG.length) return null;
+    return {grapheme: inserted, index: insIndex};
+  }
+
+  function contrastKey(g1, g2) {
+    var a = g1.toLowerCase(), b = g2.toLowerCase();
+    return a < b ? a + ' ' + b : b + ' ' + a;
+  }
+  function contrastLabel(g1, g2) {
+    var a = g1.toLowerCase(), b = g2.toLowerCase();
+    return (a < b ? a : b) + ' ~ ' + (a < b ? b : a);
+  }
+
+  function bumpComparisons(n) {
+    state._comparisons += n;
+    if (state._comparisons > MAX_COMPARISONS) { state.truncated = true; return true; }
+    return false;
+  }
+
+  // Substitution scan: within each length bucket, all pairs.
+  function scanSubstitution() {
+    var buckets = bucketByLength(state.forms);
+    var lengths = Object.keys(buckets).map(Number).sort(function (a, b) { return a - b; });
+    var map = Object.create(null);
+    var totalPairs = 0;
+    var lastYield = state._comparisons;
+
+    function processLength(li) {
+      if (li >= lengths.length || state.truncated) return Promise.resolve();
+      var bucket = buckets[lengths[li]];
+      var m = bucket.length;
+      for (var i = 0; i < m; i++) {
+        if (bumpComparisons(m - i - 1)) break;
+        for (var j = i + 1; j < m; j++) {
+          var idx = singleDiffIndex(bucket[i].graphemes, bucket[j].graphemes);
+          if (idx < 0) continue;
+          var g1 = bucket[i].graphemes[idx], g2 = bucket[j].graphemes[idx];
+          var key = contrastKey(g1, g2);
+          var c = map[key] || (map[key] = {key: key, label: contrastLabel(g1, g2), pairs: []});
+          c.pairs.push({a: bucket[i], b: bucket[j], ai: idx, bi: idx});
+          totalPairs++;
+        }
+      }
+      el('loading-text').textContent = 'Comparing words (length ' + lengths[li] + ')…';
+      if (state._comparisons - lastYield > 250000 || li % 4 === 3) {
+        lastYield = state._comparisons;
+        return yieldToUi().then(function () { return processLength(li + 1); });
+      }
+      return processLength(li + 1);
+    }
+
+    return processLength(0).then(function () {
+      state.strict = {contrasts: sortContrasts(map), totalPairs: totalPairs};
+    });
+  }
+
+  // Insertion/deletion scan: bucket L against bucket L+1.
+  function scanNear() {
+    var buckets = bucketByLength(state.forms);
+    var lengths = Object.keys(buckets).map(Number).sort(function (a, b) { return a - b; });
+    var map = Object.create(null);
+    var totalPairs = 0;
+    var lastYield = state._comparisons;
+
+    function processLength(li) {
+      if (li >= lengths.length || state.truncated) return Promise.resolve();
+      var shortB = buckets[lengths[li]];
+      var longB = buckets[lengths[li] + 1];
+      if (longB) {
+        for (var i = 0; i < shortB.length; i++) {
+          if (bumpComparisons(longB.length)) break;
+          for (var j = 0; j < longB.length; j++) {
+            var ins = singleInsertion(shortB[i].graphemes, longB[j].graphemes);
+            if (!ins) continue;
+            var key = contrastKey(ins.grapheme, ZERO);
+            var c = map[key] || (map[key] = {key: key, label: contrastLabel(ins.grapheme, ZERO), pairs: []});
+            // Longer form is 'b'; mark the inserted grapheme there. Shorter 'a' has nothing marked.
+            c.pairs.push({a: shortB[i], b: longB[j], ai: -1, bi: ins.index});
+            totalPairs++;
+          }
+        }
+      }
+      el('loading-text').textContent = 'Comparing lengths ' + lengths[li] + '/' + (lengths[li] + 1) + '…';
+      if (state._comparisons - lastYield > 250000 || li % 4 === 3) {
+        lastYield = state._comparisons;
+        return yieldToUi().then(function () { return processLength(li + 1); });
+      }
+      return processLength(li + 1);
+    }
+
+    return processLength(0).then(function () {
+      state.near = {contrasts: sortContrasts(map), totalPairs: totalPairs};
+    });
+  }
+
+  function sortContrasts(map) {
+    return Object.keys(map).map(function (k) { return map[k]; })
+      .sort(function (a, b) {
+        if (b.pairs.length !== a.pairs.length) return b.pairs.length - a.pairs.length;
+        return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+      });
+  }
+
+  // --- Rendering --------------------------------------------------------------
+
+  function openEntry(id) {
+    if (id) window.fwlite.openEntry(id).catch(function () {});
+  }
+
+  // Build a headword element; the grapheme at markIndex (if >= 0) is wrapped in <mark>.
+  // All text goes in via textContent — never innerHTML on dictionary data.
+  function renderHeadword(rec, markIndex, side) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'hw ' + side;
+    rec.graphemes.forEach(function (g, gi) {
+      if (gi === markIndex) {
+        var m = document.createElement('mark');
+        m.textContent = g;
+        btn.appendChild(m);
+      } else {
+        btn.appendChild(document.createTextNode(g));
+      }
+    });
+    if (rec.entryIds.length > 1) {
+      var badge = document.createElement('span');
+      badge.className = 'multi-badge';
+      badge.textContent = '×' + rec.entryIds.length;
+      badge.title = rec.entryIds.length + ' entries share this form';
+      btn.appendChild(badge);
+    }
+    btn.title = rec.entryIds.length > 1
+      ? 'Open first of ' + rec.entryIds.length + ' entries for “' + rec.form + '”'
+      : 'Open “' + rec.form + '”';
+    btn.addEventListener('click', function () { openEntry(rec.entryIds[0]); });
+    return btn;
+  }
+
+  function renderPairs(contrast, headEl, listEl, wrapEl) {
+    listEl.innerHTML = '';
+    var pairs = contrast.pairs;
+    var shown = Math.min(pairs.length, MAX_PAIRS_RENDERED);
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < shown; i++) {
+      var p = pairs[i];
+      var row = document.createElement('div');
+      row.className = 'pair';
+      row.appendChild(renderHeadword(p.a, p.ai, 'left'));
+      var tilde = document.createElement('span');
+      tilde.className = 'tilde';
+      tilde.textContent = '~';
+      row.appendChild(tilde);
+      row.appendChild(renderHeadword(p.b, p.bi, 'right'));
+      frag.appendChild(row);
+    }
+    listEl.appendChild(frag);
+
+    headEl.textContent = '';
+    var strong = document.createElement('b');
+    strong.textContent = contrast.label;
+    headEl.appendChild(strong);
+    var tail = ' — ' + pairs.length.toLocaleString() + ' pair' + (pairs.length === 1 ? '' : 's');
+    if (pairs.length > shown) tail += ' (showing first ' + shown.toLocaleString() + ')';
+    headEl.appendChild(document.createTextNode(tail));
+    wrapEl.style.display = 'block';
+  }
+
+  function renderChips(contrasts, chipsEl, sectionName, headEl, listEl, wrapEl) {
+    chipsEl.innerHTML = '';
+    var frag = document.createDocumentFragment();
+    contrasts.forEach(function (contrast) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip';
+      chip.setAttribute('aria-pressed', String(state.selected[sectionName] === contrast.key));
+      var label = document.createElement('span');
+      label.className = 'contrast';
+      label.textContent = contrast.label;
+      chip.appendChild(label);
+      var cnt = document.createElement('span');
+      cnt.className = 'cnt';
+      cnt.textContent = contrast.pairs.length.toLocaleString();
+      chip.appendChild(cnt);
+      chip.addEventListener('click', function () {
+        state.selected[sectionName] = contrast.key;
+        Array.prototype.forEach.call(chipsEl.children, function (c) { c.setAttribute('aria-pressed', 'false'); });
+        chip.setAttribute('aria-pressed', 'true');
+        renderPairs(contrast, headEl, listEl, wrapEl);
+      });
+      frag.appendChild(chip);
+    });
+    chipsEl.appendChild(frag);
+  }
+
+  function renderStrict() {
+    var data = state.strict;
+    var hasAny = data.contrasts.length > 0;
+    el('strict-empty').style.display = hasAny ? 'none' : 'block';
+    el('strict-pairs-wrap').style.display = 'none';
+    state.selected.strict = null;
+    renderChips(data.contrasts, el('strict-chips'), 'strict',
+      el('strict-pairs-head'), el('strict-pairs'), el('strict-pairs-wrap'));
+  }
+
+  function renderNear() {
+    var section = el('near-section');
+    if (!state.includeNear) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    var data = state.near;
+    var hasAny = data && data.contrasts.length > 0;
+    el('near-empty').style.display = hasAny ? 'none' : 'block';
+    el('near-pairs-wrap').style.display = 'none';
+    state.selected.near = null;
+    renderChips(data ? data.contrasts : [], el('near-chips'), 'near',
+      el('near-pairs-head'), el('near-pairs'), el('near-pairs-wrap'));
+  }
+
+  function renderStats() {
+    var stats = el('stats');
+    stats.innerHTML = '';
+    function stat(value, label) {
+      var span = document.createElement('span');
+      var b = document.createElement('b');
+      b.textContent = value;
+      span.appendChild(b);
+      span.appendChild(document.createTextNode(' ' + label));
+      stats.appendChild(span);
+    }
+    stat(state.forms.length.toLocaleString(), 'unique forms');
+    stat(state.strict.contrasts.length.toLocaleString(), 'contrasts');
+    stat(state.strict.totalPairs.toLocaleString(), 'minimal pairs');
+    if (state.includeNear && state.near) {
+      stat(state.near.totalPairs.toLocaleString(), 'near-minimal pairs');
+    }
+
+    var noteEl = el('cap-note');
+    var notes = [];
+    if (state.capped) notes.push('Analyzing the first ' + ENTRY_CAP.toLocaleString() + ' entries only.');
+    if (state.truncated) notes.push('Comparison limit reached — results may be incomplete for very large datasets.');
+    if (notes.length) { noteEl.textContent = notes.join(' '); noteEl.style.display = 'block'; }
+    else { noteEl.style.display = 'none'; }
+  }
+
+  // Re-run analysis for the current ws + toggle, showing the loading state while scanning.
+  function analyze() {
+    el('results').style.display = 'none';
+    el('loading').style.display = 'block';
+    el('loading-text').textContent = 'Reading headwords…';
+    state._comparisons = 0;
+    state.truncated = false;
+
+    return yieldToUi()
+      .then(function () { rebuildExemplars(); deriveForms(); return scanSubstitution(); })
+      .then(function () { return state.includeNear ? scanNear() : (state.near = null); })
+      .then(function () {
+        renderStats();
+        renderStrict();
+        renderNear();
+        el('loading').style.display = 'none';
+        el('results').style.display = 'block';
+      });
+  }
+
+  function fillWsSelect(chosen) {
+    var select = el('ws-select');
+    select.innerHTML = '';
+    state.vernacular.forEach(function (ws) {
+      var opt = document.createElement('option');
+      opt.value = ws.wsId;
+      opt.textContent = ws.name || ws.wsId;
+      if (ws.wsId === chosen) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.disabled = state.vernacular.length <= 1;
+  }
+
+  function wireEvents() {
+    el('ws-select').addEventListener('change', function () {
+      state.ws = this.value;
+      window.fwlite.storage.set(WS_KEY, state.ws).catch(function () {});
+      analyze().catch(reportScanError);
+    });
+    el('near-toggle').addEventListener('change', function () {
+      state.includeNear = this.checked;
+      window.fwlite.storage.set(NEAR_KEY, state.includeNear).catch(function () {});
+      analyze().catch(reportScanError);
+    });
+  }
+
+  function reportScanError(err) {
+    showError('Could not analyze minimal pairs: ' + (err && err.message ? err.message : String(err)));
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+    state.projectName = context.project.projectName;
+
+    Promise.all([
+      window.fwlite.getWritingSystems(),
+      window.fwlite.countEntries({}),
+      window.fwlite.storage.get(WS_KEY).catch(function () { return null; }),
+      window.fwlite.storage.get(NEAR_KEY).catch(function () { return null; }),
+    ]).then(function (results) {
+      var ws = results[0];
+      var total = results[1];
+      var savedWs = results[2];
+      var savedNear = results[3];
+
+      state.vernacular = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      if (!state.vernacular.length) {
+        el('loading').style.display = 'none';
+        el('empty').textContent = 'This project has no text (non-audio) vernacular writing systems to analyze.';
+        el('empty').style.display = 'block';
+        return;
+      }
+      var wsIds = state.vernacular.map(function (w) { return w.wsId; });
+      state.ws = (savedWs && wsIds.indexOf(savedWs) !== -1) ? savedWs : state.vernacular[0].wsId;
+      state.includeNear = savedNear === true;
+
+      if (total === 0) {
+        el('loading').style.display = 'none';
+        el('empty').style.display = 'block';
+        return;
+      }
+      state.capped = total > ENTRY_CAP;
+
+      return fetchAll(total).then(function (entries) {
+        state.entries = entries;
+        fillWsSelect(state.ws);
+        el('near-toggle').checked = state.includeNear;
+        el('subtitle').textContent = 'Words in ' + state.projectName +
+          ' that differ by a single sound — the evidence for phonemic contrasts.';
+        wireEvents();
+        return analyze();
+      });
+    }).catch(reportScanError);
+  }
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

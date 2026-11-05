@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fwlite-plugin-permissions" content="edit">
+<title>Wordlist</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --warn: #b45309;
+    --warn-soft: #fef3e0;
+    --streak: #d97706;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --warn: #fbbf24;
+    --warn-soft: #3a2f12;
+    --streak: #fbbf24;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; text-align: center; }
+  .subtitle { color: var(--text-muted); text-align: center; margin: 0 0 18px; font-size: 0.9rem; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+  }
+
+  label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
+  select, input, textarea {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 96px; }
+  select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+
+  .primary-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .primary-btn:hover { filter: brightness(1.08); }
+  .primary-btn:disabled { opacity: 0.55; cursor: default; }
+  .ghost-btn {
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ghost-btn:hover { color: var(--text); }
+  .ghost-btn:disabled { opacity: 0.55; cursor: default; }
+  .link-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+  }
+  .link-btn:hover { background: var(--accent-soft); }
+  .link-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .stat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .stat-chip .num { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+  .stat-chip.streak .num { color: var(--streak); }
+  .stat-chip.session.combo { animation: comboPulse 0.6s ease; }
+  @keyframes comboPulse {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.12); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+    100% { transform: scale(1); }
+  }
+
+  .flow-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+  .position { font-size: 0.8rem; color: var(--text-muted); }
+  .progress-rail {
+    height: 6px;
+    background: var(--surface-alt);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0;
+    background: var(--accent);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+
+  .prompt-card {
+    margin-bottom: 16px;
+    text-align: center;
+    padding: 26px 20px;
+    position: relative;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .prompt-card.leaving { opacity: 0; transform: translateX(-22px); }
+  .prompt-card.entering { opacity: 0; transform: translateX(22px); transition: none; }
+  .prompt-label { font-size: 0.76rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+  .prompt-word { font-size: 2.1rem; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+  .collected-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 0.78rem;
+    color: var(--good);
+    background: var(--good-soft);
+    border-radius: 999px;
+    padding: 4px 12px;
+  }
+  .collected-badge.hidden { display: none; }
+  .plus-one {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    font-weight: 700;
+    color: var(--good);
+    font-size: 1.1rem;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .plus-one.fire { animation: plusOne 0.9s ease; }
+  @keyframes plusOne {
+    0% { opacity: 0; transform: translateY(6px); }
+    25% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-22px); }
+  }
+
+  .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+  .btn-row .primary-btn { flex: 1; }
+  .inline-note { font-size: 0.82rem; padding: 8px 12px; border-radius: 8px; margin-top: 12px; }
+  .inline-note.warn { background: var(--warn-soft); color: var(--warn); }
+  .inline-note.good { background: var(--good-soft); color: var(--good); }
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  .hint-row { text-align: center; color: var(--text-muted); font-size: 0.76rem; margin-top: 14px; }
+
+  .trail { margin-top: 18px; }
+  .trail-title { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; text-align: center; }
+  .trail-list { display: flex; flex-direction: column; gap: 6px; }
+  .trail-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 0.86rem;
+  }
+  .trail-item.fresh { animation: pop 0.5s ease; }
+  @keyframes pop {
+    from { background: var(--accent-soft); border-color: var(--accent); }
+    to { background: var(--surface); border-color: var(--border); }
+  }
+  .trail-item .meaning { color: var(--text-muted); overflow-wrap: anywhere; }
+  .trail-item .word { font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+
+  .center-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+
+  .done-card { text-align: center; padding: 32px 24px; }
+  .done-card .big { font-size: 2.2rem; margin-bottom: 8px; }
+  .done-card h2 { margin: 0 0 6px; }
+  .done-stats { display: flex; justify-content: center; gap: 22px; margin: 22px 0; flex-wrap: wrap; }
+  .done-stat .num { font-size: 1.5rem; font-weight: 700; color: var(--good); }
+  .done-stat .lbl { font-size: 0.78rem; color: var(--text-muted); }
+  .done-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  #setup-view, #flow-view, #done-view { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Wordlist</h1>
+  <p class="subtitle">Walk a list of meanings and record the local word for each.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading&hellip;</div>
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <!-- SETUP -->
+  <div id="setup-view">
+    <div class="card">
+      <div class="field">
+        <label for="list-select">Wordlist</label>
+        <select id="list-select">
+          <option value="swadesh100">Swadesh 100 (core vocabulary)</option>
+          <option value="swadesh207">Swadesh 207 (extended)</option>
+          <option value="custom">Paste your own&hellip;</option>
+        </select>
+      </div>
+      <div class="field" id="custom-field" style="display:none;">
+        <label for="custom-input">Meanings (one per line)</label>
+        <textarea id="custom-input" placeholder="water&#10;fire&#10;mother&#10;to walk&#10;&hellip;"></textarea>
+      </div>
+      <div class="field" id="analysis-field" style="display:none;">
+        <label for="analysis-select">Meaning language (gloss is saved here)</label>
+        <select id="analysis-select"></select>
+      </div>
+      <button class="primary-btn" id="start-btn" style="width:100%;">Start collecting</button>
+    </div>
+  </div>
+
+  <!-- FLOW -->
+  <div id="flow-view">
+    <div class="stats-bar">
+      <div class="stat-chip session" id="session-chip">
+        <span class="num" id="stat-session">0</span> added this session
+      </div>
+      <div class="stat-chip streak" title="Consecutive days you have added at least one word">
+        <span class="num" id="stat-streak">0</span> day streak
+      </div>
+    </div>
+
+    <div class="flow-top">
+      <span class="position" id="position">&nbsp;</span>
+      <button class="link-btn" id="change-list-btn" type="button">Change list</button>
+    </div>
+    <div class="progress-rail"><div class="progress-fill" id="progress-fill"></div></div>
+
+    <div class="card prompt-card" id="prompt-card">
+      <div class="plus-one" id="plus-one">+1</div>
+      <div class="prompt-label">Meaning</div>
+      <div class="prompt-word" id="prompt-word"></div>
+      <div class="collected-badge hidden" id="collected-badge">&#10003; already in dictionary</div>
+    </div>
+
+    <form class="card" id="flow-form">
+      <div class="field">
+        <label for="gloss-input" id="gloss-label">Gloss</label>
+        <input type="text" id="gloss-input" autocomplete="off">
+      </div>
+      <div id="vernacular-fields"></div>
+      <div class="btn-row">
+        <button class="primary-btn" id="add-btn" type="submit">Add &amp; next</button>
+        <button class="ghost-btn" id="skip-btn" type="button">Skip</button>
+      </div>
+      <div id="form-note"></div>
+      <div class="nav-row">
+        <button class="link-btn" id="prev-btn" type="button">&#9664; Previous</button>
+        <span class="position" id="resolved-count">&nbsp;</span>
+      </div>
+    </form>
+    <div class="hint-row">Enter to add &amp; continue &middot; Skip to pass without saving</div>
+
+    <div class="trail" id="trail" style="display:none;">
+      <div class="trail-title">Recently added</div>
+      <div class="trail-list" id="trail-list"></div>
+    </div>
+  </div>
+
+  <!-- DONE -->
+  <div id="done-view">
+    <div class="card done-card">
+      <div class="big">&#127881;</div>
+      <h2>List complete!</h2>
+      <p class="subtitle" style="margin-bottom:0;" id="done-message"></p>
+      <div class="done-stats">
+        <div class="done-stat"><div class="num" id="done-added">0</div><div class="lbl">words added</div></div>
+        <div class="done-stat"><div class="num" id="done-skipped">0</div><div class="lbl">skipped</div></div>
+        <div class="done-stat"><div class="num" id="done-streak">0</div><div class="lbl">day streak</div></div>
+      </div>
+      <div class="done-actions">
+        <button class="ghost-btn" id="review-btn" type="button" style="display:none;">Review skipped</button>
+        <button class="primary-btn" id="startover-btn" type="button">Start over</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PROGRESS_KEY = 'wordlist-progress-v1';
+  var STATS_KEY = 'wordlist-stats-v1';
+  var EXISTING_CAP = 5000;
+  var PAGE_SIZE = 1000;
+  var TRAIL_MAX = 6;
+
+  // --- Standard comparative wordlists (bundled offline) -----------------------
+  var SWADESH_100 = [
+    'I', 'you (singular)', 'we', 'this', 'that', 'who', 'what', 'not', 'all', 'many',
+    'one', 'two', 'big', 'long', 'small', 'woman', 'man (adult male)', 'person', 'fish', 'bird',
+    'dog', 'louse', 'tree', 'seed', 'leaf', 'root', 'bark (of a tree)', 'skin', 'flesh', 'blood',
+    'bone', 'grease (fat)', 'egg', 'horn', 'tail', 'feather', 'hair', 'head', 'ear', 'eye',
+    'nose', 'mouth', 'tooth', 'tongue', 'claw', 'foot', 'knee', 'hand', 'belly', 'neck',
+    'breast', 'heart', 'liver', 'drink', 'eat', 'bite', 'see', 'hear', 'know', 'sleep',
+    'die', 'kill', 'swim', 'fly (verb)', 'walk', 'come', 'lie (recline)', 'sit', 'stand', 'give',
+    'say', 'sun', 'moon', 'star', 'water', 'rain', 'stone', 'sand', 'earth (soil)', 'cloud',
+    'smoke', 'fire', 'ash', 'burn', 'path (road)', 'mountain', 'red', 'green', 'yellow', 'white',
+    'black', 'night', 'hot', 'cold', 'full', 'new', 'good', 'round', 'dry', 'name'
+  ];
+  var SWADESH_207 = [
+    'I', 'you (singular)', 'he', 'we', 'you (plural)', 'they', 'this', 'that', 'here', 'there',
+    'who', 'what', 'where', 'when', 'how', 'not', 'all', 'many', 'some', 'few',
+    'other', 'one', 'two', 'three', 'four', 'five', 'big', 'long', 'wide', 'thick',
+    'heavy', 'small', 'short', 'narrow', 'thin', 'woman', 'man (adult male)', 'man (human being)', 'child', 'wife',
+    'husband', 'mother', 'father', 'animal', 'fish', 'bird', 'dog', 'louse', 'snake', 'worm',
+    'tree', 'forest', 'stick', 'fruit', 'seed', 'leaf', 'root', 'bark (of a tree)', 'flower', 'grass',
+    'rope', 'skin', 'meat', 'blood', 'bone', 'fat (noun)', 'egg', 'horn', 'tail', 'feather',
+    'hair', 'head', 'ear', 'eye', 'nose', 'mouth', 'tooth', 'tongue (organ)', 'fingernail', 'foot',
+    'leg', 'knee', 'hand', 'wing', 'belly', 'guts', 'neck', 'back', 'breast', 'heart',
+    'liver', 'drink', 'eat', 'bite', 'suck', 'spit', 'vomit', 'blow', 'breathe', 'laugh',
+    'see', 'hear', 'know', 'think', 'smell', 'fear', 'sleep', 'live', 'die', 'kill',
+    'fight', 'hunt', 'hit', 'cut', 'split', 'stab', 'scratch', 'dig', 'swim', 'fly (verb)',
+    'walk', 'come', 'lie (as in a bed)', 'sit', 'stand', 'turn (intransitive)', 'fall', 'give', 'hold', 'squeeze',
+    'rub', 'wash', 'wipe', 'pull', 'push', 'throw', 'tie', 'sew', 'count', 'say',
+    'sing', 'play', 'float', 'flow', 'freeze', 'swell', 'sun', 'moon', 'star', 'water',
+    'rain', 'river', 'lake', 'sea', 'salt', 'stone', 'sand', 'dust', 'earth (soil)', 'cloud',
+    'fog', 'sky', 'wind', 'snow', 'ice', 'smoke', 'fire', 'ash', 'burn', 'road',
+    'mountain', 'red', 'green', 'yellow', 'white', 'black', 'night', 'day', 'year', 'warm',
+    'cold', 'full', 'new', 'old', 'good', 'bad', 'rotten', 'dirty', 'straight', 'round',
+    'sharp (as a knife)', 'dull (as a knife)', 'smooth', 'wet', 'dry', 'correct', 'near', 'far', 'right (side)', 'left (side)',
+    'at', 'in', 'with (accompanying)', 'and', 'if', 'because', 'name'
+  ];
+
+  var state = {
+    vernWs: [],            // WritingSystem objects (non-audio)
+    analWs: [],            // WritingSystem objects (non-audio)
+    analysisWs: '',        // chosen gloss writing system id
+    collected: null,       // Set of lowercased existing sense glosses
+    listId: 'swadesh100',
+    items: [],             // array of meaning strings
+    statuses: [],          // 'pending' | 'done' | 'skipped', parallel to items
+    index: 0,
+    trail: [],             // {meaning, word}
+    session: 0,
+    busy: false,
+    stats: {days: {}, bestSession: 0, lifetime: 0},
+  };
+
+  function el(id) { return document.getElementById(id); }
+  function errText(err) { return err && err.message ? err.message : String(err); }
+
+  function applyTheme(theme) {
+    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    el('loading').style.display = 'none';
+    var box = el('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function analysisWsIds() { return state.analWs.map(function (ws) { return ws.wsId; }); }
+
+  function todayKey() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function computeStreak(days) {
+    var d = new Date();
+    function key(date) {
+      return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    }
+    if (!days[key(d)]) d.setDate(d.getDate() - 1);
+    var streak = 0;
+    while (days[key(d)] > 0) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    }
+    return streak;
+  }
+
+  // --- Existing-entry detection ----------------------------------------------
+  function loadCollected() {
+    state.collected = new Set();
+    var wsIds = analysisWsIds();
+    function page(offset) {
+      if (offset >= EXISTING_CAP) return Promise.resolve();
+      return window.fwlite.getEntries({limit: PAGE_SIZE, offset: offset}).then(function (entries) {
+        entries.forEach(function (entry) {
+          (entry.senses || []).forEach(function (sense) {
+            var gloss = sense.gloss || {};
+            wsIds.forEach(function (wsId) {
+              var value = gloss[wsId];
+              if (value && value.trim()) state.collected.add(value.trim().toLowerCase());
+            });
+          });
+        });
+        if (entries.length === PAGE_SIZE) return page(offset + PAGE_SIZE);
+      });
+    }
+    return page(0);
+  }
+
+  function markCollected(text) {
+    if (text && text.trim()) state.collected.add(text.trim().toLowerCase());
+  }
+
+  function isCollected(text) {
+    return !!(state.collected && text && state.collected.has(text.trim().toLowerCase()));
+  }
+
+  // --- Persistence -----------------------------------------------------------
+  function saveProgress() {
+    window.fwlite.storage.set(PROGRESS_KEY, {
+      listId: state.listId,
+      items: state.items,
+      statuses: state.statuses,
+      index: state.index,
+      analysisWs: state.analysisWs,
+      trail: state.trail,
+    }).catch(function () { /* progress save is best-effort */ });
+  }
+
+  function saveStats() {
+    window.fwlite.storage.set(STATS_KEY, state.stats).catch(function () { /* best-effort */ });
+  }
+
+  // --- Setup -----------------------------------------------------------------
+  function populateSetup() {
+    var analSelect = el('analysis-select');
+    analSelect.innerHTML = '';
+    state.analWs.forEach(function (ws) {
+      var option = document.createElement('option');
+      option.value = ws.wsId;
+      option.textContent = ws.name + ' (' + ws.wsId + ')';
+      analSelect.appendChild(option);
+    });
+    if (state.analWs.length > 1) el('analysis-field').style.display = 'block';
+
+    function syncCustom() {
+      el('custom-field').style.display = el('list-select').value === 'custom' ? 'block' : 'none';
+    }
+    el('list-select').addEventListener('change', syncCustom);
+    syncCustom();
+  }
+
+  function listItemsFor(listId, customText) {
+    if (listId === 'swadesh207') return SWADESH_207.slice();
+    if (listId === 'custom') {
+      return (customText || '').split(/\r?\n/).map(function (line) { return line.trim(); })
+        .filter(function (line) { return line.length > 0; });
+    }
+    return SWADESH_100.slice();
+  }
+
+  function buildVernacularFields() {
+    var container = el('vernacular-fields');
+    container.innerHTML = '';
+    state.vernWs.forEach(function (ws, index) {
+      var field = document.createElement('div');
+      field.className = 'field';
+      var label = document.createElement('label');
+      label.setAttribute('for', 'vern-input-' + index);
+      var primaryHint = index === 0 ? '' : ', optional';
+      label.textContent = 'Word — ' + ws.name + ' (' + ws.wsId + primaryHint + ')';
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.id = 'vern-input-' + index;
+      input.dataset.ws = ws.wsId;
+      input.autocomplete = 'off';
+      input.placeholder = 'Type the word…';
+      if (ws.font) input.style.fontFamily = '"' + ws.font + '", inherit';
+      field.appendChild(label);
+      field.appendChild(input);
+      container.appendChild(field);
+    });
+  }
+
+  function startList(opts) {
+    // opts: {resume: bool}
+    if (!opts || !opts.resume) {
+      state.listId = el('list-select').value;
+      state.items = listItemsFor(state.listId, el('custom-input').value);
+      state.statuses = state.items.map(function () { return 'pending'; });
+      state.index = 0;
+      state.trail = [];
+      if (state.analWs.length > 1) state.analysisWs = el('analysis-select').value;
+    }
+    if (!state.analysisWs) state.analysisWs = state.analWs[0].wsId;
+
+    if (state.items.length === 0) {
+      setFormNote('');
+      el('setup-view').style.display = 'block';
+      el('custom-input').focus();
+      window.fwlite.notify('That list is empty — paste at least one meaning.');
+      return;
+    }
+
+    buildVernacularFields();
+    el('gloss-label').textContent = 'Gloss (' + state.analysisWs + ')';
+
+    el('setup-view').style.display = 'none';
+    el('done-view').style.display = 'none';
+    el('flow-view').style.display = 'block';
+
+    renderStats();
+    renderTrail();
+    if (allResolved()) { showDone(); return; }
+    if (state.statuses[state.index] !== 'pending') {
+      var next = firstPending();
+      if (next !== -1) state.index = next;
+    }
+    renderItem();
+    saveProgress();
+  }
+
+  // --- Flow rendering --------------------------------------------------------
+  function total() { return state.items.length; }
+  function countStatus(value) {
+    return state.statuses.filter(function (s) { return s === value; }).length;
+  }
+  function allResolved() {
+    return state.statuses.every(function (s) { return s !== 'pending'; });
+  }
+  function firstPending() {
+    return state.statuses.indexOf('pending');
+  }
+  function firstSkipped() {
+    return state.statuses.indexOf('skipped');
+  }
+
+  function currentMeaning() { return state.items[state.index]; }
+
+  function renderStats() {
+    el('stat-session').textContent = String(state.session);
+    el('stat-streak').textContent = String(computeStreak(state.stats.days));
+  }
+
+  function setFormNote(message, kind) {
+    var note = el('form-note');
+    note.innerHTML = '';
+    if (!message) return;
+    var div = document.createElement('div');
+    div.className = 'inline-note ' + (kind || '');
+    div.textContent = message;
+    note.appendChild(div);
+  }
+
+  function updateCollectedBadge() {
+    var glossValue = el('gloss-input').value;
+    var badge = el('collected-badge');
+    if (isCollected(glossValue)) badge.classList.remove('hidden');
+    else badge.classList.add('hidden');
+  }
+
+  function renderItem() {
+    var meaning = currentMeaning();
+    el('prompt-word').textContent = meaning == null ? '' : meaning;
+    el('position').textContent = 'Word ' + (state.index + 1) + ' of ' + total();
+
+    var resolved = countStatus('done') + countStatus('skipped');
+    el('progress-fill').style.width = (total() ? (resolved / total() * 100) : 0) + '%';
+    el('resolved-count').textContent = resolved + ' of ' + total() + ' done';
+
+    el('gloss-input').value = meaning || '';
+    document.querySelectorAll('#vernacular-fields input').forEach(function (input) { input.value = ''; });
+    updateCollectedBadge();
+
+    el('prev-btn').disabled = state.index === 0 || state.busy;
+
+    var firstVern = el('vern-input-0');
+    if (firstVern) firstVern.focus();
+  }
+
+  function renderTrail() {
+    var trailBox = el('trail');
+    var list = el('trail-list');
+    if (state.trail.length === 0) {
+      trailBox.style.display = 'none';
+      list.innerHTML = '';
+      return;
+    }
+    trailBox.style.display = 'block';
+    list.innerHTML = '';
+    state.trail.forEach(function (entry, idx) {
+      var item = document.createElement('div');
+      item.className = 'trail-item' + (idx === 0 ? ' fresh' : '');
+      var meaning = document.createElement('span');
+      meaning.className = 'meaning';
+      meaning.textContent = entry.meaning;
+      var word = document.createElement('span');
+      word.className = 'word';
+      word.textContent = entry.word;
+      if (state.vernWs[0] && state.vernWs[0].font) word.style.fontFamily = '"' + state.vernWs[0].font + '", inherit';
+      item.appendChild(meaning);
+      item.appendChild(word);
+      list.appendChild(item);
+    });
+  }
+
+  function setBusy(busy) {
+    state.busy = busy;
+    el('add-btn').disabled = busy;
+    el('skip-btn').disabled = busy;
+    el('prev-btn').disabled = busy || state.index === 0;
+  }
+
+  function advance() {
+    var card = el('prompt-card');
+    card.classList.add('leaving');
+    setTimeout(function () {
+      card.classList.remove('leaving');
+      var next = state.index + 1;
+      if (next >= total()) {
+        var pending = firstPending();
+        if (pending === -1) { showDone(); return; }
+        state.index = pending;
+      } else {
+        state.index = next;
+      }
+      saveProgress();
+      card.classList.add('entering');
+      renderItem();
+      requestAnimationFrame(function () { card.classList.remove('entering'); });
+    }, 200);
+  }
+
+  function goPrevious() {
+    if (state.busy || state.index === 0) return;
+    setFormNote('');
+    state.index -= 1;
+    saveProgress();
+    renderItem();
+  }
+
+  function celebrate() {
+    var plus = el('plus-one');
+    plus.classList.remove('fire');
+    void plus.offsetWidth;
+    plus.classList.add('fire');
+    if (state.session > 0 && state.session % 5 === 0) {
+      var chip = el('session-chip');
+      chip.classList.remove('combo');
+      void chip.offsetWidth;
+      chip.classList.add('combo');
+    }
+  }
+
+  function recordSuccess(meaning, primaryWord, glossValue) {
+    var key = todayKey();
+    state.stats.days[key] = (state.stats.days[key] || 0) + 1;
+    state.stats.lifetime++;
+    state.session++;
+    if (state.session > state.stats.bestSession) state.stats.bestSession = state.session;
+    saveStats();
+    markCollected(glossValue);
+    markCollected(meaning);
+    state.trail.unshift({meaning: meaning, word: primaryWord});
+    if (state.trail.length > TRAIL_MAX) state.trail.pop();
+    renderStats();
+    renderTrail();
+    celebrate();
+  }
+
+  function handleAdd() {
+    if (state.busy) return;
+    var meaning = currentMeaning();
+    if (meaning == null) return;
+
+    var gloss = el('gloss-input').value.trim();
+    var wordValues = state.vernWs.map(function (ws, index) {
+      var input = el('vern-input-' + index);
+      return {ws: ws.wsId, value: input ? input.value.trim() : ''};
+    });
+    var primary = wordValues.find(function (pair) { return pair.value; });
+
+    if (!primary) {
+      setFormNote('Type the word in at least one language first.', 'warn');
+      var firstVern = el('vern-input-0');
+      if (firstVern) firstVern.focus();
+      return;
+    }
+    if (!gloss) {
+      setFormNote('Enter a gloss (the meaning).', 'warn');
+      el('gloss-input').focus();
+      return;
+    }
+
+    var lexemeForm = {};
+    wordValues.forEach(function (pair) { if (pair.value) lexemeForm[pair.ws] = pair.value; });
+    var glossField = {};
+    glossField[state.analysisWs] = gloss;
+    var entry = {
+      lexemeForm: lexemeForm,
+      citationForm: {},
+      senses: [{gloss: glossField, semanticDomains: []}],
+    };
+
+    setBusy(true);
+    setFormNote('');
+    window.fwlite.createEntry(entry).then(function () {
+      setBusy(false);
+      state.statuses[state.index] = 'done';
+      recordSuccess(meaning, primary.value, gloss);
+      window.fwlite.notify('Added “' + primary.value + '” (' + meaning + ')');
+      advance();
+    }).catch(function (err) {
+      setBusy(false);
+      if (err && err.code === 'permission-denied') {
+        // Declined write is a normal outcome: keep the item unsaved so they can retry.
+        setFormNote('Not saved — you can edit and try again, or skip.', 'warn');
+      } else {
+        setFormNote('Could not save: ' + errText(err), 'warn');
+      }
+    });
+  }
+
+  function handleSkip() {
+    if (state.busy || currentMeaning() == null) return;
+    setFormNote('');
+    state.statuses[state.index] = 'skipped';
+    advance();
+  }
+
+  function showDone() {
+    el('flow-view').style.display = 'none';
+    el('done-view').style.display = 'block';
+    var added = countStatus('done');
+    var skipped = countStatus('skipped');
+    el('done-added').textContent = String(added);
+    el('done-skipped').textContent = String(skipped);
+    el('done-streak').textContent = String(computeStreak(state.stats.days));
+    el('done-message').textContent = added > 0
+      ? 'You documented ' + added + ' word' + (added === 1 ? '' : 's') + ' from this list.'
+      : 'You reached the end of the list.';
+    el('review-btn').style.display = skipped > 0 ? 'inline-block' : 'none';
+    saveProgress();
+  }
+
+  function reviewSkipped() {
+    var skipped = firstSkipped();
+    if (skipped === -1) return;
+    state.index = skipped;
+    el('done-view').style.display = 'none';
+    el('flow-view').style.display = 'block';
+    setFormNote('');
+    renderItem();
+    saveProgress();
+  }
+
+  function backToSetup() {
+    el('flow-view').style.display = 'none';
+    el('done-view').style.display = 'none';
+    el('setup-view').style.display = 'block';
+    el('list-select').value = state.listId === 'custom' ? 'custom' : state.listId;
+    el('custom-field').style.display = el('list-select').value === 'custom' ? 'block' : 'none';
+  }
+
+  function wireEvents() {
+    el('start-btn').addEventListener('click', function () { startList({resume: false}); });
+    el('startover-btn').addEventListener('click', backToSetup);
+    el('change-list-btn').addEventListener('click', backToSetup);
+    el('review-btn').addEventListener('click', reviewSkipped);
+    el('skip-btn').addEventListener('click', handleSkip);
+    el('prev-btn').addEventListener('click', goPrevious);
+    el('flow-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      handleAdd();
+    });
+    el('gloss-input').addEventListener('input', updateCollectedBadge);
+  }
+
+  // --- Init ------------------------------------------------------------------
+  function restoreProgress(saved) {
+    if (!saved || typeof saved !== 'object' || !Array.isArray(saved.items) || saved.items.length === 0) return false;
+    if (!Array.isArray(saved.statuses) || saved.statuses.length !== saved.items.length) return false;
+    var analysisValid = saved.analysisWs && state.analWs.some(function (ws) { return ws.wsId === saved.analysisWs; });
+    state.listId = saved.listId || 'custom';
+    state.items = saved.items;
+    state.statuses = saved.statuses;
+    state.index = Math.min(Math.max(saved.index || 0, 0), saved.items.length - 1);
+    state.analysisWs = analysisValid ? saved.analysisWs : state.analWs[0].wsId;
+    state.trail = Array.isArray(saved.trail) ? saved.trail.slice(0, TRAIL_MAX) : [];
+    return true;
+  }
+
+  function init(context) {
+    applyTheme(context && context.theme);
+    wireEvents();
+
+    Promise.all([
+      window.fwlite.getWritingSystems(),
+      window.fwlite.storage.get(STATS_KEY),
+      window.fwlite.storage.get(PROGRESS_KEY),
+    ]).then(function (results) {
+      var writingSystems = results[0] || {};
+      state.vernWs = (writingSystems.vernacular || []).filter(function (ws) { return !ws.isAudio; });
+      state.analWs = (writingSystems.analysis || []).filter(function (ws) { return !ws.isAudio; });
+
+      if (results[1] && typeof results[1] === 'object') {
+        state.stats = {
+          days: results[1].days || {},
+          bestSession: results[1].bestSession || 0,
+          lifetime: results[1].lifetime || 0,
+        };
+      }
+
+      if (state.vernWs.length === 0 || state.analWs.length === 0) {
+        showError('Wordlist needs at least one vernacular writing system (the language you are documenting) and one analysis writing system (for the meaning). This project is missing one of them.');
+        return;
+      }
+
+      el('loading-text').textContent = 'Checking what is already in the dictionary…';
+      var savedProgress = results[2];
+      return loadCollected().then(function () {
+        el('loading').style.display = 'none';
+        populateSetup();
+        if (restoreProgress(savedProgress) && !allResolved()) {
+          startList({resume: true});
+        } else {
+          el('setup-view').style.display = 'block';
+        }
+      });
+    }).catch(function (err) {
+      showError('Could not load project data: ' + errText(err));
+    });
+  }
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

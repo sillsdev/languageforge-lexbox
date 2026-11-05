@@ -133,8 +133,12 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
     /// </summary>
     private async Task<Guid> SeedPendingResource(string? filename = "pending-upload.wav")
     {
+        return await SeedPendingResource(filename is not null ? new LcmFileMetadata(filename, "audio/wav") : null);
+    }
+
+    private async Task<Guid> SeedPendingResource(LcmFileMetadata? metadata)
+    {
         var id = Guid.NewGuid();
-        var metadata = filename is not null ? new LcmFileMetadata(filename, "audio/wav") : null;
         await _dataModel.AddChange(_clientId, new CreateRemoteResourcePendingUploadChange<LcmFileMetadata>(id, metadata));
         return id;
     }
@@ -175,6 +179,19 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
         pendingRow.Revision.Should().Be(0, "revision 0 marks a reservation for a binary that hasn't been uploaded yet");
         pendingRow.ProjectId.Should().Be(_projectId);
         pendingRow.Filename.Should().EndWith("pending-upload.wav", "the anticipated path embeds the resource's filename");
+    }
+
+    [Fact]
+    public async Task SyncMediaFiles_ReservesPendingHtmlUnderPlugins()
+    {
+        // The server files text/html under Plugins; the reservation must land there too, or the later upload is rejected as a move.
+        var pendingId = await SeedPendingResource(new LcmFileMetadata("plugin-abc123.html", "text/html"));
+
+        await _lexboxMediaService.SyncMediaFiles(_projectId, _lcmMediaService);
+
+        var pendingRow = _dbContext.Files.Single(f => f.Id == pendingId);
+        pendingRow.Revision.Should().Be(0);
+        MediaFilePath.Normalize(pendingRow.Filename).Should().Be($"LinkedFiles/Plugins/{pendingId}/plugin-abc123.html");
     }
 
     [Fact]

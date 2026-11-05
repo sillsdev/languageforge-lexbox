@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Browse Grid</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --hover: #f3f4ff;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 12px;
+    --vern-font: system-ui, sans-serif;
+    --mono: "SFMono-Regular", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --hover: #2b2d55;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { max-width: 100%; overflow-x: hidden; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px 14px 28px;
+    font-size: 14px;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 1.3rem; margin: 0 0 2px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; font-size: 0.86rem; }
+
+  /* Toolbar */
+  .toolbar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+  .field select, .field input {
+    font: inherit;
+    font-size: 0.88rem;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    max-width: 100%;
+  }
+  .field.search { flex: 1 1 200px; }
+  .field.search input { width: 100%; min-width: 0; }
+  .field select { max-width: 220px; }
+  .spacer { flex: 1 1 0; }
+
+  .btn {
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); color: #fff; border-color: transparent; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+
+  /* Columns menu (native details) */
+  details.cols { position: relative; }
+  details.cols > summary {
+    list-style: none;
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  details.cols > summary::-webkit-details-marker { display: none; }
+  details.cols[open] > summary { background: var(--surface-alt); }
+  .cols-panel {
+    position: absolute;
+    z-index: 20;
+    right: 0;
+    margin-top: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 8px;
+    min-width: 200px;
+  }
+  .cols-panel label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 0.86rem;
+    cursor: pointer;
+  }
+  .cols-panel label:hover { background: var(--surface-alt); }
+  .cols-panel input { accent-color: var(--accent); }
+
+  .status-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  .pill {
+    display: inline-block;
+    font-size: 0.76rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--surface-alt);
+    color: var(--text-muted);
+  }
+  .pill.warn { color: #b45309; }
+  html[data-theme="dark"] .pill.warn { color: #fbbf24; }
+
+  /* Grid */
+  .grid-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 210px);
+  }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface-alt);
+    text-align: left;
+    font-size: 0.74rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    white-space: nowrap;
+  }
+  thead th button {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    padding: 9px 12px;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+  thead th button:hover { color: var(--text); background: var(--hover); }
+  thead th button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  thead th.num button { justify-content: flex-end; }
+  .arrow { font-size: 0.7em; opacity: 0.4; }
+  thead th.sorted { color: var(--accent); }
+  thead th.sorted .arrow { opacity: 1; }
+
+  tbody td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  tbody tr { cursor: pointer; }
+  tbody tr:nth-child(even) td { background: var(--surface-alt); }
+  tbody tr:hover td { background: var(--hover); }
+  td.vern { font-family: var(--vern-font); font-weight: 600; }
+  td.num { text-align: right; font-family: var(--mono); font-size: 0.84rem; color: var(--text-muted); }
+  td.bool { text-align: center; }
+  td.bool .yes { color: var(--accent); font-weight: 700; }
+  td.bool .no { color: var(--border); }
+  td.muted { color: var(--text-muted); }
+
+  /* States */
+  .center-state { text-align: center; padding: 54px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box {
+    border: 1px solid #f5b5b5;
+    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
+    color: var(--text);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+  }
+  #no-results { padding: 40px 20px; text-align: center; color: var(--text-muted); }
+  #app-wrap { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Browse Grid</h1>
+  <p class="subtitle" id="subtitle">A sortable, filterable spreadsheet view of your whole lexicon.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading entries&hellip;</div>
+  </div>
+
+  <div id="empty" class="center-state" style="display:none;">
+    This project has no entries yet.
+  </div>
+
+  <div id="error" class="error-box" style="display:none;"></div>
+
+  <div id="app-wrap">
+    <div class="toolbar">
+      <div class="field search">
+        <label for="search">Search headword &amp; gloss</label>
+        <input id="search" type="text" placeholder="Type to filter&hellip;" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="pos-filter">Part of speech</label>
+        <select id="pos-filter"><option value="">All</option></select>
+      </div>
+      <div class="field">
+        <label for="dom-filter">Semantic domain</label>
+        <select id="dom-filter"><option value="">All</option></select>
+      </div>
+      <div class="spacer"></div>
+      <details class="cols">
+        <summary>Columns &#9662;</summary>
+        <div class="cols-panel" id="cols-panel"></div>
+      </details>
+      <button class="btn primary" id="export-btn">Export CSV</button>
+    </div>
+
+    <div class="status-bar">
+      <span id="count-note"></span>
+      <span class="pill warn" id="cap-note" style="display:none;"></span>
+      <span class="pill warn" id="render-note" style="display:none;"></span>
+    </div>
+
+    <div class="grid-wrap">
+      <table>
+        <thead><tr id="head-row"></tr></thead>
+        <tbody id="body"></tbody>
+      </table>
+    </div>
+    <div id="no-results" style="display:none;">No entries match your search or filters.</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE_SIZE = 1000;    // API max per call
+  var ENTRY_CAP = 5000;    // most entries we load
+  var RENDER_CAP = 1000;   // most rows we paint at once
+  var STORE = 'browse-grid:v1';
+
+  var fw = window.fwlite;
+
+  var state = {
+    rows: [],            // precomputed row objects
+    vernIds: [],
+    analysisIds: [],
+    allIds: [],
+    posLookup: {},       // id -> pos object
+    projectName: '',
+    projectCode: 'lexicon',
+    capped: false,
+    sort: {key: 'headword', asc: true},
+    filters: {search: '', pos: '', dom: ''},
+    visible: {},
+  };
+
+  // Column definitions. text(): display string; sortVal(): comparable value.
+  var COLUMNS = [
+    {key: 'headword', label: 'Headword', type: 'text', cls: 'vern', text: function (r) { return r.headword; }},
+    {key: 'gloss',    label: 'Gloss',    type: 'text', text: function (r) { return r.gloss; }},
+    {key: 'pos',      label: 'Part of speech', type: 'text', text: function (r) { return r.pos; }},
+    {key: 'domains',  label: 'Semantic domains', type: 'text', text: function (r) { return r.domainCodes.join(', '); }, title: function (r) { return r.domainNames.join('; '); }},
+    {key: 'senses',   label: '# Senses', type: 'num', text: function (r) { return r.senses; }},
+    {key: 'examples', label: '# Examples', type: 'num', text: function (r) { return r.examples; }},
+    {key: 'def',      label: 'Def.', type: 'bool', text: function (r) { return r.hasDef; }},
+    {key: 'note',     label: 'Note', type: 'bool', text: function (r) { return r.hasNote; }},
+  ];
+
+  function el(id) { return document.getElementById(id); }
+
+  function applyTheme(theme) {
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (prefersDark ? 'dark' : 'light'));
+  }
+
+  function showError(message) {
+    el('loading').style.display = 'none';
+    el('app-wrap').style.display = 'none';
+    var box = el('error');
+    box.style.display = 'block';
+    box.textContent = message;
+  }
+
+  function hasText(multiString) {
+    return multiString && Object.keys(multiString).some(function (ws) { return !!multiString[ws]; });
+  }
+  function headwordField(entry) {
+    return hasText(entry.citationForm) ? entry.citationForm : (entry.lexemeForm || {});
+  }
+  function firstValue(multiString, prefs) {
+    if (!multiString) return '';
+    try { return fw.firstValue(multiString, prefs) || ''; } catch (e) { return ''; }
+  }
+
+  // ---- storage ----------------------------------------------------------
+  function loadPrefs() {
+    return fw.storage.get(STORE).then(function (saved) {
+      if (!saved || typeof saved !== 'object') return;
+      if (saved.sort && saved.sort.key) state.sort = {key: saved.sort.key, asc: saved.sort.asc !== false};
+      if (saved.filters) {
+        state.filters.search = saved.filters.search || '';
+        state.filters.pos = saved.filters.pos || '';
+        state.filters.dom = saved.filters.dom || '';
+      }
+      if (saved.visible && typeof saved.visible === 'object') state.visible = saved.visible;
+    }).catch(function () { /* first run / no storage — ignore */ });
+  }
+  var saveTimer = null;
+  function savePrefs() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      fw.storage.set(STORE, {sort: state.sort, filters: state.filters, visible: state.visible})
+        .catch(function () { /* storage-full or unavailable — non-fatal */ });
+    }, 250);
+  }
+
+  // ---- data loading -----------------------------------------------------
+  function fetchAll(total) {
+    var target = Math.min(total, ENTRY_CAP);
+    var out = [];
+    function loadNext() {
+      if (out.length >= target) return Promise.resolve(out);
+      var limit = Math.min(PAGE_SIZE, target - out.length);
+      return fw.getEntries({limit: limit, offset: out.length}).then(function (page) {
+        out = out.concat(page);
+        el('loading-text').textContent = 'Loaded ' + out.length.toLocaleString() +
+          ' of ' + target.toLocaleString() + ' entries…';
+        if (!page.length || out.length >= target) return out;
+        return loadNext();
+      });
+    }
+    return loadNext();
+  }
+
+  function buildRow(entry) {
+    var senses = entry.senses || [];
+    var first = senses[0] || null;
+
+    var headword = firstValue(headwordField(entry), state.vernIds);
+    var gloss = first ? firstValue(first.gloss, state.analysisIds) : '';
+
+    var posName = '';
+    var posIds = [];
+    senses.forEach(function (s) {
+      var pos = s.partOfSpeech || state.posLookup[s.partOfSpeechId];
+      var pid = (pos && pos.id) || s.partOfSpeechId;
+      if (pid && posIds.indexOf(pid) === -1) posIds.push(pid);
+    });
+    if (first) {
+      var fp = first.partOfSpeech || state.posLookup[first.partOfSpeechId];
+      if (fp) posName = firstValue(fp.name, state.analysisIds);
+    }
+
+    var codes = [], names = [], seen = {};
+    senses.forEach(function (s) {
+      (s.semanticDomains || []).forEach(function (d) {
+        if (d && d.code && !seen[d.code]) {
+          seen[d.code] = 1;
+          codes.push(d.code);
+          names.push(firstValue(d.name, state.analysisIds) || d.code);
+        }
+      });
+    });
+
+    var examples = 0, glossBag = [];
+    senses.forEach(function (s) {
+      examples += (s.exampleSentences || []).length;
+      var g = firstValue(s.gloss, state.analysisIds);
+      if (g) glossBag.push(g);
+    });
+    var hasDef = senses.some(function (s) { return !!firstValue(s.definition, state.analysisIds); });
+    var hasNote = !!firstValue(entry.note, state.allIds);
+
+    return {
+      id: entry.id,
+      headword: headword,
+      gloss: gloss,
+      pos: posName,
+      posIds: posIds,
+      domainCodes: codes,
+      domainNames: names,
+      senses: senses.length,
+      examples: examples,
+      hasDef: hasDef,
+      hasNote: hasNote,
+      search: (headword + ' ' + glossBag.join(' ')).toLocaleLowerCase(),
+    };
+  }
+
+  // ---- filtering & sorting ---------------------------------------------
+  function filteredRows() {
+    var q = state.filters.search.trim().toLocaleLowerCase();
+    var pos = state.filters.pos;
+    var dom = state.filters.dom;
+    var list = state.rows.filter(function (r) {
+      if (q && r.search.indexOf(q) === -1) return false;
+      if (pos && r.posIds.indexOf(pos) === -1) return false;
+      if (dom && r.domainCodes.indexOf(dom) === -1) return false;
+      return true;
+    });
+
+    var col = colByKey(state.sort.key) || COLUMNS[0];
+    var dir = state.sort.asc ? 1 : -1;
+    if (col.type === 'num') {
+      list.sort(function (a, b) { return (col.text(a) - col.text(b)) * dir; });
+    } else if (col.type === 'bool') {
+      list.sort(function (a, b) { return ((col.text(a) ? 1 : 0) - (col.text(b) ? 1 : 0)) * dir; });
+    } else {
+      var collator = state.collator;
+      list.sort(function (a, b) { return collator.compare(String(col.text(a)), String(col.text(b))) * dir; });
+    }
+    return list;
+  }
+
+  function colByKey(key) {
+    for (var i = 0; i < COLUMNS.length; i++) if (COLUMNS[i].key === key) return COLUMNS[i];
+    return null;
+  }
+  function visibleColumns() {
+    return COLUMNS.filter(function (c) { return state.visible[c.key] !== false; });
+  }
+
+  // ---- rendering --------------------------------------------------------
+  function renderHead() {
+    var row = el('head-row');
+    row.innerHTML = '';
+    visibleColumns().forEach(function (col) {
+      var th = document.createElement('th');
+      if (col.type === 'num') th.className = 'num';
+      var active = state.sort.key === col.key;
+      if (active) th.classList.add('sorted');
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      var lbl = document.createElement('span');
+      lbl.textContent = col.label;
+      btn.appendChild(lbl);
+      var arr = document.createElement('span');
+      arr.className = 'arrow';
+      arr.textContent = active ? (state.sort.asc ? '▲' : '▼') : '▴';
+      btn.appendChild(arr);
+      btn.setAttribute('aria-label', 'Sort by ' + col.label);
+      btn.addEventListener('click', function () {
+        if (state.sort.key === col.key) state.sort.asc = !state.sort.asc;
+        else { state.sort.key = col.key; state.sort.asc = true; }
+        savePrefs();
+        render();
+      });
+      th.appendChild(btn);
+      row.appendChild(th);
+    });
+  }
+
+  function renderBody(list) {
+    var cols = visibleColumns();
+    var body = el('body');
+    body.innerHTML = '';
+    var frag = document.createDocumentFragment();
+    var limit = Math.min(list.length, RENDER_CAP);
+    for (var i = 0; i < limit; i++) {
+      var r = list[i];
+      var tr = document.createElement('tr');
+      tr.tabIndex = 0;
+      (function (id) {
+        tr.addEventListener('click', function () { openEntry(id); });
+        tr.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openEntry(id); }
+        });
+      })(r.id);
+      cols.forEach(function (col) {
+        var td = document.createElement('td');
+        if (col.type === 'num') {
+          td.className = 'num';
+          td.textContent = String(col.text(r));
+        } else if (col.type === 'bool') {
+          td.className = 'bool';
+          var mark = document.createElement('span');
+          var on = !!col.text(r);
+          mark.className = on ? 'yes' : 'no';
+          mark.textContent = on ? '✓' : '–';
+          td.appendChild(mark);
+        } else {
+          var val = col.text(r);
+          if (col.cls) td.className = col.cls;
+          if (!val) { td.classList.add('muted'); val = '—'; }
+          td.textContent = val;
+          var title = col.title ? col.title(r) : val;
+          if (title && title !== '—') td.title = title;
+        }
+        tr.appendChild(td);
+      });
+      frag.appendChild(tr);
+    }
+    body.appendChild(frag);
+  }
+
+  function openEntry(id) {
+    fw.openEntry(id).catch(function (err) {
+      fw.notify('Could not open entry: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  function render() {
+    var list = filteredRows();
+    state.lastList = list;
+
+    renderHead();
+    var showNone = list.length === 0;
+    el('no-results').style.display = showNone ? 'block' : 'none';
+    el('body').parentNode.parentNode.style.display = showNone ? 'none' : '';
+    renderBody(list);
+
+    el('count-note').textContent = 'Showing ' + Math.min(list.length, RENDER_CAP).toLocaleString() +
+      (list.length > RENDER_CAP ? ' of ' + list.length.toLocaleString() + ' matched' : '') +
+      ' · ' + list.length.toLocaleString() + ' of ' + state.rows.length.toLocaleString() + ' entries';
+
+    var renderNote = el('render-note');
+    if (list.length > RENDER_CAP) {
+      renderNote.style.display = '';
+      renderNote.textContent = 'Showing first ' + RENDER_CAP.toLocaleString() + ' rows — refine your filter to see more';
+    } else {
+      renderNote.style.display = 'none';
+    }
+  }
+
+  // ---- CSV export -------------------------------------------------------
+  function csvField(value) {
+    var s = String(value == null ? '' : value);
+    if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+  function csvCell(col, r) {
+    if (col.type === 'bool') return col.text(r) ? 'yes' : 'no';
+    return col.text(r);
+  }
+  function exportCsv() {
+    var cols = visibleColumns();
+    var list = state.lastList || filteredRows();
+    var lines = [cols.map(function (c) { return csvField(c.label); }).join(',')];
+    list.forEach(function (r) {
+      lines.push(cols.map(function (c) { return csvField(csvCell(c, r)); }).join(','));
+    });
+    // BOM so Excel reads UTF-8 vernacular text correctly.
+    var blob = new Blob(['﻿' + lines.join('\r\n')], {type: 'text/csv;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (state.projectCode || 'lexicon') + '-browse.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    fw.notify('Exported ' + list.length.toLocaleString() + ' rows to CSV.');
+  }
+
+  // ---- controls ---------------------------------------------------------
+  function fillSelect(select, options, chosen) {
+    options.forEach(function (o) {
+      var opt = document.createElement('option');
+      opt.value = o.value;
+      opt.textContent = o.label;
+      if (o.value === chosen) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  function buildColsPanel() {
+    var panel = el('cols-panel');
+    panel.innerHTML = '';
+    COLUMNS.forEach(function (col) {
+      var label = document.createElement('label');
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = state.visible[col.key] !== false;
+      cb.addEventListener('change', function () {
+        state.visible[col.key] = cb.checked;
+        // Keep at least one column visible.
+        if (!visibleColumns().length) { state.visible[col.key] = true; cb.checked = true; }
+        savePrefs();
+        render();
+      });
+      var span = document.createElement('span');
+      span.textContent = col.label;
+      label.appendChild(cb);
+      label.appendChild(span);
+      panel.appendChild(label);
+    });
+  }
+
+  function wireEvents() {
+    var searchTimer = null;
+    var search = el('search');
+    search.value = state.filters.search;
+    search.addEventListener('input', function () {
+      state.filters.search = this.value;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () { savePrefs(); render(); }, 130);
+    });
+    el('pos-filter').addEventListener('change', function () {
+      state.filters.pos = this.value; savePrefs(); render();
+    });
+    el('dom-filter').addEventListener('change', function () {
+      state.filters.dom = this.value; savePrefs(); render();
+    });
+    el('export-btn').addEventListener('click', exportCsv);
+  }
+
+  // ---- init -------------------------------------------------------------
+  function init(context) {
+    applyTheme(context.theme);
+    state.projectName = context.project.projectName;
+    state.projectCode = context.project.projectCode || 'lexicon';
+
+    Promise.all([
+      fw.getWritingSystems(),
+      fw.getPartsOfSpeech(),
+      fw.getSemanticDomains(),
+      fw.countEntries({}),
+      loadPrefs(),
+    ]).then(function (results) {
+      var ws = results[0];
+      var partsOfSpeech = results[1] || [];
+      var domains = results[2] || [];
+      var total = results[3];
+
+      var vern = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      var analysis = (ws.analysis || []).filter(function (w) { return !w.isAudio; });
+      state.vernIds = vern.map(function (w) { return w.wsId; });
+      state.analysisIds = analysis.map(function (w) { return w.wsId; });
+      state.allIds = state.vernIds.concat(state.analysisIds);
+      partsOfSpeech.forEach(function (p) { state.posLookup[p.id] = p; });
+
+      var vernFont = vern.length && vern[0].font ? vern[0].font : '';
+      if (vernFont) {
+        document.documentElement.style.setProperty('--vern-font', '"' + vernFont + '", system-ui, sans-serif');
+      }
+
+      var locale = state.vernIds[0] || undefined;
+      try { state.collator = new Intl.Collator(locale, {sensitivity: 'base', numeric: true}); }
+      catch (e) { state.collator = new Intl.Collator(undefined, {sensitivity: 'base', numeric: true}); }
+
+      if (total === 0) {
+        el('loading').style.display = 'none';
+        el('empty').style.display = 'block';
+        return;
+      }
+      state.capped = total > ENTRY_CAP;
+
+      return fetchAll(total).then(function (entries) {
+        state.rows = entries.map(buildRow);
+
+        // POS filter options (only those actually used).
+        var usedPos = {};
+        state.rows.forEach(function (r) { r.posIds.forEach(function (id) { usedPos[id] = true; }); });
+        var posOpts = partsOfSpeech.filter(function (p) { return usedPos[p.id]; }).map(function (p) {
+          return {value: p.id, label: firstValue(p.name, state.analysisIds) || '(unnamed)'};
+        }).sort(function (a, b) { return a.label.localeCompare(b.label); });
+        fillSelect(el('pos-filter'), posOpts, state.filters.pos);
+
+        // Domain filter options (only those actually used), labelled "code name".
+        var usedDom = {};
+        state.rows.forEach(function (r) {
+          r.domainCodes.forEach(function (c, i) { if (!usedDom[c]) usedDom[c] = r.domainNames[i]; });
+        });
+        var domOpts = Object.keys(usedDom).map(function (code) {
+          return {value: code, label: code + ' — ' + usedDom[code]};
+        }).sort(function (a, b) { return a.value.localeCompare(b.value, undefined, {numeric: true}); });
+        fillSelect(el('dom-filter'), domOpts, state.filters.dom);
+
+        // If a saved filter value no longer exists, drop it.
+        if (state.filters.pos && !usedPos[state.filters.pos]) { state.filters.pos = ''; el('pos-filter').value = ''; }
+        if (state.filters.dom && !usedDom[state.filters.dom]) { state.filters.dom = ''; el('dom-filter').value = ''; }
+        if (!colByKey(state.sort.key)) state.sort.key = 'headword';
+
+        buildColsPanel();
+        wireEvents();
+        render();
+
+        var cap = el('cap-note');
+        if (state.capped) {
+          cap.style.display = '';
+          cap.textContent = 'Loaded the first ' + ENTRY_CAP.toLocaleString() + ' of ' + total.toLocaleString() + ' entries';
+        }
+
+        el('subtitle').textContent = 'A sortable, filterable spreadsheet view of ' + state.projectName +
+          '. Click a row to open the entry.';
+        el('loading').style.display = 'none';
+        el('app-wrap').style.display = 'block';
+      });
+    }).catch(function (err) {
+      showError('Could not load the browse grid: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  fw.ready.then(init);
+})();
+</script>
+</body>
+</html>

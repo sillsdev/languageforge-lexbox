@@ -1,3 +1,4 @@
+using MiniLcm.Media;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.Entries;
@@ -260,6 +261,29 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var afterDelete = await Service.ProjectActivity(0, 100, new ActivityQuery());
         afterDelete.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<CustomView>)
             && a.Changes[0].Info.ObjectName == "My View");
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_NamesPluginSubject_EvenAfterDelete()
+    {
+        var id = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreatePluginChange(id, new Plugin
+        {
+            Id = id,
+            Name = "My Plugin",
+            MediaUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+        }), Meta());
+
+        var live = await Service.ProjectActivity(0, 100, new ActivityQuery());
+        live.Should().Contain(a => a.Changes.Count == 1
+            && a.Changes[0].Info.ObjectName == "My Plugin"
+            && a.Changes[0].Info.Entry == null);
+
+        await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Plugin>(id), Meta());
+
+        var afterDelete = await Service.ProjectActivity(0, 100, new ActivityQuery());
+        afterDelete.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<Plugin>)
+            && a.Changes[0].Info.ObjectName == "My Plugin");
     }
 
     [Fact]

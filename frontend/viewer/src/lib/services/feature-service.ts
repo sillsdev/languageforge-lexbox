@@ -1,7 +1,13 @@
-import type {IMiniLcmFeatures} from '$lib/dotnet-types';
+import {DotnetService, type IMiniLcmFeatures} from '$lib/dotnet-types';
+import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
+import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
 import {useProjectContext} from '$project/project-context.svelte';
 
 export type LexboxFeatures = IMiniLcmFeatures;
+
+function isAndroid(): boolean {
+  return window.lexbox.ServiceProvider.tryGetService(DotnetService.FwLiteConfig)?.os === FwLitePlatform.Android;
+}
 
 export function useFeatures(): LexboxFeatures {
   const context = useProjectContext();
@@ -36,6 +42,11 @@ export function useFeatures(): LexboxFeatures {
     },
     get fieldWorksSync() {
       return !!context.features.fieldWorksSync;
+    },
+    get plugins() {
+      // Off on Android: the Blazor WebView bootstrap there forwards every window message to
+      // JSInterop without checking its source, so a plugin frame could reach the app (#2917).
+      return !!context.features.plugins && hasFlag('plugins') && !isAndroid();
     },
   } satisfies Required<IMiniLcmFeatures>;
 }
