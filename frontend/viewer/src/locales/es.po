@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-03 05:04\n"
+"PO-Revision-Date: 2026-11-05 05:15\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -1837,6 +1837,7 @@ msgstr "Archivo cargado"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
 msgstr "Cargando actividad"
 
@@ -2665,6 +2666,10 @@ msgstr "Grabar Mostrar como"
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
 msgstr "Grabar Palabra o Mostrar como"
+
+#: src/lib/components/audio/audio-provider.svelte
+msgid "Recording isn't available on this device."
+msgstr "La grabación no está disponible en este dispositivo."
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
