@@ -255,6 +255,9 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             {
                 await using var scope = serviceProvider.CreateAsyncScope();
                 var projectData = await scope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
+                // A failed upload clears the origin, which would unbind a project that already syncs
+                if (projectData.OriginDomain is not null)
+                    throw new InvalidOperationException($"Project '{code}' already syncs with a server");
                 await scope.ServiceProvider.GetRequiredService<SyncService>().UploadProject(projectData.Id, server);
             }));
     }
