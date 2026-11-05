@@ -1935,6 +1935,10 @@ msgstr ""
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Para cualquier otra consulta, no dude en enviarnos un correo electrónico."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "From a USB drive or shared folder"
+msgstr ""
+
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
@@ -1946,7 +1950,7 @@ msgid "Fullscreen"
 msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
-msgid "Get a project from a USB drive or another folder"
+msgid "Get project from folder..."
 msgstr ""
 
 #. Button in feedback menu
@@ -2945,10 +2949,6 @@ msgstr "Abrir"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Directorio de datos abiertos"
-
-#: src/home/OpenFromFolderItem.svelte
-msgid "Open from folder..."
-msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in {0}"
@@ -4258,7 +4258,7 @@ msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's 
 msgstr ""
 
 #: src/project/sync/folder-sync-messages.ts
-msgid "This folder holds a different project, {0}, not the one that is open. To open that project, go to the home screen and choose Open from folder."
+msgid "This folder holds a different project, {0}, not the one that is open. To open that project, go to the home screen and choose Get project from folder."
 msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte

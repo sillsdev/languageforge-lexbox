@@ -63,8 +63,8 @@
 
 {#if platformFeatures.features.supportsFolderSync}
   <ListItem icon="i-mdi-folder-open-outline" class="mb-2" onclick={() => void openFromFolder()} {loading}>
-    <span>{$t`Open from folder...`}</span>
-    <span class="text-sm text-muted-foreground">{$t`Get a project from a USB drive or another folder`}</span>
+    <span>{$t`Get project from folder...`}</span>
+    <span class="text-sm text-muted-foreground">{$t`From a USB drive or shared folder`}</span>
   </ListItem>
 {/if}
 <FolderPicker bind:this={folderPicker} />

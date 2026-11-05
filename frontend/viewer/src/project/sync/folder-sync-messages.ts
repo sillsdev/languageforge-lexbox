@@ -41,7 +41,7 @@ export function folderSyncMessage(summary: IFolderSyncSummary, projectCode?: str
       return {message: gt`A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it.`, type: 'warning'};
     case FolderSyncStatus.DifferentProject:
       return {
-        message: gt`This folder holds a different project, ${summary.folderProjectName ?? ''}, not the one that is open. To open that project, go to the home screen and choose Open from folder.`,
+        message: gt`This folder holds a different project, ${summary.folderProjectName ?? ''}, not the one that is open. To open that project, go to the home screen and choose Get project from folder.`,
         type: 'warning',
       };
     case FolderSyncStatus.DifferentHistory:
